@@ -142,14 +142,14 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
     }
 
     if (VK_NULL_HANDLE == fVertShaderModule) {
-        SkASSERT(fFragShaderModule == VK_NULL_HANDLE && fPipelineLayout == nullptr &&
+        SkASSERT(fFragShaderModule == VK_NULL_HANDLE && fPipelineLayout == VK_NULL_HANDLE &&
                  fUniformBuffer.get() == nullptr);
         if (!this->createMSAALoadProgram(gpu)) {
             SkDebugf("Failed to create copy program.\n");
             return false;
         }
     }
-    SkASSERT(fPipelineLayout);
+    SkASSERT(fPipelineLayout != VK_NULL_HANDLE);
 
     GrVkResourceProvider& resourceProv = gpu->resourceProvider();
 
