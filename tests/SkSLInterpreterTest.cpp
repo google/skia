@@ -457,41 +457,6 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
          1, 2, 3, 2, 1, 2, 3, 1);
 }
 
-DEF_TEST(SkSLInterpreterWhile, r) {
-    test(r, "void main(inout half4 color) { while (color.r < 8) { color.r++; } }",
-         1, 2, 3, 4, 8, 2, 3, 4);
-    test(r, "void main(inout half4 color) { while (color.r < 1) color.r += 0.25; }", 0, 0, 0, 0, 1,
-         0, 0, 0);
-    test(r, "void main(inout half4 color) { while (color.r > 1) color.r -= 0.25; }", 0, 0, 0, 0, 0,
-         0, 0, 0);
-    test(r, "void main(inout half4 color) { while (true) { color.r += 0.5; "
-         "if (color.r > 5) break; } }", 0, 0, 0, 0, 5.5, 0, 0, 0);
-    test(r, "void main(inout half4 color) { while (color.r < 10) { color.r += 0.5; "
-            "if (color.r < 5) continue; break; } }", 0, 0, 0, 0, 5, 0, 0, 0);
-    test(r,
-         "void main(inout half4 color) {"
-         "    while (true) {"
-         "        if (color.r > 4) { break; }"
-         "        while (true) { color.a = 1; break; }"
-         "        break;"
-         "    }"
-         "}",
-         6, 5, 4, 3, 6, 5, 4, 3);
-}
-
-DEF_TEST(SkSLInterpreterDo, r) {
-    test(r, "void main(inout half4 color) { do color.r += 0.25; while (color.r < 1); }", 0, 0, 0, 0,
-         1, 0, 0, 0);
-    test(r, "void main(inout half4 color) { do color.r -= 0.25; while (color.r > 1); }", 0, 0, 0, 0,
-         -0.25, 0, 0, 0);
-    test(r, "void main(inout half4 color) { do { color.r += 0.5; if (color.r > 1) break; } while "
-            "(true); }", 0, 0, 0, 0, 1.5, 0, 0, 0);
-    test(r, "void main(inout half4 color) {do { color.r += 0.5; if (color.r < 5) "
-            "continue; if (color.r >= 5) break; } while (true); }", 0, 0, 0, 0, 5, 0, 0, 0);
-    test(r, "void main(inout half4 color) { do { color.r += 0.5; } while (false); }",
-         0, 0, 0, 0, 0.5, 0, 0, 0);
-}
-
 DEF_TEST(SkSLInterpreterFor, r) {
     test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }", 0, 0, 0,
          0, 55, 0, 0, 0);
@@ -679,7 +644,11 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
     SkSL::Program::Settings settings;
     auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                            SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
+    // Ideally, all failures would be detected by the IR generator, so this could be an assert.
+    // Some are still detected later (TODO: Fix this - skbug.com/11127).
+    if (!program) {
+        return;
+    }
 
     auto byteCode = compiler.toByteCode(*program);
     REPORTER_ASSERT(r, compiler.errorCount() > 0);
@@ -702,6 +671,12 @@ static void expect_run_failure(skiatest::Reporter* r, const char* src, float* in
     REPORTER_ASSERT(r, !result);
 }
 
+DEF_TEST(SkSLInterpreterRestrictLoops, r) {
+    // while and do-while loops are not allowed
+    expect_failure(r, "void main(inout float x) { while (x < 1) { x++; } }");
+    expect_failure(r, "void main(inout float x) { do { x++; } while (x < 1); }");
+}
+
 DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
     // Ensure that simple recursion is not allowed
     expect_failure(r, "float main() { return main() + 1; }");
@@ -711,7 +686,7 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
 
     // returns are not allowed inside loops
     expect_failure(r, "float main(float x)"
-                      "{ while (x > 1) { if (x > 2) { return x; } } return 0; }");
+                      "{ for (int i = 0; i < 1; i++) { if (x > 2) { return x; } } return 0; }");
 }
 
 DEF_TEST(SkSLInterpreterEarlyReturn, r) {
