@@ -115,6 +115,7 @@ protected:
         kMod_SpecialIntrinsic,
         kNormalize_SpecialIntrinsic,
         kRadians_SpecialIntrinsic,
+        kReflect_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
     };
 
@@ -234,6 +235,8 @@ protected:
 
     void writeMatrixCompMult();
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
+
+    void writeSimpleIntrinsic(const FunctionCall& c);
 
     void writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind);
 
