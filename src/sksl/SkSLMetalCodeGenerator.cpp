@@ -56,6 +56,7 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
     fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
     fIntrinsicMap[String("radians")]            = SPECIAL(Radians);
+    fIntrinsicMap[String("reflect")]            = SPECIAL(Reflect);
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
@@ -582,7 +583,20 @@ String MetalCodeGenerator::getTempVariable(const Type& type) {
     return tempVar;
 }
 
-void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
+void MetalCodeGenerator::writeSimpleIntrinsic(const FunctionCall& c) {
+    // Write out an intrinsic function call exactly as-is. No muss no fuss.
+    this->write(c.function().name());
+    this->write("(");
+    const char* separator = "";
+    for (const std::unique_ptr<Expression>& arg : c.arguments()) {
+        this->write(separator);
+        separator = ", ";
+        this->writeExpression(*arg, kSequence_Precedence);
+    }
+    this->write(")");
+}
+
+void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind) {
     const ExpressionArray& arguments = c.arguments();
     switch (kind) {
         case kTexture_SpecialIntrinsic: {
@@ -625,11 +639,7 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
                 this->writeExpression(*arguments[1], kAdditive_Precedence);
                 this->write(")");
             } else {
-                this->write("distance(");
-                this->writeExpression(*arguments[0], kSequence_Precedence);
-                this->write(", ");
-                this->writeExpression(*arguments[1], kSequence_Precedence);
-                this->write(")");
+                this->writeSimpleIntrinsic(c);
             }
             break;
         }
@@ -641,11 +651,7 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
                 this->writeExpression(*arguments[1], kMultiplicative_Precedence);
                 this->write(")");
             } else {
-                this->write("dot(");
-                this->writeExpression(*arguments[0], kSequence_Precedence);
-                this->write(", ");
-                this->writeExpression(*arguments[1], kSequence_Precedence);
-                this->write(")");
+                this->writeSimpleIntrinsic(c);
             }
             break;
         }
@@ -660,13 +666,7 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
                 this->writeExpression(*arguments[0], kSequence_Precedence);
                 this->write("))");
             } else {
-                this->write("faceforward(");
-                this->writeExpression(*arguments[0], kSequence_Precedence);
-                this->write(", ");
-                this->writeExpression(*arguments[1], kSequence_Precedence);
-                this->write(", ");
-                this->writeExpression(*arguments[2], kSequence_Precedence);
-                this->write(")");
+                this->writeSimpleIntrinsic(c);
             }
             break;
         }
@@ -699,6 +699,27 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write("((");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(") * 0.0174532925)");
+            break;
+        }
+        case kReflect_SpecialIntrinsic: {
+            if (arguments[0]->type().columns() == 1) {
+                // We need to synthesize `I - 2 * N * I * N`.
+                String tmpI = this->getTempVariable(arguments[0]->type());
+                String tmpN = this->getTempVariable(arguments[1]->type());
+
+                // (_skTempI = ...
+                this->write("(" + tmpI + " = ");
+                this->writeExpression(*arguments[0], kSequence_Precedence);
+
+                // , _skTempN = ...
+                this->write(", " + tmpN + " = ");
+                this->writeExpression(*arguments[1], kSequence_Precedence);
+
+                // , _skTempI - 2 * _skTempN * _skTempI * _skTempN)
+                this->write(", " + tmpI + " - 2 * " + tmpN + " * " + tmpI + " * " + tmpN + ")");
+            } else {
+                this->writeSimpleIntrinsic(c);
+            }
             break;
         }
         case kBitCount_SpecialIntrinsic: {
