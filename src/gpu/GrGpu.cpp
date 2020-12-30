@@ -47,6 +47,21 @@ GrGpu::~GrGpu() {
 void GrGpu::initCapsAndCompiler(sk_sp<const GrCaps> caps) {
     fCaps = std::move(caps);
     fCompiler = std::make_unique<SkSL::Compiler>(fCaps->shaderCaps());
+    switch (getContext()->backend()) {
+        case GrBackendApi::kOpenGL:
+            fCompiler->setGLSLBackend();
+            break;
+        case GrBackendApi::kVulkan:
+        case GrBackendApi::kDirect3D:
+        case GrBackendApi::kDawn:
+            fCompiler->setSPIRVBackend();
+            break;
+        case GrBackendApi::kMetal:
+            fCompiler->setMetalBackend();
+            break;
+        case GrBackendApi::kMock:
+            break;
+    }
 }
 
 void GrGpu::disconnect(DisconnectType type) {}
