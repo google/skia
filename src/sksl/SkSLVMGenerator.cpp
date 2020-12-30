@@ -101,6 +101,8 @@ private:
         // sksl_public.sksl declares these intrinsics (and defines some other inline)
 
         // Angle & Trigonometry
+        kRadians,
+        kDegrees,
         kSin,
         kCos,
         kTan,
@@ -139,7 +141,11 @@ private:
         kLength,
         kDistance,
         kDot,
+        kCross,
         kNormalize,
+        kFaceforward,
+        kReflect,
+        kRefract,
 
         // Matrix
         kMatrixCompMult,
@@ -336,16 +342,18 @@ SkVMGenerator::SkVMGenerator(const Program& program,
         , fLocalCoord(local)
         , fSampleChild(std::move(sampleChild))
         , fIntrinsics {
-            { "sin", Intrinsic::kSin },
-            { "cos", Intrinsic::kCos },
-            { "tan", Intrinsic::kTan },
-            { "asin", Intrinsic::kASin },
-            { "acos", Intrinsic::kACos },
-            { "atan", Intrinsic::kATan },
+            { "radians", Intrinsic::kRadians },
+            { "degrees", Intrinsic::kDegrees },
+            { "sin",     Intrinsic::kSin },
+            { "cos",     Intrinsic::kCos },
+            { "tan",     Intrinsic::kTan },
+            { "asin",    Intrinsic::kASin },
+            { "acos",    Intrinsic::kACos },
+            { "atan",    Intrinsic::kATan },
 
-            { "pow", Intrinsic::kPow },
-            { "exp", Intrinsic::kExp },
-            { "log", Intrinsic::kLog },
+            { "pow",  Intrinsic::kPow },
+            { "exp",  Intrinsic::kExp },
+            { "log",  Intrinsic::kLog },
             { "exp2", Intrinsic::kExp2 },
             { "log2", Intrinsic::kLog2 },
             { "sqrt", Intrinsic::kSqrt },
@@ -366,10 +374,14 @@ SkVMGenerator::SkVMGenerator(const Program& program,
             { "step",       Intrinsic::kStep },
             { "smoothstep", Intrinsic::kSmoothstep },
 
-            { "length",    Intrinsic::kLength },
-            { "distance",  Intrinsic::kDistance },
-            { "dot",       Intrinsic::kDot },
-            { "normalize", Intrinsic::kNormalize },
+            { "length",      Intrinsic::kLength },
+            { "distance",    Intrinsic::kDistance },
+            { "dot",         Intrinsic::kDot },
+            { "cross",       Intrinsic::kCross },
+            { "normalize",   Intrinsic::kNormalize },
+            { "faceforward", Intrinsic::kFaceforward },
+            { "reflect",     Intrinsic::kReflect },
+            { "refract",     Intrinsic::kRefract },
 
             { "matrixCompMult", Intrinsic::kMatrixCompMult },
             { "inverse",        Intrinsic::kInverse },
@@ -1024,6 +1036,11 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
     };
 
     switch (found->second) {
+        case Intrinsic::kRadians:
+            return unary(args[0], [](skvm::F32 deg) { return deg * (SK_FloatPI / 180); });
+        case Intrinsic::kDegrees:
+            return unary(args[0], [](skvm::F32 rad) { return rad * (180 / SK_FloatPI); });
+
         case Intrinsic::kSin: return unary(args[0], skvm::approx_sin);
         case Intrinsic::kCos: return unary(args[0], skvm::approx_cos);
         case Intrinsic::kTan: return unary(args[0], skvm::approx_tan);
@@ -1081,9 +1098,46 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             return skvm::sqrt(dot(vec, vec));
         }
         case Intrinsic::kDot: return dot(args[0], args[1]);
+        case Intrinsic::kCross: {
+            skvm::F32 ax = f32(args[0][0]), ay = f32(args[0][1]), az = f32(args[0][2]),
+                      bx = f32(args[1][0]), by = f32(args[1][1]), bz = f32(args[1][2]);
+            Value result(3);
+            result[0] = ay*bz - az*by;
+            result[1] = az*bx - ax*bz;
+            result[2] = ax*by - ay*bx;
+            return result;
+        }
         case Intrinsic::kNormalize: {
             skvm::F32 invLen = 1.0f / skvm::sqrt(dot(args[0], args[0]));
             return unary(args[0], [&](skvm::F32 x) { return x * invLen; });
+        }
+        case Intrinsic::kFaceforward: {
+            const Value &N    = args[0],
+                        &I    = args[1],
+                        &Nref = args[2];
+
+            skvm::F32 dotNrefI = dot(Nref, I);
+            return unary(N, [&](skvm::F32 n) { return select(dotNrefI<0, n, -n); });
+        }
+        case Intrinsic::kReflect: {
+            const Value &I = args[0],
+                        &N = args[1];
+
+            skvm::F32 dotNI = dot(N, I);
+            return binary([&](skvm::F32 i, skvm::F32 n) {
+                return i - 2*dotNI*n;
+            });
+        }
+        case Intrinsic::kRefract: {
+            const Value &I  = args[0],
+                        &N  = args[1];
+            skvm::F32   eta = f32(args[2]);
+
+            skvm::F32 dotNI = dot(N, I),
+                      k     = 1 - eta*eta*(1 - dotNI*dotNI);
+            return binary([&](skvm::F32 i, skvm::F32 n) {
+                return select(k<0, 0.0f, eta*i - (eta*dotNI + sqrt(k))*n);
+            });
         }
 
         case Intrinsic::kMatrixCompMult:

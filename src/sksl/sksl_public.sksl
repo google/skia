@@ -1,18 +1,12 @@
 // Reduced set of intrinsics that are available to public SkSL (RuntimeEffect and Interpreter)
 
 // See "The OpenGL ES Shading Language, Version 1.00, Section 8"
-// For all of the TODO comments, refer to skbug.com/10913
 
 // 8.1 : Angle and Trigonometry Functions
-float  radians(float  deg) { return deg * 0.0174532925; }
-float2 radians(float2 deg) { return deg * 0.0174532925; }
-float3 radians(float3 deg) { return deg * 0.0174532925; }
-float4 radians(float4 deg) { return deg * 0.0174532925; }
-
-float  degrees(float  rad) { return rad * 57.2957795; }
-float2 degrees(float2 rad) { return rad * 57.2957795; }
-float3 degrees(float3 rad) { return rad * 57.2957795; }
-float4 degrees(float4 rad) { return rad * 57.2957795; }
+$genType  radians($genType  degrees);
+$genHType radians($genHType degrees);
+$genType  degrees($genType  radians);
+$genHType degrees($genHType radians);
 
 $genType  sin($genType  angle);
 $genHType sin($genHType angle);
@@ -97,62 +91,16 @@ float distance($genType  p0, $genType  p1);
 half  distance($genHType p0, $genHType p1);
 float dot($genType  x, $genType  y);
 half  dot($genHType x, $genHType y);
-
-inline float3 cross(float3 a, float3 b) {
-    return float3(a.y * b.z - a.z * b.y,
-                  a.z * b.x - a.x * b.z,
-                  a.x * b.y - a.y * b.x);
-}
-
+float3 cross(float3 x, float3 y);
+half3  cross(half3  x, half3  y);
 $genType  normalize($genType  x);
 $genHType normalize($genHType x);
-
-inline float  faceforward(float  N, float  I, float  Nref) {
-    float v = dot(Nref, I) < 0 ? N : -N;
-    return v;
-}
-inline float2 faceforward(float2 N, float2 I, float2 Nref) {
-    float2 v = dot(Nref, I) < 0 ? N : -N;
-    return v;
-}
-inline float3 faceforward(float3 N, float3 I, float3 Nref) {
-    float3 v = dot(Nref, I) < 0 ? N : -N;
-    return v;
-}
-inline float4 faceforward(float4 N, float4 I, float4 Nref) {
-    float4 v = dot(Nref, I) < 0 ? N : -N;
-    return v;
-}
-
-inline float  reflect(float  I, float  N) { return I - 2 * dot(N, I) * N; }
-inline float2 reflect(float2 I, float2 N) { return I - 2 * dot(N, I) * N; }
-inline float3 reflect(float3 I, float3 N) { return I - 2 * dot(N, I) * N; }
-inline float4 reflect(float4 I, float4 N) { return I - 2 * dot(N, I) * N; }
-
-inline float refract(float I, float N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    float v = k < 0 ? float(0)
-                    : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-    return v;
-}
-inline float2 refract(float2 I, float2 N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    float2 v = k < 0 ? float2(0)
-                     : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-    return v;
-}
-inline float3 refract(float3 I, float3 N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    float3 v = k < 0 ? float3(0)
-                     : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-    return v;
-}
-inline float4 refract(float4 I, float4 N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    float4 v = k < 0 ? float4(0)
-                     : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-    return v;
-}
+$genType  faceforward($genType  N, $genType  I, $genType  Nref);
+$genHType faceforward($genHType N, $genHType I, $genHType Nref);
+$genType  reflect($genType  I, $genType  N);
+$genHType reflect($genHType I, $genHType N);
+$genType  refract($genType  I, $genType  N, float eta);
+$genHType refract($genHType I, $genHType N, float eta);
 
 // 8.5 : Matrix Functions
 $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
