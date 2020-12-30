@@ -445,7 +445,16 @@ public:
                                     GrSamplerState,
                                     const GrBackendFormat&) const {}
 
-    virtual GrProgramDesc makeDesc(GrRenderTarget*, const GrProgramInfo&) const = 0;
+    enum class ProgramDescOverrideFlags {
+        kNone = 0,
+        kVulkanHasResolveLoadSubpass = 0x1,
+    };
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ProgramDescOverrideFlags);
+
+
+    virtual GrProgramDesc makeDesc(
+            GrRenderTarget*, const GrProgramInfo&,
+            ProgramDescOverrideFlags overrideFlags = ProgramDescOverrideFlags::kNone) const = 0;
 
     // This method specifies, for each backend, the extra properties of a RT when Ganesh creates one
     // internally. For example, for Vulkan, Ganesh always creates RTs that can be used as input
@@ -581,5 +590,7 @@ private:
 
     using INHERITED = SkRefCnt;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrCaps::ProgramDescOverrideFlags);
 
 #endif
