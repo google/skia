@@ -1,5 +1,4 @@
+### Compilation failed:
 
-int foo(int x);
-void main() {
-    int x = foo(1);
-}
+error: 3: function 'int foo(int x)' is not defined
+1 error
