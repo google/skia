@@ -20,7 +20,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float _skTemp0;
     float _skTemp1;
     float4 _skTemp2;
-    float4 _skTemp3;
+    float _skTemp3;
     float4 _skTemp4;
     float4 _skTemp5;
     _out->sk_FragColor.x = (_skTemp0 = _in.a, _skTemp1 = _in.b, _skTemp0 - _skTemp1 * floor(_skTemp0 / _skTemp1));
