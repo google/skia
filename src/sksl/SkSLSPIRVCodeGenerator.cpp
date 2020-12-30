@@ -720,13 +720,13 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
     const FunctionDeclaration& function = c.function();
-    const ExpressionArray& arguments = c.arguments();
     auto intrinsic = fIntrinsicMap.find(function.name());
     if (intrinsic == fIntrinsicMap.end()) {
         fErrors.error(c.fOffset, "unsupported intrinsic '" + function.description() + "'");
         return -1;
     }
     int32_t intrinsicId;
+    const ExpressionArray& arguments = c.arguments();
     if (arguments.size() > 0) {
         const Type& type = arguments[0]->type();
         if (std::get<0>(intrinsic->second) == kSpecial_IntrinsicKind || is_float(fContext, type)) {
@@ -1079,10 +1079,14 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
 
 SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream& out) {
     const FunctionDeclaration& function = c.function();
+    if (function.isBuiltin() && !function.definition()) {
+        return this->writeIntrinsicCall(c, out);
+    }
     const ExpressionArray& arguments = c.arguments();
     const auto& entry = fFunctionMap.find(&function);
     if (entry == fFunctionMap.end()) {
-        return this->writeIntrinsicCall(c, out);
+        fErrors.error(c.fOffset, "function '" + function.description() + "' is not defined");
+        return -1;
     }
     // stores (variable, type, lvalue) pairs to extract and save after the function call is complete
     std::vector<std::tuple<SpvId, const Type*, std::unique_ptr<LValue>>> lvalues;

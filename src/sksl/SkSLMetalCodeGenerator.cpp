@@ -360,12 +360,15 @@ String MetalCodeGenerator::getBitcastIntrinsic(const Type& outType) {
 }
 
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    // Look for this function in the intrinsic map.
     const FunctionDeclaration& function = c.function();
-    auto iter = fIntrinsicMap.find(function.name());
-    if (iter != fIntrinsicMap.end()) {
-        this->writeIntrinsicCall(c, iter->second);
-        return;
+    // If this function is a built-in with no declaration, it's probably an intrinsic and might need
+    // special handling.
+    if (function.isBuiltin() && !function.definition()) {
+        auto iter = fIntrinsicMap.find(function.name());
+        if (iter != fIntrinsicMap.end()) {
+            this->writeIntrinsicCall(c, iter->second);
+            return;
+        }
     }
 
     // Determine whether or not we need to emulate GLSL's out-param semantics for Metal using a
