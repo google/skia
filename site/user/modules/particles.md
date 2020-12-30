@@ -65,7 +65,7 @@ Samples
   <figure>
     <canvas id=raincloud width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/cbf9d596fd0966b888aa6c2df5b8d695"
+      <a href="https://particles.skia.org/df5346ce2ab11a0f24e44143bded84d1"
          target=_blank rel=noopener>Raincloud</a>
     </figcaption>
   </figure>
@@ -431,12 +431,9 @@ const raincloud = {
          ],
          "Code": [
             "float2 circle(inout float seed) {",
-            "  float2 xy;",
-            "  do {",
-            "    xy.x = 2 * rand(seed) - 1;",
-            "    xy.y = 2 * rand(seed) - 1;",
-            "  } while (dot(xy, xy) > 1);",
-            "  return xy;",
+            "  float r = sqrt(rand(seed));",
+            "  float a = rand(seed) * 6.283185;",
+            "  return r * float2(sin(a), cos(a));",
             "}",
             "",
             "void spawn(inout Particle p) {",
