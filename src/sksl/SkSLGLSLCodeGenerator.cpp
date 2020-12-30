@@ -488,8 +488,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 #ifndef SKSL_STANDALONE
     );
 #endif
-    const auto found = function.isBuiltin() ? fFunctionClasses->find(function.name()) :
-                                              fFunctionClasses->end();
+    const auto found = (function.isBuiltin() && !function.definition())
+                               ? fFunctionClasses->find(function.name())
+                               : fFunctionClasses->end();
     bool isTextureFunctionWithBias = false;
     bool nameWritten = false;
     if (found != fFunctionClasses->end()) {
