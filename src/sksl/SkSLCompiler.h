@@ -141,6 +141,16 @@ public:
     Compiler& operator=(const Compiler&) = delete;
 
     /**
+     * It's not necessary to call set[...]Backend. This just allows the compiler to save a bit of
+     * memory in the IRIntrinsicMaps by discarding unused code. This should only to be called once,
+     * before the first call to convertProgram.
+     */
+    void setGLSLBackend();
+    void setMetalBackend();
+    void setSkVMBackend();
+    void setSPIRVBackend();
+
+    /**
      * If externalValues is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
@@ -275,6 +285,7 @@ private:
 
     std::shared_ptr<Context> fContext;
     const ShaderCapsClass* fCaps = nullptr;
+    int fPreservePolyfills = Modifiers::kPolyfill_Flag;
 
     std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fPrivateSymbolTable;
