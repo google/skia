@@ -31,10 +31,11 @@ public:
     public:
         // TODO: rotate
         enum Attr : size_t {
-            kX  = 0,
-            kY  = 1,
-            kDx = 2,
-            kDy = 3,
+            kX      = 0,
+            kY      = 1,
+            kDx     = 2,
+            kDy     = 3,
+            kRotate = 4,
         };
 
         float  operator[](Attr a) const { return fStorage[a]; }
@@ -42,13 +43,21 @@ public:
 
         bool has(Attr a) const { return fStorage[a] != kNone; }
         bool hasAny()    const {
-            return this->has(kX) || this->has(kY) || this->has(kDx) || this->has(kDy);
+            return this->has(kX)
+                || this->has(kY)
+                || this->has(kDx)
+                || this->has(kDy)
+                || this->has(kRotate);
         }
+
+        void setWeakRotate(bool weak) { fWeakRotate = weak; }
+        bool hasWeakRotate() const { return fWeakRotate; }
 
     private:
         static constexpr auto kNone = std::numeric_limits<float>::infinity();
 
-        float fStorage[4] = { kNone, kNone, kNone, kNone };
+        float fStorage[5] = { kNone, kNone, kNone, kNone, kNone };
+        bool  fWeakRotate = false;
     };
 
     // Helper for cascading position attribute resolution (x, y, dx, dy, rotate) [1]:
@@ -77,7 +86,8 @@ public:
         const std::vector<float> fX,
                                  fY,
                                  fDx,
-                                 fDy;
+                                 fDy,
+                                 fRotate;
 
         // cache for the last known index with explicit positioning
         mutable size_t           fLastPosIndex = std::numeric_limits<size_t>::max();
@@ -93,9 +103,15 @@ public:
     void flushChunk(const SkSVGRenderContext& ctx);
 
 private:
+    struct PositionAdjustment {
+        SkVector offset;
+        float    rotation;
+    };
+
     struct ShapeBuffer {
-        SkSTArray<128, char    , true> fUtf8;
-        SkSTArray<128, SkVector, true> fUtf8PosAdjust; // per-utf8-char cumulative pos adjustments
+        SkSTArray<128, char              , true> fUtf8;
+        // per-utf8-char cumulative pos adjustments
+        SkSTArray<128, PositionAdjustment, true> fUtf8PosAdjust;
 
         void reserve(size_t size) {
             fUtf8.reserve_back(SkToInt(size));
@@ -107,7 +123,7 @@ private:
             fUtf8PosAdjust.reset();
         }
 
-        void append(SkUnichar, SkVector);
+        void append(SkUnichar, PositionAdjustment);
     };
 
     struct RunRec {
@@ -116,6 +132,7 @@ private:
                                      strokePaint;
         std::unique_ptr<SkGlyphID[]> glyphs;
         std::unique_ptr<SkPoint[]>   glyphPos;
+        std::unique_ptr<float[]>     glyphRot;
         size_t                       glyphCount;
         SkVector                     advance;
     };
