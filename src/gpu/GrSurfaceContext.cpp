@@ -351,6 +351,10 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         return false;
     }
 
+    if (src.colorType() == GrColorType::kUnknown) {
+        return false;
+    }
+
     src = src.clip(this->dimensions(), &pt);
     if (!src.hasPixels()) {
         return false;
