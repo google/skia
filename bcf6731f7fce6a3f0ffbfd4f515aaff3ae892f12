@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24753658_3f6f5962",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-30T14:25:42Z",
+      "side": 1,
+      "message": "If we handle this with the existing Compiler::Flags (optional second argument to constructor), then there\u0027s no way to call it twice (or too late), right? I was even picturing that initCapsAndCompiler could take the flag (either the polyfill one, or a backend flag from the compiler itself) - that would put the mapping of GPU backend to SkSL backend in the corresponding GPU sub-class constructor.",
+      "range": {
+        "startLine": 145,
+        "startChar": 64,
+        "endLine": 146,
+        "endChar": 47
+      },
+      "revId": "bcf6731f7fce6a3f0ffbfd4f515aaff3ae892f12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
