@@ -13,6 +13,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkString.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
@@ -120,6 +121,7 @@ SkSVGTextContext::ScopedPosResolver::ScopedPosResolver(const SkSVGTextContainer&
     , fY(ResolveLengths(lctx, txt.getY(), SkSVGLengthContext::LengthType::kVertical))
     , fDx(ResolveLengths(lctx, txt.getDx(), SkSVGLengthContext::LengthType::kHorizontal))
     , fDy(ResolveLengths(lctx, txt.getDy(), SkSVGLengthContext::LengthType::kVertical))
+    , fRotate(ResolveLengths(lctx, txt.getRotate(), SkSVGLengthContext::LengthType::kOther))
 {
     fTextContext->fPosResolver = this;
 }
@@ -143,7 +145,8 @@ SkSVGTextContext::PosAttrs SkSVGTextContext::ScopedPosResolver::resolve(size_t c
         const auto hasAllLocal = localCharIndex < fX.size() &&
                                  localCharIndex < fY.size() &&
                                  localCharIndex < fDx.size() &&
-                                 localCharIndex < fDy.size();
+                                 localCharIndex < fDy.size() &&
+                                 localCharIndex < fRotate.size();
         if (!hasAllLocal && fParent) {
             attrs = fParent->resolve(charIndex);
         }
@@ -161,6 +164,24 @@ SkSVGTextContext::PosAttrs SkSVGTextContext::ScopedPosResolver::resolve(size_t c
             attrs[PosAttrs::kDy] = fDy[localCharIndex];
         }
 
+        if (!fRotate.empty()) {
+            if (localCharIndex < fRotate.size()) {
+                attrs[PosAttrs::kRotate] = fRotate[localCharIndex];
+                attrs.setWeakRotate(false);
+            } else if (!attrs.has(PosAttrs::kRotate) || attrs.hasWeakRotate()){
+                attrs[PosAttrs::kRotate] = fRotate.back();
+                attrs.setWeakRotate(true);
+            }
+        }
+
+//        if (localCharIndex < fRotate.size()) {
+//            attrs[PosAttrs::kRotate] = fRotate[localCharIndex];
+//            attrs.setWeakRotate(false);
+//        } else if (!attrs.has(PosAttrs::kRotate) && !fRotate.empty()) {
+//            attrs[PosAttrs::kRotate] = fRotate.back();
+//        }
+
+
         if (!attrs.hasAny()) {
             // Once we stop producing explicit position data, there is no reason to
             // continue trying for higher indices.  We can suppress future lookups.
@@ -171,10 +192,10 @@ SkSVGTextContext::PosAttrs SkSVGTextContext::ScopedPosResolver::resolve(size_t c
     return attrs;
 }
 
-void SkSVGTextContext::ShapeBuffer::append(SkUnichar ch, SkVector pos) {
+void SkSVGTextContext::ShapeBuffer::append(SkUnichar ch, PositionAdjustment pos) {
     // relative pos adjustments are cumulative
     if (!fUtf8PosAdjust.empty()) {
-        pos += fUtf8PosAdjust.back();
+        pos.offset   += fUtf8PosAdjust.back().offset;
     }
 
     char utf8_buf[SkUTF::kMaxBytesInUTF8Sequence];
@@ -273,8 +294,11 @@ void SkSVGTextContext::appendFragment(const SkString& txt, const SkSVGRenderCont
         }
 
         fShapeBuffer.append(ch, {
-            pos.has(PosAttrs::kDx) ? pos[PosAttrs::kDx] : 0,
-            pos.has(PosAttrs::kDy) ? pos[PosAttrs::kDy] : 0,
+            {
+                pos.has(PosAttrs::kDx) ? pos[PosAttrs::kDx] : 0,
+                pos.has(PosAttrs::kDy) ? pos[PosAttrs::kDy] : 0,
+            },
+            pos.has(PosAttrs::kRotate) ? pos[PosAttrs::kRotate] : 0,
         });
 
         fPrevCharSpace = (ch == ' ');
@@ -293,9 +317,15 @@ void SkSVGTextContext::flushChunk(const SkSVGRenderContext& ctx) {
     SkTextBlobBuilder blobBuilder;
 
     for (const auto& run : fRuns) {
-        const auto& buf = blobBuilder.allocRunPos(run.font, SkToInt(run.glyphCount));
-        std::copy(run.glyphs  .get(), run.glyphs  .get() + run.glyphCount, buf.glyphs);
-        std::copy(run.glyphPos.get(), run.glyphPos.get() + run.glyphCount, buf.points());
+        const auto& buf = blobBuilder.allocRunRSXform(run.font, SkToInt(run.glyphCount));
+        std::copy(run.glyphs.get(), run.glyphs.get() + run.glyphCount, buf.glyphs);
+        for (size_t i = 0; i < run.glyphCount; ++i) {
+            const auto& pos = run.glyphPos[i];
+            const auto& rot = run.glyphRot[i];
+            buf.xforms()[i] = SkRSXform::MakeFromRadians(/*scale=*/ 1,
+                                                         SkDegreesToRadians(rot),
+                                                         pos.fX, pos.fY, 0, 0);
+        }
 
         // Technically, blobs with compatible paints could be merged --
         // but likely not worth the effort.
@@ -324,6 +354,7 @@ SkShaper::RunHandler::Buffer SkSVGTextContext::runBuffer(const RunInfo& ri) {
         fCurrentStroke ? std::make_unique<SkPaint>(*fCurrentStroke) : nullptr,
         std::make_unique<SkGlyphID[]>(ri.glyphCount),
         std::make_unique<SkPoint[]  >(ri.glyphCount),
+        std::make_unique<float[]    >(ri.glyphCount),
         ri.glyphCount,
         ri.fAdvance,
     });
@@ -341,15 +372,20 @@ SkShaper::RunHandler::Buffer SkSVGTextContext::runBuffer(const RunInfo& ri) {
 }
 
 void SkSVGTextContext::commitRunBuffer(const RunInfo& ri) {
+    const auto& current_run = fRuns.back();
+
     // apply position adjustments
     for (size_t i = 0; i < ri.glyphCount; ++i) {
         const auto utf8_index = fShapeClusterBuffer[i];
-        fRuns.back().glyphPos[i] += fShapeBuffer.fUtf8PosAdjust[SkToInt(utf8_index)];
+        const auto& pos = fShapeBuffer.fUtf8PosAdjust[SkToInt(utf8_index)];
+
+        current_run.glyphPos[i] += pos.offset;
+        current_run.glyphRot[i]  = pos.rotation;
     }
 
     // Position adjustments are cumulative - we only need to advance the current chunk
     // with the last value.
-    fChunkAdvance += ri.fAdvance + fShapeBuffer.fUtf8PosAdjust.back();
+    fChunkAdvance += ri.fAdvance + fShapeBuffer.fUtf8PosAdjust.back().offset;
 }
 
 void SkSVGTextFragment::renderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
@@ -407,6 +443,8 @@ bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* valu
            this->setY(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("y", name, value)) ||
            this->setDx(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("dx", name, value)) ||
            this->setDy(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("dy", name, value)) ||
+           this->setRotate(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("rotate",
+                                                                                 name, value)) ||
            this->setXmlSpace(SkSVGAttributeParser::parse<SkSVGXmlSpace>("xml:space", name, value));
 }
 
