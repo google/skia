@@ -132,7 +132,14 @@ public:
      * @param src           source for the write
      * @param dstPt         offset w/in the surface context at which to write
      */
-    bool writePixels(GrDirectContext* dContext, GrPixmap src, SkIPoint dstPt);
+    bool writePixels(GrDirectContext* dContext,
+                     GrPixmap src,
+                     SkIPoint dstPt,
+                     bool prepForSampling = false);
+    bool writePixels(GrDirectContext* dContext,
+                     const GrPixmap src[],
+                     int numLevels,
+                     bool prepForSampling = false);
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
@@ -241,6 +248,12 @@ private:
      *       of fSurfaceContext.
      */
     bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+
+    bool internalWritePixels(GrDirectContext* dContext,
+                             const GrPixmap src[],
+                             int numLevels,
+                             SkIPoint,
+                             bool prepForSampling);
 
     class AsyncReadResult;
 

@@ -826,6 +826,23 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
 
     this->bindTextureToScratchUnit(glTex->target(), glTex->textureID());
 
+    // If we have mips make sure the base/max levels cover the full range so that the uploads go to
+    // the right levels. We've found some Radeons require this.
+    if (mipLevelCount && this->glCaps().mipmapLevelControlSupport()) {
+        auto params = glTex->parameters();
+        GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
+        int maxLevel = glTex->maxMipmapLevel();
+        if (params->nonsamplerState().fBaseMipMapLevel != 0) {
+            GL_CALL(TexParameteri(glTex->target(), GR_GL_TEXTURE_BASE_LEVEL, 0));
+            nonsamplerState.fBaseMipMapLevel = 0;
+        }
+        if (params->nonsamplerState().fMaxMipmapLevel != maxLevel) {
+            GL_CALL(TexParameteri(glTex->target(), GR_GL_TEXTURE_MAX_LEVEL, maxLevel));
+            nonsamplerState.fBaseMipMapLevel = maxLevel;
+        }
+        params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
+    }
+
     SkASSERT(!GrGLFormatIsCompressed(glTex->format()));
     SkIRect dstRect = SkIRect::MakeXYWH(left, top, width, height);
     return this->uploadColorTypeTexData(glTex->format(), surfaceColorType, glTex->dimensions(),
