@@ -1,1 +1,6 @@
-in half4 a, b; void main() { sk_FragColor.x = dot(a, b); }
+in half a, b;
+in half4 c, d;
+void main() {
+    sk_FragColor.x = dot(a, b);
+    sk_FragColor.x = dot(c, d);
+}

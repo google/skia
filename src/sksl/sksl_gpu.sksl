@@ -126,16 +126,16 @@ float4 unpackUnorm4x8(uint p);
 float4 unpackSnorm4x8(uint p);
 uint packHalf2x16(float2 v);
 float2 unpackHalf2x16(uint v);
-float length($genType x);
-half length($genHType x);
-float distance($genType p0, $genType p1);
-half distance($genHType p0, $genHType p1);
-float dot($genType x, $genType y);
-half dot($genHType x, $genHType y);
+float length($vec x);
+half length($hvec x);
+float distance($vec p0, $vec p1);
+half distance($hvec p0, $hvec p1);
+float dot($vec x, $vec y);
+half dot($hvec x, $hvec y);
 float3 cross(float3 x, float3 y);
 half3 cross(half3 x, half3 y);
-$genType normalize($genType x);
-$genHType normalize($genHType x);
+$vec normalize($vec x);
+$hvec normalize($hvec x);
 $vec faceforward($vec N, $vec I, $vec Nref);
 $hvec faceforward($hvec N, $hvec I, $hvec Nref);
 $genType reflect($genType I, $genType N);
@@ -280,6 +280,14 @@ $polyfill_metal float faceforward(float N, float I, float Nref) {
 $polyfill_metal half faceforward(half N, half I, half Nref) {
     return ((Nref * I) < 0) ? N : -N;
 }
+$polyfill_metal float dot(float a, float b)        { return a * b; }
+$polyfill_metal half  dot(half a, half b)          { return a * b; }
+$polyfill_metal float normalize(float x)           { return sign(x); }
+$polyfill_metal half  normalize(half x)            { return sign(x); }
+$polyfill_metal float length(float x)              { return abs(x); }
+$polyfill_metal half  length(half x)               { return abs(x); }
+$polyfill_metal float distance(float p0, float p1) { return abs(p0 - p1); }
+$polyfill_metal half  distance(half p0, half p1)   { return abs(p0 - p1); }
 
 // Definitions of functions implementing all of the SkBlendMode blends.
 
