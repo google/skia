@@ -138,10 +138,10 @@ $vec normalize($vec x);
 $hvec normalize($hvec x);
 $vec faceforward($vec N, $vec I, $vec Nref);
 $hvec faceforward($hvec N, $hvec I, $hvec Nref);
-$genType reflect($genType I, $genType N);
-$genHType reflect($genHType I, $genHType N);
-$genType refract($genType I, $genType N, float eta);
-$genHType refract($genHType I, $genHType N, float eta);
+$vec reflect($vec I, $vec N);
+$hvec reflect($hvec I, $hvec N);
+$vec refract($vec I, $vec N, float eta);
+$hvec refract($hvec I, $hvec N, float eta);
 $mat matrixCompMult($mat x, $mat y);
 $hmat matrixCompMult($hmat x, $hmat y);
 float2x2 outerProduct(float2 c, float2 r);
@@ -279,6 +279,24 @@ $polyfill_metal float faceforward(float N, float I, float Nref) {
 }
 $polyfill_metal half faceforward(half N, half I, half Nref) {
     return ((Nref * I) < 0) ? N : -N;
+}
+$polyfill_metal float reflect(float I, float N) {
+    return I - 2 * (N * I) * N;
+}
+$polyfill_metal half reflect(half I, half N) {
+    return I - 2 * (N * I) * N;
+}
+$polyfill_metal float refract(float I, float N, float eta) {
+    float k = 1 - eta * eta * (1 - (N * I) * (N * I));
+    float v = k < 0 ? float(0)
+                    : eta * I - (eta * (N * I) + sqrt(k)) * N;
+    return v;
+}
+$polyfill_metal half refract(half I, half N, half eta) {
+    half k = 1 - eta * eta * (1 - (N * I) * (N * I));
+    half v = k < 0 ? half(0)
+                   : eta * I - (eta * (N * I) + sqrt(k)) * N;
+    return v;
 }
 $polyfill_metal float dot(float a, float b)        { return a * b; }
 $polyfill_metal half  dot(half a, half b)          { return a * b; }

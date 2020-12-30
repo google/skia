@@ -5,10 +5,19 @@ struct Inputs {
     float a;
     float b;
     float c;
+    float4 d;
+    float4 e;
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float refract(float I, float N, float eta) {
+    float k = 1.0 - (eta * eta) * (1.0 - (N * I) * (N * I));
+    float v = k < 0.0 ? 0.0 : eta * I - (eta * (N * I) + sqrt(k)) * N;
+    return v;
+}
+
+
 
 
 
@@ -16,5 +25,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     _out->sk_FragColor.x = refract(_in.a, _in.b, _in.c);
+    _out->sk_FragColor = refract(_in.d, _in.e, _in.c);
     return *_out;
 }
