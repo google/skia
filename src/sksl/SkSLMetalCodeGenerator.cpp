@@ -606,9 +606,9 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             break;
         }
         case kMod_SpecialIntrinsic: {
-            // fmod(x, y) in metal calculates x - y * trunc(x / y) instead of x - y * floor(x / y)
+            // mod(x, y) in metal calculates x - y * trunc(x / y) instead of x - y * floor(x / y)
             String tmpX = this->getTempVariable(arguments[0]->type());
-            String tmpY = this->getTempVariable(arguments[0]->type());
+            String tmpY = this->getTempVariable(arguments[1]->type());
             this->write("(" + tmpX + " = ");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(", " + tmpY + " = ");
