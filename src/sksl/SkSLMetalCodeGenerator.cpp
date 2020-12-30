@@ -45,12 +45,9 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("floatBitsToUint")]    = SPECIAL(Bitcast);
     fIntrinsicMap[String("intBitsToFloat")]     = SPECIAL(Bitcast);
     fIntrinsicMap[String("uintBitsToFloat")]    = SPECIAL(Bitcast);
-    fIntrinsicMap[String("degrees")]            = SPECIAL(Degrees);
     fIntrinsicMap[String("bitCount")]           = SPECIAL(BitCount);
     fIntrinsicMap[String("findLSB")]            = SPECIAL(FindLSB);
     fIntrinsicMap[String("findMSB")]            = SPECIAL(FindMSB);
-    fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
-    fIntrinsicMap[String("radians")]            = SPECIAL(Radians);
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
@@ -600,34 +597,11 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             }
             break;
         }
-        case kMod_SpecialIntrinsic: {
-            // fmod(x, y) in metal calculates x - y * trunc(x / y) instead of x - y * floor(x / y)
-            String tmpX = this->getTempVariable(arguments[0]->type());
-            String tmpY = this->getTempVariable(arguments[0]->type());
-            this->write("(" + tmpX + " = ");
-            this->writeExpression(*arguments[0], kSequence_Precedence);
-            this->write(", " + tmpY + " = ");
-            this->writeExpression(*arguments[1], kSequence_Precedence);
-            this->write(", " + tmpX + " - " + tmpY + " * floor(" + tmpX + " / " + tmpY + "))");
-            break;
-        }
         case kBitcast_SpecialIntrinsic: {
             this->write(this->getBitcastIntrinsic(c.type()));
             this->write("(");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(")");
-            break;
-        }
-        case kDegrees_SpecialIntrinsic: {
-            this->write("((");
-            this->writeExpression(*arguments[0], kSequence_Precedence);
-            this->write(") * 57.2957795)");
-            break;
-        }
-        case kRadians_SpecialIntrinsic: {
-            this->write("((");
-            this->writeExpression(*arguments[0], kSequence_Precedence);
-            this->write(") * 0.0174532925)");
             break;
         }
         case kBitCount_SpecialIntrinsic: {

@@ -105,11 +105,8 @@ protected:
     enum SpecialIntrinsic {
         kBitcast_SpecialIntrinsic,
         kBitCount_SpecialIntrinsic,
-        kDegrees_SpecialIntrinsic,
         kFindLSB_SpecialIntrinsic,
         kFindMSB_SpecialIntrinsic,
-        kMod_SpecialIntrinsic,
-        kRadians_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
     };
 

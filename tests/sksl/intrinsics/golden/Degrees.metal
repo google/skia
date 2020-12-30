@@ -7,10 +7,13 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float degrees(float r) {
+    return r * 57.295780181884766;
+}
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.x = ((_in.a) * 57.2957795);
+    _out->sk_FragColor.x = degrees(_in.a);
     return *_out;
 }

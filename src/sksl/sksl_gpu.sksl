@@ -1,7 +1,5 @@
 // defines built-in functions supported by SkSL when running on a GPU
 
-$genType radians($genType degrees);
-$genType degrees($genType radians);
 $genType sin($genType angle);
 $genType cos($genType angle);
 $genType tan($genType angle);
@@ -21,8 +19,6 @@ $genType log($genType x);
 $genType exp2($genType x);
 $genType log2($genType x);
 $genType sqrt($genType x);
-$genHType radians($genHType degrees);
-$genHType degrees($genHType radians);
 $genHType sin($genHType angle);
 $genHType cos($genHType angle);
 $genHType tan($genHType angle);
@@ -62,10 +58,6 @@ $genType ceil($genType x);
 $genHType ceil($genHType x);
 $genType fract($genType x);
 $genHType fract($genHType x);
-$genType mod($genType x, float y);
-$genType mod($genType x, $genType y);
-$genHType mod($genHType x, half y);
-$genHType mod($genHType x, $genHType y);
 $genType modf($genType x, out $genType i);
 $genHType modf($genHType x, out $genHType i);
 $genType min($genType x, $genType y);
@@ -274,20 +266,47 @@ float3 interpolateAtOffset(float3 interpolant, float2 offset);
 float4 interpolateAtOffset(float4 interpolant, float2 offset);
 
 // Intrinsics that need to be polyfilled in Metal.
-$polyfill_metal float faceforward(float N, float I, float Nref) {
-    return ((Nref * I) < 0) ? N : -N;
-}
-$polyfill_metal half faceforward(half N, half I, half Nref) {
-    return ((Nref * I) < 0) ? N : -N;
-}
-$polyfill_metal float dot(float a, float b)        { return a * b; }
-$polyfill_metal half  dot(half a, half b)          { return a * b; }
-$polyfill_metal float normalize(float x)           { return sign(x); }
-$polyfill_metal half  normalize(half x)            { return sign(x); }
-$polyfill_metal float length(float x)              { return abs(x); }
-$polyfill_metal half  length(half x)               { return abs(x); }
-$polyfill_metal float distance(float p0, float p1) { return abs(p0 - p1); }
-$polyfill_metal half  distance(half p0, half p1)   { return abs(p0 - p1); }
+$polyfill_metal float  faceforward(float N, float I, float Nref) { return ((Nref * I) < 0) ? N : -N; }
+$polyfill_metal half   faceforward(half N, half I, half Nref)    { return ((Nref * I) < 0) ? N : -N; }
+$polyfill_metal float  dot(float a, float b)        { return a * b; }
+$polyfill_metal half   dot(half a, half b)          { return a * b; }
+$polyfill_metal float  normalize(float x)           { return sign(x); }
+$polyfill_metal half   normalize(half x)            { return sign(x); }
+$polyfill_metal float  length(float x)              { return abs(x); }
+$polyfill_metal half   length(half x)               { return abs(x); }
+$polyfill_metal float  distance(float p0, float p1) { return abs(p0 - p1); }
+$polyfill_metal half   distance(half p0, half p1)   { return abs(p0 - p1); }
+$polyfill_metal half   radians(half d)              { return d * 0.01745329251; }
+$polyfill_metal half2  radians(half2 d)             { return d * 0.01745329251; }
+$polyfill_metal half3  radians(half3 d)             { return d * 0.01745329251; }
+$polyfill_metal half4  radians(half4 d)             { return d * 0.01745329251; }
+$polyfill_metal float  radians(float d)             { return d * 0.01745329251; }
+$polyfill_metal float2 radians(float2 d)            { return d * 0.01745329251; }
+$polyfill_metal float3 radians(float3 d)            { return d * 0.01745329251; }
+$polyfill_metal float4 radians(float4 d)            { return d * 0.01745329251; }
+$polyfill_metal half   degrees(half r)              { return r * 57.29577951; }
+$polyfill_metal half2  degrees(half2 r)             { return r * 57.29577951; }
+$polyfill_metal half3  degrees(half3 r)             { return r * 57.29577951; }
+$polyfill_metal half4  degrees(half4 r)             { return r * 57.29577951; }
+$polyfill_metal float  degrees(float r)             { return r * 57.29577951; }
+$polyfill_metal float2 degrees(float2 r)            { return r * 57.29577951; }
+$polyfill_metal float3 degrees(float3 r)            { return r * 57.29577951; }
+$polyfill_metal float4 degrees(float4 r)            { return r * 57.29577951; }
+$polyfill_metal float  mod(float a, float b)        { return a - b * floor(a / b); }
+$polyfill_metal float2 mod(float2 a, float b)       { return a - b * floor(a / b); }
+$polyfill_metal float3 mod(float3 a, float b)       { return a - b * floor(a / b); }
+$polyfill_metal float4 mod(float4 a, float b)       { return a - b * floor(a / b); }
+$polyfill_metal float2 mod(float2 a, float2 b)      { return a - b * floor(a / b); }
+$polyfill_metal float3 mod(float3 a, float3 b)      { return a - b * floor(a / b); }
+$polyfill_metal float4 mod(float4 a, float4 b)      { return a - b * floor(a / b); }
+$polyfill_metal half   mod(half a, half b)          { return a - b * floor(a / b); }
+$polyfill_metal half2  mod(half2 a, half b)         { return a - b * floor(a / b); }
+$polyfill_metal half3  mod(half3 a, half b)         { return a - b * floor(a / b); }
+$polyfill_metal half4  mod(half4 a, half b)         { return a - b * floor(a / b); }
+$polyfill_metal half2  mod(half2 a, half2 b)        { return a - b * floor(a / b); }
+$polyfill_metal half3  mod(half3 a, half3 b)        { return a - b * floor(a / b); }
+$polyfill_metal half4  mod(half4 a, half4 b)        { return a - b * floor(a / b); }
+
 
 // Definitions of functions implementing all of the SkBlendMode blends.
 
