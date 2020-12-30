@@ -725,17 +725,18 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             std::vector<const Variable*>(),
             fContext.fVoid_Type.get(),
             fIsBuiltinCode));
-    fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
-                                                                     invokeDecl, fIsBuiltinCode,
-                                                                     std::move(main)));
-
+    auto invokeDef = std::make_unique<FunctionDefinition>(/*offset=*/-1, invokeDecl, fIsBuiltinCode,
+                                                          std::move(main));
+    invokeDecl->setDefinition(invokeDef.get());
+    fProgramElements->push_back(std::move(invokeDef));
     std::vector<std::unique_ptr<VarDeclaration>> variables;
     const Variable* loopIdx = &(*fSymbolTable)["sk_InvocationID"]->as<Variable>();
-    auto test = std::make_unique<BinaryExpression>(/*offset=*/-1,
-                    std::make_unique<VariableReference>(/*offset=*/-1, loopIdx),
-                    Token::Kind::TK_LT,
-                    std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations),
-                    fContext.fBool_Type.get());
+    auto test = std::make_unique<BinaryExpression>(
+            /*offset=*/-1,
+            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx),
+            Token::Kind::TK_LT,
+            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations),
+            fContext.fBool_Type.get());
     auto next = std::make_unique<PostfixExpression>(
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
                                                 VariableReference::RefKind::kReadWrite),
@@ -746,18 +747,19 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
 
     StatementArray loopBody;
     loopBody.reserve_back(2);
-    loopBody.push_back(std::make_unique<ExpressionStatement>(this->call(
-                                                    /*offset=*/-1, *invokeDecl,
-                                                    ExpressionArray{})));
-    loopBody.push_back(std::make_unique<ExpressionStatement>(this->call(
-                                                    /*offset=*/-1, std::move(endPrimitive),
-                                                    ExpressionArray{})));
-    auto assignment = std::make_unique<BinaryExpression>(/*offset=*/-1,
-                    std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
-                                                        VariableReference::RefKind::kWrite),
-                    Token::Kind::TK_EQ,
-                    std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0),
-                    fContext.fInt_Type.get());
+    loopBody.push_back(std::make_unique<ExpressionStatement>(this->call(/*offset=*/-1,
+                                                                        *invokeDecl,
+                                                                        ExpressionArray{})));
+    loopBody.push_back(std::make_unique<ExpressionStatement>(this->call(/*offset=*/-1,
+                                                                        std::move(endPrimitive),
+                                                                        ExpressionArray{})));
+    auto assignment = std::make_unique<BinaryExpression>(
+            /*offset=*/-1,
+            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
+                                                VariableReference::RefKind::kWrite),
+            Token::Kind::TK_EQ,
+            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0),
+            fContext.fInt_Type.get());
     auto initializer = std::make_unique<ExpressionStatement>(std::move(assignment));
     auto loop = std::make_unique<ForStatement>(/*offset=*/-1,
                                                std::move(initializer),
@@ -766,7 +768,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                fSymbolTable);
     StatementArray children;
     children.push_back(std::move(loop));
-    return std::make_unique<Block>(-1, std::move(children));
+    return std::make_unique<Block>(/*offset=*/-1, std::move(children));
 }
 
 std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
