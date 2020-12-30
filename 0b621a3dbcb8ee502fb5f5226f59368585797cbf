@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7b725c8_1b6c1d05",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-30T21:08:09Z",
+      "side": 1,
+      "message": "I don\u0027t follow this comment--the errors on while and do-while ARE handled during IR generation. Why would these only be caught at toByteCode time?\n\n(\"returns are not allowed inside loops\" seems like it would only be caught at compilation time, but that was added in an earlier patchset before this comment existed.)\n\nAlso--that \"(for now)\" tag seems like a sneaky hidden TODO. Shall we tag this line with TODO(skia:XXXXX) instead?",
+      "range": {
+        "startLine": 647,
+        "startChar": 0,
+        "endLine": 651,
+        "endChar": 5
+      },
+      "revId": "0b621a3dbcb8ee502fb5f5226f59368585797cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
