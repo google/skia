@@ -5,12 +5,13 @@
 * found in the LICENSE file.
 */
 
+#include "src/gpu/vk/GrVkPipeline.h"
+
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
-#include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
@@ -514,10 +515,12 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
                                    const GrXferProcessor::BlendInfo& blendInfo,
                                    bool isWireframe,
                                    bool useConservativeRaster,
+                                   uint32_t subpass,
                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                    int shaderStageCount,
                                    VkRenderPass compatibleRenderPass,
                                    VkPipelineLayout layout,
+                                   bool ownsLayout,
                                    VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
@@ -597,7 +600,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
     pipelineCreateInfo.pDynamicState = &dynamicInfo;
     pipelineCreateInfo.layout = layout;
     pipelineCreateInfo.renderPass = compatibleRenderPass;
-    pipelineCreateInfo.subpass = 0;
+    pipelineCreateInfo.subpass = subpass;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
 
@@ -617,6 +620,9 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
         return nullptr;
     }
 
+    if (!ownsLayout) {
+        layout = VK_NULL_HANDLE;
+    }
     return new GrVkPipeline(gpu, vkPipeline, layout);
 }
 
@@ -629,6 +635,16 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
                                    VkPipelineCache cache) {
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
     const GrPipeline& pipeline = programInfo.pipeline();
+
+    // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
+    // However, if we need to load a resolve into msaa attachment for discardable msaa then the
+    // main subpass will be 1.
+    uint32_t subpass = 0;
+    if (programInfo.colorLoadOp() == GrLoadOp::kLoad && programInfo.targetSupportsVkResolveLoad() &&
+        gpu->vkCaps().preferDiscardableMSAAAttachment()) {
+        subpass = 1;
+    }
+
     return Create(gpu,
                   primProc.vertexAttributes(),
                   primProc.instanceAttributes(),
@@ -641,16 +657,21 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
                   pipeline.getXferProcessor().getBlendInfo(),
                   pipeline.isWireframe(),
                   pipeline.usesConservativeRaster(),
+                  subpass,
                   shaderStageInfo,
                   shaderStageCount,
-                  compatibleRenderPass, layout, cache);
-
+                  compatibleRenderPass,
+                  layout,
+                  /*ownsLayout=*/true,
+                  cache);
 }
 
 void GrVkPipeline::freeGPUData() const {
     GR_VK_CALL(fGpu->vkInterface(), DestroyPipeline(fGpu->device(), fPipeline, nullptr));
-    GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), fPipelineLayout,
-               nullptr));
+    if (fPipelineLayout != VK_NULL_HANDLE) {
+        GR_VK_CALL(fGpu->vkInterface(),
+                   DestroyPipelineLayout(fGpu->device(), fPipelineLayout, nullptr));
+    }
 }
 
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,

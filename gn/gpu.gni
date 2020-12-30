@@ -723,6 +723,8 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkImageView.h",
   "$_src/gpu/vk/GrVkInterface.cpp",
   "$_src/gpu/vk/GrVkInterface.h",
+  "$_src/gpu/vk/GrVkMSAALoadManager.cpp",
+  "$_src/gpu/vk/GrVkMSAALoadManager.h",
   "$_src/gpu/vk/GrVkManagedResource.h",
   "$_src/gpu/vk/GrVkMemory.cpp",
   "$_src/gpu/vk/GrVkMemory.h",
