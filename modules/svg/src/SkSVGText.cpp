@@ -13,6 +13,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkString.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
@@ -293,9 +294,15 @@ void SkSVGTextContext::flushChunk(const SkSVGRenderContext& ctx) {
     SkTextBlobBuilder blobBuilder;
 
     for (const auto& run : fRuns) {
-        const auto& buf = blobBuilder.allocRunPos(run.font, SkToInt(run.glyphCount));
-        std::copy(run.glyphs  .get(), run.glyphs  .get() + run.glyphCount, buf.glyphs);
-        std::copy(run.glyphPos.get(), run.glyphPos.get() + run.glyphCount, buf.points());
+        const auto& buf = blobBuilder.allocRunRSXform(run.font, SkToInt(run.glyphCount));
+        std::copy(run.glyphs.get(), run.glyphs.get() + run.glyphCount, buf.glyphs);
+        for (size_t i = 0; i < run.glyphCount; ++i) {
+            const auto& pos = run.glyphPos[i];
+            const auto rotation = 0.0f; // TODO
+            buf.xforms()[i] = SkRSXform::MakeFromRadians(/*scale=*/1,
+                                                         rotation,
+                                                         pos.fX, pos.fY, 0, 0);
+        }
 
         // Technically, blobs with compatible paints could be merged --
         // but likely not worth the effort.
