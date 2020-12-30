@@ -205,7 +205,8 @@ private:
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
     void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
                        const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
-                       const SkMatrix* preViewMatrix, const SkPaint&, SkCanvas::SrcRectConstraint);
+                       const SkMatrix* preViewMatrix, const SkSamplingOptions&,
+                       const SkPaint&, SkCanvas::SrcRectConstraint);
 
     // FIXME(michaelludwig) - Should be removed in favor of using drawImageQuad with edge flags to
     // for every element in the SkLatticeIter.
