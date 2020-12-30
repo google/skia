@@ -77,6 +77,7 @@ private:
             fCaps->fCanUseDoLoops = false;
 
             fCompiler = new SkSL::Compiler(fCaps.get());
+            fCompiler->setSkVMBackend();
 
             // Using an inline threshold of zero would stop all inlining, and cause us to re-emit
             // SkSL that is nearly identical to what was ingested. That would be in the spirit of

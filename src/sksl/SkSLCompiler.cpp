@@ -173,6 +173,22 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
 
 Compiler::~Compiler() {}
 
+void Compiler::setGLSLBackend() {
+    fPreservePolyfills = 0;  // We don't polyfill anything in GLSL.
+}
+
+void Compiler::setMetalBackend() {
+    fPreservePolyfills = Modifiers::kPolyfillMetal_Flag;
+}
+
+void Compiler::setSkVMBackend() {
+    fPreservePolyfills = Modifiers::kPolyfillSkvm_Flag;
+}
+
+void Compiler::setSPIRVBackend() {
+    fPreservePolyfills = Modifiers::kPolyfillSpirv_Flag;
+}
+
 const ParsedModule& Compiler::loadGPUModule() {
     if (!fGPUModule.fSymbols) {
         fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fPrivateModule);
@@ -344,11 +360,13 @@ ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const Pa
             case ProgramElement::Kind::kFunction: {
                 const FunctionDefinition& f = element->as<FunctionDefinition>();
                 SkASSERT(f.declaration().isBuiltin());
-                intrinsics->insertOrDie(f.declaration().description(), std::move(element));
+                if (!f.declaration().shouldPrunePolyfillFunction(fPreservePolyfills)) {
+                    intrinsics->insertOrDie(f.declaration().description(), std::move(element));
+                }
                 break;
             }
             case ProgramElement::Kind::kFunctionPrototype: {
-                // These are already in the symbol table.
+                // Function prototypes are already in the symbol table.
                 break;
             }
             case ProgramElement::Kind::kEnum: {

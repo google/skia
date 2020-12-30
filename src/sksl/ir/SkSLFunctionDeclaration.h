@@ -103,7 +103,6 @@ public:
      */
     bool shouldPrunePolyfillFunction(int keepFlag) const {
         SkASSERT(!(keepFlag & ~Modifiers::kPolyfill_Flag));
-        SkASSERT(keepFlag & Modifiers::kPolyfill_Flag);
         return this->isPolyfill() && !(this->modifiers().fFlags & keepFlag);
     }
 
