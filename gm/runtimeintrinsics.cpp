@@ -289,25 +289,25 @@ DEF_SIMPLE_GM(runtime_intrinsics_geometric,
     next_row(canvas);
 }
 
-#define SKSL_MATRIX_SELECTORS                       \
-            "inline float2 sel2(float x) {"         \
-            "    return float2("                    \
-            "      x <  0.5 ? 1 : 0,"               \
-            "      x >= 0.5 ? 1 : 0);"              \
-            "}"                                     \
-            "inline float3 sel3(float x) {"         \
-            "    return float3("                    \
-            "      x <  0.33             ? 1 : 0,"  \
-            "      x >= 0.33 && x < 0.66 ? 1 : 0,"  \
-            "      x >= 0.66             ? 1 : 0);" \
-            "}"                                     \
-            "inline float4 sel4(float x) {"         \
-            "    return float4("                    \
-            "      x <  0.25             ? 1 : 0,"  \
-            "      x >= 0.25 && x < 0.5  ? 1 : 0,"  \
-            "      x >= 0.5  && x < 0.75 ? 1 : 0,"  \
-            "      x >= 0.75             ? 1 : 0);" \
-            "}"
+#define SKSL_MATRIX_SELECTORS               \
+    "inline float2 sel2(float x) {"         \
+    "    return float2("                    \
+    "      x <  0.5 ? 1 : 0,"               \
+    "      x >= 0.5 ? 1 : 0);"              \
+    "}"                                     \
+    "inline float3 sel3(float x) {"         \
+    "    return float3("                    \
+    "      x <  0.33             ? 1 : 0,"  \
+    "      x >= 0.33 && x < 0.66 ? 1 : 0,"  \
+    "      x >= 0.66             ? 1 : 0);" \
+    "}"                                     \
+    "inline float4 sel4(float x) {"         \
+    "    return float4("                    \
+    "      x <  0.25             ? 1 : 0,"  \
+    "      x >= 0.25 && x < 0.5  ? 1 : 0,"  \
+    "      x >= 0.5  && x < 0.75 ? 1 : 0,"  \
+    "      x >= 0.75             ? 1 : 0);" \
+    "}"
 
 // Shader for testing matrixCompMult intrinsic
 static SkString make_matrix_comp_mult_sksl(int dim) {
@@ -349,11 +349,49 @@ static void plot_matrix_comp_mult(SkCanvas* canvas,
     next_column(canvas);
 }
 
+// Shader for testing inverse() intrinsic
+static SkString make_matrix_inverse_sksl(int dim) {
+    return SkStringPrintf(
+            "uniform float scale; uniform float bias;"
+            "uniform float%dx%d m;"                    // dim, dim
+            SKSL_MATRIX_SELECTORS
+            "half4 main(float2 p) {"
+            "    float%d colSel = sel%d(p.x);"         // dim, dim
+            "    float%d rowSel = sel%d(p.y);"         // dim, dim
+            "    float%d col = inverse(m) * colSel;"   // dim
+            "    float  v = dot(col, rowSel) * scale + bias;"
+            "    return v.xxx1;"
+            "}", dim, dim, dim, dim, dim, dim, dim);
+}
+
+template <int N>
+static void plot_matrix_inverse(SkCanvas* canvas, std::array<float, N*N> mtx, const char* label) {
+    canvas->save();
+
+    draw_label(canvas, label);
+
+    auto [effect, error] = SkRuntimeEffect::Make(make_matrix_inverse_sksl(N));
+    if (!effect) {
+        SkDebugf("Error: %s\n", error.c_str());
+        return;
+    }
+
+    SkRuntimeShaderBuilder builder(effect);
+    builder.uniform("scale") = 0.5f;
+    builder.uniform("bias")  = 0.5f;
+    builder.uniform("m")     = mtx;
+
+    draw_shader(canvas, builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false));
+
+    canvas->restore();
+    next_column(canvas);
+}
+
 // The OpenGL ES Shading Language, Version 1.00, Section 8.5
 DEF_SIMPLE_GM(runtime_intrinsics_matrix,
               canvas,
               columns_to_width(3),
-              rows_to_height(1)) {
+              rows_to_height(2)) {
     canvas->translate(kPadding, kPadding);
     canvas->save();
 
@@ -374,6 +412,26 @@ DEF_SIMPLE_GM(runtime_intrinsics_matrix,
                              {0.75f, 2.0f, 0.2f, 1.2f, -0.8f, -0.1f, -1.8f, 0.25f, 2.00f, 2.00f,
                               0.03f, -1.00f, -1.0f, -0.5f, 1.7f, 0.66f},
                              "compMult(4x4)");
+    next_row(canvas);
+
+    // Random, invertible matrices where the elements of inverse(m) lie in [-1, 1]
+    plot_matrix_inverse<2>(canvas,
+                           { 1.20f,  0.68f,
+                            -0.27f, -1.55f},
+                           "inverse(2x2)");
+
+    plot_matrix_inverse<3>(canvas,
+                           {-1.13f, -2.96f, -0.14f,
+                             1.45f, -1.88f, -1.02f,
+                            -2.54f, -2.58f, -1.17f},
+                           "inverse(3x3)");
+
+    plot_matrix_inverse<4>(canvas,
+                           {-1.51f, -3.95f, -0.19f,  1.93f,
+                            -2.51f, -1.35f, -3.39f, -3.45f,
+                            -1.56f,  1.61f, -0.22f, -1.08f,
+                            -2.81f, -2.14f, -0.09f,  3.00f},
+                           "inverse(4x4)");
     next_row(canvas);
 }
 

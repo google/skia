@@ -829,7 +829,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "gm", "_", "encode-platform")
 	}
 
-	if b.model("AndroidOne") && b.gpu() { // skia:4697, skia:4704, skia:4694, skia:4705
+	if b.model("AndroidOne") && b.gpu() { // skia:4697, skia:4704, skia:4694, skia:4705, skia:11133
 		skip("_", "gm", "_", "bigblurs")
 		skip("_", "gm", "_", "strict_constraint_no_red_allowed")
 		skip("_", "gm", "_", "fast_constraint_red_is_allowed")
@@ -841,6 +841,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "gm", "_", "imageresizetiled")
 		skip("_", "gm", "_", "matrixconvolution")
 		skip("_", "gm", "_", "strokedlines")
+		skip("_", "gm", "_", "runtime_intrinsics_matrix")
 		if sampleCount > 0 {
 			glMsaaConfig := fmt.Sprintf("%smsaa%d", glPrefix, sampleCount)
 			skip(glMsaaConfig, "gm", "_", "imageblurtiled")
