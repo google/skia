@@ -98,35 +98,33 @@ protected:
     static constexpr Requirements kFragCoord_Requirement = 1 << 4;
 
     enum IntrinsicKind {
-        kSpecial_IntrinsicKind,
-        kMetal_IntrinsicKind,
-    };
-
-    enum SpecialIntrinsic {
-        kBitcast_SpecialIntrinsic,
-        kBitCount_SpecialIntrinsic,
-        kDegrees_SpecialIntrinsic,
-        kDistance_SpecialIntrinsic,
-        kDot_SpecialIntrinsic,
-        kFaceforward_SpecialIntrinsic,
-        kFindLSB_SpecialIntrinsic,
-        kFindMSB_SpecialIntrinsic,
-        kLength_SpecialIntrinsic,
-        kMod_SpecialIntrinsic,
-        kNormalize_SpecialIntrinsic,
-        kRadians_SpecialIntrinsic,
-        kReflect_SpecialIntrinsic,
-        kRefract_SpecialIntrinsic,
-        kTexture_SpecialIntrinsic,
-    };
-
-    enum MetalIntrinsic {
-        kEqual_MetalIntrinsic,
-        kNotEqual_MetalIntrinsic,
-        kLessThan_MetalIntrinsic,
-        kLessThanEqual_MetalIntrinsic,
-        kGreaterThan_MetalIntrinsic,
-        kGreaterThanEqual_MetalIntrinsic,
+        kAtan_IntrinsicKind,
+        kBitcast_IntrinsicKind,
+        kBitCount_IntrinsicKind,
+        kCompareEqual_IntrinsicKind,
+        kCompareGreaterThan_IntrinsicKind,
+        kCompareGreaterThanEqual_IntrinsicKind,
+        kCompareLessThan_IntrinsicKind,
+        kCompareLessThanEqual_IntrinsicKind,
+        kCompareNotEqual_IntrinsicKind,
+        kDegrees_IntrinsicKind,
+        kDFdx_IntrinsicKind,
+        kDFdy_IntrinsicKind,
+        kDistance_IntrinsicKind,
+        kDot_IntrinsicKind,
+        kFaceforward_IntrinsicKind,
+        kFindLSB_IntrinsicKind,
+        kFindMSB_IntrinsicKind,
+        kInverse_IntrinsicKind,
+        kInversesqrt_IntrinsicKind,
+        kLength_IntrinsicKind,
+        kMatrixCompMult_IntrinsicKind,
+        kMod_IntrinsicKind,
+        kNormalize_IntrinsicKind,
+        kRadians_IntrinsicKind,
+        kReflect_IntrinsicKind,
+        kRefract_IntrinsicKind,
+        kTexture_IntrinsicKind,
     };
 
     static const char* OperatorName(Token::Kind op);
@@ -166,6 +164,7 @@ protected:
     int alignment(const Type* type, bool isPacked) const;
 
     void writeGlobalStruct();
+
     void writeGlobalInit();
 
     void writePrecisionModifier();
@@ -213,15 +212,13 @@ protected:
 
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
 
-    void writeIntrinsicCall(const FunctionCall& c);
-
     void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
     String getOutParamHelper(const FunctionCall& c,
                              const ExpressionArray& arguments,
                              const SkTArray<VariableReference*>& outVars);
 
-    String getInverseHack(const Expression& mat);
+    String getInversePolyfill(const ExpressionArray& arguments);
 
     String getBitcastIntrinsic(const Type& outType);
 
@@ -237,9 +234,11 @@ protected:
     void writeMatrixCompMult();
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
 
+    void writeArgumentList(const ExpressionArray& arguments);
+
     void writeSimpleIntrinsic(const FunctionCall& c);
 
-    void writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind);
+    void writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind);
 
     bool canCoerce(const Type& t1, const Type& t2);
 
@@ -295,8 +294,7 @@ protected:
 
     Requirements requirements(const Statement* s);
 
-    typedef std::pair<IntrinsicKind, int32_t> Intrinsic;
-    std::unordered_map<String, Intrinsic> fIntrinsicMap;
+    std::unordered_map<String, IntrinsicKind> fIntrinsicMap;
     std::unordered_set<String> fReservedWords;
     std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
     std::unordered_map<const InterfaceBlock*, String> fInterfaceBlockNameMap;
