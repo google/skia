@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "814fe4a4_d044a6da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-30T15:45:35Z",
+      "side": 1,
+      "message": "This is counter to the polyfill approach we\u0027re using for Metal/SPIRV, but I think it\u0027s justified:\n\nFor Metal and Vulkan, many/most intrinsics are natively supported, so the ones we\u0027re poly-filling with SkSL are just the \"extras\". It\u0027s also *much* easier to write them in SkSL than in the corresponding generators (string pasting or spirv-op sequences).\n\nFor SkVM, *all* intrinsics need to be implemented, so the previous divide was arbitrary (which ones were difficult or cumbersome to implement in the byte code generator).",
+      "revId": "95f4ea54f3cf5a4066dac003f63dc0d0cff41eba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
