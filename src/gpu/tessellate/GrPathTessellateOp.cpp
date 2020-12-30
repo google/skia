@@ -172,12 +172,9 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
     SkASSERT(!fStencilTrianglesProgram);
     SkASSERT(!fFillTrianglesProgram);
 
-    using GrTriangulator::Mode;
-
-    fTriangleVertexCount = GrTriangulator::PathToTriangles(fPath, 0, SkRect::MakeEmpty(),
-                                                           args.fInnerTriangleAllocator,
-                                                           Mode::kSimpleInnerPolygons,
-                                                           isLinear);
+    fTriangleVertexCount = GrTriangulator::PathToTriangles(
+            fPath, 0, SkRect::MakeEmpty(), args.fInnerTriangleAllocator,
+            GrTriangulator::Mode::kSimpleInnerPolygons, isLinear);
     if (fTriangleVertexCount == 0) {
         // Mode::kSimpleInnerPolygons causes PathToTriangles to fail if the inner polygon(s) are not
         // simple.
