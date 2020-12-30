@@ -169,24 +169,24 @@ protected:
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
-    void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
-                         const SkPaint*, SrcRectConstraint) override;
-    void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
-                            const SkPaint*) override;
-    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
-                     int, SkBlendMode, const SkRect*, const SkPaint*) override;
-#endif
-    void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
-                      const SkPaint*) override;
-    void onDrawImageRect2(const SkImage*, const SkRect&, const SkRect&, const SkSamplingOptions&,
-                          const SkPaint*, SrcRectConstraint) override;
-    void onDrawImageLattice2(const SkImage*, const Lattice&, const SkRect&, SkFilterMode,
-                             const SkPaint*) override;
-    void onDrawAtlas2(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
-                     SkBlendMode, const SkSamplingOptions&, const SkRect*, const SkPaint*) override;
-
+    void onDrawImageLattice(const SkImage* image,
+                            const Lattice& lattice,
+                            const SkRect&  dst,
+                            const SkPaint* paint) override;
+    void onDrawImageRect(const SkImage*,
+                         const SkRect* src,
+                         const SkRect& dst,
+                         const SkPaint*,
+                         SrcRectConstraint) override;
+    void onDrawAtlas(const SkImage*,
+                     const SkRSXform[],
+                     const SkRect[],
+                     const SkColor[],
+                     int,
+                     SkBlendMode,
+                     const SkRect*,
+                     const SkPaint*) override;
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;

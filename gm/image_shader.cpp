@@ -196,8 +196,7 @@ DEF_SIMPLE_GM(drawimage_sampling, canvas, 500, 500) {
 
             canvas->translate(dst.width() + 4, 0);
 
-            canvas->drawImageRect(img.get(), src, dst, sampling, nullptr,
-                                  SkCanvas::kFast_SrcRectConstraint);
+            canvas->drawImageRect(img.get(), src, dst, sampling);
             canvas->restore();
 
             canvas->translate(0, dst.height() + 8);

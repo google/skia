@@ -230,7 +230,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
 
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(100, 100);
-    canvas->drawImage(image.get(), 0, 0, SkSamplingOptions());
+    canvas->drawImage(image, 0, 0);
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     REPORTER_ASSERT(reporter, picture);
     REPORTER_ASSERT(reporter, picture->approximateOpCount() > 0);

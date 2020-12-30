@@ -402,7 +402,6 @@ void DebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData*
     this->addDrawCommand(new DrawAnnotationCommand(rect, key, sk_ref_sp(value)));
 }
 
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 void DebugCanvas::onDrawImage(const SkImage* image,
                               SkScalar       left,
                               SkScalar       top,
@@ -435,58 +434,6 @@ void DebugCanvas::onDrawImageRect(const SkImage*    image,
             fLayerManager, fnextDrawImageRectLayerId, fFrame, src, dst, paint, constraint));
     } else {
         this->addDrawCommand(new DrawImageRectCommand(image, src, dst, paint, constraint));
-    }
-    // Reset expectation so next drawImageRect is not special.
-    fnextDrawImageRectLayerId = -1;
-}
-void DebugCanvas::onDrawAtlas(const SkImage*   image,
-                               const SkRSXform xform[],
-                               const SkRect    tex[],
-                               const SkColor   colors[],
-                               int             count,
-                               SkBlendMode     bmode,
-                               const SkRect*   cull,
-                               const SkPaint*  paint) {
-    this->addDrawCommand(
-            new DrawAtlasCommand(image, xform, tex, colors, count, bmode, cull, paint));
-}
-#endif
-
-void DebugCanvas::onDrawImage2(const SkImage*           image,
-                               SkScalar                 left,
-                               SkScalar                 top,
-                               const SkSamplingOptions& sampling,   // todo
-                               const SkPaint*           paint) {
-    this->addDrawCommand(new DrawImageCommand(image, left, top, paint));
-}
-
-void DebugCanvas::onDrawImageLattice2(const SkImage* image,
-                                      const Lattice& lattice,
-                                      const SkRect&  dst,
-                                      SkFilterMode filter,   // todo
-                                      const SkPaint* paint) {
-    this->addDrawCommand(new DrawImageLatticeCommand(image, lattice, dst, paint));
-}
-
-void DebugCanvas::onDrawImageRect2(const SkImage*           image,
-                                   const SkRect&            src,
-                                   const SkRect&            dst,
-                                   const SkSamplingOptions& sampling,   // todo
-                                   const SkPaint*           paint,
-                                   SrcRectConstraint        constraint) {
-    if (fnextDrawImageRectLayerId != -1 && fLayerManager) {
-        // This drawImageRect command would have drawn the offscreen buffer for a layer.
-        // On Android, we recorded an SkPicture of the commands that drew to the layer.
-        // To render the layer as it would have looked on the frame this DebugCanvas draws, we need
-        // to call fLayerManager->getLayerAsImage(id). This must be done just before
-        // drawTo(command), since it depends on the index into the layer's commands
-        // (managed by fLayerManager)
-        // Instead of adding a DrawImageRectCommand, we need a deferred command, that when
-        // executed, will call drawImageRect(fLayerManager->getLayerAsImage())
-        this->addDrawCommand(new DrawImageRectLayerCommand(
-            fLayerManager, fnextDrawImageRectLayerId, fFrame, &src, dst, paint, constraint));
-    } else {
-        this->addDrawCommand(new DrawImageRectCommand(image, &src, dst, paint, constraint));
     }
     // Reset expectation so next drawImageRect is not special.
     fnextDrawImageRectLayerId = -1;
@@ -578,15 +525,14 @@ void DebugCanvas::onDrawVerticesObject(const SkVertices*      vertices,
             new DrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode, paint));
 }
 
-void DebugCanvas::onDrawAtlas2(const SkImage*           image,
-                               const SkRSXform          xform[],
-                               const SkRect             tex[],
-                               const SkColor            colors[],
-                               int                      count,
-                               SkBlendMode              bmode,
-                               const SkSamplingOptions& sampling,
-                               const SkRect*            cull,
-                               const SkPaint*           paint) {
+void DebugCanvas::onDrawAtlas(const SkImage*  image,
+                              const SkRSXform xform[],
+                              const SkRect    tex[],
+                              const SkColor   colors[],
+                              int             count,
+                              SkBlendMode     bmode,
+                              const SkRect*   cull,
+                              const SkPaint*  paint) {
     this->addDrawCommand(
             new DrawAtlasCommand(image, xform, tex, colors, count, bmode, cull, paint));
 }

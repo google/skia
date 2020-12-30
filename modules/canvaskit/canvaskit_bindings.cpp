@@ -932,8 +932,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                               const SkPaint* paint)->void {
             const SkRect* src = reinterpret_cast<const SkRect*>(srcPtr);
             const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
-            auto constraint = SkCanvas::kStrict_SrcRectConstraint;  // TODO: get from caller
-            self.drawImageRect(image.get(), *src, *dst, SkSamplingOptions({B, C}), paint, constraint);
+            self.drawImageRect(image.get(), *src, *dst, SkSamplingOptions({B, C}), paint);
         }), allow_raw_pointers())
         .function("_drawImageRectOptions", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                                 uintptr_t /* float* */ srcPtr, uintptr_t /* float* */ dstPtr,
@@ -941,8 +940,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                                 const SkPaint* paint)->void {
             const SkRect* src = reinterpret_cast<const SkRect*>(srcPtr);
             const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
-            auto constraint = SkCanvas::kStrict_SrcRectConstraint;  // TODO: get from caller
-            self.drawImageRect(image.get(), *src, *dst, {filter, mipmap}, paint, constraint);
+            self.drawImageRect(image.get(), *src, *dst, {filter, mipmap}, paint);
         }), allow_raw_pointers())
         .function("drawLine", select_overload<void (SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawLine))
         .function("_drawOval", optional_override([](SkCanvas& self, uintptr_t /* float* */ fPtr,

@@ -15,7 +15,6 @@
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkTSearch.h"
 #include "src/image/SkImage_Base.h"
 #include "src/utils/SkPatchUtils.h"
@@ -535,7 +534,6 @@ void SkPictureRecord::onDrawPath(const SkPath& path, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
                                   const SkPaint* paint) {
     // op + paint_index + image_index + x + y
@@ -576,87 +574,6 @@ void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& la
     this->addImage(image);
     (void)SkCanvasPriv::WriteLattice(fWriter.reservePad(latticeSize), lattice);
     this->addRect(dst);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                                  const SkColor colors[], int count, SkBlendMode mode,
-                                  const SkRect* cull, const SkPaint* paint) {
-    // [op + paint-index + atlas-index + flags + count] + [xform] + [tex] + [*colors + mode] + cull
-    size_t size = 5 * kUInt32Size + count * sizeof(SkRSXform) + count * sizeof(SkRect);
-    uint32_t flags = 0;
-    if (colors) {
-        flags |= DRAW_ATLAS_HAS_COLORS;
-        size += count * sizeof(SkColor);
-        size += sizeof(uint32_t);   // xfermode::mode
-    }
-    if (cull) {
-        flags |= DRAW_ATLAS_HAS_CULL;
-        size += sizeof(SkRect);
-    }
-
-    size_t initialOffset = this->addDraw(DRAW_ATLAS, &size);
-    this->addPaintPtr(paint);
-    this->addImage(atlas);
-    this->addInt(flags);
-    this->addInt(count);
-    fWriter.write(xform, count * sizeof(SkRSXform));
-    fWriter.write(tex, count * sizeof(SkRect));
-
-    // write optional parameters
-    if (colors) {
-        fWriter.write(colors, count * sizeof(SkColor));
-        this->addInt((int)mode);
-    }
-    if (cull) {
-        fWriter.write(cull, sizeof(SkRect));
-    }
-    this->validate(initialOffset, size);
-}
-
-#endif
-
-void SkPictureRecord::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
-                                   const SkSamplingOptions& sampling, const SkPaint* paint) {
-    // op + paint_index + image_index + x + y
-    size_t size = 3 * kUInt32Size + 2 * sizeof(SkScalar) + SkSamplingPriv::kFlatSize;
-    size_t initialOffset = this->addDraw(DRAW_IMAGE2, &size);
-    this->addPaintPtr(paint);
-    this->addImage(image);
-    this->addScalar(x);
-    this->addScalar(y);
-    this->addSampling(sampling);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::onDrawImageRect2(const SkImage* image, const SkRect& src, const SkRect& dst,
-                                       const SkSamplingOptions& sampling, const SkPaint* paint,
-                                       SrcRectConstraint constraint) {
-    // id + paint_index + image_index + constraint
-    size_t size = 3 * kUInt32Size + 2 * sizeof(dst) + SkSamplingPriv::kFlatSize + kUInt32Size;
-
-    size_t initialOffset = this->addDraw(DRAW_IMAGE_RECT2, &size);
-    this->addPaintPtr(paint);
-    this->addImage(image);
-    this->addRect(src);
-    this->addRect(dst);
-    this->addSampling(sampling);
-    this->addInt(constraint);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::onDrawImageLattice2(const SkImage* image, const Lattice& lattice,
-                                          const SkRect& dst, SkFilterMode filter,
-                                          const SkPaint* paint) {
-    size_t latticeSize = SkCanvasPriv::WriteLattice(nullptr, lattice);
-    // op + paint index + image index + lattice + dst rect
-    size_t size = 3 * kUInt32Size + latticeSize + sizeof(dst) + sizeof(uint32_t); // filter
-    size_t initialOffset = this->addDraw(DRAW_IMAGE_LATTICE2, &size);
-    this->addPaintPtr(paint);
-    this->addImage(image);
-    (void)SkCanvasPriv::WriteLattice(fWriter.reservePad(latticeSize), lattice);
-    this->addRect(dst);
-    this->addInt(static_cast<uint32_t>(filter));
     this->validate(initialOffset, size);
 }
 
@@ -763,13 +680,11 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                                   const SkColor colors[], int count, SkBlendMode mode,
-                                   const SkSamplingOptions& sampling, const SkRect* cull,
-                                   const SkPaint* paint) {
+void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                                  const SkColor colors[], int count, SkBlendMode mode,
+                                  const SkRect* cull, const SkPaint* paint) {
     // [op + paint-index + atlas-index + flags + count] + [xform] + [tex] + [*colors + mode] + cull
     size_t size = 5 * kUInt32Size + count * sizeof(SkRSXform) + count * sizeof(SkRect);
-    size += SkSamplingPriv::kFlatSize;
     uint32_t flags = 0;
     if (colors) {
         flags |= DRAW_ATLAS_HAS_COLORS;
@@ -780,7 +695,6 @@ void SkPictureRecord::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[]
         flags |= DRAW_ATLAS_HAS_CULL;
         size += sizeof(SkRect);
     }
-    flags |= DRAW_ATLAS_HAS_SAMPLING;
 
     size_t initialOffset = this->addDraw(DRAW_ATLAS, &size);
     this->addPaintPtr(paint);
@@ -798,7 +712,6 @@ void SkPictureRecord::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[]
     if (cull) {
         fWriter.write(cull, sizeof(SkRect));
     }
-    this->addSampling(sampling);
     this->validate(initialOffset, size);
 }
 
@@ -1000,17 +913,6 @@ void SkPictureRecord::addRRect(const SkRRect& rrect) {
 
 void SkPictureRecord::addRegion(const SkRegion& region) {
     fWriter.writeRegion(region);
-}
-
-void SkPictureRecord::addSampling(const SkSamplingOptions& sampling) {
-    fWriter.writeBool(sampling.useCubic);
-    if (sampling.useCubic) {
-        fWriter.writeScalar(sampling.cubic.B);
-        fWriter.writeScalar(sampling.cubic.C);
-    } else {
-        fWriter.writeInt(static_cast<uint32_t>(sampling.filter));
-        fWriter.writeInt(static_cast<uint32_t>(sampling.mipmap));
-    }
 }
 
 void SkPictureRecord::addText(const void* text, size_t byteLength) {

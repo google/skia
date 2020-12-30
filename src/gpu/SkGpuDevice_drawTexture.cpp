@@ -321,9 +321,9 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
  * Checks whether the paint is compatible with using GrSurfaceDrawContext::drawTexture. It is more
  * efficient than the GrTextureProducer general case.
  */
-static bool can_use_draw_texture(const SkPaint& paint, bool useCubicResampler, SkMipmapMode mm) {
+static bool can_use_draw_texture(const SkPaint& paint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && !useCubicResampler && mm == SkMipmapMode::kNone);
+            !paint.getImageFilter() && SkPaintPriv::GetFQ(paint) < kMedium_SkFilterQuality);
 }
 
 static SkPMColor4f texture_color(SkColor4f paintColor, float entryAlpha, GrColorType srcColorType,
@@ -428,7 +428,7 @@ static void draw_texture_producer(GrRecordingContext* context,
     const SkMatrix& ctm(matrixProvider.localToDevice());
     if (sampler.wrapModeX() == GrSamplerState::WrapMode::kClamp &&
         sampler.wrapModeY() == GrSamplerState::WrapMode::kClamp && !producer->isPlanar() &&
-        can_use_draw_texture(paint, GrValidCubicResampler(cubic), sampler.mipmapMode())) {
+        can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
         auto view = producer->view(GrMipmapped::kNo);
@@ -683,8 +683,11 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
                                 const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
-                                const SkMatrix* preViewMatrix, const SkSamplingOptions& sampling,
-                                const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
+                                const SkMatrix* preViewMatrix, const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
+    // TODO: pass in sampling directly
+    SkSamplingOptions sampling(paint.getFilterQuality(), SkSamplingOptions::kMedium_asMipmapLinear);
+
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
@@ -802,12 +805,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                      const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
-    // TODO: pass in directly
-    //       pass sampling, or just filter?
-    SkSamplingOptions sampling(SkPaintPriv::GetFQ(paint));
-
     SkASSERT(count > 0);
-    if (!can_use_draw_texture(paint, sampling.useCubic, sampling.mipmap)) {
+    if (!can_use_draw_texture(paint)) {
         // Send every entry through drawImageQuad() to handle the more complicated paint
         int dstClipIndex = 0;
         for (int i = 0; i < count; ++i) {
@@ -826,13 +825,13 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                     set[i].fHasClip ? dstClips + dstClipIndex : nullptr, GrAA::kYes,
                     SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
-                    sampling, *entryPaint, constraint);
+                    *entryPaint, constraint);
             dstClipIndex += 4 * set[i].fHasClip;
         }
         return;
     }
 
-    GrSamplerState::Filter filter = sampling.filter == SkFilterMode::kNearest
+    GrSamplerState::Filter filter = kNone_SkFilterQuality == paint.getFilterQuality()
                                             ? GrSamplerState::Filter::kNearest
                                             : GrSamplerState::Filter::kLinear;
     SkBlendMode mode = paint.getBlendMode();
@@ -905,7 +904,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                     image, &set[i].fSrcRect, &set[i].fDstRect, clip, GrAA::kYes,
                     SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
-                    sampling, *entryPaint, constraint);
+                    *entryPaint, constraint);
             continue;
         }
 

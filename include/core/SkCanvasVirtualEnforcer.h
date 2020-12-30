@@ -40,6 +40,16 @@ protected:
     void onDrawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
                       const SkPaint& paint) override = 0;
 
+    // restore me later when clients are updated
+    //    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override = 0;
+
+    void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy,
+                     const SkPaint* paint) override = 0;
+    void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                         const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) override = 0;
+    void onDrawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
+                            const SkRect& dst, const SkPaint* paint) override = 0;
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // This is under active development for Chrome and not used in Android. Hold off on adding
     // implementations in Android's SkCanvas subclasses until this stabilizes.
@@ -55,6 +65,10 @@ protected:
             const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
             SkCanvas::SrcRectConstraint constraint) override = 0;
 #endif
+
+    void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
+                     const SkColor colors[], int count, SkBlendMode mode, const SkRect* cull,
+                     const SkPaint* paint) override = 0;
 
     void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override = 0;
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override = 0;
