@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f720dd74_9d22448e",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db73f213_64f2aca7",
+      "range": {
+        "startLine": 33,
+        "startChar": 37,
+        "endLine": 33,
+        "endChar": 61
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "352bc235_513ab2de",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-30T16:47:24Z",
       "side": 1,
       "message": "It might be easier to not have to deal with an input buffer. What if we did:\n\n  float2 position \u003d float2(sk_VertexID \u003e\u003e 1, sk_VertexID \u0026 1);",
+      "range": {
+        "startLine": 40,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 56
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5e8506c_64cbc0d8",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "352bc235_513ab2de",
       "range": {
         "startLine": 40,
         "startChar": 12,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70a02d21_76100862",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ea40b05_e795a628",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 52
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99334f7d_f8e8da7b",
@@ -83,6 +155,30 @@
       "writtenOn": "2020-12-30T17:24:38Z",
       "side": 1,
       "message": "switch order of comparisons? lvalue \u003d\u003d rvalue seems easier to read.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 84
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92367819_006bacf2",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99334f7d_f8e8da7b",
       "range": {
         "startLine": 150,
         "startChar": 0,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab890552_ff3256eb",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3aa004f7_9db2a06e",
+      "range": {
+        "startLine": 225,
+        "startChar": 32,
+        "endLine": 225,
+        "endChar": 35
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "142fb690_5996aca1",
@@ -139,6 +259,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1628666b_bc381c93",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "142fb690_5996aca1",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d948198e_5f05c45e",
@@ -152,6 +296,30 @@
       "writtenOn": "2020-12-30T16:47:24Z",
       "side": 1,
       "message": "Needed?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 16
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f2f1f5f_6a3e9cbc",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d948198e_5f05c45e",
       "range": {
         "startLine": 23,
         "startChar": 0,
@@ -199,6 +367,30 @@
       "side": 1,
       "message": "I was wondering the same thing, also may improves code size?",
       "parentUuid": "bf31443b_fa7dc115",
+      "range": {
+        "startLine": 33,
+        "startChar": 22,
+        "endLine": 33,
+        "endChar": 50
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "344ee366_b6cdfe49",
+        "filename": "src/gpu/vk/GrVkMSAALoadPipeline.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T20:10:29Z",
+      "side": 1,
+      "message": "Now directly using GrVkPipelines.",
+      "parentUuid": "089aba8a_4a39f18d",
       "range": {
         "startLine": 33,
         "startChar": 22,
