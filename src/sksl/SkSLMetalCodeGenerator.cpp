@@ -57,6 +57,7 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
     fIntrinsicMap[String("radians")]            = SPECIAL(Radians);
     fIntrinsicMap[String("reflect")]            = SPECIAL(Reflect);
+    fIntrinsicMap[String("refract")]            = SPECIAL(Refract);
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
@@ -717,6 +718,22 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialInt
 
                 // , _skTempI - 2 * _skTempN * _skTempI * _skTempN)
                 this->write(", " + tmpI + " - 2 * " + tmpN + " * " + tmpI + " * " + tmpN + ")");
+            } else {
+                this->writeSimpleIntrinsic(c);
+            }
+            break;
+        }
+        case kRefract_SpecialIntrinsic: {
+            if (arguments[0]->type().columns() == 1) {
+                // Metal does implement refract for vectors; rather than reimplementing refract from
+                // scratch, we can replace the call with `refract(float2(I,0), float2(N,0), eta).x`.
+                this->write("(refract(float2(");
+                this->writeExpression(*arguments[0], kSequence_Precedence);
+                this->write(", 0), float2(");
+                this->writeExpression(*arguments[1], kSequence_Precedence);
+                this->write(", 0), ");
+                this->writeExpression(*arguments[2], kSequence_Precedence);
+                this->write(").x)");
             } else {
                 this->writeSimpleIntrinsic(c);
             }
