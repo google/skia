@@ -16,6 +16,29 @@
       "message": "See diff from PS1 for fix for android CTS test. The GrClipStackClip.cpp code is only used by the framework, which is why it was missed. I also reverted changes to GrClipStack.cpp from the original and simply changed kModulate to kDstIn for a simpler way to modulate against just the alpha channel.",
       "revId": "39ab241a2ab4c55ac3ef209cebe4f8b3cee42a91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df184388_29bf9c28",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1597,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-30T21:42:26Z",
+      "side": 1,
+      "message": "did you mean to change all these names back to Proxy?",
+      "range": {
+        "startLine": 1597,
+        "startChar": 27,
+        "endLine": 1597,
+        "endChar": 32
+      },
+      "revId": "39ab241a2ab4c55ac3ef209cebe4f8b3cee42a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
