@@ -124,6 +124,9 @@ public:
         Iter begin() const { return Iter(fAttributes, fCount); }
         Iter end() const { return Iter(); }
 
+        int count() const { return fCount; }
+        size_t stride() const { return fStride; }
+
     private:
         friend class GrPrimitiveProcessor;
 
