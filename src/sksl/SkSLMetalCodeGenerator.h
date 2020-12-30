@@ -108,7 +108,6 @@ protected:
         kDegrees_SpecialIntrinsic,
         kDistance_SpecialIntrinsic,
         kDot_SpecialIntrinsic,
-        kFaceforward_SpecialIntrinsic,
         kFindLSB_SpecialIntrinsic,
         kFindMSB_SpecialIntrinsic,
         kLength_SpecialIntrinsic,

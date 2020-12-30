@@ -48,7 +48,6 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("degrees")]            = SPECIAL(Degrees);
     fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
     fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
-    fIntrinsicMap[String("faceforward")]        = SPECIAL(Faceforward);
     fIntrinsicMap[String("bitCount")]           = SPECIAL(BitCount);
     fIntrinsicMap[String("findLSB")]            = SPECIAL(FindLSB);
     fIntrinsicMap[String("findMSB")]            = SPECIAL(FindMSB);
@@ -645,27 +644,6 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
                 this->writeExpression(*arguments[0], kSequence_Precedence);
                 this->write(", ");
                 this->writeExpression(*arguments[1], kSequence_Precedence);
-                this->write(")");
-            }
-            break;
-        }
-        case kFaceforward_SpecialIntrinsic: {
-            if (arguments[0]->type().columns() == 1) {
-                // ((((Nref) * (I) < 0) ? 1 : -1) * (N))
-                this->write("((((");
-                this->writeExpression(*arguments[2], kSequence_Precedence);
-                this->write(") * (");
-                this->writeExpression(*arguments[1], kSequence_Precedence);
-                this->write(") < 0) ? 1 : -1) * (");
-                this->writeExpression(*arguments[0], kSequence_Precedence);
-                this->write("))");
-            } else {
-                this->write("faceforward(");
-                this->writeExpression(*arguments[0], kSequence_Precedence);
-                this->write(", ");
-                this->writeExpression(*arguments[1], kSequence_Precedence);
-                this->write(", ");
-                this->writeExpression(*arguments[2], kSequence_Precedence);
                 this->write(")");
             }
             break;
@@ -1512,6 +1490,11 @@ static bool is_block_ending_with_return(const Statement* stmt) {
 }
 
 void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    // If this is a polyfill for a different backend, don't emit it.
+    if (f.declaration().shouldPrunePolyfillFunction(Modifiers::kPolyfillMetal_Flag)) {
+        return;
+    }
+
     SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
 
     if (!this->writeFunctionDeclaration(f.declaration())) {

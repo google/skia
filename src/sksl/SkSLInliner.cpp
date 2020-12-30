@@ -846,6 +846,12 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
+    // We don't want to inline polyfilled intrinsics, as the code generator may want to drop them
+    // entirely and use a native intrinsic instead.
+    if (functionDef->declaration().isPolyfill()) {
+        return false;
+    }
+
     // We don't have any mechanism to simulate early returns within a construct that supports
     // continues (for/do/while), so we can't inline if there's a return inside one.
     bool hasReturnInContinuableConstruct =
@@ -866,6 +872,10 @@ struct InlineCandidateList {
     std::vector<InlineCandidate> fCandidates;
 };
 
+// This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
+// The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
+// that they can later be replaced, and ProgramVisitor does not provide this; it only provides a
+// `const T&`.
 class InlineCandidateAnalyzer {
 public:
     // A list of all the inlining candidates we found during analysis.
@@ -1163,10 +1173,6 @@ int Inliner::getFunctionSize(const FunctionDeclaration& funcDecl, FunctionSizeCa
 void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                                  std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
                                  InlineCandidateList* candidateList) {
-    // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
-    // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
-    // that they can later be replaced, and ProgramVisitor does not provide this; it only provides a
-    // `const T&`.
     InlineCandidateAnalyzer analyzer;
     analyzer.visit(elements, symbols, candidateList);
 
