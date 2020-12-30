@@ -72,6 +72,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "99334f7d_f8e8da7b",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-30T17:24:38Z",
+      "side": 1,
+      "message": "switch order of comparisons? lvalue \u003d\u003d rvalue seems easier to read.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 84
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3aa004f7_9db2a06e",
         "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
         "patchSetId": 12
@@ -152,6 +175,30 @@
       "writtenOn": "2020-12-30T16:47:24Z",
       "side": 1,
       "message": "I\u0027m wondering if it would be possible to create a simpler GrPipeline and then use existing GrVkPipeline code to convert it to vulkan?",
+      "range": {
+        "startLine": 33,
+        "startChar": 22,
+        "endLine": 33,
+        "endChar": 50
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "089aba8a_4a39f18d",
+        "filename": "src/gpu/vk/GrVkMSAALoadPipeline.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-30T17:24:38Z",
+      "side": 1,
+      "message": "I was wondering the same thing, also may improves code size?",
+      "parentUuid": "bf31443b_fa7dc115",
       "range": {
         "startLine": 33,
         "startChar": 22,

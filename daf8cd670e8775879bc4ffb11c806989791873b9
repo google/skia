@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3f08778_0822ce4f",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-30T17:24:38Z",
+      "side": 1,
+      "message": "Can we manage this with sk_sp (here and elsewhere)?",
+      "range": {
+        "startLine": 156,
+        "startChar": 3,
+        "endLine": 156,
+        "endChar": 36
+      },
+      "revId": "daf8cd670e8775879bc4ffb11c806989791873b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
