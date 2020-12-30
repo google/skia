@@ -457,41 +457,6 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
          1, 2, 3, 2, 1, 2, 3, 1);
 }
 
-DEF_TEST(SkSLInterpreterWhile, r) {
-    test(r, "void main(inout half4 color) { while (color.r < 8) { color.r++; } }",
-         1, 2, 3, 4, 8, 2, 3, 4);
-    test(r, "void main(inout half4 color) { while (color.r < 1) color.r += 0.25; }", 0, 0, 0, 0, 1,
-         0, 0, 0);
-    test(r, "void main(inout half4 color) { while (color.r > 1) color.r -= 0.25; }", 0, 0, 0, 0, 0,
-         0, 0, 0);
-    test(r, "void main(inout half4 color) { while (true) { color.r += 0.5; "
-         "if (color.r > 5) break; } }", 0, 0, 0, 0, 5.5, 0, 0, 0);
-    test(r, "void main(inout half4 color) { while (color.r < 10) { color.r += 0.5; "
-            "if (color.r < 5) continue; break; } }", 0, 0, 0, 0, 5, 0, 0, 0);
-    test(r,
-         "void main(inout half4 color) {"
-         "    while (true) {"
-         "        if (color.r > 4) { break; }"
-         "        while (true) { color.a = 1; break; }"
-         "        break;"
-         "    }"
-         "}",
-         6, 5, 4, 3, 6, 5, 4, 3);
-}
-
-DEF_TEST(SkSLInterpreterDo, r) {
-    test(r, "void main(inout half4 color) { do color.r += 0.25; while (color.r < 1); }", 0, 0, 0, 0,
-         1, 0, 0, 0);
-    test(r, "void main(inout half4 color) { do color.r -= 0.25; while (color.r > 1); }", 0, 0, 0, 0,
-         -0.25, 0, 0, 0);
-    test(r, "void main(inout half4 color) { do { color.r += 0.5; if (color.r > 1) break; } while "
-            "(true); }", 0, 0, 0, 0, 1.5, 0, 0, 0);
-    test(r, "void main(inout half4 color) {do { color.r += 0.5; if (color.r < 5) "
-            "continue; if (color.r >= 5) break; } while (true); }", 0, 0, 0, 0, 5, 0, 0, 0);
-    test(r, "void main(inout half4 color) { do { color.r += 0.5; } while (false); }",
-         0, 0, 0, 0, 0.5, 0, 0, 0);
-}
-
 DEF_TEST(SkSLInterpreterFor, r) {
     test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }", 0, 0, 0,
          0, 55, 0, 0, 0);
@@ -711,7 +676,7 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
 
     // returns are not allowed inside loops
     expect_failure(r, "float main(float x)"
-                      "{ while (x > 1) { if (x > 2) { return x; } } return 0; }");
+                      "{ for (int i = 0; i < 1; i++) { if (x > 2) { return x; } } return 0; }");
 }
 
 DEF_TEST(SkSLInterpreterEarlyReturn, r) {
