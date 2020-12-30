@@ -548,6 +548,11 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     SkASSERT(w.fKind == ASTNode::Kind::kWhile);
+    if (this->strictES2Mode()) {
+        fErrors.error(w.fOffset, "while loops are not supported");
+        return nullptr;
+    }
+
     AutoLoopLevel level(this);
     auto iter = w.begin();
     std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
@@ -565,6 +570,11 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
 
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDo);
+    if (this->strictES2Mode()) {
+        fErrors.error(d.fOffset, "do-while loops are not supported");
+        return nullptr;
+    }
+
     AutoLoopLevel level(this);
     auto iter = d.begin();
     std::unique_ptr<Statement> statement = this->convertStatement(*(iter++));
@@ -1233,7 +1243,7 @@ void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
 }
 
 void IRGenerator::convertEnum(const ASTNode& e) {
-    if (fKind == Program::kRuntimeEffect_Kind) {
+    if (this->strictES2Mode()) {
         fErrors.error(e.fOffset, "enum is not allowed here");
         return;
     }
