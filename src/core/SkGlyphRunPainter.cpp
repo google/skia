@@ -156,9 +156,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
 
     if (useSDFT) {
         // Process SDFT - This should be the .009% case.
-        SkScalar minScale, maxScale;
-        SkStrikeSpec strikeSpec;
-        std::tie(strikeSpec, minScale, maxScale) =
+        const auto& [strikeSpec, minScale, maxScale] =
                 SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix, options);
 
         if (!strikeSpec.isEmpty()) {

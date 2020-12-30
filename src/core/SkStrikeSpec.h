@@ -25,6 +25,14 @@ class SkSurfaceProps;
 
 class SkStrikeSpec {
 public:
+    SkStrikeSpec(const SkStrikeSpec&) = default;
+    SkStrikeSpec& operator=(const SkStrikeSpec&) = delete;
+
+    SkStrikeSpec(SkStrikeSpec&&) = default;
+    SkStrikeSpec& operator=(SkStrikeSpec&&) = delete;
+
+    ~SkStrikeSpec() = default;
+
     // Create a strike spec for mask style cache entries.
     static SkStrikeSpec MakeMask(
             const SkFont& font,
@@ -83,18 +91,19 @@ public:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
 private:
-    void commonSetup(
+    SkStrikeSpec(
             const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags,
-            const SkMatrix& deviceMatrix);
+            const SkMatrix& deviceMatrix,
+            SkScalar strikeToSourceRatio);
 
     SkAutoDescriptor fAutoDescriptor;
     sk_sp<SkMaskFilter> fMaskFilter;
     sk_sp<SkPathEffect> fPathEffect;
     sk_sp<SkTypeface> fTypeface;
-    SkScalar fStrikeToSourceRatio{1.0f};
+    const SkScalar fStrikeToSourceRatio;
 };
 
 class SkBulkGlyphMetrics {
