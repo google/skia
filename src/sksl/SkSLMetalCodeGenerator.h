@@ -116,6 +116,7 @@ protected:
         kNormalize_SpecialIntrinsic,
         kRadians_SpecialIntrinsic,
         kReflect_SpecialIntrinsic,
+        kRefract_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
     };
 
