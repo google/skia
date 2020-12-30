@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d07a1f8d_8c9b6882",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-30T14:05:56Z",
+      "side": 1,
+      "message": "Ah, right - the VM generator (even when I add other functions) is going to work top-down from a single entry point, so no need to worry about this.",
+      "parentUuid": "a56054ea_89cfcb2e",
+      "revId": "10d7f673483e4cc4fa2cd1e26f089c9a74d1ee65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2dc7aaee_2904ddf2",
