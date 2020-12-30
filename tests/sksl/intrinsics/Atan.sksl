@@ -1,1 +1,8 @@
-in half a; void main() { sk_FragColor.x = atan(a); }
+in half a, b;
+in half4 c, d;
+void main() {
+    sk_FragColor.x = atan(a);
+    sk_FragColor.x = atan(a, b);
+    sk_FragColor = atan(c);
+    sk_FragColor = atan(c, d);
+}

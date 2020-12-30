@@ -1,1 +1,7 @@
-in half a, b; void main() { sk_FragColor.x = mod(a, b); }
+in half a, b;
+in half4 c, d;
+void main() {
+    sk_FragColor.x = mod(a, b);
+    sk_FragColor = mod(c, b);
+    sk_FragColor = mod(c, d);
+}
