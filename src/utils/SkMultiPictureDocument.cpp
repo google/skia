@@ -17,6 +17,7 @@
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 
 #include <limits.h>
+#include <functional>
 
 /*
   File format:
@@ -53,9 +54,12 @@ struct MultiPictureDocument final : public SkDocument {
     SkSize fCurrentPageSize;
     SkTArray<sk_sp<SkPicture>> fPages;
     SkTArray<SkSize> fSizes;
-    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs)
+    std::function<void(const SkPicture*)> fOnEndPage;
+    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs,
+        std::function<void(const SkPicture*)> onEndPage)
         : SkDocument(s)
         , fProcs(procs ? *procs : SkSerialProcs())
+        , fOnEndPage(onEndPage)
     {}
     ~MultiPictureDocument() override { this->close(); }
 
@@ -65,7 +69,11 @@ struct MultiPictureDocument final : public SkDocument {
     }
     void onEndPage() override {
         fSizes.push_back(fCurrentPageSize);
-        fPages.push_back(fPictureRecorder.finishRecordingAsPicture());
+        sk_sp<SkPicture> lastPage = fPictureRecorder.finishRecordingAsPicture();
+        fPages.push_back(lastPage);
+        if (fOnEndPage) {
+            fOnEndPage(lastPage.get());
+        }
     }
     void onClose(SkWStream* wStream) override {
         SkASSERT(wStream);
@@ -96,8 +104,9 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }  // namespace
 
-sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
-    return sk_make_sp<MultiPictureDocument>(wStream, procs);
+sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs,
+    std::function<void(const SkPicture*)> onEndPage) {
+    return sk_make_sp<MultiPictureDocument>(wStream, procs, onEndPage);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
