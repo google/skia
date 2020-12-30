@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aad04fbb_79d4fd54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-30T20:27:36Z",
+      "side": 1,
+      "message": "See diff from PS1 for fix for android CTS test. The GrClipStackClip.cpp code is only used by the framework, which is why it was missed. I also reverted changes to GrClipStack.cpp from the original and simply changed kModulate to kDstIn for a simpler way to modulate against just the alpha channel.",
+      "revId": "39ab241a2ab4c55ac3ef209cebe4f8b3cee42a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
