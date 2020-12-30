@@ -14,9 +14,11 @@
 
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrProgramInfo;
 class GrRenderTarget;
-class GrXferProcessor;
 class GrStencilSettings;
+class GrSwizzle;
+class GrXferProcessor;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
@@ -33,7 +35,10 @@ public:
                                 VkPipelineCache cache);
 
     VkPipeline pipeline() const { return fPipeline; }
-    VkPipelineLayout layout() const { return fPipelineLayout; }
+    VkPipelineLayout layout() const {
+        SkASSERT(fPipelineLayout != VK_NULL_HANDLE);
+        return fPipelineLayout;
+    }
 
     static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
                                            GrSurfaceOrigin, const SkIRect& scissorRect);

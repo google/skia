@@ -30,6 +30,7 @@
 
 class GrVkCommandPool;
 class GrVkGpu;
+class GrVkMSAALoadPipeline;
 class GrVkPipeline;
 class GrVkPipelineState;
 class GrVkPrimaryCommandBuffer;
@@ -137,9 +138,22 @@ public:
             VkRenderPass compatibleRenderPass,
             GrGpu::Stats::ProgramCacheResult* stat);
 
+    GrVkMSAALoadPipeline* findOrCreateMSAALoadPipeline(const GrVkRenderPass& renderPass,
+                                                       const GrVkRenderTarget* dst,
+                                                       VkPipelineShaderStageCreateInfo*,
+                                                       VkPipelineLayout);
+
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
                                        GrVkDescriptorSetManager::Handle* handle);
+
+    // This is a convenience function to return a descriptor set for zero sammples. When making a
+    // VkPipelineLayout we must pass in an array of valid descriptor set handles. However, we have
+    // set up our system to have the descriptor sets be in the order uniform, sampler, input. So
+    // if we have a uniform and input we will need to have a valid handle for the sampler as well.
+    // When using the GrVkMSAALoadManager this is the case, but we also don't have a
+    // GrVkUniformHandler to pass into the more general function. Thus we use this call instead.
+    void getZeroSamplerDescriptorSetHandle(GrVkDescriptorSetManager::Handle* handle);
 
     // Returns the compatible VkDescriptorSetLayout to use for uniform buffers. The caller does not
     // own the VkDescriptorSetLayout and thus should not delete it. This function should be used
@@ -276,6 +290,9 @@ private:
 
     // Central cache for creating pipelines
     VkPipelineCache fPipelineCache;
+
+    // Cache of previously created msaa load pipelines
+    SkTArray<GrVkMSAALoadPipeline*> fMSAALoadPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
