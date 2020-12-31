@@ -101,8 +101,9 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    void drawDevice(SkBaseDevice*, const SkPaint&) override;
-    void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
+    void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
+                     const SkPaint&) override;
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;

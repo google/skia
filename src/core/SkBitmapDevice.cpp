@@ -567,7 +567,8 @@ void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& sampling,
+                                const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
     SkASSERT(!paint.getMaskFilter());
 
@@ -581,16 +582,17 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
         draw.fRC = &fRCStack.rc();
 
         SkPaint deviceAsShader = paint;
-        SkSamplingOptions sampling;    // nearest-neighbor, since we in sprite mode
-        deviceAsShader.setShader(src->fBitmap.makeShader(sampling));
+        SkSamplingOptions nearest;    // nearest-neighbor, since we in sprite mode
+        deviceAsShader.setShader(src->fBitmap.makeShader(nearest));
         draw.drawBitmap(*src->fCoverage, SkMatrix::I(), nullptr, sampling, deviceAsShader);
     } else {
-        this->INHERITED::drawDevice(device, paint);
+        this->INHERITED::drawDevice(device, sampling, paint);
     }
 }
 
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
                                  const SkMatrix& localToDevice,
+                                 const SkSamplingOptions& sampling,
                                  const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
     SkASSERT(!paint.getMaskFilter());
@@ -603,8 +605,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
         draw.fDst = fBitmap.pixmap();
         draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();
-        draw.drawBitmap(resultBM, SkMatrix::I(), nullptr,
-                        SkSamplingOptions(paint.getFilterQuality()), paint);
+        draw.drawBitmap(resultBM, SkMatrix::I(), nullptr, sampling, paint);
     }
 }
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
