@@ -211,7 +211,7 @@ private:
     // FIXME(michaelludwig) - Should be removed in favor of using drawImageQuad with edge flags to
     // for every element in the SkLatticeIter.
     void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>, const SkRect& dst,
-                             const SkPaint&);
+                             SkFilterMode, const SkPaint&);
 
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
