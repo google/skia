@@ -443,11 +443,13 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                             bool prepForTexSampling) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
+        SkDebugf("no vkTex\n");
         return false;
     }
 
     // Make sure we have at least the base level
     if (!mipLevelCount || !texels[0].fPixels) {
+        SkDebugf("bad count or pixels\n");
         return false;
     }
 
@@ -467,6 +469,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                                   VK_PIPELINE_STAGE_HOST_BIT,
                                   false);
             if (!this->submitCommandBuffer(kForce_SyncQueue)) {
+                SkDebugf("no submit\n");
                 return false;
             }
         }
@@ -484,6 +487,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                               false);
     }
 
+    if (!success) SkDebugf("no success\n");
     return success;
 }
 

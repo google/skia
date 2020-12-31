@@ -423,25 +423,30 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
     SkASSERT(!surface->framebufferOnly());
 
     if (surface->readOnly()) {
+        SkDebugf("read only\n");
         return false;
     }
 
     if (mipLevelCount == 0) {
+        SkDebugf("mlc is zero\n");
         return false;
     } else if (mipLevelCount == 1) {
         // We require that if we are not mipped, then the write region is contained in the surface
         auto subRect = SkIRect::MakeXYWH(left, top, width, height);
         auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
         if (!bounds.contains(subRect)) {
+            SkDebugf("subrect not contained\n");
             return false;
         }
     } else if (0 != left || 0 != top || width != surface->width() || height != surface->height()) {
         // We require that if the texels are mipped, than the write region is the entire surface
+        SkDebugf("not whole surf\n");
         return false;
     }
 
     if (!validate_texel_levels({width, height}, srcColorType, texels, mipLevelCount,
                                this->caps())) {
+        SkDebugf("not valid levels\n");
         return false;
     }
 
@@ -453,6 +458,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
         fStats.incTextureUploads();
         return true;
     }
+    SkDebugf("onWriteFailed\n");
     return false;
 }
 
