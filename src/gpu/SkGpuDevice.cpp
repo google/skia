@@ -808,17 +808,9 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
                         sampling, paint, constraint);
 }
 
-// When drawing nine-patches or n-patches, cap the filter quality at kLinear.
-static GrSamplerState::Filter compute_lattice_filter_mode(const SkPaint& paint) {
-    if (paint.getFilterQuality() == kNone_SkFilterQuality) {
-        return GrSamplerState::Filter::kNearest;
-    }
-    return GrSamplerState::Filter::kLinear;
-}
-
 void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
                                       std::unique_ptr<SkLatticeIter> iter, const SkRect& dst,
-                                      const SkPaint& origPaint) {
+                                      SkFilterMode filter, const SkPaint& origPaint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
     SkTCopyOnFirstWrite<SkPaint> paint(&origPaint);
 
@@ -833,7 +825,6 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     }
 
     auto dstColorSpace = fSurfaceDrawContext->colorInfo().colorSpace();
-    const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
     auto view = producer->view(GrMipmapped::kNo);
     if (!view) {
         return;
@@ -848,12 +839,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
 void SkGpuDevice::drawImageLattice(const SkImage* image,
                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
-                                   SkFilterMode filter, const SkPaint& origPaint) {
-    // TODO: plumb filter down rather than rely on deprecated filter-quality
-    SkPaint paint(origPaint);
-    paint.setFilterQuality(filter == SkFilterMode::kLinear ? kLow_SkFilterQuality
-                                                           : kNone_SkFilterQuality);
-
+                                   SkFilterMode filter, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
@@ -861,15 +847,15 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
                                                               &pinnedUniqueID)) {
         GrTextureAdjuster adjuster(this->recordingContext(), std::move(view),
                                    image->imageInfo().colorInfo(), pinnedUniqueID);
-        this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
+        this->drawProducerLattice(&adjuster, std::move(iter), dst, filter, paint);
     } else {
         SkBitmap bm;
         if (image->isLazyGenerated()) {
             GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
+            this->drawProducerLattice(&maker, std::move(iter), dst, filter, paint);
         } else if (as_IB(image)->getROPixels(nullptr, &bm)) {
             GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
+            this->drawProducerLattice(&maker, std::move(iter), dst, filter, paint);
         }
     }
 }
