@@ -183,20 +183,31 @@ public:
      *  @param image         The image that is output by the filter, subset by 'srcRect'.
      *  @param srcRect       The source pixels sampled into 'dstRect'
      *  @param dstRect       The local rectangle to draw the image into.
-     *  @param filterQuality The filter quality that is used when sampling the image.
+     *  @param filterQuality How the image will be sampled.
      */
     static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkRect& srcRect,
-                                      const SkRect& dstRect, SkFilterQuality filterQuality);
+                                      const SkRect& dstRect, const SkSamplingOptions& sampling);
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTERS_FILTERQUALITY
+    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkRect& srcRect,
+                                      const SkRect& dstRect, SkFilterQuality filterQuality) {
+        return Image(std::move(image), srcRect, dstRect, SkSamplingOptions(filterQuality));
+    }
+#endif
+
     /**
      *  Create a filter that produces the image contents.
      *  @param image The image that is output by the filter.
      */
+    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkSamplingOptions& sampling) {
+        SkRect r = image ? SkRect::MakeWH(image->width(), image->height()) : SkRect::MakeEmpty();
+        return Image(std::move(image), r, r, sampling);
+    }
+
     static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image) {
         // Defaults to kHigh_SkFilterQuality because the dstRect of the image filter will be mapped
         // by the layer matrix set during filtering. If that has a scale factor, then the image
         // will not be drawn at a 1-to-1 pixel scale, even that is what this appears to create here.
-        SkRect r = image ? SkRect::MakeWH(image->width(), image->height()) : SkRect::MakeEmpty();
-        return Image(std::move(image), r, r, kHigh_SkFilterQuality);
+        return Image(std::move(image), SkSamplingOptions({1.0f/3, 1.0f/3}));
     }
 
     /**
@@ -239,13 +250,20 @@ public:
      *  Create a filter that transforms the input image by 'matrix'. This matrix transforms the
      *  local space, which means it effectively happens prior to any transformation coming from the
      *  SkCanvas initiating the filtering.
-     *  @param matrix        The matrix to apply to the original content.
-     *  @param filterQuality The filter quality to use when sampling the input image.
-     *  @param input         The image filter to transform, or null to use the source image.
+     *  @param matrix   The matrix to apply to the original content.
+     *  @param sampling How the input image will be sampled.
+     *  @param input    The image filter to transform, or null to use the source image.
      */
     static sk_sp<SkImageFilter> MatrixTransform(const SkMatrix& matrix,
-                                                SkFilterQuality filterQuality,
+                                                const SkSamplingOptions& sampling,
                                                 sk_sp<SkImageFilter> input);
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTERS_FILTERQUALITY
+    static sk_sp<SkImageFilter> MatrixTransform(const SkMatrix& matrix,
+                                                SkFilterQuality filterQuality,
+                                                sk_sp<SkImageFilter> input) {
+        return MatrixTransform(matrix, SkSamplingOptions(filterQuality), std::move(input));
+    }
+#endif
 
     /**
      *  Create a filter that merges the 'count' filters together by drawing their results in order
@@ -317,8 +335,13 @@ public:
      *  Like Image() and Picture(), this is a leaf filter that can be used to introduce inputs to
      *  a complex filter graph, but should generally be combined with a filter that as at least
      *  one null input to use the implicit source image.
-     *  @param shader The shader that fills the result image
+     *  @param shader The shader that fills the result image.
+     *                It carries its own notion of sampling options (as appropriate).
      */
+    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, const CropRect& cropRect,
+                                       Dither dither);
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTERS_FILTERQUALITY
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, const CropRect& cropRect = {}) {
         return Shader(std::move(shader), Dither::kNo, cropRect);
     }
@@ -332,6 +355,7 @@ public:
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
                                        SkFilterQuality filterQuality,
                                        const CropRect& cropRect = {});
+#endif
 
     /**
      *  Create a tile image filter.

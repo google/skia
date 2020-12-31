@@ -35,7 +35,7 @@
 
 // Working on allow this to be undefined
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
-//#define SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
+#define SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 
 class GrBackendRenderTarget;
 class GrRecordingContext;
