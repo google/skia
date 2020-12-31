@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "172d94d4_5f0ede6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-31T20:10:55Z",
+      "side": 1,
+      "message": "No gm differences (at least on my Mac), but lots of crazy diffs on the Chrome Canary -- are we missing something in our local tests?",
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
