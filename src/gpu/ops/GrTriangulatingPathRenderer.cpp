@@ -9,6 +9,7 @@
 
 #include "include/private/SkIDChangeListener.h"
 #include "src/core/SkGeometry.h"
+#include "src/gpu/GrAATriangulator.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
@@ -438,10 +439,8 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        bool isLinear;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
-        int vertexCount = GrTriangulator::PathToAATriangles(path, tol, clipBounds, &allocator,
-                                                            &isLinear);
+        int vertexCount = GrAATriangulator::PathToTriangles(path, tol, clipBounds, &allocator);
         if (vertexCount == 0) {
             return;
         }
