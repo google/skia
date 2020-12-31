@@ -210,7 +210,7 @@ static void gpu_tests(GrDirectContext* dContext,
                                                         GrRenderable::kNo, GrProtected::kNo,
                                                         markFinished, &finishedBECreate);
         }
-        REPORTER_ASSERT(reporter, backendTex.isValid());
+        REPORTER_ASSERT(reporter, backendTex.isValid(), "fi: %d, at: %d, ct: %d", fullInit, test.fAlphaType, test.fColorType);
         dContext->submit();
         while (backendTex.isValid() && !finishedBECreate) {
             dContext->checkAsyncWorkCompletion();
@@ -220,7 +220,7 @@ static void gpu_tests(GrDirectContext* dContext,
                                             test.fColorType, test.fAlphaType, nullptr);
         REPORTER_ASSERT(reporter, SkToBool(img));
 
-        {
+        if (img) {
             SkAutoPixmapStorage nativeActual;
             nativeActual.alloc(nativeII);
             nativeActual.erase(SkColors::kTransparent);
@@ -249,7 +249,7 @@ static void gpu_tests(GrDirectContext* dContext,
             }
         }
 
-        {
+        if (img) {
             SkAutoPixmapStorage f32Expected;
             f32Expected.alloc(f32Unpremul);
             f32Expected.erase(get_opaque_white_expected_color(test.fChannels));

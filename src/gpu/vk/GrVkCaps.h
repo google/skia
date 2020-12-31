@@ -267,6 +267,7 @@ private:
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
         GrColorType fColorType = GrColorType::kUnknown;
+        GrColorType fAltUploadColorType = GrColorType::kUnknown;
         enum {
             kUploadData_Flag = 0x1,
             // Does Ganesh itself support rendering to this colorType & format pair. Renderability

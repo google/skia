@@ -959,6 +959,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fAltUploadColorType = GrColorType::kRGB_888;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1674,7 +1675,10 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == srcColorType) {
-            return {srcColorType, offsetAlignment};
+            if (ctInfo.fAltUploadColorType != GrColorType::kUnknown) {
+                return {ctInfo.fAltUploadColorType, offsetAlignment};
+            }
+            return {ctInfo.fColorType, offsetAlignment};
         }
     }
     return {GrColorType::kUnknown, 0};
