@@ -17,6 +17,7 @@
 class GrEagerVertexAllocator;
 struct SkRect;
 
+#define TRIANGULATOR_LOGGING 0
 #define TRIANGULATOR_WIREFRAME 0
 
 /**
@@ -71,12 +72,16 @@ public:
     static int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                               WindingVertex** verts);
 
-    // Structs used by GrTriangulator internals.
+    // Structs used by GrTriangulator internals. Definitions are in GrTriangulator_structs.h.
+    enum class Side : bool;
+    enum class EdgeType : int;
     struct Vertex;
     struct VertexList;
+    struct Line;
     struct Edge;
     struct EdgeList;
     struct Poly;
+    struct MonotonePoly;
     struct Comparator;
 
 private:
@@ -88,7 +93,7 @@ private:
     void pathToContours(float tolerance, const SkRect& clipBounds, VertexList* contours);
 
     // 2) Build a mesh of edges connecting the vertices:
-    void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh, Comparator&);
+    void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
 
     // 3) Sort the vertices in Y (and secondarily in X) (merge_sort()).
     static void SortMesh(VertexList* vertices, const Comparator&);
@@ -100,7 +105,7 @@ private:
         kAbort
     };
 
-    SimplifyResult simplify(VertexList* mesh, Comparator&);
+    SimplifyResult simplify(VertexList* mesh, const Comparator&);
 
     // 5) Tessellate the simplified mesh into monotone polygons:
     Poly* tessellate(const VertexList& vertices);
@@ -163,18 +168,27 @@ private:
     // setting rotates 90 degrees counterclockwise, rather that transposing.
 
     // Additional helpers and driver functions.
+    void* emitMonotonePoly(const MonotonePoly* monotonePoly, void* vertexData);
+    void* emitTriangle(const Vertex* prev, const Vertex* curr, const Vertex* next, int winding,
+                       void* vertexData) const;
+    Poly* addEdgeToPoly(Poly* poly, Edge* e, Side side);
+    void* emitPoly(const Poly* poly, void* vertexData);
     void appendPointToContour(const SkPoint& p, VertexList* contour);
     void appendQuadraticToContour(const SkPoint[3], SkScalar toleranceSqd, VertexList* contour);
     void generateCubicPoints(const SkPoint&, const SkPoint&, const SkPoint&, const SkPoint&,
                              SkScalar tolSqd, VertexList* contour, int pointsLeft);
-    bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator&);
+    Edge* makeEdge(Vertex* prev, Vertex* next, EdgeType type, const Comparator& c);
+    bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
+                   const Comparator&);
     bool intersectEdgePair(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
-                           Comparator&);
+                           const Comparator&);
+    Edge* connectEdge(Vertex* prev, Vertex* next, EdgeType type, const Comparator& c,
+                      int windingScale = 1);
     bool checkForIntersection(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
-                              VertexList* mesh, Comparator&);
+                              VertexList* mesh, const Comparator&);
     void sanitizeContours(VertexList* contours, int contourCnt);
-    bool mergeCoincidentVertices(VertexList* mesh, Comparator&);
-    void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, Comparator&);
+    bool mergeCoincidentVertices(VertexList* mesh, const Comparator&);
+    void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
     Poly* contoursToPolys(VertexList* contours, int contourCnt, VertexList* outerMesh);
     Poly* pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt,
                       VertexList* outerMesh);
