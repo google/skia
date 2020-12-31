@@ -24,27 +24,37 @@ struct SkRect;
  */
 class GrTriangulator {
 public:
-    enum class Mode {
-        kNormal,
-
-        // Surround path edges with coverage ramps for antialiasing.
-        kEdgeAntialias,
-
-        // Triangulate only each contour's inner polygon. The inner polygons connect the endpoints
-        // of each verb. (i.e., they are the path that would result from collapsing all curves to
-        // single lines.)
-        //
-        // If the inner polygons are not simple (e.g., self intersection, double winding), then the
-        // tessellator aborts and returns 0.
-        kSimpleInnerPolygons
-    };
-
-    constexpr static size_t GetVertexStride(Mode mode) {
-        return sizeof(SkPoint) + ((Mode::kEdgeAntialias == mode) ? sizeof(float) : 0);
+    static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
+                               GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
+        GrTriangulator triangulator(path);
+        int count = triangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator,
+                                                 path.getFillType());
+        *isLinear = triangulator.fIsLinear;
+        return count;
     }
 
-    static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                               GrEagerVertexAllocator*, Mode, bool *isLinear);
+    static int PathToAATriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
+                                 GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
+        GrTriangulator triangulator(path);
+        triangulator.fRoundVerticesToQuarterPixel = true;
+        triangulator.fEmitCoverage = true;
+        int count = triangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator,
+                                                 SkPathFillType::kWinding);
+        *isLinear = triangulator.fIsLinear;
+        return count;
+    }
+
+    static int TriangulateSimpleInnerPolygons(const SkPath& path,
+                                              GrEagerVertexAllocator* vertexAllocator,
+                                              bool *isLinear) {
+        GrTriangulator triangulator(path);
+        triangulator.fCullCollinearVertices = false;
+        triangulator.fSimpleInnerPolygons = true;
+        int count = triangulator.pathToTriangles(0, SkRect::MakeEmpty(), vertexAllocator,
+                                                 path.getFillType());
+        *isLinear = triangulator.fIsLinear;
+        return count;
+    }
 
     struct WindingVertex {
         SkPoint fPos;
@@ -70,7 +80,7 @@ public:
     struct Comparator;
 
 private:
-    GrTriangulator(const SkPath& path, Mode mode) : fPath(path), fMode(mode) {}
+    GrTriangulator(const SkPath& path) : fPath(path) {}
 
     // There are six stages to the basic algorithm:
     //
@@ -174,8 +184,13 @@ private:
     constexpr static int kArenaChunkSize = 16 * 1024;
     SkArenaAlloc fAlloc{kArenaChunkSize};
     const SkPath fPath;
-    const Mode fMode;
     bool fIsLinear = false;
+
+    // Flags.
+    bool fRoundVerticesToQuarterPixel = false;
+    bool fEmitCoverage = false;
+    bool fCullCollinearVertices = true;
+    bool fSimpleInnerPolygons = false;
 };
 
 #endif
