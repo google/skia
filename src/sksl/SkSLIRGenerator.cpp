@@ -2292,28 +2292,32 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(int offset,
     }
     const Type& argType = args[0]->type();
     if (type == argType) {
+        // Strip off redundant casts--i.e., convert Type(exprOfType) into exprOfType.
         return std::move(args[0]);
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->is<FloatLiteral>()) {
-        SKSL_FLOAT value = args[0]->as<FloatLiteral>().value();
-        return std::make_unique<FloatLiteral>(offset, value, &type);
+    if (type.isFloat()) {
+        if (args[0]->is<FloatLiteral>()) {
+            // Convert float(1.23) into a FloatLiteral.
+            return std::make_unique<FloatLiteral>(offset, args[0]->as<FloatLiteral>().value(),
+                                                  &type);
+        }
+        if (args[0]->is<IntLiteral>()) {
+            // Convert float(123) into a FloatLiteral.
+            SKSL_FLOAT value = (SKSL_FLOAT)args[0]->as<IntLiteral>().value();
+            return std::make_unique<FloatLiteral>(offset, value, &type);
+        }
+    } else if (type.isInteger()) {
+        if (args[0]->is<IntLiteral>()) {
+            // Convert int(123), or any other integer type, into an IntLiteral.
+            return std::make_unique<IntLiteral>(offset, args[0]->as<IntLiteral>().value(), &type);
+        }
+        if (args[0]->is<FloatLiteral>()) {
+            // Convert int(1.23), or any other integer type, into an IntLiteral.
+            SKSL_INT value = (SKSL_INT)args[0]->as<FloatLiteral>().value();
+            return std::make_unique<IntLiteral>(offset, value, &type);
+        }
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->is<IntLiteral>()) {
-        SKSL_INT value = args[0]->as<IntLiteral>().value();
-        return std::make_unique<FloatLiteral>(offset, (SKSL_FLOAT)value, &type);
-    }
-    if (args[0]->is<IntLiteral>() && (type == *fContext.fInt_Type ||
-                                      type == *fContext.fUInt_Type)) {
-        return std::make_unique<IntLiteral>(offset, args[0]->as<IntLiteral>().value(), &type);
-    }
-    if (argType == *fContext.fBool_Type) {
-        std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, offset, 0));
-        std::unique_ptr<IntLiteral> one(new IntLiteral(fContext, offset, 1));
-        return std::make_unique<TernaryExpression>(offset, std::move(args[0]),
-                                                   this->coerce(std::move(one), type),
-                                                   this->coerce(std::move(zero), type));
-    }
-    if (!argType.isNumber()) {
+    if (!argType.isNumber() && !argType.isBoolean()) {
         fErrors.error(offset, "invalid argument to '" + type.displayName() +
                               "' constructor (expected a number or bool, but found '" +
                               argType.displayName() + "')");

@@ -22,6 +22,6 @@ void main() {
     z <<= 4;
     z %= 5;
     x = float((vec2(sqrt(1.0)) , 6));
-    y = (((((b ? 1.0 : 0.0) * (c ? 1.0 : 0.0)) * (d ? 1.0 : 0.0)) * (e ? 1.0 : 0.0)) * (f ? 1.0 : 0.0) , 6.0);
+    y = ((((float(b) * float(c)) * float(d)) * float(e)) * float(f) , 6.0);
     z = (vec2(sqrt(1.0)) , 6);
 }
