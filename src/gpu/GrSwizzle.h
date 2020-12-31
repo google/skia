@@ -53,8 +53,10 @@ public:
     void apply(SkRasterPipeline*) const;
 
     static constexpr GrSwizzle RGBA() { return GrSwizzle("rgba"); }
-    static constexpr GrSwizzle BGRA() { return GrSwizzle("bgra"); }
+    static constexpr GrSwizzle AAAA() { return GrSwizzle("aaaa"); }
+    static constexpr GrSwizzle RRRR() { return GrSwizzle("rrrr"); }
     static constexpr GrSwizzle RRRA() { return GrSwizzle("rrra"); }
+    static constexpr GrSwizzle BGRA() { return GrSwizzle("bgra"); }
     static constexpr GrSwizzle RGB1() { return GrSwizzle("rgb1"); }
 
 private:

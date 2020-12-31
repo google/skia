@@ -49,9 +49,9 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
         case GrColorType::kAlpha_8: // fall through
         case GrColorType::kAlpha_F16:
             if (forOutput) {
-                return GrSwizzle("a000");
+                return GrSwizzle::AAAA();
             } else {
-                return GrSwizzle("000r");
+                return GrSwizzle::RRRR();
             }
         case GrColorType::kGray_8:
             if (!forOutput) {
