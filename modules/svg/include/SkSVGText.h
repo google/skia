@@ -39,6 +39,7 @@ public:
     SVG_ATTR(Y, std::vector<SkSVGLength>, {})
     SVG_ATTR(Dx, std::vector<SkSVGLength>, {})
     SVG_ATTR(Dy, std::vector<SkSVGLength>, {})
+    SVG_ATTR(Rotate, std::vector<SkSVGLength>, {})
 
     SVG_ATTR(XmlSpace, SkSVGXmlSpace, SkSVGXmlSpace::kDefault)
 
@@ -47,11 +48,11 @@ public:
 protected:
     explicit SkSVGTextContainer(SkSVGTag t) : INHERITED(t) {}
 
+    void onRenderText(const SkSVGRenderContext&, SkSVGTextContext*, SkSVGXmlSpace) const override;
+    bool parseAndSetAttribute(const char*, const char*) override;
+
 private:
     void onRender(const SkSVGRenderContext&) const final;
-    void onRenderText(const SkSVGRenderContext&, SkSVGTextContext*, SkSVGXmlSpace) const final;
-
-    bool parseAndSetAttribute(const char*, const char*) override;
 
     std::vector<sk_sp<SkSVGTextFragment>> fChildren;
 
@@ -95,6 +96,22 @@ private:
     void appendChild(sk_sp<SkSVGNode>) override {}
 
     using INHERITED = SkSVGTextFragment;
+};
+
+class SkSVGTextPath final : public SkSVGTextContainer {
+public:
+    static sk_sp<SkSVGTextPath> Make() { return sk_sp<SkSVGTextPath>(new SkSVGTextPath()); }
+
+    SVG_ATTR(Href       , SkSVGStringType, SkString()    )
+    SVG_ATTR(StartOffset, SkSVGLength    , SkSVGLength(0))
+
+private:
+    SkSVGTextPath() : INHERITED(SkSVGTag::kTextPath) {}
+
+    void onRenderText(const SkSVGRenderContext&, SkSVGTextContext*, SkSVGXmlSpace) const override;
+    bool parseAndSetAttribute(const char*, const char*) override;
+
+    using INHERITED = SkSVGTextContainer;
 };
 
 #endif  // SkSVGText_DEFINED
