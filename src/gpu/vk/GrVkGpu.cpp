@@ -443,11 +443,13 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                             bool prepForTexSampling) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
+        SkDebugf("no vkTex\n");
         return false;
     }
 
     // Make sure we have at least the base level
     if (!mipLevelCount || !texels[0].fPixels) {
+        SkDebugf("bad count or pixels\n");
         return false;
     }
 
@@ -467,6 +469,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                                   VK_PIPELINE_STAGE_HOST_BIT,
                                   false);
             if (!this->submitCommandBuffer(kForce_SyncQueue)) {
+                SkDebugf("no submit\n");
                 return false;
             }
         }
@@ -484,6 +487,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                               false);
     }
 
+    if (!success) SkDebugf("no success\n");
     return success;
 }
 
@@ -702,6 +706,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
 
     const GrVkAlloc& alloc = tex->alloc();
     if (VK_NULL_HANDLE == alloc.fMemory) {
+        SkDebugf("lin no memory\n");
         return false;
     }
     VkDeviceSize offset = top * layout.rowPitch + left * bpp;
@@ -709,6 +714,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
     SkASSERT(size + offset <= alloc.fSize);
     void* mapPtr = GrVkMemory::MapAlloc(this, alloc);
     if (!mapPtr) {
+        SkDebugf("lin no map\n");
         return false;
     }
     mapPtr = reinterpret_cast<char*>(mapPtr) + offset;
@@ -800,12 +806,14 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->maxMipmapLevel() + 1));
 
     if (width == 0 || height == 0) {
+        SkDebugf("opt no w/h\n");
         return false;
     }
 
     SkASSERT(this->vkCaps().surfaceSupportsWritePixels(tex));
     SkASSERT(this->vkCaps().areColorTypeAndFormatCompatible(dataColorType, tex->backendFormat()));
 
+#if 0
     // For RGB_888x src data we are uploading it first to an RGBA texture and then copying it to the
     // dst RGB texture. Thus we do not upload mip levels for that.
     if (dataColorType == GrColorType::kRGB_888x && tex->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
@@ -817,6 +825,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         }
         mipLevelCount = 1;
     }
+#endif
 
     SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
@@ -875,6 +884,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     int uploadLeft = left;
     int uploadTop = top;
     GrVkTexture* uploadTexture = tex;
+#if 0
     // For uploading RGB_888x data to an R8G8B8_UNORM texture we must first upload the data to an
     // R8G8B8A8_UNORM image and then copy it.
     sk_sp<GrVkTexture> copyTexture;
@@ -910,6 +920,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         uploadLeft = 0;
         uploadTop = 0;
     }
+#endif
 
     char* buffer = (char*) slice.fOffsetMapPtr;
     SkTArray<VkBufferImageCopy> regions(mipLevelCount);
