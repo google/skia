@@ -16,6 +16,69 @@
       "message": "No gm differences (at least on my Mac), but lots of crazy diffs on the Chrome Canary -- are we missing something in our local tests?",
       "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c8d5748_8a1a47db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-01T14:20:42Z",
+      "side": 1,
+      "message": "This seems pretty straight forward, so I\u0027m not sure what\u0027s causing the issues with the chrome layout tests. It is striking that the failures all appear to be ignoring a round-rect clip mask in the compositor. These are handled here, I believe: https://source.chromium.org/chromium/chromium/src/+/master:components/viz/service/display/skia_renderer.cc;drc\u003d03100289feba14f83a674a43a56da480ba8d2ed2;l\u003d1106\n\nIt doesn\u0027t seem to be a general issue with backdrop filtering, since plenty of tests in chrome still pass that don\u0027t have this backdrop. I think these all go through this since the others are canvas related, but alternatively could be clipped via https://source.chromium.org/chromium/chromium/src/+/master:components/viz/service/display/skia_renderer.cc;drc\u003d03100289feba14f83a674a43a56da480ba8d2ed2;l\u003d999\n\nThose don\u0027t rely on drawSpecial/drawDevice to my knowledge, so I\u0027m not sure what\u0027s going on, and I\u0027m not sure why changing how we\u0027d do filtering would mess up later draws into them. ",
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65dd80f7_5f869952",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-01T14:20:42Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 953,
+        "startChar": 48,
+        "endLine": 953,
+        "endChar": 49
+      },
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "030c9655_5e3e9116",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1275,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-01T14:20:42Z",
+      "side": 1,
+      "message": "This paint is a modification of the paint that was passed to saveLayer; theoretically it can have any FQ. For now, it should just match what\u0027s in noFilterPaint.\n\nMost call sites probably just used the default NN, and most device draws are integer translations with 1-1 scale so it doesn\u0027t matter. When we remove the matrix transform hack for image filters, internalSaveLayer() determines sampling options that make sense based on the transform it\u0027s applying post filter.",
+      "range": {
+        "startLine": 1274,
+        "startChar": 4,
+        "endLine": 1275,
+        "endChar": 50
+      },
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
