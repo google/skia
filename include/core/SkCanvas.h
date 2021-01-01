@@ -1819,8 +1819,8 @@ public:
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
 
         SkCanvas::Lattice lattice divides image into a rectangular grid.
-        Each intersection of an even-numbered row and column is fixed; like the corners
-        of drawBitmapNine(), fixed lattice elements never scale larger than their initial
+        Each intersection of an even-numbered row and column is fixed;
+        fixed lattice elements never scale larger than their initial
         size and shrink proportionately when all fixed elements exceed the bitmap
         dimension. All other grid elements scale to fill the available space, if any.
 
