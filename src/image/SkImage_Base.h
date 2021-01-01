@@ -61,7 +61,7 @@ public:
     virtual void onAsyncRescaleAndReadPixels(const SkImageInfo&,
                                              const SkIRect& srcRect,
                                              RescaleGamma,
-                                             SkFilterQuality,
+                                             const SkSamplingOptions&,
                                              ReadPixelsCallback,
                                              ReadPixelsContext);
     /**
@@ -72,7 +72,7 @@ public:
                                                    const SkIRect& srcRect,
                                                    const SkISize& dstSize,
                                                    RescaleGamma,
-                                                   SkFilterQuality,
+                                                   const SkSamplingOptions&,
                                                    ReadPixelsCallback,
                                                    ReadPixelsContext);
 

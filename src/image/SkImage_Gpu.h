@@ -54,7 +54,7 @@ public:
     void onAsyncRescaleAndReadPixels(const SkImageInfo&,
                                      const SkIRect& srcRect,
                                      RescaleGamma,
-                                     SkFilterQuality,
+                                     const SkSamplingOptions&,
                                      ReadPixelsCallback,
                                      ReadPixelsContext) override;
 
@@ -63,7 +63,7 @@ public:
                                            const SkIRect& srcRect,
                                            const SkISize& dstSize,
                                            RescaleGamma,
-                                           SkFilterQuality,
+                                           const SkSamplingOptions&,
                                            ReadPixelsCallback,
                                            ReadPixelsContext) override;
 
