@@ -8,10 +8,10 @@
 #ifndef GrSurfaceContext_DEFINED
 #define GrSurfaceContext_DEFINED
 
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrColorInfo.h"
@@ -110,7 +110,7 @@ public:
                                    const SkImageInfo& info,
                                    const SkIRect& srcRect,
                                    RescaleGamma rescaleGamma,
-                                   SkFilterQuality rescaleQuality,
+                                   const SkSamplingOptions& rescaleSampling,
                                    ReadPixelsCallback callback,
                                    ReadPixelsContext callbackContext);
 
@@ -121,7 +121,7 @@ public:
                                          const SkIRect& srcRect,
                                          SkISize dstSize,
                                          RescaleGamma rescaleGamma,
-                                         SkFilterQuality rescaleQuality,
+                                         const SkSamplingOptions& rescaleSampling,
                                          ReadPixelsCallback callback,
                                          ReadPixelsContext context);
 
@@ -164,7 +164,7 @@ public:
                                                   GrSurfaceOrigin,
                                                   SkIRect srcRect,
                                                   SkImage::RescaleGamma,
-                                                  SkFilterQuality);
+                                                  const SkSamplingOptions&);
 
     /**
      * Like the above but allows the caller ot specify a destination draw context and
@@ -174,7 +174,7 @@ public:
                      SkIRect dstRect,
                      SkIRect srcRect,
                      SkImage::RescaleGamma,
-                     SkFilterQuality);
+                     const SkSamplingOptions&);
 
     GrAuditTrail* auditTrail();
 
