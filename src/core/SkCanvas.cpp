@@ -73,6 +73,13 @@ static SkSamplingOptions paint_to_sampling(const SkPaint* paint, const GrRecordi
     return SkSamplingOptions(paint ? paint->getFilterQuality() : kNone_SkFilterQuality, mb);
 }
 
+#ifndef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
+static SkFilterMode paint_to_filter(const SkPaint* paint) {
+    return paint && paint->getFilterQuality() >= kLow_SkFilterQuality ? SkFilterMode::kLinear
+                                                                      : SkFilterMode::kNearest;
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -1898,15 +1905,24 @@ static SkPaint clean_paint_for_lattice(const SkPaint* paint) {
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              SkFilterMode filter, const SkPaint* paint) {
-    SkPaint latticePaint = clean_paint_for_lattice(paint);
-    // use filterquality until we can update our virtuals to take SkFilterMode
-    latticePaint.setFilterQuality(filter == SkFilterMode::kNearest ? kNone_SkFilterQuality
-                                                                   : kLow_SkFilterQuality);
-    this->drawImageNine(image, center, dst, &latticePaint);
+    RETURN_ON_NULL(image);
+
+    const int xdivs[] = {center.fLeft, center.fRight};
+    const int ydivs[] = {center.fTop, center.fBottom};
+
+    Lattice lat;
+    lat.fXDivs = xdivs;
+    lat.fYDivs = ydivs;
+    lat.fRectTypes = nullptr;
+    lat.fXCount = lat.fYCount = 2;
+    lat.fBounds = nullptr;
+    lat.fColors = nullptr;
+    this->drawImageLattice(image, lat, dst, filter, paint);
 }
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     RETURN_ON_NULL(image);
 
     const int xdivs[] = {center.fLeft, center.fRight};
@@ -1920,6 +1936,9 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
     lat.fBounds = nullptr;
     lat.fColors = nullptr;
     this->drawImageLattice(image, lat, dst, paint);
+#else
+    this->drawImageNine(image, center, dst, paint_to_filter(paint), paint);
+#endif
 }
 
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
@@ -1970,9 +1989,7 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
         this->drawImageRect(image, dst, paint);
     }
 #else
-    this->drawImageLattice(image, lattice, dst,
-                           paint_to_sampling(paint, this->recordingContext()).filter,
-                           paint);
+    this->drawImageLattice(image, lattice, dst, paint_to_filter(paint), paint);
 #endif
 }
 
