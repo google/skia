@@ -255,11 +255,11 @@ void SkRecorder::onDrawImageLattice2(const SkImage* image, const Lattice& lattic
                                      SkFilterMode filter, const SkPaint* paint) {
     int flagCount = lattice.fRectTypes ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
     SkASSERT(lattice.fBounds);
-    this->append<SkRecords::DrawImageLattice>(this->copy(paint), sk_ref_sp(image),
+    this->append<SkRecords::DrawImageLattice2>(this->copy(paint), sk_ref_sp(image),
            lattice.fXCount, this->copy(lattice.fXDivs, lattice.fXCount),
            lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount),
            flagCount, this->copy(lattice.fRectTypes, flagCount),
-           this->copy(lattice.fColors, flagCount), *lattice.fBounds, dst);
+           this->copy(lattice.fColors, flagCount), *lattice.fBounds, dst, filter);
 }
 
 void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
