@@ -494,10 +494,6 @@ void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top, const SkPai
 SkCanvas
 void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst, const SkPaint* paint = nullptr);
 
-[Canvas_drawBitmapNine]
-SkCanvas
-void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst, const SkPaint* paint = nullptr);
-
 [Canvas_drawBitmapRect_2]
 SkCanvas
 void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);

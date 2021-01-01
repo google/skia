@@ -11,24 +11,6 @@ Tips & FAQ
 
 * * *
 
-<span id="bitmap-subsetting">Bitmap Subsetting</span>
------------------------------------------------------
-
-Taking a subset of a bitmap is effectively free - no pixels are copied or
-memory is allocated. This allows Skia to offer an API that typically operates
-on entire bitmaps; clients who want to operate on a subset of a bitmap can use
-the following pattern, here being used to magnify a portion of an image with
-drawBitmapNine():
-
-    SkBitmap subset;
-    bitmap.extractSubset(&subset, rect);
-    canvas->drawBitmapNine(subset, ...);
-
-[An example](https://fiddle.skia.org/c/@subset_example)
-
-
-* * *
-
 <span id="skp-capture">Capture a `.skp` file on a web page in Chromium</span>
 -----------------------------------------------------------------------------
 

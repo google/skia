@@ -4832,14 +4832,6 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawBitmapLattice"
 },
-    "SkCanvas_drawBitmapNine": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right;\n    }\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawBitmapNine(bitmap, center, SkRect::MakeWH(dest, 110 - dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
-    "width": 256,
-    "height": 128,
-    "hash": "e99e7be0d8f67dfacbecf85df585433d",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::drawBitmapNine"
-},
     "SkCanvas_drawBitmapRect": {
     "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][8] = { { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},\n                            { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00},\n                            { 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF},\n                            { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeA8(8, 8),\n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, 6));\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {\n        paint.setColor(color);\n        canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), SkRect::MakeWH(32, 32), &paint);\n        canvas->translate(48, 0);\n    }\n}\n",
     "width": 256,
