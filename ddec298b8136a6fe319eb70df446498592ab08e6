@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "558af719_22979972",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-02T02:48:40Z",
+      "side": 1,
+      "message": "Hm, this might need its own enum. It\u0027s really something like kNearest, kRepeatedBilerp, kRepeatedBicubic. It never uses mip maps and the second two methods are multiple steps in general.",
+      "revId": "ddec298b8136a6fe319eb70df446498592ab08e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
