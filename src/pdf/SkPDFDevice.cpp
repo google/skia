@@ -631,18 +631,19 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
 void SkPDFDevice::drawImageRect(const SkImage* image,
                                 const SkRect* src,
                                 const SkRect& dst,
-                                const SkSamplingOptions&,   // ignored
+                                const SkSamplingOptions& sampling,
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint) {
     SkASSERT(image);
     this->internalDrawImageRect(SkKeyedImage(sk_ref_sp(const_cast<SkImage*>(image))),
-                                src, dst, paint, this->localToDevice());
+                                src, dst, sampling, paint, this->localToDevice());
 }
 
 void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& paint) {
     SkASSERT(!bm.drawsNothing());
     auto r = SkRect::MakeXYWH(x, y, bm.width(), bm.height());
-    this->internalDrawImageRect(SkKeyedImage(bm), nullptr, r, paint, SkMatrix::I());
+    this->internalDrawImageRect(SkKeyedImage(bm), nullptr, r, SkSamplingOptions(), paint,
+                                SkMatrix::I());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1438,6 +1439,7 @@ static bool is_integral(const SkRect& r) {
 void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                                         const SkRect* src,
                                         const SkRect& dst,
+                                        const SkSamplingOptions& sampling,
                                         const SkPaint& srcPaint,
                                         const SkMatrix& ctm) {
     if (this->hasEmptyClip()) {
@@ -1490,7 +1492,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         tmpPaint.setShader(sk_ref_sp(paint->getShader()));
         tmpPaint.setColor4f(paint->getColor4f(), nullptr);
         canvas->clear(0x00000000);
-        canvas->drawImage(imageSubset.image().get(), 0, 0, &tmpPaint);
+        canvas->drawImage(imageSubset.image().get(), 0, 0, sampling, &tmpPaint);
         if (paint->getShader() != nullptr) {
             paint.writable()->setShader(nullptr);
         }
@@ -1671,7 +1673,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void SkPDFDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
+void SkPDFDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& sampling,
+                             const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
     SkASSERT(!paint.getMaskFilter());
 
@@ -1680,7 +1683,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
     // a raster device to apply color filters, too).
     SkPixmap pmap;
     if (device->peekPixels(&pmap)) {
-        this->INHERITED::drawDevice(device, paint);
+        this->INHERITED::drawDevice(device, sampling, paint);
         return;
     }
 
@@ -1708,7 +1711,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
 }
 
 void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, const SkMatrix& localToDevice,
-                              const SkPaint& paint) {
+                              const SkSamplingOptions& sampling, const SkPaint& paint) {
     if (this->hasEmptyClip()) {
         return;
     }
@@ -1718,7 +1721,8 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, const SkMatrix& localToDev
     SkBitmap resultBM;
     if (srcImg->getROPixels(&resultBM)) {
         auto r = SkRect::MakeWH(resultBM.width(), resultBM.height());
-        this->internalDrawImageRect(SkKeyedImage(resultBM), nullptr, r, paint, localToDevice);
+        this->internalDrawImageRect(SkKeyedImage(resultBM), nullptr, r, sampling, paint,
+                                    localToDevice);
     }
 }
 

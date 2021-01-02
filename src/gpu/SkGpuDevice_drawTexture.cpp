@@ -653,8 +653,17 @@ void draw_tiled_bitmap(GrRecordingContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
+static SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
+    SkFilterMode filter = sampling.filter;
+    if (sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
+        // if we were "fancier" than just bilerp, only do bilerp
+        filter = SkFilterMode::kLinear;
+    }
+    return filter;
+}
+
 void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDevice,
-                              const SkPaint& paint) {
+                              const SkSamplingOptions& sampling, const SkPaint& paint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
     SkASSERT(special->isTextureBacked());
 
@@ -662,9 +671,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
     SkRect dst = SkRect::MakeWH(special->width(), special->height());
     SkMatrix srcToDst = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
-    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp,
-                           paint.getFilterQuality() >= kLow_SkFilterQuality ?
-                                GrSamplerState::Filter::kLinear : GrSamplerState::Filter::kNearest);
+    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, downgrade_to_filter(sampling));
     GrAA aa = paint.isAntiAlias() ? GrAA::kYes : GrAA::kNo;
     GrQuadAAFlags aaFlags = paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 

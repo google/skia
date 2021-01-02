@@ -313,13 +313,14 @@ protected:
      * from the input device to this device. The provided SkPaint cannot have a mask filter or
      * image filter, and any shader is ignored.
      */
-    virtual void drawDevice(SkBaseDevice*, const SkPaint&);
+    virtual void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&);
 
     /**
      * Draw the special image's subset to this device, subject to the given matrix transform instead
      * of the device's current local to device matrix.
      */
-    virtual void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice, const SkPaint&);
+    virtual void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice,
+                             const SkSamplingOptions&, const SkPaint&);
 
     /**
      * Evaluate 'filter' and draw the final output into this device using 'paint'. The 'mapping'
@@ -331,7 +332,7 @@ protected:
      * The final paint must not have an image filter or mask filter set on it; a shader is ignored.
      */
     virtual void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                                   const SkImageFilter* filter, const SkPaint& paint);
+                                   const SkImageFilter*, const SkSamplingOptions&, const SkPaint&);
 
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
@@ -524,12 +525,12 @@ protected:
     void drawOval(const SkRect&, const SkPaint&) override {}
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
-    void drawDevice(SkBaseDevice*, const SkPaint&) override {}
+    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
 
-    void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                           const SkImageFilter* filter, const SkPaint& paint) override {}
+    void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,
+                           const SkSamplingOptions&, const SkPaint&) override {}
 
     bool isNoPixelsDevice() const override { return true; }
 
