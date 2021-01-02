@@ -2698,7 +2698,7 @@ private:
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
-    void internalDrawDevice(SkBaseDevice*, const SkPaint*);
+    void internalDrawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint*);
 
     void internalConcat44(const SkM44&);
 

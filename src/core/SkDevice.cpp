@@ -311,7 +311,8 @@ void SkBaseDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, Sk
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawSpecial(SkSpecialImage*, const SkMatrix&, const SkPaint&) {}
+void SkBaseDevice::drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
+                               const SkPaint&) {}
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial(const SkIRect&, bool) { return nullptr; }
@@ -319,15 +320,17 @@ sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
     return this->snapSpecial(SkIRect::MakeWH(this->width(), this->height()));
 }
 
-void SkBaseDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
+void SkBaseDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& sampling,
+                              const SkPaint& paint) {
     sk_sp<SkSpecialImage> deviceImage = device->snapSpecial();
     if (deviceImage) {
-        this->drawSpecial(deviceImage.get(), device->getRelativeTransform(*this), paint);
+        this->drawSpecial(deviceImage.get(), device->getRelativeTransform(*this), sampling, paint);
     }
 }
 
 void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                                     const SkImageFilter* filter, const SkPaint& paint) {
+                                     const SkImageFilter* filter, const SkSamplingOptions& sampling,
+                                     const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter() && !paint.getMaskFilter());
     using For = skif::Usage;
 
@@ -353,7 +356,7 @@ void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImag
     if (result) {
         SkMatrix deviceMatrixWithOffset = mapping.deviceMatrix();
         deviceMatrixWithOffset.preTranslate(offset.fX, offset.fY);
-        this->drawSpecial(result.get(), deviceMatrixWithOffset, paint);
+        this->drawSpecial(result.get(), deviceMatrixWithOffset, sampling, paint);
     }
 }
 

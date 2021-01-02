@@ -94,7 +94,7 @@ protected:
                        SkCanvas::SrcRectConstraint) override;
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
 
 private:
     class TypefaceUse {
