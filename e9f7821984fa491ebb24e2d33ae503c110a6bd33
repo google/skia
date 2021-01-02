@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbff1992_3fe96910",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-02T17:57:32Z",
+      "side": 1,
+      "message": "all good now it seems",
+      "parentUuid": "8c8d5748_8a1a47db",
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "65dd80f7_5f869952",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-01-01T14:20:42Z",
       "side": 1,
       "message": "nit: space",
+      "range": {
+        "startLine": 953,
+        "startChar": 48,
+        "endLine": 953,
+        "endChar": 49
+      },
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d828c1a8_712f2bc8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-02T17:57:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65dd80f7_5f869952",
       "range": {
         "startLine": 953,
         "startChar": 48,
