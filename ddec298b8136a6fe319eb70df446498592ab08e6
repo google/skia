@@ -34,6 +34,24 @@
       "parentUuid": "558af719_22979972",
       "revId": "ddec298b8136a6fe319eb70df446498592ab08e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2af53a0_189e1cb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-02T15:06:47Z",
+      "side": 1,
+      "message": "I presume you mean a \"public\" enum, so it can go on image and surface...",
+      "parentUuid": "81c3d221_83aa0a2b",
+      "revId": "ddec298b8136a6fe319eb70df446498592ab08e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
