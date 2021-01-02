@@ -79,6 +79,30 @@
       },
       "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98c62bff_db75c737",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1275,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-02T01:36:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "030c9655_5e3e9116",
+      "range": {
+        "startLine": 1274,
+        "startChar": 4,
+        "endLine": 1275,
+        "endChar": 50
+      },
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
