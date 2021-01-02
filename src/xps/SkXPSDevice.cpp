@@ -1954,7 +1954,7 @@ void SkXPSDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     }
 }
 
-void SkXPSDevice::drawDevice(SkBaseDevice* dev,  const SkPaint&) {
+void SkXPSDevice::drawDevice(SkBaseDevice* dev, const SkSamplingOptions&, const SkPaint&) {
     SkXPSDevice* that = static_cast<SkXPSDevice*>(dev);
     SkASSERT(that->fTopTypefaces == this->fTopTypefaces);
 
