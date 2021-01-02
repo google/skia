@@ -86,4 +86,20 @@ struct SK_API SkSamplingOptions {
     bool operator!=(const SkSamplingOptions& other) const { return !(*this == other); }
 };
 
+enum class SkRescalingMode {
+    kNearest,
+    kRepeatedLinear,
+    kRepeatedCubic,
+};
+
+static inline SkRescalingMode SkToRescalingMode(SkFilterQuality fq) {
+    switch (fq) {
+        case kNone_SkFilterQuality:   return SkRescalingMode::kNearest;
+        case kHigh_SkFilterQuality:   return SkRescalingMode::kRepeatedCubic;
+        case kLow_SkFilterQuality:
+        case kMedium_SkFilterQuality: break;
+    }
+    return SkRescalingMode::kRepeatedLinear;
+}
+
 #endif

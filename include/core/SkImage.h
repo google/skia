@@ -24,6 +24,9 @@
 #include <android/hardware_buffer.h>
 #endif
 
+// TODO: move this into chrome, so we can update and remove it
+#define SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
+
 class SkData;
 class SkCanvas;
 class SkImage;
@@ -858,16 +861,27 @@ public:
         @param srcRect         subrectangle of image to read
         @param rescaleGamma    controls whether rescaling is done in the image's gamma or whether
                                the source data is transformed to a linear gamma before rescaling.
-        @param rescaleQuality  controls the quality (and cost) of the rescaling
+        @param rescaling       controls the technique (and cost) of the rescaling
         @param callback        function to call with result of the read
         @param context         passed to callback
     */
     void asyncRescaleAndReadPixels(const SkImageInfo& info,
                                    const SkIRect& srcRect,
                                    RescaleGamma rescaleGamma,
-                                   SkFilterQuality rescaleQuality,
+                                   SkRescalingMode rescaling,
                                    ReadPixelsCallback callback,
                                    ReadPixelsContext context);
+#ifdef SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
+    void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma,
+                                   SkFilterQuality quality,
+                                   ReadPixelsCallback callback,
+                                   ReadPixelsContext context) {
+        return asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, SkToRescalingMode(quality),
+                                         callback, context);
+    }
+#endif
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
@@ -894,7 +908,7 @@ public:
         @param dstSize        The size to rescale srcRect to
         @param rescaleGamma   controls whether rescaling is done in the image's gamma or whether
                               the source data is transformed to a linear gamma before rescaling.
-        @param rescaleQuality controls the quality (and cost) of the rescaling
+        @param rescaling      controls the technique (and cost) of the rescaling
         @param callback       function to call with the planar read result
         @param context        passed to callback
      */
@@ -903,9 +917,23 @@ public:
                                          const SkIRect& srcRect,
                                          const SkISize& dstSize,
                                          RescaleGamma rescaleGamma,
-                                         SkFilterQuality rescaleQuality,
+                                         SkRescalingMode rescaling,
                                          ReadPixelsCallback callback,
                                          ReadPixelsContext context);
+#ifdef SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         RescaleGamma rescaleGamma,
+                                         SkFilterQuality quality,
+                                         ReadPixelsCallback callback,
+                                         ReadPixelsContext context) {
+        return asyncRescaleAndReadPixelsYUV420(yuvColorSpace, std::move(dstColorSpace), srcRect,
+                                               dstSize, rescaleGamma, SkToRescalingMode(quality),
+                                               callback, context);
+    }
+#endif
 
     /** Copies SkImage to dst, scaling pixels to fit dst.width() and dst.height(), and
         converting pixels to match dst.colorType() and dst.alphaType(). Returns true if
