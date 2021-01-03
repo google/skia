@@ -806,19 +806,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     }
 
     SkASSERT(this->vkCaps().surfaceSupportsWritePixels(tex));
-    SkASSERT(this->vkCaps().areColorTypeAndFormatCompatible(dataColorType, tex->backendFormat()));
-
-    // For RGB_888x src data we are uploading it first to an RGBA texture and then copying it to the
-    // dst RGB texture. Thus we do not upload mip levels for that.
-    if (dataColorType == GrColorType::kRGB_888x && tex->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
-        // First check that we'll be able to do the copy to the to the R8G8B8 image in the end via a
-        // blit or draw.
-        if (!this->vkCaps().formatCanBeDstofBlit(VK_FORMAT_R8G8B8_UNORM, tex->isLinearTiled()) &&
-            !this->vkCaps().isFormatRenderable(VK_FORMAT_R8G8B8_UNORM, 1)) {
-            return false;
-        }
-        mipLevelCount = 1;
-    }
 
     SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
@@ -826,44 +813,22 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     // texels is const.
     // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
     // Because of this we need to make a non-const shallow copy of texels.
-    SkAutoTMalloc<GrMipLevel> texelsShallowCopy;
+    SkAutoSTMalloc<16, GrMipLevel> texelsShallowCopy(mipLevelCount);
+    std::copy_n(texels, mipLevelCount, texelsShallowCopy.get());
 
-    texelsShallowCopy.reset(mipLevelCount);
-    memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
-
-    SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    individualMipOffsets.push_back(0);
-    size_t combinedBufferSize = width * bpp * height;
-    int currentWidth = width;
-    int currentHeight = height;
-    if (!texelsShallowCopy[0].fPixels) {
-        combinedBufferSize = 0;
+    SkTArray<size_t> individualMipOffsets;
+    size_t combinedBufferSize;
+    if (mipLevelCount > 1) {
+        combinedBufferSize = GrComputeTightCombinedBufferSize(bpp,
+                                                              {width, height},
+                                                              &individualMipOffsets,
+                                                              mipLevelCount);
+    } else {
+        SkASSERT(texelsShallowCopy[0].fPixels && texelsShallowCopy[0].fRowBytes);
+        combinedBufferSize = width*height*bpp;
+        individualMipOffsets.push_back(0);
     }
-
-    // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
-    // config. This works with the assumption that the bytes in pixel config is always a power of 2.
-    SkASSERT((bpp & (bpp - 1)) == 0);
-    const size_t alignmentMask = 0x3 | (bpp - 1);
-    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        currentWidth = std::max(1, currentWidth/2);
-        currentHeight = std::max(1, currentHeight/2);
-
-        if (texelsShallowCopy[currentMipLevel].fPixels) {
-            const size_t trimmedSize = currentWidth * bpp * currentHeight;
-            const size_t alignmentDiff = combinedBufferSize & alignmentMask;
-            if (alignmentDiff != 0) {
-                combinedBufferSize += alignmentMask - alignmentDiff + 1;
-            }
-            individualMipOffsets.push_back(combinedBufferSize);
-            combinedBufferSize += trimmedSize;
-        } else {
-            individualMipOffsets.push_back(0);
-        }
-    }
-    if (0 == combinedBufferSize) {
-        // We don't actually have any data to upload so just return success
-        return true;
-    }
+    SkASSERT(combinedBufferSize);
 
     // Get a staging buffer slice to hold our mip data.
     // Vulkan requires offsets in the buffer to be aligned to multiple of the texel size and 4
@@ -876,49 +841,13 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
     int uploadLeft = left;
     int uploadTop = top;
-    GrVkTexture* uploadTexture = tex;
-    // For uploading RGB_888x data to an R8G8B8_UNORM texture we must first upload the data to an
-    // R8G8B8A8_UNORM image and then copy it.
-    sk_sp<GrVkTexture> copyTexture;
-    if (dataColorType == GrColorType::kRGB_888x && tex->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
-        bool dstHasYcbcr = tex->ycbcrConversionInfo().isValid();
-        if (!this->vkCaps().canCopyAsBlit(tex->imageFormat(), 1, false, dstHasYcbcr,
-                                          VK_FORMAT_R8G8B8A8_UNORM, 1, false, false)) {
-            return false;
-        }
-
-        VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
-                                       VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                       VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-        GrVkImage::ImageDesc imageDesc;
-        imageDesc.fImageType = VK_IMAGE_TYPE_2D;
-        imageDesc.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
-        imageDesc.fWidth = width;
-        imageDesc.fHeight = height;
-        imageDesc.fLevels = 1;
-        imageDesc.fSamples = 1;
-        imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-        imageDesc.fUsageFlags = usageFlags;
-        imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-        copyTexture = GrVkTexture::MakeNewTexture(this, SkBudgeted::kYes, {width, height},
-                                                  imageDesc, GrMipmapStatus::kNotAllocated);
-        if (!copyTexture) {
-            return false;
-        }
-
-        uploadTexture = copyTexture.get();
-        uploadLeft = 0;
-        uploadTop = 0;
-    }
 
     char* buffer = (char*) slice.fOffsetMapPtr;
     SkTArray<VkBufferImageCopy> regions(mipLevelCount);
 
-    currentWidth = width;
-    currentHeight = height;
-    int layerHeight = uploadTexture->height();
+    int currentWidth = width;
+    int currentHeight = height;
+    int layerHeight = tex->height();
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texelsShallowCopy[currentMipLevel].fPixels) {
             SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
@@ -935,38 +864,33 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
             region.bufferOffset = slice.fOffset + individualMipOffsets[currentMipLevel];
             region.bufferRowLength = currentWidth;
             region.bufferImageHeight = currentHeight;
-            region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
+            region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1};
             region.imageOffset = {uploadLeft, uploadTop, 0};
-            region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
+            region.imageExtent = {(uint32_t)currentWidth, (uint32_t)currentHeight, 1};
         }
-        currentWidth = std::max(1, currentWidth/2);
+
+        currentWidth  = std::max(1, currentWidth/2);
         currentHeight = std::max(1, currentHeight/2);
+
         layerHeight = currentHeight;
     }
 
     // Change layout of our target so it can be copied to
-    uploadTexture->setImageLayout(this,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  VK_ACCESS_TRANSFER_WRITE_BIT,
-                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                  false);
+    tex->setImageLayout(this,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        false);
 
     // Copy the buffer to the image
     this->currentCommandBuffer()->copyBufferToImage(this,
                                                     static_cast<GrVkTransferBuffer*>(slice.fBuffer),
-                                                    uploadTexture,
+                                                    tex,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                     regions.count(),
                                                     regions.begin());
 
-    // If we copied the data into a temporary image first, copy that image into our main texture
-    // now.
-    if (copyTexture) {
-        SkASSERT(dataColorType == GrColorType::kRGB_888x);
-        SkAssertResult(this->copySurface(tex, copyTexture.get(), SkIRect::MakeWH(width, height),
-                                         SkIPoint::Make(left, top)));
-    }
-    if (1 == mipLevelCount) {
+    if (mipLevelCount == 1) {
         tex->markMipmapsDirty();
     }
 
@@ -2425,56 +2349,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     if (!image) {
         return false;
-    }
-
-    // Skia's RGB_888x color type, which we map to the vulkan R8G8B8_UNORM, expects the data to be
-    // 32 bits, but the Vulkan format is only 24. So we first copy the surface into an R8G8B8A8
-    // image and then do the read pixels from that.
-    sk_sp<GrVkTextureRenderTarget> copySurface;
-    if (dstColorType == GrColorType::kRGB_888x && image->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
-        int srcSampleCount = 0;
-        if (rt) {
-            srcSampleCount = rt->numSamples();
-        }
-        bool srcHasYcbcr = image->ycbcrConversionInfo().isValid();
-        if (!this->vkCaps().canCopyAsBlit(VK_FORMAT_R8G8B8A8_UNORM, 1, false, false,
-                                          image->imageFormat(), srcSampleCount,
-                                          image->isLinearTiled(), srcHasYcbcr)) {
-            return false;
-        }
-
-        // Make a new surface that is RGBA to copy the RGB surface into.
-        VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                       VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
-                                       VK_IMAGE_USAGE_SAMPLED_BIT |
-                                       VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                       VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-        GrVkImage::ImageDesc imageDesc;
-        imageDesc.fImageType = VK_IMAGE_TYPE_2D;
-        imageDesc.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
-        imageDesc.fWidth = width;
-        imageDesc.fHeight = height;
-        imageDesc.fLevels = 1;
-        imageDesc.fSamples = 1;
-        imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-        imageDesc.fUsageFlags = usageFlags;
-        imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-        copySurface = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, SkBudgeted::kYes, {width, height}, 1, imageDesc,
-                GrMipmapStatus::kNotAllocated);
-        if (!copySurface) {
-            return false;
-        }
-
-        SkIRect srcRect = SkIRect::MakeXYWH(left, top, width, height);
-        SkAssertResult(this->copySurface(copySurface.get(), surface, srcRect, SkIPoint::Make(0,0)));
-
-        top = 0;
-        left = 0;
-        dstColorType = GrColorType::kRGBA_8888;
-        image = copySurface.get();
     }
 
     // Change layout of our target so it can be used as copy
