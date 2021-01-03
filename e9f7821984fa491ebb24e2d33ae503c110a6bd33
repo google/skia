@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7f61f59_154b0ca8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-03T15:29:23Z",
+      "side": 1,
+      "message": "Can we reproduce the failure by using a default SkSamplingOptions in internalDrawDevice? If that was the fix, it\u0027s a very weird failure mode that I\u0027d like to understand more.",
+      "parentUuid": "dbff1992_3fe96910",
+      "revId": "e9f7821984fa491ebb24e2d33ae503c110a6bd33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "65dd80f7_5f869952",
