@@ -119,7 +119,7 @@ sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) c
 void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                               const SkIRect& srcRect,
                                               RescaleGamma rescaleGamma,
-                                              SkFilterQuality rescaleQuality,
+                                              RescaleMode rescaleMode,
                                               ReadPixelsCallback callback,
                                               ReadPixelsContext context) {
     auto dContext = fContext->asDirectContext();
@@ -133,7 +133,7 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
         callback(context, nullptr);
         return;
     }
-    ctx->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleQuality,
+    ctx->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleMode,
                                    callback, context);
 }
 
@@ -142,7 +142,7 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
                                                     const SkIRect& srcRect,
                                                     const SkISize& dstSize,
                                                     RescaleGamma rescaleGamma,
-                                                    SkFilterQuality rescaleQuality,
+                                                    RescaleMode rescaleMode,
                                                     ReadPixelsCallback callback,
                                                     ReadPixelsContext context) {
     auto dContext = fContext->asDirectContext();
@@ -162,7 +162,7 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
                                          srcRect,
                                          dstSize,
                                          rescaleGamma,
-                                         rescaleQuality,
+                                         rescaleMode,
                                          callback,
                                          context);
 }
