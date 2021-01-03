@@ -16,6 +16,23 @@
       "message": "ptal",
       "revId": "ed4cddf972d83de0c8ec20e836acf716b753ca51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f118bd7d_3096076c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-03T19:35:30Z",
+      "side": 1,
+      "message": "\u003e Patch Set 5:\n\u003e \n\u003e The weird layout test failures on Canary-chromium. They have gone away, but the only changes you made were to take the sampling options from the restore paint. I would not have expected that to break the rrect clipping, just changed NN to bilerp. I wanted to understand what happened there (and maybe it was unrelated? Like it had broken on ToT so shows up as failures in canary too?).\n\u003e \n\u003e I agree that flutter and Android don’t seem to be related.\n\nSo ... is there more to do in this CL?",
+      "revId": "ed4cddf972d83de0c8ec20e836acf716b753ca51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
