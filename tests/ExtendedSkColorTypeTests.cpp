@@ -242,7 +242,12 @@ static void gpu_tests(GrDirectContext* dContext,
                 }
 
                 nativeActual.erase(SkColors::kTransparent);
-                REPORTER_ASSERT(reporter, s->readPixels(nativeActual, 0, 0));
+                VkFormat format = VK_FORMAT_UNDEFINED;
+                auto bet = s->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+                if (bet.isValid()) {
+                    bet.getBackendFormat().asVkFormat(&format);
+                }
+                REPORTER_ASSERT(reporter, s->readPixels(nativeActual, 0, 0), "%d %d", test.fColorType, format);
 
                 compare_pixmaps(reporter, nativeExpected, nativeActual,
                                 test.fColorType, "SkSurface::readPixels to native CT");
