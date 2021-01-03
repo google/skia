@@ -68,7 +68,7 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels,
 void SkImage::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                         const SkIRect& srcRect,
                                         RescaleGamma rescaleGamma,
-                                        SkFilterQuality rescaleQuality,
+                                        RescaleMode rescaleMode,
                                         ReadPixelsCallback callback,
                                         ReadPixelsContext context) {
     if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
@@ -77,7 +77,7 @@ void SkImage::asyncRescaleAndReadPixels(const SkImageInfo& info,
         return;
     }
     as_IB(this)->onAsyncRescaleAndReadPixels(
-            info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+            info, srcRect, rescaleGamma, rescaleMode, callback, context);
 }
 
 void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -85,7 +85,7 @@ void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                               const SkIRect& srcRect,
                                               const SkISize& dstSize,
                                               RescaleGamma rescaleGamma,
-                                              SkFilterQuality rescaleQuality,
+                                              RescaleMode rescaleMode,
                                               ReadPixelsCallback callback,
                                               ReadPixelsContext context) {
     if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) || dstSize.isZero() ||
@@ -98,7 +98,7 @@ void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                                    srcRect,
                                                    dstSize,
                                                    rescaleGamma,
-                                                   rescaleQuality,
+                                                   rescaleMode,
                                                    callback,
                                                    context);
 }
@@ -280,7 +280,7 @@ SkImage_Base::~SkImage_Base() {
 void SkImage_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                const SkIRect& origSrcRect,
                                                RescaleGamma rescaleGamma,
-                                               SkFilterQuality rescaleQuality,
+                                               RescaleMode rescaleMode,
                                                ReadPixelsCallback callback,
                                                ReadPixelsContext context) {
     SkBitmap src;
@@ -300,8 +300,7 @@ void SkImage_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
         }
         srcRect = SkIRect::MakeSize(src.dimensions());
     }
-    return SkRescaleAndReadPixels(
-            src, info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+    return SkRescaleAndReadPixels(src, info, srcRect, rescaleGamma, rescaleMode, callback, context);
 }
 
 void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
@@ -309,7 +308,7 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
                                                      const SkIRect& srcRect,
                                                      const SkISize& dstSize,
                                                      RescaleGamma,
-                                                     SkFilterQuality,
+                                                     RescaleMode,
                                                      ReadPixelsCallback callback,
                                                      ReadPixelsContext context) {
     // TODO: Call non-YUV asyncRescaleAndReadPixels and then make our callback convert to YUV and

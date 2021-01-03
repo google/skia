@@ -47,7 +47,8 @@ static sk_sp<SkImage> do_read_and_scale(Src* src,
                                         SkImage::RescaleGamma rescaleGamma,
                                         SkFilterQuality quality) {
     auto* asyncContext = new AsyncContext();
-    src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback,
+    auto rescaleMode = SkImage::QualityToRescale(quality);
+    src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, rescaleMode, async_callback,
                                    asyncContext);
     if (direct) {
         direct->submit();
@@ -81,8 +82,9 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     SkImageInfo uvII = SkImageInfo::Make(uvSize, kGray_8_SkColorType, kPremul_SkAlphaType);
 
     AsyncContext asyncContext;
+    auto rescaleMode = SkImage::QualityToRescale(quality);
     src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
-                                         rescaleGamma, quality, async_callback, &asyncContext);
+                                         rescaleGamma, rescaleMode, async_callback, &asyncContext);
     if (direct) {
         direct->submit();
     }
