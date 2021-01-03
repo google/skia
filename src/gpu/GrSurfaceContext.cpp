@@ -351,6 +351,10 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         return false;
     }
 
+    if (src.colorType() == GrColorType::kUnknown) {
+        return false;
+    }
+
     src = src.clip(this->dimensions(), &pt);
     if (!src.hasPixels()) {
         return false;
@@ -455,12 +459,14 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
             if (!fp) {
                 return false;
             }
+SkDebugf("fill rect fp\n");
             this->asFillContext()->fillRectToRectWithFP(SkIRect::MakeSize(src.dimensions()),
                                                         SkIRect::MakePtSize(pt, src.dimensions()),
                                                         std::move(fp));
         } else {
             SkIRect srcRect = SkIRect::MakeSize(src.dimensions());
             SkIPoint dstPoint = SkIPoint::Make(pt.fX, pt.fY);
+SkDebugf("copy\n");
             if (!this->copy(tempProxy.get(), srcRect, dstPoint)) {
                 return false;
             }
@@ -487,6 +493,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         auto tmpRB = tmpInfo.minRowBytes();
         tmpPixels.reset(new char[tmpRB * tmpInfo.height()]);
         GrPixmap tmp(tmpInfo, tmpPixels.get(), tmpRB);
+SkDebugf("gr convert pixels\n");
 
         SkAssertResult(GrConvertPixels(tmp, src, flip));
 
@@ -500,10 +507,11 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
     // destination proxy)
     // TODO: should this policy decision just be moved into the drawing manager?
     dContext->priv().flushSurface(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
-
+SkDebugf("gpu write pixels\n");
     return dContext->priv().getGpu()->writePixels(dstSurface, pt.fX, pt.fY, src.width(),
                                                   src.height(), this->colorInfo().colorType(),
                                                   src.colorType(), src.addr(), src.rowBytes());
+SkDebugf("done write\n");
 }
 
 void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
