@@ -587,7 +587,7 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                              SkIRect::MakeSize(rescaledSize).makeOffset(pad, pad),
                              srcBounds,
                              SkSurface::RescaleGamma::kSrc,
-                             kLow_SkFilterQuality)) {
+                             SkSurface::RescaleMode::kRepeatedLinear)) {
         return nullptr;
     }
     if (pad) {

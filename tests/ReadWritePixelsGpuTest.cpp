@@ -525,8 +525,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
 
                 // Rescale quality and linearity don't matter since we're doing a non-scaling
                 // readback.
-                surface->asyncRescaleAndReadPixels(pixels.info(), rect, SkImage::RescaleGamma::kSrc,
-                                                   kNone_SkFilterQuality, async_callback, &context);
+                surface->asyncRescaleAndReadPixels(pixels.info(), rect,
+                                                   SkImage::RescaleGamma::kSrc,
+                                                   SkImage::RescaleMode::kNearest,
+                                                   async_callback, &context);
                 direct->submit();
                 while (!context.fCalled) {
                     direct->checkAsyncWorkCompletion();
@@ -582,8 +584,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
         }
 
         // Rescale quality and linearity don't matter since we're doing a non-scaling readback.
-        image->asyncRescaleAndReadPixels(pixels.info(), rect, SkImage::RescaleGamma::kSrc,
-                                         kNone_SkFilterQuality, async_callback, &asyncContext);
+        image->asyncRescaleAndReadPixels(pixels.info(), rect,
+                                         SkImage::RescaleGamma::kSrc,
+                                         SkImage::RescaleMode::kNearest,
+                                         async_callback, &asyncContext);
         context->submit();
         while (!asyncContext.fCalled) {
             context->checkAsyncWorkCompletion();
@@ -671,11 +675,11 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
                 if (yuv) {
                     surf->asyncRescaleAndReadPixelsYUV420(
                             kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
-                            ii.dimensions(), SkImage::RescaleGamma::kSrc, kNone_SkFilterQuality,
-                            &async_callback, &cbContext);
+                            ii.dimensions(), SkImage::RescaleGamma::kSrc,
+                            SkImage::RescaleMode::kNearest, &async_callback, &cbContext);
                 } else {
                     surf->asyncRescaleAndReadPixels(ii, ii.bounds(), SkImage::RescaleGamma::kSrc,
-                                                    kNone_SkFilterQuality, &async_callback,
+                                                    SkImage::RescaleMode::kNearest, &async_callback,
                                                     &cbContext);
                 }
                 direct->submit();

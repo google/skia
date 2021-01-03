@@ -510,7 +510,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
                                                  const SkImageInfo& info,
                                                  const SkIRect& srcRect,
                                                  RescaleGamma rescaleGamma,
-                                                 SkFilterQuality rescaleQuality,
+                                                 RescaleMode rescaleMode,
                                                  ReadPixelsCallback callback,
                                                  ReadPixelsContext callbackContext) {
     // We implement this by rendering and we don't currently support rendering kUnpremul.
@@ -565,8 +565,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
     if (needsRescale) {
-        tempRTC = this->rescale(info, kTopLeft_GrSurfaceOrigin, srcRect, rescaleGamma,
-                                rescaleQuality);
+        tempRTC = this->rescale(info, kTopLeft_GrSurfaceOrigin, srcRect, rescaleGamma, rescaleMode);
         if (!tempRTC) {
             callback(callbackContext, nullptr);
             return;
@@ -768,7 +767,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                                        const SkIRect& srcRect,
                                                        SkISize dstSize,
                                                        RescaleGamma rescaleGamma,
-                                                       SkFilterQuality rescaleQuality,
+                                                       RescaleMode rescaleMode,
                                                        ReadPixelsCallback callback,
                                                        ReadPixelsContext callbackContext) {
     SkASSERT(srcRect.fLeft >= 0 && srcRect.fRight <= this->width());
@@ -803,7 +802,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                       dstColorSpace);
         // TODO: Incorporate the YUV conversion into last pass of rescaling.
         auto tempRTC = this->rescale(info, kTopLeft_GrSurfaceOrigin, srcRect, rescaleGamma,
-                                     rescaleQuality);
+                                     rescaleMode);
         if (!tempRTC) {
             callback(callbackContext, nullptr);
             return;
@@ -1059,7 +1058,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceContext::rescale(const GrImageInf
                                                                 GrSurfaceOrigin origin,
                                                                 SkIRect srcRect,
                                                                 RescaleGamma rescaleGamma,
-                                                                SkFilterQuality rescaleQuality) {
+                                                                RescaleMode rescaleMode) {
     // We rescale by drawing and currently only support drawing to premul.
     if (info.alphaType() != kPremul_SkAlphaType) {
         return nullptr;
@@ -1077,7 +1076,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceContext::rescale(const GrImageInf
                                    SkIRect::MakeSize(sdc->dimensions()),
                                    srcRect,
                                    rescaleGamma,
-                                   rescaleQuality)) {
+                                   rescaleMode)) {
         return nullptr;
     }
     return sdc;
@@ -1087,7 +1086,7 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
                                    SkIRect dstRect,
                                    SkIRect srcRect,
                                    RescaleGamma rescaleGamma,
-                                   SkFilterQuality rescaleQuality) {
+                                   RescaleMode rescaleMode) {
     SkASSERT(dst);
     if (!SkIRect::MakeSize(dst->dimensions()).contains((dstRect))) {
         return false;
@@ -1158,7 +1157,7 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
 
     while (srcRect.size() != finalSize) {
         SkISize nextDims = finalSize;
-        if (rescaleQuality != kNone_SkFilterQuality) {
+        if (rescaleMode != RescaleMode::kNearest) {
             if (srcRect.width() > finalSize.width()) {
                 nextDims.fWidth = std::max((srcRect.width() + 1)/2, finalSize.width());
             } else if (srcRect.width() < finalSize.width()) {
@@ -1198,7 +1197,7 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
             stepDst = tempB.get();
             stepDstRect = SkIRect::MakeSize(tempB->dimensions());
         }
-        if (rescaleQuality == kHigh_SkFilterQuality) {
+        if (rescaleMode == RescaleMode::kRepeatedCubic) {
             SkMatrix matrix;
             matrix.setScaleTranslate((float)srcRect.width()/nextDims.width(),
                                      (float)srcRect.height()/nextDims.height(),
@@ -1235,8 +1234,8 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
                                     SkRect::Make(stepDstRect),
                                     SkRect::Make(stepDstRect));
         } else {
-            auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
-                                                                  : GrSamplerState::Filter::kLinear;
+            auto filter = rescaleMode == RescaleMode::kNearest ? GrSamplerState::Filter::kNearest
+                                                               : GrSamplerState::Filter::kLinear;
             // Minimizing draw with integer coord src and dev rects can always be kFast.
             auto constraint = SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint;
             if (nextDims.width() <= srcRect.width() && nextDims.height() <= srcRect.height()) {

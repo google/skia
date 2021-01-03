@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkSamplingOptions.h"
 
 struct SkImageInfo;
 struct SkIRect;
@@ -17,6 +17,6 @@ void SkRescaleAndReadPixels(SkBitmap src,
                             const SkImageInfo& resultInfo,
                             const SkIRect& srcRect,
                             SkImage::RescaleGamma,
-                            SkFilterQuality,
+                            SkImage::RescaleMode,
                             SkImage::ReadPixelsCallback,
                             SkImage::ReadPixelsContext);

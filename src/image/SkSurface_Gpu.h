@@ -37,7 +37,7 @@ public:
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                     RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                     RescaleGamma rescaleGamma, RescaleMode,
                                      ReadPixelsCallback callback,
                                      ReadPixelsContext context) override;
     void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -45,7 +45,7 @@ public:
                                            const SkIRect& srcRect,
                                            const SkISize& dstSize,
                                            RescaleGamma rescaleGamma,
-                                           SkFilterQuality rescaleQuality,
+                                           RescaleMode,
                                            ReadPixelsCallback callback,
                                            ReadPixelsContext context) override;
 

@@ -142,7 +142,7 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
 void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                 const SkIRect& srcRect,
                                                 RescaleGamma rescaleGamma,
-                                                SkFilterQuality rescaleQuality,
+                                                RescaleMode rescaleMode,
                                                 ReadPixelsCallback callback,
                                                 ReadPixelsContext context) {
     auto* sdc = this->fDevice->surfaceDrawContext();
@@ -151,7 +151,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
     if (!dContext) {
         return;
     }
-    sdc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleQuality, callback,
+    sdc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleMode, callback,
                                    context);
 }
 
@@ -160,7 +160,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                                       const SkIRect& srcRect,
                                                       const SkISize& dstSize,
                                                       RescaleGamma rescaleGamma,
-                                                      SkFilterQuality rescaleQuality,
+                                                      RescaleMode rescaleMode,
                                                       ReadPixelsCallback callback,
                                                       ReadPixelsContext context) {
     auto* sdc = this->fDevice->surfaceDrawContext();
@@ -175,7 +175,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                          srcRect,
                                          dstSize,
                                          rescaleGamma,
-                                         rescaleQuality,
+                                         rescaleMode,
                                          callback,
                                          context);
 }

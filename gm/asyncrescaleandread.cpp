@@ -45,9 +45,9 @@ static sk_sp<SkImage> do_read_and_scale(Src* src,
                                         const SkIRect& srcRect,
                                         const SkImageInfo& ii,
                                         SkImage::RescaleGamma rescaleGamma,
-                                        SkFilterQuality quality) {
+                                        SkImage::RescaleMode rescaleMode) {
     auto* asyncContext = new AsyncContext();
-    src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback,
+    src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, rescaleMode, async_callback,
                                    asyncContext);
     if (direct) {
         direct->submit();
@@ -72,7 +72,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
                                             const SkIRect& srcRect,
                                             SkISize size,
                                             SkImage::RescaleGamma rescaleGamma,
-                                            SkFilterQuality quality,
+                                            SkImage::RescaleMode rescaleMode,
                                             SkScopeExit* cleanup) {
     SkASSERT(!(size.width() & 0b1) && !(size.height() & 0b1));
 
@@ -82,7 +82,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
 
     AsyncContext asyncContext;
     src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
-                                         rescaleGamma, quality, async_callback, &asyncContext);
+                                         rescaleGamma, rescaleMode, async_callback, &asyncContext);
     if (direct) {
         direct->submit();
     }
@@ -135,12 +135,15 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
     canvas->save();
     for (auto gamma : {SkImage::RescaleGamma::kSrc, SkImage::RescaleGamma::kLinear}) {
         canvas->save();
-        for (auto quality : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
+        for (auto mode : {
+                SkImage::RescaleMode::kNearest,
+                SkImage::RescaleMode::kRepeatedLinear,
+                SkImage::RescaleMode::kRepeatedCubic}) {
             SkScopeExit cleanup;
             sk_sp<SkImage> result;
             if (doYUV420) {
                 result = do_read_and_scale_yuv(src, direct, yuvColorSpace, srcRect, newSize, gamma,
-                                               quality, &cleanup);
+                                               mode, &cleanup);
                 if (!result) {
                     errorMsg->printf("YUV420 async call failed. Allowed for now.");
                     return skiagm::DrawResult::kSkip;
@@ -148,7 +151,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                 int nextCS = static_cast<int>(yuvColorSpace + 1) % (kLastEnum_SkYUVColorSpace + 1);
                 yuvColorSpace = static_cast<SkYUVColorSpace>(nextCS);
             } else {
-                result = do_read_and_scale(src, direct, srcRect, ii, gamma, quality);
+                result = do_read_and_scale(src, direct, srcRect, ii, gamma, mode);
                 if (!result) {
                     errorMsg->printf("async read call failed.");
                     return skiagm::DrawResult::kFail;
@@ -296,7 +299,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_yuv_no_scale, canvas, errorMsg, 400, 300) {
     SkScopeExit scopeExit;
     auto yuvImage = do_read_and_scale_yuv(
             surface, dContext, kRec601_SkYUVColorSpace, SkIRect::MakeWH(400, 300),
-            {400, 300}, SkImage::RescaleGamma::kSrc, kNone_SkFilterQuality, &scopeExit);
+            {400, 300}, SkImage::RescaleGamma::kSrc, SkImage::RescaleMode::kNearest, &scopeExit);
 
     canvas->clear(SK_ColorWHITE);
     canvas->drawImage(yuvImage.get(), 0, 0);
