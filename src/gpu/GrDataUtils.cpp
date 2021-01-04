@@ -511,10 +511,6 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
                      const GrImageInfo& srcInfo, const void* src, size_t srcRB,
                      bool flipY) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    if (srcInfo.colorType() == GrColorType::kRGB_888) {
-        // We don't expect to have to convert from this format.
-        return false;
-    }
     if (srcInfo.dimensions().isEmpty() || dstInfo.dimensions().isEmpty()) {
         return false;
     }
@@ -534,22 +530,35 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
     if (dstInfo.colorType() == GrColorType::kRGB_888) {
         // SkRasterPipeline doesn't handle writing to RGB_888. So we have it write to RGB_888x and
         // then do another conversion that does the 24bit packing.
-        auto tempDstInfo = dstInfo.makeColorType(GrColorType::kRGB_888x);
-        auto tempRB = tempDstInfo.minRowBytes();
-        std::unique_ptr<char[]> tempDst(new char[tempRB * tempDstInfo.height()]);
-        if (!GrConvertPixels(tempDstInfo, tempDst.get(), tempRB, srcInfo, src, srcRB, flipY)) {
+        auto [temp, storage] = GrPixmap::Allocate(dstInfo.makeColorType(GrColorType::kRGB_888x));
+        if (!GrConvertPixels(temp, {srcInfo, const_cast<void*>(src), srcRB}, flipY)) {
             return false;
         }
-        auto* tRow = reinterpret_cast<const char*>(tempDst.get());
+        auto* tRow = reinterpret_cast<const char*>(temp.addr());
         auto* dRow = reinterpret_cast<char*>(dst);
-        for (int y = 0; y < dstInfo.height(); ++y, tRow += tempRB, dRow += dstRB) {
+        for (int y = 0; y < dstInfo.height(); ++y, tRow += temp.rowBytes(), dRow += dstRB) {
             for (int x = 0; x < dstInfo.width(); ++x) {
-                auto t = reinterpret_cast<const uint32_t*>(tRow + x * sizeof(uint32_t));
-                auto d = reinterpret_cast<uint32_t*>(dRow + x * 3);
+                auto t = tRow + x*sizeof(uint32_t);
+                auto d = dRow + x*3;
                 memcpy(d, t, 3);
             }
         }
         return true;
+    } else if (srcInfo.colorType() == GrColorType::kRGB_888) {
+        // SkRasterPipeline doesn't handle reading from RGB_888. So convert it to RGB_888x and then
+        // do a recursive call if there is any remaining conversion.
+        auto [temp, storage] = GrPixmap::Allocate(srcInfo.makeColorType(GrColorType::kRGB_888x));
+        auto* sRow = reinterpret_cast<const char*>(src);
+        auto* tRow = reinterpret_cast<char*>(temp.addr());
+        for (int y = 0; y < srcInfo.height(); ++y, sRow += srcRB, tRow += temp.rowBytes()) {
+            for (int x = 0; x < srcInfo.width(); ++x) {
+                auto s = sRow + x*3;
+                auto t = tRow + x*sizeof(uint32_t);
+                memcpy(t, s, 3);
+                t[3] = 0xFF;
+            }
+        }
+        return GrConvertPixels({dstInfo, dst, dstRB}, temp, flipY);
     }
 
     size_t srcBpp = srcInfo.bpp();

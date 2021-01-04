@@ -391,19 +391,23 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
     auto subRect = SkIRect::MakeXYWH(left, top, width, height);
     auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
     if (!bounds.contains(subRect)) {
+        SkDebugf("GrGpu fail bounds\n");
         return false;
     }
 
     size_t minRowBytes = SkToSizeT(GrColorTypeBytesPerPixel(dstColorType) * width);
     if (!this->caps()->readPixelsRowBytesSupport()) {
         if (rowBytes != minRowBytes) {
+            SkDebugf("GrGpu no row bytes match\n");
             return false;
         }
     } else {
         if (rowBytes < minRowBytes) {
+            SkDebugf("GrGpu small row bytes\n");
             return false;
         }
         if (rowBytes % GrColorTypeBytesPerPixel(dstColorType)) {
+            SkDebugf("GrGpu row bytes no mod\n");
             return false;
         }
     }

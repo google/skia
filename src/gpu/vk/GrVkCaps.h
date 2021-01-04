@@ -75,6 +75,10 @@ public:
         return SkToBool(FormatInfo::kBlitSrc_Flag & flags);
     }
 
+    // Gets the GrColorType that should be used to transfer data in/out of a transfer buffer to
+    // write/read data when using a VkFormat with a specified color type.
+    GrColorType transferColorType(VkFormat, GrColorType surfaceColorType) const;
+
     // Sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
@@ -267,6 +271,7 @@ private:
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
         GrColorType fColorType = GrColorType::kUnknown;
+        GrColorType fTransferColorType = GrColorType::kUnknown;
         enum {
             kUploadData_Flag = 0x1,
             // Does Ganesh itself support rendering to this colorType & format pair. Renderability
