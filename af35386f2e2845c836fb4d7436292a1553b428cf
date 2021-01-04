@@ -69,6 +69,24 @@
       "parentUuid": "44e1b1ee_cdc98c2d",
       "revId": "af35386f2e2845c836fb4d7436292a1553b428cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6a4e1b0_6b5de309",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-04T16:52:02Z",
+      "side": 0,
+      "message": "Do we have a bench for it?",
+      "parentUuid": "3be635b1_5db3334f",
+      "revId": "af35386f2e2845c836fb4d7436292a1553b428cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
