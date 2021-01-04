@@ -16,6 +16,40 @@
       "message": "(Associated CL)",
       "revId": "1cdfb129f724a1a385988b7ffc78d36a24c3f111",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac568622_a92d56c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-01-04T10:01:16Z",
+      "side": 1,
+      "message": "Looks good but I\u0027m not an OWNER.",
+      "revId": "1cdfb129f724a1a385988b7ffc78d36a24c3f111",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9385ed84_3819b34e",
+        "filename": "DEPS",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-01-04T10:01:16Z",
+      "side": 1,
+      "message": "note: glslang might not be needed anymore since Skia doesn\u0027t build Dawn\u0027s tests. (and we are currently converting all of our tests to WGSL, which will remove Dawn\u0027s dependency on glslang).",
+      "revId": "1cdfb129f724a1a385988b7ffc78d36a24c3f111",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
