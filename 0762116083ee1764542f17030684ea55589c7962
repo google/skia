@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a6b6f10_b1c4597d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-04T20:36:24Z",
+      "side": 1,
+      "message": "I presume I should bubble up the parameter to the public Canvas API....?\n\nShould I expose\n- sampling\n- filter\n- other\n",
+      "revId": "0762116083ee1764542f17030684ea55589c7962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
