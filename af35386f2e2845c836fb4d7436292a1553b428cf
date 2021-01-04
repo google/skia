@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14046e0a_196e5c88",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-04T15:40:27Z",
+      "side": 0,
+      "message": "The idea here was that if we\u0027re going to scale some direction down more than half we need something better than even linear since there won\u0027t be one unique nearest neighbor anymore, so it is worth doing more work. I think this meant SkMipmapMode::kNearest.",
+      "revId": "af35386f2e2845c836fb4d7436292a1553b428cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ac6be5b_0401d55d",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-04T15:40:27Z",
+      "side": 0,
+      "message": "Otherwise we wanted to ensure we never created mimpmaps at all here, since they\u0027re never really going to be used anyway. The intent was SkMipmapMode::kNone.",
+      "revId": "af35386f2e2845c836fb4d7436292a1553b428cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

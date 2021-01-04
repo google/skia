@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f143fd96_94ec5978",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-04T15:40:27Z",
+      "side": 1,
+      "message": "should add skbug.com/6967 to this since it\u0027s relevant. \n\n    Bug: skia:7650,skia:6967",
+      "revId": "35a6e77cb55ee0536bc5991bec6385fa9439330d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84354fb9_74d82267",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-04T15:40:27Z",
+      "side": 1,
+      "message": "Note the comments I made on the old code (and skbug.com/6967) as to why the old code went out of its way to select between (what is now called) SkMipmapMode ::kNearest and ::kNone. The idea was to avoid ever building the mipmaps if we aren\u0027t scaling down more than half (and always use linear interpolation). If the new code can avoid creating the mipmaps and doesn\u0027t lose perf I\u0027m fine with this, but wanted to make sure this code doesn\u0027t need to continue to select the appropriate SkMipmapMode to preserve performance.",
+      "revId": "35a6e77cb55ee0536bc5991bec6385fa9439330d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
