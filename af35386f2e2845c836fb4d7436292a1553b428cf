@@ -33,6 +33,24 @@
       "message": "Otherwise we wanted to ensure we never created mimpmaps at all here, since they\u0027re never really going to be used anyway. The intent was SkMipmapMode::kNone.",
       "revId": "af35386f2e2845c836fb4d7436292a1553b428cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44e1b1ee_cdc98c2d",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-04T16:05:25Z",
+      "side": 0,
+      "message": "We don\u0027t create the miptree unless we need it (i.e. we\u0027re going to sampling from a lower level).",
+      "parentUuid": "7ac6be5b_0401d55d",
+      "revId": "af35386f2e2845c836fb4d7436292a1553b428cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
