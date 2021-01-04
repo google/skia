@@ -2699,7 +2699,8 @@ void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
 
     AutoLayerForImageFilter layer(this, realPaint, setBoundsValid ? &setBounds : nullptr);
     this->topDevice()->drawEdgeAAImageSet(imageSet, count, dstClips, preViewMatrices,
-                                             layer.paint(), constraint);
+                                          SkSamplingOptions(SkPaintPriv::GetFQ(layer.paint())),
+                                          layer.paint(), constraint);
 }
 
 //////////////////////////////////////////////////////////////////////////////
