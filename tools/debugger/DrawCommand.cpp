@@ -1921,11 +1921,13 @@ DrawEdgeAAImageSetCommand::DrawEdgeAAImageSetCommand(const SkCanvas::ImageSetEnt
                                                      int                           count,
                                                      const SkPoint                 dstClips[],
                                                      const SkMatrix              preViewMatrices[],
+                                                     const SkSamplingOptions&    sampling,
                                                      const SkPaint*              paint,
                                                      SkCanvas::SrcRectConstraint constraint)
         : INHERITED(kDrawEdgeAAImageSet_OpType)
         , fSet(count)
         , fCount(count)
+        , fSampling(sampling)
         , fPaint(paint)
         , fConstraint(constraint) {
     int totalDstClipCount, totalMatrixCount;
@@ -1943,6 +1945,7 @@ void DrawEdgeAAImageSetCommand::execute(SkCanvas* canvas) const {
                                             fCount,
                                             fDstClips.get(),
                                             fPreViewMatrices.get(),
+                                            fSampling,
                                             fPaint.getMaybeNull(),
                                             fConstraint);
 }

@@ -277,7 +277,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
             canvas->experimental_DrawEdgeAAQuad(rect, clip, aaFlags, color, blend);
         } break;
-        case DRAW_EDGEAA_IMAGE_SET: {
+        case DRAW_EDGEAA_IMAGE_SET:
+        case DRAW_EDGEAA_IMAGE_SET2: {
             static const size_t kEntryReadSize =
                     4 * sizeof(uint32_t) + 2 * sizeof(SkRect) + sizeof(SkScalar);
             static const size_t kMatrixSize = 9 * sizeof(SkScalar); // != sizeof(SkMatrix)
@@ -287,6 +288,14 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 break;
             }
             const SkPaint* paint = fPictureData->optionalPaint(reader);
+
+            SkSamplingOptions sampling;
+            if (op == DRAW_EDGEAA_IMAGE_SET2) {
+                sampling = reader->readSampling();
+            } else {
+                sampling = SkSamplingOptions(paint ? paint->getFilterQuality()
+                                                   : kNone_SkFilterQuality);
+            }
 
             SkCanvas::SrcRectConstraint constraint =
                     reader->checkRange(SkCanvas::kStrict_SrcRectConstraint,
@@ -343,7 +352,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             canvas->experimental_DrawEdgeAAImageSet(set.get(), cnt, dstClips, matrices.begin(),
-                                                    paint, constraint);
+                                                    sampling, paint, constraint);
         } break;
         case DRAW_IMAGE: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);

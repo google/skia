@@ -298,7 +298,8 @@ protected:
     // are all set. If there's a clip region, it will be applied using clipPath().
     virtual void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,
                                     const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                    const SkPaint& paint, SkCanvas::SrcRectConstraint);
+                                    const SkSamplingOptions&, const SkPaint&,
+                                    SkCanvas::SrcRectConstraint);
 
     void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
                              SkPoint origin, const SkPaint& paint);

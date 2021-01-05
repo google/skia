@@ -43,6 +43,8 @@ public:
                             const SkPaint*) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override;
+    void onDrawEdgeAAImageSet(const ImageSetEntry[], int count, const SkPoint[], const SkMatrix[],
+                              const SkPaint*, SrcRectConstraint) override;
 #endif
     void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
                       const SkPaint*) override;
@@ -61,8 +63,8 @@ public:
 
     void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], SkCanvas::QuadAAFlags, const SkColor4f&,
                           SkBlendMode) override;
-    void onDrawEdgeAAImageSet(const ImageSetEntry[], int count, const SkPoint[], const SkMatrix[],
-                              const SkPaint*, SrcRectConstraint) override;
+    void onDrawEdgeAAImageSet2(const ImageSetEntry[], int count, const SkPoint[], const SkMatrix[],
+                               const SkSamplingOptions&,const SkPaint*, SrcRectConstraint) override;
 
 private:
     void drawPosTextCommon(const SkGlyphID[], int, const SkScalar[], int, const SkPoint&,

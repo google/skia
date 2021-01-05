@@ -149,6 +149,16 @@ void SkPaintFilterCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xfor
         this->SkNWayCanvas::onDrawAtlas(image, xform, tex, colors, count, bmode, cull, &apf.paint());
     }
 }
+void SkPaintFilterCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
+                                               const SkPoint dstClips[],
+                                               const SkMatrix preViewMatrices[],
+                                               const SkPaint* paint, SrcRectConstraint constraint) {
+    AutoPaintFilter apf(this, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawEdgeAAImageSet(
+                set, count, dstClips, preViewMatrices, &apf.paint(), constraint);
+    }
+}
 #endif
 
 void SkPaintFilterCanvas::onDrawImage2(const SkImage* image, SkScalar left, SkScalar top,
@@ -265,14 +275,16 @@ void SkPaintFilterCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint cli
     }
 }
 
-void SkPaintFilterCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                               const SkPoint dstClips[],
-                                               const SkMatrix preViewMatrices[],
-                                               const SkPaint* paint, SrcRectConstraint constraint) {
+void SkPaintFilterCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
+                                                const SkPoint dstClips[],
+                                                const SkMatrix preViewMatrices[],
+                                                const SkSamplingOptions& sampling,
+                                                const SkPaint* paint,
+                                                SrcRectConstraint constraint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawEdgeAAImageSet(
-                set, count, dstClips, preViewMatrices, &apf.paint(), constraint);
+        this->SkNWayCanvas::onDrawEdgeAAImageSet2(
+                set, count, dstClips, preViewMatrices, sampling, &apf.paint(), constraint);
     }
 }
 

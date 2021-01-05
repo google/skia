@@ -61,6 +61,8 @@ protected:
                             const SkPaint*) override {}
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override {}
+    void onDrawEdgeAAImageSet(const ImageSetEntry[], int, const SkPoint[],
+                              const SkMatrix[], const SkPaint*, SrcRectConstraint) override {}
 #endif
     void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
                       const SkPaint*) override {}
@@ -77,8 +79,9 @@ protected:
 
     void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, const SkColor4f&,
                           SkBlendMode) override {}
-    void onDrawEdgeAAImageSet(const ImageSetEntry[], int, const SkPoint[],
-                              const SkMatrix[], const SkPaint*, SrcRectConstraint) override {}
+    void onDrawEdgeAAImageSet2(const ImageSetEntry[], int, const SkPoint[], const SkMatrix[],
+                               const SkSamplingOptions&, const SkPaint*,
+                               SrcRectConstraint) override {}
 
 private:
     using INHERITED = SkCanvasVirtualEnforcer<SkCanvas>;

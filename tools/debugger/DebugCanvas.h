@@ -177,6 +177,12 @@ protected:
                             const SkPaint*) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override;
+    void onDrawEdgeAAImageSet(const ImageSetEntry[],
+                              int count,
+                              const SkPoint[],
+                              const SkMatrix[],
+                              const SkPaint*,
+                              SrcRectConstraint) override;
 #endif
     void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
                       const SkPaint*) override;
@@ -202,12 +208,13 @@ protected:
                           QuadAAFlags,
                           const SkColor4f&,
                           SkBlendMode) override;
-    void onDrawEdgeAAImageSet(const ImageSetEntry[],
-                              int count,
-                              const SkPoint[],
-                              const SkMatrix[],
-                              const SkPaint*,
-                              SrcRectConstraint) override;
+    void onDrawEdgeAAImageSet2(const ImageSetEntry[],
+                               int count,
+                               const SkPoint[],
+                               const SkMatrix[],
+                               const SkSamplingOptions&,
+                               const SkPaint*,
+                               SrcRectConstraint) override;
 
 private:
     SkTDArray<DrawCommand*> fCommandVector;

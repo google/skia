@@ -808,11 +808,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
 void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                     const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
-    // TODO: pass in directly
-    //       pass sampling, or just filter?
-    SkSamplingOptions sampling(SkPaintPriv::GetFQ(paint));
-
+                                     const SkSamplingOptions& sampling, const SkPaint& paint,
+                                     SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(count > 0);
     if (!can_use_draw_texture(paint, sampling.useCubic, sampling.mipmap)) {
         // Send every entry through drawImageQuad() to handle the more complicated paint
