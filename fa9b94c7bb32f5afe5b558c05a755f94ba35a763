@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40a59257_11a900e7",
+        "filename": "modules/svg/include/SkSVGText.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-05T16:19:58Z",
+      "side": 1,
+      "message": "I think this should be std::vector\u003cSkSVGNumber\u003e and not length",
+      "revId": "fa9b94c7bb32f5afe5b558c05a755f94ba35a763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
