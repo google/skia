@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5192e6de_d25cee97",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T20:42:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9342c5b9_614b1793",
+      "revId": "c20de2a2c3e48ba98e0c92ef39f78eb1d6076123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2be56ee7_e49a4eb7",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-01-05T19:13:01Z",
       "side": 1,
       "message": "rm ?",
+      "range": {
+        "startLine": 155,
+        "startChar": 52,
+        "endLine": 155,
+        "endChar": 65
+      },
+      "revId": "c20de2a2c3e48ba98e0c92ef39f78eb1d6076123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bf21caa_3f836fa3",
+        "filename": "src/gpu/mock/GrMockCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T20:42:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2be56ee7_e49a4eb7",
       "range": {
         "startLine": 155,
         "startChar": 52,
@@ -81,6 +123,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "434b01c0_57209bfa",
+        "filename": "src/gpu/mtl/GrMtlCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T20:42:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b55986dc_f4258c92",
+      "range": {
+        "startLine": 96,
+        "startChar": 52,
+        "endLine": 96,
+        "endChar": 65
+      },
+      "revId": "c20de2a2c3e48ba98e0c92ef39f78eb1d6076123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "83de4fcf_6377b175",
@@ -94,6 +160,30 @@
       "writtenOn": "2021-01-05T19:13:01Z",
       "side": 1,
       "message": "All the other caps get a \u0027\\n\u0027 here. Mtl feels unloved.",
+      "range": {
+        "startLine": 1075,
+        "startChar": 53,
+        "endLine": 1075,
+        "endChar": 54
+      },
+      "revId": "c20de2a2c3e48ba98e0c92ef39f78eb1d6076123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8eacee1_ad63637e",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T20:42:01Z",
+      "side": 1,
+      "message": "mtl doesn\u0027t get auto formatted on my machine :(",
+      "parentUuid": "83de4fcf_6377b175",
       "range": {
         "startLine": 1075,
         "startChar": 53,
@@ -129,6 +219,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "71c401d7_a4a82bb0",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T20:42:01Z",
+      "side": 1,
+      "message": "So subpass in the name of the vulkan parameter when creating a VkPipeline that this directly goes into. So I would prefer to leave it so that it matches.",
+      "parentUuid": "bce46c54_5dc84857",
+      "range": {
+        "startLine": 636,
+        "startChar": 44,
+        "endLine": 636,
+        "endChar": 51
+      },
+      "revId": "c20de2a2c3e48ba98e0c92ef39f78eb1d6076123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9e7ae2f8_0cb6b30b",
         "filename": "src/gpu/vk/GrVkPipelineStateCache.cpp",
         "patchSetId": 8
@@ -140,6 +254,30 @@
       "writtenOn": "2021-01-05T19:13:01Z",
       "side": 1,
       "message": "If this were \u0027auto\u0027 could we get rid of a line?",
+      "range": {
+        "startLine": 87,
+        "startChar": 4,
+        "endLine": 87,
+        "endChar": 36
+      },
+      "revId": "c20de2a2c3e48ba98e0c92ef39f78eb1d6076123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d95c6ea9_49662fca",
+        "filename": "src/gpu/vk/GrVkPipelineStateCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T20:42:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e7ae2f8_0cb6b30b",
       "range": {
         "startLine": 87,
         "startChar": 4,
