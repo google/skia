@@ -49,6 +49,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "75cca721_b241efa7",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1085,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-05T19:15:19Z",
+      "side": 1,
+      "message": "Into the class you mean? \n\nIf so, I would also ask the question of all the static functions that take the SkArenaAlloc as a parameter.",
+      "parentUuid": "e98fd98b_78301414",
+      "range": {
+        "startLine": 1085,
+        "startChar": 12,
+        "endLine": 1085,
+        "endChar": 33
+      },
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "99100818_a86d8b2f",
         "filename": "src/gpu/GrTriangulator.cpp",
         "patchSetId": 12
