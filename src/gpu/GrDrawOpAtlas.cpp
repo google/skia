@@ -562,6 +562,9 @@ bool GrDrawOpAtlas::createPages(
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
         GrSwizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
+        if (GrColorTypeIsAlphaOnly(fColorType)) {
+            swizzle = GrSwizzle::Concat(swizzle, GrSwizzle("aaaa"));
+        }
         sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
                 fFormat, dims, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBackingFit::kExact,
                 SkBudgeted::kYes, GrProtected::kNo, GrInternalSurfaceFlags::kNone,
@@ -591,7 +594,6 @@ bool GrDrawOpAtlas::createPages(
 
     return true;
 }
-
 
 bool GrDrawOpAtlas::activateNewPage(GrResourceProvider* resourceProvider) {
     SkASSERT(fNumActivePages < this->maxPages());
