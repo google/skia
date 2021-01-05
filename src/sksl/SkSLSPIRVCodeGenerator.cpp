@@ -1179,10 +1179,18 @@ SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, OutputStre
     SkASSERT(c.arguments().size() == 1);
     const Type& argType = c.arguments()[0]->type();
     SkASSERT(constructorType.isFloat());
-    SkASSERT(argType.isNumber());
+    SkASSERT(argType.isNumber() || argType.isBoolean());
     SpvId result = this->nextId();
     SpvId parameter = this->writeExpression(*c.arguments()[0], out);
-    if (argType.isSigned()) {
+    if (argType.isBoolean()) {
+        // Use OpSelect to convert the boolean argument to a literal 1.0 or 0.0.
+        FloatLiteral one(fContext, /*offset=*/-1, /*value=*/1);
+        SpvId        oneID = this->writeFloatLiteral(one);
+        FloatLiteral zero(fContext, /*offset=*/-1, /*value=*/0);
+        SpvId        zeroID = this->writeFloatLiteral(zero);
+        this->writeInstruction(SpvOpSelect, this->getType(constructorType), result, parameter,
+                               oneID, zeroID, out);
+    } else if (argType.isSigned()) {
         this->writeInstruction(SpvOpConvertSToF, this->getType(constructorType), result, parameter,
                                out);
     } else {
@@ -1198,10 +1206,18 @@ SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, OutputStream
     SkASSERT(c.arguments().size() == 1);
     const Type& argType = c.arguments()[0]->type();
     SkASSERT(constructorType.isSigned());
-    SkASSERT(argType.isNumber());
+    SkASSERT(argType.isNumber() || argType.isBoolean());
     SpvId result = this->nextId();
     SpvId parameter = this->writeExpression(*c.arguments()[0], out);
-    if (argType.isFloat()) {
+    if (argType.isBoolean()) {
+        // Use OpSelect to convert the boolean argument to a literal 1 or 0.
+        IntLiteral one(/*offset=*/-1, /*value=*/1, fContext.fInt_Type.get());
+        SpvId      oneID = this->writeIntLiteral(one);
+        IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fInt_Type.get());
+        SpvId      zeroID = this->writeIntLiteral(zero);
+        this->writeInstruction(SpvOpSelect, this->getType(constructorType), result, parameter,
+                               oneID, zeroID, out);
+    } else if (argType.isFloat()) {
         this->writeInstruction(SpvOpConvertFToS, this->getType(constructorType), result, parameter,
                                out);
     }
@@ -1218,10 +1234,18 @@ SpvId SPIRVCodeGenerator::writeUIntConstructor(const Constructor& c, OutputStrea
     SkASSERT(c.arguments().size() == 1);
     const Type& argType = c.arguments()[0]->type();
     SkASSERT(constructorType.isUnsigned());
-    SkASSERT(argType.isNumber());
+    SkASSERT(argType.isNumber() || argType.isBoolean());
     SpvId result = this->nextId();
     SpvId parameter = this->writeExpression(*c.arguments()[0], out);
-    if (argType.isFloat()) {
+    if (argType.isBoolean()) {
+        // Use OpSelect to convert the boolean argument to a literal 1u or 0u.
+        IntLiteral one(/*offset=*/-1, /*value=*/1, fContext.fUInt_Type.get());
+        SpvId      oneID = this->writeIntLiteral(one);
+        IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fUInt_Type.get());
+        SpvId      zeroID = this->writeIntLiteral(zero);
+        this->writeInstruction(SpvOpSelect, this->getType(constructorType), result, parameter,
+                               oneID, zeroID, out);
+    } else if (argType.isFloat()) {
         this->writeInstruction(SpvOpConvertFToU, this->getType(constructorType), result, parameter,
                                out);
     } else {
