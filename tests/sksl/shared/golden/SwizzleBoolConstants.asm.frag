@@ -46,7 +46,7 @@ OpDecorate %127 RelaxedPrecision
 OpDecorate %132 RelaxedPrecision
 OpDecorate %135 RelaxedPrecision
 OpDecorate %139 RelaxedPrecision
-OpDecorate %149 RelaxedPrecision
+OpDecorate %148 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -64,10 +64,9 @@ OpDecorate %149 RelaxedPrecision
 %false = OpConstantFalse %bool
 %v3bool = OpTypeVector %bool 3
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%float_1_0 = OpConstant %float 1
-%145 = OpConstantComposite %v4float %float_1_0 %float_1_0 %float_1_0 %float_1_0
+%145 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %float_0 = OpConstant %float 0
-%147 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%146 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %main = OpFunction %void None %11
 %12 = OpLabel
 %v = OpVariable %_ptr_Function_v4bool Function
@@ -224,10 +223,10 @@ OpBranchConditional %138 %142 %143
 OpStore %140 %145
 OpBranch %144
 %143 = OpLabel
-OpStore %140 %147
+OpStore %140 %146
 OpBranch %144
 %144 = OpLabel
-%149 = OpLoad %v4float %140
-OpStore %sk_FragColor %149
+%148 = OpLoad %v4float %140
+OpStore %sk_FragColor %148
 OpReturn
 OpFunctionEnd
