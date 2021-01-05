@@ -68,5 +68,5 @@ void main() {
 
     b3.z = true;
 
-    sk_FragColor = vec4(1.0, false ? 1.0 : 0.0, b3.x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
+    sk_FragColor = vec4(float(true), float(false), float(b3.x), float(b4.x));
 }
