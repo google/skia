@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32606382_c02c3677",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T17:22:12Z",
+      "side": 1,
+      "message": "This function is next on the list of sk_sp updates. I want to at least add a version that takes an sk_sp and then have our array store sk_sps instead of pointers.",
+      "range": {
+        "startLine": 285,
+        "startChar": 10,
+        "endLine": 285,
+        "endChar": 21
+      },
+      "revId": "d337c69578183409934959bdd1f3fcc55462d105",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
