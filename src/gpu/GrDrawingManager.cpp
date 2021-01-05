@@ -830,7 +830,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
         }
     }
 
-#if GR_PATH_RENDERER_SPEW
+#if 1// GR_PATH_RENDERER_SPEW
     if (pr) {
         SkDebugf("getPathRenderer: %s\n", pr->name());
     }

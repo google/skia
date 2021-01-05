@@ -1746,12 +1746,23 @@ void GrGLGpu::flushScissorRect(const SkIRect& scissor, int rtWidth, int rtHeight
     if (fHWScissorSettings.fRect != nativeScissor) {
         GL_CALL(Scissor(nativeScissor.fX, nativeScissor.fY, nativeScissor.fWidth,
                         nativeScissor.fHeight));
+//        SkDebugf("native scissor %d %d wh %d %d\n", nativeScissor.fX, nativeScissor.fY,
+//                                                    nativeScissor.fWidth, nativeScissor.fHeight);
         fHWScissorSettings.fRect = nativeScissor;
     }
 }
 
+void GrGLGpu::flushViewport(SkIRect viewport, int rtHeight, GrSurfaceOrigin rtOrigin) {
+    auto nativeViewport = GrNativeRect::MakeRelativeTo(rtOrigin, rtHeight, viewport);
+    if (fHWViewport != nativeViewport) {
+        GL_CALL(Viewport(nativeViewport.fX, nativeViewport.fY,
+                         nativeViewport.fWidth, nativeViewport.fHeight));
+        fHWViewport = nativeViewport;
+    }
+}
+
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
-                                    const GrGLRenderTarget* rt, GrSurfaceOrigin origin) {
+                                    const GrGLRenderTarget* rt, GrSurfaceOrigin origin, SkIPoint viewportOffset) {
 #ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     SkASSERT(!windowState.enabled() || rt->renderFBOID()); // Window rects can't be used on-screen.
@@ -1770,7 +1781,8 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     GrNativeRect glwindows[GrWindowRectangles::kMaxWindows];
     const SkIRect* skwindows = windowState.windows().data();
     for (int i = 0; i < numWindows; ++i) {
-        glwindows[i].setRelativeTo(origin, rt->height(), skwindows[i]);
+        SkIRect tmp = skwindows[i].makeOffset(viewportOffset);
+        glwindows[i].setRelativeTo(origin, rt->height(), tmp);
     }
 
     GrGLenum glmode = (Mode::kExclusive == windowState.mode()) ? GR_GL_EXCLUSIVE : GR_GL_INCLUSIVE;
@@ -1790,7 +1802,7 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo, SkIPoint viewportOffset) {
     this->handleDirtyContext();
 
     sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(renderTarget, programInfo);
@@ -1809,7 +1821,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().writeSwizzle());
 
-    fHWProgram->updateUniforms(renderTarget, programInfo);
+    fHWProgram->updateUniforms(renderTarget, programInfo, viewportOffset);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -1822,7 +1834,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
-                                glRT, programInfo.origin());
+                                glRT, programInfo.origin(), viewportOffset);
     this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
     this->flushWireframeState(programInfo.pipeline().isWireframe());
@@ -1888,7 +1900,7 @@ GrGLenum GrGLGpu::bindBuffer(GrGpuBufferType type, const GrBuffer* buffer) {
     return bufferState->fGLTarget;
 }
 
-void GrGLGpu::clear(const GrScissorState& scissor,
+void GrGLGpu::clear1(const GrScissorState& scissor,
                     std::array<float, 4> color,
                     GrRenderTarget* target,
                     GrSurfaceOrigin origin) {
@@ -1906,7 +1918,7 @@ void GrGLGpu::clear(const GrScissorState& scissor,
     } else {
         this->flushRenderTarget(glRT);
     }
-    this->flushScissor(scissor, glRT->width(), glRT->height(), origin);
+    this->flushScissor1(scissor, glRT->width(), glRT->height(), origin);
     this->disableWindowRectangles();
     this->flushColorWrite(true);
     this->flushClearColor(color);
@@ -2045,7 +2057,7 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTargetNoColorWrites(glRT);
 
-    this->flushScissor(scissor, glRT->width(), glRT->height(), origin);
+    this->flushScissor1(scissor, glRT->width(), glRT->height(), origin);
     this->disableWindowRectangles();
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
@@ -2203,7 +2215,8 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
         }
 #endif
         fHWBoundRenderTargetUniqueID = rtID;
-        this->flushViewport(target->width(), target->height());
+        this->flushViewport(SkIRect::MakeSize(target->dimensions()),
+                            target->height(), kTopLeft_GrSurfaceOrigin);
     }
     if (this->caps()->workarounds().force_update_scissor_state_when_binding_fbo0) {
         // The driver forgets the correct scissor state when using FBO 0.
@@ -2240,14 +2253,6 @@ void GrGLGpu::flushFramebufferSRGB(bool enable) {
     } else if (!enable && kNo_TriState != fHWSRGBFramebuffer) {
         GL_CALL(Disable(GR_GL_FRAMEBUFFER_SRGB));
         fHWSRGBFramebuffer = kNo_TriState;
-    }
-}
-
-void GrGLGpu::flushViewport(int width, int height) {
-    GrNativeRect viewport = {0, 0, width, height};
-    if (fHWViewport != viewport) {
-        GL_CALL(Viewport(viewport.fX, viewport.fY, viewport.fWidth, viewport.fHeight));
-        fHWViewport = viewport;
     }
 }
 
@@ -2300,7 +2305,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
         // happens inside flushScissor since resolveRect is already in native device coordinates.
         GrScissorState scissor(rt->dimensions());
         SkAssertResult(scissor.set(resolveRect));
-        this->flushScissor(scissor, rt->width(), rt->height(), kTopLeft_GrSurfaceOrigin);
+        this->flushScissor1(scissor, rt->width(), rt->height(), kTopLeft_GrSurfaceOrigin);
         this->disableWindowRectangles();
         GL_CALL(ResolveMultisampleFramebuffer());
     } else {
@@ -3262,7 +3267,8 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     // We don't swizzle at all in our copies.
     this->bindTexture(0, GrSamplerState::Filter::kNearest, GrSwizzle::RGBA(), srcTex);
     this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
-    this->flushViewport(dst->width(), dst->height());
+    this->flushViewport(SkIRect::MakeSize(dst->dimensions()), dst->height(),
+                        kTopLeft_GrSurfaceOrigin);
     fHWBoundRenderTargetUniqueID.makeInvalid();
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
     this->flushProgram(fCopyPrograms[progIdx].fProgram);
@@ -3469,7 +3475,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 
         width = std::max(1, width / 2);
         height = std::max(1, height / 2);
-        this->flushViewport(width, height);
+        this->flushViewport(SkIRect::MakeWH(width, height), height, kTopLeft_GrSurfaceOrigin);
 
         GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     }
@@ -4011,6 +4017,23 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
 
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
 }
+
+#if 0
+void GrGLGpu::setViewport(SkIRect viewport, SkISize size) {
+    int tmp[4];
+    GL_CALL(GetIntegerv(GR_GL_VIEWPORT, tmp));
+    SkDebugf("prior viewport %d %d %d %d\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+
+    int yLower = size.fHeight - viewport.fBottom;
+    SkDebugf("new data: %d %d -- %d %d %d %d\n",
+             size.fWidth, size.fHeight,
+             viewport.fLeft, viewport.fTop,
+             viewport.width(), viewport.height());
+
+    GL_CALL(Viewport(viewport.fLeft, yLower, // Note: this is LL
+                     viewport.width(), viewport.height()));
+}
+#endif
 
 void GrGLGpu::checkFinishProcs() {
     fFinishCallbacks.check();

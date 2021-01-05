@@ -87,7 +87,7 @@ private:
                         fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
-                                 const GrPrimitiveProcessor& primProc) override {}
+                                 const GrPrimitiveProcessor& primProc, SkIPoint viewportOffset) override {}
                 };
                 return new GLSLGP();
             }

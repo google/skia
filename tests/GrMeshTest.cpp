@@ -501,7 +501,7 @@ private:
 };
 
 class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&, SkIPoint viewportOffset) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrMeshTestProcessor& mp = args.fGP.cast<GrMeshTestProcessor>();
@@ -578,7 +578,7 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
                               mtp, primitiveType, 0, fState->renderPassBarriers(),
                               fState->colorLoadOp());
 
-    fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));
+    fState->opsRenderPass()->bindPipeline1(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));
     return fState->opsRenderPass();
 }
 

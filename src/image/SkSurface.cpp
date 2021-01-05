@@ -339,10 +339,6 @@ bool SkSurface::isCompatible(const SkSurfaceCharacterization& characterization) 
 }
 
 bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset) {
-    if (xOffset != 0 || yOffset != 0) {
-        return false; // the offsets currently aren't supported
-    }
-
     return asSB(this)->onDraw(std::move(ddl), { xOffset, yOffset });
 }
 
