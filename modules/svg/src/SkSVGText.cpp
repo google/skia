@@ -328,9 +328,11 @@ void SkSVGTextContext::flushChunk(const SkSVGRenderContext& ctx) {
         const auto& buf = blobBuilder.allocRunRSXform(run.font, SkToInt(run.glyphCount));
         std::copy(run.glyphs.get(), run.glyphs.get() + run.glyphCount, buf.glyphs);
         for (size_t i = 0; i < run.glyphCount; ++i) {
-            const auto& pos = run.glyphPos[i];
+            const auto& pos_adjust = run.glyhPosAdjust[i];
+
+            const auto pos = run.glyphPos[i] + pos_adjust.offset;
             buf.xforms()[i] = SkRSXform::MakeFromRadians(/*scale=*/ 1,
-                                                         SkDegreesToRadians(run.glyphRot[i]),
+                                                         SkDegreesToRadians(pos_adjust.rotation),
                                                          pos.fX, pos.fY, 0, 0);
         }
 
@@ -359,9 +361,9 @@ SkShaper::RunHandler::Buffer SkSVGTextContext::runBuffer(const RunInfo& ri) {
         ri.fFont,
         fCurrentFill   ? std::make_unique<SkPaint>(*fCurrentFill)   : nullptr,
         fCurrentStroke ? std::make_unique<SkPaint>(*fCurrentStroke) : nullptr,
-        std::make_unique<SkGlyphID[]>(ri.glyphCount),
-        std::make_unique<SkPoint[]  >(ri.glyphCount),
-        std::make_unique<float[]    >(ri.glyphCount),
+        std::make_unique<SkGlyphID[]         >(ri.glyphCount),
+        std::make_unique<SkPoint[]           >(ri.glyphCount),
+        std::make_unique<PositionAdjustment[]>(ri.glyphCount),
         ri.glyphCount,
         ri.fAdvance,
     });
@@ -381,16 +383,13 @@ SkShaper::RunHandler::Buffer SkSVGTextContext::runBuffer(const RunInfo& ri) {
 void SkSVGTextContext::commitRunBuffer(const RunInfo& ri) {
     const auto& current_run = fRuns.back();
 
-    // apply position adjustments
+    // stash position adjustments
     for (size_t i = 0; i < ri.glyphCount; ++i) {
         const auto utf8_index = fShapeClusterBuffer[i];
-        const auto& pos = fShapeBuffer.fUtf8PosAdjust[SkToInt(utf8_index)];
-
-        current_run.glyphPos[i] += pos.offset;
-        current_run.glyphRot[i]  = pos.rotation;
+        current_run.glyhPosAdjust[i] = fShapeBuffer.fUtf8PosAdjust[SkToInt(utf8_index)];
     }
 
-    // Position adjustments are cumulative - we only need to advance the current chunk
+    // Offset adjustments are cumulative - we only need to advance the current chunk
     // with the last value.
     fChunkAdvance += ri.fAdvance + fShapeBuffer.fUtf8PosAdjust.back().offset;
 }

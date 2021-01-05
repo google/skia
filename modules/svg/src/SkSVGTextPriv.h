@@ -127,14 +127,14 @@ private:
     };
 
     struct RunRec {
-        SkFont                       font;
-        std::unique_ptr<SkPaint>     fillPaint,
-                                     strokePaint;
-        std::unique_ptr<SkGlyphID[]> glyphs;
-        std::unique_ptr<SkPoint[]>   glyphPos;
-        std::unique_ptr<float[]>     glyphRot;
-        size_t                       glyphCount;
-        SkVector                     advance;
+        SkFont                                font;
+        std::unique_ptr<SkPaint>              fillPaint,
+                                              strokePaint;
+        std::unique_ptr<SkGlyphID[]>          glyphs;        // filled by SkShaper
+        std::unique_ptr<SkPoint[]>            glyphPos;      // filled by SkShaper
+        std::unique_ptr<PositionAdjustment[]> glyhPosAdjust; // deferred positioning adjustments
+        size_t                                glyphCount;
+        SkVector                              advance;
     };
 
     void shapePendingBuffer(const SkFont&);
