@@ -137,13 +137,13 @@ bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
 
 using AccessPixelFn = const float*(const char* floatBuffer, int x, int y);
 
-bool compare_pixels(int width, int height,
+bool compare_pixels(SkISize dims,
                     const char* floatA, std::function<AccessPixelFn>& atA,
                     const char* floatB, std::function<AccessPixelFn>& atB,
                     const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
 
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < dims.height(); ++y) {
+        for (int x = 0; x < dims.width(); ++x) {
             const float* rgbaA = atA(floatA, x, y);
             const float* rgbaB = atB(floatB, x, y);
             float diffs[4];
@@ -189,21 +189,24 @@ bool ComparePixels(const GrImageInfo& infoA, const char* a, size_t rowBytesA,
     GrImageInfo floatInfo(GrColorType::kRGBA_F32, floatAlphaType, std::move(floatCS),
                           infoA.width(), infoA.height());
 
-    size_t floatBpp = GrColorTypeBytesPerPixel(GrColorType::kRGBA_F32);
-    size_t floatRowBytes = floatBpp * infoA.width();
-    std::unique_ptr<char[]> floatA(new char[floatRowBytes * infoA.height()]);
-    std::unique_ptr<char[]> floatB(new char[floatRowBytes * infoA.height()]);
-    SkAssertResult(GrConvertPixels(floatInfo, floatA.get(), floatRowBytes, infoA, a, rowBytesA));
-    SkAssertResult(GrConvertPixels(floatInfo, floatB.get(), floatRowBytes, infoB, b, rowBytesB));
+    auto [floatA, floatAStorage] = GrPixmap::Allocate(floatInfo);
+    auto [floatB, floatBStorage] = GrPixmap::Allocate(floatInfo);
+    SkAssertResult(GrConvertPixels(floatA, {infoA, a, rowBytesA}));
+    SkAssertResult(GrConvertPixels(floatB, {infoB, b, rowBytesB}));
 
+    SkASSERT(floatA.rowBytes() == floatB.rowBytes());
     auto at = std::function<AccessPixelFn>(
-        [floatBpp, floatRowBytes](const char* floatBuffer, int x, int y) {
-            return reinterpret_cast<const float*>(floatBuffer + y * floatRowBytes + x * floatBpp);
-        });
+            [rb = floatA.rowBytes()](const char* floatBuffer, int x, int y) {
+                return reinterpret_cast<const float*>(floatBuffer + y*rb + x*sizeof(float)*4);
+            });
 
-    return compare_pixels(infoA.width(), infoA.height(),
-                          floatA.get(), at, floatB.get(), at,
-                          tolRGBA, error);
+    return compare_pixels(infoA.dimensions(),
+                          static_cast<const char*>(floatA.addr()),
+                          at,
+                          static_cast<const char*>(floatB.addr()),
+                          at,
+                          tolRGBA,
+                          error);
 }
 
 bool ComparePixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
@@ -225,8 +228,8 @@ bool CheckSolidPixels(const SkColor4f& col, const SkPixmap& pixmap,
         GrImageInfo srcInfo(GrColorType::kRGBA_F32, kUnpremul_SkAlphaType, std::move(srcCS), 1, 1);
         GrImageInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(), 1, 1);
 
-        SkAssertResult(GrConvertPixels(dstInfo, floatA.get(), floatBpp, srcInfo,
-                                       col.vec(), floatBpp));
+        SkAssertResult(GrConvertPixels({dstInfo, floatA.get(), floatBpp},
+                                       {srcInfo,    col.vec(), floatBpp}));
     }
 
     size_t floatRowBytes = floatBpp * pixmap.width();
@@ -236,8 +239,8 @@ bool CheckSolidPixels(const SkColor4f& col, const SkPixmap& pixmap,
         GrImageInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(),
                             pixmap.width(), pixmap.height());
 
-        SkAssertResult(GrConvertPixels(dstInfo, floatB.get(), floatRowBytes, pixmap.info(),
-                                       pixmap.addr(), pixmap.rowBytes()));
+        SkAssertResult(GrConvertPixels({      dstInfo,  floatB.get(),     floatRowBytes},
+                                       {pixmap.info(), pixmap.addr(), pixmap.rowBytes()}));
     }
 
     auto atA = std::function<AccessPixelFn>(
@@ -250,8 +253,13 @@ bool CheckSolidPixels(const SkColor4f& col, const SkPixmap& pixmap,
             return reinterpret_cast<const float*>(floatBuffer + y * floatRowBytes + x * floatBpp);
         });
 
-    return compare_pixels(pixmap.width(), pixmap.height(), floatA.get(), atA, floatB.get(), atB,
-                          tolRGBA, error);
+    return compare_pixels(pixmap.dimensions(),
+                          floatA.get(),
+                          atA,
+                          floatB.get(),
+                          atB,
+                          tolRGBA,
+                          error);
 }
 
 void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,

@@ -25,7 +25,7 @@ namespace sk_gpu_test {
 GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
                                                 GrRenderable renderable,
                                                 GrSurfaceOrigin origin,
-                                                GrPixmap pixmap) {
+                                                GrCPixmap pixmap) {
     if (dContext->abandoned()) {
         return {};
     }

@@ -78,8 +78,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                     for (const SkIRect& srcRect : kSrcRects) {
                         for (const SkIPoint& dstPoint : kDstPoints) {
                             for (const SkImageInfo& ii: kImageInfos) {
-                                GrPixmap srcPM(ii, srcPixels.get(), kRowBytes);
-                                GrPixmap dstPM(ii, dstPixels.get(), kRowBytes);
+                                GrCPixmap srcPM(ii, srcPixels.get(), kRowBytes);
+                                GrPixmap  dstPM(ii, dstPixels.get(), kRowBytes);
                                 auto srcView = sk_gpu_test::MakeTextureProxyViewFromData(
                                         dContext, sRenderable, sOrigin, srcPM);
                                 auto dstView = sk_gpu_test::MakeTextureProxyViewFromData(
