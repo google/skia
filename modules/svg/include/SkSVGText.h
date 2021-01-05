@@ -39,6 +39,7 @@ public:
     SVG_ATTR(Y, std::vector<SkSVGLength>, {})
     SVG_ATTR(Dx, std::vector<SkSVGLength>, {})
     SVG_ATTR(Dy, std::vector<SkSVGLength>, {})
+    SVG_ATTR(Rotate, std::vector<SkSVGNumberType>, {})
 
     SVG_ATTR(XmlSpace, SkSVGXmlSpace, SkSVGXmlSpace::kDefault)
 
