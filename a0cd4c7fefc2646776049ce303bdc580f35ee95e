@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b00a86d_8b1b051d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1513,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-05T16:15:30Z",
+      "side": 1,
+      "message": "The nodes parameter wasn\u0027t actually being used here, and fFiles is going to be null when accessed from the DSL, which would lead to UB, hence this change.",
+      "range": {
+        "startLine": 1513,
+        "startChar": 47,
+        "endLine": 1513,
+        "endChar": 64
+      },
+      "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
