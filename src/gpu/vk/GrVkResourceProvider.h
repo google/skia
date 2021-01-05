@@ -49,7 +49,8 @@ public:
                                            VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                            int shaderStageCount,
                                            VkRenderPass compatibleRenderPass,
-                                           VkPipelineLayout layout);
+                                           VkPipelineLayout layout,
+                                           uint32_t subpass);
 
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
@@ -129,7 +130,8 @@ public:
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
             GrRenderTarget*,
             const GrProgramInfo&,
-            VkRenderPass compatibleRenderPass);
+            VkRenderPass compatibleRenderPass,
+            bool overrideSubpassForResolveLoad);
 
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
             const GrProgramDesc&,
@@ -224,13 +226,14 @@ private:
         void release();
         GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
                                                      const GrProgramInfo&,
-                                                     VkRenderPass compatibleRenderPass);
+                                                     VkRenderPass compatibleRenderPass,
+                                                     bool overrideSubpassForResolveLoad);
         GrVkPipelineState* findOrCreatePipelineState(const GrProgramDesc& desc,
                                                      const GrProgramInfo& programInfo,
                                                      VkRenderPass compatibleRenderPass,
                                                      GrGpu::Stats::ProgramCacheResult* stat) {
             return this->findOrCreatePipelineState(nullptr, desc, programInfo,
-                                                   compatibleRenderPass, stat);
+                                                   compatibleRenderPass, false, stat);
         }
 
     private:
@@ -240,6 +243,7 @@ private:
                                                      const GrProgramDesc&,
                                                      const GrProgramInfo&,
                                                      VkRenderPass compatibleRenderPass,
+                                                     bool overrideSubpassForResolveLoad,
                                                      GrGpu::Stats::ProgramCacheResult*);
 
         struct DescHash {

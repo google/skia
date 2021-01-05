@@ -448,7 +448,24 @@ public:
                                     GrSamplerState,
                                     const GrBackendFormat&) const {}
 
-    virtual GrProgramDesc makeDesc(GrRenderTarget*, const GrProgramInfo&) const = 0;
+    enum class ProgramDescOverrideFlags {
+        kNone = 0,
+        // If using discardable msaa surfaces in vulkan, when we break up a render pass for an
+        // inline upload, we must do a load msaa subpass for the second render pass. However, if the
+        // original render pass did not have this load subpass (e.g. clear or discard load op), then
+        // all the GrProgramInfos for draws that end up in the second render pass will have been
+        // recorded thinking they will be in a render pass with only 1 subpass. Thus we add an
+        // override flag to the makeDesc call to force the actually VkPipeline that gets created to
+        // be created using a render pass with 2 subpasses. We do miss on the pre-compile with this
+        // approach, but inline uploads are very rare and already slow.
+        kVulkanHasResolveLoadSubpass = 0x1,
+    };
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ProgramDescOverrideFlags);
+
+
+    virtual GrProgramDesc makeDesc(
+            GrRenderTarget*, const GrProgramInfo&,
+            ProgramDescOverrideFlags overrideFlags = ProgramDescOverrideFlags::kNone) const = 0;
 
     // This method specifies, for each backend, the extra properties of a RT when Ganesh creates one
     // internally. For example, for Vulkan, Ganesh always creates RTs that can be used as input
@@ -585,5 +602,7 @@ private:
 
     using INHERITED = SkRefCnt;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrCaps::ProgramDescOverrideFlags);
 
 #endif
