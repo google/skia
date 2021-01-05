@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0970311f_83a3008b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-05T18:54:32Z",
+      "side": 1,
+      "message": "m88 merge request was approved, and ideally landed before Wed 12pm PST (next beta cut).",
+      "revId": "34ee87cd190dbc94e761f99aaffaa3bf06bcfdbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
