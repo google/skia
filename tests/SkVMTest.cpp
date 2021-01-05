@@ -662,6 +662,41 @@ DEF_TEST(SkVM_select, r) {
     });
 }
 
+DEF_TEST(SkVM_swap, r) {
+    skvm::Builder b;
+    {
+        // This program is the equivalent of
+        //     x = *X
+        //     y = *Y
+        //     *X = y
+        //     *Y = x
+        // One rescheduling of the program based only on data flow of Op arguments is
+        //     x = *X
+        //     *Y = x
+        //     y = *Y
+        //     *X = y
+        // but this reordering does not produce the same results and is invalid.
+        skvm::Arg X = b.varying<int>(),
+                  Y = b.varying<int>();
+
+        skvm::I32 x = b.load32(X),
+                  y = b.load32(Y);
+
+        b.store32(X, y);
+        b.store32(Y, x);
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        int b1[] = { 0,1,2,3 };
+        int b2[] = { 4,5,6,7 };
+        program.eval(SK_ARRAY_COUNT(b1), b1, b2);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(b1); i++) {
+            REPORTER_ASSERT(r, b1[i] == 4 + i);
+            REPORTER_ASSERT(r, b2[i] == i);
+        }
+    });
+}
+
 DEF_TEST(SkVM_NewOps, r) {
     // Exercise a somewhat arbitrary set of new ops.
     skvm::Builder b;
