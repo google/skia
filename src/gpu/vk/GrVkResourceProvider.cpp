@@ -94,14 +94,14 @@ void GrVkResourceProvider::init() {
     fInputDSHandle = GrVkDescriptorSetManager::Handle(1);
 }
 
-GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programInfo,
-                                                   VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                                   int shaderStageCount,
-                                                   VkRenderPass compatibleRenderPass,
-                                                   VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, programInfo, shaderStageInfo,
-                                shaderStageCount, compatibleRenderPass, layout,
-                                this->pipelineCache());
+sk_sp<const GrVkPipeline> GrVkResourceProvider::makePipeline(
+        const GrProgramInfo& programInfo,
+        VkPipelineShaderStageCreateInfo* shaderStageInfo,
+        int shaderStageCount,
+        VkRenderPass compatibleRenderPass,
+        VkPipelineLayout layout) {
+    return GrVkPipeline::Make(fGpu, programInfo, shaderStageInfo, shaderStageCount,
+                              compatibleRenderPass, layout, this->pipelineCache());
 }
 
 // To create framebuffers, we first need to create a simple RenderPass that is
@@ -277,20 +277,20 @@ GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
     return tmp;
 }
 
-const GrVkPipeline* GrVkResourceProvider::findOrCreateMSAALoadPipeline(
+sk_sp<const GrVkPipeline> GrVkResourceProvider::findOrCreateMSAALoadPipeline(
         const GrVkRenderPass& renderPass,
         const GrVkRenderTarget* dst,
         VkPipelineShaderStageCreateInfo* shaderStageInfo,
         VkPipelineLayout pipelineLayout) {
     // Find or Create a compatible pipeline
-    const GrVkPipeline* pipeline = nullptr;
+    sk_sp<const GrVkPipeline> pipeline;
     for (int i = 0; i < fMSAALoadPipelines.count() && !pipeline; ++i) {
         if (fMSAALoadPipelines[i].fRenderPass->isCompatible(renderPass)) {
             pipeline = fMSAALoadPipelines[i].fPipeline;
         }
     }
     if (!pipeline) {
-        pipeline = GrVkPipeline::Create(
+        pipeline = GrVkPipeline::Make(
                 fGpu,
                 /*vertexAttribs=*/GrPrimitiveProcessor::AttributeSet(),
                 /*instanceAttribs=*/GrPrimitiveProcessor::AttributeSet(),
@@ -316,7 +316,6 @@ const GrVkPipeline* GrVkResourceProvider::findOrCreateMSAALoadPipeline(
         fMSAALoadPipelines.push_back({pipeline, &renderPass});
     }
     SkASSERT(pipeline);
-    pipeline->ref();
     return pipeline;
 }
 
@@ -481,9 +480,6 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     }
 
     // Release all msaa load pipelines
-    for (int i = 0; i < fMSAALoadPipelines.count(); ++i) {
-        fMSAALoadPipelines[i].fPipeline->unref();
-    }
     fMSAALoadPipelines.reset();
 
     // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses

@@ -153,15 +153,13 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
 
     GrVkResourceProvider& resourceProv = gpu->resourceProvider();
 
-    const GrVkPipeline* pipeline =
+    sk_sp<const GrVkPipeline> pipeline =
             resourceProv.findOrCreateMSAALoadPipeline(renderPass, dstRt, fShaderStageInfo,
                                                       fPipelineLayout);
     if (!pipeline) {
         return false;
     }
-    commandBuffer->bindPipeline(gpu, pipeline);
-    // Release ref to pipeline. The command buffer is holding a ref.
-    pipeline->unref();
+    commandBuffer->bindPipeline(gpu, std::move(pipeline));
 
     // Set Dynamic viewport and stencil
     // We always use one viewport the size of the RT

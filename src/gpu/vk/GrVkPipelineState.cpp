@@ -28,7 +28,7 @@
 
 GrVkPipelineState::GrVkPipelineState(
         GrVkGpu* gpu,
-        GrVkPipeline* pipeline,
+        sk_sp<const GrVkPipeline> pipeline,
         const GrVkDescriptorSetManager::Handle& samplerDSHandle,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
@@ -37,7 +37,7 @@ GrVkPipelineState::GrVkPipelineState(
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors)
-        : fPipeline(pipeline)
+        : fPipeline(std::move(pipeline))
         , fSamplerDSHandle(samplerDSHandle)
         , fBuiltinUniformHandles(builtinUniformHandles)
         , fGeometryProcessor(std::move(geometryProcessor))
@@ -60,10 +60,7 @@ GrVkPipelineState::~GrVkPipelineState() {
 }
 
 void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
-    if (fPipeline) {
-        fPipeline->unref();
-        fPipeline = nullptr;
-    }
+    fPipeline.reset();
 
     if (fUniformBuffer) {
         fUniformBuffer->release(gpu);

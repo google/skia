@@ -17,6 +17,7 @@
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
 
@@ -319,9 +320,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         }
     }
 
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, shaderStageInfo,
-                                                             numShaderStages, compatibleRenderPass,
-                                                             pipelineLayout);
+    sk_sp<const GrVkPipeline> pipeline = resourceProvider.makePipeline(
+            fProgramInfo, shaderStageInfo, numShaderStages, compatibleRenderPass, pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
         // However this is causing a crash in certain drivers (e.g. NVidia).
@@ -338,7 +338,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     }
 
     return new GrVkPipelineState(fGpu,
-                                 pipeline,
+                                 std::move(pipeline),
                                  samplerDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
