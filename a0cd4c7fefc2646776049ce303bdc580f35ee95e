@@ -22,6 +22,53 @@
       },
       "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4e90420_26ae8b13",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1513,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T16:25:05Z",
+      "side": 1,
+      "message": "Is fFiles being null going to bite us in other places too?",
+      "parentUuid": "9b00a86d_8b1b051d",
+      "range": {
+        "startLine": 1513,
+        "startChar": 47,
+        "endLine": 1513,
+        "endChar": 64
+      },
+      "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d18c8dc_12eef858",
+        "filename": "src/sksl/SkSLIRGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T16:25:05Z",
+      "side": 1,
+      "message": "Conceptually seems weird that `convertWhile` is public and roughly-equivalent functions like `convertDo` are private. Does this eventually get sorted out and make more sense? Or are we just making things public on a case-by-case basis based on what the DSL needs to use?\n\nIdeally I\u0027d like to be able to have a mental model for which things should be public and private in the IRGenerator. Or we could just make the DSL classes friends since they are basically IR generators anyway.",
+      "range": {
+        "startLine": 173,
+        "startChar": 31,
+        "endLine": 173,
+        "endChar": 43
+      },
+      "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
