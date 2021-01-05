@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7678a479_b2469e2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T20:55:14Z",
+      "side": 1,
+      "message": "Oh and yes there are tests in the form of GMs that do test the inline upload stuff. The discardable msaa does fail without this change on those gms and passes with.",
+      "revId": "6892fbb1c8b200360c2301afb6dc50f99f169707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
