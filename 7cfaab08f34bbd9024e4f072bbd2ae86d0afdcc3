@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ce4a6cd_cd0fbbb2",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2309,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T19:57:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3db617ff_dbd06ab7",
+      "range": {
+        "startLine": 2309,
+        "startChar": 25,
+        "endLine": 2309,
+        "endChar": 37
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55376ba4_d81eec13",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-05T17:59:14Z",
       "side": 1,
       "message": "Ditto",
+      "range": {
+        "startLine": 2324,
+        "startChar": 25,
+        "endLine": 2324,
+        "endChar": 37
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0852c37f_7ad66253",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2324,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T19:57:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55376ba4_d81eec13",
       "range": {
         "startLine": 2324,
         "startChar": 25,
@@ -72,6 +120,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4030cfc8_c0769575",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2358,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T19:57:29Z",
+      "side": 1,
+      "message": "It\u0027s impossible but I\u0027d prefer to keep the check as-is, because it\u0027s cheap, and removing it forces us to bake in the invariant that `convertConstructor` is the only caller of this function (with a subtle, weird failure mode if we break that invariant).",
+      "parentUuid": "d5db8f5d_17bd4e99",
+      "range": {
+        "startLine": 2358,
+        "startChar": 28,
+        "endLine": 2358,
+        "endChar": 51
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6748427e_23dc0047",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 8
@@ -83,6 +155,30 @@
       "writtenOn": "2021-01-05T17:59:14Z",
       "side": 1,
       "message": "... this, right?",
+      "range": {
+        "startLine": 2429,
+        "startChar": 7,
+        "endLine": 2429,
+        "endChar": 88
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84782ad5_84e86369",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2429,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T19:57:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6748427e_23dc0047",
       "range": {
         "startLine": 2429,
         "startChar": 7,
