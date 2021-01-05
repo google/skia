@@ -34,7 +34,7 @@ class SkiaYnevsvgDesktopPageSet(story.StorySet):
 
     urls_list = [
       # Why: from skbug.com/4713
-      ('https://storage.googleapis.com/skia-infra-testdata/images-for-skps/'
+      ('https://storage.googleapis.com/skia-recreateskps-bot-hosted-pages/'
        'ynev.svg'),
     ]
 
