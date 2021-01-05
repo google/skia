@@ -942,7 +942,6 @@ namespace skvm {
     // Optimization passes and data structures normally used by Builder::optimize(),
     // extracted here so they can be unit tested.
     std::vector<Instruction>          eliminate_dead_code(std::vector<Instruction>);
-    std::vector<Instruction>          schedule           (std::vector<Instruction>);
     std::vector<OptimizedInstruction> finalize           (std::vector<Instruction>);
 
     using Reg = int;
