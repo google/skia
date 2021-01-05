@@ -33,7 +33,6 @@ constexpr static float kCosMiterAngle = 0.97f; // Corresponds to an angle of ~14
 
 struct Event;
 
-using Mode = GrTriangulator::Mode;
 using Vertex = GrTriangulator::Vertex;
 using VertexList = GrTriangulator::VertexList;
 using Edge = GrTriangulator::Edge;
@@ -750,8 +749,6 @@ void GrTriangulator::generateCubicPoints(const SkPoint& p0, const SkPoint& p1, c
 void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
                                     VertexList* contours) {
     SkScalar toleranceSqd = tolerance * tolerance;
-    bool innerPolygons = (Mode::kSimpleInnerPolygons == fMode);
-
     SkPoint pts[4];
     fIsLinear = true;
     VertexList* contour = contours;
@@ -770,7 +767,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
         switch (verb) {
             case SkPath::kConic_Verb: {
                 fIsLinear = false;
-                if (innerPolygons) {
+                if (fSimpleInnerPolygons) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
@@ -794,7 +791,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
             }
             case SkPath::kQuad_Verb: {
                 fIsLinear = false;
-                if (innerPolygons) {
+                if (fSimpleInnerPolygons) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
@@ -803,7 +800,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
             }
             case SkPath::kCubic_Verb: {
                 fIsLinear = false;
-                if (innerPolygons) {
+                if (fSimpleInnerPolygons) {
                     this->appendPointToContour(pts[3], contour);
                     break;
                 }
@@ -1313,16 +1310,14 @@ bool GrTriangulator::checkForIntersection(Edge* left, Edge* right, EdgeList* act
 }
 
 void GrTriangulator::sanitizeContours(VertexList* contours, int contourCnt) {
-    bool approximate = (Mode::kEdgeAntialias == fMode);
-    bool removeCollinearVertices = (Mode::kSimpleInnerPolygons != fMode);
     for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
         SkASSERT(contour->fHead);
         Vertex* prev = contour->fTail;
-        if (approximate) {
+        if (fRoundVerticesToQuarterPixel) {
             round(&prev->fPoint);
         }
         for (Vertex* v = contour->fHead; v;) {
-            if (approximate) {
+            if (fRoundVerticesToQuarterPixel) {
                 round(&v->fPoint);
             }
             Vertex* next = v->fNext;
@@ -1333,7 +1328,7 @@ void GrTriangulator::sanitizeContours(VertexList* contours, int contourCnt) {
             } else if (!v->fPoint.isFinite()) {
                 TESS_LOG("vertex %g,%g non-finite; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
-            } else if (removeCollinearVertices &&
+            } else if (fCullCollinearVertices &&
                        Line(prev->fPoint, nextWrap->fPoint).dist(v->fPoint) == 0.0) {
                 TESS_LOG("vertex %g,%g collinear; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
@@ -1561,7 +1556,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, Compar
                             leftEnclosingEdge, edge, &activeEdges, &v, mesh, c) ||
                         this->checkForIntersection(
                             edge, rightEnclosingEdge, &activeEdges, &v, mesh, c)) {
-                        if (Mode::kSimpleInnerPolygons == fMode) {
+                        if (fSimpleInnerPolygons) {
                             return SimplifyResult::kAbort;
                         }
                         result = SimplifyResult::kFoundSelfIntersection;
@@ -1572,7 +1567,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, Compar
             } else {
                 if (this->checkForIntersection(leftEnclosingEdge, rightEnclosingEdge, &activeEdges,
                                                &v, mesh, c)) {
-                    if (Mode::kSimpleInnerPolygons == fMode) {
+                    if (fSimpleInnerPolygons) {
                         return SimplifyResult::kAbort;
                     }
                     result = SimplifyResult::kFoundSelfIntersection;
@@ -1602,7 +1597,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, Compar
 Poly* GrTriangulator::tessellate(const VertexList& vertices) {
     TESS_LOG("\ntessellating simple polygons\n");
     int maxWindMagnitude = std::numeric_limits<int>::max();
-    if (Mode::kSimpleInnerPolygons == fMode && !SkPathFillType_IsEvenOdd(fPath.getFillType())) {
+    if (fSimpleInnerPolygons && !SkPathFillType_IsEvenOdd(fPath.getFillType())) {
         maxWindMagnitude = 1;
     }
     EdgeList activeEdges;
@@ -2240,7 +2235,7 @@ Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt, Vert
     }
     TESS_LOG("\nsimplified mesh:\n");
     dump_mesh(mesh);
-    if (Mode::kEdgeAntialias == fMode) {
+    if (fEmitCoverage) {
         VertexList innerMesh;
         extract_boundaries(mesh, &innerMesh, outerMesh, fPath.getFillType(), c, fAlloc);
         SortMesh(&innerMesh, c);
@@ -2289,10 +2284,9 @@ Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt, Vert
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 void* GrTriangulator::polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType) {
-    bool emitCoverage = (Mode::kEdgeAntialias == fMode);
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(overrideFillType, poly)) {
-            data = poly->emit(emitCoverage, data);
+            data = poly->emit(fEmitCoverage, data);
         }
     }
     return data;
@@ -2379,20 +2373,6 @@ static void* outer_mesh_to_triangles(const VertexList& outerMesh, bool emitCover
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
-int GrTriangulator::PathToTriangles(const SkPath& path, SkScalar tolerance,
-                                    const SkRect& clipBounds,
-                                    GrEagerVertexAllocator* vertexAllocator, Mode mode,
-                                    bool* isLinear) {
-    GrTriangulator triangulator(path, mode);
-    SkPathFillType overrideFillType = (GrTriangulator::Mode::kEdgeAntialias == mode)
-            ? SkPathFillType::kWinding
-            : path.getFillType();
-    int count = triangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator,
-                                             overrideFillType);
-    *isLinear = triangulator.fIsLinear;
-    return count;
-}
-
 int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
                                     GrEagerVertexAllocator* vertexAllocator,
                                     SkPathFillType overrideFillType) {
@@ -2404,7 +2384,7 @@ int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
     VertexList outerMesh;
     Poly* polys = this->pathToPolys(tolerance, clipBounds, contourCnt, &outerMesh);
     int64_t count64 = count_points(polys, overrideFillType);
-    if (GrTriangulator::Mode::kEdgeAntialias == fMode) {
+    if (fEmitCoverage) {
         count64 += count_outer_mesh_points(outerMesh);
     }
     if (0 == count64 || count64 > SK_MaxS32) {
@@ -2412,7 +2392,10 @@ int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
     }
     int count = count64;
 
-    size_t vertexStride = GetVertexStride(fMode);
+    size_t vertexStride = sizeof(SkPoint);
+    if (fEmitCoverage) {
+        vertexStride += sizeof(float);
+    }
     void* verts = vertexAllocator->lock(vertexStride, count);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
@@ -2437,7 +2420,7 @@ int GrTriangulator::PathToVertices(const SkPath& path, SkScalar tolerance, const
         *verts = nullptr;
         return 0;
     }
-    GrTriangulator triangulator(path, Mode::kNormal);
+    GrTriangulator triangulator(path);
     Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, contourCnt, nullptr);
     SkPathFillType fillType = path.getFillType();
     int64_t count64 = count_points(polys, fillType);
