@@ -50,6 +50,8 @@ static bool draw_mask(GrSurfaceDrawContext* surfaceDrawContext,
         return false;
     }
 
+    mask.concatSwizzle(GrSwizzle("aaaa"));
+
     SkMatrix matrix = SkMatrix::Translate(-SkIntToScalar(maskRect.fLeft),
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
