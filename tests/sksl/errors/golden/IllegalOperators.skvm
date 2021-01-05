@@ -1,0 +1,16 @@
+### Compilation failed:
+
+error: 1: operator '~' is not allowed
+error: 3: operator '%' is not allowed
+error: 4: operator '%=' is not allowed
+error: 6: operator '<<' is not allowed
+error: 7: operator '<<=' is not allowed
+error: 8: operator '>>' is not allowed
+error: 9: operator '>>=' is not allowed
+error: 11: operator '&' is not allowed
+error: 12: operator '&=' is not allowed
+error: 13: operator '|' is not allowed
+error: 14: operator '|=' is not allowed
+error: 15: operator '^' is not allowed
+error: 16: operator '^=' is not allowed
+13 errors

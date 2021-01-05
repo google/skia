@@ -1,0 +1,16 @@
+int bit_not(int x) { return ~x; }
+
+int remainder(int x)    { return x %  2; }
+int remainder_eq(int x) { return x %= 2;}
+
+int shl   (int x) { return x <<  1; }
+int shl_eq(int x) { return x <<= 1; }
+int shr   (int x) { return x >>  1; }
+int shr_eq(int x) { return x >>= 1; }
+
+int bit_and   (int x) { return x &  1; }
+int bit_and_eq(int x) { return x &= 1; }
+int bit_or    (int x) { return x |  1; }
+int bit_or_eq (int x) { return x |= 1; }
+int bit_xor   (int x) { return x ^  1; }
+int bit_xor_eq(int x) { return x ^= 1; }
