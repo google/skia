@@ -1,0 +1,7 @@
+uniform float f;
+uniform bool b;
+uniform int i;
+
+half4 main() {
+    return half4(bool(f) ? half(b) : half(i));
+}

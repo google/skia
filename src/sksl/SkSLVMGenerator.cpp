@@ -690,7 +690,7 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
     const Type& srcType = c.arguments()[0]->type();
     const Type& dstType = c.type();
     Type::NumberKind srcKind = base_number_kind(srcType),
-                        dstKind = base_number_kind(dstType);
+                     dstKind = base_number_kind(dstType);
     Value src = this->writeExpression(*c.arguments()[0]);
     size_t dstSlots = slot_count(dstType);
 
@@ -699,25 +699,37 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
         return src;
     }
 
-    // TODO: Handle conversion to/from bool
-    // TODO: Handle signed vs. unsigned? GLSL ES 1.0 only has 'int', so no problem yet
+    // TODO: Handle signed vs. unsigned. GLSL ES 1.0 only has 'int', so no problem yet.
     if (srcKind != dstKind) {
         // One argument constructors can do type conversion
         Value dst(src.slots());
-        if (dstKind == Type::NumberKind::kFloat) {
-            SkASSERT(srcKind == Type::NumberKind::kSigned);
-            for (size_t i = 0; i < src.slots(); ++i) {
-                dst[i] = skvm::to_F32(i32(src[i]));
-            }
-        } else if (dstKind == Type::NumberKind::kSigned) {
-            SkASSERT(srcKind == Type::NumberKind::kFloat);
-            for (size_t i = 0; i < src.slots(); ++i) {
-                dst[i] = skvm::trunc(f32(src[i]));
-            }
-        } else {
-            SkDEBUGFAIL("Unsupported type conversion");
+        switch (dstKind) {
+            case Type::NumberKind::kFloat:
+                if (srcKind == Type::NumberKind::kSigned || srcKind == Type::NumberKind::kBoolean) {
+                    // int|bool -> float
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = skvm::to_F32(i32(src[i]));
+                    }
+                    return dst;
+                }
+                break;
+
+            case Type::NumberKind::kBoolean:
+            case Type::NumberKind::kSigned:
+                if (srcKind == Type::NumberKind::kFloat) {
+                    // float -> int|bool
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = skvm::trunc(f32(src[i]));
+                    }
+                    return dst;
+                }
+                break;
+
+            default:
+                break;
         }
-        return dst;
+        SkDEBUGFAILF("Unsupported type conversion: %s -> %s", srcType.displayName().c_str(),
+                                                              dstType.displayName().c_str());
     }
 
     // Matrices can be constructed from scalars or other matrices
