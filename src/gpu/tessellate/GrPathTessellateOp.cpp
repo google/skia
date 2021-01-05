@@ -172,7 +172,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
     SkASSERT(!fStencilTrianglesProgram);
     SkASSERT(!fFillTrianglesProgram);
 
-    using GrTriangulator::Mode;
+    using Mode = GrTriangulator::Mode;
 
     fTriangleVertexCount = GrTriangulator::PathToTriangles(fPath, 0, SkRect::MakeEmpty(),
                                                            args.fInnerTriangleAllocator,
