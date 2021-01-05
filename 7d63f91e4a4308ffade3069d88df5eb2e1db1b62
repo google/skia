@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1221c00e_37d844e8",
+        "filename": "tests/sksl/shared/golden/OutParams.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-05T20:09:33Z",
+      "side": 0,
+      "message": "... this is interesting. Previously, were we collapsing \"(true ? 1.0 : 0.0)\" in the optimizer? If so, why weren\u0027t we collapsing \"(false ? 1.0 : 0.0)\"? And now we\u0027re not doing constant propagation of boolean-involved constructors (which I\u0027m guessing is a follow-up, based on your comments in the sync)?",
+      "range": {
+        "startLine": 71,
+        "startChar": 24,
+        "endLine": 71,
+        "endChar": 46
+      },
+      "revId": "7d63f91e4a4308ffade3069d88df5eb2e1db1b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
