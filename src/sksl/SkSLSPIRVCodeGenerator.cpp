@@ -2592,53 +2592,31 @@ SpvId SPIRVCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    const Type& type = i.type();
-    ConstantType constantType;
-    if (type == *fContext.fInt_Type || type.typeKind() == Type::TypeKind::kEnum) {
-        constantType = ConstantType::kInt;
-    } else if (type == *fContext.fUInt_Type) {
-        constantType = ConstantType::kUInt;
-    } else if (type == *fContext.fShort_Type || type == *fContext.fByte_Type) {
-        constantType = ConstantType::kShort;
-    } else if (type == *fContext.fUShort_Type || type == *fContext.fUByte_Type) {
-        constantType = ConstantType::kUShort;
-    } else {
-        SkASSERT(false);
-    }
-    std::pair<ConstantValue, ConstantType> key(i.value(), constantType);
-    auto entry = fNumberConstants.find(key);
-    if (entry == fNumberConstants.end()) {
+    SpvId type = this->getType(i.type());
+    ConstantValuePair key(i.value(), type);
+    auto [iter, newlyCreated] = fNumberConstants.insert({key, (SpvId)-1});
+    if (newlyCreated) {
         SpvId result = this->nextId();
-        this->writeInstruction(SpvOpConstant, this->getType(type), result, (SpvId) i.value(),
-                               fConstantBuffer);
-        fNumberConstants[key] = result;
-        return result;
+        this->writeInstruction(SpvOpConstant, type, result, (SpvId) i.value(), fConstantBuffer);
+        iter->second = result;
     }
-    return entry->second;
+    return iter->second;
 }
 
 SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    const Type& type = f.type();
-    ConstantType constantType;
-    if (type == *fContext.fHalf_Type) {
-        constantType = ConstantType::kHalf;
-    } else {
-        constantType = ConstantType::kFloat;
-    }
-    float value = (float) f.value();
-    std::pair<ConstantValue, ConstantType> key(f.value(), constantType);
-    auto entry = fNumberConstants.find(key);
-    if (entry == fNumberConstants.end()) {
+    SpvId type = this->getType(f.type());
+    ConstantValuePair key(f.value(), type);
+    auto [iter, newlyCreated] = fNumberConstants.insert({key, (SpvId)-1});
+    if (newlyCreated) {
         SpvId result = this->nextId();
-        uint32_t bits;
-        SkASSERT(sizeof(bits) == sizeof(value));
-        memcpy(&bits, &value, sizeof(bits));
-        this->writeInstruction(SpvOpConstant, this->getType(type), result, bits,
-                               fConstantBuffer);
-        fNumberConstants[key] = result;
-        return result;
+        float value = f.value();
+        uint32_t valueBits;
+        static_assert(sizeof(valueBits) == sizeof(value));
+        memcpy(&valueBits, &value, sizeof(valueBits));
+        this->writeInstruction(SpvOpConstant, type, result, valueBits, fConstantBuffer);
+        iter->second = result;
     }
-    return entry->second;
+    return iter->second;
 }
 
 SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, OutputStream& out) {

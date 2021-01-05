@@ -39,7 +39,6 @@ OpDecorate %53 RelaxedPrecision
 %uint_2147483647 = OpConstant %uint 2147483647
 %uint_4294967295 = OpConstant %uint 4294967295
 %uint_65535 = OpConstant %uint 65535
-%uint_1_0 = OpConstant %uint 1
 %main = OpFunction %void None %7
 %8 = OpLabel
 %i1 = OpVariable %_ptr_Function_int Function
@@ -90,7 +89,7 @@ OpStore %u4 %uint_4294967295
 OpStore %u4 %50
 OpStore %u5 %uint_65535
 %53 = OpLoad %uint %u5
-%55 = OpIAdd %uint %53 %uint_1_0
-OpStore %u5 %55
+%54 = OpIAdd %uint %53 %uint_1
+OpStore %u5 %54
 OpReturn
 OpFunctionEnd
