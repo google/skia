@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6942c9f4_302e9f29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-05T18:38:44Z",
+      "side": 1,
+      "message": "I think I\u0027m confused... what\u0027s the difference between arguments and parameters?\n\nArguments are the values you pass in, and parameters are those values once you receive them?",
+      "revId": "8f8051df227823a937fa2183b7d61ac8139678b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
