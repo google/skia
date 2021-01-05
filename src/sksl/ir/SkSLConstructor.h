@@ -11,9 +11,6 @@
 #include "include/private/SkTArray.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
-#include "src/sksl/ir/SkSLPrefixExpression.h"
 
 namespace SkSL {
 
@@ -44,6 +41,15 @@ public:
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
+
+    // If the passed-in expression is a literal, performs a constructor-conversion of the literal
+    // value to the constructor's type and returns that converted value as a new literal. e.g., the
+    // constructor expression `short(3.14)` would be represented as `FloatLiteral(3.14)` along with
+    // type `Short`, and this would result in `IntLiteral(3, type=Short)`. Returns nullptr if the
+    // expression is not a literal or the conversion cannot be made.
+    static std::unique_ptr<Expression> SimplifyConversion(const Context& context,
+                                                          const Type& constructorType,
+                                                          const Expression& expr);
 
     bool hasProperty(Property property) const override {
         for (const std::unique_ptr<Expression>& arg: this->arguments()) {

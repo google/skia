@@ -113,7 +113,7 @@ OpDecorate %156 RelaxedPrecision
 %float_8_0 = OpConstant %float 8
 %float_9_0 = OpConstant %float 9
 %_ptr_Function_v3float = OpTypePointer Function %v3float
-%146 = OpConstantComposite %v4float %float_0_0 %float_0_0 %float_0_0 %float_0_0
+%146 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %main = OpFunction %void None %11
 %12 = OpLabel
 %x = OpVariable %_ptr_Function_v4float Function
