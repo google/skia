@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30dec89f_f5005466",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-05T17:51:16Z",
+      "side": 1,
+      "message": "Actually, they\u0027re not the same as integers. Due to how all of the SIMD instructions work, comparisons produce masks, rather than 0/1 values. So true is 0xffffffff in each lane. bool -\u003e T probably needs to be an skvm::select(bool, 0, 1), and T -\u003e bool will need to be a comparison against zero.",
+      "revId": "b3db80c32655ffc8ae5d08dc14c3a93bce17bde0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
