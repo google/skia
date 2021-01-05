@@ -45,11 +45,11 @@ public:
     // Set up any initial vk objects
     void init();
 
-    GrVkPipeline* createPipeline(const GrProgramInfo&,
-                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                 int shaderStageCount,
-                                 VkRenderPass compatibleRenderPass,
-                                 VkPipelineLayout layout);
+    sk_sp<const GrVkPipeline> makePipeline(const GrProgramInfo&,
+                                           VkPipelineShaderStageCreateInfo* shaderStageInfo,
+                                           int shaderStageCount,
+                                           VkRenderPass compatibleRenderPass,
+                                           VkPipelineLayout layout);
 
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
@@ -137,7 +137,7 @@ public:
             VkRenderPass compatibleRenderPass,
             GrGpu::Stats::ProgramCacheResult* stat);
 
-    const GrVkPipeline* findOrCreateMSAALoadPipeline(
+    sk_sp<const GrVkPipeline> findOrCreateMSAALoadPipeline(
             const GrVkRenderPass& renderPass,
             const GrVkRenderTarget* dst,
             VkPipelineShaderStageCreateInfo*,
@@ -292,7 +292,7 @@ private:
     VkPipelineCache fPipelineCache;
 
     struct MSAALoadPipeline {
-        const GrVkPipeline* fPipeline;
+        sk_sp<const GrVkPipeline> fPipeline;
         const GrVkRenderPass* fRenderPass;
     };
 

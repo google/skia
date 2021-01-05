@@ -503,7 +503,7 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
     dynamicInfo->pDynamicStates = dynamicStates;
 }
 
-GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
+sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
                                    const GrPrimitiveProcessor::AttributeSet& vertexAttribs,
                                    const GrPrimitiveProcessor::AttributeSet& instanceAttribs,
                                    GrPrimitiveType primitiveType,
@@ -623,10 +623,10 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
     if (!ownsLayout) {
         layout = VK_NULL_HANDLE;
     }
-    return new GrVkPipeline(gpu, vkPipeline, layout);
+    return sk_sp<GrVkPipeline>(new GrVkPipeline(gpu, vkPipeline, layout));
 }
 
-GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
+sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
                                    const GrProgramInfo& programInfo,
                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                    int shaderStageCount,
@@ -645,25 +645,25 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
         subpass = 1;
     }
 
-    return Create(gpu,
-                  primProc.vertexAttributes(),
-                  primProc.instanceAttributes(),
-                  programInfo.primitiveType(),
-                  programInfo.origin(),
-                  programInfo.nonGLStencilSettings(),
-                  programInfo.numRasterSamples(),
-                  pipeline.isHWAntialiasState(),
-                  programInfo.isMixedSampled(),
-                  pipeline.getXferProcessor().getBlendInfo(),
-                  pipeline.isWireframe(),
-                  pipeline.usesConservativeRaster(),
-                  subpass,
-                  shaderStageInfo,
-                  shaderStageCount,
-                  compatibleRenderPass,
-                  layout,
-                  /*ownsLayout=*/true,
-                  cache);
+    return Make(gpu,
+                primProc.vertexAttributes(),
+                primProc.instanceAttributes(),
+                programInfo.primitiveType(),
+                programInfo.origin(),
+                programInfo.nonGLStencilSettings(),
+                programInfo.numRasterSamples(),
+                pipeline.isHWAntialiasState(),
+                programInfo.isMixedSampled(),
+                pipeline.getXferProcessor().getBlendInfo(),
+                pipeline.isWireframe(),
+                pipeline.usesConservativeRaster(),
+                subpass,
+                shaderStageInfo,
+                shaderStageCount,
+                compatibleRenderPass,
+                layout,
+                /*ownsLayout=*/true,
+                cache);
 }
 
 void GrVkPipeline::freeGPUData() const {

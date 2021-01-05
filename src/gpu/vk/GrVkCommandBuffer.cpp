@@ -277,12 +277,12 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
                                                          dynamicOffsets));
 }
 
-void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline) {
+void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, sk_sp<const GrVkPipeline> pipeline) {
     SkASSERT(fIsActive);
     GR_VK_CALL(gpu->vkInterface(), CmdBindPipeline(fCmdBuffer,
                                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
                                                    pipeline->pipeline()));
-    this->addResource(pipeline);
+    this->addResource(pipeline.get());
 }
 
 void GrVkCommandBuffer::drawIndexed(const GrVkGpu* gpu,

@@ -51,7 +51,7 @@ public:
 
     void bindIndexBuffer(GrVkGpu* gpu, sk_sp<const GrBuffer> buffer);
 
-    void bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline);
+    void bindPipeline(const GrVkGpu* gpu, sk_sp<const GrVkPipeline> pipeline);
 
     void bindDescriptorSets(const GrVkGpu* gpu,
                             VkPipelineLayout layout,

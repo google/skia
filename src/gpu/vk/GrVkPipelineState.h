@@ -40,7 +40,7 @@ public:
 
     GrVkPipelineState(
             GrVkGpu* gpu,
-            GrVkPipeline* pipeline,
+            sk_sp<const GrVkPipeline> pipeline,
             const GrVkDescriptorSetManager::Handle& samplerDSHandle,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
@@ -109,7 +109,7 @@ private:
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
     // GrManagedResources
-    GrVkPipeline* fPipeline;
+    sk_sp<const GrVkPipeline> fPipeline;
 
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
 
