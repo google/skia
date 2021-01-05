@@ -117,6 +117,30 @@
       },
       "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb6178b2_43ae95df",
+        "filename": "src/sksl/SkSLIRGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T18:02:34Z",
+      "side": 1,
+      "message": "Right now we have \n\n  namespace SkSL {\n  namespace dsl {\n  // bunch of free functions\n  }  \n  }\n\nWhat if we had\n\n  namespace SkSL {\n  namespace dsl {\n  class DSLCore {\n      // bunch of static functions\n  };\n  using DSLCore::For;\n  using DSLCore::Switch;\n  using DSLCore::While; // etc\n  }\n  }\n\n\nThen we could `friend class DSLCore`?\nThere might be better solutions too; this is just one thought I had.",
+      "parentUuid": "48b673d3_0342e822",
+      "range": {
+        "startLine": 173,
+        "startChar": 31,
+        "endLine": 173,
+        "endChar": 43
+      },
+      "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
