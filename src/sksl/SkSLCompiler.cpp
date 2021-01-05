@@ -1057,11 +1057,12 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             break;
         }
         case Expression::Kind::kConstructor: {
+            Constructor& c = expr->as<Constructor>();
+
             // Find constructors embedded inside constructors and flatten them out where possible.
             //   -  float4(float2(1, 2), 3, 4)                -->  float4(1, 2, 3, 4)
             //   -  float4(w, float3(sin(x), cos(y), tan(z))) -->  float4(w, sin(x), cos(y), tan(z))
             // Leave single-argument constructors alone, though. These might be casts or splats.
-            Constructor& c = expr->as<Constructor>();
             if (c.type().columns() > 1) {
                 // Inspect each constructor argument to see if it's a candidate for flattening.
                 // Remember matched arguments in a bitfield, "argsToOptimize".
