@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
                 };
                 surf->asyncRescaleAndReadPixels(info, {0, 0, info.width(), info.height()},
                                                 SkSurface::RescaleGamma::kSrc,
-                                                kNone_SkFilterQuality,
+                                                SkImage::RescaleMode::kNearest,
                                                 read_pixels_cb, &asyncRec);
                 context->submit();
             } else {
