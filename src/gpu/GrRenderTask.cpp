@@ -229,7 +229,7 @@ void GrRenderTask::addDependent(GrRenderTask* dependent) {
 }
 
 #ifdef SK_DEBUG
-bool GrRenderTask::isDependedent(const GrRenderTask* dependent) const {
+bool GrRenderTask::isDependent(const GrRenderTask* dependent) const {
     for (int i = 0; i < fDependents.count(); ++i) {
         if (fDependents[i] == dependent) {
             return true;
@@ -243,7 +243,7 @@ void GrRenderTask::validate() const {
     // TODO: check for loops and duplicates
 
     for (int i = 0; i < fDependencies.count(); ++i) {
-        SkASSERT(fDependencies[i]->isDependedent(this));
+        SkASSERT(fDependencies[i]->isDependent(this));
     }
 }
 #endif

@@ -27,6 +27,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkTInternalLList.h"
 
 class SkBitmap;
 class SkCanvas;
@@ -156,6 +157,7 @@ public:
     TopoTestNode(int id) : fID(id) {}
 
     void dependsOn(TopoTestNode* src) { *fDependencies.append() = src; }
+    void targets(uint32_t target) { *fTargets.append() = target; }
 
     int  id() const { return fID; }
     void reset() {
@@ -203,6 +205,9 @@ public:
     static TopoTestNode* Dependency(TopoTestNode* node, int index) {
         return node->fDependencies[index];
     }
+    static int           NumTargets(TopoTestNode* node) { return node->fTargets.count(); }
+    static uint32_t      GetTarget(TopoTestNode* node, int i) { return node->fTargets[i]; }
+    static uint32_t      GetID(TopoTestNode* node) { return node->id(); }
 
     // Helper functions for TopoSortBench & TopoSortTest
     static void AllocNodes(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
@@ -231,6 +236,8 @@ public:
         }
     }
 
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(TopoTestNode);
+
 private:
     int      fID;
     uint32_t fOutputPos = 0;
@@ -238,6 +245,7 @@ private:
     bool     fWasOutput = false;
 
     SkTDArray<TopoTestNode*> fDependencies;
+    SkTDArray<uint32_t>      fTargets;
 };
 
 template <typename T>
