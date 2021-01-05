@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76bc0ec5_c6e1cdc2",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T21:46:52Z",
+      "side": 0,
+      "message": "I\u0027m interested to see on the bots and chrome if we see any perf hits from moving away from this. I know at one point we saw issues on perf traces during addResource thinking it was from doing reallocs to grow the array and this was a way to reduce how much of that we did without letting the arrays just grow too big. However, its always hard to tell with that low level of traces since the overhead of the trace call on a function like addResource (which is called a lot) adds up as well.",
+      "range": {
+        "startLine": 70,
+        "startChar": 23,
+        "endLine": 70,
+        "endChar": 54
+      },
+      "revId": "2833b08efbe66d847306f016090e2b2e65e9d173",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

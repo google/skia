@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d358a319_857cda58",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-05T21:46:52Z",
+      "side": 1,
+      "message": "I\u0027ll deal with these in a separate CL. Will probably do this with an variant of an sk_sp like object that will call recycle().",
+      "range": {
+        "startLine": 162,
+        "startChar": 41,
+        "endLine": 162,
+        "endChar": 66
+      },
+      "revId": "c5fbb7621133872eeef8ed7b6256b1729d637682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
