@@ -34,17 +34,6 @@ public:
         return count;
     }
 
-    static int PathToAATriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                                 GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
-        GrTriangulator triangulator(path);
-        triangulator.fRoundVerticesToQuarterPixel = true;
-        triangulator.fEmitCoverage = true;
-        int count = triangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator,
-                                                 SkPathFillType::kWinding);
-        *isLinear = triangulator.fIsLinear;
-        return count;
-    }
-
     static int TriangulateSimpleInnerPolygons(const SkPath& path,
                                               GrEagerVertexAllocator* vertexAllocator,
                                               bool *isLinear) {
@@ -84,8 +73,9 @@ public:
     struct MonotonePoly;
     struct Comparator;
 
-private:
+protected:
     GrTriangulator(const SkPath& path) : fPath(path) {}
+    virtual ~GrTriangulator() {}
 
     // There are six stages to the basic algorithm:
     //
@@ -108,22 +98,12 @@ private:
     SimplifyResult simplify(VertexList* mesh, const Comparator&);
 
     // 5) Tessellate the simplified mesh into monotone polygons:
-    Poly* tessellate(const VertexList& vertices);
+    virtual Poly* tessellate(const VertexList& vertices, VertexList* outerMesh, const Comparator&);
 
     // 6) Triangulate the monotone polygons directly into a vertex buffer:
+    int64_t countPoints(Poly* polys);
     void* polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType);
 
-    // For screenspace antialiasing, the algorithm is modified as follows:
-    //
-    // Run steps 1-5 above to produce polygons.
-    // 5b) Apply fill rules to extract boundary contours from the polygons (extract_boundaries()).
-    // 5c) Simplify boundaries to remove "pointy" vertices that cause inversions
-    //     (simplify_boundary()).
-    // 5d) Displace edges by half a pixel inward and outward along their normals. Intersect to find
-    //     new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a
-    //     new antialiased mesh from those vertices (stroke_boundary()).
-    // Run steps 3-6 above on the new mesh, and produce antialiased triangles.
-    //
     // The vertex sorting in step (3) is a merge sort, since it plays well with the linked list
     // of vertices (and the necessity of inserting new vertices on intersection).
     //
@@ -205,6 +185,72 @@ private:
     bool fEmitCoverage = false;
     bool fCullCollinearVertices = true;
     bool fSimpleInnerPolygons = false;
+};
+
+// Triangulates the given path in device space with a mesh of alpha ramps for antialiasing.
+class GrAATriangulator : public GrTriangulator {
+public:
+    static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
+                               GrEagerVertexAllocator* vertexAllocator) {
+        GrAATriangulator aaTriangulator(path);
+        aaTriangulator.fRoundVerticesToQuarterPixel = true;
+        aaTriangulator.fEmitCoverage = true;
+        return  aaTriangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator,
+                                               SkPathFillType::kWinding);
+    }
+
+    // Structs used by GrAATriangulator internals.
+    struct SSEdge;
+    struct EventList;
+    struct Event {
+        Event(SSEdge* edge, const SkPoint& point, uint8_t alpha)
+                : fEdge(edge), fPoint(point), fAlpha(alpha) {}
+        SSEdge* fEdge;
+        SkPoint fPoint;
+        uint8_t fAlpha;
+        void apply(VertexList* mesh, const Comparator&, EventList* events, GrAATriangulator*);
+    };
+    struct EventComparator {
+        enum class Op { kLessThan, kGreaterThan };
+        EventComparator(Op op) : fOp(op) {}
+        bool operator() (Event* const &e1, Event* const &e2) {
+            return fOp == Op::kLessThan ? e1->fAlpha < e2->fAlpha
+                                        : e1->fAlpha > e2->fAlpha;
+        }
+        Op fOp;
+    };
+
+private:
+    GrAATriangulator(const SkPath& path) : GrTriangulator(path) {}
+
+    // For screenspace antialiasing, the algorithm is modified as follows:
+    //
+    // Run steps 1-5 above to produce polygons.
+    // 5b) Apply fill rules to extract boundary contours from the polygons:
+    void extractBoundary(EdgeList* boundary, Edge* e);
+    void extractBoundaries(const VertexList& inMesh, VertexList* innerVertices,
+                           VertexList* outerMesh, const Comparator&);
+
+    // 5c) Simplify boundaries to remove "pointy" vertices that cause inversions:
+    void simplifyBoundary(EdgeList* boundary, const Comparator&);
+
+    // 5d) Displace edges by half a pixel inward and outward along their normals. Intersect to find
+    //     new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a
+    //     new antialiased mesh from those vertices:
+    void strokeBoundary(EdgeList* boundary, VertexList* innerMesh,  VertexList* outerMesh,
+                        const Comparator&);
+
+    // Run steps 3-6 above on the new mesh, and produce antialiased triangles.
+    Poly* tessellate(const VertexList& mesh, VertexList* outerMesh, const Comparator&) override;
+
+    // Additional helpers and driver functions.
+    void makeEvent(SSEdge*, EventList* events);
+    void makeEvent(SSEdge*, Vertex* v, SSEdge* other, Vertex* dest, EventList* events,
+                   const Comparator&);
+    void connectPartners(VertexList* mesh, const Comparator&);
+    void removeNonBoundaryEdges(const VertexList& mesh);
+    void connectSSEdge(Vertex* v, Vertex* dest, const Comparator&);
+    bool collapseOverlapRegions(VertexList* mesh, const Comparator&, EventComparator comp);
 };
 
 #endif
