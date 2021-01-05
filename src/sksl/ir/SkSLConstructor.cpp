@@ -31,7 +31,8 @@ std::unique_ptr<Expression> Constructor::simplifyConversionConstructor(const Con
         SKSL_INT value = expr.as<IntLiteral>().value();
         if (constructorType.isFloat()) {
             // promote float(1) to 1.0
-            return std::make_unique<FloatLiteral>(expr.fOffset, (SKSL_FLOAT)value, &constructorType);
+            return std::make_unique<FloatLiteral>(expr.fOffset, (SKSL_FLOAT)value,
+                                                  &constructorType);
         } else if (constructorType.isInteger()) {
             // promote uint(1) to 1u
             return std::make_unique<IntLiteral>(expr.fOffset, value, &constructorType);
