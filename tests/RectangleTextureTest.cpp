@@ -102,7 +102,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
                          kPremul_SkAlphaType,
                          nullptr,
                          dstContext->dimensions());
-        GrPixmap pixmap(info, pixels.get(), dstContext->width()*sizeof(uint32_t));
+        GrCPixmap pixmap(info, pixels.get(), dstContext->width()*sizeof(uint32_t));
         auto srcView = sk_gpu_test::MakeTextureProxyViewFromData(dContext,
                                                                  renderable,
                                                                  origin,
