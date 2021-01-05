@@ -450,6 +450,16 @@ void DebugCanvas::onDrawAtlas(const SkImage*   image,
     this->addDrawCommand(
             new DrawAtlasCommand(image, xform, tex, colors, count, bmode, cull, paint));
 }
+void DebugCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[],
+                                       int                 count,
+                                       const SkPoint       dstClips[],
+                                       const SkMatrix      preViewMatrices[],
+                                       const SkPaint*      paint,
+                                       SrcRectConstraint   constraint) {
+    SkSamplingOptions sampling(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
+    this->addDrawCommand(new DrawEdgeAAImageSetCommand(
+            set, count, dstClips, preViewMatrices, sampling, paint, constraint));
+}
 #endif
 
 void DebugCanvas::onDrawImage2(const SkImage*           image,
@@ -607,14 +617,15 @@ void DebugCanvas::onDrawEdgeAAQuad(const SkRect&    rect,
     this->addDrawCommand(new DrawEdgeAAQuadCommand(rect, clip, aa, color, mode));
 }
 
-void DebugCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[],
-                                       int                 count,
-                                       const SkPoint       dstClips[],
-                                       const SkMatrix      preViewMatrices[],
-                                       const SkPaint*      paint,
-                                       SrcRectConstraint   constraint) {
+void DebugCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[],
+                                        int                 count,
+                                        const SkPoint       dstClips[],
+                                        const SkMatrix      preViewMatrices[],
+                                        const SkSamplingOptions& sampling,
+                                        const SkPaint*      paint,
+                                        SrcRectConstraint   constraint) {
     this->addDrawCommand(new DrawEdgeAAImageSetCommand(
-            set, count, dstClips, preViewMatrices, paint, constraint));
+            set, count, dstClips, preViewMatrices, sampling, paint, constraint));
 }
 
 void DebugCanvas::willRestore() {

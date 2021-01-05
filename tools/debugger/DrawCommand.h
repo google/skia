@@ -691,6 +691,7 @@ public:
                               int count,
                               const SkPoint[],
                               const SkMatrix[],
+                              const SkSamplingOptions&,
                               const SkPaint*,
                               SkCanvas::SrcRectConstraint);
     void execute(SkCanvas* canvas) const override;
@@ -700,6 +701,7 @@ private:
     int                                   fCount;
     SkAutoTArray<SkPoint>                 fDstClips;
     SkAutoTArray<SkMatrix>                fPreViewMatrices;
+    SkSamplingOptions                     fSampling;
     SkTLazy<SkPaint>                      fPaint;
     SkCanvas::SrcRectConstraint           fConstraint;
 

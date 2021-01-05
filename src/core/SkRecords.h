@@ -83,7 +83,8 @@ namespace SkRecords {
     M(DrawShadowRec)                                                \
     M(DrawAnnotation)                                               \
     M(DrawEdgeAAQuad)                                               \
-    M(DrawEdgeAAImageSet)
+    M(DrawEdgeAAImageSet)                                           \
+    M(DrawEdgeAAImageSet2)
 
 
 // Defines SkRecords::Type, an enum of all record types.
@@ -368,6 +369,14 @@ RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
        int count;
        PODArray<SkPoint> dstClips;
        PODArray<SkMatrix> preViewMatrices;
+       SkCanvas::SrcRectConstraint constraint);
+RECORD(DrawEdgeAAImageSet2, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+       Optional<SkPaint> paint;
+       SkAutoTArray<SkCanvas::ImageSetEntry> set;
+       int count;
+       PODArray<SkPoint> dstClips;
+       PODArray<SkMatrix> preViewMatrices;
+       SkSamplingOptions sampling;
        SkCanvas::SrcRectConstraint constraint);
 #undef RECORD
 

@@ -237,6 +237,21 @@ void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], cons
            mode,
            this->copy(cull));
 }
+void SkRecorder::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
+                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                      const SkPaint* paint, SrcRectConstraint constraint) {
+    int totalDstClipCount, totalMatrixCount;
+    SkCanvasPriv::GetDstClipAndMatrixCounts(set, count, &totalDstClipCount, &totalMatrixCount);
+
+    SkAutoTArray<ImageSetEntry> setCopy(count);
+    for (int i = 0; i < count; ++i) {
+        setCopy[i] = set[i];
+    }
+
+    this->append<SkRecords::DrawEdgeAAImageSet>(this->copy(paint), std::move(setCopy), count,
+            this->copy(dstClips, totalDstClipCount),
+            this->copy(preViewMatrices, totalMatrixCount), constraint);
+}
 #endif
 
 void SkRecorder::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
@@ -319,9 +334,10 @@ void SkRecorder::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
             rect, this->copy(clip, 4), aa, color, mode);
 }
 
-void SkRecorder::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                      const SkPaint* paint, SrcRectConstraint constraint) {
+void SkRecorder::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
+                                       const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                       const SkSamplingOptions& sampling, const SkPaint* paint,
+                                       SrcRectConstraint constraint) {
     int totalDstClipCount, totalMatrixCount;
     SkCanvasPriv::GetDstClipAndMatrixCounts(set, count, &totalDstClipCount, &totalMatrixCount);
 
@@ -330,9 +346,9 @@ void SkRecorder::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
         setCopy[i] = set[i];
     }
 
-    this->append<SkRecords::DrawEdgeAAImageSet>(this->copy(paint), std::move(setCopy), count,
+    this->append<SkRecords::DrawEdgeAAImageSet2>(this->copy(paint), std::move(setCopy), count,
             this->copy(dstClips, totalDstClipCount),
-            this->copy(preViewMatrices, totalMatrixCount), constraint);
+            this->copy(preViewMatrices, totalMatrixCount), sampling, constraint);
 }
 
 void SkRecorder::onFlush() {

@@ -1941,6 +1941,11 @@ public:
      */
     void experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
                                          const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                         const SkSamplingOptions&, const SkPaint* paint = nullptr,
+                                         SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    // DEPRECATED -- pass sampling directly
+    void experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
+                                         const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                          const SkPaint* paint = nullptr,
                                          SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
@@ -2536,6 +2541,9 @@ protected:
                              const SkRect* cull, const SkPaint* paint);
     // never called -- remove from clients' subclasses
     virtual void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*) {}
+    virtual void onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
+                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                      const SkPaint* paint, SrcRectConstraint constraint);
 #endif
     virtual void onDrawImage2(const SkImage*, SkScalar dx, SkScalar dy, const SkSamplingOptions&,
                               const SkPaint*);
@@ -2546,6 +2554,10 @@ protected:
     virtual void onDrawAtlas2(const SkImage*, const SkRSXform[], const SkRect src[],
                               const SkColor[], int count, SkBlendMode, const SkSamplingOptions&,
                               const SkRect* cull, const SkPaint*);
+    virtual void onDrawEdgeAAImageSet2(const ImageSetEntry imageSet[], int count,
+                                       const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                       const SkSamplingOptions&, const SkPaint*,
+                                       SrcRectConstraint);
 
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
@@ -2559,9 +2571,6 @@ protected:
 
     virtual void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], QuadAAFlags aaFlags,
                                   const SkColor4f& color, SkBlendMode mode);
-    virtual void onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
-                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                      const SkPaint* paint, SrcRectConstraint constraint);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,

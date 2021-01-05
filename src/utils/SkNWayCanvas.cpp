@@ -273,6 +273,15 @@ void SkNWayCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[], co
         iter->drawAtlas(image, xform, tex, colors, count, bmode, cull, paint);
     }
 }
+void SkNWayCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
+                                        const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                        const SkPaint* paint, SrcRectConstraint constraint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->experimental_DrawEdgeAAImageSet(
+                set, count, dstClips, preViewMatrices, paint, constraint);
+    }
+}
 #endif
 
 void SkNWayCanvas::onDrawImage2(const SkImage* image, SkScalar left, SkScalar top,
@@ -373,13 +382,14 @@ void SkNWayCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
     }
 }
 
-void SkNWayCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                        const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                        const SkPaint* paint, SrcRectConstraint constraint) {
+void SkNWayCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
+                                         const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                         const SkSamplingOptions& sampling, const SkPaint* paint,
+                                         SrcRectConstraint constraint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->experimental_DrawEdgeAAImageSet(
-                set, count, dstClips, preViewMatrices, paint, constraint);
+                set, count, dstClips, preViewMatrices, sampling, paint, constraint);
     }
 }
 
