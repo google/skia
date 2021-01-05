@@ -182,6 +182,9 @@ private:
     std::unique_ptr<Expression> convertNumberConstructor(int offset,
                                                          const Type& type,
                                                          ExpressionArray params);
+    std::unique_ptr<Expression> convertBooleanConstructor(int offset,
+                                                          const Type& type,
+                                                          ExpressionArray params);
     std::unique_ptr<Expression> convertCompoundConstructor(int offset,
                                                            const Type& type,
                                                            ExpressionArray params);
