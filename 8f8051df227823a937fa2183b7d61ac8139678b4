@@ -16,6 +16,24 @@
       "message": "I think I\u0027m confused... what\u0027s the difference between arguments and parameters?\n\nArguments are the values you pass in, and parameters are those values once you receive them?",
       "revId": "8f8051df227823a937fa2183b7d61ac8139678b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdf19f82_bcf0f141",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-05T18:55:13Z",
+      "side": 1,
+      "message": "Yeah, I was going with the \"parameter is part of the signature, argument is the actual value passed\". With the span\u003cVal\u003e being supplied, I think it\u0027s clearer if those are called arguments - they refer directly to caller-supplied storage. (Being deliberate about this helped me reason about some of the loops that are iterating over parameters to do things for each argument better, and should keep the distinction clearer once I\u0027m doing the inline expansion of calls to helper functions).",
+      "parentUuid": "6942c9f4_302e9f29",
+      "revId": "8f8051df227823a937fa2183b7d61ac8139678b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
