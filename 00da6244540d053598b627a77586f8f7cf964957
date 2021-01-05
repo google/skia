@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2f29576_7c6130f2",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-05T20:40:17Z",
+      "side": 1,
+      "message": "That happens in https://skia-review.googlesource.com/c/skia/+/349356\n\nThere are lots of changes we can make but I\u0027d like to keep this CL focused on one thing.",
+      "parentUuid": "2fb35371_9c560592",
+      "range": {
+        "startLine": 936,
+        "startChar": 0,
+        "endLine": 936,
+        "endChar": 1
+      },
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e98fd98b_78301414",
@@ -95,6 +119,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "226f1a7d_7a5df4bd",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1085,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-05T20:40:17Z",
+      "side": 1,
+      "message": "I intentionally avoid shuffling code in this CL in order to make it clear in the diffs that no functionality is changing.\n\nAs for turning it into a member function, this is an edge-AA function so it will be lifted in https://skia-review.googlesource.com/c/skia/+/350257\n\nThe end goal is definitely to convert all functions with an SkArenaAlloc parameter into class members.",
+      "parentUuid": "6febff89_ac5c0bea",
+      "range": {
+        "startLine": 1085,
+        "startChar": 12,
+        "endLine": 1085,
+        "endChar": 33
+      },
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99100818_a86d8b2f",
@@ -108,6 +156,24 @@
       "writtenOn": "2021-01-05T18:47:00Z",
       "side": 1,
       "message": "Maybe do:\n   ? foo\n   : bar;",
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03685ba0_b9705cc4",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2387,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-05T20:40:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99100818_a86d8b2f",
       "revId": "00da6244540d053598b627a77586f8f7cf964957",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -129,6 +195,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0796079c_e10ae912",
+        "filename": "src/gpu/GrTriangulator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-05T20:40:17Z",
+      "side": 1,
+      "message": "I don\u0027t, but my guess is so we don\u0027t do a lot of allocations when dealing with super complex polygons. It might be overkill, but I\u0027d like to leave this CL without any changes in functionality.",
+      "parentUuid": "96220c69_cce7c5a4",
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e2b525c0_8005511f",
@@ -142,6 +226,24 @@
       "writtenOn": "2021-01-05T18:47:00Z",
       "side": 1,
       "message": "Should this be named fOriginalPath, fSrcPath?",
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b512637_3c4efba1",
+        "filename": "src/gpu/GrTriangulator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-05T20:40:17Z",
+      "side": 1,
+      "message": "I\u0027m fine with fPath. There are no other paths to distinguish from. And even though curves get broken down into several internal edges, this is still the one-and-only \"path\".",
+      "parentUuid": "e2b525c0_8005511f",
       "revId": "00da6244540d053598b627a77586f8f7cf964957",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
