@@ -32,6 +32,8 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord local,
                           SampleChildFn sampleChild);
 
+const FunctionDefinition* Program_GetFunction(const Program& program, const char* function);
+
 bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* builder);
 
 }  // namespace SkSL

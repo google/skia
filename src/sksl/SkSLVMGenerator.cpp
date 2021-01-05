@@ -98,7 +98,7 @@ public:
                   const FunctionDefinition& function,
                   skvm::Builder* builder,
                   SkSpan<skvm::Val> uniforms,
-                  SkSpan<skvm::Val> params,
+                  SkSpan<skvm::Val> arguments,
                   skvm::Coord device,
                   skvm::Coord local,
                   SampleChildFn sampleChild,
@@ -256,6 +256,7 @@ private:
     std::vector<skvm::Val> fSlots;
     const skvm::Coord fLocalCoord;
     const SampleChildFn fSampleChild;
+    const SkSpan<skvm::Val> fArguments;
     const SkSpan<skvm::Val> fReturnValue;
 
     ErrorReporter& fErrors;
@@ -317,7 +318,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
                              const FunctionDefinition& function,
                              skvm::Builder* builder,
                              SkSpan<skvm::Val> uniforms,
-                             SkSpan<skvm::Val> params,
+                             SkSpan<skvm::Val> arguments,
                              skvm::Coord device,
                              skvm::Coord local,
                              SampleChildFn sampleChild,
@@ -328,6 +329,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
         , fBuilder(builder)
         , fLocalCoord(local)
         , fSampleChild(std::move(sampleChild))
+        , fArguments(arguments)
         , fReturnValue(outReturn)
         , fErrors(*errors)
         , fIntrinsics {
@@ -441,21 +443,36 @@ SkVMGenerator::SkVMGenerator(const Program& program,
     // Ensure that outReturn (where we place the return values) is the correct size
     SkASSERT(slot_count(decl.returnType()) == fReturnValue.size());
 
-    // Copy parameter IDs to our list of (all) variable IDs
-    size_t paramBase = fSlots.size(),
-           paramSlot = paramBase;
-    fSlots.insert(fSlots.end(), params.begin(), params.end());
+    // Copy argument IDs to our list of (all) variable IDs
+    size_t argBase = fSlots.size(),
+           argSlot = argBase;
+    fSlots.insert(fSlots.end(), fArguments.begin(), fArguments.end());
 
     // Compute where each parameter variable lives in the variable ID list
     for (const Variable* p : decl.parameters()) {
-        fVariableMap[p] = paramSlot;
-        paramSlot += slot_count(p->type());
+        fVariableMap[p] = argSlot;
+        argSlot += slot_count(p->type());
     }
-    SkASSERT(paramSlot == fSlots.size());
+    SkASSERT(argSlot == fSlots.size());
 }
 
 bool SkVMGenerator::generateCode() {
     this->writeStatement(*fFunction.body());
+
+    // Copy 'out' and 'inout' parameters back to their caller-supplied argument storage
+    size_t argIdx = 0;
+    for (const Variable* p : fFunction.declaration().parameters()) {
+        Slot paramSlot = this->getSlot(*p);
+        size_t nslots = slot_count(p->type());
+
+        if (p->modifiers().fFlags & Modifiers::kOut_Flag) {
+            for (size_t i = 0; i < nslots; ++i) {
+                fArguments[argIdx + i] = fSlots[paramSlot + i];
+            }
+        }
+        argIdx += nslots;
+    }
+
     return 0 == fErrors.errorCount();
 }
 
@@ -1337,15 +1354,15 @@ skvm::Color ProgramToSkVM(const Program& program,
                           SampleChildFn sampleChild) {
     DebugfErrorReporter errors;
 
-    skvm::Val params[2] = {local.x.id, local.y.id};
+    skvm::Val args[2] = {local.x.id, local.y.id};
     skvm::Val result[4] = {skvm::NA, skvm::NA, skvm::NA, skvm::NA};
     size_t paramSlots = 0;
     for (const SkSL::Variable* param : function.declaration().parameters()) {
         paramSlots += slot_count(param->type());
     }
-    SkASSERT(paramSlots <= SK_ARRAY_COUNT(params));
+    SkASSERT(paramSlots <= SK_ARRAY_COUNT(args));
 
-    SkVMGenerator generator(program, function, builder, uniforms, {params, paramSlots},
+    SkVMGenerator generator(program, function, builder, uniforms, {args, paramSlots},
                             device, local, std::move(sampleChild), result, &errors);
 
     return generator.generateCode() ? skvm::Color{{builder, result[0]},
@@ -1355,19 +1372,29 @@ skvm::Color ProgramToSkVM(const Program& program,
                                     : skvm::Color{};
 }
 
+const FunctionDefinition* Program_GetFunction(const Program& program, const char* function) {
+    for (const ProgramElement* e : program.elements()) {
+        if (e->is<FunctionDefinition>() &&
+            e->as<FunctionDefinition>().declaration().name() == function) {
+            return &e->as<FunctionDefinition>();
+        }
+    }
+    return nullptr;
+}
+
 /*
  * Testing utility function that emits program's "main" with a minimal harness. Used to create
  * representative skvm op sequences for SkSL tests.
  */
 bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* builder) {
-    const SkSL::FunctionDefinition* main = nullptr;
+    const SkSL::FunctionDefinition* main = Program_GetFunction(program, "main");
+    if (!main) {
+        return false;
+    }
+
     size_t uniformSlots = 0;
     int childSlots = 0;
     for (const SkSL::ProgramElement* e : program.elements()) {
-        if (e->is<SkSL::FunctionDefinition>() &&
-            e->as<SkSL::FunctionDefinition>().declaration().name() == "main") {
-            main = &e->as<SkSL::FunctionDefinition>();
-        }
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
             const Variable& var = decl.declaration()->as<VarDeclaration>().var();
@@ -1378,7 +1405,6 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
             }
         }
     }
-    if (!main) { return false; }
 
     skvm::Uniforms uniforms(0);
     uniforms.base = builder->uniform();
