@@ -1,0 +1,22 @@
+10 registers, 20 instructions:
+0	r0 = uniform32 arg(0) 4
+1	r1 = trunc r0
+2	r2 = splat 1 (1.4012985e-45)
+3	r3 = uniform32 arg(0) C
+4	r2 = bit_and r3 r2
+5	r4 = uniform32 arg(0) 8
+6	r5 = to_f32 r4
+7	r6 = uniform32 arg(0) 0
+loop:
+8	    r7 = index
+9	    r8 = bit_clear r7 r4
+10	    r8 = select r8 r2 r1
+11	    r8 = to_f32 r8
+12	    r9 = select r3 r6 r7
+13	    r7 = bit_clear r7 r0
+14	    r9 = select r7 r9 r5
+15	    r8 = mul_f32 r9 r8
+16	    store32 arg(4) r8
+17	    store32 arg(3) r8
+18	    store32 arg(2) r8
+19	    store32 arg(1) r8
