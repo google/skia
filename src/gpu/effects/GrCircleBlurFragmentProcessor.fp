@@ -202,7 +202,7 @@ uniform half4 circleData;
                                                                       float* solidRadius,
                                                                       float* textureRadius) {
         float circleR = circle.width() / 2.0f;
-        if (circleR < SK_ScalarNearlyZero) {
+        if (!sk_float_isfinite(circleR) || circleR < SK_ScalarNearlyZero) {
             return nullptr;
         }
 
