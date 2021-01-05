@@ -22,6 +22,30 @@
       },
       "revId": "7d63f91e4a4308ffade3069d88df5eb2e1db1b62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71de3860_ba61bdac",
+        "filename": "tests/sksl/shared/golden/OutParams.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-05T20:19:29Z",
+      "side": 0,
+      "message": "Great question--I noticed this too but don\u0027t have a good explanation for it. We have code in simplifyExpression which seems like it should have cleaned this up...?\n\nhttps://osscs.corp.google.com/skia/skia/+/master:src/sksl/SkSLCompiler.cpp;l\u003d886;drc\u003d20fad3206488f7fd571010789f1ac730e6817ea0",
+      "parentUuid": "1221c00e_37d844e8",
+      "range": {
+        "startLine": 71,
+        "startChar": 24,
+        "endLine": 71,
+        "endChar": 46
+      },
+      "revId": "7d63f91e4a4308ffade3069d88df5eb2e1db1b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
