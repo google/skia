@@ -16,6 +16,24 @@
       "message": "I presume I should bubble up the parameter to the public Canvas API....?\n\nShould I expose\n- sampling\n- filter\n- other\n",
       "revId": "0762116083ee1764542f17030684ea55589c7962",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7224f87_dbab0e14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-05T13:13:26Z",
+      "side": 1,
+      "message": "I would vote for sampling options being exposed. skia_renderer only needs NN, bilerp, and mipmaps, but since mipmap and cubic are handled the same way starting at line 814 of SkGpuDevice_drawTexture, SkSamplingOptions is a convenient package. \n\nIt seems acceptable to just take SkFilterMode and SkMipmapMode to prevent from using cubic, but that starts to diverge from the other image APIs.\n\nEventually, I\u0027d like to move these and the src rect constraint (or a float rect that defines the actual constraint) into ImageSetEntry, so that skia_renderer doesn\u0027t have to have as complicated pre-batching and can just send us a large set of images that we split into ops as needed.\n\nI think for now, keeping it as a function-level argument is better and makes updating skia_renderer easier for you.",
+      "parentUuid": "6a6b6f10_b1c4597d",
+      "revId": "0762116083ee1764542f17030684ea55589c7962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
