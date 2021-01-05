@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5ec2133_97934d97",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1513,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-05T17:27:41Z",
+      "side": 1,
+      "message": "As far as I can recall this was the only such spot.",
+      "parentUuid": "f4e90420_26ae8b13",
+      "range": {
+        "startLine": 1513,
+        "startChar": 47,
+        "endLine": 1513,
+        "endChar": 64
+      },
+      "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d18c8dc_12eef858",
@@ -61,6 +85,30 @@
       "writtenOn": "2021-01-05T16:25:05Z",
       "side": 1,
       "message": "Conceptually seems weird that `convertWhile` is public and roughly-equivalent functions like `convertDo` are private. Does this eventually get sorted out and make more sense? Or are we just making things public on a case-by-case basis based on what the DSL needs to use?\n\nIdeally I\u0027d like to be able to have a mental model for which things should be public and private in the IRGenerator. Or we could just make the DSL classes friends since they are basically IR generators anyway.",
+      "range": {
+        "startLine": 173,
+        "startChar": 31,
+        "endLine": 173,
+        "endChar": 43
+      },
+      "revId": "a0cd4c7fefc2646776049ce303bdc580f35ee95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48b673d3_0342e822",
+        "filename": "src/sksl/SkSLIRGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-05T17:27:41Z",
+      "side": 1,
+      "message": "I was just making them public based on DSL needs, yes.\n\nGiven that most of the IR invocations are made by functions (rather than a class), just marking them public felt cleaner to me than having to list a bunch of individual friend function signatures. I\u0027m not opposed to changing it, but that was my reasoning.",
+      "parentUuid": "7d18c8dc_12eef858",
       "range": {
         "startLine": 173,
         "startChar": 31,
