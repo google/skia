@@ -16,6 +16,24 @@
       "message": "Does this also need to be applied to the supported non-master branches (ie. https://skia.googlesource.com/skia/+/infra/config/supported-branches.json) ?",
       "revId": "22e792884fb21576cf13139736855024afaa199d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "631f6a12_bffaad1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-01-05T20:39:25Z",
+      "side": 1,
+      "message": "I\u0027ll be leaving two 10.14.6 machines alone for NativeFonts testing, so they can cover any older branch jobs that crop up, but there\u0027s still the single machine upgrading from 10.15.5 to 10.15.7 which will break iphone11 tests in old branches, so I\u0027ll either cherrypick this if I\u0027m lucky, or make that an equivalent change for that case. But I\u0027ll wait until golo actually upgrades that single bot.",
+      "parentUuid": "9c5419a3_8b5ba3b2",
+      "revId": "22e792884fb21576cf13139736855024afaa199d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
