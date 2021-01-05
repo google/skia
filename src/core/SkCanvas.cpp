@@ -2100,8 +2100,25 @@ void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], i
                                                const SkMatrix preViewMatrices[],
                                                const SkPaint* paint,
                                                SrcRectConstraint constraint) {
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawEdgeAAImageSet(imageSet, cnt, dstClips, preViewMatrices, paint, constraint);
+#else
+    this->experimental_DrawEdgeAAImageSet(imageSet, cnt, dstClips, preViewMatrices,
+                                          paint_to_sampling(paint, this->recordingContext()),
+                                          paint, constraint);
+#endif
+}
+
+void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
+                                               const SkPoint dstClips[],
+                                               const SkMatrix preViewMatrices[],
+                                               const SkSamplingOptions& sampling,
+                                               const SkPaint* paint,
+                                               SrcRectConstraint constraint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    this->onDrawEdgeAAImageSet2(imageSet, cnt, dstClips, preViewMatrices, sampling, paint,
+                                constraint);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2423,6 +2440,49 @@ void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const 
     AutoLayerForImageFilter layer(this, realPaint);
     this->topDevice()->drawAtlas(atlas, xform, tex, colors, count, bmode, sampling, layer.paint());
 }
+
+void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
+                                    const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                    const SkPaint* paint, SrcRectConstraint constraint) {
+    if (count <= 0) {
+        // Nothing to draw
+        return;
+    }
+
+    SkPaint realPaint = clean_paint_for_drawImage(paint);
+
+    // We could calculate the set's dstRect union to always check quickReject(), but we can't reject
+    // individual entries and Chromium's occlusion culling already makes it likely that at least one
+    // entry will be visible. So, we only calculate the draw bounds when it's trivial (count == 1),
+    // or we need it for the autolooper (since it greatly improves image filter perf).
+    bool needsAutoLayer = SkToBool(realPaint.getImageFilter());
+    bool setBoundsValid = count == 1 || needsAutoLayer;
+    SkRect setBounds = imageSet[0].fDstRect;
+    if (imageSet[0].fMatrixIndex >= 0) {
+        // Account for the per-entry transform that is applied prior to the CTM when drawing
+        preViewMatrices[imageSet[0].fMatrixIndex].mapRect(&setBounds);
+    }
+    if (needsAutoLayer) {
+        for (int i = 1; i < count; ++i) {
+            SkRect entryBounds = imageSet[i].fDstRect;
+            if (imageSet[i].fMatrixIndex >= 0) {
+                preViewMatrices[imageSet[i].fMatrixIndex].mapRect(&entryBounds);
+            }
+            setBounds.joinPossiblyEmptyRect(entryBounds);
+        }
+    }
+
+    // If we happen to have the draw bounds, though, might as well check quickReject().
+    if (setBoundsValid && this->internalQuickReject(setBounds, realPaint)) {
+        return;
+    }
+
+    AutoLayerForImageFilter layer(this, realPaint, setBoundsValid ? &setBounds : nullptr);
+    this->topDevice()->drawEdgeAAImageSet(imageSet, count, dstClips, preViewMatrices,
+                                          SkSamplingOptions(SkPaintPriv::GetFQ(layer.paint())),
+                                          layer.paint(), constraint);
+}
+
 #endif
 
 void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
@@ -2661,9 +2721,10 @@ void SkCanvas::onDrawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], QuadAAFl
     this->topDevice()->drawEdgeAAQuad(r, clip, edgeAA, color, mode);
 }
 
-void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
-                                    const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                    const SkPaint* paint, SrcRectConstraint constraint) {
+void SkCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry imageSet[], int count,
+                                     const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                     const SkSamplingOptions& sampling, const SkPaint* paint,
+                                     SrcRectConstraint constraint) {
     if (count <= 0) {
         // Nothing to draw
         return;
@@ -2698,8 +2759,8 @@ void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
     }
 
     AutoLayerForImageFilter layer(this, realPaint, setBoundsValid ? &setBounds : nullptr);
-    this->topDevice()->drawEdgeAAImageSet(imageSet, count, dstClips, preViewMatrices,
-                                             layer.paint(), constraint);
+    this->topDevice()->drawEdgeAAImageSet(imageSet, count, dstClips, preViewMatrices, sampling,
+                                          layer.paint(), constraint);
 }
 
 //////////////////////////////////////////////////////////////////////////////

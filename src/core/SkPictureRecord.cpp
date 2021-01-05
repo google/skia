@@ -614,6 +614,41 @@ void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[],
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                                           const SkPoint dstClips[],
+                                           const SkMatrix preViewMatrices[],
+                                           const SkPaint* paint,
+                                           SkCanvas::SrcRectConstraint constraint) {
+    static constexpr size_t kMatrixSize = 9 * sizeof(SkScalar); // *not* sizeof(SkMatrix)
+    // op + count + paint + constraint + (image index, src rect, dst rect, alpha, aa flags,
+    // hasClip(int), matrixIndex) * cnt + totalClipCount + dstClips + totalMatrixCount + matrices
+    int totalDstClipCount, totalMatrixCount;
+    SkCanvasPriv::GetDstClipAndMatrixCounts(set, count, &totalDstClipCount, &totalMatrixCount);
+
+    size_t size = 6 * kUInt32Size + sizeof(SkPoint) * totalDstClipCount +
+                  kMatrixSize * totalMatrixCount +
+                  (4 * kUInt32Size + 2 * sizeof(SkRect) + sizeof(SkScalar)) * count;
+    size_t initialOffset = this->addDraw(DRAW_EDGEAA_IMAGE_SET, &size);
+    this->addInt(count);
+    this->addPaintPtr(paint);
+    this->addInt((int) constraint);
+    for (int i = 0; i < count; ++i) {
+        this->addImage(set[i].fImage.get());
+        this->addRect(set[i].fSrcRect);
+        this->addRect(set[i].fDstRect);
+        this->addInt(set[i].fMatrixIndex);
+        this->addScalar(set[i].fAlpha);
+        this->addInt((int)set[i].fAAFlags);
+        this->addInt(set[i].fHasClip);
+    }
+    this->addInt(totalDstClipCount);
+    this->addPoints(dstClips, totalDstClipCount);
+    this->addInt(totalMatrixCount);
+    for (int i = 0; i < totalMatrixCount; ++i) {
+        this->addMatrix(preViewMatrices[i]);
+    }
+    this->validate(initialOffset, size);
+}
 #endif
 
 void SkPictureRecord::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
@@ -850,11 +885,12 @@ void SkPictureRecord::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4]
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
-                                           const SkPoint dstClips[],
-                                           const SkMatrix preViewMatrices[],
-                                           const SkPaint* paint,
-                                           SkCanvas::SrcRectConstraint constraint) {
+void SkPictureRecord::onDrawEdgeAAImageSet2(const SkCanvas::ImageSetEntry set[], int count,
+                                            const SkPoint dstClips[],
+                                            const SkMatrix preViewMatrices[],
+                                            const SkSamplingOptions& sampling,
+                                            const SkPaint* paint,
+                                            SkCanvas::SrcRectConstraint constraint) {
     static constexpr size_t kMatrixSize = 9 * sizeof(SkScalar); // *not* sizeof(SkMatrix)
     // op + count + paint + constraint + (image index, src rect, dst rect, alpha, aa flags,
     // hasClip(int), matrixIndex) * cnt + totalClipCount + dstClips + totalMatrixCount + matrices
@@ -863,10 +899,12 @@ void SkPictureRecord::onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], 
 
     size_t size = 6 * kUInt32Size + sizeof(SkPoint) * totalDstClipCount +
                   kMatrixSize * totalMatrixCount +
-                  (4 * kUInt32Size + 2 * sizeof(SkRect) + sizeof(SkScalar)) * count;
-    size_t initialOffset = this->addDraw(DRAW_EDGEAA_IMAGE_SET, &size);
+                  (4 * kUInt32Size + 2 * sizeof(SkRect) + sizeof(SkScalar)) * count +
+                  SkSamplingPriv::kFlatSize;
+    size_t initialOffset = this->addDraw(DRAW_EDGEAA_IMAGE_SET2, &size);
     this->addInt(count);
     this->addPaintPtr(paint);
+    this->addSampling(sampling);
     this->addInt((int) constraint);
     for (int i = 0; i < count; ++i) {
         this->addImage(set[i].fImage.get());

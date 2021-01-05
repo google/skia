@@ -45,15 +45,9 @@ protected:
     // implementations in Android's SkCanvas subclasses until this stabilizes.
     void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
             SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color, SkBlendMode mode) override {}
-    void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
-            const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
-            SkCanvas::SrcRectConstraint constraint) override {}
 #else
     void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
             SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color, SkBlendMode mode) override = 0;
-    void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
-            const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
-            SkCanvas::SrcRectConstraint constraint) override = 0;
 #endif
 
     void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override = 0;
