@@ -1596,6 +1596,16 @@ static bool op_valid_for_matrix_or_vector(Token::Kind op) {
     }
 }
 
+/*
+ * Defines the set of operators allowed by The OpenGL ES Shading Language 1.00, Section 5.1.
+ * The set of illegal (reserved) operators are the ones that only make sense with integral types.
+ * This is not a coincidence: It's because ES2 doesn't require 'int' to be anything but syntactic
+ * sugar for floats with truncation after each operation).
+ */
+static bool op_allowed_in_strict_es2_mode(Token::Kind op) {
+    return !op_only_valid_for_integral_types(op);
+}
+
 /**
  * Determines the operand and result types of a binary expression. Returns true if the expression is
  * legal, false otherwise. If false, the values of the out parameters are undefined.
@@ -2016,6 +2026,11 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
         rawRightType = &left->type();
     } else {
         rawRightType = &right->type();
+    }
+    if (this->strictES2Mode() && !op_allowed_in_strict_es2_mode(op)) {
+        fErrors.error(expression.fOffset,
+                      String("operator '") + Compiler::OperatorName(op) + "' is not allowed");
+        return nullptr;
     }
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
@@ -2524,6 +2539,14 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
             }
             break;
         case Token::Kind::TK_BITWISENOT:
+            if (this->strictES2Mode()) {
+                // GLSL ES 1.00, Section 5.1
+                fErrors.error(expression.fOffset,
+                              String("operator '") +
+                                      Compiler::OperatorName(expression.getToken().fKind) +
+                                      "' is not allowed");
+                return nullptr;
+            }
             if (baseType != *fContext.fInt_Type && baseType != *fContext.fUInt_Type) {
                 fErrors.error(expression.fOffset,
                               String("'") + Compiler::OperatorName(expression.getToken().fKind) +

@@ -217,13 +217,6 @@ DEF_TEST(SkSLInterpreterDivide, r) {
          -4, -2, 0, 0);
 }
 
-DEF_TEST(SkSLInterpreterRemainder, r) {
-    test(r, "void main(inout half4 color) { color.r = int(color.r) % int(color.g); }", 8, 3, 0, 0,
-         2, 3, 0, 0);
-    test(r, "void main(inout half4 color) { color.rg = half2(int2(int(color.r), int(color.g)) % "
-                "int(color.b)); }", 8, 10, 6, 0, 2, 4, 6, 0);
-}
-
 DEF_TEST(SkSLInterpreterAnd, r) {
     test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
             "color = half4(color.a); }", 2, 1, 0, 3, 3, 3, 3, 3);
@@ -252,27 +245,6 @@ DEF_TEST(SkSLInterpreterOr, r) {
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
             "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0);
-}
-
-DEF_TEST(SkSLInterpreterBitwise, r) {
-    test(r, "void main(inout half4 color) { color.r = half(int(color.r) | 3); }",
-         5, 0, 0, 0, 7, 0, 0, 0);
-    test(r, "void main(inout half4 color) { color.r = half(int(color.r) & 3); }",
-         6, 0, 0, 0, 2, 0, 0, 0);
-    test(r, "void main(inout half4 color) { color.r = half(int(color.r) ^ 3); }",
-         5, 0, 0, 0, 6, 0, 0, 0);
-    test(r, "void main(inout half4 color) { color.r = half(~int(color.r) & 3); }",
-         6, 0, 0, 0, 1, 0, 0, 0);
-
-    // Shift operators
-    unsigned in = 0x80000011;
-    unsigned out;
-
-    out = 0x00000088;
-    test(r, "int  main(int  x) { return x << 3; }", (float*)&in, (float*)&out);
-
-    out = 0xF0000002;
-    test(r, "int main(int x) { return x >> 3; }", (float*)&in, (float*)&out);
 }
 
 DEF_TEST(SkSLInterpreterMatrix, r) {
