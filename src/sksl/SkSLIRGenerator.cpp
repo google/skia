@@ -2293,29 +2293,69 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(int offset,
         return nullptr;
     }
     const Type& argType = args[0]->type();
-    if (type == argType) {
-        return std::move(args[0]);
+    if (type.isFloat()) {
+        if (args[0]->is<FloatLiteral>()) {
+            // Convert float(1.23) into a FloatLiteral. (Or half(1.23).)
+            return std::make_unique<FloatLiteral>(offset, args[0]->as<FloatLiteral>().value(),
+                                                  &type);
+        }
+        if (args[0]->is<IntLiteral>()) {
+            // Convert float(123) into a FloatLiteral. (Or half(123).)
+            SKSL_FLOAT value = (SKSL_FLOAT)args[0]->as<IntLiteral>().value();
+            return std::make_unique<FloatLiteral>(offset, value, &type);
+        }
+        if (args[0]->is<BoolLiteral>()) {
+            // Convert float(true) into a FloatLiteral. (Or half(true).)
+            bool value = args[0]->as<BoolLiteral>().value();
+            return std::make_unique<FloatLiteral>(offset, value ? 1.0 : 0.0, &type);
+        }
+    } else if (type.isInteger()) {
+        if (args[0]->is<IntLiteral>()) {
+            // Convert int(123) into an IntLiteral. (Or uint(123), short(), byte(), etc.)
+            return std::make_unique<IntLiteral>(offset, args[0]->as<IntLiteral>().value(), &type);
+        }
+        if (args[0]->is<FloatLiteral>()) {
+            // Convert int(1.23) into an IntLiteral. (Or uint(1.23), short(), byte(), etc.)
+            SKSL_INT value = (SKSL_INT)args[0]->as<FloatLiteral>().value();
+            return std::make_unique<IntLiteral>(offset, value, &type);
+        }
+        if (args[0]->is<BoolLiteral>()) {
+            // Convert int(true) into an IntLiteral. (Or uint(true), short(), byte(), etc.)
+            bool value = args[0]->as<BoolLiteral>().value();
+            return std::make_unique<IntLiteral>(offset, value ? 1 : 0, &type);
+        }
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->is<FloatLiteral>()) {
-        SKSL_FLOAT value = args[0]->as<FloatLiteral>().value();
-        return std::make_unique<FloatLiteral>(offset, value, &type);
+    if (!argType.isNumber() && !argType.isBoolean()) {
+        fErrors.error(offset, "invalid argument to '" + type.displayName() +
+                              "' constructor (expected a number or bool, but found '" +
+                              argType.displayName() + "')");
+        return nullptr;
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->is<IntLiteral>()) {
-        SKSL_INT value = args[0]->as<IntLiteral>().value();
-        return std::make_unique<FloatLiteral>(offset, (SKSL_FLOAT)value, &type);
+    return std::make_unique<Constructor>(offset, &type, std::move(args));
+}
+
+std::unique_ptr<Expression> IRGenerator::convertBooleanConstructor(int offset,
+                                                                   const Type& type,
+                                                                   ExpressionArray args) {
+    SkASSERT(type.isBoolean());
+    if (args.size() != 1) {
+        fErrors.error(offset, "invalid arguments to '" + type.displayName() +
+                              "' constructor, (expected exactly 1 argument, but found " +
+                              to_string((uint64_t) args.size()) + ")");
+        return nullptr;
     }
-    if (args[0]->is<IntLiteral>() && (type == *fContext.fInt_Type ||
-                                      type == *fContext.fUInt_Type)) {
-        return std::make_unique<IntLiteral>(offset, args[0]->as<IntLiteral>().value(), &type);
+    const Type& argType = args[0]->type();
+    if (args[0]->is<FloatLiteral>()) {
+        // Convert bool(1.23) into a BoolLiteral.
+        return std::make_unique<BoolLiteral>(fContext, offset,
+                                             args[0]->as<FloatLiteral>().value() != 0.0);
     }
-    if (argType == *fContext.fBool_Type) {
-        std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, offset, 0));
-        std::unique_ptr<IntLiteral> one(new IntLiteral(fContext, offset, 1));
-        return std::make_unique<TernaryExpression>(offset, std::move(args[0]),
-                                                   this->coerce(std::move(one), type),
-                                                   this->coerce(std::move(zero), type));
+    if (args[0]->is<IntLiteral>()) {
+        // Convert bool(123) into a BoolLiteral.
+        return std::make_unique<BoolLiteral>(fContext, offset,
+                                             args[0]->as<IntLiteral>().value() != 0);
     }
-    if (!argType.isNumber()) {
+    if (!argType.isNumber() && !argType.isBoolean()) {
         fErrors.error(offset, "invalid argument to '" + type.displayName() +
                               "' constructor (expected a number or bool, but found '" +
                               argType.displayName() + "')");
@@ -2387,26 +2427,32 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
                                                             ExpressionArray args) {
     // FIXME: add support for structs
     if (args.size() == 1 && args[0]->type() == type && !type.componentType().isOpaque()) {
-        // argument is already the right type, just return it
+        // Strip off redundant casts--i.e., convert Type(exprOfType) into exprOfType.
         return std::move(args[0]);
     }
     if (type.isNumber()) {
         return this->convertNumberConstructor(offset, type, std::move(args));
-    } else if (type.isArray()) {
+    }
+    if (type.isBoolean()) {
+        return this->convertBooleanConstructor(offset, type, std::move(args));
+    }
+    if (type.isVector() || type.isMatrix()) {
+        return this->convertCompoundConstructor(offset, type, std::move(args));
+    }
+    if (type.isArray()) {
+        // Convert each constructor argument to the array's component type.
         const Type& base = type.componentType();
-        for (size_t i = 0; i < args.size(); i++) {
-            args[i] = this->coerce(std::move(args[i]), base);
-            if (!args[i]) {
+        for (std::unique_ptr<Expression>& argument : args) {
+            argument = this->coerce(std::move(argument), base);
+            if (!argument) {
                 return nullptr;
             }
         }
         return std::make_unique<Constructor>(offset, &type, std::move(args));
-    } else if (type.isVector() || type.isMatrix()) {
-        return this->convertCompoundConstructor(offset, type, std::move(args));
-    } else {
-        fErrors.error(offset, "cannot construct '" + type.displayName() + "'");
-        return nullptr;
     }
+
+    fErrors.error(offset, "cannot construct '" + type.displayName() + "'");
+    return nullptr;
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& expression) {

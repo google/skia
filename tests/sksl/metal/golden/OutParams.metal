@@ -347,6 +347,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper32_out_bool4(b4);
     _skOutParamHelper33_out_bool2(b4);
     _skOutParamHelper34_out_bool(b3);
-    _out->sk_FragColor = float4(b ? 1.0 : 0.0, b2.x ? 1.0 : 0.0, b3.x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
+    _out->sk_FragColor = float4(float(b), float(b2.x), float(b3.x), float(b4.x));
     return *_out;
 }
