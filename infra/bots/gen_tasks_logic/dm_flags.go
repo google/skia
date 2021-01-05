@@ -968,6 +968,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~gradients_view_perspective_nodither") //skia:6972
 	}
 
+	if b.gpu("PowerVRGX6450") && b.extraConfig("Metal") {
+		match = append(match, "~^SurfaceContextWritePixels$") //skia:11130
+	}
+
 	if b.arch("arm") && b.extraConfig("ASAN") {
 		// TODO: can we run with env allocator_may_return_null=1 instead?
 		match = append(match, "~BadImage")
