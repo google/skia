@@ -8,6 +8,8 @@
 #ifndef SkSVGAttributeParser_DEFINED
 #define SkSVGAttributeParser_DEFINED
 
+#include <vector>
+
 #include "include/private/SkNoncopyable.h"
 #include "modules/svg/include/SkSVGTypes.h"
 #include "src/core/SkTLazy.h"
@@ -107,6 +109,9 @@ private:
     // is handled by the passed functor.
     template <typename Func, typename T>
     bool parseParenthesized(const char* prefix, Func, T* result);
+
+    template <typename T>
+    bool parseList(std::vector<T>*);
 
     template <typename T, typename TArray>
     bool parseEnumMap(const TArray& arr, T* result) {

@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <vector>
-
 #include "include/private/SkTPin.h"
 #include "include/utils/SkParse.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
@@ -920,20 +918,30 @@ bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* pa
 }
 
 // https://www.w3.org/TR/SVG11/types.html#DataTypeCoordinates
-template <>
-bool SkSVGAttributeParser::parse(std::vector<SkSVGLength>* lengths) {
-    SkASSERT(lengths->empty());
+template <typename T>
+bool SkSVGAttributeParser::parseList(std::vector<T>* vals) {
+    SkASSERT(vals->empty());
 
-    SkSVGLength length;
+    T v;
     for (;;) {
-        if (!this->parse(&length)) {
+        if (!this->parse(&v)) {
             break;
         }
 
-        lengths->push_back(length);
+        vals->push_back(v);
 
         this->parseCommaWspToken();
     }
 
-    return !lengths->empty() && this->parseEOSToken();
+    return !vals->empty() && this->parseEOSToken();
+}
+
+template <>
+bool SkSVGAttributeParser::parse(std::vector<SkSVGLength>* lengths) {
+    return this->parseList(lengths);
+}
+
+template <>
+bool SkSVGAttributeParser::parse(std::vector<SkSVGNumberType>* numbers) {
+    return this->parseList(numbers);
 }
