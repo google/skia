@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c5419a3_8b5ba3b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-01-05T17:31:25Z",
+      "side": 1,
+      "message": "Does this also need to be applied to the supported non-master branches (ie. https://skia.googlesource.com/skia/+/infra/config/supported-branches.json) ?",
+      "revId": "22e792884fb21576cf13139736855024afaa199d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
