@@ -22,6 +22,30 @@
       },
       "revId": "b90573d163c8092aba0cd11eef1d5c71aa95d8df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af8f3c00_87f6152e",
+        "filename": "src/image/SkRescaleAndReadPixels.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-05T15:46:34Z",
+      "side": 1,
+      "message": "In a follow-up CL",
+      "parentUuid": "a1aafeef_35fada02",
+      "range": {
+        "startLine": 45,
+        "startChar": 39,
+        "endLine": 48,
+        "endChar": 57
+      },
+      "revId": "b90573d163c8092aba0cd11eef1d5c71aa95d8df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
