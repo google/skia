@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fb35371_9c560592",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-05T18:47:00Z",
+      "side": 1,
+      "message": "up a line ?",
+      "range": {
+        "startLine": 936,
+        "startChar": 0,
+        "endLine": 936,
+        "endChar": 1
+      },
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99100818_a86d8b2f",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2387,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-05T18:47:00Z",
+      "side": 1,
+      "message": "Maybe do:\n   ? foo\n   : bar;",
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96220c69_cce7c5a4",
+        "filename": "src/gpu/GrTriangulator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-05T18:47:00Z",
+      "side": 1,
+      "message": "Do we know why 16K?",
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2b525c0_8005511f",
+        "filename": "src/gpu/GrTriangulator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-05T18:47:00Z",
+      "side": 1,
+      "message": "Should this be named fOriginalPath, fSrcPath?",
+      "revId": "00da6244540d053598b627a77586f8f7cf964957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
