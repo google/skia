@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3db617ff_dbd06ab7",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2309,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-05T17:59:14Z",
+      "side": 1,
+      "message": "This looks like copy-paste leftover?",
+      "range": {
+        "startLine": 2309,
+        "startChar": 25,
+        "endLine": 2309,
+        "endChar": 37
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55376ba4_d81eec13",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2324,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-05T17:59:14Z",
+      "side": 1,
+      "message": "Ditto",
+      "range": {
+        "startLine": 2324,
+        "startChar": 25,
+        "endLine": 2324,
+        "endChar": 37
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5db8f5d_17bd4e99",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2358,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-05T17:59:14Z",
+      "side": 1,
+      "message": "This should be impossible, given...",
+      "range": {
+        "startLine": 2358,
+        "startChar": 28,
+        "endLine": 2358,
+        "endChar": 51
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6748427e_23dc0047",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2429,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-05T17:59:14Z",
+      "side": 1,
+      "message": "... this, right?",
+      "range": {
+        "startLine": 2429,
+        "startChar": 7,
+        "endLine": 2429,
+        "endChar": 88
+      },
+      "revId": "7cfaab08f34bbd9024e4f072bbd2ae86d0afdcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
