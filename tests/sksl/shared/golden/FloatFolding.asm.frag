@@ -11,14 +11,14 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
+OpDecorate %70 RelaxedPrecision
+OpDecorate %71 RelaxedPrecision
 OpDecorate %73 RelaxedPrecision
 OpDecorate %74 RelaxedPrecision
 OpDecorate %76 RelaxedPrecision
 OpDecorate %77 RelaxedPrecision
 OpDecorate %79 RelaxedPrecision
-OpDecorate %81 RelaxedPrecision
-OpDecorate %83 RelaxedPrecision
-OpDecorate %84 RelaxedPrecision
+OpDecorate %80 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -48,14 +48,10 @@ OpDecorate %84 RelaxedPrecision
 %float_n10 = OpConstant %float -10
 %float_11 = OpConstant %float 11
 %float_n12 = OpConstant %float -12
-%float_1_0 = OpConstant %float 1
 %float_2 = OpConstant %float 2
-%float_3_0 = OpConstant %float 3
 %float_0 = OpConstant %float 0
-%float_5_0 = OpConstant %float 5
 %float_6 = OpConstant %float 6
 %float_8 = OpConstant %float 8
-%float_2_0 = OpConstant %float 2
 %main = OpFunction %void None %11
 %12 = OpLabel
 %14 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
@@ -92,45 +88,45 @@ OpStore %45 %float_n10
 OpStore %47 %float_11
 %49 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %49 %float_n12
-%50 = OpExtInst %float %1 Sqrt %float_1_0
-%52 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %52 %50
-%53 = OpExtInst %float %1 Sqrt %float_2
-%55 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %55 %53
-%56 = OpExtInst %float %1 Sqrt %float_3_0
+%50 = OpExtInst %float %1 Sqrt %float_1
+%51 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %51 %50
+%52 = OpExtInst %float %1 Sqrt %float_2
+%54 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %54 %52
+%55 = OpExtInst %float %1 Sqrt %float_3
+%56 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %56 %55
 %58 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %58 %56
+OpStore %58 %float_0
+%59 = OpExtInst %float %1 Sqrt %float_5
 %60 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %60 %float_0
-%61 = OpExtInst %float %1 Sqrt %float_5_0
+OpStore %60 %59
+%61 = OpExtInst %float %1 Sqrt %float_6
 %63 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %63 %61
-%64 = OpExtInst %float %1 Sqrt %float_6
-%66 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %66 %64
+%64 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %64 %float_0
+%65 = OpExtInst %float %1 Sqrt %float_8
 %67 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %67 %float_0
-%68 = OpExtInst %float %1 Sqrt %float_8
-%70 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %70 %68
-%71 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %71 %float_0
+OpStore %67 %65
+%68 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %68 %float_0
+%69 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+%70 = OpLoad %float %69
+%71 = OpFAdd %float %70 %float_1
+OpStore %69 %71
 %72 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 %73 = OpLoad %float %72
-%74 = OpFAdd %float %73 %float_1
+%74 = OpFSub %float %73 %float_1
 OpStore %72 %74
 %75 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 %76 = OpLoad %float %75
-%77 = OpFSub %float %76 %float_1
+%77 = OpFMul %float %76 %float_2
 OpStore %75 %77
 %78 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 %79 = OpLoad %float %78
-%81 = OpFMul %float %79 %float_2_0
-OpStore %78 %81
-%82 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-%83 = OpLoad %float %82
-%84 = OpFDiv %float %83 %float_2_0
-OpStore %82 %84
+%80 = OpFDiv %float %79 %float_2
+OpStore %78 %80
 OpReturn
 OpFunctionEnd
