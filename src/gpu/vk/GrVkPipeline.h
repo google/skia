@@ -52,7 +52,8 @@ public:
                                     int shaderStageCount,
                                     VkRenderPass compatibleRenderPass,
                                     VkPipelineLayout layout,
-                                    VkPipelineCache cache);
+                                    VkPipelineCache cache,
+                                    uint32_t subpass);
 
     VkPipeline pipeline() const { return fPipeline; }
     VkPipelineLayout layout() const {

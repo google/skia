@@ -99,9 +99,10 @@ sk_sp<const GrVkPipeline> GrVkResourceProvider::makePipeline(
         VkPipelineShaderStageCreateInfo* shaderStageInfo,
         int shaderStageCount,
         VkRenderPass compatibleRenderPass,
-        VkPipelineLayout layout) {
+        VkPipelineLayout layout,
+        uint32_t subpass) {
     return GrVkPipeline::Make(fGpu, programInfo, shaderStageInfo, shaderStageCount,
-                              compatibleRenderPass, layout, this->pipelineCache());
+                              compatibleRenderPass, layout, this->pipelineCache(), subpass);
 }
 
 // To create framebuffers, we first need to create a simple RenderPass that is
@@ -255,9 +256,11 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        VkRenderPass compatibleRenderPass) {
+        VkRenderPass compatibleRenderPass,
+        bool overrideSubpassForResolveLoad) {
     return fPipelineStateCache->findOrCreatePipelineState(renderTarget, programInfo,
-                                                          compatibleRenderPass);
+                                                          compatibleRenderPass,
+                                                          overrideSubpassForResolveLoad);
 }
 
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
