@@ -333,6 +333,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/NoFragCoordsPosRT.vert",
   "$_tests/sksl/shared/NormalizationGeo.geom",
   "$_tests/sksl/shared/NormalizationVert.vert",
+  "$_tests/sksl/shared/NumberCasts.sksl",
   "$_tests/sksl/shared/NumberConversions.sksl",
   "$_tests/sksl/shared/Offset.sksl",
   "$_tests/sksl/shared/Operators.sksl",
