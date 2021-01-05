@@ -24,7 +24,8 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %int_0 = OpConstant %int 0
 %float_0 = OpConstant %float 0
 %float_1 = OpConstant %float 1
-%24 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%float_0_0 = OpConstant %float 0
+%24 = OpConstantComposite %v4float %float_0_0 %float_0_0 %float_0_0 %float_0_0
 %main = OpFunction %void None %11
 %12 = OpLabel
 OpSelectionMerge %15 None
