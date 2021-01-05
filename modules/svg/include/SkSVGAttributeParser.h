@@ -108,6 +108,9 @@ private:
     template <typename Func, typename T>
     bool parseParenthesized(const char* prefix, Func, T* result);
 
+    template <typename T>
+    bool parseList(std::vector<T>*);
+
     template <typename T, typename TArray>
     bool parseEnumMap(const TArray& arr, T* result) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(arr); ++i) {
