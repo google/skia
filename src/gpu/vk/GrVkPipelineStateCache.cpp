@@ -73,7 +73,8 @@ void GrVkResourceProvider::PipelineStateCache::release() {
 GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        VkRenderPass compatibleRenderPass) {
+        VkRenderPass compatibleRenderPass,
+        bool overrideSubpassForResolveLoad) {
 #ifdef SK_DEBUG
     if (programInfo.isStencilEnabled()) {
         SkASSERT(renderTarget->getStencilAttachment());
@@ -83,7 +84,11 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
     }
 #endif
 
-    GrProgramDesc desc = fGpu->caps()->makeDesc(renderTarget, programInfo);
+    auto flags = overrideSubpassForResolveLoad
+            ? GrCaps::ProgramDescOverrideFlags::kVulkanHasResolveLoadSubpass
+            : GrCaps::ProgramDescOverrideFlags::kNone;
+
+    GrProgramDesc desc = fGpu->caps()->makeDesc(renderTarget, programInfo, flags);
     if (!desc.isValid()) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
@@ -91,7 +96,8 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
 
     GrGpu::Stats::ProgramCacheResult stat;
     auto tmp = this->findOrCreatePipelineState(renderTarget, desc, programInfo,
-                                               compatibleRenderPass, &stat);
+                                               compatibleRenderPass, overrideSubpassForResolveLoad,
+                                               &stat);
     if (!tmp) {
         fGpu->stats()->incNumInlineCompilationFailures();
     } else {
@@ -106,6 +112,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
+        bool overrideSubpassForResolveLoad,
         GrGpu::Stats::ProgramCacheResult* stat) {
     if (stat) {
         *stat = GrGpu::Stats::ProgramCacheResult::kHit;
@@ -117,7 +124,8 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
             *stat = GrGpu::Stats::ProgramCacheResult::kMiss;
         }
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, desc, programInfo, compatibleRenderPass));
+                fGpu, renderTarget, desc, programInfo, compatibleRenderPass,
+                overrideSubpassForResolveLoad));
         if (!pipelineState) {
             return nullptr;
         }

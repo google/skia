@@ -632,18 +632,10 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu,
                                    int shaderStageCount,
                                    VkRenderPass compatibleRenderPass,
                                    VkPipelineLayout layout,
-                                   VkPipelineCache cache) {
+                                   VkPipelineCache cache,
+                                   uint32_t subpass) {
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
     const GrPipeline& pipeline = programInfo.pipeline();
-
-    // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
-    // However, if we need to load a resolve into msaa attachment for discardable msaa then the
-    // main subpass will be 1.
-    uint32_t subpass = 0;
-    if (programInfo.colorLoadOp() == GrLoadOp::kLoad && programInfo.targetSupportsVkResolveLoad() &&
-        gpu->vkCaps().preferDiscardableMSAAAttachment()) {
-        subpass = 1;
-    }
 
     return Create(gpu,
                   primProc.vertexAttributes(),
