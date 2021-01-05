@@ -197,6 +197,28 @@ void SkOverdrawCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[]
 
     fList[0]->onDrawAtlas(image, xform, texs, colors, count, mode, cull, paintPtr);
 }
+
+void SkOverdrawCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
+                                            const SkPoint dstClips[],
+                                            const SkMatrix preViewMatrices[], const SkPaint* paint,
+                                            SrcRectConstraint constraint) {
+    int clipIndex = 0;
+    for (int i = 0; i < count; ++i) {
+        if (set[i].fMatrixIndex >= 0) {
+            fList[0]->save();
+            fList[0]->concat(preViewMatrices[set[i].fMatrixIndex]);
+        }
+        if (set[i].fHasClip) {
+            fList[0]->onDrawPath(SkPath::Polygon(dstClips + clipIndex, 4, true), fPaint);
+            clipIndex += 4;
+        } else {
+            fList[0]->onDrawRect(set[i].fDstRect, fPaint);
+        }
+        if (set[i].fMatrixIndex >= 0) {
+            fList[0]->restore();
+        }
+    }
+}
 #endif
 
 void SkOverdrawCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
@@ -256,10 +278,12 @@ void SkOverdrawCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4
     }
 }
 
-void SkOverdrawCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                            const SkPoint dstClips[],
-                                            const SkMatrix preViewMatrices[], const SkPaint* paint,
-                                            SrcRectConstraint constraint) {
+void SkOverdrawCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
+                                             const SkPoint dstClips[],
+                                             const SkMatrix preViewMatrices[],
+                                             const SkSamplingOptions& sampling,
+                                             const SkPaint* paint,
+                                             SrcRectConstraint constraint) {
     int clipIndex = 0;
     for (int i = 0; i < count; ++i) {
         if (set[i].fMatrixIndex >= 0) {

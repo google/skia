@@ -158,6 +158,8 @@ DRAW(DrawEdgeAAQuad, experimental_DrawEdgeAAQuad(
         r.rect, r.clip, r.aa, r.color, r.mode));
 DRAW(DrawEdgeAAImageSet, experimental_DrawEdgeAAImageSet(
         r.set.get(), r.count, r.dstClips, r.preViewMatrices, r.paint, r.constraint));
+DRAW(DrawEdgeAAImageSet2, experimental_DrawEdgeAAImageSet(
+        r.set.get(), r.count, r.dstClips, r.preViewMatrices, r.sampling, r.paint, r.constraint));
 
 #undef DRAW
 
@@ -509,6 +511,22 @@ private:
         return this->adjustAndMap(bounds, nullptr);
     }
     Bounds bounds(const DrawEdgeAAImageSet& op) const {
+        SkRect rect = SkRect::MakeEmpty();
+        int clipIndex = 0;
+        for (int i = 0; i < op.count; ++i) {
+            SkRect entryBounds = op.set[i].fDstRect;
+            if (op.set[i].fHasClip) {
+                entryBounds.setBounds(op.dstClips + clipIndex, 4);
+                clipIndex += 4;
+            }
+            if (op.set[i].fMatrixIndex >= 0) {
+                op.preViewMatrices[op.set[i].fMatrixIndex].mapRect(&entryBounds);
+            }
+            rect.join(this->adjustAndMap(entryBounds, nullptr));
+        }
+        return rect;
+    }
+    Bounds bounds(const DrawEdgeAAImageSet2& op) const {
         SkRect rect = SkRect::MakeEmpty();
         int clipIndex = 0;
         for (int i = 0; i < op.count; ++i) {
