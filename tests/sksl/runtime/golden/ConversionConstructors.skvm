@@ -1,0 +1,13 @@
+3 registers, 11 instructions:
+0	r0 = uniform32 arg(0) C
+1	r0 = to_f32 r0
+2	r1 = uniform32 arg(0) 8
+3	r1 = to_f32 r1
+4	r2 = uniform32 arg(0) 4
+5	r2 = trunc r2
+6	r0 = select r2 r1 r0
+loop:
+7	    store32 arg(4) r0
+8	    store32 arg(3) r0
+9	    store32 arg(2) r0
+10	    store32 arg(1) r0
