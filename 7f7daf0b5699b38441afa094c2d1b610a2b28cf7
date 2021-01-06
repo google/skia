@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "39d9eb66_fe2f21c6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-06T01:02:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c49089e1_c93828a2",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 14
+      },
+      "revId": "7f7daf0b5699b38441afa094c2d1b610a2b28cf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "88589ca4_5f8a7b63",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-05T22:17:13Z",
       "side": 1,
       "message": "A lot of the changes here add methods to the private structs to handle their processing. In that context it seems odd that you\u0027d move this from Poly to GrTriangulator. I get that that\u0027s because GrTriangulator owns the fAlloc, but to me the Poly struct should be in charge of maintaining its linked list.",
+      "range": {
+        "startLine": 381,
+        "startChar": 22,
+        "endLine": 381,
+        "endChar": 35
+      },
+      "revId": "7f7daf0b5699b38441afa094c2d1b610a2b28cf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e57fc589_edd48514",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-06T01:02:07Z",
+      "side": 1,
+      "message": "Agreed. I like this one better on the struct.",
+      "parentUuid": "88589ca4_5f8a7b63",
       "range": {
         "startLine": 381,
         "startChar": 22,
