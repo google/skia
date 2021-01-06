@@ -164,6 +164,9 @@ bool SkXMLParser::parse(SkStream& docStream)
 
         size_t len = docStream.read(buffer, kBufferSize);
         done = docStream.isAtEnd();
+        if (done) {
+            SkDebugf("done\n");
+        }
         XML_Status status = XML_ParseBuffer(ctx.fXMLParser, SkToS32(len), done);
         if (XML_STATUS_ERROR == status) {
             XML_Error error = XML_GetErrorCode(ctx.fXMLParser);
