@@ -388,6 +388,7 @@ public:
             GrResourceProvider::SemaphoreWrapType wrapType, GrWrapOwnership ownership) = 0;
     virtual void insertSemaphore(GrSemaphore* semaphore) = 0;
     virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
+//    virtual void setViewport(SkIRect, SkISize) = 0;
 
     virtual void addFinishedProc(GrGpuFinishedProc finishedProc,
                                  GrGpuFinishedContext finishedContext) = 0;

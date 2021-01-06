@@ -73,7 +73,8 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pd,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         if (pathProc.color() != fColor) {
             pd.set4fv(fColorUniform, 1, pathProc.color().vec());

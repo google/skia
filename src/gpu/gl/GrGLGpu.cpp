@@ -1750,8 +1750,19 @@ void GrGLGpu::flushScissorRect(const SkIRect& scissor, int rtWidth, int rtHeight
     }
 }
 
+void GrGLGpu::flushViewport(const SkIRect& viewport, int rtHeight, GrSurfaceOrigin rtOrigin) {
+    auto nativeViewport = GrNativeRect::MakeRelativeTo(rtOrigin, rtHeight, viewport);
+    if (fHWViewport != nativeViewport) {
+        GL_CALL(Viewport(nativeViewport.fX, nativeViewport.fY,
+                         nativeViewport.fWidth, nativeViewport.fHeight));
+        fHWViewport = nativeViewport;
+    }
+}
+
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
-                                    const GrGLRenderTarget* rt, GrSurfaceOrigin origin) {
+                                    const GrGLRenderTarget* rt,
+                                    GrSurfaceOrigin origin,
+                                    SkIPoint viewportOffset) {
 #ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     SkASSERT(!windowState.enabled() || rt->renderFBOID()); // Window rects can't be used on-screen.
@@ -1770,7 +1781,8 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     GrNativeRect glwindows[GrWindowRectangles::kMaxWindows];
     const SkIRect* skwindows = windowState.windows().data();
     for (int i = 0; i < numWindows; ++i) {
-        glwindows[i].setRelativeTo(origin, rt->height(), skwindows[i]);
+        SkIRect tmp = skwindows[i].makeOffset(viewportOffset);
+        glwindows[i].setRelativeTo(origin, rt->height(), tmp);
     }
 
     GrGLenum glmode = (Mode::kExclusive == windowState.mode()) ? GR_GL_EXCLUSIVE : GR_GL_INCLUSIVE;
@@ -1790,7 +1802,9 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
+                           const GrProgramInfo& programInfo,
+                           SkIPoint viewportOffset) {
     this->handleDirtyContext();
 
     sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(renderTarget, programInfo);
@@ -1809,7 +1823,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().writeSwizzle());
 
-    fHWProgram->updateUniforms(renderTarget, programInfo);
+    fHWProgram->updateUniforms(renderTarget, programInfo, viewportOffset);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -1822,7 +1836,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
-                                glRT, programInfo.origin());
+                                glRT, programInfo.origin(), viewportOffset);
     this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
     this->flushWireframeState(programInfo.pipeline().isWireframe());
@@ -2203,7 +2217,8 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
         }
 #endif
         fHWBoundRenderTargetUniqueID = rtID;
-        this->flushViewport(target->width(), target->height());
+        this->flushViewport(SkIRect::MakeSize(target->dimensions()),
+                            target->height(), kTopLeft_GrSurfaceOrigin);
     }
     if (this->caps()->workarounds().force_update_scissor_state_when_binding_fbo0) {
         // The driver forgets the correct scissor state when using FBO 0.
@@ -2240,14 +2255,6 @@ void GrGLGpu::flushFramebufferSRGB(bool enable) {
     } else if (!enable && kNo_TriState != fHWSRGBFramebuffer) {
         GL_CALL(Disable(GR_GL_FRAMEBUFFER_SRGB));
         fHWSRGBFramebuffer = kNo_TriState;
-    }
-}
-
-void GrGLGpu::flushViewport(int width, int height) {
-    GrNativeRect viewport = {0, 0, width, height};
-    if (fHWViewport != viewport) {
-        GL_CALL(Viewport(viewport.fX, viewport.fY, viewport.fWidth, viewport.fHeight));
-        fHWViewport = viewport;
     }
 }
 
@@ -3262,7 +3269,8 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     // We don't swizzle at all in our copies.
     this->bindTexture(0, GrSamplerState::Filter::kNearest, GrSwizzle::RGBA(), srcTex);
     this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
-    this->flushViewport(dst->width(), dst->height());
+    this->flushViewport(SkIRect::MakeSize(dst->dimensions()), dst->height(),
+                        kTopLeft_GrSurfaceOrigin);
     fHWBoundRenderTargetUniqueID.makeInvalid();
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
     this->flushProgram(fCopyPrograms[progIdx].fProgram);
@@ -3469,7 +3477,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 
         width = std::max(1, width / 2);
         height = std::max(1, height / 2);
-        this->flushViewport(width, height);
+        this->flushViewport(SkIRect::MakeWH(width, height), height, kTopLeft_GrSurfaceOrigin);
 
         GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     }

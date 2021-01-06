@@ -27,7 +27,8 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& proc) override {
+                   const GrFragmentProcessor& proc,
+                   SkIPoint viewportOffset) override {
         const GrMatrixEffect& mtx = proc.cast<GrMatrixEffect>();
         pdman.setSkMatrix(fMatrixVar, mtx.matrix());
     }

@@ -625,6 +625,13 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
+    if (proxy == flushState->viewportOffsetTarget()) {
+        // The viewport offset needs to be set on the renderPass itself since it affects all
+        // future viewports and scissor rects.
+        renderPass->setViewportOffset(flushState->viewportOffset());
+        renderPass->setViewport_unused(proxy->backingStoreBoundsIRect());
+    }
+
     // Draw all the generated geometry.
     for (const auto& chain : fOpChains) {
         if (!chain.shouldExecute()) {
@@ -646,6 +653,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         flushState->setOpArgs(nullptr);
     }
 
+    renderPass->setViewportOffset({0, 0});
     renderPass->end();
     flushState->gpu()->submit(renderPass);
     flushState->setOpsRenderPass(nullptr);

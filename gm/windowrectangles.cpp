@@ -65,6 +65,7 @@ DrawResult WindowRectanglesBaseGM::onDraw(SkCanvas* canvas, SkString* errorMsg) 
     ToolUtils::draw_checkerboard(canvas, 0xffffffff, 0xffc6c3c6, 25);
 
     SkClipStack stack;
+#if 0
     stack.clipRect(SkRect::MakeXYWH(370.75, 80.25, 149, 100), SkMatrix::I(),
                    kDifference_SkClipOp, false);
     stack.clipRect(SkRect::MakeXYWH(80.25, 420.75, 150, 100), SkMatrix::I(),
@@ -75,6 +76,7 @@ DrawResult WindowRectanglesBaseGM::onDraw(SkCanvas* canvas, SkString* errorMsg) 
     SkRRect nine;
     nine.setNinePatch(SkRect::MakeXYWH(550 - 30.25 - 100, 370.75, 100, 150), 12, 35, 23, 20);
     stack.clipRRect(nine, SkMatrix::I(), kDifference_SkClipOp, true);
+#endif
 
     SkRRect complx;
     SkVector complxRadii[4] = {{6, 4}, {8, 12}, {16, 24}, {48, 32}};

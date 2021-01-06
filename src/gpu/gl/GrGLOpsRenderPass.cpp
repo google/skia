@@ -42,11 +42,15 @@ void GrGLOpsRenderPass::onEnd() {
 bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                        const SkRect& drawBounds) {
     fPrimitiveType = programInfo.primitiveType();
-    return fGpu->flushGLState(fRenderTarget, programInfo);
+    return fGpu->flushGLState(fRenderTarget, programInfo, fViewportOffset1);
 }
 
 void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     fGpu->flushScissorRect(scissor, fRenderTarget->width(), fRenderTarget->height(), fOrigin);
+}
+
+void GrGLOpsRenderPass::onSetViewport(const SkIRect& viewport) {
+    fGpu->flushViewport(viewport, fRenderTarget->height(), fOrigin);
 }
 
 bool GrGLOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
