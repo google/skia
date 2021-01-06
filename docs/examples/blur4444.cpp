@@ -57,6 +57,6 @@ void draw(SkCanvas* canvas) {
 
     SkPaint postPaint;
     postPaint.setDither(postDither);
-    surf->draw(canvas, 0, 0, &postPaint);
+    surf->draw(canvas, 0, 0, SkSamplingOptions(), &postPaint);
 }
 }  // END FIDDLE

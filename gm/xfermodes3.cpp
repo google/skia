@@ -162,7 +162,7 @@ private:
         if (nullptr == surface) {
             canvas->restore();
         } else {
-            surface->draw(canvas, 0, 0, nullptr);
+            surface->draw(canvas, 0, 0);
         }
 
         r.inset(-SK_ScalarHalf, -SK_ScalarHalf);

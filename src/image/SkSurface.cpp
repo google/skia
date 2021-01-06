@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkPaintPriv.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 #include "src/image/SkSurface_Base.h"
 
@@ -59,10 +60,11 @@ bool SkSurface_Base::onReplaceBackendTexture(const GrBackendTexture&,
     return false;
 }
 
-void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
+                            const SkSamplingOptions& sampling, const SkPaint* paint) {
     auto image = this->makeImageSnapshot();
     if (image) {
-        canvas->drawImage(image, x, y, paint);
+        canvas->drawImage(image.get(), x, y, sampling, paint);
     }
 }
 
@@ -211,9 +213,14 @@ sk_sp<SkSurface> SkSurface::makeSurface(int width, int height) {
     return this->makeSurface(this->imageInfo().makeWH(width, height));
 }
 
-void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
+void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions& sampling,
                      const SkPaint* paint) {
-    return asSB(this)->onDraw(canvas, x, y, paint);
+    asSB(this)->onDraw(canvas, x, y, sampling, paint);
+}
+
+void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+    SkSamplingOptions sampling(paint ? SkPaintPriv::GetFQ(*paint) : kNone_SkFilterQuality);
+    this->draw(canvas, x, y, sampling, paint);
 }
 
 bool SkSurface::peekPixels(SkPixmap* pmap) {
@@ -362,7 +369,7 @@ protected:
     }
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subsetOrNull) override { return nullptr; }
     void onWritePixels(const SkPixmap&, int x, int y) override {}
-    void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override {}
+    void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override {}
     void onCopyOnWrite(ContentChangeMode) override {}
 };
 

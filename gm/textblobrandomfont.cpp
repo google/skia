@@ -146,7 +146,7 @@ protected:
         // Rotate in the surface canvas, not the final canvas, to avoid aliasing
         surfaceCanvas->rotate(-0.05f);
         surfaceCanvas->drawTextBlob(fBlob, 10, yOffset, paint);
-        surface->draw(canvas, 0, 0, nullptr);
+        surface->draw(canvas, 0, 0);
         yOffset += stride;
 
         if (auto direct = context->asDirectContext()) {

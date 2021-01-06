@@ -91,7 +91,7 @@ static void test_mac_fonts(SkCanvas* canvas, SkScalar size, SkScalar xpos) {
             CGContextSetShouldSmoothFonts(ctx, smooth);
             CGContextShowTextAtPoint(ctx, 2 + xpos, 2, "A", 1);
 
-            surf->draw(canvas, x, y, nullptr);
+            surf->draw(canvas, x, y);
             x += pm.width();
         }
         y += pm.height();

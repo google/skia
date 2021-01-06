@@ -133,7 +133,7 @@ class SrcModeGM : public skiagm::GM {
         auto surf(compat_surface(canvas, this->getISize()));
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());
-        surf->draw(canvas, 0, 0, nullptr);
+        surf->draw(canvas, 0, 0);
     }
 };
 

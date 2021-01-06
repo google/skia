@@ -80,12 +80,10 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     drawContents(surf, SK_ColorBLUE);
 
     SkPaint paint;
-//    paint.setFilterBitmap(true);
-//    paint.setAlpha(0x80);
 
     canvas->drawImage(imgR, 0, 0, usePaint ? &paint : nullptr);
     canvas->drawImage(imgG, 0, 80, usePaint ? &paint : nullptr);
-    surf->draw(canvas, 0, 160, usePaint ? &paint : nullptr);
+    surf->draw(canvas, 0, 160, SkSamplingOptions(), usePaint ? &paint : nullptr);
 
     SkRect src1, src2, src3;
     src1.setIWH(surf->width(), surf->height());

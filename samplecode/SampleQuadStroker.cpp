@@ -252,7 +252,7 @@ protected:
         SkCanvas* canvas = fMaxSurface->getCanvas();
         canvas->save();
         canvas->concat(fMatrix);
-        fMinSurface->draw(canvas, 0, 0, nullptr);
+        fMinSurface->draw(canvas, 0, 0);
         canvas->restore();
 
         SkPaint paint;
@@ -414,7 +414,7 @@ protected:
         if (drawText) {
             fMinSurface->getCanvas()->drawPath(path, paint);
             this->copyMinToMax();
-            fMaxSurface->draw(canvas, 0, 0, nullptr);
+            fMaxSurface->draw(canvas, 0, 0);
         }
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

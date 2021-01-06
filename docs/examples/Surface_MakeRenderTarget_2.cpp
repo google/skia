@@ -27,7 +27,7 @@ void draw(SkCanvas* canvas) {
                         ? SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &props)
                         : SkSurface::MakeRaster(info, &props);
         test_draw(surface->getCanvas());
-        surface->draw(canvas, 0, y, nullptr);
+        surface->draw(canvas, 0, y);
         sk_sp<SkImage> image(surface->makeImageSnapshot());
         SkAutoCanvasRestore acr(canvas, true);
         canvas->scale(8, 8);
