@@ -22,6 +22,30 @@
       },
       "revId": "2f1206aa9a564f4e9fd6350e5b1427da8bd13420",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a43cc616_243f14ca",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-06T15:13:08Z",
+      "side": 1,
+      "message": "It would probably be worthwhile to add a (offset, value, type) constructor to BoolLiteral to match IntLiteral and FloatLiteral. It can be useful even if there\u0027s only one valid type, heck, just to keep the APIs in sync. I\u0027ll give that a go I think.",
+      "parentUuid": "5688a0e3_bf6b61b0",
+      "range": {
+        "startLine": 65,
+        "startChar": 49,
+        "endLine": 65,
+        "endChar": 56
+      },
+      "revId": "2f1206aa9a564f4e9fd6350e5b1427da8bd13420",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
