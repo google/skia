@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b042fbf_af413f5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-06T20:20:10Z",
+      "side": 1,
+      "message": "Looks like we\u0027re back to the WASM error we had before\n\nDSLStartup crashed with RuntimeError: function signature mismatch RuntimeError: function signature mismatch\n    at SkSL::IRGenerator::valueForSetting(int, SkSL::String) const (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[18006]:0x8b8423)\n    at SkSL::Setting::constantPropagate(SkSL::IRGenerator const\u0026, SkTHashMap\u003cSkSL::Variable const*, std::__2::unique_ptr\u003cSkSL::Expression, std::__2::default_delete\u003cSkSL::Expression\u003e \u003e*, SkGoodHash\u003e const\u0026) (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[17812]:0x88ec9b)\n    at SkSL::Compiler::simplifyExpression(SkTHashMap\u003cSkSL::Variable const*, std::__2::unique_ptr\u003cSkSL::Expression, std::__2::default_delete\u003cSkSL::Expression\u003e \u003e*, SkGoodHash\u003e\u0026, SkSL::BasicBlock\u0026, std::__2::__wrap_iter\u003cSkSL::BasicBlock::Node*\u003e*, SkSL::Compiler::OptimizationContext*) (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[18172]:0x8cee5c)\n    at SkSL::Compiler::scanCFG(SkSL::FunctionDefinition\u0026, SkSL::ProgramUsage*) (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[6271]:0x307ef9)\n    at SkSL::Compiler::optimize(SkSL::LoadedModule\u0026) (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[18175]:0x8d16b8)\n    at SkSL::Compiler::parseModule(SkSL::Program::Kind, SkSL::Compiler::ModuleData, SkSL::ParsedModule const\u0026) (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[1979]:0xb9a89)\n    at SkSL::Compiler::loadGPUModule() (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[3366]:0x16fc18)\n    at SkSL::Compiler::loadFragmentModule() (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[6273]:0x30866f)\n    at SkSL::dsl::DSLWriter::DSLWriter(SkSL::Compiler*) (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[17731]:0x87635b)\n    at SkSL::dsl::Start(SkSL::Compiler*) (http://localhost:8081/static/wasm_gm_tests.wasm:wasm-function[17729]:0x87629d)\n",
+      "revId": "5d52a1416e6ff7cc4c631bb3ceb209fd5a7bfcec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
