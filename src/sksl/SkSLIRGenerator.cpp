@@ -2736,6 +2736,7 @@ const Type* IRGenerator::typeForSetting(int offset, String name) const {
 }
 
 std::unique_ptr<Expression> IRGenerator::valueForSetting(int offset, String name) const {
+    printf("looking for %s\n", name.c_str());
     auto found = fCapsMap.find(name);
     if (found == fCapsMap.end()) {
         fErrors.error(offset, "unknown capability flag '" + name + "'");
