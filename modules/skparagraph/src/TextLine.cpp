@@ -1159,7 +1159,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
 
                 SkScalar center = glyphemePosLeft + glyphemePosWidth / 2;
                 bool insideGlypheme = false;
-                if (graphemeUtf8Width > 1) {
+                if (graphemeUtf8Width > 1 && false) {
                     // TODO: the average width of a code unit (especially UTF-8) is meaningless.
                     // Probably want the average width of a grapheme or codepoint?
                     SkScalar averageUtf8Width = glyphemePosWidth / graphemeUtf8Width;
