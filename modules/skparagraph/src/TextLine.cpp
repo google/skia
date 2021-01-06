@@ -762,6 +762,8 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
                 style = &block->fStyle;
                 if (start != EMPTY_INDEX && style->matchOneAttribute(styleType, *prevStyle)) {
                     size += intersect.width();
+                    // RTL text intervals move backward
+                    start = std::min(intersect.start, start);
                     continue;
                 } else if (start == EMPTY_INDEX ) {
                     // First time only
@@ -1169,7 +1171,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                                          : SkScalarFloorToInt(delta / averageUtf8Width);
                     insideGlypheme = averageUtf8Width < delta && delta < glyphemePosWidth - averageUtf8Width;
                     center = glyphemePosLeft + averageUtf8Width * insideUtf8Offset + averageUtf8Width / 2;
-                    utf16Index += insideUtf8Offset; // TODO: adding a utf8 offset to a utf16 index
+                    //utf16Index += insideUtf8Offset; // TODO: adding a utf8 offset to a utf16 index
                 }
                 if ((dx < center) == context.run->leftToRight() || insideGlypheme) {
                     result = { SkToS32(utf16Index), kDownstream };
