@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c67e6ce_7604f26e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-06T19:23:29Z",
+      "side": 1,
+      "message": "Do we already detect this on GL?",
+      "revId": "7528de98d66efacd294a8a0cfc8eaa48f8c1cf97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
