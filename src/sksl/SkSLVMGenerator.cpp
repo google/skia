@@ -707,7 +707,7 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
     const Type& srcType = c.arguments()[0]->type();
     const Type& dstType = c.type();
     Type::NumberKind srcKind = base_number_kind(srcType),
-                        dstKind = base_number_kind(dstType);
+                     dstKind = base_number_kind(dstType);
     Value src = this->writeExpression(*c.arguments()[0]);
     size_t dstSlots = slot_count(dstType);
 
@@ -716,25 +716,65 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
         return src;
     }
 
-    // TODO: Handle conversion to/from bool
-    // TODO: Handle signed vs. unsigned? GLSL ES 1.0 only has 'int', so no problem yet
+    // TODO: Handle signed vs. unsigned. GLSL ES 1.0 only has 'int', so no problem yet.
     if (srcKind != dstKind) {
         // One argument constructors can do type conversion
         Value dst(src.slots());
-        if (dstKind == Type::NumberKind::kFloat) {
-            SkASSERT(srcKind == Type::NumberKind::kSigned);
-            for (size_t i = 0; i < src.slots(); ++i) {
-                dst[i] = skvm::to_F32(i32(src[i]));
-            }
-        } else if (dstKind == Type::NumberKind::kSigned) {
-            SkASSERT(srcKind == Type::NumberKind::kFloat);
-            for (size_t i = 0; i < src.slots(); ++i) {
-                dst[i] = skvm::trunc(f32(src[i]));
-            }
-        } else {
-            SkDEBUGFAIL("Unsupported type conversion");
+        switch (dstKind) {
+            case Type::NumberKind::kFloat:
+                if (srcKind == Type::NumberKind::kSigned) {
+                    // int -> float
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = skvm::to_F32(i32(src[i]));
+                    }
+                    return dst;
+                } else if (srcKind == Type::NumberKind::kBoolean) {
+                    // bool -> float
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = skvm::select(i32(src[i]), 1.0f, 0.0f);
+                    }
+                    return dst;
+                }
+                break;
+
+            case Type::NumberKind::kSigned:
+                if (srcKind == Type::NumberKind::kFloat) {
+                    // float -> int
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = skvm::trunc(f32(src[i]));
+                    }
+                    return dst;
+                } else if (srcKind == Type::NumberKind::kBoolean) {
+                    // bool -> int
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = skvm::select(i32(src[i]), skvm::I32a(1), skvm::I32a(0));
+                    }
+                    return dst;
+                }
+                break;
+
+            case Type::NumberKind::kBoolean:
+                if (srcKind == Type::NumberKind::kSigned) {
+                    // int -> bool
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = i32(src[i]) != 0;
+                    }
+                    return dst;
+                } else if (srcKind == Type::NumberKind::kFloat) {
+                    // float -> bool
+                    for (size_t i = 0; i < src.slots(); ++i) {
+                        dst[i] = f32(src[i]) != 0.0;
+                    }
+                    return dst;
+                }
+                break;
+
+            default:
+                break;
         }
-        return dst;
+        SkDEBUGFAILF("Unsupported type conversion: %s -> %s", srcType.displayName().c_str(),
+                                                              dstType.displayName().c_str());
+        return {};
     }
 
     // Matrices can be constructed from scalars or other matrices
