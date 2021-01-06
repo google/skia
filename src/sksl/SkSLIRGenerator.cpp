@@ -2308,8 +2308,7 @@ std::unique_ptr<Expression> IRGenerator::convertScalarConstructor(int offset,
         return nullptr;
     }
 
-    std::unique_ptr<Expression> converted = Constructor::SimplifyConversion(fContext, type,
-                                                                            *args[0]);
+    std::unique_ptr<Expression> converted = Constructor::SimplifyConversion(type, *args[0]);
     if (converted) {
         return converted;
     }

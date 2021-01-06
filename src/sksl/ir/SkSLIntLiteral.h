@@ -28,8 +28,7 @@ public:
     // We will need to revisit this if we want full support for unsigned 64-bit integers,
     // but for now an SKSL_INT (int64_t) will hold every value we care about.
     Literal(const Context& context, int offset, SKSL_INT value)
-        : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
-        , fValue(value) {}
+        : Literal(offset, value, context.fInt_Type.get()) {}
 
     Literal(int offset, int64_t value, const Type* type)
         : INHERITED(offset, kExpressionKind, type)

@@ -47,8 +47,7 @@ public:
     // constructor expression `short(3.14)` would be represented as `FloatLiteral(3.14)` along with
     // type `Short`, and this would result in `IntLiteral(3, type=Short)`. Returns nullptr if the
     // expression is not a literal or the conversion cannot be made.
-    static std::unique_ptr<Expression> SimplifyConversion(const Context& context,
-                                                          const Type& constructorType,
+    static std::unique_ptr<Expression> SimplifyConversion(const Type& constructorType,
                                                           const Expression& expr);
 
     bool hasProperty(Property property) const override {
