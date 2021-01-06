@@ -15,42 +15,40 @@
 DrawOptions GetDrawOptions() {
     // path *should* be absolute.
     static const char path[] = "resources/images/color_wheel.png";
-    return DrawOptions(256, 256, true, true, true, true, true, false, false, path,
+    return DrawOptions(256, 256, true, true, true, true, true, false, false, 0,
                        GrMipmapped::kYes, 64, 64, 0, GrMipmapped::kYes);
 }
 void draw(SkCanvas* canvas) {
-    canvas->clear(SK_ColorWHITE);
-    SkMatrix matrix;
-    matrix.setScale(0.75f, 0.75f);
-    matrix.preRotate(frame * 30.0f * duration); // If an animation, rotate at 30 deg/s.
-    SkPaint paint;
-    paint.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                      SkSamplingOptions(), matrix));
-    canvas->drawPaint(paint);
-    SkDebugf("This is text output: %d", 2);
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
 
-    if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
-        sk_sp<SkImage> tmp = SkImage::MakeFromTexture(dContext,
-                                                      backEndTexture->texture(),
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      kRGBA_8888_SkColorType,
-                                                      kOpaque_SkAlphaType,
-                                                      nullptr);
+    canvas->drawLine(20, 20, 100, 100, p);
 
-        constexpr int kSampleCnt = 0;
-        sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(
-                                                            dContext,
-                                                            backEndTextureRenderTarget->texture(),
-                                                            kTopLeft_GrSurfaceOrigin,
-                                                            kSampleCnt,
-                                                            kRGBA_8888_SkColorType,
-                                                            nullptr, nullptr);
 
-        // Note: this surface should only be renderable (i.e., not textureable)
-        sk_sp<SkSurface> tmp3 = SkSurface::MakeFromBackendRenderTarget(dContext,
-                                                                       backEndRenderTarget,
-                                                                       kTopLeft_GrSurfaceOrigin,
-                                                                       kRGBA_8888_SkColorType,
-                                                                       nullptr, nullptr);
+    const char * svg = "<svg width='100' height='100'><rect width='100' height='100' fill='green'/> </svg>\n";
+
+    sk_sp<SkData> data(SkData::MakeWithCString(svg));
+/*
+    if (!data) {
+        return;
     }
+*/
+    SkMemoryStream stream(data);
+    sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream);
+
+/*
+    if (!svgDom) {
+        return;
+    }
+*/
+    // Use the intrinsic SVG size if available, otherwise fall back to a default value.
+    static const SkSize kDefaultContainerSize = SkSize::Make(128, 128);
+    if (svgDom->containerSize().isEmpty()) {
+        svgDom->setContainerSize(kDefaultContainerSize);
+    }
+
+    svgDom->render(canvas);
 }
