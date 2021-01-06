@@ -132,6 +132,8 @@ public:
 
     SKSL_FLOAT getConstantFloat() const override;
 
+    bool getConstantBool() const override;
+
 private:
     ExpressionArray fArguments;
 
