@@ -30,11 +30,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %v2float = OpTypeVector %float 2
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %29 = OpConstantComposite %v2float %float_1 %float_2
-%31 = OpConstantComposite %v2float %float_1 %float_2
 %float_3 = OpConstant %float 3
 %float_4 = OpConstant %float 4
-%35 = OpConstantComposite %v2float %float_3 %float_4
-%41 = OpConstantComposite %v2float %float_3 %float_4
+%36 = OpConstantComposite %v2float %float_3 %float_4
 %main = OpFunction %void None %11
 %12 = OpLabel
 %_1_x = OpVariable %_ptr_Function_float Function
@@ -56,27 +54,27 @@ OpStore %_1_x %22
 %25 = OpLoad %float %_1_x
 OpStore %x %25
 OpStore %_3_x %29
-%30 = OpExtInst %float %1 Length %31
-%32 = OpCompositeConstruct %v2float %30 %30
-OpStore %_3_x %32
-%34 = OpLoad %v2float %_3_x
-%33 = OpExtInst %float %1 Distance %34 %35
-%38 = OpCompositeConstruct %v2float %33 %33
-OpStore %_3_x %38
-%40 = OpLoad %v2float %_3_x
-%39 = OpDot %float %40 %41
-%42 = OpCompositeConstruct %v2float %39 %39
-OpStore %_3_x %42
+%30 = OpExtInst %float %1 Length %29
+%31 = OpCompositeConstruct %v2float %30 %30
+OpStore %_3_x %31
+%33 = OpLoad %v2float %_3_x
+%32 = OpExtInst %float %1 Distance %33 %36
+%37 = OpCompositeConstruct %v2float %32 %32
+OpStore %_3_x %37
+%39 = OpLoad %v2float %_3_x
+%38 = OpDot %float %39 %36
+%40 = OpCompositeConstruct %v2float %38 %38
+OpStore %_3_x %40
+%42 = OpLoad %v2float %_3_x
+%41 = OpExtInst %v2float %1 Normalize %42
+OpStore %_3_x %41
 %44 = OpLoad %v2float %_3_x
-%43 = OpExtInst %v2float %1 Normalize %44
-OpStore %_3_x %43
-%46 = OpLoad %v2float %_3_x
-OpStore %y %46
-%47 = OpLoad %float %x
-%48 = OpLoad %v2float %y
-%49 = OpCompositeExtract %float %48 0
-%50 = OpCompositeExtract %float %48 1
-%51 = OpCompositeConstruct %v4float %47 %49 %50 %float_1
-OpStore %sk_FragColor %51
+OpStore %y %44
+%45 = OpLoad %float %x
+%46 = OpLoad %v2float %y
+%47 = OpCompositeExtract %float %46 0
+%48 = OpCompositeExtract %float %46 1
+%49 = OpCompositeConstruct %v4float %45 %47 %48 %float_1
+OpStore %sk_FragColor %49
 OpReturn
 OpFunctionEnd
