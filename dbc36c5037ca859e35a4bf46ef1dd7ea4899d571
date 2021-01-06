@@ -132,6 +132,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "53c23e70_6b3f4e92",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T21:10:35Z",
+      "side": 1,
+      "message": "I\u0027ll feel this one out.",
+      "parentUuid": "ab9712ba_793cfefc",
+      "range": {
+        "startLine": 1397,
+        "startChar": 22,
+        "endLine": 1397,
+        "endChar": 25
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "622fc7bf_6d87af69",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 6
@@ -167,6 +191,30 @@
       "side": 1,
       "message": "Yeah, I couldn\u0027t come up with a better thing immediately. There are some changes that could help, and I may tackle those in a follow-up (basically, making things like device-coord part of a more generic map of builtin variable to set of skvm::Val/F32s). But that only gets us so far, so I just papered over it here for now.",
       "parentUuid": "622fc7bf_6d87af69",
+      "range": {
+        "startLine": 1407,
+        "startChar": 0,
+        "endLine": 1412,
+        "endChar": 5
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f08e4ab9_56723360",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1412,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T21:10:35Z",
+      "side": 1,
+      "message": "yeah, that\u0027s about where i stopped thinking about it.  sgtm",
+      "parentUuid": "029e040f_c3d8d2e3",
       "range": {
         "startLine": 1407,
         "startChar": 0,
@@ -349,6 +397,24 @@
       "side": 1,
       "message": "Yeah, I saw that stuff in eval(), I wasn\u0027t sure if I was going to hit that assert, but I\u0027m guessing that it also never generates the JIT for things with more args?",
       "parentUuid": "a95429a8_4bbd672e",
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "100cf3da_113e3d54",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T21:10:35Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s right.  This snippet of code will prevent us from JITing,\n\n        if (SK_ARRAY_COUNT(arg) \u003c fImpl-\u003estrides.size()) {\n            return false;                                                  \n        }                                        \n\nand Program::eval() will then find jit_entry \u003d\u003d nullptr, then fall through to the interpreter.  It\u0027ll work no matter what, but you won\u0027t necessarily be able to say, assert(program.hasJIT()).\n\n(fImpl-\u003estrides[i] is the number of bytes to increment each pointer by as we loop, generally 0 for uniform pointers and sizeof(T) for varying pointers.  But you could do neat things with negative strides or \u003esizeof(T) or \u003csizeof(T) potentially.)",
+      "parentUuid": "5edbdbb0_0c1f3dd8",
       "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
