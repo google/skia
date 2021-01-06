@@ -222,6 +222,10 @@ public:
     // This flag is similar to enabling gl render to texture for msaa rendering.
     bool preferDiscardableMSAAAttachment() const { return fPreferDiscardableMSAAAttachment; }
 
+    bool mustLoadFullImageWithDiscardableMSAA() const {
+        return fMustLoadFullImageWithDiscardableMSAA;
+    }
+
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
@@ -363,6 +367,7 @@ private:
     bool fPreferCachedCpuMemory = true;
 
     bool fPreferDiscardableMSAAAttachment = false;
+    bool fMustLoadFullImageWithDiscardableMSAA = false;
 
     using INHERITED = GrCaps;
 };
