@@ -95,6 +95,12 @@ public:
         return -this->operand()->getConstantFloat();
     }
 
+    bool getConstantBool() const override {
+        SkDEBUGFAIL("negation of boolean values is not allowed");
+        SkASSERT(this->isNegationOfCompileTimeConstant());
+        return this->operand()->getConstantBool();
+    }
+
     ComparisonResult compareConstant(const Context& context,
                                      const Expression& other) const override {
         if (!other.is<PrefixExpression>()) {
