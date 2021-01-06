@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3c06f68_9f19974d",
+        "filename": "src/sksl/SkSLExternalFunction.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T21:38:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9656550f_9d4ba97a",
+      "range": {
+        "startLine": 34,
+        "startChar": 7,
+        "endLine": 34,
+        "endChar": 36
+      },
+      "revId": "fc657bb242dd2206004c5c7f5febcf11d75b829c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd68523f_4f962952",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-06T21:25:30Z",
       "side": 1,
       "message": "function",
+      "range": {
+        "startLine": 46,
+        "startChar": 42,
+        "endLine": 46,
+        "endChar": 47
+      },
+      "revId": "fc657bb242dd2206004c5c7f5febcf11d75b829c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "704618b4_f6236e4e",
+        "filename": "src/sksl/SkSLExternalFunction.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T21:38:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd68523f_4f962952",
       "range": {
         "startLine": 46,
         "startChar": 42,
