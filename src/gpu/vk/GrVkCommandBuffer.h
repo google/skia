@@ -9,8 +9,8 @@
 #define GrVkCommandBuffer_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrCommandBufferRef.h"
 #include "src/gpu/GrManagedResource.h"
+#include "src/gpu/GrRefCnt.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkUtil.h"
