@@ -112,7 +112,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
         SkSL::Program::Settings settings;
         settings.fRemoveDeadFunctions = false;
 
-        std::vector<std::unique_ptr<SkSL::ExternalValue>> externalValues;
+        std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalValues;
         externalValues.reserve(fBindings.size());
 
         for (const auto& binding : fBindings) {

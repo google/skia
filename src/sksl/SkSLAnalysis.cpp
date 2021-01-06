@@ -41,7 +41,7 @@
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
-#include "src/sksl/ir/SkSLExternalValueReference.h"
+#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
@@ -303,14 +303,6 @@ public:
                 this->visitExpression(inner);
                 break;
             }
-            case Expression::Kind::kExternalValue: {
-                const ExternalValue& var = expr.as<ExternalValueReference>().value();
-                if (!var.canWrite()) {
-                    fErrors->error(expr.fOffset,
-                                   "cannot modify immutable external value '" + var.name() + "'");
-                }
-                break;
-            }
             default:
                 fErrors->error(expr.fOffset, "cannot assign to this expression");
                 break;
@@ -484,7 +476,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
     switch (e.kind()) {
         case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kDefined:
-        case Expression::Kind::kExternalValue:
+        case Expression::Kind::kExternalFunctionReference:
         case Expression::Kind::kFloatLiteral:
         case Expression::Kind::kFunctionReference:
         case Expression::Kind::kIntLiteral:

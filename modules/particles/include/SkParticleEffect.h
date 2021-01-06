@@ -30,7 +30,7 @@ namespace skresources {
 
 namespace SkSL {
     class ByteCode;
-    class ExternalValue;
+    class ExternalFunction;
 }  // namespace SkSL
 
 class SkParticleEffectParams : public SkRefCnt {
@@ -128,7 +128,7 @@ private:
     // Cached
     struct Program {
         std::unique_ptr<SkSL::ByteCode> fByteCode;
-        std::vector<std::unique_ptr<SkSL::ExternalValue>> fExternalValues;
+        std::vector<std::unique_ptr<SkSL::ExternalFunction>> fExternalValues;
     };
 
     Program fEffectProgram;

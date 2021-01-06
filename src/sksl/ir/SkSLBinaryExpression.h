@@ -21,8 +21,6 @@ namespace SkSL {
 
 static inline bool check_ref(const Expression& expr) {
     switch (expr.kind()) {
-        case Expression::Kind::kExternalValue:
-            return true;
         case Expression::Kind::kFieldAccess:
             return check_ref(*expr.as<FieldAccess>().base());
         case Expression::Kind::kIndex:

@@ -33,7 +33,7 @@ public:
         kConstructor,
         kDefined,
         kExternalFunctionCall,
-        kExternalValue,
+        kExternalFunctionReference,
         kIntLiteral,
         kFieldAccess,
         kFloatLiteral,

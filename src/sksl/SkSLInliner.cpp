@@ -22,7 +22,7 @@
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
-#include "src/sksl/ir/SkSLExternalValueReference.h"
+#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -400,7 +400,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return std::make_unique<ExternalFunctionCall>(offset, &externalCall.function(),
                                                           argList(externalCall.arguments()));
         }
-        case Expression::Kind::kExternalValue:
+        case Expression::Kind::kExternalFunctionReference:
             return expression.clone();
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = expression.as<FieldAccess>();
@@ -1038,7 +1038,7 @@ public:
         switch ((*expr)->kind()) {
             case Expression::Kind::kBoolLiteral:
             case Expression::Kind::kDefined:
-            case Expression::Kind::kExternalValue:
+            case Expression::Kind::kExternalFunctionReference:
             case Expression::Kind::kFieldAccess:
             case Expression::Kind::kFloatLiteral:
             case Expression::Kind::kFunctionReference:

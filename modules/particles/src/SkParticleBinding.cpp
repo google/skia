@@ -30,7 +30,6 @@ public:
         : SkParticleExternalValue(name, compiler, *compiler.context().fVoid_Type)
         , fParams(std::move(params)) {}
 
-    bool canCall() const override { return true; }
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
         outTypes[0] = fCompiler.context().fBool_Type.get();
@@ -98,7 +97,6 @@ public:
         : SkParticleExternalValue(name, compiler, *compiler.context().fFloat4_Type)
         , fPath(path) { }
 
-    bool canCall() const override { return true; }
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
         outTypes[0] = fCompiler.context().fFloat_Type.get();
@@ -209,7 +207,6 @@ public:
         SkASSERT(bitmap.colorType() == kRGBA_F32_SkColorType);
     }
 
-    bool canCall() const override { return true; }
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
         outTypes[0] = fCompiler.context().fFloat2_Type.get();
