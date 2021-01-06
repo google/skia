@@ -19,6 +19,8 @@
 #include "src/gpu/vk/GrVkCaps.h"
 #endif
 
+#define kLast_Capability SpvCapabilityMultiViewport
+
 namespace SkSL {
 
 static const int32_t SKSL_MAGIC  = 0x0; // FIXME: we should probably register a magic number
@@ -1148,30 +1150,40 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
 SpvId SPIRVCodeGenerator::writeConstantVector(const Constructor& c) {
     const Type& type = c.type();
     SkASSERT(type.isVector() && c.isCompileTimeConstant());
-    SpvId result = this->nextId();
-    std::vector<SpvId> arguments;
-    for (const std::unique_ptr<Expression>& arg : c.arguments()) {
-        arguments.push_back(this->writeExpression(*arg, fConstantBuffer));
-    }
-    SpvId typeId = this->getType(type);
+
+    SPIRVVectorConstant key{this->getType(type),
+                            /*fValueId=*/{SpvId(-1), SpvId(-1), SpvId(-1), SpvId(-1)}};
+    size_t numValues;
     if (c.arguments().size() == 1) {
-        // with a single argument, a vector will have all of its entries equal to the argument
-        this->writeOpCode(SpvOpConstantComposite, 3 + type.columns(), fConstantBuffer);
-        this->writeWord(typeId, fConstantBuffer);
-        this->writeWord(result, fConstantBuffer);
-        for (int i = 0; i < type.columns(); i++) {
-            this->writeWord(arguments[0], fConstantBuffer);
+        // GLSL automatically splats single-argument constructors across every column. In SPIR-V, we
+        // need to handle this splat ourselves.
+        numValues = type.columns();
+        key.fValueId[0] = this->writeExpression(*c.arguments()[0], fConstantBuffer);
+        for (size_t i = 1; i < numValues; i++) {
+            key.fValueId[i] = key.fValueId[0];
         }
     } else {
-        this->writeOpCode(SpvOpConstantComposite, 3 + (int32_t) c.arguments().size(),
-                          fConstantBuffer);
-        this->writeWord(typeId, fConstantBuffer);
-        this->writeWord(result, fConstantBuffer);
-        for (SpvId id : arguments) {
-            this->writeWord(id, fConstantBuffer);
+        // A multi-argument constructor fills in each argument in order.
+        numValues = c.arguments().size();
+        for (size_t i = 0; i < numValues; i++) {
+            key.fValueId[i] = this->writeExpression(*c.arguments()[i], fConstantBuffer);
         }
     }
-    return result;
+
+    // Check to see if we've already synthesized this vector constant.
+    auto [iter, newlyCreated] = fVectorConstants.insert({key, (SpvId)-1});
+    if (newlyCreated) {
+        // Emit an OpConstantComposite instruction for this constant.
+        SpvId result = this->nextId();
+        this->writeOpCode(SpvOpConstantComposite, 3 + numValues, fConstantBuffer);
+        this->writeWord(key.fTypeId, fConstantBuffer);
+        this->writeWord(result, fConstantBuffer);
+        for (size_t i = 0; i < numValues; i++) {
+            this->writeWord(key.fValueId[i], fConstantBuffer);
+        }
+        iter->second = result;
+    }
+    return iter->second;
 }
 
 SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, OutputStream& out) {

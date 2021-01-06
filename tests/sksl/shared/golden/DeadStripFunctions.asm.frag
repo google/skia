@@ -29,13 +29,13 @@ OpDecorate %23 RelaxedPrecision
 %void = OpTypeVoid
 %25 = OpTypeFunction %void
 %float_3 = OpConstant %float 3
-%27 = OpConstantComposite %v4float %float_3 %float_3 %float_3 %float_3
+%28 = OpConstantComposite %v4float %float_3 %float_3 %float_3 %float_3
 %float_n3 = OpConstant %float -3
-%30 = OpConstantComposite %v4float %float_n3 %float_n3 %float_n3 %float_n3
+%31 = OpConstantComposite %v4float %float_n3 %float_n3 %float_n3 %float_n3
 %float_7 = OpConstant %float 7
-%34 = OpConstantComposite %v4float %float_7 %float_7 %float_7 %float_7
+%35 = OpConstantComposite %v4float %float_7 %float_7 %float_7 %float_7
 %float_n7 = OpConstant %float -7
-%37 = OpConstantComposite %v4float %float_n7 %float_n7 %float_n7 %float_n7
+%38 = OpConstantComposite %v4float %float_n7 %float_n7 %float_n7 %float_n7
 %blend_dst = OpFunction %v4float None %12
 %14 = OpFunctionParameter %_ptr_Function_v4float
 %15 = OpFunctionParameter %_ptr_Function_v4float
@@ -58,12 +58,12 @@ OpFunctionEnd
 %32 = OpVariable %_ptr_Function_v4float Function
 %36 = OpVariable %_ptr_Function_v4float Function
 %39 = OpVariable %_ptr_Function_v4float Function
-OpStore %29 %27
-OpStore %32 %30
+OpStore %29 %28
+OpStore %32 %31
 %33 = OpFunctionCall %v4float %live_fn %29 %32
 OpStore %sk_FragColor %33
-OpStore %36 %34
-OpStore %39 %37
+OpStore %36 %35
+OpStore %39 %38
 %40 = OpFunctionCall %v4float %blend_dst %36 %39
 OpStore %sk_FragColor %40
 OpReturn

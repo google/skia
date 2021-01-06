@@ -66,7 +66,7 @@ OpDecorate %148 RelaxedPrecision
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %145 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %float_0 = OpConstant %float 0
-%146 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%147 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %main = OpFunction %void None %11
 %12 = OpLabel
 %v = OpVariable %_ptr_Function_v4bool Function
@@ -223,7 +223,7 @@ OpBranchConditional %138 %142 %143
 OpStore %140 %145
 OpBranch %144
 %143 = OpLabel
-OpStore %140 %146
+OpStore %140 %147
 OpBranch %144
 %144 = OpLabel
 %148 = OpLoad %v4float %140

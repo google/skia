@@ -26,7 +26,7 @@ OpDecorate %test2DRect RelaxedPrecision
 OpDecorate %test2DRect Binding 1
 OpDecorate %19 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
-OpDecorate %27 RelaxedPrecision
+OpDecorate %26 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -41,23 +41,22 @@ OpDecorate %27 RelaxedPrecision
 %test2DRect = OpVariable %_ptr_UniformConstant_12 UniformConstant
 %void = OpTypeVoid
 %16 = OpTypeFunction %void
-%float_0_5 = OpConstant %float 0.5
 %v2float = OpTypeVector %float 2
-%20 = OpConstantComposite %v2float %float_0_5 %float_0_5
-%25 = OpConstantComposite %v2float %float_0_5 %float_0_5
+%float_0_5 = OpConstant %float 0.5
+%22 = OpConstantComposite %v2float %float_0_5 %float_0_5
 %v3float = OpTypeVector %float 3
 %28 = OpConstantComposite %v3float %float_0_5 %float_0_5 %float_0_5
 %main = OpFunction %void None %16
 %17 = OpLabel
 %19 = OpLoad %12 %test2D
-%18 = OpImageSampleImplicitLod %v4float %19 %20
+%18 = OpImageSampleImplicitLod %v4float %19 %22
 OpStore %sk_FragColor %18
 %24 = OpLoad %12 %test2DRect
-%23 = OpImageSampleImplicitLod %v4float %24 %25
+%23 = OpImageSampleImplicitLod %v4float %24 %22
 OpStore %sk_FragColor %23
-%27 = OpLoad %12 %test2DRect
-%26 = OpImageSampleProjImplicitLod %v4float %27 %28
-OpStore %sk_FragColor %26
+%26 = OpLoad %12 %test2DRect
+%25 = OpImageSampleProjImplicitLod %v4float %26 %28
+OpStore %sk_FragColor %25
 OpReturn
 OpFunctionEnd
 

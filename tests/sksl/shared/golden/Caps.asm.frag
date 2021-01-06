@@ -21,13 +21,13 @@ OpDecorate %17 RelaxedPrecision
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %void = OpTypeVoid
 %11 = OpTypeFunction %void
-%float_1 = OpConstant %float 1
 %v3float = OpTypeVector %float 3
-%13 = OpConstantComposite %v3float %float_1 %float_1 %float_1
+%float_1 = OpConstant %float 1
+%15 = OpConstantComposite %v3float %float_1 %float_1 %float_1
 %main = OpFunction %void None %11
 %12 = OpLabel
 %16 = OpLoad %v4float %sk_FragColor
-%17 = OpVectorShuffle %v4float %16 %13 4 5 6 3
+%17 = OpVectorShuffle %v4float %16 %15 4 5 6 3
 OpStore %sk_FragColor %17
 OpReturn
 OpFunctionEnd

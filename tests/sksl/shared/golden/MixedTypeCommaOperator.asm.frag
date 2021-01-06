@@ -26,9 +26,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %_ptr_Output_float = OpTypePointer Output %float
 %int_0 = OpConstant %int 0
 %v2float = OpTypeVector %float 2
-%21 = OpConstantComposite %v2float %float_1 %float_1
+%22 = OpConstantComposite %v2float %float_1 %float_1
 %v3float = OpTypeVector %float 3
-%25 = OpConstantComposite %v3float %float_1 %float_1 %float_1
+%26 = OpConstantComposite %v3float %float_1 %float_1 %float_1
 %int_2 = OpConstant %int 2
 %float_0 = OpConstant %float 0
 %mat2v2float = OpTypeMatrix %v2float 2
