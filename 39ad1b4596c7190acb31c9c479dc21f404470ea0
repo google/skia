@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fce29819_fbfbf90a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2038,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-06T15:32:04Z",
+      "side": 1,
+      "message": "This is the cause of our error difference; why is it necessary? We already have a call to coerce() below at L2079-2080. `determine_binary_type` on L2060 should already give us fBool_Type for LOGICAL(AND|OR|XOR). Isn\u0027t this coercion redundant anyway?",
+      "range": {
+        "startLine": 2031,
+        "startChar": 0,
+        "endLine": 2038,
+        "endChar": 5
+      },
+      "revId": "39ad1b4596c7190acb31c9c479dc21f404470ea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
