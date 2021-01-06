@@ -764,39 +764,27 @@ DEF_TEST(SkSLInterpreterReturnThenCall, r) {
 }
 
 DEF_TEST(SkSLInterpreterEarlyReturn, r) {
-    // Unlike returns in loops, returns in conditionals should work.
+    // Test early returns with divergent control flow
     const char* src = "float main(float x, float y) { if (x < y) { return x; } return y; }";
 
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                                                     SkSL::String(src),
-                                                                     SkSL::Program::Settings{});
-    REPORTER_ASSERT(r, program);
+    ProgramBuilder program(r, src);
 
-    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-    REPORTER_ASSERT(r, byteCode);
+    const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
+    REPORTER_ASSERT(r, main);
 
-    // Our function should work fine via run().
-    const SkSL::ByteCodeFunction* fun = byteCode->getFunction("main");
-    float in[] = { 1.0f, 2.0f };
-    float ret;
-    REPORTER_ASSERT(r, byteCode->run(fun, in,2, &ret,1, nullptr,0));
-    REPORTER_ASSERT(r, ret == 1.0f);
+    skvm::Builder b;
+    SkSL::SkVMSignature sig;
+    SkSL::ProgramToSkVM(*program, *main, &b, &sig);
+    skvm::Program p = b.done();
 
-    in[0] = 3.0f;
-    REPORTER_ASSERT(r, byteCode->run(fun, in,2, &ret,1, nullptr,0));
-    REPORTER_ASSERT(r, ret == 2.0f);
-
-    // Now same again via runStriped(), won't quite work yet.
     float xs[] = { 1.0f, 3.0f },
           ys[] = { 2.0f, 2.0f };
     float rets[2];
-    float* ins[] = { xs, ys };
-    float* outs[] = { rets+0, rets+1 } ;
-    REPORTER_ASSERT(r, byteCode->runStriped(fun,2, ins,2, outs,1, nullptr,0));
+    const void* uniforms = nullptr;
+    p.eval(2, uniforms, xs, ys, rets);
+
     REPORTER_ASSERT(r, rets[0] == 1.0f);
-  //REPORTER_ASSERT(r, rets[1] == 2.0f);  // TODO: skia:10852, make striped early returns work.
+    REPORTER_ASSERT(r, rets[1] == 2.0f);
 }
 
 DEF_TEST(SkSLInterpreterArrayBounds, r) {
