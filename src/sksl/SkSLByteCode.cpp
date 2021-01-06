@@ -10,7 +10,7 @@
 #include "src/core/SkUtils.h"   // sk_unaligned_load
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
-#include "src/sksl/SkSLExternalValue.h"
+#include "src/sksl/SkSLExternalFunction.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
 
@@ -62,8 +62,8 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip, OutputStream* ou
         case ByteCodeInstruction::kCallExternal: {
             int argumentCount = READ8();
             int returnCount = READ8();
-            int externalValue = READ8();
-            out->printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
+            int externalFunction = READ8();
+            out->printf("callexternal %d, %d, %d", argumentCount, returnCount, externalFunction);
             break;
         }
         DISASSEMBLE_COUNT(kCeil, "ceil")
@@ -145,7 +145,6 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip, OutputStream* ou
             out->printf("pushimmediate %s", (to_string(v) + "(" + to_string(pun.f) + ")").c_str());
             break;
         }
-        DISASSEMBLE_COUNT_SLOT(kReadExternal, "readexternal")
         DISASSEMBLE_COUNT(kRemainderF, "remainderf")
         DISASSEMBLE_COUNT(kRemainderS, "remainders")
         DISASSEMBLE_COUNT(kRemainderU, "remainderu")
@@ -183,7 +182,6 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip, OutputStream* ou
             break;
         }
         DISASSEMBLE_COUNT(kTan, "tan")
-        DISASSEMBLE_COUNT_SLOT(kWriteExternal, "writeexternal")
         DISASSEMBLE_COUNT(kXorB, "xorb")
         case ByteCodeInstruction::kMaskPush: out->printf("maskpush"); break;
         case ByteCodeInstruction::kMaskPop: out->printf("maskpop"); break;
@@ -277,7 +275,7 @@ static void CallExternal(const ByteCode* byteCode, const uint8_t*& ip, VValue*& 
     int argumentCount = READ8();
     int returnCount = READ8();
     int target = READ8();
-    const ExternalValue* v = byteCode->fExternalValues[target];
+    const ExternalFunction* f = byteCode->fExternalFunctions[target];
     sp -= argumentCount - 1;
 
     float tmpArgs[4];
@@ -290,7 +288,7 @@ static void CallExternal(const ByteCode* byteCode, const uint8_t*& ip, VValue*& 
             for (int j = 0; j < argumentCount; ++j) {
                 tmpArgs[j] = sp[j].fFloat[i];
             }
-            v->call(baseIndex + i, tmpArgs, tmpReturn);
+            f->call(baseIndex + i, tmpArgs, tmpReturn);
             for (int j = 0; j < returnCount; ++j) {
                 sp[j].fFloat[i] = tmpReturn[j];
             }
@@ -681,23 +679,6 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 PUSH(U32(READ32()));
                 continue;
 
-            case ByteCodeInstruction::kReadExternal: {
-                int count = READ8(),
-                    slot  = READ8();
-                SkASSERT(count <= 4);
-                float tmp[4];
-                I32 m = mask();
-                for (int i = 0; i < VecWidth; ++i) {
-                    if (m[i]) {
-                        byteCode->fExternalValues[slot]->read(baseIndex + i, tmp);
-                        for (int j = 0; j < count; ++j) {
-                            sp[j + 1].fFloat[i] = tmp[j];
-                        }
-                    }
-                }
-                sp += count;
-            } continue;
-
             VECTOR_BINARY_FN(kRemainderF, fFloat, VecMod)
             VECTOR_BINARY_MASKED_OP(kRemainderS, fSigned, %)
             VECTOR_BINARY_MASKED_OP(kRemainderU, fUnsigned, %)
@@ -848,23 +829,6 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             VECTOR_BINARY_FN(kATan2, fFloat, [](auto y, auto x) { return skvx::map(atan2f, y, x); })
 
             VECTOR_UNARY_FN(kTan, [](auto x) { return skvx::map(tanf, x); }, fFloat)
-
-            case ByteCodeInstruction::kWriteExternal: {
-                int count = READ8(),
-                    slot  = READ8();
-                SkASSERT(count <= 4);
-                float tmp[4];
-                I32 m = mask();
-                sp -= count;
-                for (int i = 0; i < VecWidth; ++i) {
-                    if (m[i]) {
-                        for (int j = 0; j < count; ++j) {
-                            tmp[j] = sp[j + 1].fFloat[i];
-                        }
-                        byteCode->fExternalValues[slot]->write(baseIndex + i, tmp);
-                    }
-                }
-            } continue;
 
             case ByteCodeInstruction::kMaskPush:
                 condPtr[1] = POP().fSigned;

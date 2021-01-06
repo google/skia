@@ -16,7 +16,7 @@
 
 namespace SkSL {
 
-class ExternalValue;
+class ExternalFunction;
 class FunctionDeclaration;
 class OutputStream;
 
@@ -110,7 +110,6 @@ enum class ByteCodeInstruction : uint8_t {
     kPow,        // N
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
-    kReadExternal,  // N, slot
     kRemainderF,    // N
     kRemainderS,    // N
     kRemainderU,    // N
@@ -150,7 +149,6 @@ enum class ByteCodeInstruction : uint8_t {
     kSubtractF,  // N
     kSubtractI,  // N
     kTan,        // N
-    kWriteExternal,  // N, slot
     kXorB,       // N
 
     kMaskPush,
@@ -305,7 +303,7 @@ private:
     std::vector<Uniform> fUniforms;
 
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
-    std::vector<const ExternalValue*> fExternalValues;
+    std::vector<const ExternalFunction*> fExternalFunctions;
 };
 
 }  // namespace SkSL
