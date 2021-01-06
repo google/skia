@@ -424,6 +424,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fMaxPushConstantsSize = 0;
     }
 
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // Indirect draws seem slow on QC. Disable until we can investigate. http://skbug.com/11139
+        fNativeDrawIndirectSupport = false;
+    }
+
     if (kARM_VkVendor == properties.vendorID) {
         // ARM seems to do better with more fine triangles as opposed to using the sample mask.
         // (At least in our current round rect op.)
