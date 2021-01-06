@@ -152,6 +152,22 @@ char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
 }
 
 char* SkStrAppendScalar(char string[], SkScalar value) {
+    // Handle infinity and NaN ourselves to ensure consistent cross-platform results.
+    // (e.g.: `inf` versus `1.#INF00`, `nan` versus `-nan` for high-bit-set NaNs)
+    if (SkScalarIsNaN(value)) {
+        strcpy(string, "nan");
+        return string + 3;
+    }
+    if (!SkScalarIsFinite(value)) {
+        if (value > 0) {
+            strcpy(string, "inf");
+            return string + 3;
+        } else {
+            strcpy(string, "-inf");
+            return string + 4;
+        }
+    }
+
     // since floats have at most 8 significant digits, we limit our %g to that.
     static const char gFormat[] = "%.8g";
     // make it 1 larger for the terminating 0

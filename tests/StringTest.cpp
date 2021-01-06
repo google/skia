@@ -140,10 +140,14 @@ DEF_TEST(String, reporter) {
         SkScalar    fValue;
         const char* fString;
     } gRec[] = {
-        { 0,            "0" },
-        { SK_Scalar1,   "1" },
-        { -SK_Scalar1,  "-1" },
-        { SK_Scalar1/2, "0.5" },
+        { 0,             "0" },
+        { SK_Scalar1,    "1" },
+        { -SK_Scalar1,   "-1" },
+        { SK_Scalar1/2,  "0.5" },
+        { SK_Scalar1/0,  "inf" },
+        { -SK_Scalar1/0, "-inf" },
+        { 0.0f/0.0f,     "nan" },
+        { -0.0f/0.0f,    "nan" },
   #if defined(SK_BUILD_FOR_WIN) && (_MSC_VER < 1900)
         { 3.4028234e38f,   "3.4028235e+038" },
         { -3.4028234e38f, "-3.4028235e+038" },
