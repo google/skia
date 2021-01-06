@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25c7e9f6_138e8a73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T14:12:04Z",
+      "side": 1,
+      "message": "Those values in (parens) are not essential, so if this is a problem we can just cut that part out, or maybe switch from the equivalent of \"%x (%g)\" to just the equivalent of \"%a\".",
+      "revId": "3fc21bc0dced65d3fd1662b0356aef9bc843471a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
