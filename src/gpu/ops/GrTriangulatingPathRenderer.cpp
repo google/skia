@@ -9,6 +9,7 @@
 
 #include "include/private/SkIDChangeListener.h"
 #include "src/core/SkGeometry.h"
+#include "src/gpu/GrAATriangulator.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
