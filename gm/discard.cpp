@@ -82,7 +82,7 @@ protected:
                       surface->getCanvas()->drawPaint(paint);
                       break;
               }
-              surface->draw(canvas, 10.f*x, 10.f*y, nullptr);
+              surface->draw(canvas, 10.f*x, 10.f*y);
             }
         }
 

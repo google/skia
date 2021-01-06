@@ -57,7 +57,8 @@ public:
                  bool deleteSemaphoresAfterWait) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool onIsCompatible(const SkSurfaceCharacterization&) const override;
-    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
+    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions&,
+                const SkPaint* paint) override;
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }

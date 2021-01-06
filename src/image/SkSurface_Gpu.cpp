@@ -268,7 +268,8 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     return true;
 }
 
-void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
+                           const SkSamplingOptions& sampling, const SkPaint* paint) {
     // If the dst is also GPU we try to not force a new image snapshot (by calling the base class
     // onDraw) since that may not always perform the copy-on-write optimization.
     auto tryDraw = [&] {
@@ -296,11 +297,11 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
         image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(canvasContext), kNeedNewImageUniqueID,
                                         std::move(view), info.colorType(), info.alphaType(),
                                         info.refColorSpace());
-        canvas->drawImage(image, x, y, paint);
+        canvas->drawImage(image.get(), x, y, sampling, paint);
         return true;
     };
     if (!tryDraw()) {
-        INHERITED::onDraw(canvas, x, y, paint);
+        INHERITED::onDraw(canvas, x, y, sampling, paint);
     }
 }
 

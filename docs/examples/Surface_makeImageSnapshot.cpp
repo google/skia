@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     big->getCanvas()->clear(SK_ColorRED);
     lil->getCanvas()->clear(SK_ColorBLACK);
     sk_sp<SkImage> early(big->makeImageSnapshot());
-    lil->draw(big->getCanvas(), 16, 16, nullptr);
+    lil->draw(big->getCanvas(), 16, 16);
     sk_sp<SkImage> later(big->makeImageSnapshot());
     canvas->drawImage(early, 0, 0);
     canvas->drawImage(later, 128, 0);

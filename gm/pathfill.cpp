@@ -663,7 +663,7 @@ DEF_SIMPLE_GM(path_stroke_clip_crbug1070835, canvas, 25, 50) {
 
     canvas->drawPath(path, p);
 
-    surf->draw(orig, 0, 0, nullptr);
+    surf->draw(orig, 0, 0);
 }
 
 DEF_SIMPLE_GM(path_arcto_skbug_9077, canvas, 200, 200) {

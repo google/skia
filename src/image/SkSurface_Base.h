@@ -82,7 +82,7 @@ public:
      *      image->unref();
      *  }
      */
-    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
+    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkSamplingOptions&,const SkPaint*);
 
     /**
      * Called as a performance hint when the Surface is allowed to make it's contents

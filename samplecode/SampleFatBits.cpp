@@ -172,7 +172,7 @@ private:
         SkCanvas* canvas = fMaxSurface->getCanvas();
         canvas->save();
         canvas->concat(fMatrix);
-        fMinSurface->draw(canvas, 0, 0, nullptr);
+        fMinSurface->draw(canvas, 0, 0);
         canvas->restore();
 
         SkPaint paint;
@@ -284,7 +284,7 @@ void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
     fMatrix.mapPoints(pts, 2);
     this->drawLineSkeleton(max, pts);
 
-    fMaxSurface->draw(canvas, 0, 0, nullptr);
+    fMaxSurface->draw(canvas, 0, 0);
 }
 
 void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
@@ -314,7 +314,7 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
     r.setBounds(pts, 2);
     this->drawRectSkeleton(max, r);
 
-    fMaxSurface->draw(canvas, 0, 0, nullptr);
+    fMaxSurface->draw(canvas, 0, 0);
 }
 
 void FatBits::drawTriangleSkeleton(SkCanvas* max, const SkPoint pts[]) {
@@ -356,7 +356,7 @@ void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
     fMatrix.mapPoints(pts, 3);
     this->drawTriangleSkeleton(max, pts);
 
-    fMaxSurface->draw(canvas, 0, 0, nullptr);
+    fMaxSurface->draw(canvas, 0, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
