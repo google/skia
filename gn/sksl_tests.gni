@@ -477,6 +477,7 @@ sksl_settings_tests = [
 ]
 
 sksl_rte_tests = [
+  "$_tests/sksl/runtime/ConversionConstructors.rte",
   "$_tests/sksl/runtime/SampleWithConstantMatrix.rte",
   "$_tests/sksl/runtime/SampleWithExplicitCoord.rte",
   "$_tests/sksl/runtime/SampleWithUniformMatrix.rte",

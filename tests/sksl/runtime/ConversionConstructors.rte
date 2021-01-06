@@ -1,0 +1,13 @@
+uniform half f;
+uniform int i;
+uniform bool b;
+
+half4 main() {
+    // Covers float -> bool, bool -> float, int -> float
+    half x = bool(f) ? half(b) : half(i);
+
+    // Covers int -> bool, bool -> int, float -> int
+    int y = bool(i) ? int(b) : int(f);
+
+    return half4(x) * half(y);
+}
