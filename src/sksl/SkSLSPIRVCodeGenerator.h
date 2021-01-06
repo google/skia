@@ -44,26 +44,14 @@
 
 namespace SkSL {
 
-union ConstantValue {
-    ConstantValue(SKSL_INT i)
-        : fInt(i) {
-        static_assert(sizeof(*this) == sizeof(SKSL_INT));
+struct SPIRVNumberConstant {
+    bool operator==(const SPIRVNumberConstant& that) const {
+        return fValueBits == that.fValueBits &&
+               fKind      == that.fKind;
     }
-
-    ConstantValue(SKSL_FLOAT f) {
-        memset(this, 0, sizeof(*this));
-        fFloat = f;
-    }
-
-    bool operator==(const ConstantValue& other) const {
-        return fInt == other.fInt;
-    }
-
-    SKSL_INT fInt;
-    SKSL_FLOAT fFloat;
+    int64_t fValueBits;  // contains either an SKSL_INT or zero-padded bits from an SKSL_FLOAT
+    SkSL::Type::NumberKind fKind;
 };
-
-using ConstantValuePair = std::pair<ConstantValue, SkSL::Type::NumberKind>;
 
 struct SPIRVVectorConstant {
     bool operator==(const SPIRVVectorConstant& that) const {
@@ -82,9 +70,9 @@ struct SPIRVVectorConstant {
 namespace std {
 
 template <>
-struct hash<SkSL::ConstantValuePair> {
-    size_t operator()(const SkSL::ConstantValuePair& key) const {
-        return key.first.fInt ^ (int) key.second;
+struct hash<SkSL::SPIRVNumberConstant> {
+    size_t operator()(const SkSL::SPIRVNumberConstant& key) const {
+        return key.fValueBits ^ (int)key.fKind;
     }
 };
 
@@ -404,7 +392,7 @@ private:
 
     SpvId fBoolTrue;
     SpvId fBoolFalse;
-    std::unordered_map<ConstantValuePair, SpvId> fNumberConstants;
+    std::unordered_map<SPIRVNumberConstant, SpvId> fNumberConstants;
     std::unordered_map<SPIRVVectorConstant, SpvId> fVectorConstants;
     bool fSetupFragPosition;
     // label of the current block, or 0 if we are not in a block

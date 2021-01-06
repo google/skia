@@ -2610,7 +2610,7 @@ SpvId SPIRVCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    ConstantValuePair key(i.value(), i.type().numberKind());
+    SPIRVNumberConstant key{i.value(), i.type().numberKind()};
     auto [iter, newlyCreated] = fNumberConstants.insert({key, (SpvId)-1});
     if (newlyCreated) {
         SpvId result = this->nextId();
@@ -2622,15 +2622,17 @@ SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    ConstantValuePair key(f.value(), f.type().numberKind());
+    // Convert the float literal into its bit-representation.
+    float value = f.value();
+    uint32_t valueBits;
+    static_assert(sizeof(valueBits) == sizeof(value));
+    memcpy(&valueBits, &value, sizeof(value));
+
+    SPIRVNumberConstant key{valueBits, f.type().numberKind()};
     auto [iter, newlyCreated] = fNumberConstants.insert({key, (SpvId)-1});
     if (newlyCreated) {
         SpvId result = this->nextId();
-        float value = f.value();
-        uint32_t valueBits;
-        static_assert(sizeof(valueBits) == sizeof(value));
-        memcpy(&valueBits, &value, sizeof(valueBits));
-        this->writeInstruction(SpvOpConstant, this->getType(f.type()), result, valueBits,
+        this->writeInstruction(SpvOpConstant, this->getType(f.type()), result, (SpvId) valueBits,
                                fConstantBuffer);
         iter->second = result;
     }
