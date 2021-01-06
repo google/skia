@@ -32,7 +32,7 @@
 
 namespace SkSL {
 
-class ExternalValue;
+class ExternalFunction;
 class FunctionCall;
 class StructDefinition;
 struct ParsedModule;
@@ -109,16 +109,17 @@ public:
     };
 
     /**
-     * If externalValues is supplied, those values are registered in the symbol table of the
+     * If externalFuncs is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
-    IRBundle convertProgram(Program::Kind kind,
-                            const Program::Settings* settings,
-                            const ParsedModule& base,
-                            bool isBuiltinCode,
-                            const char* text,
-                            size_t length,
-                            const std::vector<std::unique_ptr<ExternalValue>>* externalValues);
+    IRBundle convertProgram(
+            Program::Kind kind,
+            const Program::Settings* settings,
+            const ParsedModule& base,
+            bool isBuiltinCode,
+            const char* text,
+            size_t length,
+            const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions);
 
     /**
      * If both operands are compile-time constants and can be folded, returns an expression

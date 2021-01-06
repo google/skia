@@ -10,7 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "modules/particles/include/SkReflected.h"
-#include "src/sksl/SkSLExternalValue.h"
+#include "src/sksl/SkSLExternalFunction.h"
 
 #include <memory>
 
@@ -25,10 +25,10 @@ namespace SkSL {
     class Compiler;
 }  // namespace SkSL
 
-class SkParticleExternalValue : public SkSL::ExternalValue {
+class SkParticleExternalValue : public SkSL::ExternalFunction {
 public:
     SkParticleExternalValue(const char* name, SkSL::Compiler& compiler, const SkSL::Type& type)
-        : SkSL::ExternalValue(name, type)
+        : SkSL::ExternalFunction(name, type)
         , fCompiler(compiler)
         , fEffect(nullptr) {}
 

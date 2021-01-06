@@ -27,7 +27,7 @@
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
-#include "src/sksl/ir/SkSLExternalValueReference.h"
+#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -1462,8 +1462,8 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
             return std::make_unique<TypeReference>(fContext, offset, t);
         }
         case Symbol::Kind::kExternal: {
-            const ExternalValue* r = &result->as<ExternalValue>();
-            return std::make_unique<ExternalValueReference>(offset, r);
+            const ExternalFunction* r = &result->as<ExternalFunction>();
+            return std::make_unique<ExternalFunctionReference>(offset, r);
         }
         default:
             ABORT("unsupported symbol type %d\n", (int) result->kind());
@@ -2266,13 +2266,9 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             return this->convertConstructor(offset,
                                             functionValue->as<TypeReference>().value(),
                                             std::move(arguments));
-        case Expression::Kind::kExternalValue: {
-            const ExternalValue& v = functionValue->as<ExternalValueReference>().value();
-            if (!v.canCall()) {
-                fErrors.error(offset, "this external value is not a function");
-                return nullptr;
-            }
-            int count = v.callParameterCount();
+        case Expression::Kind::kExternalFunctionReference: {
+            const ExternalFunction& f = functionValue->as<ExternalFunctionReference>().function();
+            int count = f.callParameterCount();
             if (count != (int) arguments.size()) {
                 fErrors.error(offset, "external function expected " + to_string(count) +
                                       " arguments, but found " + to_string((int) arguments.size()));
@@ -2281,14 +2277,14 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             static constexpr int PARAMETER_MAX = 16;
             SkASSERT(count < PARAMETER_MAX);
             const Type* types[PARAMETER_MAX];
-            v.getCallParameterTypes(types);
+            f.getCallParameterTypes(types);
             for (int i = 0; i < count; ++i) {
                 arguments[i] = this->coerce(std::move(arguments[i]), *types[i]);
                 if (!arguments[i]) {
                     return nullptr;
                 }
             }
-            return std::make_unique<ExternalFunctionCall>(offset, &v, std::move(arguments));
+            return std::make_unique<ExternalFunctionCall>(offset, &f, std::move(arguments));
         }
         case Expression::Kind::kFunctionReference: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
@@ -2535,16 +2531,6 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
 
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
                                                       StringFragment field) {
-    if (base->kind() == Expression::Kind::kExternalValue) {
-        const ExternalValue& ev = base->as<ExternalValueReference>().value();
-        ExternalValue* result = ev.getChild(String(field).c_str());
-        if (!result) {
-            fErrors.error(base->fOffset, "external value does not have a child named '" + field +
-                                         "'");
-            return nullptr;
-        }
-        return std::unique_ptr<Expression>(new ExternalValueReference(base->fOffset, result));
-    }
     const Type& baseType = base->type();
     auto fields = baseType.fields();
     for (size_t i = 0; i < fields.size(); i++) {
@@ -2898,9 +2884,6 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
         }
         return std::make_unique<Setting>(fieldNode.fOffset, field, type);
     }
-    if (base->kind() == Expression::Kind::kExternalValue) {
-        return this->convertField(std::move(base), field);
-    }
     switch (baseType.typeKind()) {
         case Type::TypeKind::kOther:
         case Type::TypeKind::kStruct:
@@ -3035,7 +3018,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         bool isBuiltinCode,
         const char* text,
         size_t length,
-        const std::vector<std::unique_ptr<ExternalValue>>* externalValues) {
+        const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
     fKind = kind;
     fSettings = settings;
     fSymbolTable = base.fSymbols;
@@ -3077,10 +3060,10 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
                 std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl)));
     }
 
-    if (externalValues) {
+    if (externalFunctions) {
         // Add any external values to the new symbol table, so they're only visible to this Program
-        for (const auto& ev : *externalValues) {
-            fSymbolTable->addWithoutOwnership(ev.get());
+        for (const auto& ef : *externalFunctions) {
+            fSymbolTable->addWithoutOwnership(ef.get());
         }
     }
 
