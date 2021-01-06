@@ -164,19 +164,22 @@ private:
 
     const Type* convertType(const ASTNode& type, bool allowVoid = false);
     std::unique_ptr<Expression> call(int offset,
+                                     std::unique_ptr<Expression> function,
+                                     ExpressionArray arguments);
+    std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
                                      ExpressionArray arguments);
     CoercionCost callCost(const FunctionDeclaration& function,
                           const ExpressionArray& arguments);
-    std::unique_ptr<Expression> call(int offset,
-                                     std::unique_ptr<Expression> function,
-                                     ExpressionArray arguments);
-    CoercionCost coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
+    CoercionCost coercionCost(const Expression& expr, const Type& type);
     template <typename T>
     std::unique_ptr<Expression> constantFoldVector(const Expression& left,
                                                    Token::Kind op,
                                                    const Expression& right) const;
+    std::unique_ptr<Expression> convertBinaryExpression(std::unique_ptr<Expression> left,
+                                                        Token::Kind op,
+                                                        std::unique_ptr<Expression> right);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
     std::unique_ptr<Expression> convertScalarConstructor(int offset,
@@ -195,7 +198,10 @@ private:
     std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
     std::unique_ptr<Extension> convertExtension(int offset, StringFragment name);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
+    std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
+                                             StringFragment field);
     std::unique_ptr<Statement> convertFor(const ASTNode& f);
+    std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
     std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
     std::unique_ptr<Statement> convertIf(const ASTNode& s);
     std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTNode& s);
@@ -209,17 +215,23 @@ private:
     std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
                                              const ASTNode& index);
     std::unique_ptr<Expression> convertEmptyIndex(std::unique_ptr<Expression> base);
+    std::unique_ptr<Expression> convertPostfixExpression(std::unique_ptr<Expression> base,
+                                                         Token::Kind op);
     std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
+    std::unique_ptr<Expression> convertPrefixExpression(Token::Kind op,
+                                                        std::unique_ptr<Expression> base);
     std::unique_ptr<Expression> convertScopeExpression(const ASTNode& expression);
     std::unique_ptr<StructDefinition> convertStructDefinition(const ASTNode& expression);
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
                                                  StringFragment field);
-    std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
-                                             StringFragment field);
-    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               StringFragment fields);
+    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base, String fields);
+    std::unique_ptr<Expression> convertTernaryExpression(std::unique_ptr<Expression> test,
+                                                         std::unique_ptr<Expression> ifTrue,
+                                                         std::unique_ptr<Expression> ifFalse);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
+    std::unique_ptr<Statement> convertWhile(int offset, std::unique_ptr<Expression> test,
+                                            std::unique_ptr<Statement> statement);
     std::unique_ptr<Statement> convertWhile(const ASTNode& w);
     void convertGlobalVarDeclarations(const ASTNode& decl);
     void convertEnum(const ASTNode& e);
