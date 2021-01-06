@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b92947c_5e17f247",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d597d631_88fd791a",
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4f716f4_f2b05f53",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-01-06T19:50:03Z",
       "side": 1,
       "message": "Maybe pick a side for \u0027*\u0027?  :P",
+      "range": {
+        "startLine": 1388,
+        "startChar": 9,
+        "endLine": 1388,
+        "endChar": 26
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf17dadf_e37d48ef",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Doh",
+      "parentUuid": "e4f716f4_f2b05f53",
       "range": {
         "startLine": 1388,
         "startChar": 9,
@@ -66,6 +108,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ab9712ba_793cfefc",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Maybe? I\u0027ve had to kind of train my brain to map everything like that. I get \u0027Arg\u0027, but at least in the way I\u0027m structuring things here, it sure feels like \u0027Ptr\u0027.",
+      "parentUuid": "95811250_97dfde32",
+      "range": {
+        "startLine": 1397,
+        "startChar": 22,
+        "endLine": 1397,
+        "endChar": 25
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "622fc7bf_6d87af69",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 6
@@ -77,6 +143,30 @@
       "writtenOn": "2021-01-06T19:50:03Z",
       "side": 1,
       "message": "Does it feel weird to run through the shader/colorFilter flow for unrelated kinds of programs, having to mention things like device coordinates and child samplers?  I can\u0027t really think of any better way to slice it though.",
+      "range": {
+        "startLine": 1407,
+        "startChar": 0,
+        "endLine": 1412,
+        "endChar": 5
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "029e040f_c3d8d2e3",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1412,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Yeah, I couldn\u0027t come up with a better thing immediately. There are some changes that could help, and I may tackle those in a follow-up (basically, making things like device-coord part of a more generic map of builtin variable to set of skvm::Val/F32s). But that only gets us so far, so I just papered over it here for now.",
+      "parentUuid": "622fc7bf_6d87af69",
       "range": {
         "startLine": 1407,
         "startChar": 0,
@@ -110,6 +200,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36ab2558_1667231f",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Definitely",
+      "parentUuid": "8feb4149_0f19f8de",
+      "range": {
+        "startLine": 1421,
+        "startChar": 47,
+        "endLine": 1421,
+        "endChar": 48
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b00ce59_f1511c39",
@@ -123,6 +237,30 @@
       "writtenOn": "2021-01-06T19:50:03Z",
       "side": 1,
       "message": "Can\u0027t a lot of these float* params be const float*?",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 59,
+        "endChar": 42
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05ef08dc_75140d74",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b00ce59_f1511c39",
       "range": {
         "startLine": 58,
         "startChar": 26,
@@ -156,6 +294,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f7015b8_4bb1dc75",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc6f237b_c863da91",
+      "range": {
+        "startLine": 61,
+        "startChar": 31,
+        "endLine": 61,
+        "endChar": 43
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a95429a8_4bbd672e",
@@ -169,6 +331,24 @@
       "writtenOn": "2021-01-06T19:50:03Z",
       "side": 1,
       "message": "If you do go down this route, it\u0027s worth noting that there is still an argument limit for JITing (6 or 7 today) so you might sometimes only be able to interpret.",
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5edbdbb0_0c1f3dd8",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T20:54:11Z",
+      "side": 1,
+      "message": "Yeah, I saw that stuff in eval(), I wasn\u0027t sure if I was going to hit that assert, but I\u0027m guessing that it also never generates the JIT for things with more args?",
+      "parentUuid": "a95429a8_4bbd672e",
       "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
