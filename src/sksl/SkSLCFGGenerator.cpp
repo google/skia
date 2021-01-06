@@ -154,7 +154,6 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
 bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                        Expression* lvalue) {
     switch (lvalue->kind()) {
-        case Expression::Kind::kExternalValue: // fall through
         case Expression::Kind::kVariableReference:
             return true;
         case Expression::Kind::kSwizzle:
@@ -432,7 +431,6 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         case Expression::Kind::kBoolLiteral:   // fall through
-        case Expression::Kind::kExternalValue: // fall through
         case Expression::Kind::kFloatLiteral:  // fall through
         case Expression::Kind::kIntLiteral:    // fall through
         case Expression::Kind::kSetting:       // fall through
@@ -454,6 +452,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             cfg.fCurrent = next;
             break;
         }
+        case Expression::Kind::kExternalFunctionReference:     // fall through
         case Expression::Kind::kFunctionReference: // fall through
         case Expression::Kind::kTypeReference:     // fall through
         case Expression::Kind::kDefined:
@@ -477,7 +476,6 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
         case Expression::Kind::kSwizzle:
             this->addLValue(cfg, &e->get()->as<Swizzle>().base());
             break;
-        case Expression::Kind::kExternalValue: // fall through
         case Expression::Kind::kVariableReference:
             break;
         case Expression::Kind::kTernary: {

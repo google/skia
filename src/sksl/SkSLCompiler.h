@@ -46,7 +46,7 @@ class SkSLCompileBench;
 namespace SkSL {
 
 class ByteCode;
-class ExternalValue;
+class ExternalFunction;
 class IRGenerator;
 class IRIntrinsicMap;
 struct PipelineStageArgs;
@@ -141,14 +141,14 @@ public:
     Compiler& operator=(const Compiler&) = delete;
 
     /**
-     * If externalValues is supplied, those values are registered in the symbol table of the
+     * If externalFunctions is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
     std::unique_ptr<Program> convertProgram(
             Program::Kind kind,
             String text,
             const Program::Settings& settings,
-            const std::vector<std::unique_ptr<ExternalValue>>* externalValues = nullptr);
+            const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions = nullptr);
 
     bool toSPIRV(Program& program, OutputStream& out);
 

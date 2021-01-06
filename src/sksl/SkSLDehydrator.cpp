@@ -284,7 +284,7 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::Kind::kExternalFunctionCall:
-            case Expression::Kind::kExternalValue:
+            case Expression::Kind::kExternalFunctionReference:
                 SkDEBUGFAIL("unimplemented--not expected to be used from within an include file");
                 break;
             case Expression::Kind::kFieldAccess: {

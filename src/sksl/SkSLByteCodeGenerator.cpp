@@ -380,7 +380,6 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kLoad:
         case ByteCodeInstruction::kLoadGlobal:
         case ByteCodeInstruction::kLoadUniform:
-        case ByteCodeInstruction::kReadExternal:
         case ByteCodeInstruction::kReserve:
             return count;
 
@@ -395,7 +394,6 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kReturn:
         case ByteCodeInstruction::kStore:
         case ByteCodeInstruction::kStoreGlobal:
-        case ByteCodeInstruction::kWriteExternal:
             return -count;
 
         // Consumes 'count' values, plus one for the 'address'
@@ -986,17 +984,8 @@ void ByteCodeGenerator::writeExternalFunctionCall(const ExternalFunctionCall& f)
     SkASSERT(argumentCount <= 255);
     this->write8(argumentCount);
     this->write8(SlotCount(f.type()));
-    int index = fOutput->fExternalValues.size();
-    fOutput->fExternalValues.push_back(&f.function());
-    SkASSERT(index <= 255);
-    this->write8(index);
-}
-
-void ByteCodeGenerator::writeExternalValue(const ExternalValueReference& e) {
-    int count = SlotCount(e.value().type());
-    this->write(ByteCodeInstruction::kReadExternal, count);
-    int index = fOutput->fExternalValues.size();
-    fOutput->fExternalValues.push_back(&e.value());
+    int index = fOutput->fExternalFunctions.size();
+    fOutput->fExternalFunctions.push_back(&f.function());
     SkASSERT(index <= 255);
     this->write8(index);
 }
@@ -1591,9 +1580,6 @@ void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
         case Expression::Kind::kExternalFunctionCall:
             this->writeExternalFunctionCall(e.as<ExternalFunctionCall>());
             break;
-        case Expression::Kind::kExternalValue:
-            this->writeExternalValue(e.as<ExternalValueReference>());
-            break;
         case Expression::Kind::kFieldAccess:
         case Expression::Kind::kIndex:
         case Expression::Kind::kVariableReference:
@@ -1634,33 +1620,6 @@ void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
         discard = false;
     }
 }
-
-class ByteCodeExternalValueLValue : public ByteCodeGenerator::LValue {
-public:
-    ByteCodeExternalValueLValue(ByteCodeGenerator* generator, const ExternalValue& value, int index)
-        : INHERITED(*generator)
-        , fCount(ByteCodeGenerator::SlotCount(value.type()))
-        , fIndex(index) {}
-
-    void load() override {
-        fGenerator.write(ByteCodeInstruction::kReadExternal, fCount);
-        fGenerator.write8(fIndex);
-    }
-
-    void store(bool discard) override {
-        if (!discard) {
-            fGenerator.write(ByteCodeInstruction::kDup, fCount);
-        }
-        fGenerator.write(ByteCodeInstruction::kWriteExternal, fCount);
-        fGenerator.write8(fIndex);
-    }
-
-private:
-    using INHERITED = LValue;
-
-    int fCount;
-    int fIndex;
-};
 
 class ByteCodeSwizzleLValue : public ByteCodeGenerator::LValue {
 public:
@@ -1756,13 +1715,6 @@ private:
 
 std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Expression& e) {
     switch (e.kind()) {
-        case Expression::Kind::kExternalValue: {
-            const ExternalValue& value = e.as<ExternalValueReference>().value();
-            int index = fOutput->fExternalValues.size();
-            fOutput->fExternalValues.push_back(&value);
-            SkASSERT(index <= 255);
-            return std::unique_ptr<LValue>(new ByteCodeExternalValueLValue(this, value, index));
-        }
         case Expression::Kind::kFieldAccess:
         case Expression::Kind::kIndex:
         case Expression::Kind::kVariableReference:
