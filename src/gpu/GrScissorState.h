@@ -23,15 +23,24 @@ public:
     // The disabled scissor state for a render target of the given size.
     explicit GrScissorState(const SkISize& rtDims)
             : fRTSize(rtDims)
-            , fRect(SkIRect::MakeSize(rtDims)) {}
+            , fRect({0, 0, 0, 0})
+//            , fRect(SkIRect::MakeSize(rtDims))
+            , fEnabled(false) {}
 
-    void setDisabled() { fRect = SkIRect::MakeSize(fRTSize); }
+    void setDisabled() {
+        fEnabled = false;
+        fRect.setEmpty();
+    }
+
     bool set(const SkIRect& rect) {
-        this->setDisabled();
+        fEnabled = true;
+        fRect = SkIRect::MakeSize(fRTSize);
         return this->intersect(rect);
     }
 
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& rect) {
+        SkASSERT(fEnabled);
+
         if (!fRect.intersect(rect)) {
             fRect.setEmpty();
             return false;
@@ -56,29 +65,32 @@ public:
     }
 
     bool operator==(const GrScissorState& other) const {
-        return fRTSize == other.fRTSize && fRect == other.fRect;
+        return fEnabled == other.fEnabled && fRTSize == other.fRTSize && fRect == other.fRect;
     }
     bool operator!=(const GrScissorState& other) const { return !(*this == other); }
 
     bool enabled() const {
-        SkASSERT(fRect.isEmpty() || SkIRect::MakeSize(fRTSize).contains(fRect));
+        return fEnabled;
+//        SkASSERT(fRect.isEmpty() || SkIRect::MakeSize(fRTSize).contains(fRect));
         // This is equivalent to a strict contains check on SkIRect::MakeSize(rtSize) w/o creating
         // the render target bounding rectangle.
-        return fRect.fLeft > 0 || fRect.fTop > 0 ||
-               fRect.fRight < fRTSize.fWidth || fRect.fBottom < fRTSize.fHeight;
+//        return fRect.fLeft > 0 || fRect.fTop > 0 ||
+//               fRect.fRight < fRTSize.fWidth || fRect.fBottom < fRTSize.fHeight;
     }
 
     // Will always be equal to or contained in the rt bounds, or empty if scissor rectangles were
     // added that did not intersect with the render target or prior scissor.
     const SkIRect& rect() const {
-        SkASSERT(fRect.isEmpty() || SkIRect::MakeSize(fRTSize).contains(fRect));
+        SkASSERT(fEnabled);
+//        SkASSERT(fRect.isEmpty() || SkIRect::MakeSize(fRTSize).contains(fRect));
         return fRect;
     }
 
-private:
+//private:
     // The scissor is considered enabled if the rectangle does not cover the render target
     SkISize fRTSize;
     SkIRect fRect;
+    bool    fEnabled = false;
 };
 
 #endif

@@ -146,6 +146,9 @@ public:
     SkRect backingStoreBoundsRect() const {
         return SkRect::Make(this->backingStoreDimensions());
     }
+    SkIRect backingStoreBoundsIRect() const {
+        return SkIRect::MakeSize(this->backingStoreDimensions());
+    }
 
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
@@ -326,6 +329,10 @@ public:
     inline GrSurfaceProxyPriv priv();
     inline const GrSurfaceProxyPriv priv() const;  // NOLINT(readability-const-return-type)
 
+    void setIsDDLTarget() { fIsDDLTarget = true; }
+    bool isDDLTarget() const { return fIsDDLTarget; }
+    bool fulfillsDDLTarget() const { return fFulfillsDDLTarget; }
+
     GrProtected isProtected() const { return fIsProtected; }
 
 protected:
@@ -422,6 +429,8 @@ private:
 
     virtual LazySurfaceDesc callbackDesc() const = 0;
 
+    bool                   fIsDDLTarget = false;
+    bool                   fFulfillsDDLTarget = false;
     bool                   fIgnoredByResourceAllocator = false;
     GrProtected            fIsProtected;
 

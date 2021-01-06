@@ -1759,7 +1759,9 @@ void GrGLGpu::flushViewport(const SkIRect& viewport, int rtHeight, GrSurfaceOrig
 }
 
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
-                                    const GrGLRenderTarget* rt, GrSurfaceOrigin origin) {
+                                    const GrGLRenderTarget* rt,
+                                    GrSurfaceOrigin origin,
+                                    SkIPoint viewportOffset) {
 #ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     SkASSERT(!windowState.enabled() || rt->renderFBOID()); // Window rects can't be used on-screen.
@@ -1778,7 +1780,8 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     GrNativeRect glwindows[GrWindowRectangles::kMaxWindows];
     const SkIRect* skwindows = windowState.windows().data();
     for (int i = 0; i < numWindows; ++i) {
-        glwindows[i].setRelativeTo(origin, rt->height(), skwindows[i]);
+        SkIRect tmp = skwindows[i].makeOffset(viewportOffset);
+        glwindows[i].setRelativeTo(origin, rt->height(), tmp);
     }
 
     GrGLenum glmode = (Mode::kExclusive == windowState.mode()) ? GR_GL_EXCLUSIVE : GR_GL_INCLUSIVE;
@@ -1798,7 +1801,9 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
+                           const GrProgramInfo& programInfo,
+                           SkIPoint viewportOffset) {
     this->handleDirtyContext();
 
     sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(renderTarget, programInfo);
@@ -1817,7 +1822,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().writeSwizzle());
 
-    fHWProgram->updateUniforms(renderTarget, programInfo);
+    fHWProgram->updateUniforms(renderTarget, programInfo, viewportOffset);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -1830,7 +1835,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
-                                glRT, programInfo.origin());
+                                glRT, programInfo.origin(), viewportOffset);
     this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
     this->flushWireframeState(programInfo.pipeline().isWireframe());

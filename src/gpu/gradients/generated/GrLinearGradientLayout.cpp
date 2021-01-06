@@ -33,7 +33,8 @@ return half4(t, 1.0, 0.0, 0.0);
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {}
 };
 GrGLSLFragmentProcessor* GrLinearGradientLayout::onCreateGLSLInstance() const {
     return new GrGLSLLinearGradientLayout();
