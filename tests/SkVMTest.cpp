@@ -2374,3 +2374,46 @@ DEF_TEST(SkVM_features, r) {
                         || b.optimize().size() == 4);
     }
 }
+
+DEF_TEST(SkVM_gather_can_hoist, r) {
+    // A gather instruction isn't necessarily varying... it's whatever its index is.
+    // First a typical gather scenario with varying index.
+    {
+        skvm::Builder b;
+        skvm::Arg uniforms = b.uniform(),
+                  buf      = b.varying<int>();
+        skvm::I32 ix = b.load32(buf);
+        b.store32(buf, b.gather32(uniforms,0, ix));
+
+        skvm::Program p = b.done();
+
+        // ix is varying, so the gather is too.
+        //
+        // loop:
+        //     v0 = load32 buf
+        //     v1 = gather32 uniforms+0 v0
+        //     store32 buf v1
+        REPORTER_ASSERT(r, p.instructions().size() == 3);
+        REPORTER_ASSERT(r, p.loop() == 0);
+    }
+
+    // Now the same but with a uniform index instead.
+    {
+        skvm::Builder b;
+        skvm::Arg uniforms = b.uniform(),
+                  buf      = b.varying<int>();
+        skvm::I32 ix = b.uniform32(uniforms,8);
+        b.store32(buf, b.gather32(uniforms,0, ix));
+
+        skvm::Program p = b.done();
+
+        // ix is uniform, so the gather is too.
+        //
+        // v0 = uniform32 uniforms+8
+        // v1 = gather32 uniforms+0 v0
+        // loop:
+        //     store32 buf v1
+        REPORTER_ASSERT(r, p.instructions().size() == 3);
+        REPORTER_ASSERT(r, p.loop() == 2);
+    }
+}
