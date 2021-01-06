@@ -39,6 +39,30 @@
       },
       "revId": "06192f4ef8afbef59d1cb53c713effbf2676cf1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00361bca_7dfe54c8",
+        "filename": "src/core/SkStrikeSpec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-06T18:19:33Z",
+      "side": 1,
+      "message": "It looks like it. Though making this const does mean removing the assignment operators.",
+      "parentUuid": "daeb8d26_7a0e1982",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 39
+      },
+      "revId": "06192f4ef8afbef59d1cb53c713effbf2676cf1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
