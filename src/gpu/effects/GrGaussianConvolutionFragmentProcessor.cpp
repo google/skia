@@ -27,7 +27,9 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&,
+                   const GrFragmentProcessor&,
+                   SkIPoint viewportOffset) override;
 
 private:
     UniformHandle fKernelUni;
@@ -74,7 +76,8 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgramDataManager& pdman,
-                                                             const GrFragmentProcessor& processor) {
+                                                             const GrFragmentProcessor& processor,
+                                                             SkIPoint viewportOffset) {
     const auto& conv = processor.cast<GrGaussianConvolutionFragmentProcessor>();
 
     float increment[2] = {};

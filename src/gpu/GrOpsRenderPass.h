@@ -53,11 +53,17 @@ public:
     // internal "bad" state if the pipeline could not be set.
     void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
 
+    void setViewportOffset(SkIPoint viewportOffset) {
+        fViewportOffset = viewportOffset;
+    }
+
     // The scissor rect is always dynamic state and therefore not stored on GrPipeline. If scissor
     // test is enabled on the current pipeline, then the client must call setScissorRect() before
     // drawing. The scissor rect may also be updated between draws without having to bind a new
     // pipeline.
-    void setScissorRect(const SkIRect&);
+    void setScissorRect(SkIRect scissor);
+
+    void setViewport(SkIRect viewport);
 
     // Binds textures for the primitive processor and any FP on the GrPipeline. Texture bindings are
     // dynamic state and therefore not set during bindPipeline(). If the current program uses
@@ -154,6 +160,7 @@ protected:
 
     GrSurfaceOrigin fOrigin;
     GrRenderTarget* fRenderTarget;
+    SkIPoint        fViewportOffset = {0, 0};
 
     // Backends may defer binding of certain buffers if their draw API requires a buffer, or if
     // their bind methods don't support base values.
@@ -176,7 +183,8 @@ private:
     virtual void onBegin() {}
     virtual void onEnd() {}
     virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
-    virtual void onSetScissorRect(const SkIRect&) = 0;
+    virtual void onSetScissorRect(SkIRect scissor) = 0;
+    virtual void onSetViewport(SkIRect viewport) = 0;
     virtual bool onBindTextures(const GrPrimitiveProcessor&,
                                 const GrSurfaceProxy* const primProcTextures[],
                                 const GrPipeline&) = 0;
@@ -215,6 +223,7 @@ private:
         kConfigured
     };
 
+    // Add a fViewportStatus ?
     DynamicStateStatus fScissorStatus;
     DynamicStateStatus fTextureBindingStatus;
     bool fHasIndexBuffer;

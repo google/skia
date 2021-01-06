@@ -42,7 +42,9 @@ void GrOpsRenderPass::clear(const GrScissorState& scissor, std::array<float, 4> 
     SkASSERT(!this->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(!scissor.enabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
-    this->onClear(scissor, color);
+    GrScissorState tmp = scissor;
+    tmp.fRect.offset(fViewportOffset);
+    this->onClear(tmp, color);
 }
 
 void GrOpsRenderPass::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
@@ -128,14 +130,18 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     fXferBarrierType = programInfo.pipeline().xferBarrierType(*this->gpu()->caps());
 }
 
-void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
+void GrOpsRenderPass::setScissorRect(SkIRect scissor) {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
         return;
     }
     SkASSERT(DynamicStateStatus::kDisabled != fScissorStatus);
-    this->onSetScissorRect(scissor);
+    this->onSetScissorRect(scissor.makeOffset(fViewportOffset));
     SkDEBUGCODE(fScissorStatus = DynamicStateStatus::kConfigured);
+}
+
+void GrOpsRenderPass::setViewport(SkIRect viewport) {
+    this->onSetViewport(viewport.makeOffset(fViewportOffset));
 }
 
 void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,

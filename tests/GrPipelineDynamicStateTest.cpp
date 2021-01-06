@@ -90,7 +90,9 @@ private:
 constexpr GrPrimitiveProcessor::Attribute GrPipelineDynamicStateTestProcessor::kAttributes[];
 
 class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor&,
+                 SkIPoint viewportOffset) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrPipelineDynamicStateTestProcessor& mp =

@@ -58,8 +58,8 @@ public:
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor()
-            : fViewMatrix(SkMatrix::InvalidMatrix())
-            , fLocalMatrix(SkMatrix::InvalidMatrix())
+            : fPrevViewMatrix(SkMatrix::InvalidMatrix())
+            , fPrevLocalMatrix(SkMatrix::InvalidMatrix())
             , fColor(SK_PMColor4fILLEGAL)
             , fCoverage(0xff) {}
 
@@ -157,11 +157,15 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     SkIPoint viewportOffset) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
-            this->setTransform(pdman, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrix);
-            this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fLocalMatrix);
+            SkMatrix tmp = dgp.viewMatrix();
+//            tmp.preTranslate(viewportOffset.fX, viewportOffset.fY);
+
+            this->setTransform(pdman, fViewMatrixUniform, tmp, &fPrevViewMatrix);
+            this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fPrevLocalMatrix);
 
             if (!dgp.hasVertexColor() && dgp.color() != fColor) {
                 pdman.set4fv(fColorUniform, 1, dgp.color().vec());
@@ -175,8 +179,8 @@ public:
         }
 
     private:
-        SkMatrix fViewMatrix;
-        SkMatrix fLocalMatrix;
+        SkMatrix fPrevViewMatrix;
+        SkMatrix fPrevLocalMatrix;
         SkPMColor4f fColor;
         uint8_t fCoverage;
         UniformHandle fViewMatrixUniform;
