@@ -800,6 +800,7 @@ INPUT = ../../include/core \
   ../../modules/skottie/include \
   ../../modules/sksg/include \
   ../../modules/skshaper/include \
+  ../../modules/svg/include \
   ./mainpage
 
 # This tag can be used to specify the character encoding of the source files
