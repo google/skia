@@ -71,7 +71,7 @@ Samples
   <figure>
     <canvas id=camera3d width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/47d4b2eee53519aaa95e8cf01fcae0596e99ddee8662b2d3aee7649471fddbb0"
+      <a href="https://jsfiddle.skia.org/canvaskit/786b7dd80aac6eda6ecbc7f035de62249ef0f61fd7aa6ab9a6829f70ba00fce2"
           target=_blank rel=noopener>
         3D Cube JSFiddle</a>
     </figcaption>
@@ -572,10 +572,10 @@ half4 main(float2 p) {
     let spinning = setInterval(keepSpinning, 30);
 
     const imgscale = CanvasKit.Matrix.scaled(2, 2);
-    const textureShader = CanvasKit.MakeImageFromEncoded(textureImgData).makeShader(
-      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, imgscale);
+    const textureShader = CanvasKit.MakeImageFromEncoded(textureImgData).makeShaderCubic(
+      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, 1/3, 1/3, imgscale);
     const normalShader = CanvasKit.MakeImageFromEncoded(normalImgData).makeShader(
-      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, imgscale);
+      CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, 1/3, 1/3, imgscale);
     const children = [textureShader, normalShader];
 
     const prog = `
