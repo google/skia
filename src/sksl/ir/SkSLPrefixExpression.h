@@ -71,6 +71,11 @@ public:
         return -this->operand()->getIVecComponent(index);
     }
 
+    bool getBVecComponent(int index) const override {
+        SkDEBUGFAIL("negation of boolean values is not allowed");
+        return this->operand()->getBVecComponent(index);
+    }
+
     SKSL_FLOAT getMatComponent(int col, int row) const override {
         SkASSERT(this->getOperator() == Token::Kind::TK_MINUS);
         return -this->operand()->getMatComponent(col, row);

@@ -107,12 +107,13 @@ public:
     ComparisonResult compareConstant(const Context& context,
                                      const Expression& other) const override;
 
-    template <typename resultType>
-    resultType getVecComponent(int index) const;
+    template <typename ResultType>
+    ResultType getVecComponent(int index) const;
 
     /**
      * For a literal vector expression, return the float value of the n'th vector component. It is
-     * an error to call this method on an expression which is not a vector of FloatLiterals.
+     * an error to call this method on an expression which is not a compile-time constant vector of
+     * floating-point type.
      */
     SKSL_FLOAT getFVecComponent(int n) const override {
         return this->getVecComponent<SKSL_FLOAT>(n);
@@ -120,10 +121,20 @@ public:
 
     /**
      * For a literal vector expression, return the integer value of the n'th vector component. It is
-     * an error to call this method on an expression which is not a vector of IntLiterals.
+     * an error to call this method on an expression which is not a compile-time constant vector of
+     * integer type.
      */
     SKSL_INT getIVecComponent(int n) const override {
         return this->getVecComponent<SKSL_INT>(n);
+    }
+
+    /**
+     * For a literal vector expression, return the boolean value of the n'th vector component. It is
+     * an error to call this method on an expression which is not a compile-time constant vector of
+     * Boolean type.
+     */
+    bool getBVecComponent(int n) const override {
+        return this->getVecComponent<bool>(n);
     }
 
     SKSL_FLOAT getMatComponent(int col, int row) const override;
