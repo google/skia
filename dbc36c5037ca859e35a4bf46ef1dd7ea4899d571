@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d597d631_88fd791a",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "Can be neat to do this all in one place with,\n\n   SkVMSignature ignored,\n                 *signature \u003d outSignature ? outSignature : \u0026ignored;",
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4f716f4_f2b05f53",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "Maybe pick a side for \u0027*\u0027?  :P",
+      "range": {
+        "startLine": 1388,
+        "startChar": 9,
+        "endLine": 1388,
+        "endChar": 26
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95811250_97dfde32",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "Think this wants a new name, like skvm::Ptr?",
+      "range": {
+        "startLine": 1397,
+        "startChar": 22,
+        "endLine": 1397,
+        "endChar": 25
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "622fc7bf_6d87af69",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1412,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "Does it feel weird to run through the shader/colorFilter flow for unrelated kinds of programs, having to mention things like device coordinates and child samplers?  I can\u0027t really think of any better way to slice it though.",
+      "range": {
+        "startLine": 1407,
+        "startChar": 0,
+        "endLine": 1412,
+        "endChar": 5
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8feb4149_0f19f8de",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "These two might be clearer with explicit skvm::F32{}?",
+      "range": {
+        "startLine": 1421,
+        "startChar": 47,
+        "endLine": 1421,
+        "endChar": 48
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b00ce59_f1511c39",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "Can\u0027t a lot of these float* params be const float*?",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 59,
+        "endChar": 42
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc6f237b_c863da91",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "Might want to call this one bitwiseCompare?  \"Exact\" gets fuzzy with things like -0.0?",
+      "range": {
+        "startLine": 61,
+        "startChar": 31,
+        "endLine": 61,
+        "endChar": 43
+      },
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a95429a8_4bbd672e",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-06T19:50:03Z",
+      "side": 1,
+      "message": "If you do go down this route, it\u0027s worth noting that there is still an argument limit for JITing (6 or 7 today) so you might sometimes only be able to interpret.",
+      "revId": "dbc36c5037ca859e35a4bf46ef1dd7ea4899d571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
