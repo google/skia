@@ -20,7 +20,7 @@ GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
         , fOffset(offset) {
     (void) fOffset;  // fOffset will be used shortly
 
-    for (const sk_sp<GrRenderTask>& task : fDDL->priv().renderTasks()) {
+    for (auto& task : fDDL->priv().renderTasks()) {
         SkASSERT(task->isClosed());
 
         for (int i = 0; i < task->numTargets(); ++i) {
@@ -104,3 +104,13 @@ bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
 
     return anyCommandsIssued;
 }
+
+#if GR_TEST_UTILS
+void GrDDLTask::dump(bool printDependencies) const {
+    INHERITED::dump(printDependencies);
+
+    for (auto& task : fDDL->priv().renderTasks()) {
+        task->dump(printDependencies);
+    }
+}
+#endif
