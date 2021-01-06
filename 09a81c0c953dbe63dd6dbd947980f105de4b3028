@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c4e2a56_132be8f9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-06T17:13:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "059b043a_9797be7b",
+      "range": {
+        "startLine": 560,
+        "startChar": 0,
+        "endLine": 564,
+        "endChar": 5
+      },
+      "revId": "09a81c0c953dbe63dd6dbd947980f105de4b3028",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a68b64fd_39873d81",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-06T16:22:45Z",
       "side": 1,
       "message": "Might be clearer for these to directly call the (offset, name) version now?",
+      "range": {
+        "startLine": 1513,
+        "startChar": 0,
+        "endLine": 1520,
+        "endChar": 89
+      },
+      "revId": "09a81c0c953dbe63dd6dbd947980f105de4b3028",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "985af72c_44a829ec",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1520,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-06T17:13:51Z",
+      "side": 1,
+      "message": "Good catch.",
+      "parentUuid": "a68b64fd_39873d81",
       "range": {
         "startLine": 1513,
         "startChar": 0,
