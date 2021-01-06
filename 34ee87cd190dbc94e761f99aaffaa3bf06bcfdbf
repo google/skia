@@ -16,6 +16,23 @@
       "message": "m88 merge request was approved, and ideally landed before Wed 12pm PST (next beta cut).",
       "revId": "34ee87cd190dbc94e761f99aaffaa3bf06bcfdbf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7605e1d0_a7933f00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-06T02:18:08Z",
+      "side": 1,
+      "message": "I am manually submitting, I don\u0027t think the canvaskit bot failures are related (likely due to it being just a cherry-pick?)",
+      "revId": "34ee87cd190dbc94e761f99aaffaa3bf06bcfdbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
