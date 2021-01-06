@@ -555,8 +555,14 @@ namespace skvm {
     Val Builder::push(Instruction inst) {
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
-        if (Val* id = fIndex.find(inst)) {
-            return *id;
+        //
+        // But we never dedup loads or stores: an intervening store could change that memory.
+        // Uniforms and gathers touch only uniform memory, so they're fine to dedup,
+        // and index is varying but doesn't touch memory, so it's fine to dedup too.
+        if (!touches_varying_memory(inst.op)) {
+            if (Val* id = fIndex.find(inst)) {
+                return *id;
+            }
         }
         Val id = static_cast<Val>(fProgram.size());
         fProgram.push_back(inst);

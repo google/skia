@@ -2417,3 +2417,48 @@ DEF_TEST(SkVM_gather_can_hoist, r) {
         REPORTER_ASSERT(r, p.loop() == 2);
     }
 }
+
+DEF_TEST(SkVM_dont_dedup_loads, r) {
+    // We've been assuming that all Ops with the same arguments produce the same value
+    // and deduplicating them, which results in a simple common subexpression eliminator.
+    //
+    // But we can't soundly dedup two identical loads with a store between.
+    // If we dedup the loads in this test program it will always increment by 1, not K.
+    constexpr int K = 2;
+    skvm::Builder b;
+    {
+        skvm::Arg buf = b.varying<int>();
+        for (int i = 0; i < K; i++) {
+            b.store32(buf, b.load32(buf) + 1);
+        }
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        int buf[] = { 0,1,2,3,4 };
+        program.eval(SK_ARRAY_COUNT(buf), buf);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            REPORTER_ASSERT(r, buf[i] == i+K);
+        }
+    });
+}
+
+DEF_TEST(SkVM_dont_dedup_stores, r) {
+    // Following a similar line of reasoning to SkVM_dont_dedup_loads,
+    // we cannot dedup stores either.  A different store between two identical stores
+    // will invalidate the first store, meaning we do need to reissue that store operation.
+    skvm::Builder b;
+    {
+        skvm::Arg buf = b.varying<int>();
+        b.store32(buf, b.splat(4));
+        b.store32(buf, b.splat(5));
+        b.store32(buf, b.splat(4));   // If we dedup'd, we'd skip this store.
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        int buf[42];
+        program.eval(SK_ARRAY_COUNT(buf), buf);
+        for (int x : buf) {
+            REPORTER_ASSERT(r, x == 4);
+        }
+    });
+}
