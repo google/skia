@@ -87,6 +87,9 @@ void DDLTileHelper::TileData::createDDL() {
         }
     }
 
+    SkDebugf("recording clip %d %d wh: %d %d\n",
+             fClip.fLeft, fClip.fTop, fClip.width(), fClip.height());
+
     // We always record the DDL in the (0,0) .. (clipWidth, clipHeight) coordinates
     recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
     recordingCanvas->translate(-fClip.fLeft, -fClip.fTop);
@@ -115,6 +118,10 @@ void DDLTileHelper::createComposeDDL() {
         srcRect.offsetTo(tile->padOffset().x(), tile->padOffset().y());
 
         SkASSERT(promiseImage->bounds().contains(srcRect));
+
+//        SkDebugf("Composing %d %d wh: %d %d to %.2f %.2f wh: %.2f %.2f\n",
+//                 srcRect.fLeft, srcRect.fTop, srcRect.width(), srcRect.height(),
+//                 dstRect.fLeft, dstRect.fTop, dstRect.width(), dstRect.height());
 
         recordingCanvas->drawImageRect(promiseImage.get(), srcRect, dstRect, nullptr);
     }
@@ -268,11 +275,12 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
             SkASSERT(viewport.contains(clip));
 
             static const uint32_t kMaxPad = 64;
-            int32_t lPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
-            int32_t tPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
-            int32_t rPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
-            int32_t bPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
+            int32_t lPad = addRandomPaddingToDst ? 10 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
+            int32_t tPad = addRandomPaddingToDst ? 30 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
+            int32_t rPad = addRandomPaddingToDst ? 50 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
+            int32_t bPad = addRandomPaddingToDst ? 50 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
 
+            SkDebugf("size %d %d pad %d %d %d %d\n", xSize, ySize, lPad, tPad, rPad, bPad);
             fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
                                            {lPad, tPad, rPad, bPad});
         }

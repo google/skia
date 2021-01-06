@@ -106,7 +106,7 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     return true;
 }
 
-void GrMtlOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+void GrMtlOpsRenderPass::onSetScissorRect(SkIRect scissor) {
     SkASSERT(fActivePipelineState);
     SkASSERT(fActiveRenderCmdEncoder);
     GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,

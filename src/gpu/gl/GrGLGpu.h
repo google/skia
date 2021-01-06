@@ -73,8 +73,12 @@ public:
     GrGLenum bindBuffer(GrGpuBufferType type, const GrBuffer*);
 
     // Flushes state from GrProgramInfo to GL. Returns false if the state couldn't be set.
-    bool flushGLState(GrRenderTarget*, const GrProgramInfo&);
+    bool flushGLState(GrRenderTarget*, const GrProgramInfo&, SkIPoint viewportOffset);
     void flushScissorRect(const SkIRect&, int rtWidth, int rtHeight, GrSurfaceOrigin);
+
+    // The flushRenderTarget methods will all set the initial viewport to the full extent of the
+    // backing render target.
+    void flushViewport(SkIRect viewport, int rtHeight, GrSurfaceOrigin rtOrigin);
 
     // Returns the last program bound by flushGLState(), or nullptr if a different program has since
     // been put into use via some other method (e.g., resetContext, copySurfaceAsDraw).
@@ -402,7 +406,10 @@ private:
     }
     void flushScissorTest(GrScissorTest);
 
-    void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*, GrSurfaceOrigin);
+    void flushWindowRectangles(const GrWindowRectsState&,
+                               const GrGLRenderTarget*,
+                               GrSurfaceOrigin,
+                               SkIPoint viewportOffset);
     void disableWindowRectangles();
 
     int numTextureUnits() const { return this->caps()->shaderCaps()->maxFragmentSamplers(); }
@@ -420,9 +427,6 @@ private:
     void flushRenderTarget(GrGLRenderTarget*);
     // This version can be used when the render target's colors will not be written.
     void flushRenderTargetNoColorWrites(GrGLRenderTarget*);
-
-    // Need not be called if flushRenderTarget is used.
-    void flushViewport(int width, int height);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();
@@ -532,7 +536,7 @@ private:
 
     GrGLuint                    fStencilClearFBOID;
 
-    // last scissor / viewport scissor state seen by the GL.
+    // last scissor / window-rectangles / viewport state seen by GL.
     struct {
         TriState fEnabled;
         GrNativeRect fRect;
