@@ -16,6 +16,40 @@
       "message": "How does this pattern look to you?",
       "revId": "c6764d7f4426177e83433624268a91425fd1db49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f444a7e3_12305414",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-06T21:19:43Z",
+      "side": 1,
+      "message": "Nice, so this works without any special linking, just by passing opaque js callback objects to wasm?  I think that\u0027ll work.",
+      "revId": "c6764d7f4426177e83433624268a91425fd1db49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91b66fc4_23a2ed9a",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-06T21:19:43Z",
+      "side": 1,
+      "message": "Does this fail gracefully when fSound is just an empty object?",
+      "revId": "c6764d7f4426177e83433624268a91425fd1db49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
