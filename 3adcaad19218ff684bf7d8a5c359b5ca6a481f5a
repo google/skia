@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d8d8991_790aa1f7",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3477,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-06T18:37:30Z",
+      "side": 1,
+      "message": "This matches the prior behavior",
+      "range": {
+        "startLine": 3477,
+        "startChar": 68,
+        "endLine": 3477,
+        "endChar": 92
+      },
+      "revId": "3adcaad19218ff684bf7d8a5c359b5ca6a481f5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
