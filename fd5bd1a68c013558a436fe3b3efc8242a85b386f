@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58203129_2769d17f",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-06T14:14:06Z",
+      "side": 1,
+      "message": "Could this just be:\n\nstatic void reorder_array_by_llist(const SkTInternalLList\u003cT\u003e\u0026 llist, SkTArray\u003csk_sp\u003cT\u003e\u003e* array) {\n    int i \u003d 0;\n    for (T* t : llist) {\n        array-\u003eat(i).release();\n        array-\u003eat(i++) \u003d sk_sp\u003cT\u003e(t);\n    }\n}\n\nMaybe assert that i \u003d\u003d array-\u003ecount() at the end?",
+      "range": {
+        "startLine": 428,
+        "startChar": 0,
+        "endLine": 440,
+        "endChar": 1
+      },
+      "revId": "fd5bd1a68c013558a436fe3b3efc8242a85b386f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
