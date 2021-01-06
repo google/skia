@@ -574,7 +574,7 @@ half4 main(float2 p) {
     const imgscale = CanvasKit.Matrix.scaled(2, 2);
     const textureShader = CanvasKit.MakeImageFromEncoded(textureImgData).makeShaderCubic(
       CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, 1/3, 1/3, imgscale);
-    const normalShader = CanvasKit.MakeImageFromEncoded(normalImgData).makeShader(
+    const normalShader = CanvasKit.MakeImageFromEncoded(normalImgData).makeShaderCubic(
       CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, 1/3, 1/3, imgscale);
     const children = [textureShader, normalShader];
 
