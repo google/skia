@@ -461,7 +461,7 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
 
     auto tolerances = this->preTransformTolerances();
     fResolveLevelForCircles =
-            sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI);
+            std::max(sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI), 1);
     ResolveLevelCounter counter(fStroke, tolerances, fResolveLevelCounts);
 
     SkPoint lastControlPoint = {0,0};
