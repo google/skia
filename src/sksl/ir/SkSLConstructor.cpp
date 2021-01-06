@@ -18,13 +18,12 @@ std::unique_ptr<Expression> Constructor::constantPropagate(const IRGenerator& ir
                                                            const DefinitionMap& definitions) {
     // Handle conversion constructors of literal values.
     if (this->arguments().size() == 1) {
-        return SimplifyConversion(irGenerator.fContext, this->type(), *this->arguments().front());
+        return SimplifyConversion(this->type(), *this->arguments().front());
     }
     return nullptr;
 }
 
-std::unique_ptr<Expression> Constructor::SimplifyConversion(const Context& context,
-                                                            const Type& constructorType,
+std::unique_ptr<Expression> Constructor::SimplifyConversion(const Type& constructorType,
                                                             const Expression& expr) {
     if (expr.is<IntLiteral>()) {
         SKSL_INT value = expr.as<IntLiteral>().value();
@@ -37,7 +36,7 @@ std::unique_ptr<Expression> Constructor::SimplifyConversion(const Context& conte
             return std::make_unique<IntLiteral>(expr.fOffset, value, &constructorType);
         } else if (constructorType.isBoolean()) {
             // promote bool(1) to true/false
-            return std::make_unique<BoolLiteral>(context, expr.fOffset, value != 0);
+            return std::make_unique<BoolLiteral>(expr.fOffset, value != 0, &constructorType);
         }
     } else if (expr.is<FloatLiteral>()) {
         float value = expr.as<FloatLiteral>().value();
@@ -49,7 +48,7 @@ std::unique_ptr<Expression> Constructor::SimplifyConversion(const Context& conte
             return std::make_unique<IntLiteral>(expr.fOffset, (SKSL_INT)value, &constructorType);
         } else if (constructorType.isBoolean()) {
             // promote bool(1.23) to true/false
-            return std::make_unique<BoolLiteral>(context, expr.fOffset, value != 0.0f);
+            return std::make_unique<BoolLiteral>(expr.fOffset, value != 0.0f, &constructorType);
         }
     } else if (expr.is<BoolLiteral>()) {
         bool value = expr.as<BoolLiteral>().value();
@@ -62,7 +61,7 @@ std::unique_ptr<Expression> Constructor::SimplifyConversion(const Context& conte
             return std::make_unique<IntLiteral>(expr.fOffset, value ? 1 : 0, &constructorType);
         } else if (constructorType.isBoolean()) {
             // promote bool(true) to true/false
-            return std::make_unique<BoolLiteral>(context, expr.fOffset, value);
+            return std::make_unique<BoolLiteral>(expr.fOffset, value, &constructorType);
         }
     }
     return nullptr;

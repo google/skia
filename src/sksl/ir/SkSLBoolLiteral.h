@@ -26,7 +26,10 @@ public:
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
     Literal(const Context& context, int offset, bool value)
-        : INHERITED(offset, kExpressionKind, context.fBool_Type.get())
+        : Literal(offset, value, context.fBool_Type.get()) {}
+
+    Literal(int offset, bool value, const Type* type)
+        : INHERITED(offset, kExpressionKind, type)
         , fValue(value) {}
 
     bool value() const {
@@ -55,14 +58,10 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<BoolLiteral>(new BoolLiteral(fOffset, this->value(), &this->type()));
+        return std::make_unique<BoolLiteral>(fOffset, this->value(), &this->type());
     }
 
 private:
-    Literal(int offset, bool value, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
-        , fValue(value) {}
-
     bool fValue;
 
     using INHERITED = Expression;
