@@ -62,11 +62,18 @@ SKCMS_API bool skcms_TransferFunction_makePQish(skcms_TransferFunction*,
                                                 float A, float B, float C,
                                                 float D, float E, float F);
 // HLGish:
-//            { sign(encoded) * ( (R|encoded|)^G )          when 0   <= |encoded| <= 1/R
-//   linear = { sign(encoded) * ( e^(a(|encoded|-c)) + b )  when 1/R <  |encoded|
-SKCMS_API bool skcms_TransferFunction_makeHLGish(skcms_TransferFunction*,
-                                                float R, float G,
-                                                float a, float b, float c);
+//            { K * sign(encoded) * ( (R|encoded|)^G )          when 0   <= |encoded| <= 1/R
+//   linear = { K * sign(encoded) * ( e^(a(|encoded|-c)) + b )  when 1/R <  |encoded|
+SKCMS_API bool skcms_TransferFunction_makeScaledHLGish(skcms_TransferFunction*,
+                                                       float K, float R, float G,
+                                                       float a, float b, float c);
+
+// Compatibility shim with K=1 for old callers.
+static inline bool skcms_TransferFunction_makeHLGish(skcms_TransferFunction* fn,
+                                                     float R, float G,
+                                                     float a, float b, float c) {
+    return skcms_TransferFunction_makeScaledHLGish(fn, 1.0f, R,G, a,b,c);
+}
 
 // PQ mapping encoded [0,1] to linear [0,1].
 static inline bool skcms_TransferFunction_makePQ(skcms_TransferFunction* tf) {
