@@ -19,6 +19,8 @@
 <canvas id=sk_animated_gif width=500 height=500
         title='This is an animated gif being animated in Skottie'></canvas>
 
+<button id="sound">Test Sound</button>
+
 <h2> RT Shader </h2>
 <canvas id=rtshader width=300 height=300></canvas>
 <canvas id=rtshader2 width=300 height=300></canvas>
@@ -151,6 +153,18 @@
   const rectRight = 2;
   const rectBottom = 3;
 
+  const soundManager = {
+      play: (soundname) => {
+          alert("Should play "+soundname)
+      }
+  };
+
+  let someAnimation;
+
+  document.getElementById("sound").addEventListener("click", () => {
+      someAnimation && someAnimation.testSound();
+  });
+
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
       return;
@@ -158,6 +172,8 @@
     const animation = CanvasKit.MakeManagedAnimation(jsonStr, assets);
     const duration = animation.duration() * 1000;
     const size = animation.size();
+    animation.setSound(soundManager);
+    someAnimation = animation;
     let c = document.getElementById(id);
     bounds = bounds || CanvasKit.LTRBRect(0, 0, size.w, size.h);
 
@@ -318,10 +334,12 @@
     }
     const quadrantSize = 150;
 
-    const dogShader = dogImg.makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
-                                        CanvasKit.Matrix.scaled(quadrantSize/dogImg.width(),
-                                                                  quadrantSize/dogImg.height()));
+    const dogShader = dogImg.makeShaderCubic(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
+                                             1/3, 1/3,
+                                             CanvasKit.Matrix.scaled(quadrantSize/dogImg.width(),
+                                                                     quadrantSize/dogImg.height()));
     const mandrillShader = mandrillImg.makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
+                                                  1/3, 1/3,
                                                   CanvasKit.Matrix.scaled(
                                                     quadrantSize/mandrillImg.width(),
                                                     quadrantSize/mandrillImg.height()));
@@ -394,7 +412,8 @@
       blur.delete();
       spiralShader.delete();
       return offscreenSurface.makeImageSnapshot()
-                             .makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
+                             .makeShaderCubic(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
+                                              1/3, 1/3);
 
     };
 
@@ -564,7 +583,7 @@
         CanvasKit.M44.translated([0, 0, scale]));
     }
 
-    const faceScale = vSphereRadius/2
+    const faceScale = vSphereRadius/2;
     const faces = [
       {matrix: faceM44(         0,         0, faceScale ), color:CanvasKit.RED}, // front
       {matrix: faceM44(         0,   Math.PI, faceScale ), color:CanvasKit.GREEN}, // back
