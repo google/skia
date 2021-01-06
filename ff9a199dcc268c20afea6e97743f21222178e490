@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8285384b_8c794d7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-06T17:25:07Z",
+      "side": 1,
+      "message": "LGTM, though I\u0027m a little confused why you removed the internal .h file.",
+      "revId": "ff9a199dcc268c20afea6e97743f21222178e490",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
