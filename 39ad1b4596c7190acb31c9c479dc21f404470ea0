@@ -22,6 +22,30 @@
       },
       "revId": "39ad1b4596c7190acb31c9c479dc21f404470ea0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "879e3bfb_74ee72fb",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2038,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-06T16:13:46Z",
+      "side": 1,
+      "message": "It was definitely necessary at one point for the DSL code, but rather than try to remind myself of why, I will just acknowledge it doesn\u0027t need to be part of this CL and remove it.",
+      "parentUuid": "fce29819_fbfbf90a",
+      "range": {
+        "startLine": 2031,
+        "startChar": 0,
+        "endLine": 2038,
+        "endChar": 5
+      },
+      "revId": "39ad1b4596c7190acb31c9c479dc21f404470ea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
