@@ -35,7 +35,6 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %float_4 = OpConstant %float 4
 %35 = OpConstantComposite %v2float %float_3 %float_4
 %41 = OpConstantComposite %v2float %float_3 %float_4
-%float_1_0 = OpConstant %float 1
 %main = OpFunction %void None %11
 %12 = OpLabel
 %_1_x = OpVariable %_ptr_Function_float Function
@@ -77,7 +76,7 @@ OpStore %y %46
 %48 = OpLoad %v2float %y
 %49 = OpCompositeExtract %float %48 0
 %50 = OpCompositeExtract %float %48 1
-%52 = OpCompositeConstruct %v4float %47 %49 %50 %float_1_0
-OpStore %sk_FragColor %52
+%51 = OpCompositeConstruct %v4float %47 %49 %50 %float_1
+OpStore %sk_FragColor %51
 OpReturn
 OpFunctionEnd
