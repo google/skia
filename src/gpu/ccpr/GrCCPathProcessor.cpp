@@ -108,7 +108,8 @@ public:
 
 private:
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const auto& proc = primProc.cast<GrCCPathProcessor>();
         pdman.set2f(fAtlasAdjustUniform,
                     1.0f / proc.fAtlasDimensions.fWidth,

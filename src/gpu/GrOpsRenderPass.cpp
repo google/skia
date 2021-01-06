@@ -42,7 +42,9 @@ void GrOpsRenderPass::clear(const GrScissorState& scissor, std::array<float, 4> 
     SkASSERT(!this->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(!scissor.enabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
-    this->onClear(scissor, color);
+    GrScissorState tmp = scissor;
+    tmp.fRect.offset(fViewportOffset1);
+    this->onClear(tmp, color);
 }
 
 void GrOpsRenderPass::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
@@ -134,8 +136,12 @@ void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
         return;
     }
     SkASSERT(DynamicStateStatus::kDisabled != fScissorStatus);
-    this->onSetScissorRect(scissor);
+    this->onSetScissorRect(scissor.makeOffset(fViewportOffset1));
     SkDEBUGCODE(fScissorStatus = DynamicStateStatus::kConfigured);
+}
+
+void GrOpsRenderPass::setViewport_unused(const SkIRect& viewport) {
+    this->onSetViewport(viewport.makeOffset(fViewportOffset1));
 }
 
 void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,

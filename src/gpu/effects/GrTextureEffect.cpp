@@ -711,7 +711,8 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 }
 
 void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
-                                      const GrFragmentProcessor& fp) {
+                                      const GrFragmentProcessor& fp,
+                                      SkIPoint viewportOffset) {
     const auto& te = fp.cast<GrTextureEffect>();
 
     const float w = te.texture()->width();

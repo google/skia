@@ -37,6 +37,8 @@ public:
     const SkTArray<sk_sp<GrRenderTask>>& renderTasks() const {
         return fDDL->fRenderTasks;
     }
+
+    SkISize dimensions() const { return fDDL->fCharacterization.dimensions(); }
 #endif
 
 private:

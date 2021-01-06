@@ -386,13 +386,15 @@ return %s * %s.w;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrRRectBlurEffect& _outer = _proc.cast<GrRRectBlurEffect>();
         { pdman.set1f(cornerRadiusVar, (_outer.cornerRadius)); }
         auto sigma = _outer.sigma;
         (void)sigma;
         auto rect = _outer.rect;
         (void)rect;
+        rect.offset(viewportOffset.fX, viewportOffset.fY);
         UniformHandle& cornerRadius = cornerRadiusVar;
         (void)cornerRadius;
         UniformHandle& proxyRect = proxyRectVar;
