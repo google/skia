@@ -16,6 +16,24 @@
       "message": "Those values in (parens) are not essential, so if this is a problem we can just cut that part out, or maybe switch from the equivalent of \"%x (%g)\" to just the equivalent of \"%a\".",
       "revId": "3fc21bc0dced65d3fd1662b0356aef9bc843471a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b6a0f3f_5ff55633",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-06T15:21:28Z",
+      "side": 1,
+      "message": "I actually really like the way it reads as-is a lot. I can read (3F800000) naturally so I like it better than something like (0x1p+0). The only snag was making sure that we all get the same output.",
+      "parentUuid": "25c7e9f6_138e8a73",
+      "revId": "3fc21bc0dced65d3fd1662b0356aef9bc843471a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
