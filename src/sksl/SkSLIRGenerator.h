@@ -32,6 +32,11 @@
 
 namespace SkSL {
 
+namespace dsl {
+    class DSLExpression;
+    class DSLWriter;
+}
+
 class ExternalValue;
 class FunctionCall;
 class StructDefinition;
@@ -286,6 +291,8 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class dsl::DSLExpression;
+    friend class dsl::DSLWriter;
 };
 
 }  // namespace SkSL
