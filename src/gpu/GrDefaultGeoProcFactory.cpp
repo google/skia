@@ -58,8 +58,8 @@ public:
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor()
-            : fViewMatrix(SkMatrix::InvalidMatrix())
-            , fLocalMatrix(SkMatrix::InvalidMatrix())
+            : fViewMatrixPrev(SkMatrix::InvalidMatrix())
+            , fLocalMatrixPrev(SkMatrix::InvalidMatrix())
             , fColor(SK_PMColor4fILLEGAL)
             , fCoverage(0xff) {}
 
@@ -160,8 +160,8 @@ public:
                      const GrPrimitiveProcessor& gp) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
-            this->setTransform(pdman, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrix);
-            this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fLocalMatrix);
+            this->setTransform(pdman, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrixPrev);
+            this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fLocalMatrixPrev);
 
             if (!dgp.hasVertexColor() && dgp.color() != fColor) {
                 pdman.set4fv(fColorUniform, 1, dgp.color().vec());
@@ -175,8 +175,8 @@ public:
         }
 
     private:
-        SkMatrix fViewMatrix;
-        SkMatrix fLocalMatrix;
+        SkMatrix fViewMatrixPrev;
+        SkMatrix fLocalMatrixPrev;
         SkPMColor4f fColor;
         uint8_t fCoverage;
         UniformHandle fViewMatrixUniform;
