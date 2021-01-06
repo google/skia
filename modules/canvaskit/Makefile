@@ -76,7 +76,7 @@ npm:
 	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./canvaskit/bin/profiling
 
 gm_tests:
-	./compile_gm.sh
+	./compile_gm.sh debug
 	mkdir -p ./out
 	cp ../../out/wasm_gm_tests/wasm_gm_tests.js       ./out
 	cp ../../out/wasm_gm_tests/wasm_gm_tests.wasm     ./out
