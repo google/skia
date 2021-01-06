@@ -10,10 +10,9 @@ deps = {
   "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@b590fd1b9a590909ff184f44c8bf844caecc8d14",
   "third_party/externals/brotli"          : "https://skia.googlesource.com/external/github.com/google/brotli.git@e61745a6b7add50d380cfd7d3883dd6c62fc2c71",
   "third_party/externals/d3d12allocator"  : "https://skia.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git@169895d529dfce00390a20e69c2f516066fe7a3b",
-  # Dawn requires jinja2 and markupsafe for the code generator, and glslang, shaderc, and tint for SPIRV compilation.
+  # Dawn requires jinja2 and markupsafe for the code generator, and shaderc and tint for SPIRV compilation.
   # When the Dawn revision is updated these should be updated from the Dawn DEPS as well.
   "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@a84acc4fcca80d80c379e3b02d8dc0f7b102ba9d",
-  "third_party/externals/glslang"         : "https://chromium.googlesource.com/external/github.com/KhronosGroup/glslang@4d41da3b810bc11c1c8a954e516638e437360a67",
   "third_party/externals/jinja2"          : "https://chromium.googlesource.com/chromium/src/third_party/jinja2@a82a4944a7f2496639f34a89c9923be5908b80aa",
   "third_party/externals/markupsafe"      : "https://chromium.googlesource.com/chromium/src/third_party/markupsafe@0944e71f4b2cb9a871bcbe353f95e889b64a611a",
   "third_party/externals/shaderc"         : "https://chromium.googlesource.com/external/github.com/google/shaderc@6216d098d8abe3ccda8781016c4f69372c48afb9",
