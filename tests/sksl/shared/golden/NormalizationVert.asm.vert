@@ -28,7 +28,7 @@ OpDecorate %sk_RTAdjust DescriptorSet 0
 %void = OpTypeVoid
 %11 = OpTypeFunction %void
 %float_1 = OpConstant %float 1
-%13 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%14 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -37,7 +37,7 @@ OpDecorate %sk_RTAdjust DescriptorSet 0
 %main = OpFunction %void None %11
 %12 = OpLabel
 %17 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-OpStore %17 %13
+OpStore %17 %14
 %19 = OpAccessChain %_ptr_Output_v4float %3 %int_0
 %20 = OpLoad %v4float %19
 %21 = OpVectorShuffle %v2float %20 %20 0 1

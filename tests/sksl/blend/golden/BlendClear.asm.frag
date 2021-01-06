@@ -28,9 +28,9 @@ OpDecorate %dst RelaxedPrecision
 %void = OpTypeVoid
 %14 = OpTypeFunction %void
 %float_0 = OpConstant %float 0
-%16 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%17 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %main = OpFunction %void None %14
 %15 = OpLabel
-OpStore %sk_FragColor %16
+OpStore %sk_FragColor %17
 OpReturn
 OpFunctionEnd

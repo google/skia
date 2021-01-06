@@ -44,8 +44,6 @@
 
 namespace SkSL {
 
-#define kLast_Capability SpvCapabilityMultiViewport
-
 /**
  * Converts a Program into GLSL code.
  */

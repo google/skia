@@ -22,14 +22,14 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %12 = OpTypeFunction %v4float
 %float_1 = OpConstant %float 1
-%14 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%15 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %void = OpTypeVoid
 %17 = OpTypeFunction %void
 %float_2 = OpConstant %float 2
-%22 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
+%23 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
 %this_function_is_defined_before_use = OpFunction %v4float None %12
 %13 = OpLabel
-OpReturnValue %14
+OpReturnValue %15
 OpFunctionEnd
 %main = OpFunction %void None %17
 %18 = OpLabel
@@ -41,5 +41,5 @@ OpReturn
 OpFunctionEnd
 %this_function_is_defined_after_use = OpFunction %v4float None %12
 %21 = OpLabel
-OpReturnValue %22
+OpReturnValue %23
 OpFunctionEnd

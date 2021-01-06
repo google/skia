@@ -21,9 +21,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %void = OpTypeVoid
 %11 = OpTypeFunction %void
 %float_1 = OpConstant %float 1
-%13 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%14 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %main = OpFunction %void None %11
 %12 = OpLabel
-OpStore %sk_FragColor %13
+OpStore %sk_FragColor %14
 OpReturn
 OpFunctionEnd

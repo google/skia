@@ -54,7 +54,7 @@ OpDecorate %69 RelaxedPrecision
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Function_float = OpTypePointer Function %float
 %float_2 = OpConstant %float 2
-%71 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
+%72 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
 %main = OpFunction %void None %11
 %12 = OpLabel
 %_0_i = OpVariable %_ptr_Function_v4int Function
@@ -122,6 +122,6 @@ OpStore %_10_w %65
 %69 = OpLoad %float %_10_w
 %70 = OpCompositeConstruct %v4float %66 %67 %68 %69
 OpStore %sk_FragColor %70
-OpStore %sk_FragColor %71
+OpStore %sk_FragColor %72
 OpReturn
 OpFunctionEnd

@@ -39,20 +39,20 @@ OpDecorate %26 RelaxedPrecision
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%float_0 = OpConstant %float 0
 %v2float = OpTypeVector %float 2
-%21 = OpConstantComposite %v2float %float_0 %float_0
+%float_0 = OpConstant %float 0
+%23 = OpConstantComposite %v2float %float_0 %float_0
 %v3float = OpTypeVector %float 3
-%27 = OpConstantComposite %v3float %float_0 %float_0 %float_0
+%28 = OpConstantComposite %v3float %float_0 %float_0 %float_0
 %main = OpFunction %void None %15
 %16 = OpLabel
 %a = OpVariable %_ptr_Function_v4float Function
 %b = OpVariable %_ptr_Function_v4float Function
 %20 = OpLoad %12 %tex
-%19 = OpImageSampleImplicitLod %v4float %20 %21
+%19 = OpImageSampleImplicitLod %v4float %20 %23
 OpStore %a %19
 %26 = OpLoad %12 %tex
-%25 = OpImageSampleProjImplicitLod %v4float %26 %27
+%25 = OpImageSampleProjImplicitLod %v4float %26 %28
 OpStore %b %25
 %29 = OpLoad %v4float %a
 %30 = OpVectorShuffle %v2float %29 %29 0 1
