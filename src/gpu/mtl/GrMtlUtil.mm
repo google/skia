@@ -19,10 +19,6 @@
 
 #import <Metal/Metal.h>
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode) {
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:description
                                                          forKey:NSLocalizedDescriptionKey];
@@ -31,18 +27,18 @@ NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode) {
                            userInfo:userInfo];
 }
 
-MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
-    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
-    texDesc.textureType = mtlTexture.textureType;
-    texDesc.pixelFormat = mtlTexture.pixelFormat;
-    texDesc.width = mtlTexture.width;
-    texDesc.height = mtlTexture.height;
-    texDesc.depth = mtlTexture.depth;
-    texDesc.mipmapLevelCount = mtlTexture.mipmapLevelCount;
-    texDesc.arrayLength = mtlTexture.arrayLength;
-    texDesc.sampleCount = mtlTexture.sampleCount;
+sk_cfp<MTLTextureDescriptor*> GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
+    sk_cfp<MTLTextureDescriptor*> texDesc([[MTLTextureDescriptor alloc] init]);
+    (*texDesc).textureType = mtlTexture.textureType;
+    (*texDesc).pixelFormat =mtlTexture.pixelFormat;
+    (*texDesc).width = mtlTexture.width;
+    (*texDesc).height = mtlTexture.height;
+    (*texDesc).depth = mtlTexture.depth;
+    (*texDesc).mipmapLevelCount = mtlTexture.mipmapLevelCount;
+    (*texDesc).arrayLength = mtlTexture.arrayLength;
+    (*texDesc).sampleCount = mtlTexture.sampleCount;
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        texDesc.usage = mtlTexture.usage;
+        (*texDesc).usage = mtlTexture.usage;
     }
     return texDesc;
 }
@@ -50,14 +46,13 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
 // Print the source code for all shaders generated.
 static const bool gPrintSKSL = false;
 static const bool gPrintMSL = false;
-
-id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
-                                          const SkSL::String& sksl,
-                                          SkSL::Program::Kind programKind,
-                                          const SkSL::Program::Settings& settings,
-                                          SkSL::String* msl,
-                                          SkSL::Program::Inputs* outInputs,
-                                          GrContextOptions::ShaderErrorHandler* errorHandler) {
+sk_cfp<id<MTLLibrary>>  GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
+                                                   const SkSL::String& sksl,
+                                                   SkSL::Program::Kind programKind,
+                                                   const SkSL::Program::Settings& settings,
+                                                   SkSL::String* msl,
+                                                   SkSL::Program::Inputs* outInputs,
+                                                   GrContextOptions::ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
     SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
 #else
@@ -89,9 +84,9 @@ id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
     return GrCompileMtlShaderLibrary(gpu, *msl, errorHandler);
 }
 
-id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                         const SkSL::String& msl,
-                                         GrContextOptions::ShaderErrorHandler* errorHandler) {
+sk_cfp<id<MTLLibrary>> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                                                 const SkSL::String& msl,
+                                                 GrContextOptions::ShaderErrorHandler* errorHandler) {
     auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
                                                    length:msl.size()
                                                  encoding:NSUTF8StringEncoding
@@ -110,7 +105,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
         return nil;
     }
 
-    return compiledLibrary;
+    return sk_cfp<id<MTLLibrary>>(compiledLibrary);
 }
 
 // Wrapper to get atomic assignment for compiles and pipeline creation
@@ -119,7 +114,12 @@ public:
     MtlCompileResult() : fCompiledObject(nil), fError(nil) {}
     void set(id compiledObject, NSError* error) {
         SkAutoMutexExclusive automutex(fMutex);
-        fCompiledObject = compiledObject;
+        // we need to retain ownership here -- otherwise when we leave the
+        // scope of the block it will be deleted.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-messaging-id"
+        fCompiledObject = [compiledObject retain];
+#pragma clang diagnostic pop
         fError = error;
     }
     std::pair<id, NSError*> get() {
@@ -231,7 +231,7 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
 // CPP Utils
 
 GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& info) {
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture.get());
+    id<MTLTexture> mtlTexture = (id<MTLTexture>)(info.fTexture.get());
     return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
 }
 
@@ -303,7 +303,7 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) 
 }
 
 int GrMtlTextureInfoSampleCount(const GrMtlTextureInfo& info) {
-    id<MTLTexture> texture = GrGetMTLTexture(info.fTexture.get());
+    id<MTLTexture> texture = (id<MTLTexture>)(info.fTexture.get());
     if (!texture) {
         return 0;
     }
