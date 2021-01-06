@@ -454,6 +454,21 @@ export interface CanvasKit {
     readonly SaveLayerInitWithPrevious: SaveLayerFlag;
     readonly SaveLayerF16ColorType: SaveLayerFlag;
 
+    /**
+     * Use this shadow flag to indicate the occluding object is not opaque. Knowing that the
+     * occluder is opaque allows us to cull shadow geometry behind it and improve performance.
+     */
+    readonly ShadowTransparentOccluder: number;
+    /**
+     * Use this shadow flag to not use analytic shadows.
+     */
+    readonly ShadowGeometricOnly: number;
+    /**
+     * Use this shadow flag to indicate the light position represents a direction and light radius
+     * is blur radius at elevation 1.
+     */
+    readonly ShadowDirectionalLight: number;
+
     readonly gpu: boolean; // if GPU code was compiled in
 
     // Paragraph Enums
