@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCommandBufferRef_DEFINED
-#define GrCommandBufferRef_DEFINED
+#ifndef GrRefCnt_DEFINED
+#define GrRefCnt_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
