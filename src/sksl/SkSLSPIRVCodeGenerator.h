@@ -42,9 +42,9 @@
 #include "src/sksl/spirv.h"
 
 union ConstantValue {
-    ConstantValue(int64_t i)
+    ConstantValue(SKSL_INT i)
         : fInt(i) {
-        SkASSERT(sizeof(*this) == sizeof(int64_t));
+        static_assert(sizeof(*this) == sizeof(SKSL_INT));
     }
 
     ConstantValue(SKSL_FLOAT f) {
@@ -56,25 +56,17 @@ union ConstantValue {
         return fInt == other.fInt;
     }
 
-    int64_t fInt;
+    SKSL_INT fInt;
     SKSL_FLOAT fFloat;
 };
 
-enum class ConstantType {
-    kInt,
-    kUInt,
-    kShort,
-    kUShort,
-    kFloat,
-    kDouble,
-    kHalf,
-};
+using ConstantValuePair = std::pair<ConstantValue, SkSL::Type::NumberKind>;
 
 namespace std {
 
 template <>
-struct hash<std::pair<ConstantValue, ConstantType>> {
-    size_t operator()(const std::pair<ConstantValue, ConstantType>& key) const {
+struct hash<ConstantValuePair> {
+    size_t operator()(const ConstantValuePair& key) const {
         return key.first.fInt ^ (int) key.second;
     }
 };
@@ -390,7 +382,7 @@ private:
 
     SpvId fBoolTrue;
     SpvId fBoolFalse;
-    std::unordered_map<std::pair<ConstantValue, ConstantType>, SpvId> fNumberConstants;
+    std::unordered_map<ConstantValuePair, SpvId> fNumberConstants;
     bool fSetupFragPosition;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;

@@ -22,8 +22,7 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %11 = OpTypeFunction %void
 %float_2 = OpConstant %float 2
 %int = OpTypeInt 32 1
-%float_2_0 = OpConstant %float 2
-%21 = OpConstantComposite %v4float %float_2_0 %float_2_0 %float_2_0 %float_2_0
+%21 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
 %main = OpFunction %void None %11
 %12 = OpLabel
 %14 = OpExtInst %float %1 Sqrt %float_2
