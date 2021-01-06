@@ -66,7 +66,8 @@ private:
                     return half2(visualization).xy01;)", a, b);
         }
         void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrFragmentProcessor& processor) override {
+                       const GrFragmentProcessor& processor,
+                       SkIPoint viewportOffset) override {
             const auto& fp = processor.cast<VisualizeCrossProductSignFP>();
             pdman.set2f(fAUniform, fp.fA.x(), fp.fA.y());
             pdman.set2f(fBUniform, fp.fB.x(), fp.fB.y());
