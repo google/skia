@@ -460,7 +460,7 @@ namespace skvm {
         return op <= Op::store128;
     }
     static inline bool is_always_varying(Op op) {
-        return op <= Op::gather32 && op != Op::assert_true;
+        return op <= Op::load128 && op != Op::assert_true;
     }
 
     using Val = int;
