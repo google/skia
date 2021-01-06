@@ -104,3 +104,13 @@ bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
 
     return anyCommandsIssued;
 }
+
+#if GR_TEST_UTILS
+void GrDDLTask::dump(bool printDependencies) const {
+    INHERITED::dump(printDependencies);
+
+    for (auto& task : fDDL->priv().renderTasks()) {
+        task->dump(printDependencies);
+    }
+}
+#endif
