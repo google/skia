@@ -16,6 +16,29 @@
       "message": "In addition to not needing a default constructor (this seems to be the only place it was used) note that this also prevents a copy (or at least a move) since the hidden variable here is lifetime extended but std::tie is forced to create a copy into \u0027strikeSpec\u0027 since it cannot lifetime extend the returned std::tuple. This code is more like\n\n    const auto\u0026 __tmp \u003d SkStrikeSpec::MakeSDF(...);\n    SkStrikeSpec\u0026 strikeSpec \u003d get\u003c0\u003e(__tmp);",
       "revId": "06192f4ef8afbef59d1cb53c713effbf2676cf1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daeb8d26_7a0e1982",
+        "filename": "src/core/SkStrikeSpec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-01-06T17:31:28Z",
+      "side": 1,
+      "message": "Can this be const now?",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 39
+      },
+      "revId": "06192f4ef8afbef59d1cb53c713effbf2676cf1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
