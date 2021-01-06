@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5688a0e3_bf6b61b0",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-06T14:27:16Z",
+      "side": 1,
+      "message": "So close to not needing the context in this function. (And this only needs it to re-extract the bool type, which we have in the incoming expr). Too bad we can\u0027t return expr itself.",
+      "range": {
+        "startLine": 65,
+        "startChar": 49,
+        "endLine": 65,
+        "endChar": 56
+      },
+      "revId": "2f1206aa9a564f4e9fd6350e5b1427da8bd13420",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
