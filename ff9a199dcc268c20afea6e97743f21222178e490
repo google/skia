@@ -16,6 +16,24 @@
       "message": "LGTM, though I\u0027m a little confused why you removed the internal .h file.",
       "revId": "ff9a199dcc268c20afea6e97743f21222178e490",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e67319f_bd2cda88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-06T17:41:36Z",
+      "side": 1,
+      "message": "I just changed my mind about it being necessary. GrTriangulator.h is internal as well. Did you prefer having it? I don\u0027t have a strong opinion.",
+      "parentUuid": "8285384b_8c794d7a",
+      "revId": "ff9a199dcc268c20afea6e97743f21222178e490",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
