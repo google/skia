@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7866e1a7_2e3b752b",
+        "filename": "tests/sksl/shared/golden/VectorConstructors.asm.frag",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-06T18:39:36Z",
+      "side": 1,
+      "message": "Just investigated and filed this as https://crbug.com/skia/11141",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 49
+      },
+      "revId": "c666323500da3b55d8ca6fa67314887442c93d11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
