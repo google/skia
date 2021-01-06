@@ -135,6 +135,14 @@ public:
     }
 
     /**
+     * For an expression which evaluates to a constant Boolean, returns the value. Otherwise calls
+     * ABORT.
+     */
+    virtual bool getConstantBool() const {
+        ABORT("not a constant Boolean");
+    }
+
+    /**
      * Returns true if, given fixed values for uniforms, this expression always evaluates to the
      * same result with no side effects.
      */

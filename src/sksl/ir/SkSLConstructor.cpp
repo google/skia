@@ -238,10 +238,12 @@ SKSL_INT Constructor::getConstantInt() const {
     SkASSERT(this->type().columns() == 1);
     SkASSERT(this->type().isInteger());
 
-    // The inner argument might actually be a float! `int(1.0)` is a valid cast.
+    // This might be a cast, meaning the inner argument would actually be a different scalar type.
     const Expression& expr = *this->arguments().front();
-    SkASSERT(expr.type().isScalar());
-    return expr.type().isInteger() ? expr.getConstantInt() : (SKSL_INT)expr.getConstantFloat();
+    SkASSERT(expr.type().isInteger() || expr.type().isFloat() || expr.type().isBoolean());
+    return expr.type().isInteger() ? expr.getConstantInt() :
+             expr.type().isFloat() ? (SKSL_INT)expr.getConstantFloat() :
+                                     (SKSL_INT)expr.getConstantBool();
 }
 
 SKSL_FLOAT Constructor::getConstantFloat() const {
@@ -250,10 +252,26 @@ SKSL_FLOAT Constructor::getConstantFloat() const {
     SkASSERT(this->type().columns() == 1);
     SkASSERT(this->type().isFloat());
 
-    // The inner argument might actually be an integer! `float(1)` is a valid cast.
+    // This might be a cast, meaning the inner argument would actually be a different scalar type.
     const Expression& expr = *this->arguments().front();
-    SkASSERT(expr.type().isScalar());
-    return expr.type().isFloat() ? expr.getConstantFloat() : (SKSL_FLOAT)expr.getConstantInt();
+    SkASSERT(expr.type().isInteger() || expr.type().isFloat() || expr.type().isBoolean());
+    return   expr.type().isFloat() ? expr.getConstantFloat() :
+           expr.type().isInteger() ? (SKSL_FLOAT)expr.getConstantInt() :
+                                     (SKSL_FLOAT)expr.getConstantBool();
+}
+
+bool Constructor::getConstantBool() const {
+    // We're looking for scalar Boolean constructors only, i.e. `bool(true)`.
+    SkASSERT(this->arguments().size() == 1);
+    SkASSERT(this->type().columns() == 1);
+    SkASSERT(this->type().isBoolean());
+
+    // This might be a cast, meaning the inner argument would actually be a different scalar type.
+    const Expression& expr = *this->arguments().front();
+    SkASSERT(expr.type().isInteger() || expr.type().isFloat() || expr.type().isBoolean());
+    return expr.type().isBoolean() ? expr.getConstantBool() :
+           expr.type().isInteger() ? (bool)expr.getConstantInt() :
+                                     (bool)expr.getConstantFloat();
 }
 
 }  // namespace SkSL
