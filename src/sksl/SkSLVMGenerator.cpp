@@ -95,17 +95,16 @@ private:
 class SkVMGenerator {
 public:
     SkVMGenerator(const Program& program,
-                  const FunctionDefinition& function,
                   skvm::Builder* builder,
                   SkSpan<skvm::Val> uniforms,
-                  SkSpan<skvm::Val> arguments,
                   skvm::Coord device,
                   skvm::Coord local,
                   SampleChildFn sampleChild,
-                  SkSpan<skvm::Val> outReturn,
                   ErrorReporter* errors);
 
-    bool generateCode();
+    bool writeFunction(const FunctionDefinition& function,
+                       SkSpan<skvm::Val> arguments,
+                       SkSpan<skvm::Val> outReturn);
 
 private:
     enum class Intrinsic {
@@ -249,15 +248,14 @@ private:
     Value writeMatrixInverse4x4(const Value& m);
 
     const Program& fProgram;
-    const FunctionDefinition& fFunction;
 
     skvm::Builder* fBuilder;
 
     std::vector<skvm::Val> fSlots;
     const skvm::Coord fLocalCoord;
     const SampleChildFn fSampleChild;
-    const SkSpan<skvm::Val> fArguments;
-    const SkSpan<skvm::Val> fReturnValue;
+
+    SkSpan<skvm::Val> fReturnValue;
 
     ErrorReporter& fErrors;
 
@@ -315,22 +313,16 @@ static size_t slot_count(const Type& type) {
 }
 
 SkVMGenerator::SkVMGenerator(const Program& program,
-                             const FunctionDefinition& function,
                              skvm::Builder* builder,
                              SkSpan<skvm::Val> uniforms,
-                             SkSpan<skvm::Val> arguments,
                              skvm::Coord device,
                              skvm::Coord local,
                              SampleChildFn sampleChild,
-                             SkSpan<skvm::Val> outReturn,
                              ErrorReporter* errors)
         : fProgram(program)
-        , fFunction(function)
         , fBuilder(builder)
         , fLocalCoord(local)
         , fSampleChild(std::move(sampleChild))
-        , fArguments(arguments)
-        , fReturnValue(outReturn)
         , fErrors(*errors)
         , fIntrinsics {
             { "sin", Intrinsic::kSin },
@@ -437,37 +429,41 @@ SkVMGenerator::SkVMGenerator(const Program& program,
         }
     }
     SkASSERT(uniformIter == uniforms.end());
-
-    const FunctionDeclaration& decl = fFunction.declaration();
-
-    // Ensure that outReturn (where we place the return values) is the correct size
-    SkASSERT(slot_count(decl.returnType()) == fReturnValue.size());
-
-    // Copy argument IDs to our list of (all) variable IDs
-    size_t argBase = fSlots.size(),
-           argSlot = argBase;
-    fSlots.insert(fSlots.end(), fArguments.begin(), fArguments.end());
-
-    // Compute where each parameter variable lives in the variable ID list
-    for (const Variable* p : decl.parameters()) {
-        fVariableMap[p] = argSlot;
-        argSlot += slot_count(p->type());
-    }
-    SkASSERT(argSlot == fSlots.size());
 }
 
-bool SkVMGenerator::generateCode() {
-    this->writeStatement(*fFunction.body());
+bool SkVMGenerator::writeFunction(const FunctionDefinition& function,
+                                  SkSpan<skvm::Val> arguments,
+                                  SkSpan<skvm::Val> outReturn) {
 
-    // Copy 'out' and 'inout' parameters back to their caller-supplied argument storage
+    const FunctionDeclaration& decl = function.declaration();
+
+    fReturnValue = outReturn;
+    SkASSERT(slot_count(decl.returnType()) == fReturnValue.size());
+
+    // For all parameters, copy incoming argument IDs to our vector of (all) variable IDs
     size_t argIdx = 0;
-    for (const Variable* p : fFunction.declaration().parameters()) {
+    for (const Variable* p : decl.parameters()) {
         Slot paramSlot = this->getSlot(*p);
         size_t nslots = slot_count(p->type());
 
+        for (size_t i = 0; i < nslots; ++i) {
+            fSlots[paramSlot + i] = arguments[argIdx + i];
+        }
+        argIdx += nslots;
+    }
+    SkASSERT(argIdx == arguments.size());
+
+    this->writeStatement(*function.body());
+
+    // Copy 'out' and 'inout' parameters back to their caller-supplied argument storage
+    argIdx = 0;
+    for (const Variable* p : decl.parameters()) {
+        size_t nslots = slot_count(p->type());
+
         if (p->modifiers().fFlags & Modifiers::kOut_Flag) {
+            Slot paramSlot = this->getSlot(*p);
             for (size_t i = 0; i < nslots; ++i) {
-                fArguments[argIdx + i] = fSlots[paramSlot + i];
+                arguments[argIdx + i] = fSlots[paramSlot + i];
             }
         }
         argIdx += nslots;
@@ -1402,14 +1398,15 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
     SkASSERT(paramSlots <= SK_ARRAY_COUNT(args));
 
-    SkVMGenerator generator(program, function, builder, uniforms, {args, paramSlots},
-                            device, local, std::move(sampleChild), result, &errors);
+    SkVMGenerator generator(program, builder, uniforms, device, local, std::move(sampleChild),
+                            &errors);
 
-    return generator.generateCode() ? skvm::Color{{builder, result[0]},
-                                                  {builder, result[1]},
-                                                  {builder, result[2]},
-                                                  {builder, result[3]}}
-                                    : skvm::Color{};
+    return generator.writeFunction(function, {args, paramSlots}, result)
+                   ? skvm::Color{{builder, result[0]},
+                                 {builder, result[1]},
+                                 {builder, result[2]},
+                                 {builder, result[3]}}
+                   : skvm::Color{};
 }
 
 bool ProgramToSkVM(const Program& program,
@@ -1445,10 +1442,10 @@ bool ProgramToSkVM(const Program& program,
     }
 
     skvm::Coord zeroCoord = {b->splat(0.0f), b->splat(0.0f)};
-    SkVMGenerator generator(program, function, b, /*uniforms=*/{}, argVals, /*device=*/zeroCoord,
-                            /*local=*/zeroCoord, /*sampleChild=*/{}, returnVals, &errors);
+    SkVMGenerator generator(program, b, /*uniforms=*/{}, /*device=*/zeroCoord,
+                            /*local=*/zeroCoord, /*sampleChild=*/{}, &errors);
 
-    if (!generator.generateCode()) {
+    if (!generator.writeFunction(function, argVals, returnVals)) {
         return false;
     }
 
