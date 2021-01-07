@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e3f0087_bdd675b7",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T14:10:42Z",
+      "side": 1,
+      "message": "This is equivalent to the previous assert, right? (I don\u0027t mind the change, this seems to better document the intent).",
+      "range": {
+        "startLine": 243,
+        "startChar": 4,
+        "endLine": 243,
+        "endChar": 90
+      },
+      "revId": "832a321e190657f96d1e46f6e81181c97d459d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "250ed544_c6dd61ad",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T14:10:42Z",
+      "side": 1,
+      "message": "I assume that a follow-up will support constant folding of \u0027!true\u0027, but it seems odd to include this function in this CL, when it always fails, then returns the wrong thing? Maybe leave it out so the base-class ABORT is triggered instead?",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "832a321e190657f96d1e46f6e81181c97d459d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
