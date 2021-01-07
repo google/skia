@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f84f125f_f6af649f",
+        "filename": "src/gpu/GrRefCnt.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-07T19:23:03Z",
+      "side": 1,
+      "message": "WDYT about a base class with template params for the ref/unref function to call and then this could be something like template\u003ctypename T\u003e using gr_rp \u003d gr_something\u003cT, T::ref, T::recycle\u003e\n\n?",
+      "revId": "90112bccb8522ef3868d106e4aa51d7927e26a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
