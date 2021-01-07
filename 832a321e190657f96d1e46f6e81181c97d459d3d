@@ -117,6 +117,30 @@
       },
       "revId": "832a321e190657f96d1e46f6e81181c97d459d3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f53b50ff_c14ed85b",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-07T15:14:03Z",
+      "side": 1,
+      "message": "Constructors and Prefixes are basically it, and I was thinking it over last night and I\u0027m honestly not sure why Prefixes need to count as constant-expressions anyway. I might experiment with removing them from constant-expression-ness and see what changes in the output. As long as `Prefix(-) IntLiteral(12345)` eventually folds to `IntLiteral(-12345)` it seems like we would eventually still get the same optimization opportunities, right?",
+      "parentUuid": "6120001d_537fbae7",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "832a321e190657f96d1e46f6e81181c97d459d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
