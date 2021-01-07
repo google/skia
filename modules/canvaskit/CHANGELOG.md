@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Constants for the shadow flags. Of note, some of these values can be used on previous releases.
+
 ### Fixed
  - Improper error returned when a WebGL context could not be used.
 

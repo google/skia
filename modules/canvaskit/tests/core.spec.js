@@ -917,13 +917,25 @@ describe('Core canvas behavior', () => {
 
     gm('draw shadow', (canvas) => {
         const lightRadius = 20;
-        const flags = 0;
         const lightPos = [500,500,20];
         const zPlaneParams = [0,0,1];
         const path = starPath(CanvasKit);
+        const textFont = new CanvasKit.Font(null, 24);
+        const textPaint = new CanvasKit.Paint();
 
         canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
-                              CanvasKit.BLACK, CanvasKit.MAGENTA, flags);
+                          CanvasKit.BLACK, CanvasKit.MAGENTA, 0);
+        canvas.drawText('Default Flags', 5, 250, textPaint, textFont);
+
+        canvas.translate(250, 250);
+        canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
+                          CanvasKit.BLACK, CanvasKit.MAGENTA,
+                          CanvasKit.ShadowTransparentOccluder | CanvasKit.ShadowGeometricOnly | CanvasKit.ShadowDirectionalLight);
+        canvas.drawText('All Flags', 5, 250, textPaint, textFont);
+
+        path.delete();
+        textFont.delete();
+        textPaint.delete();
     });
 
     gm('fractal_noise_shader', (canvas) => {
