@@ -1093,6 +1093,7 @@ namespace skvm {
     static inline F32& operator+=(F32& x, F32a y) { return (x = x + y); }
     static inline F32& operator-=(F32& x, F32a y) { return (x = x - y); }
     static inline F32& operator*=(F32& x, F32a y) { return (x = x * y); }
+    static inline F32& operator/=(F32& x, F32  y) { return (x = x / y); }
 
     static inline Half operator+(Half  x, Halfa y) { return x->add(x,y); }
     static inline Half operator+(float x, Half  y) { return y->add(x,y); }
