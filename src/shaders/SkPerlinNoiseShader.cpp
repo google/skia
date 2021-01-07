@@ -984,7 +984,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     static constexpr const char* chanCoordA = "3.5";
     if (pne.stitchTiles()) {
         fragBuilder->codeAppendf(R"(
-           half4(%s(%s, noiseVec, stitchData), %s(%s, noiseVec, stitchData),"
+           half4(%s(%s, noiseVec, stitchData), %s(%s, noiseVec, stitchData),
                  %s(%s, noiseVec, stitchData), %s(%s, noiseVec, stitchData)))",
             noiseFuncName.c_str(), chanCoordR,
             noiseFuncName.c_str(), chanCoordG,

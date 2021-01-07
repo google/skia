@@ -125,7 +125,7 @@ void Parser::InitLayoutMap() {
 
 Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
 : fText(text)
-, fPushback(Token::Kind::TK_INVALID, -1, -1)
+, fPushback(Token::Kind::TK_NONE, -1, -1)
 , fSymbols(symbols)
 , fErrors(errors) {
     fLexer.start(text, length);
@@ -180,6 +180,10 @@ std::unique_ptr<ASTFile> Parser::compilationUnit() {
                 }
                 break;
             }
+            case Token::Kind::TK_INVALID: {
+                this->error(this->peek(), String("invalid token"));
+                return nullptr;
+            }
             default: {
                 ASTNode::ID decl = this->declaration();
                 if (fErrors.errorCount()) {
@@ -195,9 +199,9 @@ std::unique_ptr<ASTFile> Parser::compilationUnit() {
 }
 
 Token Parser::nextRawToken() {
-    if (fPushback.fKind != Token::Kind::TK_INVALID) {
+    if (fPushback.fKind != Token::Kind::TK_NONE) {
         Token result = fPushback;
-        fPushback.fKind = Token::Kind::TK_INVALID;
+        fPushback.fKind = Token::Kind::TK_NONE;
         return result;
     }
     Token result = fLexer.next();
@@ -215,19 +219,19 @@ Token Parser::nextToken() {
 }
 
 void Parser::pushback(Token t) {
-    SkASSERT(fPushback.fKind == Token::Kind::TK_INVALID);
+    SkASSERT(fPushback.fKind == Token::Kind::TK_NONE);
     fPushback = std::move(t);
 }
 
 Token Parser::peek() {
-    if (fPushback.fKind == Token::Kind::TK_INVALID) {
+    if (fPushback.fKind == Token::Kind::TK_NONE) {
         fPushback = this->nextToken();
     }
     return fPushback;
 }
 
 bool Parser::checkNext(Token::Kind kind, Token* result) {
-    if (fPushback.fKind != Token::Kind::TK_INVALID && fPushback.fKind != kind) {
+    if (fPushback.fKind != Token::Kind::TK_NONE && fPushback.fKind != kind) {
         return false;
     }
     Token next = this->nextToken();
