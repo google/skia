@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa0e9553_163ddf45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-07T17:19:21Z",
+      "side": 1,
+      "message": "This cuts the total run time for local/debug SVG tests significantly (3m36s -\u003e 1m40s).",
+      "revId": "ff22755623d4e7d5b64a7544e84a2a1ab6d03c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
