@@ -109,6 +109,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/InterfaceBlockWithNoMembers.sksl",
   "$_tests/sksl/errors/InvalidAssignment.sksl",
   "$_tests/sksl/errors/InvalidOutParams.sksl",
+  "$_tests/sksl/errors/InvalidToken.sksl",
   "$_tests/sksl/errors/InvalidUnary.sksl",
   "$_tests/sksl/errors/ModifiersInStruct.sksl",
   "$_tests/sksl/errors/OpaqueTypeAssignment.sksl",
