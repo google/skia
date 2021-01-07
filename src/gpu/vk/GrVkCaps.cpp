@@ -395,6 +395,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fPreferCachedCpuMemory = false;
     }
 
+    fPreferDiscardableMSAAAttachment = true;
+
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
 
@@ -491,6 +493,13 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // using only primary command buffers. We also see issues on the P30 running android 28.
     if (kARM_VkVendor == properties.vendorID && androidAPIVersion <= 28) {
         fPreferPrimaryOverSecondaryCommandBuffers = false;
+    }
+
+    // We've seen numerous driver bugs on qualcomm devices running on android P (api 28) or earlier
+    // when trying to using discardable msaa attachments and loading from resolve. So we disable the
+    // feature for those devices.
+    if (properties.vendorID == kQualcomm_VkVendor && androidAPIVersion <= 28) {
+        fPreferDiscardableMSAAAttachment = false;
     }
 
     // On Mali G series GPUs, applying transfer functions in the fragment shader with half-floats
@@ -1754,7 +1763,6 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
 
     bool needsResolve = programInfo.targetSupportsVkResolveLoad() &&
                         this->preferDiscardableMSAAAttachment();
-
 
     bool forceLoadFromResolve =
             overrideFlags & GrCaps::ProgramDescOverrideFlags::kVulkanHasResolveLoadSubpass;
