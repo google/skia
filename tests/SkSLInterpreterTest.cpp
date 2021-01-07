@@ -20,6 +20,10 @@ struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)
             : fCaps(GrContextOptions{}), fCompiler(&fCaps) {
         SkSL::Program::Settings settings;
+        // The SkSL inliner is well tested in other contexts. Here, we disable inlining entirely,
+        // to stress-test the VM generator's handling of function calls with varying signatures.
+        settings.fInlineThreshold = 0;
+
         fProgram = fCompiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
                                             settings);
         if (!fProgram) {
@@ -290,15 +294,12 @@ DEF_TEST(SkSLInterpreterAnd, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 1, 1, 0, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
             "color = half4(color.a); }", 2, 1, 1, 3, 2, 1, 1, 3);
-    // TODO: SkVM function call support
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
-            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123,
-            /*testWithSkVM=*/false);
+            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123);
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
-            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0,
-            /*testWithSkVM=*/false);
+            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0);
 }
 
 DEF_TEST(SkSLInterpreterOr, r) {
@@ -308,15 +309,12 @@ DEF_TEST(SkSLInterpreterOr, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 3, 3, 3, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
             "color = half4(color.a); }", 1, 1, 1, 3, 1, 1, 1, 3);
-    // TODO: SkVM function call support
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
-            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123,
-            /*testWithSkVM=*/false);
+            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123);
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
-            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0,
-            /*testWithSkVM=*/false);
+            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0);
 }
 
 DEF_TEST(SkSLInterpreterMatrix, r) {
@@ -736,6 +734,33 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
     // returns are not allowed inside loops
     expect_failure(r, "float main(float x)"
                       "{ for (int i = 0; i < 1; i++) { if (x > 2) { return x; } } return 0; }");
+}
+
+DEF_TEST(SkSLInterpreterReturnThenCall, r) {
+    // Test that early returns disable execution in subsequently called functions
+    const char* src = R"(
+        float y;
+        void inc () { ++y; }
+        void maybe_inc() { if (y < 0) return; inc(); }
+        void main(inout float x) { y = x; maybe_inc(); x = y; }
+    )";
+
+    ProgramBuilder program(r, src);
+    const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
+    REPORTER_ASSERT(r, main);
+
+    skvm::Builder b;
+    SkSL::ProgramToSkVM(*program, *main, &b);
+    skvm::Program p = b.done();
+
+    float xs[] = { -2.0f, 0.0f, 3.0f, -1.0f };
+    const void* uniforms = nullptr;
+    p.eval(4, uniforms, xs);
+
+    REPORTER_ASSERT(r, xs[0] == -2.0f);
+    REPORTER_ASSERT(r, xs[1] ==  1.0f);
+    REPORTER_ASSERT(r, xs[2] ==  4.0f);
+    REPORTER_ASSERT(r, xs[3] == -1.0f);
 }
 
 DEF_TEST(SkSLInterpreterEarlyReturn, r) {
