@@ -16,6 +16,24 @@
       "message": "For the record (given the chat convo), I think this is fine, given the data layout (and number of constants) that we\u0027re hashing. All floats will have (only) some smattering of high bits set. All integers will have a bunch of low bits set (and some bits, if they\u0027re signed). It\u0027s possible to get a collision, but not likely, given where the numberkind values fall, and the fact that these are 64-bit integers. (You\u0027d need a small negative value and a huge unsigned one?)",
       "revId": "30b16ceeb9bfc3164299f55879e3cead24a4e4d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e84b94ac_cb076575",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-07T15:49:51Z",
+      "side": 1,
+      "message": "Ack. For that matter, single collisions are honestly not a big deal. It\u0027s only expensive when you have a long chain of collisions (e.g. dozens of inputs map to the same output).",
+      "parentUuid": "0382e6a6_71dfd2ed",
+      "revId": "30b16ceeb9bfc3164299f55879e3cead24a4e4d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
