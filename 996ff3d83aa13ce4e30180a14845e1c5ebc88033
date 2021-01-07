@@ -52,6 +52,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1645cccb_0089c8d5",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T21:08:18Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/351506",
+      "parentUuid": "7429a6ef_eff2b9b6",
+      "revId": "996ff3d83aa13ce4e30180a14845e1c5ebc88033",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "38e5b8d0_55b52386",
@@ -65,6 +83,30 @@
       "writtenOn": "2021-01-07T19:23:08Z",
       "side": 1,
       "message": "While we wait for the per-stack-frame struct, let\u0027s separate and note the fields into two chunks, one for fields that are maintained between calls to writeFunction() and which are reinitialized per stack frame?",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 60
+      },
+      "revId": "996ff3d83aa13ce4e30180a14845e1c5ebc88033",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3f95421_311ac1de",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T21:08:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38e5b8d0_55b52386",
       "range": {
         "startLine": 250,
         "startChar": 0,
@@ -92,6 +134,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9bfbc5a_5f5fd511",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T21:08:18Z",
+      "side": 1,
+      "message": "Not really.",
+      "parentUuid": "29c77107_0c4694de",
+      "revId": "996ff3d83aa13ce4e30180a14845e1c5ebc88033",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31523555_1abdf1e8",
@@ -105,6 +165,24 @@
       "writtenOn": "2021-01-07T19:23:08Z",
       "side": 1,
       "message": "With this change, I now find this much less awkward than I did yesterday.  It\u0027s clear now what we\u0027re passing here all goes in the global environment, and it\u0027s somehow less weird that we\u0027d feed these shader/colorFilter-specific values now that they\u0027re all isolated.",
+      "revId": "996ff3d83aa13ce4e30180a14845e1c5ebc88033",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d5efa95_a2d604a1",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1446,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T21:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "31523555_1abdf1e8",
       "revId": "996ff3d83aa13ce4e30180a14845e1c5ebc88033",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
