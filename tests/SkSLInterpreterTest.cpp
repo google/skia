@@ -58,18 +58,22 @@ static void verify_values(skiatest::Reporter* r,
                           const float* actual,
                           const float* expected,
                           int N,
-                          bool bitwiseCompare) {
-    auto nearly_equal = [](const float a[], const float b[], int count) {
-        for (int i = 0; i < count; ++i) {
-            if (!SkScalarNearlyEqual(a[i], b[i])) {
-                return false;
-            }
-        }
-        return true;
+                          bool exactCompare) {
+    auto exact_equiv = [](float x, float y) {
+        return x == y
+            || (isnan(x) && isnan(y));
     };
 
-    bool valid = bitwiseCompare ? !memcmp(actual, expected, sizeof(float) * N)
-                                : nearly_equal(actual, expected, N);
+    bool valid = true;
+    for (int i = 0; i < N; ++i) {
+        if (exactCompare && !exact_equiv(actual[i], expected[i])) {
+            valid = false;
+        }
+        if (!exactCompare && !SkScalarNearlyEqual(actual[i], expected[i])) {
+            valid = false;
+        }
+    }
+
     if (!valid) {
         printf("for program: %s\n", src);
         printf("    expected (");
@@ -90,7 +94,7 @@ static void verify_values(skiatest::Reporter* r,
 }
 
 void test_skvm(skiatest::Reporter* r, const char* src, float* in, const float* expected,
-               bool bitwiseCompare) {
+               bool exactCompare) {
     ProgramBuilder program(r, src);
     if (!program) { return; }
 
@@ -117,12 +121,12 @@ void test_skvm(skiatest::Reporter* r, const char* src, float* in, const float* e
     // TODO: Test with and without JIT?
     p.eval(1, args.get());
 
-    verify_values(r, src, out.get(), expected, sig.fReturnSlots, bitwiseCompare);
+    verify_values(r, src, out.get(), expected, sig.fReturnSlots, exactCompare);
 }
 
 void test(skiatest::Reporter* r, const char* src, float* in, const float* expected,
-          bool bitwiseCompare = true) {
-    test_skvm(r, src, in, expected, bitwiseCompare);
+          bool exactCompare = true) {
+    test_skvm(r, src, in, expected, exactCompare);
 
     ByteCodeBuilder byteCode(r, src);
     if (!byteCode) { return; }
@@ -133,7 +137,7 @@ void test(skiatest::Reporter* r, const char* src, float* in, const float* expect
     SkAssertResult(byteCode->run(main, in, main->getParameterCount(), out.get(), returnCount,
                                  nullptr, 0));
 
-    verify_values(r, src, out.get(), expected, returnCount, bitwiseCompare);
+    verify_values(r, src, out.get(), expected, returnCount, exactCompare);
 }
 
 void vec_test(skiatest::Reporter* r, const char* src) {
@@ -207,7 +211,7 @@ void test_skvm(skiatest::Reporter* r, const char* src,
     float actual[4]   = { inR, inG, inB, inA };
     float expected[4] = { exR, exG, exB, exA };
 
-    verify_values(r, src, actual, expected, 4, /*bitwiseCompare=*/true);
+    verify_values(r, src, actual, expected, 4, /*exactCompare=*/true);
 
     // TODO: vec_test with skvm
 }
@@ -229,7 +233,7 @@ void test(skiatest::Reporter* r, const char* src,
     const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
     SkAssertResult(byteCode->run(main, inoutColor, 4, nullptr, 0, nullptr, 0));
 
-    verify_values(r, src, inoutColor, expected, 4, /*bitwiseCompare=*/true);
+    verify_values(r, src, inoutColor, expected, 4, /*exactCompare=*/true);
 
     // Do additional testing of 4x1 vs 1x4 to stress divergent control flow, etc.
     vec_test(r, src);
