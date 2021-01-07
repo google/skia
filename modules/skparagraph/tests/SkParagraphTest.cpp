@@ -5668,3 +5668,43 @@ DEF_TEST(SkParagraph_HeightCalculations, reporter) {
     draw(TextHeightBehavior::kDisableAll, "Hello\nLine 2\nLine 3", 157);
     draw(TextHeightBehavior::kDisableFirstAscent, "Hello", 28);
 }
+
+DEF_TEST(SkParagraph_RTL_With_Styles, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RTL_With_Styles.png");
+
+    SkPaint whiteSpaces;
+    whiteSpaces.setColor(SK_ColorLTGRAY);
+
+    SkPaint breakingSpace;
+    breakingSpace.setColor(SK_ColorYELLOW);
+
+    SkPaint text;
+    text.setColor(SK_ColorWHITE);
+
+    const char* arabic = "قففغغغغقففغغغغقففغغغ";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextAlign(TextAlign::kRight);
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Roboto")});
+
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setTextAlign(TextAlign::kRight);
+    text_style.setFontSize(20);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    text_style.setBackgroundColor(whiteSpaces);
+    builder.pushStyle(text_style);
+    builder.addText("   ");
+    text_style.setBackgroundColor(text);
+    builder.pushStyle(text_style);
+    builder.addText(arabic);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(300);
+    paragraph->paint(canvas.get(), 0, 0);
+}
