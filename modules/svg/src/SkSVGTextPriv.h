@@ -8,9 +8,14 @@
 #ifndef SkSVGTextPriv_DEFINED
 #define SkSVGTextPriv_DEFINED
 
+#include "include/core/SkContourMeasure.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGText.h"
+
+#include <tuple>
+
+struct SkRSXform;
 
 // SkSVGTextContext is responsible for sequencing input text chars into "chunks".
 // A single text chunk can span multiple structural elements (<text>, <tspan>, etc),
@@ -94,7 +99,8 @@ public:
 
     };
 
-    SkSVGTextContext(const SkSVGPresentationContext&, sk_sp<SkFontMgr>);
+    SkSVGTextContext(const SkSVGRenderContext&, const SkSVGTextPath* = nullptr);
+    ~SkSVGTextContext() override;
 
     // Queues codepoints for rendering.
     void appendFragment(const SkString&, const SkSVGRenderContext&, SkSVGXmlSpace);
@@ -137,7 +143,17 @@ private:
         SkVector                              advance;
     };
 
+    struct PathInfo {
+        std::vector<sk_sp<SkContourMeasure>> contours;
+        float                                length = 0; // cached total path length
+
+        const SkContourMeasure* findContour(float offset) const;
+    };
+
     void shapePendingBuffer(const SkFont&);
+
+    SkRSXform computeGlyphXform(SkGlyphID, const SkFont&, const SkPoint& glyph_pos,
+                                const PositionAdjustment&) const;
 
     // SkShaper callbacks
     void beginLine() override {}
@@ -148,16 +164,18 @@ private:
     void commitLine() override {}
 
     // http://www.w3.org/TR/SVG11/text.html#TextLayout
+    const SkSVGRenderContext&       fRenderContext; // original render context
     const std::unique_ptr<SkShaper> fShaper;
     std::vector<RunRec>             fRuns;
-    const ScopedPosResolver*        fPosResolver = nullptr;
+    const ScopedPosResolver*        fPosResolver  = nullptr;
+    std::unique_ptr<PathInfo>       fPathInfo;
 
     // shaper state
     ShapeBuffer                     fShapeBuffer;
     std::vector<uint32_t>           fShapeClusterBuffer;
 
     // chunk state
-    SkPoint                         fChunkPos;             // current text chunk position
+    SkPoint                         fChunkPos     = {0,0}; // current text chunk position
     SkVector                        fChunkAdvance = {0,0}; // cumulative advance
     float                           fChunkAlignmentFactor; // current chunk alignment
 

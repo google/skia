@@ -222,11 +222,34 @@ void SkSVGTextContext::shapePendingBuffer(const SkFont& font) {
     fShapeBuffer.reset();
 }
 
-SkSVGTextContext::SkSVGTextContext(const SkSVGPresentationContext& pctx, sk_sp<SkFontMgr> fmgr)
-    : fShaper(SkShaper::Make(std::move(fmgr)))
-    , fChunkPos{ 0, 0 }
-    , fChunkAlignmentFactor(ComputeAlignmentFactor(pctx))
-{}
+SkSVGTextContext::SkSVGTextContext(const SkSVGRenderContext& ctx, const SkSVGTextPath* tpath)
+    : fRenderContext(ctx)
+    , fShaper(SkShaper::Make(ctx.fontMgr()))
+    , fChunkAlignmentFactor(ComputeAlignmentFactor(ctx.presentationContext()))
+{
+    if (tpath) {
+        // Prepare textpath-related structures.
+        fPathInfo = std::make_unique<PathInfo>();
+        const auto ref = ctx.findNodeById(tpath->getHref().fIRI);
+
+        if (ref && ref->tag() == SkSVGTag::kPath) {
+            SkContourMeasureIter cmi(ref->asPath(ctx), false);
+            while (sk_sp<SkContourMeasure> contour = cmi.next()) {
+                fPathInfo->length += contour->length();
+                fPathInfo->contours.push_back(std::move(contour));
+            }
+
+            fChunkPos.fX = tpath->getStartOffset().value();
+            if (tpath->getStartOffset().unit() == SkSVGLength::Unit::kPercentage) {
+                 fChunkPos.fX *= fPathInfo->length / 100;
+            }
+        }
+    }
+}
+
+SkSVGTextContext::~SkSVGTextContext() {
+    this->flushChunk(fRenderContext);
+}
 
 void SkSVGTextContext::appendFragment(const SkString& txt, const SkSVGRenderContext& ctx,
                                       SkSVGXmlSpace xs) {
@@ -306,7 +329,7 @@ void SkSVGTextContext::appendFragment(const SkString& txt, const SkSVGRenderCont
                 pos.has(PosAttrs::kDx) ? pos[PosAttrs::kDx] : 0,
                 pos.has(PosAttrs::kDy) ? pos[PosAttrs::kDy] : 0,
             },
-            pos.has(PosAttrs::kRotate) ? pos[PosAttrs::kRotate] : 0,
+            pos.has(PosAttrs::kRotate) ? SkDegreesToRadians(pos[PosAttrs::kRotate]) : 0,
         });
 
         fPrevCharSpace = (ch == ' ');
@@ -318,32 +341,83 @@ void SkSVGTextContext::appendFragment(const SkString& txt, const SkSVGRenderCont
     // The active text chunk continues until an explicit or implicit flush.
 }
 
-void SkSVGTextContext::flushChunk(const SkSVGRenderContext& ctx) {
-    // The final rendering offset is determined by cumulative chunk advances and alignment.
-    const auto pos = fChunkPos + fChunkAdvance * fChunkAlignmentFactor;
+const SkContourMeasure* SkSVGTextContext::PathInfo::findContour(float offset) const {
+    if (offset < 0 || offset > length || contours.empty()) {
+        return nullptr;
+    }
 
+    for (const auto& contour : contours) {
+        const auto contour_len = contour->length();
+        if (offset < contour_len) {
+            return contour.get();
+        }
+        offset -= contour_len;
+    }
+
+    // For lookup purposes we're handling contours as half-open: [cstart, cstart + clength).
+    // If we reach this point, offset == total_length -- but we still want to treat it
+    // as part of the last contour.
+    return contours.back().get();
+}
+
+SkRSXform SkSVGTextContext::computeGlyphXform(SkGlyphID glyph, const SkFont& font,
+                                              const SkPoint& glyph_pos,
+                                              const PositionAdjustment& pos_adjust) const {
+    SkPoint pos = fChunkPos + glyph_pos + fChunkAdvance * fChunkAlignmentFactor;
+    float   rot = 0;
+
+    // If we're in a textPath scope, reposition the glyph on path.
+    if (fPathInfo) {
+        float glyph_width;
+        font.getWidths(&glyph, 1, &glyph_width);
+
+        auto offset = pos.fX + glyph_width * .5f;
+
+        if (const auto* contour = fPathInfo->findContour(offset)) {
+            SkVector tan;
+            if (contour->getPosTan(offset, &pos, &tan)) {
+                rot = std::atan2(tan.fY, tan.fX);
+                pos -= tan * (glyph_width / 2);
+            }
+        } else {
+            // Quick & dirty way to disable rendering of glyphs off path.
+            pos.fX = std::numeric_limits<float>::infinity();
+        }
+    }
+
+    // Apply final position adjustments.
+    const auto c = std::cos(rot),
+               s = std::sin(rot);
+    pos += SkVector{
+        pos_adjust.offset.fX * c - pos_adjust.offset.fY * s,
+        pos_adjust.offset.fY * s + pos_adjust.offset.fY * c,
+    };
+    rot += pos_adjust.rotation;
+
+    return SkRSXform::MakeFromRadians(/*scale=*/ 1, rot, pos.fX, pos.fY, 0, 0);
+}
+
+void SkSVGTextContext::flushChunk(const SkSVGRenderContext& ctx) {
     SkTextBlobBuilder blobBuilder;
 
     for (const auto& run : fRuns) {
         const auto& buf = blobBuilder.allocRunRSXform(run.font, SkToInt(run.glyphCount));
         std::copy(run.glyphs.get(), run.glyphs.get() + run.glyphCount, buf.glyphs);
         for (size_t i = 0; i < run.glyphCount; ++i) {
-            const auto& pos_adjust = run.glyhPosAdjust[i];
-
-            const auto pos = run.glyphPos[i] + pos_adjust.offset;
-            buf.xforms()[i] = SkRSXform::MakeFromRadians(/*scale=*/ 1,
-                                                         SkDegreesToRadians(pos_adjust.rotation),
-                                                         pos.fX, pos.fY, 0, 0);
+            buf.xforms()[i] = this->computeGlyphXform(run.glyphs[i],
+                                                      run.font,
+                                                      run.glyphPos[i],
+                                                      run.glyhPosAdjust[i]);
         }
 
         // Technically, blobs with compatible paints could be merged --
         // but likely not worth the effort.
         const auto blob = blobBuilder.make();
         if (run.fillPaint) {
-            ctx.canvas()->drawTextBlob(blob, pos.fX, pos.fY, *run.fillPaint);
+            ctx.canvas()->drawTextBlob(blob, 0, 0, *run.fillPaint);
         }
         if (run.strokePaint) {
-            ctx.canvas()->drawTextBlob(blob, pos.fX, pos.fY, *run.strokePaint);
+            ctx.canvas()->drawTextBlob(blob, 0, 0, *run.strokePaint);
         }
     }
 
@@ -413,6 +487,7 @@ void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
     switch (child->tag()) {
     case SkSVGTag::kText:
     case SkSVGTag::kTextLiteral:
+    case SkSVGTag::kTextPath:
     case SkSVGTag::kTSpan:
         fChildren.push_back(
             sk_sp<SkSVGTextFragment>(static_cast<SkSVGTextFragment*>(child.release())));
@@ -456,12 +531,7 @@ bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* valu
 }
 
 void SkSVGTextContainer::onRender(const SkSVGRenderContext& ctx) const {
-    // Root text nodes establish a new text layout context.
-    SkSVGTextContext tctx(ctx.presentationContext(), ctx.fontMgr());
-
-    this->onRenderText(ctx, &tctx, this->getXmlSpace());
-
-    tctx.flushChunk(ctx);
+    this->onRenderText(ctx, nullptr, this->getXmlSpace());
 }
 
 void SkSVGTextLiteral::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
@@ -469,4 +539,26 @@ void SkSVGTextLiteral::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextCont
     SkASSERT(tctx);
 
     tctx->appendFragment(this->getText(), ctx, xs);
+}
+
+void SkSVGText::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext*,
+                             SkSVGXmlSpace xs) const {
+    // Root text nodes establish a new text layout context.
+    SkSVGTextContext tctx(ctx);
+
+    this->INHERITED::onRenderText(ctx, &tctx, xs);
+}
+
+void SkSVGTextPath::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext*,
+                                 SkSVGXmlSpace xs) const {
+    // Root text nodes establish a new text layout context.
+    SkSVGTextContext tctx(ctx, this);
+
+    this->INHERITED::onRenderText(ctx, &tctx, xs);
+}
+
+bool SkSVGTextPath::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+        this->setHref(SkSVGAttributeParser::parse<SkSVGIRI>("xlink:href", name, value)) ||
+        this->setStartOffset(SkSVGAttributeParser::parse<SkSVGLength>("startOffset", name, value));
 }
