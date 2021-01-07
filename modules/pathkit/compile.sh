@@ -10,6 +10,9 @@ BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 HTML_SHELL=$BASE_DIR/shell.html
 BUILD_DIR=${BUILD_DIR:="out/pathkit"}
 mkdir -p $BUILD_DIR
+# sometimes the .a files keep old symbols around - cleaning them out makes sure
+# we get a fresh build.
+rm -f $BUILD_DIR/*.a
 
 # This expects the environment variable EMSDK to be set
 if [[ ! -d $EMSDK ]]; then
