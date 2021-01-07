@@ -16,6 +16,24 @@
       "message": "Ben: PTAL. Thanks!\n\n(Note that modifying the .gn file is the preferred way of doing build_overrides per\nChrome infra team).",
       "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50eedb14_0a3996ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-07T20:38:57Z",
+      "side": 1,
+      "message": "If we wanted this to be actually configurable and have an override for the subproject this might be the way to go, but I don\u0027t think we will want to have the option of building Angle standalone in the Skia build, so there\u0027s no need for it to be configurable. So it seems like this \"angle_standalone \u003d false\" should just be set in build_overrides/angle.gni . That\u0027s where the existing gn args are set which currently handle this case.",
+      "parentUuid": "7c4c4a9e_5feddf2b",
+      "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
