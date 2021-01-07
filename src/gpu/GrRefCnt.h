@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 
- /** Check if the argument is non-null, and if so, call obj->addCommandBufferUsage() and return obj.
+/** Check if the argument is non-null, and if so, call obj->addCommandBufferUsage() and return obj.
  */
 template <typename T> static inline T* GrSafeRefCBUsage(T* obj) {
     if (obj) {
@@ -177,4 +177,144 @@ template <typename T> inline bool operator!=(std::nullptr_t, const gr_cb<T>& b) 
     return static_cast<bool>(b);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+/** Check if the argument is non-null, and if so, call obj->removeCommandBufferUsage()
+ */
+template <typename T> static inline void GrSafeRecycle(T* obj) {
+    if (obj) {
+        obj->recycle();
+    }
+}
+
+/**
+ * This class mimics sk_sp but instead of calling unref it calls recycle instead.
+ */
+template <typename T> class gr_rp {
+public:
+    using element_type = T;
+
+    constexpr gr_rp() : fPtr(nullptr) {}
+    constexpr gr_rp(std::nullptr_t) : fPtr(nullptr) {}
+
+    /**
+     * Shares the underlying object by calling ref(), so that both the argument and the newly
+     * created gr_rp both have a reference to it.
+     */
+    gr_rp(const gr_rp<T>& that) : fPtr(SkSafeRef(that.get())) {}
+
+    /**
+     * Move the underlying object from the argument to the newly created sk_sp. Afterwards only the
+     * new sk_sp will have a reference to the object, and the argument will point to null.
+     * No call to ref() or recycle() will be made.
+     */
+    gr_rp(gr_rp<T>&& that) : fPtr(that.release()) {}
+
+    /**
+     *  Adopt the bare pointer into the newly created gr_rp.
+     *  No call to ref() or recycle() will be made.
+     */
+    explicit gr_rp(T* obj) : fPtr(obj) {}
+
+    /**
+     * Calls removeCommandBufferUsage() on the underlying object pointer.
+     */
+    ~gr_rp() {
+        GrSafeRecycle(fPtr);
+        SkDEBUGCODE(fPtr = nullptr);
+    }
+
+    gr_rp<T>& operator=(std::nullptr_t) {
+        this->reset();
+        return *this;
+    }
+
+    /**
+     * Shares the underlying object referenced by the argument by calling ref() on it. If this gr_rp
+     * previously had a reference to an object (i.e. not null) it will call recycle() on that
+     * object.
+     */
+    gr_rp<T>& operator=(const gr_rp<T>& that) {
+        if (this != &that) {
+            this->reset(SkSafeRef(that.get()));
+        }
+        return *this;
+    }
+
+    /**
+     * Move the underlying object from the argument to the gr_rp. If the gr_rp previously held
+     * a reference to another object, recycle() will be called on that object. No call to ref() will
+     * be made.
+     */
+    gr_rp<T>& operator=(gr_rp<T>&& that) {
+        this->reset(that.release());
+        return *this;
+    }
+
+    T& operator*() const {
+        SkASSERT(this->get() != nullptr);
+        return *this->get();
+    }
+
+    explicit operator bool() const { return this->get() != nullptr; }
+
+    T* get() const { return fPtr; }
+    T* operator->() const { return fPtr; }
+
+private:
+    /**
+     * Adopt the new bare pointer, and call recycle() on any previously held object (if not null).
+     * No call to ref() will be made.
+     */
+    void reset(T* ptr = nullptr) {
+        T* oldPtr = fPtr;
+        fPtr = ptr;
+        GrSafeRecycle(oldPtr);
+    }
+
+    /**
+     * Return the bare pointer, and set the internal object pointer to nullptr.
+     * The caller must assume ownership of the object, and manage its reference count directly.
+     * No call to recycle() will be made.
+     */
+    T* SK_WARN_UNUSED_RESULT release() {
+        T* ptr = fPtr;
+        fPtr = nullptr;
+        return ptr;
+    }
+
+    T* fPtr;
+};
+
+template <typename T, typename U> inline bool operator==(const gr_rp<T>& a, const gr_rp<U>& b) {
+    return a.get() == b.get();
+}
+template <typename T> inline bool operator==(const gr_rp<T>& a, std::nullptr_t) /*noexcept*/ {
+    return !a;
+}
+template <typename T> inline bool operator==(std::nullptr_t, const gr_rp<T>& b) /*noexcept*/ {
+    return !b;
+}
+
+template <typename T, typename U> inline bool operator!=(const gr_rp<T>& a, const gr_rp<U>& b) {
+    return a.get() != b.get();
+}
+template <typename T> inline bool operator!=(const gr_rp<T>& a, std::nullptr_t) /*noexcept*/ {
+    return static_cast<bool>(a);
+}
+template <typename T> inline bool operator!=(std::nullptr_t, const gr_rp<T>& b) /*noexcept*/ {
+    return static_cast<bool>(b);
+}
+
+/*
+ *  Returns a gr_rp wrapping the provided ptr AND calls ref on it (if not null).
+ *
+ *  This is different than the semantics of the constructor for gr_rp, which just wraps the ptr,
+ *  effectively "adopting" it.
+ */
+template <typename T> gr_rp<T> gr_ref_rp(T* obj) { return gr_rp<T>(SkSafeRef(obj)); }
+
+template <typename T> gr_rp<const T> gr_ref_rp(const T* obj) {
+    return gr_rp<const T>(const_cast<T*>(SkSafeRef(obj)));
+}
 #endif
