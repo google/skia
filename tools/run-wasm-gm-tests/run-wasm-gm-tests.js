@@ -266,7 +266,7 @@ async function driveBrowser() {
     const batchSize = 50;
     let batch = batchSize;
     while (true) {
-      console.log(`Waiting ${options.timeout}s for ${batchSize} tests to complete`);
+      console.log(`Waiting ${options.timeout}s for ${batchSize} tests to complete.`);
       await page.waitForFunction(`(window._testsProgress >= ${batch}) || window._testsDone || window._error`, {
         timeout: options.timeout*1000,
       });
@@ -295,7 +295,6 @@ async function driveBrowser() {
 
     const log = await page.evaluate('window._log');
     console.info(log);
-
 
     const jsonFile = path.join(options.output, 'gold_results.json');
     fs.writeFileSync(jsonFile, JSON.stringify(goldResults));

@@ -49,5 +49,4 @@ DEF_TEST(SkStrikeCache_CachePurge, Reporter) {
     }
     REPORTER_ASSERT(Reporter, cache.getTotalMemoryUsed() == 0);
 
-
 }
