@@ -3,6 +3,7 @@ out vec4 sk_FragColor;
 in float val;
 uniform int ui;
 uniform vec4 uh4;
+uniform bool b;
 struct S {
     vec4[1] ah4;
     float[1] ah;
@@ -21,6 +22,8 @@ void main() {
 
     sk_FragColor = vec4(s.h);
 
+    sk_FragColor = b ? sk_FragColor.xxxx : sk_FragColor.yyyy;
+
     sk_FragColor = s.ah4[0].ywyw;
 
     sk_FragColor = as[0].ah4[0].xyxy;
@@ -37,11 +40,13 @@ void main() {
 
     sk_FragColor = uh4;
 
-    bool _0_b = !true;
-    sk_FragColor = _0_b ? sk_FragColor.xxxx : sk_FragColor.yyyy;
+    sk_FragColor = sk_FragColor.yyyy;
 
-    float _1_h = -s.h;
-    sk_FragColor = vec4(_1_h);
+    float _0_h = -s.h;
+    sk_FragColor = vec4(_0_h);
+
+    bool _1_b = !b;
+    sk_FragColor = _1_b ? sk_FragColor.xxxx : sk_FragColor.yyyy;
 
     vec2 _2_h2 = s.ah4[ui].yw;
     sk_FragColor = _2_h2.xyxy;

@@ -1,6 +1,7 @@
 in half val;
 uniform int ui;
 uniform half4 uh4;
+uniform bool b;
 
 struct S {
     half4 ah4[1];
@@ -43,6 +44,7 @@ void main() {
     // function without a temporary variable.
     funcb(sk_Caps.floatIs32Bits, sk_FragColor);
     func1(+s.h,                  sk_FragColor);
+    funcb(b,                     sk_FragColor);
     func2(s.ah4[0].yw,           sk_FragColor);
     func2(as[0].ah4[0].xy,       sk_FragColor);
     func3(s.h4.zzz,              sk_FragColor);
@@ -56,6 +58,7 @@ void main() {
     // when inlining occurs.
     funcb(!sk_Caps.floatIs32Bits, sk_FragColor);
     func1(-s.h,                   sk_FragColor);
+    funcb(!b,                     sk_FragColor);
     func2(s.ah4[ui].yw,           sk_FragColor);
     func3(s.h4.yyy + s.h4.zzz,    sk_FragColor);
     func4(s.h4.y001,              sk_FragColor);
