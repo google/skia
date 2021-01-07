@@ -15,6 +15,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrCopyRenderTask.h"
@@ -32,6 +33,7 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTCluster.h"
 #include "src/gpu/GrTTopoSort.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -135,6 +137,11 @@ bool GrDrawingManager::flush(
     fActiveOpsTask = nullptr;
 
     this->sortTasks();
+
+    if (fReduceOpsTaskSplitting) {
+        this->reorderTasks();
+    }
+
     if (!fCpuBufferCache) {
         // We cache more buffers when the backend is using client side arrays. Otherwise, we
         // expect each pool will use a CPU buffer as a staging buffer before uploading to a GPU
@@ -413,6 +420,32 @@ void GrDrawingManager::sortTasks() {
         }
     }
 #endif
+}
+
+// Reorder the array to match the llist without reffing & unreffing sk_sp's.
+// Both args must contain the same objects.
+// This is basically a shim because clustering uses LList but the rest of drawmgr uses array.
+template <typename T>
+static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk_sp<T>>* array) {
+    int i = 0;
+    for (T* t : llist) {
+        // Release the pointer that used to live here so it doesn't get unreffed.
+        [[maybe_unused]] T* old = array->at(i).release();
+        array->at(i++).reset(t);
+    }
+    SkASSERT(i == array->count());
+}
+
+void GrDrawingManager::reorderTasks() {
+    SkASSERT(fReduceOpsTaskSplitting);
+    SkTInternalLList<GrRenderTask> llist;
+    bool clustered = GrTCluster<GrRenderTask, GrRenderTask::ClusterTraits>(fDAG, &llist);
+    if (!clustered) {
+        return;
+    }
+    // TODO: Handle case where proposed order would blow our memory budget.
+    // Such cases are currently pathological, so we could just return here and keep current order.
+    reorder_array_by_llist(llist, &fDAG);
 }
 
 void GrDrawingManager::closeAllTasks() {

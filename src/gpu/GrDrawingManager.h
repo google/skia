@@ -135,6 +135,7 @@ private:
     void removeRenderTasks(int startIndex, int stopIndex);
 
     void sortTasks();
+    void reorderTasks();
 
     void closeAllTasks();
 
