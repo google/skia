@@ -1,3 +1,4 @@
+### Compilation failed:
 
-void main() {
-}
+error: 1: invalid token
+1 error
