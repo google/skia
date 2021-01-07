@@ -292,11 +292,13 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.count());
 
 #if GR_FLUSH_TIME_OP_SPEW
-    SkDebugf("Flushing opsTask: %d to %d out of [%d, %d]\n",
+    SkDebugf("Flushing renderTasks: %d to %d out of [%d, %d]\n",
                             startIndex, stopIndex, 0, fDAG.count());
     for (int i = startIndex; i < stopIndex; ++i) {
         if (fDAG[i]) {
-            fDAG[i]->dump(true);
+            SkString label;
+            label.printf("task %d/%d", i, fDAG.count());
+            fDAG[i]->dump(label, true, 0);
         }
     }
 #endif

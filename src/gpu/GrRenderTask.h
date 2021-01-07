@@ -83,7 +83,8 @@ public:
     /*
      * Dump out the GrRenderTask dependency DAG
      */
-    virtual void dump(bool printDependencies) const;
+    virtual void dump(const SkString& label, bool printDependencies, int indent) const;
+    static void EmitIndent(int indent);
     virtual const char* name() const = 0;
 #endif
 

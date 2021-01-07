@@ -1061,7 +1061,7 @@ private:
         SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
         auto iter = fQuads.iterator();
         for (unsigned p = 0; p < fMetadata.fProxyCount; ++p) {
-            str.appendf("Proxy ID: %d, Filter: %d, MM: %d\n",
+            str.appendf("proxyID: %d, Filter: %d, MM: %d\n",
                         fViewCountPairs[p].fProxy->uniqueID().asUInt(),
                         static_cast<int>(fMetadata.fFilter),
                         static_cast<int>(fMetadata.fMipmapMode));

@@ -625,6 +625,13 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
+    if (proxy == flushState->viewportOffsetTarget()) {
+        // The viewport offset needs to be set on the renderPass itself since it affects all
+        // future viewports and scissor rects.
+        renderPass->setViewportOffset(flushState->viewportOffset());
+        renderPass->setViewport_unused(proxy->backingStoreBoundsIRect());
+    }
+
     // Draw all the generated geometry.
     for (const auto& chain : fOpChains) {
         if (!chain.shouldExecute()) {
@@ -646,6 +653,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         flushState->setOpArgs(nullptr);
     }
 
+    renderPass->setViewportOffset({0, 0});
     renderPass->end();
     flushState->gpu()->submit(renderPass);
     flushState->setOpsRenderPass(nullptr);
@@ -692,9 +700,10 @@ void GrOpsTask::discard() {
 ////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
-void GrOpsTask::dump(bool printDependencies) const {
-    GrRenderTask::dump(printDependencies);
+void GrOpsTask::dump(const SkString& label, bool printDependencies, int indent) const {
+    GrRenderTask::dump(label, printDependencies, indent);
 
+    EmitIndent(indent);
     SkDebugf("fColorLoadOp: ");
     switch (fColorLoadOp) {
         case GrLoadOp::kLoad:
@@ -712,6 +721,7 @@ void GrOpsTask::dump(bool printDependencies) const {
             break;
     }
 
+    EmitIndent(indent);
     SkDebugf("fInitialStencilContent: ");
     switch (fInitialStencilContent) {
         case StencilContent::kDontCare:
@@ -725,20 +735,27 @@ void GrOpsTask::dump(bool printDependencies) const {
             break;
     }
 
-    SkDebugf("ops (%d):\n", fOpChains.count());
+    EmitIndent(indent);
+    SkDebugf("%d ops:\n", fOpChains.count());
     for (int i = 0; i < fOpChains.count(); ++i) {
+        EmitIndent(indent);
         SkDebugf("*******************************\n");
         if (!fOpChains[i].head()) {
+            EmitIndent(indent);
             SkDebugf("%d: <combined forward or failed instantiation>\n", i);
         } else {
+            EmitIndent(indent);
             SkDebugf("%d: %s\n", i, fOpChains[i].head()->name());
             SkRect bounds = fOpChains[i].bounds();
+            EmitIndent(indent);
             SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", bounds.fLeft,
                      bounds.fTop, bounds.fRight, bounds.fBottom);
             for (const auto& op : GrOp::ChainRange<>(fOpChains[i].head())) {
                 SkString info = SkTabString(op.dumpInfo(), 1);
+                EmitIndent(indent);
                 SkDebugf("%s\n", info.c_str());
                 bounds = op.bounds();
+                EmitIndent(indent);
                 SkDebugf("\tClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", bounds.fLeft,
                          bounds.fTop, bounds.fRight, bounds.fBottom);
             }

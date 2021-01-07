@@ -59,7 +59,7 @@ private:
     bool onExecute(GrOpFlushState*) override;
 
 #if GR_TEST_UTILS
-    void dump(bool printDependencies) const final;
+    void dump(const SkString& label, bool printDependencies, int indent) const final;
     const char* name() const final { return "DDL"; }
 #endif
 #ifdef SK_DEBUG

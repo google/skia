@@ -282,14 +282,24 @@ void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView vi
 }
 
 #if GR_TEST_UTILS
-void GrRenderTask::dump(bool printDependencies) const {
-    SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("%s - renderTaskID: %d\n", this->name(), fUniqueID);
+void GrRenderTask::EmitIndent(int indent) {
+    for (int i = 0; i < indent; ++i) {
+        SkDebugf("    ");
+    }
+}
+
+void GrRenderTask::dump(const SkString& label, bool printDependencies, int indent) const {
+    EmitIndent(indent);
+    SkDebugf("%s --------------------------------------------------------------\n", label.c_str());
+    EmitIndent(indent);
+    SkDebugf("%s task - renderTaskID: %d\n", this->name(), fUniqueID);
 
     if (!fTargets.empty()) {
+        EmitIndent(indent);
         SkDebugf("Targets: \n");
         for (const GrSurfaceProxyView& target : fTargets) {
             GrSurfaceProxy* proxy = target.proxy();
+            EmitIndent(indent);
             SkDebugf("proxyID: %d - surfaceID: %d\n",
                      proxy ? proxy->uniqueID().asUInt() : -1,
                      proxy && proxy->peekSurface()
@@ -299,12 +309,14 @@ void GrRenderTask::dump(bool printDependencies) const {
     }
 
     if (printDependencies) {
+        EmitIndent(indent);
         SkDebugf("I rely On (%d): ", fDependencies.count());
         for (int i = 0; i < fDependencies.count(); ++i) {
             SkDebugf("%d, ", fDependencies[i]->fUniqueID);
         }
         SkDebugf("\n");
 
+        EmitIndent(indent);
         SkDebugf("(%d) Rely On Me: ", fDependents.count());
         for (int i = 0; i < fDependents.count(); ++i) {
             SkDebugf("%d, ", fDependents[i]->fUniqueID);
