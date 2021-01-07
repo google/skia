@@ -78,16 +78,9 @@ private:
 
             fCompiler = new SkSL::Compiler(fCaps.get());
 
-            // Using an inline threshold of zero would stop all inlining, and cause us to re-emit
-            // SkSL that is nearly identical to what was ingested. That would be in the spirit of
-            // applying no workarounds, but causes problems (today). On the CPU backend, we only
-            // compile the user SkSL once, then emit directly to skvm. The CPU backend doesn't
-            // support function calls, so some tests only work because of inlining. This needs to
-            // be addressed robustly - by adding function call support and/or forcing inlining,
-            // but for now, we use defaults that let the majority of our test cases work on all
-            // backends. (Note that there are other control flow constructs that don't work on the
-            // CPU backend, this is a special case of a more general problem.) skbug.com/10680
-            fInlineThreshold = SkSL::Program::Settings().fInlineThreshold;
+            // Using an inline threshold of zero stops all inlining, and causes us to re-emit SkSL
+            // that is nearly identical to what was ingested.
+            fInlineThreshold = 0;
         }
 
         SkSL::ShaderCapsPointer fCaps;
