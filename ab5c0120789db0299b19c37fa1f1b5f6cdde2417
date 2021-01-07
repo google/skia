@@ -124,6 +124,24 @@
       "parentUuid": "9ea54a69_4bd5cb60",
       "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c7b0964_8adedfbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7838
+      },
+      "writtenOn": "2021-01-07T20:58:14Z",
+      "side": 1,
+      "message": "To answer your question: setting angle.gni build overrides conflicts with declare_args, while .gn default_args overrides them properly.",
+      "parentUuid": "e1471bfe_4a4e6b35",
+      "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
