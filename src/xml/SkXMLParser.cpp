@@ -153,7 +153,7 @@ bool SkXMLParser::parse(SkStream& docStream)
     // Disable entity processing, to inhibit internal entity expansion. See expat CVE-2013-0340.
     XML_SetEntityDeclHandler(ctx.fXMLParser, entity_decl_handler);
 
-    static const int kBufferSize = 512 SkDEBUGCODE( - 507);
+    static constexpr int kBufferSize = 4096;
     bool done = false;
     do {
         void* buffer = XML_GetBuffer(ctx.fXMLParser, kBufferSize);
