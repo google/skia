@@ -34,6 +34,24 @@
       "parentUuid": "7c4c4a9e_5feddf2b",
       "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a06afed_c9508f8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-07T20:48:06Z",
+      "side": 1,
+      "message": "Unfortunately, that doesn\u0027t work. build_overrides/angle.gni isn\u0027t included in all the places that need this variable, since ANGLE is moving away from build_overrides and toward the new .gn approach that Chrome infra team is recommending.\n\njmadill@ can give you some background here.",
+      "parentUuid": "50eedb14_0a3996ca",
+      "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
