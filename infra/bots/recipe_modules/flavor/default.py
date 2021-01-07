@@ -123,7 +123,7 @@ class DefaultFlavor(object):
     path = []
     ld_library_path = []
 
-    slave_dir = self.m.vars.slave_dir
+    slave_dir = self.m.vars.workdir
     clang_linux = str(slave_dir.join('clang_linux'))
     extra_tokens = self.m.vars.extra_tokens
 
@@ -175,7 +175,7 @@ class DefaultFlavor(object):
     elif 'ProcDump' in extra_tokens:
       dumps_dir = self.m.path.join(self.m.vars.swarming_out_dir, 'dumps')
       self.m.file.ensure_directory('makedirs dumps', dumps_dir)
-      procdump = str(self.m.vars.slave_dir.join('procdump_win',
+      procdump = str(self.m.vars.workdir.join('procdump_win',
                                                 'procdump64.exe'))
       # Full docs for ProcDump here:
       # https://docs.microsoft.com/en-us/sysinternals/downloads/procdump
