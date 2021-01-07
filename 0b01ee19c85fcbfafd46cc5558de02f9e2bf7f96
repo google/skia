@@ -34,6 +34,24 @@
       "parentUuid": "fa2d4064_0f780b51",
       "revId": "0b01ee19c85fcbfafd46cc5558de02f9e2bf7f96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16751d2d_705cffa5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-07T21:17:41Z",
+      "side": 1,
+      "message": "Per conversation, we are not post-scaling the tile so mipmaps should not matter.",
+      "parentUuid": "cec8757d_1678b3cf",
+      "revId": "0b01ee19c85fcbfafd46cc5558de02f9e2bf7f96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
