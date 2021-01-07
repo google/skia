@@ -920,7 +920,7 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
         recorder.getRecordingCanvas()->drawPaint(p);
 
         SkMatrix m = SkMatrix::I();
-        m.preRotate(45);
+        m.preRotate(30);
         return recorder.finishRecordingAsPicture()->makeShader(
                                            SkTileMode::kRepeat,
                                            SkTileMode::kRepeat, &m, nullptr);
