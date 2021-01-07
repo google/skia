@@ -11,6 +11,9 @@
 
 #include "include/core/SkTypes.h"
 
+extern bool isGpuRenderDisabled();
+extern void setGpuRenderDisabled(bool disabled);
+
 /**
  *  Gr defines are set to 0 or 1, rather than being undefined or defined
  */

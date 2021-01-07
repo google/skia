@@ -546,6 +546,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return false;
     }
+    if (isGpuRenderDisabled()) {
+        return false;
+    }
 
     SkASSERT(this->numTargets() == 1);
     GrRenderTargetProxy* proxy = this->target(0).proxy()->asRenderTargetProxy();

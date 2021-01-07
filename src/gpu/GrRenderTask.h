@@ -34,7 +34,12 @@ public:
 
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
-    bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
+    bool execute(GrOpFlushState* flushState) {
+        if (isGpuRenderDisabled()) {
+            return false;
+        }
+        return this->onExecute(flushState);
+    }
 
     virtual bool requiresExplicitCleanup() const { return false; }
 

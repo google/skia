@@ -85,6 +85,9 @@ bool GrDrawingManager::flush(
         const GrBackendSurfaceMutableState* newState) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
+    if (isGpuRenderDisabled()) {
+        return false;
+    }
     if (fFlushing || this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -254,6 +257,9 @@ bool GrDrawingManager::flush(
     opMemoryPool->isEmpty();
 #endif
 
+    if (isGpuRenderDisabled()) {
+        return false;
+    }
     gpu->executeFlushInfo(proxies, access, info, newState);
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
@@ -300,6 +306,10 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         }
     }
 #endif
+
+    if (isGpuRenderDisabled()) {
+        return false;
+    }
 
     bool anyRenderTasksExecuted = false;
 
@@ -480,6 +490,9 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
         const GrBackendSurfaceMutableState* newState) {
+    if (isGpuRenderDisabled()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
     if (this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
