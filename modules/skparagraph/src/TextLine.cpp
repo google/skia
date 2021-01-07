@@ -762,6 +762,8 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
                 style = &block->fStyle;
                 if (start != EMPTY_INDEX && style->matchOneAttribute(styleType, *prevStyle)) {
                     size += intersect.width();
+                    // RTL text intervals move backward
+                    start = std::min(intersect.start, start);
                     continue;
                 } else if (start == EMPTY_INDEX ) {
                     // First time only
