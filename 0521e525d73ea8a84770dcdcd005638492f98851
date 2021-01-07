@@ -33,6 +33,42 @@
       "message": "Why not just return a data? (to make the api even easier)",
       "revId": "0521e525d73ea8a84770dcdcd005638492f98851",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd28b0ae_d0e2f7ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-07T19:24:10Z",
+      "side": 1,
+      "message": "You reviewed it into public :-) https://skia-review.googlesource.com/c/skia/+/135870/ . Note that flutter is currently using it (in common/graphics/persistent_cache.cc), and this actually can\u0027t even land as is, since they are using the decode (and not surprisingly, using it incorrectly and it is leaking when used). Also, the svg code uses it, which is awkward. I would prefer to hide it, but even if we hid it we should still fix the super awkward memory handling here.",
+      "parentUuid": "52f27eea_bb786282",
+      "revId": "0521e525d73ea8a84770dcdcd005638492f98851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa512db2_d346c9a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-07T19:24:10Z",
+      "side": 1,
+      "message": "Why use an SkData and force allocation a particular way? Why not a template Allocator which defaults to std::allocator like the STL? In any event, this is trying to be a simple change to just make decoding not split allocation and release of the memory in such a strange way between this class and the user.",
+      "parentUuid": "ee5779c5_b7d191e8",
+      "revId": "0521e525d73ea8a84770dcdcd005638492f98851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
