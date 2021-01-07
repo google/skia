@@ -209,7 +209,7 @@ private:
         return result;
     }
 
-    skvm::I32 mask() { return fMask; }
+    skvm::I32 mask() { return frame().fMask & ~frame().fReturned; }
 
     Value writeExpression(const Expression& expr);
     Value writeBinaryExpression(const BinaryExpression& b);
@@ -251,18 +251,22 @@ private:
     //
     // State that's local to the generation of a single function:
     //
-    SkSpan<skvm::Val> fReturnValue;
-    skvm::I32 fMask;
-    skvm::I32 fReturned;
+    struct Frame {
+        const SkSpan<skvm::Val> fReturnValue;
+        skvm::I32 fMask;
+        skvm::I32 fReturned;
+    };
+    std::vector<Frame> fStack;
+    Frame& frame() { return fStack.back(); }
 
     class AutoMask {
     public:
         AutoMask(SkVMGenerator* generator, skvm::I32 mask)
-                : fGenerator(generator), fOldMask(fGenerator->fMask) {
-            fGenerator->fMask &= mask;
+                : fGenerator(generator), fOldMask(fGenerator->frame().fMask) {
+            fGenerator->frame().fMask &= mask;
         }
 
-        ~AutoMask() { fGenerator->fMask = fOldMask; }
+        ~AutoMask() { fGenerator->frame().fMask = fOldMask; }
 
     private:
         SkVMGenerator* fGenerator;
@@ -362,9 +366,6 @@ SkVMGenerator::SkVMGenerator(const Program& program,
 
             { "sample", Intrinsic::kSample },
         } {
-    fMask     = fBuilder->splat(0xffff'ffff);
-    fReturned = fBuilder->splat(0);
-
     // Now, add storage for each global variable (including uniforms) to fSlots, and entries in
     // fVariableMap to remember where every variable is stored.
     const skvm::Val* uniformIter = uniforms.begin();
@@ -422,9 +423,11 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
                                   SkSpan<skvm::Val> outReturn) {
 
     const FunctionDeclaration& decl = function.declaration();
+    SkASSERT(slot_count(decl.returnType()) == outReturn.size());
 
-    fReturnValue = outReturn;
-    SkASSERT(slot_count(decl.returnType()) == fReturnValue.size());
+    skvm::I32 mask = fStack.empty() ? fBuilder->splat(0xffff'ffff)
+                                    : this->mask();
+    fStack.push_back({outReturn, mask, /*returned=*/fBuilder->splat(0)});
 
     // For all parameters, copy incoming argument IDs to our vector of (all) variable IDs
     size_t argIdx = 0;
@@ -455,6 +458,8 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
         argIdx += nslots;
     }
     SkASSERT(argIdx == arguments.size());
+
+    fStack.pop_back();
 }
 
 SkVMGenerator::Slot SkVMGenerator::getSlot(const Variable& v) {
@@ -1122,13 +1127,22 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
 }
 
 Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
-    // TODO: Support calling other functions (by recursively generating their programs, eg inlining)
-    if (f.function().isBuiltin()) {
+    if (f.function().isBuiltin() && !f.function().definition()) {
         return this->writeIntrinsicCall(f);
     }
 
-    SkDEBUGFAIL("Function calls not supported yet");
-    return {};
+    const FunctionDeclaration& decl = f.function();
+
+    std::vector<skvm::Val> argVals;
+    for (const auto& arg : f.arguments()) {
+        // eval arg, add to argVals
+    }
+
+    size_t nslots = slot_count(f.type());
+    Value result(nslots);
+
+    f.function();
+
 }
 
 Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
@@ -1307,18 +1321,18 @@ void SkVMGenerator::writeIfStatement(const IfStatement& i) {
 }
 
 void SkVMGenerator::writeReturnStatement(const ReturnStatement& r) {
-    // TODO: Can we suppress other side effects for lanes that have returned? fMask needs to
-    // fold in knowledge of conditional returns earlier in the function.
-    skvm::I32 returnsHere = bit_clear(this->mask(), fReturned);
+    skvm::I32 returnsHere = this->mask();
 
-    // TODO: returns with no expression
-    Value val = this->writeExpression(*r.expression());
+    if (r.expression()) {
+        Value val = this->writeExpression(*r.expression());
 
-    for (size_t i = 0; i < val.slots(); ++i) {
-        fReturnValue[i] = select(returnsHere, f32(val[i]), f32(fReturnValue[i])).id;
+        auto result = frame().fReturnValue.begin();
+        for (size_t i = 0; i < val.slots(); ++i) {
+            result[i] = select(returnsHere, f32(val[i]), f32(result[i])).id;
+        }
     }
 
-    fReturned |= returnsHere;
+    frame().fReturned |= returnsHere;
 }
 
 void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
