@@ -74,6 +74,8 @@ struct Value {
     ValRef    operator[](int i)       { return fVals[i]; }
     skvm::Val operator[](int i) const { return fVals[i]; }
 
+    SkSpan<skvm::Val> asSpan() { return fVals; }
+
 private:
     SkSTArray<4, skvm::Val, true> fVals;
 };
@@ -209,7 +211,12 @@ private:
         return result;
     }
 
-    skvm::I32 mask() { return fMask; }
+    skvm::I32 mask() {
+        // As we encounter (possibly conditional) return statements, fReturned is updated to store
+        // the lanes that have already returned. For the remainder of the current function, those
+        // lanes should be disabled.
+        return fMask & ~currentFunction().fReturned;
+    }
 
     Value writeExpression(const Expression& expr);
     Value writeBinaryExpression(const BinaryExpression& b);
@@ -248,12 +255,18 @@ private:
     std::unordered_map<const Variable*, Slot> fVariableMap;
     std::vector<skvm::Val> fSlots;
 
+    // Conditional execution mask (changes are managed by AutoMask, and tied to control-flow scopes)
+    skvm::I32 fMask;
+
     //
     // State that's local to the generation of a single function:
     //
-    SkSpan<skvm::Val> fReturnValue;
-    skvm::I32 fMask;
-    skvm::I32 fReturned;
+    struct Function {
+        const SkSpan<skvm::Val> fReturnValue;
+        skvm::I32               fReturned;
+    };
+    std::vector<Function> fFunctionStack;
+    Function& currentFunction() { return fFunctionStack.back(); }
 
     class AutoMask {
     public:
@@ -362,8 +375,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
 
             { "sample", Intrinsic::kSample },
         } {
-    fMask     = fBuilder->splat(0xffff'ffff);
-    fReturned = fBuilder->splat(0);
+    fMask = fBuilder->splat(0xffff'ffff);
 
     // Now, add storage for each global variable (including uniforms) to fSlots, and entries in
     // fVariableMap to remember where every variable is stored.
@@ -420,11 +432,10 @@ SkVMGenerator::SkVMGenerator(const Program& program,
 void SkVMGenerator::writeFunction(const FunctionDefinition& function,
                                   SkSpan<skvm::Val> arguments,
                                   SkSpan<skvm::Val> outReturn) {
-
     const FunctionDeclaration& decl = function.declaration();
+    SkASSERT(slot_count(decl.returnType()) == outReturn.size());
 
-    fReturnValue = outReturn;
-    SkASSERT(slot_count(decl.returnType()) == fReturnValue.size());
+    fFunctionStack.push_back({outReturn, /*returned=*/fBuilder->splat(0)});
 
     // For all parameters, copy incoming argument IDs to our vector of (all) variable IDs
     size_t argIdx = 0;
@@ -455,6 +466,8 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
         argIdx += nslots;
     }
     SkASSERT(argIdx == arguments.size());
+
+    fFunctionStack.pop_back();
 }
 
 SkVMGenerator::Slot SkVMGenerator::getSlot(const Variable& v) {
@@ -1122,13 +1135,53 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
 }
 
 Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
-    // TODO: Support calling other functions (by recursively generating their programs, eg inlining)
-    if (f.function().isBuiltin()) {
+    if (f.function().isBuiltin() && !f.function().definition()) {
         return this->writeIntrinsicCall(f);
     }
 
-    SkDEBUGFAIL("Function calls not supported yet");
-    return {};
+    const FunctionDeclaration& decl = f.function();
+
+    // Evaluate all arguments, gather the results into a contiguous list of IDs
+    std::vector<skvm::Val> argVals;
+    for (const auto& arg : f.arguments()) {
+        Value v = this->writeExpression(*arg);
+        for (size_t i = 0; i < v.slots(); ++i) {
+            argVals.push_back(v[i]);
+        }
+    }
+
+    // Create storage for the return value
+    size_t nslots = slot_count(f.type());
+    Value result(nslots);
+    for (size_t i = 0; i < nslots; ++i) {
+        result[i] = fBuilder->splat(0.0f);
+    }
+
+    {
+        // This AutoMask merges currentFunction().fReturned into fMask. Lanes that conditionally
+        // returned in the current function would otherwise resume execution within the child.
+        AutoMask m(this, ~currentFunction().fReturned);
+        this->writeFunction(*f.function().definition(), argVals, result.asSpan());
+    }
+
+    // Propagate new values of any 'out' params back to the original arguments
+    const std::unique_ptr<Expression>* argIter = f.arguments().begin();
+    size_t valIdx = 0;
+    for (const Variable* p : decl.parameters()) {
+        size_t nslots = slot_count(p->type());
+        if (p->modifiers().fFlags & Modifiers::kOut_Flag) {
+            Value v(nslots);
+            for (size_t i = 0; i < nslots; ++i) {
+                v[i] = argVals[valIdx + i];
+            }
+            const std::unique_ptr<Expression>& arg = *argIter;
+            this->writeStore(*arg, v);
+        }
+        valIdx += nslots;
+        argIter++;
+    }
+
+    return result;
 }
 
 Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
@@ -1307,18 +1360,19 @@ void SkVMGenerator::writeIfStatement(const IfStatement& i) {
 }
 
 void SkVMGenerator::writeReturnStatement(const ReturnStatement& r) {
-    // TODO: Can we suppress other side effects for lanes that have returned? fMask needs to
-    // fold in knowledge of conditional returns earlier in the function.
-    skvm::I32 returnsHere = bit_clear(this->mask(), fReturned);
+    skvm::I32 returnsHere = this->mask();
 
-    // TODO: returns with no expression
-    Value val = this->writeExpression(*r.expression());
+    if (r.expression()) {
+        Value val = this->writeExpression(*r.expression());
 
-    for (size_t i = 0; i < val.slots(); ++i) {
-        fReturnValue[i] = select(returnsHere, f32(val[i]), f32(fReturnValue[i])).id;
+        int i = 0;
+        for (skvm::Val& slot : currentFunction().fReturnValue) {
+            slot = select(returnsHere, f32(val[i]), f32(slot)).id;
+            i++;
+        }
     }
 
-    fReturned |= returnsHere;
+    currentFunction().fReturned |= returnsHere;
 }
 
 void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
