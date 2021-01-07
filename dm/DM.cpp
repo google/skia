@@ -1328,8 +1328,8 @@ struct Task {
 
             case HLGish_TF:
                 if (eq(tf, SkNamedTransferFn::kHLG)) { return SkString("HLG"); }
-                return SkStringPrintf("HLGish %.3g %.3g %.3g %.3g %.3g",
-                                      tf.a, tf.b, tf.c, tf.d, tf.e);
+                return SkStringPrintf("HLGish %.3g %.3g %.3g %.3g %.3g (%.3g)",
+                                      tf.a, tf.b, tf.c, tf.d, tf.e, tf.f+1);
 
             case HLGinvish_TF: break;
             case Bad_TF: break;
