@@ -2449,8 +2449,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
     const Type& baseType = base->type();
     switch (op) {
         case Token::Kind::TK_PLUS:
-            if (!baseType.isNumber() && !baseType.isVector() &&
-                baseType != *fContext.fFloatLiteral_Type) {
+            if (!baseType.componentType().isNumber()) {
                 fErrors.error(base->fOffset,
                               "'+' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
@@ -2458,19 +2457,20 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
             return base;
 
         case Token::Kind::TK_MINUS:
-            if (base->is<IntLiteral>()) {
-                return std::make_unique<IntLiteral>(fContext, base->fOffset,
-                                                    -base->as<IntLiteral>().value());
-            }
-            if (base->is<FloatLiteral>()) {
-                return std::make_unique<FloatLiteral>(fContext, base->fOffset,
-                                                      -base->as<FloatLiteral>().value());
-            }
-            if (!baseType.isNumber() &&
-                !(baseType.isVector() && baseType.componentType().isNumber())) {
+            if (!baseType.componentType().isNumber()) {
                 fErrors.error(base->fOffset,
                               "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
+            }
+            if (base->is<IntLiteral>()) {
+                return std::make_unique<IntLiteral>(base->fOffset,
+                                                    -base->as<IntLiteral>().value(),
+                                                    &base->type());
+            }
+            if (base->is<FloatLiteral>()) {
+                return std::make_unique<FloatLiteral>(base->fOffset,
+                                                      -base->as<FloatLiteral>().value(),
+                                                      &base->type());
             }
             return std::make_unique<PrefixExpression>(Token::Kind::TK_MINUS, std::move(base));
 
@@ -2503,9 +2503,10 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
                               baseType.displayName() + "'");
                 return nullptr;
             }
-            if (base->kind() == Expression::Kind::kBoolLiteral) {
-                return std::make_unique<BoolLiteral>(fContext, base->fOffset,
-                                                     !base->as<BoolLiteral>().value());
+            if (base->is<BoolLiteral>()) {
+                return std::make_unique<BoolLiteral>(base->fOffset,
+                                                     !base->as<BoolLiteral>().value(),
+                                                     &base->type());
             }
             break;
         case Token::Kind::TK_BITWISENOT:
@@ -2516,7 +2517,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
                               "' is not allowed");
                 return nullptr;
             }
-            if (baseType != *fContext.fInt_Type && baseType != *fContext.fUInt_Type) {
+            if (!baseType.isInteger()) {
                 fErrors.error(base->fOffset,
                               String("'") + Compiler::OperatorName(op) + "' cannot operate on '" +
                               baseType.displayName() + "'");
