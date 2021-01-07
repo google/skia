@@ -106,6 +106,24 @@
       "parentUuid": "734240a5_f9c13772",
       "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1471bfe_4a4e6b35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7838
+      },
+      "writtenOn": "2021-01-07T20:55:04Z",
+      "side": 1,
+      "message": "build_overrides is a bad design and needs to go away. I can make that an official policy if you want, that angle.gni is now read-only and not to be extended.",
+      "parentUuid": "9ea54a69_4bd5cb60",
+      "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
