@@ -14,7 +14,7 @@ UPLOAD_ATTEMPTS = 5
 class InfraApi(recipe_api.RecipeApi):
   @property
   def goroot(self):
-    return self.m.vars.slave_dir.join('go', 'go')
+    return self.m.vars.workdir.join('go', 'go')
 
   @property
   def go_bin(self):

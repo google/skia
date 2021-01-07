@@ -1,4 +1,4 @@
-// CanvasPath methods, which all take an SkPath object as the first param
+// CanvasPath methods, which all take an Path object as the first param
 
 function arc(skpath, x, y, radius, startAngle, endAngle, ccw) {
   // As per  https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-arc
@@ -16,7 +16,7 @@ function arcTo(skpath, x1, y1, x2, y2, radius) {
   if (skpath.isEmpty()) {
     skpath.moveTo(x1, y1);
   }
-  skpath.arcTo(x1, y1, x2, y2, radius);
+  skpath.arcToTangent(x1, y1, x2, y2, radius);
 }
 
 function bezierCurveTo(skpath, cp1x, cp1y, cp2x, cp2y, x, y) {
@@ -35,7 +35,7 @@ function closePath(skpath) {
   }
   // Check to see if we are not just a single point
   var bounds = skpath.getBounds();
-  if ((bounds.fBottom - bounds.fTop) || (bounds.fRight - bounds.fLeft)) {
+  if ((bounds[3] - bounds[1]) || (bounds[2] - bounds[0])) {
     skpath.close();
   }
 }
@@ -50,11 +50,11 @@ function _ellipseHelper(skpath, x, y, radiusX, radiusY, startAngle, endAngle) {
   // draws nothing.
   if (almostEqual(Math.abs(sweepDegrees), 360)) {
     var halfSweep = sweepDegrees/2;
-    skpath.arcTo(oval, startDegrees, halfSweep, false);
-    skpath.arcTo(oval, startDegrees + halfSweep, halfSweep, false);
+    skpath.arcToOval(oval, startDegrees, halfSweep, false);
+    skpath.arcToOval(oval, startDegrees + halfSweep, halfSweep, false);
     return;
   }
-  skpath.arcTo(oval, startDegrees, sweepDegrees, false);
+  skpath.arcToOval(oval, startDegrees, sweepDegrees, false);
 }
 
 function ellipse(skpath, x, y, radiusX, radiusY, rotation,
@@ -98,8 +98,8 @@ function ellipse(skpath, x, y, radiusX, radiusY, rotation,
     _ellipseHelper(skpath, x, y, radiusX, radiusY, startAngle, endAngle);
     return;
   }
-  var rotated = CanvasKit.SkMatrix.rotated(rotation, x, y);
-  var rotatedInvert = CanvasKit.SkMatrix.rotated(-rotation, x, y);
+  var rotated = CanvasKit.Matrix.rotated(rotation, x, y);
+  var rotatedInvert = CanvasKit.Matrix.rotated(-rotation, x, y);
   skpath.transform(rotatedInvert);
   _ellipseHelper(skpath, x, y, radiusX, radiusY, startAngle, endAngle);
   skpath.transform(rotated);
@@ -134,21 +134,22 @@ function quadraticCurveTo(skpath, cpx, cpy, x, y) {
 }
 
 function rect(skpath, x, y, width, height) {
-  if (!allAreFinite([x, y, width, height])) {
+  var rect = CanvasKit.XYWHRect(x, y, width, height);
+  if (!allAreFinite(rect)) {
     return;
   }
   // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-rect
-  skpath.addRect(x, y, x+width, y+height);
+  skpath.addRect(rect);
 }
 
 function Path2D(path) {
   this._path = null;
   if (typeof path === 'string') {
-      this._path = CanvasKit.MakePathFromSVGString(path);
+      this._path = CanvasKit.Path.MakeFromSVGString(path);
   } else if (path && path._getPath) {
       this._path = path._getPath().copy();
   } else {
-    this._path = new CanvasKit.SkPath();
+    this._path = new CanvasKit.Path();
   }
 
   this._getPath = function() {

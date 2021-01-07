@@ -7,7 +7,7 @@ const CanvasKitInit = require('../canvaskit/bin/canvaskit.js');
 
 CanvasKitInit({
   locateFile: (file) => __dirname + '/../canvaskit/bin/'+file,
-}).ready().then((CanvasKit) => {
+}).then((CanvasKit) => {
   let colorMap = {
     // From https://drafts.csswg.org/css-color/#named-colors
     'aliceblue': CanvasKit.Color(240, 248, 255),

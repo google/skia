@@ -19,7 +19,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/perf-karma-chrome-tests:77.0.3865.120_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/perf-karma-chrome-tests:87.0.4280.88_v1'
 INNER_KARMA_SCRIPT = 'skia/infra/pathkit/perf_pathkit.sh'
 
 

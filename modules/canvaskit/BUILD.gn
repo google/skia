@@ -1,0 +1,55 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+component("viewer_wasm") {
+  testonly = true
+  include_dirs = [ "../.." ]
+  sources = [
+    "../../modules/svg/src/SkSVGAttribute.cpp",
+    "../../modules/svg/src/SkSVGAttributeParser.cpp",
+    "../../modules/svg/src/SkSVGCircle.cpp",
+    "../../modules/svg/src/SkSVGClipPath.cpp",
+    "../../modules/svg/src/SkSVGContainer.cpp",
+    "../../modules/svg/src/SkSVGDOM.cpp",
+    "../../modules/svg/src/SkSVGEllipse.cpp",
+    "../../modules/svg/src/SkSVGFe.cpp",
+    "../../modules/svg/src/SkSVGFeColorMatrix.cpp",
+    "../../modules/svg/src/SkSVGFeComposite.cpp",
+    "../../modules/svg/src/SkSVGFeTurbulence.cpp",
+    "../../modules/svg/src/SkSVGFilter.cpp",
+    "../../modules/svg/src/SkSVGFilterContext.cpp",
+    "../../modules/svg/src/SkSVGGradient.cpp",
+    "../../modules/svg/src/SkSVGLine.cpp",
+    "../../modules/svg/src/SkSVGLinearGradient.cpp",
+    "../../modules/svg/src/SkSVGNode.cpp",
+    "../../modules/svg/src/SkSVGPath.cpp",
+    "../../modules/svg/src/SkSVGPattern.cpp",
+    "../../modules/svg/src/SkSVGPoly.cpp",
+    "../../modules/svg/src/SkSVGRadialGradient.cpp",
+    "../../modules/svg/src/SkSVGRect.cpp",
+    "../../modules/svg/src/SkSVGRenderContext.cpp",
+    "../../modules/svg/src/SkSVGSVG.cpp",
+    "../../modules/svg/src/SkSVGShape.cpp",
+    "../../modules/svg/src/SkSVGStop.cpp",
+    "../../modules/svg/src/SkSVGText.cpp",
+    "../../modules/svg/src/SkSVGTransformableNode.cpp",
+    "../../modules/svg/src/SkSVGUse.cpp",
+    "../../modules/svg/src/SkSVGValue.cpp",
+    "../../tools/viewer/SKPSlide.cpp",
+    "../../tools/viewer/SampleSlide.cpp",
+    "../../tools/viewer/SvgSlide.cpp",
+  ]
+  deps = [ "../..:samples" ]
+}
+
+component("gm_wasm") {
+  testonly = true
+  include_dirs = [ "../.." ]
+  deps = [
+    "../..:hash_and_encode",
+    "../..:tool_utils",
+    "../../modules/svg:svg",
+  ]
+}
