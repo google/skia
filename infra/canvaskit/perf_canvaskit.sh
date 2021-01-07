@@ -14,12 +14,18 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
+# We avoid a lot of file permission errors by copying the tests and binary into the Docker
+# container and running npm ci there.
+cp -R $CANVASKIT_DIR /tmp/work
+cd /tmp/work
+npm ci --cache /tmp/npmcache
+
 # Start the aggregator in the background
 /opt/perf-aggregator $@ &
 # Run the tests 10 times to get a wide set of data
 for i in `seq 1 10`;
 do
-    npx karma start $CANVASKIT_DIR/karma.bench.conf.js --single-run
+    npx karma start /tmp/work/karma.bench.conf.js --single-run
 done
 # Tell the aggregator to dump the json
 # This curl command gets the HTTP code and stores it into $CODE
