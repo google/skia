@@ -16,6 +16,29 @@
       "message": "This is probably the real issue, that this is an SkString. This should be more like a std::vector\u003cchar\u003e or something so that it doesn\u0027t grow every time an append happens and doesn\u0027t free the entire backing store every time flushText is called.",
       "revId": "0491c88fbee67d34375e85a4a178341e805592b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d99b5aac_3452c459",
+        "filename": "src/xml/SkXMLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-07T20:07:42Z",
+      "side": 1,
+      "message": "This is either a great size or a terrible size. If the malloc in XML_GetBuffer keeps all data about this block out of line then this will end up on many systems nicely being one 4KB page. On the other hand if it doesn\u0027t this can actually allocate two full pages and mostly waste one of them. I wish there were some c library call for \"I want some memory at least this size, but no bigger than some other size, please go efficiently do that and tell me how much you gave me\". We want something like that for the arena allocator and the dynamic memory stream implementation and like all over the place.\n\nIn other words, I wish I could say something about this number other than that I\u0027m slightly depressed about it. I\u0027m fine with this number being larger (especially in release) but I can\u0027t really tell you the right number. Only the allocator knows, and it isn\u0027t telling.",
+      "range": {
+        "startLine": 156,
+        "startChar": 39,
+        "endLine": 156,
+        "endChar": 43
+      },
+      "revId": "0491c88fbee67d34375e85a4a178341e805592b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
