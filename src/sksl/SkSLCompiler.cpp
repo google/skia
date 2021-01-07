@@ -646,6 +646,9 @@ static bool is_constant(const Expression& expr, T value) {
         case Expression::Kind::kFloatLiteral:
             return expr.as<FloatLiteral>().value() == value;
 
+        case Expression::Kind::kBoolLiteral:
+            return expr.as<BoolLiteral>().value() == value;
+
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expr.as<Constructor>();
             if (constructor.isCompileTimeConstant()) {
@@ -658,17 +661,24 @@ static bool is_constant(const Expression& expr, T value) {
                                     return false;
                                 }
                             }
-                            return true;
                         } else if (constructor.componentType().isInteger()) {
                             for (int i = 0; i < constructorType.columns(); ++i) {
                                 if (constructor.getIVecComponent(i) != value) {
                                     return false;
                                 }
                             }
-                            return true;
+                        } else if (constructor.componentType().isBoolean()) {
+                            for (int i = 0; i < constructorType.columns(); ++i) {
+                                if (constructor.getBVecComponent(i) != value) {
+                                    return false;
+                                }
+                            }
+                        } else {
+                            SkDEBUGFAILF("unexpected component type: %s",
+                                         constructor.componentType().displayName().c_str());
+                            return false;
                         }
-                        // Other types (e.g. boolean) might occur, but aren't supported here.
-                        return false;
+                        return true;
 
                     case Type::TypeKind::kScalar:
                         SkASSERT(constructor.arguments().size() == 1);

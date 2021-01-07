@@ -53,13 +53,18 @@ struct Swizzle final : public Expression {
                 if (type.isInteger()) {
                     SkASSERT(this->components().size() == 1);
                     SKSL_INT value = constructor.getIVecComponent(this->components()[0]);
-                    return std::make_unique<IntLiteral>(irGenerator.fContext, constructor.fOffset,
-                                                        value);
+                    return std::make_unique<IntLiteral>(constructor.fOffset, value,
+                                                        &constructor.componentType());
                 } else if (type.isFloat()) {
                     SkASSERT(this->components().size() == 1);
                     SKSL_FLOAT value = constructor.getFVecComponent(this->components()[0]);
-                    return std::make_unique<FloatLiteral>(irGenerator.fContext, constructor.fOffset,
-                                                          value);
+                    return std::make_unique<FloatLiteral>(constructor.fOffset, value,
+                                                          &constructor.componentType());
+                } else if (type.isBoolean()) {
+                    SkASSERT(this->components().size() == 1);
+                    bool value = constructor.getBVecComponent(this->components()[0]);
+                    return std::make_unique<BoolLiteral>(constructor.fOffset, value,
+                                                         &constructor.componentType());
                 }
             }
         }
