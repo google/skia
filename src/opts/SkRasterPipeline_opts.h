@@ -1877,12 +1877,13 @@ STAGE(HLGish, const skcms_TransferFunction* ctx) {
         v = strip_sign(v, &sign);
 
         const float R = ctx->a, G = ctx->b,
-                    a = ctx->c, b = ctx->d, c = ctx->e;
+                    a = ctx->c, b = ctx->d, c = ctx->e,
+                    K = ctx->f + 1.0f;
 
         F r = if_then_else(v*R <= 1, approx_powf(v*R, G)
                                    , approx_exp((v-c)*a) + b);
 
-        return apply_sign(r, sign);
+        return K * apply_sign(r, sign);
     };
     r = fn(r);
     g = fn(g);
@@ -1895,8 +1896,10 @@ STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
         v = strip_sign(v, &sign);
 
         const float R = ctx->a, G = ctx->b,
-                    a = ctx->c, b = ctx->d, c = ctx->e;
+                    a = ctx->c, b = ctx->d, c = ctx->e,
+                    K = ctx->f + 1.0f;
 
+        v /= K;
         F r = if_then_else(v <= 1, R * approx_powf(v, G)
                                  , a * approx_log(v - b) + c);
 
