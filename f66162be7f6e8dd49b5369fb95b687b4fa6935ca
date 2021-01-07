@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "285b0598_64f7ada6",
+        "filename": "src/sksl/dsl/DSLCore.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T21:56:02Z",
+      "side": 1,
+      "message": "Is this true? It looks like we\u0027ve got the thread-local instance stuff set up.",
+      "range": {
+        "startLine": 32,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 83
+      },
+      "revId": "f66162be7f6e8dd49b5369fb95b687b4fa6935ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a645354b_0597d0c8",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T21:56:02Z",
+      "side": 1,
+      "message": "Probably just make this DEF_GPUTEST, or we\u0027ll be running it a bunch of times for no real benefit.",
+      "range": {
+        "startLine": 29,
+        "startChar": 11,
+        "endLine": 29,
+        "endChar": 28
+      },
+      "revId": "f66162be7f6e8dd49b5369fb95b687b4fa6935ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
