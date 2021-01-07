@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99fa283d_b3bc61aa",
+        "filename": "src/xml/SkXMLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-07T19:44:46Z",
+      "side": 1,
+      "message": "This is probably the real issue, that this is an SkString. This should be more like a std::vector\u003cchar\u003e or something so that it doesn\u0027t grow every time an append happens and doesn\u0027t free the entire backing store every time flushText is called.",
+      "revId": "0491c88fbee67d34375e85a4a178341e805592b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

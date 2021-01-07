@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0068e878_00d23006",
+        "filename": "src/xml/SkXMLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-07T19:44:46Z",
+      "side": 0,
+      "message": "This seems to be a copy-paste from SkFontMgr_android_parser.cpp#parse_config_file, except it lacks the comment stating why this was done, which is to detect when XML_CharacterDataHandlers aren\u0027t appending (it\u0027s easy to write them in such a way that they don\u0027t realize that they may be called multiple times for a single run of character data if it spills over the edge of a single buffer).\n\nIn this case this class itself never handles the character data itself, the ctx-\u003eappendText does, but then those need to be sure to be written correctly as well. In any event, if that doesn\u0027t matter this change is fine.\n\nOn the other hand if everything was really as slow as stated, the issue is probably that the ctx-\u003eappendText was inefficiently using SkString and appending to it, resulting in n^2 concatenation time. If that is the case using a string builder of some sort and snapping off strings would be far more efficient.",
+      "revId": "6a718c4e909e07b3626297da342e3d2859ef8b9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
