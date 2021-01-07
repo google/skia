@@ -1133,15 +1133,13 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 for (int c : s.components()) {
                     final.push_back(base.components()[c]);
                 }
-                optimizationContext->fUpdated = true;
                 std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.base()->clone(),
                                                                     final));
+                // We're replacing an expression with a cloned version; we'll need a rescan.
                 // No fUsage change: `foo.gbr.gbr` and `foo.brg` have equivalent reference counts
-                if (!try_replace_expression(&b, iter, &replacement)) {
-                    optimizationContext->fNeedsRescan = true;
-                    return;
-                }
-                SkASSERT((*iter)->isExpression());
+                try_replace_expression(&b, iter, &replacement);
+                optimizationContext->fUpdated = true;
+                optimizationContext->fNeedsRescan = true;
                 break;
             }
             // Optimize swizzles of constructors.

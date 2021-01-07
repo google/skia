@@ -80,9 +80,10 @@ void BasicBlock::dump() const {
     printf("Before: [");
     const char* separator = "";
     for (const auto& [var, expr] : fBefore) {
-        printf("%s%s = %s", separator,
-                            var->description().c_str(),
-                            expr ? (*expr)->description().c_str() : "<undefined>");
+        printf("%s%s = %s",
+               separator,
+               var->description().c_str(),
+               expr ? *expr ? (*expr)->description().c_str() : "NULL" : "<undefined>");
         separator = ", ";
     }
     printf("]\nIs Reachable: [%s]\n", fIsReachable ? "yes" : "no");

@@ -1863,7 +1863,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     if (left.is<BoolLiteral>() && !right.isCompileTimeConstant()) {
         return short_circuit_boolean(fContext, left, op, right);
     } else if (right.is<BoolLiteral>() && !left.isCompileTimeConstant()) {
-        // There aren't side effects in SKSL within expressions, so (left OP right) is equivalent to
+        // There aren't side effects in SkSL within expressions, so (left OP right) is equivalent to
         // (right OP left) for short-circuit optimizations
         return short_circuit_boolean(fContext, right, op, left);
     }
