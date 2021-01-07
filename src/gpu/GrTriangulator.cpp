@@ -430,7 +430,7 @@ struct Event {
     SSEdge* fEdge;
     SkPoint fPoint;
     uint8_t fAlpha;
-    void apply(VertexList* mesh, Comparator& c, EventList* events, SkArenaAlloc& alloc);
+    void apply(VertexList* mesh, const Comparator& c, EventList* events, SkArenaAlloc& alloc);
 };
 
 struct EventComparator {
@@ -471,7 +471,7 @@ static void create_event(SSEdge* e, EventList* events, SkArenaAlloc& alloc) {
 }
 
 static void create_event(SSEdge* edge, Vertex* v, SSEdge* other, Vertex* dest, EventList* events,
-                         Comparator& c, SkArenaAlloc& alloc) {
+                         const Comparator& c, SkArenaAlloc& alloc) {
     if (!v->fPartner) {
         return;
     }
@@ -836,7 +836,7 @@ static inline bool apply_fill_type(SkPathFillType fillType, Poly* poly) {
     return poly && apply_fill_type(fillType, poly->fWinding);
 }
 
-static Edge* new_edge(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c,
+static Edge* new_edge(Vertex* prev, Vertex* next, Edge::Type type, const Comparator& c,
                       SkArenaAlloc& alloc) {
     int winding = c.sweep_lt(prev->fPoint, next->fPoint) ? 1 : -1;
     Vertex* top = winding < 0 ? next : prev;
@@ -875,7 +875,7 @@ static void find_enclosing_edges(Vertex* v, EdgeList* edges, Edge** left, Edge**
     *right = next;
 }
 
-static void insert_edge_above(Edge* edge, Vertex* v, Comparator& c) {
+static void insert_edge_above(Edge* edge, Vertex* v, const Comparator& c) {
     if (edge->fTop->fPoint == edge->fBottom->fPoint ||
         c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
         return;
@@ -894,7 +894,7 @@ static void insert_edge_above(Edge* edge, Vertex* v, Comparator& c) {
         edge, prev, next, &v->fFirstEdgeAbove, &v->fLastEdgeAbove);
 }
 
-static void insert_edge_below(Edge* edge, Vertex* v, Comparator& c) {
+static void insert_edge_below(Edge* edge, Vertex* v, const Comparator& c) {
     if (edge->fTop->fPoint == edge->fBottom->fPoint ||
         c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
         return;
@@ -936,9 +936,9 @@ static void disconnect(Edge* edge)
 }
 
 static void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current,
-                                  Comparator& c);
+                                  const Comparator& c);
 
-static void rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, Comparator& c) {
+static void rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, const Comparator& c) {
     if (!current || *current == dst || c.sweep_lt((*current)->fPoint, dst->fPoint)) {
         return;
     }
@@ -965,7 +965,7 @@ static void rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, Compara
 }
 
 static void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** current,
-                                Comparator& c) {
+                                const Comparator& c) {
     if (!activeEdges || !current) {
         return;
     }
@@ -1002,7 +1002,8 @@ static void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** curr
     }
 }
 
-static void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c) {
+static void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
+                    const Comparator& c) {
     remove_edge_below(edge);
     edge->fTop = v;
     edge->recompute();
@@ -1012,7 +1013,7 @@ static void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** curre
 }
 
 static void set_bottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
-                       Comparator& c) {
+                       const Comparator& c) {
     remove_edge_above(edge);
     edge->fBottom = v;
     edge->recompute();
@@ -1022,7 +1023,7 @@ static void set_bottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** cu
 }
 
 static void merge_edges_above(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
-                              Comparator& c) {
+                              const Comparator& c) {
     if (coincident(edge->fTop->fPoint, other->fTop->fPoint)) {
         TESS_LOG("merging coincident above edges (%g, %g) -> (%g, %g)\n",
                  edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
@@ -1043,7 +1044,7 @@ static void merge_edges_above(Edge* edge, Edge* other, EdgeList* activeEdges, Ve
 }
 
 static void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
-                              Comparator& c) {
+                              const Comparator& c) {
     if (coincident(edge->fBottom->fPoint, other->fBottom->fPoint)) {
         TESS_LOG("merging coincident below edges (%g, %g) -> (%g, %g)\n",
                  edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
@@ -1080,7 +1081,7 @@ static bool bottom_collinear(Edge* left, Edge* right) {
 }
 
 static void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current,
-                                  Comparator& c) {
+                                  const Comparator& c) {
     for (;;) {
         if (top_collinear(edge->fPrevEdgeAbove, edge)) {
             merge_edges_above(edge->fPrevEdgeAbove, edge, activeEdges, current, c);
@@ -1101,7 +1102,7 @@ static void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** cu
 }
 
 bool GrTriangulator::splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
-                               Comparator& c) {
+                               const Comparator& c) {
     if (!edge->fTop || !edge->fBottom || v == edge->fTop || v == edge->fBottom) {
         return false;
     }
@@ -1131,7 +1132,7 @@ bool GrTriangulator::splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Ver
 }
 
 bool GrTriangulator::intersectEdgePair(Edge* left, Edge* right, EdgeList* activeEdges,
-                                       Vertex** current, Comparator& c) {
+                                       Vertex** current, const Comparator& c) {
     if (!left->fTop || !left->fBottom || !right->fTop || !right->fBottom) {
         return false;
     }
@@ -1163,7 +1164,7 @@ bool GrTriangulator::intersectEdgePair(Edge* left, Edge* right, EdgeList* active
     return false;
 }
 
-static Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c,
+static Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, const Comparator& c,
                      SkArenaAlloc& alloc, int winding_scale = 1) {
     if (!prev || !next || prev->fPoint == next->fPoint) {
         return nullptr;
@@ -1176,7 +1177,7 @@ static Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c,
     return edge;
 }
 
-static void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c) {
+static void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, const Comparator& c) {
     TESS_LOG("found coincident verts at %g, %g; merging %g into %g\n",
              src->fPoint.fX, src->fPoint.fY, src->fID, dst->fID);
     dst->fAlpha = std::max(src->fAlpha, dst->fAlpha);
@@ -1194,7 +1195,7 @@ static void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparato
 }
 
 static Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
-                                    Vertex* reference, Comparator& c, SkArenaAlloc& alloc) {
+                                    Vertex* reference, const Comparator& c, SkArenaAlloc& alloc) {
     Vertex* prevV = reference;
     while (prevV && c.sweep_lt(p, prevV->fPoint)) {
         prevV = prevV->fPrev;
@@ -1228,13 +1229,13 @@ static Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList*
 // If an edge's top and bottom points differ only by 1/2 machine epsilon in the primary
 // sort criterion, it may not be possible to split correctly, since there is no point which is
 // below the top and above the bottom. This function detects that case.
-static bool nearly_flat(Comparator& c, Edge* edge) {
+static bool nearly_flat(const Comparator& c, Edge* edge) {
     SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
     float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
     return fabs(primaryDiff) < std::numeric_limits<float>::epsilon() && primaryDiff != 0.0f;
 }
 
-static SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, Comparator& c) {
+static SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, const Comparator& c) {
     if (c.sweep_lt(p, min)) {
         return min;
     } else if (c.sweep_lt(max, p)) {
@@ -1264,7 +1265,7 @@ static void compute_bisector(Edge* edge1, Edge* edge2, Vertex* v, SkArenaAlloc& 
 }
 
 bool GrTriangulator::checkForIntersection(Edge* left, Edge* right, EdgeList* activeEdges,
-                                          Vertex** current, VertexList* mesh, Comparator& c) {
+                                          Vertex** current, VertexList* mesh, const Comparator& c) {
     if (!left || !right) {
         return false;
     }
@@ -1340,7 +1341,7 @@ void GrTriangulator::sanitizeContours(VertexList* contours, int contourCnt) {
     }
 }
 
-bool GrTriangulator::mergeCoincidentVertices(VertexList* mesh, Comparator& c) {
+bool GrTriangulator::mergeCoincidentVertices(VertexList* mesh, const Comparator& c) {
     if (!mesh->fHead) {
         return false;
     }
@@ -1362,7 +1363,7 @@ bool GrTriangulator::mergeCoincidentVertices(VertexList* mesh, Comparator& c) {
 // Stage 2: convert the contours to a mesh of edges connecting the vertices.
 
 void GrTriangulator::buildEdges(VertexList* contours, int contourCnt, VertexList* mesh,
-                                Comparator& c) {
+                                const Comparator& c) {
     for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
         Vertex* prev = contour->fTail;
         for (Vertex* v = contour->fHead; v;) {
@@ -1375,7 +1376,7 @@ void GrTriangulator::buildEdges(VertexList* contours, int contourCnt, VertexList
     }
 }
 
-static void connect_partners(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
+static void connect_partners(VertexList* mesh, const Comparator& c, SkArenaAlloc& alloc) {
     for (Vertex* outer = mesh->fHead; outer; outer = outer->fNext) {
         if (Vertex* inner = outer->fPartner) {
             if ((inner->fPrev || inner->fNext) && (outer->fPrev || outer->fNext)) {
@@ -1408,7 +1409,8 @@ static void sorted_merge(VertexList* front, VertexList* back, VertexList* result
     result->append(*back);
 }
 
-static void sorted_merge(VertexList* front, VertexList* back, VertexList* result, Comparator& c) {
+static void sorted_merge(VertexList* front, VertexList* back, VertexList* result,
+                         const Comparator& c) {
     if (c.fDirection == Comparator::Direction::kHorizontal) {
         sorted_merge<sweep_lt_horiz>(front, back, result);
     } else {
@@ -1492,7 +1494,7 @@ static void dump_skel(const SSEdgeList& ssEdges) {
 }
 
 #ifdef SK_DEBUG
-static void validate_edge_pair(Edge* left, Edge* right, Comparator& c) {
+static void validate_edge_pair(Edge* left, Edge* right, const Comparator& c) {
     if (!left || !right) {
         return;
     }
@@ -1514,7 +1516,7 @@ static void validate_edge_pair(Edge* left, Edge* right, Comparator& c) {
     }
 }
 
-static void validate_edge_list(EdgeList* edges, Comparator& c) {
+static void validate_edge_list(EdgeList* edges, const Comparator& c) {
     Edge* left = edges->fHead;
     if (!left) {
         return;
@@ -1532,7 +1534,7 @@ static bool connected(Vertex* v) {
     return v->fFirstEdgeAbove || v->fFirstEdgeBelow;
 }
 
-GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, Comparator& c) {
+GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const Comparator& c) {
     TESS_LOG("simplifying complex polygons\n");
     EdgeList activeEdges;
     auto result = SimplifyResult::kAlreadySimple;
@@ -1759,7 +1761,7 @@ static void get_edge_normal(const Edge* e, SkVector* normal) {
 // and whose adjacent vertices are less than a quarter pixel from an edge. These are guaranteed to
 // invert on stroking.
 
-static void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& alloc) {
+static void simplify_boundary(EdgeList* boundary, const Comparator& c, SkArenaAlloc& alloc) {
     Edge* prevEdge = boundary->fTail;
     SkVector prevNormal;
     get_edge_normal(prevEdge, &prevNormal);
@@ -1805,7 +1807,7 @@ static void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& a
     }
 }
 
-static void ss_connect(Vertex* v, Vertex* dest, Comparator& c, SkArenaAlloc& alloc) {
+static void ss_connect(Vertex* v, Vertex* dest, const Comparator& c, SkArenaAlloc& alloc) {
     if (v == dest) {
         return;
     }
@@ -1820,7 +1822,7 @@ static void ss_connect(Vertex* v, Vertex* dest, Comparator& c, SkArenaAlloc& all
     }
 }
 
-void Event::apply(VertexList* mesh, Comparator& c, EventList* events, SkArenaAlloc& alloc) {
+void Event::apply(VertexList* mesh, const Comparator& c, EventList* events, SkArenaAlloc& alloc) {
     if (!fEdge) {
         return;
     }
@@ -1882,7 +1884,7 @@ static bool is_overlap_edge(Edge* e) {
 
 // This is a stripped-down version of tessellate() which computes edges which
 // join two filled regions, which represent overlap regions, and collapses them.
-static bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc,
+static bool collapse_overlap_regions(VertexList* mesh, const Comparator& c, SkArenaAlloc& alloc,
                                      EventComparator comp) {
     TESS_LOG("\nfinding overlap regions\n");
     EdgeList activeEdges;
@@ -1964,7 +1966,7 @@ static bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAll
     return complex;
 }
 
-static bool inversion(Vertex* prev, Vertex* next, Edge* origEdge, Comparator& c) {
+static bool inversion(Vertex* prev, Vertex* next, Edge* origEdge, const Comparator& c) {
     if (!prev || !next) {
         return true;
     }
@@ -1977,7 +1979,7 @@ static bool inversion(Vertex* prev, Vertex* next, Edge* origEdge, Comparator& c)
 // new antialiased mesh from those vertices.
 
 static void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* outerMesh,
-                            Comparator& c, SkArenaAlloc& alloc) {
+                            const Comparator& c, SkArenaAlloc& alloc) {
     TESS_LOG("\nstroking boundary\n");
     // A boundary with fewer than 3 edges is degenerate.
     if (!boundary->fHead || !boundary->fHead->fRight || !boundary->fHead->fRight->fRight) {
@@ -2172,8 +2174,8 @@ static void extract_boundary(EdgeList* boundary, Edge* e, SkPathFillType fillTyp
 // Stage 5b: Extract boundaries from mesh, simplify and stroke them into a new mesh.
 
 static void extract_boundaries(const VertexList& inMesh, VertexList* innerVertices,
-                               VertexList* outerVertices, SkPathFillType fillType, Comparator& c,
-                               SkArenaAlloc& alloc) {
+                               VertexList* outerVertices, SkPathFillType fillType,
+                               const Comparator& c, SkArenaAlloc& alloc) {
     remove_non_boundary_edges(inMesh, fillType, alloc);
     for (Vertex* v = inMesh.fHead; v; v = v->fNext) {
         while (v->fFirstEdgeBelow) {
@@ -2188,7 +2190,7 @@ static void extract_boundaries(const VertexList& inMesh, VertexList* innerVertic
 // This is a driver function that calls stages 2-5 in turn.
 
 void GrTriangulator::contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh,
-                                    Comparator& c) {
+                                    const Comparator& c) {
 #if LOGGING_ENABLED
     for (int i = 0; i < contourCnt; ++i) {
         Vertex* v = contours[i].fHead;

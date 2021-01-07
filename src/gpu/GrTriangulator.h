@@ -88,7 +88,7 @@ private:
     void pathToContours(float tolerance, const SkRect& clipBounds, VertexList* contours);
 
     // 2) Build a mesh of edges connecting the vertices:
-    void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh, Comparator&);
+    void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
 
     // 3) Sort the vertices in Y (and secondarily in X) (merge_sort()).
     static void SortMesh(VertexList* vertices, const Comparator&);
@@ -100,7 +100,7 @@ private:
         kAbort
     };
 
-    SimplifyResult simplify(VertexList* mesh, Comparator&);
+    SimplifyResult simplify(VertexList* mesh, const Comparator&);
 
     // 5) Tessellate the simplified mesh into monotone polygons:
     Poly* tessellate(const VertexList& vertices);
@@ -167,14 +167,15 @@ private:
     void appendQuadraticToContour(const SkPoint[3], SkScalar toleranceSqd, VertexList* contour);
     void generateCubicPoints(const SkPoint&, const SkPoint&, const SkPoint&, const SkPoint&,
                              SkScalar tolSqd, VertexList* contour, int pointsLeft);
-    bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator&);
+    bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
+                   const Comparator&);
     bool intersectEdgePair(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
-                           Comparator&);
+                           const Comparator&);
     bool checkForIntersection(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
-                              VertexList* mesh, Comparator&);
+                              VertexList* mesh, const Comparator&);
     void sanitizeContours(VertexList* contours, int contourCnt);
-    bool mergeCoincidentVertices(VertexList* mesh, Comparator&);
-    void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, Comparator&);
+    bool mergeCoincidentVertices(VertexList* mesh, const Comparator&);
+    void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
     Poly* contoursToPolys(VertexList* contours, int contourCnt, VertexList* outerMesh);
     Poly* pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt,
                       VertexList* outerMesh);
