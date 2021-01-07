@@ -1,0 +1,160 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007106310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345295?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a290e035_864b8f46",
+        "filename": "infra/bots/assets/ccache_linux/create.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-07T14:53:01Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 32,
+        "startChar": 53,
+        "endLine": 32,
+        "endChar": 56
+      },
+      "revId": "908a5d7115837acb8ff265b9ce2d0b07a26dc3d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007106310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345295?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "aaa94b78_4a7dff2f",
+        "filename": "infra/bots/assets/ccache_mac/create.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-07T14:53:01Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 32,
+        "startChar": 53,
+        "endLine": 32,
+        "endChar": 56
+      },
+      "revId": "908a5d7115837acb8ff265b9ce2d0b07a26dc3d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007106310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345295?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "f484870f_863947c9",
+        "filename": "infra/bots/recipes/skqp_test.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-07T14:53:01Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 18,
+        "startChar": 38,
+        "endLine": 18,
+        "endChar": 47
+      },
+      "revId": "908a5d7115837acb8ff265b9ce2d0b07a26dc3d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007106310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345295?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "2906e879_107f9cb3",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-07T14:53:01Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 65,
+        "startChar": 97,
+        "endLine": 65,
+        "endChar": 98
+      },
+      "revId": "908a5d7115837acb8ff265b9ce2d0b07a26dc3d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007106310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345295?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "edc79d03_0e58be21",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-07T14:53:01Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 799,
+        "startChar": 287,
+        "endLine": 799,
+        "endChar": 290
+      },
+      "revId": "908a5d7115837acb8ff265b9ce2d0b07a26dc3d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007106310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345295?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0e22bc1f_5c3a0235",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-07T14:53:01Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027design spec\u0027 or \u0027special case\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 788,
+        "startChar": 16,
+        "endLine": 788,
+        "endChar": 24
+      },
+      "revId": "908a5d7115837acb8ff265b9ce2d0b07a26dc3d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
