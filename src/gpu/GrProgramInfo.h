@@ -29,7 +29,7 @@ public:
             , fBackendFormat(targetView.proxy()->backendFormat())
             , fOrigin(targetView.origin())
             , fTargetSupportsVkResolveLoad(
-                      targetView.asRenderTargetProxy()->numSamples() &&
+                      targetView.asRenderTargetProxy()->numSamples() > 1 &&
                       targetView.asTextureProxy() &&
                       targetView.asRenderTargetProxy()->supportsVkInputAttachment())
             , fPipeline(pipeline)
