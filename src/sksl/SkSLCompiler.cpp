@@ -2143,10 +2143,13 @@ void Compiler::error(int offset, String msg) {
     fErrorText += "error: " + (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
 }
 
-String Compiler::errorText() {
-    this->writeErrorCount();
+String Compiler::errorText(bool showCount) {
+    if (showCount) {
+        this->writeErrorCount();
+    }
     fErrorCount = 0;
     String result = fErrorText;
+    fErrorText = "";
     return result;
 }
 
