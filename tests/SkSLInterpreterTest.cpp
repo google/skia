@@ -20,6 +20,7 @@ struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)
             : fCaps(GrContextOptions{}), fCompiler(&fCaps) {
         SkSL::Program::Settings settings;
+        settings.fInlineThreshold = 0;
         fProgram = fCompiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
                                             settings);
         if (!fProgram) {
