@@ -265,28 +265,34 @@ DataURIResourceProviderProxy::DataURIResourceProviderProxy(sk_sp<ResourceProvide
     : INHERITED(std::move(rp))
     , fPredecode(predecode) {}
 
-static sk_sp<SkData> decode_datauri(const char prefix[], const char data[]) {
+static sk_sp<SkData> decode_datauri(const char prefix[], const char uri[]) {
     // We only handle B64 encoded image dataURIs: data:image/<type>;base64,<data>
     // (https://en.wikipedia.org/wiki/Data_URI_scheme)
     static constexpr char kDataURIEncodingStr[] = ";base64,";
 
-    const auto prefix_len = strlen(prefix);
-    if (!strncmp(data, prefix, prefix_len)) {
-        if (const auto* encoding_start = strstr(data + prefix_len, kDataURIEncodingStr)) {
-            const char* data_start = encoding_start + SK_ARRAY_COUNT(kDataURIEncodingStr) - 1;
-
-            // TODO: SkBase64::decode ergonomics are... interesting.
-            SkBase64 b64;
-            if (SkBase64::kNoError == b64.decode(data_start, strlen(data_start))) {
-                return SkData::MakeWithProc(b64.getData(), b64.getDataSize(),
-                                            [](const void* ptr, void*) {
-                                                delete[] static_cast<const char*>(ptr);
-                                            }, /*ctx=*/nullptr);
-            }
-        }
+    const size_t prefix_len = strlen(prefix);
+    if (strncmp(uri, prefix, prefix_len) != 0) {
+        return nullptr;
     }
 
-    return nullptr;
+    const char* encoding_start = strstr(uri + prefix_len, kDataURIEncodingStr);
+    if (!encoding_start) {
+        return nullptr;
+    }
+
+    const char* b64_data = encoding_start + SK_ARRAY_COUNT(kDataURIEncodingStr) - 1;
+    size_t b64_data_len = strlen(b64_data);
+    size_t data_len;
+    if (SkBase64::Decode(b64_data, b64_data_len, nullptr, &data_len) != SkBase64::kNoError) {
+        return nullptr;
+    }
+
+    sk_sp<SkData> data = SkData::MakeUninitialized(data_len);
+    if (SkBase64::Decode(b64_data, b64_data_len, data.get(), &data_len) != SkBase64::kNoError) {
+        return nullptr;
+    }
+
+    return data;
 }
 
 sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[],
