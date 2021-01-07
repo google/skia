@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32307da9_69f69c73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-07T19:14:18Z",
+      "side": 1,
+      "message": "First refactor on the way to supporting function calls. This moves all of the per-function-invocation parameters to generateCode (now called writeFunction), so the constructor parameters are just the global per-program things. Eliminates the need for some longer lived state.\n\nUp next: Things like fReturnValue and fReturned will be moved into a per-stack-frame struct, with a vector of those stored instead. Function calls will just turn into more calls to writeFunction (with some minor bookkeeping to construct arg and return spans appropriately.",
+      "revId": "996ff3d83aa13ce4e30180a14845e1c5ebc88033",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
