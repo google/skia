@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffb05be6_1e482650",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-07T14:32:12Z",
+      "side": 1,
+      "message": "I wanted the assert to explicitly match the conditions we\u0027re actually checking against. Conceptually it\u0027s the same AFAIK, but in practice it\u0027s checking a different field in the Type. (fTypeKind vs fNumberKind) Actually, `isScalar` was actually wrong in the previous code because it allowed Booleans but we didn\u0027t handle those.",
+      "parentUuid": "9e3f0087_bdd675b7",
+      "range": {
+        "startLine": 243,
+        "startChar": 4,
+        "endLine": 243,
+        "endChar": 90
+      },
+      "revId": "832a321e190657f96d1e46f6e81181c97d459d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "250ed544_c6dd61ad",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-07T14:10:42Z",
       "side": 1,
       "message": "I assume that a follow-up will support constant folding of \u0027!true\u0027, but it seems odd to include this function in this CL, when it always fails, then returns the wrong thing? Maybe leave it out so the base-class ABORT is triggered instead?",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "832a321e190657f96d1e46f6e81181c97d459d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68473063_3460d551",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-07T14:32:12Z",
+      "side": 1,
+      "message": "Is triggering the ABORT the right thing? I considered it a bad thing to trigger an ABORT when we could reasonably continue compiling a program. If we somehow fold down an expression to `-true`, yes it indicates that we failed to type-check something somewhere, but is that worth crashing Chrome versus just returning `true`? SkDEBUGFAIL seemed like a better option to me--we\u0027d get signal that we missed a typecheck somewhere (the fuzzer will catch it), but in the wild we\u0027d continue compiling and get a reasonable final program.",
+      "parentUuid": "250ed544_c6dd61ad",
       "range": {
         "startLine": 99,
         "startChar": 0,
