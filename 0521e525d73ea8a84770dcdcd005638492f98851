@@ -16,6 +16,23 @@
       "message": "Can we make this (also) non-public? tools? src?",
       "revId": "0521e525d73ea8a84770dcdcd005638492f98851",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee5779c5_b7d191e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-07T18:41:59Z",
+      "side": 1,
+      "message": "Why not just return a data? (to make the api even easier)",
+      "revId": "0521e525d73ea8a84770dcdcd005638492f98851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
