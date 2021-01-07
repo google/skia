@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7822fd8_46be1a86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-07T13:26:30Z",
+      "side": 1,
+      "message": "That\u0027s the idea - no special linking (which actually seemed quite difficult by my reading).",
+      "parentUuid": "f444a7e3_12305414",
+      "revId": "c6764d7f4426177e83433624268a91425fd1db49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91b66fc4_23a2ed9a",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-01-06T21:19:43Z",
       "side": 1,
       "message": "Does this fail gracefully when fSound is just an empty object?",
+      "revId": "c6764d7f4426177e83433624268a91425fd1db49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b1a551e_d90b59c7",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-07T13:26:30Z",
+      "side": 1,
+      "message": "I would expect it to crash, but haven\u0027t tested it. I don\u0027t see an easy way to patch a no-op function onto this.\n\nProbably easier is to use null and the isNull() check https://github.com/emscripten-core/emscripten/blob/master/system/include/emscripten/val.h#L393",
+      "parentUuid": "91b66fc4_23a2ed9a",
       "revId": "c6764d7f4426177e83433624268a91425fd1db49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
