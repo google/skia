@@ -163,7 +163,6 @@ public:
     SkPMColor light(const SkPoint3& normal, const SkPoint3& surfaceTolight,
                     const SkPoint3& lightColor) const override {
         SkScalar colorScale = fKD * normal.dot(surfaceTolight);
-        colorScale = SkTPin(colorScale, 0.0f, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
         return SkPackARGB32(255,
                             SkTPin(SkScalarRoundToInt(color.fX), 0, 255),
@@ -188,7 +187,6 @@ public:
         halfDir.fZ += SK_Scalar1;        // eye position is always (0, 0, 1)
         fast_normalize(&halfDir);
         SkScalar colorScale = fKS * SkScalarPow(normal.dot(halfDir), fShininess);
-        colorScale = SkTPin(colorScale, 0.0f, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
         return SkPackARGB32(SkTPin(SkScalarRoundToInt(max_component(color)), 0, 255),
                             SkTPin(SkScalarRoundToInt(color.fX), 0, 255),
@@ -1859,7 +1857,7 @@ void GrGLDiffuseLightingEffect::emitLightFunc(const GrFragmentProcessor* owner,
     };
     SkString lightBody;
     lightBody.appendf("half colorScale = %s * dot(normal, surfaceToLight);", kd);
-    lightBody.appendf("return half4(lightColor * saturate(colorScale), 1.0);");
+    lightBody.appendf("return half4(saturate(lightColor * colorScale), 1.0);");
     *funcName = fragBuilder->getMangledFunctionName("light");
     fragBuilder->emitFunction(kHalf4_GrSLType,
                               funcName->c_str(),
@@ -1966,7 +1964,7 @@ void GrGLSpecularLightingEffect::emitLightFunc(const GrFragmentProcessor* owner,
     lightBody.appendf("half3 halfDir = half3(normalize(surfaceToLight + half3(0, 0, 1)));");
     lightBody.appendf("half colorScale = half(%s * pow(dot(normal, halfDir), %s));",
                       ks, shininess);
-    lightBody.appendf("half3 color = lightColor * saturate(colorScale);");
+    lightBody.appendf("half3 color = saturate(lightColor * colorScale);");
     lightBody.appendf("return half4(color, max(max(color.r, color.g), color.b));");
     *funcName = fragBuilder->getMangledFunctionName("light");
     fragBuilder->emitFunction(kHalf4_GrSLType,
