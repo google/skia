@@ -45,18 +45,6 @@ namespace SkSL {
 
 namespace {
 
-class DebugfErrorReporter : public ErrorReporter {
-public:
-    void error(int offset, String msg) override {
-        SkDebugf("%s\n", msg.c_str());
-        ++fErrorCount;
-    }
-    int errorCount() override { return fErrorCount; }
-
-private:
-    int fErrorCount = 0;
-};
-
 // Holds scalars, vectors, or matrices
 struct Value {
     Value() = default;
@@ -102,10 +90,9 @@ public:
                   skvm::Coord device,
                   skvm::Coord local,
                   SampleChildFn sampleChild,
-                  SkSpan<skvm::Val> outReturn,
-                  ErrorReporter* errors);
+                  SkSpan<skvm::Val> outReturn);
 
-    bool generateCode();
+    void generateCode();
 
 private:
     enum class Intrinsic {
@@ -259,8 +246,6 @@ private:
     const SkSpan<skvm::Val> fArguments;
     const SkSpan<skvm::Val> fReturnValue;
 
-    ErrorReporter& fErrors;
-
     skvm::I32 fMask;
     skvm::I32 fReturned;
 
@@ -322,8 +307,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Coord device,
                              skvm::Coord local,
                              SampleChildFn sampleChild,
-                             SkSpan<skvm::Val> outReturn,
-                             ErrorReporter* errors)
+                             SkSpan<skvm::Val> outReturn)
         : fProgram(program)
         , fFunction(function)
         , fBuilder(builder)
@@ -331,7 +315,6 @@ SkVMGenerator::SkVMGenerator(const Program& program,
         , fSampleChild(std::move(sampleChild))
         , fArguments(arguments)
         , fReturnValue(outReturn)
-        , fErrors(*errors)
         , fIntrinsics {
             { "sin", Intrinsic::kSin },
             { "cos", Intrinsic::kCos },
@@ -456,7 +439,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
     SkASSERT(argSlot == fSlots.size());
 }
 
-bool SkVMGenerator::generateCode() {
+void SkVMGenerator::generateCode() {
     this->writeStatement(*fFunction.body());
 
     // Copy 'out' and 'inout' parameters back to their caller-supplied argument storage
@@ -472,8 +455,6 @@ bool SkVMGenerator::generateCode() {
         }
         argIdx += nslots;
     }
-
-    return 0 == fErrors.errorCount();
 }
 
 SkVMGenerator::Slot SkVMGenerator::getSlot(const Variable& v) {
@@ -595,8 +576,6 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
 
     size_t nslots = std::max(lVal.slots(), rVal.slots());
 
-    // TODO: This treats all unsigned types as signed. Need to pick a policy. (Either produce errors
-    // if a program uses unsigned types, or just silently convert everything to signed?)
     auto binary = [&](auto&& f_fn, auto&& i_fn) {
         Value result(nslots);
         for (size_t i = 0; i < nslots; ++i) {
@@ -1148,7 +1127,7 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
         return this->writeIntrinsicCall(f);
     }
 
-    fErrors.error(-1, "Function calls not supported yet");
+    SkDEBUGFAIL("Function calls not supported yet");
     return {};
 }
 
@@ -1375,7 +1354,7 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kDo:
         case Statement::Kind::kFor:
         case Statement::Kind::kSwitch:
-            fErrors.error(s.fOffset, "Unsupported control flow");
+            SkDEBUGFAIL("Unsupported control flow");
             break;
         case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
@@ -1392,8 +1371,6 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord device,
                           skvm::Coord local,
                           SampleChildFn sampleChild) {
-    DebugfErrorReporter errors;
-
     skvm::Val args[2] = {local.x.id, local.y.id};
     skvm::Val result[4] = {skvm::NA, skvm::NA, skvm::NA, skvm::NA};
     size_t paramSlots = 0;
@@ -1403,20 +1380,19 @@ skvm::Color ProgramToSkVM(const Program& program,
     SkASSERT(paramSlots <= SK_ARRAY_COUNT(args));
 
     SkVMGenerator generator(program, function, builder, uniforms, {args, paramSlots},
-                            device, local, std::move(sampleChild), result, &errors);
+                            device, local, std::move(sampleChild), result);
+    generator.generateCode();
 
-    return generator.generateCode() ? skvm::Color{{builder, result[0]},
-                                                  {builder, result[1]},
-                                                  {builder, result[2]},
-                                                  {builder, result[3]}}
-                                    : skvm::Color{};
+    return skvm::Color{{builder, result[0]},
+                       {builder, result[1]},
+                       {builder, result[2]},
+                       {builder, result[3]}};
 }
 
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
                    SkVMSignature* outSignature) {
-    DebugfErrorReporter errors;
     SkVMSignature ignored,
                   *signature = outSignature ? outSignature : &ignored;
 
@@ -1446,11 +1422,8 @@ bool ProgramToSkVM(const Program& program,
 
     skvm::Coord zeroCoord = {b->splat(0.0f), b->splat(0.0f)};
     SkVMGenerator generator(program, function, b, /*uniforms=*/{}, argVals, /*device=*/zeroCoord,
-                            /*local=*/zeroCoord, /*sampleChild=*/{}, returnVals, &errors);
-
-    if (!generator.generateCode()) {
-        return false;
-    }
+                            /*local=*/zeroCoord, /*sampleChild=*/{}, returnVals);
+    generator.generateCode();
 
     // generateCode has updated the contents of 'argVals' for any 'out' or 'inout' parameters.
     // Propagate those changes back to our varying buffers:
