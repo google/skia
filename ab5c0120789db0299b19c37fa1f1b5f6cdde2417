@@ -52,6 +52,24 @@
       "parentUuid": "50eedb14_0a3996ca",
       "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "734240a5_f9c13772",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7838
+      },
+      "writtenOn": "2021-01-07T20:49:19Z",
+      "side": 1,
+      "message": "You can also define skia_standalone \u003d true here and have ANGLE define skia_standalone \u003d false in ANGLE\u0027s .gn. I really don\u0027t care if ANGLE or Skia has to acknowledge the other one exists ^^",
+      "parentUuid": "6a06afed_c9508f8c",
+      "revId": "ab5c0120789db0299b19c37fa1f1b5f6cdde2417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
