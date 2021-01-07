@@ -1,1 +1,5 @@
 buildconfig = "//gn/BUILDCONFIG.gn"
+
+default_args = {
+  angle_standalone = false
+}
