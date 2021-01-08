@@ -66,9 +66,9 @@ GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
 }
 
 void GrDirectContextPriv::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
-                                        GrRenderTargetProxy* newDest,
+                                        sk_sp<GrRenderTargetProxy> newDest,
                                         SkIPoint offset) {
-    fContext->drawingManager()->createDDLTask(std::move(ddl), newDest, offset);
+    fContext->drawingManager()->createDDLTask(std::move(ddl), std::move(newDest), offset);
 }
 
 bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
