@@ -14,7 +14,6 @@ targetDir = sys.argv[2]
 includes = sys.argv[3:]
 
 for inc in includes:
-    print("Recompiling " + inc + "...")
     try:
         noExt, _ = os.path.splitext(inc)
         head, tail = os.path.split(noExt)
