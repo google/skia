@@ -45,38 +45,6 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport sys\n\nlottie_files_dir = sys.argv[1]\nout_dir = sys.argv[2]\nlottie_build = sys.argv[3]\n\n# Make sure all the lottie files are readable by everyone so we can see\n# them in the docker container.\nos.system('chmod 0644 %s/*' % lottie_files_dir)\nos.system('chmod 0644 %s/*' % lottie_build)\n\n# Prepare output folder, api.file.ensure_directory doesn't touch\n# the permissions of the out directory if it already exists.\n# This typically means that the non-privileged docker won't be able to write.\nos.chmod(out_dir, 0o777)\n",
-      "/tmp/lottie_files",
-      "[START_DIR]/[SWARM_OUT_DIR]",
-      "[START_DIR]/lottie/build/player"
-    ],
-    "infra_step": true,
-    "name": "Set up for docker",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@lottie_files_dir = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@out_dir = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@lottie_build = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Make sure all the lottie files are readable by everyone so we can see@@@",
-      "@@@STEP_LOG_LINE@python.inline@# them in the docker container.@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.system('chmod 0644 %s/*' % lottie_files_dir)@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.system('chmod 0644 %s/*' % lottie_build)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Prepare output folder, api.file.ensure_directory doesn't touch@@@",
-      "@@@STEP_LOG_LINE@python.inline@# the permissions of the out directory if it already exists.@@@",
-      "@@@STEP_LOG_LINE@python.inline@# This typically means that the non-privileged docker won't be able to write.@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.chmod(out_dir, 0o777)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
@@ -100,19 +68,119 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "Docker setup"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint '%d:%d' % (os.getuid(), os.getgid())\n"
+    ],
+    "name": "Docker setup.Get uid and gid",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print '%d:%d' % (os.getuid(), os.getgid())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.mkdirs out_dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 777 [START_DIR]/[SWARM_OUT_DIR]",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "755",
+      "[START_DIR]"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 755 [START_DIR]",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "0755",
+      "[START_DIR]/skia/infra/lottiecap/docker/lottiecap_gold.sh"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 0755 [START_DIR]/skia/infra/lottiecap/docker/lottiecap_gold.sh",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "-R",
+      "a+r",
+      "[START_DIR]/lottie/build/player"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod -R a+r [START_DIR]/lottie/build/player",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "-R",
+      "a+r",
+      "/tmp/lottie_files"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod -R a+r /tmp/lottie_files",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
     "cmd": [
       "docker",
       "run",
       "--shm-size=2gb",
       "--rm",
-      "-v",
-      "[START_DIR]:/SRC",
-      "-v",
-      "[START_DIR]/[SWARM_OUT_DIR]:/OUT",
-      "-v",
-      "[START_DIR]/lottie/build/player:/LOTTIE_BUILD",
-      "-v",
-      "/tmp/lottie_files:/LOTTIE_FILES",
+      "--user",
+      "13:17",
+      "--mount",
+      "type=bind,source=[START_DIR],target=/SRC",
+      "--mount",
+      "type=bind,source=[START_DIR]/[SWARM_OUT_DIR],target=/OUT",
+      "--mount",
+      "type=bind,source=[START_DIR]/lottie/build/player,target=/LOTTIE_BUILD",
+      "--mount",
+      "type=bind,source=/tmp/lottie_files,target=/LOTTIE_FILES",
       "gcr.io/skia-public/gold-lottie-web-puppeteer:v2",
       "/SRC/skia/infra/lottiecap/docker/lottiecap_gold.sh",
       "--builder",
@@ -141,7 +209,7 @@
       "DOCKER_CONFIG": "/home/chrome-bot/.docker",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Create lottie-web Gold output with Docker"
+    "name": "Generate LottieWeb Gold output with Docker"
   },
   {
     "name": "$result"
