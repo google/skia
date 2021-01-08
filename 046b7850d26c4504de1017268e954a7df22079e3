@@ -39,6 +39,30 @@
       },
       "revId": "046b7850d26c4504de1017268e954a7df22079e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aef4c16c_d5484ca3",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-08T15:22:40Z",
+      "side": 1,
+      "message": "Related to the \"device-space\" flag for the light?\n\nUgh -- that is a tricky feature (for clients to get right, e.g. pictures)",
+      "parentUuid": "0e4226c3_1d3400a4",
+      "range": {
+        "startLine": 68,
+        "startChar": 31,
+        "endLine": 68,
+        "endChar": 47
+      },
+      "revId": "046b7850d26c4504de1017268e954a7df22079e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
