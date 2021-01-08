@@ -336,6 +336,18 @@ int32_t GrSurfaceProxy::testingOnly_getBackingRefCnt() const {
 GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
     return fSurfaceFlags;
 }
+
+SkString GrSurfaceProxy::dump(const SkString& indent) const {
+    SkString tmp;
+
+    tmp.appendf("%sproxyID: %d - surfaceID: %d",
+                indent.c_str(),
+                this->uniqueID().asUInt(),
+                this->peekSurface() ? this->peekSurface()->uniqueID().asUInt()
+                                    : -1);
+    return tmp;
+}
+
 #endif
 
 void GrSurfaceProxyPriv::exactify(bool allocatedCaseOnly) {
