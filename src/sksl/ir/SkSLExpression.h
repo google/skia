@@ -113,8 +113,7 @@ public:
         kNotEqual,
         kEqual
     };
-    virtual ComparisonResult compareConstant(const Context& context,
-                                             const Expression& other) const {
+    virtual ComparisonResult compareConstant(const Expression& other) const {
         return ComparisonResult::kUnknown;
     }
 

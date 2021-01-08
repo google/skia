@@ -55,8 +55,7 @@ public:
         return INHERITED::coercionCost(target);
     }
 
-    ComparisonResult compareConstant(const Context& context,
-                                     const Expression& other) const override {
+    ComparisonResult compareConstant(const Expression& other) const override {
         if (!other.is<FloatLiteral>()) {
             return ComparisonResult::kUnknown;
         }
