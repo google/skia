@@ -782,7 +782,6 @@ function shaderTests(CK: CanvasKit) {
     );
     const s12 = CK.Shader.MakeFractalNoise(0.1, 0.05, 2, 0, 80, 80); // $ExpectType Shader
     const s13 = CK.Shader.MakeTurbulence(0.1, 0.05, 2, 0, 80, 80); // $ExpectType Shader
-    const s14 = CK.Shader.MakeImprovedNoise(0.1, 0.05, 2, 0); // $ExpectType Shader
 }
 
 function shapedTextTests(CK: CanvasKit, textFont?: Font) {
