@@ -9,6 +9,7 @@
 #define SKSL_DSL_CORE
 
 #include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLType.h"
 
 namespace SkSL {
 
@@ -29,7 +30,7 @@ public:
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 /**
  * Starts DSL output on the current thread using the specified compiler. This must be called
- * prior to any other DSL functions. Only one thread may use the DSL API at a time.
+ * prior to any other DSL functions.
  */
 void Start(SkSL::Compiler* compiler);
 
