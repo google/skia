@@ -66,6 +66,12 @@ const opts = [
     name: 'manual_mode',
     description: 'If set, tests will not run automatically.',
     type: Boolean,
+  },
+  {
+    name: 'batch_size',
+    description: 'Number of gms (or unit tests) to run in a batch. The main thread ' +
+      'of the page is only unlocked between batches. Default: 50. Use 1 for debugging.',
+    type: Number,
   }
 ];
 
@@ -88,6 +94,9 @@ if (!options.port) {
 }
 if (!options.timeout) {
   options.timeout = 60;
+}
+if (!options.batch_size) {
+  options.batch_size = 50;
 }
 
 if (options.help) {
@@ -263,10 +272,9 @@ async function driveBrowser() {
     await page.click('#start_tests');
 
     // Rather than wait a long time for things to finish, we send progress updates every 50 tests.
-    const batchSize = 50;
-    let batch = batchSize;
+    let batch = options.batch_size;
     while (true) {
-      console.log(`Waiting ${options.timeout}s for ${batchSize} tests to complete`);
+      console.log(`Waiting ${options.timeout}s for ${options.batch_size} tests to complete`);
       await page.waitForFunction(`(window._testsProgress >= ${batch}) || window._testsDone || window._error`, {
         timeout: options.timeout*1000,
       });
@@ -288,7 +296,7 @@ async function driveBrowser() {
         break;
       }
       console.log(`In Progress; completed ${progress.count} tests.`)
-      batch = progress.count + batchSize;
+      batch = progress.count + options.batch_size;
     }
     const goldResults = await page.evaluate('window._results');
     failed = await(page.evaluate('window._failed'));
