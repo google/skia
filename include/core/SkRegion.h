@@ -157,6 +157,12 @@ public:
     */
     const SkIRect& getBounds() const { return fBounds; }
 
+    /** Returns the area of a region.
+
+        @return  region area
+    */
+    int computeRegionArea() const;
+
     /** Returns a value that increases with the number of
         elements in SkRegion. Returns zero if SkRegion is empty.
         Returns one if SkRegion equals SkIRect; otherwise, returns

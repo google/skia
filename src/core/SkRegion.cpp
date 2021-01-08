@@ -411,6 +411,37 @@ static bool scanline_contains(const SkRegionPriv::RunType runs[],
     return false;
 }
 
+int SkRegion::computeRegionArea() const {
+    int32_t regionArea = 0;
+
+    if (this->isEmpty()) {
+        return regionArea;
+    }
+
+    if (this->isRect()) {
+        regionArea = fBounds.width() * fBounds.height();
+        return regionArea;
+    }
+    SkASSERT(this->isComplex());
+
+    const RunType* scanline = fRunHead->findScanline(fBounds.fTop);
+    int32_t scanlineTop = fBounds.fTop;
+
+    for (;;) {
+        for (int i = 0; i < scanline[1]; i++) {
+            regionArea += (scanline_bottom(scanline) - scanlineTop)
+                          * (scanline[2*i+3] - scanline[2*i+2]);
+        }
+        if (fBounds.fBottom <= scanline_bottom(scanline)) {
+            break;
+        }
+        scanlineTop = scanline_bottom(scanline);
+        scanline = scanline_next(scanline);
+    }
+
+    return regionArea;
+}
+
 bool SkRegion::contains(const SkIRect& r) const {
     SkDEBUGCODE(SkRegionPriv::Validate(*this));
 
