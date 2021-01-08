@@ -3,6 +3,80 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "79019e74_87acf3b9",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "Can we leave a note explaining the \u0026 ~topFunction().fReturned part?",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d32f1f18_8b1463f9",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "I think \"topFunction\" made me think \"main\", but this is the function deepest in the call stack right?  What\u0027s currently being translated?  If main() calls foo() calls bar(), this returns bar?",
+      "range": {
+        "startLine": 264,
+        "startChar": 14,
+        "endLine": 264,
+        "endChar": 25
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "543c9b86_adb0637d",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "Is there any post-condition worth checking on topFunction() before popping here, like maybe\n\n   fBuilder-\u003eassert_true(topFunction().fReturned);\n\n?",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acbb37e6_9487531f",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "Walk me through the four possible function states: builtin x definition?",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "28db6c9f_57fabff5",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 4
@@ -14,6 +88,115 @@
       "writtenOn": "2021-01-08T18:09:00Z",
       "side": 1,
       "message": "This all feels slightly redundant with the work in writeFunction (quite a bit of back-to-back bookkeeping), but all my attempts to rearrange it just shuffled code around (or created different copy-paste duplication). :shrug:",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "535d9d98_8ca32cb0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "If it\u0027s comprehensible, a type here might help, particularly because we\u0027re not just *ing it but **ing it.",
+      "range": {
+        "startLine": 1159,
+        "startChar": 4,
+        "endLine": 1159,
+        "endChar": 8
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b0a48c6_0e77a591",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "Maybe give *argIter its own line with type and name here?",
+      "range": {
+        "startLine": 1168,
+        "startChar": 29,
+        "endLine": 1168,
+        "endChar": 38
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5a981de_0a6945b8",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "Would this be any clearer the other way around,\n\n   int i \u003d 0;\n   for (skvm::Val\u0026 slot : topFunction.fReturnValue) {\n       slot \u003d select(returnsHere, f32(val[i]), f32(slot)).id;\n       i++;\n   }\n\n?",
+      "range": {
+        "startLine": 1358,
+        "startChar": 0,
+        "endLine": 1361,
+        "endChar": 9
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87c8ed24_6ebd1a21",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "I\u0027m thinking maybe currentFunction()?",
+      "range": {
+        "startLine": 1364,
+        "startChar": 4,
+        "endLine": 1364,
+        "endChar": 15
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21844229_7c638ec3",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:48:21Z",
+      "side": 1,
+      "message": "Can we flip these TODOs now?",
       "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
