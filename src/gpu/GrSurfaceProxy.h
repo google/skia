@@ -318,6 +318,7 @@ public:
 #if GR_TEST_UTILS
     int32_t testingOnly_getBackingRefCnt() const;
     GrInternalSurfaceFlags testingOnly_getFlags() const;
+    SkString dump(const SkString& indent) const;
 #endif
 
     SkDEBUGCODE(void validate(GrContext_Base*) const;)
@@ -325,6 +326,10 @@ public:
     // Provides access to functions that aren't part of the public API.
     inline GrSurfaceProxyPriv priv();
     inline const GrSurfaceProxyPriv priv() const;  // NOLINT(readability-const-return-type)
+
+    void setIsDDLTarget() { fIsDDLTarget = true; }
+    bool isDDLTarget() const { return fIsDDLTarget; }
+    bool fulfillsDDLTarget() const { return fFulfillsDDLTarget; }
 
     GrProtected isProtected() const { return fIsProtected; }
 
@@ -422,6 +427,8 @@ private:
 
     virtual LazySurfaceDesc callbackDesc() const = 0;
 
+    bool                   fIsDDLTarget = false;
+    bool                   fFulfillsDDLTarget = false;
     bool                   fIgnoredByResourceAllocator = false;
     GrProtected            fIsProtected;
 

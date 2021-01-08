@@ -303,7 +303,9 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
                             startIndex, stopIndex, 0, fDAG.count());
     for (int i = startIndex; i < stopIndex; ++i) {
         if (fDAG[i]) {
-            fDAG[i]->dump(true);
+            SkString label;
+            label.printf("task %d/%d", i, fDAG.count());
+            fDAG[i]->dump(label, {}, true, true);
         }
     }
 #endif
