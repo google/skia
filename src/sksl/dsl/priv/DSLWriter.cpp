@@ -52,6 +52,19 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Express
     return expr;
 }
 
+DSLExpression DSLWriter::Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs) {
+    SkSL::ExpressionArray args;
+    for (DSLExpression& arg : rawArgs) {
+        args.push_back(arg.release());
+    }
+    return DSLExpression(DSLWriter::IRGenerator().call(
+                                         /*offset=*/-1,
+                                         std::make_unique<SkSL::TypeReference>(DSLWriter::Context(),
+                                                                               /*offset=*/-1,
+                                                                               &type),
+                                         std::move(args)));
+}
+
 void DSLWriter::ReportError(const char* msg) {
     if (Instance().fErrorHandler) {
         Instance().fErrorHandler->handleError(msg);
