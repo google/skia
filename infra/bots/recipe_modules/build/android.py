@@ -94,6 +94,9 @@ def compile_fn(api, checkout_root, out_dir):
     else:
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+      api.run(api.step, 'gn clean',
+              cmd=[gn, 'clean', out_dir])
+      api.run(api.step, 'ninja clean', cmd=['ninja', '-C', out_dir, '-t', 'clean'])
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
