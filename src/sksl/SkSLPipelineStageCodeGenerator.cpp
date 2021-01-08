@@ -216,7 +216,18 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
                     fErrors.error(v->fOffset, "unsupported parameter type");
                     return;
                 }
-                result.fParameters.emplace_back(v->name(), paramSLType);
+                GrShaderVar::TypeModifier typeModifier = GrShaderVar::TypeModifier::None;
+                switch (v->modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) {
+                    case Modifiers::kOut_Flag:
+                        typeModifier = GrShaderVar::TypeModifier::Out;
+                        break;
+                    case Modifiers::kIn_Flag | Modifiers::kOut_Flag:
+                        typeModifier = GrShaderVar::TypeModifier::InOut;
+                        break;
+                    default:
+                        break;
+                }
+                result.fParameters.emplace_back(v->name(), paramSLType, typeModifier);
             }
             for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
                 this->writeStatement(*stmt);
