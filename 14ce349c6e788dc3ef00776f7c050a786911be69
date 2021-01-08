@@ -1,6 +1,98 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "5363ea89_d791b30b",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-08T17:57:05Z",
+      "side": 1,
+      "message": "It looks like this type really does two fairly different things:\n- make a new owned Variable with a given name and type\n- look up an existing Variable in the symbol table by name and provide a DSL reference to it\n\nI guess I would need to see how it is used in practice, but I\u0027m wondering if these are really the same thing? Do we really need both things in the same class? Even if we conceptually need a \"Variable\" class, could there be a base class with two subclasses for each distinct mode?",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60e24d2a_dc7e91c5",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-08T17:57:05Z",
+      "side": 1,
+      "message": "This lookup (for the non-owned variable-by-name case) would happen every time var() is called.\n\nThis means that DSLVar(\"foo\") could actually refer to totally distinct `foo` variables, if more than one `foo` exists in the code, depending on what scope we\u0027re in when var() is called. It \nalso has a sneaky performance cost; this feels like a freebie accessor, not a recursive hash table lookup.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 41
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f17f907f_9659f7fe",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-08T17:57:05Z",
+      "side": 1,
+      "message": "Is a default value that gives all variables the same name useful/a good idea? Seems like a footgun to me.",
+      "range": {
+        "startLine": 27,
+        "startChar": 41,
+        "endLine": 27,
+        "endChar": 49
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bac2cb4_8ee3dffa",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-08T17:57:05Z",
+      "side": 1,
+      "message": "How often do we think clients will want to pass anything other than a quoted string for their variable names? I suspect it might be sufficient just to use `const char*` here and require the caller to pass in a string that will be stay fixed in place for the lifetime of the DSLVar (which probably isn\u0027t that long of a lifetime?).",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 23
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c5e85945_e7f5c58f",
