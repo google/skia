@@ -13,7 +13,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     bool expr2 = float4(_fragCoord.x, _fragCoord.y, 0.0, _fragCoord.w).y > 0.0;
     if (expr1) {
         _out->sk_FragColor.x = 1.0;
-    } else if (!expr1) {
+    } else if (true != expr1) {
         _out->sk_FragColor.x = 3.0;
     } else if (expr2) {
         _out->sk_FragColor.x = 4.0;
@@ -24,7 +24,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
     if (expr1) {
         _out->sk_FragColor.x = 1.0;
-    } else if (!expr1) {
+    } else if (expr1 != true) {
         _out->sk_FragColor.x = 3.0;
     } else if (expr2) {
         _out->sk_FragColor.x = 4.0;
