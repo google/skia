@@ -71,11 +71,17 @@ public:
     static int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                               WindingVertex** verts);
 
+    // Enums used by GrTriangulator internals.
+    typedef enum { kLeft_Side, kRight_Side } Side;
+    enum class EdgeType { kInner, kOuter, kConnector };
+
     // Structs used by GrTriangulator internals.
     struct Vertex;
     struct VertexList;
+    struct Line;
     struct Edge;
     struct EdgeList;
+    struct MonotonePoly;
     struct Poly;
     struct Comparator;
 
