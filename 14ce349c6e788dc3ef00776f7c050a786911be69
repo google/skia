@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b434399f_59401440",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T19:50:56Z",
+      "side": 1,
+      "message": "\"Lookup mode\", so to speak, should have been private. The only public function of this class is creating new variables. I\u0027ve made the other constructor private.",
+      "parentUuid": "5363ea89_d791b30b",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "60e24d2a_dc7e91c5",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-08T17:57:05Z",
       "side": 1,
       "message": "This lookup (for the non-owned variable-by-name case) would happen every time var() is called.\n\nThis means that DSLVar(\"foo\") could actually refer to totally distinct `foo` variables, if more than one `foo` exists in the code, depending on what scope we\u0027re in when var() is called. It \nalso has a sneaky performance cost; this feels like a freebie accessor, not a recursive hash table lookup.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 41
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52aa7e1f_c8034ebf",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T19:50:56Z",
+      "side": 1,
+      "message": "Should have been cached. Fixed.",
+      "parentUuid": "60e24d2a_dc7e91c5",
       "range": {
         "startLine": 40,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae1fc453_4ef8ebbc",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T19:50:56Z",
+      "side": 1,
+      "message": "It works because of mangling. The default value exists because you already have to name the variable in C++ (\u0027Var foo(kInt)\u0027), the SkSL name only actually matters if you\u0027re looking at the resulting shader code (which clients likely won\u0027t be doing), and it\u0027s kind of annoying to have to specify the name twice (\u0027Var foo(kInt, \"foo\")\u0027). I\u0027ve added a comment to clarify.",
+      "parentUuid": "f17f907f_9659f7fe",
+      "range": {
+        "startLine": 27,
+        "startChar": 41,
+        "endLine": 27,
+        "endChar": 49
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5bac2cb4_8ee3dffa",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-01-08T17:57:05Z",
       "side": 1,
       "message": "How often do we think clients will want to pass anything other than a quoted string for their variable names? I suspect it might be sufficient just to use `const char*` here and require the caller to pass in a string that will be stay fixed in place for the lifetime of the DSLVar (which probably isn\u0027t that long of a lifetime?).",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 23
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c2a032a_f7697cbb",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T19:50:56Z",
+      "side": 1,
+      "message": "Because of mangling, the name won\u0027t be a constant string by the time we\u0027re done with it. Added a comment to clarify.",
+      "parentUuid": "5bac2cb4_8ee3dffa",
       "range": {
         "startLine": 41,
         "startChar": 4,
