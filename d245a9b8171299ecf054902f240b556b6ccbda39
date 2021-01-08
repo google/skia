@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "730367b2_be9d75c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2021-01-08T16:59:46Z",
+      "side": 1,
+      "message": "+cwallez as FYI, since https://chromium-review.googlesource.com/c/angle/angle/+/2587451 is blocked on this (which is blocking https://dawn-review.googlesource.com/c/dawn/+/35081)",
+      "revId": "d245a9b8171299ecf054902f240b556b6ccbda39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
