@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "29a47aa1_1ef73e46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-08T15:34:50Z",
+      "side": 1,
+      "message": "The API *is* public (now). If its gonna stay that way, moving it to canvas probably makes sense.\n\nThe struct idea is just a convenience for the caller, esp. now that there is also a bounds query. Just a thought experiment.",
+      "parentUuid": "8e1dcc3f_0cf96a14",
+      "revId": "046b7850d26c4504de1017268e954a7df22079e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0e4226c3_1d3400a4",
         "filename": "include/utils/SkShadowUtils.h",
         "patchSetId": 3
