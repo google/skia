@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b905869f_ab76f8d2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-01-08T14:23:07Z",
+      "side": 1,
+      "message": "Nit: let\u0027s make this more descriptive so we know what changed",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "57f15081315af5d9e1890647767ad2b55f56cd84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
