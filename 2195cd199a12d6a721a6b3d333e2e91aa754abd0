@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2874c7ce_d0a74a50",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T21:12:28Z",
+      "side": 1,
+      "message": "Added a test that failed before the PS6 fix, and now passes.",
+      "parentUuid": "e996f633_0e6707e1",
+      "revId": "2195cd199a12d6a721a6b3d333e2e91aa754abd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "93bd0228_c318a016",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-01-08T20:29:13Z",
       "side": 1,
       "message": "would passing currentFunction().fReturned here have the same effect?  If so it might help track between code and comment.\n\n(But yeah, I think this is a good explanation of what we\u0027re doing and why.)",
+      "range": {
+        "startLine": 1163,
+        "startChar": 25,
+        "endLine": 1163,
+        "endChar": 37
+      },
+      "revId": "2195cd199a12d6a721a6b3d333e2e91aa754abd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd40b1fd_afa31b8f",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1163,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T21:12:28Z",
+      "side": 1,
+      "message": "Ah, yeah (actually, ~fReturned, but either way that definitely aligns the code and comment better).",
+      "parentUuid": "5f0ac945_28f819fd",
       "range": {
         "startLine": 1163,
         "startChar": 25,
