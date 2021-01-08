@@ -57,6 +57,30 @@
       },
       "revId": "8fe424b8d3ba3122138a973d47e472ae0bafad42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83b9397f_33bbf230",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-08T20:53:15Z",
+      "side": 1,
+      "message": "No, I also changed the order of vertex arguments to emit_triangle below. I just made this change so when winding\u003d\u003d0 (from the edge-AA outer mesh), that the order stays the same as it was before, in order to avoid possible diffs from triangles changing winding direction.",
+      "parentUuid": "782c8ca0_9742417f",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 348,
+        "endChar": 19
+      },
+      "revId": "8fe424b8d3ba3122138a973d47e472ae0bafad42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
