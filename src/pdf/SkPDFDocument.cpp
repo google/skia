@@ -68,7 +68,7 @@ void SkPDFOffsetMap::markStartOfObject(int referenceNumber, const SkWStream* s) 
 }
 
 int SkPDFOffsetMap::objectCount() const {
-    return SkToInt(fOffsets.size() + 1); // Include the special zeroth object in the count.
+    return SkToInt(fOffsets.size() + 1);  // Include the special zeroth object in the count.
 }
 
 int SkPDFOffsetMap::emitCrossReferenceTable(SkWStream* s) const {
@@ -102,16 +102,6 @@ static void serializeHeader(SkPDFOffsetMap* offsetMap, SkWStream* wStream) {
 }
 #undef SKPDF_MAGIC
 
-static void begin_indirect_object(SkPDFOffsetMap* offsetMap,
-                                  SkPDFIndirectReference ref,
-                                  SkWStream* s) {
-    offsetMap->markStartOfObject(ref.fValue, s);
-    s->writeDecAsText(ref.fValue);
-    s->writeText(" 0 obj\n");  // Generation number is always 0.
-}
-
-static void end_indirect_object(SkWStream* s) { s->writeText("\nendobj\n"); }
-
 // Xref table and footer
 static void serialize_footer(const SkPDFOffsetMap& offsetMap,
                              SkWStream* wStream,
@@ -129,7 +119,7 @@ static void serialize_footer(const SkPDFOffsetMap& offsetMap,
         trailerDict.insertObject("ID", SkPDFMetadata::MakePdfId(uuid, uuid));
     }
     wStream->writeText("trailer\n");
-    trailerDict.emitObject(wStream);
+    SkPDFEmit(trailerDict, wStream);
     wStream->writeText("\nstartxref\n");
     wStream->writeBigDecAsText(xRefFileOffset);
     wStream->writeText("\n%%EOF");
@@ -227,20 +217,17 @@ SkPDFDocument::~SkPDFDocument() {
     this->close();
 }
 
-SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndirectReference ref){
-    SkAutoMutexExclusive lock(fMutex);
-    object.emitObject(this->beginObject(ref));
-    this->endObject();
-    return ref;
-}
 
 SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) SK_REQUIRES(fMutex) {
-    begin_indirect_object(&fOffsetMap, ref, this->getStream());
-    return this->getStream();
-};
+    SkWStream* stream = this->getStream();
+    fOffsetMap.markStartOfObject(ref.fValue, stream);
+    stream->writeDecAsText(ref.fValue);
+    stream->writeText(" 0 obj\n");  // Generation number is always 0.
+    return stream;
+}
 
 void SkPDFDocument::endObject() SK_REQUIRES(fMutex) {
-    end_indirect_object(this->getStream());
+    this->getStream()->writeText("\nendobj\n");
 };
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
@@ -341,7 +328,7 @@ std::unique_ptr<SkPDFArray> SkPDFDocument::getAnnotations() {
             }
         }
 
-        SkPDFIndirectReference annotationRef = emit(annotation);
+        SkPDFIndirectReference annotationRef = this->emit(annotation);
         array->appendRef(annotationRef);
         if (link->fNodeId) {
             fTagTree.addNodeAnnotation(link->fNodeId, annotationRef, SkToUInt(this->currentPageIndex()));
