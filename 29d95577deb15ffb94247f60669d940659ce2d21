@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28db6c9f_57fabff5",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1140,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T18:09:00Z",
+      "side": 1,
+      "message": "This all feels slightly redundant with the work in writeFunction (quite a bit of back-to-back bookkeeping), but all my attempts to rearrange it just shuffled code around (or created different copy-paste duplication). :shrug:",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
