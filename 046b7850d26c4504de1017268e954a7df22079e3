@@ -158,6 +158,30 @@
       },
       "revId": "046b7850d26c4504de1017268e954a7df22079e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba05d1c7_d7b625c2",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-01-08T23:07:08Z",
+      "side": 1,
+      "message": "Hmm, we don\u0027t have a canvas at the time we\u0027re prerolling the UI layers. We create a canvas in the next phase when we\u0027re actually drawing things. However, we do have the total matrix. Can this function take a SkMatrix instead of SkCanvas?",
+      "parentUuid": "76e46214_4582acaa",
+      "range": {
+        "startLine": 68,
+        "startChar": 31,
+        "endLine": 68,
+        "endChar": 47
+      },
+      "revId": "046b7850d26c4504de1017268e954a7df22079e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
