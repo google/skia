@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "31a3b8fc_d078585f",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b211ccff_02bb3250",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 5
+      },
+      "revId": "3a1f11f18214dca5fbb225c5d45e89ed0fa0d7f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "711b5120_dcaeca3e",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf128f80_0d0b0403",
+        "filename": "src/sksl/dsl/DSLType.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:43:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "711b5120_dcaeca3e",
+      "range": {
+        "startLine": 14,
+        "startChar": 10,
+        "endLine": 14,
+        "endChar": 16
+      },
+      "revId": "3a1f11f18214dca5fbb225c5d45e89ed0fa0d7f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0169b115_b0f1108f",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-01-08T16:09:30Z",
       "side": 1,
       "message": "This concerns me a bit because I think MSVC might emit `e+038`, see:\n\n    https://osscs.corp.google.com/skia/skia/+/master:tests/StringTest.cpp;l\u003d153\n\nUnfortunately there\u0027s no requirement that implementations follow any particular format.\nMaybe it\u0027s safer to do:\n\n    REPORTER_ASSERT(r, atof(e1.release()-\u003edescription()) \u003d\u003d 3.4028234663852886e+38);\n\n?",
+      "range": {
+        "startLine": 68,
+        "startChar": 55,
+        "endLine": 68,
+        "endChar": 77
+      },
+      "revId": "3a1f11f18214dca5fbb225c5d45e89ed0fa0d7f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5146df21_e1c5d308",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:43:40Z",
+      "side": 1,
+      "message": "Good call, fixed.",
+      "parentUuid": "0169b115_b0f1108f",
       "range": {
         "startLine": 68,
         "startChar": 55,
