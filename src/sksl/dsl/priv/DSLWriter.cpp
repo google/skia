@@ -43,6 +43,21 @@ const std::shared_ptr<SkSL::SymbolTable>& DSLWriter::SymbolTable() {
     return IRGenerator().fSymbolTable;
 }
 
+const SkSL::Modifiers* DSLWriter::Modifiers(SkSL::Modifiers modifiers) {
+    return IRGenerator().fModifiers->addToPool(modifiers);
+}
+
+SkSL::StringFragment DSLWriter::Name(const char* name) {
+    if (ManglingEnabled()) {
+        const SkSL::String* s = SymbolTable()->takeOwnershipOfString(std::make_unique<SkSL::String>(
+                                                         name +
+                                                         SkSL::String("_") +
+                                                         SkSL::to_string(++Instance().fNameCount)));
+        return SkSL::StringFragment(s->c_str(), s->length());
+    }
+    return SkSL::StringFragment(name);
+}
+
 std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
     if (expr == nullptr) {
         if (DSLWriter::Compiler().errorCount()) {

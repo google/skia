@@ -10,6 +10,7 @@
 
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLType.h"
+#include "src/sksl/dsl/DSLVar.h"
 
 namespace SkSL {
 
