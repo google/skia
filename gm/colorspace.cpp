@@ -94,6 +94,11 @@ static void draw_colorspace_gm(Strategy strategy, SkCanvas* canvas) {
                 case SkCanvas_makeSurface: {
                     sk_sp<SkSurface> offscreen =
                         canvas->makeSurface(canvas->imageInfo().makeColorSpace(midCS));
+                    if (!offscreen) {
+                        canvas->drawString("Could not allocate offscreen surface!",
+                                           W,H, SkFont{}, SkPaint{});
+                        return;
+                    }
                     offscreen->getCanvas()->drawImage(img, 0,0);
                     canvas->drawImage(offscreen->makeImageSnapshot(), 0,0);
                 } break;
