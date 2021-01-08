@@ -12,14 +12,12 @@
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkUUID.h"
 
-class SkPDFObject;
-
 namespace SkPDFMetadata {
-std::unique_ptr<SkPDFObject> MakeDocumentInformationDict(const SkPDF::Metadata&);
+std::unique_ptr<SkPDFDict> MakeDocumentInformationDict(const SkPDF::Metadata&);
 
 SkUUID CreateUUID(const SkPDF::Metadata&);
 
-std::unique_ptr<SkPDFObject> MakePdfId(const SkUUID& doc, const SkUUID& instance);
+std::unique_ptr<SkPDFArray> MakePdfId(const SkUUID& doc, const SkUUID& instance);
 
 SkPDFIndirectReference MakeXMPObject(const SkPDF::Metadata& metadata,
                                      const SkUUID& doc,
