@@ -130,7 +130,6 @@ public:
     virtual GrSurfaceProxyView filterMaskGPU(GrRecordingContext*,
                                              GrSurfaceProxyView srcView,
                                              GrColorType srcColorType,
-                                             SkAlphaType srcAlphaType,
                                              const SkMatrix& ctm,
                                              const SkIRect& maskRect) const;
 #endif
