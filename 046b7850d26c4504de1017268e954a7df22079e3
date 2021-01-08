@@ -73,6 +73,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5d85c79e_4db1ecf8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-08T16:25:26Z",
+      "side": 1,
+      "message": "I think we didn\u0027t add it to canvas publicly because we didn\u0027t have a unified answer for supporting lighting, e.g. this was pre 4x4 matrices. I agree it could stand a revision but I think it should wait until Flutter ships. We\u0027ll also have to coordinate with Android. I filed a bug for it: https://bugs.chromium.org/p/skia/issues/detail?id\u003d11149.",
+      "parentUuid": "29a47aa1_1ef73e46",
+      "revId": "046b7850d26c4504de1017268e954a7df22079e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0e4226c3_1d3400a4",
         "filename": "include/utils/SkShadowUtils.h",
         "patchSetId": 3
