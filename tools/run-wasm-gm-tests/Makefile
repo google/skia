@@ -19,5 +19,5 @@ run_local:
         --resources ../../resources \
         --known_hashes /tmp/wasm-gmtests/empty.txt \
         --output /tmp/wasm-gmtests/ \
-        --use_gpu --timeout 600 \
+        --use_gpu --timeout 220 \
         --manual_mode
