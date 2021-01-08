@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0169b115_b0f1108f",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-08T16:09:30Z",
+      "side": 1,
+      "message": "This concerns me a bit because I think MSVC might emit `e+038`, see:\n\n    https://osscs.corp.google.com/skia/skia/+/master:tests/StringTest.cpp;l\u003d153\n\nUnfortunately there\u0027s no requirement that implementations follow any particular format.\nMaybe it\u0027s safer to do:\n\n    REPORTER_ASSERT(r, atof(e1.release()-\u003edescription()) \u003d\u003d 3.4028234663852886e+38);\n\n?",
+      "range": {
+        "startLine": 68,
+        "startChar": 55,
+        "endLine": 68,
+        "endChar": 77
+      },
+      "revId": "3a1f11f18214dca5fbb225c5d45e89ed0fa0d7f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
