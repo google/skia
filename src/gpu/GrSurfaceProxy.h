@@ -326,6 +326,8 @@ public:
     inline GrSurfaceProxyPriv priv();
     inline const GrSurfaceProxyPriv priv() const;  // NOLINT(readability-const-return-type)
 
+    bool isDDLTarget() const { return fIsDDLTarget; }
+
     GrProtected isProtected() const { return fIsProtected; }
 
 protected:
@@ -423,6 +425,7 @@ private:
     virtual LazySurfaceDesc callbackDesc() const = 0;
 
     bool                   fIgnoredByResourceAllocator = false;
+    bool                   fIsDDLTarget = false;
     GrProtected            fIsProtected;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
