@@ -63,6 +63,18 @@ public:
     static const std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
 
     /**
+     * Returns the final pointer to a pooled Modifiers object that should be used to represent the
+     * given modifiers.
+     */
+    static const SkSL::Modifiers* Modifiers(SkSL::Modifiers modifiers);
+
+    /**
+     * Returns the (possibly mangled) final name that should be used for an entity with the given
+     * raw name.
+     */
+    static SkSL::StringFragment Name(const char* name);
+
+    /**
      * Reports an error if the argument is null. Returns its argument unmodified.
      */
     static std::unique_ptr<SkSL::Expression> Check(std::unique_ptr<SkSL::Expression> expr);
@@ -84,6 +96,21 @@ public:
      */
     static void ReportError(const char* msg);
 
+    /**
+     * Returns whether name mangling is enabled.
+     */
+    static bool ManglingEnabled() {
+        return Instance().fMangle;
+    }
+
+    /**
+     * Enables or disables name mangling. Mangling should always be enabling except for tests which
+     * need to guarantee consistent output.
+     */
+    static void SetManglingEnabled(bool mangle) {
+        Instance().fMangle = mangle;
+    }
+
     static DSLWriter& Instance();
 
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
@@ -92,6 +119,8 @@ private:
     SkSL::Program::Settings fSettings;
     SkSL::Compiler* fCompiler;
     ErrorHandler* fErrorHandler = nullptr;
+    int fNameCount = 0;
+    bool fMangle = true;
 
     friend class DSLCore;
     friend class ::AutoDSLContext;
