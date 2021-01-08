@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fb163dc_ca577a70",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T18:37:15Z",
+      "side": 1,
+      "message": "Oh wow.  This was just breaking out of the do{...}while(0) eh?  A no-op?\n\nSo maybe let\u0027s just rewrite it as\n\n   #define BREAK_ON_READ_ERROR(r) if (!r-\u003eisValid()) break\n\nThat should avoid any confusion about why the macro\u0027s named BREAK... but we use a return inside it.\n\nOr might even see how it feels replacing all BREAK_ON_READ_ERROR(r) with that one-liner, see how it feels without a macro at all?",
+      "revId": "2333fe2e24ef2fd60b36b8ee711ee985e75cc73d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
