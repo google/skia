@@ -15,6 +15,7 @@ namespace SkSL {
 namespace dsl {
 
 using Expression = DSLExpression;
+using Var = DSLVar;
 
 } // namespace dsl
 
