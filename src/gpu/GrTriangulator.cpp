@@ -33,11 +33,14 @@ constexpr static float kCosMiterAngle = 0.97f; // Corresponds to an angle of ~14
 
 struct Event;
 
+using EdgeType = GrTriangulator::EdgeType;
 using Vertex = GrTriangulator::Vertex;
 using VertexList = GrTriangulator::VertexList;
+using Line = GrTriangulator::Line;
 using Edge = GrTriangulator::Edge;
 using EdgeList = GrTriangulator::EdgeList;
 using Poly = GrTriangulator::Poly;
+using MonotonePoly = GrTriangulator::MonotonePoly;
 using Comparator = GrTriangulator::Comparator;
 
 template <class T, T* T::*Prev, T* T::*Next>
@@ -212,7 +215,7 @@ static inline SkScalar double_to_clamped_scalar(double d) {
 }
 
 // A line equation in implicit form. fA * x + fB * y + fC = 0, for all points (x, y) on the line.
-struct Line {
+struct GrTriangulator::Line {
     Line(double a, double b, double c) : fA(a), fB(b), fC(c) {}
     Line(Vertex* p, Vertex* q) : Line(p->fPoint, q->fPoint) {}
     Line(const SkPoint& p, const SkPoint& q)
@@ -277,8 +280,7 @@ struct Line {
  */
 
 struct GrTriangulator::Edge {
-    enum class Type { kInner, kOuter, kConnector };
-    Edge(Vertex* top, Vertex* bottom, int winding, Type type)
+    Edge(Vertex* top, Vertex* bottom, int winding, EdgeType type)
         : fWinding(winding)
         , fTop(top)
         , fBottom(bottom)
@@ -302,7 +304,7 @@ struct GrTriangulator::Edge {
     int      fWinding;          // 1 == edge goes downward; -1 = edge goes upward.
     Vertex*  fTop;              // The top vertex in vertex-sort-order (sweep_lt).
     Vertex*  fBottom;           // The bottom vertex in vertex-sort-order.
-    Type     fType;
+    EdgeType fType;
     Edge*    fLeft;             // The linked list of edges in the active edge list.
     Edge*    fRight;            // "
     Edge*    fPrevEdgeAbove;    // The linked list of edges in the bottom Vertex's "edges above".
@@ -355,12 +357,12 @@ struct GrTriangulator::Edge {
         p->fX = SkDoubleToScalar(fTop->fPoint.fX - s * fLine.fB);
         p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fLine.fA);
         if (alpha) {
-            if (fType == Type::kConnector) {
+            if (fType == EdgeType::kConnector) {
                 *alpha = (1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha;
-            } else if (other.fType == Type::kConnector) {
+            } else if (other.fType == EdgeType::kConnector) {
                 double t = tNumer / denom;
                 *alpha = (1.0 - t) * other.fTop->fAlpha + t * other.fBottom->fAlpha;
-            } else if (fType == Type::kOuter && other.fType == Type::kOuter) {
+            } else if (fType == EdgeType::kOuter && other.fType == EdgeType::kOuter) {
                 *alpha = 0;
             } else {
                 *alpha = 255;
@@ -456,8 +458,8 @@ static void create_event(SSEdge* e, EventList* events, SkArenaAlloc& alloc) {
     if (prev == next || !prev->fPartner || !next->fPartner) {
         return;
     }
-    Edge bisector1(prev, prev->fPartner, 1, Edge::Type::kConnector);
-    Edge bisector2(next, next->fPartner, 1, Edge::Type::kConnector);
+    Edge bisector1(prev, prev->fPartner, 1, EdgeType::kConnector);
+    Edge bisector2(next, next->fPartner, 1, EdgeType::kConnector);
     SkPoint p;
     uint8_t alpha;
     if (bisector1.intersect(bisector2, &p, &alpha)) {
@@ -482,7 +484,7 @@ static void create_event(SSEdge* edge, Vertex* v, SSEdge* other, Vertex* dest, E
     }
     Line line = edge->fEdge->fLine;
     line.fC = -(dest->fPoint.fX * line.fA  + dest->fPoint.fY * line.fB);
-    Edge bisector(v, v->fPartner, 1, Edge::Type::kConnector);
+    Edge bisector(v, v->fPartner, 1, EdgeType::kConnector);
     SkPoint p;
     uint8_t alpha = dest->fAlpha;
     if (line.intersect(bisector.fLine, &p) && !c.sweep_lt(p, top->fPoint) &&
@@ -495,7 +497,91 @@ static void create_event(SSEdge* edge, Vertex* v, SSEdge* other, Vertex* dest, E
     }
 }
 
-/***************************************************************************************/
+struct GrTriangulator::MonotonePoly {
+    MonotonePoly(Edge* edge, Side side, int winding)
+        : fSide(side)
+        , fFirstEdge(nullptr)
+        , fLastEdge(nullptr)
+        , fPrev(nullptr)
+        , fNext(nullptr)
+        , fWinding(winding) {
+        this->addEdge(edge);
+    }
+    Side          fSide;
+    Edge*         fFirstEdge;
+    Edge*         fLastEdge;
+    MonotonePoly* fPrev;
+    MonotonePoly* fNext;
+    int fWinding;
+    void addEdge(Edge* edge) {
+        if (fSide == kRight_Side) {
+            SkASSERT(!edge->fUsedInRightPoly);
+            list_insert<Edge, &Edge::fRightPolyPrev, &Edge::fRightPolyNext>(
+                edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
+            edge->fUsedInRightPoly = true;
+        } else {
+            SkASSERT(!edge->fUsedInLeftPoly);
+            list_insert<Edge, &Edge::fLeftPolyPrev, &Edge::fLeftPolyNext>(
+                edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
+            edge->fUsedInLeftPoly = true;
+        }
+    }
+
+    void* emit(bool emitCoverage, void* data) {
+        Edge* e = fFirstEdge;
+        VertexList vertices;
+        vertices.append(e->fTop);
+        int count = 1;
+        while (e != nullptr) {
+            if (kRight_Side == fSide) {
+                vertices.append(e->fBottom);
+                e = e->fRightPolyNext;
+            } else {
+                vertices.prepend(e->fBottom);
+                e = e->fLeftPolyNext;
+            }
+            count++;
+        }
+        Vertex* first = vertices.fHead;
+        Vertex* v = first->fNext;
+        while (v != vertices.fTail) {
+            SkASSERT(v && v->fPrev && v->fNext);
+            Vertex* prev = v->fPrev;
+            Vertex* curr = v;
+            Vertex* next = v->fNext;
+            if (count == 3) {
+                return this->emitTriangle(prev, curr, next, emitCoverage, data);
+            }
+            double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
+            double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
+            double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
+            double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
+            if (ax * by - ay * bx >= 0.0) {
+                data = this->emitTriangle(prev, curr, next, emitCoverage, data);
+                v->fPrev->fNext = v->fNext;
+                v->fNext->fPrev = v->fPrev;
+                count--;
+                if (v->fPrev == first) {
+                    v = v->fNext;
+                } else {
+                    v = v->fPrev;
+                }
+            } else {
+                v = v->fNext;
+            }
+        }
+        return data;
+    }
+    void* emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, bool emitCoverage,
+                       void* data) const {
+        if (fWinding < 0) {
+            // Ensure our triangles always wind in the same direction as if the path had been
+            // triangulated as a simple fan (a la red book).
+            std::swap(prev, next);
+        }
+        return emit_triangle(next, curr, prev, emitCoverage, data);
+    }
+};
 
 struct GrTriangulator::Poly {
     Poly(Vertex* v, int winding)
@@ -513,92 +599,6 @@ struct GrTriangulator::Poly {
         TESS_LOG("*** created Poly %d\n", fID);
 #endif
     }
-    typedef enum { kLeft_Side, kRight_Side } Side;
-    struct MonotonePoly {
-        MonotonePoly(Edge* edge, Side side, int winding)
-            : fSide(side)
-            , fFirstEdge(nullptr)
-            , fLastEdge(nullptr)
-            , fPrev(nullptr)
-            , fNext(nullptr)
-            , fWinding(winding) {
-            this->addEdge(edge);
-        }
-        Side          fSide;
-        Edge*         fFirstEdge;
-        Edge*         fLastEdge;
-        MonotonePoly* fPrev;
-        MonotonePoly* fNext;
-        int fWinding;
-        void addEdge(Edge* edge) {
-            if (fSide == kRight_Side) {
-                SkASSERT(!edge->fUsedInRightPoly);
-                list_insert<Edge, &Edge::fRightPolyPrev, &Edge::fRightPolyNext>(
-                    edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
-                edge->fUsedInRightPoly = true;
-            } else {
-                SkASSERT(!edge->fUsedInLeftPoly);
-                list_insert<Edge, &Edge::fLeftPolyPrev, &Edge::fLeftPolyNext>(
-                    edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
-                edge->fUsedInLeftPoly = true;
-            }
-        }
-
-        void* emit(bool emitCoverage, void* data) {
-            Edge* e = fFirstEdge;
-            VertexList vertices;
-            vertices.append(e->fTop);
-            int count = 1;
-            while (e != nullptr) {
-                if (kRight_Side == fSide) {
-                    vertices.append(e->fBottom);
-                    e = e->fRightPolyNext;
-                } else {
-                    vertices.prepend(e->fBottom);
-                    e = e->fLeftPolyNext;
-                }
-                count++;
-            }
-            Vertex* first = vertices.fHead;
-            Vertex* v = first->fNext;
-            while (v != vertices.fTail) {
-                SkASSERT(v && v->fPrev && v->fNext);
-                Vertex* prev = v->fPrev;
-                Vertex* curr = v;
-                Vertex* next = v->fNext;
-                if (count == 3) {
-                    return this->emitTriangle(prev, curr, next, emitCoverage, data);
-                }
-                double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
-                double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
-                double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
-                double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
-                if (ax * by - ay * bx >= 0.0) {
-                    data = this->emitTriangle(prev, curr, next, emitCoverage, data);
-                    v->fPrev->fNext = v->fNext;
-                    v->fNext->fPrev = v->fPrev;
-                    count--;
-                    if (v->fPrev == first) {
-                        v = v->fNext;
-                    } else {
-                        v = v->fPrev;
-                    }
-                } else {
-                    v = v->fNext;
-                }
-            }
-            return data;
-        }
-        void* emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, bool emitCoverage,
-                           void* data) const {
-            if (fWinding < 0) {
-                // Ensure our triangles always wind in the same direction as if the path had been
-                // triangulated as a simple fan (a la red book).
-                std::swap(prev, next);
-            }
-            return emit_triangle(next, curr, prev, emitCoverage, data);
-        }
-    };
     Poly* addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
         TESS_LOG("addEdge (%g -> %g) to poly %d, %s side\n",
                  e->fTop->fID, e->fBottom->fID, fID, side == kLeft_Side ? "left" : "right");
@@ -625,7 +625,7 @@ struct GrTriangulator::Poly {
             fTail->addEdge(e);
             fCount++;
         } else {
-            e = alloc.make<Edge>(fTail->fLastEdge->fBottom, e->fBottom, 1, Edge::Type::kInner);
+            e = alloc.make<Edge>(fTail->fLastEdge->fBottom, e->fBottom, 1, EdgeType::kInner);
             fTail->addEdge(e);
             fCount++;
             if (partner) {
@@ -836,7 +836,7 @@ static inline bool apply_fill_type(SkPathFillType fillType, Poly* poly) {
     return poly && apply_fill_type(fillType, poly->fWinding);
 }
 
-static Edge* new_edge(Vertex* prev, Vertex* next, Edge::Type type, const Comparator& c,
+static Edge* new_edge(Vertex* prev, Vertex* next, EdgeType type, const Comparator& c,
                       SkArenaAlloc& alloc) {
     int winding = c.sweep_lt(prev->fPoint, next->fPoint) ? 1 : -1;
     Vertex* top = winding < 0 ? next : prev;
@@ -1164,7 +1164,7 @@ bool GrTriangulator::intersectEdgePair(Edge* left, Edge* right, EdgeList* active
     return false;
 }
 
-static Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, const Comparator& c,
+static Edge* connect(Vertex* prev, Vertex* next, EdgeType type, const Comparator& c,
                      SkArenaAlloc& alloc, int winding_scale = 1) {
     if (!prev || !next || prev->fPoint == next->fPoint) {
         return nullptr;
@@ -1258,7 +1258,7 @@ static void compute_bisector(Edge* edge1, Edge* edge2, Vertex* v, SkArenaAlloc& 
     line2.fC += edge2->fWinding > 0 ? -1 : 1;
     SkPoint p;
     if (line1.intersect(line2, &p)) {
-        uint8_t alpha = edge1->fType == Edge::Type::kOuter ? 255 : 0;
+        uint8_t alpha = edge1->fType == EdgeType::kOuter ? 255 : 0;
         v->fPartner = alloc.make<Vertex>(p, alpha);
         TESS_LOG("computed bisector (%g,%g) alpha %d for vertex %g\n", p.fX, p.fY, alpha, v->fID);
     }
@@ -1368,7 +1368,7 @@ void GrTriangulator::buildEdges(VertexList* contours, int contourCnt, VertexList
         Vertex* prev = contour->fTail;
         for (Vertex* v = contour->fHead; v;) {
             Vertex* next = v->fNext;
-            connect(prev, v, Edge::Type::kInner, c, fAlloc);
+            connect(prev, v, EdgeType::kInner, c, fAlloc);
             mesh->append(v);
             prev = v;
             v = next;
@@ -1383,7 +1383,7 @@ static void connect_partners(VertexList* mesh, const Comparator& c, SkArenaAlloc
                 // Connector edges get zero winding, since they're only structural (i.e., to ensure
                 // no 0-0-0 alpha triangles are produced), and shouldn't affect the poly winding
                 // number.
-                connect(outer, inner, Edge::Type::kConnector, c, alloc, 0);
+                connect(outer, inner, EdgeType::kConnector, c, alloc, 0);
                 inner->fPartner = outer->fPartner = nullptr;
             }
         }
@@ -1641,19 +1641,19 @@ Poly* GrTriangulator::tessellate(const VertexList& vertices) {
 #endif
         if (v->fFirstEdgeAbove) {
             if (leftPoly) {
-                leftPoly = leftPoly->addEdge(v->fFirstEdgeAbove, Poly::kRight_Side, fAlloc);
+                leftPoly = leftPoly->addEdge(v->fFirstEdgeAbove, kRight_Side, fAlloc);
             }
             if (rightPoly) {
-                rightPoly = rightPoly->addEdge(v->fLastEdgeAbove, Poly::kLeft_Side, fAlloc);
+                rightPoly = rightPoly->addEdge(v->fLastEdgeAbove, kLeft_Side, fAlloc);
             }
             for (Edge* e = v->fFirstEdgeAbove; e != v->fLastEdgeAbove; e = e->fNextEdgeAbove) {
                 Edge* rightEdge = e->fNextEdgeAbove;
                 remove_edge(e, &activeEdges);
                 if (e->fRightPoly) {
-                    e->fRightPoly->addEdge(e, Poly::kLeft_Side, fAlloc);
+                    e->fRightPoly->addEdge(e, kLeft_Side, fAlloc);
                 }
                 if (rightEdge->fLeftPoly && rightEdge->fLeftPoly != e->fRightPoly) {
-                    rightEdge->fLeftPoly->addEdge(e, Poly::kRight_Side, fAlloc);
+                    rightEdge->fLeftPoly->addEdge(e, kRight_Side, fAlloc);
                 }
             }
             remove_edge(v->fLastEdgeAbove, &activeEdges);
@@ -1669,7 +1669,7 @@ Poly* GrTriangulator::tessellate(const VertexList& vertices) {
             if (!v->fFirstEdgeAbove) {
                 if (leftPoly && rightPoly) {
                     if (leftPoly == rightPoly) {
-                        if (leftPoly->fTail && leftPoly->fTail->fSide == Poly::kLeft_Side) {
+                        if (leftPoly->fTail && leftPoly->fTail->fSide == kLeft_Side) {
                             leftPoly = new_poly(&polys, leftPoly->lastVertex(),
                                                  leftPoly->fWinding, fAlloc);
                             leftEnclosingEdge->fRightPoly = leftPoly;
@@ -1680,9 +1680,9 @@ Poly* GrTriangulator::tessellate(const VertexList& vertices) {
                         }
                     }
                     Edge* join = fAlloc.make<Edge>(leftPoly->lastVertex(), v, 1,
-                                                   Edge::Type::kInner);
-                    leftPoly = leftPoly->addEdge(join, Poly::kRight_Side, fAlloc);
-                    rightPoly = rightPoly->addEdge(join, Poly::kLeft_Side, fAlloc);
+                                                   EdgeType::kInner);
+                    leftPoly = leftPoly->addEdge(join, kRight_Side, fAlloc);
+                    rightPoly = rightPoly->addEdge(join, kLeft_Side, fAlloc);
                 }
             }
             Edge* leftEdge = v->fFirstEdgeBelow;
@@ -1783,7 +1783,7 @@ static void simplify_boundary(EdgeList* boundary, const Comparator& c, SkArenaAl
             }
         } else if (prevNormal.dot(normal) < 0.0 &&
             (distPrev * distPrev <= kQuarterPixelSq || distNext * distNext <= kQuarterPixelSq)) {
-            Edge* join = new_edge(prev, next, Edge::Type::kInner, c, alloc);
+            Edge* join = new_edge(prev, next, EdgeType::kInner, c, alloc);
             if (prev->fPoint != next->fPoint) {
                 join->fLine.normalize();
                 join->fLine = join->fLine * join->fWinding;
@@ -1813,7 +1813,7 @@ static void ss_connect(Vertex* v, Vertex* dest, const Comparator& c, SkArenaAllo
     }
     TESS_LOG("ss_connecting vertex %g to vertex %g\n", v->fID, dest->fID);
     if (v->fSynthetic) {
-        connect(v, dest, Edge::Type::kConnector, c, alloc, 0);
+        connect(v, dest, EdgeType::kConnector, c, alloc, 0);
     } else if (v->fPartner) {
         TESS_LOG("setting %g's partner to %g ", v->fPartner->fID, dest->fID);
         TESS_LOG("and %g's partner to null\n", v->fID);
@@ -1873,9 +1873,9 @@ void Event::apply(VertexList* mesh, const Comparator& c, EventList* events, SkAr
 }
 
 static bool is_overlap_edge(Edge* e) {
-    if (e->fType == Edge::Type::kOuter) {
+    if (e->fType == EdgeType::kOuter) {
         return e->fWinding != 0 && e->fWinding != 1;
-    } else if (e->fType == Edge::Type::kInner) {
+    } else if (e->fType == EdgeType::kInner) {
         return e->fWinding != 0 && e->fWinding != -2;
     } else {
         return false;
@@ -1903,7 +1903,7 @@ static bool collapse_overlap_regions(VertexList* mesh, const Comparator& c, SkAr
             remove_edge(e, &activeEdges);
             bool leftOverlap = prev && is_overlap_edge(prev);
             bool rightOverlap = is_overlap_edge(e);
-            bool isOuterBoundary = e->fType == Edge::Type::kOuter &&
+            bool isOuterBoundary = e->fType == EdgeType::kOuter &&
                                    (!prev || prev->fWinding == 0 || e->fWinding == 0);
             if (prev) {
                 e->fWinding -= prev->fWinding;
@@ -2125,13 +2125,13 @@ static void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexLis
     int innerWinding = innerInversion ? 2 : -2;
     int outerWinding = outerInversion ? -1 : 1;
     for (Vertex* v = innerVertices.fHead; v && v->fNext; v = v->fNext) {
-        connect(v, v->fNext, Edge::Type::kInner, c, alloc, innerWinding);
+        connect(v, v->fNext, EdgeType::kInner, c, alloc, innerWinding);
     }
-    connect(innerVertices.fTail, innerVertices.fHead, Edge::Type::kInner, c, alloc, innerWinding);
+    connect(innerVertices.fTail, innerVertices.fHead, EdgeType::kInner, c, alloc, innerWinding);
     for (Vertex* v = outerVertices.fHead; v && v->fNext; v = v->fNext) {
-        connect(v, v->fNext, Edge::Type::kOuter, c, alloc, outerWinding);
+        connect(v, v->fNext, EdgeType::kOuter, c, alloc, outerWinding);
     }
-    connect(outerVertices.fTail, outerVertices.fHead, Edge::Type::kOuter, c, alloc, outerWinding);
+    connect(outerVertices.fTail, outerVertices.fHead, EdgeType::kOuter, c, alloc, outerWinding);
     innerMesh->append(innerVertices);
     outerMesh->append(outerVertices);
 }
