@@ -67,6 +67,8 @@ public:
      */
     static std::unique_ptr<SkSL::Expression> Check(std::unique_ptr<SkSL::Expression> expr);
 
+    static DSLExpression Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs);
+
     /**
      * Sets the ErrorHandler associated with the current thread. This object will be notified when
      * any DSL errors occur. With a null ErrorHandler (the default), any errors will be dumped to
