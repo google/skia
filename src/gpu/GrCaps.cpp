@@ -58,7 +58,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fShouldCollapseSrcOverToSrcWhenAble = false;
     fDriverDisableCCPR = false;
     fDriverDisableMSAACCPR = false;
-    fDisableTessellationPathRenderer = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqDisableFlags = 0;
@@ -117,7 +116,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDisableDriverCorrectnessWorkarounds) {
         SkASSERT(!fDriverDisableCCPR);
         SkASSERT(!fDriverDisableMSAACCPR);
-        SkASSERT(!fDisableTessellationPathRenderer);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAvoidWritePixelsFastPath);
         SkASSERT(!fRequiresManualFBBarrierAfterTessellatedStencilDraw);
@@ -248,8 +246,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Disable CCPR on current driver [workaround]", fDriverDisableCCPR);
     writer->appendBool("Disable MSAA version of CCPR on current driver [workaround]",
                        fDriverDisableMSAACCPR);
-    writer->appendBool("Disable GrTessellationPathRenderer current driver [workaround]",
-                       fDisableTessellationPathRenderer);
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);

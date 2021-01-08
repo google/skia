@@ -47,6 +47,34 @@
   },
   {
     "cmd": [
+      "[START_DIR]\\cache\\work\\skia\\bin\\gn",
+      "clean",
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-arm64-Release-Android\\Release"
+    ],
+    "cwd": "[START_DIR]\\cache\\work\\skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "gn clean"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-arm64-Release-Android\\Release",
+      "-t",
+      "clean"
+    ],
+    "cwd": "[START_DIR]\\cache\\work\\skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "ninja clean"
+  },
+  {
+    "cmd": [
       "ninja",
       "-C",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-arm64-Release-Android\\Release"
