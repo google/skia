@@ -68,7 +68,7 @@ void SkPDFOffsetMap::markStartOfObject(int referenceNumber, const SkWStream* s) 
 }
 
 int SkPDFOffsetMap::objectCount() const {
-    return SkToInt(fOffsets.size() + 1); // Include the special zeroth object in the count.
+    return SkToInt(fOffsets.size() + 1);  // Include the special zeroth object in the count.
 }
 
 int SkPDFOffsetMap::emitCrossReferenceTable(SkWStream* s) const {
@@ -227,7 +227,22 @@ SkPDFDocument::~SkPDFDocument() {
     this->close();
 }
 
-SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndirectReference ref){
+
+SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndirectReference ref) {
+    SkAutoMutexExclusive lock(fMutex);
+    object.emitObject(this->beginObject(ref));
+    this->endObject();
+    return ref;
+}
+
+SkPDFIndirectReference SkPDFDocument::emit(const SkPDFArray& object, SkPDFIndirectReference ref) {
+    SkAutoMutexExclusive lock(fMutex);
+    object.emitObject(this->beginObject(ref));
+    this->endObject();
+    return ref;
+}
+
+SkPDFIndirectReference SkPDFDocument::emit(const SkPDFDict& object, SkPDFIndirectReference ref) {
     SkAutoMutexExclusive lock(fMutex);
     object.emitObject(this->beginObject(ref));
     this->endObject();

@@ -575,7 +575,7 @@ static bool split_perspective(const SkMatrix in, SkMatrix* affine,
 
 static SkPDFIndirectReference make_ps_function(std::unique_ptr<SkStreamAsset> psCode,
                                                std::unique_ptr<SkPDFArray> domain,
-                                               std::unique_ptr<SkPDFObject> range,
+                                               std::unique_ptr<SkPDFArray> range,
                                                SkPDFDocument* doc) {
     std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
     dict->insertInt("FunctionType", 4);

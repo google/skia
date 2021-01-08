@@ -30,19 +30,18 @@
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFTypes.h"
-#include "src/pdf/SkPDFUnion.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <memory>
 
 #define DUMMY_TEXT "DCT compessed stream."
 
 template <typename T>
-static SkString emit_to_string(T& obj) {
+static SkString emit_to_string(const T& obj) {
     SkDynamicMemoryWStream buffer;
     obj.emitObject(&buffer);
     SkString tmp(buffer.bytesWritten());
@@ -73,10 +72,9 @@ static void assert_eq(skiatest::Reporter* reporter,
 
 template <typename T>
 static void assert_emit_eq(skiatest::Reporter* reporter,
-                           T& object,
+                           const T& object,
                            const char* string) {
-    SkString result = emit_to_string(object);
-    assert_eq(reporter, result, string);
+    assert_eq(reporter, emit_to_string(object), string);
 }
 
 // This test used to assert without the fix submitted for
@@ -95,8 +93,7 @@ static void test_issue1083() {
 }
 
 static void assert_emit_eq_number(skiatest::Reporter* reporter, float number) {
-    SkPDFUnion pdfUnion = SkPDFUnion::Scalar(number);
-    SkString result = emit_to_string(pdfUnion);
+    SkString result = emit_to_string(SkPDFObject{number});
     float value = static_cast<float>(std::atof(result.c_str()));
     if (value != number) {
         ERRORF(reporter, "%.9g != %s", number, result.c_str());
@@ -105,52 +102,43 @@ static void assert_emit_eq_number(skiatest::Reporter* reporter, float number) {
 
 
 static void TestPDFUnion(skiatest::Reporter* reporter) {
-    SkPDFUnion boolTrue = SkPDFUnion::Bool(true);
-    assert_emit_eq(reporter, boolTrue, "true");
+    assert_emit_eq(reporter, SkPDFObject{true}, "true");
 
-    SkPDFUnion boolFalse = SkPDFUnion::Bool(false);
-    assert_emit_eq(reporter, boolFalse, "false");
+    assert_emit_eq(reporter, SkPDFObject{false}, "false");
 
-    SkPDFUnion int42 = SkPDFUnion::Int(42);
-    assert_emit_eq(reporter, int42, "42");
+    assert_emit_eq(reporter, SkPDFObject{(int32_t)42}, "42");
 
     assert_emit_eq_number(reporter, SK_ScalarHalf);
     assert_emit_eq_number(reporter, 110999.75f);  // bigScalar
     assert_emit_eq_number(reporter, 50000000.1f);  // biggerScalar
     assert_emit_eq_number(reporter, 1.0f / 65536);  // smallScalar
 
-    SkPDFUnion stringSimple = SkPDFUnion::String("test ) string ( foo");
-    assert_emit_eq(reporter, stringSimple, "(test \\) string \\( foo)");
+    assert_emit_eq(reporter, SkPDFObject{"test ) string ( foo"}, "(test \\) string \\( foo)");
 
     SkString stringComplexInput("\ttest ) string ( foo");
-    SkPDFUnion stringComplex = SkPDFUnion::String(stringComplexInput);
-    assert_emit_eq(reporter, stringComplex, "(\\011test \\) string \\( foo)");
+    assert_emit_eq(reporter, SkPDFObject{stringComplexInput}, "(\\011test \\) string \\( foo)");
 
     SkString binaryStringInput("\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17\20");
-    SkPDFUnion binaryString = SkPDFUnion::String(binaryStringInput);
-    assert_emit_eq(reporter, binaryString, "<0102030405060708090A0B0C0D0E0F10>");
+    assert_emit_eq(reporter, SkPDFObject{binaryStringInput}, "<0102030405060708090A0B0C0D0E0F10>");
 
     SkString nameInput("Test name\twith#tab");
-    SkPDFUnion name = SkPDFUnion::Name(nameInput);
-    assert_emit_eq(reporter, name, "/Test#20name#09with#23tab");
+    assert_emit_eq(reporter, SkPDFObject{SkPDFName(nameInput)}, "/Test#20name#09with#23tab");
 
     SkString nameInput2("A#/%()<>[]{}B");
-    SkPDFUnion name2 = SkPDFUnion::Name(nameInput2);
-    assert_emit_eq(reporter, name2, "/A#23#2F#25#28#29#3C#3E#5B#5D#7B#7DB");
+    assert_emit_eq(reporter, SkPDFObject{SkPDFName(nameInput2)}, "/A#23#2F#25#28#29#3C#3E#5B#5D#7B#7DB");
 
-    SkPDFUnion name3 = SkPDFUnion::Name("SimpleNameWithOnlyPrintableASCII");
+    SkPDFObject name3 = SkPDFObject{SkPDFName("SimpleNameWithOnlyPrintableASCII")};
     assert_emit_eq(reporter, name3, "/SimpleNameWithOnlyPrintableASCII");
 
     // Test that we correctly handle characters with the high-bit set.
     SkString highBitString("\xDE\xAD" "be\xEF");
-    SkPDFUnion highBitName = SkPDFUnion::Name(highBitString);
-    assert_emit_eq(reporter, highBitName, "/#DE#ADbe#EF");
+    assert_emit_eq(reporter, SkPDFObject{SkPDFName(highBitString)}, "/#DE#ADbe#EF");
 
     // https://bugs.skia.org/9508
     // https://crbug.com/494913
     // Trailing '\0' characters must be removed.
     const char nameInput4[] = "Test name with nil\0";
-    SkPDFUnion name4 = SkPDFUnion::Name(SkString(nameInput4, strlen(nameInput4) + 1));
+    SkPDFObject name4 = SkPDFObject{SkPDFName(SkString(nameInput4, strlen(nameInput4) + 1))};
     assert_emit_eq(reporter, name4, "/Test#20name#20with#20nil");
 }
 

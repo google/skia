@@ -117,7 +117,7 @@ static const struct {
 };
 }  // namespace
 
-std::unique_ptr<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
+std::unique_ptr<SkPDFDict> SkPDFMetadata::MakeDocumentInformationDict(
         const SkPDF::Metadata& metadata) {
     auto dict = SkPDFMakeDict();
     for (const auto keyValuePtr : gMetadataKeys) {
@@ -132,7 +132,7 @@ std::unique_ptr<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
     if (metadata.fModified != kZeroTime) {
         dict->insertString("ModDate", pdf_date(metadata.fModified));
     }
-    return std::move(dict);
+    return dict;
 }
 
 SkUUID SkPDFMetadata::CreateUUID(const SkPDF::Metadata& metadata) {
@@ -166,8 +166,8 @@ SkUUID SkPDFMetadata::CreateUUID(const SkPDF::Metadata& metadata) {
     return uuid;
 }
 
-std::unique_ptr<SkPDFObject> SkPDFMetadata::MakePdfId(const SkUUID& doc,
-                                            const SkUUID& instance) {
+std::unique_ptr<SkPDFArray> SkPDFMetadata::MakePdfId(const SkUUID& doc,
+                                                     const SkUUID& instance) {
     // /ID [ <81b14aafa313db63dbd6f981e49f94f4>
     //       <81b14aafa313db63dbd6f981e49f94f4> ]
     auto array = SkPDFMakeArray();
@@ -176,7 +176,7 @@ std::unique_ptr<SkPDFObject> SkPDFMetadata::MakePdfId(const SkUUID& doc,
             SkString(reinterpret_cast<const char*>(&doc), sizeof(SkUUID)));
     array->appendString(
             SkString(reinterpret_cast<const char*>(&instance), sizeof(SkUUID)));
-    return std::move(array);
+    return array;
 }
 
 // Convert a block of memory to hexadecimal.  Input and output pointers will be
@@ -209,30 +209,6 @@ static SkString uuid_to_string(const SkUUID& uuid) {
     SkASSERT(data == uuid.fData + 16);
     return SkString(buffer, 36);
 }
-
-namespace {
-class PDFXMLObject final : public SkPDFObject {
-public:
-    PDFXMLObject(SkString xml) : fXML(std::move(xml)) {}
-    void emitObject(SkWStream* stream) const override {
-        SkPDFDict dict("Metadata");
-        dict.insertName("Subtype", "XML");
-        dict.insertInt("Length", fXML.size());
-        dict.emitObject(stream);
-        static const char streamBegin[] = " stream\n";
-        stream->writeText(streamBegin);
-        // Do not compress this.  The standard requires that a
-        // program that does not understand PDF can grep for
-        // "<?xpacket" and extract the entire XML.
-        stream->write(fXML.c_str(), fXML.size());
-        static const char streamEnd[] = "\nendstream";
-        stream->writeText(streamEnd);
-    }
-
-private:
-    const SkString fXML;
-};
-}  // namespace
 
 static int count_xml_escape_size(const SkString& input) {
     int extra = 0;

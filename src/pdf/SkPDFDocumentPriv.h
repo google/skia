@@ -97,7 +97,10 @@ public:
        after calling serialize, since those changes will be too late.
      */
     SkPDFIndirectReference emit(const SkPDFObject&, SkPDFIndirectReference);
-    SkPDFIndirectReference emit(const SkPDFObject& o) { return this->emit(o, this->reserveRef()); }
+    SkPDFIndirectReference emit(const SkPDFDict&,   SkPDFIndirectReference);
+    SkPDFIndirectReference emit(const SkPDFArray&,  SkPDFIndirectReference);
+    template <typename T>
+    SkPDFIndirectReference emit(const T& o) { return this->emit(o, this->reserveRef()); }
 
     template <typename T>
     void emitStream(const SkPDFDict& dict, T writeStream, SkPDFIndirectReference ref) {
