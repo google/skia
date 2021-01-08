@@ -30,6 +30,7 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFFont.h",
   "$_src/pdf/SkPDFFormXObject.cpp",
   "$_src/pdf/SkPDFFormXObject.h",
+  "$_src/pdf/SkPDFGlyphUse.h",
   "$_src/pdf/SkPDFGradientShader.cpp",
   "$_src/pdf/SkPDFGradientShader.h",
   "$_src/pdf/SkPDFGraphicStackState.cpp",
@@ -56,4 +57,6 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFTypes.h",
   "$_src/pdf/SkPDFUtils.cpp",
   "$_src/pdf/SkPDFUtils.h",
+  "$_src/pdf/SkUUID.h",
+  "$_src/pdf/SkVariant.h",
 ]
