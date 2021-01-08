@@ -16,6 +16,23 @@
       "message": "+cwallez as FYI, since https://chromium-review.googlesource.com/c/angle/angle/+/2587451 is blocked on this (which is blocking https://dawn-review.googlesource.com/c/dawn/+/35081)",
       "revId": "d245a9b8171299ecf054902f240b556b6ccbda39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a15d0c2a_be4f7859",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T17:02:25Z",
+      "side": 1,
+      "message": "\u003e is blocked on this",
+      "revId": "d245a9b8171299ecf054902f240b556b6ccbda39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
