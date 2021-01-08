@@ -84,6 +84,8 @@ def update_infra_config(old_branch, new_branch):
                          '--exclude-trybots=chromium.*',
                          '--exclude-trybots=.*Android_Framework.*',
                          '--exclude-trybots=.*G3_Framework.*',
+                         '--exclude-trybots=.*CanvasKit.*',
+                         '--exclude-trybots=.*PathKit.*',
                          '--submit'])
 
 
