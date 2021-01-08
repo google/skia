@@ -14,80 +14,9 @@
 #include "src/core/SkStreamPriv.h"
 #include "src/pdf/SkDeflate.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
-#include "src/pdf/SkPDFUnion.h"
 #include "src/pdf/SkPDFUtils.h"
 
 #include <new>
-
-////////////////////////////////////////////////////////////////////////////////
-
-SkPDFUnion::SkPDFUnion(Type t, int32_t     v) : fIntValue          (v) , fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, bool        v) : fBoolValue         (v) , fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, SkScalar    v) : fScalarValue       (v) , fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, const char* v) : fStaticString      (v) , fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, SkString    v) : fSkString(std::move(v)), fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, PDFObject   v) : fObject  (std::move(v)), fType(t) {}
-
-SkPDFUnion::~SkPDFUnion() {
-    switch (fType) {
-        case Type::kNameSkS:
-        case Type::kStringSkS:
-            fSkString.~SkString();
-            return;
-        case Type::kObject:
-            fObject.~PDFObject();
-            return;
-        default:
-            return;
-    }
-}
-
-SkPDFUnion::SkPDFUnion(SkPDFUnion&& that) : fType(that.fType) {
-    SkASSERT(this != &that);
-
-    switch (fType) {
-        case Type::kDestroyed:
-            break;
-        case Type::kInt:
-        case Type::kColorComponent:
-        case Type::kRef:
-            fIntValue = that.fIntValue;
-            break;
-        case Type::kBool:
-            fBoolValue = that.fBoolValue;
-            break;
-        case Type::kColorComponentF:
-        case Type::kScalar:
-            fScalarValue = that.fScalarValue;
-            break;
-        case Type::kName:
-        case Type::kString:
-            fStaticString = that.fStaticString;
-            break;
-        case Type::kNameSkS:
-        case Type::kStringSkS:
-            new (&fSkString) SkString(std::move(that.fSkString));
-            break;
-        case Type::kObject:
-            new (&fObject) PDFObject(std::move(that.fObject));
-            break;
-        default:
-            SkDEBUGFAIL("SkPDFUnion::SkPDFUnion with bad type");
-    }
-    that.fType = Type::kDestroyed;
-}
-
-SkPDFUnion& SkPDFUnion::operator=(SkPDFUnion&& that) {
-    if (this != &that) {
-        this->~SkPDFUnion();
-        new (this) SkPDFUnion(std::move(that));
-    }
-    return *this;
-}
-
-bool SkPDFUnion::isName() const {
-    return Type::kName == fType || Type::kNameSkS == fType;
-}
 
 #ifdef SK_DEBUG
 // Most names need no escaping.  Such names are handled as static const strings.
@@ -165,261 +94,75 @@ void SkPDFWriteString(SkWStream* wStream, const char* cin, size_t len) {
     write_string(wStream, cin, len);
 }
 
-void SkPDFUnion::emitObject(SkWStream* stream) const {
-    switch (fType) {
-        case Type::kInt:
-            stream->writeDecAsText(fIntValue);
-            return;
-        case Type::kColorComponent:
-            SkPDFUtils::AppendColorComponent(SkToU8(fIntValue), stream);
-            return;
-        case Type::kColorComponentF:
-            SkPDFUtils::AppendColorComponentF(fScalarValue, stream);
-            return;
-        case Type::kBool:
-            stream->writeText(fBoolValue ? "true" : "false");
-            return;
-        case Type::kScalar:
-            SkPDFUtils::AppendScalar(fScalarValue, stream);
-            return;
-        case Type::kName:
-            stream->writeText("/");
-            SkASSERT(is_valid_name(fStaticString));
-            stream->writeText(fStaticString);
-            return;
-        case Type::kString:
-            SkASSERT(fStaticString);
-            write_string(stream, fStaticString, strlen(fStaticString));
-            return;
-        case Type::kNameSkS:
-            stream->writeText("/");
-            write_name_escaped(stream, fSkString.c_str());
-            return;
-        case Type::kStringSkS:
-            write_string(stream, fSkString.c_str(), fSkString.size());
-            return;
-        case Type::kObject:
-            fObject->emitObject(stream);
-            return;
-        case Type::kRef:
-            SkASSERT(fIntValue >= 0);
-            stream->writeDecAsText(fIntValue);
-            stream->writeText(" 0 R");  // Generation number is always 0.
-            return;
-        default:
-            SkDEBUGFAIL("SkPDFUnion::emitObject with bad type");
-    }
-}
+///////////////////////////////////////////////////////////////////////////////
 
-SkPDFUnion SkPDFUnion::Int(int32_t value) {
-    return SkPDFUnion(Type::kInt, value);
-}
-
-SkPDFUnion SkPDFUnion::ColorComponent(uint8_t value) {
-    return SkPDFUnion(Type::kColorComponent,  SkTo<int32_t>(value));
-}
-
-SkPDFUnion SkPDFUnion::ColorComponentF(float value) {
-    return SkPDFUnion(Type::kColorComponentF, SkFloatToScalar(value));
-}
-
-SkPDFUnion SkPDFUnion::Bool(bool value) {
-    return SkPDFUnion(Type::kBool, value);
-}
-
-SkPDFUnion SkPDFUnion::Scalar(SkScalar value) {
-    return SkPDFUnion(Type::kScalar, value);
-}
-
-SkPDFUnion SkPDFUnion::Name(const char* value) {
-    SkASSERT(value);
-    SkASSERT(is_valid_name(value));
-    return SkPDFUnion(Type::kName, value);
-}
-
-SkPDFUnion SkPDFUnion::String(const char* value) {
-    SkASSERT(value);
-    return SkPDFUnion(Type::kString, value);
-}
-
-SkPDFUnion SkPDFUnion::Name(SkString s) {
-    return SkPDFUnion(Type::kNameSkS, std::move(s));
-}
-
-SkPDFUnion SkPDFUnion::String(SkString s) {
-    return SkPDFUnion(Type::kStringSkS, std::move(s));
-}
-
-SkPDFUnion SkPDFUnion::Object(std::unique_ptr<SkPDFObject> objSp) {
-    SkASSERT(objSp.get());
-    return SkPDFUnion(Type::kObject, std::move(objSp));
-}
-
-SkPDFUnion SkPDFUnion::Ref(SkPDFIndirectReference ref) {
-    SkASSERT(ref.fValue > 0);
-    return SkPDFUnion(Type::kRef, SkTo<int32_t>(ref.fValue));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-#if 0  // Enable if needed.
-void SkPDFAtom::emitObject(SkWStream* stream) const {
-    fValue.emitObject(stream);
-}
-#endif  // 0
-
-////////////////////////////////////////////////////////////////////////////////
-
-SkPDFArray::SkPDFArray() {}
-
-SkPDFArray::~SkPDFArray() {}
-
-size_t SkPDFArray::size() const { return fValues.size(); }
-
-void SkPDFArray::reserve(int length) {
-    fValues.reserve(length);
-}
-
-void SkPDFArray::emitObject(SkWStream* stream) const {
+void SkPDFArray::emit(SkWStream* stream) const {
     stream->writeText("[");
-    for (size_t i = 0; i < fValues.size(); i++) {
-        fValues[i].emitObject(stream);
-        if (i + 1 < fValues.size()) {
+    for (size_t i = 0; i < this->size(); i++) {
+        (*this)[i].emit(stream);
+        if (i + 1 < this->size()) {
             stream->writeText(" ");
         }
     }
     stream->writeText("]");
 }
 
-void SkPDFArray::append(SkPDFUnion&& value) {
-    fValues.emplace_back(std::move(value));
-}
-
-void SkPDFArray::appendInt(int32_t value) {
-    this->append(SkPDFUnion::Int(value));
-}
-
-void SkPDFArray::appendColorComponent(uint8_t value) {
-    this->append(SkPDFUnion::ColorComponent(value));
-}
-
-void SkPDFArray::appendBool(bool value) {
-    this->append(SkPDFUnion::Bool(value));
-}
-
-void SkPDFArray::appendScalar(SkScalar value) {
-    this->append(SkPDFUnion::Scalar(value));
-}
-
-void SkPDFArray::appendName(const char name[]) {
-    this->append(SkPDFUnion::Name(SkString(name)));
-}
-
-void SkPDFArray::appendName(SkString name) {
-    this->append(SkPDFUnion::Name(std::move(name)));
-}
-
-void SkPDFArray::appendString(SkString value) {
-    this->append(SkPDFUnion::String(std::move(value)));
-}
-
-void SkPDFArray::appendString(const char value[]) {
-    this->append(SkPDFUnion::String(value));
-}
-
-void SkPDFArray::appendObject(std::unique_ptr<SkPDFObject>&& objSp) {
-    this->append(SkPDFUnion::Object(std::move(objSp)));
-}
-
-void SkPDFArray::appendRef(SkPDFIndirectReference ref) {
-    this->append(SkPDFUnion::Ref(ref));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkPDFDict::~SkPDFDict() {}
-
-SkPDFDict::SkPDFDict(const char type[]) {
-    if (type) {
-        this->insertName("Type", type);
-    }
-}
-
-void SkPDFDict::emitObject(SkWStream* stream) const {
+void SkPDFDict::emit(SkWStream* stream) const {
     stream->writeText("<<");
-    for (size_t i = 0; i < fRecords.size(); ++i) {
-        const std::pair<SkPDFUnion, SkPDFUnion>& record = fRecords[i];
-        record.first.emitObject(stream);
+    for (size_t i = 0; i < this->size(); i++) {
+        const std::pair<SkPDFObject, SkPDFObject>& record = (*this)[i];
+        SkASSERT(skstd::holds_alternative<SkPDFStaticName>(record.first) ||
+                 skstd::holds_alternative<SkPDFStringName>(record.first));
+        record.first.emit(stream);
         stream->writeText(" ");
-        record.second.emitObject(stream);
-        if (i + 1 < fRecords.size()) {
+        record.second.emit(stream);
+        if (i + 1 < this->size()) {
             stream->writeText("\n");
         }
     }
     stream->writeText(">>");
 }
 
-size_t SkPDFDict::size() const { return fRecords.size(); }
-
-void SkPDFDict::reserve(int n) {
-    fRecords.reserve(n);
-}
-
-void SkPDFDict::insertRef(const char key[], SkPDFIndirectReference ref) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Ref(ref));
-}
-
-void SkPDFDict::insertRef(SkString key, SkPDFIndirectReference ref) {
-    fRecords.emplace_back(SkPDFUnion::Name(std::move(key)), SkPDFUnion::Ref(ref));
-}
-
-void SkPDFDict::insertObject(const char key[], std::unique_ptr<SkPDFObject>&& objSp) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp)));
-}
-void SkPDFDict::insertObject(SkString key, std::unique_ptr<SkPDFObject>&& objSp) {
-    fRecords.emplace_back(SkPDFUnion::Name(std::move(key)),
-                          SkPDFUnion::Object(std::move(objSp)));
-}
-
-void SkPDFDict::insertBool(const char key[], bool value) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Bool(value));
-}
-
-void SkPDFDict::insertInt(const char key[], int32_t value) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Int(value));
-}
-
-void SkPDFDict::insertInt(const char key[], size_t value) {
-    this->insertInt(key, SkToS32(value));
-}
-
-void SkPDFDict::insertColorComponentF(const char key[], SkScalar value) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::ColorComponentF(value));
-}
-
-void SkPDFDict::insertScalar(const char key[], SkScalar value) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Scalar(value));
-}
-
-void SkPDFDict::insertName(const char key[], const char name[]) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Name(name));
-}
-
-void SkPDFDict::insertName(const char key[], SkString name) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Name(std::move(name)));
-}
-
-void SkPDFDict::insertString(const char key[], const char value[]) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::String(value));
-}
-
-void SkPDFDict::insertString(const char key[], SkString value) {
-    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::String(std::move(value)));
+void SkPDFObject::emit(SkWStream* stream) const {
+    skstd::visit(
+            [stream](const auto& arg) {
+                using T = typename std::decay<decltype(arg)>::type;
+                if constexpr (std::is_same<T, bool>::value) {
+                    stream->writeText(arg ? "true" : "false");
+                } else if constexpr (std::is_same<T, int32_t>::value) {
+                    stream->writeDecAsText(arg);
+                } else if constexpr (std::is_same<T, SkScalar>::value) {
+                    SkPDFUtils::AppendScalar(arg, stream);
+                } else if constexpr (std::is_same<T, SkPDFColorComponentU>::value) {
+                    SkPDFUtils::AppendColorComponent(arg.fValue, stream);
+                } else if constexpr (std::is_same<T, SkPDFColorComponentF>::value) {
+                    SkPDFUtils::AppendColorComponentF(arg.fValue, stream);
+                } else if constexpr (std::is_same<T, SkString>::value) {
+                    write_string(stream, arg.c_str(), arg.size());
+                } else if constexpr (std::is_same<T, const char*>::value) {
+                    write_string(stream, arg, strlen(arg));
+                } else if constexpr (std::is_same<T, SkPDFStringName>::value) {
+                    stream->writeText("/");
+                    write_name_escaped(stream, arg.fValue.c_str());
+                } else if constexpr (std::is_same<T, SkPDFStaticName>::value) {
+                    stream->writeText("/");
+                    SkASSERT(is_valid_name(arg.fValue));
+                    stream->writeText(arg.fValue);
+                } else if constexpr (std::is_same<T, std::unique_ptr<SkPDFArray>>::value ||
+                                     std::is_same<T, std::unique_ptr<SkPDFDict>>::value) {
+                    SkASSERT(arg);
+                    arg->emit(stream);
+                } else if constexpr (std::is_same<T, SkPDFIndirectReference>::value) {
+                    SkASSERT(arg.fValue >= 0);
+                    stream->writeDecAsText(arg.fValue);
+                    stream->writeText(" 0 R");  // Generation number is always 0.
+                    return;
+                }
+            },
+            *this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
 
 static void serialize_stream(SkPDFDict* origDict,
                              SkStreamAsset* stream,
@@ -457,7 +200,6 @@ static void serialize_stream(SkPDFDict* origDict,
             SkAssertResult(stream->rewind());
         }
         #endif
-
     }
     dict.insertInt("Length", stream->getLength());
     doc->emitStream(dict,
