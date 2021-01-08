@@ -174,7 +174,6 @@ namespace skvm {
         struct Shift { int bits; };
         struct Splat { int bits; };
         struct Hex   { int bits; };
-        struct Attr  { const char* label; int v; };
 
         static void write(SkWStream* o, const char* s) {
             o->writeText(s);
@@ -218,11 +217,6 @@ namespace skvm {
         }
         static void write(SkWStream* o, Hex h) {
             o->writeHexAsText(h.bits);
-        }
-        [[maybe_unused]] static void write(SkWStream* o, Attr a) {
-            write(o, a.label);
-            write(o, " ");
-            o->writeDecAsText(a.v);
         }
 
         template <typename T, typename... Ts>
