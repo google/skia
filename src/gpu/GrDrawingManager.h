@@ -184,15 +184,12 @@ private:
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 
-    void addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget) {
-        fDDLTargets.set(newTarget->uniqueID().asUInt(), ddlTarget);
-    }
+    // TODO: this should be totally revised. It seems like the DDLTask should have a ref
+    // on 'newTarget' and just make it have a 'fulfillsDDL' boolean set on it until the
+    // DDL task is flushed.
+    void addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget);
     bool isDDLTarget(GrSurfaceProxy* newTarget) {
         return SkToBool(fDDLTargets.find(newTarget->uniqueID().asUInt()));
-    }
-    GrRenderTargetProxy* getDDLTarget(GrSurfaceProxy* newTarget) {
-        auto entry = fDDLTargets.find(newTarget->uniqueID().asUInt());
-        return entry ? *entry : nullptr;
     }
     void clearDDLTargets() { fDDLTargets.reset(); }
 

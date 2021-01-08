@@ -40,6 +40,8 @@ public:
 
     bool doLazyInstantiation(GrResourceProvider*);
 
+    void setIsDDLTarget() { fProxy->fIsDDLTarget = true; }
+
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
     GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) = delete;

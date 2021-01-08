@@ -173,10 +173,6 @@ void DDLTileHelper::TileData::drawSKPDirectly(GrRecordingContext* context) {
 void DDLTileHelper::TileData::draw(GrDirectContext* direct) {
     SkASSERT(fDisplayList && !fTileSurface);
 
-    // The tile's surface needs to be held until after the DDL is flushed bc the DDL doesn't take
-    // a ref on its destination proxy.
-    // TODO: make the DDL (or probably the drawing manager) take a ref on the destination proxy
-    // (maybe in GrDrawingManager::addDDLTarget).
     fTileSurface = this->makeWrappedTileDest(direct);
     if (fTileSurface) {
         fTileSurface->draw(fDisplayList, this->padOffset().x(), this->padOffset().y());
