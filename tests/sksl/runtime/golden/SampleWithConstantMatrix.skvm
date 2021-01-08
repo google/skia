@@ -1,6 +1,6 @@
 13 registers, 35 instructions:
-0	r0 = uniform32 arg(0) 0
-1	r1 = uniform32 arg(0) C
+0	r0 = uniform32 ptr0 0
+1	r1 = uniform32 ptr0 C
 2	r2 = splat 0 (0)
 3	r3 = splat 40000000 (2)
 4	r4 = splat 3F800000 (1)
@@ -24,14 +24,14 @@ loop:
 21	    r9 = mul_i32 r9 r1
 22	    r9 = add_i32 r10 r9
 23	    r9 = shl_i32 r9 2
-24	    r10 = gather32 arg(0) 4 r9
+24	    r10 = gather32 ptr0 4 r9
 25	    r11 = add_i32 r9 r6
-26	    r11 = gather32 arg(0) 4 r11
+26	    r11 = gather32 ptr0 4 r11
 27	    r12 = add_i32 r9 r7
-28	    r12 = gather32 arg(0) 4 r12
+28	    r12 = gather32 ptr0 4 r12
 29	    r9 = add_i32 r9 r8
-30	    r9 = gather32 arg(0) 4 r9
-31	    store32 arg(1) r10
-32	    store32 arg(2) r11
-33	    store32 arg(3) r12
-34	    store32 arg(4) r9
+30	    r9 = gather32 ptr0 4 r9
+31	    store32 ptr1 r10
+32	    store32 ptr2 r11
+33	    store32 ptr3 r12
+34	    store32 ptr4 r9
