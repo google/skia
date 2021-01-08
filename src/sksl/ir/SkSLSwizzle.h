@@ -43,29 +43,6 @@ struct Swizzle final : public Expression {
         return fComponents;
     }
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
-        if (this->base()->is<Constructor>()) {
-            Constructor& constructor = this->base()->as<Constructor>();
-            if (constructor.isCompileTimeConstant()) {
-                // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
-                const Type& type = this->type();
-                if (type.isInteger()) {
-                    SkASSERT(this->components().size() == 1);
-                    SKSL_INT value = constructor.getIVecComponent(this->components()[0]);
-                    return std::make_unique<IntLiteral>(irGenerator.fContext, constructor.fOffset,
-                                                        value);
-                } else if (type.isFloat()) {
-                    SkASSERT(this->components().size() == 1);
-                    SKSL_FLOAT value = constructor.getFVecComponent(this->components()[0]);
-                    return std::make_unique<FloatLiteral>(irGenerator.fContext, constructor.fOffset,
-                                                          value);
-                }
-            }
-        }
-        return nullptr;
-    }
-
     bool hasProperty(Property property) const override {
         return this->base()->hasProperty(property);
     }
