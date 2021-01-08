@@ -118,6 +118,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d90a4b5_4062993d",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T19:55:42Z",
+      "side": 1,
+      "message": "boy, glad I asked.",
+      "parentUuid": "8a4a5b48_33709f1b",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "acbb37e6_9487531f",
@@ -149,6 +167,24 @@
       "side": 1,
       "message": "\u0027builtin\u0027 means the function is declared (and possibly defined) in the SkSL pre-includes. (sksl_public.sksl, in this case). \u0027definition\u0027 means it actually has a definition, and not just a declaration.\n\n1) Most intrinsics are currently declared, but not defined [builtin \u0026\u0026 !definition].\n2) A few intrinsics are actually defined using SkSL, because it was easier to write them like that for the ByteCode system (cross product, reflect/refract) [builtin \u0026\u0026 defined].\n3) Any functions in other SkSL (eg, additional functions in your runtime effect code) are not builtin, and will (by necessity) also be defined. The IR generator will produce an error if you try to call a non-defined, non-builtin function. (So only three states are possible).\n\nAll of the category 2 intrinsics are currently tagged with our \u0027inline\u0027 keyword, but setting inline threshold overrides even that - so adjusting the tests to not inline those intrinsics meant I had to be more correct/deliberate about which functions went to the intrinsic handling. And it doesn\u0027t matter for this code (the new version is the most accurate/correct), but once I get rid of the byte code system, I\u0027m planning to just convert *all* of those intrinsics to be defined here, in the generator (because it\u0027s so much easier to write them that way - https://skia-review.googlesource.com/c/skia/+/348879).",
       "parentUuid": "acbb37e6_9487531f",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02306cfc_c1d0c546",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T19:55:42Z",
+      "side": 1,
+      "message": "sgtm!",
+      "parentUuid": "aaba2fbb_3b16dea3",
       "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
