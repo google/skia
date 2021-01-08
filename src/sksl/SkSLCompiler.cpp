@@ -1158,12 +1158,16 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 if (base.arguments().size() == 1 && base.arguments().front()->type().isScalar()) {
                     // `half4(scalar).zyy` can be optimized to `half3(scalar)`. The swizzle
                     // components don't actually matter since all fields are the same.
-                    ExpressionArray newArgs;
-                    newArgs.push_back(base.arguments().front()->clone());
-                    replacement = std::make_unique<Constructor>(
-                            base.fOffset,
-                            &componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
-                            std::move(newArgs));
+                    const Expression& argument = *base.arguments().front();
+                    const Type& constructorType = componentType.toCompound(*fContext, swizzleSize,
+                                                                           /*rows=*/1);
+                    replacement = Constructor::SimplifyConversion(constructorType, argument);
+                    if (!replacement) {
+                        ExpressionArray newArgs;
+                        newArgs.push_back(argument.clone());
+                        replacement = std::make_unique<Constructor>(base.fOffset, &constructorType,
+                                                                    std::move(newArgs));
+                    }
 
                     // We're replacing an expression with a cloned version; we'll need a rescan.
                     // There's no fUsage change: `half4(foo).xy` and `half2(foo)` have equivalent
