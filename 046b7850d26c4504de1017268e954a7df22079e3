@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6960adbb_1e4a1530",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-08T15:24:09Z",
+      "side": 1,
+      "message": "Only slightly related:\n- since shadowutils is public, why isn\u0027t this API just on canvas?\n- consider just passing around the DrawShadowRect, instead of all those params?",
+      "revId": "046b7850d26c4504de1017268e954a7df22079e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0e4226c3_1d3400a4",
