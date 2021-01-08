@@ -80,6 +80,30 @@
       },
       "revId": "046b7850d26c4504de1017268e954a7df22079e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76e46214_4582acaa",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-08T15:25:21Z",
+      "side": 1,
+      "message": "Yes, in the general case the light will be transformed by the ctm which changes where the shadow ends up.",
+      "parentUuid": "aef4c16c_d5484ca3",
+      "range": {
+        "startLine": 68,
+        "startChar": 31,
+        "endLine": 68,
+        "endChar": 47
+      },
+      "revId": "046b7850d26c4504de1017268e954a7df22079e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
