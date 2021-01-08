@@ -67,8 +67,7 @@ std::unique_ptr<Expression> Constructor::SimplifyConversion(const Type& construc
     return nullptr;
 }
 
-Expression::ComparisonResult Constructor::compareConstant(const Context& context,
-                                                          const Expression& other) const {
+Expression::ComparisonResult Constructor::compareConstant(const Expression& other) const {
     if (!other.is<Constructor>()) {
         return ComparisonResult::kUnknown;
     }

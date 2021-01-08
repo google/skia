@@ -50,8 +50,7 @@ public:
         return true;
     }
 
-    ComparisonResult compareConstant(const Context& context,
-                                     const Expression& other) const override {
+    ComparisonResult compareConstant(const Expression& other) const override {
         if (!other.is<IntLiteral>()) {
             return ComparisonResult::kUnknown;
         }

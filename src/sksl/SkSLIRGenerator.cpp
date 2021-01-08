@@ -1807,7 +1807,7 @@ std::unique_ptr<Expression> IRGenerator::constantFoldVector(const Expression& le
     if (op == Token::Kind::TK_EQEQ || op == Token::Kind::TK_NEQ) {
         bool equality = (op == Token::Kind::TK_EQEQ);
 
-        switch (left.compareConstant(fContext, right)) {
+        switch (left.compareConstant(right)) {
             case Expression::ComparisonResult::kNotEqual:
                 equality = !equality;
                 [[fallthrough]];
@@ -1990,7 +1990,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                 return nullptr;
         }
 
-        switch (left.compareConstant(fContext, right)) {
+        switch (left.compareConstant(right)) {
             case Expression::ComparisonResult::kNotEqual:
                 equality = !equality;
                 [[fallthrough]];
