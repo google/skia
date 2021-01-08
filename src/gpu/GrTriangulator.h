@@ -170,6 +170,9 @@ private:
     // setting rotates 90 degrees counterclockwise, rather that transposing.
 
     // Additional helpers and driver functions.
+    void* emitMonotonePoly(const MonotonePoly*, void* data);
+    void* emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding, void* data) const;
+    void* emitPoly(const Poly*, void *data);
     void appendPointToContour(const SkPoint& p, VertexList* contour);
     void appendQuadraticToContour(const SkPoint[3], SkScalar toleranceSqd, VertexList* contour);
     void generateCubicPoints(const SkPoint&, const SkPoint&, const SkPoint&, const SkPoint&,
