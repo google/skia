@@ -181,7 +181,8 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
             case SkPath::kConic_Verb:
                 if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 3)) {
                     SkAutoConicToQuads converter;
-                    const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tolerance);
+                    const SkPoint* quads =
+                        converter.computeQuads(args, iter.conicWeight(), tolerance);
                     for (int i = 0; i < converter.countQuads(); ++i) {
                         append_quad(&quads[i * 2], &currentSegment);
                     }

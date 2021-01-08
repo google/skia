@@ -13,7 +13,6 @@
 #include <vector>
 
 class SkPDFDict;
-class SkPDFObject;
 class SkWStream;
 
 enum class SkPDFResourceType {

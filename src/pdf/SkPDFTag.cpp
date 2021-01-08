@@ -362,7 +362,9 @@ SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference
     return doc->emit(dict, ref);
 }
 
-void SkPDFTagTree::addNodeAnnotation(int nodeId, SkPDFIndirectReference annotationRef, unsigned pageIndex) {
+void SkPDFTagTree::addNodeAnnotation(int nodeId,
+                                     SkPDFIndirectReference annotationRef,
+                                     unsigned pageIndex) {
     if (!fRoot) {
         return;
     }
