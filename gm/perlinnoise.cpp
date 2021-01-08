@@ -25,7 +25,6 @@ namespace {
 enum class Type {
     kFractalNoise,
     kTurbulence,
-    kImproved,
 };
 
 class PerlinNoiseGM : public skiagm::GM {
@@ -35,7 +34,7 @@ class PerlinNoiseGM : public skiagm::GM {
 
     SkString onShortName() override { return SkString("perlinnoise"); }
 
-    SkISize onISize() override { return {200, 600}; }
+    SkISize onISize() override { return {200, 500}; }
 
     void drawRect(SkCanvas* canvas, int x, int y, const SkPaint& paint, const SkISize& size) {
         canvas->save();
@@ -47,7 +46,7 @@ class PerlinNoiseGM : public skiagm::GM {
     }
 
     void test(SkCanvas* canvas, int x, int y, Type type,
-              float baseFrequencyX, float baseFrequencyY, int numOctaves, float seedOrZ,
+              float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
         SkISize tileSize = SkISize::Make(fSize.width() / 2, fSize.height() / 2);
         sk_sp<SkShader> shader;
@@ -56,22 +55,15 @@ class PerlinNoiseGM : public skiagm::GM {
                 shader = SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX,
                                                                baseFrequencyY,
                                                                numOctaves,
-                                                               seedOrZ,
+                                                               seed,
                                                                stitchTiles ? &tileSize : nullptr);
                 break;
             case Type::kTurbulence:
                 shader = SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX,
                                                              baseFrequencyY,
                                                              numOctaves,
-                                                             seedOrZ,
+                                                             seed,
                                                              stitchTiles ? &tileSize : nullptr);
-                break;
-            case Type::kImproved:
-                SkASSERT(!stitchTiles);
-                shader = SkPerlinNoiseShader::MakeImprovedNoise(baseFrequencyX,
-                                                                baseFrequencyY,
-                                                                numOctaves,
-                                                                seedOrZ);
                 break;
         }
         SkPaint paint;
@@ -111,16 +103,11 @@ class PerlinNoiseGM : public skiagm::GM {
         test(canvas, 100, 300, Type::kFractalNoise,
              0.1f, 0.1f, 3, 4, false);
 
-        test(canvas,   0, 400, Type::kImproved,
-             0.0125f, 0.0125f, 4, 0, false);
-        test(canvas, 100, 400, Type::kImproved,
-             0.125f, 0.0075f, 2, 0, false);
-
         canvas->scale(0.75f, 1.0f);
 
-        test(canvas,   0, 500, Type::kFractalNoise,
+        test(canvas,   0, 400, Type::kFractalNoise,
              0.1f, 0.1f, 2, 0, false);
-        test(canvas, 100, 500, Type::kFractalNoise,
+        test(canvas, 100, 400, Type::kFractalNoise,
              0.1f, 0.05f, 1, 0, true);
     }
 

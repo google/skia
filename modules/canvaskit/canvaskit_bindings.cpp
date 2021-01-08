@@ -1555,7 +1555,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkPerlinNoiseShader::MakeFractalNoise(baseFreqX, baseFreqY,
                                                          numOctaves, seed, &tileSize);
         }))
-        .class_function("MakeImprovedNoise", &SkPerlinNoiseShader::MakeImprovedNoise)
          // Here and in other gradient functions, cPtr is a pointer to an array of data
          // representing colors. whether this is an array of SkColor or SkColor4f is indicated
          // by the colorType argument. Only RGBA_8888 and RGBA_F32 are accepted.
