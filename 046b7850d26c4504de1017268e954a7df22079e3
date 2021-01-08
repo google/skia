@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8e1dcc3f_0cf96a14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-08T15:29:32Z",
+      "side": 1,
+      "message": "When drawShadow was first added we decided to add it as a private interface to canvas. We can certainly change that. And currently SkDrawShadowRec isn\u0027t public.",
+      "parentUuid": "6960adbb_1e4a1530",
+      "revId": "046b7850d26c4504de1017268e954a7df22079e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0e4226c3_1d3400a4",
         "filename": "include/utils/SkShadowUtils.h",
         "patchSetId": 3
