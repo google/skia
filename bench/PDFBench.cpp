@@ -17,7 +17,6 @@
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/pdf/SkPDFUnion.h"
 #include "src/utils/SkFloatToDecimal.h"
 #include "tools/Resources.h"
 

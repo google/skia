@@ -8,193 +8,191 @@
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
 
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
 #include "include/private/SkTo.h"
+#include "src/pdf/SkVariant.h"
 
+#include <cstdint>
 #include <memory>
-#include <new>
-#include <type_traits>
-#include <utility>
 #include <vector>
-#include <memory>
 
 class SkData;
-class SkPDFArray;
 
-class SkPDFDict;
 class SkPDFDocument;
-class SkPDFObject;
-class SkPDFUnion;
 class SkStreamAsset;
-class SkString;
 class SkWStream;
-struct SkPDFObjectSerializer;
+
+// "PDF includes eight basic types of objects: Boolean values, Integer and Real
+//  numbers, Strings, Names, Arrays, Dictionaries, Streams, and the null object.
+//  Objects may be labelled so that they can be referred to by other objects. A
+//  labelled object is called an indirect object."
+//
+// We do not need null objects.  Streams are handled separately.
+
+// The following utility structs are used to differentiate data types with the same representation.
+struct SkPDFColorComponentU {
+    uint8_t fValue;
+};
+
+struct SkPDFColorComponentF {
+    float fValue;
+};
+
+struct SkPDFStaticName {
+    const char* fValue;
+};
+
+struct SkPDFStringName {
+    SkString fValue;
+};
 
 struct SkPDFIndirectReference {
     int fValue = -1;
     explicit operator bool() { return fValue != -1; }
+    bool operator==(const SkPDFIndirectReference& v) const { return fValue == v.fValue; }
+    bool operator!=(const SkPDFIndirectReference& v) const { return fValue != v.fValue; }
 };
 
-inline static bool operator==(SkPDFIndirectReference u, SkPDFIndirectReference v) {
-    return u.fValue == v.fValue;
-}
+// Use SkPDFName() to construct either type of SkPDFxxxxxName structs.
+inline SkPDFStringName SkPDFName(SkString name) { return SkPDFStringName{std::move(name)}; }
+inline SkPDFStaticName SkPDFName(const char* name) { return SkPDFStaticName{name}; }
 
-inline static bool operator!=(SkPDFIndirectReference u, SkPDFIndirectReference v) {
-    return u.fValue != v.fValue;
-}
+class SkPDFArray;  // vector of pdf objects
+class SkPDFDict;   // vector of key, value pairs, values are pdf objects
 
-/** \class SkPDFObject
+using SkPDFObject = skstd::variant<bool,                         // Boolean
+                                   int32_t,                      // Integer number
+                                   SkScalar,                     // Real number
+                                   SkPDFColorComponentU,         // Real number less precise
+                                   SkPDFColorComponentF,         // Real number less precise
+                                   SkString,                     // String
+                                   const char*,                  // String
+                                   SkPDFStringName,              // Name
+                                   SkPDFStaticName,              // Name
+                                   std::unique_ptr<SkPDFArray>,  // Array
+                                   std::unique_ptr<SkPDFDict>,   // Dictionary
+                                   SkPDFIndirectReference        // Indirect object
+                                   >;
 
-    A PDF Object is the base class for primitive elements in a PDF file.  A
-    common subtype is used to ease the use of indirect object references,
-    which are common in the PDF format.
+void SkPDFEmit(const SkPDFObject&, SkWStream*);
 
-*/
-class SkPDFObject {
+static_assert(sizeof(SkString) == sizeof(char*));
+static_assert(sizeof(std::unique_ptr<SkPDFArray>) == sizeof(char*));
+
+class SkPDFArray {
 public:
-    SkPDFObject() = default;
-
-    /** Subclasses must implement this method to print the object to the
-     *  PDF file.
-     *  @param catalog  The object catalog to use.
-     *  @param stream   The writable output stream to send the output to.
-     */
-    virtual void emitObject(SkWStream* stream) const = 0;
-
-    virtual ~SkPDFObject() = default;
-
-private:
-    SkPDFObject(SkPDFObject&&) = delete;
-    SkPDFObject(const SkPDFObject&) = delete;
-    SkPDFObject& operator=(SkPDFObject&&) = delete;
-    SkPDFObject& operator=(const SkPDFObject&) = delete;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-/** \class SkPDFArray
-
-    An array object in a PDF.
-*/
-class SkPDFArray final : public SkPDFObject {
-public:
-    /** Create a PDF array. Maximum length is 8191.
-     */
     SkPDFArray();
-    ~SkPDFArray() override;
-
-    // The SkPDFObject interface.
-    void emitObject(SkWStream* stream) const override;
-
-    /** The size of the array.
-     */
+    SkPDFArray(const SkPDFArray&) = delete;
+    SkPDFArray& operator=(const SkPDFArray&) = delete;
+    ~SkPDFArray();
+    void emit(SkWStream*) const;
+    void emplace(SkPDFObject);
+    void reserve(size_t);
     size_t size() const;
+    template <typename T> void append(T v) { this->emplace(SkPDFObject{std::move(v)}); }
 
-    /** Preallocate space for the given number of entries.
-     *  @param length The number of array slots to preallocate.
-     */
-    void reserve(int length);
-
-    /** Appends a value to the end of the array.
-     *  @param value The value to add to the array.
-     */
-    void appendInt(int32_t);
-    void appendColorComponent(uint8_t);
-    void appendBool(bool);
-    void appendScalar(SkScalar);
-    void appendName(const char[]);
-    void appendName(SkString);
-    void appendString(const char[]);
-    void appendString(SkString);
-    void appendObject(std::unique_ptr<SkPDFObject>&&);
-    void appendRef(SkPDFIndirectReference);
+    // The following inline functions can be replaced in the calling code in a later commit.
+    void appendInt(int32_t v) { this->append(v); }
+    void appendColorComponent(uint8_t v) { this->append(SkPDFColorComponentU{v}); }
+    void appendBool(bool v) { this->append(v); }
+    void appendScalar(SkScalar v) { this->append(v); }
+    void appendName(const char v[]) { this->append(SkPDFName(v)); }
+    void appendName(SkString v) { this->append(SkPDFName(std::move(v))); }
+    void appendString(const char v[]) { this->append(v); }
+    void appendString(SkString v) { this->append(std::move(v)); }
+    void appendRef(SkPDFIndirectReference v) { this->append(v); }
+    void appendObject(std::unique_ptr<SkPDFArray>&& v) { this->append(std::move(v)); }
+    void appendObject(std::unique_ptr<SkPDFDict>&& v) { this->append(std::move(v)); }
 
 private:
-    std::vector<SkPDFUnion> fValues;
-    void append(SkPDFUnion&& value);
+    std::vector<SkPDFObject> fArray;
 };
-
-static inline void SkPDFArray_Append(SkPDFArray* a, int v) { a->appendInt(v); }
-
-static inline void SkPDFArray_Append(SkPDFArray* a, SkScalar v) { a->appendScalar(v); }
 
 template <typename T, typename... Args>
 static inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
-    SkPDFArray_Append(a, v);
+    a->append(std::move(v));
     SkPDFArray_Append(a, args...);
 }
 
 static inline void SkPDFArray_Append(SkPDFArray* a) {}
 
-template <typename... Args>
-static inline std::unique_ptr<SkPDFArray> SkPDFMakeArray(Args... args) {
+template <typename... Args> static inline std::unique_ptr<SkPDFArray> SkPDFMakeArray(Args... args) {
     std::unique_ptr<SkPDFArray> ret(new SkPDFArray());
     ret->reserve(sizeof...(Args));
     SkPDFArray_Append(ret.get(), args...);
     return ret;
 }
 
-/** \class SkPDFDict
-
-    A dictionary object in a PDF.
-*/
-class SkPDFDict final : public SkPDFObject {
+class SkPDFDict {
 public:
-    /** Create a PDF dictionary.
-     *  @param type   The value of the Type entry, nullptr for no type.
-     */
-    explicit SkPDFDict(const char type[] = nullptr);
+    SkPDFDict();
+    SkPDFDict(const SkPDFDict&) = delete;
+    ~SkPDFDict();
+    SkPDFDict& operator=(const SkPDFDict&) = delete;
 
-    ~SkPDFDict() override;
+    explicit SkPDFDict(const char type[]) : SkPDFDict() {
+        if (type) {
+            this->insertName("Type", type);
+        }
+    }
+    void reserve(size_t);
+    void emplace(SkPDFObject k, SkPDFObject v);
 
-    // The SkPDFObject interface.
-    void emitObject(SkWStream* stream) const override;
+    void emit(SkWStream*) const;
+    // @param key is either const char[] or SkString
+    // @param value is any type SkPDFObject can hold.
+    template <typename K, typename V> void insert(K key, V value) {
+        this->emplace(SkPDFObject{SkPDFName(std::move(key))}, SkPDFObject{std::move(value)});
+    }
 
-    /** The size of the dictionary.
-     */
-    size_t size() const;
-
-    /** Preallocate space for n key-value pairs */
-    void reserve(int n);
-
-    /** Add the value to the dictionary with the given key.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     */
-    void insertObject(const char key[], std::unique_ptr<SkPDFObject>&&);
-    void insertObject(SkString, std::unique_ptr<SkPDFObject>&&);
-    void insertRef(const char key[], SkPDFIndirectReference);
-    void insertRef(SkString, SkPDFIndirectReference);
-
-    /** Add the value to the dictionary with the given key.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     */
-    void insertBool(const char key[], bool value);
-    void insertInt(const char key[], int32_t value);
-    void insertInt(const char key[], size_t value);
-    void insertScalar(const char key[], SkScalar value);
-    void insertColorComponentF(const char key[], SkScalar value);
-    void insertName(const char key[], const char nameValue[]);
-    void insertName(const char key[], SkString nameValue);
-    void insertString(const char key[], const char value[]);
-    void insertString(const char key[], SkString value);
+    // The following inline functions can be replaced in the calling code in a later commit.
+    void insertObject(const char key[], std::unique_ptr<SkPDFArray>&& value) {
+        this->insert(key, std::move(value));
+    }
+    void insertObject(SkString key, std::unique_ptr<SkPDFArray>&& value) {
+        this->insert(std::move(key), std::move(value));
+    }
+    void insertObject(const char key[], std::unique_ptr<SkPDFDict>&& value) {
+        this->insert(key, std::move(value));
+    }
+    void insertObject(SkString key, std::unique_ptr<SkPDFDict>&& value) {
+        this->insert(std::move(key), std::move(value));
+    }
+    void insertRef(const char key[], SkPDFIndirectReference value) { this->insert(key, value); }
+    void insertRef(SkString key, SkPDFIndirectReference value) {
+        this->insert(std::move(key), value);
+    }
+    void insertBool(const char key[], bool value) { this->insert(key, value); }
+    void insertInt(const char key[], int32_t value) { this->insert(key, value); }
+    void insertInt(const char key[], size_t value) { this->insert(key, SkToS32(value)); }
+    void insertScalar(const char key[], SkScalar value) { this->insert(key, value); }
+    void insertName(const char key[], const char value[]) { this->insert(key, SkPDFName(value)); }
+    void insertName(const char key[], SkString value) {
+        this->insert(key, SkPDFName(std::move(value)));
+    }
+    void insertString(const char key[], const char value[]) { this->insert(key, value); }
+    void insertString(const char key[], SkString value) { this->insert(key, std::move(value)); }
+    void insertColorComponentF(const char key[], SkScalar value) {
+        this->insert(key, SkPDFColorComponentF{value});
+    }
 
 private:
-    std::vector<std::pair<SkPDFUnion, SkPDFUnion>> fRecords;
+    std::vector<std::pair<SkPDFObject, SkPDFObject>> fRecords;
 };
 
 static inline std::unique_ptr<SkPDFDict> SkPDFMakeDict(const char* type = nullptr) {
     return std::make_unique<SkPDFDict>(type);
 }
 
+// Exposed for unit testing.
+void SkPDFWriteString(SkWStream* wStream, const char* cin, size_t len);
+
 #ifdef SK_PDF_LESS_COMPRESSION
-    static constexpr bool kSkPDFDefaultDoDeflate = false;
+static constexpr bool kSkPDFDefaultDoDeflate = false;
 #else
-    static constexpr bool kSkPDFDefaultDoDeflate = true;
+static constexpr bool kSkPDFDefaultDoDeflate = true;
 #endif
 
 SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
