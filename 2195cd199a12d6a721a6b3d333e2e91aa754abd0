@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93bd0228_c318a016",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1161,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T20:25:02Z",
+      "side": 1,
+      "message": "... hoping this comment explains the rationale?",
+      "revId": "2195cd199a12d6a721a6b3d333e2e91aa754abd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

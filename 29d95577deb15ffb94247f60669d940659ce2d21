@@ -136,6 +136,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbfa0f9e_002537b5",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T20:25:02Z",
+      "side": 1,
+      "message": "OK, I\u0027m fairly certain PS6 fixes this. Turns out you can\u0027t just push the return stuff into fMask - they\u0027re scoped entirely differently.\n\nThe fix is to either initialize the \u0027returned\u0027 mask with things that are already disabled (which reads oddly), or do what I did, and temporarily update fMask to reflect that some lanes are already dead when you invoke the child. AutoMask makes that easy, so...",
+      "parentUuid": "6d90a4b5_4062993d",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "acbb37e6_9487531f",
