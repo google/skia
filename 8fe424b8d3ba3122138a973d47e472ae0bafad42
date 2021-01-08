@@ -16,6 +16,24 @@
       "message": "On its surface this seems fine but I\u0027m not sure I get the purpose of this change. Why not move the inner mesh to be a member as well?",
       "revId": "8fe424b8d3ba3122138a973d47e472ae0bafad42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb5619e2_7d0a4d02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-08T20:14:23Z",
+      "side": 1,
+      "message": "The purpose is to get the outer mesh out of the driver function for GrTriangulator. \n\nThen it can live entirely in GrAATriangulator.cpp and not be part of the core GrTriangulator code anymore.",
+      "parentUuid": "d114bf2f_77554952",
+      "revId": "8fe424b8d3ba3122138a973d47e472ae0bafad42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
