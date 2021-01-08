@@ -202,7 +202,7 @@ func runTests(ctx context.Context, builtPath, nodeBinPath, resourcePath, testHar
 			"--use_gpu", // TODO(kjlubick) use webglVersion and account for CPU
 			"--output", workPath,
 			"--resources", resourcePath,
-			"--timeout", "180", // 180 seconds per batch of 50 tests.
+			"--timeout", "180", // seconds per batch of 50 tests.
 		}
 
 		_, err := exec.RunCwd(ctx, testHarnessPath, args...)

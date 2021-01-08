@@ -60,6 +60,7 @@ array of the test names and what they drew.
       window._failed = [];
       await RunTests(GM);
       if (window._error) {
+        console.log(window._error);
         return;
       }
       await RunGMs(GM);
@@ -74,6 +75,7 @@ array of the test names and what they drew.
 
   const statusElement = document.getElementById('status_text');
   function log(line) {
+    console.log(line);
     line += '\n';
     statusElement.innerText += line;
     window._log += line;
@@ -317,22 +319,24 @@ array of the test names and what they drew.
     'ZeroSizedProxyTest',
     'skbug5221_GPU',
 
-    // These tests are failing
+    // These tests are failing because they can't make an SkSurface
     'ApplyGamma',
     'BlurMaskBiggerThanDest',
-    'Codec_GifPreMap',
-    'Codec_AnimatedTransparentGif',
-    'FILEStreamWithOffset',
-    'Gif',
     'RepeatedClippedBlurTest',
-    'SkTraceMemoryDump_ownedGLRenderTarget',
     'SurfaceClear_Gpu',
     'SurfaceSnapshotAlphaType_Gpu',
     'TestGpuAllContexts',
     'TestGpuRenderingContexts',
     'TestMockContext',
     'TextBlobAbnormal',
-    'TextBlobCache'
+    'TextBlobCache',
+
+    // These tests time out
+    'SkTraceMemoryDump_ownedGLRenderTarget',
+
+    // These tests are failing for unknown reasons
+    'FILEStreamWithOffset',
+
   ]);
 
   async function RunTests(GM) {
