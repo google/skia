@@ -1787,13 +1787,10 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
         return leftVal ? std::make_unique<BoolLiteral>(left.fOffset, /*value=*/true, &left.type())
                        : right.clone();
     }
-    if (op == Token::Kind::TK_LOGICALXOR) {
-        // (true ^^ expr) -> !(expr) and (false ^^ expr) -> (expr)
-        return leftVal ? std::make_unique<PrefixExpression>(Token::Kind::TK_LOGICALNOT,
-                                                            right.clone())
-                       : right.clone();
+    if (op == Token::Kind::TK_LOGICALXOR && !leftVal) {
+        // (false ^^ expr) -> (expr)
+        return right.clone();
     }
-
     return nullptr;
 }
 

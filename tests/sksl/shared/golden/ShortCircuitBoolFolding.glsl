@@ -5,7 +5,7 @@ void main() {
     bool expr2 = gl_FragCoord.y > 0.0;
     if (expr1) {
         sk_FragColor.x = 1.0;
-    } else if (!expr1) {
+    } else if (true ^^ expr1) {
         sk_FragColor.x = 3.0;
     } else if (expr2) {
         sk_FragColor.x = 4.0;
@@ -16,7 +16,7 @@ void main() {
     }
     if (expr1) {
         sk_FragColor.x = 1.0;
-    } else if (!expr1) {
+    } else if (expr1 ^^ true) {
         sk_FragColor.x = 3.0;
     } else if (expr2) {
         sk_FragColor.x = 4.0;
