@@ -282,34 +282,42 @@ void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView vi
 }
 
 #if GR_TEST_UTILS
-void GrRenderTask::dump(bool printDependencies) const {
-    SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("%s - renderTaskID: %d\n", this->name(), fUniqueID);
+void GrRenderTask::dump(const SkString& label,
+                        SkString indent,
+                        bool printDependencies,
+                        bool close) const {
+    SkDebugf("%s%s --------------------------------------------------------------\n",
+             indent.c_str(),
+             label.c_str());
+    SkDebugf("%s%s task - renderTaskID: %d\n", indent.c_str(), this->name(), fUniqueID);
 
     if (!fTargets.empty()) {
-        SkDebugf("Targets: \n");
+        SkDebugf("%sTargets: \n", indent.c_str());
         for (const GrSurfaceProxyView& target : fTargets) {
-            GrSurfaceProxy* proxy = target.proxy();
-            SkDebugf("proxyID: %d - surfaceID: %d\n",
-                     proxy ? proxy->uniqueID().asUInt() : -1,
-                     proxy && proxy->peekSurface()
-                            ? proxy->peekSurface()->uniqueID().asUInt()
-                            : -1);
+            if (target.proxy()) {
+                SkString proxyStr = target.proxy()->dump();
+                SkDebugf("%s%s\n", indent.c_str(), proxyStr.c_str());
+            }
         }
     }
 
     if (printDependencies) {
-        SkDebugf("I rely On (%d): ", fDependencies.count());
+        SkDebugf("%sI rely On (%d): ", indent.c_str(), fDependencies.count());
         for (int i = 0; i < fDependencies.count(); ++i) {
             SkDebugf("%d, ", fDependencies[i]->fUniqueID);
         }
         SkDebugf("\n");
 
-        SkDebugf("(%d) Rely On Me: ", fDependents.count());
+        SkDebugf("%s(%d) Rely On Me: ", indent.c_str(), fDependents.count());
         for (int i = 0; i < fDependents.count(); ++i) {
             SkDebugf("%d, ", fDependents[i]->fUniqueID);
         }
         SkDebugf("\n");
+    }
+
+    if (close) {
+        SkDebugf("%s--------------------------------------------------------------\n\n",
+                 indent.c_str());
     }
 }
 #endif
