@@ -87,23 +87,22 @@ public:
     void onClose(SkWStream*) override;
     void onAbort() override;
 
-    /**
-       Serialize the object, as well as any other objects it
-       indirectly refers to.  If any any other objects have been added
-       to the SkPDFObjNumMap without serializing them, they will be
-       serialized as well.
-
-       It might go without saying that objects should not be changed
-       after calling serialize, since those changes will be too late.
-     */
-    SkPDFIndirectReference emit(const SkPDFObject&, SkPDFIndirectReference);
-    SkPDFIndirectReference emit(const SkPDFObject& o) { return this->emit(o, this->reserveRef()); }
+    /** Serialize the object.  */
+    template <typename T>
+    SkPDFIndirectReference emit(const T& object, SkPDFIndirectReference ref) {
+        SkAutoMutexExclusive lock(fMutex);
+        object.emit(this->beginObject(ref));
+        this->endObject();
+        return ref;
+    }
+    template <typename T>
+    SkPDFIndirectReference emit(const T& o) { return this->emit(o, this->reserveRef()); }
 
     template <typename T>
     void emitStream(const SkPDFDict& dict, T writeStream, SkPDFIndirectReference ref) {
         SkAutoMutexExclusive lock(fMutex);
         SkWStream* stream = this->beginObject(ref);
-        dict.emitObject(stream);
+        dict.emit(stream);
         stream->writeText(" stream\n");
         writeStream(stream);
         stream->writeText("\nendstream");
