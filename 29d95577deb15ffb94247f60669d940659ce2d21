@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "629a0cd6_475b3d5d",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79019e74_87acf3b9",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d32f1f18_8b1463f9",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-01-08T18:48:21Z",
       "side": 1,
       "message": "I think \"topFunction\" made me think \"main\", but this is the function deepest in the call stack right?  What\u0027s currently being translated?  If main() calls foo() calls bar(), this returns bar?",
+      "range": {
+        "startLine": 264,
+        "startChar": 14,
+        "endLine": 264,
+        "endChar": 25
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bea2a98_6df63e50",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d32f1f18_8b1463f9",
       "range": {
         "startLine": 264,
         "startChar": 14,
@@ -58,6 +100,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a4a5b48_33709f1b",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Train of thought:\n1) Sure, I can exclude void functions, but otherwise do that check.\n2) Hmm, that triggers the assert. Ah, because lanes that weren\u0027t active at entry never return (by design). OK, I can instead check that the set of returned lanes matches the active lanes on the way in. Fiddled with that a bit, it got slightly tricky...\n3) ... oh wait, there\u0027s another bug -- I\u0027m not propagating lane disabling to child function calls. So I\u0027ve addressed everything else, but I need to build another test case, and fix this properly (I think I can actually remove fReturned, and directly update fMask like I do for other control flow).",
+      "parentUuid": "543c9b86_adb0637d",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "acbb37e6_9487531f",
@@ -71,6 +131,24 @@
       "writtenOn": "2021-01-08T18:48:21Z",
       "side": 1,
       "message": "Walk me through the four possible function states: builtin x definition?",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aaba2fbb_3b16dea3",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "\u0027builtin\u0027 means the function is declared (and possibly defined) in the SkSL pre-includes. (sksl_public.sksl, in this case). \u0027definition\u0027 means it actually has a definition, and not just a declaration.\n\n1) Most intrinsics are currently declared, but not defined [builtin \u0026\u0026 !definition].\n2) A few intrinsics are actually defined using SkSL, because it was easier to write them like that for the ByteCode system (cross product, reflect/refract) [builtin \u0026\u0026 defined].\n3) Any functions in other SkSL (eg, additional functions in your runtime effect code) are not builtin, and will (by necessity) also be defined. The IR generator will produce an error if you try to call a non-defined, non-builtin function. (So only three states are possible).\n\nAll of the category 2 intrinsics are currently tagged with our \u0027inline\u0027 keyword, but setting inline threshold overrides even that - so adjusting the tests to not inline those intrinsics meant I had to be more correct/deliberate about which functions went to the intrinsic handling. And it doesn\u0027t matter for this code (the new version is the most accurate/correct), but once I get rid of the byte code system, I\u0027m planning to just convert *all* of those intrinsics to be defined here, in the generator (because it\u0027s so much easier to write them that way - https://skia-review.googlesource.com/c/skia/+/348879).",
+      "parentUuid": "acbb37e6_9487531f",
       "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -115,6 +193,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "625963b7_1ece517c",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "535d9d98_8ca32cb0",
+      "range": {
+        "startLine": 1159,
+        "startChar": 4,
+        "endLine": 1159,
+        "endChar": 8
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2b0a48c6_0e77a591",
@@ -128,6 +230,30 @@
       "writtenOn": "2021-01-08T18:48:21Z",
       "side": 1,
       "message": "Maybe give *argIter its own line with type and name here?",
+      "range": {
+        "startLine": 1168,
+        "startChar": 29,
+        "endLine": 1168,
+        "endChar": 38
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e5c98d7_f069d829",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b0a48c6_0e77a591",
       "range": {
         "startLine": 1168,
         "startChar": 29,
@@ -161,6 +287,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44bb776a_0cd95a82",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Yeah, I think iterating over the \"dst\" rather than the \"src\" does help a bit.",
+      "parentUuid": "b5a981de_0a6945b8",
+      "range": {
+        "startLine": 1358,
+        "startChar": 0,
+        "endLine": 1361,
+        "endChar": 9
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "87c8ed24_6ebd1a21",
@@ -184,6 +334,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bde21192_d7ed1fa8",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Yup, better name.",
+      "parentUuid": "87c8ed24_6ebd1a21",
+      "range": {
+        "startLine": 1364,
+        "startChar": 4,
+        "endLine": 1364,
+        "endChar": 15
+      },
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21844229_7c638ec3",
@@ -197,6 +371,24 @@
       "writtenOn": "2021-01-08T18:48:21Z",
       "side": 1,
       "message": "Can we flip these TODOs now?",
+      "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb41b624_fd4a31b5",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-08T19:51:38Z",
+      "side": 1,
+      "message": "Good catch - forgot to do that.",
+      "parentUuid": "21844229_7c638ec3",
       "revId": "29d95577deb15ffb94247f60669d940659ce2d21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
