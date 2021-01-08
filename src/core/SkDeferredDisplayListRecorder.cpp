@@ -162,7 +162,7 @@ bool SkDeferredDisplayListRecorder::init() {
 
     fTargetProxy = proxyProvider->createLazyRenderTargetProxy(
             [lazyProxyData = fLazyProxyData](GrResourceProvider* resourceProvider,
-                            const GrSurfaceProxy::LazySurfaceDesc&) {
+                                             const GrSurfaceProxy::LazySurfaceDesc&) {
                 // The proxy backing the destination surface had better have been instantiated
                 // prior to the this one (i.e., the proxy backing the DLL's surface).
                 // Fulfill this lazy proxy with the destination surface's GrRenderTarget.
@@ -185,6 +185,7 @@ bool SkDeferredDisplayListRecorder::init() {
     if (!fTargetProxy) {
         return false;
     }
+    fTargetProxy->priv().setIsDDLTarget();
 
     GrSwizzle writeSwizzle = caps->getWriteSwizzle(fCharacterization.backendFormat(), grColorType);
 

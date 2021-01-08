@@ -184,15 +184,11 @@ private:
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 
-    void addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget) {
-        fDDLTargets.set(newTarget->uniqueID().asUInt(), ddlTarget);
-    }
+    // TODO: this should be removed. The DDLTask has a ref on 'newTarget' and should
+    // just use that pointer.
+    void addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget);
     bool isDDLTarget(GrSurfaceProxy* newTarget) {
         return SkToBool(fDDLTargets.find(newTarget->uniqueID().asUInt()));
-    }
-    GrRenderTargetProxy* getDDLTarget(GrSurfaceProxy* newTarget) {
-        auto entry = fDDLTargets.find(newTarget->uniqueID().asUInt());
-        return entry ? *entry : nullptr;
     }
     void clearDDLTargets() { fDDLTargets.reset(); }
 

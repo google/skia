@@ -104,6 +104,8 @@ bool GrDrawingManager::flush(
         access == SkSurface::BackendSurfaceAccess::kNoAccess && !newState) {
         bool allUnused = std::all_of(proxies.begin(), proxies.end(), [&](GrSurfaceProxy* proxy) {
             bool used = std::any_of(fDAG.begin(), fDAG.end(), [&](auto& task) {
+                // TODO: the DDLTask should now just return true here instead of
+                // needing GrDrawingManager::isDDLTarget.
                 return task && task->isUsed(proxy);
             });
             return !used && !this->isDDLTarget(proxy);
@@ -685,6 +687,11 @@ void GrDrawingManager::validate() const {
     }
 }
 #endif
+
+void GrDrawingManager::addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget) {
+    SkASSERT(ddlTarget->isDDLTarget());
+    fDDLTargets.set(newTarget->uniqueID().asUInt(), ddlTarget);
+}
 
 void GrDrawingManager::closeActiveOpsTask() {
     if (fActiveOpsTask) {
