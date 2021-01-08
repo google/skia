@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5e85945_e7f5c58f",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T17:37:02Z",
+      "side": 1,
+      "message": "Just an incredibly basic initial test for now. Comprehensive testing will come in followup CLs that add things like Declare(), operators, etc.",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "14ce349c6e788dc3ef00776f7c050a786911be69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
