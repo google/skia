@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "819a3310_01098153",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:04:44Z",
+      "side": 1,
+      "message": "Proper testing of Array requires Var. I just pulled it out of this CL and will re-add when Var is in.",
+      "parentUuid": "23dcb1f6_e63fbec6",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 0
+      },
+      "revId": "fe82331a55628cb0235f1773323ab7e37adb35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "900623d7_897398a1",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-01-08T15:01:14Z",
       "side": 1,
       "message": "Not a big deal, but: why have `short` but no uint/byte/etc? Just a work-in-progress thing?",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 11
+      },
+      "revId": "fe82331a55628cb0235f1773323ab7e37adb35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8ae2114_a7c5cae5",
+        "filename": "src/sksl/dsl/DSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:04:44Z",
+      "side": 1,
+      "message": "Yes, there are a ton of types missing - we don\u0027t have structs or fragment processors yet, either - that will be added in followups.",
+      "parentUuid": "900623d7_897398a1",
       "range": {
         "startLine": 43,
         "startChar": 0,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c8055a0_11494824",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41869553_b17cc270",
+      "range": {
+        "startLine": 56,
+        "startChar": 26,
+        "endLine": 56,
+        "endChar": 30
+      },
+      "revId": "fe82331a55628cb0235f1773323ab7e37adb35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e2bcdd3_33bfc624",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-01-08T15:01:14Z",
       "side": 1,
       "message": "Please add coverage for non-integral and/or negative numbers. (0.5, -1)\n\nNot sure what is expected to happen if the DSL code receives INF/NAN. Consider either asserting on these cases in DSLFloat or, if we want to support this, add test coverage.",
+      "range": {
+        "startLine": 63,
+        "startChar": 51,
+        "endLine": 63,
+        "endChar": 52
+      },
+      "revId": "fe82331a55628cb0235f1773323ab7e37adb35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c93e731f_1e569f7f",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:04:44Z",
+      "side": 1,
+      "message": "Done. Infinities / nans are now reported as errors via the normal ErrorHandler channel.",
+      "parentUuid": "9e2bcdd3_33bfc624",
       "range": {
         "startLine": 63,
         "startChar": 51,
@@ -133,6 +229,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "41f6a24b_ac554031",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8e40439_b393a847",
+      "range": {
+        "startLine": 108,
+        "startChar": 50,
+        "endLine": 108,
+        "endChar": 51
+      },
+      "revId": "fe82331a55628cb0235f1773323ab7e37adb35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "81fa51a7_d01cfab9",
@@ -156,6 +276,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40d11ace_3fdbab58",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81fa51a7_d01cfab9",
+      "range": {
+        "startLine": 153,
+        "startChar": 49,
+        "endLine": 153,
+        "endChar": 50
+      },
+      "revId": "fe82331a55628cb0235f1773323ab7e37adb35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e1c24eb_a4046b6a",
@@ -169,6 +313,30 @@
       "writtenOn": "2021-01-08T15:01:14Z",
       "side": 1,
       "message": "same as above",
+      "range": {
+        "startLine": 198,
+        "startChar": 51,
+        "endLine": 198,
+        "endChar": 52
+      },
+      "revId": "fe82331a55628cb0235f1773323ab7e37adb35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "811de0b4_67788b5c",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-08T16:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e1c24eb_a4046b6a",
       "range": {
         "startLine": 198,
         "startChar": 51,
