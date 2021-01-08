@@ -58,6 +58,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLVMGenerator.h",
   "$_src/sksl/dsl/DSLCore.cpp",
   "$_src/sksl/dsl/DSLExpression.cpp",
+  "$_src/sksl/dsl/DSLType.cpp",
   "$_src/sksl/dsl/priv/DSLWriter.cpp",
   "$_src/sksl/ir/SkSLBinaryExpression.h",
   "$_src/sksl/ir/SkSLBlock.h",
