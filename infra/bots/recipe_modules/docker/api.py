@@ -27,10 +27,21 @@ class DockerApi(recipe_api.RecipeApi):
   def mount_out(self):
     return MOUNT_OUT
 
-  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1):
+  # Unless match_directory_structure ==True, src_dir must be
+  # self.m.path['start_dir'] for the script to be located correctly.
+  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1, match_directory_structure=False):
     # Setup. Docker runs as a different user, so we need to give it access to
     # read, write, and execute certain files.
     with self.m.step.nest('Docker setup'):
+      step_stdout = self.m.python.inline(
+          name='Get uid and gid',
+          program='''import os
+print '%d:%d' % (os.getuid(), os.getgid())
+''',
+          stdout=self.m.raw_io.output(),
+          step_test_data=(
+              lambda: self.m.raw_io.test_api.stream_output('13:17'))).stdout
+      uid_gid_pair = step_stdout.rstrip() if step_stdout else ''
       # Make sure out_dir exists, otherwise mounting will fail.
       # (Note that the docker --mount option, unlike the --volume option, does
       # not create this dir as root if it doesn't exist.)
@@ -62,14 +73,19 @@ class DockerApi(recipe_api.RecipeApi):
 
     # Run.
     cmd = [
-      'docker', 'run', '--shm-size=2gb', '--rm',
-      '--mount', 'type=bind,source=%s,target=%s' % (src_dir, MOUNT_SRC),
-      '--mount', 'type=bind,source=%s,target=%s' % (out_dir, MOUNT_OUT),
+      'docker', 'run', '--shm-size=2gb', '--rm', '--user', uid_gid_pair,
+      '--mount', 'type=bind,source=%s,target=%s' %
+                 (src_dir, src_dir if match_directory_structure else MOUNT_SRC),
+      '--mount', 'type=bind,source=%s,target=%s' %
+                 (out_dir, out_dir if match_directory_structure else MOUNT_OUT),
     ]
     if docker_args:
       cmd.extend(docker_args)
-    script_rel = posixpath.relpath(str(script), str(self.m.path['start_dir']))
-    cmd.extend([docker_image, MOUNT_SRC + '/' + script_rel])
+    if not match_directory_structure:
+      # This only works when src_dir == self.m.path['start_dir'] but that's our
+      # only use case for now.
+      script = MOUNT_SRC + '/' + posixpath.relpath(str(script), str(self.m.path['start_dir']))
+    cmd.extend([docker_image, script])
     if args:
       cmd.extend(args)
 
