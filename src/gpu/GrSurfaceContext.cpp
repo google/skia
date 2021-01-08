@@ -514,10 +514,6 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
                                                  ReadPixelsCallback callback,
                                                  ReadPixelsContext callbackContext) {
     // We implement this by rendering and we don't currently support rendering kUnpremul.
-    if (info.alphaType() == kUnpremul_SkAlphaType) {
-        callback(callbackContext, nullptr);
-        return;
-    }
     if (!dContext) {
         callback(callbackContext, nullptr);
         return;
@@ -561,17 +557,17 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
         return;
     }
 
-    std::unique_ptr<GrSurfaceDrawContext> tempRTC;
+    std::unique_ptr<GrSurfaceFillContext> tempFC;
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
     if (needsRescale) {
-        tempRTC = this->rescale(info, kTopLeft_GrSurfaceOrigin, srcRect, rescaleGamma, rescaleMode);
-        if (!tempRTC) {
+        tempFC = this->rescale(info, kTopLeft_GrSurfaceOrigin, srcRect, rescaleGamma, rescaleMode);
+        if (!tempFC) {
             callback(callbackContext, nullptr);
             return;
         }
-        SkASSERT(SkColorSpace::Equals(tempRTC->colorInfo().colorSpace(), info.colorSpace()));
-        SkASSERT(tempRTC->origin() == kTopLeft_GrSurfaceOrigin);
+        SkASSERT(SkColorSpace::Equals(tempFC->colorInfo().colorSpace(), info.colorSpace()));
+        SkASSERT(tempFC->origin() == kTopLeft_GrSurfaceOrigin);
         x = y = 0;
     } else {
         sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(this->colorInfo().colorSpace(),
@@ -594,32 +590,30 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
                 SkASSERT(texProxyView.asTextureProxy());
                 srcRectToDraw = SkRect::MakeWH(srcRect.width(), srcRect.height());
             }
-            tempRTC = GrSurfaceDrawContext::Make(dContext, this->colorInfo().colorType(),
-                                                 info.refColorSpace(), SkBackingFit::kApprox,
-                                                 srcRect.size(), 1, GrMipmapped::kNo,
-                                                 GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
-            if (!tempRTC) {
+            tempFC = GrSurfaceDrawContext::Make(dContext,
+                                                this->colorInfo().colorType(),
+                                                info.refColorSpace(),
+                                                SkBackingFit::kApprox,
+                                                srcRect.size(),
+                                                1,
+                                                GrMipmapped::kNo,
+                                                GrProtected::kNo,
+                                                kTopLeft_GrSurfaceOrigin);
+            if (!tempFC) {
                 callback(callbackContext, nullptr);
                 return;
             }
-            tempRTC->drawTexture(nullptr,
-                                 std::move(texProxyView),
-                                 this->colorInfo().alphaType(),
-                                 GrSamplerState::Filter::kNearest,
-                                 GrSamplerState::MipmapMode::kNone,
-                                 SkBlendMode::kSrc,
-                                 SK_PMColor4fWHITE,
-                                 srcRectToDraw,
-                                 SkRect::MakeWH(srcRect.width(), srcRect.height()),
-                                 GrAA::kNo,
-                                 GrQuadAAFlags::kNone,
-                                 SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(),
-                                 std::move(xform));
+            auto fp = GrTextureEffect::Make(std::move(texProxyView),
+                                            this->colorInfo().alphaType(),
+                                            SkMatrix::I());
+            fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
+            tempFC->fillRectToRectWithFP(srcRect,
+                                         SkIRect::MakeSize(tempFC->dimensions()),
+                                         std::move(fp));
             x = y = 0;
         }
     }
-    auto rtc = tempRTC ? tempRTC.get() : this;
+    auto rtc = tempFC ? tempFC.get() : this;
     return rtc->asyncReadPixels(dContext, SkIRect::MakeXYWH(x, y, info.width(), info.height()),
                                 info.colorType(), callback, callbackContext);
 }
@@ -1054,35 +1048,29 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
             this->readSurfaceView(), dstPoint);
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceContext::rescale(const GrImageInfo& info,
+std::unique_ptr<GrSurfaceFillContext> GrSurfaceContext::rescale(const GrImageInfo& info,
                                                                 GrSurfaceOrigin origin,
                                                                 SkIRect srcRect,
                                                                 RescaleGamma rescaleGamma,
                                                                 RescaleMode rescaleMode) {
-    // We rescale by drawing and currently only support drawing to premul.
-    if (info.alphaType() != kPremul_SkAlphaType) {
-        return nullptr;
-    }
-    auto sdc = GrSurfaceDrawContext::MakeWithFallback(fContext,
-                                                      info.colorType(),
-                                                      info.refColorSpace(),
+    auto sfc = GrSurfaceFillContext::MakeWithFallback(fContext,
+                                                      info,
                                                       SkBackingFit::kExact,
-                                                      info.dimensions(),
                                                       1,
                                                       GrMipmapped::kNo,
                                                       this->asSurfaceProxy()->isProtected(),
                                                       origin);
-    if (!sdc || !this->rescaleInto(sdc.get(),
-                                   SkIRect::MakeSize(sdc->dimensions()),
+    if (!sfc || !this->rescaleInto(sfc.get(),
+                                   SkIRect::MakeSize(sfc->dimensions()),
                                    srcRect,
                                    rescaleGamma,
                                    rescaleMode)) {
         return nullptr;
     }
-    return sdc;
+    return sfc;
 }
 
-bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
+bool GrSurfaceContext::rescaleInto(GrSurfaceFillContext* dst,
                                    SkIRect dstRect,
                                    SkIRect srcRect,
                                    RescaleGamma rescaleGamma,
@@ -1102,7 +1090,6 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
     }
 
     GrSurfaceProxyView texView = this->readSurfaceView();
-    SkAlphaType srcAlphaType = this->colorInfo().alphaType();
     if (!texView.asTextureProxy()) {
         texView = GrSurfaceProxyView::Copy(fContext, std::move(texView), GrMipmapped::kNo, srcRect,
                                            SkBackingFit::kApprox, SkBudgeted::kNo);
@@ -1117,38 +1104,39 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
 
     // Within a rescaling pass A is the input (if not null) and B is the output. At the end of the
     // pass B is moved to A. If 'this' is the input on the first pass then tempA is null.
-    std::unique_ptr<GrSurfaceDrawContext> tempA;
-    std::unique_ptr<GrSurfaceDrawContext> tempB;
+    std::unique_ptr<GrSurfaceFillContext> tempA;
+    std::unique_ptr<GrSurfaceFillContext> tempB;
 
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
     if (rescaleGamma == RescaleGamma::kLinear && this->colorInfo().colorSpace() &&
         !this->colorInfo().colorSpace()->gammaIsLinear()) {
         auto cs = this->colorInfo().colorSpace()->makeLinearGamma();
-        auto xform = GrColorSpaceXform::Make(this->colorInfo().colorSpace(), srcAlphaType, cs.get(),
-                                             kPremul_SkAlphaType);
+        auto xform = GrColorSpaceXform::Make(this->colorInfo().colorSpace(),
+                                             this->colorInfo().alphaType(),
+                                             cs.get(),
+                                             this->colorInfo().alphaType());
         // We'll fall back to kRGBA_8888 if half float not supported.
-        auto linearRTC = GrSurfaceDrawContext::MakeWithFallback(
-                fContext, GrColorType::kRGBA_F16, cs, SkBackingFit::kApprox, srcRect.size(), 1,
-                GrMipmapped::kNo, GrProtected::kNo, dst->origin());
+        GrImageInfo ii(GrColorType::kRGBA_F16,
+                       this->colorInfo().alphaType(),
+                       std::move(cs),
+                       srcRect.size());
+        auto linearRTC = GrSurfaceFillContext::MakeWithFallback(fContext,
+                                                                std::move(ii),
+                                                                SkBackingFit::kApprox,
+                                                                1,
+                                                                GrMipmapped::kNo,
+                                                                GrProtected::kNo,
+                                                                dst->origin());
         if (!linearRTC) {
             return false;
         }
-        // 1-to-1 draw can always be kFast.
-        linearRTC->drawTexture(nullptr,
-                               std::move(texView),
-                               srcAlphaType,
-                               GrSamplerState::Filter::kNearest,
-                               GrSamplerState::MipmapMode::kNone,
-                               SkBlendMode::kSrc,
-                               SK_PMColor4fWHITE,
-                               SkRect::Make(srcRect),
-                               SkRect::Make(srcRect.size()),
-                               GrAA::kNo,
-                               GrQuadAAFlags::kNone,
-                               SkCanvas::kFast_SrcRectConstraint,
-                               SkMatrix::I(),
-                               std::move(xform));
+        auto fp = GrTextureEffect::Make(std::move(texView),
+                                        this->colorInfo().alphaType(),
+                                        SkMatrix::Translate(srcRect.topLeft()),
+                                        GrSamplerState::Filter::kNearest,
+                                        GrSamplerState::MipmapMode::kNone);
+        linearRTC->fillWithFP(std::move(fp));
         texView = linearRTC->readSurfaceView();
         SkASSERT(texView.asTextureProxy());
         tempA = std::move(linearRTC);
@@ -1171,7 +1159,7 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
         }
         auto input = tempA ? tempA.get() : this;
         sk_sp<GrColorSpaceXform> xform;
-        GrSurfaceDrawContext* stepDst;
+        GrSurfaceFillContext* stepDst;
         SkIRect stepDstRect;
         if (nextDims == finalSize) {
             // Might as well fold conversion to final info in the last step.
@@ -1197,13 +1185,13 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
             stepDst = tempB.get();
             stepDstRect = SkIRect::MakeSize(tempB->dimensions());
         }
+        std::unique_ptr<GrFragmentProcessor> fp;
         if (rescaleMode == RescaleMode::kRepeatedCubic) {
-            SkMatrix matrix;
-            matrix.setScaleTranslate((float)srcRect.width()/nextDims.width(),
-                                     (float)srcRect.height()/nextDims.height(),
-                                     srcRect.x(),
-                                     srcRect.y());
-            std::unique_ptr<GrFragmentProcessor> fp;
+  //          SkMatrix matrix;
+//            matrix.setScaleTranslate((float)srcRect.width()/nextDims.width(),
+    //                                 (float)srcRect.height()/nextDims.height());
+      //                               srcRect.x(),
+        //                             srcRect.y());
             auto dir = GrBicubicEffect::Direction::kXY;
             if (nextDims.width() == srcRect.width()) {
                 dir = GrBicubicEffect::Direction::kY;
@@ -1214,48 +1202,29 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceDrawContext* dst,
             static constexpr auto kKernel = GrBicubicEffect::gCatmullRom;
             fp = GrBicubicEffect::MakeSubset(std::move(texView),
                                              input->colorInfo().alphaType(),
-                                             matrix,
+                                             SkMatrix::I(),
                                              kWM,
                                              kWM,
                                              SkRect::Make(srcRect),
                                              kKernel,
                                              dir,
                                              *this->caps());
-            if (xform) {
-                fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
-            }
-            GrPaint paint;
-            paint.setColorFragmentProcessor(std::move(fp));
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            stepDst->fillRectToRect(nullptr,
-                                    std::move(paint),
-                                    GrAA::kNo,
-                                    SkMatrix::I(),
-                                    SkRect::Make(stepDstRect),
-                                    SkRect::Make(stepDstRect));
         } else {
             auto filter = rescaleMode == RescaleMode::kNearest ? GrSamplerState::Filter::kNearest
                                                                : GrSamplerState::Filter::kLinear;
-            // Minimizing draw with integer coord src and dev rects can always be kFast.
-            auto constraint = SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint;
-            if (nextDims.width() <= srcRect.width() && nextDims.height() <= srcRect.height()) {
-                constraint = SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint;
-            }
-            stepDst->drawTexture(nullptr,
-                                 std::move(texView),
-                                 srcAlphaType,
-                                 filter,
-                                 GrSamplerState::MipmapMode::kNone,
-                                 SkBlendMode::kSrc,
-                                 SK_PMColor4fWHITE,
-                                 SkRect::Make(srcRect),
-                                 SkRect::Make(stepDstRect),
-                                 GrAA::kNo,
-                                 GrQuadAAFlags::kNone,
-                                 constraint,
-                                 SkMatrix::I(),
-                                 std::move(xform));
+            auto srcRectF = SkRect::Make(srcRect);
+            fp = GrTextureEffect::MakeSubset(std::move(texView),
+                                             this->colorInfo().alphaType(),
+                                             SkMatrix::I(),
+                                             {filter, GrSamplerState::MipmapMode::kNone},
+                                             srcRectF,
+                                             srcRectF,
+                                             *this->caps());
         }
+        if (xform) {
+            fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
+        }
+        stepDst->fillRectToRectWithFP(srcRect, stepDstRect, std::move(fp));
         texView = stepDst->readSurfaceView();
         tempA = std::move(tempB);
         srcRect = SkIRect::MakeSize(nextDims);
