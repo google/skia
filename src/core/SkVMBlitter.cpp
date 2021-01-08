@@ -563,7 +563,7 @@ namespace {
             : fDevice(device)
             , fSprite(sprite ? *sprite : SkPixmap{})
             , fSpriteOffset(spriteOffset)
-            , fUniforms(kBlitterUniformsCount)
+            , fUniforms(skvm::Ptr{0}, kBlitterUniformsCount)
             , fParams(effective_params(device, sprite, paint, matrices, std::move(clip)))
             , fKey(cache_key(fParams, &fUniforms, &fAlloc, ok))
         {}
