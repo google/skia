@@ -106,11 +106,34 @@ bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
 }
 
 #if GR_TEST_UTILS
-void GrDDLTask::dump(bool printDependencies) const {
-    INHERITED::dump(printDependencies);
+void GrDDLTask::dump(const SkString& label,
+                     SkString indent,
+                     bool printDependencies,
+                     bool close) const {
+    INHERITED::dump(label, indent, printDependencies, false);
 
+    SkDebugf("%sDDL Target: ", indent.c_str());
+    if (fDDLTarget) {
+        SkString proxyStr = fDDLTarget->dump();
+        SkDebugf("%s", proxyStr.c_str());
+    }
+    SkDebugf("\n");
+
+    SkDebugf("%s%d sub-tasks\n", indent.c_str(), fDDL->priv().numRenderTasks());
+
+    SkString subIndent(indent);
+    subIndent.append("    ");
+
+    int index = 0;
     for (auto& task : fDDL->priv().renderTasks()) {
-        task->dump(printDependencies);
+        SkString subLabel;
+        subLabel.printf("sub-task %d/%d", index++, fDDL->priv().numRenderTasks());
+        task->dump(subLabel, subIndent, printDependencies, true);
+    }
+
+    if (close) {
+        SkDebugf("%s--------------------------------------------------------------\n\n",
+                 indent.c_str());
     }
 }
 #endif

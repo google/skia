@@ -146,8 +146,8 @@ private:
             SkASSERT(proxy);
 #if GR_TRACK_INTERVAL_CREATION
             fUniqueID = CreateUniqueID();
-            SkDebugf("New intvl %d: proxyID: %d [ %d, %d ]\n",
-                     fUniqueID, proxy->uniqueID().asUInt(), start, end);
+            SkString proxyStr = proxy->dump();
+            SkDebugf("New intvl %d: %s [%d, %d]\n", fUniqueID, proxyStr.c_str(), start, end);
 #endif
         }
 
@@ -164,8 +164,8 @@ private:
             fNext = nullptr;
 #if GR_TRACK_INTERVAL_CREATION
             fUniqueID = CreateUniqueID();
-            SkDebugf("New intvl %d: proxyID: %d [ %d, %d ]\n",
-                     fUniqueID, proxy->uniqueID().asUInt(), start, end);
+            SkString proxyStr = proxy->dump();
+            SkDebugf("New intvl %d: %s [ %d, %d ]\n", fUniqueID, proxyStr.c_str(), start, end);
 #endif
         }
 
