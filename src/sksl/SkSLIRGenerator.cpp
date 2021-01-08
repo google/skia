@@ -1771,29 +1771,30 @@ static bool determine_binary_type(const Context& context,
     return false;
 }
 
-static std::unique_ptr<Expression> short_circuit_boolean(const Context& context,
-                                                         const Expression& left,
+static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
                                                          Token::Kind op,
                                                          const Expression& right) {
-    SkASSERT(left.kind() == Expression::Kind::kBoolLiteral);
+    SkASSERT(left.is<BoolLiteral>());
     bool leftVal = left.as<BoolLiteral>().value();
+
     if (op == Token::Kind::TK_LOGICALAND) {
         // (true && expr) -> (expr) and (false && expr) -> (false)
         return leftVal ? right.clone()
-                       : std::unique_ptr<Expression>(new BoolLiteral(context, left.fOffset, false));
-    } else if (op == Token::Kind::TK_LOGICALOR) {
-        // (true || expr) -> (true) and (false || expr) -> (expr)
-        return leftVal ? std::unique_ptr<Expression>(new BoolLiteral(context, left.fOffset, true))
-                       : right.clone();
-    } else if (op == Token::Kind::TK_LOGICALXOR) {
-        // (true ^^ expr) -> !(expr) and (false ^^ expr) -> (expr)
-        return leftVal ? std::unique_ptr<Expression>(new PrefixExpression(
-                                                                         Token::Kind::TK_LOGICALNOT,
-                                                                         right.clone()))
-                       : right.clone();
-    } else {
-        return nullptr;
+                       : std::make_unique<BoolLiteral>(left.fOffset, /*value=*/false, &left.type());
     }
+    if (op == Token::Kind::TK_LOGICALOR) {
+        // (true || expr) -> (true) and (false || expr) -> (expr)
+        return leftVal ? std::make_unique<BoolLiteral>(left.fOffset, /*value=*/true, &left.type())
+                       : right.clone();
+    }
+    if (op == Token::Kind::TK_LOGICALXOR) {
+        // (true ^^ expr) -> !(expr) and (false ^^ expr) -> (expr)
+        return leftVal ? std::make_unique<PrefixExpression>(Token::Kind::TK_LOGICALNOT,
+                                                            right.clone())
+                       : right.clone();
+    }
+
+    return nullptr;
 }
 
 template <typename T>
@@ -1861,11 +1862,11 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     // If the left side is a constant boolean literal, the right side does not need to be constant
     // for short circuit optimizations to allow the constant to be folded.
     if (left.is<BoolLiteral>() && !right.isCompileTimeConstant()) {
-        return short_circuit_boolean(fContext, left, op, right);
+        return short_circuit_boolean(left, op, right);
     } else if (right.is<BoolLiteral>() && !left.isCompileTimeConstant()) {
         // There aren't side effects in SkSL within expressions, so (left OP right) is equivalent to
         // (right OP left) for short-circuit optimizations
-        return short_circuit_boolean(fContext, right, op, left);
+        return short_circuit_boolean(right, op, left);
     }
 
     // Other than the short-circuit cases above, constant folding requires both sides to be constant
