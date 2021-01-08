@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e996f633_0e6707e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T20:29:13Z",
+      "side": 1,
+      "message": "Did you end up with a test case to add for this?",
+      "revId": "2195cd199a12d6a721a6b3d333e2e91aa754abd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "93bd0228_c318a016",
@@ -14,6 +31,29 @@
       "writtenOn": "2021-01-08T20:25:02Z",
       "side": 1,
       "message": "... hoping this comment explains the rationale?",
+      "revId": "2195cd199a12d6a721a6b3d333e2e91aa754abd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f0ac945_28f819fd",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1163,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-08T20:29:13Z",
+      "side": 1,
+      "message": "would passing currentFunction().fReturned here have the same effect?  If so it might help track between code and comment.\n\n(But yeah, I think this is a good explanation of what we\u0027re doing and why.)",
+      "range": {
+        "startLine": 1163,
+        "startChar": 25,
+        "endLine": 1163,
+        "endChar": 37
+      },
       "revId": "2195cd199a12d6a721a6b3d333e2e91aa754abd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
