@@ -581,7 +581,7 @@ namespace skvm {
         Ptr              base;
         std::vector<int> buf;
 
-        explicit Uniforms(int init) : base(Ptr{0}), buf(init) {}
+        Uniforms(Ptr ptr, int init) : base(ptr), buf(init) {}
 
         Uniform push(int val) {
             buf.push_back(val);

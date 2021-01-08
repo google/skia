@@ -1534,8 +1534,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
         }
     }
 
-    skvm::Uniforms uniforms(0);
-    uniforms.base = builder->uniform();
+    skvm::Uniforms uniforms(builder->uniform(), 0);
 
     auto new_uni = [&]() { return builder->uniformF(uniforms.pushF(0.0f)); };
 
