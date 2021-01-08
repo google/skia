@@ -45,7 +45,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
 
     SkAutoCanvasRestore acr(canvas, false);
 
-    while (!reader.eof()) {
+    while (!reader.eof() && reader.isValid()) {
         if (callback && callback->abort()) {
             return;
         }
@@ -83,11 +83,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                                  uint32_t size,
                                  SkCanvas* canvas,
                                  const SkM44& initialMatrix) {
-#define BREAK_ON_READ_ERROR(r)  \
-    do { if (!r->isValid()) {   \
-    /*  SkASSERT(false);  */    \
-        break;                  \
-    }} while(0)
+#define BREAK_ON_READ_ERROR(r)  if (!r->isValid()) break
 
     switch (op) {
         case NOOP: {
