@@ -303,13 +303,13 @@ void GrTriangulator::MonotonePoly::addEdge(Edge* edge) {
     }
 }
 
-void* GrTriangulator::MonotonePoly::emit(bool emitCoverage, void* data) {
-    Edge* e = fFirstEdge;
+void* GrTriangulator::emitMonotonePoly(const MonotonePoly* monotonePoly, void* data) {
+    Edge* e = monotonePoly->fFirstEdge;
     VertexList vertices;
     vertices.append(e->fTop);
     int count = 1;
     while (e != nullptr) {
-        if (kRight_Side == fSide) {
+        if (kRight_Side == monotonePoly->fSide) {
             vertices.append(e->fBottom);
             e = e->fRightPolyNext;
         } else {
@@ -326,14 +326,14 @@ void* GrTriangulator::MonotonePoly::emit(bool emitCoverage, void* data) {
         Vertex* curr = v;
         Vertex* next = v->fNext;
         if (count == 3) {
-            return this->emitTriangle(prev, curr, next, emitCoverage, data);
+            return this->emitTriangle(prev, curr, next, monotonePoly->fWinding, data);
         }
         double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
         double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
         double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
         double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
         if (ax * by - ay * bx >= 0.0) {
-            data = this->emitTriangle(prev, curr, next, emitCoverage, data);
+            data = this->emitTriangle(prev, curr, next, monotonePoly->fWinding, data);
             v->fPrev->fNext = v->fNext;
             v->fNext->fPrev = v->fPrev;
             count--;
@@ -349,14 +349,14 @@ void* GrTriangulator::MonotonePoly::emit(bool emitCoverage, void* data) {
     return data;
 }
 
-void* GrTriangulator::MonotonePoly::emitTriangle(Vertex* prev, Vertex* curr, Vertex* next,
-                                                 bool emitCoverage, void* data) const {
-    if (fWinding < 0) {
+void* GrTriangulator::emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding,
+                                   void* data) const {
+    if (winding < 0) {
         // Ensure our triangles always wind in the same direction as if the path had been
         // triangulated as a simple fan (a la red book).
         std::swap(prev, next);
     }
-    return emit_triangle(next, curr, prev, emitCoverage, data);
+    return emit_triangle(next, curr, prev, fEmitCoverage, data);
 }
 
 Poly* GrTriangulator::Poly::addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
@@ -400,13 +400,13 @@ Poly* GrTriangulator::Poly::addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
     }
     return poly;
 }
-void* GrTriangulator::Poly::emit(bool emitCoverage, void *data) {
-    if (fCount < 3) {
+void* GrTriangulator::emitPoly(const Poly* poly, void *data) {
+    if (poly->fCount < 3) {
         return data;
     }
     TESS_LOG("emit() %d, size %d\n", fID, fCount);
-    for (MonotonePoly* m = fHead; m != nullptr; m = m->fNext) {
-        data = m->emit(emitCoverage, data);
+    for (MonotonePoly* m = poly->fHead; m != nullptr; m = m->fNext) {
+        data = this->emitMonotonePoly(m, data);
     }
     return data;
 }
@@ -2034,7 +2034,7 @@ Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt, Vert
 void* GrTriangulator::polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType) {
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(overrideFillType, poly)) {
-            data = poly->emit(fEmitCoverage, data);
+            data = this->emitPoly(poly, data);
         }
     }
     return data;
@@ -2185,7 +2185,7 @@ int GrTriangulator::PathToVertices(const SkPath& path, SkScalar tolerance, const
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly)) {
             SkPoint* start = pointsEnd;
-            pointsEnd = static_cast<SkPoint*>(poly->emit(false, pointsEnd));
+            pointsEnd = static_cast<SkPoint*>(triangulator.emitPoly(poly, pointsEnd));
             while (start != pointsEnd) {
                 vertsEnd->fPos = *start;
                 vertsEnd->fWinding = poly->fWinding;
