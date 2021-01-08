@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a55d14f_d7f123a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-08T02:26:59Z",
+      "side": 1,
+      "message": "From the android roller\n\nexternal/skia/modules/skshaper/src/SkUnicode_icu.cpp:199:28: error: use of undeclared identifier \u0027ubrk_safeClone\u0027\n            iterator.reset(ubrk_safeClone(cachedIterator-\u003eget(), nullptr, nullptr, \u0026status));\n                           ^\n1 error generated.\n",
+      "revId": "504451c7cc7c6c214ac6241f781ebe40dfb39fb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
