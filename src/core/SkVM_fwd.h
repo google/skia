@@ -12,7 +12,7 @@ namespace skvm {
     class Assembler;
     class Builder;
     class Program;
-    struct Arg;
+    struct Ptr;
     struct I32;
     struct F32;
     struct Half;

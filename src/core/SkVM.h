@@ -471,7 +471,7 @@ namespace skvm {
     // NA meaning none, n/a, null, nil, etc.
     static const Val NA = -1;
 
-    struct Arg { int ix; };
+    struct Ptr { int ix; };
 
     // 32-bit signed integer (with both signed sra() and unsigned/logical shr() available).
     // Think "int" or "int32_t".
@@ -574,14 +574,14 @@ namespace skvm {
     };
 
     struct Uniform {
-        Arg ptr;
+        Ptr ptr;
         int offset;
     };
     struct Uniforms {
-        Arg              base;
+        Ptr              base;
         std::vector<int> buf;
 
-        explicit Uniforms(int init) : base(Arg{0}), buf(init) {}
+        explicit Uniforms(int init) : base(Ptr{0}), buf(init) {}
 
         Uniform push(int val) {
             buf.push_back(val);
@@ -653,14 +653,14 @@ namespace skvm {
 
         // Declare an argument with given stride (use stride=0 for uniforms).
         // TODO: different types for varying and uniforms?
-        Arg arg(int stride);
+        Ptr arg(int stride);
 
         // Convenience arg() wrappers for most common strides, sizeof(T) and 0.
         template <typename T>
-        Arg varying() { return this->arg(sizeof(T)); }
-        Arg uniform() { return this->arg(0); }
+        Ptr varying() { return this->arg(sizeof(T)); }
+        Ptr uniform() { return this->arg(0); }
 
-        // TODO: allow uniform (i.e. Arg) offsets to store* and load*?
+        // TODO: allow uniform (i.e. Ptr) offsets to store* and load*?
         // TODO: sign extension (signed types) for <32-bit loads?
         // TODO: unsigned integer operations where relevant (just comparisons?)?
 
@@ -672,36 +672,36 @@ namespace skvm {
         // TODO: Half asserts?
 
         // Store {8,16,32,64,128}-bit varying.
-        void store8  (Arg ptr, I32 val);
-        void store16 (Arg ptr, I32 val);
-        void store32 (Arg ptr, I32 val);
-        void storeF  (Arg ptr, F32 val) { store32(ptr, pun_to_I32(val)); }
-        void store64 (Arg ptr, I32 lo, I32 hi);            // *ptr = lo|(hi<<32)
-        void store128(Arg ptr, I32 lo, I32 hi, int lane);  // 64-bit lane 0-1 at ptr = lo|(hi<<32).
+        void store8  (Ptr ptr, I32 val);
+        void store16 (Ptr ptr, I32 val);
+        void store32 (Ptr ptr, I32 val);
+        void storeF  (Ptr ptr, F32 val) { store32(ptr, pun_to_I32(val)); }
+        void store64 (Ptr ptr, I32 lo, I32 hi);            // *ptr = lo|(hi<<32)
+        void store128(Ptr ptr, I32 lo, I32 hi, int lane);  // 64-bit lane 0-1 at ptr = lo|(hi<<32).
 
         // Returns varying {n, n-1, n-2, ..., 1}, where n is the argument to Program::eval().
         I32 index();
 
         // Load {8,16,32,64,128}-bit varying.
-        I32 load8  (Arg ptr);
-        I32 load16 (Arg ptr);
-        I32 load32 (Arg ptr);
-        F32 loadF  (Arg ptr) { return pun_to_F32(load32(ptr)); }
-        I32 load64 (Arg ptr, int lane);  // Load 32-bit lane 0-1 of  64-bit value.
-        I32 load128(Arg ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
+        I32 load8  (Ptr ptr);
+        I32 load16 (Ptr ptr);
+        I32 load32 (Ptr ptr);
+        F32 loadF  (Ptr ptr) { return pun_to_F32(load32(ptr)); }
+        I32 load64 (Ptr ptr, int lane);  // Load 32-bit lane 0-1 of  64-bit value.
+        I32 load128(Ptr ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
 
         // Load i32/f32 uniform with byte-count offset.
-        I32 uniform32(Arg ptr, int offset);
-        F32 uniformF (Arg ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
+        I32 uniform32(Ptr ptr, int offset);
+        F32 uniformF (Ptr ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
 
         // Push and load this color as a uniform.
         Color uniformColor(SkColor4f, Uniforms*);
 
         // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
-        I32 gather8 (Arg ptr, int offset, I32 index);
-        I32 gather16(Arg ptr, int offset, I32 index);
-        I32 gather32(Arg ptr, int offset, I32 index);
-        F32 gatherF (Arg ptr, int offset, I32 index) {
+        I32 gather8 (Ptr ptr, int offset, I32 index);
+        I32 gather16(Ptr ptr, int offset, I32 index);
+        I32 gather32(Ptr ptr, int offset, I32 index);
+        F32 gatherF (Ptr ptr, int offset, I32 index) {
             return pun_to_F32(gather32(ptr, offset, index));
         }
 
@@ -868,9 +868,9 @@ namespace skvm {
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
         I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
 
-        Color   load(PixelFormat, Arg ptr);
-        bool   store(PixelFormat, Arg ptr, Color);
-        Color gather(PixelFormat, Arg ptr, int offset, I32 index);
+        Color   load(PixelFormat, Ptr ptr);
+        bool   store(PixelFormat, Ptr ptr, Color);
+        Color gather(PixelFormat, Ptr ptr, int offset, I32 index);
         Color gather(PixelFormat f, Uniform u, I32 index) {
             return gather(f, u.ptr, u.offset, index);
         }
@@ -1137,17 +1137,17 @@ namespace skvm {
     static inline void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
     static inline void assert_true(I32 cond)            { cond->assert_true(cond); }
 
-    static inline void store8  (Arg ptr, I32 val)                { val->store8  (ptr, val); }
-    static inline void store16 (Arg ptr, I32 val)                { val->store16 (ptr, val); }
-    static inline void store32 (Arg ptr, I32 val)                { val->store32 (ptr, val); }
-    static inline void storeF  (Arg ptr, F32 val)                { val->storeF  (ptr, val); }
-    static inline void store64 (Arg ptr, I32 lo, I32 hi)         { lo ->store64 (ptr, lo,hi); }
-    static inline void store128(Arg ptr, I32 lo, I32 hi, int ix) { lo ->store128(ptr, lo,hi, ix); }
+    static inline void store8  (Ptr ptr, I32 val)                { val->store8  (ptr, val); }
+    static inline void store16 (Ptr ptr, I32 val)                { val->store16 (ptr, val); }
+    static inline void store32 (Ptr ptr, I32 val)                { val->store32 (ptr, val); }
+    static inline void storeF  (Ptr ptr, F32 val)                { val->storeF  (ptr, val); }
+    static inline void store64 (Ptr ptr, I32 lo, I32 hi)         { lo ->store64 (ptr, lo,hi); }
+    static inline void store128(Ptr ptr, I32 lo, I32 hi, int ix) { lo ->store128(ptr, lo,hi, ix); }
 
-    static inline I32 gather8 (Arg ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
-    static inline I32 gather16(Arg ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
-    static inline I32 gather32(Arg ptr, int off, I32 ix) { return ix->gather32(ptr, off, ix); }
-    static inline F32 gatherF (Arg ptr, int off, I32 ix) { return ix->gatherF (ptr, off, ix); }
+    static inline I32 gather8 (Ptr ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
+    static inline I32 gather16(Ptr ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
+    static inline I32 gather32(Ptr ptr, int off, I32 ix) { return ix->gather32(ptr, off, ix); }
+    static inline F32 gatherF (Ptr ptr, int off, I32 ix) { return ix->gatherF (ptr, off, ix); }
 
     static inline I32 gather8 (Uniform u, I32 ix) { return ix->gather8 (u, ix); }
     static inline I32 gather16(Uniform u, I32 ix) { return ix->gather16(u, ix); }
@@ -1232,8 +1232,8 @@ namespace skvm {
     static inline F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
     static inline I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
 
-    static inline bool store(PixelFormat f, Arg p, Color c) { return c->store(f,p,c); }
-    static inline Color gather(PixelFormat f, Arg p, int off, I32 ix) {
+    static inline bool store(PixelFormat f, Ptr p, Color c) { return c->store(f,p,c); }
+    static inline Color gather(PixelFormat f, Ptr p, int off, I32 ix) {
         return ix->gather(f,p,off,ix);
     }
     static inline Color gather(PixelFormat f, Uniform u, I32 ix) {

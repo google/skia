@@ -191,10 +191,9 @@ namespace skvm {
         static void write(SkWStream* o, Op op) {
             o->writeText(name(op));
         }
-        static void write(SkWStream* o, Arg a) {
-            write(o, "arg(");
-            o->writeDecAsText(a.ix);
-            write(o, ")");
+        static void write(SkWStream* o, Ptr p) {
+            write(o, "ptr");
+            o->writeDecAsText(p.ix);
         }
         static void write(SkWStream* o, V v) {
             write(o, "v");
@@ -237,25 +236,25 @@ namespace skvm {
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-            case Op::store8:   write(o, op, Arg{immy}   , V{x}                 ); break;
-            case Op::store16:  write(o, op, Arg{immy}   , V{x}                 ); break;
-            case Op::store32:  write(o, op, Arg{immy}   , V{x}                 ); break;
-            case Op::store64:  write(o, op, Arg{immz}   , V{x},V{y}            ); break;
-            case Op::store128: write(o, op, Arg{immz>>1}, V{x},V{y},Hex{immz&1}); break;
+            case Op::store8:   write(o, op, Ptr{immy}   , V{x}                 ); break;
+            case Op::store16:  write(o, op, Ptr{immy}   , V{x}                 ); break;
+            case Op::store32:  write(o, op, Ptr{immy}   , V{x}                 ); break;
+            case Op::store64:  write(o, op, Ptr{immz}   , V{x},V{y}            ); break;
+            case Op::store128: write(o, op, Ptr{immz>>1}, V{x},V{y},Hex{immz&1}); break;
 
             case Op::index: write(o, V{id}, "=", op); break;
 
-            case Op::load8:   write(o, V{id}, "=", op, Arg{immy}); break;
-            case Op::load16:  write(o, V{id}, "=", op, Arg{immy}); break;
-            case Op::load32:  write(o, V{id}, "=", op, Arg{immy}); break;
-            case Op::load64:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
-            case Op::load128: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+            case Op::load8:   write(o, V{id}, "=", op, Ptr{immy}); break;
+            case Op::load16:  write(o, V{id}, "=", op, Ptr{immy}); break;
+            case Op::load32:  write(o, V{id}, "=", op, Ptr{immy}); break;
+            case Op::load64:  write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}); break;
+            case Op::load128: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}); break;
 
-            case Op::gather8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
-            case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
-            case Op::gather32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
+            case Op::gather8:  write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}, V{x}); break;
+            case Op::gather16: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}, V{x}); break;
+            case Op::gather32: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}, V{x}); break;
 
-            case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+            case Op::uniform32: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}); break;
 
             case Op::splat: write(o, V{id}, "=", op, Splat{immy}); break;
 
@@ -349,25 +348,25 @@ namespace skvm {
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
-                case Op::store8:   write(o, op, Arg{immy}   , R{x}                   ); break;
-                case Op::store16:  write(o, op, Arg{immy}   , R{x}                   ); break;
-                case Op::store32:  write(o, op, Arg{immy}   , R{x}                   ); break;
-                case Op::store64:  write(o, op, Arg{immz}   , R{x}, R{y}             ); break;
-                case Op::store128: write(o, op, Arg{immz>>1}, R{x}, R{y}, Hex{immz&1}); break;
+                case Op::store8:   write(o, op, Ptr{immy}   , R{x}                   ); break;
+                case Op::store16:  write(o, op, Ptr{immy}   , R{x}                   ); break;
+                case Op::store32:  write(o, op, Ptr{immy}   , R{x}                   ); break;
+                case Op::store64:  write(o, op, Ptr{immz}   , R{x}, R{y}             ); break;
+                case Op::store128: write(o, op, Ptr{immz>>1}, R{x}, R{y}, Hex{immz&1}); break;
 
                 case Op::index: write(o, R{d}, "=", op); break;
 
-                case Op::load8:   write(o, R{d}, "=", op, Arg{immy}); break;
-                case Op::load16:  write(o, R{d}, "=", op, Arg{immy}); break;
-                case Op::load32:  write(o, R{d}, "=", op, Arg{immy}); break;
-                case Op::load64:  write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
-                case Op::load128: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
+                case Op::load8:   write(o, R{d}, "=", op, Ptr{immy}); break;
+                case Op::load16:  write(o, R{d}, "=", op, Ptr{immy}); break;
+                case Op::load32:  write(o, R{d}, "=", op, Ptr{immy}); break;
+                case Op::load64:  write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}); break;
+                case Op::load128: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}); break;
 
-                case Op::gather8:  write(o, R{d}, "=", op, Arg{immy}, Hex{immz}, R{x}); break;
-                case Op::gather16: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}, R{x}); break;
-                case Op::gather32: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}, R{x}); break;
+                case Op::gather8:  write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}, R{x}); break;
+                case Op::gather16: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}, R{x}); break;
+                case Op::gather32: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}, R{x}); break;
 
-                case Op::uniform32: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
+                case Op::uniform32: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}); break;
 
                 case Op::splat:     write(o, R{d}, "=", op, Splat{immy}); break;
 
@@ -576,7 +575,7 @@ namespace skvm {
         return false;
     }
 
-    Arg Builder::arg(int stride) {
+    Ptr Builder::arg(int stride) {
         int ix = (int)fStrides.size();
         fStrides.push_back(stride);
         return {ix};
@@ -590,39 +589,39 @@ namespace skvm {
     #endif
     }
 
-    void Builder::store8 (Arg ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA, ptr.ix); }
-    void Builder::store16(Arg ptr, I32 val) { (void)push(Op::store16, val.id,NA,NA, ptr.ix); }
-    void Builder::store32(Arg ptr, I32 val) { (void)push(Op::store32, val.id,NA,NA, ptr.ix); }
-    void Builder::store64(Arg ptr, I32 lo, I32 hi) {
+    void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA, ptr.ix); }
+    void Builder::store16(Ptr ptr, I32 val) { (void)push(Op::store16, val.id,NA,NA, ptr.ix); }
+    void Builder::store32(Ptr ptr, I32 val) { (void)push(Op::store32, val.id,NA,NA, ptr.ix); }
+    void Builder::store64(Ptr ptr, I32 lo, I32 hi) {
         (void)push(Op::store64, lo.id,hi.id,NA, NA,ptr.ix);
     }
-    void Builder::store128(Arg ptr, I32 lo, I32 hi, int lane) {
+    void Builder::store128(Ptr ptr, I32 lo, I32 hi, int lane) {
         (void)push(Op::store128, lo.id,hi.id,NA, NA,(ptr.ix<<1)|(lane&1));
     }
 
     I32 Builder::index() { return {this, push(Op::index , NA,NA,NA,0) }; }
 
-    I32 Builder::load8 (Arg ptr) { return {this, push(Op::load8 , NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load16(Arg ptr) { return {this, push(Op::load16, NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load32(Arg ptr) { return {this, push(Op::load32, NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load64(Arg ptr, int lane) {
+    I32 Builder::load8 (Ptr ptr) { return {this, push(Op::load8 , NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load16(Ptr ptr) { return {this, push(Op::load16, NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load32(Ptr ptr) { return {this, push(Op::load32, NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load64(Ptr ptr, int lane) {
         return {this, push(Op::load64 , NA,NA,NA, ptr.ix,lane) };
     }
-    I32 Builder::load128(Arg ptr, int lane) {
+    I32 Builder::load128(Ptr ptr, int lane) {
         return {this, push(Op::load128, NA,NA,NA, ptr.ix,lane) };
     }
 
-    I32 Builder::gather8 (Arg ptr, int offset, I32 index) {
+    I32 Builder::gather8 (Ptr ptr, int offset, I32 index) {
         return {this, push(Op::gather8 , index.id,NA,NA, ptr.ix,offset)};
     }
-    I32 Builder::gather16(Arg ptr, int offset, I32 index) {
+    I32 Builder::gather16(Ptr ptr, int offset, I32 index) {
         return {this, push(Op::gather16, index.id,NA,NA, ptr.ix,offset)};
     }
-    I32 Builder::gather32(Arg ptr, int offset, I32 index) {
+    I32 Builder::gather32(Ptr ptr, int offset, I32 index) {
         return {this, push(Op::gather32, index.id,NA,NA, ptr.ix,offset)};
     }
 
-    I32 Builder::uniform32(Arg ptr, int offset) {
+    I32 Builder::uniform32(Ptr ptr, int offset) {
         return {this, push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
     }
 
@@ -1140,7 +1139,7 @@ namespace skvm {
     #endif
     }
 
-    Color Builder::load(PixelFormat f, Arg ptr) {
+    Color Builder::load(PixelFormat f, Ptr ptr) {
         switch (byte_size(f)) {
             case 1: return unpack(f, load8 (ptr));
             case 2: return unpack(f, load16(ptr));
@@ -1171,7 +1170,7 @@ namespace skvm {
         return {};
     }
 
-    Color Builder::gather(PixelFormat f, Arg ptr, int offset, I32 index) {
+    Color Builder::gather(PixelFormat f, Ptr ptr, int offset, I32 index) {
         switch (byte_size(f)) {
             case 1: return unpack(f, gather8 (ptr, offset, index));
             case 2: return unpack(f, gather16(ptr, offset, index));
@@ -1220,7 +1219,7 @@ namespace skvm {
         return packed;
     }
 
-    bool Builder::store(PixelFormat f, Arg ptr, Color c) {
+    bool Builder::store(PixelFormat f, Ptr ptr, Color c) {
         // Detect a grayscale PixelFormat: r,g,b bit counts and shifts all equal.
         if (f.r_bits  == f.g_bits  && f.g_bits  == f.b_bits &&
             f.r_shift == f.g_shift && f.g_shift == f.b_shift) {

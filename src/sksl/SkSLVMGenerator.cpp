@@ -1395,10 +1395,10 @@ bool ProgramToSkVM(const Program& program,
     SkVMSignature ignored,
                   *signature = outSignature ? outSignature : &ignored;
 
-    skvm::Arg uniforms = b->uniform();
+    skvm::Ptr uniforms = b->uniform();
     (void)uniforms;
 
-    std::vector<skvm::Arg> argPtrs;
+    std::vector<skvm::Ptr> argPtrs;
     std::vector<skvm::Val> argVals;
 
     for (const Variable* p : function.declaration().parameters()) {
@@ -1410,7 +1410,7 @@ bool ProgramToSkVM(const Program& program,
         }
     }
 
-    std::vector<skvm::Arg> returnPtrs;
+    std::vector<skvm::Ptr> returnPtrs;
     std::vector<skvm::Val> returnVals;
 
     signature->fReturnSlots = slot_count(function.declaration().returnType());

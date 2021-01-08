@@ -1,15 +1,15 @@
 18 registers, 47 instructions:
-0	r0 = uniform32 arg(0) 0
-1	r1 = uniform32 arg(0) C
-2	r2 = uniform32 arg(0) 10
-3	r3 = uniform32 arg(0) 14
-4	r4 = uniform32 arg(0) 18
-5	r5 = uniform32 arg(0) 1C
-6	r6 = uniform32 arg(0) 20
-7	r7 = uniform32 arg(0) 24
-8	r8 = uniform32 arg(0) 28
-9	r9 = uniform32 arg(0) 2C
-10	r10 = uniform32 arg(0) 30
+0	r0 = uniform32 ptr0 0
+1	r1 = uniform32 ptr0 C
+2	r2 = uniform32 ptr0 10
+3	r3 = uniform32 ptr0 14
+4	r4 = uniform32 ptr0 18
+5	r5 = uniform32 ptr0 1C
+6	r6 = uniform32 ptr0 20
+7	r7 = uniform32 ptr0 24
+8	r8 = uniform32 ptr0 28
+9	r9 = uniform32 ptr0 2C
+10	r10 = uniform32 ptr0 30
 11	r5 = mul_f32 r5 r0
 12	r6 = mul_f32 r6 r0
 13	r0 = mul_f32 r7 r0
@@ -36,14 +36,14 @@ loop:
 33	    r14 = mul_i32 r14 r1
 34	    r14 = add_i32 r15 r14
 35	    r14 = shl_i32 r14 2
-36	    r15 = gather32 arg(0) 4 r14
+36	    r15 = gather32 ptr0 4 r14
 37	    r16 = add_i32 r14 r11
-38	    r16 = gather32 arg(0) 4 r16
+38	    r16 = gather32 ptr0 4 r16
 39	    r17 = add_i32 r14 r12
-40	    r17 = gather32 arg(0) 4 r17
+40	    r17 = gather32 ptr0 4 r17
 41	    r14 = add_i32 r14 r13
-42	    r14 = gather32 arg(0) 4 r14
-43	    store32 arg(1) r15
-44	    store32 arg(2) r16
-45	    store32 arg(3) r17
-46	    store32 arg(4) r14
+42	    r14 = gather32 ptr0 4 r14
+43	    store32 ptr1 r15
+44	    store32 ptr2 r16
+45	    store32 ptr3 r17
+46	    store32 ptr4 r14

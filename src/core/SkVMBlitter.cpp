@@ -191,7 +191,7 @@ namespace {
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
         // First two arguments are always uniforms and the destination buffer.
         uniforms->base    = p->uniform();
-        skvm::Arg dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
+        skvm::Ptr dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
         // A SpriteShader (in this file) may next use one argument as its varying source.
         // Subsequent arguments depend on params.coverage:
         //    - Full:      (no more arguments)
