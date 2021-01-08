@@ -70,9 +70,6 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
     shader = GetResourceAsImage("images/mandrill_256.png")->makeShader(SkSamplingOptions());
     fShaders.push_back(std::make_pair("Mandrill", shader));
 
-    shader = SkPerlinNoiseShader::MakeImprovedNoise(0.025f, 0.025f, 3, 0.0f);
-    fShaders.push_back(std::make_pair("Perlin Noise", shader));
-
     fResolution = { winWidth, winHeight, 1.0f };
 }
 

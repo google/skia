@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Removed SkPerlinNoiseShader::MakeImprovedNoise.
+    https://review.skia.org/352057
+
   * Removed deperated version of MakeFromYUVATextures. Use the version
     that takes GrYUVABackendTextures instead.
     https://review.skia.org/345174

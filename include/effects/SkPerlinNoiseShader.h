@@ -44,12 +44,6 @@ public:
     static sk_sp<SkShader> MakeTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                                           int numOctaves, SkScalar seed,
                                           const SkISize* tileSize = nullptr);
-    /**
-     * Creates an Improved Perlin Noise shader. The z value is roughly equivalent to the seed of the
-     * other two types, but minor variations to z will only slightly change the noise.
-     */
-    static sk_sp<SkShader> MakeImprovedNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                             int numOctaves, SkScalar z);
 
     static void RegisterFlattenables();
 
