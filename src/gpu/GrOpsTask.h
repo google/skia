@@ -95,7 +95,10 @@ public:
 #endif
 
 #if GR_TEST_UTILS
-    void dump(bool printDependencies) const override;
+    void dump(const SkString& label,
+              SkString indent,
+              bool printDependencies,
+              bool close) const override;
     const char* name() const final { return "Ops"; }
     int numOpChains() const { return fOpChains.count(); }
     const GrOp* getChain(int index) const { return fOpChains[index].head(); }

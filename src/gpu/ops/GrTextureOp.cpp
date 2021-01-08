@@ -622,8 +622,9 @@ private:
         DrawQuad extra;
         // Only clip when there's anti-aliasing. When non-aa, the GPU clips just fine and there's
         // no inset/outset math that requires w > 0.
-        int quadCount = quad->fEdgeFlags != GrQuadAAFlags::kNone ?
-                GrQuadUtils::ClipToW0(quad, &extra) : 1;
+        int quadCount = quad->fEdgeFlags != GrQuadAAFlags::kNone
+                                    ? GrQuadUtils::ClipToW0(quad, &extra)
+                                    : 1;
         if (quadCount == 0) {
             // We can't discard the op at this point, but disable AA flags so it won't go through
             // inset/outset processing
@@ -1061,12 +1062,12 @@ private:
         SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
         auto iter = fQuads.iterator();
         for (unsigned p = 0; p < fMetadata.fProxyCount; ++p) {
-            str.appendf("Proxy ID: %d, Filter: %d, MM: %d\n",
-                        fViewCountPairs[p].fProxy->uniqueID().asUInt(),
+            SkString proxyStr = fViewCountPairs[p].fProxy->dump();
+            str.append(proxyStr);
+            str.appendf(", Filter: %d, MM: %d\n",
                         static_cast<int>(fMetadata.fFilter),
                         static_cast<int>(fMetadata.fMipmapMode));
-            int i = 0;
-            while(i < fViewCountPairs[p].fQuadCnt && iter.next()) {
+            for (int i = 0; i < fViewCountPairs[p].fQuadCnt && iter.next(); ++i) {
                 const GrQuad* quad = iter.deviceQuad();
                 GrQuad uv = iter.isLocalValid() ? *(iter.localQuad()) : GrQuad();
                 const ColorSubsetAndAA& info = iter.metadata();
@@ -1080,8 +1081,6 @@ private:
                         quad->point(2).fX, quad->point(2).fY, quad->point(3).fX, quad->point(3).fY,
                         uv.point(0).fX, uv.point(0).fY, uv.point(1).fX, uv.point(1).fY,
                         uv.point(2).fX, uv.point(2).fY, uv.point(3).fX, uv.point(3).fY);
-
-                i++;
             }
         }
         return str;

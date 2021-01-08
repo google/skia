@@ -318,6 +318,7 @@ public:
 #if GR_TEST_UTILS
     int32_t testingOnly_getBackingRefCnt() const;
     GrInternalSurfaceFlags testingOnly_getFlags() const;
+    SkString dump() const;
 #endif
 
     SkDEBUGCODE(void validate(GrContext_Base*) const;)
