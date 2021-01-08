@@ -15,6 +15,8 @@
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 
+#include "math.h"
+
 namespace SkSL {
 
 namespace dsl {
@@ -27,7 +29,15 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
 DSLExpression::DSLExpression(float value)
     : fExpression(std::make_unique<SkSL::FloatLiteral>(DSLWriter::Context(),
                                                        /*offset=*/-1,
-                                                       value)) {}
+                                                       value)) {
+    if (!isfinite(value)) {
+        if (isinf(value)) {
+            DSLWriter::ReportError("error: floating point value is infinite\n");
+        } else if (isnan(value)) {
+            DSLWriter::ReportError("error: floating point value is NaN\n");
+        }
+    }
+}
 
 DSLExpression::DSLExpression(int value)
     : fExpression(std::make_unique<SkSL::IntLiteral>(DSLWriter::Context(),
