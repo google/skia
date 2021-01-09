@@ -41,11 +41,9 @@ namespace SkGpuBlurUtils {
  * @param fit             backing fit for the returned render target context
  * @return                The surfaceDrawContext containing the blurred result.
  */
-std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
+std::unique_ptr<GrSurfaceFillContext> GaussianBlur(GrRecordingContext* context,
                                                    GrSurfaceProxyView srcView,
-                                                   GrColorType srcColorType,
-                                                   SkAlphaType srcAlphaType,
-                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const GrColorInfo& srcInfo,
                                                    SkIRect dstBounds,
                                                    SkIRect srcBounds,
                                                    float sigmaX,
