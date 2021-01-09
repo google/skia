@@ -48,11 +48,12 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
 }
 
 template <typename T>
-static std::unique_ptr<Expression> simplify_vector(const Context& context,
-                                                   ErrorReporter& errors,
-                                                   const Expression& left,
-                                                   Token::Kind op,
-                                                   const Expression& right) {
+static std::unique_ptr<Expression> simplify_vector_vector(const Context& context,
+                                                          ErrorReporter& errors,
+                                                          const Expression& left,
+                                                          Token::Kind op,
+                                                          const Expression& right) {
+    SkASSERT(left.type().isVector());
     SkASSERT(left.type() == right.type());
     const Type& type = left.type();
 
@@ -108,6 +109,24 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         default:
             return nullptr;
     }
+}
+
+template <typename T>
+static std::unique_ptr<Expression> simplify_vector_scalar(const Context& context,
+                                                          ErrorReporter& errors,
+                                                          const Expression& left,
+                                                          Token::Kind op,
+                                                          const Expression& right) {
+    SkASSERT(left.type().isVector());
+    SkASSERT(left.type().componentType() == right.type());
+
+    // Use a Constructor to splat the right-side scalar expression across a vector.
+    ExpressionArray rightArg;
+    rightArg.push_back(right.clone());
+    Constructor rightVec{right.fOffset, &left.type(), std::move(rightArg)};
+
+    // Perform vector-vector simplification.
+    return simplify_vector_vector<T>(context, errors, left, op, rightVec);
 }
 
 std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
@@ -238,10 +257,21 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     const Type& rightType = right.type();
     if (leftType.isVector() && leftType == rightType) {
         if (leftType.componentType().isFloat()) {
-            return simplify_vector<SKSL_FLOAT>(context, errors, left, op, right);
+            return simplify_vector_vector<SKSL_FLOAT>(context, errors, left, op, right);
         }
         if (leftType.componentType().isInteger()) {
-            return simplify_vector<SKSL_INT>(context, errors, left, op, right);
+            return simplify_vector_vector<SKSL_INT>(context, errors, left, op, right);
+        }
+        return nullptr;
+    }
+
+    // Perform constant folding on vectors against scalars.
+    if (leftType.isVector() && leftType.componentType() == rightType) {
+        if (leftType.componentType().isFloat()) {
+            return simplify_vector_scalar<SKSL_FLOAT>(context, errors, left, op, right);
+        }
+        if (leftType.componentType().isInteger()) {
+            return simplify_vector_scalar<SKSL_INT>(context, errors, left, op, right);
         }
         return nullptr;
     }
