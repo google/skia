@@ -5708,3 +5708,40 @@ DEF_TEST(SkParagraph_RTL_With_Styles, reporter) {
     paragraph->layout(300);
     paragraph->paint(canvas.get(), 0, 0);
 }
+
+DEF_TEST(SkParagraph_PositionInsideEmoji, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_PositionInsideEmoji.png");
+
+    std::u16string text = u"\U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467\U0001f469\U0001f469\U0001f467\U0001f467";
+
+    ParagraphStyle paragraph_style;
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Noto Color Emoji")});
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    int32_t words[] = { 11, 13, 15, 17, 19, 21};
+    auto j = 0;
+    for (auto i :  words) {
+        auto rects = paragraph->getRectsForRange(j, i, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        if (rects.empty()) {
+            continue;
+        }
+        auto X = rects[0].rect.fRight;
+        auto Y = rects[0].rect.fTop;
+        auto res = paragraph->getGlyphPositionAtCoordinate(X, Y);
+        //SkDebugf("[%d:%d) @%f,%f: %d %s\n", j, i, X, Y, res.position, res.affinity == Affinity::kDownstream ? "D" : "U");
+        REPORTER_ASSERT(reporter, i == res.position + (res.affinity == Affinity::kDownstream ? 0 : 1));
+        j = i;
+    }
+}
