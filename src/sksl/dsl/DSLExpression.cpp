@@ -9,6 +9,7 @@
 
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
@@ -48,6 +49,12 @@ DSLExpression::DSLExpression(bool value)
     : fExpression(std::make_unique<SkSL::BoolLiteral>(DSLWriter::Context(),
                                                      /*offset=*/-1,
                                                      value)) {}
+
+DSLExpression::DSLExpression(const DSLVar& var)
+    : fExpression(std::make_unique<SkSL::VariableReference>(
+                                                        /*offset=*/-1,
+                                                        var.var(),
+                                                        SkSL::VariableReference::RefKind::kRead)) {}
 
 DSLExpression::~DSLExpression() {
     SkASSERTF(fExpression == nullptr,
