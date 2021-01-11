@@ -62,6 +62,54 @@
       },
       "revId": "e55ec983011997268a53b464eeff67b1421807c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4efbbca8_4127d771",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1969,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T18:35:58Z",
+      "side": 1,
+      "message": "Yes - this is a more stringent check that\u0027s statically (conservatively) preventing recursion. I\u0027ve updated the comment to explain the check. If we ever add an analysis pass that verifies the static call graph contains no cycles, we could remove this check and be more lenient.",
+      "parentUuid": "20ffc9f3_846dc141",
+      "range": {
+        "startLine": 1969,
+        "startChar": 0,
+        "endLine": 1969,
+        "endChar": 83
+      },
+      "revId": "e55ec983011997268a53b464eeff67b1421807c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f29a2c75_e5f4d3ab",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1969,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T18:35:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c4cab60_8b8925e0",
+      "range": {
+        "startLine": 1969,
+        "startChar": 8,
+        "endLine": 1969,
+        "endChar": 29
+      },
+      "revId": "e55ec983011997268a53b464eeff67b1421807c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
