@@ -16,6 +16,24 @@
       "message": "These are only running on GLSL now - is that intentional? (I think it\u0027s okay - these are effectively front-end tests, so having redundant outputs for each backend isn\u0027t adding much value).",
       "revId": "c5c9d1234ad057c510ca72dff113779714131fc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42aea860_004a5257",
+        "filename": "gn/sksl_tests.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T15:07:37Z",
+      "side": 1,
+      "message": "Yes, that\u0027s exactly the intent. These tests are specifically meant to check the behavior of ConstantFolder.cpp in the front end.",
+      "parentUuid": "700b4b5d_9ca3313b",
+      "revId": "c5c9d1234ad057c510ca72dff113779714131fc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
