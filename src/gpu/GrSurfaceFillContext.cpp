@@ -383,8 +383,10 @@ void GrSurfaceFillContext::internalClear(const SkIRect* scissor,
     // There are three ways clears are handled: load ops, native clears, and draws. Load ops are
     // only for fullscreen clears; native clears can be fullscreen or with scissors if the backend
     // supports then. Drawing an axis-aligned rect is the fallback path.
-    GrScissorState scissorState(this->asSurfaceProxy()->backingStoreDimensions());
-    if (scissor && !scissorState.set(*scissor)) {
+    GrScissorState scissorState(this->asSurfaceProxy()->isDDLTarget()
+                                            ? SkISize::Make(-1, -1)
+                                            : this->asSurfaceProxy()->backingStoreDimensions());
+    if (scissor && !scissorState.set1(*scissor)) {
         // The clear is offscreen, so skip it (normally this would be handled by addDrawOp,
         // except clear ops are not draw ops).
         return;

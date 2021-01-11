@@ -91,12 +91,15 @@ return %s * alpha;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrEllipseEffect& _outer = _proc.cast<GrEllipseEffect>();
         auto edgeType = _outer.edgeType;
         (void)edgeType;
         auto center = _outer.center;
         (void)center;
+        center.fX += viewportOffset.fX;
+        center.fY += viewportOffset.fY;
         auto radii = _outer.radii;
         (void)radii;
         UniformHandle& ellipse = ellipseVar;

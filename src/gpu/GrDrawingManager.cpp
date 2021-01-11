@@ -298,7 +298,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.count());
 
 #if GR_FLUSH_TIME_OP_SPEW
-    SkDebugf("Flushing opsTask: %d to %d out of [%d, %d]\n",
+    SkDebugf("Flushing renderTasks: %d to %d out of [%d, %d]\n",
                             startIndex, stopIndex, 0, fDAG.count());
     for (int i = startIndex; i < stopIndex; ++i) {
         if (fDAG[i]) {
@@ -642,6 +642,13 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
     // The lazy proxy that references it (in the DDL opsTasks) will then steal its GrTexture.
     ddl->fLazyProxyData->fReplayDest = newDest.get();
+
+    SkDebugf("--------------------- Fulfilling %d %d %s with %d %d\n",
+             -1, //ddl->priv().targetProxy()->width(),
+             -1, //ddl->priv().targetProxy()->height(),
+             ddl->priv().targetProxy()->priv().isExact() ? "exact" : "non-exact",
+             newDest->width(),
+             newDest->height());
 
     if (ddl->fPendingPaths.size()) {
         GrCoverageCountingPathRenderer* ccpr = this->getCoverageCountingPathRenderer();

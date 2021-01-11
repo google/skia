@@ -620,7 +620,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     SkIPoint viewportOffset) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
             this->setTransform(pdman, fLocalMatrixUniform, qe.fLocalMatrix, &fLocalMatrix);
         }
