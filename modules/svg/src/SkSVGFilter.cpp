@@ -45,7 +45,7 @@ SkRect SkSVGFilter::resolveFilterRegion(const SkSVGRenderContext& ctx) const {
 
 sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) const {
     sk_sp<SkImageFilter> filter;
-    SkSVGFilterContext fctx(resolveFilterRegion(ctx));
+    SkSVGFilterContext fctx(resolveFilterRegion(ctx), fPrimitiveUnits);
     for (const auto& child : fChildren) {
         if (!SkSVGFe::IsFilterEffect(child)) {
             continue;
@@ -58,7 +58,7 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         filter = feNode.makeImageFilter(ctx, fctx);
 
         if (!feResultType.isEmpty()) {
-            fctx.registerResult(feResultType, filter);
+            fctx.registerResult(feResultType, filter, feNode.resolveFilterSubregion(ctx, fctx));
         }
     }
 
