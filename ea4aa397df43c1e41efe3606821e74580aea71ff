@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "beb589cc_d8893cb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-11T18:06:15Z",
+      "side": 1,
+      "message": "sorry for the late comment",
+      "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95ae634c_5e42c74b",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-11T18:06:15Z",
+      "side": 1,
+      "message": "SkM44 -- since that is the native \"output\" from a canvas?",
+      "range": {
+        "startLine": 69,
+        "startChar": 37,
+        "endLine": 69,
+        "endChar": 45
+      },
+      "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
