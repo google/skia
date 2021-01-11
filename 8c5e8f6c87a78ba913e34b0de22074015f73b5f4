@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "111819d2_ba06c82c",
+        "filename": "modules/svg/src/SkSVGCircle.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-11T21:18:30Z",
+      "side": 1,
+      "message": "Ok, your explanation makes sense and the diffs gold picked up are the same on patchset 7 (where I removed the mapToRect for SkSVGContainer) as in patchset 6. So think it\u0027s safe to remove.",
+      "parentUuid": "716f2d55_ad0839e2",
+      "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cefe8ab9_def73e80",
         "filename": "modules/svg/src/SkSVGPath.cpp",
         "patchSetId": 6
@@ -66,6 +84,30 @@
       "writtenOn": "2021-01-11T20:09:13Z",
       "side": 1,
       "message": "getBounds() is conservative, we should use computeTightBounds()..",
+      "range": {
+        "startLine": 44,
+        "startChar": 17,
+        "endLine": 44,
+        "endChar": 26
+      },
+      "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49616977_322027d5",
+        "filename": "modules/svg/src/SkSVGPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-11T21:18:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cefe8ab9_def73e80",
       "range": {
         "startLine": 44,
         "startChar": 17,
