@@ -49,7 +49,6 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
 
 template <typename T>
 static std::unique_ptr<Expression> simplify_vector(const Context& context,
-                                                   ErrorReporter& errors,
                                                    const Expression& left,
                                                    Token::Kind op,
                                                    const Expression& right) {
@@ -101,7 +100,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         case Token::Kind::TK_STAR:  return vectorComponentwiseFold([](T a, T b) { return a * b; });
         case Token::Kind::TK_SLASH: {
             if (isVectorDivisionByZero()) {
-                errors.error(right.fOffset, "division by zero");
+                context.fErrors.error(right.fOffset, "division by zero");
                 return nullptr;
             }
             return vectorComponentwiseFold([](T a, T b) { return a / b; });
@@ -122,7 +121,6 @@ static Constructor splat_scalar(const Expression& scalar, const Type& type) {
 }
 
 std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
-                                                     ErrorReporter& errors,
                                                      const Expression& left,
                                                      Token::Kind op,
                                                      const Expression& right) {
@@ -175,21 +173,21 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_STAR:       return URESULT(Int, *);
             case Token::Kind::TK_SLASH:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
-                    errors.error(right.fOffset, "arithmetic overflow");
+                    context.fErrors.error(right.fOffset, "arithmetic overflow");
                     return nullptr;
                 }
                 if (!rightVal) {
-                    errors.error(right.fOffset, "division by zero");
+                    context.fErrors.error(right.fOffset, "division by zero");
                     return nullptr;
                 }
                 return RESULT(Int, /);
             case Token::Kind::TK_PERCENT:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
-                    errors.error(right.fOffset, "arithmetic overflow");
+                    context.fErrors.error(right.fOffset, "arithmetic overflow");
                     return nullptr;
                 }
                 if (!rightVal) {
-                    errors.error(right.fOffset, "division by zero");
+                    context.fErrors.error(right.fOffset, "division by zero");
                     return nullptr;
                 }
                 return RESULT(Int, %);
@@ -206,13 +204,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                 if (rightVal >= 0 && rightVal <= 31) {
                     return RESULT(Int,  <<);
                 }
-                errors.error(right.fOffset, "shift value out of range");
+                context.fErrors.error(right.fOffset, "shift value out of range");
                 return nullptr;
             case Token::Kind::TK_SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
                     return RESULT(Int,  >>);
                 }
-                errors.error(right.fOffset, "shift value out of range");
+                context.fErrors.error(right.fOffset, "shift value out of range");
                 return nullptr;
 
             default:
@@ -232,7 +230,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                 if (rightVal) {
                     return RESULT(Float, /);
                 }
-                errors.error(right.fOffset, "division by zero");
+                context.fErrors.error(right.fOffset, "division by zero");
                 return nullptr;
             case Token::Kind::TK_EQEQ: return RESULT(Bool, ==);
             case Token::Kind::TK_NEQ:  return RESULT(Bool, !=);
@@ -249,10 +247,10 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     const Type& rightType = right.type();
     if (leftType.isVector() && leftType == rightType) {
         if (leftType.componentType().isFloat()) {
-            return simplify_vector<SKSL_FLOAT>(context, errors, left, op, right);
+            return simplify_vector<SKSL_FLOAT>(context, left, op, right);
         }
         if (leftType.componentType().isInteger()) {
-            return simplify_vector<SKSL_INT>(context, errors, left, op, right);
+            return simplify_vector<SKSL_INT>(context, left, op, right);
         }
         return nullptr;
     }
@@ -260,12 +258,10 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Perform constant folding on vectors against scalars, e.g.: half4(2) + 2
     if (leftType.isVector() && leftType.componentType() == rightType) {
         if (rightType.isFloat()) {
-            return simplify_vector<SKSL_FLOAT>(context, errors,
-                                               left, op, splat_scalar(right, left.type()));
+            return simplify_vector<SKSL_FLOAT>(context, left, op, splat_scalar(right, left.type()));
         }
         if (rightType.isInteger()) {
-            return simplify_vector<SKSL_INT>(context, errors,
-                                             left, op, splat_scalar(right, left.type()));
+            return simplify_vector<SKSL_INT>(context, left, op, splat_scalar(right, left.type()));
         }
         return nullptr;
     }
@@ -273,12 +269,11 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Perform constant folding on scalars against vectors, e.g.: 2 + half4(2)
     if (rightType.isVector() && rightType.componentType() == leftType) {
         if (leftType.isFloat()) {
-            return simplify_vector<SKSL_FLOAT>(context, errors,
-                                               splat_scalar(left, right.type()), op, right);
+            return simplify_vector<SKSL_FLOAT>(context, splat_scalar(left, right.type()), op,
+                                               right);
         }
         if (leftType.isInteger()) {
-            return simplify_vector<SKSL_INT>(context, errors,
-                                             splat_scalar(left, right.type()), op, right);
+            return simplify_vector<SKSL_INT>(context, splat_scalar(left, right.type()), op, right);
         }
         return nullptr;
     }

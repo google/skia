@@ -6,12 +6,14 @@
  */
 
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 
 #include "tests/Test.h"
 
 DEF_TEST(SkSLMemoryLayout140Test, r) {
-    SkSL::Context context;
+    SkSL::TestingOnly_AbortErrorReporter errors;
+    SkSL::Context context(errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k140_Standard);
 
     // basic types
@@ -96,7 +98,8 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
 }
 
 DEF_TEST(SkSLMemoryLayout430Test, r) {
-    SkSL::Context context;
+    SkSL::TestingOnly_AbortErrorReporter errors;
+    SkSL::Context context(errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k430_Standard);
 
     // basic types
