@@ -492,8 +492,7 @@ namespace skvm {
 
     // Comparisons of F32 or I32 return I32 masks, with false=0 and true=~0.
 
-    // An opaque float-y type with ambiguous precision and at least [-2,+2) range.
-    // This could be FP16, FP32, signed 1.14 fixed point, bfloat16, etc.
+    // An opaque float-y type with ambiguous precision, generally FP16 or FP32.
     struct Half {
         Builder* builder = nullptr;
         Val      id      = NA;
@@ -570,6 +569,12 @@ namespace skvm {
     struct HalfColor {
         Half r,g,b,a;
         explicit operator bool() const { return r && g && b && a; }
+        Builder* operator->()    const { return a.operator->(); }
+    };
+
+    struct HalfHSLA {
+        Half h,s,l,a;
+        explicit operator bool() const { return h && s && l && a; }
         Builder* operator->()    const { return a.operator->(); }
     };
 
@@ -691,8 +696,9 @@ namespace skvm {
         I32 load128(Ptr ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
 
         // Load i32/f32 uniform with byte-count offset.
-        I32 uniform32(Ptr ptr, int offset);
-        F32 uniformF (Ptr ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
+        I32  uniform32(Ptr ptr, int offset);
+        F32  uniformF (Ptr ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
+        Half uniformH (Ptr ptr, int offset) { return to_Half(pun_to_F32(uniform32(ptr,offset))); }
 
         // Push and load this color as a uniform.
         Color uniformColor(SkColor4f, Uniforms*);
@@ -706,12 +712,13 @@ namespace skvm {
         }
 
         // Convenience methods for working with skvm::Uniform(s).
-        I32 uniform32(Uniform u)            { return this->uniform32(u.ptr, u.offset); }
-        F32 uniformF (Uniform u)            { return this->uniformF (u.ptr, u.offset); }
-        I32 gather8  (Uniform u, I32 index) { return this->gather8  (u.ptr, u.offset, index); }
-        I32 gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
-        I32 gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
-        F32 gatherF  (Uniform u, I32 index) { return this->gatherF  (u.ptr, u.offset, index); }
+        I32  uniform32(Uniform u)            { return this->uniform32(u.ptr, u.offset); }
+        F32  uniformF (Uniform u)            { return this->uniformF (u.ptr, u.offset); }
+        Half uniformH (Uniform u)            { return this->uniformH (u.ptr, u.offset); }
+        I32  gather8  (Uniform u, I32 index) { return this->gather8  (u.ptr, u.offset, index); }
+        I32  gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
+        I32  gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
+        F32  gatherF  (Uniform u, I32 index) { return this->gatherF  (u.ptr, u.offset, index); }
 
         // Load an immediate constant.
         I32 splat(int      n);
@@ -785,6 +792,7 @@ namespace skvm {
         Half add(Half, Half);  Half add(Halfa x, Halfa y) { return add(_(x), _(y)); }
         Half sub(Half, Half);  Half sub(Halfa x, Halfa y) { return sub(_(x), _(y)); }
         Half mul(Half, Half);  Half mul(Halfa x, Halfa y) { return mul(_(x), _(y)); }
+        Half div(Half, Half);  Half div(Halfa x, Half  y) { return mul(_(x),   y ); }
         Half min(Half, Half);  Half min(Halfa x, Halfa y) { return min(_(x), _(y)); }
         Half max(Half, Half);  Half max(Halfa x, Halfa y) { return max(_(x), _(y)); }
 
@@ -875,11 +883,15 @@ namespace skvm {
             return gather(f, u.ptr, u.offset, index);
         }
 
-        void   premul(F32* r, F32* g, F32* b, F32 a);
-        void unpremul(F32* r, F32* g, F32* b, F32 a);
+        void   premul(F32*  r, F32*  g, F32*  b, F32  a);
+        void   premul(Half* r, Half* g, Half* b, Half a);
+        void unpremul(F32*  r, F32*  g, F32*  b, F32  a);
+        void unpremul(Half* r, Half* g, Half* b, Half a);
 
-        Color   premul(Color c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
-        Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
+        Color       premul(Color     c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
+        HalfColor   premul(HalfColor c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
+        Color     unpremul(Color     c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
+        HalfColor unpremul(HalfColor c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
 
         Color lerp(Color lo, Color hi, F32 t);
         Color blend(SkBlendMode, Color src, Color dst);
@@ -887,9 +899,15 @@ namespace skvm {
         Color clamp01(Color c) {
             return { clamp01(c.r), clamp01(c.g), clamp01(c.b), clamp01(c.a) };
         }
+        HalfColor clamp01(HalfColor c) {
+            return { clamp01(c.r), clamp01(c.g), clamp01(c.b), clamp01(c.a) };
+        }
 
         HSLA  to_hsla(Color);
         Color to_rgba(HSLA);
+
+        HalfHSLA  to_hsla(HalfColor);
+        HalfColor to_rgba(HalfHSLA);
 
         void dump(SkWStream* = nullptr) const;
 
@@ -1104,6 +1122,14 @@ namespace skvm {
     static inline Half operator*(Half  x, Halfa y) { return x->mul(x,y); }
     static inline Half operator*(float x, Half  y) { return y->mul(x,y); }
 
+    static inline Half operator/(Half  x, Half y) { return x->div(x,y); }
+    static inline Half operator/(float x, Half y) { return y->div(x,y); }
+
+    static inline Half& operator+=(Half& x, Halfa y) { return (x = x + y); }
+    static inline Half& operator-=(Half& x, Halfa y) { return (x = x - y); }
+    static inline Half& operator*=(Half& x, Halfa y) { return (x = x * y); }
+    static inline Half& operator/=(Half& x, Half  y) { return (x = x / y); }
+
     static inline Half min(Half  x, Halfa y) { return x->min(x,y); }
     static inline Half min(float x, Half  y) { return y->min(x,y); }
 
@@ -1240,20 +1266,28 @@ namespace skvm {
         return ix->gather(f,u,ix);
     }
 
-    static inline void   premul(F32* r, F32* g, F32* b, F32 a) { a->  premul(r,g,b,a); }
-    static inline void unpremul(F32* r, F32* g, F32* b, F32 a) { a->unpremul(r,g,b,a); }
+    static inline void   premul(F32*  r, F32*  g, F32*  b, F32  a) { a->  premul(r,g,b,a); }
+    static inline void   premul(Half* r, Half* g, Half* b, Half a) { a->  premul(r,g,b,a); }
+    static inline void unpremul(F32*  r, F32*  g, F32*  b, F32  a) { a->unpremul(r,g,b,a); }
+    static inline void unpremul(Half* r, Half* g, Half* b, Half a) { a->unpremul(r,g,b,a); }
 
-    static inline Color   premul(Color c) { return c->  premul(c); }
-    static inline Color unpremul(Color c) { return c->unpremul(c); }
+    static inline Color       premul(Color     c) { return c->  premul(c); }
+    static inline HalfColor   premul(HalfColor c) { return c->  premul(c); }
+    static inline Color     unpremul(Color     c) { return c->unpremul(c); }
+    static inline HalfColor unpremul(HalfColor c) { return c->unpremul(c); }
 
     static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
 
     static inline Color blend(SkBlendMode m, Color s, Color d) { return s->blend(m,s,d); }
 
-    static inline Color clamp01(Color c) { return c->clamp01(c); }
+    static inline Color     clamp01(Color     c) { return c->clamp01(c); }
+    static inline HalfColor clamp01(HalfColor c) { return c->clamp01(c); }
 
     static inline HSLA  to_hsla(Color c) { return c->to_hsla(c); }
     static inline Color to_rgba(HSLA  c) { return c->to_rgba(c); }
+
+    static inline HalfHSLA  to_hsla(HalfColor c) { return c->to_hsla(c); }
+    static inline HalfColor to_rgba(HalfHSLA  c) { return c->to_rgba(c); }
 
     // Evaluate polynomials: ax^n + bx^(n-1) + ... for n >= 1
     template <typename... Rest>
