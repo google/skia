@@ -226,6 +226,18 @@ public:
             return *this;
         }
 
+        template <typename T>
+        void set(const T val[], const int count) {
+            if (!fVar) {
+                SkDEBUGFAIL("Assigning to missing variable");
+            } else if (sizeof(T) * count != fVar->sizeInBytes()) {
+                SkDEBUGFAIL("Incorrect value size");
+            } else {
+                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->fOffset),
+                       &val, sizeof(T) * count);
+            }
+        }
+
         SkRuntimeShaderBuilder*         fOwner;
         const SkRuntimeEffect::Uniform* fVar;    // nullptr if the variable was not found
     };
