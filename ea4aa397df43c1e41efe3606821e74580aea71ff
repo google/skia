@@ -39,6 +39,30 @@
       },
       "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34dbafc4_528c6469",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-11T19:12:14Z",
+      "side": 1,
+      "message": "Yegor, does that work for you?",
+      "parentUuid": "95ae634c_5e42c74b",
+      "range": {
+        "startLine": 69,
+        "startChar": 37,
+        "endLine": 69,
+        "endChar": 45
+      },
+      "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
