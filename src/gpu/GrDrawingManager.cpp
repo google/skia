@@ -104,11 +104,9 @@ bool GrDrawingManager::flush(
         access == SkSurface::BackendSurfaceAccess::kNoAccess && !newState) {
         bool allUnused = std::all_of(proxies.begin(), proxies.end(), [&](GrSurfaceProxy* proxy) {
             bool used = std::any_of(fDAG.begin(), fDAG.end(), [&](auto& task) {
-                // TODO: the DDLTask should now just return true here instead of
-                // needing GrDrawingManager::isDDLTarget.
                 return task && task->isUsed(proxy);
             });
-            return !used && !this->isDDLTarget(proxy);
+            return !used;
         });
         if (allUnused) {
             if (info.fSubmittedProc) {
@@ -252,7 +250,6 @@ bool GrDrawingManager::flush(
 #endif
     fLastRenderTasks.reset();
     fDAG.reset();
-    this->clearDDLTargets();
 
 #ifdef SK_DEBUG
     // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
@@ -642,8 +639,6 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
         newTextureProxy->markMipmapsDirty();
     }
 
-    this->addDDLTarget(newDest, ddl->priv().targetProxy());
-
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
     // The lazy proxy that references it (in the DDL opsTasks) will then steal its GrTexture.
     ddl->fLazyProxyData->fReplayDest = newDest;
@@ -687,11 +682,6 @@ void GrDrawingManager::validate() const {
     }
 }
 #endif
-
-void GrDrawingManager::addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget) {
-    SkASSERT(ddlTarget->isDDLTarget());
-    fDDLTargets.set(newTarget->uniqueID().asUInt(), ddlTarget);
-}
 
 void GrDrawingManager::closeActiveOpsTask() {
     if (fActiveOpsTask) {

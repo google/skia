@@ -51,6 +51,10 @@ void GrDDLTask::disown(GrDrawingManager* drawingManager) {
 }
 
 bool GrDDLTask::onIsUsed(GrSurfaceProxy* proxy) const {
+    if (proxy == fDDLTarget.get()) {
+        return true;
+    }
+
     for (auto& task : fDDL->priv().renderTasks()) {
         if (task->isUsed(proxy)) {
             return true;
