@@ -1521,19 +1521,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     if (!type.isScalar()) {
         return std::make_unique<Constructor>(offset, &type, std::move(args));
     }
-    std::unique_ptr<Expression> ctor;
-    if (type == *fContext.fTypes.fFloatLiteral) {
-        ctor = this->convertIdentifier(offset, "float");
-    } else if (type == *fContext.fTypes.fIntLiteral) {
-        ctor = this->convertIdentifier(offset, "int");
-    } else {
-        ctor = this->convertIdentifier(offset, type.name());
-    }
-    if (!ctor) {
-        fErrors.error(offset, "null identifier: " + type.name());
-        return nullptr;
-    }
-    return this->call(offset, std::move(ctor), std::move(args));
+    return this->convertConstructor(offset, type, std::move(args));
 }
 
 static bool is_matrix_multiply(const Type& left, Token::Kind op, const Type& right) {
