@@ -109,19 +109,18 @@ void test_skvm(skiatest::Reporter* r, const char* src, float* in, const float* e
 
     skvm::Builder b;
     SkSL::SkVMSignature sig;
-    SkSL::ProgramToSkVM(*program, *main, &b, &sig);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{}, &sig);
     skvm::Program p = b.done();
 
-    REPORTER_ASSERT(r, p.nargs() == (int)(1 /*uniforms*/ + sig.fParameterSlots + sig.fReturnSlots));
+    REPORTER_ASSERT(r, p.nargs() == (int)(sig.fParameterSlots + sig.fReturnSlots));
 
     auto out = std::make_unique<float[]>(sig.fReturnSlots);
-    auto args = std::make_unique<void*[]>(1 + sig.fParameterSlots + sig.fReturnSlots);
-    args[0] = nullptr;  // uniforms
+    auto args = std::make_unique<void*[]>(sig.fParameterSlots + sig.fReturnSlots);
     for (size_t i = 0; i < sig.fParameterSlots; ++i) {
-        args[1+ i] = in + i;
+        args[i] = in + i;
     }
     for (size_t i = 0; i < sig.fReturnSlots; ++i) {
-        args[1 + sig.fParameterSlots + i] = out.get() + i;
+        args[sig.fParameterSlots + i] = out.get() + i;
     }
 
     // TODO: Test with and without JIT?
@@ -207,12 +206,11 @@ void test_skvm(skiatest::Reporter* r, const char* src,
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     // TODO: Test with and without JIT?
-    const void* uniforms = nullptr;
-    p.eval(1, uniforms, &inR, &inG, &inB, &inA);
+    p.eval(1, &inR, &inG, &inB, &inA);
 
     float actual[4]   = { inR, inG, inB, inA };
     float expected[4] = { exR, exG, exB, exA };
@@ -597,9 +595,9 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         "  return tempFloats[7];\n"
         "}\n"
 
-        // Uniforms, array-of-structs, dynamic indices
+        // Uniforms, array-of-structs
         "uniform Rect gRects[4];\n"
-        "Rect get_rect(int i) { return gRects[i]; }\n"
+        "Rect get_rect_2() { return gRects[2]; }\n"
 
         // Kitchen sink (swizzles, inout, SoAoS)
         "struct ManyRects { int numRects; RectAndColor rects[4]; };\n"
@@ -611,38 +609,57 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         "  }\n"
         "}\n";
 
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    settings.fRemoveDeadFunctions = false;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                                                     SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
+    ProgramBuilder program(r, src);
 
-    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-    REPORTER_ASSERT(r, !compiler.errorCount());
-
-    auto rect_height    = byteCode->getFunction("rect_height"),
-         make_blue_rect = byteCode->getFunction("make_blue_rect"),
-         median         = byteCode->getFunction("median"),
-         sums           = byteCode->getFunction("sums"),
-         get_rect       = byteCode->getFunction("get_rect"),
-         fill_rects     = byteCode->getFunction("fill_rects");
+    auto rect_height    = SkSL::Program_GetFunction(*program, "rect_height"),
+         make_blue_rect = SkSL::Program_GetFunction(*program, "make_blue_rect"),
+         median         = SkSL::Program_GetFunction(*program, "median"),
+         sums           = SkSL::Program_GetFunction(*program, "sums"),
+         get_rect_2     = SkSL::Program_GetFunction(*program, "get_rect_2"),
+         fill_rects     = SkSL::Program_GetFunction(*program, "fill_rects");
 
     SkIRect gRects[4] = { { 1,2,3,4 }, { 5,6,7,8 }, { 9,10,11,12 }, { 13,14,15,16 } };
-    const float* fRects = (const float*)gRects;
+
+    auto build = [&](const SkSL::FunctionDefinition* fn) {
+        skvm::Builder b;
+        skvm::Ptr uniformPtr = b.uniform();
+        skvm::Val uniforms[16];
+        for (int i = 0; i < 16; ++i) {
+            uniforms[i] = b.uniform32(uniformPtr, i * sizeof(int)).id;
+        }
+        SkSL::ProgramToSkVM(*program, *fn, &b, uniforms);
+        return b.done();
+    };
+
+    struct Args {
+        Args(void* uniformData) { fArgs.push_back(uniformData); }
+        void add(void* base, int n) {
+            for (int i = 0; i < n; ++i) {
+                fArgs.push_back(SkTAddOffset<void>(base, i * sizeof(float)));
+            }
+        }
+        std::vector<void*> fArgs;
+    };
 
     {
         SkIRect in = SkIRect::MakeXYWH(10, 10, 20, 30);
         int out = 0;
-        SkAssertResult(byteCode->run(rect_height, (float*)&in, 4, (float*)&out, 1, fRects, 16));
+        skvm::Program p = build(rect_height);
+        Args args(gRects);
+        args.add(&in, 4);
+        args.add(&out, 1);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == 30);
     }
 
     {
         int in[2] = { 15, 25 };
         RectAndColor out;
-        SkAssertResult(byteCode->run(make_blue_rect, (float*)in, 2, (float*)&out, 8, fRects, 16));
+        skvm::Program p = build(make_blue_rect);
+        Args args(gRects);
+        args.add(&in, 2);
+        args.add(&out, 8);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out.fRect.width() == 15);
         REPORTER_ASSERT(r, out.fRect.height() == 25);
         SkColor4f blue = { 0.0f, 1.0f, 0.0f, 1.0f };
@@ -652,29 +669,44 @@ DEF_TEST(SkSLInterpreterCompound, r) {
     {
         int in[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
         int out = 0;
-        SkAssertResult(byteCode->run(median, (float*)in, 15, (float*)&out, 1, fRects, 16));
+        skvm::Program p = build(median);
+        Args args(gRects);
+        args.add(&in, 15);
+        args.add(&out, 1);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == 8);
     }
 
-    {
+    // TODO: Doesn't work until SkVM generator supports loops
+    if (false) {
         float in[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
         float out = 0;
-        SkAssertResult(byteCode->run(sums, in, 8, &out, 1, fRects, 16));
+        skvm::Program p = build(sums);
+        Args args(gRects);
+        args.add(&in, 8);
+        args.add(&out, 1);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == static_cast<float>((7 + 1) * (7 + 2) / 2));
     }
 
     {
-        int in = 2;
         SkIRect out = SkIRect::MakeEmpty();
-        SkAssertResult(byteCode->run(get_rect, (float*)&in, 1, (float*)&out, 4, fRects, 16));
+        skvm::Program p = build(get_rect_2);
+        Args args(gRects);
+        args.add(&out, 4);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == gRects[2]);
     }
 
-    {
+    // TODO: Doesn't work until SkVM generator supports loops
+    if (false) {
         ManyRects in;
         memset(&in, 0, sizeof(in));
         in.fNumRects = 2;
-        SkAssertResult(byteCode->run(fill_rects, (float*)&in, 33, nullptr, 0, fRects, 16));
+        skvm::Program p = build(fill_rects);
+        Args args(gRects);
+        args.add(&in, 33);
+        p.eval(1, args.fArgs.data());
         ManyRects expected;
         memset(&expected, 0, sizeof(expected));
         expected.fNumRects = 2;
@@ -740,12 +772,11 @@ DEF_TEST(SkSLInterpreterReturnThenCall, r) {
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float xs[] = { -2.0f, 0.0f, 3.0f, -1.0f };
-    const void* uniforms = nullptr;
-    p.eval(4, uniforms, xs);
+    p.eval(4, xs);
 
     REPORTER_ASSERT(r, xs[0] == -2.0f);
     REPORTER_ASSERT(r, xs[1] ==  1.0f);
@@ -763,14 +794,13 @@ DEF_TEST(SkSLInterpreterEarlyReturn, r) {
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float xs[] = { 1.0f, 3.0f },
           ys[] = { 2.0f, 2.0f };
     float rets[2];
-    const void* uniforms = nullptr;
-    p.eval(2, uniforms, xs, ys, rets);
+    p.eval(2, xs, ys, rets);
 
     REPORTER_ASSERT(r, rets[0] == 1.0f);
     REPORTER_ASSERT(r, rets[1] == 2.0f);
@@ -820,12 +850,11 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
 
     auto test_fn = [&](const SkSL::FunctionDefinition* fn, float in, float expected) {
         skvm::Builder b;
-        SkSL::ProgramToSkVM(*program, *fn, &b);
+        SkSL::ProgramToSkVM(*program, *fn, &b, /*uniforms=*/{});
         skvm::Program p = b.done();
 
         float out = 0.0f;
-        const void* uniforms = nullptr;
-        p.eval(1, uniforms, &in, &out);
+        p.eval(1, &in, &out);
         REPORTER_ASSERT(r, out == expected);
     };
 
