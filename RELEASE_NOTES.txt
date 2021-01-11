@@ -6,10 +6,14 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Add SkShadowUtils::GetLocalBounds. Generates bounding box for shadows
+    relative to path.
+    https://review.skia.org/351922
+
   * Removed SkPerlinNoiseShader::MakeImprovedNoise.
     https://review.skia.org/352057
 
-  * Removed deperated version of MakeFromYUVATextures. Use the version
+  * Removed deprecated version of MakeFromYUVATextures. Use the version
     that takes GrYUVABackendTextures instead.
     https://review.skia.org/345174
 
