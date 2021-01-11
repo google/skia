@@ -301,7 +301,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
     }
     if (fKind == Program::kRuntimeEffect_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
-            *baseType != *fContext.fFragmentProcessor_Type) {
+            *baseType != *fContext.fTypes.fFragmentProcessor) {
             fErrors.error(decls.fOffset, "'in' variables not permitted in runtime effects");
         }
     }
@@ -315,7 +315,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
             fErrors.error(decls.fOffset, "'marker' is only permitted on 'uniform' variables");
         }
-        if (*baseType != *fContext.fFloat4x4_Type) {
+        if (*baseType != *fContext.fTypes.fFloat4x4) {
             fErrors.error(decls.fOffset, "'marker' is only permitted on float4x4 variables");
         }
     }
@@ -380,7 +380,8 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                 }
                 const ASTNode& rawSize = *iter++;
                 if (rawSize) {
-                    auto size = this->coerce(this->convertExpression(rawSize), *fContext.fInt_Type);
+                    auto size = this->coerce(this->convertExpression(rawSize),
+                                             *fContext.fTypes.fInt);
                     if (!size) {
                         return {};
                     }
@@ -404,7 +405,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                                               varData.fName, type, fIsBuiltinCode, storage);
         if (var->name() == Compiler::RTADJUST_NAME) {
             SkASSERT(!fRTAdjust);
-            SkASSERT(var->type() == *fContext.fFloat4_Type);
+            SkASSERT(var->type() == *fContext.fTypes.fFloat4);
             fRTAdjust = var.get();
         }
         std::unique_ptr<Expression> value;
@@ -479,7 +480,7 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
     SkASSERT(n.fKind == ASTNode::Kind::kIf);
     auto iter = n.begin();
     std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
-                                                    *fContext.fBool_Type);
+                                                    *fContext.fTypes.fBool);
     if (!test) {
         return nullptr;
     }
@@ -534,7 +535,7 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     ++iter;
     std::unique_ptr<Expression> test;
     if (*iter) {
-        test = this->coerce(this->convertExpression(*iter), *fContext.fBool_Type);
+        test = this->coerce(this->convertExpression(*iter), *fContext.fTypes.fBool);
         if (!test) {
             return nullptr;
         }
@@ -563,7 +564,7 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr
         return nullptr;
     }
 
-    test = this->coerce(std::move(test), *fContext.fBool_Type);
+    test = this->coerce(std::move(test), *fContext.fTypes.fBool);
     if (!test) {
         return nullptr;
     }
@@ -600,7 +601,7 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
         return nullptr;
     }
     std::unique_ptr<Expression> test =
-            this->coerce(this->convertExpression(*(iter++)), *fContext.fBool_Type);
+            this->coerce(this->convertExpression(*(iter++)), *fContext.fTypes.fBool);
     if (!test) {
         return nullptr;
     }
@@ -615,9 +616,9 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
     if (!value) {
         return nullptr;
     }
-    if (value->type() != *fContext.fUInt_Type &&
+    if (value->type() != *fContext.fTypes.fUInt &&
         value->type().typeKind() != Type::TypeKind::kEnum) {
-        value = this->coerce(std::move(value), *fContext.fInt_Type);
+        value = this->coerce(std::move(value), *fContext.fTypes.fInt);
         if (!value) {
             return nullptr;
         }
@@ -685,7 +686,7 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
         if (!result) {
             return nullptr;
         }
-        if (fCurrentFunction->returnType() == *fContext.fVoid_Type) {
+        if (fCurrentFunction->returnType() == *fContext.fTypes.fVoid) {
             fErrors.error(result->fOffset, "may not return a value from a void function");
             return nullptr;
         } else {
@@ -696,7 +697,7 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
         }
         return std::unique_ptr<Statement>(new ReturnStatement(std::move(result)));
     } else {
-        if (fCurrentFunction->returnType() != *fContext.fVoid_Type) {
+        if (fCurrentFunction->returnType() != *fContext.fTypes.fVoid) {
             fErrors.error(r.fOffset, "expected function to return '" +
                                      fCurrentFunction->returnType().displayName() + "'");
         }
@@ -741,7 +742,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             fModifiers->addToPool(invokeModifiers),
             "_invoke",
             std::vector<const Variable*>(),
-            fContext.fVoid_Type.get(),
+            fContext.fTypes.fVoid.get(),
             fIsBuiltinCode));
     auto invokeDef = std::make_unique<FunctionDefinition>(/*offset=*/-1, invokeDecl, fIsBuiltinCode,
                                                           std::move(main));
@@ -754,7 +755,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx),
             Token::Kind::TK_LT,
             std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations),
-            fContext.fBool_Type.get());
+            fContext.fTypes.fBool.get());
     auto next = std::make_unique<PostfixExpression>(
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
                                                 VariableReference::RefKind::kReadWrite),
@@ -777,7 +778,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                 VariableReference::RefKind::kWrite),
             Token::Kind::TK_EQ,
             std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0),
-            fContext.fInt_Type.get());
+            fContext.fTypes.fInt.get());
     auto initializer = std::make_unique<ExpressionStatement>(std::move(assignment));
     auto loop = std::make_unique<ForStatement>(/*offset=*/-1,
                                                std::move(initializer),
@@ -825,7 +826,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     auto Op = [&](std::unique_ptr<Expression> left, Token::Kind op,
                   std::unique_ptr<Expression> right) -> std::unique_ptr<Expression> {
         return std::make_unique<BinaryExpression>(-1, std::move(left), op, std::move(right),
-                                                  fContext.fFloat2_Type.get());
+                                                  fContext.fTypes.fFloat2.get());
     };
 
     static const ComponentArray kXYIndices{0, 1};
@@ -844,7 +845,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     children.push_back(Swizzle(Pos(), kWIndex));
     std::unique_ptr<Expression> result = Op(Pos(), Token::Kind::TK_EQ,
                                  std::make_unique<Constructor>(/*offset=*/-1,
-                                                               fContext.fFloat4_Type.get(),
+                                                               fContext.fTypes.fFloat4.get(),
                                                                std::move(children)));
     return std::make_unique<ExpressionStatement>(std::move(result));
 }
@@ -919,7 +920,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                       "functions may not return type '" + returnType->displayName() + "'");
         return;
     }
-    if (!fIsBuiltinCode && *returnType != *fContext.fVoid_Type &&
+    if (!fIsBuiltinCode && *returnType != *fContext.fTypes.fVoid &&
         returnType->componentType().isOpaque()) {
         fErrors.error(f.fOffset,
                       "functions may not return opaque type '" + returnType->displayName() + "'");
@@ -947,7 +948,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters.
         // (You can pass other opaque types to functions safely; this restriction is
         // fragment-processor specific.)
-        if ((*type == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
+        if ((*type == *fContext.fTypes.fFragmentProcessor && !fIsBuiltinCode) ||
             !typeIsAllowed(type)) {
             fErrors.error(param.fOffset,
                           "parameters of type '" + type->displayName() + "' not allowed");
@@ -971,7 +972,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
 
     auto paramIsCoords = [&](int idx) {
-        return parameters[idx]->type() == *fContext.fFloat2_Type &&
+        return parameters[idx]->type() == *fContext.fTypes.fFloat2 &&
                parameters[idx]->modifiers().fFlags == 0 &&
                parameters[idx]->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     };
@@ -980,7 +981,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         switch (fKind) {
             case Program::kRuntimeEffect_Kind: {
                 // (half4|float4) main()  -or-  (half4|float4) main(float2)
-                if (*returnType != *fContext.fHalf4_Type && *returnType != *fContext.fFloat4_Type) {
+                if (*returnType != *fContext.fTypes.fHalf4 &&
+                    *returnType != *fContext.fTypes.fFloat4) {
                     fErrors.error(f.fOffset, "'main' must return: 'vec4', 'float4', or 'half4'");
                     return;
                 }
@@ -993,7 +995,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 break;
             }
             case Program::kFragmentProcessor_Kind: {
-                if (*returnType != *fContext.fHalf4_Type) {
+                if (*returnType != *fContext.fTypes.fHalf4) {
                     fErrors.error(f.fOffset, ".fp 'main' must return 'half4'");
                     return;
                 }
@@ -1174,7 +1176,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 }
                 if (&vd.var() == fRTAdjust) {
                     foundRTAdjust = true;
-                    SkASSERT(vd.var().type() == *fContext.fFloat4_Type);
+                    SkASSERT(vd.var().type() == *fContext.fTypes.fFloat4);
                     fRTAdjustFieldIndex = fields.size();
                 }
                 fields.push_back(Type::Field(vd.var().modifiers(), vd.var().name(),
@@ -1332,7 +1334,7 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     }
     const Type* result = &symbol->as<Type>();
     const bool isArray = (type.begin() != type.end());
-    if (*result == *fContext.fVoid_Type) {
+    if (*result == *fContext.fTypes.fVoid) {
         if (!allowVoid) {
             fErrors.error(type.fOffset, "type '" + td.fName + "' not allowed in this context");
             return nullptr;
@@ -1437,7 +1439,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
                 !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
                 !modifiers.fLayout.fKey &&
                 modifiers.fLayout.fBuiltin == -1 &&
-                var->type() != *fContext.fFragmentProcessor_Type &&
+                var->type() != *fContext.fTypes.fFragmentProcessor &&
                 var->type().typeKind() != Type::TypeKind::kSampler) {
                 bool valid = false;
                 for (const auto& decl : fFile->root()) {
@@ -1504,7 +1506,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         return expr;
     }
     this->checkValid(*expr);
-    if (expr->type() == *fContext.fInvalid_Type) {
+    if (expr->type() == *fContext.fTypes.fInvalid) {
         return nullptr;
     }
     int offset = expr->fOffset;
@@ -1519,9 +1521,9 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         return std::make_unique<Constructor>(offset, &type, std::move(args));
     }
     std::unique_ptr<Expression> ctor;
-    if (type == *fContext.fFloatLiteral_Type) {
+    if (type == *fContext.fTypes.fFloatLiteral) {
         ctor = this->convertIdentifier(offset, "float");
-    } else if (type == *fContext.fIntLiteral_Type) {
+    } else if (type == *fContext.fTypes.fIntLiteral) {
         ctor = this->convertIdentifier(offset, "int");
     } else {
         ctor = this->convertIdentifier(offset, type.name());
@@ -1649,14 +1651,14 @@ static bool determine_binary_type(const Context& context,
                 if (rightToLeft.isPossible(allowNarrowing)) {
                     *outLeftType = &left;
                     *outRightType = &left;
-                    *outResultType = context.fBool_Type.get();
+                    *outResultType = context.fTypes.fBool.get();
                     return true;
                 }
             } else {
                 if (leftToRight.isPossible(allowNarrowing)) {
                     *outLeftType = &right;
                     *outRightType = &right;
-                    *outResultType = context.fBool_Type.get();
+                    *outResultType = context.fTypes.fBool.get();
                     return true;
                 }
             }
@@ -1665,11 +1667,11 @@ static bool determine_binary_type(const Context& context,
         case Token::Kind::TK_LOGICALOR:   // left || right
         case Token::Kind::TK_LOGICALAND:  // left && right
         case Token::Kind::TK_LOGICALXOR:  // left ^^ right
-            *outLeftType = context.fBool_Type.get();
-            *outRightType = context.fBool_Type.get();
-            *outResultType = context.fBool_Type.get();
-            return left.canCoerceTo(*context.fBool_Type, allowNarrowing) &&
-                   right.canCoerceTo(*context.fBool_Type, allowNarrowing);
+            *outLeftType = context.fTypes.fBool.get();
+            *outRightType = context.fTypes.fBool.get();
+            *outResultType = context.fTypes.fBool.get();
+            return left.canCoerceTo(*context.fTypes.fBool, allowNarrowing) &&
+                   right.canCoerceTo(*context.fTypes.fBool, allowNarrowing);
 
         case Token::Kind::TK_COMMA:  // left, right
             *outLeftType = &left;
@@ -1774,7 +1776,7 @@ static bool determine_binary_type(const Context& context,
             return false;
         }
         if (op_is_logical(op)) {
-            *outResultType = context.fBool_Type.get();
+            *outResultType = context.fTypes.fBool.get();
         }
         return true;
     }
@@ -2093,7 +2095,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
                                                               std::unique_ptr<Expression> test,
                                                               std::unique_ptr<Expression> ifTrue,
                                                               std::unique_ptr<Expression> ifFalse) {
-    test = this->coerce(std::move(test), *fContext.fBool_Type);
+    test = this->coerce(std::move(test), *fContext.fTypes.fBool);
     if (!test || !ifTrue || !ifFalse) {
         return nullptr;
     }
@@ -2722,9 +2724,9 @@ const Type* IRGenerator::typeForSetting(int offset, String name) const {
         return nullptr;
     }
     switch (found->second.fKind) {
-        case Program::Settings::Value::kBool_Kind:  return fContext.fBool_Type.get();
-        case Program::Settings::Value::kFloat_Kind: return fContext.fFloat_Type.get();
-        case Program::Settings::Value::kInt_Kind:   return fContext.fInt_Type.get();
+        case Program::Settings::Value::kBool_Kind:  return fContext.fTypes.fBool.get();
+        case Program::Settings::Value::kFloat_Kind: return fContext.fTypes.fFloat.get();
+        case Program::Settings::Value::kInt_Kind:   return fContext.fTypes.fInt.get();
     }
     SkUNREACHABLE;
     return nullptr;
@@ -2834,7 +2836,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
         return nullptr;
     }
     if (!converted->type().isInteger()) {
-        converted = this->coerce(std::move(converted), *fContext.fInt_Type);
+        converted = this->coerce(std::move(converted), *fContext.fTypes.fInt);
         if (!converted) {
             return nullptr;
         }
@@ -2886,7 +2888,7 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     }
     StringFragment field = fieldNode.getString();
     const Type& baseType = base->type();
-    if (baseType == *fContext.fSkCaps_Type) {
+    if (baseType == *fContext.fTypes.fSkCaps) {
         const Type* type = this->typeForSetting(fieldNode.fOffset, field);
         if (!type) {
             return nullptr;
@@ -2955,7 +2957,7 @@ void IRGenerator::checkValid(const Expression& expr) {
             break;
         }
         default:
-            if (expr.type() == *fContext.fInvalid_Type) {
+            if (expr.type() == *fContext.fTypes.fInvalid) {
                 fErrors.error(expr.fOffset, "invalid expression");
             }
     }
@@ -3060,9 +3062,9 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
             m.fLayout.fBuiltin = SK_INVOCATIONID_BUILTIN;
         }
         auto var = std::make_unique<Variable>(-1, fModifiers->addToPool(m), "sk_InvocationID",
-                                              fContext.fInt_Type.get(), false,
+                                              fContext.fTypes.fInt.get(), false,
                                               Variable::Storage::kGlobal);
-        auto decl = std::make_unique<VarDeclaration>(var.get(), fContext.fInt_Type.get(),
+        auto decl = std::make_unique<VarDeclaration>(var.get(), fContext.fTypes.fInt.get(),
                                                      /*arraySize=*/0, /*value=*/nullptr);
         fSymbolTable->add(std::move(var));
         fProgramElements->push_back(
