@@ -32,8 +32,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkYUVAIndex.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrDirectContext.h"
@@ -1196,12 +1194,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkYUVAIndex indices[4];
-        indices[SkYUVAIndex::kY_Index] = {0,  SkColorChannel::kR};
-        indices[SkYUVAIndex::kU_Index] = {1,  SkColorChannel::kR};
-        indices[SkYUVAIndex::kV_Index] = {2,  SkColorChannel::kR};
-        indices[SkYUVAIndex::kA_Index] = {-1, SkColorChannel::kR};
-
         canvas->translate(fOrig->width(), 0);
         canvas->save();
         for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,

@@ -7,6 +7,8 @@
 
 #include "include/gpu/GrYUVABackendTextures.h"
 
+#include "src/core/SkYUVAInfoLocation.h"
+
 static int num_channels(const GrBackendFormat& format) {
     switch (format.channelMask()) {
         case kRed_SkColorChannelFlag        : return 1;
@@ -59,13 +61,16 @@ bool GrYUVABackendTextureInfo::operator==(const GrYUVABackendTextureInfo& that) 
     return std::equal(fPlaneFormats, fPlaneFormats + n, that.fPlaneFormats);
 }
 
-bool GrYUVABackendTextureInfo::toYUVAIndices(SkYUVAIndex indices[SkYUVAIndex::kIndexCount]) const {
-    SkASSERT(indices);
+SkYUVAInfo::YUVALocations GrYUVABackendTextureInfo::toYUVALocations() const {
     uint32_t channelFlags[] = {fPlaneFormats[0].channelMask(),
                                fPlaneFormats[1].channelMask(),
                                fPlaneFormats[2].channelMask(),
                                fPlaneFormats[3].channelMask()};
-    return fYUVAInfo.toYUVAIndices(channelFlags, indices);
+    auto result = fYUVAInfo.toYUVALocations(channelFlags);
+    SkDEBUGCODE(int numPlanes;)
+    SkASSERT(SkYUVAInfo::YUVALocation::AreValidLocations(result, &numPlanes));
+    SkASSERT(numPlanes == this->numPlanes());
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -93,11 +98,14 @@ GrYUVABackendTextures::GrYUVABackendTextures(
     }
 }
 
-bool GrYUVABackendTextures::toYUVAIndices(SkYUVAIndex indices[SkYUVAIndex::kIndexCount]) const {
-    SkASSERT(indices);
+SkYUVAInfo::YUVALocations GrYUVABackendTextures::toYUVALocations() const {
     uint32_t channelFlags[] = {fTextures[0].getBackendFormat().channelMask(),
                                fTextures[1].getBackendFormat().channelMask(),
                                fTextures[2].getBackendFormat().channelMask(),
                                fTextures[3].getBackendFormat().channelMask()};
-    return fYUVAInfo.toYUVAIndices(channelFlags, indices);
+    auto result = fYUVAInfo.toYUVALocations(channelFlags);
+    SkDEBUGCODE(int numPlanes;)
+    SkASSERT(SkYUVAInfo::YUVALocation::AreValidLocations(result, &numPlanes));
+    SkASSERT(numPlanes == this->numPlanes());
+    return result;
 }
