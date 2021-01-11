@@ -1445,12 +1445,10 @@ skvm::Color ProgramToSkVM(const Program& program,
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
+                   SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature) {
     SkVMSignature ignored,
                   *signature = outSignature ? outSignature : &ignored;
-
-    skvm::Ptr uniforms = b->uniform();
-    (void)uniforms;
 
     std::vector<skvm::Ptr> argPtrs;
     std::vector<skvm::Val> argVals;
@@ -1474,7 +1472,7 @@ bool ProgramToSkVM(const Program& program,
     }
 
     skvm::Coord zeroCoord = {b->splat(0.0f), b->splat(0.0f)};
-    SkVMGenerator generator(program, b, /*uniforms=*/{}, /*device=*/zeroCoord, /*local=*/zeroCoord,
+    SkVMGenerator generator(program, b, uniforms, /*device=*/zeroCoord, /*local=*/zeroCoord,
                             /*sampleChild=*/{});
     generator.writeFunction(function, argVals, returnVals);
 
