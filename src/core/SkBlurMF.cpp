@@ -65,7 +65,6 @@ public:
     GrSurfaceProxyView filterMaskGPU(GrRecordingContext*,
                                      GrSurfaceProxyView srcView,
                                      GrColorType srcColorType,
-                                     SkAlphaType srcAlphaType,
                                      const SkMatrix& ctm,
                                      const SkIRect& maskRect) const override;
 #endif
@@ -745,7 +744,6 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrStyledShape& shape,
 GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* context,
                                                        GrSurfaceProxyView srcView,
                                                        GrColorType srcColorType,
-                                                       SkAlphaType srcAlphaType,
                                                        const SkMatrix& ctm,
                                                        const SkIRect& maskRect) const {
     // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
@@ -757,24 +755,27 @@ GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* conte
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     auto srcBounds = SkIRect::MakeSize(srcView.proxy()->dimensions());
-    auto surfaceDrawContext = SkGpuBlurUtils::GaussianBlur(context,
-                                                            srcView,
-                                                            srcColorType,
-                                                            srcAlphaType,
-                                                            nullptr,
-                                                            clipRect,
-                                                            srcBounds,
-                                                            xformedSigma,
-                                                            xformedSigma,
-                                                            SkTileMode::kClamp);
-    if (!surfaceDrawContext || !surfaceDrawContext->asTextureProxy()) {
+    GrColorInfo colorInfo(srcColorType, kPremul_SkAlphaType, /*color space*/ nullptr);
+    auto fillContext = SkGpuBlurUtils::GaussianBlur(context,
+                                                    srcView,
+                                                    std::move(colorInfo),
+                                                    clipRect,
+                                                    srcBounds,
+                                                    xformedSigma,
+                                                    xformedSigma,
+                                                    SkTileMode::kClamp);
+    if (!fillContext) {
         return {};
     }
-
     if (!isNormalBlur) {
+        // TODO: Could we have a low-level blend option for fill context to avoid having to
+        // rely on converting to a draw context here?
+        auto drawContext = fillContext->asRenderTargetContext();
+        SkASSERT(drawContext);
         GrPaint paint;
         // Blend pathTexture over blurTexture.
-        paint.setCoverageFragmentProcessor(GrTextureEffect::Make(std::move(srcView), srcAlphaType));
+        paint.setCoverageFragmentProcessor(GrTextureEffect::Make(std::move(srcView),
+                                                                 kPremul_SkAlphaType));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);
@@ -790,11 +791,14 @@ GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* conte
             paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
-        surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                     SkRect::Make(clipRect));
+        drawContext->drawRect(nullptr,
+                              std::move(paint),
+                              GrAA::kNo,
+                              SkMatrix::I(),
+                              SkRect::Make(clipRect));
     }
 
-    return surfaceDrawContext->readSurfaceView();
+    return fillContext->readSurfaceView();
 }
 
 #endif // SK_SUPPORT_GPU

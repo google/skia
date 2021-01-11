@@ -421,7 +421,6 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
     auto filteredMaskView = filter->filterMaskGPU(dContext,
                                                   maskRTC->readSurfaceView(),
                                                   maskRTC->colorInfo().colorType(),
-                                                  maskRTC->colorInfo().alphaType(),
                                                   viewMatrix,
                                                   *maskRect);
     if (!filteredMaskView) {

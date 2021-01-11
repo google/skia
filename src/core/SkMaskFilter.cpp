@@ -346,7 +346,6 @@ bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
 GrSurfaceProxyView SkMaskFilterBase::filterMaskGPU(GrRecordingContext*,
                                                    GrSurfaceProxyView view,
                                                    GrColorType srcColorType,
-                                                   SkAlphaType srcAlphaType,
                                                    const SkMatrix& ctm,
                                                    const SkIRect& maskRect) const {
     return {};
