@@ -264,7 +264,8 @@ private:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
         const auto& stroke = shader.fStroke;
         float numSegmentsInJoin;
@@ -1112,7 +1113,8 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
         const auto& stroke = shader.fStroke;
 

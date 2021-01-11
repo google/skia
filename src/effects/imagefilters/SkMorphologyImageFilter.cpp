@@ -277,7 +277,8 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
 
     protected:
         void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrFragmentProcessor& proc) override {
+                       const GrFragmentProcessor& proc,
+                       SkIPoint viewportOffset) override {
             const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
             if (m.fUseRange) {
                 pdman.set2f(fRangeUni, m.fRange[0], m.fRange[1]);

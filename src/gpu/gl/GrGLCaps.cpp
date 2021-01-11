@@ -583,6 +583,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
+        fMaxWindowRectangles = 0;
     }
 
 #ifdef SK_BUILD_FOR_WIN
@@ -734,6 +735,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (GR_IS_GR_GL_ES(standard)) {
         fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
+        fTiledRenderingSupport = false;
     }
 
     if (kARM_GrGLVendor == ctxInfo.vendor()) {

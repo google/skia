@@ -81,7 +81,8 @@ return %s;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrMagnifierEffect& _outer = _proc.cast<GrMagnifierEffect>();
         {
             pdman.set1f(xInvZoomVar, (_outer.xInvZoom));

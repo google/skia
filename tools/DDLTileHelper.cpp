@@ -44,6 +44,10 @@ DDLTileHelper::TileData::~TileData() {}
 
 void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureData,
                                                     const DDLPromiseImageHelper& helper) {
+    if (!this->initialized()) {
+        return;
+    }
+
     SkASSERT(!fReconstitutedPicture);
 
     auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
@@ -65,6 +69,10 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 }
 
 void DDLTileHelper::TileData::createDDL() {
+    if (!this->initialized()) {
+        return;
+    }
+
     SkASSERT(!fDisplayList && fReconstitutedPicture);
 
     auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
@@ -87,6 +95,9 @@ void DDLTileHelper::TileData::createDDL() {
         }
     }
 
+    //SkDebugf("recording clip %d %d wh: %d %d\n",
+//             fClip.fLeft, fClip.fTop, fClip.width(), fClip.height());
+
     // We always record the DDL in the (0,0) .. (clipWidth, clipHeight) coordinates
     recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
     recordingCanvas->translate(-fClip.fLeft, -fClip.fTop);
@@ -107,6 +118,9 @@ void DDLTileHelper::createComposeDDL() {
 
     for (int i = 0; i < this->numTiles(); ++i) {
         TileData* tile = &fTiles[i];
+        if (!tile->initialized()) {
+            continue;
+        }
 
         sk_sp<SkImage> promiseImage = tile->makePromiseImageForDst(&recorder);
 
@@ -116,6 +130,10 @@ void DDLTileHelper::createComposeDDL() {
 
         SkASSERT(promiseImage->bounds().contains(srcRect));
 
+//        SkDebugf("Composing %d %d wh: %d %d to %.2f %.2f wh: %.2f %.2f\n",
+//                 srcRect.fLeft, srcRect.fTop, srcRect.width(), srcRect.height(),
+//                 dstRect.fLeft, dstRect.fTop, dstRect.width(), dstRect.height());
+
         recordingCanvas->drawImageRect(promiseImage.get(), srcRect, dstRect, nullptr);
     }
 
@@ -124,6 +142,10 @@ void DDLTileHelper::createComposeDDL() {
 }
 
 void DDLTileHelper::TileData::precompile(GrDirectContext* direct) {
+    if (!this->initialized()) {
+        return;
+    }
+
     SkASSERT(fDisplayList);
 
     SkDeferredDisplayList::ProgramIterator iter(direct, fDisplayList.get());
@@ -222,6 +244,10 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, Tile
 }
 
 void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* tile) {
+    if (!tile->initialized()) {
+        return;
+    }
+
     SkASSERT(tile->fCallbackContext);
 
     // TODO: it seems that, on the Linux bots, backend texture creation is failing
@@ -264,14 +290,17 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
             SkASSERT(viewport.contains(clip));
 
             static const uint32_t kMaxPad = 64;
-            int32_t lPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
-            int32_t tPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
-            int32_t rPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
-            int32_t bPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
+            int32_t lPad = addRandomPaddingToDst ? 10 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
+            int32_t tPad = addRandomPaddingToDst ? 30 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
+            int32_t rPad = addRandomPaddingToDst ? 50 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
+            int32_t bPad = addRandomPaddingToDst ? 50 /*rand.nextRangeU(0, kMaxPad)*/ : 0;
 
+            //SkDebugf("size %d %d pad %d %d %d %d\n", xSize, ySize, lPad, tPad, rPad, bPad);
             fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
                                            {lPad, tPad, rPad, bPad});
+            break;
         }
+        break;
     }
 }
 
@@ -318,6 +347,9 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
 
     for (int i = 0; i < this->numTiles(); ++i) {
         TileData* tile = &fTiles[i];
+        if (!tile->initialized()) {
+            continue;
+        }
 
         // On a recording thread:
         //    generate the tile's DDL
@@ -377,6 +409,9 @@ void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrDirectContex
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {
             TileData* tile = &fTiles[i];
+            if (!tile->initialized()) {
+                continue;
+            }
 
             taskGroup->add([direct, tile]() { TileData::CreateBackendTexture(direct, tile); });
         }
