@@ -1030,8 +1030,44 @@ namespace skvm {
 
     // Shhh... it's a secret, but Half is secretly F32 underneath for now!
     // (This will definitely change. :P)
-    F32  Builder::to_F32 (Half x) { return {x.builder, x.id}; }
-    Half Builder::to_Half(F32  x) { return {x.builder, x.id}; }
+    using HM = HalfMask;
+    F32    Builder::to_F32 (Half x) { return {x.builder, x.id}; }
+    Half   Builder::to_Half(F32  x) { return {x.builder, x.id}; }
+    static I32      to_I32 (HM   x) { return {x.builder, x.id}; }
+    static HM       to_HM  (I32  x) { return {x.builder, x.id}; }
+
+    Half Builder::add(Half x, Half y) { return to_Half(add(to_F32(x), to_F32(y))); }
+    Half Builder::sub(Half x, Half y) { return to_Half(sub(to_F32(x), to_F32(y))); }
+    Half Builder::mul(Half x, Half y) { return to_Half(mul(to_F32(x), to_F32(y))); }
+    Half Builder::div(Half x, Half y) { return to_Half(div(to_F32(x), to_F32(y))); }
+    Half Builder::min(Half x, Half y) { return to_Half(min(to_F32(x), to_F32(y))); }
+    Half Builder::max(Half x, Half y) { return to_Half(max(to_F32(x), to_F32(y))); }
+
+    Half Builder:: sqrt(Half x) { return to_Half( sqrt(to_F32(x))); }
+    Half Builder::  abs(Half x) { return to_Half(  abs(to_F32(x))); }
+    Half Builder:: ceil(Half x) { return to_Half( ceil(to_F32(x))); }
+    Half Builder::floor(Half x) { return to_Half(floor(to_F32(x))); }
+
+    Half Builder::lerp(Half lo, Half hi, Half t) {
+        return to_Half(lerp(to_F32(lo), to_F32(hi), to_F32(t)));
+    }
+
+
+    HM Builder:: eq(Half x, Half y) { return to_HM( eq(to_F32(x), to_F32(y))); }
+    HM Builder::neq(Half x, Half y) { return to_HM(neq(to_F32(x), to_F32(y))); }
+    HM Builder::lt (Half x, Half y) { return to_HM(lt (to_F32(x), to_F32(y))); }
+    HM Builder::lte(Half x, Half y) { return to_HM(lte(to_F32(x), to_F32(y))); }
+    HM Builder::gt (Half x, Half y) { return to_HM(gt (to_F32(x), to_F32(y))); }
+    HM Builder::gte(Half x, Half y) { return to_HM(gte(to_F32(x), to_F32(y))); }
+
+    HM Builder::bit_and  (HM x, HM y) { return to_HM(bit_and  (to_I32(x), to_I32(y))); }
+    HM Builder::bit_or   (HM x, HM y) { return to_HM(bit_or   (to_I32(x), to_I32(y))); }
+    HM Builder::bit_xor  (HM x, HM y) { return to_HM(bit_xor  (to_I32(x), to_I32(y))); }
+    HM Builder::bit_clear(HM x, HM y) { return to_HM(bit_clear(to_I32(x), to_I32(y))); }
+
+    Half Builder::select(HM c, Half t, Half e) {
+        return to_Half(select(to_I32(c), to_F32(t), to_F32(e)));
+    }
 
     bool SkColorType_to_PixelFormat(SkColorType ct, PixelFormat* f) {
         auto UNORM = PixelFormat::UNORM,
@@ -1264,7 +1300,23 @@ namespace skvm {
         *b *= invA;
     }
 
+    void Builder::unpremul(Half* r, Half* g, Half* b, Half a) {
+        skvm::Half invA = 1.0f / a,
+                   inf  = to_Half(pun_to_F32(splat(0x7f800000)));
+        // If a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
+        invA = select(invA < inf, invA
+                                , 0.0f);
+        *r *= invA;
+        *g *= invA;
+        *b *= invA;
+    }
+
     void Builder::premul(F32* r, F32* g, F32* b, F32 a) {
+        *r *= a;
+        *g *= a;
+        *b *= a;
+    }
+    void Builder::premul(Half* r, Half* g, Half* b, Half a) {
         *r *= a;
         *g *= a;
         *b *= a;
@@ -1316,13 +1368,53 @@ namespace skvm {
         return {h, s, l, c.a};
     }
 
+    HalfHSLA Builder::to_hsla(HalfColor c) {
+        Half mx = max(max(c.r,c.g),c.b),
+             mn = min(min(c.r,c.g),c.b),
+              d = mx - mn,
+           invd = 1.0f / d,
+        g_lt_b = select(c.g < c.b, half(6.0f)
+                                 , half(0.0f));
+
+        Half h = (1/6.0f) * select(mx == mn,  0.0f,
+                            select(mx == c.r, invd * (c.g - c.b) + g_lt_b,
+                            select(mx == c.g, invd * (c.b - c.r) + 2.0f
+                                            , invd * (c.r - c.g) + 4.0f)));
+
+        Half sum = mx + mn,
+               l = sum * 0.5f,
+               s = select(mx == mn, 0.0f
+                                  , d / select(l > 0.5f, 2.0f - sum
+                                                       , sum));
+        return {h, s, l, c.a};
+    }
+
     Color Builder::to_rgba(HSLA c) {
         // See GrRGBToHSLFilterEffect.fp
 
         auto [h,s,l,a] = c;
         F32 x = s * (1.0f - abs(l + l - 1.0f));
 
-        auto hue_to_rgb = [&,l=l](auto hue) {
+        auto hue_to_rgb = [&,l=l](F32 hue) {
+            auto q = abs(6.0f * fract(hue) - 3.0f) - 1.0f;
+            return x * (clamp01(q) - 0.5f) + l;
+        };
+
+        return {
+            hue_to_rgb(h + 0/3.0f),
+            hue_to_rgb(h + 2/3.0f),
+            hue_to_rgb(h + 1/3.0f),
+            c.a,
+        };
+    }
+
+    HalfColor Builder::to_rgba(HalfHSLA c) {
+        // See GrRGBToHSLFilterEffect.fp
+
+        auto [h,s,l,a] = c;
+        Half x = s * (1.0f - abs(l + l - 1.0f));
+
+        auto hue_to_rgb = [&,l=l](Half hue) {
             auto q = abs(6.0f * fract(hue) - 3.0f) - 1.0f;
             return x * (clamp01(q) - 0.5f) + l;
         };
