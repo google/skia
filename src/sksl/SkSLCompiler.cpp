@@ -85,7 +85,7 @@ public:
 };
 
 Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
-        : fContext(std::make_shared<Context>())
+        : fContext(std::make_shared<Context>(/*errors=*/*this))
         , fCaps(caps)
         , fInliner(fContext.get())
         , fFlags(flags)
@@ -93,7 +93,7 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
     SkASSERT(fCaps);
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
     fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
-    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), fCaps, *this);
+    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), fCaps);
 
 #define TYPE(t) fContext->fTypes.f ## t .get()
 

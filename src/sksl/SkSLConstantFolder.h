@@ -26,7 +26,6 @@ class ConstantFolder {
 public:
     /** Simplifies the binary expression `left OP right`. Returns null if it can't be simplified. */
     static std::unique_ptr<Expression> Simplify(const Context& context,
-                                                ErrorReporter& errors,
                                                 const Expression& left,
                                                 Token::Kind op,
                                                 const Expression& right);
