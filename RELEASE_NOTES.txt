@@ -6,6 +6,15 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Numerous changes to SkRuntimeEffect, aligning the capabilities and restrictions with
+    The OpenGL ES Shading Language 1.00 (aka, the shading language of OpenGL ES2 and WebGL 1.0).
+    All built-in functions from sections 8.1 through 8.6 implemented & tested on all backends.
+    Removed types and features that require newer versions of GLSL:
+      https://review.skia.org/346657  [Non-square matrices]
+      https://review.skia.org/347046  [uint, short, ushort, byte, ubyte]
+      https://review.skia.org/349056  [while and do-while loops]
+      https://review.skia.org/350030  [Bitwise operators and integer remainder]
+
   * Add SkShadowUtils::GetLocalBounds. Generates bounding box for shadows
     relative to path.
     https://review.skia.org/351922
