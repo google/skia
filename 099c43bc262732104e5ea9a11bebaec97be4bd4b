@@ -16,6 +16,23 @@
       "message": "felt like writing some c++ today. ",
       "revId": "099c43bc262732104e5ea9a11bebaec97be4bd4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb7cb991_6e8fdcea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-11T15:03:41Z",
+      "side": 1,
+      "message": "We still can\u0027t use C++17 library features like std::variant.  (Though it may be time to check in on that again.)  Want to spin off the parts of this CL unrelated to std::variant?",
+      "revId": "099c43bc262732104e5ea9a11bebaec97be4bd4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
