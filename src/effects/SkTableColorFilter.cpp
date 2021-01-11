@@ -105,14 +105,14 @@ public:
         return true;
     }
 
-    skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
-                          SkColorSpace* dstCS,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
+    skvm::HalfColor onProgram(skvm::Builder* p, skvm::HalfColor c,
+                              SkColorSpace* dstCS,
+                              skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
 
-        auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
-            skvm::I32     index = to_unorm(8, clamp01(c));
-            skvm::Uniform table = uniforms->pushPtr(bytePtr);
-            return from_unorm(8, gather8(table, index));
+        auto apply_table_to_component = [&](skvm::Half c, const uint8_t* bytePtr) -> skvm::Half {
+            skvm::I32     index = to_unorm(8, to_F32(clamp01(c)));  // TODO: native to_unorm?
+            skvm::Uniform table = uniforms->pushPtr(bytePtr);      // TODO: gather with HalfInt?
+            return to_Half(from_unorm(8, gather8(table, index)));  // TODO: native from_unorm?
         };
 
         c = unpremul(c);

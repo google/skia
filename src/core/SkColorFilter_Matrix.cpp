@@ -80,7 +80,7 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
-
+#if 1
 skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
                                             SkColorSpace* /*dstCS*/,
                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
@@ -121,6 +121,48 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 
     return premul(clamp01(c));
 }
+#else
+skvm::HalfColor SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::HalfColor c,
+                                                SkColorSpace* /*dstCS*/,
+                                                skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+    auto apply_matrix = [&](auto xyzw) {
+        auto dot = [&](int j) -> skvm::Half {
+            auto custom_mad = [&](float f, skvm::Half m, skvm::Half a) {
+                // skvm::Builder won't fold f*0 == 0, but we shouldn't encounter NaN here.
+                // While looking, also simplify f == ±1.  Anything else becomes a uniform.
+                return f ==  0.0f ? a
+                     : f == +1.0f ? a + m
+                     : f == -1.0f ? a - m
+                     : m * p->uniformH(uniforms->pushF(f)) + a;
+            };
+
+            // Similarly, let skvm::Builder fold away the additive bias when zero.
+            const float b = fMatrix[4+j*5];
+            skvm::Half bias = b == 0.0f ? p->half(0.0f)
+                                        : p->uniformH(uniforms->pushF(b));
+
+            auto [x,y,z,w] = xyzw;
+            return custom_mad(fMatrix[0+j*5], x,
+                   custom_mad(fMatrix[1+j*5], y,
+                   custom_mad(fMatrix[2+j*5], z,
+                   custom_mad(fMatrix[3+j*5], w, bias))));
+        };
+        return std::make_tuple(dot(0), dot(1), dot(2), dot(3));
+    };
+
+    c = unpremul(c);
+
+    if (fDomain == Domain::kHSLA) {
+        auto [h,s,l,a] = apply_matrix(p->to_hsla(c));
+        c = p->to_rgba({h,s,l,a});
+    } else {
+        auto [r,g,b,a] = apply_matrix(c);
+        c = {r,g,b,a};
+    }
+
+    return premul(clamp01(c));
+}
+#endif
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"

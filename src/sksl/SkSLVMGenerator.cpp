@@ -1030,13 +1030,14 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         case Intrinsic::kInverseSqrt:
             return unary(args[0], [](skvm::F32 x) { return 1.0f / skvm::sqrt(x); });
 
-        case Intrinsic::kAbs: return unary(args[0], skvm::abs);
         case Intrinsic::kSign:
             return unary(args[0], [](skvm::F32 x) { return select(x < 0, -1.0f,
                                                            select(x > 0, +1.0f, 0.0f)); });
-        case Intrinsic::kFloor: return unary(args[0], skvm::floor);
-        case Intrinsic::kCeil:  return unary(args[0], skvm::ceil);
-        case Intrinsic::kFract: return unary(args[0], skvm::fract);
+        case Intrinsic::kAbs:   return unary(args[0], [](skvm::F32 x) { return skvm::abs  (x); });
+        case Intrinsic::kFloor: return unary(args[0], [](skvm::F32 x) { return skvm::floor(x); });
+        case Intrinsic::kCeil:  return unary(args[0], [](skvm::F32 x) { return skvm::ceil (x); });
+        case Intrinsic::kFract: return unary(args[0], [](skvm::F32 x) { return skvm::fract(x); });
+
         case Intrinsic::kMod:
             return binary([](skvm::F32 x, skvm::F32 y) { return x - y*skvm::floor(x / y); });
 
