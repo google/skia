@@ -32,6 +32,32 @@
       "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345338?revision\u003d10",
       "fixSuggestions": [],
       "key": {
+        "uuid": "245b1e4e_5f5c7197",
+        "filename": "infra/bots/README.recipes.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-11T15:28:03Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 72,
+        "startChar": 5,
+        "endLine": 72,
+        "endChar": 14
+      },
+      "revId": "f0dda4142b093d0f5c6f08d719f1c3e47880acbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007145925",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345338?revision\u003d10",
+      "fixSuggestions": [],
+      "key": {
         "uuid": "b822e0e6_d9e47b27",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 10
@@ -41,6 +67,32 @@
         "id": 13964
       },
       "writtenOn": "2021-01-08T18:02:14Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 152,
+        "startChar": 111,
+        "endLine": 152,
+        "endChar": 116
+      },
+      "revId": "f0dda4142b093d0f5c6f08d719f1c3e47880acbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000007145925",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345338?revision\u003d10",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a330d297_98fdfdb7",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-01-11T15:28:03Z",
       "side": 1,
       "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
       "range": {
