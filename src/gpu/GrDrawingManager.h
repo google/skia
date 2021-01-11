@@ -184,20 +184,6 @@ private:
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 
-    // TODO: this should be removed. The DDLTask has a ref on 'newTarget' and should
-    // just use that pointer.
-    void addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget);
-    bool isDDLTarget(GrSurfaceProxy* newTarget) {
-        return SkToBool(fDDLTargets.find(newTarget->uniqueID().asUInt()));
-    }
-    void clearDDLTargets() { fDDLTargets.reset(); }
-
-    // We play a trick with lazy proxies to retarget the base target of a DDL to the SkSurface
-    // it is replayed on. 'fDDLTargets' stores this mapping from SkSurface unique proxy ID
-    // to the DDL's lazy proxy.
-    // Note: we do not expect a whole lot of these per flush
-    SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
-
     struct SurfaceIDKeyTraits {
         static uint32_t GetInvalidKey() {
             return GrSurfaceProxy::UniqueID::InvalidID().asUInt();
