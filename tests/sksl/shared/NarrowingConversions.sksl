@@ -1,0 +1,13 @@
+ubyte ub = 1;
+
+void main() {
+    byte b = ub;
+    ushort us = b;
+    short s = us;
+    uint ui = s;
+    int i = ui;
+    half h = i;
+    float f = h;
+
+    sk_FragColor.x = half(f * h * i * ui * s * us * b * ub);
+}
