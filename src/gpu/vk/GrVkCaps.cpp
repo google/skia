@@ -395,7 +395,18 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fPreferCachedCpuMemory = false;
     }
 
-    fPreferDiscardableMSAAAttachment = true;
+    // On desktop GPUs we have found that this does not provide much benefit. The perf results show
+    // a mix of regressions, some improvements, and lots of no changes. Thus it is no worth enabling
+    // this (especially with the rendering artifacts) on desktop.
+    //
+    // On Adreno devices we were expecting to see perf gains. But instead there were actually a lot
+    // of perf regressions and only a few perf wins. This needs some follow up with qualcomm since
+    // we do expect this to be a big win on tilers.
+    //
+    // On ARM devices we are seeing an average perf win of around 50%-60% across the board.
+    if (kARM_VkVendor == properties.vendorID) {
+        fPreferDiscardableMSAAAttachment = true;
+    }
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
