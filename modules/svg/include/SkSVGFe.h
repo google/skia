@@ -46,6 +46,13 @@ protected:
     bool parseAndSetAttribute(const char*, const char*) override;
 
 private:
+    /**
+     * Resolves the rect specified by the x, y, width and height attributes (if specified) on this
+     * filter effect. These attributes are resolved according to the given length context and
+     * the value of 'primitiveUnits' on the parent <filter> element.
+     */
+    SkRect resolveBoundaries(const SkSVGRenderContext&, const SkSVGFilterContext&) const;
+
     using INHERITED = SkSVGHiddenContainer;
 };
 
