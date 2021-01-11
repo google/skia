@@ -22,6 +22,30 @@
       },
       "revId": "7f5346ae8eea7865164531384e7477b1e9168fa5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb73c054_c73a4238",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T17:55:28Z",
+      "side": 1,
+      "message": "OK, SGTM.",
+      "parentUuid": "51060a46_44fd010e",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 38
+      },
+      "revId": "7f5346ae8eea7865164531384e7477b1e9168fa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
