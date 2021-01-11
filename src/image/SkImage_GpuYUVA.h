@@ -15,7 +15,6 @@
 class GrDirectContext;
 class GrRecordingContext;
 class GrTexture;
-struct SkYUVASizeInfo;
 
 // Wraps the 3 or 4 planes of a YUVA image for consumption by the GPU.
 // Initially any direct rendering will be done by passing the individual planes to a shader.
@@ -31,7 +30,7 @@ public:
                     SkYUVColorSpace,
                     GrSurfaceProxyView views[],
                     int numViews,
-                    const SkYUVAIndex[4],
+                    const SkYUVAInfo::YUVALocations&,
                     sk_sp<SkColorSpace>);
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
@@ -80,7 +79,7 @@ public:
     static bool MakeTempTextureProxies(GrRecordingContext*,
                                        const GrBackendTexture yuvaTextures[],
                                        int numTextures,
-                                       const SkYUVAIndex[4],
+                                       const SkYUVAInfo::YUVALocations&,
                                        GrSurfaceOrigin imageOrigin,
                                        GrSurfaceProxyView tempViews[4],
                                        sk_sp<GrRefCntedCallback> releaseHelper);
@@ -94,7 +93,7 @@ private:
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     mutable GrSurfaceProxyView       fViews[4];
     int                              fNumViews;
-    SkYUVAIndex                      fYUVAIndices[4];
+    SkYUVAInfo::YUVALocations        fYUVALocations;
     const SkYUVColorSpace            fYUVColorSpace;
 
     // If this is non-null then the planar data should be converted from fFromColorSpace to
