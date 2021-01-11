@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "src/xml/SkXMLParser.h"
-
-#include "expat.h"
-
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "src/xml/SkXMLParser.h"
+
+#include <expat.h>
+
+#include <vector>
 
 static char const* const gErrorStrings[] = {
     "empty or missing file ",
@@ -70,21 +71,21 @@ struct ParsingContext {
         , fXMLParser(XML_ParserCreate_MM(nullptr, &sk_XML_alloc, nullptr)) { }
 
     void flushText() {
-        if (!fBufferedText.isEmpty()) {
-            fParser->text(fBufferedText.c_str(), SkTo<int>(fBufferedText.size()));
-            fBufferedText.reset();
+        if (!fBufferedText.empty()) {
+            fParser->text(fBufferedText.data(), SkTo<int>(fBufferedText.size()));
+            fBufferedText.clear();
         }
     }
 
     void appendText(const char* txt, size_t len) {
-        fBufferedText.append(txt, len);
+        fBufferedText.insert(fBufferedText.end(), txt, &txt[len]);
     }
 
     SkXMLParser* fParser;
     SkAutoTCallVProc<std::remove_pointer_t<XML_Parser>, XML_ParserFree> fXMLParser;
 
 private:
-    SkString fBufferedText;
+    std::vector<char> fBufferedText;
 };
 
 #define HANDLER_CONTEXT(arg, name) ParsingContext* name = static_cast<ParsingContext*>(arg)
