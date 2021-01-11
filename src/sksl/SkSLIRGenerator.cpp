@@ -495,19 +495,29 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
             return nullptr;
         }
     }
-    if (test->kind() == Expression::Kind::kBoolLiteral) {
-        // static boolean value, fold down to a single branch
+    bool isStatic = n.getBool();
+    return this->convertIf(n.fOffset, isStatic, std::move(test), std::move(ifTrue),
+                           std::move(ifFalse));
+}
+
+std::unique_ptr<Statement> IRGenerator::convertIf(int offset, bool isStatic,
+                                                  std::unique_ptr<Expression> test,
+                                                  std::unique_ptr<Statement> ifTrue,
+                                                  std::unique_ptr<Statement> ifFalse) {
+    SkASSERT(test->type().isBoolean());
+    if (test->is<BoolLiteral>()) {
+        // Static Boolean values can fold down to a single branch.
         if (test->as<BoolLiteral>().value()) {
             return ifTrue;
-        } else if (ifFalse) {
-            return ifFalse;
-        } else {
-            // False & no else clause. Not an error, so don't return null!
-            return std::make_unique<Nop>();
         }
+        if (ifFalse) {
+            return ifFalse;
+        }
+        // False, but no else-clause. Not an error, so don't return null!
+        return std::make_unique<Nop>();
     }
-    return std::make_unique<IfStatement>(n.fOffset, n.getBool(), std::move(test),
-                                         std::move(ifTrue), std::move(ifFalse));
+    return std::make_unique<IfStatement>(offset, isStatic, std::move(test), std::move(ifTrue),
+                                         std::move(ifFalse));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
