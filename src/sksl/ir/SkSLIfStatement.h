@@ -28,6 +28,11 @@ public:
         , fIfFalse(std::move(ifFalse))
         , fIsStatic(isStatic) {}
 
+    static std::unique_ptr<Statement> Make(int offset, bool isStatic,
+                                           std::unique_ptr<Expression> test,
+                                           std::unique_ptr<Statement> ifTrue,
+                                           std::unique_ptr<Statement> ifFalse);
+
     bool isStatic() const {
         return fIsStatic;
     }
@@ -56,25 +61,9 @@ public:
         return fIfFalse;
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new IfStatement(fOffset, this->isStatic(),
-                                                          this->test()->clone(),
-                                                          this->ifTrue()->clone(),
-                                                          this->ifFalse() ? this->ifFalse()->clone()
-                                                                          : nullptr));
-    }
+    std::unique_ptr<Statement> clone() const override;
 
-    String description() const override {
-        String result;
-        if (this->isStatic()) {
-            result += "@";
-        }
-        result += "if (" + this->test()->description() + ") " + this->ifTrue()->description();
-        if (this->ifFalse()) {
-            result += " else " + this->ifFalse()->description();
-        }
-        return result;
-    }
+    String description() const override;
 
 private:
     std::unique_ptr<Expression> fTest;
