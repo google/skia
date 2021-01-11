@@ -681,4 +681,22 @@ enum class SkSVGXmlSpace {
     kPreserve,
 };
 
+class SkSVGNumberOptionalNumber {
+public:
+    SkSVGNumberOptionalNumber() : fFirst(0) {}
+
+    explicit SkSVGNumberOptionalNumber(SkSVGNumberType first) : fFirst(first), fSecond(nullptr) {}
+
+    SkSVGNumberOptionalNumber(SkSVGNumberType first, SkSVGNumberType second) : fFirst(first) {
+        fSecond.set(second);
+    }
+
+    SkSVGNumberType first() const { return fFirst; }
+    const SkTLazy<SkSVGNumberType>& second() const { return fSecond; }
+
+private:
+    SkSVGNumberType fFirst;
+    SkTLazy<SkSVGNumberType> fSecond;
+};
+
 #endif // SkSVGTypes_DEFINED
