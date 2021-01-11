@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16b4a06a_4bcda120",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T21:38:08Z",
+      "side": 1,
+      "message": "This feature (dynamic indexing) won\u0027t be supported - it needs to be detected and rejected in the front-end (but isn\u0027t yet). Currently it asserts in the VM generator, and will fail on ES2 GPU backends.",
+      "revId": "879adf55917635f2aa6587d79d914bd13954e48f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
