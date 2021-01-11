@@ -144,26 +144,26 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
         formatArgs->push_back(cppCode);
         return "%f";
     }
-    if (type == *fContext.fInt_Type) {
+    if (type == *fContext.fTypes.fInt) {
         formatArgs->push_back(cppCode);
         return "%d";
     }
-    if (type == *fContext.fBool_Type) {
+    if (type == *fContext.fTypes.fBool) {
         formatArgs->push_back("(" + cppCode + " ? \"true\" : \"false\")");
         return "%s";
     }
-    if (type == *fContext.fFloat2_Type || type == *fContext.fHalf2_Type) {
+    if (type == *fContext.fTypes.fFloat2 || type == *fContext.fTypes.fHalf2) {
         formatArgs->push_back(cppCode + ".fX");
         formatArgs->push_back(cppCode + ".fY");
         return type.name() + "(%f, %f)";
     }
-    if (type == *fContext.fFloat3_Type || type == *fContext.fHalf3_Type) {
+    if (type == *fContext.fTypes.fFloat3 || type == *fContext.fTypes.fHalf3) {
         formatArgs->push_back(cppCode + ".fX");
         formatArgs->push_back(cppCode + ".fY");
         formatArgs->push_back(cppCode + ".fZ");
         return type.name() + "(%f, %f, %f)";
     }
-    if (type == *fContext.fFloat4_Type || type == *fContext.fHalf4_Type) {
+    if (type == *fContext.fTypes.fFloat4 || type == *fContext.fTypes.fHalf4) {
         switch (layout.fCType) {
             case Layout::CType::kSkPMColor:
                 formatArgs->push_back("SkGetPackedR32(" + cppCode + ") / 255.0");
@@ -196,8 +196,8 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
         return type.name() + "(%f, %f, %f, %f)";
     }
     if (type.isMatrix()) {
-        SkASSERT(type.componentType() == *fContext.fFloat_Type ||
-                 type.componentType() == *fContext.fHalf_Type);
+        SkASSERT(type.componentType() == *fContext.fTypes.fFloat ||
+                 type.componentType() == *fContext.fTypes.fHalf);
 
         String format = type.name() + "(";
         for (int c = 0; c < type.columns(); ++c) {
@@ -216,9 +216,9 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
         formatArgs->push_back("(int) " + cppCode);
         return "%d";
     }
-    if (type == *fContext.fInt4_Type ||
-        type == *fContext.fShort4_Type ||
-        type == *fContext.fByte4_Type) {
+    if (type == *fContext.fTypes.fInt4 ||
+        type == *fContext.fTypes.fShort4 ||
+        type == *fContext.fTypes.fByte4) {
         formatArgs->push_back(cppCode + ".left()");
         formatArgs->push_back(cppCode + ".top()");
         formatArgs->push_back(cppCode + ".right()");
@@ -353,7 +353,8 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
             return;
         }
 
-        const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fieldIndex()];
+        const Type::Field& field =
+                fContext.fTypes.fFragmentProcessor->fields()[access.fieldIndex()];
         const Variable& var = *access.base()->as<VariableReference>().variable();
         String cppAccess = String::printf("_outer.childProcessor(%d)->%s()",
                                           this->getChildFPIndex(var),
@@ -377,7 +378,7 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
                                   p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
             if (&decl.var() == &var) {
                 return index;
-            } else if (decl.var().type() == *fContext.fFragmentProcessor_Type) {
+            } else if (decl.var().type() == *fContext.fTypes.fFragmentProcessor) {
                 ++index;
             }
         }
@@ -486,69 +487,69 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 }
 
 static const char* glsltype_string(const Context& context, const Type& type) {
-    if (type == *context.fFloat_Type) {
+    if (type == *context.fTypes.fFloat) {
         return "kFloat_GrSLType";
-    } else if (type == *context.fHalf_Type) {
+    } else if (type == *context.fTypes.fHalf) {
         return "kHalf_GrSLType";
-    } else if (type == *context.fInt_Type) {
+    } else if (type == *context.fTypes.fInt) {
         return "kInt_GrSLType";
-    } else if (type == *context.fFloat2_Type) {
+    } else if (type == *context.fTypes.fFloat2) {
         return "kFloat2_GrSLType";
-    } else if (type == *context.fHalf2_Type) {
+    } else if (type == *context.fTypes.fHalf2) {
         return "kHalf2_GrSLType";
-    } else if (type == *context.fInt2_Type) {
+    } else if (type == *context.fTypes.fInt2) {
         return "kInt2_GrSLType";
-    } else if (type == *context.fFloat3_Type) {
+    } else if (type == *context.fTypes.fFloat3) {
         return "kFloat3_GrSLType";
-    } else if (type == *context.fHalf3_Type) {
+    } else if (type == *context.fTypes.fHalf3) {
         return "kHalf3_GrSLType";
-    } else if (type == *context.fInt3_Type) {
+    } else if (type == *context.fTypes.fInt3) {
         return "kInt3_GrSLType";
-    } else if (type == *context.fFloat4_Type) {
+    } else if (type == *context.fTypes.fFloat4) {
         return "kFloat4_GrSLType";
-    } else if (type == *context.fHalf4_Type) {
+    } else if (type == *context.fTypes.fHalf4) {
         return "kHalf4_GrSLType";
-    } else if (type == *context.fInt4_Type) {
+    } else if (type == *context.fTypes.fInt4) {
         return "kInt4_GrSLType";
-    } else if (type == *context.fFloat2x2_Type) {
+    } else if (type == *context.fTypes.fFloat2x2) {
         return "kFloat2x2_GrSLType";
-    } else if (type == *context.fHalf2x2_Type) {
+    } else if (type == *context.fTypes.fHalf2x2) {
         return "kHalf2x2_GrSLType";
-    } else if (type == *context.fFloat2x3_Type) {
+    } else if (type == *context.fTypes.fFloat2x3) {
         return "kFloat2x3_GrSLType";
-    } else if (type == *context.fHalf2x3_Type) {
+    } else if (type == *context.fTypes.fHalf2x3) {
         return "kHalf2x3_GrSLType";
-    } else if (type == *context.fFloat2x4_Type) {
+    } else if (type == *context.fTypes.fFloat2x4) {
         return "kFloat2x4_GrSLType";
-    } else if (type == *context.fHalf2x4_Type) {
+    } else if (type == *context.fTypes.fHalf2x4) {
         return "kHalf2x4_GrSLType";
-    } else if (type == *context.fFloat3x2_Type) {
+    } else if (type == *context.fTypes.fFloat3x2) {
         return "kFloat3x2_GrSLType";
-    } else if (type == *context.fHalf3x2_Type) {
+    } else if (type == *context.fTypes.fHalf3x2) {
         return "kHalf3x2_GrSLType";
-    } else if (type == *context.fFloat3x3_Type) {
+    } else if (type == *context.fTypes.fFloat3x3) {
         return "kFloat3x3_GrSLType";
-    } else if (type == *context.fHalf3x3_Type) {
+    } else if (type == *context.fTypes.fHalf3x3) {
         return "kHalf3x3_GrSLType";
-    } else if (type == *context.fFloat3x4_Type) {
+    } else if (type == *context.fTypes.fFloat3x4) {
         return "kFloat3x4_GrSLType";
-    } else if (type == *context.fHalf3x4_Type) {
+    } else if (type == *context.fTypes.fHalf3x4) {
         return "kHalf3x4_GrSLType";
-    } else if (type == *context.fFloat4x2_Type) {
+    } else if (type == *context.fTypes.fFloat4x2) {
         return "kFloat4x2_GrSLType";
-    } else if (type == *context.fHalf4x2_Type) {
+    } else if (type == *context.fTypes.fHalf4x2) {
         return "kHalf4x2_GrSLType";
-    } else if (type == *context.fFloat4x3_Type) {
+    } else if (type == *context.fTypes.fFloat4x3) {
         return "kFloat4x3_GrSLType";
-    } else if (type == *context.fHalf4x3_Type) {
+    } else if (type == *context.fTypes.fHalf4x3) {
         return "kHalf4x3_GrSLType";
-    } else if (type == *context.fFloat4x4_Type) {
+    } else if (type == *context.fTypes.fFloat4x4) {
         return "kFloat4x4_GrSLType";
-    } else if (type == *context.fHalf4x4_Type) {
+    } else if (type == *context.fTypes.fHalf4x4) {
         return "kHalf4x4_GrSLType";
-    } else if (type == *context.fVoid_Type) {
+    } else if (type == *context.fTypes.fVoid) {
         return "kVoid_GrSLType";
-    } else if (type == *context.fBool_Type) {
+    } else if (type == *context.fTypes.fBool) {
         return "kBool_GrSLType";
     } else if (type.typeKind() == Type::TypeKind::kEnum) {
         return "int";
@@ -712,7 +713,7 @@ void CPPCodeGenerator::writePrivateVars() {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
             const Variable& var = global.declaration()->as<VarDeclaration>().var();
             if (is_private(var)) {
-                if (var.type() == *fContext.fFragmentProcessor_Type) {
+                if (var.type() == *fContext.fTypes.fFragmentProcessor) {
                     fErrors.error(global.fOffset,
                                   "fragmentProcessor variables must be declared 'in'");
                     return;
@@ -1132,14 +1133,14 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                                     "        (void) %s;\n",
                                     name, HCodeGenerator::FieldName(name).c_str(), name);
                 } else if (SectionAndParameterHelper::IsParameter(variable) &&
-                            variable.type() != *fContext.fFragmentProcessor_Type) {
+                            variable.type() != *fContext.fTypes.fFragmentProcessor) {
                     if (!wroteProcessor) {
                         this->writef("        const %s& _outer = _proc.cast<%s>();\n", fullName,
                                      fullName);
                         wroteProcessor = true;
                     }
 
-                    if (variable.type() != *fContext.fFragmentProcessor_Type) {
+                    if (variable.type() != *fContext.fTypes.fFragmentProcessor) {
                         this->writef("        auto %s = _outer.%s;\n"
                                         "        (void) %s;\n",
                                         name, name, name);
@@ -1186,7 +1187,7 @@ void CPPCodeGenerator::writeClone() {
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->name()).c_str());
-            if (param->type() != *fContext.fFragmentProcessor_Type) {
+            if (param->type() != *fContext.fTypes.fFragmentProcessor) {
                 this->writef("\n, %s(src.%s)",
                              fieldName.c_str(),
                              fieldName.c_str());
@@ -1230,7 +1231,7 @@ void CPPCodeGenerator::writeDumpInfo() {
 
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             // dumpInfo() doesn't need to log child FPs.
-            if (param->type() == *fContext.fFragmentProcessor_Type) {
+            if (param->type() == *fContext.fTypes.fFragmentProcessor) {
                 continue;
             }
 
@@ -1317,7 +1318,7 @@ void CPPCodeGenerator::writeGetKey() {
                     if (var.modifiers().fLayout.fWhen.fLength) {
                         this->writef("if (%s) {", String(var.modifiers().fLayout.fWhen).c_str());
                     }
-                    if (varType == *fContext.fHalf4_Type) {
+                    if (varType == *fContext.fTypes.fHalf4) {
                         this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
                                      HCodeGenerator::FieldName(name).c_str());
                         this->writef("    uint16_t green = SkFloatToHalf(%s.fG);\n",
@@ -1328,11 +1329,11 @@ void CPPCodeGenerator::writeGetKey() {
                                      HCodeGenerator::FieldName(name).c_str());
                         this->write("    b->add32(((uint32_t)red << 16) | green);\n");
                         this->write("    b->add32(((uint32_t)blue << 16) | alpha);\n");
-                    } else if (varType == *fContext.fHalf_Type ||
-                               varType == *fContext.fFloat_Type) {
+                    } else if (varType == *fContext.fTypes.fHalf ||
+                               varType == *fContext.fTypes.fFloat) {
                         this->writef("    b->add32(sk_bit_cast<uint32_t>(%s));\n",
                                      HCodeGenerator::FieldName(name).c_str());
-                    } else if (varType.isInteger() || varType == *fContext.fBool_Type ||
+                    } else if (varType.isInteger() || varType == *fContext.fTypes.fBool ||
                                varType.typeKind() == Type::TypeKind::kEnum) {
                         this->writef("    b->add32((uint32_t) %s);\n",
                                      HCodeGenerator::FieldName(name).c_str());
@@ -1441,7 +1442,7 @@ bool CPPCodeGenerator::generateCode() {
                  "    (void) that;\n",
                  fullName, fullName, fullName);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->type() == *fContext.fFragmentProcessor_Type) {
+        if (param->type() == *fContext.fTypes.fFragmentProcessor) {
             continue;
         }
         String nameString(param->name());
