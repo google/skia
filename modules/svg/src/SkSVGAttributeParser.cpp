@@ -963,3 +963,19 @@ template <> bool SkSVGAttributeParser::parse(SkSVGNumberOptionalNumber* numberOp
 
     return this->parseEOSToken();
 }
+
+template <>
+bool SkSVGAttributeParser::parse(SkSVGColorspace* colorspace) {
+    static constexpr std::tuple<const char*, SkSVGColorspace> gColorspaceMap[] = {
+        { "auto"     , SkSVGColorspace::kAuto      },
+        { "sRGB"     , SkSVGColorspace::kSRGB      },
+        { "linearRGB", SkSVGColorspace::kLinearRGB },
+    };
+
+    bool parsedValue = false;
+    if (this->parseEnumMap(gColorspaceMap, colorspace)) {
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
