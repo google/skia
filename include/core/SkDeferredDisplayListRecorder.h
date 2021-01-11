@@ -22,7 +22,6 @@ class SkCanvas;
 class SkImage;
 class SkPromiseImageTexture;
 class SkSurface;
-struct SkYUVAIndex;
 
 /*
  * This class is intended to be used as:

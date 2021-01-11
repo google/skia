@@ -6,6 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Removed SkYUVAIndex and SkYUVASizeInfo. These were no longer used in any
+    public APIs.
+    https://review.skia.org/352497
+
   * Removed SkPerlinNoiseShader::MakeImprovedNoise.
     https://review.skia.org/352057
 

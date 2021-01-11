@@ -10,7 +10,6 @@
 
 #include "include/core/SkGraphics.h"
 #include "include/core/SkImageGenerator.h"
-#include "include/core/SkYUVAIndex.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "tests/Test.h"
 
