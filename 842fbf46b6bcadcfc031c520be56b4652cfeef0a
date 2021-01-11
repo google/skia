@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32355a30_8cc9f4d2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-01-11T17:04:53Z",
+      "side": 1,
+      "message": "Looking forward to trying this in Flutter! Thank you.",
+      "revId": "842fbf46b6bcadcfc031c520be56b4652cfeef0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
