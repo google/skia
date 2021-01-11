@@ -1171,7 +1171,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                                          : SkScalarFloorToInt(delta / averageUtf8Width);
                     insideGlypheme = averageUtf8Width < delta && delta < glyphemePosWidth - averageUtf8Width;
                     center = glyphemePosLeft + averageUtf8Width * insideUtf8Offset + averageUtf8Width / 2;
-                    utf16Index += insideUtf8Offset; // TODO: adding a utf8 offset to a utf16 index
+                    // Keep UTF16 index as is
                 }
                 if ((dx < center) == context.run->leftToRight() || insideGlypheme) {
                     result = { SkToS32(utf16Index), kDownstream };
