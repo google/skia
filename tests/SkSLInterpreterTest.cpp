@@ -978,13 +978,13 @@ DEF_TEST(SkSLInterpreterDot, r) {
 class ExternalSqrt : public SkSL::ExternalFunction {
 public:
     ExternalSqrt(const char* name, SkSL::Compiler& compiler)
-        : INHERITED(name, *compiler.context().fFloat_Type)
+        : INHERITED(name, *compiler.context().fTypes.fFloat)
         , fCompiler(compiler) {}
 
     int callParameterCount() const override { return 1; }
 
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fFloat_Type.get();
+        outTypes[0] = fCompiler.context().fTypes.fFloat.get();
     }
 
     void call(int /*unusedIndex*/, float* arguments, float* outReturn) const override {
@@ -1027,13 +1027,13 @@ DEF_TEST(SkSLInterpreterExternalFunction, r) {
 class ExternalSqrt4 : public SkSL::ExternalFunction {
 public:
     ExternalSqrt4(const char* name, SkSL::Compiler& compiler)
-        : INHERITED(name, *compiler.context().fFloat4_Type)
+        : INHERITED(name, *compiler.context().fTypes.fFloat4)
         , fCompiler(compiler) {}
 
     int callParameterCount() const override { return 1; }
 
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fFloat4_Type.get();
+        outTypes[0] = fCompiler.context().fTypes.fFloat4.get();
     }
 
     void call(int /*unusedIndex*/, float* arguments, float* outReturn) const override {

@@ -119,12 +119,12 @@ String MetalCodeGenerator::typeName(const Type& type) {
         case Type::TypeKind::kEnum:
             return "int";
         default:
-            if (type == *fContext.fHalf_Type) {
+            if (type == *fContext.fTypes.fHalf) {
                 // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.
-                return fContext.fFloat_Type->name();
-            } else if (type == *fContext.fByte_Type) {
+                return fContext.fTypes.fFloat->name();
+            } else if (type == *fContext.fTypes.fByte) {
                 return "char";
-            } else if (type == *fContext.fUByte_Type) {
+            } else if (type == *fContext.fTypes.fUByte) {
                 return "uchar";
             } else {
                 return type.name();
@@ -562,14 +562,14 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write(SAMPLER_SUFFIX);
             this->write(", ");
             const Type& arg1Type = arguments[1]->type();
-            if (arg1Type == *fContext.fFloat3_Type) {
+            if (arg1Type == *fContext.fTypes.fFloat3) {
                 // have to store the vector in a temp variable to avoid double evaluating it
                 String tmpVar = this->getTempVariable(arg1Type);
                 this->write("(" + tmpVar + " = ");
                 this->writeExpression(*arguments[1], kSequence_Precedence);
                 this->write(", " + tmpVar + ".xy / " + tmpVar + ".z))");
             } else {
-                SkASSERT(arg1Type == *fContext.fFloat2_Type);
+                SkASSERT(arg1Type == *fContext.fTypes.fFloat2);
                 this->writeExpression(*arguments[1], kSequence_Precedence);
                 this->write(")");
             }
@@ -1370,11 +1370,11 @@ void MetalCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 
 void MetalCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     const Type& type = i.type();
-    if (type == *fContext.fUInt_Type) {
+    if (type == *fContext.fTypes.fUInt) {
         this->write(to_string(i.value() & 0xffffffff) + "u");
-    } else if (type == *fContext.fUShort_Type) {
+    } else if (type == *fContext.fTypes.fUShort) {
         this->write(to_string(i.value() & 0xffff) + "u");
-    } else if (type == *fContext.fUByte_Type) {
+    } else if (type == *fContext.fTypes.fUByte) {
         this->write(to_string(i.value() & 0xff) + "u");
     } else {
         this->write(to_string(i.value()));

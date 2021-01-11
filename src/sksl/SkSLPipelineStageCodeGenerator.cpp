@@ -49,7 +49,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
                 if (&decl.var() == arguments[0]->as<VariableReference>().variable()) {
                     found = true;
-                } else if (decl.var().type() == *fContext.fFragmentProcessor_Type) {
+                } else if (decl.var().type() == *fContext.fTypes.fFragmentProcessor) {
                     ++index;
                 }
             }
@@ -127,7 +127,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                         // Skip over fragmentProcessors (shaders).
                         // These are indexed separately from other globals.
                         if (var.modifiers().fFlags & flag &&
-                            var.type() != *fContext.fFragmentProcessor_Type) {
+                            var.type() != *fContext.fTypes.fFragmentProcessor) {
                             ++index;
                         }
                     }

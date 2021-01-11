@@ -21,47 +21,47 @@ const SkSL::Type& DSLType::skslType() const {
     const SkSL::Context& context = DSLWriter::Context();
     switch (fTypeConstant) {
         case kBool:
-            return *context.fBool_Type;
+            return *context.fTypes.fBool;
         case kBool2:
-            return *context.fBool2_Type;
+            return *context.fTypes.fBool2;
         case kBool3:
-            return *context.fBool3_Type;
+            return *context.fTypes.fBool3;
         case kBool4:
-            return *context.fBool4_Type;
+            return *context.fTypes.fBool4;
         case kHalf:
-            return *context.fHalf_Type;
+            return *context.fTypes.fHalf;
         case kHalf2:
-            return *context.fHalf2_Type;
+            return *context.fTypes.fHalf2;
         case kHalf3:
-            return *context.fHalf3_Type;
+            return *context.fTypes.fHalf3;
         case kHalf4:
-            return *context.fHalf4_Type;
+            return *context.fTypes.fHalf4;
         case kFloat:
-            return *context.fFloat_Type;
+            return *context.fTypes.fFloat;
         case kFloat2:
-            return *context.fFloat2_Type;
+            return *context.fTypes.fFloat2;
         case kFloat3:
-            return *context.fFloat3_Type;
+            return *context.fTypes.fFloat3;
         case kFloat4:
-            return *context.fFloat4_Type;
+            return *context.fTypes.fFloat4;
         case kInt:
-            return *context.fInt_Type;
+            return *context.fTypes.fInt;
         case kInt2:
-            return *context.fInt2_Type;
+            return *context.fTypes.fInt2;
         case kInt3:
-            return *context.fInt3_Type;
+            return *context.fTypes.fInt3;
         case kInt4:
-            return *context.fInt4_Type;
+            return *context.fTypes.fInt4;
         case kShort:
-            return *context.fShort_Type;
+            return *context.fTypes.fShort;
         case kShort2:
-            return *context.fShort2_Type;
+            return *context.fTypes.fShort2;
         case kShort3:
-            return *context.fShort3_Type;
+            return *context.fTypes.fShort3;
         case kShort4:
-            return *context.fShort4_Type;
+            return *context.fTypes.fShort4;
         case kVoid:
-            return *context.fVoid_Type;
+            return *context.fTypes.fVoid;
         default:
             SkUNREACHABLE;
     }
@@ -103,39 +103,39 @@ static DSLExpression construct4(const SkSL::Type& type, DSLExpression a, DSLExpr
 
 #define TYPE(T)                                                                                    \
 DSLExpression T(DSLExpression a) {                                                                 \
-    return construct1(*DSLWriter::Context().f ## T ## _Type, std::move(a));                        \
+    return construct1(*DSLWriter::Context().fTypes.f ## T, std::move(a));                          \
 }                                                                                                  \
 DSLExpression T ## 2(DSLExpression a) {                                                            \
-    return construct1(*DSLWriter::Context().f ## T ## 2_Type, std::move(a));                       \
+    return construct1(*DSLWriter::Context().fTypes.f ## T ## 2, std::move(a));                     \
 }                                                                                                  \
 DSLExpression T ## 2(DSLExpression a, DSLExpression b) {                                           \
-    return construct2(*DSLWriter::Context().f ## T ## 2_Type, std::move(a),                        \
+    return construct2(*DSLWriter::Context().fTypes.f ## T ## 2, std::move(a),                      \
                       std::move(b));                                                               \
 }                                                                                                  \
 DSLExpression T ## 3(DSLExpression a) {                                                            \
-    return construct1(*DSLWriter::Context().f ## T ## 3_Type, std::move(a));                       \
+    return construct1(*DSLWriter::Context().fTypes.f ## T ## 3, std::move(a));                     \
 }                                                                                                  \
 DSLExpression T ## 3(DSLExpression a, DSLExpression b) {                                           \
-    return construct2(*DSLWriter::Context().f ## T ## 3_Type, std::move(a),                        \
+    return construct2(*DSLWriter::Context().fTypes.f ## T ## 3, std::move(a),                      \
                       std::move(b));                                                               \
 }                                                                                                  \
 DSLExpression T ## 3(DSLExpression a, DSLExpression b, DSLExpression c) {                          \
-    return construct3(*DSLWriter::Context().f ## T ## 3_Type, std::move(a),                        \
+    return construct3(*DSLWriter::Context().fTypes.f ## T ## 3, std::move(a),                      \
                       std::move(b), std::move(c));                                                 \
 }                                                                                                  \
 DSLExpression T ## 4(DSLExpression a) {                                                            \
-    return construct1(*DSLWriter::Context().f ## T ## 4_Type, std::move(a));                       \
+    return construct1(*DSLWriter::Context().fTypes.f ## T ## 4, std::move(a));                     \
 }                                                                                                  \
 DSLExpression T ## 4(DSLExpression a, DSLExpression b) {                                           \
-    return construct2(*DSLWriter::Context().f ## T ## 4_Type, std::move(a),                        \
+    return construct2(*DSLWriter::Context().fTypes.f ## T ## 4, std::move(a),                      \
                       std::move(b));                                                               \
 }                                                                                                  \
 DSLExpression T ## 4(DSLExpression a, DSLExpression b, DSLExpression c) {                          \
-    return construct3(*DSLWriter::Context().f ## T ## 4_Type, std::move(a), std::move(b),          \
+    return construct3(*DSLWriter::Context().fTypes.f ## T ## 4, std::move(a), std::move(b),        \
                       std::move(c));                                                               \
 }                                                                                                  \
 DSLExpression T ## 4(DSLExpression a, DSLExpression b, DSLExpression c, DSLExpression d) {         \
-    return construct4(*DSLWriter::Context().f ## T ## 4_Type, std::move(a), std::move(b),          \
+    return construct4(*DSLWriter::Context().fTypes.f ## T ## 4, std::move(a), std::move(b),        \
                       std::move(c), std::move(d));                                                 \
 }
 

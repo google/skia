@@ -24,7 +24,7 @@ public:
 
     FunctionReference(const Context& context, int offset,
                       std::vector<const FunctionDeclaration*> functions)
-        : INHERITED(offset, kExpressionKind, context.fInvalid_Type.get())
+        : INHERITED(offset, kExpressionKind, context.fTypes.fInvalid.get())
         , fFunctions(std::move(functions)) {}
 
     const std::vector<const FunctionDeclaration*>& functions() const {

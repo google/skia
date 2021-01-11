@@ -595,12 +595,12 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
     // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
     // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
     // somewhere during compilation.
-    if (type == fContext->fFloatLiteral_Type.get()) {
+    if (type == fContext->fTypes.fFloatLiteral.get()) {
         SkDEBUGFAIL("found a $floatLiteral type while inlining");
-        type = fContext->fFloat_Type.get();
-    } else if (type == fContext->fIntLiteral_Type.get()) {
+        type = fContext->fTypes.fFloat.get();
+    } else if (type == fContext->fTypes.fIntLiteral.get()) {
         SkDEBUGFAIL("found an $intLiteral type while inlining");
-        type = fContext->fInt_Type.get();
+        type = fContext->fTypes.fInt.get();
     }
 
     // Provide our new variable with a unique name, and add it to our symbol table.
@@ -671,7 +671,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     // Create a variable to hold the result in the extra statements (excepting void).
     std::unique_ptr<Expression> resultExpr;
-    if (function.declaration().returnType() != *fContext->fVoid_Type) {
+    if (function.declaration().returnType() != *fContext->fTypes.fVoid) {
         std::unique_ptr<Expression> noInitialValue;
         InlineVariable var = this->makeInlineVariable(function.declaration().name(),
                                                       &function.declaration().returnType(),
@@ -719,7 +719,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
         // int _1_loop = 0;
         symbolTable = std::make_shared<SymbolTable>(std::move(symbolTable), caller->isBuiltin());
-        const Type* intType = fContext->fInt_Type.get();
+        const Type* intType = fContext->fTypes.fInt.get();
         std::unique_ptr<Expression> initialValue = std::make_unique<IntLiteral>(/*offset=*/-1,
                                                                                 /*value=*/0,
                                                                                 intType);
@@ -733,7 +733,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol),
                 Token::Kind::TK_LT,
                 std::make_unique<IntLiteral>(/*offset=*/-1, /*value=*/1, intType),
-                fContext->fBool_Type.get());
+                fContext->fTypes.fBool.get());
 
         // _1_loop++
         std::unique_ptr<Expression> increment = std::make_unique<PostfixExpression>(

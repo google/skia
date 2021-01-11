@@ -46,152 +46,152 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
     if (columns == 1 && rows == 1) {
         return *this;
     }
-    if (*this == *context.fFloat_Type || *this == *context.fFloatLiteral_Type) {
+    if (*this == *context.fTypes.fFloat || *this == *context.fTypes.fFloatLiteral) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fFloat_Type;
-                    case 2: return *context.fFloat2_Type;
-                    case 3: return *context.fFloat3_Type;
-                    case 4: return *context.fFloat4_Type;
+                    case 1: return *context.fTypes.fFloat;
+                    case 2: return *context.fTypes.fFloat2;
+                    case 3: return *context.fTypes.fFloat3;
+                    case 4: return *context.fTypes.fFloat4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             case 2:
                 switch (columns) {
-                    case 2: return *context.fFloat2x2_Type;
-                    case 3: return *context.fFloat3x2_Type;
-                    case 4: return *context.fFloat4x2_Type;
+                    case 2: return *context.fTypes.fFloat2x2;
+                    case 3: return *context.fTypes.fFloat3x2;
+                    case 4: return *context.fTypes.fFloat4x2;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 3:
                 switch (columns) {
-                    case 2: return *context.fFloat2x3_Type;
-                    case 3: return *context.fFloat3x3_Type;
-                    case 4: return *context.fFloat4x3_Type;
+                    case 2: return *context.fTypes.fFloat2x3;
+                    case 3: return *context.fTypes.fFloat3x3;
+                    case 4: return *context.fTypes.fFloat4x3;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 4:
                 switch (columns) {
-                    case 2: return *context.fFloat2x4_Type;
-                    case 3: return *context.fFloat3x4_Type;
-                    case 4: return *context.fFloat4x4_Type;
+                    case 2: return *context.fTypes.fFloat2x4;
+                    case 3: return *context.fTypes.fFloat3x4;
+                    case 4: return *context.fTypes.fFloat4x4;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fHalf_Type) {
+    } else if (*this == *context.fTypes.fHalf) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fHalf_Type;
-                    case 2: return *context.fHalf2_Type;
-                    case 3: return *context.fHalf3_Type;
-                    case 4: return *context.fHalf4_Type;
+                    case 1: return *context.fTypes.fHalf;
+                    case 2: return *context.fTypes.fHalf2;
+                    case 3: return *context.fTypes.fHalf3;
+                    case 4: return *context.fTypes.fHalf4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             case 2:
                 switch (columns) {
-                    case 2: return *context.fHalf2x2_Type;
-                    case 3: return *context.fHalf3x2_Type;
-                    case 4: return *context.fHalf4x2_Type;
+                    case 2: return *context.fTypes.fHalf2x2;
+                    case 3: return *context.fTypes.fHalf3x2;
+                    case 4: return *context.fTypes.fHalf4x2;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 3:
                 switch (columns) {
-                    case 2: return *context.fHalf2x3_Type;
-                    case 3: return *context.fHalf3x3_Type;
-                    case 4: return *context.fHalf4x3_Type;
+                    case 2: return *context.fTypes.fHalf2x3;
+                    case 3: return *context.fTypes.fHalf3x3;
+                    case 4: return *context.fTypes.fHalf4x3;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 4:
                 switch (columns) {
-                    case 2: return *context.fHalf2x4_Type;
-                    case 3: return *context.fHalf3x4_Type;
-                    case 4: return *context.fHalf4x4_Type;
+                    case 2: return *context.fTypes.fHalf2x4;
+                    case 3: return *context.fTypes.fHalf3x4;
+                    case 4: return *context.fTypes.fHalf4x4;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fInt_Type || *this == *context.fIntLiteral_Type) {
+    } else if (*this == *context.fTypes.fInt || *this == *context.fTypes.fIntLiteral) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fInt_Type;
-                    case 2: return *context.fInt2_Type;
-                    case 3: return *context.fInt3_Type;
-                    case 4: return *context.fInt4_Type;
+                    case 1: return *context.fTypes.fInt;
+                    case 2: return *context.fTypes.fInt2;
+                    case 3: return *context.fTypes.fInt3;
+                    case 4: return *context.fTypes.fInt4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fShort_Type) {
+    } else if (*this == *context.fTypes.fShort) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fShort_Type;
-                    case 2: return *context.fShort2_Type;
-                    case 3: return *context.fShort3_Type;
-                    case 4: return *context.fShort4_Type;
+                    case 1: return *context.fTypes.fShort;
+                    case 2: return *context.fTypes.fShort2;
+                    case 3: return *context.fTypes.fShort3;
+                    case 4: return *context.fTypes.fShort4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fByte_Type) {
+    } else if (*this == *context.fTypes.fByte) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fByte_Type;
-                    case 2: return *context.fByte2_Type;
-                    case 3: return *context.fByte3_Type;
-                    case 4: return *context.fByte4_Type;
+                    case 1: return *context.fTypes.fByte;
+                    case 2: return *context.fTypes.fByte2;
+                    case 3: return *context.fTypes.fByte3;
+                    case 4: return *context.fTypes.fByte4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fUInt_Type) {
+    } else if (*this == *context.fTypes.fUInt) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fUInt_Type;
-                    case 2: return *context.fUInt2_Type;
-                    case 3: return *context.fUInt3_Type;
-                    case 4: return *context.fUInt4_Type;
+                    case 1: return *context.fTypes.fUInt;
+                    case 2: return *context.fTypes.fUInt2;
+                    case 3: return *context.fTypes.fUInt3;
+                    case 4: return *context.fTypes.fUInt4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fUShort_Type) {
+    } else if (*this == *context.fTypes.fUShort) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fUShort_Type;
-                    case 2: return *context.fUShort2_Type;
-                    case 3: return *context.fUShort3_Type;
-                    case 4: return *context.fUShort4_Type;
+                    case 1: return *context.fTypes.fUShort;
+                    case 2: return *context.fTypes.fUShort2;
+                    case 3: return *context.fTypes.fUShort3;
+                    case 4: return *context.fTypes.fUShort4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fUByte_Type) {
+    } else if (*this == *context.fTypes.fUByte) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fUByte_Type;
-                    case 2: return *context.fUByte2_Type;
-                    case 3: return *context.fUByte3_Type;
-                    case 4: return *context.fUByte4_Type;
+                    case 1: return *context.fTypes.fUByte;
+                    case 2: return *context.fTypes.fUByte2;
+                    case 3: return *context.fTypes.fUByte3;
+                    case 4: return *context.fTypes.fUByte4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fBool_Type) {
+    } else if (*this == *context.fTypes.fBool) {
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 1: return *context.fBool_Type;
-                    case 2: return *context.fBool2_Type;
-                    case 3: return *context.fBool3_Type;
-                    case 4: return *context.fBool4_Type;
+                    case 1: return *context.fTypes.fBool;
+                    case 2: return *context.fTypes.fBool2;
+                    case 3: return *context.fTypes.fBool3;
+                    case 4: return *context.fTypes.fBool4;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
@@ -200,7 +200,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
 #ifdef SK_DEBUG
     ABORT("unsupported toCompound type %s", this->description().c_str());
 #endif
-    return *context.fVoid_Type;
+    return *context.fTypes.fVoid;
 }
 
 }  // namespace SkSL

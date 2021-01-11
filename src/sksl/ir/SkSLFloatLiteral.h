@@ -26,7 +26,7 @@ public:
     static constexpr Kind kExpressionKind = Kind::kFloatLiteral;
 
     Literal(const Context& context, int offset, float value)
-        : Literal(offset, value, context.fFloatLiteral_Type.get()) {}
+        : Literal(offset, value, context.fTypes.fFloatLiteral.get()) {}
 
     Literal(int offset, float value, const Type* type)
         : INHERITED(offset, kExpressionKind, type)

@@ -124,20 +124,20 @@ static bool init_uniform_type(const SkSL::Context& ctx,
         return true;                                        \
     } while (false)
 
-    if (type == ctx.fFloat_Type.get())    { SET_TYPES(kFloat,    kFloat_GrSLType);    }
-    if (type == ctx.fHalf_Type.get())     { SET_TYPES(kFloat,    kHalf_GrSLType);     }
-    if (type == ctx.fFloat2_Type.get())   { SET_TYPES(kFloat2,   kFloat2_GrSLType);   }
-    if (type == ctx.fHalf2_Type.get())    { SET_TYPES(kFloat2,   kHalf2_GrSLType);    }
-    if (type == ctx.fFloat3_Type.get())   { SET_TYPES(kFloat3,   kFloat3_GrSLType);   }
-    if (type == ctx.fHalf3_Type.get())    { SET_TYPES(kFloat3,   kHalf3_GrSLType);    }
-    if (type == ctx.fFloat4_Type.get())   { SET_TYPES(kFloat4,   kFloat4_GrSLType);   }
-    if (type == ctx.fHalf4_Type.get())    { SET_TYPES(kFloat4,   kHalf4_GrSLType);    }
-    if (type == ctx.fFloat2x2_Type.get()) { SET_TYPES(kFloat2x2, kFloat2x2_GrSLType); }
-    if (type == ctx.fHalf2x2_Type.get())  { SET_TYPES(kFloat2x2, kHalf2x2_GrSLType);  }
-    if (type == ctx.fFloat3x3_Type.get()) { SET_TYPES(kFloat3x3, kFloat3x3_GrSLType); }
-    if (type == ctx.fHalf3x3_Type.get())  { SET_TYPES(kFloat3x3, kHalf3x3_GrSLType);  }
-    if (type == ctx.fFloat4x4_Type.get()) { SET_TYPES(kFloat4x4, kFloat4x4_GrSLType); }
-    if (type == ctx.fHalf4x4_Type.get())  { SET_TYPES(kFloat4x4, kHalf4x4_GrSLType);  }
+    if (type == ctx.fTypes.fFloat.get())    { SET_TYPES(kFloat,    kFloat_GrSLType);    }
+    if (type == ctx.fTypes.fHalf.get())     { SET_TYPES(kFloat,    kHalf_GrSLType);     }
+    if (type == ctx.fTypes.fFloat2.get())   { SET_TYPES(kFloat2,   kFloat2_GrSLType);   }
+    if (type == ctx.fTypes.fHalf2.get())    { SET_TYPES(kFloat2,   kHalf2_GrSLType);    }
+    if (type == ctx.fTypes.fFloat3.get())   { SET_TYPES(kFloat3,   kFloat3_GrSLType);   }
+    if (type == ctx.fTypes.fHalf3.get())    { SET_TYPES(kFloat3,   kHalf3_GrSLType);    }
+    if (type == ctx.fTypes.fFloat4.get())   { SET_TYPES(kFloat4,   kFloat4_GrSLType);   }
+    if (type == ctx.fTypes.fHalf4.get())    { SET_TYPES(kFloat4,   kHalf4_GrSLType);    }
+    if (type == ctx.fTypes.fFloat2x2.get()) { SET_TYPES(kFloat2x2, kFloat2x2_GrSLType); }
+    if (type == ctx.fTypes.fHalf2x2.get())  { SET_TYPES(kFloat2x2, kHalf2x2_GrSLType);  }
+    if (type == ctx.fTypes.fFloat3x3.get()) { SET_TYPES(kFloat3x3, kFloat3x3_GrSLType); }
+    if (type == ctx.fTypes.fHalf3x3.get())  { SET_TYPES(kFloat3x3, kHalf3x3_GrSLType);  }
+    if (type == ctx.fTypes.fFloat4x4.get()) { SET_TYPES(kFloat4x4, kFloat4x4_GrSLType); }
+    if (type == ctx.fTypes.fHalf4x4.get())  { SET_TYPES(kFloat4x4, kHalf4x4_GrSLType);  }
 
 #undef SET_TYPES
 
@@ -197,7 +197,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                             : 1});
             }
             // Fragment Processors (aka 'shader'): These are child effects
-            else if (&varType == ctx.fFragmentProcessor_Type.get()) {
+            else if (&varType == ctx.fTypes.fFragmentProcessor.get()) {
                 children.push_back(var.name());
                 sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
             }

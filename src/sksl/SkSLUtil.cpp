@@ -9,6 +9,7 @@
 
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/ir/SkSLType.h"
 
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
@@ -43,21 +44,21 @@ void write_stringstream(const StringStream& s, OutputStream& out) {
 
 #if !defined(SKSL_STANDALONE)
 bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outType) {
-    if (type == *context.fFloat_Type)    { *outType = kFloat_GrSLType;    return true; }
-    if (type == *context.fHalf_Type)     { *outType = kHalf_GrSLType;     return true; }
-    if (type == *context.fFloat2_Type)   { *outType = kFloat2_GrSLType;   return true; }
-    if (type == *context.fHalf2_Type)    { *outType = kHalf2_GrSLType;    return true; }
-    if (type == *context.fFloat3_Type)   { *outType = kFloat3_GrSLType;   return true; }
-    if (type == *context.fHalf3_Type)    { *outType = kHalf3_GrSLType;    return true; }
-    if (type == *context.fFloat4_Type)   { *outType = kFloat4_GrSLType;   return true; }
-    if (type == *context.fHalf4_Type)    { *outType = kHalf4_GrSLType;    return true; }
-    if (type == *context.fFloat2x2_Type) { *outType = kFloat2x2_GrSLType; return true; }
-    if (type == *context.fHalf2x2_Type)  { *outType = kHalf2x2_GrSLType;  return true; }
-    if (type == *context.fFloat3x3_Type) { *outType = kFloat3x3_GrSLType; return true; }
-    if (type == *context.fHalf3x3_Type)  { *outType = kHalf3x3_GrSLType;  return true; }
-    if (type == *context.fFloat4x4_Type) { *outType = kFloat4x4_GrSLType; return true; }
-    if (type == *context.fHalf4x4_Type)  { *outType = kHalf4x4_GrSLType;  return true; }
-    if (type == *context.fVoid_Type)     { *outType = kVoid_GrSLType;     return true; }
+    if (type == *context.fTypes.fFloat)    { *outType = kFloat_GrSLType;    return true; }
+    if (type == *context.fTypes.fHalf)     { *outType = kHalf_GrSLType;     return true; }
+    if (type == *context.fTypes.fFloat2)   { *outType = kFloat2_GrSLType;   return true; }
+    if (type == *context.fTypes.fHalf2)    { *outType = kHalf2_GrSLType;    return true; }
+    if (type == *context.fTypes.fFloat3)   { *outType = kFloat3_GrSLType;   return true; }
+    if (type == *context.fTypes.fHalf3)    { *outType = kHalf3_GrSLType;    return true; }
+    if (type == *context.fTypes.fFloat4)   { *outType = kFloat4_GrSLType;   return true; }
+    if (type == *context.fTypes.fHalf4)    { *outType = kHalf4_GrSLType;    return true; }
+    if (type == *context.fTypes.fFloat2x2) { *outType = kFloat2x2_GrSLType; return true; }
+    if (type == *context.fTypes.fHalf2x2)  { *outType = kHalf2x2_GrSLType;  return true; }
+    if (type == *context.fTypes.fFloat3x3) { *outType = kFloat3x3_GrSLType; return true; }
+    if (type == *context.fTypes.fHalf3x3)  { *outType = kHalf3x3_GrSLType;  return true; }
+    if (type == *context.fTypes.fFloat4x4) { *outType = kFloat4x4_GrSLType; return true; }
+    if (type == *context.fTypes.fHalf4x4)  { *outType = kHalf4x4_GrSLType;  return true; }
+    if (type == *context.fTypes.fVoid)     { *outType = kVoid_GrSLType;     return true; }
     return false;
 }
 #endif

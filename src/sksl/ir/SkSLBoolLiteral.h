@@ -26,7 +26,7 @@ public:
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
     Literal(const Context& context, int offset, bool value)
-        : Literal(offset, value, context.fBool_Type.get()) {}
+        : Literal(offset, value, context.fTypes.fBool.get()) {}
 
     Literal(int offset, bool value, const Type* type)
         : INHERITED(offset, kExpressionKind, type)

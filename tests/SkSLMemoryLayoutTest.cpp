@@ -15,79 +15,81 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k140_Standard);
 
     // basic types
-    REPORTER_ASSERT(r,  4 == layout.size(*context.fFloat_Type));
-    REPORTER_ASSERT(r,  8 == layout.size(*context.fFloat2_Type));
-    REPORTER_ASSERT(r, 12 == layout.size(*context.fFloat3_Type));
-    REPORTER_ASSERT(r, 16 == layout.size(*context.fFloat4_Type));
-    REPORTER_ASSERT(r,  4 == layout.size(*context.fInt_Type));
-    REPORTER_ASSERT(r,  8 == layout.size(*context.fInt2_Type));
-    REPORTER_ASSERT(r, 12 == layout.size(*context.fInt3_Type));
-    REPORTER_ASSERT(r, 16 == layout.size(*context.fInt4_Type));
-    REPORTER_ASSERT(r,  1 == layout.size(*context.fBool_Type));
-    REPORTER_ASSERT(r,  2 == layout.size(*context.fBool2_Type));
-    REPORTER_ASSERT(r,  3 == layout.size(*context.fBool3_Type));
-    REPORTER_ASSERT(r,  4 == layout.size(*context.fBool4_Type));
-    REPORTER_ASSERT(r, 32 == layout.size(*context.fFloat2x2_Type));
-    REPORTER_ASSERT(r, 32 == layout.size(*context.fFloat2x4_Type));
-    REPORTER_ASSERT(r, 48 == layout.size(*context.fFloat3x3_Type));
-    REPORTER_ASSERT(r, 64 == layout.size(*context.fFloat4x2_Type));
-    REPORTER_ASSERT(r, 64 == layout.size(*context.fFloat4x4_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fFloat_Type));
-    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fFloat2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat3_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat4_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fInt_Type));
-    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fInt2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fInt3_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fInt4_Type));
-    REPORTER_ASSERT(r,  1 == layout.alignment(*context.fBool_Type));
-    REPORTER_ASSERT(r,  2 == layout.alignment(*context.fBool2_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fBool3_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fBool4_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat2x2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat2x4_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat3x3_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat4x2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat4x4_Type));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fFloat));
+    REPORTER_ASSERT(r,  8 == layout.size(*context.fTypes.fFloat2));
+    REPORTER_ASSERT(r, 12 == layout.size(*context.fTypes.fFloat3));
+    REPORTER_ASSERT(r, 16 == layout.size(*context.fTypes.fFloat4));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fInt));
+    REPORTER_ASSERT(r,  8 == layout.size(*context.fTypes.fInt2));
+    REPORTER_ASSERT(r, 12 == layout.size(*context.fTypes.fInt3));
+    REPORTER_ASSERT(r, 16 == layout.size(*context.fTypes.fInt4));
+    REPORTER_ASSERT(r,  1 == layout.size(*context.fTypes.fBool));
+    REPORTER_ASSERT(r,  2 == layout.size(*context.fTypes.fBool2));
+    REPORTER_ASSERT(r,  3 == layout.size(*context.fTypes.fBool3));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fBool4));
+    REPORTER_ASSERT(r, 32 == layout.size(*context.fTypes.fFloat2x2));
+    REPORTER_ASSERT(r, 32 == layout.size(*context.fTypes.fFloat2x4));
+    REPORTER_ASSERT(r, 48 == layout.size(*context.fTypes.fFloat3x3));
+    REPORTER_ASSERT(r, 64 == layout.size(*context.fTypes.fFloat4x2));
+    REPORTER_ASSERT(r, 64 == layout.size(*context.fTypes.fFloat4x4));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fFloat));
+    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fFloat2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fInt));
+    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fInt2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fInt3));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fInt4));
+    REPORTER_ASSERT(r,  1 == layout.alignment(*context.fTypes.fBool));
+    REPORTER_ASSERT(r,  2 == layout.alignment(*context.fTypes.fBool2));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fBool3));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fBool4));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat2x2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat2x4));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3x3));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4x2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4x4));
 
     // struct 1
     std::vector<SkSL::Type::Field> fields1;
-    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"), context.fFloat3_Type.get());
+    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"),
+                         context.fTypes.fFloat3.get());
     std::unique_ptr<SkSL::Type> s1 = SkSL::Type::MakeStructType(-1, SkSL::String("s1"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(*s1));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s1));
 
-    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"), context.fFloat_Type.get());
+    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"), context.fTypes.fFloat.get());
     std::unique_ptr<SkSL::Type> s2 = SkSL::Type::MakeStructType(-1, SkSL::String("s2"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(*s2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s2));
 
-    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("c"), context.fBool_Type.get());
+    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("c"), context.fTypes.fBool.get());
     std::unique_ptr<SkSL::Type> s3 = SkSL::Type::MakeStructType(-1, SkSL::String("s3"), fields1);
     REPORTER_ASSERT(r, 32 == layout.size(*s3));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s3));
 
     // struct 2
     std::vector<SkSL::Type::Field> fields2;
-    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"), context.fInt_Type.get());
+    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"), context.fTypes.fInt.get());
     std::unique_ptr<SkSL::Type> s4 = SkSL::Type::MakeStructType(-1, SkSL::String("s4"), fields2);
     REPORTER_ASSERT(r, 16 == layout.size(*s4));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s4));
 
-    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"), context.fFloat3_Type.get());
+    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"),
+                         context.fTypes.fFloat3.get());
     std::unique_ptr<SkSL::Type> s5 = SkSL::Type::MakeStructType(-1, SkSL::String("s5"), fields2);
     REPORTER_ASSERT(r, 32 == layout.size(*s5));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s5));
 
     // arrays
     std::unique_ptr<SkSL::Type> array1 =
-            SkSL::Type::MakeArrayType(SkSL::String("float[4]"), *context.fFloat_Type, 4);
+            SkSL::Type::MakeArrayType(SkSL::String("float[4]"), *context.fTypes.fFloat, 4);
     REPORTER_ASSERT(r, 64 == layout.size(*array1));
     REPORTER_ASSERT(r, 16 == layout.alignment(*array1));
     REPORTER_ASSERT(r, 16 == layout.stride(*array1));
 
     std::unique_ptr<SkSL::Type> array2 =
-            SkSL::Type::MakeArrayType(SkSL::String("float4[4]"), *context.fFloat4_Type, 4);
+            SkSL::Type::MakeArrayType(SkSL::String("float4[4]"), *context.fTypes.fFloat4, 4);
     REPORTER_ASSERT(r, 64 == layout.size(*array2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*array2));
     REPORTER_ASSERT(r, 16 == layout.stride(*array2));
@@ -98,79 +100,81 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k430_Standard);
 
     // basic types
-    REPORTER_ASSERT(r,  4 == layout.size(*context.fFloat_Type));
-    REPORTER_ASSERT(r,  8 == layout.size(*context.fFloat2_Type));
-    REPORTER_ASSERT(r, 12 == layout.size(*context.fFloat3_Type));
-    REPORTER_ASSERT(r, 16 == layout.size(*context.fFloat4_Type));
-    REPORTER_ASSERT(r,  4 == layout.size(*context.fInt_Type));
-    REPORTER_ASSERT(r,  8 == layout.size(*context.fInt2_Type));
-    REPORTER_ASSERT(r, 12 == layout.size(*context.fInt3_Type));
-    REPORTER_ASSERT(r, 16 == layout.size(*context.fInt4_Type));
-    REPORTER_ASSERT(r,  1 == layout.size(*context.fBool_Type));
-    REPORTER_ASSERT(r,  2 == layout.size(*context.fBool2_Type));
-    REPORTER_ASSERT(r,  3 == layout.size(*context.fBool3_Type));
-    REPORTER_ASSERT(r,  4 == layout.size(*context.fBool4_Type));
-    REPORTER_ASSERT(r, 16 == layout.size(*context.fFloat2x2_Type));
-    REPORTER_ASSERT(r, 32 == layout.size(*context.fFloat2x4_Type));
-    REPORTER_ASSERT(r, 48 == layout.size(*context.fFloat3x3_Type));
-    REPORTER_ASSERT(r, 32 == layout.size(*context.fFloat4x2_Type));
-    REPORTER_ASSERT(r, 64 == layout.size(*context.fFloat4x4_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fFloat_Type));
-    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fFloat2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat3_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat4_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fInt_Type));
-    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fInt2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fInt3_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fInt4_Type));
-    REPORTER_ASSERT(r,  1 == layout.alignment(*context.fBool_Type));
-    REPORTER_ASSERT(r,  2 == layout.alignment(*context.fBool2_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fBool3_Type));
-    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fBool4_Type));
-    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fFloat2x2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat2x4_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat3x3_Type));
-    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fFloat4x2_Type));
-    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fFloat4x4_Type));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fFloat));
+    REPORTER_ASSERT(r,  8 == layout.size(*context.fTypes.fFloat2));
+    REPORTER_ASSERT(r, 12 == layout.size(*context.fTypes.fFloat3));
+    REPORTER_ASSERT(r, 16 == layout.size(*context.fTypes.fFloat4));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fInt));
+    REPORTER_ASSERT(r,  8 == layout.size(*context.fTypes.fInt2));
+    REPORTER_ASSERT(r, 12 == layout.size(*context.fTypes.fInt3));
+    REPORTER_ASSERT(r, 16 == layout.size(*context.fTypes.fInt4));
+    REPORTER_ASSERT(r,  1 == layout.size(*context.fTypes.fBool));
+    REPORTER_ASSERT(r,  2 == layout.size(*context.fTypes.fBool2));
+    REPORTER_ASSERT(r,  3 == layout.size(*context.fTypes.fBool3));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fBool4));
+    REPORTER_ASSERT(r, 16 == layout.size(*context.fTypes.fFloat2x2));
+    REPORTER_ASSERT(r, 32 == layout.size(*context.fTypes.fFloat2x4));
+    REPORTER_ASSERT(r, 48 == layout.size(*context.fTypes.fFloat3x3));
+    REPORTER_ASSERT(r, 32 == layout.size(*context.fTypes.fFloat4x2));
+    REPORTER_ASSERT(r, 64 == layout.size(*context.fTypes.fFloat4x4));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fFloat));
+    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fFloat2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fInt));
+    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fInt2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fInt3));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fInt4));
+    REPORTER_ASSERT(r,  1 == layout.alignment(*context.fTypes.fBool));
+    REPORTER_ASSERT(r,  2 == layout.alignment(*context.fTypes.fBool2));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fBool3));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fBool4));
+    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fFloat2x2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat2x4));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3x3));
+    REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fFloat4x2));
+    REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4x4));
 
     // struct 1
     std::vector<SkSL::Type::Field> fields1;
-    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"), context.fFloat3_Type.get());
+    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"),
+                         context.fTypes.fFloat3.get());
     std::unique_ptr<SkSL::Type> s1 = SkSL::Type::MakeStructType(-1, SkSL::String("s1"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(*s1));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s1));
 
-    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"), context.fFloat_Type.get());
+    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"), context.fTypes.fFloat.get());
     std::unique_ptr<SkSL::Type> s2 = SkSL::Type::MakeStructType(-1, SkSL::String("s2"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(*s2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s2));
 
-    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("c"), context.fBool_Type.get());
+    fields1.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("c"), context.fTypes.fBool.get());
     std::unique_ptr<SkSL::Type> s3 = SkSL::Type::MakeStructType(-1, SkSL::String("s3"), fields1);
     REPORTER_ASSERT(r, 32 == layout.size(*s3));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s3));
 
     // struct 2
     std::vector<SkSL::Type::Field> fields2;
-    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"), context.fInt_Type.get());
+    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("a"), context.fTypes.fInt.get());
     std::unique_ptr<SkSL::Type> s4 = SkSL::Type::MakeStructType(-1, SkSL::String("s4"), fields2);
     REPORTER_ASSERT(r, 4 == layout.size(*s4));
     REPORTER_ASSERT(r, 4 == layout.alignment(*s4));
 
-    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"), context.fFloat3_Type.get());
+    fields2.emplace_back(SkSL::Modifiers(), SkSL::StringFragment("b"),
+                         context.fTypes.fFloat3.get());
     std::unique_ptr<SkSL::Type> s5 = SkSL::Type::MakeStructType(-1, SkSL::String("s5"), fields2);
     REPORTER_ASSERT(r, 32 == layout.size(*s5));
     REPORTER_ASSERT(r, 16 == layout.alignment(*s5));
 
     // arrays
     std::unique_ptr<SkSL::Type> array1 =
-            SkSL::Type::MakeArrayType(SkSL::String("float[4]"), *context.fFloat_Type, 4);
+            SkSL::Type::MakeArrayType(SkSL::String("float[4]"), *context.fTypes.fFloat, 4);
     REPORTER_ASSERT(r, 16 == layout.size(*array1));
     REPORTER_ASSERT(r, 4 == layout.alignment(*array1));
     REPORTER_ASSERT(r, 4 == layout.stride(*array1));
 
     std::unique_ptr<SkSL::Type> array2 =
-            SkSL::Type::MakeArrayType(SkSL::String("float4[4]"), *context.fFloat4_Type, 4);
+            SkSL::Type::MakeArrayType(SkSL::String("float4[4]"), *context.fTypes.fFloat4, 4);
     REPORTER_ASSERT(r, 64 == layout.size(*array2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*array2));
     REPORTER_ASSERT(r, 16 == layout.stride(*array2));

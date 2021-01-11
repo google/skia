@@ -27,12 +27,12 @@ class SkEffectExternalValue : public SkParticleExternalValue {
 public:
     SkEffectExternalValue(const char* name, SkSL::Compiler& compiler,
                           sk_sp<SkParticleEffectParams> params)
-        : SkParticleExternalValue(name, compiler, *compiler.context().fVoid_Type)
+        : SkParticleExternalValue(name, compiler, *compiler.context().fTypes.fVoid)
         , fParams(std::move(params)) {}
 
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fBool_Type.get();
+        outTypes[0] = fCompiler.context().fTypes.fBool.get();
     }
 
     void call(int index, float* arguments, float* outReturn) const override {
@@ -94,12 +94,12 @@ struct SkPathContours {
 class SkPathExternalValue : public SkParticleExternalValue {
 public:
     SkPathExternalValue(const char* name, SkSL::Compiler& compiler, const SkPathContours* path)
-        : SkParticleExternalValue(name, compiler, *compiler.context().fFloat4_Type)
+        : SkParticleExternalValue(name, compiler, *compiler.context().fTypes.fFloat4)
         , fPath(path) { }
 
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fFloat_Type.get();
+        outTypes[0] = fCompiler.context().fTypes.fFloat.get();
     }
 
     void call(int index, float* arguments, float* outReturn) const override {
@@ -202,14 +202,14 @@ private:
 class SkBitmapExternalValue : public SkParticleExternalValue {
 public:
     SkBitmapExternalValue(const char* name, SkSL::Compiler& compiler, const SkBitmap& bitmap)
-            : SkParticleExternalValue(name, compiler, *compiler.context().fFloat4_Type)
+            : SkParticleExternalValue(name, compiler, *compiler.context().fTypes.fFloat4)
             , fBitmap(bitmap) {
         SkASSERT(bitmap.colorType() == kRGBA_F32_SkColorType);
     }
 
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fFloat2_Type.get();
+        outTypes[0] = fCompiler.context().fTypes.fFloat2.get();
     }
 
     void call(int index, float* arguments, float* outReturn) const override {

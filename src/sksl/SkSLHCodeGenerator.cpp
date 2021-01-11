@@ -50,31 +50,31 @@ Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type&
     if (layout.fCType != Layout::CType::kDefault) {
         return layout.fCType;
     }
-    if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
+    if (type == *context.fTypes.fFloat || type == *context.fTypes.fHalf) {
         return Layout::CType::kFloat;
-    } else if (type == *context.fInt_Type ||
-               type == *context.fShort_Type ||
-               type == *context.fByte_Type) {
+    } else if (type == *context.fTypes.fInt ||
+               type == *context.fTypes.fShort ||
+               type == *context.fTypes.fByte) {
         return Layout::CType::kInt32;
-    } else if (type == *context.fFloat2_Type || type == *context.fHalf2_Type) {
+    } else if (type == *context.fTypes.fFloat2 || type == *context.fTypes.fHalf2) {
         return Layout::CType::kSkPoint;
-    } else if (type == *context.fInt2_Type ||
-               type == *context.fShort2_Type ||
-               type == *context.fByte2_Type) {
+    } else if (type == *context.fTypes.fInt2 ||
+               type == *context.fTypes.fShort2 ||
+               type == *context.fTypes.fByte2) {
         return Layout::CType::kSkIPoint;
-    } else if (type == *context.fInt4_Type ||
-               type == *context.fShort4_Type ||
-               type == *context.fByte4_Type) {
+    } else if (type == *context.fTypes.fInt4 ||
+               type == *context.fTypes.fShort4 ||
+               type == *context.fTypes.fByte4) {
         return Layout::CType::kSkIRect;
-    } else if (type == *context.fFloat4_Type || type == *context.fHalf4_Type) {
+    } else if (type == *context.fTypes.fFloat4 || type == *context.fTypes.fHalf4) {
         return Layout::CType::kSkRect;
-    } else if (type == *context.fFloat3x3_Type || type == *context.fHalf3x3_Type) {
+    } else if (type == *context.fTypes.fFloat3x3 || type == *context.fTypes.fHalf3x3) {
         return Layout::CType::kSkMatrix;
-    } else if (type == *context.fFloat4x4_Type || type == *context.fHalf4x4_Type) {
+    } else if (type == *context.fTypes.fFloat4x4 || type == *context.fTypes.fHalf4x4) {
         return Layout::CType::kSkM44;
     } else if (type.typeKind() == Type::TypeKind::kSampler) {
         return Layout::CType::kGrSurfaceProxyView;
-    } else if (type == *context.fFragmentProcessor_Type) {
+    } else if (type == *context.fTypes.fFragmentProcessor) {
         return Layout::CType::kGrFragmentProcessor;
     }
     return Layout::CType::kDefault;
@@ -84,7 +84,7 @@ String HCodeGenerator::FieldType(const Context& context, const Type& type,
                                  const Layout& layout) {
     if (type.typeKind() == Type::TypeKind::kSampler) {
         return "TextureSampler";
-    } else if (type == *context.fFragmentProcessor_Type) {
+    } else if (type == *context.fTypes.fFragmentProcessor) {
         // we don't store fragment processors in fields, they get registered via
         // registerChildProcessor instead
         SkASSERT(false);
@@ -198,7 +198,7 @@ void HCodeGenerator::writeMake() {
                      fFullName.c_str());
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            if (param->type() == *fContext.fFragmentProcessor_Type ||
+            if (param->type() == *fContext.fTypes.fFragmentProcessor ||
                 param->type().typeKind() == Type::TypeKind::kSampler) {
                 this->writef("%sstd::move(%s)", separator, String(param->name()).c_str());
             } else {
@@ -257,7 +257,7 @@ void HCodeGenerator::writeConstructor() {
                 }
             }
             this->writef(")");
-        } else if (type == *fContext.fFragmentProcessor_Type) {
+        } else if (type == *fContext.fTypes.fFragmentProcessor) {
             // do nothing
         } else {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);
@@ -275,7 +275,7 @@ void HCodeGenerator::writeConstructor() {
         const Type& paramType = param->type();
         if (paramType.typeKind() == Type::TypeKind::kSampler) {
             ++samplerCount;
-        } else if (paramType == *fContext.fFragmentProcessor_Type) {
+        } else if (paramType == *fContext.fTypes.fFragmentProcessor) {
             SampleUsage usage = Analysis::GetSampleUsage(fProgram, *param);
 
             std::string perspExpression;
@@ -305,7 +305,7 @@ void HCodeGenerator::writeFields() {
     this->writeSection(kFieldsSection);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String name = FieldName(String(param->name()).c_str());
-        if (param->type() == *fContext.fFragmentProcessor_Type) {
+        if (param->type() == *fContext.fTypes.fFragmentProcessor) {
             // Don't need to write any fields, FPs are held as children
         } else {
             this->writef("    %s %s;\n", FieldType(fContext, param->type(),
