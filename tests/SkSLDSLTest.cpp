@@ -21,6 +21,7 @@ class AutoDSLContext {
 public:
     AutoDSLContext(GrGpu* gpu) {
         Start(gpu->shaderCompiler());
+        DSLWriter::Instance().fMangle = false;
     }
 
     ~AutoDSLContext() {
@@ -60,6 +61,9 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
     REPORTER_ASSERT(r, e2.release()->description() == "1.0");
     Expression e3 = true;
     REPORTER_ASSERT(r, e3.release()->description() == "true");
+    Var a(kInt, "a");
+    Expression e4 = a;
+    REPORTER_ASSERT(r, e4.release()->description() == "a");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {

@@ -21,6 +21,7 @@ class Expression;
 namespace dsl {
 
 class DSLExpression;
+class DSLVar;
 
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.
@@ -53,6 +54,11 @@ public:
      * Creates an expression representing a literal bool.
      */
     DSLExpression(bool value);
+
+    /**
+     * Creates an expression representing a variable reference.
+     */
+    DSLExpression(const DSLVar& var);
 
     ~DSLExpression();
 
