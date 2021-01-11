@@ -81,24 +81,24 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 }
 
 
-skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
-                                            SkColorSpace* /*dstCS*/,
-                                            skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+skvm::HalfColor SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::HalfColor c,
+                                                SkColorSpace* /*dstCS*/,
+                                                skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     auto apply_matrix = [&](auto xyzw) {
-        auto dot = [&](int j) {
-            auto custom_mad = [&](float f, skvm::F32 m, skvm::F32 a) {
+        auto dot = [&](int j) -> skvm::Half {
+            auto custom_mad = [&](float f, skvm::Half m, skvm::Half a) {
                 // skvm::Builder won't fold f*0 == 0, but we shouldn't encounter NaN here.
                 // While looking, also simplify f == ±1.  Anything else becomes a uniform.
                 return f ==  0.0f ? a
                      : f == +1.0f ? a + m
                      : f == -1.0f ? a - m
-                     : m * p->uniformF(uniforms->pushF(f)) + a;
+                     : m * p->uniformH(uniforms->pushF(f)) + a;
             };
 
             // Similarly, let skvm::Builder fold away the additive bias when zero.
             const float b = fMatrix[4+j*5];
-            skvm::F32 bias = b == 0.0f ? p->splat(0.0f)
-                                       : p->uniformF(uniforms->pushF(b));
+            skvm::Half bias = b == 0.0f ? p->half(0.0f)
+                                        : p->uniformH(uniforms->pushF(b));
 
             auto [x,y,z,w] = xyzw;
             return custom_mad(fMatrix[0+j*5], x,
