@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62f4952d_23c95c74",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-11T22:12:34Z",
+      "side": 1,
+      "message": "If you wanted both you would need\n\n    Bug: skia:11004,skia:11023\n\nHowever, I don\u0027t see how this relates to 11004? Maybe you just meant to have 11023 here, which does seem related.",
+      "revId": "980cbf84df2e1f80b7a2e72de0da7f3552c84500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
