@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51060a46_44fd010e",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T17:40:41Z",
+      "side": 1,
+      "message": "John, I know you asked me to kill this part of the comment, but I actually thought it was very useful - it\u0027s not otherwise obvious why we\u0027d be in a situation where we\u0027re mangling already-mangled code",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 38
+      },
+      "revId": "7f5346ae8eea7865164531384e7477b1e9168fa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
