@@ -8,6 +8,7 @@
 #ifndef SKSL_EXTERNALFUNCTION
 #define SKSL_EXTERNALFUNCTION
 
+#include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
 namespace SkSL {
@@ -38,6 +39,13 @@ public:
      * 'index' is the element index ([0 .. N-1]) within a call to ByteCode::run()
      */
     virtual void call(int index, float* arguments, float* outResult) const  = 0;
+
+    virtual void call(skvm::Builder* builder,
+                      skvm::F32* arguments,
+                      skvm::F32* outResult,
+                      skvm::I32 mask) const {
+        SkASSERT(false);
+    }
 
     String description() const override {
         return String("external<") + this->name() + ">";
