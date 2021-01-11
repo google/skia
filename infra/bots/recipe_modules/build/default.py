@@ -94,13 +94,18 @@ def compile_fn(api, checkout_root, out_dir):
   args = {'werror': 'true'}
   env = {}
 
-  if os == 'Mac':
+  if os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7':
     # XCode build is listed in parentheses after the version at
     # https://developer.apple.com/news/releases/, or on Wikipedia here:
     # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
     # Use lowercase letters.
-    # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode
-    XCODE_BUILD_VERSION = '12c33'
+    XCODE_BUILD_VERSION = '11c29'
+    if os == 'Mac10.15.5':
+      XCODE_BUILD_VERSION = '11e503a'
+    if os == 'Mac10.15.7':
+      # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode
+      # '12b45b' is not available, so we use '12b5044c'.
+      XCODE_BUILD_VERSION = '12b5044c'
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.workdir.join(
