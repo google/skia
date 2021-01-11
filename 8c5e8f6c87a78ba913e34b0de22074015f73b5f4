@@ -16,6 +16,23 @@
       "message": "There are probably still a few more nodes that need this implemented. Mainly we\u0027re need this for object-bounding-box relative things (like filter effect subregions).",
       "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aecb8b10_ac5c7d6c",
+        "filename": "modules/svg/src/SkSVGCircle.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-11T17:56:04Z",
+      "side": 1,
+      "message": "@Florin do I need to be calling mapToParent() on this rect before returning it? Same question for SkSVGPath.",
+      "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
