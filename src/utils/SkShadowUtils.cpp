@@ -564,33 +564,60 @@ void SkShadowUtils::ComputeTonalColors(SkColor inAmbientColor, SkColor inSpotCol
                                    unPremulScale*spotB);
 }
 
-// Draw an offset spot shadow and outlining ambient shadow for the given path.
-void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoint3& zPlaneParams,
-                               const SkPoint3& lightPos, SkScalar lightRadius,
-                               SkColor ambientColor, SkColor spotColor,
-                               uint32_t flags) {
-
+static bool fill_shadow_rec(const SkPath& path, const SkPoint3& zPlaneParams,
+                            const SkPoint3& lightPos, SkScalar lightRadius,
+                            SkColor ambientColor, SkColor spotColor,
+                            uint32_t flags, const SkMatrix& ctm, SkDrawShadowRec* rec) {
     SkPoint pt = { lightPos.fX, lightPos.fY };
     if (!SkToBool(flags & kDirectionalLight_ShadowFlag)) {
         // If light position is in device space, need to transform to local space
         // before applying to SkCanvas.
         SkMatrix inverse;
-        if (!canvas->getTotalMatrix().invert(&inverse)) {
-            return;
+        if (!ctm.invert(&inverse)) {
+            return false;
         }
         inverse.mapPoints(&pt, 1);
     }
 
+    rec->fZPlaneParams   = zPlaneParams;
+    rec->fLightPos       = { pt.fX, pt.fY, lightPos.fZ };
+    rec->fLightRadius    = lightRadius;
+    rec->fAmbientColor   = ambientColor;
+    rec->fSpotColor      = spotColor;
+    rec->fFlags          = flags;
+
+    return true;
+}
+
+// Draw an offset spot shadow and outlining ambient shadow for the given path.
+void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoint3& zPlaneParams,
+                               const SkPoint3& lightPos, SkScalar lightRadius,
+                               SkColor ambientColor, SkColor spotColor,
+                               uint32_t flags) {
     SkDrawShadowRec rec;
-    rec.fZPlaneParams   = zPlaneParams;
-    rec.fLightPos       = { pt.fX, pt.fY, lightPos.fZ };
-    rec.fLightRadius    = lightRadius;
-    rec.fAmbientColor   = ambientColor;
-    rec.fSpotColor      = spotColor;
-    rec.fFlags          = flags;
+    if (!fill_shadow_rec(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor,
+                         flags, canvas->getTotalMatrix(), &rec)) {
+        return;
+    }
 
     canvas->private_draw_shadow_rec(path, rec);
 }
+
+bool SkShadowUtils::GetLocalBounds(const SkMatrix& ctm, const SkPath& path,
+                                   const SkPoint3& zPlaneParams, const SkPoint3& lightPos,
+                                   SkScalar lightRadius, uint32_t flags, SkRect* bounds) {
+    SkDrawShadowRec rec;
+    if (!fill_shadow_rec(path, zPlaneParams, lightPos, lightRadius, SK_ColorBLACK, SK_ColorBLACK,
+                         flags, ctm, &rec)) {
+        return false;
+    }
+
+    SkDrawShadowMetrics::GetLocalBounds(path, rec, ctm, bounds);
+
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool validate_rec(const SkDrawShadowRec& rec) {
     return rec.fLightPos.isFinite() && rec.fZPlaneParams.isFinite() &&
