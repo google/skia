@@ -6,6 +6,11 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+
+  * Image filters with perspective, for saveLayer and draws, are now drawn correctly. Performance
+    and quality is highest if user bounds are provided to saveLayer.
+    https://review.skia.org/333123
+
   * Removed deperated version of MakeFromYUVATextures. Use the version
     that takes GrYUVABackendTextures instead.
     https://review.skia.org/345174
