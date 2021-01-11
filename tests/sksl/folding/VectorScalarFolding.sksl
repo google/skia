@@ -1,0 +1,36 @@
+void test_half() {
+    sk_FragColor = half4(half2(1), half2(2, 3)) + 5;
+    sk_FragColor = half4(8, half3(10)) - 1;
+    sk_FragColor = half4(half2(8), half2(9)) + 1;
+    sk_FragColor.xyz = half3(2) * 3;
+    sk_FragColor.xy = half2(12) / 4;
+    sk_FragColor.x = (half4(12) / 2).y;
+    sk_FragColor = 5 + half4(half2(1), half2(2, 3));
+    sk_FragColor = 1 - half4(8, half3(10));
+    sk_FragColor = 1 + half4(half2(8), half2(9));
+    sk_FragColor.xyz = 3 * half3(2);
+    sk_FragColor.xy = 4 / half2(0.5);
+    sk_FragColor = 20 / half4(10, 20, 40, 80);
+}
+
+void test_int() {
+    int4 result;
+    result = int4(int2(1), int2(2, 3)) + 5;
+    result = int4(8, int3(10)) - 1;
+    result = int4(int2(8), int2(9)) + 1;
+    result.xyz = int3(2) * 3;
+    result.xy = int2(12) / 4;
+    result.x = (int4(12) / 2).y;
+    result = 5 + int4(int2(1), int2(2, 3));
+    result = 1 - int4(8, int3(10));
+    result = 1 + int4(int2(8), int2(9));
+    result.xyz = 3 * int3(2);
+    result.xy = 4 / int2(4);
+    result.xyz = 20 / int3(10, 20, 40);
+    sk_FragColor = int4(result);
+}
+
+void main() {
+    test_half();
+    test_int();
+}

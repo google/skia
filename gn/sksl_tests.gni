@@ -286,7 +286,6 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/ArrayIndexTypes.sksl",
   "$_tests/sksl/shared/ArrayTypes.sksl",
   "$_tests/sksl/shared/Assignment.sksl",
-  "$_tests/sksl/shared/BoolFolding.sksl",
   "$_tests/sksl/shared/Caps.sksl",
   "$_tests/sksl/shared/CastsRoundTowardZero.sksl",
   "$_tests/sksl/shared/Clockwise.sksl",
@@ -303,7 +302,6 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/DerivativesUnused.sksl",
   "$_tests/sksl/shared/Discard.sksl",
   "$_tests/sksl/shared/Enum.sksl",
-  "$_tests/sksl/shared/FloatFolding.sksl",
   "$_tests/sksl/shared/FragCoordsFlipY.sksl",
   "$_tests/sksl/shared/FragCoordsNew.sksl",
   "$_tests/sksl/shared/FragCoordsOld.sksl",
@@ -321,13 +319,11 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/HelloWorld.sksl",
   "$_tests/sksl/shared/Hex.sksl",
   "$_tests/sksl/shared/InstanceID.vert",
-  "$_tests/sksl/shared/IntFolding.sksl",
   "$_tests/sksl/shared/InterfaceBlockAnonymous.sksl",
   "$_tests/sksl/shared/InterfaceBlockArray.sksl",
   "$_tests/sksl/shared/InterfaceBlockNamed.sksl",
   "$_tests/sksl/shared/MatricesFloat.sksl",
   "$_tests/sksl/shared/MatricesHalf.sksl",
-  "$_tests/sksl/shared/MatrixFolding.sksl",
   "$_tests/sksl/shared/MixedTypeCommaOperator.sksl",
   "$_tests/sksl/shared/MultipleAssignments.sksl",
   "$_tests/sksl/shared/NegatedVectorLiteral.sksl",
@@ -350,7 +346,6 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/ResizeMatrix.sksl",
   "$_tests/sksl/shared/SampleMask.sksl",
   "$_tests/sksl/shared/ScopedSymbol.sksl",
-  "$_tests/sksl/shared/ShortCircuitBoolFolding.sksl",
   "$_tests/sksl/shared/StackingVectorCasts.sksl",
   "$_tests/sksl/shared/StaticIf.sksl",
   "$_tests/sksl/shared/StaticSwitch.sksl",
@@ -382,10 +377,19 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/UniformArray.sksl",
   "$_tests/sksl/shared/UnusedVariables.sksl",
   "$_tests/sksl/shared/VectorConstructors.sksl",
-  "$_tests/sksl/shared/VectorFolding.sksl",
   "$_tests/sksl/shared/VertexEarlyReturn.vert",
   "$_tests/sksl/shared/VertexID.vert",
   "$_tests/sksl/shared/Width.sksl",
+]
+
+sksl_folding_tests = [
+  "$_tests/sksl/folding/BoolFolding.sksl",
+  "$_tests/sksl/folding/FloatFolding.sksl",
+  "$_tests/sksl/folding/IntFolding.sksl",
+  "$_tests/sksl/folding/MatrixFolding.sksl",
+  "$_tests/sksl/folding/ShortCircuitBoolFolding.sksl",
+  "$_tests/sksl/folding/VectorScalarFolding.sksl",
+  "$_tests/sksl/folding/VectorVectorFolding.sksl",
 ]
 
 sksl_inliner_tests = [
@@ -500,7 +504,8 @@ sksl_fp_tests_sources = sksl_fp_error_tests + sksl_fp_tests
 # Tests in sksl_glsl_tests_sources will be compiled with --settings on, and are expected to generate
 # a .glsl output file.
 sksl_glsl_tests_sources =
-    sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests + sksl_shared_tests
+    sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests +
+    sksl_folding_tests + sksl_shared_tests
 
 # Tests in sksl_glsl_settings_tests_sources will be compiled twice, once with --settings and once
 # using --nosettings. In the latter mode, StandaloneSettings is appended to the output filename.
