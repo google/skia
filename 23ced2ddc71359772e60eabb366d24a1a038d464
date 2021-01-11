@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dee7438f_ee57c9cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-11T20:08:28Z",
+      "side": 1,
+      "message": "Okay this has now been updated to have a shared base class, gr_sp which takes the Ref and Unref functions as template arguments.",
+      "revId": "23ced2ddc71359772e60eabb366d24a1a038d464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
