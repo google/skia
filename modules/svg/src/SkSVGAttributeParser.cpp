@@ -945,3 +945,21 @@ template <>
 bool SkSVGAttributeParser::parse(std::vector<SkSVGNumberType>* numbers) {
     return this->parseList(numbers);
 }
+
+// https://www.w3.org/TR/SVG11/types.html#DataTypeNumberOptionalNumber
+template <> bool SkSVGAttributeParser::parse(SkSVGNumberOptionalNumber* numberOptNumber) {
+    SkSVGNumberType first;
+    if (!this->parse(&first)) {
+        return false;
+    }
+
+    SkSVGNumberType second;
+    this->parseCommaWspToken();
+    if (this->parse(&second)) {
+        *numberOptNumber = SkSVGNumberOptionalNumber(first, second);
+    } else {
+        *numberOptNumber = SkSVGNumberOptionalNumber(first);
+    }
+
+    return this->parseEOSToken();
+}
