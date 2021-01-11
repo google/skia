@@ -17,38 +17,41 @@
 #include "src/sksl/SkSLUtil.h"
 
 static void border_colors(SkYUVColorSpace cs,
-                          const SkYUVAIndex yuvaIndices[4],
+                          const SkYUVAInfo::YUVALocations& locations,
                           float planeBorders[4][4]) {
     float m[20];
     SkColorMatrix_RGB2YUV(cs, m);
-    for (int i = 0; i < 4; ++i) {
-        if (yuvaIndices[i].fIndex == -1) {
-            return;
+    int i = 0;
+    for (auto [plane, channel] : locations) {
+        if (plane == -1) {
+            continue;
         }
-        auto c = static_cast<int>(yuvaIndices[i].fChannel);
-        planeBorders[yuvaIndices[i].fIndex][c] = m[i*5 + 4];
+        auto c = static_cast<int>(channel);
+        planeBorders[plane][c] = m[i*5 + 4];
+        ++i;
     }
 }
 
-std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView views[],
-                                                            const SkYUVAIndex yuvaIndices[4],
-                                                            SkYUVColorSpace yuvColorSpace,
-                                                            GrSamplerState samplerState,
-                                                            const GrCaps& caps,
-                                                            const SkMatrix& localMatrix,
-                                                            const SkRect* subset,
-                                                            const SkRect* domain) {
+std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(
+        GrSurfaceProxyView views[],
+        const SkYUVAInfo::YUVALocations& locations,
+        SkYUVColorSpace yuvColorSpace,
+        GrSamplerState samplerState,
+        const GrCaps& caps,
+        const SkMatrix& localMatrix,
+        const SkRect* subset,
+        const SkRect* domain) {
     int numPlanes;
-    SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
+    SkAssertResult(SkYUVAInfo::YUVALocation::AreValidLocations(locations, &numPlanes));
 
     const SkISize yDimensions =
-            views[yuvaIndices[SkYUVAIndex::kY_Index].fIndex].proxy()->dimensions();
+            views[locations[SkYUVAInfo::YUVAChannels::kY].fPlane].proxy()->dimensions();
 
     bool usesBorder = samplerState.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
                       samplerState.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
     float planeBorders[4][4] = {};
     if (usesBorder) {
-        border_colors(yuvColorSpace, yuvaIndices, planeBorders);
+        border_colors(yuvColorSpace, locations, planeBorders);
     }
 
     bool snap[2] = {false, false};
@@ -151,23 +154,24 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
         }
     }
     auto fp = std::unique_ptr<GrFragmentProcessor>(
-            new GrYUVtoRGBEffect(planeFPs, numPlanes, yuvaIndices, snap, yuvColorSpace));
+            new GrYUVtoRGBEffect(planeFPs, numPlanes, locations, snap, yuvColorSpace));
     return GrMatrixEffect::Make(localMatrix, std::move(fp));
 }
 
-static SkAlphaType alpha_type(const SkYUVAIndex yuvaIndices[4]) {
-    return yuvaIndices[3].fIndex >= 0 ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+static SkAlphaType alpha_type(const SkYUVAInfo::YUVALocations locations) {
+    return locations[SkYUVAInfo::YUVAChannels::kA].fPlane >= 0 ? kPremul_SkAlphaType
+                                                               : kOpaque_SkAlphaType;
 }
 
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4],
                                    int numPlanes,
-                                   const SkYUVAIndex yuvaIndices[4],
+                                   const SkYUVAInfo::YUVALocations& locations,
                                    const bool snap[2],
                                    SkYUVColorSpace yuvColorSpace)
         : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID,
-                              ModulateForClampedSamplerOptFlags(alpha_type(yuvaIndices)))
+                              ModulateForClampedSamplerOptFlags(alpha_type(locations)))
+        , fLocations(locations)
         , fYUVColorSpace(yuvColorSpace) {
-    std::copy_n(yuvaIndices, 4, fYUVAIndices);
     std::copy_n(snap, 2, fSnap);
 
     if (fSnap[0] || fSnap[1]) {
@@ -186,9 +190,9 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
 #if GR_TEST_UTILS
 SkString GrYUVtoRGBEffect::onDumpInfo() const {
     SkString str("(");
-    for (int i = 0; i < 4; ++i) {
-        str.appendf("YUVAIndices[%d]=%d %d, ",
-                    i, fYUVAIndices[i].fIndex, static_cast<int>(fYUVAIndices[i].fChannel));
+    for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {
+        str.appendf("Locations[%d]=%d %d, ",
+                    i, fLocations[i].fPlane, static_cast<int>(fLocations[i].fChannel));
     }
     str.appendf("YUVColorSpace=%d, snap=(%d, %d))",
                 static_cast<int>(fYUVColorSpace), fSnap[0], fSnap[1]);
@@ -225,13 +229,13 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                 fragBuilder->codeAppendf("planes[%d] = %s;", i, tempVar.c_str());
             }
 
-            bool hasAlpha = yuvEffect.fYUVAIndices[3].fIndex >= 0;
+            bool hasAlpha = yuvEffect.fLocations[SkYUVAInfo::YUVAChannels::kA].fPlane >= 0;
             SkString rgba[4];
             rgba[3] = "1";
             for (int i = 0; i < (hasAlpha ? 4 : 3); ++i) {
-                auto info = yuvEffect.fYUVAIndices[i];
-                auto letter = "rgba"[static_cast<int>(info.fChannel)];
-                rgba[i].printf("planes[%d].%c", info.fIndex, letter);
+                auto [plane, channel] = yuvEffect.fLocations[i];
+                auto letter = "rgba"[static_cast<int>(channel)];
+                rgba[i].printf("planes[%d].%c", plane, letter);
             }
 
             fragBuilder->codeAppendf("half4 color = half4(%s, %s, %s, %s);",
@@ -290,17 +294,17 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
 void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     uint32_t packed = 0;
-    for (int i = 0; i < 4; ++i) {
-        if (fYUVAIndices[i].fIndex < 0) {
+    int i = 0;
+    for (auto [plane, channel] : fLocations) {
+        if (plane < 0) {
             continue;
         }
 
-        uint8_t index = fYUVAIndices[i].fIndex;
-        uint8_t chann = static_cast<int>(fYUVAIndices[i].fChannel);
+        uint8_t chann = static_cast<int>(channel);
 
-        SkASSERT(index < 4 && chann < 4);
+        SkASSERT(plane < 4 && chann < 4);
 
-        packed |= (index | (chann << 2)) << (i * 4);
+        packed |= (plane | (chann << 2)) << (i++ * 4);
     }
     if (fYUVColorSpace == kIdentity_SkYUVColorSpace) {
         packed |= 1 << 16;
@@ -317,19 +321,20 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrYUVtoRGBEffect& that = other.cast<GrYUVtoRGBEffect>();
 
-    return std::equal(fYUVAIndices, fYUVAIndices + 4, that.fYUVAIndices) &&
+    return fLocations == that.fLocations            &&
            std::equal(fSnap, fSnap + 2, that.fSnap) &&
            fYUVColorSpace == that.fYUVColorSpace;
 }
 
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
+        , fLocations((src.fLocations))
         , fYUVColorSpace(src.fYUVColorSpace) {
     this->cloneAndRegisterAllChildProcessors(src);
     if (src.fSnap[0] || src.fSnap[1]) {
         this->setUsesSampleCoordsDirectly();
     }
-    std::copy_n(src.fYUVAIndices, this->numChildProcessors(), fYUVAIndices);
+
     std::copy_n(src.fSnap, 2, fSnap);
 }
 

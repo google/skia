@@ -11,8 +11,8 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkYUVAIndex.h"
 
+#include <array>
 #include <tuple>
 
 /**
@@ -21,17 +21,24 @@
  */
 class SK_API SkYUVAInfo {
 public:
+    enum YUVAChannels { kY, kU, kV, kA, kLast = kA };
+    static constexpr int kYUVAChannelCount = static_cast<int>(YUVAChannels::kLast + 1);
+
+    struct YUVALocation;  // For internal use.
+    using YUVALocations = std::array<YUVALocation, kYUVAChannelCount>;
+
     /**
      * Specifies how YUV (and optionally A) are divided among planes. Planes are separated by
      * underscores in the enum value names. Within each plane the pixmap/texture channels are
      * mapped to the YUVA channels in the order specified, e.g. for kY_UV Y is in channel 0 of plane
      * 0, U is in channel 0 of plane 1, and V is in channel 1 of plane 1. Channel ordering
      * within a pixmap/texture given the channels it contains:
-     * A:               0:A
-     * Luminance/Gray:  0:Gray
-     * RG               0:R,    1:G
-     * RGB              0:R,    1:G, 2:B
-     * RGBA             0:R,    1:G, 2:B, 3:A
+     * A:                       0:A
+     * Luminance/Gray:          0:Gray
+     * Luminance/Gray + Alpha:  0:Gray, 1:A
+     * RG                       0:R,    1:G
+     * RGB                      0:R,    1:G, 2:B
+     * RGBA                     0:R,    1:G, 2:B, 3:A
      */
     enum class PlaneConfig {
         kUnknown,
@@ -110,13 +117,11 @@ public:
     static constexpr int NumChannelsInPlane(PlaneConfig, int i);
 
     /**
-     * Given a PlaneConfig and a set of channel flags for each plane, convert to SkYUVAIndex
+     * Given a PlaneConfig and a set of channel flags for each plane, convert to YUVALocations
      * representation. Fails if channel flags aren't valid for the PlaneConfig (i.e. don't have
-     * enough channels in a plane).
+     * enough channels in a plane) by returning an invalid set of locations (plane indices are -1).
      */
-    static bool GetYUVAIndices(PlaneConfig,
-                               const uint32_t planeChannelFlags[kMaxPlanes],
-                               SkYUVAIndex indices[SkYUVAIndex::kIndexCount]);
+    static YUVALocations GetYUVALocations(PlaneConfig, const uint32_t* planeChannelFlags);
 
     /** Does the PlaneConfig have alpha values? */
     static bool HasAlpha(PlaneConfig);
@@ -179,13 +184,12 @@ public:
     int numChannelsInPlane(int i) const { return NumChannelsInPlane(fPlaneConfig, i); }
 
     /**
-     * Given a set of channel flags for each plane, converts this->planeConfig() to SkYUVAIndex
+     * Given a set of channel flags for each plane, converts this->planeConfig() to YUVALocations
      * representation. Fails if the channel flags aren't valid for the PlaneConfig (i.e. don't have
-     * enough channels in a plane).
+     * enough channels in a plane) by returning default initialized locations (all plane indices are
+     * -1).
      */
-    bool toYUVAIndices(const uint32_t channelFlags[4], SkYUVAIndex indices[4]) const {
-        return GetYUVAIndices(fPlaneConfig, channelFlags, indices);
-    }
+    YUVALocations toYUVALocations(const uint32_t* channelFlags) const;
 
     /**
      * Makes a SkYUVAInfo that is identical to this one but with the passed Subsampling. If the
