@@ -89,6 +89,7 @@ struct SkSVGPresentationAttributes {
     SkSVGProperty<SkSVGVisibility, true> fVisibility;
 
     SkSVGProperty<SkSVGColorType , true> fColor;
+    SkSVGProperty<SkSVGColorspace, true> fColorInterpolationFilters;
 
     SkSVGProperty<SkSVGFontFamily, true> fFontFamily;
     SkSVGProperty<SkSVGFontStyle , true> fFontStyle;

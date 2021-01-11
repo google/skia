@@ -83,6 +83,17 @@ SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
     return subregion;
 }
 
+SkSVGColorspace SkSVGFe::resolveColorspace(const SkSVGRenderContext& ctx) const {
+    // Local <fe*> node may have set the color-interpolation-filters property to a
+    // concrete value, in which case it takes precedence.
+    const auto& prop = this->getColorInterpolationFilters();
+    if (prop.isValue()) {
+        return *prop;
+    } else {
+        return *ctx.presentationContext().fInherited.fColorInterpolationFilters;
+    }
+}
+
 bool SkSVGFe::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||
            this->setIn(SkSVGAttributeParser::parse<SkSVGFeInputType>("in", name, value)) ||
