@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d1aad52_46a4e345",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T18:20:09Z",
+      "side": 1,
+      "message": "Fixing the check in the IR generator means that we detect the potential recursion in all \"public\" SkSL front-end cases (not just runtime effects). The front-end doesn\u0027t reject returns in loops, but it shouldn\u0027t -- once loops work in skvm, returns in loops will work, too.",
+      "revId": "e55ec983011997268a53b464eeff67b1421807c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
