@@ -795,18 +795,6 @@ public:
                                    RescaleMode rescaleMode,
                                    ReadPixelsCallback callback,
                                    ReadPixelsContext context);
-#ifdef SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
-    void asyncRescaleAndReadPixels(const SkImageInfo& info,
-                                   const SkIRect& srcRect,
-                                   RescaleGamma rescaleGamma,
-                                   SkFilterQuality quality,
-                                   ReadPixelsCallback callback,
-                                   ReadPixelsContext context) {
-        return asyncRescaleAndReadPixels(info, srcRect, rescaleGamma,
-                                         SkImage::QualityToRescale(quality),
-                                         callback, context);
-    }
-#endif
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
@@ -845,21 +833,6 @@ public:
                                          RescaleMode rescaleMode,
                                          ReadPixelsCallback callback,
                                          ReadPixelsContext context);
-#ifdef SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
-    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         const SkIRect& srcRect,
-                                         const SkISize& dstSize,
-                                         RescaleGamma rescaleGamma,
-                                         SkFilterQuality quality,
-                                         ReadPixelsCallback callback,
-                                         ReadPixelsContext context) {
-        return asyncRescaleAndReadPixelsYUV420(yuvColorSpace, std::move(dstColorSpace), srcRect,
-                                               dstSize, rescaleGamma,
-                                               SkImage::QualityToRescale(quality),
-                                               callback, context);
-    }
-#endif
 
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
