@@ -23,6 +23,8 @@ struct ProgramBuilder {
         // The SkSL inliner is well tested in other contexts. Here, we disable inlining entirely,
         // to stress-test the VM generator's handling of function calls with varying signatures.
         settings.fInlineThreshold = 0;
+        // For convenience, so we can test functions other than (and not called by) main.
+        settings.fRemoveDeadFunctions = false;
 
         fProgram = fCompiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
                                             settings);
@@ -773,8 +775,7 @@ DEF_TEST(SkSLInterpreterEarlyReturn, r) {
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::SkVMSignature sig;
-    SkSL::ProgramToSkVM(*program, *main, &b, &sig);
+    SkSL::ProgramToSkVM(*program, *main, &b);
     skvm::Program p = b.done();
 
     float xs[] = { 1.0f, 3.0f },
@@ -813,41 +814,36 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
         "float dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
         "float dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n";
 
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    settings.fRemoveDeadFunctions = false;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                                                     SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
+    ProgramBuilder program(r, src);
 
-    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-    REPORTER_ASSERT(r, !compiler.errorCount());
-
-    auto sub = byteCode->getFunction("sub");
-    auto sqr = byteCode->getFunction("sqr");
-    auto main = byteCode->getFunction("main");
-    auto tan = byteCode->getFunction("tan");
-    auto dot3 = byteCode->getFunction("dot3_test");
-    auto dot2 = byteCode->getFunction("dot2_test");
+    auto sub  = SkSL::Program_GetFunction(*program, "sub");
+    auto sqr  = SkSL::Program_GetFunction(*program, "sqr");
+    auto main = SkSL::Program_GetFunction(*program, "main");
+    auto tan  = SkSL::Program_GetFunction(*program, "tan");
+    auto dot3 = SkSL::Program_GetFunction(*program, "dot3_test");
+    auto dot2 = SkSL::Program_GetFunction(*program, "dot2_test");
 
     REPORTER_ASSERT(r, sub);
     REPORTER_ASSERT(r, sqr);
     REPORTER_ASSERT(r, main);
-    REPORTER_ASSERT(r, !tan);
+    REPORTER_ASSERT(r, !tan);  // Getting a non-existent function should return nullptr
     REPORTER_ASSERT(r, dot3);
     REPORTER_ASSERT(r, dot2);
 
-    float out = 0.0f;
-    float in = 3.0f;
-    SkAssertResult(byteCode->run(main, &in, 1, &out, 1, nullptr, 0));
-    REPORTER_ASSERT(r, out = 6.0f);
+    auto test_fn = [&](const SkSL::FunctionDefinition* fn, float in, float expected) {
+        skvm::Builder b;
+        SkSL::ProgramToSkVM(*program, *fn, &b);
+        skvm::Program p = b.done();
 
-    SkAssertResult(byteCode->run(dot3, &in, 1, &out, 1, nullptr, 0));
-    REPORTER_ASSERT(r, out = 9.0f);
+        float out = 0.0f;
+        const void* uniforms = nullptr;
+        p.eval(1, uniforms, &in, &out);
+        REPORTER_ASSERT(r, out == expected);
+    };
 
-    SkAssertResult(byteCode->run(dot2, &in, 1, &out, 1, nullptr, 0));
-    REPORTER_ASSERT(r, out = -1.0f);
+    test_fn(main, 3.0f, 6.0f);
+    test_fn(dot3, 3.0f, 9.0f);
+    test_fn(dot2, 3.0f, -1.0f);
 }
 
 DEF_TEST(SkSLInterpreterOutParams, r) {
