@@ -434,6 +434,30 @@
       },
       "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1df2d37b_d21e588e",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-11T15:04:35Z",
+      "side": 1,
+      "message": "\u003e Isn\u0027t 2^log2(nsegs) \u003d\u003d nsegs?\n\nD\u0027oh... Yes. The threshold in patchset 3 therefore just simplifies to ref_nsegs * (1 / (1\u003c\u003c20)).\n\n\u003e I think we need to scale the tolerance by the magnitude of the control points, not the number of segments. \n\nMy thought here was to scale the tolerance based on the magnitude of the correct answer i.e. num segs returned by the reference formula. That seems to capture the spirit of translation-invariance and also the fact that as the conic weight increases, nsegs increases too (even with low-magnitude control points).\n\nThat said, I could definitely be off-base. Here\u0027s a snippet of the same diffs as I posted earlier in the thread, but also printing \u0027new tol\u0027 computed as maxMagnitude * (1/(1\u003c\u003c20)):\n\n\t../../tests/WangsFormulaTest.cpp:475\t376988.156250 !\u003d 376988.125000, new tol would be\u003d1809.159180 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, 1 / 128.f)\n\t../../tests/WangsFormulaTest.cpp:475\t189629.453125 !\u003d 189629.437500, new tol would be\u003d171.493973 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, 1 / 128.f)\n\t../../tests/WangsFormulaTest.cpp:475\t555373.312500 !\u003d 555373.250000, new tol would be\u003d1708.461182 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, 1 / 128.f)\n\t../../tests/WangsFormulaTest.cpp:475\t234587.390625 !\u003d 234587.406250, new tol would be\u003d240.587997 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, 1 / 128.f)\n\nSo the new tolerance might be too forgiving. We could scale maxMagnitude even further down though.",
+      "parentUuid": "6f20d255_4cb9d062",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 33
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
