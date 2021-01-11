@@ -9,6 +9,7 @@
 #define GrVkBuffer_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrRefCnt.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrVkGpu;
