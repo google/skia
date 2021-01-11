@@ -1966,7 +1966,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         fErrors.error(offset, msg);
         return nullptr;
     }
-    if (fKind == Program::kRuntimeEffect_Kind && !function.definition() && !function.isBuiltin()) {
+    if (this->strictES2Mode() && !function.definition() && !function.isBuiltin()) {
         String msg = "call to undefined function '" + function.name() + "'";
         fErrors.error(offset, msg);
         return nullptr;

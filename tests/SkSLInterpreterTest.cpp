@@ -693,15 +693,7 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
     SkSL::Program::Settings settings;
     auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                            SkSL::String(src), settings);
-    // Ideally, all failures would be detected by the IR generator, so this could be an assert.
-    // Some are still detected later (TODO: Fix this - skbug.com/11127).
-    if (!program) {
-        return;
-    }
-
-    auto byteCode = compiler.toByteCode(*program);
-    REPORTER_ASSERT(r, compiler.errorCount() > 0);
-    REPORTER_ASSERT(r, !byteCode);
+    REPORTER_ASSERT(r, !program);
 }
 
 static void expect_run_failure(skiatest::Reporter* r, const char* src, float* in) {
@@ -732,10 +724,6 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
 
     // Ensure that calls to undefined functions are not allowed (to prevent mutual recursion)
     expect_failure(r, "float foo(); float bar() { return foo(); } float foo() { return bar(); }");
-
-    // returns are not allowed inside loops
-    expect_failure(r, "float main(float x)"
-                      "{ for (int i = 0; i < 1; i++) { if (x > 2) { return x; } } return 0; }");
 }
 
 DEF_TEST(SkSLInterpreterReturnThenCall, r) {
