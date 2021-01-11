@@ -33,6 +33,24 @@
       "message": "We still can\u0027t use C++17 library features like std::variant.  (Though it may be time to check in on that again.)  Want to spin off the parts of this CL unrelated to std::variant?",
       "revId": "099c43bc262732104e5ea9a11bebaec97be4bd4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55c246f4_28b428d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2021-01-11T15:22:56Z",
+      "side": 1,
+      "message": "Maybe skstd::variant then?\n\nAlso, any chance I can have Contributor status?",
+      "parentUuid": "fb7cb991_6e8fdcea",
+      "revId": "099c43bc262732104e5ea9a11bebaec97be4bd4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
