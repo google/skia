@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -147,10 +148,13 @@ struct BuiltinTypes {
  */
 class Context {
 public:
-    Context();
+    Context(ErrorReporter& errors);
 
     // The Context holds all of the built-in types.
     BuiltinTypes fTypes;
+
+    // The Context holds a reference to our error reporter.
+    ErrorReporter& fErrors;
 
     // A sentinel expression used to mark that a variable has a value during dataflow analysis (when
     // it could have several different values, or the analyzer is otherwise unable to assign it a

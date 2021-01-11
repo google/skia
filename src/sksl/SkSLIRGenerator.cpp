@@ -129,11 +129,9 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
 }
 
 IRGenerator::IRGenerator(const Context* context,
-                         const ShaderCapsClass* caps,
-                         ErrorReporter& errorReporter)
+                         const ShaderCapsClass* caps)
         : fContext(*context)
         , fCaps(caps)
-        , fErrors(errorReporter)
         , fModifiers(new ModifiersPool()) {
     if (fCaps) {
         fill_caps(*fCaps, &fCapsMap);
@@ -156,7 +154,7 @@ std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragm
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
         fKind != Program::kGeometry_Kind) {
-        fErrors.error(offset, "extensions are not allowed here");
+        this->errorReporter().error(offset, "extensions are not allowed here");
         return nullptr;
     }
 
@@ -275,58 +273,69 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         return {};
     }
     if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
-        fErrors.error(decls.fOffset,
-                      "variables of type '" + baseType->displayName() + "' must be global");
+        this->errorReporter().error(
+                decls.fOffset,
+                "variables of type '" + baseType->displayName() + "' must be global");
     }
     if (fKind != Program::kFragmentProcessor_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) && baseType->isMatrix()) {
-            fErrors.error(decls.fOffset, "'in' variables may not have matrix type");
+            this->errorReporter().error(decls.fOffset, "'in' variables may not have matrix type");
         }
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
             (modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            fErrors.error(decls.fOffset,
-                          "'in uniform' variables only permitted within fragment processors");
+            this->errorReporter().error(
+                    decls.fOffset,
+                    "'in uniform' variables only permitted within fragment processors");
         }
         if (modifiers.fLayout.fWhen.fLength) {
-            fErrors.error(decls.fOffset, "'when' is only permitted within fragment processors");
+            this->errorReporter().error(decls.fOffset,
+                                        "'when' is only permitted within fragment processors");
         }
         if (modifiers.fLayout.fFlags & Layout::kTracked_Flag) {
-            fErrors.error(decls.fOffset, "'tracked' is only permitted within fragment processors");
+            this->errorReporter().error(decls.fOffset,
+                                        "'tracked' is only permitted within fragment processors");
         }
         if (modifiers.fLayout.fCType != Layout::CType::kDefault) {
-            fErrors.error(decls.fOffset, "'ctype' is only permitted within fragment processors");
+            this->errorReporter().error(decls.fOffset,
+                                        "'ctype' is only permitted within fragment processors");
         }
         if (modifiers.fLayout.fKey) {
-            fErrors.error(decls.fOffset, "'key' is only permitted within fragment processors");
+            this->errorReporter().error(decls.fOffset,
+                                        "'key' is only permitted within fragment processors");
         }
     }
     if (fKind == Program::kRuntimeEffect_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
             *baseType != *fContext.fTypes.fFragmentProcessor) {
-            fErrors.error(decls.fOffset, "'in' variables not permitted in runtime effects");
+            this->errorReporter().error(decls.fOffset,
+                                        "'in' variables not permitted in runtime effects");
         }
     }
     if (modifiers.fLayout.fKey && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
-        fErrors.error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
+        this->errorReporter().error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
     }
     if (modifiers.fLayout.fMarker.fLength) {
         if (fKind != Program::kRuntimeEffect_Kind) {
-            fErrors.error(decls.fOffset, "'marker' is only permitted in runtime effects");
+            this->errorReporter().error(decls.fOffset,
+                                        "'marker' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            fErrors.error(decls.fOffset, "'marker' is only permitted on 'uniform' variables");
+            this->errorReporter().error(decls.fOffset,
+                                        "'marker' is only permitted on 'uniform' variables");
         }
         if (*baseType != *fContext.fTypes.fFloat4x4) {
-            fErrors.error(decls.fOffset, "'marker' is only permitted on float4x4 variables");
+            this->errorReporter().error(decls.fOffset,
+                                        "'marker' is only permitted on float4x4 variables");
         }
     }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
         if (fKind != Program::kRuntimeEffect_Kind) {
-            fErrors.error(decls.fOffset, "'srgb_unpremul' is only permitted in runtime effects");
+            this->errorReporter().error(decls.fOffset,
+                                        "'srgb_unpremul' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            fErrors.error(decls.fOffset,
-                          "'srgb_unpremul' is only permitted on 'uniform' variables");
+            this->errorReporter().error(decls.fOffset,
+                                        "'srgb_unpremul' is only permitted on 'uniform' variables");
         }
         auto validColorXformType = [](const Type& t) {
             return t.isVector() && t.componentType().isFloat() &&
@@ -334,18 +343,19 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         };
         if (!validColorXformType(*baseType) && !(baseType->isArray() &&
                                                  validColorXformType(baseType->componentType()))) {
-            fErrors.error(decls.fOffset,
-                          "'srgb_unpremul' is only permitted on half3, half4, float3, or float4 "
-                          "variables");
+            this->errorReporter().error(decls.fOffset,
+                                        "'srgb_unpremul' is only permitted on half3, half4, "
+                                        "float3, or float4 variables");
         }
     }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
         if (fKind != Program::kRuntimeEffect_Kind) {
-            fErrors.error(decls.fOffset, "'varying' is only permitted in runtime effects");
+            this->errorReporter().error(decls.fOffset,
+                                        "'varying' is only permitted in runtime effects");
         }
         if (!baseType->isFloat() &&
             !(baseType->isVector() && baseType->componentType().isFloat())) {
-            fErrors.error(decls.fOffset, "'varying' must be float scalar or vector");
+            this->errorReporter().error(decls.fOffset, "'varying' must be float scalar or vector");
         }
     }
     int permitted = Modifiers::kConst_Flag;
@@ -366,8 +376,8 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
             (modifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
             varDecl.getVarData().fName != "sk_FragColor") {
-            fErrors.error(varDecl.fOffset,
-                          "out location=0, index=0 is reserved for sk_FragColor");
+            this->errorReporter().error(varDecl.fOffset,
+                                        "out location=0, index=0 is reserved for sk_FragColor");
         }
         const ASTNode::VarData& varData = varDecl.getVarData();
         const Type* type = baseType;
@@ -376,8 +386,9 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         if (iter != varDecl.end()) {
             if (varData.fIsArray) {
                 if (type->isOpaque()) {
-                    fErrors.error(varDecl.fOffset,
-                                  "opaque type '" + type->name() + "' may not be used in an array");
+                    this->errorReporter().error(
+                            varDecl.fOffset,
+                            "opaque type '" + type->name() + "' may not be used in an array");
                 }
                 const ASTNode& rawSize = *iter++;
                 if (rawSize) {
@@ -387,12 +398,12 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                         return {};
                     }
                     if (!size->is<IntLiteral>()) {
-                        fErrors.error(size->fOffset, "array size must be an integer");
+                        this->errorReporter().error(size->fOffset, "array size must be an integer");
                         return {};
                     }
                     SKSL_INT count = size->as<IntLiteral>().value();
                     if (count <= 0) {
-                        fErrors.error(size->fOffset, "array size must be positive");
+                        this->errorReporter().error(size->fOffset, "array size must be positive");
                         return {};
                     }
                     arraySize = count;
@@ -412,8 +423,9 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         std::unique_ptr<Expression> value;
         if (iter == varDecl.end()) {
             if (arraySize == Type::kUnsizedArray) {
-                fErrors.error(varDecl.fOffset,
-                              "arrays without an explicit size must use an initializer expression");
+                this->errorReporter().error(
+                        varDecl.fOffset,
+                        "arrays without an explicit size must use an initializer expression");
                 return {};
             }
         } else {
@@ -422,12 +434,13 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                 return {};
             }
             if (type->isOpaque()) {
-                fErrors.error(
+                this->errorReporter().error(
                         value->fOffset,
                         "opaque type '" + type->name() + "' cannot use initializer expressions");
             }
             if (modifiers.fFlags & Modifiers::kIn_Flag) {
-                fErrors.error(value->fOffset, "'in' variables cannot use initializer expressions");
+                this->errorReporter().error(value->fOffset,
+                                            "'in' variables cannot use initializer expressions");
             }
             value = this->coerce(std::move(value), *type);
             if (!value) {
@@ -451,7 +464,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
         fKind != Program::kGeometry_Kind) {
-        fErrors.error(m.fOffset, "layout qualifiers are not allowed here");
+        this->errorReporter().error(m.fOffset, "layout qualifiers are not allowed here");
         return nullptr;
     }
 
@@ -459,7 +472,8 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
     Modifiers modifiers = m.getModifiers();
     if (modifiers.fLayout.fInvocations != -1) {
         if (fKind != Program::kGeometry_Kind) {
-            fErrors.error(m.fOffset, "'invocations' is only legal in geometry shaders");
+            this->errorReporter().error(m.fOffset,
+                                        "'invocations' is only legal in geometry shaders");
             return nullptr;
         }
         fInvocations = modifiers.fLayout.fInvocations;
@@ -561,7 +575,7 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
 std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr<Expression> test,
                                                      std::unique_ptr<Statement> statement) {
     if (this->strictES2Mode()) {
-        fErrors.error(offset, "while loops are not supported");
+        this->errorReporter().error(offset, "while loops are not supported");
         return nullptr;
     }
 
@@ -591,7 +605,7 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDo);
     if (this->strictES2Mode()) {
-        fErrors.error(d.fOffset, "do-while loops are not supported");
+        this->errorReporter().error(d.fOffset, "do-while loops are not supported");
         return nullptr;
     }
 
@@ -643,11 +657,12 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
             }
             SKSL_INT v = 0;
             if (!this->getConstantInt(*caseValue, &v)) {
-                fErrors.error(caseValue->fOffset, "case value must be a constant integer");
+                this->errorReporter().error(caseValue->fOffset,
+                                            "case value must be a constant integer");
                 return nullptr;
             }
             if (caseValues.find(v) != caseValues.end()) {
-                fErrors.error(caseValue->fOffset, "duplicate case value");
+                this->errorReporter().error(caseValue->fOffset, "duplicate case value");
             }
             caseValues.insert(v);
         }
@@ -688,7 +703,8 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
             return nullptr;
         }
         if (fCurrentFunction->returnType() == *fContext.fTypes.fVoid) {
-            fErrors.error(result->fOffset, "may not return a value from a void function");
+            this->errorReporter().error(result->fOffset,
+                                        "may not return a value from a void function");
             return nullptr;
         } else {
             result = this->coerce(std::move(result), fCurrentFunction->returnType());
@@ -699,8 +715,9 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
         return std::unique_ptr<Statement>(new ReturnStatement(std::move(result)));
     } else {
         if (fCurrentFunction->returnType() != *fContext.fTypes.fVoid) {
-            fErrors.error(r.fOffset, "expected function to return '" +
-                                     fCurrentFunction->returnType().displayName() + "'");
+            this->errorReporter().error(r.fOffset,
+                                        "expected function to return '" +
+                                                fCurrentFunction->returnType().displayName() + "'");
         }
         return std::unique_ptr<Statement>(new ReturnStatement(r.fOffset));
     }
@@ -711,7 +728,7 @@ std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTNode& b) {
     if (fLoopLevel > 0 || fSwitchLevel > 0) {
         return std::make_unique<BreakStatement>(b.fOffset);
     } else {
-        fErrors.error(b.fOffset, "break statement must be inside a loop or switch");
+        this->errorReporter().error(b.fOffset, "break statement must be inside a loop or switch");
         return nullptr;
     }
 }
@@ -721,7 +738,7 @@ std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
     if (fLoopLevel > 0) {
         return std::make_unique<ContinueStatement>(c.fOffset);
     } else {
-        fErrors.error(c.fOffset, "continue statement must be inside a loop");
+        this->errorReporter().error(c.fOffset, "continue statement must be inside a loop");
         return nullptr;
     }
 }
@@ -729,7 +746,8 @@ std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
 std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDiscard);
     if (fKind != Program::kFragment_Kind && fKind != Program::kFragmentProcessor_Kind) {
-        fErrors.error(d.fOffset, "discard statement is only permitted in fragment shaders");
+        this->errorReporter().error(d.fOffset,
+                                    "discard statement is only permitted in fragment shaders");
         return nullptr;
     }
     return std::make_unique<DiscardStatement>(d.fOffset);
@@ -871,13 +889,13 @@ template <typename T> AutoClear(T* c) -> AutoClear<T>;
 
 void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int permitted) {
     int flags = modifiers.fFlags;
-    #define CHECK(flag, name)                                              \
-        if (!flags) return;                                                \
-        if (flags & flag) {                                                \
-            if (!(permitted & flag)) {                                     \
-                fErrors.error(offset, "'" name "' is not permitted here"); \
-            }                                                              \
-            flags &= ~flag;                                                \
+    #define CHECK(flag, name)                                                            \
+        if (!flags) return;                                                              \
+        if (flags & flag) {                                                              \
+            if (!(permitted & flag)) {                                                   \
+                this->errorReporter().error(offset, "'" name "' is not permitted here"); \
+            }                                                                            \
+            flags &= ~flag;                                                              \
         }
     CHECK(Modifiers::kConst_Flag,          "const")
     CHECK(Modifiers::kIn_Flag,             "in")
@@ -917,14 +935,15 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 #endif
     };
     if (returnType->isArray() || !typeIsAllowed(returnType)) {
-        fErrors.error(f.fOffset,
-                      "functions may not return type '" + returnType->displayName() + "'");
+        this->errorReporter().error(
+                f.fOffset, "functions may not return type '" + returnType->displayName() + "'");
         return;
     }
     if (!fIsBuiltinCode && *returnType != *fContext.fTypes.fVoid &&
         returnType->componentType().isOpaque()) {
-        fErrors.error(f.fOffset,
-                      "functions may not return opaque type '" + returnType->displayName() + "'");
+        this->errorReporter().error(
+                f.fOffset,
+                "functions may not return opaque type '" + returnType->displayName() + "'");
         return;
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
@@ -951,8 +970,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         // fragment-processor specific.)
         if ((*type == *fContext.fTypes.fFragmentProcessor && !fIsBuiltinCode) ||
             !typeIsAllowed(type)) {
-            fErrors.error(param.fOffset,
-                          "parameters of type '" + type->displayName() + "' not allowed");
+            this->errorReporter().error(
+                    param.fOffset, "parameters of type '" + type->displayName() + "' not allowed");
             return;
         }
 
@@ -984,26 +1003,29 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 // (half4|float4) main()  -or-  (half4|float4) main(float2)
                 if (*returnType != *fContext.fTypes.fHalf4 &&
                     *returnType != *fContext.fTypes.fFloat4) {
-                    fErrors.error(f.fOffset, "'main' must return: 'vec4', 'float4', or 'half4'");
+                    this->errorReporter().error(f.fOffset,
+                                                "'main' must return: 'vec4', 'float4', or 'half4'");
                     return;
                 }
                 bool validParams = (parameters.size() == 0) ||
                                    (parameters.size() == 1 && paramIsCoords(0));
                 if (!validParams) {
-                    fErrors.error(f.fOffset, "'main' parameters must be: (), (vec2), or (float2)");
+                    this->errorReporter().error(
+                            f.fOffset, "'main' parameters must be: (), (vec2), or (float2)");
                     return;
                 }
                 break;
             }
             case Program::kFragmentProcessor_Kind: {
                 if (*returnType != *fContext.fTypes.fHalf4) {
-                    fErrors.error(f.fOffset, ".fp 'main' must return 'half4'");
+                    this->errorReporter().error(f.fOffset, ".fp 'main' must return 'half4'");
                     return;
                 }
                 bool validParams = (parameters.size() == 0) ||
                                    (parameters.size() == 1 && paramIsCoords(0));
                 if (!validParams) {
-                    fErrors.error(f.fOffset, ".fp 'main' must be declared main() or main(float2)");
+                    this->errorReporter().error(
+                            f.fOffset, ".fp 'main' must be declared main() or main(float2)");
                     return;
                 }
                 break;
@@ -1012,7 +1034,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 break;
             default:
                 if (parameters.size()) {
-                    fErrors.error(f.fOffset, "shader 'main' must have zero parameters");
+                    this->errorReporter().error(f.fOffset, "shader 'main' must have zero parameters");
                 }
                 break;
         }
@@ -1031,7 +1053,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 functions.push_back(&entry->as<FunctionDeclaration>());
                 break;
             default:
-                fErrors.error(f.fOffset, "symbol '" + funcData.fName + "' was already defined");
+                this->errorReporter().error(f.fOffset,
+                                            "symbol '" + funcData.fName + "' was already defined");
                 return;
         }
         for (const FunctionDeclaration* other : functions) {
@@ -1052,22 +1075,24 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                                                     parameters,
                                                     returnType,
                                                     fIsBuiltinCode);
-                        fErrors.error(f.fOffset, "functions '" + newDecl.description() +
-                                                 "' and '" + other->description() +
-                                                 "' differ only in return type");
+                        this->errorReporter().error(
+                                f.fOffset, "functions '" + newDecl.description() + "' and '" +
+                                           other->description() + "' differ only in return type");
                         return;
                     }
                     decl = other;
                     for (size_t i = 0; i < parameters.size(); i++) {
                         if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
-                            fErrors.error(f.fOffset, "modifiers on parameter " +
-                                                     to_string((uint64_t) i + 1) +
-                                                     " differ between declaration and definition");
+                            this->errorReporter().error(
+                                    f.fOffset,
+                                    "modifiers on parameter " + to_string((uint64_t)i + 1) +
+                                            " differ between declaration and definition");
                             return;
                         }
                     }
                     if (other->definition() && !other->isBuiltin()) {
-                        fErrors.error(f.fOffset, "duplicate definition of " + other->description());
+                        this->errorReporter().error(
+                                f.fOffset, "duplicate definition of " + other->description());
                         return;
                     }
                     break;
@@ -1133,7 +1158,8 @@ std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const AST
         return nullptr;
     }
     if (!type->isStruct()) {
-        fErrors.error(node.fOffset, "expected a struct here, found '" + type->name() + "'");
+        this->errorReporter().error(node.fOffset,
+                                    "expected a struct here, found '" + type->name() + "'");
         return nullptr;
     }
     return std::make_unique<StructDefinition>(node.fOffset, *type);
@@ -1143,7 +1169,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
         fKind != Program::kGeometry_Kind) {
-        fErrors.error(intf.fOffset, "interface block is not allowed here");
+        this->errorReporter().error(intf.fOffset, "interface block is not allowed here");
         return nullptr;
     }
 
@@ -1167,13 +1193,14 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             for (const auto& decl : decls) {
                 const VarDeclaration& vd = decl->as<VarDeclaration>();
                 if (vd.var().type().isOpaque()) {
-                    fErrors.error(decl->fOffset, "opaque type '" + vd.var().type().name() +
-                                                 "' is not permitted in an interface block");
+                    this->errorReporter().error(decl->fOffset,
+                                                "opaque type '" + vd.var().type().name() +
+                                                        "' is not permitted in an interface block");
                 }
                 if (haveRuntimeArray) {
-                    fErrors.error(decl->fOffset,
-                                "only the last entry in an interface block may be a runtime-sized "
-                                "array");
+                    this->errorReporter().error(decl->fOffset,
+                                                "only the last entry in an interface block may be "
+                                                "a runtime-sized array");
                 }
                 if (&vd.var() == fRTAdjust) {
                     foundRTAdjust = true;
@@ -1183,8 +1210,9 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 fields.push_back(Type::Field(vd.var().modifiers(), vd.var().name(),
                                             &vd.var().type()));
                 if (vd.value()) {
-                    fErrors.error(decl->fOffset,
-                                "initializers are not permitted on interface block fields");
+                    this->errorReporter().error(
+                            decl->fOffset,
+                            "initializers are not permitted on interface block fields");
                 }
                 if (vd.var().type().isArray() &&
                     vd.var().type().columns() == Type::kUnsizedArray) {
@@ -1204,12 +1232,12 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 return nullptr;
             }
             if (!converted->is<IntLiteral>()) {
-                fErrors.error(intf.fOffset, "array size must be specified");
+                this->errorReporter().error(intf.fOffset, "array size must be specified");
                 return nullptr;
             }
             arraySize = converted->as<IntLiteral>().value();
             if (arraySize <= 0) {
-                fErrors.error(converted->fOffset, "array size must be positive");
+                this->errorReporter().error(converted->fOffset, "array size must be positive");
                 return nullptr;
             }
         } else {
@@ -1267,7 +1295,7 @@ void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
 
 void IRGenerator::convertEnum(const ASTNode& e) {
     if (this->strictES2Mode()) {
-        fErrors.error(e.fOffset, "enum is not allowed here");
+        this->errorReporter().error(e.fOffset, "enum is not allowed here");
         return;
     }
 
@@ -1291,7 +1319,8 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                 return;
             }
             if (!this->getConstantInt(*value, &currentValue)) {
-                fErrors.error(value->fOffset, "enum value must be a constant integer");
+                this->errorReporter().error(value->fOffset,
+                                            "enum value must be a constant integer");
                 fSymbolTable = oldTable;
                 return;
             }
@@ -1330,28 +1359,30 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     ASTNode::TypeData td = type.getTypeData();
     const Symbol* symbol = (*fSymbolTable)[td.fName];
     if (!symbol || !symbol->is<Type>()) {
-        fErrors.error(type.fOffset, "unknown type '" + td.fName + "'");
+        this->errorReporter().error(type.fOffset, "unknown type '" + td.fName + "'");
         return nullptr;
     }
     const Type* result = &symbol->as<Type>();
     const bool isArray = (type.begin() != type.end());
     if (*result == *fContext.fTypes.fVoid) {
         if (!allowVoid) {
-            fErrors.error(type.fOffset, "type '" + td.fName + "' not allowed in this context");
+            this->errorReporter().error(type.fOffset,
+                                        "type '" + td.fName + "' not allowed in this context");
             return nullptr;
         }
         if (isArray) {
-            fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in an array");
+            this->errorReporter().error(type.fOffset,
+                                        "type '" + td.fName + "' may not be used in an array");
             return nullptr;
         }
     }
     if (!fIsBuiltinCode && this->typeContainsPrivateFields(*result)) {
-        fErrors.error(type.fOffset, "type '" + td.fName + "' is private");
+        this->errorReporter().error(type.fOffset, "type '" + td.fName + "' is private");
         return nullptr;
     }
     if (isArray && result->isOpaque()) {
-        fErrors.error(type.fOffset,
-                      "opaque type '" + td.fName + "' may not be used in an array");
+        this->errorReporter().error(type.fOffset,
+                                    "opaque type '" + td.fName + "' may not be used in an array");
         return nullptr;
     }
     if (isArray) {
@@ -1402,7 +1433,7 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
 std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFragment name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
-        fErrors.error(offset, "unknown identifier '" + name + "'");
+        this->errorReporter().error(offset, "unknown identifier '" + name + "'");
         return nullptr;
     }
     switch (result->kind()) {
@@ -1453,8 +1484,10 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
                     }
                 }
                 if (!valid) {
-                    fErrors.error(offset, "'in' variable must be either 'uniform' or 'layout(key)',"
-                                          " or there must be a custom @setData function");
+                    this->errorReporter().error(
+                            offset,
+                            "'in' variable must be either 'uniform' or 'layout(key)', or there "
+                            "must be a custom @setData function");
                 }
             }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
@@ -1489,7 +1522,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
 
 std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
     if (fKind != Program::kFragmentProcessor_Kind) {
-        fErrors.error(s.fOffset, "syntax error");
+        this->errorReporter().error(s.fOffset, "syntax error");
         return nullptr;
     }
 
@@ -1512,8 +1545,8 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     }
     int offset = expr->fOffset;
     if (!expr->coercionCost(type).isPossible(fSettings->fAllowNarrowingConversions)) {
-        fErrors.error(offset, "expected '" + type.displayName() + "', but found '" +
-                              expr->type().displayName() + "'");
+        this->errorReporter().error(offset, "expected '" + type.displayName() + "', but found '" +
+                                                    expr->type().displayName() + "'");
         return nullptr;
     }
     ExpressionArray args;
@@ -1530,7 +1563,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         ctor = this->convertIdentifier(offset, type.name());
     }
     if (!ctor) {
-        fErrors.error(offset, "null identifier: " + type.name());
+        this->errorReporter().error(offset, "null identifier: " + type.name());
         return nullptr;
     }
     return this->call(offset, std::move(ctor), std::move(args));
@@ -1823,22 +1856,22 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
         rawRightType = &right->type();
     }
     if (this->strictES2Mode() && !op_allowed_in_strict_es2_mode(op)) {
-        fErrors.error(offset,
-                      String("operator '") + Compiler::OperatorName(op) + "' is not allowed");
+        this->errorReporter().error(
+                offset, String("operator '") + Compiler::OperatorName(op) + "' is not allowed");
         return nullptr;
     }
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
-        fErrors.error(offset, String("type mismatch: '") +
-                                     Compiler::OperatorName(op) + "' cannot operate on '" +
-                                     left->type().displayName() + "', '" +
-                                     right->type().displayName() + "'");
+        this->errorReporter().error(
+                offset, String("type mismatch: '") + Compiler::OperatorName(op) +
+                                "' cannot operate on '" + left->type().displayName() + "', '" +
+                                right->type().displayName() + "'");
         return nullptr;
     }
     if (Compiler::IsAssignment(op)) {
         if (leftType->componentType().isOpaque()) {
-            fErrors.error(offset, "assignments to opaque type '" + left->type().displayName() +
-                                  "' are not permitted");
+            this->errorReporter().error(offset, "assignments to opaque type '" +
+                                                left->type().displayName() + "' are not permitted");
         }
         if (!this->setRefKind(*left, op != Token::Kind::TK_EQ
                                              ? VariableReference::RefKind::kReadWrite
@@ -1851,8 +1884,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
-    std::unique_ptr<Expression> result = ConstantFolder::Simplify(fContext, fErrors,
-                                                                  *left, op, *right);
+    std::unique_ptr<Expression> result = ConstantFolder::Simplify(fContext, *left, op, *right);
     if (!result) {
         result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
                                                     resultType);
@@ -1876,13 +1908,13 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
                                Token::Kind::TK_EQEQ, ifTrue->type(), ifFalse->type(),
                                &trueType, &falseType, &resultType) ||
         trueType != falseType) {
-        fErrors.error(offset, "ternary operator result mismatch: '" +
-                              ifTrue->type().displayName() + "', '" +
-                              ifFalse->type().displayName() + "'");
+        this->errorReporter().error(offset, "ternary operator result mismatch: '" +
+                                            ifTrue->type().displayName() + "', '" +
+                                            ifFalse->type().displayName() + "'");
         return nullptr;
     }
     if (trueType->componentType().isOpaque()) {
-        fErrors.error(
+        this->errorReporter().error(
                 offset,
                 "ternary expression of opaque type '" + trueType->displayName() + "' not allowed");
         return nullptr;
@@ -1975,7 +2007,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             msg += "s";
         }
         msg += ", but found " + to_string((uint64_t) arguments.size());
-        fErrors.error(offset, msg);
+        this->errorReporter().error(offset, msg);
         return nullptr;
     }
     // GLSL ES 1.0 requires static recursion be rejected by the compiler. Also, our CPU back-end
@@ -1983,7 +2015,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
     // all (potentially) recursive code is to disallow calls to functions before they're defined.
     if (this->strictES2Mode() && !function.definition() && !function.isBuiltin()) {
         String msg = "call to undefined function '" + function.name() + "'";
-        fErrors.error(offset, msg);
+        this->errorReporter().error(offset, msg);
         return nullptr;
     }
     FunctionDeclaration::ParamTypes types;
@@ -1997,7 +2029,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             msg += arguments[i]->type().displayName();
         }
         msg += ")";
-        fErrors.error(offset, msg);
+        this->errorReporter().error(offset, msg);
         return nullptr;
     }
     for (size_t i = 0; i < arguments.size(); i++) {
@@ -2052,8 +2084,9 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             const ExternalFunction& f = functionValue->as<ExternalFunctionReference>().function();
             int count = f.callParameterCount();
             if (count != (int) arguments.size()) {
-                fErrors.error(offset, "external function expected " + to_string(count) +
-                                      " arguments, but found " + to_string((int) arguments.size()));
+                this->errorReporter().error(offset, "external function expected " +
+                                                    to_string(count) + " arguments, but found " +
+                                                    to_string((int)arguments.size()));
                 return nullptr;
             }
             static constexpr int PARAMETER_MAX = 16;
@@ -2092,13 +2125,13 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                     msg += arguments[i]->type().displayName();
                 }
                 msg += ")";
-                fErrors.error(offset, msg);
+                this->errorReporter().error(offset, msg);
                 return nullptr;
             }
             return this->call(offset, *functions[0], std::move(arguments));
         }
         default:
-            fErrors.error(offset, "not a function");
+            this->errorReporter().error(offset, "not a function");
             return nullptr;
     }
 }
@@ -2108,9 +2141,10 @@ std::unique_ptr<Expression> IRGenerator::convertScalarConstructor(int offset,
                                                                   ExpressionArray args) {
     SkASSERT(type.isNumber() || type.isBoolean());
     if (args.size() != 1) {
-        fErrors.error(offset, "invalid arguments to '" + type.displayName() +
-                              "' constructor, (expected exactly 1 argument, but found " +
-                              to_string((uint64_t) args.size()) + ")");
+        this->errorReporter().error(
+                offset, "invalid arguments to '" + type.displayName() +
+                        "' constructor, (expected exactly 1 argument, but found " +
+                        to_string((uint64_t)args.size()) + ")");
         return nullptr;
     }
 
@@ -2121,9 +2155,10 @@ std::unique_ptr<Expression> IRGenerator::convertScalarConstructor(int offset,
 
     const Type& argType = args[0]->type();
     if (!argType.isNumber() && !argType.isBoolean()) {
-        fErrors.error(offset, "invalid argument to '" + type.displayName() +
-                              "' constructor (expected a number or bool, but found '" +
-                              argType.displayName() + "')");
+        this->errorReporter().error(
+                offset, "invalid argument to '" + type.displayName() +
+                        "' constructor (expected a number or bool, but found '" +
+                        argType.displayName() + "')");
         return nullptr;
     }
     return std::make_unique<Constructor>(offset, &type, std::move(args));
@@ -2157,9 +2192,10 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
             if (argType.isVector()) {
                 if (type.componentType().isNumber() !=
                     argType.componentType().isNumber()) {
-                    fErrors.error(offset, "'" + argType.displayName() + "' is not a valid "
-                                          "parameter to '" + type.displayName() +
-                                          "' constructor");
+                    this->errorReporter().error(offset,
+                                                "'" + argType.displayName() +
+                                                "' is not a valid parameter to '" +
+                                                type.displayName() + "' constructor");
                     return nullptr;
                 }
                 actual += argType.columns();
@@ -2172,15 +2208,17 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
                     }
                 }
             } else {
-                fErrors.error(offset, "'" + argType.displayName() + "' is not a valid "
-                                      "parameter to '" + type.displayName() + "' constructor");
+                this->errorReporter().error(offset, "'" + argType.displayName() +
+                                                    "' is not a valid parameter to '" +
+                                                    type.displayName() + "' constructor");
                 return nullptr;
             }
         }
         if (actual != 1 && actual != expected) {
-            fErrors.error(offset, "invalid arguments to '" + type.displayName() +
-                                  "' constructor (expected " + to_string(expected) +
-                                  " scalars, but found " + to_string(actual) + ")");
+            this->errorReporter().error(offset,
+                                        "invalid arguments to '" + type.displayName() +
+                                        "' constructor (expected " + to_string(expected) +
+                                        " scalars, but found " + to_string(actual) + ")");
             return nullptr;
         }
     }
@@ -2213,7 +2251,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
         return std::make_unique<Constructor>(offset, &type, std::move(args));
     }
 
-    fErrors.error(offset, "cannot construct '" + type.displayName() + "'");
+    this->errorReporter().error(offset, "cannot construct '" + type.displayName() + "'");
     return nullptr;
 }
 
@@ -2232,16 +2270,16 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
     switch (op) {
         case Token::Kind::TK_PLUS:
             if (!baseType.componentType().isNumber()) {
-                fErrors.error(base->fOffset,
-                              "'+' cannot operate on '" + baseType.displayName() + "'");
+                this->errorReporter().error(
+                        base->fOffset, "'+' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             return base;
 
         case Token::Kind::TK_MINUS:
             if (!baseType.componentType().isNumber()) {
-                fErrors.error(base->fOffset,
-                              "'-' cannot operate on '" + baseType.displayName() + "'");
+                this->errorReporter().error(
+                        base->fOffset, "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             if (base->is<IntLiteral>()) {
@@ -2258,9 +2296,9 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
 
         case Token::Kind::TK_PLUSPLUS:
             if (!baseType.isNumber()) {
-                fErrors.error(base->fOffset,
-                              String("'") + Compiler::OperatorName(op) + "' cannot operate on '" +
-                              baseType.displayName() + "'");
+                this->errorReporter().error(base->fOffset,
+                                            String("'") + Compiler::OperatorName(op) +
+                                            "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
@@ -2269,9 +2307,9 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
             break;
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
-                fErrors.error(base->fOffset,
-                              String("'") + Compiler::OperatorName(op) + "' cannot operate on '" +
-                              baseType.displayName() + "'");
+                this->errorReporter().error(base->fOffset,
+                                            String("'") + Compiler::OperatorName(op) +
+                                            "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
@@ -2280,9 +2318,9 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
             break;
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
-                fErrors.error(base->fOffset,
-                              String("'") + Compiler::OperatorName(op) + "' cannot operate on '" +
-                              baseType.displayName() + "'");
+                this->errorReporter().error(base->fOffset,
+                                            String("'") + Compiler::OperatorName(op) +
+                                            "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             if (base->is<BoolLiteral>()) {
@@ -2294,15 +2332,15 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_BITWISENOT:
             if (this->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
-                fErrors.error(base->fOffset,
+                this->errorReporter().error(base->fOffset,
                               String("operator '") + Compiler::OperatorName(op) +
                               "' is not allowed");
                 return nullptr;
             }
             if (!baseType.isInteger()) {
-                fErrors.error(base->fOffset,
-                              String("'") + Compiler::OperatorName(op) + "' cannot operate on '" +
-                              baseType.displayName() + "'");
+                this->errorReporter().error(base->fOffset,
+                                            String("'") + Compiler::OperatorName(op) +
+                                            "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             break;
@@ -2321,8 +2359,9 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
             return std::unique_ptr<Expression>(new FieldAccess(std::move(base), (int) i));
         }
     }
-    fErrors.error(base->fOffset, "type '" + baseType.displayName() + "' does not have a field "
-                                 "named '" + field + "'");
+    this->errorReporter().error(
+            base->fOffset,
+            "type '" + baseType.displayName() + "' does not have a field named '" + field + "'");
     return nullptr;
 }
 
@@ -2336,12 +2375,13 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     const int offset = base->fOffset;
     const Type& baseType = base->type();
     if (!baseType.isVector() && !baseType.isNumber()) {
-        fErrors.error(offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
+        this->errorReporter().error(
+                offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
         return nullptr;
     }
 
     if (fields.length() > 4) {
-        fErrors.error(offset, "too many components in swizzle mask '" + fields + "'");
+        this->errorReporter().error(offset, "too many components in swizzle mask '" + fields + "'");
         return nullptr;
     }
 
@@ -2386,12 +2426,13 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                 }
                 [[fallthrough]];
             default:
-                fErrors.error(offset, String::printf("invalid swizzle component '%c'", fields[i]));
+                this->errorReporter().error(
+                        offset, String::printf("invalid swizzle component '%c'", fields[i]));
                 return nullptr;
         }
     }
     if (maskComponents.empty()) {
-        fErrors.error(offset, "swizzle must refer to base expression");
+        this->errorReporter().error(offset, "swizzle must refer to base expression");
         return nullptr;
     }
 
@@ -2492,7 +2533,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
 const Type* IRGenerator::typeForSetting(int offset, String name) const {
     auto found = fCapsMap.find(name);
     if (found == fCapsMap.end()) {
-        fErrors.error(offset, "unknown capability flag '" + name + "'");
+        this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
         return nullptr;
     }
     switch (found->second.fKind) {
@@ -2507,7 +2548,7 @@ const Type* IRGenerator::typeForSetting(int offset, String name) const {
 std::unique_ptr<Expression> IRGenerator::valueForSetting(int offset, String name) const {
     auto found = fCapsMap.find(name);
     if (found == fCapsMap.end()) {
-        fErrors.error(offset, "unknown capability flag '" + name + "'");
+        this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
         return nullptr;
     }
     return found->second.literal(fContext, offset);
@@ -2540,7 +2581,8 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
         }
     }
     if (!enumElement) {
-        fErrors.error(offset, "type '" + type.displayName() + "' is not a known enum");
+        this->errorReporter().error(offset,
+                                    "type '" + type.displayName() + "' is not a known enum");
         return nullptr;
     }
 
@@ -2555,8 +2597,8 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
         result = std::make_unique<IntLiteral>(offset, v.initialValue()->as<IntLiteral>().value(),
                                               &type);
     } else {
-        fErrors.error(offset,
-                      "type '" + type.name() + "' does not contain enumerator '" + field + "'");
+        this->errorReporter().error(
+                offset, "type '" + type.name() + "' does not contain enumerator '" + field + "'");
     }
     fSymbolTable = old;
     return result;
@@ -2580,7 +2622,7 @@ std::unique_ptr<Expression> IRGenerator::convertEmptyIndex(std::unique_ptr<Expre
         type = fSymbolTable->addArrayDimension(type, Type::kUnsizedArray);
         return std::make_unique<TypeReference>(fContext, base->fOffset, type);
     }
-    fErrors.error(base->fOffset, "'[]' must follow a type name");
+    this->errorReporter().error(base->fOffset, "'[]' must follow a type name");
     return nullptr;
 }
 
@@ -2594,13 +2636,14 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
             return std::make_unique<TypeReference>(fContext, base->fOffset, type);
 
         } else {
-            fErrors.error(base->fOffset, "array size must be a constant");
+            this->errorReporter().error(base->fOffset, "array size must be a constant");
             return nullptr;
         }
     }
     const Type& baseType = base->type();
     if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
-        fErrors.error(base->fOffset, "expected array, but found '" + baseType.displayName() + "'");
+        this->errorReporter().error(base->fOffset,
+                                    "expected array, but found '" + baseType.displayName() + "'");
         return nullptr;
     }
     std::unique_ptr<Expression> converted = this->convertExpression(index);
@@ -2621,8 +2664,9 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
                                        ? INT_MAX
                                        : baseType.columns();
         if (index < 0 || index >= upperBound) {
-            fErrors.error(base->fOffset, "index " + to_string(index) +
-                                         " out of range for '" + baseType.displayName() + "'");
+            this->errorReporter().error(base->fOffset, "index " + to_string(index) +
+                                                       " out of range for '" +
+                                                       baseType.displayName() + "'");
             return nullptr;
         }
         // Constant array indexes on vectors can be converted to swizzles: `myHalf4.z`.
@@ -2682,7 +2726,7 @@ std::unique_ptr<Expression> IRGenerator::convertScopeExpression(const ASTNode& s
         return nullptr;
     }
     if (!base->is<TypeReference>()) {
-        fErrors.error(scopeNode.fOffset, "'::' must follow a type name");
+        this->errorReporter().error(scopeNode.fOffset, "'::' must follow a type name");
         return nullptr;
     }
     StringFragment member = scopeNode.getString();
@@ -2702,9 +2746,9 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_pt
                                                                   Token::Kind op) {
     const Type& baseType = base->type();
     if (!baseType.isNumber()) {
-        fErrors.error(base->fOffset,
-                      "'" + String(Compiler::OperatorName(op)) + "' cannot operate on '" +
-                      baseType.displayName() + "'");
+        this->errorReporter().error(base->fOffset,
+                                    "'" + String(Compiler::OperatorName(op)) +
+                                    "' cannot operate on '" + baseType.displayName() + "'");
         return nullptr;
     }
     if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
@@ -2716,28 +2760,30 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_pt
 void IRGenerator::checkValid(const Expression& expr) {
     switch (expr.kind()) {
         case Expression::Kind::kFunctionReference:
-            fErrors.error(expr.fOffset, "expected '(' to begin function call");
+            this->errorReporter().error(expr.fOffset, "expected '(' to begin function call");
             break;
         case Expression::Kind::kTypeReference:
-            fErrors.error(expr.fOffset, "expected '(' to begin constructor invocation");
+            this->errorReporter().error(expr.fOffset,
+                                        "expected '(' to begin constructor invocation");
             break;
         case Expression::Kind::kFunctionCall: {
             const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
             if (!decl.isBuiltin() && !decl.definition()) {
-                fErrors.error(expr.fOffset, "function '" + decl.description() + "' is not defined");
+                this->errorReporter().error(expr.fOffset,
+                                            "function '" + decl.description() + "' is not defined");
             }
             break;
         }
         default:
             if (expr.type() == *fContext.fTypes.fInvalid) {
-                fErrors.error(expr.fOffset, "invalid expression");
+                this->errorReporter().error(expr.fOffset, "invalid expression");
             }
     }
 }
 
 bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) {
     Analysis::AssignmentInfo info;
-    if (!Analysis::IsAssignable(expr, &info, &fErrors)) {
+    if (!Analysis::IsAssignable(expr, &info, &this->errorReporter())) {
         return false;
     }
     if (info.fAssignedVar) {
@@ -2850,9 +2896,9 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         }
     }
 
-    Parser parser(text, length, *fSymbolTable, fErrors);
+    Parser parser(text, length, *fSymbolTable, this->errorReporter());
     fFile = parser.compilationUnit();
-    if (fErrors.errorCount()) {
+    if (this->errorReporter().errorCount()) {
         return {};
     }
     SkASSERT(fFile);

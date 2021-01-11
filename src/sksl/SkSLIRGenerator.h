@@ -102,8 +102,7 @@ private:
 class IRGenerator {
 public:
     IRGenerator(const Context* context,
-                const ShaderCapsClass* caps,
-                ErrorReporter& errorReporter);
+                const ShaderCapsClass* caps);
 
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
@@ -132,7 +131,7 @@ public:
 
     const Program::Settings* settings() const { return fSettings; }
 
-    ErrorReporter& errorReporter() const { return fErrors; }
+    ErrorReporter& errorReporter() const { return fContext.fErrors; }
 
     std::shared_ptr<SymbolTable>& symbolTable() {
         return fSymbolTable;
@@ -268,7 +267,6 @@ private:
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
     int fLoopLevel = 0;
     int fSwitchLevel = 0;
-    ErrorReporter& fErrors;
     int fInvocations;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
     std::vector<const ProgramElement*>*           fSharedElements = nullptr;

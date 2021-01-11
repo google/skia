@@ -236,8 +236,9 @@ public:
     using INHERITED = Expression;
 };
 
-Context::Context()
-        : fDefined_Expression(std::make_unique<DefinedExpression>(fTypes.fInvalid.get())) {}
+Context::Context(ErrorReporter& errors)
+        : fErrors(errors)
+        , fDefined_Expression(std::make_unique<DefinedExpression>(fTypes.fInvalid.get())) {}
 
 }  // namespace SkSL
 
