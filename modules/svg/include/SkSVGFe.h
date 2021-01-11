@@ -54,6 +54,13 @@ private:
      */
     SkRect resolveBoundaries(const SkSVGRenderContext&, const SkSVGFilterContext&) const;
 
+    /**
+     * Resolves the colorspace within which this filter effect should be applied.
+     * Spec: https://www.w3.org/TR/SVG11/painting.html#ColorInterpolationProperties
+     * 'color-interpolation-filters' property.
+     */
+    SkSVGColorspace resolveColorspace(const SkSVGRenderContext&) const;
+
     using INHERITED = SkSVGHiddenContainer;
 };
 
