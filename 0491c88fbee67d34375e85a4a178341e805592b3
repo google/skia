@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e534fea2_12573e0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-11T20:54:29Z",
+      "side": 1,
+      "message": "I wrote up a change to avoid all the string copies and... it didn\u0027t make a difference to the time. I looks like with our svgs (the pubic ones pulled by infra/bots/assets/svg/create.py) that bumping the buffer size to 4096 brings down the debug runtime to basically the release runtime.\n\nRunning \"perf record out/asan/dm --config svg --src svg --svgs out/svg\" before and after this change shows that the entire difference is in \"normal_scanLt()\", where in the debug case (with the small buffer) it spends 26% of the total time of the running program. Unfortunately, it is difficult to see exactly why \"doContent\" is spending so much time in \"normal_scanLt\" (defined in header as PERFIX(scanLt).\n\nIn any event, I\u0027m convinced this is the case, and this code in particular isn\u0027t very subject to slicing since it\u0027s more or less written once and hands off the full accumulated text to subclasses.",
+      "revId": "0491c88fbee67d34375e85a4a178341e805592b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99fa283d_b3bc61aa",
