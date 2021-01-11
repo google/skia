@@ -77,7 +77,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     }
 
     const auto& caps = *fImage->context()->priv().caps();
-    auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,
+    auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVALocations, fImage->fYUVColorSpace,
                                      samplerState, caps, textureMatrix, subset, domain);
     if (fImage->fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),
@@ -96,7 +96,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createBicubicFragm
         SkImage::CubicResampler kernel) {
     const auto& caps = *fImage->context()->priv().caps();
     GrSamplerState samplerState(wrapX, wrapY, GrSamplerState::Filter::kNearest);
-    auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,
+    auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVALocations, fImage->fYUVColorSpace,
                                      samplerState, caps, SkMatrix::I(), subset, domain);
     fp = GrBicubicEffect::Make(std::move(fp),
                                fImage->alphaType(),

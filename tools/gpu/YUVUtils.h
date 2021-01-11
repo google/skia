@@ -9,9 +9,7 @@
 #define YUVUtils_DEFINED
 
 #include "include/core/SkImage.h"
-#include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoMalloc.h"
 

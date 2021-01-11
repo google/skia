@@ -27,7 +27,6 @@ class GrDirectContext;
 class GrImageContext;
 class GrSamplerState;
 class SkCachedData;
-struct SkYUVASizeInfo;
 
 enum {
     kNeedNewImageUniqueID = 0

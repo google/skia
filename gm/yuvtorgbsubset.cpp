@@ -16,8 +16,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/core/SkYUVAIndex.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
@@ -101,12 +101,12 @@ protected:
                                                           GrSamplerState::Filter::kLinear};
         static const SkRect kColorRect = SkRect::MakeLTRB(2.f, 2.f, 6.f, 6.f);
 
-        SkYUVAIndex yuvaIndices[4] = {
-            { SkYUVAIndex::kY_Index, SkColorChannel::kA },
-            { SkYUVAIndex::kU_Index, SkColorChannel::kA },
-            { SkYUVAIndex::kV_Index, SkColorChannel::kA },
-            { -1, SkColorChannel::kA }
-        };
+        SkYUVAInfo::YUVALocations yuvaLocations = {{
+            { 0, SkColorChannel::kA},
+            { 1, SkColorChannel::kA},
+            { 2, SkColorChannel::kA},
+            {-1, SkColorChannel::kA}
+        }};
         // Outset to visualize wrap modes.
         SkRect rect = SkRect::MakeWH(YSIZE, YSIZE).makeOutset(YSIZE/2, YSIZE/2);
 
@@ -130,7 +130,7 @@ protected:
                 }
                 const auto& caps = *context->priv().caps();
                 std::unique_ptr<GrFragmentProcessor> fp(
-                        GrYUVtoRGBEffect::Make(views, yuvaIndices, kJPEG_SkYUVColorSpace,
+                        GrYUVtoRGBEffect::Make(views, yuvaLocations, kJPEG_SkYUVColorSpace,
                                                samplerState, caps, SkMatrix::I(), subset));
                 if (fp) {
                     GrPaint grPaint;

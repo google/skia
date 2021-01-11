@@ -18,8 +18,6 @@
 #include <bitset>
 
 class GrImageContext;
-struct SkYUVASizeInfo;
-struct SkYUVAIndex;
 
 /**
  * SkYUVAInfo combined with per-plane SkColorTypes and row bytes. Fully specifies the SkPixmaps
@@ -241,18 +239,13 @@ public:
     const SkPixmap& plane(int i) const { return fPlanes[SkToSizeT(i)]; }
 
     /**
-     * Computes a SkYUVAIndex representation of the planar layout. Returns true on success and
-     * false on failure. Will succeed whenever this->isValid() is true.
+     * Computes a YUVALocations representation of the planar layout. The result is guaranteed to be
+     * valid if this->isValid().
      */
-    bool toYUVAIndices(SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
+    SkYUVAInfo::YUVALocations toYUVALocations() const;
 
     /** Does this SkPixmaps own the backing store of the planes? */
     bool ownsStorage() const { return SkToBool(fData); }
-
-    /**
-     * Conversion to legacy SkYUVA data structures.
-     */
-    bool toLegacy(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
 
 private:
     SkYUVAPixmaps(const SkYUVAPixmapInfo&, sk_sp<SkData>);

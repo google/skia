@@ -8,8 +8,6 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkYUVAIndex.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"

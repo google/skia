@@ -16,7 +16,6 @@
 #include "src/core/SkNextID.h"
 
 #if SK_SUPPORT_GPU
-#include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
@@ -268,7 +267,7 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
         return {};
     }
 
-    GrSurfaceProxyView yuvViews[SkYUVASizeInfo::kMaxCount];
+    GrSurfaceProxyView yuvViews[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < yuvaPixmaps.numPlanes(); ++i) {
         // If the sizes of the components are not all the same we choose to create exact-match
         // textures for the smaller ones rather than add a texture domain to the draw.
@@ -321,11 +320,9 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
         return {};
     }
 
-    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
-    SkAssertResult(yuvaPixmaps.toYUVAIndices(yuvaIndices));
     std::unique_ptr<GrFragmentProcessor> yuvToRgbProcessor =
             GrYUVtoRGBEffect::Make(yuvViews,
-                                   yuvaIndices,
+                                   yuvaPixmaps.toYUVALocations(),
                                    yuvaPixmaps.yuvaInfo().yuvColorSpace(),
                                    GrSamplerState::Filter::kNearest,
                                    *ctx->priv().caps());

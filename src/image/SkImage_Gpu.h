@@ -20,7 +20,6 @@ class GrRecordingContext;
 class GrTexture;
 
 class SkBitmap;
-struct SkYUVAIndex;
 
 class SkImage_Gpu : public SkImage_GpuBase {
 public:
