@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7878e61a_97684269",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "Done!",
+      "parentUuid": "ade10f49_bbb8f23a",
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10a2bcd7_0f342eef",
@@ -81,6 +99,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b940c10e_a5dc9ab3",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "Fixed when landing separately.",
+      "parentUuid": "65e92dcc_45d96049",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73497dc2_61189b98",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10a2bcd7_0f342eef",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1745dfaa_a690a928",
@@ -104,6 +170,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e3c68f4_99a0e7a0",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "Discussed in the separate mangler change.",
+      "parentUuid": "1745dfaa_a690a928",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 43
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aceab9a7_eef34dc8",
@@ -117,6 +207,24 @@
       "writtenOn": "2021-01-11T15:13:24Z",
       "side": 1,
       "message": "Looks like we don\u0027t need this header (luckily - as it\u0027s gpu-only and fairly deep in the weeds).\n\n... for that matter, we don\u0027t need SkSLString, either?",
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a712a06c_2f61a71d",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "aceab9a7_eef34dc8",
       "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -167,6 +275,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6f4a3a5_38c7ff56",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbf29aa5_7b7974ee",
+      "range": {
+        "startLine": 52,
+        "startChar": 8,
+        "endLine": 52,
+        "endChar": 37
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8feb1593_6e32c008",
@@ -190,6 +322,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bfba98f_5fa56324",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8feb1593_6e32c008",
+      "range": {
+        "startLine": 101,
+        "startChar": 6,
+        "endLine": 101,
+        "endChar": 7
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "467a952f_2cdad93f",
@@ -203,6 +359,24 @@
       "writtenOn": "2021-01-11T15:13:24Z",
       "side": 1,
       "message": "Do we want to disable this for *all* tests? Seems like that could bite us later, if we forget about it? Maybe just turn it off the new Var test-case?",
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92ad2116_028fb37a",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T20:44:56Z",
+      "side": 1,
+      "message": "All of the upcoming tests use vars (see https://skia-review.googlesource.com/c/skia/+/343916/14/tests/SkSLDSLTest.cpp) so it will need to be disabled for all of them. I can\u0027t think of a reason why we would want mangling, outside out perhaps a specific test of mangling, which seems like it would cause the implementor would quickly figure out that it\u0027s disabled.",
+      "parentUuid": "467a952f_2cdad93f",
       "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
