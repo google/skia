@@ -3,6 +3,63 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b8c0facb_d2ff1654",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T15:13:24Z",
+      "side": 1,
+      "message": "Looks good overall - just a couple small things.",
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10a2bcd7_0f342eef",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T15:13:24Z",
+      "side": 1,
+      "message": "nit: 2021",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aceab9a7_eef34dc8",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T15:13:24Z",
+      "side": 1,
+      "message": "Looks like we don\u0027t need this header (luckily - as it\u0027s gpu-only and fairly deep in the weeds).\n\n... for that matter, we don\u0027t need SkSLString, either?",
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "13b1a995_bff5908d",
         "filename": "src/sksl/dsl/DSLVar.h",
         "patchSetId": 4
@@ -20,6 +77,23 @@
         "endLine": 52,
         "endChar": 15
       },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "467a952f_2cdad93f",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-11T15:13:24Z",
+      "side": 1,
+      "message": "Do we want to disable this for *all* tests? Seems like that could bite us later, if we forget about it? Maybe just turn it off the new Var test-case?",
       "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
