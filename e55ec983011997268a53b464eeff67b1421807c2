@@ -39,6 +39,29 @@
       },
       "revId": "e55ec983011997268a53b464eeff67b1421807c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20ffc9f3_846dc141",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1969,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T18:26:40Z",
+      "side": 1,
+      "message": "I\u0027m confused about this. ES2 should allow functions to be prototyped, called, and defined afterwards. This check seems to be saying, \"in strict ES2 mode, if a function is prototyped but not yet defined in the IR, return an error if it is called.\"\n\nWe already do a check for calling never-defined functions in `IRGenerator::checkValid` that covers all program kinds. (Tracked in https://crbug.com/skia/10902)",
+      "range": {
+        "startLine": 1969,
+        "startChar": 0,
+        "endLine": 1969,
+        "endChar": 83
+      },
+      "revId": "e55ec983011997268a53b464eeff67b1421807c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
