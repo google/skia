@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56fbf0ea_18d04bbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-11T16:21:40Z",
+      "side": 1,
+      "message": "No idea how this could trigger any change in gold...",
+      "revId": "ae38b316bf2ad0aea48a9bdf9a6d65ad01698a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
