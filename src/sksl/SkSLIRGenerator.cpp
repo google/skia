@@ -1978,7 +1978,10 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         fErrors.error(offset, msg);
         return nullptr;
     }
-    if (fKind == Program::kRuntimeEffect_Kind && !function.definition() && !function.isBuiltin()) {
+    // GLSL ES 1.0 requires static recursion be rejected by the compiler. Also, our CPU back-end
+    // can not handle recursion (and is tied to strictES2Mode front-ends). The safest way to reject
+    // all (potentially) recursive code is to disallow calls to functions before they're defined.
+    if (this->strictES2Mode() && !function.definition() && !function.isBuiltin()) {
         String msg = "call to undefined function '" + function.name() + "'";
         fErrors.error(offset, msg);
         return nullptr;
