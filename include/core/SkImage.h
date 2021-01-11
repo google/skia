@@ -8,7 +8,6 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
@@ -838,20 +837,6 @@ public:
         kRepeatedCubic,
     };
 
-#ifdef SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
-    static RescaleMode QualityToRescale(SkFilterQuality fq) {
-        if (fq == kNone_SkFilterQuality) {
-            return RescaleMode::kNearest;
-        } else if (fq == kHigh_SkFilterQuality) {
-            return RescaleMode::kRepeatedCubic;
-        } else {
-            // kLow_SkFilterQuality
-            // kMedium_SkFilterQuality
-            return RescaleMode::kRepeatedLinear;
-        }
-    }
-#endif
-
     /** Makes image pixel data available to caller, possibly asynchronously. It can also rescale
         the image pixels.
 
@@ -888,17 +873,6 @@ public:
                                    RescaleMode rescaleMode,
                                    ReadPixelsCallback callback,
                                    ReadPixelsContext context);
-#ifdef SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
-    void asyncRescaleAndReadPixels(const SkImageInfo& info,
-                                   const SkIRect& srcRect,
-                                   RescaleGamma rescaleGamma,
-                                   SkFilterQuality quality,
-                                   ReadPixelsCallback callback,
-                                   ReadPixelsContext context) {
-        return asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, QualityToRescale(quality),
-                                         callback, context);
-    }
-#endif
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
@@ -937,20 +911,6 @@ public:
                                          RescaleMode rescaleMode,
                                          ReadPixelsCallback callback,
                                          ReadPixelsContext context);
-#ifdef SK_SUPPORT_LEGACY_ASYNCRESCALE_QUALITY
-    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         const SkIRect& srcRect,
-                                         const SkISize& dstSize,
-                                         RescaleGamma rescaleGamma,
-                                         SkFilterQuality quality,
-                                         ReadPixelsCallback callback,
-                                         ReadPixelsContext context) {
-        return asyncRescaleAndReadPixelsYUV420(yuvColorSpace, std::move(dstColorSpace), srcRect,
-                                               dstSize, rescaleGamma, QualityToRescale(quality),
-                                               callback, context);
-    }
-#endif
 
     /** Copies SkImage to dst, scaling pixels to fit dst.width() and dst.height(), and
         converting pixels to match dst.colorType() and dst.alphaType(). Returns true if
