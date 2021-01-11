@@ -458,9 +458,14 @@ private:
             }
         }
 
-        // Normalize src coordinates and the subset (if set)
-        NormalizationParams params = proxy_normalization_params(proxyView.proxy(),
-                                                                proxyView.origin());
+        NormalizationParams params{1, 1, 0};
+        if (!proxyView.proxy()->isFullyLazy()) { // $$ - this should change to the new thing
+            // Normalize src coordinates and the subset (if set)
+            params = proxy_normalization_params(proxyView.proxy(), proxyView.origin());
+        } else {
+            SkASSERT(proxyView.proxy()->isDDLTarget());
+        }
+
         normalize_src_quad(params, &quad->fLocal);
         SkRect subset = normalize_and_inset_subset(filter, params, subsetRect);
 
@@ -685,6 +690,7 @@ private:
                            const GrXferProcessor::DstProxyView& dstProxyView,
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) override {
+#if 0
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
@@ -700,6 +706,7 @@ private:
         // This will call onCreateProgramInfo and register the created program with the DDL.
         this->INHERITED::onPrePrepareDraws(context, writeView, clip, dstProxyView,
                                            renderPassXferBarriers, colorLoadOp);
+#endif
     }
 
     static void FillInVertices(const GrCaps& caps, TextureOp* texOp, Desc* desc, char* vertexData) {
@@ -720,8 +727,14 @@ private:
                     SkASSERT(iter.isLocalValid());
                     const ColorSubsetAndAA& info = iter.metadata();
 
-                    tessellator.append(iter.deviceQuad(), iter.localQuad(), info.fColor,
-                                       info.fSubsetRect, info.aaFlags());
+                    if (op.fViewCountPairs[p].fProxy->isDDLTarget()) {
+                        SkASSERT(quadCnt == 1);
+                        tessellator.append(iter.deviceQuad(), iter.localQuad(), info.fColor,
+                                           info.fSubsetRect, info.aaFlags());
+                    } else {
+                        tessellator.append(iter.deviceQuad(), iter.localQuad(), info.fColor,
+                                           info.fSubsetRect, info.aaFlags());
+                    }
                 }
 
                 SkASSERT((totVerticesSeen + meshVertexCnt) * vertexSize
@@ -926,6 +939,13 @@ private:
         SkDEBUGCODE(int numDraws = 0;)
         for (const auto& op : ChainRange<TextureOp>(this)) {
             for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
+
+                auto proxy = op.fViewCountPairs[p].fProxy;
+
+                if (proxy->isDDLTarget()) {
+                    int foo = 0;
+                }
+
                 const int quadCnt = op.fViewCountPairs[p].fQuadCnt;
                 SkASSERT(numDraws < fDesc->fNumProxies);
                 flushState->bindTextures(fDesc->fProgramInfo->primProc(),

@@ -323,8 +323,8 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
     auto& te = args.fFp.cast<GrTextureEffect>();
     auto* fb = args.fFragBuilder;
 
-    if (te.fShaderModes[0] == ShaderMode::kNone &&
-        te.fShaderModes[1] == ShaderMode::kNone) {
+    if ((te.fShaderModes[0] == ShaderMode::kNone &&
+        te.fShaderModes[1] == ShaderMode::kNone) || te.fLazyProxyNormalization) {
         fb->codeAppendf("return ");
         if (te.fLazyProxyNormalization) {
             const char* norm = nullptr;
@@ -341,7 +341,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
         // it hasn't been tested and this code path probably won't handle normalization
         // properly in that case.
-        SkASSERT(!te.fLazyProxyNormalization);
+//        SkASSERT(!te.fLazyProxyNormalization);
         // Here is the basic flow of the various ShaderModes are implemented in a series of
         // steps. Not all the steps apply to all the modes. We try to emit only the steps
         // that are necessary for the given x/y shader modes.
@@ -711,13 +711,19 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 }
 
 void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
-                                      const GrFragmentProcessor& fp) {
+                                      const GrFragmentProcessor& fp,
+                                      SkIPoint viewportOffset) {
     const auto& te = fp.cast<GrTextureEffect>();
 
     const float w = te.texture()->width();
     const float h = te.texture()->height();
-    const auto& s = te.fSubset;
-    const auto& c = te.fClamp;
+    auto s = te.fSubset;
+    auto c = te.fClamp;
+
+    if (te.fView.asTextureProxy()->isDDLTarget()) {
+        s.offset(viewportOffset.fX, viewportOffset.fY);
+        c.offset(viewportOffset.fX, viewportOffset.fY);
+    }
 
     auto type = te.texture()->textureType();
 

@@ -430,7 +430,8 @@ static void draw_texture_producer(GrRecordingContext* context,
                                   SkCubicResampler cubic) {
     const SkMatrix& ctm(matrixProvider.localToDevice());
     if (sampler.wrapModeX() == GrSamplerState::WrapMode::kClamp &&
-        sampler.wrapModeY() == GrSamplerState::WrapMode::kClamp && !producer->isPlanar() &&
+        sampler.wrapModeY() == GrSamplerState::WrapMode::kClamp &&
+        !producer->isPlanar() &&
         can_use_draw_texture(paint, GrValidCubicResampler(cubic), sampler.mipmapMode())) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.

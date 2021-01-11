@@ -25,7 +25,8 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const GrConicEffect& ce = primProc.cast<GrConicEffect>();
 
         this->setTransform(pdman, fViewMatrixUniform, ce.viewMatrix(), &fViewMatrix);
@@ -219,7 +220,8 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
 
         this->setTransform(pdman, fViewMatrixUniform, qe.viewMatrix(), &fViewMatrix);

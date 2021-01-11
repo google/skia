@@ -159,6 +159,9 @@ void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
                                 nativeScissorRect.fWidth, nativeScissorRect.fHeight);
 }
 
+void GrDawnOpsRenderPass::onSetViewport(const SkIRect& viewport) {
+}
+
 bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                          const GrSurfaceProxy* const primProcTextures[],
                                          const GrPipeline& pipeline) {

@@ -344,6 +344,10 @@ SkString GrSurfaceProxy::dump() const {
                 this->uniqueID().asUInt(),
                 this->peekSurface() ? this->peekSurface()->uniqueID().asUInt()
                                     : -1);
+    if (this->isDDLTarget()) {
+        tmp.append(" isDDLTarget");
+    }
+
     return tmp;
 }
 
