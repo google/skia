@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ade10f49_bbb8f23a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T15:21:46Z",
+      "side": 1,
+      "message": "This looks great to me but I wish the Mangler-Inliner separation was done as its own CL. ",
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10a2bcd7_0f342eef",
@@ -36,6 +53,52 @@
         "startChar": 13,
         "endLine": 2,
         "endChar": 17
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65e92dcc_45d96049",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T15:21:46Z",
+      "side": 1,
+      "message": "LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1745dfaa_a690a928",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T15:21:46Z",
+      "side": 1,
+      "message": "Remove this part of the sentence.",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 43
       },
       "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
@@ -76,6 +139,52 @@
         "startChar": 4,
         "endLine": 52,
         "endChar": 15
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbf29aa5_7b7974ee",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T15:21:46Z",
+      "side": 1,
+      "message": "auto\n\n(To avoid redundantly specifying the type)",
+      "range": {
+        "startLine": 52,
+        "startChar": 8,
+        "endLine": 52,
+        "endChar": 37
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8feb1593_6e32c008",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-11T15:21:46Z",
+      "side": 1,
+      "message": "(Testing only)",
+      "range": {
+        "startLine": 101,
+        "startChar": 6,
+        "endLine": 101,
+        "endChar": 7
       },
       "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
