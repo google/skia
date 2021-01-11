@@ -150,16 +150,3 @@ size_t SkBase64::Encode(const void* srcv, size_t length, void* dstv, const char*
     }
     return (length + 2) / 3 * 4;
 }
-
-/** @deprecated */
-SkBase64::SkBase64() : fLength((size_t) -1), fData(nullptr) {}
-
-/** @deprecated */
-SkBase64::Error SkBase64::decode(const char* src, size_t len) {
-    Error err = SkBase64::Decode(src, len, nullptr, &fLength);
-    if (err != kNoError) {
-        return err;
-    }
-    fData = new char[fLength];
-    return SkBase64::Decode(src, len, fData, &fLength);
-}
