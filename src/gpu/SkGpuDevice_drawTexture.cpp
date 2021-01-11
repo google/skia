@@ -7,7 +7,6 @@
 
 #include "src/gpu/SkGpuDevice.h"
 
-#include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTPin.h"

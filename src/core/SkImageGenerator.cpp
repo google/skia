@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
-#include "include/core/SkYUVAIndex.h"
+
+#include "include/core/SkImage.h"
 #include "src/core/SkNextID.h"
 
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
