@@ -19,18 +19,18 @@ namespace SkSL {
  */
 static const Type& index_type(const Context& context, const Type& type) {
     if (type.isMatrix()) {
-        if (type.componentType() == *context.fFloat_Type) {
+        if (type.componentType() == *context.fTypes.fFloat) {
             switch (type.rows()) {
-                case 2: return *context.fFloat2_Type;
-                case 3: return *context.fFloat3_Type;
-                case 4: return *context.fFloat4_Type;
+                case 2: return *context.fTypes.fFloat2;
+                case 3: return *context.fTypes.fFloat3;
+                case 4: return *context.fTypes.fFloat4;
                 default: SkASSERT(false);
             }
-        } else if (type.componentType() == *context.fHalf_Type) {
+        } else if (type.componentType() == *context.fTypes.fHalf) {
             switch (type.rows()) {
-                case 2: return *context.fHalf2_Type;
-                case 3: return *context.fHalf3_Type;
-                case 4: return *context.fHalf4_Type;
+                case 2: return *context.fTypes.fHalf2;
+                case 3: return *context.fTypes.fHalf3;
+                case 4: return *context.fTypes.fHalf4;
                 default: SkASSERT(false);
             }
         }

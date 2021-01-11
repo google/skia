@@ -176,7 +176,7 @@ bool ByteCodeGenerator::generateCode() {
             case ProgramElement::Kind::kGlobalVar: {
                 const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                 const Variable& declVar = decl.declaration()->as<VarDeclaration>().var();
-                if (declVar.type() == *fContext.fFragmentProcessor_Type) {
+                if (declVar.type() == *fContext.fTypes.fFragmentProcessor) {
                     fOutput->fChildFPCount++;
                 }
                 if (declVar.modifiers().fLayout.fBuiltin >= 0 || is_in(declVar)) {
@@ -219,7 +219,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     result->fStackCount     = fMaxStackCount;
 
     const Type& returnType = f.declaration().returnType();
-    if (returnType != *fContext.fVoid_Type) {
+    if (returnType != *fContext.fTypes.fVoid) {
         result->fReturnCount = SlotCount(returnType);
     }
     fLocals.clear();
@@ -477,13 +477,13 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             return Location::MakeInvalid();
         }
         case Variable::Storage::kGlobal: {
-            if (var.type() == *fContext.fFragmentProcessor_Type) {
+            if (var.type() == *fContext.fTypes.fFragmentProcessor) {
                 int offset = 0;
                 for (const ProgramElement* e : fProgram.elements()) {
                     if (e->is<GlobalVarDeclaration>()) {
                         const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                         const Variable& declVar = decl.declaration()->as<VarDeclaration>().var();
-                        if (declVar.type() != *fContext.fFragmentProcessor_Type) {
+                        if (declVar.type() != *fContext.fTypes.fFragmentProcessor) {
                             continue;
                         }
                         if (&declVar == &var) {
@@ -1141,9 +1141,9 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
 
     if (intrin.is_special && intrin.special == SpecialIntrinsic::kSample) {
         // Sample is very special, the first argument is an FP, which can't be pushed to the stack.
-        if (nargs > 2 || args[0]->type() != *fContext.fFragmentProcessor_Type ||
-            (nargs == 2 && (args[1]->type() != *fContext.fFloat2_Type &&
-                            args[1]->type() != *fContext.fFloat3x3_Type))) {
+        if (nargs > 2 || args[0]->type() != *fContext.fTypes.fFragmentProcessor ||
+            (nargs == 2 && (args[1]->type() != *fContext.fTypes.fFloat2 &&
+                            args[1]->type() != *fContext.fTypes.fFloat3x3))) {
             fErrors.error(c.fOffset, "Unsupported form of sample");
             return;
         }
@@ -1151,7 +1151,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         if (nargs == 2) {
             // Write our coords or matrix
             this->writeExpression(*args[1]);
-            this->write(args[1]->type() == *fContext.fFloat3x3_Type
+            this->write(args[1]->type() == *fContext.fTypes.fFloat3x3
                                 ? ByteCodeInstruction::kSampleMatrix
                                 : ByteCodeInstruction::kSampleExplicit);
         } else {
@@ -1309,7 +1309,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 SkASSERT(count == SlotCount(args[1]->type()));
                 int selectorCount = SlotCount(args[2]->type());
 
-                if (is_generic_type(&args[2]->type(), fContext.fGenBType_Type.get())) {
+                if (is_generic_type(&args[2]->type(), fContext.fTypes.fGenBType.get())) {
                     // mix(genType, genType, genBoolType)
                     SkASSERT(selectorCount == count);
                     this->write(ByteCodeInstruction::kMix, count);
