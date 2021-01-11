@@ -18,14 +18,20 @@
 
 static GrSurfaceProxyView blur(GrRecordingContext* ctx,
                                GrSurfaceProxyView src,
+                               GrColorInfo srcInfo,
                                SkIRect dstB,
                                SkIRect srcB,
                                float sigmaX,
                                float sigmaY,
                                SkTileMode mode) {
-    auto resultRTC =
-            SkGpuBlurUtils::GaussianBlur(ctx, src, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
-                                         nullptr, dstB, srcB, sigmaX, sigmaY, mode);
+    auto resultRTC = SkGpuBlurUtils::GaussianBlur(ctx,
+                                                  src,
+                                                  std::move(srcInfo),
+                                                  dstB,
+                                                  srcB,
+                                                  sigmaX,
+                                                  sigmaY,
+                                                  mode);
     if (!resultRTC) {
         return {};
     }
@@ -199,8 +205,14 @@ static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc, bool su
                     blurSrc = refSrc->readSurfaceView();
                 }
                 // Blur using the rect and draw on top.
-                if (auto blurView = blur(rContext, blurSrc, blurDstRect, blurSrcRect,
-                                         sigmaX, sigmaY, blurMode)) {
+                if (auto blurView = blur(rContext,
+                                         blurSrc,
+                                         srcII.colorInfo(),
+                                         blurDstRect,
+                                         blurSrcRect,
+                                         sigmaX,
+                                         sigmaY,
+                                         blurMode)) {
                     auto fp = GrTextureEffect::Make(blurView, kPremul_SkAlphaType, SkMatrix::I(),
                                                     sampler, caps);
                     GrPaint paint;

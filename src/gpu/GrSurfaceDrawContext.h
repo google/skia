@@ -643,7 +643,7 @@ public:
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
 
-    GrSurfaceDrawContext* asRenderTargetContext() override { return this; }
+    GrSurfaceDrawContext* asDrawContext() override { return this; }
 
 #if GR_TEST_UTILS
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }

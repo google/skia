@@ -98,9 +98,7 @@ uniform half blurRadius;
         SkASSERT(srcView.asTextureProxy());
         auto rtc2 = SkGpuBlurUtils::GaussianBlur(dContext,
                                                  std::move(srcView),
-                                                 rtc->colorInfo().colorType(),
-                                                 rtc->colorInfo().alphaType(),
-                                                 nullptr,
+                                                 rtc->colorInfo(),
                                                  SkIRect::MakeSize(dimensions),
                                                  SkIRect::MakeSize(dimensions),
                                                  xformedSigma,

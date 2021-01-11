@@ -143,15 +143,11 @@ public:
     void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp);
 
     /**
-     * A convenience version of fillRectWithFP that applies a coordinate transformation via
-     * GrMatrixEffect.
+     * A version of fillRectWithFP that applies a local matrix to the fp's coords.
      */
     void fillRectWithFP(const SkIRect& dstRect,
                         const SkMatrix& localMatrix,
-                        std::unique_ptr<GrFragmentProcessor> fp) {
-        fp = GrMatrixEffect::Make(localMatrix, std::move(fp));
-        this->fillRectWithFP(dstRect, std::move(fp));
-    }
+                        std::unique_ptr<GrFragmentProcessor> fp);
 
     /** Fills 'dstRect' with 'fp' using a local matrix that maps 'srcRect' to 'dstRect' */
     void fillRectToRectWithFP(const SkRect& srcRect,
