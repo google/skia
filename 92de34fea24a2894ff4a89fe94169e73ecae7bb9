@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13b1a995_bff5908d",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T14:20:02Z",
+      "side": 1,
+      "message": "Turns out we are adding the names to the symbol table, so we don\u0027t actually need ownership. Nevermind.",
+      "range": {
+        "startLine": 52,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 15
+      },
+      "revId": "92de34fea24a2894ff4a89fe94169e73ecae7bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

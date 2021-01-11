@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f29c033_52bd2079",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T14:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02d8e9c4_89e5494f",
+      "range": {
+        "startLine": 53,
+        "startChar": 57,
+        "endLine": 55,
+        "endChar": 98
+      },
+      "revId": "bfbf5b48845ccf2ea3ab9a0e542bac503774cfdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c28825c_9f9bdf2c",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf10c129_696868c1",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T14:20:02Z",
+      "side": 1,
+      "message": "This should have just been removed. Done.",
+      "parentUuid": "8c28825c_9f9bdf2c",
+      "range": {
+        "startLine": 110,
+        "startChar": 16,
+        "endLine": 110,
+        "endChar": 34
+      },
+      "revId": "bfbf5b48845ccf2ea3ab9a0e542bac503774cfdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19543c5b_902265d5",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-01-08T20:09:36Z",
       "side": 1,
       "message": "If we are just going to poke it directly, do we actually want a SetManglingEnabled accessor?",
+      "range": {
+        "startLine": 24,
+        "startChar": 8,
+        "endLine": 24,
+        "endChar": 37
+      },
+      "revId": "bfbf5b48845ccf2ea3ab9a0e542bac503774cfdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9258e5dc_26af016a",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-11T14:20:02Z",
+      "side": 1,
+      "message": "Nope.",
+      "parentUuid": "19543c5b_902265d5",
       "range": {
         "startLine": 24,
         "startChar": 8,
