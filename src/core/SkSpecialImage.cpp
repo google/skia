@@ -460,7 +460,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
     if (!context || context->abandoned() || !view.asTextureProxy()) {
         return nullptr;
     }
-    SkASSERT_RELEASE(rect_fits(subset, view.proxy()->width(), view.proxy()->height()));
+    // Sigh - subset can include the viewport offset which isn't in the proxy
+    //SkASSERT_RELEASE(rect_fits(subset, view.proxy()->width(), view.proxy()->height()));
     return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(view), colorType,
                                           at, std::move(colorSpace), props);
 }

@@ -32,7 +32,7 @@ public:
     GrAppliedHardClip(const SkISize& rtDims) : fScissorState(rtDims) {}
     GrAppliedHardClip(const SkISize& logicalRTDims, const SkISize& backingStoreDims)
             : fScissorState(backingStoreDims) {
-        fScissorState.set(SkIRect::MakeSize(logicalRTDims));
+        fScissorState.set1(SkIRect::MakeSize(logicalRTDims));
     }
 
     GrAppliedHardClip(GrAppliedHardClip&& that) = default;
@@ -53,7 +53,7 @@ public:
     }
 
     void setScissor(const SkIRect& irect) {
-        fScissorState.set(irect);
+        fScissorState.set1(irect);
     }
 
     void addWindowRectangles(const GrWindowRectsState& windowState) {

@@ -32,6 +32,8 @@ public:
         TileData() {}
         ~TileData();
 
+        bool initialized() const { return fID != -1; }
+
         void init(int id,
                   GrDirectContext*,
                   const SkSurfaceCharacterization& dstChar,

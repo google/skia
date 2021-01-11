@@ -1559,7 +1559,9 @@ protected:
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::onSetData();
      */
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&,
+                   const GrFragmentProcessor&,
+                   SkIPoint viewportOffset) override;
 
     virtual void emitLightFunc(const GrFragmentProcessor*,
                                GrGLSLUniformHandler*,
@@ -1581,7 +1583,9 @@ public:
                        SkString* funcName) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&,
+                   const GrFragmentProcessor&,
+                   SkIPoint viewportOffset) override;
 
 private:
     using INHERITED = GrGLLightingEffect;
@@ -1597,7 +1601,9 @@ public:
                        SkString* funcName) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&,
+                   const GrFragmentProcessor&,
+                   SkIPoint viewportOffset) override;
 
 private:
     using INHERITED = GrGLLightingEffect;
@@ -1829,7 +1835,8 @@ void GrGLLightingEffect::GenKey(const GrProcessor& proc,
 }
 
 void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                   const GrFragmentProcessor& proc) {
+                                   const GrFragmentProcessor& proc,
+                                   SkIPoint viewportOffset) {
     const GrLightingEffect& lighting = proc.cast<GrLightingEffect>();
     if (!fLight) {
         fLight = lighting.light()->createGLLight();
@@ -1868,8 +1875,9 @@ void GrGLDiffuseLightingEffect::emitLightFunc(const GrFragmentProcessor* owner,
 }
 
 void GrGLDiffuseLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                          const GrFragmentProcessor& proc) {
-    INHERITED::onSetData(pdman, proc);
+                                          const GrFragmentProcessor& proc,
+                                          SkIPoint viewportOffset) {
+    INHERITED::onSetData(pdman, proc, viewportOffset);
     const GrDiffuseLightingEffect& diffuse = proc.cast<GrDiffuseLightingEffect>();
     pdman.set1f(fKDUni, diffuse.kd());
 }
@@ -1976,8 +1984,9 @@ void GrGLSpecularLightingEffect::emitLightFunc(const GrFragmentProcessor* owner,
 }
 
 void GrGLSpecularLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                           const GrFragmentProcessor& effect) {
-    INHERITED::onSetData(pdman, effect);
+                                           const GrFragmentProcessor& effect,
+                                           SkIPoint viewportOffset) {
+    INHERITED::onSetData(pdman, effect, viewportOffset);
     const GrSpecularLightingEffect& spec = effect.cast<GrSpecularLightingEffect>();
     pdman.set1f(fKSUni, spec.ks());
     pdman.set1f(fShininessUni, spec.shininess());

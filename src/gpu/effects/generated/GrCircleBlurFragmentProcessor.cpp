@@ -328,10 +328,12 @@ return inputColor * %s.w;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& data,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrCircleBlurFragmentProcessor& _outer = _proc.cast<GrCircleBlurFragmentProcessor>();
         auto circleRect = _outer.circleRect;
         (void)circleRect;
+        circleRect.offset(viewportOffset.fX, viewportOffset.fY);
         auto solidRadius = _outer.solidRadius;
         (void)solidRadius;
         auto textureRadius = _outer.textureRadius;
