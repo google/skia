@@ -135,6 +135,30 @@
       },
       "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "727ab10a_2f5cee16",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-11T21:03:15Z",
+      "side": 1,
+      "message": "After looking into it, we\u0027re getting into slippery slope stuff here. If we pass in an SkM44 then we shouldn\u0027t need the zParams (it represents the third row of the SkM44). Which then, to be consistent, we should remove from drawShadow. I think I would rather keep this as is for now, and roll the M44 change into http://skbug.com/11149.",
+      "parentUuid": "a5234c0d_ac827ef1",
+      "range": {
+        "startLine": 69,
+        "startChar": 37,
+        "endLine": 69,
+        "endChar": 45
+      },
+      "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
