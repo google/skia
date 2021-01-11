@@ -271,18 +271,28 @@ GrSurfaceFillContext::GrSurfaceFillContext(GrRecordingContext* context,
 
 void GrSurfaceFillContext::fillRectWithFP(const SkIRect& dstRect,
                                           std::unique_ptr<GrFragmentProcessor> fp) {
+    this->fillRectWithFP(dstRect, SkMatrix::I(), std::move(fp));
+}
+
+void GrSurfaceFillContext::fillRectWithFP(const SkIRect& dstRect,
+                                          const SkMatrix& localMatrix,
+                                          std::unique_ptr<GrFragmentProcessor> fp) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceFillContext", "fillRectWithFP", fContext);
 
-    AutoCheckFlush acf(this->drawingManager());
-
     GrPaint paint;
     paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    auto op = GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                          SkRect::Make(dstRect));
+    // Implement the local matrix using a local quad so that multiple invocations with different
+    // matrices can batch.
+    DrawQuad dq {
+        GrQuad(SkRect::Make(dstRect)),
+        GrQuad::MakeFromRect(SkRect::Make(dstRect), localMatrix),
+        GrQuadAAFlags::kNone
+    };
+    auto op = GrFillRectOp::Make(fContext, std::move(paint), GrAAType::kNone, &dq);
     this->addDrawOp(std::move(op));
 }
 

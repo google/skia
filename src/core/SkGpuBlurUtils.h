@@ -29,9 +29,7 @@ namespace SkGpuBlurUtils {
  * Note: one of sigmaX and sigmaY should be non-zero!
  * @param context         The GPU context
  * @param srcView         The source to be blurred.
- * @param srcColorType    The colorType of srcProxy
- * @param srcAlphaType    The alphaType of srcProxy
- * @param colorSpace      Color space of the source.
+ * @param colorInfo       color info for both the input and output
  * @param dstBounds       The destination bounds, relative to the source texture.
  * @param srcBounds       The source bounds, relative to the source texture's offset. No pixels
  *                        will be sampled outside of this rectangle.
@@ -41,11 +39,9 @@ namespace SkGpuBlurUtils {
  * @param fit             backing fit for the returned render target context
  * @return                The surfaceDrawContext containing the blurred result.
  */
-std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
+std::unique_ptr<GrSurfaceFillContext> GaussianBlur(GrRecordingContext* context,
                                                    GrSurfaceProxyView srcView,
-                                                   GrColorType srcColorType,
-                                                   SkAlphaType srcAlphaType,
-                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const GrColorInfo& colorInfo,
                                                    SkIRect dstBounds,
                                                    SkIRect srcBounds,
                                                    float sigmaX,
