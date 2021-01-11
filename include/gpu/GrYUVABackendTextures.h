@@ -13,9 +13,6 @@
 
 #include <tuple>
 
-struct SkYUVASizeInfo;
-struct SkYUVAIndex;
-
 /**
  * A description of a set GrBackendTextures that hold the planar data described by a SkYUVAInfo.
  */
@@ -66,7 +63,11 @@ public:
      */
     bool isValid() const { return fYUVAInfo.isValid(); }
 
-    bool toYUVAIndices(SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
+    /**
+     * Computes a YUVALocations representation of the planar layout. The result is guaranteed to be
+     * valid if this->isValid().
+     */
+    SkYUVAInfo::YUVALocations toYUVALocations() const;
 
 private:
     SkYUVAInfo fYUVAInfo;
@@ -108,7 +109,11 @@ public:
 
     bool isValid() const { return fYUVAInfo.isValid(); }
 
-    bool toYUVAIndices(SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
+    /**
+     * Computes a YUVALocations representation of the planar layout. The result is guaranteed to be
+     * valid if this->isValid().
+     */
+    SkYUVAInfo::YUVALocations toYUVALocations() const;
 
 private:
     SkYUVAInfo fYUVAInfo;

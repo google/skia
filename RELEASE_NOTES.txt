@@ -6,6 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Removed SkYUVAIndex and SkYUVASizeInfo. These were no longer used in any
+    public APIs.
+    https://review.skia.org/352497
+
   * Numerous changes to SkRuntimeEffect, aligning the capabilities and restrictions with
     The OpenGL ES Shading Language 1.00 (aka, the shading language of OpenGL ES2 and WebGL 1.0).
     All built-in functions from sections 8.1 through 8.6 implemented & tested on all backends.
