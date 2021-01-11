@@ -33,6 +33,47 @@
       "message": "@Florin do I need to be calling mapToParent() on this rect before returning it? Same question for SkSVGPath.",
       "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "716f2d55_ad0839e2",
+        "filename": "modules/svg/src/SkSVGCircle.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-11T20:09:13Z",
+      "side": 1,
+      "message": "Good question.  It depends on whether we use the OBB in a render context where the local transform is already applied, or not.\n\nI *think* it\u0027s always the former case, so we should not need to map the OBB up to the parent.  But I see at least one implementation does that (SkSVGContainer) - we should try to remove it and see if anything breaks.",
+      "parentUuid": "aecb8b10_ac5c7d6c",
+      "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cefe8ab9_def73e80",
+        "filename": "modules/svg/src/SkSVGPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-11T20:09:13Z",
+      "side": 1,
+      "message": "getBounds() is conservative, we should use computeTightBounds()..",
+      "range": {
+        "startLine": 44,
+        "startChar": 17,
+        "endLine": 44,
+        "endChar": 26
+      },
+      "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
