@@ -53,6 +53,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
                                                    const Expression& left,
                                                    Token::Kind op,
                                                    const Expression& right) {
+    SkASSERT(left.type().isVector());
     SkASSERT(left.type() == right.type());
     const Type& type = left.type();
 
@@ -108,6 +109,16 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         default:
             return nullptr;
     }
+}
+
+static Constructor splat_scalar(const Expression& scalar, const Type& type) {
+    SkASSERT(type.isVector());
+    SkASSERT(type.componentType() == scalar.type());
+
+    // Use a Constructor to splat the scalar expression across a vector.
+    ExpressionArray arg;
+    arg.push_back(scalar.clone());
+    return Constructor{scalar.fOffset, &type, std::move(arg)};
 }
 
 std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
@@ -242,6 +253,32 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         }
         if (leftType.componentType().isInteger()) {
             return simplify_vector<SKSL_INT>(context, errors, left, op, right);
+        }
+        return nullptr;
+    }
+
+    // Perform constant folding on vectors against scalars, e.g.: half4(2) + 2
+    if (leftType.isVector() && leftType.componentType() == rightType) {
+        if (rightType.isFloat()) {
+            return simplify_vector<SKSL_FLOAT>(context, errors,
+                                               left, op, splat_scalar(right, left.type()));
+        }
+        if (rightType.isInteger()) {
+            return simplify_vector<SKSL_INT>(context, errors,
+                                             left, op, splat_scalar(right, left.type()));
+        }
+        return nullptr;
+    }
+
+    // Perform constant folding on scalars against vectors, e.g.: 2 + half4(2)
+    if (rightType.isVector() && rightType.componentType() == leftType) {
+        if (leftType.isFloat()) {
+            return simplify_vector<SKSL_FLOAT>(context, errors,
+                                               splat_scalar(left, right.type()), op, right);
+        }
+        if (leftType.isInteger()) {
+            return simplify_vector<SKSL_INT>(context, errors,
+                                             splat_scalar(left, right.type()), op, right);
         }
         return nullptr;
     }
