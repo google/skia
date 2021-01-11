@@ -223,6 +223,7 @@ private:
     Value writeBinaryExpression(const BinaryExpression& b);
     Value writeConstructor(const Constructor& c);
     Value writeFunctionCall(const FunctionCall& c);
+    Value writeExternalFunctionCall(const ExternalFunctionCall& c);
     Value writeIntrinsicCall(const FunctionCall& c);
     Value writePostfixExpression(const PostfixExpression& p);
     Value writePrefixExpression(const PrefixExpression& p);
@@ -1198,6 +1199,31 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
     return result;
 }
 
+Value SkVMGenerator::writeExternalFunctionCall(const ExternalFunctionCall& c) {
+    // Evaluate all arguments, gather the results into a contiguous list of F32
+    std::vector<skvm::F32> args;
+    for (const auto& arg : c.arguments()) {
+        Value v = this->writeExpression(*arg);
+        for (size_t i = 0; i < v.slots(); ++i) {
+            args.push_back(f32(v[i]));
+        }
+    }
+
+    // Create storage for the return value
+    size_t nslots = slot_count(c.type());
+    std::vector<skvm::F32> result(nslots, fBuilder->splat(0.0f));
+
+    c.function().call(fBuilder, args.data(), result.data(), this->mask());
+
+    // Convert from 'vector of F32' to Value
+    Value resultVal(nslots);
+    for (size_t i = 0; i < nslots; ++i) {
+        resultVal[i] = result[i];
+    }
+
+    return resultVal;
+}
+
 Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
     Value val = this->writeExpression(*p.operand());
 
@@ -1316,6 +1342,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return fBuilder->splat(e.as<FloatLiteral>().value());
         case Expression::Kind::kFunctionCall:
             return this->writeFunctionCall(e.as<FunctionCall>());
+        case Expression::Kind::kExternalFunctionCall:
+            return this->writeExternalFunctionCall(e.as<ExternalFunctionCall>());
         case Expression::Kind::kIntLiteral:
             return fBuilder->splat(static_cast<int>(e.as<IntLiteral>().value()));
         case Expression::Kind::kPrefix:
@@ -1326,7 +1354,6 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeSwizzle(e.as<Swizzle>());
         case Expression::Kind::kTernary:
             return this->writeTernaryExpression(e.as<TernaryExpression>());
-        case Expression::Kind::kExternalFunctionCall:
         case Expression::Kind::kExternalFunctionReference:
         default:
             SkDEBUGFAIL("Unsupported expression");
