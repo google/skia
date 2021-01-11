@@ -20,6 +20,9 @@ if (skia_enable_skshaper) {
       defines += [ "SK_SHAPER_HARFBUZZ_AVAILABLE" ]
       defines += [ "SK_UNICODE_AVAILABLE" ]
     }
+    if (skia_enable_icu_ubrk_safeclone) {
+      defines += [ "SK_ENABLE_ICU_UBRK_SAFECLONE" ]
+    }
   }
 
   component("skshaper") {
