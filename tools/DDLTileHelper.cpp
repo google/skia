@@ -44,6 +44,10 @@ DDLTileHelper::TileData::~TileData() {}
 
 void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureData,
                                                     const DDLPromiseImageHelper& helper) {
+    if (!this->initialized()) {
+        return;
+    }
+
     SkASSERT(!fReconstitutedPicture);
 
     auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
@@ -65,6 +69,10 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 }
 
 void DDLTileHelper::TileData::createDDL() {
+    if (!this->initialized()) {
+        return;
+    }
+
     SkASSERT(!fDisplayList && fReconstitutedPicture);
 
     auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
@@ -107,6 +115,9 @@ void DDLTileHelper::createComposeDDL() {
 
     for (int i = 0; i < this->numTiles(); ++i) {
         TileData* tile = &fTiles[i];
+        if (!tile->initialized()) {
+            continue;
+        }
 
         sk_sp<SkImage> promiseImage = tile->makePromiseImageForDst(&recorder);
 
@@ -124,6 +135,10 @@ void DDLTileHelper::createComposeDDL() {
 }
 
 void DDLTileHelper::TileData::precompile(GrDirectContext* direct) {
+    if (!this->initialized()) {
+        return;
+    }
+
     SkASSERT(fDisplayList);
 
     SkDeferredDisplayList::ProgramIterator iter(direct, fDisplayList.get());
@@ -222,6 +237,10 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, Tile
 }
 
 void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* tile) {
+    if (!tile->initialized()) {
+        return;
+    }
+
     SkASSERT(tile->fCallbackContext);
 
     // TODO: it seems that, on the Linux bots, backend texture creation is failing
@@ -318,6 +337,9 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
 
     for (int i = 0; i < this->numTiles(); ++i) {
         TileData* tile = &fTiles[i];
+        if (!tile->initialized()) {
+            continue;
+        }
 
         // On a recording thread:
         //    generate the tile's DDL
@@ -377,6 +399,9 @@ void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrDirectContex
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {
             TileData* tile = &fTiles[i];
+            if (!tile->initialized()) {
+                continue;
+            }
 
             taskGroup->add([direct, tile]() { TileData::CreateBackendTexture(direct, tile); });
         }
