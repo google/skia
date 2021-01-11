@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "435fdfc4_4a28a94e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-11T17:55:05Z",
+      "side": 1,
+      "message": "There are probably still a few more nodes that need this implemented. Mainly we\u0027re need this for object-bounding-box relative things (like filter effect subregions).",
+      "revId": "8c5e8f6c87a78ba913e34b0de22074015f73b5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
