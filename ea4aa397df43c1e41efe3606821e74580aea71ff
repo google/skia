@@ -111,6 +111,30 @@
       },
       "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5234c0d_ac827ef1",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-11T19:52:38Z",
+      "side": 1,
+      "message": "Great, I\u0027ll put up a new CL.",
+      "parentUuid": "db8a1acc_32128b61",
+      "range": {
+        "startLine": 69,
+        "startChar": 37,
+        "endLine": 69,
+        "endChar": 45
+      },
+      "revId": "ea4aa397df43c1e41efe3606821e74580aea71ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
