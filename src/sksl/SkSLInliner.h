@@ -11,6 +11,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
@@ -53,8 +54,6 @@ private:
         kScopedReturns,
         kEarlyReturns,
     };
-
-    String uniqueNameForInlineVar(String baseName, SymbolTable* symbolTable);
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                             std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
@@ -115,7 +114,7 @@ private:
     const Context* fContext = nullptr;
     ModifiersPool* fModifiers = nullptr;
     const Program::Settings* fSettings = nullptr;
-    int fInlineVarCounter = 0;
+    Mangler fMangler;
     int fInlinedStatementCounter = 0;
 };
 

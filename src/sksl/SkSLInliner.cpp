@@ -318,44 +318,8 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
 void Inliner::reset(ModifiersPool* modifiers, const Program::Settings* settings) {
     fModifiers = modifiers;
     fSettings = settings;
-    fInlineVarCounter = 0;
+    fMangler.reset();
     fInlinedStatementCounter = 0;
-}
-
-String Inliner::uniqueNameForInlineVar(String baseName, SymbolTable* symbolTable) {
-    // The inliner runs more than once, so the base name might already have a prefix like "_123_x".
-    // Let's strip that prefix off to make the generated code easier to read.
-    if (baseName.startsWith("_")) {
-        // Determine if we have a string of digits.
-        int offset = 1;
-        while (isdigit(baseName[offset])) {
-            ++offset;
-        }
-        // If we found digits, another underscore, and anything else, that's the inliner prefix.
-        // Strip it off.
-        if (offset > 1 && baseName[offset] == '_' && baseName[offset + 1] != '\0') {
-            baseName.erase(0, offset + 1);
-        } else {
-            // This name doesn't contain an inliner prefix, but it does start with an underscore.
-            // OpenGL disallows two consecutive underscores anywhere in the string, and we'll be
-            // adding one as part of the inliner prefix, so strip the leading underscore.
-            baseName.erase(0, 1);
-        }
-    }
-
-    // Append a unique numeric prefix to avoid name overlap. Check the symbol table to make sure
-    // we're not reusing an existing name. (Note that within a single compilation pass, this check
-    // isn't fully comprehensive, as code isn't always generated in top-to-bottom order.)
-    String uniqueName;
-    for (;;) {
-        uniqueName = String::printf("_%d_%s", fInlineVarCounter++, baseName.c_str());
-        StringFragment frag{uniqueName.data(), uniqueName.length()};
-        if ((*symbolTable)[frag] == nullptr) {
-            break;
-        }
-    }
-
-    return uniqueName;
 }
 
 std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
@@ -599,8 +563,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
-            auto name = std::make_unique<String>(
-                    this->uniqueNameForInlineVar(String(old.name()), symbolTableForStatement));
+            auto name = std::make_unique<String>(fMangler.uniqueName(String(old.name()),
+                                                                     symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
             const Type* baseTypePtr = copy_if_needed(&decl.baseType(), *symbolTableForStatement);
             const Type* typePtr = copy_if_needed(&old.type(), *symbolTableForStatement);
@@ -641,7 +605,7 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
 
     // Provide our new variable with a unique name, and add it to our symbol table.
     const String* namePtr = symbolTable->takeOwnershipOfString(
-            std::make_unique<String>(this->uniqueNameForInlineVar(baseName, symbolTable)));
+            std::make_unique<String>(fMangler.uniqueName(baseName, symbolTable)));
     StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
     // Create our new variable and add it to the symbol table.
