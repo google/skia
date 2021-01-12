@@ -1,0 +1,10 @@
+### Compilation failed:
+
+error: 3: missing loop expression
+error: 5: invalid operator in loop expression
+error: 6: loop index must be modified by a constant expression
+error: 7: invalid operator in loop expression
+error: 8: invalid operator in loop expression
+error: 12: loop index must be modified by a constant expression
+error: 13: loop index must be modified by a constant expression
+7 errors
