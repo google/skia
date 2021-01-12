@@ -93,6 +93,16 @@ public:
 
     static constexpr int kMaxPlanes = 4;
 
+    /** ratio of Y/A values to U/V values in x and y. */
+    static std::tuple<int, int> SubsamplingFactors(Subsampling);
+
+    /**
+     * SubsamplingFactors(Subsampling) if planedIdx refers to a U/V plane and otherwise {1, 1} if
+     * inputs are valid. Invalid inputs consist of incompatible PlaneConfig/Subsampling/planeIdx
+     * combinations. {0, 0} is returned for invalid inputs.
+     */
+    static std::tuple<int, int> PlaneSubsamplingFactors(PlaneConfig, Subsampling, int planeIdx);
+
     /**
      * Given image dimensions, a planer configuration, subsampling, and origin, determine the
      * expected size of each plane. Returns the number of expected planes. planeDimensions[0]
@@ -146,6 +156,10 @@ public:
     PlaneConfig planeConfig() const { return fPlaneConfig; }
     Subsampling subsampling() const { return fSubsampling; }
 
+    std::tuple<int, int> planeSubsamplingFactors(int planeIdx) const {
+        return PlaneSubsamplingFactors(fPlaneConfig, fSubsampling, planeIdx);
+    }
+
     /**
      * Dimensions of the full resolution image (after planes have been oriented to how the image
      * is displayed as indicated by fOrigin).
@@ -198,6 +212,12 @@ public:
      * SkYUVAInfo.
      */
     SkYUVAInfo makeSubsampling(SkYUVAInfo::Subsampling) const;
+
+    /**
+     * Makes a SkYUVAInfo that is identical to this one but with the passed dimensions. If the
+     * passed dimensions is empty then the result will be an invalid SkYUVAInfo.
+     */
+    SkYUVAInfo makeDimensions(SkISize) const;
 
     bool operator==(const SkYUVAInfo& that) const;
     bool operator!=(const SkYUVAInfo& that) const { return !(*this == that); }
