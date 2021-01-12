@@ -12,6 +12,11 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGText.h"
 
+#include <tuple>
+
+class SkContourMeasure;
+struct SkRSXform;
+
 // SkSVGTextContext is responsible for sequencing input text chars into "chunks".
 // A single text chunk can span multiple structural elements (<text>, <tspan>, etc),
 // and per [1] new chunks are emitted
@@ -94,7 +99,8 @@ public:
 
     };
 
-    SkSVGTextContext(const SkSVGPresentationContext&, sk_sp<SkFontMgr>);
+    SkSVGTextContext(const SkSVGRenderContext&, const SkSVGTextPath* = nullptr);
+    ~SkSVGTextContext() override;
 
     // Queues codepoints for rendering.
     void appendFragment(const SkString&, const SkSVGRenderContext&, SkSVGXmlSpace);
@@ -137,7 +143,24 @@ private:
         SkVector                              advance;
     };
 
+    // Caches path information to accelerate position lookups.
+    class PathData {
+    public:
+        PathData(const SkSVGRenderContext&, const SkSVGTextPath&);
+
+        SkMatrix getMatrixAt(float offset) const;
+
+        float length() const { return fLength; }
+
+    private:
+        std::vector<sk_sp<SkContourMeasure>> fContours;
+        float                                fLength = 0; // total path length
+    };
+
     void shapePendingBuffer(const SkFont&);
+
+    SkRSXform computeGlyphXform(SkGlyphID, const SkFont&, const SkPoint& glyph_pos,
+                                const PositionAdjustment&) const;
 
     // SkShaper callbacks
     void beginLine() override {}
@@ -148,16 +171,18 @@ private:
     void commitLine() override {}
 
     // http://www.w3.org/TR/SVG11/text.html#TextLayout
+    const SkSVGRenderContext&       fRenderContext; // original render context
     const std::unique_ptr<SkShaper> fShaper;
     std::vector<RunRec>             fRuns;
-    const ScopedPosResolver*        fPosResolver = nullptr;
+    const ScopedPosResolver*        fPosResolver  = nullptr;
+    std::unique_ptr<PathData>       fPathData;
 
     // shaper state
     ShapeBuffer                     fShapeBuffer;
     std::vector<uint32_t>           fShapeClusterBuffer;
 
     // chunk state
-    SkPoint                         fChunkPos;             // current text chunk position
+    SkPoint                         fChunkPos     = {0,0}; // current text chunk position
     SkVector                        fChunkAdvance = {0,0}; // cumulative advance
     float                           fChunkAlignmentFactor; // current chunk alignment
 

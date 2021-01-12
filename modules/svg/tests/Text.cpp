@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "include/utils/SkNoDrawCanvas.h"
 #include "modules/svg/src/SkSVGTextPriv.h"
 #include "tests/Test.h"
 
@@ -153,8 +154,14 @@ DEF_TEST(Svg_Text_PosProvider, r) {
         b->setX(tst.xb);
         b->setY(tst.yb);
 
-        SkSVGTextContext tctx(SkSVGPresentationContext(), nullptr);
-        SkSVGLengthContext lctx({0,0});
+        const SkSVGIDMapper mapper;
+        const SkSVGLengthContext lctx({0,0});
+        const SkSVGPresentationContext pctx;
+        SkNoDrawCanvas canvas(0, 0);
+        sk_sp<SkFontMgr> fmgr;
+        const SkSVGRenderContext ctx(&canvas, fmgr, mapper, lctx, pctx, nullptr);
+
+        SkSVGTextContext tctx(ctx);
         SkSVGTextContext::ScopedPosResolver pa(*a, lctx, &tctx, tst.offseta);
         SkSVGTextContext::ScopedPosResolver pb(*b, lctx, &tctx, tst.offsetb);
 
