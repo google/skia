@@ -39,6 +39,71 @@
       },
       "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c479425a_789b1f65",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-12T14:18:32Z",
+      "side": 1,
+      "message": "I could go either way. I think adding it is okay, but I\u0027d also leave in the SkDEBUGFAILs, because the common pattern is likely to be calling this blindly.",
+      "parentUuid": "c39a52c0_f7f1af55",
+      "range": {
+        "startLine": 230,
+        "startChar": 8,
+        "endLine": 230,
+        "endChar": 12
+      },
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dec2d146_8f4df478",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-12T14:18:32Z",
+      "side": 1,
+      "message": "It should be something like:\ntemplate \u003ctypename T\u003e\nstd::enable_if_t\u003cstd::is_trivially_copyable\u003cT\u003e::value, void\u003e set(const T[] val, const int count) { ... }\n\nThe enable_if_t template resolves to *either* the second template argument (if the first argument evaluates to true, making the function signature valid), or some error type (if the first argument evaluates to false, making the function signature invalid).",
+      "parentUuid": "5ba6607c_b9dc5771",
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2990b25e_8dc5cc4d",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-12T14:18:32Z",
+      "side": 1,
+      "message": "val is already a pointer in this case, want to strip off the \u0027\u0026\u0027",
+      "range": {
+        "startLine": 237,
+        "startChar": 23,
+        "endLine": 237,
+        "endChar": 24
+      },
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
