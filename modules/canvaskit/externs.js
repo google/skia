@@ -70,7 +70,7 @@ var CanvasKit = {
   parseColorString: function() {},
   setCurrentContext: function() {},
   setDecodeCacheLimitBytes: function() {},
-
+  getShadowLocalBounds: function() {},
   // Defined by emscripten.
   createContext: function() {},
 
@@ -84,6 +84,7 @@ var CanvasKit = {
   _decodeAnimatedImage: function() {},
   _decodeImage: function() {},
   _drawShapedText: function() {},
+  _getShadowLocalBounds: function() {},
 
   // The testing object is meant to expose internal functions
   // for more fine-grained testing, e.g. parseColor
