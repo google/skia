@@ -326,6 +326,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/MatricesHalf.sksl",
   "$_tests/sksl/shared/MixedTypeCommaOperator.sksl",
   "$_tests/sksl/shared/MultipleAssignments.sksl",
+  "$_tests/sksl/shared/NarrowingConversions.sksl",
   "$_tests/sksl/shared/NegatedVectorLiteral.sksl",
   "$_tests/sksl/shared/NoFragCoordsPos.vert",
   "$_tests/sksl/shared/NoFragCoordsPosRT.vert",
@@ -379,6 +380,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/VectorConstructors.sksl",
   "$_tests/sksl/shared/VertexEarlyReturn.vert",
   "$_tests/sksl/shared/VertexID.vert",
+  "$_tests/sksl/shared/WideningConversions.sksl",
   "$_tests/sksl/shared/Width.sksl",
 ]
 

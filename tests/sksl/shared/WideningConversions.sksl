@@ -1,0 +1,15 @@
+/*#pragma settings AllowNarrowingConversions*/
+
+float f = 1;
+
+void main() {
+    half h = f;
+    int i = h;
+    uint ui = i;
+    short s = ui;
+    ushort us = s;
+    byte b = us;
+    ubyte ub = b;
+
+    sk_FragColor.x = f * h * i * ui * s * us * b * ub;
+}
