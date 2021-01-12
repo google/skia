@@ -1,0 +1,12 @@
+### Compilation failed:
+
+error: 3: missing condition
+error: 5: invalid condition
+error: 6: invalid condition
+error: 7: expected loop index on left hand side of condition
+error: 9: expected loop index on left hand side of condition
+error: 10: expected loop index on left hand side of condition
+error: 11: expected loop index on left hand side of condition
+error: 15: loop index must be compared with a constant expression
+error: 16: loop index must be compared with a constant expression
+9 errors

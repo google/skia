@@ -508,8 +508,8 @@ DEF_TEST(SkSLInterpreterFor, r) {
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
-         "        for (int j = i; j <= 10; ++j)"
-         "            color.r += j;"
+         "        for (int j = 1; j <= 10; ++j)"
+         "            if (j >= i) { color.r += j; }"
          "}",
          0, 0, 0, 0,
          385, 0, 0, 0,
@@ -517,7 +517,7 @@ DEF_TEST(SkSLInterpreterFor, r) {
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
-         "        for (int j = 1; ; ++j) {"
+         "        for (int j = 1; j < 20 ; ++j) {"
          "            if (i == j) continue;"
          "            if (j > 10) break;"
          "            color.r += j;"
@@ -602,7 +602,8 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         // Kitchen sink (swizzles, inout, SoAoS)
         "struct ManyRects { int numRects; RectAndColor rects[4]; };\n"
         "void fill_rects(inout ManyRects mr) {\n"
-        "  for (int i = 0; i < mr.numRects; ++i) {\n"
+        "  for (int i = 0; i < 4; ++i) {\n"
+        "    if (i >= mr.numRects) { break; }\n"
         "    mr.rects[i].r = gRects[i];\n"
         "    float b = mr.rects[i].r.p1.y;\n"
         "    mr.rects[i].color = float4(b, b, b, b);\n"
