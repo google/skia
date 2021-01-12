@@ -2605,8 +2605,14 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
     if (!base) {
         return nullptr;
     }
-    return (iter != index.end()) ? this->convertIndex(std::move(base), *(iter++))
-                                 : this->convertEmptyIndex(std::move(base));
+    if (iter == index.end()) {
+        return this->convertEmptyIndex(std::move(base));
+    }
+    std::unique_ptr<Expression> converted = this->convertExpression(*(iter++));
+    if (!converted) {
+        return nullptr;
+    }
+    return this->convertIndex(std::move(base), std::move(converted));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertEmptyIndex(std::unique_ptr<Expression> base) {
@@ -2621,12 +2627,12 @@ std::unique_ptr<Expression> IRGenerator::convertEmptyIndex(std::unique_ptr<Expre
 }
 
 std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
-                                                      const ASTNode& index) {
+                                                      std::unique_ptr<Expression> index) {
     // Convert an index expression with an expression inside of it: `int[12]` or `arr[a * 3]`.
     if (base->is<TypeReference>()) {
-        if (index.fKind == ASTNode::Kind::kInt) {
+        if (index->is<IntLiteral>()) {
             const Type* type = &base->as<TypeReference>().value();
-            type = fSymbolTable->addArrayDimension(type, index.getInt());
+            type = fSymbolTable->addArrayDimension(type, index->as<IntLiteral>().value());
             return std::make_unique<TypeReference>(fContext, base->fOffset, type);
 
         } else {
@@ -2640,25 +2646,21 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
                                     "expected array, but found '" + baseType.displayName() + "'");
         return nullptr;
     }
-    std::unique_ptr<Expression> converted = this->convertExpression(index);
-    if (!converted) {
-        return nullptr;
-    }
-    if (!converted->type().isInteger()) {
-        converted = this->coerce(std::move(converted), *fContext.fTypes.fInt);
-        if (!converted) {
+    if (!index->type().isInteger()) {
+        index = this->coerce(std::move(index), *fContext.fTypes.fInt);
+        if (!index) {
             return nullptr;
         }
     }
     // Perform compile-time bounds checking on constant indices.
-    if (converted->is<IntLiteral>()) {
-        SKSL_INT index = converted->as<IntLiteral>().value();
+    if (index->is<IntLiteral>()) {
+        SKSL_INT indexValue = index->as<IntLiteral>().value();
 
         const int upperBound = (baseType.isArray() && baseType.columns() == Type::kUnsizedArray)
                                        ? INT_MAX
                                        : baseType.columns();
-        if (index < 0 || index >= upperBound) {
-            this->errorReporter().error(base->fOffset, "index " + to_string(index) +
+        if (indexValue < 0 || indexValue >= upperBound) {
+            this->errorReporter().error(base->fOffset, "index " + to_string(indexValue) +
                                                        " out of range for '" +
                                                        baseType.displayName() + "'");
             return nullptr;
@@ -2667,10 +2669,10 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
         // (Using a swizzle gives our optimizer a bit more to work with, compared to array indices.)
         if (baseType.isVector()) {
             return std::make_unique<Swizzle>(fContext, std::move(base),
-                                             ComponentArray{(int8_t)index});
+                                             ComponentArray{(int8_t)indexValue});
         }
     }
-    return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(converted));
+    return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(index));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertCallExpression(const ASTNode& callNode) {
