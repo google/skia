@@ -55,6 +55,8 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         const auto& feResultType = feNode.getResult();
 
         // TODO: there are specific composition rules that need to be followed
+        // TODO: perform colorspace conversions depending on 'color-interpolation-filters' setting
+        // of the current node and its inputs.
         filter = feNode.makeImageFilter(ctx, fctx);
 
         if (!feResultType.isEmpty()) {
