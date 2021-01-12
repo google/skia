@@ -254,20 +254,22 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
             return nullptr;
         }
 
+        SkFilterMode filter = SkFilterMode::kLinear;
+        if (tileScale.width() != 1 || tileScale.height() != 1) {
+            localMatrix->writable()->preScale(1 / tileScale.width(), 1 / tileScale.height());
+            filter = SkFilterMode::kLinear;
+        }
+
 #ifdef SK_SUPPORT_LEGACY_INHERITED_PICTURE_SHADER_FILTER
         tileShader = SkImage_makeShaderImplicitFilterQuality(tileImage.get(), fTmx, fTmy, nullptr);
 #else
-        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(SkFilterMode::kLinear,
+        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(filter,
                                                                          SkMipmapMode::kNone),
                                            nullptr);
 #endif
 
         SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
         fAddedToCache.store(true);
-    }
-
-    if (tileScale.width() != 1 || tileScale.height() != 1) {
-        localMatrix->writable()->preScale(1 / tileScale.width(), 1 / tileScale.height());
     }
 
     return tileShader;
