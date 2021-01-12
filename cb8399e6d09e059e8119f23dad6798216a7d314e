@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "296b9c23_f0faf7aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-12T18:14:49Z",
+      "side": 1,
+      "message": "Re-disabling on iOS for now, filed a bug to add the format later.",
+      "revId": "cb8399e6d09e059e8119f23dad6798216a7d314e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
