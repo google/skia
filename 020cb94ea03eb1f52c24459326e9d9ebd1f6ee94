@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce370ca3_68f4f5d3",
+        "filename": "modules/svg/src/SkSVGCircle.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-12T01:55:33Z",
+      "side": 1,
+      "message": "nit: with c++17 structured bindings you can rewrite as\n\n  const auto [pos,r] \u003d this-\u003eresolve(...);",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 58
+      },
+      "revId": "020cb94ea03eb1f52c24459326e9d9ebd1f6ee94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
