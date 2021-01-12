@@ -211,7 +211,7 @@ private:
     std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
-                                             const ASTNode& index);
+                                             std::unique_ptr<Expression> index);
     std::unique_ptr<Expression> convertEmptyIndex(std::unique_ptr<Expression> base);
     std::unique_ptr<Expression> convertPostfixExpression(std::unique_ptr<Expression> base,
                                                          Token::Kind op);
