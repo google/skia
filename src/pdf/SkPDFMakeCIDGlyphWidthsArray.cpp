@@ -105,7 +105,7 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(typeface, &emSize);
     SkBulkGlyphMetricsAndPaths paths{strikeSpec};
 
-    auto result = SkPDFMakeArray();
+    auto result = std::make_unique<SkPDFArray>();
 
     std::vector<SkGlyphID> glyphIDs;
     subset.getSetValues([&](unsigned index) {
@@ -146,18 +146,18 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
                 }
             }
             if (j - i >= 2) {
-                result->appendInt(glyphs[i]->getGlyphID());
-                result->appendInt(glyphs[j - 1]->getGlyphID());
-                result->appendScalar(scale_from_font_units(advance, emSize));
+                result->append(SkToS32(glyphs[i]->getGlyphID()));
+                result->append(SkToS32(glyphs[j - 1]->getGlyphID()));
+                result->append(scale_from_font_units(advance, emSize));
                 i = j - 1;
                 continue;
             }
         }
 
         {
-            result->appendInt(glyphs[i]->getGlyphID());
-            auto advanceArray = SkPDFMakeArray();
-            advanceArray->appendScalar(scale_from_font_units(advance, emSize));
+            result->append(SkToS32(glyphs[i]->getGlyphID()));
+            auto advanceArray = std::make_unique<SkPDFArray>();
+            advanceArray->append(scale_from_font_units(advance, emSize));
             size_t j = i + 1; // j is always one past the last output
             for (; j < glyphs.size(); ++j) {
                 advance = (int16_t)glyphs[j]->advanceX();
@@ -193,11 +193,11 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
                 }
 
                 while (dontCares --> 0) {
-                    advanceArray->appendScalar(0);
+                    advanceArray->append(0);
                 }
-                advanceArray->appendScalar(scale_from_font_units(advance, emSize));
+                advanceArray->append(scale_from_font_units(advance, emSize));
             }
-            result->appendObject(std::move(advanceArray));
+            result->append(std::move(advanceArray));
             i = j - 1;
         }
     }

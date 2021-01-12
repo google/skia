@@ -110,13 +110,13 @@ static void serialize_footer(const SkPDFOffsetMap& offsetMap,
                              SkUUID uuid) {
     int xRefFileOffset = offsetMap.emitCrossReferenceTable(wStream);
     SkPDFDict trailerDict;
-    trailerDict.insertInt("Size", offsetMap.objectCount());
+    trailerDict.insert("Size", offsetMap.objectCount());
     SkASSERT(docCatalog != SkPDFIndirectReference());
-    trailerDict.insertRef("Root", docCatalog);
+    trailerDict.insert("Root", docCatalog);
     SkASSERT(infoDict != SkPDFIndirectReference());
-    trailerDict.insertRef("Info", infoDict);
+    trailerDict.insert("Info", infoDict);
     if (SkUUID() != uuid) {
-        trailerDict.insertObject("ID", SkPDFMetadata::MakePdfId(uuid, uuid));
+        trailerDict.insert("ID", SkPDFMetadata::MakePdfId(uuid, uuid));
     }
     wStream->writeText("trailer\n");
     SkPDFEmit(trailerDict, wStream);
@@ -158,17 +158,18 @@ static SkPDFIndirectReference generate_page_tree(
                     continue;
                 }
                 SkPDFIndirectReference parent = doc->reserveRef();
-                auto kids_list = SkPDFMakeArray();
+                auto kids_list = std::make_unique<SkPDFArray>();
                 int descendantCount = 0;
                 for (size_t j = 0; j < kMaxNodeSize && index < n; ++j) {
                     PageTreeNode& node = vec[index++];
-                    node.fNode->insertRef("Parent", parent);
-                    kids_list->appendRef(doc->emit(*node.fNode, node.fReservedRef));
+                    node.fNode->insert("Parent", parent);
+                    kids_list->append(doc->emit(*node.fNode, node.fReservedRef));
                     descendantCount += node.fPageObjectDescendantCount;
                 }
-                auto next = SkPDFMakeDict("Pages");
-                next->insertInt("Count", descendantCount);
-                next->insertObject("Kids", std::move(kids_list));
+                auto next = std::make_unique<SkPDFDict>();
+                next->insert("Type", SkPDFName("Pages"));
+                next->insert("Count", descendantCount);
+                next->insert("Kids", std::move(kids_list));
                 result.push_back(PageTreeNode{std::move(next), parent, descendantCount});
             }
             return result;
@@ -216,7 +217,6 @@ SkPDFDocument::~SkPDFDocument() {
     // subclasses of SkDocument must call close() in their destructors.
     this->close();
 }
-
 
 SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) SK_REQUIRES(fMutex) {
     SkWStream* stream = this->getStream();
@@ -272,13 +272,13 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
 }
 
 static void populate_link_annotation(SkPDFDict* annotation, const SkRect& r) {
-    annotation->insertName("Subtype", "Link");
-    annotation->insertInt("F", 4);  // required by ISO 19005
+    annotation->insert("Subtype", SkPDFName("Link"));
+    annotation->insert("F", 4);  // required by ISO 19005
     // Border: 0 = Horizontal corner radius.
     //         0 = Vertical corner radius.
     //         0 = Width, 0 = no border.
-    annotation->insertObject("Border", SkPDFMakeArray(0, 0, 0));
-    annotation->insertObject("Rect", SkPDFMakeArray(r.fLeft, r.fTop, r.fRight, r.fBottom));
+    annotation->insert("Border", SkPDFMakeArray(0, 0, 0));
+    annotation->insert("Rect", SkPDFMakeArray(r.fLeft, r.fTop, r.fRight, r.fBottom));
 }
 
 static SkPDFIndirectReference append_destinations(
@@ -287,14 +287,13 @@ static SkPDFIndirectReference append_destinations(
 {
     SkPDFDict destinations;
     for (const SkPDFNamedDestination& dest : namedDestinations) {
-        auto pdfDest = SkPDFMakeArray();
-        pdfDest->reserve(5);
-        pdfDest->appendRef(dest.fPage);
-        pdfDest->appendName("XYZ");
-        pdfDest->appendScalar(dest.fPoint.x());
-        pdfDest->appendScalar(dest.fPoint.y());
-        pdfDest->appendInt(0);  // Leave zoom unchanged
-        destinations.insertObject(ToValidUtf8String(*dest.fName), std::move(pdfDest));
+        constexpr int kZoom = 0;  // Leave zoom unchanged
+        destinations.insert(ToValidUtf8String(*dest.fName),
+                            SkPDFMakeArray(dest.fPage,
+                                           SkPDFName("XYZ"),
+                                           dest.fPoint.x(),
+                                           dest.fPoint.y(),
+                                           kZoom));
     }
     return doc->emit(destinations);
 }
@@ -305,18 +304,20 @@ std::unique_ptr<SkPDFArray> SkPDFDocument::getAnnotations() {
     if (0 == count) {
         return array;  // is nullptr
     }
-    array = SkPDFMakeArray();
+    array = std::make_unique<SkPDFArray>();
     array->reserve(count);
     for (const auto& link : fCurrentPageLinks) {
-        SkPDFDict annotation("Annot");
+        SkPDFDict annotation;
+        annotation.insert("Type", SkPDFName("Annot"));
         populate_link_annotation(&annotation, link->fRect);
         if (link->fType == SkPDFLink::Type::kUrl) {
-            std::unique_ptr<SkPDFDict> action = SkPDFMakeDict("Action");
-            action->insertName("S", "URI");
-            action->insertString("URI", ToValidUtf8String(*link->fData));
-            annotation.insertObject("A", std::move(action));
+            auto action = std::make_unique<SkPDFDict>();
+            action->insert("Type", SkPDFName("Action"));
+            action->insert("S", SkPDFName("URI"));
+            action->insert("URI", ToValidUtf8String(*link->fData));
+            annotation.insert("A", std::move(action));
         } else if (link->fType == SkPDFLink::Type::kNamedDestination) {
-            annotation.insertName("Dest", ToValidUtf8String(*link->fData));
+            annotation.insert("Dest", SkPDFName(ToValidUtf8String(*link->fData)));
         } else {
             SkDEBUGFAIL("Unknown link type.");
         }
@@ -324,12 +325,12 @@ std::unique_ptr<SkPDFArray> SkPDFDocument::getAnnotations() {
         if (link->fNodeId) {
             int structParentKey = createStructParentKeyForNodeId(link->fNodeId);
             if (structParentKey != -1) {
-                annotation.insertInt("StructParent", structParentKey);
+                annotation.insert("StructParent", structParentKey);
             }
         }
 
         SkPDFIndirectReference annotationRef = this->emit(annotation);
-        array->appendRef(annotationRef);
+        array->append(annotationRef);
         if (link->fNodeId) {
             fTagTree.addNodeAnnotation(
                     link->fNodeId, annotationRef, SkToUInt(this->currentPageIndex()));
@@ -343,7 +344,8 @@ void SkPDFDocument::onEndPage() {
     reset_object(&fCanvas);
     SkASSERT(fPageDevice);
 
-    auto page = SkPDFMakeDict("Page");
+    auto page = std::make_unique<SkPDFDict>();
+    page->insert("Type", SkPDFName("Page"));
 
     SkSize mediaSize = fPageDevice->imageInfo().dimensions() * fInverseRasterScale;
     std::unique_ptr<SkStreamAsset> pageContent = fPageDevice->content();
@@ -351,18 +353,18 @@ void SkPDFDocument::onEndPage() {
     SkASSERT(fPageRefs.size() > 0);
     fPageDevice = nullptr;
 
-    page->insertObject("Resources", std::move(resourceDict));
-    page->insertObject("MediaBox", SkPDFUtils::RectToArray(SkRect::MakeSize(mediaSize)));
+    page->insert("Resources", std::move(resourceDict));
+    page->insert("MediaBox", SkPDFUtils::RectToArray(SkRect::MakeSize(mediaSize)));
 
     if (std::unique_ptr<SkPDFArray> annotations = getAnnotations()) {
-        page->insertObject("Annots", std::move(annotations));
+        page->insert("Annots", std::move(annotations));
         fCurrentPageLinks.clear();
     }
 
-    page->insertRef("Contents", SkPDFStreamOut(nullptr, std::move(pageContent), this));
+    page->insert("Contents", SkPDFStreamOut(nullptr, std::move(pageContent), this));
     // The StructParents unique identifier for each page is just its
     // 0-based page index.
-    page->insertInt("StructParents", SkToInt(this->currentPageIndex()));
+    page->insert("StructParents", SkToS32(this->currentPageIndex()));
     fPages.emplace_back(std::move(page));
 }
 
@@ -485,24 +487,22 @@ static sk_sp<SkData> SkSrgbIcm() {
 }
 
 static SkPDFIndirectReference make_srgb_color_profile(SkPDFDocument* doc) {
-    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
-    dict->insertInt("N", 3);
-    dict->insertObject("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
+    auto dict = std::make_unique<SkPDFDict>();
+    dict->insert("N", 3);
+    dict->insert("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
     return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(SkSrgbIcm()), doc, true);
 }
 
 static std::unique_ptr<SkPDFArray> make_srgb_output_intents(SkPDFDocument* doc) {
     // sRGB is specified by HTML, CSS, and SVG.
-    auto outputIntent = SkPDFMakeDict("OutputIntent");
-    outputIntent->insertName("S", "GTS_PDFA1");
-    outputIntent->insertString("RegistryName", "http://www.color.org");
-    outputIntent->insertString("OutputConditionIdentifier",
-                               "Custom");
-    outputIntent->insertString("Info","sRGB IEC61966-2.1");
-    outputIntent->insertRef("DestOutputProfile", make_srgb_color_profile(doc));
-    auto intentArray = SkPDFMakeArray();
-    intentArray->appendObject(std::move(outputIntent));
-    return intentArray;
+    auto outputIntent = std::make_unique<SkPDFDict>();
+    outputIntent->insert("Type", SkPDFName("OutputIntent"));
+    outputIntent->insert("S", SkPDFName("GTS_PDFA1"));
+    outputIntent->insert("RegistryName", "http://www.color.org");
+    outputIntent->insert("OutputConditionIdentifier", "Custom");
+    outputIntent->insert("Info", "sRGB IEC61966-2.1");
+    outputIntent->insert("DestOutputProfile", make_srgb_color_profile(doc));
+    return SkPDFMakeArray(std::move(outputIntent));
 }
 
 SkPDFIndirectReference SkPDFDocument::getPage(size_t pageIndex) const {
@@ -541,29 +541,31 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         this->waitForJobs();
         return;
     }
-    auto docCatalog = SkPDFMakeDict("Catalog");
+    auto docCatalog = std::make_unique<SkPDFDict>();
+    docCatalog->insert("Type", SkPDFName("Catalog"));
     if (fMetadata.fPDFA) {
         SkASSERT(fXMP != SkPDFIndirectReference());
-        docCatalog->insertRef("Metadata", fXMP);
+        docCatalog->insert("Metadata", fXMP);
         // Don't specify OutputIntents if we are not in PDF/A mode since
         // no one has ever asked for this feature.
-        docCatalog->insertObject("OutputIntents", make_srgb_output_intents(this));
+        docCatalog->insert("OutputIntents", make_srgb_output_intents(this));
     }
 
-    docCatalog->insertRef("Pages", generate_page_tree(this, std::move(fPages), fPageRefs));
+    docCatalog->insert("Pages", generate_page_tree(this, std::move(fPages), fPageRefs));
 
     if (!fNamedDestinations.empty()) {
-        docCatalog->insertRef("Dests", append_destinations(this, fNamedDestinations));
+        docCatalog->insert("Dests", append_destinations(this, fNamedDestinations));
         fNamedDestinations.clear();
     }
 
     // Handle tagged PDFs.
     if (SkPDFIndirectReference root = fTagTree.makeStructTreeRoot(this)) {
         // In the document catalog, indicate that this PDF is tagged.
-        auto markInfo = SkPDFMakeDict("MarkInfo");
-        markInfo->insertBool("Marked", true);
-        docCatalog->insertObject("MarkInfo", std::move(markInfo));
-        docCatalog->insertRef("StructTreeRoot", root);
+        auto markInfo = std::make_unique<SkPDFDict>();
+        markInfo->insert("Type", SkPDFName("MarkInfo"));
+        markInfo->insert("Marked", true);
+        docCatalog->insert("MarkInfo", std::move(markInfo));
+        docCatalog->insert("StructTreeRoot", root);
     }
 
     auto docCatalogRef = this->emit(*docCatalog);

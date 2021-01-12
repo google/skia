@@ -63,22 +63,12 @@ static void add_subdict(const std::vector<SkPDFIndirectReference>& resourceList,
                         SkPDFResourceType type,
                         SkPDFDict* dst) {
     if (!resourceList.empty()) {
-        auto resources = SkPDFMakeDict();
+        auto resources = std::make_unique<SkPDFDict>();
         for (SkPDFIndirectReference ref : resourceList) {
-            resources->insertRef(resource(type, ref.fValue), ref);
+            resources->insert(resource(type, ref.fValue), ref);
         }
-        dst->insertObject(resource_name(type), std::move(resources));
+        dst->insert(resource_name(type), std::move(resources));
     }
-}
-
-static std::unique_ptr<SkPDFArray> make_proc_set() {
-    auto procSets = SkPDFMakeArray();
-    static const char kProcs[][7] = { "PDF", "Text", "ImageB", "ImageC", "ImageI"};
-    procSets->reserve(SK_ARRAY_COUNT(kProcs));
-    for (const char* proc : kProcs) {
-        procSets->appendName(proc);
-    }
-    return procSets;
 }
 
 std::unique_ptr<SkPDFDict> SkPDFMakeResourceDict(
@@ -86,8 +76,12 @@ std::unique_ptr<SkPDFDict> SkPDFMakeResourceDict(
         const std::vector<SkPDFIndirectReference>& shaderResources,
         const std::vector<SkPDFIndirectReference>& xObjectResources,
         const std::vector<SkPDFIndirectReference>& fontResources) {
-    auto dict = SkPDFMakeDict();
-    dict->insertObject("ProcSet", make_proc_set());
+    auto dict = std::make_unique<SkPDFDict>();
+    dict->insert("ProcSet", SkPDFMakeArray(SkPDFName("PDF"),
+                                           SkPDFName("Text"),
+                                           SkPDFName("ImageB"),
+                                           SkPDFName("ImageC"),
+                                           SkPDFName("ImageI")));
     add_subdict(graphicStateResources, SkPDFResourceType::kExtGState, dict.get());
     add_subdict(shaderResources,       SkPDFResourceType::kPattern,   dict.get());
     add_subdict(xObjectResources,      SkPDFResourceType::kXObject,   dict.get());

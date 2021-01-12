@@ -220,24 +220,23 @@ static void serialize_stream(SkPDFDict* origDict,
             SkPDFUtils::Base85Encode(compressedData.detachAsStream(), &compressedData);
             tmp = compressedData.detachAsStream();
             stream = tmp.get();
-            auto filters = SkPDFMakeArray();
-            filters->appendName("ASCII85Decode");
-            filters->appendName("FlateDecode");
-            dict.insertObject("Filter", std::move(filters));
+            dict.insert("Filter", SkPDFMakeArray(SkPDFName("ASCII85Decode"),
+                                                 SkPDFName("FlateDecode")));
         }
         #else
         if (stream->getLength() > compressedData.bytesWritten() + kMinimumSavings) {
             tmp = compressedData.detachAsStream();
             stream = tmp.get();
-            dict.insertName("Filter", "FlateDecode");
+            dict.insert("Filter", SkPDFName("FlateDecode"));
         } else {
             SkAssertResult(stream->rewind());
         }
         #endif
     }
-    dict.insertInt("Length", stream->getLength());
-    doc->emitStream(
-            dict, [stream](SkWStream* dst) { dst->writeStream(stream, stream->getLength()); }, ref);
+    dict.insert("Length", SkToS32(stream->getLength()));
+    doc->emitStream(dict,
+                    [stream](SkWStream* dst) { dst->writeStream(stream, stream->getLength()); },
+                    ref);
 }
 
 SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,

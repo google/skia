@@ -15,25 +15,26 @@ SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
                                             std::unique_ptr<SkPDFDict> resourceDict,
                                             const SkMatrix& inverseTransform,
                                             const char* colorSpace) {
-    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
-    dict->insertName("Type", "XObject");
-    dict->insertName("Subtype", "Form");
+    auto dict = std::make_unique<SkPDFDict>();
+    dict->insert("Type", SkPDFName("XObject"));
+    dict->insert("Subtype", SkPDFName("Form"));
     if (!inverseTransform.isIdentity()) {
-        dict->insertObject("Matrix", SkPDFUtils::MatrixToArray(inverseTransform));
+        dict->insert("Matrix", SkPDFUtils::MatrixToArray(inverseTransform));
     }
-    dict->insertObject("Resources", std::move(resourceDict));
-    dict->insertObject("BBox", std::move(mediaBox));
+    dict->insert("Resources", std::move(resourceDict));
+    dict->insert("BBox", std::move(mediaBox));
 
     // Right now FormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
     // TODO(halcanary): Is this comment obsolete, since we use it for
     // alpha masks?
-    auto group = SkPDFMakeDict("Group");
-    group->insertName("S", "Transparency");
+    auto group = std::make_unique<SkPDFDict>();
+    group->insert("Type", SkPDFName("Group"));
+    group->insert("S", SkPDFName("Transparency"));
     if (colorSpace != nullptr) {
-        group->insertName("CS", colorSpace);
+        group->insert("CS", SkPDFName(colorSpace));
     }
-    group->insertBool("I", true);  // Isolated.
-    dict->insertObject("Group", std::move(group));
+    group->insert("I", true);  // Isolated.
+    dict->insert("Group", std::move(group));
     return SkPDFStreamOut(std::move(dict), std::move(content), doc);
 }

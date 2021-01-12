@@ -548,8 +548,9 @@ void SkPDFDevice::clearMaskOnGraphicState(SkDynamicMemoryWStream* contentStream)
     // The no-softmask graphic state is used to "turn off" the mask for later draw calls.
     SkPDFIndirectReference& noSMaskGS = fDocument->fNoSmaskGraphicState;
     if (!noSMaskGS) {
-        SkPDFDict tmp("ExtGState");
-        tmp.insertName("SMask", "None");
+        SkPDFDict tmp;
+        tmp.insert("Type", SkPDFName("ExtGState"));
+        tmp.insert("SMask", SkPDFName("None"));
         noSMaskGS = fDocument->emit(tmp);
     }
     this->setGraphicState(noSMaskGS, contentStream);
