@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cee0026_ed062254",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-12T16:27:51Z",
+      "side": 1,
+      "message": "Thanks for investigating, I was going to take another look at some point.\n\nOne think I recall is almost all the gains are in the 5-\u003e512 buffer size bump (no significant improvement when going from 512 -\u003e 4096).\n\nSo if 4096 is still making you nervous, I think it\u0027d be perfectly fine to use 512 for both release/debug.",
+      "parentUuid": "e534fea2_12573e0b",
+      "revId": "0491c88fbee67d34375e85a4a178341e805592b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99fa283d_b3bc61aa",
