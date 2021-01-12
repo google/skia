@@ -915,7 +915,7 @@ describe('Core canvas behavior', () => {
         expect(paint.getColor()).toEqual(Float32Array.of(0, 0, 0, 1.0));
     });
 
-    gm('draw shadow', (canvas) => {
+    fgm('draw shadow', (canvas) => {
         const lightRadius = 20;
         const lightPos = [500,500,20];
         const zPlaneParams = [0,0,1];
@@ -927,11 +927,22 @@ describe('Core canvas behavior', () => {
                           CanvasKit.BLACK, CanvasKit.MAGENTA, 0);
         canvas.drawText('Default Flags', 5, 250, textPaint, textFont);
 
+        const bounds = CanvasKit.getShadowLocalBounds(CanvasKit.Matrix.identity(),
+            path, zPlaneParams, lightPos, lightRadius, 0);
+        expectTypedArraysToEqual(bounds, Float32Array.of(-3.64462, -12.67541, 245.50, 242.59164));
+
         canvas.translate(250, 250);
         canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
                           CanvasKit.BLACK, CanvasKit.MAGENTA,
                           CanvasKit.ShadowTransparentOccluder | CanvasKit.ShadowGeometricOnly | CanvasKit.ShadowDirectionalLight);
         canvas.drawText('All Flags', 5, 250, textPaint, textFont);
+
+        const outBounds = new Float32Array(4);
+        CanvasKit.getShadowLocalBounds(CanvasKit.Matrix.translated(250, 250),
+            path, zPlaneParams, lightPos, lightRadius,
+            CanvasKit.ShadowTransparentOccluder | CanvasKit.ShadowGeometricOnly | CanvasKit.ShadowDirectionalLight,
+            outBounds);
+        expectTypedArraysToEqual(outBounds, Float32Array.of(1.78079, -6.79846, 264.29318, 261.38483));
 
         path.delete();
         textFont.delete();
