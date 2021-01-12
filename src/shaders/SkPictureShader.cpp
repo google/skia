@@ -257,8 +257,14 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 #ifdef SK_SUPPORT_LEGACY_INHERITED_PICTURE_SHADER_FILTER
         tileShader = SkImage_makeShaderImplicitFilterQuality(tileImage.get(), fTmx, fTmy, nullptr);
 #else
-        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(SkFilterMode::kLinear,
-                                                                         SkMipmapMode::kNone),
+
+#ifdef SK_SUPPORT_NEAREST_PICTURESHADER_POSTFILTER
+        SkFilterMode filter = SkFilterMode::kNearest;
+#else
+        SkFilterMode filter = SkFilterMode::kLinear;
+#endif
+        tileShader = tileImage->makeShader(fTmx, fTmy,
+                                           SkSamplingOptions(filter, SkMipmapMode::kNone),
                                            nullptr);
 #endif
 
