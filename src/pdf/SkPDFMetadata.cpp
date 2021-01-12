@@ -119,18 +119,18 @@ static const struct {
 
 std::unique_ptr<SkPDFDict> SkPDFMetadata::MakeDocumentInformationDict(
         const SkPDF::Metadata& metadata) {
-    auto dict = SkPDFMakeDict();
+    auto dict = std::make_unique<SkPDFDict>();
     for (const auto keyValuePtr : gMetadataKeys) {
         const SkString& value = metadata.*(keyValuePtr.valuePtr);
         if (value.size() > 0) {
-            dict->insertString(keyValuePtr.key, convert(value));
+            dict->insert(keyValuePtr.key, convert(value));
         }
     }
     if (metadata.fCreation != kZeroTime) {
-        dict->insertString("CreationDate", pdf_date(metadata.fCreation));
+        dict->insert("CreationDate", pdf_date(metadata.fCreation));
     }
     if (metadata.fModified != kZeroTime) {
-        dict->insertString("ModDate", pdf_date(metadata.fModified));
+        dict->insert("ModDate", pdf_date(metadata.fModified));
     }
     return dict;
 }
@@ -170,13 +170,9 @@ std::unique_ptr<SkPDFArray> SkPDFMetadata::MakePdfId(const SkUUID& doc,
                                                      const SkUUID& instance) {
     // /ID [ <81b14aafa313db63dbd6f981e49f94f4>
     //       <81b14aafa313db63dbd6f981e49f94f4> ]
-    auto array = SkPDFMakeArray();
     static_assert(sizeof(SkUUID) == 16, "uuid_size");
-    array->appendString(
-            SkString(reinterpret_cast<const char*>(&doc), sizeof(SkUUID)));
-    array->appendString(
-            SkString(reinterpret_cast<const char*>(&instance), sizeof(SkUUID)));
-    return array;
+    return SkPDFMakeArray(SkString(reinterpret_cast<const char*>(&doc), sizeof(SkUUID)),
+                          SkString(reinterpret_cast<const char*>(&instance), sizeof(SkUUID)));
 }
 
 // Convert a block of memory to hexadecimal.  Input and output pointers will be
@@ -352,8 +348,9 @@ SkPDFIndirectReference SkPDFMetadata::MakeXMPObject(
             keywords1.c_str(), documentID.c_str(), instanceID.c_str(),
             producer.c_str(), keywords2.c_str());
 
-    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict("Metadata");
-    dict->insertName("Subtype", "XML");
+    auto dict = std::make_unique<SkPDFDict>();
+    dict->insert("Type", SkPDFName("Metadata"));
+    dict->insert("Subtype", SkPDFName("XML"));
     return SkPDFStreamOut(std::move(dict),
                           SkMemoryStream::MakeCopy(value.c_str(), value.size()),
                           docPtr, false);

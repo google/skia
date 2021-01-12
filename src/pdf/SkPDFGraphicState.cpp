@@ -64,8 +64,8 @@ SkPDFIndirectReference SkPDFGraphicState::GetGraphicStateForPaint(SkPDFDocument*
         }
         SkPDFDict state;
         state.reserve(2);
-        state.insertColorComponentF("ca", fillKey.fAlpha);
-        state.insertName("BM", as_pdf_blend_mode_name((SkBlendMode)fillKey.fBlendMode));
+        state.insert("ca", SkPDFColorComponentF{fillKey.fAlpha});
+        state.insert("BM", SkPDFName(as_pdf_blend_mode_name((SkBlendMode)fillKey.fBlendMode)));
         SkPDFIndirectReference ref = doc->emit(state);
         fillMap.set(fillKey, ref);
         return ref;
@@ -84,14 +84,14 @@ SkPDFIndirectReference SkPDFGraphicState::GetGraphicStateForPaint(SkPDFDocument*
         }
         SkPDFDict state;
         state.reserve(8);
-        state.insertColorComponentF("CA", strokeKey.fAlpha);
-        state.insertColorComponentF("ca", strokeKey.fAlpha);
-        state.insertInt("LC", to_stroke_cap(strokeKey.fStrokeCap));
-        state.insertInt("LJ", to_stroke_join(strokeKey.fStrokeJoin));
-        state.insertScalar("LW", strokeKey.fStrokeWidth);
-        state.insertScalar("ML", strokeKey.fStrokeMiter);
-        state.insertBool("SA", true);  // SA = Auto stroke adjustment.
-        state.insertName("BM", as_pdf_blend_mode_name((SkBlendMode)strokeKey.fBlendMode));
+        state.insert("CA", SkPDFColorComponentF{strokeKey.fAlpha});
+        state.insert("ca", SkPDFColorComponentF{strokeKey.fAlpha});
+        state.insert("LC", to_stroke_cap(strokeKey.fStrokeCap));
+        state.insert("LJ", to_stroke_join(strokeKey.fStrokeJoin));
+        state.insert("LW", strokeKey.fStrokeWidth);
+        state.insert("ML", strokeKey.fStrokeMiter);
+        state.insert("SA", true);  // SA = Auto stroke adjustment.
+        state.insert("BM", SkPDFName(as_pdf_blend_mode_name((SkBlendMode)strokeKey.fBlendMode)));
         SkPDFIndirectReference ref = doc->emit(state);
         sMap.set(strokeKey, ref);
         return ref;
@@ -107,10 +107,10 @@ static SkPDFIndirectReference make_invert_function(SkPDFDocument* doc) {
     // Do not copy the trailing '\0' into the SkData.
     auto invertFunction = SkData::MakeWithoutCopy(psInvert, strlen(psInvert));
 
-    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
-    dict->insertInt("FunctionType", 4);
-    dict->insertObject("Domain", SkPDFMakeArray(0, 1));
-    dict->insertObject("Range", SkPDFMakeArray(0, 1));
+    auto dict = std::make_unique<SkPDFDict>();
+    dict->insert("FunctionType", 4);
+    dict->insert("Domain", SkPDFMakeArray(0, 1));
+    dict->insert("Range", SkPDFMakeArray(0, 1));
     return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(std::move(invertFunction)), doc);
 }
 
@@ -120,21 +120,23 @@ SkPDFIndirectReference SkPDFGraphicState::GetSMaskGraphicState(SkPDFIndirectRefe
                                                                SkPDFDocument* doc) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
-    auto sMaskDict = SkPDFMakeDict("Mask");
+    auto sMaskDict = std::make_unique<SkPDFDict>();
+    sMaskDict->insert("Type", SkPDFName("sMaskDict"));
     if (sMaskMode == kAlpha_SMaskMode) {
-        sMaskDict->insertName("S", "Alpha");
+        sMaskDict->insert("S", SkPDFName("Alpha"));
     } else if (sMaskMode == kLuminosity_SMaskMode) {
-        sMaskDict->insertName("S", "Luminosity");
+        sMaskDict->insert("S", SkPDFName("Luminosity"));
     }
-    sMaskDict->insertRef("G", sMask);
+    sMaskDict->insert("G", sMask);
     if (invert) {
         // let the doc deduplicate this object.
         if (doc->fInvertFunction == SkPDFIndirectReference()) {
             doc->fInvertFunction = make_invert_function(doc);
         }
-        sMaskDict->insertRef("TR", doc->fInvertFunction);
+        sMaskDict->insert("TR", doc->fInvertFunction);
     }
-    SkPDFDict result("ExtGState");
-    result.insertObject("SMask", std::move(sMaskDict));
+    SkPDFDict result;
+    result.insert("Type", SkPDFName("ExtGState"));
+    result.insert("SMask", std::move(sMaskDict));
     return doc->emit(result);
 }

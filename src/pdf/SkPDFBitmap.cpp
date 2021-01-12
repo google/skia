@@ -75,27 +75,27 @@ static void emit_image_stream(SkPDFDocument* doc,
                               SkPDFIndirectReference sMask,
                               int length,
                               bool isJpeg) {
-    SkPDFDict pdfDict("XObject");
-    pdfDict.insertName("Subtype", "Image");
-    pdfDict.insertInt("Width", size.width());
-    pdfDict.insertInt("Height", size.height());
-    pdfDict.insertName("ColorSpace", colorSpace);
+    SkPDFDict pdfDict;
+    pdfDict.insert("Type", SkPDFName("XObject"));
+    pdfDict.insert("Subtype", SkPDFName("Image"));
+    pdfDict.insert("Width", size.width());
+    pdfDict.insert("Height", size.height());
+    pdfDict.insert("ColorSpace", SkPDFName(colorSpace));
     if (sMask) {
-        pdfDict.insertRef("SMask", sMask);
+        pdfDict.insert("SMask", sMask);
     }
-    pdfDict.insertInt("BitsPerComponent", 8);
+    pdfDict.insert("BitsPerComponent", 8);
     #ifdef SK_PDF_BASE85_BINARY
-    auto filters = SkPDFMakeArray();
-    filters->appendName("ASCII85Decode");
-    filters->appendName(isJpeg ? "DCTDecode" : "FlateDecode");
-    pdfDict.insertObject("Filter", std::move(filters));
+    pdfDict.insert("Filter",
+                   SkPDFMakeArray(SkPDFName("ASCII85Decode"),
+                                  SkPDFName(isJpeg ? "DCTDecode" : "FlateDecode")));
     #else
-    pdfDict.insertName("Filter", isJpeg ? "DCTDecode" : "FlateDecode");
+    pdfDict.insert("Filter", SkPDFName(isJpeg ? "DCTDecode" : "FlateDecode"));
     #endif
     if (isJpeg) {
-        pdfDict.insertInt("ColorTransform", 0);
+        pdfDict.insert("ColorTransform", 0);
     }
-    pdfDict.insertInt("Length", length);
+    pdfDict.insert("Length", length);
     doc->emitStream(pdfDict, std::move(writeStream), ref);
 }
 

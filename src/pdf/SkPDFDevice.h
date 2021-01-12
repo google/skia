@@ -32,7 +32,6 @@ class SkPDFDevice;
 class SkPDFDict;
 class SkPDFDocument;
 class SkPDFFont;
-class SkPDFObject;
 class SkPath;
 class SkRRect;
 struct SkPDFIndirectReference;

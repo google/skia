@@ -90,23 +90,10 @@ class SkPDFArray : public std::vector<SkPDFObject> {
 public:
     void emit(SkWStream*) const;
     template <typename T> void append(T v) { this->push_back(SkPDFObject{std::move(v)}); }
-
-    // The following inline functions can be replaced in the calling code in a later commit.
-    void appendInt(int32_t v) { this->append(v); }
-    void appendColorComponent(uint8_t v) { this->append(SkPDFColorComponentU{v}); }
-    void appendBool(bool v) { this->append(v); }
-    void appendScalar(SkScalar v) { this->append(v); }
-    void appendName(const char v[]) { this->append(SkPDFName(v)); }
-    void appendName(SkString v) { this->append(SkPDFName(std::move(v))); }
-    void appendString(const char v[]) { this->append(v); }
-    void appendString(SkString v) { this->append(std::move(v)); }
-    void appendRef(SkPDFIndirectReference v) { this->append(v); }
-    void appendObject(std::unique_ptr<SkPDFArray>&& v) { this->append(std::move(v)); }
-    void appendObject(std::unique_ptr<SkPDFDict>&& v) { this->append(std::move(v)); }
 };
 
 template <typename T, typename... Args>
-static inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
+static inline void SkPDFArray_Append(SkPDFArray* a, T&& v, Args... args) {
     a->append(std::move(v));
     SkPDFArray_Append(a, args...);
 }
@@ -114,7 +101,7 @@ static inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
 static inline void SkPDFArray_Append(SkPDFArray* a) {}
 
 template <typename... Args> static inline std::unique_ptr<SkPDFArray> SkPDFMakeArray(Args... args) {
-    std::unique_ptr<SkPDFArray> ret(new SkPDFArray());
+    auto ret = std::make_unique<SkPDFArray>();
     ret->reserve(sizeof...(Args));
     SkPDFArray_Append(ret.get(), args...);
     return ret;
@@ -122,53 +109,13 @@ template <typename... Args> static inline std::unique_ptr<SkPDFArray> SkPDFMakeA
 
 class SkPDFDict : public std::vector<std::pair<SkPDFObject, SkPDFObject>> {
 public:
-    explicit SkPDFDict(const char type[] = nullptr) {
-        if (type) {
-            this->insertName("Type", type);
-        }
-    }
     void emit(SkWStream*) const;
     // @param key is either const char[] or SkString
     // @param value is any type SkPDFObject can hold.
     template <typename K, typename V> void insert(K key, V value) {
         this->emplace_back(SkPDFObject{SkPDFName(std::move(key))}, SkPDFObject{std::move(value)});
     }
-
-    // The following inline functions can be replaced in the calling code in a later commit.
-    void insertObject(const char key[], std::unique_ptr<SkPDFArray>&& value) {
-        this->insert(key, std::move(value));
-    }
-    void insertObject(SkString key, std::unique_ptr<SkPDFArray>&& value) {
-        this->insert(std::move(key), std::move(value));
-    }
-    void insertObject(const char key[], std::unique_ptr<SkPDFDict>&& value) {
-        this->insert(key, std::move(value));
-    }
-    void insertObject(SkString key, std::unique_ptr<SkPDFDict>&& value) {
-        this->insert(std::move(key), std::move(value));
-    }
-    void insertRef(const char key[], SkPDFIndirectReference value) { this->insert(key, value); }
-    void insertRef(SkString key, SkPDFIndirectReference value) {
-        this->insert(std::move(key), value);
-    }
-    void insertBool(const char key[], bool value) { this->insert(key, value); }
-    void insertInt(const char key[], int32_t value) { this->insert(key, value); }
-    void insertInt(const char key[], size_t value) { this->insert(key, SkToS32(value)); }
-    void insertScalar(const char key[], SkScalar value) { this->insert(key, value); }
-    void insertName(const char key[], const char value[]) { this->insert(key, SkPDFName(value)); }
-    void insertName(const char key[], SkString value) {
-        this->insert(key, SkPDFName(std::move(value)));
-    }
-    void insertString(const char key[], const char value[]) { this->insert(key, value); }
-    void insertString(const char key[], SkString value) { this->insert(key, std::move(value)); }
-    void insertColorComponentF(const char key[], SkScalar value) {
-        this->insert(key, SkPDFColorComponentF{value});
-    }
 };
-
-static inline std::unique_ptr<SkPDFDict> SkPDFMakeDict(const char* type = nullptr) {
-    return std::make_unique<SkPDFDict>(type);
-}
 
 // Exposed for unit testing.
 void SkPDFWriteString(SkWStream* wStream, const char* cin, size_t len);

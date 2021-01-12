@@ -146,36 +146,36 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
     std::unique_ptr<SkPDFArray> array(new SkPDFArray);
     assert_emit_eq(reporter, *array, "[]");
 
-    array->appendInt(42);
+    array->append(42);
     assert_emit_eq(reporter, *array, "[42]");
 
-    array->appendScalar(SK_ScalarHalf);
+    array->append(SK_ScalarHalf);
     assert_emit_eq(reporter, *array, "[42 .5]");
 
-    array->appendInt(0);
+    array->append(0);
     assert_emit_eq(reporter, *array, "[42 .5 0]");
 
-    array->appendBool(true);
+    array->append(true);
     assert_emit_eq(reporter, *array, "[42 .5 0 true]");
 
-    array->appendName("ThisName");
+    array->append(SkPDFName("ThisName"));
     assert_emit_eq(reporter, *array, "[42 .5 0 true /ThisName]");
 
-    array->appendName(SkString("AnotherName"));
+    array->append(SkPDFName(SkString("AnotherName")));
     assert_emit_eq(reporter, *array, "[42 .5 0 true /ThisName /AnotherName]");
 
-    array->appendString("This String");
+    array->append("This String");
     assert_emit_eq(reporter, *array,
                    "[42 .5 0 true /ThisName /AnotherName (This String)]");
 
-    array->appendString(SkString("Another String"));
+    array->append(SkString("Another String"));
     assert_emit_eq(reporter, *array,
                    "[42 .5 0 true /ThisName /AnotherName (This String) "
                    "(Another String)]");
 
     std::unique_ptr<SkPDFArray> innerArray(new SkPDFArray);
-    innerArray->appendInt(-1);
-    array->appendObject(std::move(innerArray));
+    innerArray->append(-1);
+    array->append(std::move(innerArray));
     assert_emit_eq(reporter, *array,
                    "[42 .5 0 true /ThisName /AnotherName (This String) "
                    "(Another String) [-1]]");
@@ -185,51 +185,52 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     std::unique_ptr<SkPDFDict> dict(new SkPDFDict);
     assert_emit_eq(reporter, *dict, "<<>>");
 
-    dict->insertInt("n1", SkToSizeT(42));
+    dict->insert("n1", SkToS32(42u));
     assert_emit_eq(reporter, *dict, "<</n1 42>>");
 
     dict = std::make_unique<SkPDFDict>();
     assert_emit_eq(reporter, *dict, "<<>>");
 
-    dict->insertInt("n1", 42);
+    dict->insert("n1", 42);
     assert_emit_eq(reporter, *dict, "<</n1 42>>");
 
-    dict->insertScalar("n2", SK_ScalarHalf);
+    dict->insert("n2", SK_ScalarHalf);
 
     SkString n3("n3");
     std::unique_ptr<SkPDFArray> innerArray(new SkPDFArray);
-    innerArray->appendInt(-100);
-    dict->insertObject(n3, std::move(innerArray));
+    innerArray->append(-100);
+    dict->insert(n3, std::move(innerArray));
     assert_emit_eq(reporter, *dict, "<</n1 42\n/n2 .5\n/n3 [-100]>>");
 
     dict = std::make_unique<SkPDFDict>();
     assert_emit_eq(reporter, *dict, "<<>>");
 
-    dict->insertInt("n1", 24);
+    dict->insert("n1", 24);
     assert_emit_eq(reporter, *dict, "<</n1 24>>");
 
-    dict->insertInt("n2", SkToSizeT(99));
+    dict->insert("n2", SkToS32(99u));
     assert_emit_eq(reporter, *dict, "<</n1 24\n/n2 99>>");
 
-    dict->insertScalar("n3", SK_ScalarHalf);
+    dict->insert("n3", SK_ScalarHalf);
     assert_emit_eq(reporter, *dict, "<</n1 24\n/n2 99\n/n3 .5>>");
 
-    dict->insertName("n4", "AName");
+    dict->insert("n4", SkPDFName("AName"));
     assert_emit_eq(reporter, *dict, "<</n1 24\n/n2 99\n/n3 .5\n/n4 /AName>>");
 
-    dict->insertName("n5", SkString("AnotherName"));
+    dict->insert("n5", SkPDFName(SkString("AnotherName")));
     assert_emit_eq(reporter, *dict, "<</n1 24\n/n2 99\n/n3 .5\n/n4 /AName\n"
                    "/n5 /AnotherName>>");
 
-    dict->insertString("n6", "A String");
+    dict->insert("n6", "A String");
     assert_emit_eq(reporter, *dict, "<</n1 24\n/n2 99\n/n3 .5\n/n4 /AName\n"
                    "/n5 /AnotherName\n/n6 (A String)>>");
 
-    dict->insertString("n7", SkString("Another String"));
+    dict->insert("n7", SkString("Another String"));
     assert_emit_eq(reporter, *dict, "<</n1 24\n/n2 99\n/n3 .5\n/n4 /AName\n"
                    "/n5 /AnotherName\n/n6 (A String)\n/n7 (Another String)>>");
 
-    dict = std::make_unique<SkPDFDict>("DType");
+    dict = std::make_unique<SkPDFDict>();
+    dict->insert("Type", SkPDFName("DType"));
     assert_emit_eq(reporter, *dict, "<</Type /DType>>");
 }
 
