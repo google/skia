@@ -595,12 +595,9 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
     // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
     // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
     // somewhere during compilation.
-    if (type == fContext->fTypes.fFloatLiteral.get()) {
-        SkDEBUGFAIL("found a $floatLiteral type while inlining");
-        type = fContext->fTypes.fFloat.get();
-    } else if (type == fContext->fTypes.fIntLiteral.get()) {
-        SkDEBUGFAIL("found an $intLiteral type while inlining");
-        type = fContext->fTypes.fInt.get();
+    if (type->isLiteral()) {
+        SkDEBUGFAIL("found a $literal type while inlining");
+        type = &type->scalarTypeForLiteral();
     }
 
     // Provide our new variable with a unique name, and add it to our symbol table.

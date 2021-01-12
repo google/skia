@@ -22,11 +22,6 @@ namespace SkSL {
 struct BuiltinTypes {
     BuiltinTypes();
 
-    const std::unique_ptr<Type> fInvalid;
-    const std::unique_ptr<Type> fVoid;
-    const std::unique_ptr<Type> fFloatLiteral;
-    const std::unique_ptr<Type> fIntLiteral;
-
     const std::unique_ptr<Type> fFloat;
     const std::unique_ptr<Type> fFloat2;
     const std::unique_ptr<Type> fFloat3;
@@ -71,6 +66,11 @@ struct BuiltinTypes {
     const std::unique_ptr<Type> fBool2;
     const std::unique_ptr<Type> fBool3;
     const std::unique_ptr<Type> fBool4;
+
+    const std::unique_ptr<Type> fInvalid;
+    const std::unique_ptr<Type> fVoid;
+    const std::unique_ptr<Type> fFloatLiteral;
+    const std::unique_ptr<Type> fIntLiteral;
 
     const std::unique_ptr<Type> fFloat2x2;
     const std::unique_ptr<Type> fFloat2x3;
