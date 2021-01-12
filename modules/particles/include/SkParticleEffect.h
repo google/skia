@@ -159,10 +159,7 @@ public:
     void update(double now);
     void draw(SkCanvas* canvas);
 
-    bool isAlive(bool includeSubEffects = true) const {
-        return (fState.fAge >= 0 && fState.fAge <= 1)
-            || (includeSubEffects && !fSubEffects.empty());
-    }
+    bool isAlive() const { return (fState.fAge >= 0 && fState.fAge <= 1); }
     int getCount() const { return fCount; }
 
     float     getRate()     const { return fState.fRate;     }
@@ -199,11 +196,8 @@ private:
     // Helpers to break down update
     void advanceTime(double now);
 
-    void processEffectSpawnRequests(double now);
-    void runEffectScript(double now, const char* entry);
-
-    void processParticleSpawnRequests(double now, int start);
-    void runParticleScript(double now, const char* entry, int start, int count);
+    void runEffectScript(const char* entry);
+    void runParticleScript(const char* entry, int start, int count);
 
     sk_sp<SkParticleEffectParams>        fParams;
 
@@ -240,25 +234,6 @@ private:
     int fCapacity;
     SkTArray<float, true> fEffectUniforms;
     SkTArray<float, true> fParticleUniforms;
-
-    // Private interface used by SkEffectBinding and SkEffectExternalValue to spawn sub effects
-    friend class SkEffectExternalValue;
-    struct SpawnRequest {
-        SpawnRequest(int index, bool loop, sk_sp<SkParticleEffectParams> params)
-            : fIndex(index)
-            , fLoop(loop)
-            , fParams(std::move(params)) {}
-
-        int fIndex;
-        bool fLoop;
-        sk_sp<SkParticleEffectParams> fParams;
-    };
-    void addSpawnRequest(int index, bool loop, sk_sp<SkParticleEffectParams> params) {
-        fSpawnRequests.emplace_back(index, loop, std::move(params));
-    }
-    SkTArray<SpawnRequest> fSpawnRequests;
-
-    SkTArray<sk_sp<SkParticleEffect>> fSubEffects;
 };
 
 #endif // SkParticleEffect_DEFINED
