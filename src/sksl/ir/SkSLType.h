@@ -119,7 +119,8 @@ public:
     }
 
     // Create a struct type with the given fields.
-    static std::unique_ptr<Type> MakeStructType(int offset, String name, std::vector<Field> fields) {
+    static std::unique_ptr<Type> MakeStructType(int offset, String name,
+                                                std::vector<Field> fields) {
         return std::unique_ptr<Type>(new Type(offset, std::move(name), std::move(fields)));
     }
 
@@ -127,6 +128,12 @@ public:
     static std::unique_ptr<Type> MakeScalarType(const char* name, NumberKind numberKind,
                                                 int priority, bool highPrecision = false) {
         return std::unique_ptr<Type>(new Type(name, numberKind, priority, highPrecision));
+    }
+
+    // Create a type for literal scalars.
+    static std::unique_ptr<Type> MakeLiteralType(const char* name, const Type& scalarType,
+                                                 int priority) {
+        return std::unique_ptr<Type>(new Type(name, scalarType, priority));
     }
 
     // Create a vector type.
@@ -163,14 +170,7 @@ public:
     }
 
     String displayName() const {
-        StringFragment name = this->name();
-        if (name == "$floatLiteral") {
-            return "float";
-        }
-        if (name == "$intLiteral") {
-            return "int";
-        }
-        return name;
+        return this->scalarTypeForLiteral().name();
     }
 
     String description() const override {
@@ -326,8 +326,7 @@ public:
     }
 
     /**
-     * For generic types, returns the types that this generic type can substitute for. For other
-     * types, returns a list of other types that this type can be coerced into.
+     * For generic types, returns the types that this generic type can substitute for.
      */
     const std::vector<const Type*>& coercibleTypes() const {
         SkASSERT(fCoercibleTypes.size() > 0);
@@ -351,6 +350,14 @@ public:
 
     bool isScalar() const {
         return fTypeKind == TypeKind::kScalar;
+    }
+
+    bool isLiteral() const {
+        return fScalarTypeForLiteral != nullptr;
+    }
+
+    const Type& scalarTypeForLiteral() const {
+        return fScalarTypeForLiteral ? *fScalarTypeForLiteral : *this;
     }
 
     bool isVector() const {
@@ -425,7 +432,7 @@ private:
             , fCoercibleTypes(std::move(types)) {}
 
     // Constructor for MakeScalarType.
-    Type(const char* name, NumberKind numberKind, int priority, bool highPrecision = false)
+    Type(const char* name, NumberKind numberKind, int priority, bool highPrecision)
             : INHERITED(-1, kSymbolKind, name)
             , fTypeKind(TypeKind::kScalar)
             , fNumberKind(numberKind)
@@ -433,6 +440,17 @@ private:
             , fColumns(1)
             , fRows(1)
             , fHighPrecision(highPrecision) {}
+
+    // Constructor for MakeLiteralType.
+    Type(const char* name, const Type& scalarType, int priority)
+            : INHERITED(-1, kSymbolKind, name)
+            , fTypeKind(TypeKind::kScalar)
+            , fNumberKind(scalarType.numberKind())
+            , fPriority(priority)
+            , fColumns(1)
+            , fRows(1)
+            , fHighPrecision(scalarType.highPrecision())
+            , fScalarTypeForLiteral(&scalarType) {}
 
     // Constructor shared by MakeVectorType and MakeArrayType.
     Type(String name, TypeKind kind, const Type& componentType, int columns)
@@ -516,6 +534,7 @@ private:
     bool fIsSampled = false;
     bool fHighPrecision = false;
     const Type* fTextureType = nullptr;
+    const Type* fScalarTypeForLiteral = nullptr;
 };
 
 }  // namespace SkSL

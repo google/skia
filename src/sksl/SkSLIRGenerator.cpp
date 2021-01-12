@@ -1555,13 +1555,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         return std::make_unique<Constructor>(offset, &type, std::move(args));
     }
     std::unique_ptr<Expression> ctor;
-    if (type == *fContext.fTypes.fFloatLiteral) {
-        ctor = this->convertIdentifier(offset, "float");
-    } else if (type == *fContext.fTypes.fIntLiteral) {
-        ctor = this->convertIdentifier(offset, "int");
-    } else {
-        ctor = this->convertIdentifier(offset, type.name());
-    }
+    ctor = this->convertIdentifier(offset, type.scalarTypeForLiteral().name());
     if (!ctor) {
         this->errorReporter().error(offset, "null identifier: " + type.name());
         return nullptr;

@@ -27,13 +27,7 @@ namespace SkSL {
 }
 
 BuiltinTypes::BuiltinTypes()
-        : fInvalid(Type::MakeOtherType("<INVALID>"))
-        , fVoid(Type::MakeOtherType("void"))
-        , fFloatLiteral(
-                  Type::MakeScalarType("$floatLiteral", Type::NumberKind::kFloat, /*priority=*/8))
-        , fIntLiteral(
-                  Type::MakeScalarType("$intLiteral", Type::NumberKind::kSigned, /*priority=*/5))
-        , fFloat(Type::MakeScalarType(
+        : fFloat(Type::MakeScalarType(
                   "float", Type::NumberKind::kFloat, /*priority=*/10, /*highPrecision=*/true))
         , fFloat2(Type::MakeVectorType("float2", *fFloat, /*columns=*/2))
         , fFloat3(Type::MakeVectorType("float3", *fFloat, /*columns=*/3))
@@ -72,6 +66,10 @@ BuiltinTypes::BuiltinTypes()
         , fBool2(Type::MakeVectorType("bool2", *fBool, /*columns=*/2))
         , fBool3(Type::MakeVectorType("bool3", *fBool, /*columns=*/3))
         , fBool4(Type::MakeVectorType("bool4", *fBool, /*columns=*/4))
+        , fInvalid(Type::MakeOtherType("<INVALID>"))
+        , fVoid(Type::MakeOtherType("void"))
+        , fFloatLiteral(Type::MakeLiteralType("$floatLiteral", *fFloat, /*priority=*/8))
+        , fIntLiteral(Type::MakeLiteralType("$intLiteral", *fInt, /*priority=*/5))
         , fFloat2x2(Type::MakeMatrixType("float2x2", *fFloat, /*columns=*/2, /*rows=*/2))
         , fFloat2x3(Type::MakeMatrixType("float2x3", *fFloat, /*columns=*/2, /*rows=*/3))
         , fFloat2x4(Type::MakeMatrixType("float2x4", *fFloat, /*columns=*/2, /*rows=*/4))
