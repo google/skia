@@ -229,6 +229,7 @@ struct GrTriangulator::Vertex {
 #if TRIANGULATOR_LOGGING
     float   fID;                  // Identifier used for logging.
 #endif
+    bool isConnected() const { return this->fFirstEdgeAbove || this->fFirstEdgeBelow; }
 };
 
 struct GrTriangulator::VertexList {
@@ -258,6 +259,9 @@ struct GrTriangulator::VertexList {
             fHead->fPrev = fTail;
         }
     }
+#if TRIANGULATOR_LOGGING
+    void dump();
+#endif
 };
 
 // A line equation in implicit form. fA * x + fB * y + fC = 0, for all points (x, y) on the line.
@@ -354,6 +358,9 @@ struct GrTriangulator::Edge {
     bool isRightOf(Vertex* v) const { return fLine.dist(v->fPoint) < 0.0; }
     bool isLeftOf(Vertex* v) const { return fLine.dist(v->fPoint) > 0.0; }
     void recompute() { fLine = Line(fTop, fBottom); }
+    void insertAbove(Vertex*, const Comparator&);
+    void insertBelow(Vertex*, const Comparator&);
+    void disconnect();
     bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) const;
 };
 
@@ -362,6 +369,7 @@ struct GrTriangulator::EdgeList {
     Edge* fHead;
     Edge* fTail;
     void insert(Edge* edge, Edge* prev, Edge* next);
+    void insert(Edge* edge, Edge* prev);
     void append(Edge* e) { insert(e, fTail, nullptr); }
     void remove(Edge* edge);
     void removeAll() {
