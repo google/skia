@@ -249,7 +249,7 @@ DEF_TEST(SkSLInterpreterAdd, r) {
     test(r, "void main(inout half4 color) { color += half4(1, 2, 3, 4); }", 4, 3, 2, 1, 5, 5, 5, 5);
     test(r, "void main(inout half4 color) { half4 c = color; color += c; }", 0.25, 0.5, 0.75, 1,
          0.5, 1, 1.5, 2);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) + int(color.g); }", 1, 3, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) + int(color.g)); }", 1, 3, 0, 0,
          4, 3, 0, 0);
 }
 
@@ -261,7 +261,7 @@ DEF_TEST(SkSLInterpreterSubtract, r) {
          0, 0, 0, 0);
     test(r, "void main(inout half4 color) { color.x = -color.x; }", 4, 3, 2, 1, -4, 3, 2, 1);
     test(r, "void main(inout half4 color) { color = -color; }", 4, 3, 2, 1, -4, -3, -2, -1);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) - int(color.g); }", 3, 1, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) - int(color.g)); }", 3, 1, 0, 0,
          2, 1, 0, 0);
 }
 
@@ -272,7 +272,7 @@ DEF_TEST(SkSLInterpreterMultiply, r) {
          20);
     test(r, "void main(inout half4 color) { half4 c = color; color *= c; }", 4, 3, 2, 1,
          16, 9, 4, 1);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) * int(color.g); }", 3, -2, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) * int(color.g)); }", 3, -2, 0, 0,
          -6, -2, 0, 0);
 }
 
@@ -283,7 +283,7 @@ DEF_TEST(SkSLInterpreterDivide, r) {
          4, 3);
     test(r, "void main(inout half4 color) { half4 c = color; color /= c; }", 4, 3, 2, 1,
          1, 1, 1, 1);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) / int(color.g); }", 8, -2, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) / int(color.g)); }", 8, -2, 0, 0,
          -4, -2, 0, 0);
 }
 
@@ -294,10 +294,10 @@ DEF_TEST(SkSLInterpreterAnd, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 1, 1, 0, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
             "color = half4(color.a); }", 2, 1, 1, 3, 2, 1, 1, 3);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
             "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
             "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0);
 }
@@ -309,10 +309,10 @@ DEF_TEST(SkSLInterpreterOr, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 3, 3, 3, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
             "color = half4(color.a); }", 1, 1, 1, 3, 1, 1, 1, 3);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
             "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
             "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0);
 }
@@ -429,20 +429,18 @@ DEF_TEST(SkSLInterpreterCast, r) {
     input[1].s = -5;
     expected[0].f = 3.0f;
     expected[1].f = -5.0f;
-    test(r, "float  main(int  x) { return float (x); }", (float*)input, (float*)expected);
-    test(r, "float2 main(int2 x) { return float2(x); }", (float*)input, (float*)expected);
+    test(r, "float  main(int  x) { return float(x); }", (float*)input, (float*)expected);
 
     input[0].f = 3.0f;
     input[1].f = -5.0f;
     expected[0].s = 3;
     expected[1].s = -5;
-    test(r, "int  main(float  x) { return int (x); }", (float*)input, (float*)expected);
-    test(r, "int2 main(float2 x) { return int2(x); }", (float*)input, (float*)expected);
+    test(r, "int  main(float  x) { return int(x); }", (float*)input, (float*)expected);
 
     input[0].s = 3;
     expected[0].f = 3.0f;
     expected[1].f = 3.0f;
-    test(r, "float2 main(int x) { return float2(x); }", (float*)input, (float*)expected);
+    test(r, "float2 main(int x) { return float2(float(x)); }", (float*)input, (float*)expected);
 }
 
 DEF_TEST(SkSLInterpreterIf, r) {
@@ -501,7 +499,7 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
 
 DEF_TEST(SkSLInterpreterFor, r) {
     // TODO: SkVM for-loop support
-    test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }",
+    test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += half(i); }",
          0, 0, 0, 0,
          55, 0, 0, 0,
          /*testWithSkVM=*/false);
@@ -509,7 +507,7 @@ DEF_TEST(SkSLInterpreterFor, r) {
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
          "        for (int j = i; j <= 10; ++j)"
-         "            color.r += j;"
+         "            color.r += half(j);"
          "}",
          0, 0, 0, 0,
          385, 0, 0, 0,
@@ -520,7 +518,7 @@ DEF_TEST(SkSLInterpreterFor, r) {
          "        for (int j = 1; ; ++j) {"
          "            if (i == j) continue;"
          "            if (j > 10) break;"
-         "            color.r += j;"
+         "            color.r += half(j);"
          "        }"
          "}",
          0, 0, 0, 0,
@@ -537,13 +535,13 @@ DEF_TEST(SkSLInterpreterSwizzle, r) {
     test(r, "void main(inout half4 color) { color = color.abgr; }", 1, 2, 3, 4, 4, 3, 2, 1);
     test(r, "void main(inout half4 color) { color.rgb = half4(5, 6, 7, 8).bbg; }", 1, 2, 3, 4, 7, 7,
          6, 4);
-    test(r, "void main(inout half4 color) { color.bgr = int3(5, 6, 7); }", 1, 2, 3, 4, 7, 6,
+    test(r, "void main(inout half4 color) { color.bgr = half3(5, 6, 7); }", 1, 2, 3, 4, 7, 6,
          5, 4);
 }
 
 DEF_TEST(SkSLInterpreterGlobal, r) {
-    test(r, "int x; void main(inout half4 color) { x = 10; color.b = x; }", 1, 2, 3, 4, 1, 2, 10,
-         4);
+    test(r, "int x; void main(inout half4 color) { x = 10; color.b = half(x); }", 1, 2, 3, 4, 1, 2,
+         10, 4);
     test(r, "float4 x; void main(inout float4 color) { x = color * 2; color = x; }",
          1, 2, 3, 4, 2, 4, 6, 8);
     test(r, "float4 x; void main(inout float4 color) { x = float4(5, 6, 7, 8); color = x.wzyx; }",
@@ -604,7 +602,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         "void fill_rects(inout ManyRects mr) {\n"
         "  for (int i = 0; i < mr.numRects; ++i) {\n"
         "    mr.rects[i].r = gRects[i];\n"
-        "    float b = mr.rects[i].r.p1.y;\n"
+        "    float b = float(mr.rects[i].r.p1.y);\n"
         "    mr.rects[i].color = float4(b, b, b, b);\n"
         "  }\n"
         "}\n";
