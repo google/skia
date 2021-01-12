@@ -43,7 +43,8 @@ return half4(H, S, L, c.w);
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {}
 };
 GrGLSLFragmentProcessor* GrRGBToHSLFilterEffect::onCreateGLSLInstance() const {
     return new GrGLSLRGBToHSLFilterEffect();

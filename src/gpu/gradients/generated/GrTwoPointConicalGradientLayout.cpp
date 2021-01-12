@@ -130,7 +130,8 @@ return half4(half(t), v, 0.0, 0.0);
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrTwoPointConicalGradientLayout& _outer =
                 _proc.cast<GrTwoPointConicalGradientLayout>();
         {

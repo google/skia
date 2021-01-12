@@ -46,7 +46,8 @@ private:
     class GLSLGP : public GrGLSLGeometryProcessor {
     public:
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& pp) override {
+                     const GrPrimitiveProcessor& pp,
+                     SkIPoint viewportOffset) override {
             const auto& gp = pp.cast<GP>();
             this->setTransform(pdman, fLocalMatrixUni, gp.fLocalMatrix);
         }
