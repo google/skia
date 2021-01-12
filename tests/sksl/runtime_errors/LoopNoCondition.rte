@@ -1,0 +1,6 @@
+half4 main() {
+    for (int i = 0; ; i++) {
+        if (i > 1) { break; }
+    }
+    return half4(1);
+}

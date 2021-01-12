@@ -1,0 +1,9 @@
+void no_initializer() {
+    int i = 0;
+    for (; i < 1; i++) {}
+}
+
+void init_not_decl() {
+    int i;
+    for (i = 0; i < 1; i++) {}
+}

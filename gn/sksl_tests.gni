@@ -495,6 +495,10 @@ sksl_rte_error_tests = [
   "$_tests/sksl/errors/IllegalOperators.rte",
   "$_tests/sksl/errors/UnsupportedTypeSampler.rte",
   "$_tests/sksl/errors/UnsupportedTypeTexture.rte",
+
+  "$_tests/sksl/runtime_errors/LoopNoCondition.rte",
+  "$_tests/sksl/runtime_errors/LoopNoInitializer.rte",
+  "$_tests/sksl/runtime_errors/LoopNoNext.rte",
 ]
 
 # Tests in sksl_fp_tests_sources will be compiled with --settings on, and are expected to generate
