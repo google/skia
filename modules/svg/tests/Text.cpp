@@ -153,8 +153,12 @@ DEF_TEST(Svg_Text_PosProvider, r) {
         b->setX(tst.xb);
         b->setY(tst.yb);
 
-        SkSVGTextContext tctx(SkSVGPresentationContext(), nullptr);
-        SkSVGLengthContext lctx({0,0});
+        const SkSVGIDMapper mapper;
+        const SkSVGLengthContext lctx({0,0});
+        const SkSVGPresentationContext pctx;
+        const SkSVGRenderContext ctx(nullptr, nullptr, mapper, lctx, pctx, nullptr);
+
+        SkSVGTextContext tctx(ctx);
         SkSVGTextContext::ScopedPosResolver pa(*a, lctx, &tctx, tst.offseta);
         SkSVGTextContext::ScopedPosResolver pb(*b, lctx, &tctx, tst.offsetb);
 
