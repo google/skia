@@ -112,13 +112,6 @@ void GrMemoryPool::release(void* p) {
 #endif
 
     GrBlockAllocator::Block* block = fAllocator.owningBlock<kAlignment>(header, header->fStart);
-
-#if defined(SK_DEBUG)
-    // Scrub the block contents to prevent use-after-free errors.
-    intptr_t postHeader = header->fStart + sizeof(Header);
-    memset(block->ptr(postHeader), 0xDD, header->fEnd - postHeader);
-#endif
-
     int alive = block->metadata();
     if (alive == 1) {
         // This was last allocation in the block, so remove it
