@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9d5f734_e5979637",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-12T19:24:27Z",
+      "side": 1,
+      "message": "Fix (and new test cases to cover it) can be seen relative to original change can be seen by diffing against PS1 (pure reland).",
+      "revId": "8d8f2145ad839f4f56b8e8d6d99c3bb3f69fa834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
