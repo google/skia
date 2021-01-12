@@ -18,7 +18,9 @@ class GrColorSpaceXform;
 class GrDirectContext;
 class GrImageContext;
 class GrSurfaceFillContext;
+class GrYUVATextureProxies;
 class SkColorSpace;
+class SkYUVAInfo;
 
 class SkImage_GpuBase : public SkImage_Base {
 public:
@@ -59,6 +61,9 @@ public:
                                        sk_sp<SkColorSpace> cs);
     static bool ValidateCompressedBackendTexture(const GrCaps*, const GrBackendTexture& tex,
                                                  SkAlphaType);
+    static GrYUVATextureProxies MakeYUVAProxies(GrRecordingContext*,
+                                                const GrYUVABackendTextures& yuvaTextures,
+                                                sk_sp<GrRefCntedCallback> releaseHelper);
 
     static SkAlphaType GetAlphaTypeFromYUVALocations(const SkYUVAInfo::YUVALocations locations) {
         return locations[SkYUVAInfo::YUVAChannels::kA].fPlane >= 0 ? kPremul_SkAlphaType

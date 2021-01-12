@@ -12,6 +12,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrYUVABackendTextures.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrDirectContextPriv.h"
@@ -22,6 +23,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureAdjuster.h"
+#include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkReadPixelsRec.h"
@@ -263,6 +265,25 @@ bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
     }
 
     return true;
+}
+
+GrYUVATextureProxies SkImage_GpuBase::MakeYUVAProxies(GrRecordingContext* recordingContext,
+                                                      const GrYUVABackendTextures& yuvaTextures,
+                                                      sk_sp<GrRefCntedCallback> releaseHelper) {
+    GrProxyProvider* proxyProvider = recordingContext->priv().proxyProvider();
+    int numPlanes = yuvaTextures.yuvaInfo().numPlanes();
+    sk_sp<GrSurfaceProxy> proxies[SkYUVAInfo::kMaxPlanes];
+    for (int plane = 0; plane < numPlanes; ++plane) {
+        proxies[plane] = proxyProvider->wrapBackendTexture(yuvaTextures.texture(plane),
+                                                           kBorrow_GrWrapOwnership,
+                                                           GrWrapCacheable::kNo,
+                                                           kRead_GrIOType,
+                                                           releaseHelper);
+        if (!proxies[plane]) {
+            return {};
+        }
+    }
+    return GrYUVATextureProxies(yuvaTextures.yuvaInfo(), proxies, yuvaTextures.textureOrigin());
 }
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
