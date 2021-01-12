@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dab65911_537cfe36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-12T13:58:26Z",
+      "side": 1,
+      "message": "I\u0027m going to land this, although I suspect I\u0027ll need to revisit exactly how uniforms are plumbed and configured (specifically so that \"ExternalFunctions\" have a way to access them).",
+      "revId": "879adf55917635f2aa6587d79d914bd13954e48f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "16b4a06a_4bcda120",
