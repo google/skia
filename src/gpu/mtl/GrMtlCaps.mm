@@ -479,6 +479,10 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fMaxFragmentSamplers = 16;
 }
 
+// Define this so we can use it to initialize arrays and work around
+// the fact that MTLPixelFormatBGR10A2Unorm is not always available.
+#define kMTLPixelFormatBGR10A2Unorm MTLPixelFormat(94)
+
 // These are all the valid MTLPixelFormats that we support in Skia.  They are roughly ordered from
 // most frequently used to least to improve look up times in arrays.
 static constexpr MTLPixelFormat kMtlFormats[] = {
@@ -494,8 +498,7 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatRG8Unorm,
     MTLPixelFormatRGB10A2Unorm,
 #ifdef SK_BUILD_FOR_MAC
-    // BGR10_A2 wasn't added until iOS 11
-    MTLPixelFormatBGR10A2Unorm,
+    kMTLPixelFormatBGR10A2Unorm,
 #endif
 #ifdef SK_BUILD_FOR_IOS
     MTLPixelFormatABGR4Unorm,
@@ -557,6 +560,10 @@ size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
 
 void GrMtlCaps::initFormatTable() {
     FormatInfo* info;
+
+    if (@available(macos 10.13, ios 11.0, *)) {
+        SkASSERT(kMTLPixelFormatBGR10A2Unorm == MTLPixelFormatBGR10A2Unorm);
+    }
 
     // Format: R8Unorm
     {
@@ -717,7 +724,7 @@ void GrMtlCaps::initFormatTable() {
 
 #ifdef SK_BUILD_FOR_MAC
     // Format: BGR10A2Unorm
-    {
+    if (@available(macos 10.13, ios 11.0, *)) {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGR10A2Unorm)];
         if (this->isMac() && fFamilyGroup == 1) {
             info->fFlags = FormatInfo::kTexturable_Flag;
@@ -880,7 +887,9 @@ void GrMtlCaps::initFormatTable() {
     this->setColorType(GrColorType::kBGRA_8888,        { MTLPixelFormatBGRA8Unorm });
     this->setColorType(GrColorType::kRGBA_1010102,     { MTLPixelFormatRGB10A2Unorm });
 #ifdef SK_BUILD_FOR_MAC
-    this->setColorType(GrColorType::kBGRA_1010102,     { MTLPixelFormatBGR10A2Unorm });
+    if (@available(macos 10.13, ios 11.0, *)) {
+        this->setColorType(GrColorType::kBGRA_1010102, { MTLPixelFormatBGR10A2Unorm });
+    }
 #endif
     this->setColorType(GrColorType::kGray_8,           { MTLPixelFormatR8Unorm });
     this->setColorType(GrColorType::kAlpha_F16,        { MTLPixelFormatR16Float });
@@ -1126,7 +1135,7 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kBGRA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatBGRA8Unorm)      },
         { GrColorType::kRGBA_1010102,     GrBackendFormat::MakeMtl(MTLPixelFormatRGB10A2Unorm)    },
 #ifdef SK_BUILD_FOR_MAC
-        { GrColorType::kBGRA_1010102,     GrBackendFormat::MakeMtl(MTLPixelFormatBGR10A2Unorm)    },
+        { GrColorType::kBGRA_1010102,     GrBackendFormat::MakeMtl(kMTLPixelFormatBGR10A2Unorm)   },
 #endif
         { GrColorType::kGray_8,           GrBackendFormat::MakeMtl(MTLPixelFormatR8Unorm)         },
         { GrColorType::kAlpha_F16,        GrBackendFormat::MakeMtl(MTLPixelFormatR16Float)        },
