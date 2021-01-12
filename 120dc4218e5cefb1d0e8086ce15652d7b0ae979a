@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "744ba631_5864186f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-12T15:04:36Z",
+      "side": 1,
+      "message": "modulo kNumMtlFormats assert",
+      "revId": "120dc4218e5cefb1d0e8086ce15652d7b0ae979a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
