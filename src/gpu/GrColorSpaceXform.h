@@ -13,7 +13,6 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
-class GrColorInfo;
 class SkColorSpace;
 
  /**
@@ -25,8 +24,6 @@ public:
 
     static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkAlphaType srcAT,
                                          SkColorSpace* dst, SkAlphaType dstAT);
-
-    static sk_sp<GrColorSpaceXform> Make(const GrColorInfo& srcInfo, const GrColorInfo& dstInfo);
 
     const SkColorSpaceXformSteps& steps() const { return fSteps; }
 
@@ -69,9 +66,6 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
                                                      SkColorSpace* src, SkAlphaType srcAT,
                                                      SkColorSpace* dst, SkAlphaType dstAT);
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
-                                                     const GrColorInfo& srcInfo,
-                                                     const GrColorInfo& dstInfo);
 
     /**
      * Returns a fragment processor that calls the passed in FP and then converts it with the given

@@ -84,6 +84,8 @@ struct GpuReadPixelTestRules {
     // Test unpremul sources? We could omit this and detect that creating the source of the read
     // failed but having it lets us skip generating reference color data.
     bool fAllowUnpremulSrc = true;
+    // Expect read function to succeed for kUnpremul?
+    bool fAllowUnpremulRead = true;
     // Are reads that are overlapping but not contained by the src bounds expected to succeed?
     bool fUncontainedRectSucceeds = true;
 };
@@ -148,6 +150,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         } else if ((readAT == kUnknown_SkAlphaType) != (srcAT == kUnknown_SkAlphaType)) {
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
         } else if (!rules.fUncontainedRectSucceeds && !surfBounds.contains(rect)) {
+            REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
+        } else if (!rules.fAllowUnpremulRead && readAT == kUnpremul_SkAlphaType) {
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
         } else if (result == GpuReadResult::kFail) {
             // TODO: Support RGB/BGR 101010x, BGRA 1010102 on the GPU.
@@ -471,6 +475,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
             });
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = true;
+    rules.fAllowUnpremulRead = true;
     rules.fUncontainedRectSucceeds = true;
 
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
@@ -538,6 +543,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
             });
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = false;
+    rules.fAllowUnpremulRead = false;
     rules.fUncontainedRectSucceeds = false;
 
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
@@ -597,6 +603,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
 
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = true;
+    // GPU doesn't support reading to kUnpremul because the rescaling works by rendering and now
+    // we only support premul rendering.
+    rules.fAllowUnpremulRead = false;
     rules.fUncontainedRectSucceeds = false;
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
