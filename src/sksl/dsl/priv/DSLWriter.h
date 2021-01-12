@@ -80,7 +80,19 @@ public:
      */
     static std::unique_ptr<SkSL::Expression> Check(std::unique_ptr<SkSL::Expression> expr);
 
+    static DSLExpression Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type);
+
     static DSLExpression Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs);
+
+    static DSLExpression ConvertBinary(std::unique_ptr<Expression> left, Token::Kind op,
+                                std::unique_ptr<Expression> right);
+
+    static DSLExpression ConvertIndex(std::unique_ptr<Expression> base,
+                                      std::unique_ptr<Expression> index);
+
+    static DSLExpression ConvertPostfix(std::unique_ptr<Expression> expr, Token::Kind op);
+
+    static DSLExpression ConvertPrefix(Token::Kind op, std::unique_ptr<Expression> expr);
 
     /**
      * Sets the ErrorHandler associated with the current thread. This object will be notified when

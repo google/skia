@@ -65,6 +65,83 @@ std::unique_ptr<SkSL::Expression> DSLExpression::release() {
     return std::move(fExpression);
 }
 
+DSLExpression DSLExpression::operator=(DSLExpression&& right) {
+    return DSLWriter::ConvertBinary(this->release(), SkSL::Token::Kind::TK_EQ, right.release());
+}
+
+#define OP(op, token)                                                                              \
+DSLExpression operator op(DSLExpression left, DSLExpression right) {                               \
+    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());    \
+}
+
+#define RWOP(op, token)                                                                            \
+OP(op, token)                                                                                      \
+DSLExpression operator op(DSLVar& left, DSLExpression right) {                                     \
+    return DSLWriter::ConvertBinary(                                                               \
+                    std::make_unique<SkSL::VariableReference>(/*offset=*/-1,                       \
+                                                    left.var(),                                    \
+                                                    SkSL::VariableReference::RefKind::kReadWrite), \
+                    SkSL::Token::Kind::token, right.release());                                    \
+}
+
+#define PREFIXOP(op, token)                                                                        \
+DSLExpression operator op(DSLExpression expr) {                                                    \
+    return DSLWriter::ConvertPrefix(SkSL::Token::Kind::token, expr.release());                     \
+}
+
+#define POSTFIXOP(op, token)                                                                       \
+DSLExpression operator op(DSLExpression expr, int) {                                               \
+    return DSLWriter::ConvertPostfix(expr.release(), SkSL::Token::Kind::token);                    \
+}
+
+OP(+, TK_PLUS)
+RWOP(+=, TK_PLUSEQ)
+OP(-, TK_MINUS)
+RWOP(-=, TK_MINUSEQ)
+OP(*, TK_STAR)
+RWOP(*=, TK_STAREQ)
+OP(/, TK_SLASH)
+RWOP(/=, TK_SLASHEQ)
+OP(%, TK_PERCENT)
+RWOP(%=, TK_PERCENTEQ)
+OP(<<, TK_SHL)
+RWOP(<<=, TK_SHLEQ)
+OP(>>, TK_SHR)
+RWOP(>>=, TK_SHREQ)
+OP(&&, TK_LOGICALAND)
+OP(||, TK_LOGICALOR)
+OP(&, TK_BITWISEAND)
+RWOP(&=, TK_BITWISEANDEQ)
+OP(|, TK_BITWISEOR)
+RWOP(|=, TK_BITWISEOREQ)
+OP(^, TK_BITWISEXOR)
+RWOP(^=, TK_BITWISEXOREQ)
+OP(==, TK_EQEQ)
+OP(!=, TK_NEQ)
+OP(>, TK_GT)
+OP(<, TK_LT)
+OP(>=, TK_GTEQ)
+OP(<=, TK_LTEQ)
+
+PREFIXOP(!, TK_LOGICALNOT)
+PREFIXOP(~, TK_BITWISENOT)
+PREFIXOP(++, TK_PLUSPLUS)
+POSTFIXOP(++, TK_PLUSPLUS)
+PREFIXOP(--, TK_MINUSMINUS)
+POSTFIXOP(--, TK_MINUSMINUS)
+
+DSLExpression operator,(DSLExpression left, DSLExpression right) {
+    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_COMMA, right.release());
+}
+
+std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Type& type) {
+    // tripping this assert means we had an error occur somewhere else in DSL construction that
+    // wasn't caught where it should have been
+    SkASSERTF(!DSLWriter::Compiler().errorCount(), "Unexpected SkSL DSL error: %s",
+              DSLWriter::Compiler().errorText().c_str());
+    return DSLWriter::Coerce(this->release(), type).release();
+}
+
 } // namespace dsl
 
 } // namespace SkSL
