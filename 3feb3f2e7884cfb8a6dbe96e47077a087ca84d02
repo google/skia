@@ -57,6 +57,30 @@
       },
       "revId": "3feb3f2e7884cfb8a6dbe96e47077a087ca84d02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db0ed577_355968b1",
+        "filename": "gn/skia.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7708
+      },
+      "writtenOn": "2021-01-12T19:06:29Z",
+      "side": 1,
+      "message": "I was planning to set this to true in the Flutter script that sets the GN configuration when building the engine.",
+      "parentUuid": "cf04fc46_41c7d834",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "3feb3f2e7884cfb8a6dbe96e47077a087ca84d02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
