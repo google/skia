@@ -81,6 +81,30 @@
       },
       "revId": "3feb3f2e7884cfb8a6dbe96e47077a087ca84d02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6989cbf_6b8a50a9",
+        "filename": "gn/skia.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-01-12T19:19:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "db0ed577_355968b1",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "3feb3f2e7884cfb8a6dbe96e47077a087ca84d02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
