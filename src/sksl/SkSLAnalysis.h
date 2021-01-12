@@ -17,6 +17,7 @@ namespace SkSL {
 
 class ErrorReporter;
 class Expression;
+class ForStatement;
 class FunctionDeclaration;
 class FunctionDefinition;
 struct LoadedModule;
@@ -66,6 +67,10 @@ struct Analysis {
     // - half4(myColor.a)
     // - myStruct.myArrayField[7].xyz
     static bool IsTrivialExpression(const Expression& expr);
+
+    // Ensures that 'loop' meets the strict requirements of The OpenGL ES Shading Language 1.00,
+    // Appendix A, Section 4.
+    static bool ForLoopIsValidForES2(const ForStatement& loop, ErrorReporter* errors);
 };
 
 /**
