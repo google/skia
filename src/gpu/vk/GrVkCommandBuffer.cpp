@@ -64,16 +64,8 @@ void GrVkCommandBuffer::releaseResources() {
     fTrackedResources.reset();
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
         fTrackedRecycledResources[i]->notifyFinishedWithWorkOnGpu();
-        fTrackedRecycledResources[i]->recycle();
     }
-
-    if (++fNumResets > kNumRewindResetsBeforeFullReset) {
-        fTrackedRecycledResources.reset();
-        fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
-        fNumResets = 0;
-    } else {
-        fTrackedRecycledResources.rewind();
-    }
+    fTrackedRecycledResources.reset();
 
     fTrackedGpuBuffers.reset();
     fTrackedGpuSurfaces.reset();

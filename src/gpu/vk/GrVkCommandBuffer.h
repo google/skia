@@ -114,15 +114,18 @@ public:
     }
     void addResource(const GrManagedResource* resource) {
         this->addResource(sk_ref_sp(resource));
-        SkASSERT(resource);
     }
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution. When it is released, it will signal that the resource can be recycled for reuse.
-    void addRecycledResource(const GrRecycledResource* resource) {
-        resource->ref();
+    void addRecycledResource(gr_rp<const GrRecycledResource> resource) {
+        SkASSERT(resource);
         resource->notifyQueuedForWorkOnGpu();
-        fTrackedRecycledResources.append(1, &resource);
+        fTrackedRecycledResources.push_back(std::move(resource));
+    }
+
+    void addRecycledResource(const GrRecycledResource* resource) {
+        this->addRecycledResource(gr_ref_rp<const GrRecycledResource>(resource));
     }
 
     void addGrBuffer(sk_sp<const GrBuffer> buffer) {
@@ -143,7 +146,6 @@ protected:
     GrVkCommandBuffer(VkCommandBuffer cmdBuffer, bool isWrapped = false)
             : fCmdBuffer(cmdBuffer)
             , fIsWrapped(isWrapped) {
-        fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
         this->invalidateState();
     }
 
@@ -157,9 +159,9 @@ private:
     static constexpr int kInitialTrackedResourcesCount = 32;
 
 protected:
-
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrManagedResource>> fTrackedResources;
-    SkTDArray<const GrRecycledResource*> fTrackedRecycledResources;
+    template <typename T> using TrackedResourceArray = SkSTArray<kInitialTrackedResourcesCount, T>;
+    TrackedResourceArray<sk_sp<const GrManagedResource>> fTrackedResources;
+    TrackedResourceArray<gr_rp<const GrRecycledResource>> fTrackedRecycledResources;
     SkSTArray<16, sk_sp<const GrBuffer>> fTrackedGpuBuffers;
     SkSTArray<16, gr_cb<const GrSurface>> fTrackedGpuSurfaces;
 
@@ -182,13 +184,6 @@ protected:
 
     VkBuffer fBoundInputBuffers[kMaxInputBuffers];
     VkBuffer fBoundIndexBuffer;
-
-    // When resetting the command buffer, we remove the tracked resources from their arrays, and
-    // we prefer to not free all the memory every time so usually we just rewind. However, to avoid
-    // all arrays growing to the max size, after so many resets we'll do a full reset of the tracked
-    // resource arrays.
-    static const int kNumRewindResetsBeforeFullReset = 8;
-    int              fNumResets = 0;
 
     // Cached values used for dynamic state updates
     VkViewport fCachedViewport;
