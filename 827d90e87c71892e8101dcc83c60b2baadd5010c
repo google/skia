@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f84a01d2_efb3a7c0",
+        "filename": "src/gpu/GrRefCnt.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-12T15:48:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f71db5c_93979af9",
+      "range": {
+        "startLine": 52,
+        "startChar": 11,
+        "endLine": 52,
+        "endChar": 13
+      },
+      "revId": "827d90e87c71892e8101dcc83c60b2baadd5010c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8f91a568_b233f2a9",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-11T21:07:44Z",
       "side": 1,
       "message": "sp",
+      "range": {
+        "startLine": 58,
+        "startChar": 72,
+        "endLine": 58,
+        "endChar": 74
+      },
+      "revId": "827d90e87c71892e8101dcc83c60b2baadd5010c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fc3b122_40040260",
+        "filename": "src/gpu/GrRefCnt.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-12T15:48:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f91a568_b233f2a9",
       "range": {
         "startLine": 58,
         "startChar": 72,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e04ebd22_a9b94587",
+        "filename": "src/gpu/GrRefCnt.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-12T15:48:45Z",
+      "side": 1,
+      "message": "Seems to compile fine without it. I was following the sk_sp model of having sk_sp\u003cT\u003e here.",
+      "parentUuid": "969a9286_2338bcd6",
+      "range": {
+        "startLine": 77,
+        "startChar": 9,
+        "endLine": 77,
+        "endChar": 24
+      },
+      "revId": "827d90e87c71892e8101dcc83c60b2baadd5010c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8641ca9c_f3b8f95e",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-01-11T21:07:44Z",
       "side": 1,
       "message": "**?",
+      "range": {
+        "startLine": 182,
+        "startChar": 1,
+        "endLine": 182,
+        "endChar": 2
+      },
+      "revId": "827d90e87c71892e8101dcc83c60b2baadd5010c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ab74bbf_91f0848f",
+        "filename": "src/gpu/GrRefCnt.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-12T15:48:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8641ca9c_f3b8f95e",
       "range": {
         "startLine": 182,
         "startChar": 1,
