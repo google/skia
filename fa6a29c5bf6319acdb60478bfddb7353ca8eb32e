@@ -16,6 +16,29 @@
       "message": "tried to figure out std::enable_if_t\u003c...\u003e and std::is_trivially_copyable\u003cT\u003e, but didn\u0027t understand it clearly enough to get compile time safety working.",
       "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c39a52c0_f7f1af55",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-12T14:03:37Z",
+      "side": 1,
+      "message": "unlike the assignment operators I can return a boolean to indicate success.  Thoughts?",
+      "range": {
+        "startLine": 230,
+        "startChar": 8,
+        "endLine": 230,
+        "endChar": 12
+      },
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
