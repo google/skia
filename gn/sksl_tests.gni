@@ -344,6 +344,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/OutParamsTricky.sksl",
   "$_tests/sksl/shared/RectangleTexture.sksl",
   "$_tests/sksl/shared/ResizeMatrix.sksl",
+  "$_tests/sksl/shared/SampleLocations.vert",
   "$_tests/sksl/shared/SampleMask.sksl",
   "$_tests/sksl/shared/ScopedSymbol.sksl",
   "$_tests/sksl/shared/StackingVectorCasts.sksl",
