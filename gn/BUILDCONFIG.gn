@@ -65,6 +65,9 @@ is_win = current_os == "win"
 # for ChromeOS, so this variable will not affect Skia proper.
 is_chromeos = false
 
+# This is to make the ANGLE build files happy. Skia always uses is_mac and/or is_ios.
+is_apple = is_mac || is_ios
+
 if (target_cpu == "") {
   target_cpu = host_cpu
   if (is_android || is_ios) {
