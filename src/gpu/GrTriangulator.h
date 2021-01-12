@@ -28,8 +28,7 @@ public:
     static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
         GrTriangulator triangulator(path);
-        int count = triangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator,
-                                                 path.getFillType());
+        int count = triangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator);
         *isLinear = triangulator.fIsLinear;
         return count;
     }
@@ -40,8 +39,7 @@ public:
         GrTriangulator triangulator(path);
         triangulator.fCullCollinearVertices = false;
         triangulator.fSimpleInnerPolygons = true;
-        int count = triangulator.pathToTriangles(0, SkRect::MakeEmpty(), vertexAllocator,
-                                                 path.getFillType());
+        int count = triangulator.pathToTriangles(0, SkRect::MakeEmpty(), vertexAllocator);
         *isLinear = triangulator.fIsLinear;
         return count;
     }
@@ -100,10 +98,15 @@ protected:
     SimplifyResult simplify(VertexList* mesh, const Comparator&);
 
     // 5) Tessellate the simplified mesh into monotone polygons:
-    virtual Poly* tessellate(const VertexList& vertices, VertexList* outerMesh, const Comparator&);
+    virtual Poly* tessellate(const VertexList& vertices, const Comparator&);
 
     // 6) Triangulate the monotone polygons directly into a vertex buffer:
-    void* polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType);
+    virtual int64_t countPoints(Poly* polys) const {
+        return this->countPointsImpl(polys, fPath.getFillType());
+    }
+    virtual void* polysToTriangles(Poly* polys, void* data) {
+        return this->polysToTrianglesImpl(polys, data, fPath.getFillType());
+    }
 
     // The vertex sorting in step (3) is a merge sort, since it plays well with the linked list
     // of vertices (and the necessity of inserting new vertices on intersection).
@@ -172,11 +175,11 @@ protected:
     void sanitizeContours(VertexList* contours, int contourCnt);
     bool mergeCoincidentVertices(VertexList* mesh, const Comparator&);
     void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
-    Poly* contoursToPolys(VertexList* contours, int contourCnt, VertexList* outerMesh);
-    Poly* pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt,
-                      VertexList* outerMesh);
-    int pathToTriangles(float tolerance, const SkRect& clipBounds, GrEagerVertexAllocator*,
-                        SkPathFillType overrideFillType);
+    Poly* contoursToPolys(VertexList* contours, int contourCnt);
+    Poly* pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt);
+    int64_t countPointsImpl(Poly* polys, SkPathFillType overrideFillType) const;
+    void* polysToTrianglesImpl(Poly* polys, void* data, SkPathFillType overrideFillType);
+    int pathToTriangles(float tolerance, const SkRect& clipBounds, GrEagerVertexAllocator*);
 
     constexpr static int kArenaChunkSize = 16 * 1024;
     SkArenaAlloc fAlloc{kArenaChunkSize};
@@ -446,8 +449,7 @@ public:
         GrAATriangulator aaTriangulator(path);
         aaTriangulator.fRoundVerticesToQuarterPixel = true;
         aaTriangulator.fEmitCoverage = true;
-        return  aaTriangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator,
-                                               SkPathFillType::kWinding);
+        return  aaTriangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator);
     }
 
     // Structs used by GrAATriangulator internals.
@@ -479,8 +481,7 @@ private:
     // Run steps 1-5 above to produce polygons.
     // 5b) Apply fill rules to extract boundary contours from the polygons:
     void extractBoundary(EdgeList* boundary, Edge* e);
-    void extractBoundaries(const VertexList& inMesh, VertexList* innerVertices,
-                           VertexList* outerMesh, const Comparator&);
+    void extractBoundaries(const VertexList& inMesh, VertexList* innerVertices, const Comparator&);
 
     // 5c) Simplify boundaries to remove "pointy" vertices that cause inversions:
     void simplifyBoundary(EdgeList* boundary, const Comparator&);
@@ -488,11 +489,12 @@ private:
     // 5d) Displace edges by half a pixel inward and outward along their normals. Intersect to find
     //     new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a
     //     new antialiased mesh from those vertices:
-    void strokeBoundary(EdgeList* boundary, VertexList* innerMesh,  VertexList* outerMesh,
-                        const Comparator&);
+    void strokeBoundary(EdgeList* boundary, VertexList* innerMesh, const Comparator&);
 
     // Run steps 3-6 above on the new mesh, and produce antialiased triangles.
-    Poly* tessellate(const VertexList& mesh, VertexList* outerMesh, const Comparator&) override;
+    Poly* tessellate(const VertexList& mesh, const Comparator&) override;
+    int64_t countPoints(Poly* polys) const override;
+    void* polysToTriangles(Poly* polys, void* data) override;
 
     // Additional helpers and driver functions.
     void makeEvent(SSEdge*, EventList* events);
@@ -502,6 +504,8 @@ private:
     void removeNonBoundaryEdges(const VertexList& mesh);
     void connectSSEdge(Vertex* v, Vertex* dest, const Comparator&);
     bool collapseOverlapRegions(VertexList* mesh, const Comparator&, EventComparator comp);
+
+    VertexList fOuterMesh;
 };
 
 #endif

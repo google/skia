@@ -284,6 +284,7 @@ void GrTriangulator::MonotonePoly::addEdge(Edge* edge) {
 }
 
 void* GrTriangulator::emitMonotonePoly(const MonotonePoly* monotonePoly, void* data) {
+    SkASSERT(monotonePoly->fWinding != 0);
     Edge* e = monotonePoly->fFirstEdge;
     VertexList vertices;
     vertices.append(e->fTop);
@@ -331,12 +332,12 @@ void* GrTriangulator::emitMonotonePoly(const MonotonePoly* monotonePoly, void* d
 
 void* GrTriangulator::emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding,
                                    void* data) const {
-    if (winding < 0) {
+    if (winding > 0) {
         // Ensure our triangles always wind in the same direction as if the path had been
         // triangulated as a simple fan (a la red book).
         std::swap(prev, next);
     }
-    return emit_triangle(next, curr, prev, fEmitCoverage, data);
+    return emit_triangle(prev, curr, next, fEmitCoverage, data);
 }
 
 Poly* GrTriangulator::Poly::addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
@@ -1321,7 +1322,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const 
 
 // Stage 5: Tessellate the simplified mesh into monotone polygons.
 
-Poly* GrTriangulator::tessellate(const VertexList& vertices, VertexList*, const Comparator&) {
+Poly* GrTriangulator::tessellate(const VertexList& vertices, const Comparator&) {
     TESS_LOG("\ntessellating simple polygons\n");
     int maxWindMagnitude = std::numeric_limits<int>::max();
     if (fSimpleInnerPolygons && !SkPathFillType_IsEvenOdd(fPath.getFillType())) {
@@ -1704,7 +1705,7 @@ static bool inversion(Vertex* prev, Vertex* next, Edge* origEdge, const Comparat
 // new antialiased mesh from those vertices.
 
 void GrAATriangulator::strokeBoundary(EdgeList* boundary, VertexList* innerMesh,
-                                      VertexList* outerMesh, const Comparator& c) {
+                                      const Comparator& c) {
     TESS_LOG("\nstroking boundary\n");
     // A boundary with fewer than 3 edges is degenerate.
     if (!boundary->fHead || !boundary->fHead->fRight || !boundary->fHead->fRight->fRight) {
@@ -1860,7 +1861,7 @@ void GrAATriangulator::strokeBoundary(EdgeList* boundary, VertexList* innerMesh,
     this->makeConnectingEdge(outerVertices.fTail, outerVertices.fHead, EdgeType::kOuter, c,
                              outerWinding);
     innerMesh->append(innerVertices);
-    outerMesh->append(outerVertices);
+    fOuterMesh.append(outerVertices);
 }
 
 void GrAATriangulator::extractBoundary(EdgeList* boundary, Edge* e) {
@@ -1900,14 +1901,14 @@ void GrAATriangulator::extractBoundary(EdgeList* boundary, Edge* e) {
 // Stage 5b: Extract boundaries from mesh, simplify and stroke them into a new mesh.
 
 void GrAATriangulator::extractBoundaries(const VertexList& inMesh, VertexList* innerVertices,
-                                         VertexList* outerVertices, const Comparator& c) {
+                                         const Comparator& c) {
     this->removeNonBoundaryEdges(inMesh);
     for (Vertex* v = inMesh.fHead; v; v = v->fNext) {
         while (v->fFirstEdgeBelow) {
             EdgeList boundary;
             this->extractBoundary(&boundary, v->fFirstEdgeBelow);
             this->simplifyBoundary(&boundary, c);
-            this->strokeBoundary(&boundary, innerVertices, outerVertices, c);
+            this->strokeBoundary(&boundary, innerVertices, c);
         }
     }
 }
@@ -1949,7 +1950,7 @@ void GrTriangulator::SortMesh(VertexList* vertices, const Comparator& c) {
 #endif
 }
 
-Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt, VertexList* outerMesh) {
+Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt) {
     const SkRect& pathBounds = fPath.getBounds();
     Comparator c(pathBounds.width() > pathBounds.height() ? Comparator::Direction::kHorizontal
                                                           : Comparator::Direction::kVertical);
@@ -1962,56 +1963,56 @@ Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt, Vert
     }
     TESS_LOG("\nsimplified mesh:\n");
     DUMP_MESH(mesh);
-    return this->tessellate(mesh, outerMesh, c);
+    return this->tessellate(mesh, c);
 }
 
-Poly* GrAATriangulator::tessellate(const VertexList& mesh, VertexList* outerMesh,
-                                   const Comparator& c) {
+Poly* GrAATriangulator::tessellate(const VertexList& mesh, const Comparator& c) {
     VertexList innerMesh;
-    this->extractBoundaries(mesh, &innerMesh, outerMesh, c);
+    this->extractBoundaries(mesh, &innerMesh, c);
     SortMesh(&innerMesh, c);
-    SortMesh(outerMesh, c);
+    SortMesh(&fOuterMesh, c);
     this->mergeCoincidentVertices(&innerMesh, c);
-    bool was_complex = this->mergeCoincidentVertices(outerMesh, c);
+    bool was_complex = this->mergeCoincidentVertices(&fOuterMesh, c);
     auto result = this->simplify(&innerMesh, c);
     SkASSERT(SimplifyResult::kAbort != result);
     was_complex = (SimplifyResult::kFoundSelfIntersection == result) || was_complex;
-    result = this->simplify(outerMesh, c);
+    result = this->simplify(&fOuterMesh, c);
     SkASSERT(SimplifyResult::kAbort != result);
     was_complex = (SimplifyResult::kFoundSelfIntersection == result) || was_complex;
     TESS_LOG("\ninner mesh before:\n");
     DUMP_MESH(innerMesh);
     TESS_LOG("\nouter mesh before:\n");
-    DUMP_MESH(*outerMesh);
+    DUMP_MESH(fOuterMesh);
     EventComparator eventLT(EventComparator::Op::kLessThan);
     EventComparator eventGT(EventComparator::Op::kGreaterThan);
     was_complex = this->collapseOverlapRegions(&innerMesh, c, eventLT) || was_complex;
-    was_complex = this->collapseOverlapRegions(outerMesh, c, eventGT) || was_complex;
+    was_complex = this->collapseOverlapRegions(&fOuterMesh, c, eventGT) || was_complex;
     if (was_complex) {
         TESS_LOG("found complex mesh; taking slow path\n");
         VertexList aaMesh;
         TESS_LOG("\ninner mesh after:\n");
         DUMP_MESH(innerMesh);
         TESS_LOG("\nouter mesh after:\n");
-        DUMP_MESH(*outerMesh);
-        this->connectPartners(outerMesh, c);
+        DUMP_MESH(fOuterMesh);
+        this->connectPartners(&fOuterMesh, c);
         this->connectPartners(&innerMesh, c);
-        sorted_merge(&innerMesh, outerMesh, &aaMesh, c);
+        sorted_merge(&innerMesh, &fOuterMesh, &aaMesh, c);
         this->mergeCoincidentVertices(&aaMesh, c);
         result = this->simplify(&aaMesh, c);
         SkASSERT(SimplifyResult::kAbort != result);
         TESS_LOG("combined and simplified mesh:\n");
         DUMP_MESH(aaMesh);
-        outerMesh->fHead = outerMesh->fTail = nullptr;
-        return this->GrTriangulator::tessellate(aaMesh, outerMesh, c);
+        fOuterMesh.fHead = fOuterMesh.fTail = nullptr;
+        return this->GrTriangulator::tessellate(aaMesh, c);
     } else {
         TESS_LOG("no complex polygons; taking fast path\n");
-        return this->GrTriangulator::tessellate(innerMesh, outerMesh, c);
+        return this->GrTriangulator::tessellate(innerMesh, c);
     }
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
-void* GrTriangulator::polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType) {
+void* GrTriangulator::polysToTrianglesImpl(Poly* polys, void* data,
+                                           SkPathFillType overrideFillType) {
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(overrideFillType, poly)) {
             data = this->emitPoly(poly, data);
@@ -2020,15 +2021,14 @@ void* GrTriangulator::polysToTriangles(Poly* polys, void* data, SkPathFillType o
     return data;
 }
 
-Poly* GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt,
-                                  VertexList* outerMesh) {
+Poly* GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt) {
     if (SkPathFillType_IsInverse(fPath.getFillType())) {
         contourCnt++;
     }
     std::unique_ptr<VertexList[]> contours(new VertexList[contourCnt]);
 
     this->pathToContours(tolerance, clipBounds, contours.get());
-    return this->contoursToPolys(contours.get(), contourCnt, outerMesh);
+    return this->contoursToPolys(contours.get(), contourCnt);
 }
 
 static int get_contour_count(const SkPath& path, SkScalar tolerance) {
@@ -2065,19 +2065,20 @@ static int get_contour_count(const SkPath& path, SkScalar tolerance) {
     return contourCnt;
 }
 
-static int64_t count_points(Poly* polys, SkPathFillType fillType) {
+int64_t GrTriangulator::countPointsImpl(Poly* polys, SkPathFillType overrideFillType) const {
     int64_t count = 0;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
-        if (apply_fill_type(fillType, poly) && poly->fCount >= 3) {
+        if (apply_fill_type(overrideFillType, poly) && poly->fCount >= 3) {
             count += (poly->fCount - 2) * (TRIANGULATOR_WIREFRAME ? 6 : 3);
         }
     }
     return count;
 }
 
-static int64_t count_outer_mesh_points(const VertexList& outerMesh) {
-    int64_t count = 0;
-    for (Vertex* v = outerMesh.fHead; v; v = v->fNext) {
+int64_t GrAATriangulator::countPoints(Poly* polys) const {
+    int64_t count = this->countPointsImpl(polys, SkPathFillType::kWinding);
+    // Count the points from the outer mesh.
+    for (Vertex* v = fOuterMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
             count += TRIANGULATOR_WIREFRAME ? 12 : 6;
         }
@@ -2085,15 +2086,17 @@ static int64_t count_outer_mesh_points(const VertexList& outerMesh) {
     return count;
 }
 
-static void* outer_mesh_to_triangles(const VertexList& outerMesh, bool emitCoverage, void* data) {
-    for (Vertex* v = outerMesh.fHead; v; v = v->fNext) {
+void* GrAATriangulator::polysToTriangles(Poly* polys, void* data) {
+    data = this->polysToTrianglesImpl(polys, data, SkPathFillType::kWinding);
+    // Emit the triangles from the outer mesh.
+    for (Vertex* v = fOuterMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
             Vertex* v0 = e->fTop;
             Vertex* v1 = e->fBottom;
             Vertex* v2 = e->fBottom->fPartner;
             Vertex* v3 = e->fTop->fPartner;
-            data = emit_triangle(v0, v1, v2, emitCoverage, data);
-            data = emit_triangle(v0, v2, v3, emitCoverage, data);
+            data = this->emitTriangle(v0, v1, v2, 0/*winding*/, data);
+            data = this->emitTriangle(v0, v2, v3, 0/*winding*/, data);
         }
     }
     return data;
@@ -2102,19 +2105,14 @@ static void* outer_mesh_to_triangles(const VertexList& outerMesh, bool emitCover
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
 int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
-                                    GrEagerVertexAllocator* vertexAllocator,
-                                    SkPathFillType overrideFillType) {
+                                    GrEagerVertexAllocator* vertexAllocator) {
     int contourCnt = get_contour_count(fPath, tolerance);
     if (contourCnt <= 0) {
         fIsLinear = true;
         return 0;
     }
-    VertexList outerMesh;
-    Poly* polys = this->pathToPolys(tolerance, clipBounds, contourCnt, &outerMesh);
-    int64_t count64 = count_points(polys, overrideFillType);
-    if (fEmitCoverage) {
-        count64 += count_outer_mesh_points(outerMesh);
-    }
+    Poly* polys = this->pathToPolys(tolerance, clipBounds, contourCnt);
+    int64_t count64 = this->countPoints(polys);
     if (0 == count64 || count64 > SK_MaxS32) {
         return 0;
     }
@@ -2131,8 +2129,7 @@ int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
     }
 
     TESS_LOG("emitting %d verts\n", count);
-    void* end = this->polysToTriangles(polys, verts, overrideFillType);
-    end = outer_mesh_to_triangles(outerMesh, true, end);
+    void* end = this->polysToTriangles(polys, verts);
 
     int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
                                        / vertexStride);
@@ -2149,9 +2146,8 @@ int GrTriangulator::PathToVertices(const SkPath& path, SkScalar tolerance, const
         return 0;
     }
     GrTriangulator triangulator(path);
-    Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, contourCnt, nullptr);
-    SkPathFillType fillType = path.getFillType();
-    int64_t count64 = count_points(polys, fillType);
+    Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, contourCnt);
+    int64_t count64 = triangulator.countPoints(polys);
     if (0 == count64 || count64 > SK_MaxS32) {
         *verts = nullptr;
         return 0;
@@ -2163,7 +2159,7 @@ int GrTriangulator::PathToVertices(const SkPath& path, SkScalar tolerance, const
     SkPoint* points = new SkPoint[count];
     SkPoint* pointsEnd = points;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
-        if (apply_fill_type(fillType, poly)) {
+        if (apply_fill_type(path.getFillType(), poly)) {
             SkPoint* start = pointsEnd;
             pointsEnd = static_cast<SkPoint*>(triangulator.emitPoly(poly, pointsEnd));
             while (start != pointsEnd) {
