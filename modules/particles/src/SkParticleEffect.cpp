@@ -194,58 +194,14 @@ static float advance_seed(float x) {
     return sinf(31*x) + sinf(19*x + 1);
 }
 
-// Spawns new effects that were requested by any *effect* script (copies default values from
-// the current effect state).
-void SkParticleEffect::processEffectSpawnRequests(double now) {
-    for (const auto& spawnReq : fSpawnRequests) {
-        sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams)));
-        fState.fRandom = advance_seed(fState.fRandom);
-
-        newEffect->start(now, spawnReq.fLoop, fState.fPosition, fState.fHeading, fState.fScale,
-                         fState.fVelocity, fState.fSpin, fState.fColor, fState.fFrame,
-                         fState.fRandom);
-        fSubEffects.push_back(std::move(newEffect));
-    }
-    fSpawnRequests.reset();
-}
-
 void SkParticleEffect::runEffectScript(double now, const char* entry) {
     if (const auto& byteCode = fParams->fEffectProgram.fByteCode) {
         if (auto fun = byteCode->getFunction(entry)) {
-            for (const auto& value : fParams->fEffectProgram.fExternalValues) {
-                static_cast<SkParticleExternalValue*>(value.get())->setEffect(this);
-            }
             SkAssertResult(byteCode->run(fun, &fState.fAge, sizeof(EffectState) / sizeof(float),
                                          nullptr, 0,
                                          fEffectUniforms.data(), fEffectUniforms.count()));
-            this->processEffectSpawnRequests(now);
         }
     }
-}
-
-void SkParticleEffect::processParticleSpawnRequests(double now, int start) {
-    const auto& data = fParticles.fData;
-    for (const auto& spawnReq : fSpawnRequests) {
-        int idx = start + spawnReq.fIndex;
-        sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams)));
-        newEffect->start(now, spawnReq.fLoop,
-                         { data[SkParticles::kPositionX      ][idx],
-                           data[SkParticles::kPositionY      ][idx] },
-                         { data[SkParticles::kHeadingX       ][idx],
-                           data[SkParticles::kHeadingY       ][idx] },
-                           data[SkParticles::kScale          ][idx],
-                         { data[SkParticles::kVelocityX      ][idx],
-                           data[SkParticles::kVelocityY      ][idx] },
-                           data[SkParticles::kVelocityAngular][idx],
-                         { data[SkParticles::kColorR         ][idx],
-                           data[SkParticles::kColorG         ][idx],
-                           data[SkParticles::kColorB         ][idx],
-                           data[SkParticles::kColorA         ][idx] },
-                           data[SkParticles::kSpriteFrame    ][idx],
-                           data[SkParticles::kRandom         ][idx]);
-        fSubEffects.push_back(std::move(newEffect));
-    }
-    fSpawnRequests.reset();
 }
 
 void SkParticleEffect::runParticleScript(double now, const char* entry, int start, int count) {
@@ -255,15 +211,11 @@ void SkParticleEffect::runParticleScript(double now, const char* entry, int star
             for (int i = 0; i < SkParticles::kNumChannels; ++i) {
                 args[i] = fParticles.fData[i].get() + start;
             }
-            for (const auto& value : fParams->fParticleProgram.fExternalValues) {
-                static_cast<SkParticleExternalValue*>(value.get())->setEffect(this);
-            }
             memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
             SkAssertResult(byteCode->runStriped(fun, count, args, SkParticles::kNumChannels,
                                                 nullptr, 0,
                                                 fParticleUniforms.data(),
                                                 fParticleUniforms.count()));
-            this->processParticleSpawnRequests(now, start);
         }
     }
 }
@@ -427,30 +379,16 @@ void SkParticleEffect::advanceTime(double now) {
 }
 
 void SkParticleEffect::update(double now) {
-    if (this->isAlive(false)) {
+    if (this->isAlive()) {
         this->advanceTime(now);
-    }
-
-    // Now update all of our sub-effects, removing any that have died
-    for (int i = 0; i < fSubEffects.count(); ++i) {
-        fSubEffects[i]->update(now);
-        if (!fSubEffects[i]->isAlive()) {
-            fSubEffects[i] = fSubEffects.back();
-            fSubEffects.pop_back();
-            --i;
-        }
     }
 }
 
 void SkParticleEffect::draw(SkCanvas* canvas) {
-    if (this->isAlive(false) && fParams->fDrawable) {
+    if (this->isAlive() && fParams->fDrawable) {
         SkPaint paint;
         SkPaintPriv::SetFQ(&paint, SkFilterQuality::kMedium_SkFilterQuality);
         fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
-    }
-
-    for (const auto& subEffect : fSubEffects) {
-        subEffect->draw(canvas);
     }
 }
 
