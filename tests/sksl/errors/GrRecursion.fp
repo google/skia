@@ -3,5 +3,5 @@ int factorial(int x) {
 }
 
 half4 main() {
-    return half4(factorial(7));
+    return half(factorial(7)).xxxx;
 }
