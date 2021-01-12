@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ca58919_4d2ae0ef",
+        "filename": "tests/sksl/shared/golden/Operators.glsl",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-12T17:38:25Z",
+      "side": 1,
+      "message": "I did verify that int((anyExpression, anotherExpression..., 1)) compiles on my machine\u0027s GLSL.",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 35
+      },
+      "revId": "206b4c09ef0c4919231eb6fbaf56f497e8308834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
