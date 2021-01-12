@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ba6607c_b9dc5771",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-12T12:41:04Z",
+      "side": 1,
+      "message": "tried to figure out std::enable_if_t\u003c...\u003e and std::is_trivially_copyable\u003cT\u003e, but didn\u0027t understand it clearly enough to get compile time safety working.",
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
