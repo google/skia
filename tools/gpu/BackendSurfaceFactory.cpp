@@ -65,7 +65,7 @@ sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext* dContext,
                                                 int sampleCnt,
                                                 GrProtected isProtected,
                                                 const SkSurfaceProps* props) {
-    if (ii.alphaType() == kUnpremul_SkAlphaType) {
+    if (ii.alphaType() == kUnpremul_SkAlphaType || ii.alphaType() == kUnknown_SkAlphaType) {
         return nullptr;
     }
     auto ct = SkColorTypeToGrColorType(ii.colorType());
