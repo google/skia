@@ -812,11 +812,20 @@ void GrVkOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
         SkASSERT(fGpu->isDeviceLost());
         return;
     }
+    const GrVkCaps& caps = fGpu->vkCaps();
+    SkASSERT(caps.nativeDrawIndirectSupport());
     SkASSERT(fCurrentPipelineState);
-    this->currentCommandBuffer()->drawIndirect(
-            fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, drawCount,
-            sizeof(GrDrawIndirectCommand));
-    fGpu->stats()->incNumDraws();
+
+    uint32_t maxDrawCount = caps.maxDrawIndirectDrawCount();
+    uint32_t remainingDraws = drawCount;
+    while (remainingDraws >= 1) {
+        uint32_t currDrawCount = std::max(remainingDraws, maxDrawCount);
+        this->currentCommandBuffer()->drawIndirect(
+                fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, currDrawCount,
+                sizeof(GrDrawIndirectCommand));
+        remainingDraws -= currDrawCount;
+        fGpu->stats()->incNumDraws();
+    }
     fCurrentCBIsEmpty = false;
 }
 
