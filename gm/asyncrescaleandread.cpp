@@ -13,6 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -355,6 +356,100 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
                              kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
+    }
+    return skiagm::DrawResult::kOk;
+}
+
+DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_alpha_type, canvas, errorMsg, 512, 512) {
+    auto dContext = GrAsDirectContext(canvas->recordingContext());
+    if (!dContext && canvas->recordingContext()) {
+        *errorMsg = "Not supported in DDL mode";
+        return skiagm::DrawResult::kSkip;
+    }
+    if (dContext && dContext->abandoned()) {
+        return skiagm::DrawResult::kSkip;
+    }
+
+    auto upmII = SkImageInfo::Make(200, 200, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+
+    auto pmII = upmII.makeAlphaType(kPremul_SkAlphaType);
+
+    auto upmSurf = SkSurface::MakeRaster(upmII);
+    auto pmSurf  = SkSurface::MakeRaster( pmII);
+
+    SkColor4f colors[] = {
+            {.3f, .3f, .3f, .3f},
+            {1.f, .2f, .6f, .9f},
+            {0.f, .1f, 1.f, .1f},
+            {.7f, .8f, .2f, .7f},
+    };
+    auto shader = SkGradientShader::MakeRadial({100, 100},
+                                               230,
+                                               colors,
+                                               nullptr,
+                                               nullptr,
+                                               SK_ARRAY_COUNT(colors),
+                                               SkTileMode::kRepeat);
+    SkPaint paint;
+    paint.setShader(std::move(shader));
+
+    upmSurf->getCanvas()->drawPaint(paint);
+    pmSurf ->getCanvas()->drawPaint(paint);
+
+    auto pmImg  =  pmSurf->makeImageSnapshot();
+    auto upmImg = upmSurf->makeImageSnapshot();
+
+    if (dContext) {
+        pmImg  =  pmImg->makeTextureImage(dContext);
+        upmImg = upmImg->makeTextureImage(dContext);
+        if (!pmImg || !upmImg) {
+            *errorMsg = "could not make texture images";
+            return skiagm::DrawResult::kFail;
+        }
+    }
+    int size = 256;
+
+    ToolUtils::draw_checkerboard(canvas, SK_ColorWHITE, SK_ColorBLACK, 32);
+
+    for (const auto& img : {pmImg, upmImg}) {
+        canvas->save();
+        for (auto readAT : {kPremul_SkAlphaType, kUnpremul_SkAlphaType}) {
+            auto readInfo = img->imageInfo().makeAlphaType(readAT).makeWH(size, size);
+
+            auto* asyncContext = new AsyncContext();
+            img->asyncRescaleAndReadPixels(readInfo,
+                                           SkIRect::MakeSize(img->dimensions()),
+                                           SkImage::RescaleGamma::kSrc,
+                                           SkImage::RescaleMode::kRepeatedCubic,
+                                           async_callback,
+                                           asyncContext);
+            if (dContext) {
+                dContext->submit();
+            }
+            while (!asyncContext->fCalled) {
+                // Only GPU should actually be asynchronous.
+                SkASSERT(dContext);
+                dContext->checkAsyncWorkCompletion();
+            }
+            if (asyncContext->fResult) {
+                SkPixmap pixmap(readInfo,
+                                asyncContext->fResult->data(0),
+                                asyncContext->fResult->rowBytes(0));
+                auto releasePixels = [](const void*, void* c) {
+                    delete static_cast<AsyncContext*>(c);
+                };
+                auto result = SkImage::MakeFromRaster(pixmap, releasePixels, asyncContext);
+
+                canvas->drawImage(result, 0, 0);
+            } else {
+                delete asyncContext;
+                *errorMsg = "async readback failed";
+                return skiagm::DrawResult::kFail;
+            }
+            canvas->translate(size, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, size);
     }
     return skiagm::DrawResult::kOk;
 }
