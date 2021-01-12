@@ -276,6 +276,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "stop"          , []() -> sk_sp<SkSVGNode> { return SkSVGStop::Make();           }},
     { "svg"           , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();            }},
     { "text"          , []() -> sk_sp<SkSVGNode> { return SkSVGText::Make();           }},
+    { "textPath"      , []() -> sk_sp<SkSVGNode> { return SkSVGTextPath::Make();       }},
     { "tspan"         , []() -> sk_sp<SkSVGNode> { return SkSVGTSpan::Make();          }},
     { "use"           , []() -> sk_sp<SkSVGNode> { return SkSVGUse::Make();            }},
 };
