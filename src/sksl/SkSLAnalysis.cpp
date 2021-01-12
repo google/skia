@@ -459,6 +459,128 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
             IsTrivialExpression(*expr.as<IndexExpression>().base()));
 }
 
+bool Analysis::ForLoopIsValidForES2(const ForStatement& loop, ErrorReporter* errors) {
+
+    #define INVALID(msg) do { errors->error(loop.fOffset, msg); return false; } while (false)
+
+    //
+    // init_declaration has the form: type_specifier identifier = constant_expression
+    //
+    if (!loop.initializer()) {
+        INVALID("missing init declaration");
+    }
+    if (!loop.initializer()->is<VarDeclaration>()) {
+        INVALID("invalid init declaration");
+    }
+    const VarDeclaration& initDecl = loop.initializer()->as<VarDeclaration>();
+    if (!initDecl.baseType().isInteger() && !initDecl.baseType().isFloat()) {
+        INVALID("invalid type for loop index");
+    }
+    if (initDecl.arraySize() != 0) {
+        INVALID("invalid type for loop index");
+    }
+    if (!initDecl.value()) {
+        INVALID("missing loop index initializer");
+    }
+    if (!initDecl.value()->isCompileTimeConstant()) {
+        INVALID("loop index initializer must be a constant expression");
+    }
+
+    auto is_loop_index = [&](const std::unique_ptr<Expression>& expr) {
+        return expr->is<VariableReference>() &&
+               expr->as<VariableReference>().variable() == &initDecl.var();
+    };
+
+    //
+    // condition has the form: loop_index relational_operator constant_expression
+    //
+    if (!loop.test()) {
+        INVALID("missing condition");
+    }
+    if (!loop.test()->is<BinaryExpression>()) {
+        INVALID("invalid condition");
+    }
+    const BinaryExpression& cond = loop.test()->as<BinaryExpression>();
+    if (!is_loop_index(cond.left())) {
+        INVALID("expected loop index on left hand side of condition");
+    }
+    // relational_operator is one of: > >= < <= == or !=
+    switch (cond.getOperator()) {
+        case Token::Kind::TK_GT:
+        case Token::Kind::TK_GTEQ:
+        case Token::Kind::TK_LT:
+        case Token::Kind::TK_LTEQ:
+        case Token::Kind::TK_EQEQ:
+        case Token::Kind::TK_NEQ:
+            break;
+        default:
+            INVALID("invalid relational operator");
+    }
+    if (!cond.right()->isCompileTimeConstant()) {
+        INVALID("loop index must be compared with a constant expression");
+    }
+
+    //
+    // expression has one of the following forms:
+    //   loop_index++
+    //   loop_index--
+    //   loop_index += constant_expression
+    //   loop_index -= constant_expression
+    // The spec doesn't mention prefix increment and decrement, but there is some consensus that
+    // it's an oversight, so we allow those as well.
+    //
+    if (!loop.next()) {
+        INVALID("missing loop expression");
+    }
+    switch (loop.next()->kind()) {
+        case Expression::Kind::kBinary: {
+            const BinaryExpression& next = loop.next()->as<BinaryExpression>();
+            if (!is_loop_index(next.left())) {
+                INVALID("expected loop index in loop expression");
+            }
+            if (next.getOperator() != Token::Kind::TK_PLUSEQ &&
+                next.getOperator() != Token::Kind::TK_MINUSEQ) {
+                INVALID("invalid operator in loop expression");
+            }
+            if (!next.right()->isCompileTimeConstant()) {
+                INVALID("loop index must be modified by a constant expression");
+            }
+        } break;
+        case Expression::Kind::kPrefix: {
+            const PrefixExpression& next = loop.next()->as<PrefixExpression>();
+            if (!is_loop_index(next.operand())) {
+                INVALID("expected loop index in loop expression");
+            }
+            if (next.getOperator() != Token::Kind::TK_PLUSPLUS &&
+                next.getOperator() != Token::Kind::TK_MINUSMINUS) {
+                INVALID("invalid operator in loop expression");
+            }
+        } break;
+        case Expression::Kind::kPostfix: {
+            const PostfixExpression& next = loop.next()->as<PostfixExpression>();
+            if (!is_loop_index(next.operand())) {
+                INVALID("expected loop index in loop expression");
+            }
+            if (next.getOperator() != Token::Kind::TK_PLUSPLUS &&
+                next.getOperator() != Token::Kind::TK_MINUSMINUS) {
+                INVALID("invalid operator in loop expression");
+            }
+        } break;
+        default:
+            INVALID("invalid loop expression");
+    }
+
+    //
+    // Within the body of the loop, the loop index is not statically assigned to, nor is it used as
+    // argument to a function 'out' or 'inout' parameter.
+    //
+    if (Analysis::StatementWritesToVariable(*loop.statement(), initDecl.var())) {
+        INVALID("loop index must not be modified within body of the loop");
+    }
+
+    return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // ProgramVisitor
 
