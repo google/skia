@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fae4a134_bb0312cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-12T18:33:34Z",
+      "side": 1,
+      "message": "How much memory is being cached? i.e. is there a concern to ever purge this?",
+      "revId": "3feb3f2e7884cfb8a6dbe96e47077a087ca84d02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
