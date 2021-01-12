@@ -568,8 +568,17 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     if (!statement) {
         return nullptr;
     }
-    return std::make_unique<ForStatement>(f.fOffset, std::move(initializer), std::move(test),
-                                          std::move(next), std::move(statement), fSymbolTable);
+
+    auto forStmt =
+            std::make_unique<ForStatement>(f.fOffset, std::move(initializer), std::move(test),
+                                           std::move(next), std::move(statement), fSymbolTable);
+    if (this->strictES2Mode()) {
+        if (!Analysis::ForLoopIsValidForES2(*forStmt, /*outLoopInfo=*/nullptr,
+                                            &this->errorReporter())) {
+            return nullptr;
+        }
+    }
+    return std::move(forStmt);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr<Expression> test,

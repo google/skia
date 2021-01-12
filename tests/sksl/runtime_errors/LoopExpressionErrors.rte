@@ -1,0 +1,13 @@
+// Expect 7 errors
+
+void no_expression() { for (int i = 0; i < 1;) {} }
+
+void expression_equals()     { for (int i = 0; i < 1; i = 1) {} }
+void expression_equal_plus() { for (int i = 0; i < 1; i = i + 1) {} }
+void expression_times_eq()   { for (int i = 1; i < 2; i *= 2) {} }
+void expression_bad_unary()  { for (int i = 0; i < 1; -i) {} }
+
+uniform int u;
+
+void expression_uniform_val()    { for (int i = 0; i < 1; i += u) {} }
+void expression_param_val(int p) { for (int i = 0; i < 1; i += p) {} }
