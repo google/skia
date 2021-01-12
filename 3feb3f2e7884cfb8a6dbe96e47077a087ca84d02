@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "81199428_0f05f681",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7708
+      },
+      "writtenOn": "2021-01-12T19:05:20Z",
+      "side": 1,
+      "message": "The cache will contain at most three instances of ICU\u0027s UBreakIterator (one for each SkUnicode::BreakType).\n\nI don\u0027t have a measurement of the memory impact of each UBreakIterator.  I tried a quick test of a simple Flutter app with and without the cache but the difference was not obvious in an Android meminfo dump.\n\nI suppose it might be nice to add an API for purging the cache (although I\u0027m not sure what would be the best place to expose it given that SkUnicode_icu is a private API).  Purging would reduce the memory usage of Flutter apps when they are suspended.  But the impact will be limited because the cached UBreakIterators will be immediately recreated as soon as the app resumes.",
+      "parentUuid": "fae4a134_bb0312cd",
+      "revId": "3feb3f2e7884cfb8a6dbe96e47077a087ca84d02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf04fc46_41c7d834",
