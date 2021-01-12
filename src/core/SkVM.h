@@ -473,8 +473,6 @@ namespace skvm {
 
     struct Ptr { int ix; };
 
-    // 32-bit signed integer (with both signed sra() and unsigned/logical shr() available).
-    // Think "int" or "int32_t".
     struct I32 {
         Builder* builder = nullptr;
         Val      id      = NA;
@@ -482,7 +480,6 @@ namespace skvm {
         Builder* operator->()    const { return builder; }
     };
 
-    // 32-bit IEEE 754 float, think "float".
     struct F32 {
         Builder* builder = nullptr;
         Val      id      = NA;
@@ -490,27 +487,8 @@ namespace skvm {
         Builder* operator->()    const { return builder; }
     };
 
-    // Comparisons of F32 or I32 return I32 masks, with false=0 and true=~0.
-
-    // An opaque float-y type with ambiguous precision and at least [-2,+2) range.
-    // This could be FP16, FP32, signed 1.14 fixed point, bfloat16, etc.
-    struct Half {
-        Builder* builder = nullptr;
-        Val      id      = NA;
-        explicit operator bool() const { return id != NA; }
-        Builder* operator->()    const { return builder; }
-    };
-
-    // Integer mask returned by comparisons of Half, with false=0 and true=~0 as usual.
-    struct HalfMask {
-        Builder* builder = nullptr;
-        Val      id      = NA;
-        explicit operator bool() const { return id != NA; }
-        Builder* operator->()    const { return builder; }
-    };
-
     // Some operations make sense with immediate arguments,
-    // so we use I32a/F32a/Halfa to receive them transparently.
+    // so we use I32a and F32a to receive them transparently.
     //
     // We omit overloads that may indicate a bug or performance issue.
     // In general it does not make sense to pass immediates to unary operations,
@@ -540,15 +518,6 @@ namespace skvm {
         float imm = 0;
     };
 
-    struct Halfa {
-        Halfa(Half  v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
-        Halfa(float v) : imm(v) {}
-
-        SkDEBUGCODE(Builder* builder = nullptr;)
-        Val   id  = NA;
-        float imm = 0;
-    };
-
     struct Color {
         F32 r,g,b,a;
         explicit operator bool() const { return r && g && b && a; }
@@ -565,12 +534,6 @@ namespace skvm {
         F32 x,y;
         explicit operator bool() const { return x && y; }
         Builder* operator->()    const { return x.operator->(); }
-    };
-
-    struct HalfColor {
-        Half r,g,b,a;
-        explicit operator bool() const { return r && g && b && a; }
-        Builder* operator->()    const { return a.operator->(); }
     };
 
     struct Uniform {
@@ -669,8 +632,6 @@ namespace skvm {
         void assert_true(I32 cond, F32 debug) { assert_true(cond, pun_to_I32(debug)); }
         void assert_true(I32 cond)            { assert_true(cond, cond); }
 
-        // TODO: Half asserts?
-
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Ptr ptr, I32 val);
         void store16 (Ptr ptr, I32 val);
@@ -721,7 +682,6 @@ namespace skvm {
             memcpy(&bits, &f, 4);
             return pun_to_F32(splat(bits));
         }
-        Half half(float f) { return to_Half(splat(f)); }
 
         // float math, comparisons, etc.
         F32 add(F32, F32);  F32 add(F32a x, F32a y) { return add(_(x), _(y)); }
@@ -779,45 +739,6 @@ namespace skvm {
         I32 lte(F32, F32);  I32 lte(F32a x, F32a y) { return lte(_(x), _(y)); }
         I32 gt (F32, F32);  I32 gt (F32a x, F32a y) { return gt (_(x), _(y)); }
         I32 gte(F32, F32);  I32 gte(F32a x, F32a y) { return gte(_(x), _(y)); }
-
-
-        // Half math, comparisons, etc.
-        Half add(Half, Half);  Half add(Halfa x, Halfa y) { return add(_(x), _(y)); }
-        Half sub(Half, Half);  Half sub(Halfa x, Halfa y) { return sub(_(x), _(y)); }
-        Half mul(Half, Half);  Half mul(Halfa x, Halfa y) { return mul(_(x), _(y)); }
-        Half min(Half, Half);  Half min(Halfa x, Halfa y) { return min(_(x), _(y)); }
-        Half max(Half, Half);  Half max(Halfa x, Halfa y) { return max(_(x), _(y)); }
-
-        Half   sqrt(Half);
-        Half    abs(Half);
-        Half   ceil(Half);
-        Half  floor(Half);
-        Half  fract(Half x) { return sub(x, floor(x)); }
-
-        Half lerp(Half  lo, Half  hi, Half  t);
-        Half lerp(Halfa lo, Halfa hi, Halfa t) { return lerp(_(lo), _(hi), _(t)); }
-
-        Half clamp  (Half  x, Half  lo, Half  hi) { return max(lo, min(x, hi)); }
-        Half clamp  (Halfa x, Halfa lo, Halfa hi) { return clamp(_(x), _(lo), _(hi)); }
-        Half clamp01(Half x) { return clamp(x, 0.0f, 1.0f); }
-
-        Half to_Half(F32 );
-        F32  to_F32 (Half);
-
-        HalfMask  eq(Half, Half);  HalfMask  eq(Halfa x, Halfa y) { return  eq(_(x), _(y)); }
-        HalfMask neq(Half, Half);  HalfMask neq(Halfa x, Halfa y) { return neq(_(x), _(y)); }
-        HalfMask lt (Half, Half);  HalfMask lt (Halfa x, Halfa y) { return lt (_(x), _(y)); }
-        HalfMask lte(Half, Half);  HalfMask lte(Halfa x, Halfa y) { return lte(_(x), _(y)); }
-        HalfMask gt (Half, Half);  HalfMask gt (Halfa x, Halfa y) { return gt (_(x), _(y)); }
-        HalfMask gte(Half, Half);  HalfMask gte(Halfa x, Halfa y) { return gte(_(x), _(y)); }
-
-        HalfMask bit_and  (HalfMask, HalfMask);
-        HalfMask bit_or   (HalfMask, HalfMask);
-        HalfMask bit_xor  (HalfMask, HalfMask);
-        HalfMask bit_clear(HalfMask, HalfMask);
-
-        Half select(HalfMask, Half, Half);
-        Half select(HalfMask cond, Halfa t, Halfa f) { return select(cond, _(t), _(f)); }
 
         // int math, comparisons, etc.
         I32 add(I32, I32);  I32 add(I32a x, I32a y) { return add(_(x), _(y)); }
@@ -915,14 +836,6 @@ namespace skvm {
                 return {this, x.id};
             }
             return splat(x.imm);
-        }
-
-        Half _(Halfa x) {
-            if (x.id != NA) {
-                SkASSERT(x.builder == this);
-                return {this, x.id};
-            }
-            return half(x.imm);
         }
 
         bool allImm() const;
@@ -1095,44 +1008,6 @@ namespace skvm {
     static inline F32& operator*=(F32& x, F32a y) { return (x = x * y); }
     static inline F32& operator/=(F32& x, F32  y) { return (x = x / y); }
 
-    static inline Half operator+(Half  x, Halfa y) { return x->add(x,y); }
-    static inline Half operator+(float x, Half  y) { return y->add(x,y); }
-
-    static inline Half operator-(Half  x, Halfa y) { return x->sub(x,y); }
-    static inline Half operator-(float x, Half  y) { return y->sub(x,y); }
-
-    static inline Half operator*(Half  x, Halfa y) { return x->mul(x,y); }
-    static inline Half operator*(float x, Half  y) { return y->mul(x,y); }
-
-    static inline Half min(Half  x, Halfa y) { return x->min(x,y); }
-    static inline Half min(float x, Half  y) { return y->min(x,y); }
-
-    static inline Half max(Half  x, Halfa y) { return x->max(x,y); }
-    static inline Half max(float x, Half  y) { return y->max(x,y); }
-
-    static inline HalfMask operator==(Half  x, Half  y) { return x->eq(x,y); }
-    static inline HalfMask operator==(Half  x, float y) { return x->eq(x,y); }
-    static inline HalfMask operator==(float x, Half  y) { return y->eq(x,y); }
-
-    static inline HalfMask operator!=(Half  x, Half  y) { return x->neq(x,y); }
-    static inline HalfMask operator!=(Half  x, float y) { return x->neq(x,y); }
-    static inline HalfMask operator!=(float x, Half  y) { return y->neq(x,y); }
-
-    static inline HalfMask operator< (Half  x, Halfa y) { return x->lt(x,y); }
-    static inline HalfMask operator< (float x, Half  y) { return y->lt(x,y); }
-
-    static inline HalfMask operator<=(Half  x, Halfa y) { return x->lte(x,y); }
-    static inline HalfMask operator<=(float x, Half  y) { return y->lte(x,y); }
-
-    static inline HalfMask operator> (Half  x, Halfa y) { return x->gt(x,y); }
-    static inline HalfMask operator> (float x, Half  y) { return y->gt(x,y); }
-
-    static inline HalfMask operator>=(Half  x, Halfa y) { return x->gte(x,y); }
-    static inline HalfMask operator>=(float x, Half  y) { return y->gte(x,y); }
-
-    static inline Half to_Half(F32  x) { return x->to_Half(x); }
-    static inline F32  to_F32 (Half x) { return x->to_F32 (x); }
-
     static inline void assert_true(I32 cond, I32 debug) { cond->assert_true(cond,debug); }
     static inline void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
     static inline void assert_true(I32 cond)            { cond->assert_true(cond); }
@@ -1264,25 +1139,6 @@ namespace skvm {
             return poly(x, x*a+b, rest...);
         }
     }
-
-    static inline HalfColor to_Half(Color c) {
-        return {
-            c->to_Half(c.r),
-            c->to_Half(c.g),
-            c->to_Half(c.b),
-            c->to_Half(c.a),
-        };
-    }
-
-    static inline Color to_F32(HalfColor c) {
-        return {
-            c->to_F32(c.r),
-            c->to_F32(c.g),
-            c->to_F32(c.b),
-            c->to_F32(c.a),
-        };
-    }
-
 }  // namespace skvm
 
 #endif//SkVM_DEFINED
