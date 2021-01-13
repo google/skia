@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d0aaed2_be803794",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-01-13T18:52:37Z",
+      "side": 1,
+      "message": "nit: \"estimate\" might be more accurate than \"measure\", as the latter may imply a level of precision that this method doesn\u0027t provide.",
+      "range": {
+        "startLine": 11,
+        "startChar": 31,
+        "endLine": 11,
+        "endChar": 38
+      },
+      "revId": "acad25fea69e516e6d88943f916b624cef853f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0e0a515_3c2569c0",
+        "filename": "modules/canvaskit/canvaskit/types/canvaskit-wasm-tests.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-01-13T18:52:37Z",
+      "side": 1,
+      "message": "Isn\u0027t logic in lines 358-363 still relevant when path is null?",
+      "revId": "acad25fea69e516e6d88943f916b624cef853f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68f243ea_f9b21da7",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-01-13T18:52:37Z",
+      "side": 1,
+      "message": "nit: \"get\" makes it sound as if the method returns something previously computed. Maybe use \"compute\" instead of \"get\"?",
+      "revId": "acad25fea69e516e6d88943f916b624cef853f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5c411d3_85b569fd",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-01-13T18:52:37Z",
+      "side": 1,
+      "message": "Is making a copy of the matrix necessary? This function doesn\u0027t store the incoming ctmPtr anywhere.",
+      "revId": "acad25fea69e516e6d88943f916b624cef853f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
