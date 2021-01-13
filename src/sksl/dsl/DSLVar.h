@@ -44,6 +44,8 @@ public:
         return this->operator=(DSLExpression(expr));
     }
 
+    DSLExpression operator[](DSLExpression&& index);
+
     DSLExpression operator++() {
         return ++DSLExpression(*this);
     }

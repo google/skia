@@ -42,6 +42,10 @@ const SkSL::Variable* DSLVar::var() const {
     return fVar;
 }
 
+DSLExpression DSLVar::operator[](DSLExpression&& index) {
+    return DSLExpression(*this)[std::move(index)];
+}
+
 DSLExpression DSLVar::operator=(DSLExpression expr) {
     const SkSL::Variable* var = this->var();
     return DSLExpression(std::make_unique<SkSL::BinaryExpression>(

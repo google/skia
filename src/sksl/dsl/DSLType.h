@@ -85,6 +85,8 @@ TYPE(Short)
 #undef TYPE
 #undef TYPE_FRIEND
 
+DSLType Array(const DSLType& base, int count);
+
 } // namespace dsl
 
 } // namespace SkSL
