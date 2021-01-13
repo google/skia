@@ -8,5 +8,5 @@ void main() {
             i++;
         } while (true);
     } while (i < 10);
-    sk_FragColor = vec4(float(i));
+    sk_FragColor.x = float(i);
 }
