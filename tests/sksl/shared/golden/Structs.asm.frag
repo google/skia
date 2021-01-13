@@ -30,6 +30,7 @@ OpMemberDecorate %B 2 Binding 1
 OpMemberDecorate %B 2 Offset 48
 OpMemberDecorate %B 2 RelaxedPrecision
 OpDecorate %b1 RelaxedPrecision
+OpDecorate %33 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
