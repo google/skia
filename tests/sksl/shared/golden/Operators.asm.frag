@@ -21,11 +21,11 @@ OpDecorate %39 RelaxedPrecision
 OpDecorate %42 RelaxedPrecision
 OpDecorate %45 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
-OpDecorate %83 RelaxedPrecision
-OpDecorate %86 RelaxedPrecision
-OpDecorate %89 RelaxedPrecision
-OpDecorate %92 RelaxedPrecision
-OpDecorate %95 RelaxedPrecision
+OpDecorate %82 RelaxedPrecision
+OpDecorate %85 RelaxedPrecision
+OpDecorate %88 RelaxedPrecision
+OpDecorate %91 RelaxedPrecision
+OpDecorate %94 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -135,24 +135,24 @@ OpStore %z %73
 %74 = OpLoad %int %z
 %76 = OpSMod %int %74 %int_5
 OpStore %z %76
-%78 = OpExtInst %float %1 Sqrt %float_1
-%79 = OpCompositeConstruct %v2float %78 %78
-%77 = OpConvertSToF %float %int_6
-OpStore %x %77
-%83 = OpLoad %bool %b
-%82 = OpSelect %float %83 %float_1 %float_0
-%86 = OpLoad %bool %c
-%85 = OpSelect %float %86 %float_1 %float_0
-%87 = OpFMul %float %82 %85
-%89 = OpLoad %bool %d
-%88 = OpSelect %float %89 %float_1 %float_0
-%90 = OpFMul %float %87 %88
-%92 = OpLoad %bool %e
-%91 = OpSelect %float %92 %float_1 %float_0
-%93 = OpFMul %float %90 %91
-%95 = OpLoad %bool %f
-%94 = OpSelect %float %95 %float_1 %float_0
-%96 = OpFMul %float %93 %94
+%77 = OpExtInst %float %1 Sqrt %float_1
+%78 = OpCompositeConstruct %v2float %77 %77
+%81 = OpConvertSToF %float %int_6
+OpStore %x %81
+%82 = OpLoad %bool %b
+%83 = OpSelect %float %82 %float_1 %float_0
+%85 = OpLoad %bool %c
+%86 = OpSelect %float %85 %float_1 %float_0
+%87 = OpFMul %float %83 %86
+%88 = OpLoad %bool %d
+%89 = OpSelect %float %88 %float_1 %float_0
+%90 = OpFMul %float %87 %89
+%91 = OpLoad %bool %e
+%92 = OpSelect %float %91 %float_1 %float_0
+%93 = OpFMul %float %90 %92
+%94 = OpLoad %bool %f
+%95 = OpSelect %float %94 %float_1 %float_0
+%96 = OpFMul %float %93 %95
 OpStore %y %float_6
 %98 = OpExtInst %float %1 Sqrt %float_1
 %99 = OpCompositeConstruct %v2float %98 %98

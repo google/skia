@@ -29,10 +29,10 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %main = OpFunction %void None %11
 %12 = OpLabel
 %x = OpVariable %_ptr_Function_float Function
-%16 = OpExtInst %float %1 Sqrt %float_1
-%15 = OpConvertFToS %int %16
+%15 = OpExtInst %float %1 Sqrt %float_1
+%17 = OpConvertFToS %int %15
 OpSelectionMerge %19 None
-OpSwitch %15 %22 0 %20 1 %21
+OpSwitch %17 %22 0 %20 1 %21
 %20 = OpLabel
 OpStore %x %float_0
 OpBranch %19

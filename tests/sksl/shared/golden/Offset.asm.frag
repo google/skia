@@ -39,10 +39,10 @@ OpMemberDecorate %Test 2 Offset 8
 %t = OpVariable %_ptr_Function_Test Function
 %18 = OpAccessChain %_ptr_Function_int %t %int_0
 OpStore %18 %int_0
-%21 = OpAccessChain %_ptr_Function_int %t %int_0
-%22 = OpLoad %int %21
-%20 = OpConvertSToF %float %22
+%20 = OpAccessChain %_ptr_Function_int %t %int_0
+%21 = OpLoad %int %20
+%22 = OpConvertSToF %float %21
 %23 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %23 %20
+OpStore %23 %22
 OpReturn
 OpFunctionEnd
