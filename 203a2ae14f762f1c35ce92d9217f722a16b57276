@@ -39,6 +39,30 @@
       },
       "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28977eee_3a7fe63a",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T21:22:11Z",
+      "side": 1,
+      "message": "I guess it generates errors, but I thought it was too late for us to handle errors by now.",
+      "parentUuid": "2f9299e8_d77674bd",
+      "range": {
+        "startLine": 1376,
+        "startChar": 4,
+        "endLine": 1376,
+        "endChar": 18
+      },
+      "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
