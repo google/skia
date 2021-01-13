@@ -181,8 +181,8 @@ void GrGLMatrixConvolutionEffect::emitKernelBlock(EmitArgs& args, SkIPoint loc) 
         const char* kernelBias = uniformHandler->getUniformCStr(fKernelBiasUni);
         SkString kernelSample = this->invokeChild(1, args, "float2(float(i) + 0.5, 0.5)");
         fragBuilder->codeAppendf("k = %s.w + %s;", kernelSample.c_str(), kernelBias);
-        fragBuilder->codeAppendf("sourceOffset.y = floor(i / %d);", kernelWidth);
-        fragBuilder->codeAppendf("sourceOffset.x = i - sourceOffset.y * %d;", kernelWidth);
+        fragBuilder->codeAppendf("sourceOffset.y = floor(half(i) / %d);", kernelWidth);
+        fragBuilder->codeAppendf("sourceOffset.x = half(i) - sourceOffset.y * %d;", kernelWidth);
     } else {
         fragBuilder->codeAppendf("sourceOffset = half2(%d, %d);", loc.x(), loc.y());
         int offset = loc.y() * kernelWidth + loc.x();
