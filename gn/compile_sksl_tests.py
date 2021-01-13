@@ -14,7 +14,7 @@ skslc = sys.argv[1]
 lang = sys.argv[2]
 settings = sys.argv[3]
 inputs = sys.argv[4:]
-batchCompile = True
+batchCompile = False
 
 def executeWorklist(input, worklist):
     # Invoke skslc, passing in the worklist.
