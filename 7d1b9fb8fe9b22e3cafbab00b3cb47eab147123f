@@ -16,6 +16,23 @@
       "message": "Something weird is going on - there\u0027s a lot of banding in gradients/blurs.  Nothing in the code jumps out, but we must be missing something to get that level of quantization.",
       "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9db09608_b1d65b9e",
+        "filename": "modules/svg/src/SkSVGFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-13T19:44:36Z",
+      "side": 1,
+      "message": "@Florin I wonder if this is the source of the new banding. If the destination surface is RGBA_1010102, but we\u0027re explicitly performing LinearToSRGBGamma() here, would that have strange effects like we\u0027re seeing?",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
