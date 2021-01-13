@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 24: expected ';', but found '}'
+error: 14: unsupported cast in SPIR-V: vector bool to float
 1 error
