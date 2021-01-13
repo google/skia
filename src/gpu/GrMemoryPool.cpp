@@ -95,8 +95,6 @@ void* GrMemoryPool::allocate(size_t size) {
 }
 
 void GrMemoryPool::release(void* p) {
-    // NOTE: if we needed it, (p - block) would equal the original alignedOffset value returned by
-    // GrBlockAllocator::allocate()
     Header* header = reinterpret_cast<Header*>(reinterpret_cast<intptr_t>(p) - sizeof(Header));
 
 #if defined(SK_SANITIZE_ADDRESS)
@@ -112,6 +110,16 @@ void GrMemoryPool::release(void* p) {
 #endif
 
     GrBlockAllocator::Block* block = fAllocator.owningBlock<kAlignment>(header, header->fStart);
+
+#if defined(SK_DEBUG)
+    // (p - block) matches the original alignedOffset value from GrBlockAllocator::allocate().
+    intptr_t alignedOffset = (intptr_t)p - (intptr_t)block;
+    SkASSERT(p == block->ptr(alignedOffset));
+
+    // Scrub the block contents to prevent use-after-free errors.
+    memset(p, 0xDD, header->fEnd - alignedOffset);
+#endif
+
     int alive = block->metadata();
     if (alive == 1) {
         // This was last allocation in the block, so remove it
