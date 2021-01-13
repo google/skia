@@ -215,7 +215,7 @@ private:
         // As we encounter (possibly conditional) return statements, fReturned is updated to store
         // the lanes that have already returned. For the remainder of the current function, those
         // lanes should be disabled.
-        return fMask & ~currentFunction().fReturned;
+        return fMask & fLoopMask & ~currentFunction().fReturned;
     }
 
     Value writeExpression(const Expression& expr);
@@ -231,6 +231,9 @@ private:
 
     void writeStatement(const Statement& s);
     void writeBlock(const Block& b);
+    void writeBreakStatement();
+    void writeContinueStatement();
+    void writeForStatement(const ForStatement& f);
     void writeIfStatement(const IfStatement& stmt);
     void writeReturnStatement(const ReturnStatement& r);
     void writeVarDeclaration(const VarDeclaration& decl);
@@ -257,6 +260,13 @@ private:
 
     // Conditional execution mask (changes are managed by AutoMask, and tied to control-flow scopes)
     skvm::I32 fMask;
+
+    // Similar: loop execution masks. Each loop starts with all lanes active (fLoopMask).
+    // 'break' disables a lane in fLoopMask until the loop finishes
+    // 'continue' disables a lane in fLoopMask, and sets fContinueMask to be re-enabled on the next
+    //   iteration
+    skvm::I32 fLoopMask;
+    skvm::I32 fContinueMask;
 
     //
     // State that's local to the generation of a single function:
@@ -375,7 +385,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
 
             { "sample", Intrinsic::kSample },
         } {
-    fMask = fBuilder->splat(0xffff'ffff);
+    fMask = fLoopMask = fBuilder->splat(0xffff'ffff);
 
     // Now, add storage for each global variable (including uniforms) to fSlots, and entries in
     // fVariableMap to remember where every variable is stored.
@@ -1347,6 +1357,47 @@ void SkVMGenerator::writeBlock(const Block& b) {
     }
 }
 
+void SkVMGenerator::writeBreakStatement() {
+    // Any active lanes stop executing for the duration of the current loop
+    fLoopMask &= ~this->mask();
+}
+
+void SkVMGenerator::writeContinueStatement() {
+    // Any active lanes stop executing for the current iteration.
+    // Remember them in fContinueMask, to be re-enabled later.
+    skvm::I32 mask = this->mask();
+    fLoopMask &= ~mask;
+    fContinueMask |= mask;
+}
+
+void SkVMGenerator::writeForStatement(const ForStatement& f) {
+    // We require that all loops be ES2-compliant (unrollable), and actually unroll them here
+    Analysis::UnrollableLoopInfo loop;
+    SkAssertResult(Analysis::ForLoopIsValidForES2(f, &loop, /*errors=*/nullptr));
+    SkASSERT(slot_count(loop.fIndex->type()) == 1);
+
+    Slot index = this->getSlot(*loop.fIndex);
+    double val = loop.fStart;
+
+    skvm::I32 oldLoopMask     = fLoopMask,
+              oldContinueMask = fContinueMask;
+
+    for (int i = 0; i < loop.fCount; ++i) {
+        fSlots[index] = loop.fIndex->type().isInteger()
+                                ? fBuilder->splat(static_cast<int>(val)).id
+                                : fBuilder->splat(static_cast<float>(val)).id;
+
+        fContinueMask = fBuilder->splat(0);
+        this->writeStatement(*f.statement());
+        fLoopMask |= fContinueMask;
+
+        val += loop.fDelta;
+    }
+
+    fLoopMask     = oldLoopMask;
+    fContinueMask = oldContinueMask;
+}
+
 void SkVMGenerator::writeIfStatement(const IfStatement& i) {
     Value test = this->writeExpression(*i.test());
     {
@@ -1390,8 +1441,17 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kBlock:
             this->writeBlock(s.as<Block>());
             break;
+        case Statement::Kind::kBreak:
+            this->writeBreakStatement();
+            break;
+        case Statement::Kind::kContinue:
+            this->writeContinueStatement();
+            break;
         case Statement::Kind::kExpression:
             this->writeExpression(*s.as<ExpressionStatement>().expression());
+            break;
+        case Statement::Kind::kFor:
+            this->writeForStatement(s.as<ForStatement>());
             break;
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
@@ -1402,11 +1462,8 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kVarDeclaration:
             this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
-        case Statement::Kind::kBreak:
-        case Statement::Kind::kContinue:
         case Statement::Kind::kDiscard:
         case Statement::Kind::kDo:
-        case Statement::Kind::kFor:
         case Statement::Kind::kSwitch:
             SkDEBUGFAIL("Unsupported control flow");
             break;

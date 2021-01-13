@@ -222,11 +222,8 @@ void test_skvm(skiatest::Reporter* r, const char* src,
 
 void test(skiatest::Reporter* r, const char* src,
           float inR, float inG, float inB, float inA,
-          float exR, float exG, float exB, float exA,
-          bool testWithSkVM = true) {
-    if (testWithSkVM) {
-        test_skvm(r, src, inR, inG, inB, inA, exR, exG, exB, exA);
-    }
+          float exR, float exG, float exB, float exA) {
+    test_skvm(r, src, inR, inG, inB, inA, exR, exG, exB, exA);
 
     ByteCodeBuilder byteCode(r, src);
     if (!byteCode) { return; }
@@ -500,11 +497,9 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
 }
 
 DEF_TEST(SkSLInterpreterFor, r) {
-    // TODO: SkVM for-loop support
     test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }",
          0, 0, 0, 0,
-         55, 0, 0, 0,
-         /*testWithSkVM=*/false);
+         55, 0, 0, 0);
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
@@ -512,8 +507,7 @@ DEF_TEST(SkSLInterpreterFor, r) {
          "            if (j >= i) { color.r += j; }"
          "}",
          0, 0, 0, 0,
-         385, 0, 0, 0,
-         /*testWithSkVM=*/false);
+         385, 0, 0, 0);
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
@@ -524,8 +518,7 @@ DEF_TEST(SkSLInterpreterFor, r) {
          "        }"
          "}",
          0, 0, 0, 0,
-         495, 0, 0, 0,
-         /*testWithSkVM=*/false);
+         495, 0, 0, 0);
 }
 
 DEF_TEST(SkSLInterpreterPrefixPostfix, r) {
@@ -678,7 +671,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         REPORTER_ASSERT(r, out == 8);
     }
 
-    // TODO: Doesn't work until SkVM generator supports loops
+    // TODO: Doesn't work until SkVM generator supports indexing-by-loop variable
     if (false) {
         float in[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
         float out = 0;
@@ -699,7 +692,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         REPORTER_ASSERT(r, out == gRects[2]);
     }
 
-    // TODO: Doesn't work until SkVM generator supports loops
+    // TODO: Doesn't work until SkVM generator supports indexing-by-loop variable
     if (false) {
         ManyRects in;
         memset(&in, 0, sizeof(in));
