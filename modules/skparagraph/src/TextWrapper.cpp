@@ -382,8 +382,17 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
         fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
         fMaxIntrinsicWidth = std::max(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
-        // In case we could not place a single cluster on the line
-        fHeight = std::max(fHeight, fEndLine.metrics().height());
+
+        if (parent->lines().empty()) {
+            // In case we could not place even a single cluster on the line
+            if (disableFirstAscent) {
+                fEndLine.metrics().fAscent = fEndLine.metrics().fRawAscent;
+            }
+            if (disableLastDescent && !fHardLineBreak) {
+                fEndLine.metrics().fDescent = fEndLine.metrics().fRawDescent;
+            }
+            fHeight = std::max(fHeight, fEndLine.metrics().height());
+        }
     }
 
     if (fHardLineBreak) {
