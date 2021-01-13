@@ -68,6 +68,30 @@
       },
       "revId": "2ca62c485e420def297f110469f492c0bb40218e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a227ff60_8a7b1904",
+        "filename": "tests/TriangulatingPathRendererTests.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-13T22:28:12Z",
+      "side": 1,
+      "message": "A related question: Is the reason to gather these separately because they get incorporated into the stencil step?",
+      "parentUuid": "92e5ecb3_4e3a8f63",
+      "range": {
+        "startLine": 794,
+        "startChar": 6,
+        "endLine": 794,
+        "endChar": 25
+      },
+      "revId": "2ca62c485e420def297f110469f492c0bb40218e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
