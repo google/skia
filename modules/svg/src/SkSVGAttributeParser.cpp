@@ -539,16 +539,18 @@ bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
 }
 
 // https://www.w3.org/TR/SVG11/masking.html#ClipPathProperty
+// https://www.w3.org/TR/SVG11/masking.html#MaskProperty
+// https://www.w3.org/TR/SVG11/filters.html#FilterProperty
 template <>
-bool SkSVGAttributeParser::parse(SkSVGClip* clip) {
+bool SkSVGAttributeParser::parse(SkSVGFuncIRI* firi) {
     SkSVGStringType iri;
     bool parsedValue = false;
 
     if (this->parseExpectedStringToken("none")) {
-        *clip = SkSVGClip(SkSVGClip::Type::kNone);
+        *firi = SkSVGFuncIRI();
         parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
-        *clip = SkSVGClip(iri);
+        *firi = SkSVGFuncIRI(std::move(iri));
         parsedValue = true;
     }
 
@@ -687,26 +689,6 @@ bool SkSVGAttributeParser::parse(SkSVGFillRule* fillRule) {
             parsedValue = true;
             break;
         }
-    }
-
-    return parsedValue && this->parseEOSToken();
-}
-
-// https://www.w3.org/TR/SVG11/filters.html#FilterProperty
-template <>
-bool SkSVGAttributeParser::parse(SkSVGFilterType* filter) {
-    SkSVGStringType iri;
-    bool parsedValue = false;
-
-    if (this->parseExpectedStringToken("none")) {
-        *filter = SkSVGFilterType(SkSVGFilterType::Type::kNone);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("inherit")) {
-        *filter = SkSVGFilterType(SkSVGFilterType::Type::kInherit);
-        parsedValue = true;
-    } else if (this->parseFuncIRI(&iri)) {
-        *filter = SkSVGFilterType(iri);
-        parsedValue = true;
     }
 
     return parsedValue && this->parseEOSToken();

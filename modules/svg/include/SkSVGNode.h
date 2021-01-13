@@ -34,6 +34,7 @@ enum class SkSVGTag {
     kG,
     kLine,
     kLinearGradient,
+    kMask,
     kPath,
     kPattern,
     kPolygon,
@@ -121,8 +122,9 @@ public:
     SVG_PRES_ATTR(Visibility      , SkSVGVisibility, true)
 
     // not inherited
-    SVG_PRES_ATTR(ClipPath        , SkSVGClip      , false)
-    SVG_PRES_ATTR(Filter          , SkSVGFilterType, false)
+    SVG_PRES_ATTR(ClipPath        , SkSVGFuncIRI   , false)
+    SVG_PRES_ATTR(Mask            , SkSVGFuncIRI   , false)
+    SVG_PRES_ATTR(Filter          , SkSVGFuncIRI   , false)
     SVG_PRES_ATTR(Opacity         , SkSVGNumberType, false)
     SVG_PRES_ATTR(StopColor       , SkSVGColor     , false)
     SVG_PRES_ATTR(StopOpacity     , SkSVGNumberType, false)
