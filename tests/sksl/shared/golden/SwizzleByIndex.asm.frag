@@ -68,9 +68,9 @@ OpDecorate %69 RelaxedPrecision
 %_8_y = OpVariable %_ptr_Function_float Function
 %_9_z = OpVariable %_ptr_Function_float Function
 %_10_w = OpVariable %_ptr_Function_float Function
-%18 = OpExtInst %float %1 Sqrt %float_1
-%17 = OpConvertFToS %int %18
-%20 = OpCompositeConstruct %v4int %17 %17 %17 %17
+%17 = OpExtInst %float %1 Sqrt %float_1
+%19 = OpConvertFToS %int %17
+%20 = OpCompositeConstruct %v4int %19 %19 %19 %19
 OpStore %_0_i %20
 %23 = OpExtInst %float %1 Sqrt %float_1
 %24 = OpCompositeConstruct %v4float %23 %23 %23 %23

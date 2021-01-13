@@ -33,15 +33,15 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %int_1 = OpConstant %int 1
 %main = OpFunction %void None %17
 %18 = OpLabel
-%21 = OpLoad %int %a
-%20 = OpExtInst %int %1 FindSMsb %21
-%19 = OpConvertSToF %float %20
+%20 = OpLoad %int %a
+%19 = OpExtInst %int %1 FindSMsb %20
+%21 = OpConvertSToF %float %19
 %22 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %22 %19
-%27 = OpLoad %uint %b
-%26 = OpExtInst %int %1 FindUMsb %27
-%25 = OpConvertSToF %float %26
+OpStore %22 %21
+%26 = OpLoad %uint %b
+%25 = OpExtInst %int %1 FindUMsb %26
+%27 = OpConvertSToF %float %25
 %28 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_1
-OpStore %28 %25
+OpStore %28 %27
 OpReturn
 OpFunctionEnd

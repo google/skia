@@ -179,10 +179,10 @@ OpStore %103 %106
 OpStore %sk_FragColor %113
 %114 = OpLoad %v4float %x
 OpStore %sk_FragColor %114
-%116 = OpAccessChain %_ptr_Function_int %ai %int_0
-%117 = OpLoad %int %116
-%115 = OpConvertSToF %float %117
-%118 = OpCompositeConstruct %v4float %115 %115 %115 %115
+%115 = OpAccessChain %_ptr_Function_int %ai %int_0
+%116 = OpLoad %int %115
+%117 = OpConvertSToF %float %116
+%118 = OpCompositeConstruct %v4float %117 %117 %117 %117
 OpStore %sk_FragColor %118
 %119 = OpAccessChain %_ptr_Function_v4int %ai4 %int_0
 %120 = OpLoad %v4int %119
