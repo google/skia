@@ -38,7 +38,7 @@ public:
                                               bool *isLinear) {
         GrTriangulator triangulator(path);
         triangulator.fCullCollinearVertices = false;
-        triangulator.fSimpleInnerPolygons = true;
+        triangulator.fDisallowSelfIntersection = true;
         int count = triangulator.pathToTriangles(0, SkRect::MakeEmpty(), vertexAllocator);
         *isLinear = triangulator.fIsLinear;
         return count;
@@ -194,7 +194,7 @@ protected:
     bool fRoundVerticesToQuarterPixel = false;
     bool fEmitCoverage = false;
     bool fCullCollinearVertices = true;
-    bool fSimpleInnerPolygons = false;
+    bool fDisallowSelfIntersection = false;
 };
 
 /**
