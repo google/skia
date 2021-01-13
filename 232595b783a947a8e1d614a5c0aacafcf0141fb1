@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d94ae2c7_3d862113",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T13:50:56Z",
+      "side": 1,
+      "message": "Looks like color-interpolation-filters is inherited -- I think we need to also update SkSVGRenderContext::applyPresentationAttributes() to handle inheritance.",
+      "revId": "232595b783a947a8e1d614a5c0aacafcf0141fb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21051835_2257b5c8",
+        "filename": "modules/svg/include/SkSVGFe.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T13:50:56Z",
+      "side": 1,
+      "message": "leftover whitespace",
+      "revId": "232595b783a947a8e1d614a5c0aacafcf0141fb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af795c8c_c2f6cb8b",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T13:50:56Z",
+      "side": 1,
+      "message": "nit: since it\u0027s a single conditional, maybe drop the branch and assign directly to parsedValue?  or even streamline completely (return this-\u003eparseEnumMap() \u0026\u0026 this-\u003eparseEOSToken())?",
+      "range": {
+        "startLine": 957,
+        "startChar": 0,
+        "endLine": 962,
+        "endChar": 48
+      },
+      "revId": "232595b783a947a8e1d614a5c0aacafcf0141fb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e024689_9786e4e3",
+        "filename": "modules/svg/src/SkSVGFe.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T13:50:56Z",
+      "side": 1,
+      "message": "Wouldn\u0027t rendercontext property inheritance take care of this?",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 1
+      },
+      "revId": "232595b783a947a8e1d614a5c0aacafcf0141fb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
