@@ -22,6 +22,30 @@
       },
       "revId": "8dce6caeda8f60968eebe0c000c166bfbd41c716",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1aaabe4_31a0f23d",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-13T15:40:14Z",
+      "side": 1,
+      "message": "Yep, that was my plan.",
+      "parentUuid": "deaa0a3b_0bb47215",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 350,
+        "endChar": 30
+      },
+      "revId": "8dce6caeda8f60968eebe0c000c166bfbd41c716",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
