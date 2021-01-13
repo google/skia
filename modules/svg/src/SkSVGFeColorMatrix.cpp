@@ -91,9 +91,10 @@ SkColorMatrix SkSVGFeColorMatrix::MakeLuminanceToAlpha() {
 
 sk_sp<SkImageFilter> SkSVGFeColorMatrix::onMakeImageFilter(const SkSVGRenderContext& ctx,
                                                            const SkSVGFilterContext& fctx) const {
-    return SkImageFilters::ColorFilter(SkColorFilters::Matrix(makeMatrixForType()),
-                                       fctx.resolveInput(ctx, this->getIn()),
-                                       this->resolveFilterSubregion(ctx, fctx));
+    return SkImageFilters::ColorFilter(
+            SkColorFilters::Matrix(makeMatrixForType()),
+            fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx)),
+            this->resolveFilterSubregion(ctx, fctx));
 }
 
 template <> bool SkSVGAttributeParser::parse(SkSVGFeColorMatrixValues* values) {
