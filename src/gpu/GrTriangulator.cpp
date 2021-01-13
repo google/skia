@@ -415,7 +415,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
         switch (verb) {
             case SkPath::kConic_Verb: {
                 fIsLinear = false;
-                if (fSimpleInnerPolygons) {
+                if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
@@ -439,7 +439,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
             }
             case SkPath::kQuad_Verb: {
                 fIsLinear = false;
-                if (fSimpleInnerPolygons) {
+                if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
@@ -448,7 +448,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
             }
             case SkPath::kCubic_Verb: {
                 fIsLinear = false;
-                if (fSimpleInnerPolygons) {
+                if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[3], contour);
                     break;
                 }
@@ -1163,7 +1163,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const 
                             leftEnclosingEdge, edge, &activeEdges, &v, mesh, c) ||
                         this->checkForIntersection(
                             edge, rightEnclosingEdge, &activeEdges, &v, mesh, c)) {
-                        if (fSimpleInnerPolygons) {
+                        if (fDisallowSelfIntersection) {
                             return SimplifyResult::kAbort;
                         }
                         result = SimplifyResult::kFoundSelfIntersection;
@@ -1174,7 +1174,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const 
             } else {
                 if (this->checkForIntersection(leftEnclosingEdge, rightEnclosingEdge, &activeEdges,
                                                &v, mesh, c)) {
-                    if (fSimpleInnerPolygons) {
+                    if (fDisallowSelfIntersection) {
                         return SimplifyResult::kAbort;
                     }
                     result = SimplifyResult::kFoundSelfIntersection;
@@ -1204,7 +1204,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const 
 Poly* GrTriangulator::tessellate(const VertexList& vertices, const Comparator&) {
     TESS_LOG("\ntessellating simple polygons\n");
     int maxWindMagnitude = std::numeric_limits<int>::max();
-    if (fSimpleInnerPolygons && !SkPathFillType_IsEvenOdd(fPath.getFillType())) {
+    if (fDisallowSelfIntersection && !SkPathFillType_IsEvenOdd(fPath.getFillType())) {
         maxWindMagnitude = 1;
     }
     EdgeList activeEdges;
