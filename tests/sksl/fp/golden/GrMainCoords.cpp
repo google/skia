@@ -20,7 +20,7 @@ public:
         const GrMainCoords& _outer = args.fFp.cast<GrMainCoords>();
         (void) _outer;
         fragBuilder->codeAppendf(
-R"SkSL(return half4(%s, %s);
+R"SkSL(return half4(half2(%s), half2(%s));
 )SkSL"
 , args.fSampleCoord, args.fSampleCoord);
     }
