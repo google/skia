@@ -39,6 +39,30 @@
       },
       "revId": "eef24016e226269ccf8b6cf2dafa0071decd92d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccc00740_f93d458e",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-13T21:46:22Z",
+      "side": 1,
+      "message": "I agree, but unless I\u0027m reading it wrong I don\u0027t see how that is actually the case.  I dropped the struct test in the latest patch set, but now it fails on arrays.",
+      "parentUuid": "8d3dff5f_7bdee837",
+      "range": {
+        "startLine": 363,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 64
+      },
+      "revId": "eef24016e226269ccf8b6cf2dafa0071decd92d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
