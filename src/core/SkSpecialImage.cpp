@@ -195,8 +195,8 @@ public:
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
-        canvas->drawBitmapRect(fBitmap, this->subset(),
-                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
+        canvas->drawImageRect(fBitmap.asImage(), this->subset(), dst, paint,
+                              SkCanvas::kStrict_SrcRectConstraint);
     }
 
     bool onGetROPixels(SkBitmap* bm) const override {
