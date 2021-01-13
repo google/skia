@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3605821e_d5eb17b6",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T16:54:48Z",
+      "side": 1,
+      "message": "You probably don\u0027t need both the static_assert and the enable_if_t.\n\nI\u0027d keep the assert and remove the enable_if unless you plan to add another set() that works for non-trivially-copyable T, in which case, I\u0027d keep the enable_if and perhaps remove the assert.",
+      "revId": "f75565d14b34c28aaee25e8d367450201a7de45c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
