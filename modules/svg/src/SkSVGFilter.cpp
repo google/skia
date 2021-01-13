@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "modules/svg/include/SkSVGFe.h"
 #include "modules/svg/include/SkSVGFilter.h"
@@ -47,7 +46,6 @@ SkRect SkSVGFilter::resolveFilterRegion(const SkSVGRenderContext& ctx) const {
 sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) const {
     sk_sp<SkImageFilter> filter;
     SkSVGFilterContext fctx(resolveFilterRegion(ctx), fPrimitiveUnits);
-    SkSVGColorspace cs = SkSVGColorspace::kSRGB;
     for (const auto& child : fChildren) {
         if (!SkSVGFe::IsFilterEffect(child)) {
             continue;
@@ -64,18 +62,13 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         feNode.applyProperties(&localCtx);
 
         // TODO: there are specific composition rules that need to be followed
-        cs = feNode.resolveColorspace(ctx);
+        // TODO: perform colorspace conversions depending on 'color-interpolation-filters' setting
+        // of the current node and its inputs.
         filter = feNode.makeImageFilter(localCtx, fctx);
 
         if (!feResultType.isEmpty()) {
-            fctx.registerResult(
-                    feResultType, filter, feNode.resolveFilterSubregion(localCtx, fctx), cs);
+            fctx.registerResult(feResultType, filter, feNode.resolveFilterSubregion(localCtx, fctx));
         }
-    }
-
-    // Convert to final destination colorspace
-    if (cs != SkSVGColorspace::kSRGB) {
-        filter = SkImageFilters::ColorFilter(SkColorFilters::LinearToSRGBGamma(), filter);
     }
 
     return filter;

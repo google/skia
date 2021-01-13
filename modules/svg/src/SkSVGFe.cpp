@@ -84,9 +84,7 @@ SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
 }
 
 SkSVGColorspace SkSVGFe::resolveColorspace(const SkSVGRenderContext& ctx) const {
-    constexpr SkSVGColorspace kDefaultCS = SkSVGColorspace::kSRGB;
-    const SkSVGColorspace cs = *ctx.presentationContext().fInherited.fColorInterpolationFilters;
-    return cs == SkSVGColorspace::kAuto ? kDefaultCS : cs;
+    return *ctx.presentationContext().fInherited.fColorInterpolationFilters;
 }
 
 void SkSVGFe::applyProperties(SkSVGRenderContext* ctx) const { this->onPrepareToRender(ctx); }
