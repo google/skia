@@ -34,6 +34,24 @@
       "parentUuid": "911d5e12_849ee119",
       "revId": "204c20dfedf2b8950fee5c30e1bf60ed7e0cb560",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18959b3f_fbf7e465",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-13T14:11:01Z",
+      "side": 1,
+      "message": "Ok great, thanks for the explanation and experiment!",
+      "parentUuid": "959d75ab_db9fe720",
+      "revId": "204c20dfedf2b8950fee5c30e1bf60ed7e0cb560",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
