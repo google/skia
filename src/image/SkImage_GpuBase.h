@@ -60,11 +60,6 @@ public:
     static bool ValidateCompressedBackendTexture(const GrCaps*, const GrBackendTexture& tex,
                                                  SkAlphaType);
 
-    static SkAlphaType GetAlphaTypeFromYUVALocations(const SkYUVAInfo::YUVALocations locations) {
-        return locations[SkYUVAInfo::YUVAChannels::kA].fPlane >= 0 ? kPremul_SkAlphaType
-                                                                   : kOpaque_SkAlphaType;
-    }
-
     using PromiseImageTextureContext = SkDeferredDisplayListRecorder::PromiseImageTextureContext;
     using PromiseImageTextureFulfillProc =
             SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc;
