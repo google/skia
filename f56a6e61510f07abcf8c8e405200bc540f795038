@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af3f4b0d_5577cd7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T14:11:18Z",
+      "side": 1,
+      "message": "Good for now. I really should just convert these to .rte unit tests, so we can see/verify the full error message in each case.",
+      "revId": "f56a6e61510f07abcf8c8e405200bc540f795038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
