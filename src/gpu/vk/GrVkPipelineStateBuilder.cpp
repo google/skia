@@ -169,7 +169,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
-    VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
                                                          VK_NULL_HANDLE,
                                                          VK_NULL_HANDLE };
@@ -197,15 +196,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     layoutCreateInfo.flags = 0;
     layoutCreateInfo.setLayoutCount = layoutCount;
     layoutCreateInfo.pSetLayouts = dsLayout;
-    layoutCreateInfo.pushConstantRangeCount = 0;
-    layoutCreateInfo.pPushConstantRanges = nullptr;
-
-    VkResult result;
-    GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
-                                                         &pipelineLayout));
-    if (result != VK_SUCCESS) {
-        return nullptr;
-    }
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
     // from our glsl shaders.
@@ -304,8 +294,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                                         shaderModules[i], nullptr));
                 }
             }
-            GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), pipelineLayout,
-                                                                  nullptr));
             return nullptr;
         }
 
@@ -332,6 +320,23 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
          fGpu->vkCaps().preferDiscardableMSAAAttachment())) {
         subpass = 1;
     }
+
+    // finish up layout creation (we don't know final push constant size until shaders are created)
+    bool usePushConstants = fUniformHandler.usePushConstants(0);
+    VkPushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = GrPushConstantStageFlags(fGpu);
+    pushConstantRange.offset = 0;
+    // size must be a multiple of 4
+    SkASSERT(!SkToBool(fUniformHandler.fCurrentStd430Offset & 0x3));
+    pushConstantRange.size = fUniformHandler.fCurrentStd430Offset;
+    if (usePushConstants) {
+        layoutCreateInfo.pushConstantRangeCount = 1;
+        layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    } else {
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+    }
+
     sk_sp<const GrVkPipeline> pipeline = resourceProvider.makePipeline(
             fProgramInfo, shaderStageInfo, numShaderStages, compatibleRenderPass, pipelineLayout,
             subpass);
@@ -356,7 +361,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                  samplerDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
-                                 fUniformHandler.fCurrentUBOOffset,
+                                 usePushConstants ? fUniformHandler.fCurrentStd430Offset
+                                                  : fUniformHandler.fCurrentStd140Offset,
+                                 usePushConstants,
                                  fUniformHandler.fSamplers,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
