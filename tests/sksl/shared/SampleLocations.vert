@@ -9,10 +9,10 @@ void main()
 	int ibot = itop + 1 + ((sk_InstanceID*1901) % (17 - itop));
 	float outset = 1/32.0;
 	outset = (0 == (x + y) % 2) ? -outset : +outset;
-	float l = ileft/16.0 - outset;
-	float r = iright/16.0 + outset;
-	float t = itop/16.0 - outset;
-	float b = ibot/16.0 + outset;
+	float l = float(ileft)/16.0 - outset;
+	float r = float(iright)/16.0 + outset;
+	float t = float(itop)/16.0 - outset;
+	float b = float(ibot)/16.0 + outset;
 	float2 vertexpos;
 	vertexpos.x = float(x) + ((0 == (sk_VertexID % 2)) ? l : r);
 	vertexpos.y = float(y) + ((0 == (sk_VertexID / 2)) ? t : b);

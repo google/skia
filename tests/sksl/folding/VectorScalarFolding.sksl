@@ -27,7 +27,7 @@ void test_int() {
     result.xyz = 3 * int3(2);
     result.xy = 4 / int2(4);
     result.xyz = 20 / int3(10, 20, 40);
-    sk_FragColor = int4(result);
+    sk_FragColor = half4(result);
 }
 
 void main() {

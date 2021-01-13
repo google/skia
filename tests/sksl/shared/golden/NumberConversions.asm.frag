@@ -92,36 +92,63 @@ OpDecorate %123 RelaxedPrecision
 OpDecorate %128 RelaxedPrecision
 OpDecorate %133 RelaxedPrecision
 OpDecorate %139 RelaxedPrecision
-OpDecorate %143 RelaxedPrecision
-OpDecorate %147 RelaxedPrecision
+OpDecorate %142 RelaxedPrecision
+OpDecorate %144 RelaxedPrecision
+OpDecorate %145 RelaxedPrecision
 OpDecorate %148 RelaxedPrecision
 OpDecorate %149 RelaxedPrecision
-OpDecorate %153 RelaxedPrecision
-OpDecorate %156 RelaxedPrecision
-OpDecorate %159 RelaxedPrecision
-OpDecorate %162 RelaxedPrecision
-OpDecorate %165 RelaxedPrecision
-OpDecorate %168 RelaxedPrecision
-OpDecorate %171 RelaxedPrecision
-OpDecorate %195 RelaxedPrecision
-OpDecorate %198 RelaxedPrecision
-OpDecorate %201 RelaxedPrecision
-OpDecorate %206 RelaxedPrecision
-OpDecorate %208 RelaxedPrecision
+OpDecorate %150 RelaxedPrecision
+OpDecorate %152 RelaxedPrecision
+OpDecorate %154 RelaxedPrecision
+OpDecorate %155 RelaxedPrecision
+OpDecorate %157 RelaxedPrecision
+OpDecorate %158 RelaxedPrecision
+OpDecorate %160 RelaxedPrecision
+OpDecorate %161 RelaxedPrecision
+OpDecorate %163 RelaxedPrecision
+OpDecorate %164 RelaxedPrecision
+OpDecorate %166 RelaxedPrecision
+OpDecorate %167 RelaxedPrecision
+OpDecorate %169 RelaxedPrecision
+OpDecorate %170 RelaxedPrecision
+OpDecorate %172 RelaxedPrecision
+OpDecorate %173 RelaxedPrecision
+OpDecorate %176 RelaxedPrecision
+OpDecorate %179 RelaxedPrecision
+OpDecorate %182 RelaxedPrecision
+OpDecorate %185 RelaxedPrecision
+OpDecorate %188 RelaxedPrecision
+OpDecorate %191 RelaxedPrecision
+OpDecorate %194 RelaxedPrecision
+OpDecorate %196 RelaxedPrecision
+OpDecorate %197 RelaxedPrecision
+OpDecorate %199 RelaxedPrecision
+OpDecorate %200 RelaxedPrecision
+OpDecorate %202 RelaxedPrecision
+OpDecorate %203 RelaxedPrecision
+OpDecorate %207 RelaxedPrecision
 OpDecorate %209 RelaxedPrecision
-OpDecorate %210 RelaxedPrecision
 OpDecorate %211 RelaxedPrecision
 OpDecorate %212 RelaxedPrecision
-OpDecorate %213 RelaxedPrecision
 OpDecorate %214 RelaxedPrecision
+OpDecorate %215 RelaxedPrecision
 OpDecorate %217 RelaxedPrecision
-OpDecorate %220 RelaxedPrecision
-OpDecorate %223 RelaxedPrecision
-OpDecorate %226 RelaxedPrecision
-OpDecorate %229 RelaxedPrecision
-OpDecorate %232 RelaxedPrecision
-OpDecorate %235 RelaxedPrecision
-OpDecorate %250 RelaxedPrecision
+OpDecorate %218 RelaxedPrecision
+OpDecorate %221 RelaxedPrecision
+OpDecorate %224 RelaxedPrecision
+OpDecorate %227 RelaxedPrecision
+OpDecorate %230 RelaxedPrecision
+OpDecorate %233 RelaxedPrecision
+OpDecorate %236 RelaxedPrecision
+OpDecorate %239 RelaxedPrecision
+OpDecorate %241 RelaxedPrecision
+OpDecorate %243 RelaxedPrecision
+OpDecorate %245 RelaxedPrecision
+OpDecorate %247 RelaxedPrecision
+OpDecorate %249 RelaxedPrecision
+OpDecorate %251 RelaxedPrecision
+OpDecorate %253 RelaxedPrecision
+OpDecorate %254 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -302,118 +329,122 @@ OpStore %f2f %130
 %132 = OpSelect %float %133 %float_1 %float_0
 OpStore %b2f %132
 %139 = OpLoad %int %s
-%140 = OpLoad %int %i
-%141 = OpIAdd %int %139 %140
-%143 = OpLoad %uint %us
-%142 = OpBitcast %int %143
-%144 = OpIAdd %int %141 %142
-%138 = OpConvertSToF %float %144
-%146 = OpLoad %uint %ui
-%145 = OpConvertUToF %float %146
-%147 = OpFAdd %float %138 %145
-%148 = OpLoad %float %h
-%149 = OpFAdd %float %147 %148
-%150 = OpLoad %float %f
-%151 = OpFAdd %float %149 %150
-%153 = OpLoad %int %s2s
-%152 = OpConvertSToF %float %153
-%154 = OpFAdd %float %151 %152
-%156 = OpLoad %int %i2s
-%155 = OpConvertSToF %float %156
-%157 = OpFAdd %float %154 %155
-%159 = OpLoad %int %us2s
-%158 = OpConvertSToF %float %159
-%160 = OpFAdd %float %157 %158
-%162 = OpLoad %int %ui2s
-%161 = OpConvertSToF %float %162
-%163 = OpFAdd %float %160 %161
-%165 = OpLoad %int %h2s
-%164 = OpConvertSToF %float %165
-%166 = OpFAdd %float %163 %164
-%168 = OpLoad %int %f2s
-%167 = OpConvertSToF %float %168
-%169 = OpFAdd %float %166 %167
-%171 = OpLoad %int %b2s
-%170 = OpConvertSToF %float %171
-%172 = OpFAdd %float %169 %170
-%174 = OpLoad %int %s2i
-%173 = OpConvertSToF %float %174
-%175 = OpFAdd %float %172 %173
-%177 = OpLoad %int %i2i
-%176 = OpConvertSToF %float %177
-%178 = OpFAdd %float %175 %176
-%180 = OpLoad %int %us2i
-%179 = OpConvertSToF %float %180
-%181 = OpFAdd %float %178 %179
-%183 = OpLoad %int %ui2i
-%182 = OpConvertSToF %float %183
-%184 = OpFAdd %float %181 %182
-%186 = OpLoad %int %h2i
-%185 = OpConvertSToF %float %186
-%187 = OpFAdd %float %184 %185
-%189 = OpLoad %int %f2i
-%188 = OpConvertSToF %float %189
-%190 = OpFAdd %float %187 %188
-%192 = OpLoad %int %b2i
-%191 = OpConvertSToF %float %192
-%193 = OpFAdd %float %190 %191
-%195 = OpLoad %uint %s2us
-%194 = OpConvertUToF %float %195
-%196 = OpFAdd %float %193 %194
-%198 = OpLoad %uint %i2us
-%197 = OpConvertUToF %float %198
-%199 = OpFAdd %float %196 %197
-%201 = OpLoad %uint %us2us
-%200 = OpConvertUToF %float %201
-%202 = OpFAdd %float %199 %200
-%203 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %203 %202
-%205 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-%206 = OpLoad %float %205
-%208 = OpLoad %uint %ui2us
-%209 = OpLoad %uint %h2us
-%210 = OpIAdd %uint %208 %209
-%211 = OpLoad %uint %f2us
-%212 = OpIAdd %uint %210 %211
-%213 = OpLoad %uint %b2us
-%214 = OpIAdd %uint %212 %213
-%207 = OpConvertUToF %float %214
-%216 = OpLoad %uint %s2ui
-%215 = OpConvertUToF %float %216
-%217 = OpFAdd %float %207 %215
-%219 = OpLoad %uint %i2ui
-%218 = OpConvertUToF %float %219
-%220 = OpFAdd %float %217 %218
-%222 = OpLoad %uint %us2ui
-%221 = OpConvertUToF %float %222
-%223 = OpFAdd %float %220 %221
-%225 = OpLoad %uint %ui2ui
-%224 = OpConvertUToF %float %225
-%226 = OpFAdd %float %223 %224
-%228 = OpLoad %uint %h2ui
-%227 = OpConvertUToF %float %228
-%229 = OpFAdd %float %226 %227
-%231 = OpLoad %uint %f2ui
-%230 = OpConvertUToF %float %231
-%232 = OpFAdd %float %229 %230
-%234 = OpLoad %uint %b2ui
-%233 = OpConvertUToF %float %234
-%235 = OpFAdd %float %232 %233
-%236 = OpLoad %float %s2f
-%237 = OpFAdd %float %235 %236
-%238 = OpLoad %float %i2f
-%239 = OpFAdd %float %237 %238
-%240 = OpLoad %float %us2f
+%138 = OpConvertSToF %float %139
+%141 = OpLoad %int %i
+%140 = OpConvertSToF %float %141
+%142 = OpFAdd %float %138 %140
+%144 = OpLoad %uint %us
+%143 = OpConvertUToF %float %144
+%145 = OpFAdd %float %142 %143
+%147 = OpLoad %uint %ui
+%146 = OpConvertUToF %float %147
+%148 = OpFAdd %float %145 %146
+%149 = OpLoad %float %h
+%150 = OpFAdd %float %148 %149
+%151 = OpLoad %float %f
+%152 = OpFAdd %float %150 %151
+%154 = OpLoad %int %s2s
+%153 = OpConvertSToF %float %154
+%155 = OpFAdd %float %152 %153
+%157 = OpLoad %int %i2s
+%156 = OpConvertSToF %float %157
+%158 = OpFAdd %float %155 %156
+%160 = OpLoad %int %us2s
+%159 = OpConvertSToF %float %160
+%161 = OpFAdd %float %158 %159
+%163 = OpLoad %int %ui2s
+%162 = OpConvertSToF %float %163
+%164 = OpFAdd %float %161 %162
+%166 = OpLoad %int %h2s
+%165 = OpConvertSToF %float %166
+%167 = OpFAdd %float %164 %165
+%169 = OpLoad %int %f2s
+%168 = OpConvertSToF %float %169
+%170 = OpFAdd %float %167 %168
+%172 = OpLoad %int %b2s
+%171 = OpConvertSToF %float %172
+%173 = OpFAdd %float %170 %171
+%175 = OpLoad %int %s2i
+%174 = OpConvertSToF %float %175
+%176 = OpFAdd %float %173 %174
+%178 = OpLoad %int %i2i
+%177 = OpConvertSToF %float %178
+%179 = OpFAdd %float %176 %177
+%181 = OpLoad %int %us2i
+%180 = OpConvertSToF %float %181
+%182 = OpFAdd %float %179 %180
+%184 = OpLoad %int %ui2i
+%183 = OpConvertSToF %float %184
+%185 = OpFAdd %float %182 %183
+%187 = OpLoad %int %h2i
+%186 = OpConvertSToF %float %187
+%188 = OpFAdd %float %185 %186
+%190 = OpLoad %int %f2i
+%189 = OpConvertSToF %float %190
+%191 = OpFAdd %float %188 %189
+%193 = OpLoad %int %b2i
+%192 = OpConvertSToF %float %193
+%194 = OpFAdd %float %191 %192
+%196 = OpLoad %uint %s2us
+%195 = OpConvertUToF %float %196
+%197 = OpFAdd %float %194 %195
+%199 = OpLoad %uint %i2us
+%198 = OpConvertUToF %float %199
+%200 = OpFAdd %float %197 %198
+%202 = OpLoad %uint %us2us
+%201 = OpConvertUToF %float %202
+%203 = OpFAdd %float %200 %201
+%204 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %204 %203
+%206 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+%207 = OpLoad %float %206
+%209 = OpLoad %uint %ui2us
+%208 = OpConvertUToF %float %209
+%211 = OpLoad %uint %h2us
+%210 = OpConvertUToF %float %211
+%212 = OpFAdd %float %208 %210
+%214 = OpLoad %uint %f2us
+%213 = OpConvertUToF %float %214
+%215 = OpFAdd %float %212 %213
+%217 = OpLoad %uint %b2us
+%216 = OpConvertUToF %float %217
+%218 = OpFAdd %float %215 %216
+%220 = OpLoad %uint %s2ui
+%219 = OpConvertUToF %float %220
+%221 = OpFAdd %float %218 %219
+%223 = OpLoad %uint %i2ui
+%222 = OpConvertUToF %float %223
+%224 = OpFAdd %float %221 %222
+%226 = OpLoad %uint %us2ui
+%225 = OpConvertUToF %float %226
+%227 = OpFAdd %float %224 %225
+%229 = OpLoad %uint %ui2ui
+%228 = OpConvertUToF %float %229
+%230 = OpFAdd %float %227 %228
+%232 = OpLoad %uint %h2ui
+%231 = OpConvertUToF %float %232
+%233 = OpFAdd %float %230 %231
+%235 = OpLoad %uint %f2ui
+%234 = OpConvertUToF %float %235
+%236 = OpFAdd %float %233 %234
+%238 = OpLoad %uint %b2ui
+%237 = OpConvertUToF %float %238
+%239 = OpFAdd %float %236 %237
+%240 = OpLoad %float %s2f
 %241 = OpFAdd %float %239 %240
-%242 = OpLoad %float %ui2f
+%242 = OpLoad %float %i2f
 %243 = OpFAdd %float %241 %242
-%244 = OpLoad %float %h2f
+%244 = OpLoad %float %us2f
 %245 = OpFAdd %float %243 %244
-%246 = OpLoad %float %f2f
+%246 = OpLoad %float %ui2f
 %247 = OpFAdd %float %245 %246
-%248 = OpLoad %float %b2f
+%248 = OpLoad %float %h2f
 %249 = OpFAdd %float %247 %248
-%250 = OpFAdd %float %206 %249
-OpStore %205 %250
+%250 = OpLoad %float %f2f
+%251 = OpFAdd %float %249 %250
+%252 = OpLoad %float %b2f
+%253 = OpFAdd %float %251 %252
+%254 = OpFAdd %float %207 %253
+OpStore %206 %254
 OpReturn
 OpFunctionEnd

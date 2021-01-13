@@ -43,6 +43,6 @@ float h2f = h;
 float f2f = f;
 float b2f = float(b);
 void main() {
-    sk_FragColor.x = (((((((((((((((((((float((s + i) + int(us)) + float(ui)) + h) + f) + float(s2s)) + float(i2s)) + float(us2s)) + float(ui2s)) + float(h2s)) + float(f2s)) + float(b2s)) + float(s2i)) + float(i2i)) + float(us2i)) + float(ui2i)) + float(h2i)) + float(f2i)) + float(b2i)) + float(s2us)) + float(i2us)) + float(us2us);
-    sk_FragColor.x += (((((((((((((float(((ui2us + h2us) + f2us) + b2us) + float(s2ui)) + float(i2ui)) + float(us2ui)) + float(ui2ui)) + float(h2ui)) + float(f2ui)) + float(b2ui)) + s2f) + i2f) + us2f) + ui2f) + h2f) + f2f) + b2f;
+    sk_FragColor.x = (((((((((((((((((((((float(s) + float(i)) + float(us)) + float(ui)) + h) + f) + float(s2s)) + float(i2s)) + float(us2s)) + float(ui2s)) + float(h2s)) + float(f2s)) + float(b2s)) + float(s2i)) + float(i2i)) + float(us2i)) + float(ui2i)) + float(h2i)) + float(f2i)) + float(b2i)) + float(s2us)) + float(i2us)) + float(us2us);
+    sk_FragColor.x += ((((((((((((((((float(ui2us) + float(h2us)) + float(f2us)) + float(b2us)) + float(s2ui)) + float(i2ui)) + float(us2ui)) + float(ui2ui)) + float(h2ui)) + float(f2ui)) + float(b2ui)) + s2f) + i2f) + us2f) + ui2f) + h2f) + f2f) + b2f;
 }

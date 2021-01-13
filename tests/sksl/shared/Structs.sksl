@@ -14,5 +14,5 @@ B b1, b2, b3;
 void main() {
     a1.x = 0;
     b1.x = 0;
-    sk_FragColor.r = half(a1.x + b1.x);
+    sk_FragColor.r = half(a1.x) + half(b1.x);
 }
