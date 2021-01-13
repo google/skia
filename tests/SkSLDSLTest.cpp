@@ -345,10 +345,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     }
 
     {
-        // This isn't an ideal error message - it should be about 1.0 not being assignable - but
-        // currently determine_binary_type is kicking out $floatLiteral += float, and it gets
-        // reported like this.
-        ExpectError error(r, "error: type mismatch: '+=' cannot operate on 'float', 'float'\n");
+        ExpectError error(r, "error: cannot assign to this expression\n");
         (1.0 += a).release();
     }
 }
@@ -377,6 +374,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
         ExpectError error(r, "error: type mismatch: '-=' cannot operate on 'int', 'bool2'\n");
         (a -= Bool2(true)).release();
     }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1.0 -= a).release();
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
@@ -402,6 +404,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
     {
         ExpectError error(r, "error: type mismatch: '*=' cannot operate on 'float', 'bool2'\n");
         (a *= Bool2(true)).release();
+    }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1.0 *= a).release();
     }
 }
 
@@ -432,6 +439,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
         ExpectError error(r, "error: type mismatch: '/=' cannot operate on 'float', 'bool2'\n");
         (a /= Bool2(true)).release();
     }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1.0 /= a).release();
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
@@ -457,6 +469,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
     {
         ExpectError error(r, "error: type mismatch: '%=' cannot operate on 'int', 'bool2'\n");
         (a %= Bool2(true)).release();
+    }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1 %= a).release();
     }
 }
 
@@ -484,6 +501,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
         ExpectError error(r, "error: type mismatch: '<<=' cannot operate on 'int', 'bool2'\n");
         (a <<= Bool2(true)).release();
     }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1 <<= a).release();
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
@@ -509,6 +531,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
     {
         ExpectError error(r, "error: type mismatch: '>>=' cannot operate on 'int', 'bool2'\n");
         (a >>= Bool2(true)).release();
+    }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1 >>= a).release();
     }
 }
 
@@ -536,6 +563,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
         ExpectError error(r, "error: type mismatch: '&=' cannot operate on 'int', 'bool2'\n");
         (a &= Bool2(true)).release();
     }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1 &= a).release();
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
@@ -562,6 +594,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
         ExpectError error(r, "error: type mismatch: '|=' cannot operate on 'int', 'bool2'\n");
         (a |= Bool2(true)).release();
     }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1 |= a).release();
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
@@ -587,6 +624,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
     {
         ExpectError error(r, "error: type mismatch: '^=' cannot operate on 'int', 'bool2'\n");
         (a ^= Bool2(true)).release();
+    }
+
+    {
+        ExpectError error(r, "error: cannot assign to this expression\n");
+        (1 ^= a).release();
     }
 }
 
