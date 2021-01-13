@@ -103,6 +103,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/ForTypeMismatch.sksl",
   "$_tests/sksl/errors/GenericArgumentMismatch.sksl",
   "$_tests/sksl/errors/IfTypeMismatch.sksl",
+  "$_tests/sksl/errors/IntFloatMismatch.sksl",
   "$_tests/sksl/errors/InVarWithInitializerExpression.sksl",
   "$_tests/sksl/errors/InterfaceBlockScope.sksl",
   "$_tests/sksl/errors/InterfaceBlockStorageModifiers.sksl",
