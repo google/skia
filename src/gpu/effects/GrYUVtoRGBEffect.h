@@ -12,11 +12,11 @@
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
+class GrYUVATextureProxies;
+
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView views[],
-                                                     const SkYUVAInfo::YUVALocations&,
-                                                     SkYUVColorSpace yuvColorSpace,
+    static std::unique_ptr<GrFragmentProcessor> Make(const GrYUVATextureProxies& yuvaProxies,
                                                      GrSamplerState samplerState,
                                                      const GrCaps&,
                                                      const SkMatrix& localMatrix = SkMatrix::I(),

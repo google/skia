@@ -7,8 +7,10 @@
 
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
+#include "include/core/SkYUVAInfo.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -16,88 +18,82 @@
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
-static void border_colors(SkYUVColorSpace cs,
-                          const SkYUVAInfo::YUVALocations& locations,
-                          float planeBorders[4][4]) {
+static void border_colors(const GrYUVATextureProxies& yuvaProxies, float planeBorders[4][4]) {
     float m[20];
-    SkColorMatrix_RGB2YUV(cs, m);
-    int i = 0;
-    for (auto [plane, channel] : locations) {
+    SkColorMatrix_RGB2YUV(yuvaProxies.yuvaInfo().yuvColorSpace(), m);
+    for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {
+        auto [plane, channel] = yuvaProxies.yuvaLocations()[i];
         if (plane == -1) {
-            continue;
+            return;
         }
         auto c = static_cast<int>(channel);
         planeBorders[plane][c] = m[i*5 + 4];
-        ++i;
     }
 }
 
-std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(
-        GrSurfaceProxyView views[],
-        const SkYUVAInfo::YUVALocations& locations,
-        SkYUVColorSpace yuvColorSpace,
-        GrSamplerState samplerState,
-        const GrCaps& caps,
-        const SkMatrix& localMatrix,
-        const SkRect* subset,
-        const SkRect* domain) {
-    int numPlanes;
-    SkAssertResult(SkYUVAInfo::YUVALocation::AreValidLocations(locations, &numPlanes));
-
-    const SkISize yDimensions =
-            views[locations[SkYUVAInfo::YUVAChannels::kY].fPlane].proxy()->dimensions();
+std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureProxies& yuvaProxies,
+                                                            GrSamplerState samplerState,
+                                                            const GrCaps& caps,
+                                                            const SkMatrix& localMatrix,
+                                                            const SkRect* subset,
+                                                            const SkRect* domain) {
+    int numPlanes = yuvaProxies.yuvaInfo().numPlanes();
+    if (!yuvaProxies.isValid()) {
+        return nullptr;
+    }
 
     bool usesBorder = samplerState.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
                       samplerState.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
     float planeBorders[4][4] = {};
     if (usesBorder) {
-        border_colors(yuvColorSpace, locations, planeBorders);
+        border_colors(yuvaProxies, planeBorders);
     }
 
     bool snap[2] = {false, false};
-    std::unique_ptr<GrFragmentProcessor> planeFPs[4];
+    std::unique_ptr<GrFragmentProcessor> planeFPs[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < numPlanes; ++i) {
-        SkISize dimensions = views[i].proxy()->dimensions();
-        SkTCopyOnFirstWrite<SkMatrix> planeMatrix(&SkMatrix::I());
+        GrSurfaceProxyView view = yuvaProxies.makeView(i);
+        SkMatrix planeMatrix = yuvaProxies.yuvaInfo().originMatrix();
+        // The returned matrix is a view matrix but we need a local matrix.
+        SkAssertResult(planeMatrix.invert(&planeMatrix));
         SkRect planeSubset;
         SkRect planeDomain;
         bool makeLinearWithSnap = false;
-        float sx = 1.f,
-              sy = 1.f;
-        if (dimensions != yDimensions) {
+        auto [ssx, ssy] = yuvaProxies.yuvaInfo().planeSubsamplingFactors(i);
+        SkASSERT(ssx > 0 && ssx <= 4);
+        SkASSERT(ssy > 0 && ssy <= 2);
+        float scaleX = 1.f;
+        float scaleY = 1.f;
+        if (ssx > 1 || ssy > 1) {
             // JPEG chroma subsampling of odd dimensions produces U and V planes with the ceiling of
             // the image size divided by the subsampling factor (2). Our API for creating YUVA
             // doesn't capture the intended subsampling (and we should fix that). This fixes up 2x
             // subsampling for images with odd widths/heights (e.g. JPEG 420 or 422).
-            sx = (float)dimensions.width()  / yDimensions.width();
-            sy = (float)dimensions.height() / yDimensions.height();
-            if ((yDimensions.width() & 0b1) && dimensions.width() == yDimensions.width() / 2 + 1) {
-                sx = 0.5f;
-            }
-            if ((yDimensions.height() & 0b1) &&
-                dimensions.height() == yDimensions.height() / 2 + 1) {
-                sy = 0.5f;
-            }
-            *planeMatrix.writable() = SkMatrix::Scale(sx, sy);
+            scaleX = 1.f/ssx;
+            scaleY = 1.f/ssy;
+            // We would want to add a translation to this matrix to handle other sitings.
+            SkASSERT(yuvaProxies.yuvaInfo().sitingX() == SkYUVAInfo::Siting::kCentered);
+            SkASSERT(yuvaProxies.yuvaInfo().sitingY() == SkYUVAInfo::Siting::kCentered);
+            planeMatrix.postConcat(SkMatrix::Scale(scaleX, scaleY));
             if (subset) {
-                planeSubset = {subset->fLeft   * sx,
-                               subset->fTop    * sy,
-                               subset->fRight  * sx,
-                               subset->fBottom * sy};
+                planeSubset = {subset->fLeft  *scaleX,
+                               subset->fTop   *scaleY,
+                               subset->fRight *scaleX,
+                               subset->fBottom*scaleY};
             }
             if (domain) {
-                planeDomain = {domain->fLeft   * sx,
-                               domain->fTop    * sy,
-                               domain->fRight  * sx,
-                               domain->fBottom * sy};
+                planeDomain = {domain->fLeft  *scaleX,
+                               domain->fTop   *scaleY,
+                               domain->fRight *scaleX,
+                               domain->fBottom*scaleY};
             }
             // This promotion of nearest to linear filtering for UV planes exists to mimic
             // libjpeg[-turbo]'s do_fancy_upsampling option. We will filter the subsampled plane,
             // however we want to filter at a fixed point for each logical image pixel to simulate
             // nearest neighbor.
             if (samplerState.filter() == GrSamplerState::Filter::kNearest) {
-                bool snapX = (sx != 1.f),
-                     snapY = (sy != 1.f);
+                bool snapX = (ssx != 1),
+                     snapY = (ssy != 1);
                 makeLinearWithSnap = snapX || snapY;
                 snap[0] |= snapX;
                 snap[1] |= snapY;
@@ -131,30 +127,53 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(
                 // planeSubset but allows linear filtering to read pixels from the plane that are
                 // just outside planeSubset.
                 SkRect* domainRect = domain ? &planeDomain : nullptr;
-                planeFPs[i] = GrTextureEffect::MakeCustomLinearFilterInset(
-                        views[i], kUnknown_SkAlphaType, *planeMatrix, samplerState.wrapModeX(),
-                        samplerState.wrapModeY(), planeSubset, domainRect, {sx / 2.f, sy / 2.f},
-                        caps, planeBorders[i]);
+                planeFPs[i] = GrTextureEffect::MakeCustomLinearFilterInset(std::move(view),
+                                                                           kUnknown_SkAlphaType,
+                                                                           planeMatrix,
+                                                                           samplerState.wrapModeX(),
+                                                                           samplerState.wrapModeY(),
+                                                                           planeSubset,
+                                                                           domainRect,
+                                                                           {scaleX/2.f, scaleY/2.f},
+                                                                           caps,
+                                                                           planeBorders[i]);
             } else if (domain) {
-                planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
-                                                          *planeMatrix, samplerState, planeSubset,
-                                                          planeDomain, caps, planeBorders[i]);
+                planeFPs[i] = GrTextureEffect::MakeSubset(std::move(view),
+                                                          kUnknown_SkAlphaType,
+                                                          planeMatrix,
+                                                          samplerState,
+                                                          planeSubset,
+                                                          planeDomain,
+                                                          caps,
+                                                          planeBorders[i]);
             } else {
-                planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
-                                                          *planeMatrix, samplerState, planeSubset,
-                                                          caps, planeBorders[i]);
+                planeFPs[i] = GrTextureEffect::MakeSubset(std::move(view),
+                                                          kUnknown_SkAlphaType,
+                                                          planeMatrix,
+                                                          samplerState,
+                                                          planeSubset,
+                                                          caps,
+                                                          planeBorders[i]);
             }
         } else {
             GrSamplerState planeSampler = samplerState;
             if (makeLinearWithSnap) {
                 planeSampler.setFilterMode(GrSamplerState::Filter::kLinear);
             }
-            planeFPs[i] = GrTextureEffect::Make(views[i], kUnknown_SkAlphaType, *planeMatrix,
-                                                planeSampler, caps, planeBorders[i]);
+            planeFPs[i] = GrTextureEffect::Make(std::move(view),
+                                                kUnknown_SkAlphaType,
+                                                planeMatrix,
+                                                planeSampler,
+                                                caps,
+                                                planeBorders[i]);
         }
     }
-    auto fp = std::unique_ptr<GrFragmentProcessor>(
-            new GrYUVtoRGBEffect(planeFPs, numPlanes, locations, snap, yuvColorSpace));
+    std::unique_ptr<GrFragmentProcessor> fp(
+            new GrYUVtoRGBEffect(planeFPs,
+                                 numPlanes,
+                                 yuvaProxies.yuvaLocations(),
+                                 snap,
+                                 yuvaProxies.yuvaInfo().yuvColorSpace()));
     return GrMatrixEffect::Make(localMatrix, std::move(fp));
 }
 
