@@ -153,10 +153,10 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         // outset value to get too small.
         v->codeAppendf("float outset = 1/32.0;");
         v->codeAppendf("outset = (0 == (x + y) %% 2) ? -outset : +outset;");
-        v->codeAppendf("float l = ileft/16.0 - outset;");
-        v->codeAppendf("float r = iright/16.0 + outset;");
-        v->codeAppendf("float t = itop/16.0 - outset;");
-        v->codeAppendf("float b = ibot/16.0 + outset;");
+        v->codeAppendf("float l = float(ileft)/16.0 - outset;");
+        v->codeAppendf("float r = float(iright)/16.0 + outset;");
+        v->codeAppendf("float t = float(itop)/16.0 - outset;");
+        v->codeAppendf("float b = float(ibot)/16.0 + outset;");
 
         v->codeAppendf("float2 vertexpos;");
         v->codeAppendf("vertexpos.x = float(x) + ((0 == (sk_VertexID %% 2)) ? l : r);");
