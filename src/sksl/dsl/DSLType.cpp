@@ -147,6 +147,12 @@ TYPE(Short)
 
 #undef TYPE
 
+DSLType Array(const DSLType& base, int count) {
+    SkSL::String name = base.skslType().name() + "[" + SkSL::to_string(count) + "]";
+    return DSLType(DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
+                                          SkSL::Type::MakeArrayType(name, base.skslType(), count)));
+}
+
 } // namespace dsl
 
 } // namespace SkSL
