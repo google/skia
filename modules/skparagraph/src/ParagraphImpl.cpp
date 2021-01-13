@@ -811,22 +811,42 @@ void ParagraphImpl::setState(InternalState state) {
 }
 
 void ParagraphImpl::computeEmptyMetrics() {
-    auto defaultTextStyle = paragraphStyle().getTextStyle();
+
+    // The empty metrics is used to define the height of the empty lines
+    // Unfortunately, Flutter has 2 different cases for that:
+    // 1. An empty line inside the text
+    // 2. An empty paragraph
+    // In the first case SkParagraph takes the metrics from the default paragraph style
+    // In the second case it should take it from the current text style
+    bool emptyParagraph = fRuns.empty();
+    TextStyle textStyle = paragraphStyle().getTextStyle();
+    if (emptyParagraph && !fTextStyles.empty()) {
+        textStyle = fTextStyles.back().fStyle;
+    }
 
     auto typefaces = fontCollection()->findTypefaces(
-      defaultTextStyle.getFontFamilies(), defaultTextStyle.getFontStyle());
+      textStyle.getFontFamilies(), textStyle.getFontStyle());
     auto typeface = typefaces.empty() ? nullptr : typefaces.front();
 
-    SkFont font(typeface, defaultTextStyle.getFontSize());
-
+    SkFont font(typeface, textStyle.getFontSize());
     fEmptyMetrics = InternalLineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
-    if (!paragraphStyle().getStrutStyle().getForceStrutHeight() &&
-        defaultTextStyle.getHeightOverride()) {
-        auto multiplier =
-                defaultTextStyle.getHeight() * defaultTextStyle.getFontSize() / fEmptyMetrics.height();
-        fEmptyMetrics = InternalLineMetrics(fEmptyMetrics.ascent() * multiplier,
-                                      fEmptyMetrics.descent() * multiplier,
-                                      fEmptyMetrics.leading() * multiplier);
+
+    if (emptyParagraph) {
+        // For an empty text we apply both TextHeightBehaviour flags
+        // In case of non-empty paragraph TextHeightBehaviour flags will be applied at the appropriate place
+        auto disableFirstAscent = (paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent) == TextHeightBehavior::kDisableFirstAscent;
+        auto disableLastDescent = (paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent) == TextHeightBehavior::kDisableLastDescent;
+        fEmptyMetrics.update(
+            disableFirstAscent ? fEmptyMetrics.rawAscent() : fEmptyMetrics.ascent(),
+            disableLastDescent ? fEmptyMetrics.rawDescent() : fEmptyMetrics.descent(),
+            fEmptyMetrics.leading());
+    } else if (!paragraphStyle().getStrutStyle().getForceStrutHeight() &&
+        textStyle.getHeightOverride()) {
+        auto multiplier = textStyle.getHeight() * textStyle.getFontSize() / fEmptyMetrics.height();
+        fEmptyMetrics.update(
+            fEmptyMetrics.ascent() * multiplier,
+            fEmptyMetrics.descent() * multiplier,
+            fEmptyMetrics.leading() * multiplier);
     }
 
     if (fParagraphStyle.getStrutStyle().getStrutEnabled()) {
