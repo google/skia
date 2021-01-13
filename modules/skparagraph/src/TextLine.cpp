@@ -333,6 +333,8 @@ void TextLine::buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange
 
     record.fOffset = SkPoint::Make(this->offset().fX + context.fTextShift,
                                    this->offset().fY + correctedBaseline);
+
+    SkDebugf("[%d:%d) [%d:%d): %f + %f [%f:%f)\n", textRange.start, textRange.end, x, context.pos, context.pos + context.size,  context.fTextShift, context.clip.fLeft, context.clip.fRight);
 }
 
 void TextLine::TextBlobRecord::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -609,12 +611,30 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         return result;
     }
 
+/*
+ *     // posX could point to the diacritics clusters or tiny arabic vowels or whatever
+    // that would not give us the correct width
+    auto min = posX(start);
+    auto max = posX(end);
+    auto delta = max - min;
+    for (auto i = start; i <= end; ++i) {
+        auto pos = posX(i);
+        min = std::min(min, pos);
+        max = std::max(max, pos);
+    }
+    if (delta != max - min) {
+        SkDebugf("delta: [%f:%f) %f %f\n", min, max, max - min, delta);
+    }
+    return max - min + shift + correction;
+ */
+
     auto start = &fOwner->cluster(startIndex);
     auto end = &fOwner->cluster(endIndex);
     result.pos = start->startPos();
     result.size = (end->isHardBreak() ? end->startPos() : end->endPos()) - start->startPos();
 
-    auto textStartInRun = run->positionX(start->startPos());
+    auto textStartInRun = run->positionX(start->width() >= 0 ? start->startPos() : start->endPos());
+    //auto textStartInRun = run->positionX(start->startPos());
     auto textStartInLine = runOffsetInLine + textOffsetInRunInLine;
 /*
     if (!run->fJustificationShifts.empty()) {

@@ -79,7 +79,10 @@ class TextWrapper {
             if (!cluster->run()->isPlaceholder()) {
                 fMetrics.add(cluster->run());
             }
-            fWidth += cluster->width();
+
+            if (cluster->width() > 0) {
+                fWidth += cluster->width();
+            }
         }
 
         void extend(Cluster* cluster, size_t pos) {

@@ -33,7 +33,9 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
         // TODO: Trying to deal with flutter rounding problem. Must be removed...
         auto width = fWords.width() + fClusters.width() + cluster->width();
         auto roundedWidth = littleRound(width);
-        if (cluster->isHardBreak()) {
+        if (cluster->width() < 0) {
+          // Clusters's width does not affect the line
+        } else if (cluster->isHardBreak()) {
         } else if (roundedWidth > maxWidth) {
             if (cluster->isWhitespaces()) {
                 // It's the end of the word

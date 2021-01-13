@@ -119,12 +119,38 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
         }
     }
 
-    ClusterIndex startIndex = fOwner->clusterIndex(text.start);
-    ClusterIndex endIndex = fOwner->clusterIndex(text.end - 1);
+    // In case the text edges point inside clusters we need to adjust the cluster edges
+    // LTR: [textStart: textEnd)   -> [clusterStart: clusterEnd)
+    // RTL: (textStart: textEnd]   -> [clusterStart: clusterEnd)
+    // cluster end must be entirely within text range
+    ClusterIndex startIndex;
+    ClusterIndex endIndex;
+    if (this->leftToRight()) {
+        startIndex = fOwner->clusterIndex(text.start);
+        endIndex = fOwner->clusterIndex(text.end);
+        auto& endCluster = fOwner->cluster(endIndex);
+        if (endCluster.textRange().end > text.end) {
+            // end cluster does not end at the text end; let's drop it
+            endIndex -= 1;
+        }
+     } else {
+        startIndex = fOwner->clusterIndex(text.end);
+        endIndex = fOwner->clusterIndex(text.start);
+        auto& endCluster = fOwner->cluster(endIndex);
+        if (endCluster.textRange().start < text.start) {
+            // end cluster does not end at the text start; let's drop it
+            endIndex += 1;
+        }
+    }
+    return std::make_tuple(endIndex != fClusterRange.end, startIndex, endIndex);
+    /*
+    ClusterIndex startIndex = fOwner->clusterIndex(this->leftToRight() ? text.start : text.start + 1);
+    ClusterIndex endIndex = fOwner->clusterIndex(this->leftToRight() ? text.end - 1 : text.end);
     if (!leftToRight()) {
         std::swap(startIndex, endIndex);
     }
     return std::make_tuple(startIndex != fClusterRange.end && endIndex != fClusterRange.end, startIndex, endIndex);
+    */
 }
 
 void Run::iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor) {

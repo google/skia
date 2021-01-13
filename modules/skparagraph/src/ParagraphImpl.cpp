@@ -209,6 +209,30 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     }
 
     //SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
+    for (auto& t : this->fTextStyles) {
+        auto text = this->text(t.fRange);
+        SkDebugf("[%d:%d) = '%s'\n", t.fRange.start, t.fRange.end, text.data());
+    }
+    for (auto& r: this->fRuns) {
+        auto range = r.textRange();
+        auto text = this->text(range);
+        SkString ff;
+        r.font().getTypeface()->getFamilyName(&ff);
+        SkDebugf("[%d:%d) '%s' '%s'\n", range.start, range.end, text.data(), ff.c_str());
+        for (size_t i = 0; i < r.size(); ++i) {
+            SkDebugf("[%d]: %f\n", i, r.fPositions[i].fX);
+        }
+    }
+
+    SkScalar width1 = 0;
+    SkScalar width2 = 0;
+    for (size_t i = 0; i < fClusters.size(); ++i) {
+        auto ii = fClusters.size() - i - 1;
+        auto& cluster = fClusters[ii];
+        width1 += cluster.width() > 0 ? cluster.width() : 0.0;
+        width2 += cluster.width();
+        SkDebugf("%d [%d:%d) %f %f %f\n", ii, cluster.fTextRange.start, cluster.fTextRange.end, cluster.width(), width1, width2);
+    }
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -290,6 +314,7 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     if (!fUnicode->getGraphemes(fText.c_str(), fText.size(), &graphemes)) {
         return false;
     }
+
     for (auto pos : graphemes) {
         fCodeUnitProperties[pos] |= CodeUnitFlags::kGraphemeStart;
     }
