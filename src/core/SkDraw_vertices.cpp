@@ -16,6 +16,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkScan.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkVertState.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkComposeShader.h"
@@ -145,6 +146,15 @@ protected:
         }
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         return true;
+    }
+
+    skvm::Color onProgram(skvm::Builder*,
+                          skvm::Coord, skvm::Coord, skvm::Color,
+                          const SkMatrixProvider&, const SkMatrix*,
+                          SkFilterQuality, const SkColorInfo&,
+                          skvm::Uniforms*, SkArenaAlloc*) const override {
+        // TODO?
+        return {};
     }
 
 private:

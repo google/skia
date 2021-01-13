@@ -238,15 +238,6 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
     return {};
 }
 
-skvm::Color SkShaderBase::onProgram(skvm::Builder*,
-                                    skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                    const SkMatrixProvider&, const SkMatrix* localM,
-                                    SkFilterQuality quality, const SkColorInfo& dst,
-                                    skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    // SkDebugf("cannot onProgram %s\n", this->getTypeName());
-    return {};
-}
-
 // need a cheap way to invert the alpha channel of a shader (i.e. 1 - a)
 sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
     return this->makeWithColorFilter(SkColorFilters::Blend(0xFFFFFFFF, SkBlendMode::kSrcOut));
