@@ -111,6 +111,30 @@
       },
       "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e18f6a3_cd995608",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T21:30:17Z",
+      "side": 1,
+      "message": "Yes, we did, and that\u0027s why there\u0027s no fErrors here.\n\nWhat we\u0027re doing here is filling `loop`.",
+      "parentUuid": "f6642515_c6e42b57",
+      "range": {
+        "startLine": 1376,
+        "startChar": 4,
+        "endLine": 1376,
+        "endChar": 18
+      },
+      "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
