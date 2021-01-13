@@ -31,13 +31,13 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
         if (numTextureSamplers <= 1) {
             args.fVertBuilder->codeAppendf(R"code(
                 int texIdx = 0;
-                float2 unormTexCoords = float2(%s.x, %s.y);
+                float2 unormTexCoords = float2(float(%s.x), float(%s.y));
            )code", inTexCoordsName, inTexCoordsName);
         } else {
             args.fVertBuilder->codeAppendf(R"code(
                 int2 coords = int2(%s.x, %s.y);
                 int texIdx = coords.x >> 13;
-                float2 unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
+                float2 unormTexCoords = float2(float(coords.x & 0x1FFF), float(coords.y));
             )code", inTexCoordsName, inTexCoordsName);
         }
     } else {
