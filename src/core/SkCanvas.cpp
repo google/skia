@@ -2571,6 +2571,14 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     this->onDrawImageRect2(image, src, dst, sampling, paint, constraint);
 }
 
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst,
+                             const SkSamplingOptions& sampling, const SkPaint* paint,
+                             SrcRectConstraint constraint) {
+    RETURN_ON_NULL(image);
+    this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, sampling,
+                        paint, constraint);
+}
+
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
     const SkRect bounds = blob->bounds().makeOffset(x, y);
