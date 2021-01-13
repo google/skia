@@ -26,7 +26,7 @@ DSLVar::DSLVar(DSLType type, const char* name)
     : fName(DSLWriter::Name(name)) {
     fOwnedVar = std::make_unique<SkSL::Variable>(/*offset=*/-1,
                                                  DSLWriter::Modifiers(Modifiers()),
-                                                 SkSL::StringFragment(fName),
+                                                 fName,
                                                  &type.skslType(),
                                                  /*builtin=*/false,
                                                  SkSL::Variable::Storage::kLocal);
@@ -40,6 +40,18 @@ const SkSL::Variable* DSLVar::var() const {
         fVar = &result->as<SkSL::Variable>();
     }
     return fVar;
+}
+
+DSLExpression DSLVar::operator=(DSLExpression expr) {
+    const SkSL::Variable* var = this->var();
+    return DSLExpression(std::make_unique<SkSL::BinaryExpression>(
+                /*offset=*/-1,
+                std::make_unique<SkSL::VariableReference>(/*offset=*/-1,
+                                                          var,
+                                                          SkSL::VariableReference::RefKind::kWrite),
+                SkSL::Token::Kind::TK_EQ,
+                expr.coerceAndRelease(var->type()),
+                &var->type()));
 }
 
 } // namespace dsl

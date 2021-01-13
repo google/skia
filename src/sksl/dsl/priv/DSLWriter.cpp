@@ -66,9 +66,14 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Express
     return expr;
 }
 
+DSLExpression DSLWriter::Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type) {
+    return DSLExpression(Check(IRGenerator().coerce(std::move(left), type)));
+}
+
 DSLExpression DSLWriter::Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs) {
     SkSL::ExpressionArray args;
     args.reserve_back(rawArgs.size());
+
     for (DSLExpression& arg : rawArgs) {
         args.push_back(arg.release());
     }
@@ -78,6 +83,25 @@ DSLExpression DSLWriter::Construct(const SkSL::Type& type, std::vector<DSLExpres
                                                                                /*offset=*/-1,
                                                                                &type),
                                          std::move(args)));
+}
+
+DSLExpression DSLWriter::ConvertBinary(std::unique_ptr<Expression> left, Token::Kind op,
+                                       std::unique_ptr<Expression> right) {
+    return DSLExpression(Check(IRGenerator().convertBinaryExpression(std::move(left), op,
+                                                                     std::move(right))));
+}
+
+DSLExpression DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,
+                                      std::unique_ptr<Expression> index) {
+    return DSLExpression(Check(IRGenerator().convertIndex(std::move(base), std::move(index))));
+}
+
+DSLExpression DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr, Token::Kind op) {
+    return DSLExpression(Check(IRGenerator().convertPostfixExpression(std::move(expr), op)));
+}
+
+DSLExpression DSLWriter::ConvertPrefix(Token::Kind op, std::unique_ptr<Expression> expr) {
+    return DSLExpression(Check(IRGenerator().convertPrefixExpression(op, std::move(expr))));
 }
 
 void DSLWriter::ReportError(const char* msg) {
