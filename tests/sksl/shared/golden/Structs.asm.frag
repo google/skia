@@ -60,12 +60,12 @@ OpDecorate %33 RelaxedPrecision
 OpStore %23 %int_0
 %26 = OpAccessChain %_ptr_Private_float %b1 %int_0
 OpStore %26 %float_0
-%29 = OpAccessChain %_ptr_Private_int %a1 %int_0
-%30 = OpLoad %int %29
-%28 = OpConvertSToF %float %30
+%28 = OpAccessChain %_ptr_Private_int %a1 %int_0
+%29 = OpLoad %int %28
+%30 = OpConvertSToF %float %29
 %31 = OpAccessChain %_ptr_Private_float %b1 %int_0
 %32 = OpLoad %float %31
-%33 = OpFAdd %float %28 %32
+%33 = OpFAdd %float %30 %32
 %34 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %34 %33
 OpReturn

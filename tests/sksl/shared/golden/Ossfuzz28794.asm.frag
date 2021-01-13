@@ -31,9 +31,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %main = OpFunction %void None %11
 %12 = OpLabel
 %i = OpVariable %_ptr_Function_int Function
-%17 = OpExtInst %float %1 Sqrt %float_1
-%16 = OpConvertFToS %int %17
-OpStore %i %16
+%16 = OpExtInst %float %1 Sqrt %float_1
+%18 = OpConvertFToS %int %16
+OpStore %i %18
 %19 = OpLoad %int %i
 OpStore %i %int_3
 %21 = OpIMul %int %19 %int_3

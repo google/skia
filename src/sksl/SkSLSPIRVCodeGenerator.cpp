@@ -1193,83 +1193,111 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const Constructor& c) {
 }
 
 SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, OutputStream& out) {
-    const Type& constructorType = c.type();
     SkASSERT(c.arguments().size() == 1);
-    const Type& argType = c.arguments()[0]->type();
-    SkASSERT(constructorType.isFloat());
-    SkASSERT(argType.isNumber() || argType.isBoolean());
+    SkASSERT(c.type().isFloat());
+    const Expression& ctorExpr = *c.arguments()[0];
+    SpvId expressionId = this->writeExpression(ctorExpr, out);
+    return this->castScalarToFloat(expressionId, ctorExpr.type(), c.type(), out);
+}
+
+SpvId SPIRVCodeGenerator::castScalarToFloat(SpvId inputId, const Type& inputType,
+                                            const Type& outputType, OutputStream& out) {
+    // Casting a float to float is a no-op.
+    if (inputType.isFloat()) {
+        return inputId;
+    }
+
+    // Given the input type, generate the appropriate instruction to cast to float.
     SpvId result = this->nextId();
-    SpvId parameter = this->writeExpression(*c.arguments()[0], out);
-    if (argType.isBoolean()) {
+    if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1.0 or 0.0.
         FloatLiteral one(fContext, /*offset=*/-1, /*value=*/1);
         SpvId        oneID = this->writeFloatLiteral(one);
         FloatLiteral zero(fContext, /*offset=*/-1, /*value=*/0);
         SpvId        zeroID = this->writeFloatLiteral(zero);
-        this->writeInstruction(SpvOpSelect, this->getType(constructorType), result, parameter,
-                               oneID, zeroID, out);
-    } else if (argType.isSigned()) {
-        this->writeInstruction(SpvOpConvertSToF, this->getType(constructorType), result, parameter,
-                               out);
+        this->writeInstruction(SpvOpSelect, this->getType(outputType), result,
+                               inputId, oneID, zeroID, out);
+    } else if (inputType.isSigned()) {
+        this->writeInstruction(SpvOpConvertSToF, this->getType(outputType), result, inputId, out);
+    } else if (inputType.isUnsigned()) {
+        this->writeInstruction(SpvOpConvertUToF, this->getType(outputType), result, inputId, out);
     } else {
-        SkASSERT(argType.isUnsigned());
-        this->writeInstruction(SpvOpConvertUToF, this->getType(constructorType), result, parameter,
-                               out);
+        SkDEBUGFAILF("unsupported type for float typecast: %s", inputType.description().c_str());
+        return (SpvId)-1;
     }
     return result;
 }
 
 SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, OutputStream& out) {
-    const Type& constructorType = c.type();
     SkASSERT(c.arguments().size() == 1);
-    const Type& argType = c.arguments()[0]->type();
-    SkASSERT(constructorType.isSigned());
-    SkASSERT(argType.isNumber() || argType.isBoolean());
+    SkASSERT(c.type().isSigned());
+    const Expression& ctorExpr = *c.arguments()[0];
+    SpvId expressionId = this->writeExpression(ctorExpr, out);
+    return this->castScalarToSignedInt(expressionId, ctorExpr.type(), c.type(), out);
+}
+
+SpvId SPIRVCodeGenerator::castScalarToSignedInt(SpvId inputId, const Type& inputType,
+                                                const Type& outputType, OutputStream& out) {
+    // Casting a signed int to signed int is a no-op.
+    if (inputType.isSigned()) {
+        return inputId;
+    }
+
+    // Given the input type, generate the appropriate instruction to cast to signed int.
     SpvId result = this->nextId();
-    SpvId parameter = this->writeExpression(*c.arguments()[0], out);
-    if (argType.isBoolean()) {
+    if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1 or 0.
         IntLiteral one(/*offset=*/-1, /*value=*/1, fContext.fTypes.fInt.get());
         SpvId      oneID = this->writeIntLiteral(one);
         IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
         SpvId      zeroID = this->writeIntLiteral(zero);
-        this->writeInstruction(SpvOpSelect, this->getType(constructorType), result, parameter,
-                               oneID, zeroID, out);
-    } else if (argType.isFloat()) {
-        this->writeInstruction(SpvOpConvertFToS, this->getType(constructorType), result, parameter,
-                               out);
-    }
-    else {
-        SkASSERT(argType.isUnsigned());
-        this->writeInstruction(SpvOpBitcast, this->getType(constructorType), result, parameter,
-                               out);
+        this->writeInstruction(SpvOpSelect, this->getType(outputType), result,
+                               inputId, oneID, zeroID, out);
+    } else if (inputType.isFloat()) {
+        this->writeInstruction(SpvOpConvertFToS, this->getType(outputType), result, inputId, out);
+    } else if (inputType.isUnsigned()) {
+        this->writeInstruction(SpvOpBitcast, this->getType(outputType), result, inputId, out);
+    } else {
+        SkDEBUGFAILF("unsupported type for signed int typecast: %s",
+                     inputType.description().c_str());
+        return (SpvId)-1;
     }
     return result;
 }
 
 SpvId SPIRVCodeGenerator::writeUIntConstructor(const Constructor& c, OutputStream& out) {
-    const Type& constructorType = c.type();
     SkASSERT(c.arguments().size() == 1);
-    const Type& argType = c.arguments()[0]->type();
-    SkASSERT(constructorType.isUnsigned());
-    SkASSERT(argType.isNumber() || argType.isBoolean());
+    SkASSERT(c.type().isUnsigned());
+    const Expression& ctorExpr = *c.arguments()[0];
+    SpvId expressionId = this->writeExpression(ctorExpr, out);
+    return this->castScalarToUnsignedInt(expressionId, ctorExpr.type(), c.type(), out);
+}
+
+SpvId SPIRVCodeGenerator::castScalarToUnsignedInt(SpvId inputId, const Type& inputType,
+                                                  const Type& outputType, OutputStream& out) {
+    // Casting an unsigned int to unsigned int is a no-op.
+    if (inputType.isUnsigned()) {
+        return inputId;
+    }
+
+    // Given the input type, generate the appropriate instruction to cast to signed int.
     SpvId result = this->nextId();
-    SpvId parameter = this->writeExpression(*c.arguments()[0], out);
-    if (argType.isBoolean()) {
+    if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1u or 0u.
         IntLiteral one(/*offset=*/-1, /*value=*/1, fContext.fTypes.fUInt.get());
         SpvId      oneID = this->writeIntLiteral(one);
         IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fUInt.get());
         SpvId      zeroID = this->writeIntLiteral(zero);
-        this->writeInstruction(SpvOpSelect, this->getType(constructorType), result, parameter,
-                               oneID, zeroID, out);
-    } else if (argType.isFloat()) {
-        this->writeInstruction(SpvOpConvertFToU, this->getType(constructorType), result, parameter,
-                               out);
+        this->writeInstruction(SpvOpSelect, this->getType(outputType), result,
+                               inputId, oneID, zeroID, out);
+    } else if (inputType.isFloat()) {
+        this->writeInstruction(SpvOpConvertFToU, this->getType(outputType), result, inputId, out);
+    } else if (inputType.isSigned()) {
+        this->writeInstruction(SpvOpBitcast, this->getType(outputType), result, inputId, out);
     } else {
-        SkASSERT(argType.isSigned());
-        this->writeInstruction(SpvOpBitcast, this->getType(constructorType), result, parameter,
-                               out);
+        SkDEBUGFAILF("unsupported type for unsigned int typecast: %s",
+                     inputType.description().c_str());
+        return (SpvId)-1;
     }
     return result;
 }

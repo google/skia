@@ -28,10 +28,10 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %int_0 = OpConstant %int 0
 %main = OpFunction %void None %13
 %14 = OpLabel
-%17 = OpLoad %float %a
-%16 = OpBitcast %int %17
-%15 = OpConvertSToF %float %16
+%16 = OpLoad %float %a
+%15 = OpBitcast %int %16
+%18 = OpConvertSToF %float %15
 %19 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %19 %15
+OpStore %19 %18
 OpReturn
 OpFunctionEnd

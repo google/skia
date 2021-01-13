@@ -22,22 +22,22 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %11 = OpTypeFunction %void
 %v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
-%17 = OpConstantComposite %v2float %float_0 %float_0
+%16 = OpConstantComposite %v2float %float_0 %float_0
 %int = OpTypeInt 32 1
 %v2int = OpTypeVector %int 2
 %_ptr_Output_float = OpTypePointer Output %float
 %int_0 = OpConstant %int 0
 %main = OpFunction %void None %11
 %12 = OpLabel
-%18 = OpCompositeExtract %float %17 0
-%19 = OpConvertFToS %int %18
-%21 = OpCompositeExtract %float %17 1
-%22 = OpConvertFToS %int %21
-%23 = OpCompositeConstruct %v2int %19 %22
-%14 = OpExtInst %v2int %1 SAbs %23
-%25 = OpCompositeExtract %int %14 0
-%13 = OpConvertSToF %float %25
+%17 = OpCompositeExtract %float %16 0
+%18 = OpConvertFToS %int %17
+%20 = OpCompositeExtract %float %16 1
+%21 = OpConvertFToS %int %20
+%22 = OpCompositeConstruct %v2int %18 %21
+%13 = OpExtInst %v2int %1 SAbs %22
+%24 = OpCompositeExtract %int %13 0
+%25 = OpConvertSToF %float %24
 %26 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %26 %13
+OpStore %26 %25
 OpReturn
 OpFunctionEnd
