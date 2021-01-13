@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76f2c07f_66184139",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-13T16:33:48Z",
+      "side": 1,
+      "message": "LGTM, one nit",
+      "revId": "64dd465b7248d00566fdbce6eb1abc1325574fa4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14228baf_ee914b3d",
+        "filename": "modules/svg/src/SkSVGNode.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-13T16:33:48Z",
+      "side": 1,
+      "message": "Leftover copy/paste?",
+      "revId": "64dd465b7248d00566fdbce6eb1abc1325574fa4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
