@@ -117,7 +117,9 @@ void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderSty
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne) {
-    this->endRunIfNeeded();
+    if (!fUtf8.isEmpty() && !lastOne) {
+        this->endRunIfNeeded();
+    }
 
     BlockRange stylesBefore(fPlaceholders.empty() ? 0 : fPlaceholders.back().fBlocksBefore.end + 1,
                             fStyledBlocks.size());

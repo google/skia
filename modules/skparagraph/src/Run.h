@@ -394,6 +394,12 @@ public:
         return ::round((double)fDescent - fAscent + fLeading);
     }
 
+    void update(SkScalar a, SkScalar d, SkScalar l) {
+        fAscent = a;
+        fDescent = d;
+        fLeading = l;
+    }
+
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
     SkScalar ideographicBaseline() const { return fDescent - fAscent + fLeading; }
     SkScalar deltaBaselines() const { return fLeading / 2 + fDescent; }
