@@ -650,4 +650,10 @@ enum class SkSVGXmlSpace {
     kPreserve,
 };
 
+enum class SkSVGColorspace {
+    kAuto,
+    kSRGB,
+    kLinearRGB,
+};
+
 #endif // SkSVGTypes_DEFINED

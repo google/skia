@@ -927,3 +927,14 @@ template <>
 bool SkSVGAttributeParser::parse(std::vector<SkSVGNumberType>* numbers) {
     return this->parseList(numbers);
 }
+
+template <>
+bool SkSVGAttributeParser::parse(SkSVGColorspace* colorspace) {
+    static constexpr std::tuple<const char*, SkSVGColorspace> gColorspaceMap[] = {
+        { "auto"     , SkSVGColorspace::kAuto      },
+        { "sRGB"     , SkSVGColorspace::kSRGB      },
+        { "linearRGB", SkSVGColorspace::kLinearRGB },
+    };
+
+    return this->parseEnumMap(gColorspaceMap, colorspace) && this->parseEOSToken();
+}

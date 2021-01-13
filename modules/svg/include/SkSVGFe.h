@@ -29,6 +29,16 @@ public:
     // https://www.w3.org/TR/SVG11/filters.html#FilterPrimitiveSubRegion
     SkRect resolveFilterSubregion(const SkSVGRenderContext&, const SkSVGFilterContext&) const;
 
+    /**
+     * Resolves the colorspace within which this filter effect should be applied.
+     * Spec: https://www.w3.org/TR/SVG11/painting.html#ColorInterpolationProperties
+     * 'color-interpolation-filters' property.
+     */
+    SkSVGColorspace resolveColorspace(const SkSVGRenderContext&) const;
+
+    /** Propagates any inherited presentation attributes in the given context. */
+    void applyProperties(SkSVGRenderContext*) const;
+
     SVG_ATTR(In, SkSVGFeInputType, SkSVGFeInputType(SkSVGFeInputType::Type::kSourceGraphic))
     SVG_ATTR(Result, SkSVGStringType, SkSVGStringType())
     SVG_OPTIONAL_ATTR(X, SkSVGLength)
