@@ -231,6 +231,9 @@ private:
 
     void writeStatement(const Statement& s);
     void writeBlock(const Block& b);
+    void writeBreakStatement();
+    void writeContinueStatement();
+    void writeForStatement(const ForStatement& f);
     void writeIfStatement(const IfStatement& stmt);
     void writeReturnStatement(const ReturnStatement& r);
     void writeVarDeclaration(const VarDeclaration& decl);
@@ -1347,6 +1350,27 @@ void SkVMGenerator::writeBlock(const Block& b) {
     }
 }
 
+void SkVMGenerator::writeBreakStatement() {}
+
+void SkVMGenerator::writeContinueStatement() {}
+
+void SkVMGenerator::writeForStatement(const ForStatement& f) {
+#if 0
+    // We require that all loops be ES2-compliant (unrollable), and actually unroll them here
+    Analysis::UnrollableLoopInfo loop;
+    SkAssertResult(Analysis::ForLoopIsValidForES2(f, &loop, /*errors=*/nullptr));
+    SkASSERT(slot_count(loop.fIndex->type()) == 1);
+
+    Slot index = this->getSlot(*loop.fIndex);
+    double val = loop.fStart;
+
+    for (int i = 0; i < loop.fCount; ++i) {
+
+        val += loop.fDelta;
+    }
+#endif
+}
+
 void SkVMGenerator::writeIfStatement(const IfStatement& i) {
     Value test = this->writeExpression(*i.test());
     {
@@ -1390,8 +1414,17 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kBlock:
             this->writeBlock(s.as<Block>());
             break;
+        case Statement::Kind::kBreak:
+            this->writeBreakStatement();
+            break;
+        case Statement::Kind::kContinue:
+            this->writeContinueStatement();
+            break;
         case Statement::Kind::kExpression:
             this->writeExpression(*s.as<ExpressionStatement>().expression());
+            break;
+        case Statement::Kind::kFor:
+            this->writeForStatement(s.as<ForStatement>());
             break;
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
@@ -1402,11 +1435,8 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kVarDeclaration:
             this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
-        case Statement::Kind::kBreak:
-        case Statement::Kind::kContinue:
         case Statement::Kind::kDiscard:
         case Statement::Kind::kDo:
-        case Statement::Kind::kFor:
         case Statement::Kind::kSwitch:
             SkDEBUGFAIL("Unsupported control flow");
             break;
