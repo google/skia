@@ -147,6 +147,12 @@ public:
 private:
     ExpressionArray fArguments;
 
+    template <typename ResultType>
+    ResultType getConstantValue(const Expression& expr) const;
+
+    template <typename ResultType>
+    ResultType getInnerVecComponent(const Expression& expr, int position) const;
+
     using INHERITED = Expression;
 };
 
