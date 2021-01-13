@@ -71,6 +71,7 @@ private:
     mutable const SkSL::Variable* fVar = nullptr;
     const char* fName;
 
+    friend class DSLCore;
     friend class DSLExpression;
     friend class DSLWriter;
 };
