@@ -133,7 +133,7 @@ void GrFillBoundingBoxShader::emitVertexCode(Impl* impl, GrGLSLVertexBuilder* v,
 
     v->codeAppendf(R"(
     // Use sk_VertexID and uniforms (instead of vertex data) to find vertex positions.
-    float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
+    float2 T = float2(float(sk_VertexID & 1), float(sk_VertexID >> 1));
     localcoord = mix(%s.xy, %s.zw, T);
     vertexpos = (%s * float3(localcoord, 1)).xy;
 

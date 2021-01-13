@@ -40,7 +40,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
             "// MSAA Load Program VS\n"
             "void main() {"
-            "float2 position = float2(sk_VertexID >> 1, sk_VertexID & 1);"
+            "float2 position = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));"
             "sk_Position.xy = position * uPosXform.xy + uPosXform.zw;"
             "sk_Position.zw = half2(0, 1);"
             "}");
