@@ -16,6 +16,29 @@
       "message": "Going to add some standalone unit tests, but the interpreter tests pass - this is all it takes.",
       "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f9299e8_d77674bd",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T21:21:16Z",
+      "side": 1,
+      "message": "We want to run this in release? Does it have side effects?",
+      "range": {
+        "startLine": 1376,
+        "startChar": 4,
+        "endLine": 1376,
+        "endChar": 18
+      },
+      "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
