@@ -30,6 +30,28 @@ public:
 
     DSLVar(DSLVar&&) = delete;
 
+    DSLExpression operator=(const DSLVar& var) {
+        return this->operator=(DSLExpression(var));
+    }
+
+    DSLExpression operator=(DSLExpression expr);
+
+    DSLExpression operator=(int expr) {
+        return this->operator=(DSLExpression(expr));
+    }
+
+    DSLExpression operator=(float expr) {
+        return this->operator=(DSLExpression(expr));
+    }
+
+    DSLExpression operator++() {
+        return ++DSLExpression(*this);
+    }
+
+    DSLExpression operator++(int) {
+        return DSLExpression(*this)++;
+    }
+
 private:
     /**
      * Constructs a reference to a variable that already exists in the symbol table. This is used
@@ -50,6 +72,7 @@ private:
     const char* fName;
 
     friend class DSLExpression;
+    friend class DSLWriter;
 };
 
 } // namespace dsl
