@@ -72,7 +72,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
                 nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
 
         args.fVertBuilder->codeAppendf(R"(
-                float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
+                float2 T = float2(float(sk_VertexID & 1), float(sk_VertexID >> 1));
                 float2 devtopleft = float2(dev_xywh.xy);
                 float2 devcoord = abs(float2(dev_xywh.zw)) * T + devtopleft;
                 float2 atlascoord = devcoord - devtopleft;
