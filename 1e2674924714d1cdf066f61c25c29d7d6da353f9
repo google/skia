@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ac4eb35_55ada8c8",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T21:40:02Z",
+      "side": 1,
+      "message": "It might be all the safety measures are more in the way than helpful?\n\n  template \u003ctypename T\u003e\n  void set(const T val[], int count) {\n      static_assert(std::is_trivially_copyable_v\u003cT\u003e);\n      SkASSERT(fVar);\n      SkASSERT(sizeof(T) * count \u003d\u003d fVar-\u003esizeInBytes());\n      memcpy(...);\n  }\n\nthen only test correct usage?",
+      "revId": "1e2674924714d1cdf066f61c25c29d7d6da353f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
