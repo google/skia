@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b72f645_eeefb2f2",
+        "filename": "tests/sksl/shared/golden/VectorConstructors.glsl",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-13T15:53:18Z",
+      "side": 1,
+      "message": "Am I correct in thinking something like float2(true, false) should work? We should add test coverage for cases like that.",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 1
+      },
+      "revId": "1c517a3051ff4463254895a5e522781199d9b5c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
