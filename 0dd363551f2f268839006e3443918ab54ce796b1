@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "132e842b_b0402033",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-13T21:37:43Z",
+      "side": 1,
+      "message": "Is it too much churn to make this\n\n    struct SkPDFObject::Emit {\n        SkStream* stream;\n        Emit(SkStream* s) : stream(s) {}\n        void operator()(bool\u0026) { stream-\u003ewriteText(arg ? \"true\" : \"false\"); }\n        void operator()(int32_t) { ... }\n        ....\n    };\n\nThen replace all the current \u0027o-\u003eemit(stream)\u0027 with \u0027visit(SkPDFObject::Emit(stream), o)\u0027? Of course the current stream is only used with an emitter, so just the \u0027Emit\u0027 object would be passed around instead of the bare SkStream*? This would make things look more like \u0027visit(emit, o)\u0027.",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f63c25d8_d07c8f42",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-13T21:37:43Z",
+      "side": 1,
+      "message": "I realize that cppreference.com currently has this insanely bad example of how to call visit, but the entire point of \u0027visit\u0027 is to not write this switch / if chain. I mean, what exactly is it doing other than being pure overhead, mostly for the reader of the code?",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44c6b582_b1502a82",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-13T21:37:43Z",
+      "side": 1,
+      "message": "Why do these classes get such special treatment here? Why should these classes know something special about emitting? If we\u0027re going through the trouble of double dispatch to factor emit off of the base types then the base types shouldn\u0027t know anything about emitting.",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "128fa922_51b9d2d2",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-13T21:37:43Z",
+      "side": 1,
+      "message": "I am uncomfortable with all the inheritance of std types here (std::variant and std::vector in particular), just to add \u0027emit\u0027 (though in the interim there are more). If \u0027emit\u0027 became more std::algorithm like (like std::begin or std::end) then it would play better with just \u0027using\u0027 the std types.",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
