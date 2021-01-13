@@ -222,6 +222,22 @@ public:
             return *this;
         }
 
+        template <typename T>
+        bool set(const T val[], const int count) {
+            static_assert(std::is_trivially_copyable_v<T>, "Value must be trivial copyable");
+            if (!fVar) {
+                SkDEBUGFAIL("Assigning to missing variable");
+                return false;
+            } else if (sizeof(T) * count != fVar->sizeInBytes()) {
+                SkDEBUGFAIL("Incorrect value size");
+                return false;
+            } else {
+                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->fOffset),
+                       reinterpret_cast<const void*>(val), sizeof(T) * count);
+            }
+            return true;
+        }
+
         SkRuntimeShaderBuilder*         fOwner;
         const SkRuntimeEffect::Uniform* fVar;    // nullptr if the variable was not found
     };
