@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "deaa0a3b_0bb47215",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T15:15:29Z",
+      "side": 1,
+      "message": "Once we improve the error message we should probably put this not-assignable check on all the tests for consistency (they all seem to follow a basic pattern, feels weird to not have it match here)",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 350,
+        "endChar": 30
+      },
+      "revId": "8dce6caeda8f60968eebe0c000c166bfbd41c716",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
