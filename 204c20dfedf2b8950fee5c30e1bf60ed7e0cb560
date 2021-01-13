@@ -16,6 +16,24 @@
       "message": "One question I have here is whether this handles the case of startOffset \u003c 0. If I\u0027m reading the spec right, that shouldn\u0027t prevent the initial glyphs from rendering, it should just render them along the t\u003d0 tangent line. The particular sentence in the spec I\u0027m thinking about is this:\n\n\u003e In the calculations above, if either the startpoint-on-the-path or the endpoint-on-the-path is off the end of the path, then extend the path beyond its end points with a straight line that is parallel to the tangent at the path at its end point so that the midpoint-on-the-path can still be calculated.",
       "revId": "204c20dfedf2b8950fee5c30e1bf60ed7e0cb560",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "959d75ab_db9fe720",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T00:48:46Z",
+      "side": 1,
+      "message": "I think that\u0027s trying to clarify how to handle the case where the glyph mid-point is on path but start-point or end-point are off.  The superseding rule appears to be \"* Glyphs whose midpoint-on-the-path are off either end of the path are not rendered.\"\n\nAlso, empirically all implementations don\u0027t draw glyphs off path for negative start offset: https://codepen.io/fmalita/pen/oNzaqBz?editors\u003d1000",
+      "parentUuid": "911d5e12_849ee119",
+      "revId": "204c20dfedf2b8950fee5c30e1bf60ed7e0cb560",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
