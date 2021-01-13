@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3c8eaf8_3d0b22d3",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-13T15:12:08Z",
+      "side": 1,
+      "message": "Well, both variants exist - RWOP calls OP as its first line.\n\nBut I don\u0027t think I need it anymore. While working on the original DSL CL, I had definitely run into a situation where the basic operator+\u003d(DSLExpression, DSLExpression) wasn\u0027t sufficient and added those variants. Either I have fixed the underlying issue, or simply haven\u0027t run into the problem yet during the re-land, but either way I don\u0027t need these variants right now.",
+      "parentUuid": "8cb80db2_d43067a5",
+      "range": {
+        "startLine": 79,
+        "startChar": 26,
+        "endLine": 79,
+        "endChar": 38
+      },
+      "revId": "3c7220a18b293cee2536cb577676c6b610501d19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b160b1b_e40a70ab",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15d40a68_d4269322",
+        "filename": "src/sksl/dsl/DSLExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-13T15:12:08Z",
+      "side": 1,
+      "message": "If I use only one \u0026, then it works for lvalues but fails for rvalues, so something like \"a \u003d 3\" won\u0027t compile. I believe the right way to handle this (after clarifying xvalue behavior) is to drop all \u0026\u0027s; there shouldn\u0027t be any copying during typical DSL operations, because everything in a typical expression should be an xvalue and DSLExpression is movable. (I *think* this is right...)",
+      "parentUuid": "4b160b1b_e40a70ab",
+      "range": {
+        "startLine": 68,
+        "startChar": 41,
+        "endLine": 68,
+        "endChar": 43
+      },
+      "revId": "3c7220a18b293cee2536cb577676c6b610501d19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d109281_33ee7264",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-01-12T20:33:01Z",
       "side": 1,
       "message": "I wanted to suggest a test that we can\u0027t +\u003d on something that isn\u0027t Assignable (e.g. `1 +\u003d a`) but it looks like that won\u0027t compile right now because DSLExpression(1) isn\u0027t a DSLVar?",
+      "range": {
+        "startLine": 345,
+        "startChar": 3,
+        "endLine": 345,
+        "endChar": 5
+      },
+      "revId": "3c7220a18b293cee2536cb577676c6b610501d19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56aa02ee_2d23dfd1",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-13T15:12:08Z",
+      "side": 1,
+      "message": "As mentioned above, RWOP invokes OP, so that was possible (and now it\u0027s moot). Test added, and I\u0027ll have to file a followup CL to fix SkSL\u0027s error message here :-).",
+      "parentUuid": "5d109281_33ee7264",
       "range": {
         "startLine": 345,
         "startChar": 3,
