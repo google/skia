@@ -83,6 +83,48 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "26b6d5ca_0ab87772",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-13T16:52:40Z",
+      "side": 1,
+      "message": "It avoids me having to add additional checks in the client code for Android so I opted for the bool return type",
+      "parentUuid": "c479425a_789b1f65",
+      "range": {
+        "startLine": 230,
+        "startChar": 8,
+        "endLine": 230,
+        "endChar": 12
+      },
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8aef4763_bac41568",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-13T16:52:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dec2d146_8f4df478",
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2990b25e_8dc5cc4d",
@@ -96,6 +138,30 @@
       "writtenOn": "2021-01-12T14:18:32Z",
       "side": 1,
       "message": "val is already a pointer in this case, want to strip off the \u0027\u0026\u0027",
+      "range": {
+        "startLine": 237,
+        "startChar": 23,
+        "endLine": 237,
+        "endChar": 24
+      },
+      "revId": "fa6a29c5bf6319acdb60478bfddb7353ca8eb32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef5cabb1_c871523b",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-13T16:52:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2990b25e_8dc5cc4d",
       "range": {
         "startLine": 237,
         "startChar": 23,
