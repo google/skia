@@ -33,6 +33,7 @@
 namespace SkSL {
 
 namespace dsl {
+    class DSLCore;
     class DSLWriter;
 }
 
@@ -283,6 +284,7 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class dsl::DSLCore;
     friend class dsl::DSLWriter;
 };
 
