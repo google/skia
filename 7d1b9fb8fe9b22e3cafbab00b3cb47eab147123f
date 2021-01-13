@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "037cbd2f_357bac7c",
+        "filename": "modules/svg/src/SkSVGFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T20:41:22Z",
+      "side": 1,
+      "message": "Yeah, expect to see all sorts of strange things with 1010102 if it\u0027s premultiplied and those two alpha bits are not 0b00 or 0b11.  It\u0027s really a bad format except for use as unpremul src-only images with some areas of full transparency.\n\nOn the other hand, if you\u0027re seeing banding with 1010102 and alpha effects are not involved, loop in Brian Osman or me.  Obviously, the rgb101010 part should show less banding generally than any rgb888 format.  (Depending on your monitor you might not be able to tell the difference, but 101010 should never be _worse_ than 888.)",
+      "parentUuid": "1b1ad4d9_526cd91b",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89bd7843_3ef8f294",
