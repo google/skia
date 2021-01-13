@@ -1,0 +1,26 @@
+int    i = 1;
+float  f = 1.0;
+
+// SkSL allows `float op <int literal>`, unlike GLSL.
+void   f_eq_int_literal_ok()               { f = 1; }
+void   f_plus_int_literal_ok()             { f + 1; }
+void   f_minus_int_literal_ok()            { f - 1; }
+void   f_mul_int_literal_ok()              { f * 1; }
+void   f_div_int_literal_ok()              { f / 1; }
+
+// Other than int literals, type mixing requires a cast.
+void   i_eq_float_literal_disallowed()     { i = 1.0; }
+void   i_eq_f_disallowed()                 { i = f; }
+float  f_eq_i_disallowed()                 { f = i; }
+void   i_plus_float_literal_disallowed()   { i + 1.0; }
+void   i_minus_float_literal_disallowed()  { i - 1.0; }
+void   i_mul_float_literal_disallowed()    { i * 1.0; }
+void   i_div_float_literal_disallowed()    { i / 1.0; }
+void   i_plus_f_disallowed()               { i + f; }
+void   i_minus_f_disallowed()              { i - f; }
+void   i_mul_f_disallowed()                { i * f; }
+void   i_div_f_disallowed()                { i / f; }
+void   f_plus_i_disallowed()               { f + i; }
+void   f_minus_i_disallowed()              { f - i; }
+void   f_mul_i_disallowed()                { f * i; }
+void   f_div_i_disallowed()                { f / i; }
