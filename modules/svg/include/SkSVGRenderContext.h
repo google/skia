@@ -138,8 +138,8 @@ private:
     SkSVGRenderContext& operator=(const SkSVGRenderContext&) = delete;
 
     void applyOpacity(SkScalar opacity, uint32_t flags);
-    void applyFilter(const SkSVGFilterType&);
-    void applyClip(const SkSVGClip&);
+    void applyFilter(const SkSVGFuncIRI&);
+    void applyClip(const SkSVGFuncIRI&);
     void updatePaintsWithCurrentColor(const SkSVGPresentationAttributes&);
 
     const sk_sp<SkFontMgr>&                       fFontMgr;
