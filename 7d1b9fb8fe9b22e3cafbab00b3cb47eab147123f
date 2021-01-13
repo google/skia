@@ -89,6 +89,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bfb894d_53ec2f3d",
+        "filename": "modules/svg/src/SkSVGFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T20:58:39Z",
+      "side": 1,
+      "message": "The banding shows for blurs and gradients with alpha, so I think it\u0027s fine/expected.\n\nWe\u0027re kinda wondering why previous versions look smooth though.  I\u0027m guessing we were skipping some premul/unpremul stages?",
+      "parentUuid": "037cbd2f_357bac7c",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89bd7843_3ef8f294",
