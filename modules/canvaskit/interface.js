@@ -1149,12 +1149,29 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawRect(rPtr, paint);
   };
 
-  CanvasKit.Canvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor, flags) {
+  CanvasKit.Canvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius,
+                                                   ambientColor, spotColor, flags) {
     var ambiPtr = copyColorToWasmNoScratch(ambientColor);
     var spotPtr = copyColorToWasmNoScratch(spotColor);
     this._drawShadow(path, zPlaneParams, lightPos, lightRadius, ambiPtr, spotPtr, flags);
     freeArraysThatAreNotMallocedByUsers(ambiPtr, ambientColor);
     freeArraysThatAreNotMallocedByUsers(spotPtr, spotColor);
+  };
+
+  CanvasKit.getShadowLocalBounds = function(ctm, path, zPlaneParams, lightPos, lightRadius,
+                                            flags, optOutputRect) {
+    var ctmPtr = copy3x3MatrixToWasm(ctm);
+    var ok = this._getShadowLocalBounds(ctmPtr, path, zPlaneParams, lightPos, lightRadius,
+                                        flags, _scratchRectPtr);
+    if (!ok) {
+      return null;
+    }
+    var ta = _scratchRect['toTypedArray']();
+    if (optOutputRect) {
+      optOutputRect.set(ta);
+      return optOutputRect;
+    }
+    return ta.slice();
   };
 
   // getLocalToDevice returns a 4x4 matrix.
