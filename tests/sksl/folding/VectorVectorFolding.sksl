@@ -69,7 +69,7 @@ void test_int() {
     result = int4(8, int3(10)) - int4(1);
     result = int4(2) * int4(1, 2, 3, 4);
     result = int4(12) / int4(1, 2, 3, 4);
-    sk_FragColor.x = (int4(12) / int4(1, 2, 3, 4)).y;
+    sk_FragColor.x = half((int4(12) / int4(1, 2, 3, 4)).y);
     sk_FragColor.x = int4(1) == int4(1) ? 1.0 : -1.0;
     sk_FragColor.x = int4(1) == int4(2) ? 2.0 : -2.0;
     sk_FragColor.x = int2(1) == int2(1, 1) ? 3.0 : -3.0;
@@ -113,7 +113,7 @@ void test_int() {
     result *= int4(2);
     result /= int4(1);
     result /= int4(2);
-    sk_FragColor = int4(result);
+    sk_FragColor = half4(result);
 }
 
 void main() {
