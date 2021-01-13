@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1262eec3_eebf6852",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T19:26:05Z",
+      "side": 1,
+      "message": "Something weird is going on - there\u0027s a lot of banding in gradients/blurs.  Nothing in the code jumps out, but we must be missing something to get that level of quantization.",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
