@@ -57,6 +57,8 @@ public:
      * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
     void onPrepare(GrOpFlushState* flushState) override;
+    void extracted(const GrCaps &caps);
+
     bool onExecute(GrOpFlushState* flushState) override;
 
     void addSampledTexture(GrSurfaceProxy* proxy) {
@@ -115,6 +117,8 @@ private:
     }
 
     void deleteOps();
+
+    GrLoadOp getStencilLoadOp(const GrCaps&, GrAttachment* stencil);
 
     enum class StencilContent {
         kDontCare,

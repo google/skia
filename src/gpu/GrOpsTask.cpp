@@ -535,43 +535,7 @@ static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
                                  renderPassXferBarriers);
 }
 
-// TODO: this is where GrOp::renderTarget is used (which is fine since it
-// is at flush time). However, we need to store the RenderTargetProxy in the
-// Ops and instantiate them here.
-bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
-    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
-    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
-    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
-    // we shouldn't end up with GrOpsTasks with only discard.
-    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
-        return false;
-    }
-
-    SkASSERT(this->numTargets() == 1);
-    GrRenderTargetProxy* proxy = this->target(0).proxy()->asRenderTargetProxy();
-    SkASSERT(proxy);
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-
-    // Make sure load ops are not kClear if the GPU needs to use draws for clears
-    SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
-             !flushState->gpu()->caps()->performColorClearsAsDraws());
-
-    const GrCaps& caps = *flushState->gpu()->caps();
-    GrRenderTarget* renderTarget = proxy->peekRenderTarget();
-    SkASSERT(renderTarget);
-
-    GrAttachment* stencil = nullptr;
-    if (int numStencilSamples = proxy->numStencilSamples()) {
-        if (!flushState->resourceProvider()->attachStencilAttachment(
-                renderTarget, numStencilSamples)) {
-            SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
-            return false;
-        }
-        stencil = renderTarget->getStencilAttachment();
-    }
-
-    SkASSERT(!stencil || stencil->numSamples() == proxy->numStencilSamples());
-
+GrLoadOp GrOpsTask::getStencilLoadOp(const GrCaps &caps, GrAttachment* stencil) {
     GrLoadOp stencilLoadOp;
     switch (fInitialStencilContent) {
         case StencilContent::kDontCare:
@@ -602,6 +566,48 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             stencilLoadOp = GrLoadOp::kLoad;
             break;
     }
+    return stencilLoadOp;
+}
+
+// TODO: this is where GrOp::renderTarget is used (which is fine since it
+// is at flush time). However, we need to store the RenderTargetProxy in the
+// Ops and instantiate them here.
+bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
+    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
+    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
+    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
+    // we shouldn't end up with GrOpsTasks with only discard.
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+        return false;
+    }
+
+    SkASSERT(this->numTargets() == 1);
+    const GrSurfaceProxyView& target = this->target(0);
+    GrRenderTargetProxy* rtp = target.proxy()->asRenderTargetProxy();
+    SkASSERT(rtp);
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    // Make sure load ops are not kClear if the GPU needs to use draws for clears
+    SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
+             !flushState->gpu()->caps()->performColorClearsAsDraws());
+
+    const GrCaps& caps = *flushState->gpu()->caps();
+    GrRenderTarget* renderTarget = rtp->peekRenderTarget();
+    SkASSERT(renderTarget);
+
+    GrAttachment* stencil = nullptr;
+    if (int numStencilSamples = rtp->numStencilSamples()) {
+        if (!flushState->resourceProvider()->attachStencilAttachment(
+                renderTarget, numStencilSamples)) {
+            SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
+            return false;
+        }
+        stencil = renderTarget->getStencilAttachment();
+    }
+
+    SkASSERT(!stencil || stencil->numSamples() == rtp->numStencilSamples());
+
+    GrLoadOp stencilLoadOp = this->getStencilLoadOp(caps, stencil);
 
     // NOTE: If fMustPreserveStencil is set, then we are executing a surfaceDrawContext that split
     // its opsTask.
@@ -615,7 +621,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             : GrStoreOp::kStore;
 
     GrOpsRenderPass* renderPass = create_render_pass(
-            flushState->gpu(), proxy->peekRenderTarget(), stencil, this->target(0).origin(),
+            flushState->gpu(), rtp->peekRenderTarget(), stencil, target.origin(),
             fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
             fSampledProxies, fRenderPassXferBarriers);
 
@@ -635,7 +641,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 #endif
 
         GrOpFlushState::OpArgs opArgs(chain.head(),
-                                      this->target(0),
+                                      target,
                                       chain.appliedClip(),
                                       chain.dstProxyView(),
                                       fRenderPassXferBarriers,
