@@ -1,0 +1,31 @@
+// Should return 5
+int return_loop() {
+    for (int i = 0; i < 10; ++i) {
+        if (i == 5) { return i; }
+    }
+    return 0;
+}
+
+// Should return 35
+int continue_loop() {
+    int sum = 0;
+    for (int i = 0; i < 10; ++i) {
+        if (i < 5) { continue; }
+        sum += i;
+    }
+    return sum;
+}
+
+// Should return 15
+int break_loop() {
+    int sum = 0;
+    for (int i = 0; i < 10; ++i) {
+        if (i > 5) { break; }
+        sum += i;
+    }
+    return sum;
+}
+
+half4 main() {
+    return half4(return_loop(), continue_loop(), break_loop(), 1);
+}
