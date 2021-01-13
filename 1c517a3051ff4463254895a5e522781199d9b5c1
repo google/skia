@@ -22,6 +22,30 @@
       },
       "revId": "1c517a3051ff4463254895a5e522781199d9b5c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90567e86_3c7d4be6",
+        "filename": "tests/sksl/shared/golden/VectorConstructors.glsl",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T16:02:16Z",
+      "side": 1,
+      "message": "Ah, yup, it looks like GLSL will allow this. (glslang: `vec3 x \u003d vec3(bvec2(true, false), false);` compiles)\n\nDang, back to the drawing board. We currently have tests verifying that we DON\u0027T allow this:\n\nhttp://osscs/skia/skia/+/master:tests/sksl/errors/ConstructorTypeMismatch.sksl\n\nWhich misled me.",
+      "parentUuid": "5b72f645_eeefb2f2",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 1
+      },
+      "revId": "1c517a3051ff4463254895a5e522781199d9b5c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
