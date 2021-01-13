@@ -16,6 +16,7 @@ class SkSVGRenderContext;
 enum class SkSVGAttribute {
     kClipRule,
     kColor,
+    kColorInterpolationFilters,
     kCx, // <circle>, <ellipse>, <radialGradient>: center x position
     kCy, // <circle>, <ellipse>, <radialGradient>: center y position
     kD,
@@ -89,6 +90,7 @@ struct SkSVGPresentationAttributes {
     SkSVGProperty<SkSVGVisibility, true> fVisibility;
 
     SkSVGProperty<SkSVGColorType , true> fColor;
+    SkSVGProperty<SkSVGColorspace, true> fColorInterpolationFilters;
 
     SkSVGProperty<SkSVGFontFamily, true> fFontFamily;
     SkSVGProperty<SkSVGFontStyle , true> fFontStyle;
