@@ -71,6 +71,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7d27f55_e6c75037",
+        "filename": "modules/svg/src/SkSVGFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-13T20:58:36Z",
+      "side": 1,
+      "message": "Got it, thanks to both for the explanations.",
+      "parentUuid": "037cbd2f_357bac7c",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89bd7843_3ef8f294",
@@ -94,6 +112,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ff2ac4d_10465e42",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-13T20:58:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89bd7843_3ef8f294",
+      "range": {
+        "startLine": 35,
+        "startChar": 41,
+        "endLine": 35,
+        "endChar": 64
+      },
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "248dc524_52c8839d",
@@ -107,6 +149,24 @@
       "writtenOn": "2021-01-13T20:18:59Z",
       "side": 1,
       "message": "Makes me wonder whether resolveColorspace() should ever return kAuto.  IIUC, \u0027auto\u0027 means \u0027do whatever\u0027 so we could just pick kLinear or kSRGB and return that instead.\n\nThen this branch would go away.",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21037421_8d5e90f5",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-13T20:58:36Z",
+      "side": 1,
+      "message": "Makes sense and done -- currently returning kSRGB in the case of auto.",
+      "parentUuid": "248dc524_52c8839d",
       "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
