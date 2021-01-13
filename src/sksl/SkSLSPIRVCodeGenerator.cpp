@@ -1506,9 +1506,9 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
         if (argType.isVector()) {
             // SPIR-V doesn't support vector(vector-of-different-type) directly, so we need to
             // extract the components and convert them in that case manually. On top of that,
-            // as of this writing there's a bug in the Intel Vulkan driver where OpCreateComposite
-            // doesn't handle vector arguments at all, so we always extract vector components and
-            // pass them into OpCreateComposite individually.
+            // as of this writing there's a bug in the Intel Vulkan driver where
+            // OpCompositeConstruct doesn't handle vector arguments at all, so we always extract
+            // vector components and pass them into OpCompositeConstruct individually.
             SpvId vec = this->writeExpression(*c.arguments()[i], out);
             SpvOp_ op = SpvOpUndef;
             const Type& src = argType.componentType();
@@ -1527,7 +1527,9 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
                            src == *fContext.fTypes.fUByte) {
                     op = SpvOpConvertUToF;
                 } else {
-                    SkASSERT(false);
+                    fErrors.error(c.arguments()[i]->fOffset, "unsupported cast in SPIR-V: vector " +
+                                                             src.description() + " to " +
+                                                             dst.description());
                 }
             } else if (dst == *fContext.fTypes.fInt ||
                        dst == *fContext.fTypes.fShort ||
@@ -1545,7 +1547,9 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
                            src == *fContext.fTypes.fUByte) {
                     op = SpvOpBitcast;
                 } else {
-                    SkASSERT(false);
+                    fErrors.error(c.arguments()[i]->fOffset, "unsupported cast in SPIR-V: vector " +
+                                                             src.description() + " to " +
+                                                             dst.description());
                 }
             } else if (dst == *fContext.fTypes.fUInt ||
                        dst == *fContext.fTypes.fUShort ||
@@ -1563,7 +1567,9 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
                         return vec;
                     }
                 } else {
-                    SkASSERT(false);
+                    fErrors.error(c.arguments()[i]->fOffset, "unsupported cast in SPIR-V: vector " +
+                                                             src.description() + " to " +
+                                                             dst.description());
                 }
             }
             for (int j = 0; j < argType.columns(); j++) {
