@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c979c75_89cb8ed5",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-13T18:08:22Z",
+      "side": 1,
+      "message": "Yeah agreed, it looks weird. Done.",
+      "parentUuid": "b56efbff_49fa6680",
+      "range": {
+        "startLine": 70,
+        "startChar": 39,
+        "endLine": 70,
+        "endChar": 54
+      },
+      "revId": "af17ef2c9e530cfbe7b23132858993dce3fc3a9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6c16e3f_a330279b",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-13T17:33:59Z",
       "side": 1,
       "message": "Based on the above, I don\u0027t think you need .proxy() here.",
+      "range": {
+        "startLine": 75,
+        "startChar": 48,
+        "endLine": 75,
+        "endChar": 56
+      },
+      "revId": "af17ef2c9e530cfbe7b23132858993dce3fc3a9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b8f4741_846c84e5",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-13T18:08:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6c16e3f_a330279b",
       "range": {
         "startLine": 75,
         "startChar": 48,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1609a49e_8c2c5851",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-13T18:08:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78962c48_a4a6db84",
+      "range": {
+        "startLine": 120,
+        "startChar": 16,
+        "endLine": 120,
+        "endChar": 24
+      },
+      "revId": "af17ef2c9e530cfbe7b23132858993dce3fc3a9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9be68d79_a64c6ee4",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-01-13T17:33:59Z",
       "side": 1,
       "message": "pixmaps",
+      "range": {
+        "startLine": 285,
+        "startChar": 18,
+        "endLine": 285,
+        "endChar": 25
+      },
+      "revId": "af17ef2c9e530cfbe7b23132858993dce3fc3a9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f261cdce_d095f84a",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-13T18:08:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9be68d79_a64c6ee4",
       "range": {
         "startLine": 285,
         "startChar": 18,
