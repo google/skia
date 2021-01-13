@@ -49,7 +49,7 @@ static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm,
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(matrix);
     SkPaint paint(paintColor);
-    canvas->drawBitmap(bm, 0, 0, &paint);
+    canvas->drawImage(SkImage::MakeFromBitmap(bm), 0, 0, &paint);
 }
 
 static void fill_color_from_bitmap(SkCanvas* canvas,
