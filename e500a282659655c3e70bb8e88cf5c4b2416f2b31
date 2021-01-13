@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac620ba4_9699d1b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T19:16:03Z",
+      "side": 1,
+      "message": "This is the front-end validation work, but I\u0027ve gone ahead and included the part of the interface that I\u0027ll be using to do the actual unrolling in the VM backend.",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
