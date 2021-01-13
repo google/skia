@@ -30,7 +30,7 @@ sk_sp<SkImageFilter> SkSVGFeGaussianBlur::onMakeImageFilter(const SkSVGRenderCon
     }
 
     return SkImageFilters::Blur(sigmaX, sigmaY,
-                                fctx.resolveInput(ctx, this->getIn()),
+                                fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx)),
                                 this->resolveFilterSubregion(ctx, fctx));
 }
 
