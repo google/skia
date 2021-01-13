@@ -487,18 +487,7 @@ namespace skvm {
         Builder* operator->()    const { return builder; }
     };
 
-    // Some operations make sense with immediate arguments,
-    // so we use I32a and F32a to receive them transparently.
-    //
-    // We omit overloads that may indicate a bug or performance issue.
-    // In general it does not make sense to pass immediates to unary operations,
-    // and even sometimes not for binary operations, e.g.
-    //
-    //   div(x,y)    -- normal every day divide
-    //   div(3.0f,y) -- yep, makes sense
-    //   div(x,3.0f) -- omitted as a reminder you probably want mul(x, 1/3.0f).
-    //
-    // You can of course always splat() to override these opinions.
+#if 1
     struct I32a {
         I32a(I32 v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
         template <typename T>
@@ -517,6 +506,7 @@ namespace skvm {
         Val   id  = NA;
         float imm = 0;
     };
+#endif
 
     struct Color {
         F32 r,g,b,a;
@@ -683,16 +673,51 @@ namespace skvm {
             return pun_to_F32(splat(bits));
         }
 
-        // float math, comparisons, etc.
-        F32 add(F32, F32);  F32 add(F32a x, F32a y) { return add(_(x), _(y)); }
-        F32 sub(F32, F32);  F32 sub(F32a x, F32a y) { return sub(_(x), _(y)); }
-        F32 mul(F32, F32);  F32 mul(F32a x, F32a y) { return mul(_(x), _(y)); }
-        F32 div(F32, F32);  F32 div(F32a x, F32  y) { return div(_(x),   y ); }
-        F32 min(F32, F32);  F32 min(F32a x, F32a y) { return min(_(x), _(y)); }
-        F32 max(F32, F32);  F32 max(F32a x, F32a y) { return max(_(x), _(y)); }
+        // Some operations make sense with immediate arguments,
+        // so we provide overloads inline to make that seamless.
+        //
+        // We omit overloads that may indicate a bug or performance issue.
+        // In general it does not make sense to pass immediates to unary operations,
+        // and even sometimes not for binary operations, e.g.
+        //
+        //   div(x, y)    -- normal every day divide
+        //   div(3.0f, y) -- yep, makes sense
+        //   div(x, 3.0f) -- omitted as a reminder you probably want mul(x, 1/3.0f).
+        //
+        // You can of course always splat() to override these opinions.
 
-        F32 mad(F32  x, F32  y, F32  z) { return add(mul(x,y), z); }
-        F32 mad(F32a x, F32a y, F32a z) { return mad(_(x), _(y), _(z)); }
+        // float math, comparisons, etc.
+        F32 add(F32, F32);
+        F32 add(F32 x, float y) { return add(x, splat(y)); }
+        F32 add(float x, F32 y) { return add(splat(x), y); }
+
+        F32 sub(F32, F32);
+        F32 sub(F32 x, float y) { return sub(x, splat(y)); }
+        F32 sub(float x, F32 y) { return sub(splat(x), y); }
+
+        F32 mul(F32, F32);
+        F32 mul(F32 x, float y) { return mul(x, splat(y)); }
+        F32 mul(float x, F32 y) { return mul(splat(x), y); }
+
+        F32 div(F32, F32);
+        F32 div(float x, F32 y) { return div(splat(x), y); }
+
+        F32 min(F32, F32);
+        F32 min(F32 x, float y) { return min(x, splat(y)); }
+        F32 min(float x, F32 y) { return min(splat(x), y); }
+
+        F32 max(F32, F32);
+        F32 max(F32 x, float y) { return max(x, splat(y)); }
+        F32 max(float x, F32 y) { return max(splat(x), y); }
+
+        // TODO: remove mad()?  It's just sugar.
+        F32 mad(F32   x, F32   y, F32   z) { return add(mul(x,y), z); }
+        F32 mad(F32   x, F32   y, float z) { return mad(      x ,       y , splat(z)); }
+        F32 mad(F32   x, float y, F32   z) { return mad(      x , splat(y),       z ); }
+        F32 mad(F32   x, float y, float z) { return mad(      x , splat(y), splat(z)); }
+        F32 mad(float x, F32   y, F32   z) { return mad(splat(x),       y ,       z ); }
+        F32 mad(float x, F32   y, float z) { return mad(splat(x),       y , splat(z)); }
+        F32 mad(float x, float y, F32   z) { return mad(splat(x), splat(y),       z ); }
 
         F32        sqrt(F32);
         F32 approx_log2(F32);
@@ -700,8 +725,10 @@ namespace skvm {
         F32 approx_log (F32 x) { return mul(0.69314718f, approx_log2(x)); }
         F32 approx_exp (F32 x) { return approx_pow2(mul(x, 1.4426950408889634074f)); }
 
-        F32 approx_powf(F32  base, F32  exp);
-        F32 approx_powf(F32a base, F32a exp) { return approx_powf(_(base), _(exp)); }
+        F32 approx_powf(F32 base, F32 exp);
+        F32 approx_powf(F32 base, float exp) { return approx_powf(base, splat(exp)); }
+        F32 approx_powf(float base, F32 exp) { return approx_powf(splat(base), exp); }
+
 
         F32 approx_sin(F32 radians);
         F32 approx_cos(F32 radians) { return approx_sin(add(radians, SK_ScalarPI/2)); }
@@ -827,6 +854,7 @@ namespace skvm {
             return this->push(Instruction{op, x,y,z, immy,immz});
         }
 
+    #if 1
         I32 _(I32a x) {
             if (x.id != NA) {
                 SkASSERT(x.builder == this);
@@ -842,6 +870,7 @@ namespace skvm {
             }
             return splat(x.imm);
         }
+    #endif
 
         bool allImm() const;
 
@@ -931,20 +960,25 @@ namespace skvm {
 
 #define SI static inline
 
-    SI I32 operator+(I32 x, I32a y) { return x->add(x,y); }
-    SI I32 operator+(int x, I32  y) { return y->add(x,y); }
+    SI I32 operator+(I32 x, I32 y) { return x->add(x,y); }
+    SI I32 operator+(I32 x, int y) { return x->add(x,y); }
+    SI I32 operator+(int x, I32 y) { return y->add(x,y); }
 
-    SI I32 operator-(I32 x, I32a y) { return x->sub(x,y); }
-    SI I32 operator-(int x, I32  y) { return y->sub(x,y); }
+    SI I32 operator-(I32 x, I32 y) { return x->sub(x,y); }
+    SI I32 operator-(I32 x, int y) { return x->sub(x,y); }
+    SI I32 operator-(int x, I32 y) { return y->sub(x,y); }
 
-    SI I32 operator*(I32 x, I32a y) { return x->mul(x,y); }
-    SI I32 operator*(int x, I32  y) { return y->mul(x,y); }
+    SI I32 operator*(I32 x, I32 y) { return x->mul(x,y); }
+    SI I32 operator*(I32 x, int y) { return x->mul(x,y); }
+    SI I32 operator*(int x, I32 y) { return y->mul(x,y); }
 
-    SI I32 min(I32 x, I32a y) { return x->min(x,y); }
-    SI I32 min(int x, I32  y) { return y->min(x,y); }
+    SI I32 min(I32 x, I32 y) { return x->min(x,y); }
+    SI I32 min(I32 x, int y) { return x->min(x,y); }
+    SI I32 min(int x, I32 y) { return y->min(x,y); }
 
-    SI I32 max(I32 x, I32a y) { return x->max(x,y); }
-    SI I32 max(int x, I32  y) { return y->max(x,y); }
+    SI I32 max(I32 x, I32 y) { return x->max(x,y); }
+    SI I32 max(I32 x, int y) { return x->max(x,y); }
+    SI I32 max(int x, I32 y) { return y->max(x,y); }
 
     SI I32 operator==(I32 x, I32 y) { return x->eq(x,y); }
     SI I32 operator==(I32 x, int y) { return x->eq(x,y); }
@@ -954,36 +988,45 @@ namespace skvm {
     SI I32 operator!=(I32 x, int y) { return x->neq(x,y); }
     SI I32 operator!=(int x, I32 y) { return y->neq(x,y); }
 
-    SI I32 operator< (I32 x, I32a y) { return x->lt(x,y); }
-    SI I32 operator< (int x, I32  y) { return y->lt(x,y); }
+    SI I32 operator< (I32 x, I32 y) { return x->lt(x,y); }
+    SI I32 operator< (I32 x, int y) { return x->lt(x,y); }
+    SI I32 operator< (int x, I32 y) { return y->lt(x,y); }
 
-    SI I32 operator<=(I32 x, I32a y) { return x->lte(x,y); }
-    SI I32 operator<=(int x, I32  y) { return y->lte(x,y); }
+    SI I32 operator<=(I32 x, I32 y) { return x->lte(x,y); }
+    SI I32 operator<=(I32 x, int y) { return x->lte(x,y); }
+    SI I32 operator<=(int x, I32 y) { return y->lte(x,y); }
 
-    SI I32 operator> (I32 x, I32a y) { return x->gt(x,y); }
-    SI I32 operator> (int x, I32  y) { return y->gt(x,y); }
+    SI I32 operator> (I32 x, I32 y) { return x->gt(x,y); }
+    SI I32 operator> (I32 x, int y) { return x->gt(x,y); }
+    SI I32 operator> (int x, I32 y) { return y->gt(x,y); }
 
-    SI I32 operator>=(I32 x, I32a y) { return x->gte(x,y); }
-    SI I32 operator>=(int x, I32  y) { return y->gte(x,y); }
+    SI I32 operator>=(I32 x, I32 y) { return x->gte(x,y); }
+    SI I32 operator>=(I32 x, int y) { return x->gte(x,y); }
+    SI I32 operator>=(int x, I32 y) { return y->gte(x,y); }
 
 
-    SI F32 operator+(F32   x, F32a y) { return x->add(x,y); }
-    SI F32 operator+(float x, F32  y) { return y->add(x,y); }
+    SI F32 operator+(F32   x, F32   y) { return x->add(x,y); }
+    SI F32 operator+(F32   x, float y) { return x->add(x,y); }
+    SI F32 operator+(float x, F32   y) { return y->add(x,y); }
 
-    SI F32 operator-(F32   x, F32a y) { return x->sub(x,y); }
-    SI F32 operator-(float x, F32  y) { return y->sub(x,y); }
+    SI F32 operator-(F32   x, F32   y) { return x->sub(x,y); }
+    SI F32 operator-(F32   x, float y) { return x->sub(x,y); }
+    SI F32 operator-(float x, F32   y) { return y->sub(x,y); }
 
-    SI F32 operator*(F32   x, F32a y) { return x->mul(x,y); }
-    SI F32 operator*(float x, F32  y) { return y->mul(x,y); }
+    SI F32 operator*(F32   x, F32   y) { return x->mul(x,y); }
+    SI F32 operator*(F32   x, float y) { return x->mul(x,y); }
+    SI F32 operator*(float x, F32   y) { return y->mul(x,y); }
 
     SI F32 operator/(F32   x, F32  y) { return x->div(x,y); }
     SI F32 operator/(float x, F32  y) { return y->div(x,y); }
 
-    SI F32 min(F32   x, F32a y) { return x->min(x,y); }
-    SI F32 min(float x, F32  y) { return y->min(x,y); }
+    SI F32 min(F32   x, F32   y) { return x->min(x,y); }
+    SI F32 min(F32   x, float y) { return x->min(x,y); }
+    SI F32 min(float x, F32   y) { return y->min(x,y); }
 
-    SI F32 max(F32   x, F32a y) { return x->max(x,y); }
-    SI F32 max(float x, F32  y) { return y->max(x,y); }
+    SI F32 max(F32   x, F32   y) { return x->max(x,y); }
+    SI F32 max(F32   x, float y) { return x->max(x,y); }
+    SI F32 max(float x, F32   y) { return y->max(x,y); }
 
     SI I32 operator==(F32   x, F32   y) { return x->eq(x,y); }
     SI I32 operator==(F32   x, float y) { return x->eq(x,y); }
@@ -993,26 +1036,41 @@ namespace skvm {
     SI I32 operator!=(F32   x, float y) { return x->neq(x,y); }
     SI I32 operator!=(float x, F32   y) { return y->neq(x,y); }
 
-    SI I32 operator< (F32   x, F32a y) { return x->lt(x,y); }
-    SI I32 operator< (float x, F32  y) { return y->lt(x,y); }
+    SI I32 operator< (F32   x, F32   y) { return x->lt(x,y); }
+    SI I32 operator< (F32   x, float y) { return x->lt(x,y); }
+    SI I32 operator< (float x, F32   y) { return y->lt(x,y); }
 
-    SI I32 operator<=(F32   x, F32a y) { return x->lte(x,y); }
-    SI I32 operator<=(float x, F32  y) { return y->lte(x,y); }
+    SI I32 operator<=(F32   x, F32   y) { return x->lte(x,y); }
+    SI I32 operator<=(F32   x, float y) { return x->lte(x,y); }
+    SI I32 operator<=(float x, F32   y) { return y->lte(x,y); }
 
-    SI I32 operator> (F32   x, F32a y) { return x->gt(x,y); }
-    SI I32 operator> (float x, F32  y) { return y->gt(x,y); }
+    SI I32 operator> (F32   x, F32   y) { return x->gt(x,y); }
+    SI I32 operator> (F32   x, float y) { return x->gt(x,y); }
+    SI I32 operator> (float x, F32   y) { return y->gt(x,y); }
 
-    SI I32 operator>=(F32   x, F32a y) { return x->gte(x,y); }
-    SI I32 operator>=(float x, F32  y) { return y->gte(x,y); }
+    SI I32 operator>=(F32   x, F32   y) { return x->gte(x,y); }
+    SI I32 operator>=(F32   x, float y) { return x->gte(x,y); }
+    SI I32 operator>=(float x, F32   y) { return y->gte(x,y); }
 
-    SI I32& operator+=(I32& x, I32a y) { return (x = x + y); }
-    SI I32& operator-=(I32& x, I32a y) { return (x = x - y); }
-    SI I32& operator*=(I32& x, I32a y) { return (x = x * y); }
+    SI I32& operator+=(I32& x, I32 y) { return (x = x + y); }
+    SI I32& operator+=(I32& x, int y) { return (x = x + y); }
 
-    SI F32& operator+=(F32& x, F32a y) { return (x = x + y); }
-    SI F32& operator-=(F32& x, F32a y) { return (x = x - y); }
-    SI F32& operator*=(F32& x, F32a y) { return (x = x * y); }
-    SI F32& operator/=(F32& x, F32  y) { return (x = x / y); }
+    SI I32& operator-=(I32& x, I32 y) { return (x = x - y); }
+    SI I32& operator-=(I32& x, int y) { return (x = x - y); }
+
+    SI I32& operator*=(I32& x, I32 y) { return (x = x * y); }
+    SI I32& operator*=(I32& x, int y) { return (x = x * y); }
+
+    SI F32& operator+=(F32& x, F32   y) { return (x = x + y); }
+    SI F32& operator+=(F32& x, float y) { return (x = x + y); }
+
+    SI F32& operator-=(F32& x, F32   y) { return (x = x - y); }
+    SI F32& operator-=(F32& x, float y) { return (x = x - y); }
+
+    SI F32& operator*=(F32& x, F32   y) { return (x = x * y); }
+    SI F32& operator*=(F32& x, float y) { return (x = x * y); }
+
+    SI F32& operator/=(F32& x, F32   y) { return (x = x / y); }
 
     SI void assert_true(I32 cond, I32 debug) { cond->assert_true(cond,debug); }
     SI void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
@@ -1041,8 +1099,9 @@ namespace skvm {
     SI F32 approx_log (F32 x) { return x->approx_log (x); }
     SI F32 approx_exp (F32 x) { return x->approx_exp (x); }
 
-    SI F32 approx_powf(F32   base, F32a exp) { return base->approx_powf(base, exp); }
-    SI F32 approx_powf(float base, F32  exp) { return  exp->approx_powf(base, exp); }
+    SI F32 approx_powf(F32   base, F32   exp) { return base->approx_powf(base, exp); }
+    SI F32 approx_powf(F32   base, float exp) { return base->approx_powf(base, exp); }
+    SI F32 approx_powf(float base, F32   exp) { return  exp->approx_powf(base, exp); }
 
     SI F32 approx_sin(F32 radians) { return radians->approx_sin(radians); }
     SI F32 approx_cos(F32 radians) { return radians->approx_cos(radians); }
@@ -1142,7 +1201,15 @@ namespace skvm {
 
     // Evaluate polynomials: ax^n + bx^(n-1) + ... for n >= 1
     template <typename... Rest>
-    SI F32 poly(F32 x, F32a a, F32a b, Rest... rest) {
+    SI F32 poly(F32 x, F32 a, float b, Rest... rest) {
+        if constexpr (sizeof...(rest) == 0) {
+            return x*a+b;
+        } else {
+            return poly(x, x*a+b, rest...);
+        }
+    }
+    template <typename... Rest>
+    SI F32 poly(F32 x, float a, float b, Rest... rest) {
         if constexpr (sizeof...(rest) == 0) {
             return x*a+b;
         } else {
