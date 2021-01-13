@@ -277,6 +277,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrXferProcessor.cpp",
   "$_src/gpu/GrXferProcessor.h",
   "$_src/gpu/GrYUVABackendTextures.cpp",
+  "$_src/gpu/GrYUVATextureProxies.cpp",
+  "$_src/gpu/GrYUVATextureProxies.h",
 
   # Ops
   "$_src/gpu/effects/GrBezierEffect.cpp",
