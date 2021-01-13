@@ -54,11 +54,20 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         const auto& feNode = static_cast<const SkSVGFe&>(*child);
         const auto& feResultType = feNode.getResult();
 
+        // Propagate any inherited properties that may impact filter effect behavior (e.g.
+        // color-interpolation-filters). We call this explicitly here because the SkSVGFe
+        // nodes do not participate in the normal onRender path, which is when property
+        // propagation currently occurs.
+        SkSVGRenderContext localCtx(ctx);
+        feNode.applyProperties(&localCtx);
+
         // TODO: there are specific composition rules that need to be followed
-        filter = feNode.makeImageFilter(ctx, fctx);
+        // TODO: perform colorspace conversions depending on 'color-interpolation-filters' setting
+        // of the current node and its inputs.
+        filter = feNode.makeImageFilter(localCtx, fctx);
 
         if (!feResultType.isEmpty()) {
-            fctx.registerResult(feResultType, filter, feNode.resolveFilterSubregion(ctx, fctx));
+            fctx.registerResult(feResultType, filter, feNode.resolveFilterSubregion(localCtx, fctx));
         }
     }
 
