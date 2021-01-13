@@ -26,29 +26,29 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %_ptr_Output_float = OpTypePointer Output %float
 %int_0 = OpConstant %int 0
 %v2float = OpTypeVector %float 2
-%22 = OpConstantComposite %v2float %float_1 %float_1
+%21 = OpConstantComposite %v2float %float_1 %float_1
 %v3float = OpTypeVector %float 3
-%26 = OpConstantComposite %v3float %float_1 %float_1 %float_1
+%25 = OpConstantComposite %v3float %float_1 %float_1 %float_1
 %int_2 = OpConstant %int 2
 %float_0 = OpConstant %float 0
 %mat2v2float = OpTypeMatrix %v2float 2
 %int_3 = OpConstant %int 3
 %main = OpFunction %void None %11
 %12 = OpLabel
-%13 = OpConvertSToF %float %int_1
+%16 = OpConvertSToF %float %int_1
 %17 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %17 %13
-%20 = OpConvertSToF %float %int_1
+OpStore %17 %16
+%22 = OpConvertSToF %float %int_1
 %23 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_1
-OpStore %23 %20
-%24 = OpConvertSToF %float %int_1
+OpStore %23 %22
+%26 = OpConvertSToF %float %int_1
 %27 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_2
-OpStore %27 %24
-%32 = OpCompositeConstruct %v2float %float_1 %float_0
-%33 = OpCompositeConstruct %v2float %float_0 %float_1
-%30 = OpCompositeConstruct %mat2v2float %32 %33
-%29 = OpConvertSToF %float %int_1
+OpStore %27 %26
+%31 = OpCompositeConstruct %v2float %float_1 %float_0
+%32 = OpCompositeConstruct %v2float %float_0 %float_1
+%29 = OpCompositeConstruct %mat2v2float %31 %32
+%34 = OpConvertSToF %float %int_1
 %35 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_3
-OpStore %35 %29
+OpStore %35 %34
 OpReturn
 OpFunctionEnd

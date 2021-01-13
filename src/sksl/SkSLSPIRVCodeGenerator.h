@@ -227,9 +227,18 @@ private:
 
     SpvId writeFloatConstructor(const Constructor& c, OutputStream& out);
 
+    SpvId castScalarToFloat(SpvId inputId, const Type& inputType, const Type& outputType,
+                            OutputStream& out);
+
     SpvId writeIntConstructor(const Constructor& c, OutputStream& out);
 
+    SpvId castScalarToSignedInt(SpvId inputId, const Type& inputType, const Type& outputType,
+                                OutputStream& out);
+
     SpvId writeUIntConstructor(const Constructor& c, OutputStream& out);
+
+    SpvId castScalarToUnsignedInt(SpvId inputId, const Type& inputType, const Type& outputType,
+                                  OutputStream& out);
 
     /**
      * Writes a matrix with the diagonal entries all equal to the provided expression, and all other
