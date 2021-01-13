@@ -79,7 +79,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
                 if (dev_xywh.w < 0) {  // Negative height indicates that the path is transposed.
                     atlascoord = atlascoord.yx;
                 }
-                atlascoord += atlas_xy;
+                atlascoord += float2(atlas_xy);
                 %s = atlascoord * %s;)",
                 atlasCoord.vsOut(), atlasAdjust);
 
