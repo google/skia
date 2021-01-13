@@ -468,8 +468,8 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
     }
 }
 
-void SkSVGRenderContext::applyFilter(const SkSVGFilterType& filter) {
-    if (filter.type() != SkSVGFilterType::Type::kIRI) {
+void SkSVGRenderContext::applyFilter(const SkSVGFuncIRI& filter) {
+    if (filter.type() != SkSVGFuncIRI::Type::kIRI) {
         return;
     }
 
@@ -497,8 +497,8 @@ void SkSVGRenderContext::saveOnce() {
     SkASSERT(fCanvas->getSaveCount() > fCanvasSaveCount);
 }
 
-void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
-    if (clip.type() != SkSVGClip::Type::kIRI) {
+void SkSVGRenderContext::applyClip(const SkSVGFuncIRI& clip) {
+    if (clip.type() != SkSVGFuncIRI::Type::kIRI) {
         return;
     }
 
