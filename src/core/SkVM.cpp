@@ -2409,7 +2409,9 @@ namespace skvm {
                                 (n,a[0],a[1],a[2],a[3],a[4]);
                 case 6: return ((void(*)(int,void*,void*,void*,void*,void*,void*))jit_entry)
                                 (n,a[0],a[1],a[2],a[3],a[4],a[5]);
-                default: SkASSERT(false);  // TODO: >6 args?
+                case 7: return ((void(*)(int,void*,void*,void*,void*,void*,void*,void*))jit_entry)
+                                (n,a[0],a[1],a[2],a[3],a[4],a[5],a[6]);
+                default: SkASSERT(fImpl->strides.size() <= 7);
             }
         }
     #endif
