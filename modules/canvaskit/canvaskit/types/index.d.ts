@@ -124,6 +124,26 @@ export interface CanvasKit {
     RRectXY(rect: InputRect, rx: number, ry: number): RRect;
 
     /**
+     * Generate bounding box for shadows relative to path. Includes both the ambient and spot
+     * shadow bounds. This pairs with Canvas.drawShadow().
+     * See SkShadowUtils.h for more details.
+     * @param ctm - Current transformation matrix to device space.
+     * @param path - The occluder used to generate the shadows.
+     * @param zPlaneParams - Values for the plane function which returns the Z offset of the
+     *                       occluder from the canvas based on local x and y values (the current
+     *                       matrix is not applied).
+     * @param lightPos - The 3D position of the light relative to the canvas plane. This is
+     *                   independent of the canvas's current matrix.
+     * @param lightRadius - The radius of the disc light.
+     * @param flags - See SkShadowFlags.h; 0 means use default options.
+     * @param dstRect - if provided, the bounds will be copied into this rect instead of allocating
+     *                  a new one.
+     * @returns The bounding rectangle or null if it could not be computed.
+     */
+    getShadowLocalBounds(ctm: InputMatrix, path: Path, zPlaneParams: Vector3, lightPos: Vector3,
+                         lightRadius: number, flags: number, dstRect?: Rect): Rect | null;
+
+    /**
      * Malloc returns a TypedArray backed by the C++ memory of the
      * given length. It should only be used by advanced users who
      * can manage memory and initialize values properly. When used

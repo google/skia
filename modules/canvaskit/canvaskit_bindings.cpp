@@ -781,6 +781,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
 
+    function("_getShadowLocalBounds", optional_override([](
+            uintptr_t /* float* */ ctmPtr, const SkPath& path,
+            const SkPoint3& zPlaneParams, const SkPoint3& lightPos, SkScalar lightRadius,
+            uint32_t flags, uintptr_t /* SkRect* */ outPtr) -> bool {
+        OptionalMatrix ctm(ctmPtr);
+        SkRect* outputBounds = reinterpret_cast<SkRect*>(outPtr);
+        return SkShadowUtils::GetLocalBounds(ctm, path, zPlaneParams, lightPos, lightRadius,
+                              flags, outputBounds);
+    }));
+
 #ifdef SK_SERIALIZE_SKP
     function("_MakePicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
                                                     size_t bytes)->sk_sp<SkPicture> {
