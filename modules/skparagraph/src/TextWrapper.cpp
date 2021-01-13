@@ -228,8 +228,8 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto endlessLine = !SkScalarIsFinite(maxWidth);
     auto hasEllipsis = parent->paragraphStyle().ellipsized();
 
-    auto disableFirstAscent = parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent;
-    auto disableLastDescent = parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent;
+    auto disableFirstAscent = (parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent) == TextHeightBehavior::kDisableFirstAscent;
+    auto disableLastDescent = (parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent) == TextHeightBehavior::kDisableLastDescent;
     bool firstLine = true; // We only interested in fist line if we have to disable the first ascent
 
     SkScalar softLineMaxIntrinsicWidth = 0;
@@ -382,8 +382,17 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
         fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
         fMaxIntrinsicWidth = std::max(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
-        // In case we could not place a single cluster on the line
-        fHeight = std::max(fHeight, fEndLine.metrics().height());
+
+        if (fLineNumber == 0) {
+            // In case we could not place even a single cluster on the line
+            if (disableFirstAscent) {
+                fEndLine.metrics().fAscent = fEndLine.metrics().fRawAscent;
+            }
+            if (disableLastDescent && !fHardLineBreak) {
+                fEndLine.metrics().fDescent = fEndLine.metrics().fRawDescent;
+            }
+            fHeight = std::max(fHeight, fEndLine.metrics().height());
+        }
     }
 
     if (fHardLineBreak) {
