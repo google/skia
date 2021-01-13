@@ -46,6 +46,30 @@
       },
       "revId": "1c517a3051ff4463254895a5e522781199d9b5c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aee4b120_f60729f1",
+        "filename": "tests/sksl/shared/golden/VectorConstructors.glsl",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T22:14:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90567e86_3c7d4be6",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 1
+      },
+      "revId": "1c517a3051ff4463254895a5e522781199d9b5c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
