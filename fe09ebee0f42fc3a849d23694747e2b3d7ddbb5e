@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fa9ae2a_32c6dda2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T22:19:20Z",
+      "side": 1,
+      "message": "I\u0027m going to add the allImm optimizations to I32 comparison functions next. 😂",
+      "revId": "fe09ebee0f42fc3a849d23694747e2b3d7ddbb5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
