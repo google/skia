@@ -16,6 +16,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -300,6 +301,15 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
+
+    skvm::Color onProgram(skvm::Builder*,
+                          skvm::Coord, skvm::Coord, skvm::Color,
+                          const SkMatrixProvider&, const SkMatrix*,
+                          SkFilterQuality, const SkColorInfo&,
+                          skvm::Uniforms*, SkArenaAlloc*) const override {
+        // TODO?
+        return {};
+    }
 
 protected:
     void flatten(SkWriteBuffer&) const override;
