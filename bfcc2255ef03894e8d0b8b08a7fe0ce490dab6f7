@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc6e4b06_bb5edc26",
+        "filename": "src/sksl/dsl/DSLExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T18:13:46Z",
+      "side": 1,
+      "message": "Can \u0026\u0026 be removed?",
+      "range": {
+        "startLine": 73,
+        "startChar": 42,
+        "endLine": 73,
+        "endChar": 44
+      },
+      "revId": "bfcc2255ef03894e8d0b8b08a7fe0ce490dab6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "325e01be_0067abfc",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T18:13:46Z",
+      "side": 1,
+      "message": "I think we can use SymbolTable::addArrayDimension here.",
+      "range": {
+        "startLine": 151,
+        "startChar": 4,
+        "endLine": 153,
+        "endChar": 100
+      },
+      "revId": "bfcc2255ef03894e8d0b8b08a7fe0ce490dab6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
