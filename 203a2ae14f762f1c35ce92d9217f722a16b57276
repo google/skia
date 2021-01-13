@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6dc22375_81a0cfc3",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T21:58:57Z",
+      "side": 1,
+      "message": "Yeah, that makes sense, now that we\u0027ve clearly get several different things masking lanes off.",
+      "parentUuid": "e037f4f2_054be472",
+      "range": {
+        "startLine": 218,
+        "startChar": 15,
+        "endLine": 218,
+        "endChar": 20
+      },
+      "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f0e95aa3_f9aaa57e",
@@ -71,6 +95,24 @@
       "writtenOn": "2021-01-13T21:35:35Z",
       "side": 1,
       "message": "These comments are very helpful.",
+      "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17cbf9f1_a5e40181",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T21:58:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f0e95aa3_f9aaa57e",
       "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
