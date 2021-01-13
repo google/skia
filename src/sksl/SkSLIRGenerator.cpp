@@ -2133,7 +2133,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
 std::unique_ptr<Expression> IRGenerator::convertScalarConstructor(int offset,
                                                                   const Type& type,
                                                                   ExpressionArray args) {
-    SkASSERT(type.isNumber() || type.isBoolean());
+    SkASSERT(type.isScalar());
     if (args.size() != 1) {
         this->errorReporter().error(
                 offset, "invalid arguments to '" + type.displayName() +
@@ -2142,18 +2142,18 @@ std::unique_ptr<Expression> IRGenerator::convertScalarConstructor(int offset,
         return nullptr;
     }
 
-    std::unique_ptr<Expression> converted = Constructor::SimplifyConversion(type, *args[0]);
-    if (converted) {
-        return converted;
-    }
-
     const Type& argType = args[0]->type();
-    if (!argType.isNumber() && !argType.isBoolean()) {
+    if (!argType.isScalar()) {
         this->errorReporter().error(
                 offset, "invalid argument to '" + type.displayName() +
                         "' constructor (expected a number or bool, but found '" +
                         argType.displayName() + "')");
         return nullptr;
+    }
+
+    std::unique_ptr<Expression> converted = Constructor::SimplifyConversion(type, *args[0]);
+    if (converted) {
+        return converted;
     }
     return std::make_unique<Constructor>(offset, &type, std::move(args));
 }
@@ -2179,35 +2179,42 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
     }
     int actual = 0;
     int expected = type.rows() * type.columns();
-    if (args.size() != 1 || expected != component_count(args[0]->type()) ||
+    if (args.size() != 1 ||
+        expected != component_count(args[0]->type()) ||
         type.componentType().isNumber() != args[0]->type().componentType().isNumber()) {
-        for (size_t i = 0; i < args.size(); i++) {
-            const Type& argType = args[i]->type();
-            if (argType.isVector()) {
-                if (type.componentType().isNumber() !=
-                    argType.componentType().isNumber()) {
-                    this->errorReporter().error(offset,
-                                                "'" + argType.displayName() +
-                                                "' is not a valid parameter to '" +
-                                                type.displayName() + "' constructor");
-                    return nullptr;
-                }
-                actual += argType.columns();
-            } else if (argType.isScalar()) {
-                actual += 1;
-                if (!type.isScalar()) {
-                    args[i] = this->coerce(std::move(args[i]), type.componentType());
-                    if (!args[i]) {
-                        return nullptr;
-                    }
-                }
-            } else {
-                this->errorReporter().error(offset, "'" + argType.displayName() +
-                                                    "' is not a valid parameter to '" +
-                                                    type.displayName() + "' constructor");
+        for (std::unique_ptr<Expression>& arg : args) {
+            if (type.componentType().isNumber() != arg->type().componentType().isNumber()) {
+                this->errorReporter().error(offset,
+                                            "'" + arg->type().displayName() +
+                                            "' is not a valid parameter to '" +
+                                            type.displayName() + "' constructor");
                 return nullptr;
             }
+            if (arg->type().isVector()) {
+                actual += arg->type().columns();
+                continue;
+            }
+            if (arg->type().isScalar()) {
+                // Force this scalar to the proper type. If it's a literal, this will make sure it's
+                // the right type of literal. If an expression of matching type, the expression will
+                // be returned as-is. If it's an expression of mismatched type, this adds a cast.
+                int argOffset = arg->fOffset;
+                ExpressionArray ctorArg;
+                ctorArg.push_back(std::move(arg));
+                arg = this->convertConstructor(argOffset, type.componentType(), std::move(ctorArg));
+                if (!arg) {
+                    return nullptr;
+                }
+                actual += 1;
+                continue;
+            }
+
+            this->errorReporter().error(offset, "'" + arg->type().displayName() +
+                                                "' is not a valid parameter to '" +
+                                                type.displayName() + "' constructor");
+            return nullptr;
         }
+
         if (actual != 1 && actual != expected) {
             this->errorReporter().error(offset,
                                         "invalid arguments to '" + type.displayName() +
@@ -2216,7 +2223,7 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
             return nullptr;
         }
     }
-    return std::unique_ptr<Expression>(new Constructor(offset, &type, std::move(args)));
+    return std::make_unique<Constructor>(offset, &type, std::move(args));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
