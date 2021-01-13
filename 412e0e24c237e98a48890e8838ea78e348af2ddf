@@ -16,6 +16,24 @@
       "message": "Hopefully last time. I know this works on Tegra3 and Adreno from local testing. Fingers crossed on the Mali400 bot.",
       "revId": "412e0e24c237e98a48890e8838ea78e348af2ddf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef63589e_8b0aeed2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-13T22:29:55Z",
+      "side": 1,
+      "message": "success!",
+      "parentUuid": "fe23dcdc_5b223546",
+      "revId": "412e0e24c237e98a48890e8838ea78e348af2ddf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
