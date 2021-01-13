@@ -37,6 +37,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e389b271_eb7cf556",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T20:20:50Z",
+      "side": 1,
+      "message": "Ah, I like that - breaks out some of the scaffolding nicely.",
+      "parentUuid": "8d94f064_0789a8ae",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5202ce6d_c92cd905",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 6
@@ -48,6 +66,30 @@
       "writtenOn": "2021-01-13T19:38:38Z",
       "side": 1,
       "message": "Heresy!",
+      "range": {
+        "startLine": 557,
+        "startChar": 26,
+        "endLine": 557,
+        "endChar": 51
+      },
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5427fba0_f2408fd6",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T20:20:50Z",
+      "side": 1,
+      "message": "I know. I was debating what to do about it (because it\u0027s such an obvious omission from the spec), but while looking for other code that validates the same requirements, I found ANGLE/SwiftShader: https://source.chromium.org/chromium/chromium/src/+/master:third_party/angle/src/compiler/translator/ValidateLimitations.cpp;l\u003d335;drc\u003d9d737966acdf628a7cb4e12e4781179ea3be5d7b",
+      "parentUuid": "5202ce6d_c92cd905",
       "range": {
         "startLine": 557,
         "startChar": 26,
@@ -71,6 +113,24 @@
       "writtenOn": "2021-01-13T19:38:38Z",
       "side": 1,
       "message": "Out of curiosity, can we set this limit freely?  I guess there\u0027s no guarantee how high int can even go?",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa59ed55_52b786ae",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T20:20:50Z",
+      "side": 1,
+      "message": "Right, we could let this get pretty arbitrarily large. I was mostly concerned with pathological loops triggering timeouts during loop unrolling in the VM backend. On very bad ES2 devices, int could easily be limited to ~1k. Of course, this loop count limit is really separate from that:\n\nfor (float x \u003d 0; x \u003c 1; x +\u003d 0.00001) { ... }",
+      "parentUuid": "c8d7114f_c46d1ccb",
       "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -124,6 +184,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "edfb429c_a2583bda",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T20:20:50Z",
+      "side": 1,
+      "message": "The spec allows float loops, so start and delta are directly extracted from the loop terms. count is the actual number of iterations to run, so it\u0027s always integral. I used double to cover the range of possible inputs over both 32-bit integers, and float. (vs. having a union and type-tag)",
+      "parentUuid": "1eee1500_f26bc46f",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 19
+      },
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5ba8ef10_d9b853a7",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 6
@@ -135,6 +219,24 @@
       "writtenOn": "2021-01-13T19:38:38Z",
       "side": 1,
       "message": "I\u0027m guessing we\u0027ll do this next in VMGenerator?\n\n   UnrollableLoopInfo info;\n   SkAssertResult(Analysis::ForLoopIsValidForES2(stmt, \u0026info, nullptr));\n\n?",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38da3cb8_d69f248e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T20:20:50Z",
+      "side": 1,
+      "message": "Yup, I already have that exact chunk of code (and more) in my in-progress CL.",
+      "parentUuid": "5ba8ef10_d9b853a7",
       "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -158,6 +260,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "999e8b85_2143b1f0",
+        "filename": "tests/sksl/runtime_errors/LoopConditionErrors.rte",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T20:20:50Z",
+      "side": 1,
+      "message": "Sadly, no. (But that\u0027s a cool idea. We should totally do that.)",
+      "parentUuid": "8085e670_6b864ead",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5482aa93_5e972266",
         "filename": "tests/sksl/runtime_errors/LoopInitializerErrors.rte",
         "patchSetId": 6
@@ -169,6 +289,24 @@
       "writtenOn": "2021-01-13T19:38:38Z",
       "side": 1,
       "message": "Can we show off somewhere that scalar float indices and increments are legal\n\n   for (float i \u003d 0.017; i \u003c 1.23; i +\u003d 0.042)\n\n?",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c49ebeb_85d05827",
+        "filename": "tests/sksl/runtime_errors/LoopInitializerErrors.rte",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T20:20:50Z",
+      "side": 1,
+      "message": "Yeah - my plan here was just to show the things that don\u0027t work. Adding any working examples will trigger the existing asserts in the VM generator when it encounters a for loop. Once I implement the unrolling, I\u0027ll include several int and float test cases that will actually show the generated skvm instructions.",
+      "parentUuid": "5482aa93_5e972266",
       "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
