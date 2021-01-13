@@ -1848,6 +1848,12 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                 offset, String("operator '") + Compiler::OperatorName(op) + "' is not allowed");
         return nullptr;
     }
+    bool isAssignment = Compiler::IsAssignment(op);
+    if (isAssignment && !this->setRefKind(*left, op != Token::Kind::TK_EQ
+                                                 ? VariableReference::RefKind::kReadWrite
+                                                 : VariableReference::RefKind::kWrite)) {
+        return nullptr;
+    }
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
         this->errorReporter().error(
@@ -1856,16 +1862,9 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                                 right->type().displayName() + "'");
         return nullptr;
     }
-    if (Compiler::IsAssignment(op)) {
-        if (leftType->componentType().isOpaque()) {
-            this->errorReporter().error(offset, "assignments to opaque type '" +
-                                                left->type().displayName() + "' are not permitted");
-        }
-        if (!this->setRefKind(*left, op != Token::Kind::TK_EQ
-                                             ? VariableReference::RefKind::kReadWrite
-                                             : VariableReference::RefKind::kWrite)) {
-            return nullptr;
-        }
+    if (isAssignment && leftType->componentType().isOpaque()) {
+        this->errorReporter().error(offset, "assignments to opaque type '" +
+                                            left->type().displayName() + "' are not permitted");
     }
     left = this->coerce(std::move(left), *leftType);
     right = this->coerce(std::move(right), *rightType);

@@ -263,12 +263,13 @@ public:
     IsAssignableVisitor(ErrorReporter* errors) : fErrors(errors) {}
 
     bool visit(Expression& expr, Analysis::AssignmentInfo* info) {
+        int oldErrorCount = fErrors->errorCount();
         this->visitExpression(expr);
         if (info) {
             info->fAssignedVar = fAssignedVar;
             info->fIsSwizzled = fIsSwizzled;
         }
-        return fErrors->errorCount() == 0;
+        return fErrors->errorCount() == oldErrorCount;
     }
 
     void visitExpression(Expression& expr) {
