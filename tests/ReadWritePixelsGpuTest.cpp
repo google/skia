@@ -18,6 +18,7 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ProxyUtils.h"
@@ -84,8 +85,6 @@ struct GpuReadPixelTestRules {
     // Test unpremul sources? We could omit this and detect that creating the source of the read
     // failed but having it lets us skip generating reference color data.
     bool fAllowUnpremulSrc = true;
-    // Expect read function to succeed for kUnpremul?
-    bool fAllowUnpremulRead = true;
     // Are reads that are overlapping but not contained by the src bounds expected to succeed?
     bool fUncontainedRectSucceeds = true;
 };
@@ -110,7 +109,12 @@ template <typename T>
 static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                                         const GpuReadPixelTestRules& rules,
                                         const std::function<GpuSrcFactory<T>>& srcFactory,
-                                        const std::function<GpuReadSrcFn<T>>& read) {
+                                        const std::function<GpuReadSrcFn<T>>& read,
+                                        SkString label) {
+    if (!label.isEmpty()) {
+        // Add space for printing.
+        label.append(" ");
+    }
     // Separate this out just to give it some line width to breathe. Note 'srcPixels' should have
     // the same image info as src. We will do a converting readPixels() on it to get the data
     // to compare with the results of 'read'.
@@ -151,14 +155,13 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
         } else if (!rules.fUncontainedRectSucceeds && !surfBounds.contains(rect)) {
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
-        } else if (!rules.fAllowUnpremulRead && readAT == kUnpremul_SkAlphaType) {
-            REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
         } else if (result == GpuReadResult::kFail) {
             // TODO: Support RGB/BGR 101010x, BGRA 1010102 on the GPU.
             if (SkColorTypeToGrColorType(readCT) != GrColorType::kUnknown) {
                 ERRORF(reporter,
-                       "Read failed. Src CT: %s, Src AT: %s Read CT: %s, Read AT: %s, "
+                       "Read failed. %sSrc CT: %s, Src AT: %s Read CT: %s, Read AT: %s, "
                        "Rect [%d, %d, %d, %d], CS conversion: %d\n",
+                       label.c_str(),
                        ToolUtils::colortype_name(srcCT), ToolUtils::alphatype_name(srcAT),
                        ToolUtils::colortype_name(readCT), ToolUtils::alphatype_name(readAT),
                        rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, csConversion);
@@ -205,9 +208,10 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                                                                         const float diffs[4]) {
                 SkASSERT(x >= 0 && y >= 0);
                 ERRORF(reporter,
-                       "Src CT: %s, Src AT: %s, Read CT: %s, Read AT: %s, Rect [%d, %d, %d, %d]"
+                       "%sSrc CT: %s, Src AT: %s, Read CT: %s, Read AT: %s, Rect [%d, %d, %d, %d]"
                        ", CS conversion: %d\n"
                        "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
+                       label.c_str(),
                        ToolUtils::colortype_name(srcCT), ToolUtils::alphatype_name(srcAT),
                        ToolUtils::colortype_name(readCT), ToolUtils::alphatype_name(readAT),
                        rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, csConversion, x, y,
@@ -254,8 +258,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         if (!guardOk) {
             ERRORF(reporter,
                    "Result pixels modified result outside read rect [%d, %d, %d, %d]. "
-                   "Src CT: %s, Read CT: %s, CS conversion: %d",
-                   rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
+                   "%sSrc CT: %s, Read CT: %s, CS conversion: %d",
+                   rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, label.c_str(),
                    ToolUtils::colortype_name(srcCT), ToolUtils::colortype_name(readCT),
                    csConversion);
         }
@@ -475,7 +479,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
             });
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = true;
-    rules.fAllowUnpremulRead = true;
     rules.fUncontainedRectSucceeds = true;
 
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
@@ -492,7 +495,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
                         }
                         return surfContext;
                     });
-            gpu_read_pixels_test_driver(reporter, rules, factory, reader);
+            auto label = SkStringPrintf("Renderable: %d, Origin: %d", (int)renderable, origin);
+            gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
         }
     }
 }
@@ -543,7 +547,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
             });
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = false;
-    rules.fAllowUnpremulRead = false;
     rules.fUncontainedRectSucceeds = false;
 
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
@@ -555,7 +558,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
                     auto surf = SkSurface::MakeRenderTarget(context,
                                                             SkBudgeted::kYes,
                                                             src.info(),
-                                                            0,
+                                                            1,
                                                             origin,
                                                             nullptr);
                     if (surf) {
@@ -563,7 +566,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
                     }
                     return surf;
                 });
-        gpu_read_pixels_test_driver(reporter, rules, factory, reader);
+        auto label = SkStringPrintf("Origin: %d", origin);
+        gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
+        auto backendRTFactory = std::function<GpuSrcFactory<Surface>>(
+                [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
+                  if (src.colorType() == kRGB_888x_SkColorType) {
+                      return Surface();
+                  }
+                  // Dawn backend implementation of backend render targets doesn't support reading.
+                  if (context->backend() == GrBackendApi::kDawn) {
+                      return Surface();
+                  }
+                  auto surf = sk_gpu_test::MakeBackendRenderTargetSurface(context,
+                                                                          src.info(),
+                                                                          origin,
+                                                                          1);
+                  if (surf) {
+                      surf->writePixels(src, 0, 0);
+                  }
+                  return surf;
+                });
+        label = SkStringPrintf("BERT Origin: %d", origin);
+        gpu_read_pixels_test_driver(reporter, rules, backendRTFactory, reader, label);
     }
 }
 
@@ -603,9 +627,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
 
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = true;
-    // GPU doesn't support reading to kUnpremul because the rescaling works by rendering and now
-    // we only support premul rendering.
-    rules.fAllowUnpremulRead = false;
     rules.fUncontainedRectSucceeds = false;
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
@@ -617,7 +638,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
                 return sk_gpu_test::MakeBackendTextureImage(ctxInfo.directContext(), src,
                                                             renderable, origin);
             });
-            gpu_read_pixels_test_driver(reporter, rules, factory, reader);
+            auto label = SkStringPrintf("Renderable: %d, Origin: %d", (int)renderable, origin);
+            gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
         }
     }
 }
