@@ -16,22 +16,24 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 
-static void make_bitmap(SkBitmap* bitmap) {
-    bitmap->allocN32Pixels(64, 64);
+static sk_sp<SkImage> make_image() {
+    auto surf = SkSurface::MakeRasterN32Premul(64, 64);
+    auto canvas = surf->getCanvas();
 
-    SkCanvas canvas(*bitmap);
-
-    canvas.drawColor(SK_ColorRED);
+    canvas->drawColor(SK_ColorRED);
     SkPaint paint;
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
-    canvas.drawCircle(32, 32, 32, paint);
+    canvas->drawCircle(32, 32, 32, paint);
+
+    return surf->makeImageSnapshot();
 }
 
 class DrawBitmapRect2 : public skiagm::GM {
@@ -64,8 +66,7 @@ protected:
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
 
-        SkBitmap bitmap;
-        make_bitmap(&bitmap);
+        auto image = make_image();
 
         SkRect dstR = { 0, 200, 128, 380 };
 
@@ -74,12 +75,12 @@ protected:
             SkRect srcR;
             srcR.set(src[i]);
 
-            canvas->drawBitmap(bitmap, 0, 0, &paint);
+            canvas->drawImage(image, 0, 0, &paint);
             if (!fUseIRect) {
-                canvas->drawBitmapRect(bitmap, srcR, dstR, &paint,
-                                       SkCanvas::kStrict_SrcRectConstraint);
+                canvas->drawImageRect(image, srcR, dstR, &paint,
+                                      SkCanvas::kStrict_SrcRectConstraint);
             } else {
-                canvas->drawBitmapRect(bitmap, src[i], dstR, &paint);
+                canvas->drawImageRect(image, src[i], dstR, &paint);
             }
 
             canvas->drawRect(dstR, paint);
