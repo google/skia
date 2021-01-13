@@ -53,6 +53,52 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "00e9b0ce_837cc391",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T22:29:28Z",
+      "side": 1,
+      "message": "!expr-\u003etype().isNumber()",
+      "range": {
+        "startLine": 480,
+        "startChar": 12,
+        "endLine": 480,
+        "endChar": 64
+      },
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1570f88_3fc33b91",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T22:29:28Z",
+      "side": 1,
+      "message": "!initDecl.baseType().isNumber()",
+      "range": {
+        "startLine": 500,
+        "startChar": 8,
+        "endLine": 500,
+        "endChar": 74
+      },
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5202ce6d_c92cd905",
