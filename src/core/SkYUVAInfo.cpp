@@ -24,6 +24,54 @@ static bool is_plane_config_compatible_with_subsampling(SkYUVAInfo::PlaneConfig 
             config != SkYUVAInfo::PlaneConfig::kUYVA);
 }
 
+std::tuple<int, int> SkYUVAInfo::SubsamplingFactors(Subsampling subsampling) {
+    switch (subsampling) {
+        case Subsampling::kUnknown: return {0, 0};
+        case Subsampling::k444:     return {1, 1};
+        case Subsampling::k422:     return {2, 1};
+        case Subsampling::k420:     return {2, 2};
+        case Subsampling::k440:     return {1, 2};
+        case Subsampling::k411:     return {4, 1};
+        case Subsampling::k410:     return {4, 2};
+    }
+    SkUNREACHABLE;
+}
+
+std::tuple<int, int> SkYUVAInfo::PlaneSubsamplingFactors(PlaneConfig planeConfig,
+                                                         Subsampling subsampling,
+                                                         int planeIdx) {
+    if (!is_plane_config_compatible_with_subsampling(planeConfig, subsampling) ||
+        planeIdx < 0                                                           ||
+        planeIdx > NumPlanes(planeConfig)) {
+        return {0, 0};
+    }
+    bool isSubsampledPlane = false;
+    switch (planeConfig) {
+        case PlaneConfig::kUnknown:     SkUNREACHABLE;
+
+        case PlaneConfig::kY_U_V:
+        case PlaneConfig::kY_V_U:
+        case PlaneConfig::kY_U_V_A:
+        case PlaneConfig::kY_V_U_A:
+            isSubsampledPlane = planeIdx == 1 || planeIdx == 2;
+            break;
+
+        case PlaneConfig::kY_UV:
+        case PlaneConfig::kY_VU:
+        case PlaneConfig::kY_UV_A:
+        case PlaneConfig::kY_VU_A:
+            isSubsampledPlane = planeIdx == 1;
+            break;
+
+        case PlaneConfig::kYUV:
+        case PlaneConfig::kUYV:
+        case PlaneConfig::kYUVA:
+        case PlaneConfig::kUYVA:
+            break;
+    }
+    return isSubsampledPlane ? SubsamplingFactors(subsampling) : std::make_tuple(1, 1);
+}
+
 int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
                                 PlaneConfig planeConfig,
                                 Subsampling subsampling,
@@ -310,13 +358,11 @@ SkYUVAInfo::YUVALocations SkYUVAInfo::toYUVALocations(const uint32_t* channelFla
 }
 
 SkYUVAInfo SkYUVAInfo::makeSubsampling(SkYUVAInfo::Subsampling subsampling) const {
-    return {fDimensions,
-            fPlaneConfig,
-            subsampling,
-            fYUVColorSpace,
-            fOrigin,
-            fSitingX,
-            fSitingY};
+    return {fDimensions, fPlaneConfig, subsampling, fYUVColorSpace, fOrigin, fSitingX, fSitingY};
+}
+
+SkYUVAInfo SkYUVAInfo::makeDimensions(SkISize dimensions) const {
+    return {dimensions, fPlaneConfig, fSubsampling, fYUVColorSpace, fOrigin, fSitingX, fSitingY};
 }
 
 bool SkYUVAInfo::operator==(const SkYUVAInfo& that) const {
