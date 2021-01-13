@@ -87,6 +87,30 @@
       },
       "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6642515_c6e42b57",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-13T21:29:21Z",
+      "side": 1,
+      "message": "What\u0027s the benefit in SkVMGenerator if we add entries to fErrors at this late stage? Didn\u0027t we run it already and get those errors earlier? I don\u0027t see why we want that in release; it\u0027s an expensive check and we ran it earlier, and we don\u0027t get the actual assertion that we\u0027d get in debug in case something went haywire and this found a problem.",
+      "parentUuid": "aa924a8c_6c3141b5",
+      "range": {
+        "startLine": 1376,
+        "startChar": 4,
+        "endLine": 1376,
+        "endChar": 18
+      },
+      "revId": "203a2ae14f762f1c35ce92d9217f722a16b57276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
