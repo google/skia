@@ -363,7 +363,7 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
                   ((sk_VertexID & 2) == 0) ? inputPoints_0_1.zw : inputPoints_2_3.xy;
         } else {
             // Evaluate the cubic at T = (sk_VertexID / 2^kMaxResolveLevel).
-            float T = sk_VertexID * kInverseMaxVertexID;
+            float T = float(sk_VertexID) * kInverseMaxVertexID;
             float4x3 P = unpack_rational_cubic(inputPoints_0_1.xy, inputPoints_0_1.zw,
                                                inputPoints_2_3.xy, inputPoints_2_3.zw);
             pos = eval_rational_cubic(P, T);
