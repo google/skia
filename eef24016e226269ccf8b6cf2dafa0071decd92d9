@@ -16,6 +16,29 @@
       "message": "Do either of you have any thoughts on the following error?\n\nFAILED: obj/tests/tests.SkRuntimeEffectTest.o \ng++ -MD -MF obj/tests/tests.SkRuntimeEffectTest.o.d -DNDEBUG -DSK_GAMMA_APPLY_TO_A8 -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS\u003d1 -DGR_TEST_UTILS\u003d1 -DSK_GL -DSK_SUPPORT_PDF -DSK_CODEC_DECODES_JPEG -DSK_ENCODE_JPEG -DSK_ENABLE_ANDROID_UTILS -DSK_USE_LIBGIFCODEC -DSK_HAS_HEIF_LIBRARY -DSK_CODEC_DECODES_PNG -DSK_ENCODE_PNG -DSK_CODEC_DECODES_RAW -DSK_ENABLE_SKSL_INTERPRETER -DSKVM_JIT_WHEN_POSSIBLE -DSK_CODEC_DECODES_WEBP -DSK_ENCODE_WEBP -DSK_XML -DSK_R32_SHIFT\u003d16 -DSK_SHAPER_HARFBUZZ_AVAILABLE -DSK_UNICODE_AVAILABLE -I../SRC/skia/include/third_party/vulkan -I../SRC/skia -I../SRC/skia/third_party/externals/libgifcodec -I../SRC/skia -I../SRC/skia/modules/skshaper/include -Werror -Wno-attributes -fstrict-aliasing -fPIC -fvisibility\u003dhidden -O3 -fdata-sections -ffunction-sections -g -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-psabi -Wno-sign-conversion -Wno-unused-parameter -g1 -DDUMMY_docker_image\u003dgcr.io/skia-public/gcc-debian10@sha256:89a72df1e2fdea6f774a3fa4199bb9aaa4a0526a3ac1f233e604d689b694f95c -isystem /SRC/skia/third_party/libpng -isystem /SRC/skia/third_party/externals/libpng -isystem /SRC/skia/third_party/externals/libwebp/src -isystem /SRC/skia/third_party/externals/libwebp -isystem /SRC/skia/third_party/externals/zlib -std\u003dc++17 -fvisibility-inlines-hidden -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type -Wno-redundant-move -c ../SRC/skia/tests/SkRuntimeEffectTest.cpp -o obj/tests/tests.SkRuntimeEffectTest.o\nIn file included from ../SRC/skia/tests/SkRuntimeEffectTest.cpp:14:\nIn function \u0027bool SkRuntimeShaderBuilder::BuilderUniform::set(const T*, int) [with T \u003d test_SkRuntimeShaderBuilderSetUniforms(skiatest::Reporter*, const GrContextOptions\u0026)::TmpOffset]\u0027,\n    inlined from \u0027void test_SkRuntimeShaderBuilderSetUniforms(skiatest::Reporter*, const GrContextOptions\u0026)\u0027 at ../SRC/skia/tests/SkRuntimeEffectTest.cpp:363:5:\n../SRC/skia/include/effects/SkRuntimeEffect.h:235:23: error: \u0027void* memcpy(void*, const void*, size_t)\u0027 forming offset [9, 16] is out of the bounds [0, 8] of object \u0027tmpOffset\u0027 with type \u0027test_SkRuntimeShaderBuilderSetUniforms(skiatest::Reporter*, const GrContextOptions\u0026)::TmpOffset\u0027 [-Werror\u003darray-bounds]\n                 memcpy(SkTAddOffset\u003cvoid\u003e(fOwner-\u003ewritableUniformData(), fVar-\u003efOffset),\n                 ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n                        reinterpret_cast\u003cconst void*\u003e(val), sizeof(T) * count);\n                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n../SRC/skia/tests/SkRuntimeEffectTest.cpp: In function \u0027void test_SkRuntimeShaderBuilderSetUniforms(skiatest::Reporter*, const GrContextOptions\u0026)\u0027:\n../SRC/skia/tests/SkRuntimeEffectTest.cpp:358:15: note: \u0027tmpOffset\u0027 declared here\n     TmpOffset tmpOffset;\n               ^~~~~~~~~\nAt global scope:\ncc1plus: error: unrecognized command line option \u0027-Wno-redundant-move\u0027 [-Werror]\ncc1plus: all warnings being treated as errors",
       "revId": "eef24016e226269ccf8b6cf2dafa0071decd92d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d3dff5f_7bdee837",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-13T21:12:17Z",
+      "side": 1,
+      "message": "I think it\u0027s determined (statically) that you\u0027re trying to memcpy from past-the-end of TmpOffset.",
+      "range": {
+        "startLine": 363,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 64
+      },
+      "revId": "eef24016e226269ccf8b6cf2dafa0071decd92d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
