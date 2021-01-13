@@ -16,6 +16,137 @@
       "message": "This is the front-end validation work, but I\u0027ve gone ahead and included the part of the interface that I\u0027ll be using to do the actual unrolling in the VM backend.",
       "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d94f064_0789a8ae",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T19:38:38Z",
+      "side": 1,
+      "message": "Another way might be,\n\n   static const char* invalid_for_ES2(const ForStatement\u0026, UnrollableLoopInfo\u0026) { ... }\n\n   bool Analysis::ForLoopIsValidForES2(loop, info, errors) {\n       info \u003d info ? info : \u0026dummy;\n       if (const char* msg \u003d invalid_for_ES2(loop, *info)) {\n           if (errors) { errors-\u003eerror(loop.offSet, msg); }\n           return false;\n       }\n       return true;\n   }",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5202ce6d_c92cd905",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T19:38:38Z",
+      "side": 1,
+      "message": "Heresy!",
+      "range": {
+        "startLine": 557,
+        "startChar": 26,
+        "endLine": 557,
+        "endChar": 51
+      },
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8d7114f_c46d1ccb",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T19:38:38Z",
+      "side": 1,
+      "message": "Out of curiosity, can we set this limit freely?  I guess there\u0027s no guarantee how high int can even go?",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78c892b8_3176abeb",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T19:38:38Z",
+      "side": 1,
+      "message": "Is it worth explaining why some of these are double and fCount int?\nI think I would have naively expected start/count/double all be int.",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 19
+      },
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ba8ef10_d9b853a7",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T19:38:38Z",
+      "side": 1,
+      "message": "I\u0027m guessing we\u0027ll do this next in VMGenerator?\n\n   UnrollableLoopInfo info;\n   SkAssertResult(Analysis::ForLoopIsValidForES2(stmt, \u0026info, nullptr));\n\n?",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8085e670_6b864ead",
+        "filename": "tests/sksl/runtime_errors/LoopConditionErrors.rte",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T19:38:38Z",
+      "side": 1,
+      "message": "Is this machine-checked?  Very cool!",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5482aa93_5e972266",
+        "filename": "tests/sksl/runtime_errors/LoopInitializerErrors.rte",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-13T19:38:38Z",
+      "side": 1,
+      "message": "Can we show off somewhere that scalar float indices and increments are legal\n\n   for (float i \u003d 0.017; i \u003c 1.23; i +\u003d 0.042)\n\n?",
+      "revId": "e500a282659655c3e70bb8e88cf5c4b2416f2b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
