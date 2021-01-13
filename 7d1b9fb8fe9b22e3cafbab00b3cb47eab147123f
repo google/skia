@@ -33,6 +33,64 @@
       "message": "@Florin I wonder if this is the source of the new banding. If the destination surface is RGBA_1010102, but we\u0027re explicitly performing LinearToSRGBGamma() here, would that have strange effects like we\u0027re seeing?",
       "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b1ad4d9_526cd91b",
+        "filename": "modules/svg/src/SkSVGFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T20:18:59Z",
+      "side": 1,
+      "message": "Oh, all diffs with banding are 1010102?!  Yeah, I think that totally explains is.",
+      "parentUuid": "9db09608_b1d65b9e",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89bd7843_3ef8f294",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T20:18:59Z",
+      "side": 1,
+      "message": "nit: this can be a free/static function.",
+      "range": {
+        "startLine": 35,
+        "startChar": 41,
+        "endLine": 35,
+        "endChar": 64
+      },
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "248dc524_52c8839d",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-13T20:18:59Z",
+      "side": 1,
+      "message": "Makes me wonder whether resolveColorspace() should ever return kAuto.  IIUC, \u0027auto\u0027 means \u0027do whatever\u0027 so we could just pick kLinear or kSRGB and return that instead.\n\nThen this branch would go away.",
+      "revId": "7d1b9fb8fe9b22e3cafbab00b3cb47eab147123f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
