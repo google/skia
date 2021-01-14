@@ -16,6 +16,24 @@
       "message": "I\u0027ll plead guilty on this one. John originally wrote this with \u0027\u0026\u0027, and I suggested changing it.",
       "revId": "00a9cc1efeea21020e0bef01c84dbc78237489df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e804b35_8689ef4d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-14T15:51:58Z",
+      "side": 1,
+      "message": "Oh, it\u0027s totally fine... I actually kind of agree that select(bool, 1, 0) is clearer.  Just happens this way works without I32a at head.",
+      "parentUuid": "c25d001a_89f03bb0",
+      "revId": "00a9cc1efeea21020e0bef01c84dbc78237489df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
