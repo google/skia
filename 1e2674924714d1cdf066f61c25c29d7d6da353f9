@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c319bd11_2ef35009",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-14T12:50:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "344c36cd_6951b9cd",
+      "revId": "1e2674924714d1cdf066f61c25c29d7d6da353f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ac4eb35_55ada8c8",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-01-13T21:40:02Z",
       "side": 1,
       "message": "It might be all the safety measures are more in the way than helpful?\n\n  template \u003ctypename T\u003e\n  void set(const T val[], int count) {\n      static_assert(std::is_trivially_copyable_v\u003cT\u003e);\n      SkASSERT(fVar);\n      SkASSERT(sizeof(T) * count \u003d\u003d fVar-\u003esizeInBytes());\n      memcpy(...);\n  }\n\nthen only test correct usage?",
+      "revId": "1e2674924714d1cdf066f61c25c29d7d6da353f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc1f7994_28784cea",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-14T12:50:47Z",
+      "side": 1,
+      "message": "The tests are only testing correct usage.  Even if I simplified the safety checks the memcpy would still be the exact same and that is what is failing to pass the compile step on that bot.",
+      "parentUuid": "7ac4eb35_55ada8c8",
       "revId": "1e2674924714d1cdf066f61c25c29d7d6da353f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
