@@ -16,6 +16,24 @@
       "message": "If we\u0027re going this far (and I think we should), then we ought to also include GLSL (ES)\u0027s rule that there\u0027s no implicit conversion among signed and unsigned. I\u0027m guessing that enforcing that won\u0027t break much (any?) existing code?",
       "revId": "5241b35fcbfe298ce0b3289c9c2c4b1c1eebe615",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20785075_e426007b",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T16:26:52Z",
+      "side": 1,
+      "message": "After taking most of a week to land this change, I\u0027m less optimistic--I fully expect any change here will break at least a few things. Let\u0027s land this as-is, and separately I\u0027ll start working on signed/unsigned as a followup CL (or followup set of CLs)",
+      "parentUuid": "0e5a0d72_bfe26084",
+      "revId": "5241b35fcbfe298ce0b3289c9c2c4b1c1eebe615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
