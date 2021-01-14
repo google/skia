@@ -32,10 +32,19 @@ void SkSVGMask::renderMask(const SkSVGRenderContext& ctx) const {
 
     SkAutoCanvasRestore acr(ctx.canvas(), false);
 
-    // Generate mask alpha based on mask content luminance (LUMA function).
-    // TODO: color-interpolation support
+    // Convert mask content to linearRGB if needed,
+    // and generate mask alpha based on luminance (LUMA function).
+    const auto ci = this->getColorInterpolation().isValue()
+            ? *this->getColorInterpolation()
+            : *ctx.presentationContext().fInherited.fColorInterpolation;
+
+    auto ci_filter = (ci == SkSVGColorspace::kLinearRGB)
+            ? SkColorFilters::SRGBToLinearGamma()
+            : nullptr;
+
     SkPaint mask_filter;
-    mask_filter.setColorFilter(SkLumaColorFilter::Make());
+    mask_filter.setColorFilter(
+                SkColorFilters::Compose(SkLumaColorFilter::Make(), std::move(ci_filter)));
 
     // Mask color filter layer.
     // Note: We could avoid this extra layer if we invert the stacking order
