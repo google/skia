@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixProvider.h"
@@ -173,6 +174,83 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     SkPicturePriv::Flatten(fPicture, buffer);
 }
 
+sk_sp<SkShader> SkPictureShader::makeAnalyticShader(const SkMatrix& ctm,
+                                                    SkTCopyOnFirstWrite<SkMatrix>* lm,
+                                                    SkColorType dstColorType,
+                                                    SkColorSpace* dstColorSpace,
+                                                    const int maxTextureSize) const {
+    static const char* gRepeat = R"(
+        uniform float3x3 gLocalToUnit;
+        uniform float3x3 gUnitToTile;
+        uniform shader   gImageShader;
+
+        float tile(float x) {
+            return fract(x);
+        }
+
+        half4 main(float2 p) {
+            float3 unit = gLocalToUnit * p.xy1;
+            unit.x = tile(unit.x);    // Repeat
+            unit.y = tile(unit.y);    // Repeat
+
+            float3 local = gUnitToTile * unit;
+            return sample(gImageShader, local.xy);
+        }
+    )";
+    auto result = SkRuntimeEffect::Make(SkString(gRepeat));
+    if (!std::get<0>(result)) {
+        SkDebugf("failed to compile custom tiler\n");
+        SkDebugf("%s\n", std::get<1>(result).c_str());
+        return nullptr;
+    }
+
+    const SkMatrix m = ctm * (**lm);
+    SkRect devBounds = m.mapRect(fTile);
+    SkIRect ibounds = devBounds.roundOut();
+    SkMatrix offsetToOrigin = SkMatrix::Translate(-SkIntToScalar(ibounds.left()),
+                                                  -SkIntToScalar(ibounds.top()));
+
+    auto make_image = [&]() {
+        sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace)
+                                                  : SkColorSpace::MakeSRGB();
+        SkImage::BitDepth bitDepth = dstColorType >= kRGBA_F16Norm_SkColorType
+                                   ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
+
+        SkMatrix mx = offsetToOrigin * m;
+        return SkImage::MakeFromPicture(fPicture, {ibounds.width(), ibounds.height()},
+                                        &mx, nullptr, bitDepth, std::move(imgCS));
+    };
+
+    auto image = make_image();
+
+    if (false) {
+        static int gCounter;
+        SkString name;
+        name.printf("tile_image_%d.png", gCounter++);
+
+        auto data = image->makeRasterImage()->encodeToData();
+        SkFILEWStream file(name.c_str());
+        file.write(data->data(), data->size());
+    }
+
+    SkMatrix unit2Tile = offsetToOrigin
+                       * m
+                       * SkMatrix::MakeRectToRect({0,0,1,1}, fTile, SkMatrix::kFill_ScaleToFit);
+    auto imageShader = image->makeShader(SkSamplingOptions(), nullptr);
+
+    bool isOpaque = fTmx != SkTileMode::kDecal &&
+                    fTmx != SkTileMode::kDecal &&
+                    imageShader->isOpaque();
+
+    SkRuntimeShaderBuilder builder(std::get<0>(result));
+    builder.uniform("gLocalToUnit") = SkMatrix::MakeRectToRect(fTile, {0,0,1,1},
+                                                               SkMatrix::kFill_ScaleToFit);
+    builder.uniform("gUnitToTile") = unit2Tile;
+    builder.child("gImageShader")   = imageShader;
+
+    return builder.makeShader(nullptr, isOpaque);
+}
+
 // Returns a cached image shader, which wraps a single picture tile at the given
 // CTM/local matrix.  Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
@@ -181,6 +259,9 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
                                                  SkColorSpace* dstColorSpace,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
+
+    return this->makeAnalyticShader(viewMatrix, localMatrix, dstColorType, dstColorSpace,
+                                    maxTextureSize);
 
     const SkMatrix m = SkMatrix::Concat(viewMatrix, **localMatrix);
 
