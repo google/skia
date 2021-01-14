@@ -812,11 +812,22 @@ void GrVkOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
         SkASSERT(fGpu->isDeviceLost());
         return;
     }
+    const GrVkCaps& caps = fGpu->vkCaps();
+    SkASSERT(caps.nativeDrawIndirectSupport());
     SkASSERT(fCurrentPipelineState);
-    this->currentCommandBuffer()->drawIndirect(
-            fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, drawCount,
-            sizeof(GrDrawIndirectCommand));
-    fGpu->stats()->incNumDraws();
+
+    const uint32_t maxDrawCount = caps.maxDrawIndirectDrawCount();
+    uint32_t remainingDraws = drawCount;
+    const size_t stride = sizeof(GrDrawIndirectCommand);
+    while (remainingDraws >= 1) {
+        uint32_t currDrawCount = std::min(remainingDraws, maxDrawCount);
+        this->currentCommandBuffer()->drawIndirect(
+                fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, currDrawCount,
+                stride);
+        remainingDraws -= currDrawCount;
+        offset += stride * currDrawCount;
+        fGpu->stats()->incNumDraws();
+    }
     fCurrentCBIsEmpty = false;
 }
 
@@ -827,11 +838,21 @@ void GrVkOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
         SkASSERT(fGpu->isDeviceLost());
         return;
     }
+    const GrVkCaps& caps = fGpu->vkCaps();
+    SkASSERT(caps.nativeDrawIndirectSupport());
     SkASSERT(fCurrentPipelineState);
-    this->currentCommandBuffer()->drawIndexedIndirect(
-            fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, drawCount,
-            sizeof(GrDrawIndexedIndirectCommand));
-    fGpu->stats()->incNumDraws();
+    const uint32_t maxDrawCount = caps.maxDrawIndirectDrawCount();
+    uint32_t remainingDraws = drawCount;
+    const size_t stride = sizeof(GrDrawIndexedIndirectCommand);
+    while (remainingDraws >= 1) {
+        uint32_t currDrawCount = std::min(remainingDraws, maxDrawCount);
+        this->currentCommandBuffer()->drawIndexedIndirect(
+                fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, currDrawCount,
+                stride);
+        remainingDraws -= currDrawCount;
+        offset += stride * currDrawCount;
+        fGpu->stats()->incNumDraws();
+    }
     fCurrentCBIsEmpty = false;
 }
 
