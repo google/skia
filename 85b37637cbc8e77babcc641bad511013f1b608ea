@@ -151,6 +151,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3900ae4b_7740b547",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T22:01:37Z",
+      "side": 1,
+      "message": "Actually, the default paint color is supposed to be opaque black, so I\u0027m not sure why this line had an effect at all. Is it really still needed?",
+      "parentUuid": "75e1f730_69bb9eab",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "621463d6_c44c1e27",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
