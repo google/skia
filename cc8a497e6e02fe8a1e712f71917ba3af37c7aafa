@@ -16,6 +16,24 @@
       "message": "Nit / up for debate: make this apply() function just the inner scope (i.e. the part with SkAutoCanvasRestore), and move the surrounding layers + clipRect up into SkSVGRenderContext::applyMask()? It might be a little clearer as far as who\u0027s responsible for which canvas restore. I don\u0027t have strong feelings about this suggestion, so leaving it up to you.",
       "revId": "cc8a497e6e02fe8a1e712f71917ba3af37c7aafa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd6c74c3_36b41575",
+        "filename": "modules/svg/src/SkSVGMask.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-14T17:02:39Z",
+      "side": 1,
+      "message": "Funny, I had started that exact refactor and gave up because handling the mask bounds \u0026 units in RenderContext felt just a bit like a layering violation 😊\n\nMaybe we can hide most of it behind a bounds() helper - let\u0027s try again...\n\nDone, PTAL.",
+      "parentUuid": "dd3b6ea0_5f02d8ef",
+      "revId": "cc8a497e6e02fe8a1e712f71917ba3af37c7aafa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
