@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acba7cf3_d452e22f",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T21:48:34Z",
+      "side": 1,
+      "message": "This increase in precision is causing some glyphs to move in really subtle ways. Will need to roll this out behind a flag, unfortunately.",
+      "revId": "dba344fff19c38a9de3f247461e7a8ea170092e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
