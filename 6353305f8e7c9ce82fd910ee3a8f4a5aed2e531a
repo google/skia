@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3a17ebf_9736c28e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-14T14:35:05Z",
+      "side": 1,
+      "message": "Love it!  This reminds me of when you get your compiler to really understand a unit test and it compiles to\n\n   xor %eax,%eax\n   ret",
+      "revId": "6353305f8e7c9ce82fd910ee3a8f4a5aed2e531a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
