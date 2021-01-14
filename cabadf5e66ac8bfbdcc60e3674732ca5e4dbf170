@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b119f4d6_6f783816",
+        "filename": "src/sksl/ir/SkSLSymbolTable.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T23:37:34Z",
+      "side": 1,
+      "message": "At one point I had added a new function to SymbolTable, so I took it upon myself to clean up the header a bit. I ended up not needing the new function, but I kept the cleanups.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 1
+      },
+      "revId": "cabadf5e66ac8bfbdcc60e3674732ca5e4dbf170",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
