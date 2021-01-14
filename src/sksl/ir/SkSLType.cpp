@@ -14,20 +14,25 @@ CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return CoercionCost::Free();
     }
-    if (this->typeKind() == TypeKind::kVector && other.typeKind() == TypeKind::kVector) {
+    if (this->isVector() && other.isVector()) {
         if (this->columns() == other.columns()) {
             return this->componentType().coercionCost(other.componentType());
         }
         return CoercionCost::Impossible();
     }
-    if (this->typeKind() == TypeKind::kMatrix) {
+    if (this->isMatrix()) {
         if (this->columns() == other.columns() && this->rows() == other.rows()) {
             return this->componentType().coercionCost(other.componentType());
         }
         return CoercionCost::Impossible();
     }
+    if (this->isInteger() && this->isLiteral() && other.isFloat()) {
+        return CoercionCost::Free();
+    }
     if (this->isNumber() && other.isNumber()) {
-        if (other.priority() >= this->priority()) {
+        if (this->isInteger() != other.isInteger()) {
+            return CoercionCost::Impossible();
+        } else if (other.priority() >= this->priority()) {
             return CoercionCost::Normal(other.priority() - this->priority());
         } else {
             return CoercionCost::Narrowing(this->priority() - other.priority());
