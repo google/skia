@@ -28,9 +28,14 @@ public:
              SkSVGObjectBoundingBoxUnits(SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse))
 
 private:
+    friend class SkSVGRenderContext;
+
     SkSVGMask() : INHERITED(SkSVGTag::kMask) {}
 
     bool parseAndSetAttribute(const char*, const char*) override;
+
+    SkRect bounds(const SkSVGRenderContext&) const;
+    void renderMask(const SkSVGRenderContext&) const;
 
     using INHERITED = SkSVGHiddenContainer;
 };
