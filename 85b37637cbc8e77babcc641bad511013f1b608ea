@@ -1,0 +1,186 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a2843ff_ef9c9c0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "I think the biggest issue here is the FreeType side not applying the FT_Face\u0027s size or transform to the values, leaving them in em space. The issue being that this *is* being applied by FreeType to the outlines being generated. FreeType is the only one that can keep these transformations consistent. Also, letting FreeType handle the scaling means allowing it to do whatever magic it wants in the scaling (like autohinting points if it feels like it).",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa83cebc_55047f02",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "This seems an interesting default (not that we should get here). Usually one thinks of the default-default as being kSrcOver, though maybe it should just be kDst (aka do nothing) since it\u0027s not a known value.",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d15cc7a_b23128f0",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "Not used?",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcbd24c8_5c835d30",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "SkMatrix::MakeAll?",
+      "range": {
+        "startLine": 460,
+        "startChar": 11,
+        "endLine": 460,
+        "endChar": 31
+      },
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12cfd2db_29b8c0d7",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "I\u0027m so used to negative signs showing up on xy, yx, and dy that it makes me concerned not to see them here. Generally speaking OpenType has always been y-up and FreeType has reflected that in reporting everything y-up. Skia is y-down, so we end up negating the right column here. It seems that the ides is to do this in neutralizeUpemTransform which itself seems weird?\n\nAlso, just formatting wise, if the arguments all started on the following line (indented four) then it would be nice to get them three to a line since we tend to think of it as 3x3.\n\n    return SkMatrix::MakeAll(\n        SkFixedToScalar(affine23.xx), SkFixedToScalar(affine23.xy), SkFixedToScalar(affine23.dx),\n        SkFixedToScalar(affine23.yx), SkFixedToScalar(affine23.yy), SkFixedToScalar(affine23.dy),\n        0, 0, 1);",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9a091d4_dbf3c652",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "Inverting is really bad (numerically) and slow. I think maybe it works out to just doing a few divides here because we special case scale only matrices, but \u0027invert\u0027 always smells to me. Literally anything we can do to avoid this would be better. I am somewhat baffled by the use of \u0027scale\u0027, it seems to be coming from fScale, but that should only be used in the constructor and getting the font metrics (which aren\u0027t skewed).",
+      "range": {
+        "startLine": 485,
+        "startChar": 36,
+        "endLine": 485,
+        "endChar": 42
+      },
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d58342d_b434f179",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "Is all the scale mucking about here because the FreeType code is always reporting the raw upem numbers here? Did we not get the option to set all these points as referring to points on some glyph so that we could vary or hint these? If internally they are, I don\u0027t see how we could be in upem space out of FreeType since they would need to be scaled to be hinted.\n\nEven so I don\u0027t see how \u0027scale\u0027 fits in here. Where are the skews? It seems the whole 2x2 matrix is needed here or the gradient won\u0027t rotate with the glyph and will be magically stuck to the surface?\n\nI think in order to get these into the same space as the paths coming out of generateFacePath it is necessary to map these upem though the same process as FreeType mapped those paths, which is to say, apply the FT_Size scale then apply the FT_Transform (see SkScalerContext_FreeType::setupSize for where these are set). These values are already on the FT_Face or its FT_Size, so \u0027scale\u0027 and the like shouldn\u0027t be needed here.",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75e1f730_69bb9eab",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "The reason for this is that the default color on SkPaint is transparent black and when a shader is in use the alpha of the paint is used to modulate the final value. This allows the user to create a shader for a gradient but then fade it in and out separately. In theory you could just use \"paint.setAlpha(1.0f)\" with a comment about ensuring the gradient is not modulated by alpha here.",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "621463d6_c44c1e27",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "This unscaled transform should have the FT_Size and the FT_Transform from the FT_Face applied to it and then it would already just be in the right space without needing to drag \u0027scale\u0027 into this (which seems to be the right value only when there is no skew and the size is greater than one and maybe a few other things).\n\nOf course, it would still need to be flipped when converted from FT units to SK units.",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35131088_0318a22a",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-14T19:11:09Z",
+      "side": 1,
+      "message": "nit: Skia always uses braces. Usually this sort of thing is done like\n\n    if (e) {\n        return false;\n    }\n\nThough if there a bunch in a row and it seems clearer to do so it can all be on one line (though still with braces).",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
