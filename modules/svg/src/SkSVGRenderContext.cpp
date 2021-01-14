@@ -549,11 +549,12 @@ void SkSVGRenderContext::applyMask(const SkSVGFuncIRI& mask) {
     const auto* mask_node = static_cast<const SkSVGMask*>(node.get());
     const auto mask_bounds = mask_node->bounds(*this);
 
+    // Mask bounds act as a clip.
+    this->saveOnce();
+    fCanvas->clipRect(mask_bounds, true);
+
     // Isolation/mask layer.
     fCanvas->saveLayer(mask_bounds, nullptr);
-
-    // Mask bounds act as a clip.
-    fCanvas->clipRect(mask_bounds, true);
 
     // Render and filter mask content.
     mask_node->renderMask(*this);
