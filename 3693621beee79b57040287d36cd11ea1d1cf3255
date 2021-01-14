@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20443a65_d0469a55",
+        "filename": "modules/svg/src/SkSVGFeOffset.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-14T22:25:22Z",
+      "side": 1,
+      "message": "nit: std::move(in)",
+      "range": {
+        "startLine": 32,
+        "startChar": 42,
+        "endLine": 32,
+        "endChar": 44
+      },
+      "revId": "3693621beee79b57040287d36cd11ea1d1cf3255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
