@@ -57,7 +57,9 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fReadPixelsRowBytesSupport = false;
     fShouldCollapseSrcOverToSrcWhenAble = false;
     fDriverDisableCCPR = false;
-    fDriverDisableMSAACCPR = false;
+    // Disable the MSAA implementation of CCPR on all platforms. Now CCPR will only be enabled if
+    // the user explicitly turns off fDisableCoverageCountingPaths.
+    fDriverDisableMSAACCPR = true;
     fDisableTessellationPathRenderer = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
