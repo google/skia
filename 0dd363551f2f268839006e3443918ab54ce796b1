@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37ce6e4b_67f39fad",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2021-01-14T15:53:32Z",
+      "side": 1,
+      "message": "I found an even simpler way to do this.  Let me know if you like it.",
+      "parentUuid": "132e842b_b0402033",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f63c25d8_d07c8f42",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-01-13T21:37:43Z",
       "side": 1,
       "message": "I realize that cppreference.com currently has this insanely bad example of how to call visit, but the entire point of \u0027visit\u0027 is to not write this switch / if chain. I mean, what exactly is it doing other than being pure overhead, mostly for the reader of the code?",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07f7d5ad_9bf829ce",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2021-01-14T15:53:32Z",
+      "side": 1,
+      "message": "agreed.  I hated writing that, knowing there had to be a better way.",
+      "parentUuid": "f63c25d8_d07c8f42",
       "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -52,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cc5852d_e4f7a8d0",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2021-01-14T15:53:32Z",
+      "side": 1,
+      "message": "fixed.",
+      "parentUuid": "44c6b582_b1502a82",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "128fa922_51b9d2d2",
@@ -65,6 +119,24 @@
       "writtenOn": "2021-01-13T21:37:43Z",
       "side": 1,
       "message": "I am uncomfortable with all the inheritance of std types here (std::variant and std::vector in particular), just to add \u0027emit\u0027 (though in the interim there are more). If \u0027emit\u0027 became more std::algorithm like (like std::begin or std::end) then it would play better with just \u0027using\u0027 the std types.",
+      "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3fe6705_060c7d10",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2021-01-14T15:53:32Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "128fa922_51b9d2d2",
       "revId": "0dd363551f2f268839006e3443918ab54ce796b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
