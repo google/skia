@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "095c9dee_405008ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-14T21:41:35Z",
+      "side": 1,
+      "message": "Turns out this is not actually needed to pass the feOffset tests, but based on my reading of the spec it should be correct anyway. The diffs on gold are from the previous CL (\u003cuse\u003e bounds).",
+      "revId": "4a44a773a9dc3379c5f5f728896c0a43ff2f9941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
