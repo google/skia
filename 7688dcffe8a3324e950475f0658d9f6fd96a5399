@@ -16,6 +16,29 @@
       "message": "No need to examine the details... just kind of drink in the gestalt is enough.",
       "revId": "7688dcffe8a3324e950475f0658d9f6fd96a5399",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86a53a70_bd06b54e",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T17:59:04Z",
+      "side": 1,
+      "message": "Is there a use of this where any coefficient isn\u0027t float? I didn\u0027t see any, from a quick scan.",
+      "range": {
+        "startLine": 1252,
+        "startChar": 23,
+        "endLine": 1252,
+        "endChar": 35
+      },
+      "revId": "7688dcffe8a3324e950475f0658d9f6fd96a5399",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
