@@ -240,6 +240,8 @@ private:
     SpvId castScalarToUnsignedInt(SpvId inputId, const Type& inputType, const Type& outputType,
                                   OutputStream& out);
 
+    SpvId writeBooleanConstructor(const Constructor& c, OutputStream& out);
+
     SpvId castScalarToBoolean(SpvId inputId, const Type& inputType, const Type& outputType,
                               OutputStream& out);
 
