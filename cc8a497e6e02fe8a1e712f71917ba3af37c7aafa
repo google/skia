@@ -34,6 +34,24 @@
       "parentUuid": "dd3b6ea0_5f02d8ef",
       "revId": "cc8a497e6e02fe8a1e712f71917ba3af37c7aafa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4389c45_5abdf70e",
+        "filename": "modules/svg/src/SkSVGMask.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-14T17:57:47Z",
+      "side": 1,
+      "message": "Lgtm!",
+      "parentUuid": "bd6c74c3_36b41575",
+      "revId": "cc8a497e6e02fe8a1e712f71917ba3af37c7aafa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
