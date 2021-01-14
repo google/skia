@@ -171,6 +171,7 @@ private:
                           const ExpressionArray& arguments);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
+    int convertArraySize(int offset, const ASTNode& s);
     std::unique_ptr<Expression> convertBinaryExpression(std::unique_ptr<Expression> left,
                                                         Token::Kind op,
                                                         std::unique_ptr<Expression> right);
@@ -212,7 +213,6 @@ private:
     std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
                                              std::unique_ptr<Expression> index);
-    std::unique_ptr<Expression> convertEmptyIndex(std::unique_ptr<Expression> base);
     std::unique_ptr<Expression> convertPostfixExpression(std::unique_ptr<Expression> base,
                                                          Token::Kind op);
     std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
