@@ -45,6 +45,30 @@
       },
       "revId": "7cac73754dfbeedb634f12bbade2201c0844b0b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81cb30d6_2a6ff958",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3979,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-14T19:54:00Z",
+      "side": 1,
+      "message": "Also, this doesn\u0027t get called if driver workarounds are disabled. Maybe just init to false in GrCaps::GrCaps()",
+      "parentUuid": "765cd1e4_7eaf4797",
+      "range": {
+        "startLine": 3979,
+        "startChar": 4,
+        "endLine": 3979,
+        "endChar": 34
+      },
+      "revId": "7cac73754dfbeedb634f12bbade2201c0844b0b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
