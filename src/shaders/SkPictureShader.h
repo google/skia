@@ -54,6 +54,9 @@ private:
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                     SkColorType dstColorType, SkColorSpace* dstColorSpace,
                                     const int maxTextureSize = 0) const;
+    sk_sp<SkShader> makeAnalyticShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
+                                       SkColorType dstColorType, SkColorSpace* dstColorSpace,
+                                       const int maxTextureSize = 0) const;
 
     class PictureShaderContext : public Context {
     public:
