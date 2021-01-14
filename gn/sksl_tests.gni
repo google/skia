@@ -340,6 +340,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/Ossfuzz28050.sksl",
   "$_tests/sksl/shared/Ossfuzz28794.sksl",
   "$_tests/sksl/shared/Ossfuzz28904.sksl",
+  "$_tests/sksl/shared/Ossfuzz29444.sksl",
   "$_tests/sksl/shared/OutParams.sksl",
   "$_tests/sksl/shared/OutParamsTricky.sksl",
   "$_tests/sksl/shared/RectangleTexture.sksl",
