@@ -26,11 +26,10 @@ CoercionCost Type::coercionCost(const Type& other) const {
         }
         return CoercionCost::Impossible();
     }
-    if (this->isInteger() && this->isLiteral() && other.isFloat()) {
-        return CoercionCost::Free();
-    }
     if (this->isNumber() && other.isNumber()) {
-        if (this->isInteger() != other.isInteger()) {
+        if (this->isLiteral() && this->isInteger()) {
+            return CoercionCost::Free();
+        } else if (this->numberKind() != other.numberKind()) {
             return CoercionCost::Impossible();
         } else if (other.priority() >= this->priority()) {
             return CoercionCost::Normal(other.priority() - this->priority());
