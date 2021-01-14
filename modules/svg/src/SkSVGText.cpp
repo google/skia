@@ -506,6 +506,11 @@ void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
 
 void SkSVGTextContainer::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
                                       SkSVGXmlSpace) const {
+    if (!tctx) {
+        // No text context => missing top-level <text> node.
+        return;
+    }
+
     const SkSVGTextContext::ScopedPosResolver resolver(*this, ctx.lengthContext(), tctx);
 
     for (const auto& frag : fChildren) {
