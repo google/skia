@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "205b908c_55b2383a",
+        "filename": "src/gpu/GrTriangulator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-14T17:38:26Z",
+      "side": 1,
+      "message": "Is this comment more helpful?",
+      "parentUuid": "d0fd11aa_37502429",
+      "range": {
+        "startLine": 36,
+        "startChar": 7,
+        "endLine": 36,
+        "endChar": 32
+      },
+      "revId": "2ca62c485e420def297f110469f492c0bb40218e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3f623b5a_935b2332",
         "filename": "src/gpu/GrTriangulator.h",
         "patchSetId": 5
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-13T21:42:22Z",
       "side": 1,
       "message": "Triangles",
+      "range": {
+        "startLine": 59,
+        "startChar": 79,
+        "endLine": 59,
+        "endChar": 87
+      },
+      "revId": "2ca62c485e420def297f110469f492c0bb40218e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c96be482_d236871c",
+        "filename": "src/gpu/GrTriangulator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-14T17:38:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f623b5a_935b2332",
       "range": {
         "startLine": 59,
         "startChar": 79,
@@ -84,6 +132,30 @@
       "side": 1,
       "message": "A related question: Is the reason to gather these separately because they get incorporated into the stencil step?",
       "parentUuid": "92e5ecb3_4e3a8f63",
+      "range": {
+        "startLine": 794,
+        "startChar": 6,
+        "endLine": 794,
+        "endChar": 25
+      },
+      "revId": "2ca62c485e420def297f110469f492c0bb40218e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5873187_ac706a20",
+        "filename": "tests/TriangulatingPathRendererTests.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-14T17:38:26Z",
+      "side": 1,
+      "message": "Yes and Yes. I\u0027m working on improving the tessellator to use this code. The algorithm will be:\n\n 1. Stencil the curves and breadcrumb triangles\n 2. Draw the inner triangulation directly, with a stencil test against what we just drew into the stencil buffer\n 3. Fill in the curves and breadcrumb triangles from the stencil buffer",
+      "parentUuid": "a227ff60_8a7b1904",
       "range": {
         "startLine": 794,
         "startChar": 6,
