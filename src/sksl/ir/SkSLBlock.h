@@ -68,12 +68,15 @@ public:
     }
 
     String description() const override {
-        String result("{");
+        String result;
+        if (fIsScope) {
+            result += "{";
+        }
         for (const std::unique_ptr<Statement>& stmt : this->children()) {
             result += "\n";
             result += stmt->description();
         }
-        result += "\n}\n";
+        result += fIsScope ? "\n}\n" : "\n";
         return result;
     }
 
