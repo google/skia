@@ -1483,7 +1483,8 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord local,
                           SampleChildFn sampleChild) {
     skvm::Val args[2] = {local.x.id, local.y.id};
-    skvm::Val result[4] = {skvm::NA, skvm::NA, skvm::NA, skvm::NA};
+    skvm::Val zero = builder->splat(0.0f).id;
+    skvm::Val result[4] = {zero,zero,zero,zero};
     size_t paramSlots = 0;
     for (const SkSL::Variable* param : function.declaration().parameters()) {
         paramSlots += slot_count(param->type());
