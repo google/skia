@@ -22,6 +22,30 @@
       },
       "revId": "3b18f5eda53562e38cda91e5a241e9da0f7221e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c40fb099_c4d3bb36",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2622,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T20:15:20Z",
+      "side": 1,
+      "message": "Done, and also added a test-case to exercise the previous failure (using an unsized array in an expression). It was asserting with the original PS.",
+      "parentUuid": "e8f547ef_5e8062da",
+      "range": {
+        "startLine": 2622,
+        "startChar": 52,
+        "endLine": 2622,
+        "endChar": 73
+      },
+      "revId": "3b18f5eda53562e38cda91e5a241e9da0f7221e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

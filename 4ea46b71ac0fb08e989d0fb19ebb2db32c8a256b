@@ -22,6 +22,30 @@
       },
       "revId": "4ea46b71ac0fb08e989d0fb19ebb2db32c8a256b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8833b501_82634620",
+        "filename": "tests/sksl/errors/golden/FieldAfterRuntimeArray.glsl",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T20:15:20Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "29ed0cd0_7e8fbbca",
+      "range": {
+        "startLine": 1,
+        "startChar": 23,
+        "endLine": 5,
+        "endChar": 80
+      },
+      "revId": "4ea46b71ac0fb08e989d0fb19ebb2db32c8a256b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
