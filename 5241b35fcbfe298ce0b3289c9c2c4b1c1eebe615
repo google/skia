@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e5a0d72_bfe26084",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T16:23:21Z",
+      "side": 1,
+      "message": "If we\u0027re going this far (and I think we should), then we ought to also include GLSL (ES)\u0027s rule that there\u0027s no implicit conversion among signed and unsigned. I\u0027m guessing that enforcing that won\u0027t break much (any?) existing code?",
+      "revId": "5241b35fcbfe298ce0b3289c9c2c4b1c1eebe615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
