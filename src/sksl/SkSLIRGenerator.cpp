@@ -262,6 +262,31 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(const AST
     }
 }
 
+int IRGenerator::convertArraySize(int offset, const ASTNode& s) {
+    if (!s) {
+        this->errorReporter().error(offset, "array must have a size");
+        return 0;
+    }
+    auto size = this->coerce(this->convertExpression(s), *fContext.fTypes.fInt);
+    if (!size) {
+        return 0;
+    }
+    if (!size->is<IntLiteral>()) {
+        this->errorReporter().error(size->fOffset, "array size must be an integer");
+        return 0;
+    }
+    SKSL_INT count = size->as<IntLiteral>().value();
+    if (count <= 0) {
+        this->errorReporter().error(size->fOffset, "array size must be positive");
+        return 0;
+    }
+    if (!SkTFitsIn<int>(count)) {
+        this->errorReporter().error(size->fOffset, "array size is too large");
+        return 0;
+    }
+    return static_cast<int>(count);
+}
+
 StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                                                    Variable::Storage storage) {
     SkASSERT(decls.fKind == ASTNode::Kind::kVarDeclarations);
@@ -391,24 +416,9 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                             "opaque type '" + type->name() + "' may not be used in an array");
                 }
                 const ASTNode& rawSize = *iter++;
-                if (rawSize) {
-                    auto size = this->coerce(this->convertExpression(rawSize),
-                                             *fContext.fTypes.fInt);
-                    if (!size) {
-                        return {};
-                    }
-                    if (!size->is<IntLiteral>()) {
-                        this->errorReporter().error(size->fOffset, "array size must be an integer");
-                        return {};
-                    }
-                    SKSL_INT count = size->as<IntLiteral>().value();
-                    if (count <= 0) {
-                        this->errorReporter().error(size->fOffset, "array size must be positive");
-                        return {};
-                    }
-                    arraySize = count;
-                } else {
-                    arraySize = Type::kUnsizedArray;
+                arraySize = this->convertArraySize(varDecl.fOffset, rawSize);
+                if (!arraySize) {
+                    return {};
                 }
                 type = fSymbolTable->addArrayDimension(type, arraySize);
             }
@@ -421,14 +431,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
             fRTAdjust = var.get();
         }
         std::unique_ptr<Expression> value;
-        if (iter == varDecl.end()) {
-            if (arraySize == Type::kUnsizedArray) {
-                this->errorReporter().error(
-                        varDecl.fOffset,
-                        "arrays without an explicit size must use an initializer expression");
-                return {};
-            }
-        } else {
+        if (iter != varDecl.end()) {
             value = this->convertExpression(*iter);
             if (!value) {
                 return {};
@@ -976,7 +979,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             return;
         }
         if (pd.fIsArray) {
-            int arraySize = (paramIter++)->getInt();
+            int arraySize = this->convertArraySize(param.fOffset, *paramIter++);
+            if (!arraySize) {
+                return;
+            }
             type = fSymbolTable->addArrayDimension(type, arraySize);
         }
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters.
@@ -1197,7 +1203,6 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     {
         AutoSymbolTable table(this);
         symbols = fSymbolTable;
-        bool haveRuntimeArray = false;
         for (size_t i = 0; i < id.fDeclarationCount; ++i) {
             StatementArray decls = this->convertVarDeclarations(*(iter++),
                                                                 Variable::Storage::kInterfaceBlock);
@@ -1211,11 +1216,6 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                                 "opaque type '" + vd.var().type().name() +
                                                         "' is not permitted in an interface block");
                 }
-                if (haveRuntimeArray) {
-                    this->errorReporter().error(decl->fOffset,
-                                                "only the last entry in an interface block may be "
-                                                "a runtime-sized array");
-                }
                 if (&vd.var() == fRTAdjust) {
                     foundRTAdjust = true;
                     SkASSERT(vd.var().type() == *fContext.fTypes.fFloat4);
@@ -1228,10 +1228,6 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                             decl->fOffset,
                             "initializers are not permitted on interface block fields");
                 }
-                if (vd.var().type().isArray() &&
-                    vd.var().type().columns() == Type::kUnsizedArray) {
-                    haveRuntimeArray = true;
-                }
             }
         }
     }
@@ -1241,17 +1237,11 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     if (id.fIsArray) {
         const ASTNode& size = *(iter++);
         if (size) {
-            std::unique_ptr<Expression> converted = this->convertExpression(size);
-            if (!converted) {
-                return nullptr;
-            }
-            if (!converted->is<IntLiteral>()) {
-                this->errorReporter().error(intf.fOffset, "array size must be specified");
-                return nullptr;
-            }
-            arraySize = converted->as<IntLiteral>().value();
-            if (arraySize <= 0) {
-                this->errorReporter().error(converted->fOffset, "array size must be positive");
+            // convertArraySize rejects unsized arrays. This is the one place we allow those, but
+            // we've already checked for that, so this is verifying the other aspects (constant,
+            // positive, not too large).
+            arraySize = this->convertArraySize(size.fOffset, size);
+            if (!arraySize) {
                 return nullptr;
             }
         } else {
@@ -1401,7 +1391,10 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     }
     if (isArray) {
         auto iter = type.begin();
-        int arraySize = *iter ? iter->getInt() : Type::kUnsizedArray;
+        int arraySize = this->convertArraySize(type.fOffset, *iter);
+        if (!arraySize) {
+            return nullptr;
+        }
         result = fSymbolTable->addArrayDimension(result, arraySize);
     }
     return result;
@@ -2615,24 +2608,16 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
         return nullptr;
     }
     if (iter == index.end()) {
-        return this->convertEmptyIndex(std::move(base));
+        this->errorReporter().error(base->fOffset, base->is<TypeReference>()  // This should be illegal???
+                                                           ? "array must have a size"
+                                                           : "missing index in '[]'");
+        return nullptr;
     }
     std::unique_ptr<Expression> converted = this->convertExpression(*(iter++));
     if (!converted) {
         return nullptr;
     }
     return this->convertIndex(std::move(base), std::move(converted));
-}
-
-std::unique_ptr<Expression> IRGenerator::convertEmptyIndex(std::unique_ptr<Expression> base) {
-    // Convert an index expression with nothing inside of it: `float[]`.
-    if (base->is<TypeReference>()) {
-        const Type* type = &base->as<TypeReference>().value();
-        type = fSymbolTable->addArrayDimension(type, Type::kUnsizedArray);
-        return std::make_unique<TypeReference>(fContext, base->fOffset, type);
-    }
-    this->errorReporter().error(base->fOffset, "'[]' must follow a type name");
-    return nullptr;
 }
 
 std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
