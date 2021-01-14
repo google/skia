@@ -47,8 +47,9 @@ SkBlendMode SkSVGFeComposite::BlendModeForOperator(SkSVGFeCompositeOperator op) 
 sk_sp<SkImageFilter> SkSVGFeComposite::onMakeImageFilter(const SkSVGRenderContext& ctx,
                                                          const SkSVGFilterContext& fctx) const {
     const SkRect cropRect = this->resolveFilterSubregion(ctx, fctx);
-    const sk_sp<SkImageFilter> background = fctx.resolveInput(ctx, fIn2);
-    const sk_sp<SkImageFilter> foreground = fctx.resolveInput(ctx, this->getIn());
+    const SkSVGColorspace colorspace = this->resolveColorspace(ctx);
+    const sk_sp<SkImageFilter> background = fctx.resolveInput(ctx, fIn2, colorspace);
+    const sk_sp<SkImageFilter> foreground = fctx.resolveInput(ctx, this->getIn(), colorspace);
     if (fOperator == SkSVGFeCompositeOperator::kArithmetic) {
         constexpr bool enforcePMColor = true;
         return SkImageFilters::Arithmetic(

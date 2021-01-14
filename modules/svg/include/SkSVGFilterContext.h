@@ -30,17 +30,18 @@ public:
 
     const SkSVGObjectBoundingBoxUnits& primitiveUnits() const { return fPrimitiveUnits; }
 
-    void registerResult(const SkSVGStringType&, const sk_sp<SkImageFilter>&, const SkRect&);
+    void registerResult(const SkSVGStringType&, const sk_sp<SkImageFilter>&, const SkRect&, SkSVGColorspace);
 
-    sk_sp<SkImageFilter> resolveInput(const SkSVGRenderContext&, const SkSVGFeInputType&) const;
+    sk_sp<SkImageFilter> resolveInput(const SkSVGRenderContext&, const SkSVGFeInputType&, SkSVGColorspace) const;
 
 private:
     struct Result {
         sk_sp<SkImageFilter> fImageFilter;
         SkRect fFilterSubregion;
+        SkSVGColorspace fColorspace;
     };
 
-    sk_sp<SkImageFilter> findResultById(const SkSVGStringType&) const;
+    const Result* findResultById(const SkSVGStringType&) const;
 
     SkRect fFilterEffectsRegion;
 
