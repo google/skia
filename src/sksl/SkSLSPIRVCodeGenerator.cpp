@@ -1280,7 +1280,7 @@ SpvId SPIRVCodeGenerator::castScalarToUnsignedInt(SpvId inputId, const Type& inp
         return inputId;
     }
 
-    // Given the input type, generate the appropriate instruction to cast to signed int.
+    // Given the input type, generate the appropriate instruction to cast to unsigned int.
     SpvId result = this->nextId();
     if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1u or 0u.
@@ -1297,6 +1297,40 @@ SpvId SPIRVCodeGenerator::castScalarToUnsignedInt(SpvId inputId, const Type& inp
     } else {
         SkDEBUGFAILF("unsupported type for unsigned int typecast: %s",
                      inputType.description().c_str());
+        return (SpvId)-1;
+    }
+    return result;
+}
+
+SpvId SPIRVCodeGenerator::castScalarToBoolean(SpvId inputId, const Type& inputType,
+                                              const Type& outputType, OutputStream& out) {
+    // Casting a bool to bool is a no-op.
+    if (inputType.isBoolean()) {
+        return inputId;
+    }
+
+    // Given the input type, generate the appropriate instruction to cast to bool.
+    SpvId result = this->nextId();
+    if (inputType.isSigned()) {
+        // Synthesize a boolean result by comparing the input against a signed zero literal.
+        IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
+        SpvId      zeroID = this->writeIntLiteral(zero);
+        this->writeInstruction(SpvOpINotEqual, this->getType(outputType), result,
+                               inputId, zeroID, out);
+    } else if (inputType.isUnsigned()) {
+        // Synthesize a boolean result by comparing the input against an unsigned zero literal.
+        IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fUInt.get());
+        SpvId      zeroID = this->writeIntLiteral(zero);
+        this->writeInstruction(SpvOpINotEqual, this->getType(outputType), result,
+                               inputId, zeroID, out);
+    } else if (inputType.isFloat()) {
+        // Synthesize a boolean result by comparing the input against a floating-point zero literal.
+        FloatLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
+        SpvId        zeroID = this->writeFloatLiteral(zero);
+        this->writeInstruction(SpvOpFUnordNotEqual, this->getType(outputType), result,
+                               inputId, zeroID, out);
+    } else {
+        SkDEBUGFAILF("unsupported type for boolean typecast: %s", inputType.description().c_str());
         return (SpvId)-1;
     }
     return result;
@@ -1538,78 +1572,29 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
             // OpCompositeConstruct doesn't handle vector arguments at all, so we always extract
             // vector components and pass them into OpCompositeConstruct individually.
             SpvId vec = this->writeExpression(*c.arguments()[i], out);
-            SpvOp_ op = SpvOpUndef;
             const Type& src = argType.componentType();
             const Type& dst = type.componentType();
-            if (dst == *fContext.fTypes.fFloat || dst == *fContext.fTypes.fHalf) {
-                if (src == *fContext.fTypes.fFloat || src == *fContext.fTypes.fHalf) {
-                    if (c.arguments().size() == 1) {
-                        return vec;
-                    }
-                } else if (src == *fContext.fTypes.fInt ||
-                           src == *fContext.fTypes.fShort ||
-                           src == *fContext.fTypes.fByte) {
-                    op = SpvOpConvertSToF;
-                } else if (src == *fContext.fTypes.fUInt ||
-                           src == *fContext.fTypes.fUShort ||
-                           src == *fContext.fTypes.fUByte) {
-                    op = SpvOpConvertUToF;
-                } else {
-                    fErrors.error(c.arguments()[i]->fOffset, "unsupported cast in SPIR-V: vector " +
-                                                             src.description() + " to " +
-                                                             dst.description());
-                }
-            } else if (dst == *fContext.fTypes.fInt ||
-                       dst == *fContext.fTypes.fShort ||
-                       dst == *fContext.fTypes.fByte) {
-                if (src == *fContext.fTypes.fFloat || src == *fContext.fTypes.fHalf) {
-                    op = SpvOpConvertFToS;
-                } else if (src == *fContext.fTypes.fInt ||
-                           src == *fContext.fTypes.fShort ||
-                           src == *fContext.fTypes.fByte) {
-                    if (c.arguments().size() == 1) {
-                        return vec;
-                    }
-                } else if (src == *fContext.fTypes.fUInt ||
-                           src == *fContext.fTypes.fUShort ||
-                           src == *fContext.fTypes.fUByte) {
-                    op = SpvOpBitcast;
-                } else {
-                    fErrors.error(c.arguments()[i]->fOffset, "unsupported cast in SPIR-V: vector " +
-                                                             src.description() + " to " +
-                                                             dst.description());
-                }
-            } else if (dst == *fContext.fTypes.fUInt ||
-                       dst == *fContext.fTypes.fUShort ||
-                       dst == *fContext.fTypes.fUByte) {
-                if (src == *fContext.fTypes.fFloat || src == *fContext.fTypes.fHalf) {
-                    op = SpvOpConvertFToS;
-                } else if (src == *fContext.fTypes.fInt ||
-                           src == *fContext.fTypes.fShort ||
-                           src == *fContext.fTypes.fByte) {
-                    op = SpvOpBitcast;
-                } else if (src == *fContext.fTypes.fUInt ||
-                           src == *fContext.fTypes.fUShort ||
-                           src == *fContext.fTypes.fUByte) {
-                    if (c.arguments().size() == 1) {
-                        return vec;
-                    }
-                } else {
-                    fErrors.error(c.arguments()[i]->fOffset, "unsupported cast in SPIR-V: vector " +
-                                                             src.description() + " to " +
-                                                             dst.description());
-                }
+            if (c.arguments().size() == 1 && src.numberKind() == dst.numberKind()) {
+                return vec;
             }
+
             for (int j = 0; j < argType.columns(); j++) {
                 SpvId swizzle = this->nextId();
                 this->writeInstruction(SpvOpCompositeExtract, this->getType(src), swizzle, vec, j,
                                        out);
-                if (op != SpvOpUndef) {
-                    SpvId cast = this->nextId();
-                    this->writeInstruction(op, this->getType(dst), cast, swizzle, out);
-                    arguments.push_back(cast);
+                if (dst.isFloat()) {
+                    arguments.push_back(this->castScalarToFloat(swizzle, src, dst, out));
+                } else if (dst.isSigned()) {
+                    arguments.push_back(this->castScalarToSignedInt(swizzle, src, dst, out));
+                } else if (dst.isUnsigned()) {
+                    arguments.push_back(this->castScalarToUnsignedInt(swizzle, src, dst, out));
+                } else if (dst.isBoolean()) {
+                    arguments.push_back(this->castScalarToBoolean(swizzle, src, dst, out));
                 } else {
                     arguments.push_back(swizzle);
+                    fErrors.error(c.arguments()[i]->fOffset, "unsupported cast in SPIR-V: vector " +
+                                                             src.description() + " to " +
+                                                             dst.description());
                 }
             }
         } else {
