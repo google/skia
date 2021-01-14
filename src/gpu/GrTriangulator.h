@@ -33,6 +33,53 @@ public:
         return count;
     }
 
+    // The breadcrumb triangles serve as a glue that erases T-junctions between a path's outer
+    // curves and its inner polygon triangulation. Drawing a path's outer curves, breadcrumb
+    // triangles, and inner polygon triangulation all together into the stencil buffer has the same
+    // identical rasterized effect as stenciling a classic Redbook fan.
+    //
+    // The breadcrumb triangles track all the edge splits that led from the original inner polygon
+    // edges to the final triangulation. Every time an edge splits, we emit a razor-thin breadcrumb
+    // triangle consisting of the edge's original endpoints and the split point. (We also add
+    // supplemental breadcrumb triangles to areas where abs(winding) > 1.)
+    //
+    //                a
+    //               /
+    //              /
+    //             /
+    //            x  <- Edge splits at x. New breadcrumb triangle is: [a, b, x].
+    //           /
+    //          /
+    //         b
+    //
+    // The opposite-direction shared edges between the triangulation and breadcrumb triangles should
+    // all cancel out, leaving just the set of edges from the original polygon.
+    class BreadcrumbTriangleCollector { public:
+        void push(SkPoint a, SkPoint b, SkPoint c, int winding) {
+            if (a != b && a != c && b != c) {
+                if (winding > 0) {
+                    this->onPush(a, b, c, winding);
+                } else if (winding < 0) {
+                    this->onPush(b, a, c, -winding);
+                }
+            }
+        }
+        virtual ~BreadcrumbTriangleCollector() {}
+    private:
+        virtual void onPush(SkPoint a, SkPoint b, SkPoint c, int winding) = 0;
+    };
+
+    static int TriangulateInnerPolygons(const SkPath& path, GrEagerVertexAllocator* vertexAllocator,
+                                        BreadcrumbTriangleCollector* breadcrumbTriangles, bool
+                                        *isLinear) {
+        GrTriangulator triangulator(path);
+        triangulator.fCullCollinearVertices = false;
+        triangulator.fBreadcrumbTriangles = breadcrumbTriangles;
+        int count = triangulator.pathToTriangles(0, SkRect::MakeEmpty(), vertexAllocator);
+        *isLinear = triangulator.fIsLinear;
+        return count;
+    }
+
     static int TriangulateSimpleInnerPolygons(const SkPath& path,
                                               GrEagerVertexAllocator* vertexAllocator,
                                               bool *isLinear) {
@@ -85,7 +132,7 @@ protected:
     // 2) Build a mesh of edges connecting the vertices:
     void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
 
-    // 3) Sort the vertices in Y (and secondarily in X) (merge_sort()).
+    // 3) Sort the vertices in Y (and secondarily in X):
     static void SortedMerge(VertexList* front, VertexList* back, VertexList* result,
                             const Comparator&);
     static void SortMesh(VertexList* vertices, const Comparator&);
@@ -128,7 +175,7 @@ protected:
     //
     // A) Intersections may cause a shortened edge to no longer be ordered with respect to its
     //    neighbouring edges at the top or bottom vertex. This is handled by merging the
-    //    edges (merge_collinear_edges()).
+    //    edges (mergeCollinearVertices()).
     // B) Intersections may cause an edge to violate the left-to-right ordering of the
     //    active edge list. This is handled by detecting potential violations and rewinding
     //    the active edge list to the vertex before they occur (rewind() during merging,
@@ -164,9 +211,19 @@ protected:
                              SkScalar tolSqd, VertexList* contour, int pointsLeft);
     bool applyFillType(int winding);
     Edge* makeEdge(Vertex* prev, Vertex* next, EdgeType type, const Comparator&);
+    void setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, const Comparator&);
+    void setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
+                   const Comparator&);
+    void mergeEdgesAbove(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
+                         const Comparator&);
+    void mergeEdgesBelow(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
+                         const Comparator&);
     Edge* makeConnectingEdge(Vertex* prev, Vertex* next, EdgeType, const Comparator&,
                              int windingScale = 1);
+    void mergeVertices(Vertex* src, Vertex* dst, VertexList* mesh, const Comparator&);
     static void FindEnclosingEdges(Vertex* v, EdgeList* edges, Edge** left, Edge** right);
+    void mergeCollinearEdges(Edge* edge, EdgeList* activeEdges, Vertex** current,
+                             const Comparator&);
     bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
                    const Comparator&);
     bool intersectEdgePair(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
@@ -190,11 +247,12 @@ protected:
     const SkPath fPath;
     bool fIsLinear = false;
 
-    // Flags.
+    // Internal control knobs.
     bool fRoundVerticesToQuarterPixel = false;
     bool fEmitCoverage = false;
     bool fCullCollinearVertices = true;
     bool fDisallowSelfIntersection = false;
+    BreadcrumbTriangleCollector* fBreadcrumbTriangles = nullptr;
 };
 
 /**
