@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe96f162_9ef10859",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T16:49:38Z",
+      "side": 1,
+      "message": "GLSL ES 1.0 doesn\u0027t allow switch, either.",
+      "revId": "6d9ee2dee29e1e37b86740b930d145d385d312a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
