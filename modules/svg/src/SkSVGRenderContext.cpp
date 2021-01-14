@@ -13,6 +13,7 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/private/SkTo.h"
 #include "modules/svg/include/SkSVGAttribute.h"
+#include "modules/svg/include/SkSVGClipPath.h"
 #include "modules/svg/include/SkSVGFilter.h"
 #include "modules/svg/include/SkSVGMask.h"
 #include "modules/svg/include/SkSVGNode.h"
@@ -520,7 +521,7 @@ void SkSVGRenderContext::applyClip(const SkSVGFuncIRI& clip) {
         return;
     }
 
-    const SkPath clipPath = clipNode->asPath(*this);
+    const SkPath clipPath = static_cast<const SkSVGClipPath*>(clipNode.get())->resolveClip(*this);
 
     // We use the computed clip path in two ways:
     //

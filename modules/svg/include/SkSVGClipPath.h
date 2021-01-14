@@ -17,8 +17,17 @@ public:
         return sk_sp<SkSVGClipPath>(new SkSVGClipPath());
     }
 
+    SVG_ATTR(ClipPathUnits, SkSVGObjectBoundingBoxUnits,
+             SkSVGObjectBoundingBoxUnits(SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse))
+
 private:
+    friend class SkSVGRenderContext;
+
     SkSVGClipPath();
+
+    bool parseAndSetAttribute(const char*, const char*) override;
+
+    SkPath resolveClip(const SkSVGRenderContext&) const;
 
     using INHERITED = SkSVGHiddenContainer;
 };
