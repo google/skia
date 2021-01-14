@@ -1302,6 +1302,14 @@ SpvId SPIRVCodeGenerator::castScalarToUnsignedInt(SpvId inputId, const Type& inp
     return result;
 }
 
+SpvId SPIRVCodeGenerator::writeBooleanConstructor(const Constructor& c, OutputStream& out) {
+    SkASSERT(c.arguments().size() == 1);
+    SkASSERT(c.type().isBoolean());
+    const Expression& ctorExpr = *c.arguments()[0];
+    SpvId expressionId = this->writeExpression(ctorExpr, out);
+    return this->castScalarToBoolean(expressionId, ctorExpr.type(), c.type(), out);
+}
+
 SpvId SPIRVCodeGenerator::castScalarToBoolean(SpvId inputId, const Type& inputType,
                                               const Type& outputType, OutputStream& out) {
     // Casting a bool to bool is a no-op.
@@ -1652,6 +1660,8 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         return this->writeIntConstructor(c, out);
     } else if (type.isUnsigned()) {
         return this->writeUIntConstructor(c, out);
+    } else if (type.isBoolean()) {
+        return this->writeBooleanConstructor(c, out);
     }
     switch (type.typeKind()) {
         case Type::TypeKind::kVector:
