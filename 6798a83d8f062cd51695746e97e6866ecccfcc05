@@ -22,6 +22,30 @@
       },
       "revId": "6798a83d8f062cd51695746e97e6866ecccfcc05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1027b092_b63786ba",
+        "filename": "tests/sksl/errors/IntFloatMismatch.sksl",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T16:17:11Z",
+      "side": 1,
+      "message": "Great idea, done.",
+      "parentUuid": "4b9e3dc5_156f311e",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 53
+      },
+      "revId": "6798a83d8f062cd51695746e97e6866ecccfcc05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
