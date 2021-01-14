@@ -4273,4 +4273,6 @@ STAGE_PP(swizzle, void* ctx) {
 
 }  // namespace SK_OPTS_NS
 
+#undef SI
+
 #endif//SkRasterPipeline_opts_DEFINED
