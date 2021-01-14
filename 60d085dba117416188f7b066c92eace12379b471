@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c05e48ef_5365afdd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T14:52:43Z",
+      "side": 1,
+      "message": "Per https://skia-review.googlesource.com/c/skia/+/353356",
+      "revId": "60d085dba117416188f7b066c92eace12379b471",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
