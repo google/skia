@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eebcfabb_d2ec082e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-14T22:59:33Z",
+      "side": 1,
+      "message": "You can see the artifacts here, around the big-green \"SVG\": https://gold.skia.org/img/images/be5d5579bffe900a4c7c9fc4333212c5.png",
+      "revId": "dc7ae766e53e020aba67efdd0172e6c08fcb3aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
