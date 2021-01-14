@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83c0153e_a2b98bf4",
+        "filename": "gn/compile_sksl_tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T15:54:24Z",
+      "side": 1,
+      "message": "Whoops! Reverted",
+      "parentUuid": "8d057fe0_3c1c8641",
+      "revId": "f2f7a912367de070bd3f331a854b8a5bf4b7bc5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a325f5d0_a5bef33a",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-01-14T15:22:51Z",
       "side": 1,
       "message": "oops",
+      "range": {
+        "startLine": 1283,
+        "startChar": 77,
+        "endLine": 1283,
+        "endChar": 88
+      },
+      "revId": "f2f7a912367de070bd3f331a854b8a5bf4b7bc5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46a6366a_a0317843",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T15:54:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a325f5d0_a5bef33a",
       "range": {
         "startLine": 1283,
         "startChar": 77,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2d5fc33_7e72a606",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T15:54:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5a64aab_d3cfa0c8",
+      "range": {
+        "startLine": 1307,
+        "startChar": 18,
+        "endLine": 1307,
+        "endChar": 46
+      },
+      "revId": "f2f7a912367de070bd3f331a854b8a5bf4b7bc5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c32c05e0_6c5fe513",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-01-14T15:22:51Z",
       "side": 1,
       "message": "ditto (double-copy-paste error)",
+      "range": {
+        "startLine": 1312,
+        "startChar": 76,
+        "endLine": 1312,
+        "endChar": 88
+      },
+      "revId": "f2f7a912367de070bd3f331a854b8a5bf4b7bc5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d99b949_4573fe3c",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T15:54:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c32c05e0_6c5fe513",
       "range": {
         "startLine": 1312,
         "startChar": 76,
