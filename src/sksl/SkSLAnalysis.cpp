@@ -466,7 +466,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
         if (!expr->isCompileTimeConstant()) {
             return false;
         }
-        if (!expr->type().isInteger() && !expr->type().isFloat()) {
+        if (!expr->type().isNumber()) {
             SkDEBUGFAIL("unexpected constant type");
             return false;
         }
@@ -486,7 +486,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
         return "invalid init declaration";
     }
     const VarDeclaration& initDecl = loop.initializer()->as<VarDeclaration>();
-    if (!initDecl.baseType().isInteger() && !initDecl.baseType().isFloat()) {
+    if (!initDecl.baseType().isNumber()) {
         return "invalid type for loop index";
     }
     if (initDecl.arraySize() != 0) {
