@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff551702_7f6bd462",
+        "filename": "tests/sksl/errors/ArrayIndexOutOfRange.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T21:14:04Z",
+      "side": 1,
+      "message": "I expect it\u0027ll work just fine but let\u0027s add a matching version of this test on the unsized_array section as well.",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "86352f52c0cc4b92c4284c7e71a777627d0b0ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
