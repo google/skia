@@ -3974,12 +3974,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverDisableCCPR = true;
     }
 
-    // Temporarily disable the MSAA implementation of CCPR on various platforms while we work out
-    // specific issues.
-    if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon drops stencil draws that use sample mask.
-        kImagination_GrGLVendor == ctxInfo.vendor() /* PowerVR produces flaky results on Gold. */) {
-        fDriverDisableMSAACCPR = true;
-    }
+    // Disable the MSAA implementation of CCPR on all platforms. Now CCPR will only be enabled if
+    // the user explicitly asks for fDisableCoverageCountingPaths.
+    fDriverDisableMSAACCPR = true;
 
     if (kIntel_GrGLVendor == ctxInfo.vendor() ||  // IntelIris640 drops draws completely.
         ctxInfo.renderer() == kMaliT_GrGLRenderer ||  // Some curves appear flat on GalaxyS6.
