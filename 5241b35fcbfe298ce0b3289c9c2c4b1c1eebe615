@@ -34,6 +34,24 @@
       "parentUuid": "0e5a0d72_bfe26084",
       "revId": "5241b35fcbfe298ce0b3289c9c2c4b1c1eebe615",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "062fddb1_b9b06e0f",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T16:31:46Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "20785075_e426007b",
+      "revId": "5241b35fcbfe298ce0b3289c9c2c4b1c1eebe615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
