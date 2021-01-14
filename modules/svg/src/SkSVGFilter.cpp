@@ -25,28 +25,10 @@ bool SkSVGFilter::parseAndSetAttribute(const char* name, const char* value) {
                    "primitiveUnits", name, value));
 }
 
-SkRect SkSVGFilter::resolveFilterRegion(const SkSVGRenderContext& ctx) const {
-    const SkSVGLengthContext lctx =
-            fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox
-                    ? SkSVGLengthContext({1, 1})
-                    : ctx.lengthContext();
-
-    SkRect filterRegion = lctx.resolveRect(fX, fY, fWidth, fHeight);
-    if (fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        filterRegion = SkRect::MakeXYWH(objBounds.fLeft + filterRegion.fLeft * objBounds.width(),
-                                        objBounds.fTop + filterRegion.fTop * objBounds.height(),
-                                        filterRegion.width() * objBounds.width(),
-                                        filterRegion.height() * objBounds.height());
-    }
-
-    return filterRegion;
-}
-
 sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) const {
     sk_sp<SkImageFilter> filter;
-    SkSVGFilterContext fctx(resolveFilterRegion(ctx), fPrimitiveUnits);
+    SkSVGFilterContext fctx(ctx.resolveOBBRect(fX, fY, fWidth, fHeight, fFilterUnits),
+                            fPrimitiveUnits);
     SkSVGColorspace cs = SkSVGColorspace::kSRGB;
     for (const auto& child : fChildren) {
         if (!SkSVGFe::IsFilterEffect(child)) {
