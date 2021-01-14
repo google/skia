@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f47aef81_dcf90a62",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3978,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-14T19:47:37Z",
+      "side": 1,
+      "message": "This seems backwards right? They would have to ask for NOT fDisableCoverageCountingPaths?\n\nDo we even want to leave back doors in for external users?",
+      "range": {
+        "startLine": 3978,
+        "startChar": 27,
+        "endLine": 3978,
+        "endChar": 66
+      },
+      "revId": "7cac73754dfbeedb634f12bbade2201c0844b0b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
