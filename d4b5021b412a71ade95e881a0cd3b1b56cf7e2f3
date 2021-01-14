@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d06347e8_021d597f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2021-01-14T14:49:35Z",
+      "side": 1,
+      "message": "TBR reed\nno API change, just version increment",
+      "revId": "d4b5021b412a71ade95e881a0cd3b1b56cf7e2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
