@@ -1065,3 +1065,35 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
         canvas->translate(0, size * 1.1f);
     }
 }
+
+#include "include/core/SkImage.h"
+
+DEF_SIMPLE_GM(picture_shader, canvas, 800, 300) {
+    SkRect r = SkRect::MakeWH(160, 120);
+    auto make_pic = [&]() {
+        SkPictureRecorder recorder;
+        SkCanvas* c = recorder.beginRecording(r);
+        SkPaint paint;
+        paint.setStroke(true);
+        c->drawRect({10, 10, 150, 110}, paint);
+        c->drawCircle(100, 60, 40, paint);
+        return recorder.finishRecordingAsPicture();
+    };
+    auto pic = make_pic();
+
+    switch (2) {
+        case 0: canvas->drawPicture(pic); break;
+        case 1: {
+            auto img = SkImage::MakeFromPicture(pic, {160,120}, nullptr, nullptr,
+                                                SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
+            canvas->drawImage(img.get(), 0, 0, SkSamplingOptions(), nullptr);
+        } break;
+        case 2: {
+            auto sh = pic->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                      nullptr, &r);
+            SkPaint p;
+            p.setShader(sh);
+            canvas->drawPaint(p);
+        } break;
+    }
+}
