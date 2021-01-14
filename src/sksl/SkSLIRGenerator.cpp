@@ -634,6 +634,11 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
 
 std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
     SkASSERT(s.fKind == ASTNode::Kind::kSwitch);
+    if (this->strictES2Mode()) {
+        this->errorReporter().error(s.fOffset, "switch statements are not supported");
+        return nullptr;
+    }
+
     AutoSwitchLevel level(this);
     auto iter = s.begin();
     std::unique_ptr<Expression> value = this->convertExpression(*(iter++));
