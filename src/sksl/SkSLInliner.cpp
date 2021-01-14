@@ -158,12 +158,16 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
     return ContainsRecursiveCall{}.visit(funcDecl);
 }
 
-static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
-    if (src->isArray()) {
-        return symbolTable.takeOwnershipOfSymbol(
-                Type::MakeArrayType(src->name(), src->componentType(), src->columns()));
+static const Type* copy_if_needed(const Type* type, SymbolTable* symbolTable) {
+    if (type->isArray()) {
+        const Symbol* copiedType = (*symbolTable)[type->name()];
+        if (!copiedType) {
+            copiedType = symbolTable->add(Type::MakeArrayType(type->name(), type->componentType(),
+                                                              type->columns()));
+        }
+        return &copiedType->as<Type>();
     }
-    return src;
+    return type;
 }
 
 static std::unique_ptr<Statement>* find_parent_statement(
@@ -343,12 +347,13 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
 
     switch (expression.kind()) {
         case Expression::Kind::kBinary: {
-            const BinaryExpression& b = expression.as<BinaryExpression>();
+            const BinaryExpression& binaryExpr = expression.as<BinaryExpression>();
+            const Type* type = copy_if_needed(&binaryExpr.type(), symbolTableForExpression);
             return std::make_unique<BinaryExpression>(offset,
-                                                      expr(b.left()),
-                                                      b.getOperator(),
-                                                      expr(b.right()),
-                                                      &b.type());
+                                                      expr(binaryExpr.left()),
+                                                      binaryExpr.getOperator(),
+                                                      expr(binaryExpr.right()),
+                                                      type);
         }
         case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kIntLiteral:
@@ -356,7 +361,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expression.as<Constructor>();
-            const Type* type = copy_if_needed(&constructor.type(), *symbolTableForExpression);
+            const Type* type = copy_if_needed(&constructor.type(), symbolTableForExpression);
             return std::make_unique<Constructor>(offset, type, argList(constructor.arguments()));
         }
         case Expression::Kind::kExternalFunctionCall: {
@@ -372,7 +377,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
-            return std::make_unique<FunctionCall>(offset, &funcCall.type(), &funcCall.function(),
+            const Type* type = copy_if_needed(&funcCall.type(), symbolTableForExpression);
+            return std::make_unique<FunctionCall>(offset, type, &funcCall.function(),
                                                   argList(funcCall.arguments()));
         }
         case Expression::Kind::kFunctionReference:
@@ -520,13 +526,15 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             }
 
             // For more complex functions, assign their result into a variable.
+            const Type* resultType = copy_if_needed(&resultExpr->get()->type(),
+                                                    symbolTableForStatement);
             auto assignment =
                     std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                             offset,
                             clone_with_ref_kind(**resultExpr, VariableReference::RefKind::kWrite),
                             Token::Kind::TK_EQ,
                             expr(r.expression()),
-                            &resultExpr->get()->type()));
+                            resultType));
 
             // Early returns are wrapped in a for loop; we need to synthesize a continue statement
             // to "leave" the function.
@@ -566,8 +574,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             auto name = std::make_unique<String>(fMangler.uniqueName(String(old.name()),
                                                                      symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
-            const Type* baseTypePtr = copy_if_needed(&decl.baseType(), *symbolTableForStatement);
-            const Type* typePtr = copy_if_needed(&old.type(), *symbolTableForStatement);
+            const Type* baseTypePtr = copy_if_needed(&decl.baseType(), symbolTableForStatement);
+            const Type* typePtr = copy_if_needed(&old.type(), symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
                                                &old.modifiers(),

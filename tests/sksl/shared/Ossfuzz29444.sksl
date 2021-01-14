@@ -1,0 +1,4 @@
+float an()   { return 2; }
+void  wna()  { an(), float[1](), float[1](); }
+void  na()   { wna(); }
+void  main() { na(), na(); }
