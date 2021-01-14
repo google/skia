@@ -2,6 +2,7 @@
 
 error: 28: type mismatch: '=' cannot operate on 'int', 'float'
 error: 29: type mismatch: '=' cannot operate on 'uint', 'float'
+error: 30: type mismatch: '=' cannot operate on 'int', 'uint'
 error: 31: type mismatch: '=' cannot operate on 'int', 'float'
 error: 32: type mismatch: '=' cannot operate on 'float', 'int'
 error: 33: type mismatch: '=' cannot operate on 'float', 'uint'
@@ -39,4 +40,12 @@ error: 64: type mismatch: '+' cannot operate on 'float', 'uint'
 error: 65: type mismatch: '-' cannot operate on 'float', 'uint'
 error: 66: type mismatch: '*' cannot operate on 'float', 'uint'
 error: 67: type mismatch: '/' cannot operate on 'float', 'uint'
-39 errors
+error: 68: type mismatch: '+' cannot operate on 'int', 'uint'
+error: 69: type mismatch: '-' cannot operate on 'int', 'uint'
+error: 70: type mismatch: '*' cannot operate on 'int', 'uint'
+error: 71: type mismatch: '/' cannot operate on 'int', 'uint'
+error: 72: type mismatch: '+' cannot operate on 'uint', 'int'
+error: 73: type mismatch: '-' cannot operate on 'uint', 'int'
+error: 74: type mismatch: '*' cannot operate on 'uint', 'int'
+error: 75: type mismatch: '/' cannot operate on 'uint', 'int'
+48 errors
