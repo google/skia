@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 3: discard statement is only permitted in fragment shaders
+error: 5: do-while loops are not supported
+error: 7: while loops are not supported
+3 errors
