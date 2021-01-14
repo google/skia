@@ -131,6 +131,10 @@ public:
         return fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
     }
 
+    SkRect resolveOBBRect(const SkSVGLength& x, const SkSVGLength& y,
+                          const SkSVGLength& w, const SkSVGLength& h,
+                          SkSVGObjectBoundingBoxUnits) const;
+
 private:
     // Stack-only
     void* operator new(size_t)                               = delete;
@@ -140,6 +144,7 @@ private:
     void applyOpacity(SkScalar opacity, uint32_t flags);
     void applyFilter(const SkSVGFuncIRI&);
     void applyClip(const SkSVGFuncIRI&);
+    void applyMask(const SkSVGFuncIRI&);
     void updatePaintsWithCurrentColor(const SkSVGPresentationAttributes&);
 
     const sk_sp<SkFontMgr>&                       fFontMgr;
