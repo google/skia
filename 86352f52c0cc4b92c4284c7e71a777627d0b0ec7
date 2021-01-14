@@ -22,6 +22,30 @@
       },
       "revId": "86352f52c0cc4b92c4284c7e71a777627d0b0ec7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1ec132e_128132e8",
+        "filename": "tests/sksl/errors/ArrayIndexOutOfRange.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T21:17:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff551702_7f6bd462",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "86352f52c0cc4b92c4284c7e71a777627d0b0ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
