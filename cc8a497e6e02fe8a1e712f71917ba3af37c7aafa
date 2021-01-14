@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd3b6ea0_5f02d8ef",
+        "filename": "modules/svg/src/SkSVGMask.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-14T15:03:18Z",
+      "side": 1,
+      "message": "Nit / up for debate: make this apply() function just the inner scope (i.e. the part with SkAutoCanvasRestore), and move the surrounding layers + clipRect up into SkSVGRenderContext::applyMask()? It might be a little clearer as far as who\u0027s responsible for which canvas restore. I don\u0027t have strong feelings about this suggestion, so leaving it up to you.",
+      "revId": "cc8a497e6e02fe8a1e712f71917ba3af37c7aafa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
