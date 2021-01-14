@@ -1661,15 +1661,11 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         this->getActualType(type) == this->getActualType(c.arguments()[0]->type())) {
         return this->writeExpression(*c.arguments()[0], out);
     }
-    if (type == *fContext.fTypes.fFloat || type == *fContext.fTypes.fHalf) {
+    if (type.isFloat()) {
         return this->writeFloatConstructor(c, out);
-    } else if (type == *fContext.fTypes.fInt ||
-               type == *fContext.fTypes.fShort ||
-               type == *fContext.fTypes.fByte) {
+    } else if (type.isSigned()) {
         return this->writeIntConstructor(c, out);
-    } else if (type == *fContext.fTypes.fUInt ||
-               type == *fContext.fTypes.fUShort ||
-               type == *fContext.fTypes.fUByte) {
+    } else if (type.isUnsigned()) {
         return this->writeUIntConstructor(c, out);
     }
     switch (type.typeKind()) {
@@ -1680,9 +1676,7 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         case Type::TypeKind::kArray:
             return this->writeArrayConstructor(c, out);
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported constructor: %s", c.description().c_str());
-#endif
+            fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
             return -1;
     }
 }
