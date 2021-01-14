@@ -1364,19 +1364,26 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     run = ShapedRun(RunHandler::Range(utf8Start - utf8, utf8runLength),
                     font.currentFont(), bidi.currentLevel(),
                     std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]), len);
+
+#if SK_SHAPER_HARFBUZZ_USE_BAD_SCALE
     int scaleX, scaleY;
     hb_font_get_scale(hbFont.get(), &scaleX, &scaleY);
-    double textSizeY = run.fFont.getSize() / scaleY;
-    double textSizeX = run.fFont.getSize() / scaleX * run.fFont.getScaleX();
+    double SkScalarFromHBPosY = -(run.fFont.getSize() / scaleY);
+    double SkScalarFromHBPosX = run.fFont.getSize() / scaleX * run.fFont.getScaleX();
+#else
+    // Undo skhb_position with (1.0/(1<<16)) and scale as needed.
+    double SkScalarFromHBPosX = +(1.52587890625e-5) * run.fFont.getScaleX();
+    double SkScalarFromHBPosY = -(1.52587890625e-5);  // HarfBuzz y-up, Skia y-down
+#endif
     SkVector runAdvance = { 0, 0 };
     for (unsigned i = 0; i < len; i++) {
         ShapedGlyph& glyph = run.fGlyphs[i];
         glyph.fID = info[i].codepoint;
         glyph.fCluster = info[i].cluster;
-        glyph.fOffset.fX = pos[i].x_offset * textSizeX;
-        glyph.fOffset.fY = -(pos[i].y_offset * textSizeY); // HarfBuzz y-up, Skia y-down
-        glyph.fAdvance.fX = pos[i].x_advance * textSizeX;
-        glyph.fAdvance.fY = -(pos[i].y_advance * textSizeY); // HarfBuzz y-up, Skia y-down
+        glyph.fOffset.fX = pos[i].x_offset * SkScalarFromHBPosX;
+        glyph.fOffset.fY = pos[i].y_offset * SkScalarFromHBPosY;
+        glyph.fAdvance.fX = pos[i].x_advance * SkScalarFromHBPosX;
+        glyph.fAdvance.fY = pos[i].y_advance * SkScalarFromHBPosY;
 
         SkRect bounds;
         SkScalar advance;
