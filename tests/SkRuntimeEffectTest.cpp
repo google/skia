@@ -334,6 +334,35 @@ DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
     auto shader_1 = b.makeShader(nullptr, true);
 }
 
+DEF_TEST(SkRuntimeShaderBuilderSetUniforms, r) {
+    const char* kSource = R"(
+        uniform half x;
+        uniform vec2 offset;
+        half4 main() { return half4(x); }
+    )";
+
+    sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(kSource)));
+    REPORTER_ASSERT(r, effect);
+
+    SkRuntimeShaderBuilder b(std::move(effect));
+
+    // Test passes if this sequence doesn't assert.
+    float x = 1.0f;
+    REPORTER_ASSERT(r, b.uniform("x").set(&x, 1));
+
+    // add extra value to ensure that set doesn't try to use sizeof(array)
+    float origin[] = { 2.0f, 3.0f, 4.0f };
+    REPORTER_ASSERT(r, b.uniform("offset").set<float>(origin, 2));
+
+#ifndef SK_DEBUG
+    REPORTER_ASSERT(r, !b.uniform("offset").set<float>(origin, 1));
+    REPORTER_ASSERT(r, !b.uniform("offset").set<float>(origin, 3));
+#endif
+
+
+    auto shader = b.makeShader(nullptr, false);
+}
+
 DEF_TEST(SkRuntimeEffectThreaded, r) {
     // SkRuntimeEffect uses a single compiler instance, but it's mutex locked.
     // This tests that we can safely use it from more than one thread, and also
