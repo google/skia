@@ -1,0 +1,75 @@
+int    i = 1;
+uint   u = 1;
+float  f = 1.0;
+
+// SkSL allows `float op <int literal>` and `<int literal> op float`, unlike GLSL.
+void   f_eq_int_literal_ok()               { f = 1; }
+void   f_plus_int_literal_ok()             { f + 1; }
+void   f_minus_int_literal_ok()            { f - 1; }
+void   f_mul_int_literal_ok()              { f * 1; }
+void   f_div_int_literal_ok()              { f / 1; }
+void   int_literal_plus_f_ok()             { 1 + f; }
+void   int_literal_minus_f_ok()            { 1 - f; }
+void   int_literal_mul_f_ok()              { 1 * f; }
+void   int_literal_div_f_ok()              { 1 / f; }
+
+// SkSL also allows `uint op <int literal>` and `<int literal> op uint` without the `u` suffix.
+void   u_eq_int_literal_ok()               { u = 1; }
+void   u_plus_int_literal_ok()             { u + 1; }
+void   u_minus_int_literal_ok()            { u - 1; }
+void   u_mul_int_literal_ok()              { u * 1; }
+void   u_div_int_literal_ok()              { u / 1; }
+void   int_literal_plus_u_ok()             { 1 + u; }
+void   int_literal_minus_u_ok()            { 1 - u; }
+void   int_literal_mul_u_ok()              { 1 * u; }
+void   int_literal_div_u_ok()              { 1 / u; }
+
+// Other than that, mixing scalar types without a cast is disallowed.
+void   i_eq_float_literal_disallowed()     { i = 1.0; }
+void   u_eq_float_literal_disallowed()     { u = 1.0; }
+void   i_eq_u_disallowed()                 { i = u; }
+void   i_eq_f_disallowed()                 { i = f; }
+float  f_eq_i_disallowed()                 { f = i; }
+float  f_eq_i_disallowed()                 { f = u; }
+void   u_eq_i_disallowed()                 { u = i; }
+void   u_eq_f_disallowed()                 { u = f; }
+void   i_plus_float_literal_disallowed()   { i + 1.0; }
+void   i_minus_float_literal_disallowed()  { i - 1.0; }
+void   i_mul_float_literal_disallowed()    { i * 1.0; }
+void   i_div_float_literal_disallowed()    { i / 1.0; }
+void   float_literal_plus_i_disallowed()   { 1.0 + i; }
+void   float_literal_minus_i_disallowed()  { 1.0 - i; }
+void   float_literal_mul_i_disallowed()    { 1.0 * i; }
+void   float_literal_div_i_disallowed()    { 1.0 / i; }
+void   u_plus_float_literal_disallowed()   { u + 1.0; }
+void   u_minus_float_literal_disallowed()  { u - 1.0; }
+void   u_mul_float_literal_disallowed()    { u * 1.0; }
+void   u_div_float_literal_disallowed()    { u / 1.0; }
+void   float_literal_plus_u_disallowed()   { 1.0 + u; }
+void   float_literal_minus_u_disallowed()  { 1.0 - u; }
+void   float_literal_mul_u_disallowed()    { 1.0 * u; }
+void   float_literal_div_u_disallowed()    { 1.0 / u; }
+void   i_plus_f_disallowed()               { i + f; }
+void   i_minus_f_disallowed()              { i - f; }
+void   i_mul_f_disallowed()                { i * f; }
+void   i_div_f_disallowed()                { i / f; }
+void   f_plus_i_disallowed()               { f + i; }
+void   f_minus_i_disallowed()              { f - i; }
+void   f_mul_i_disallowed()                { f * i; }
+void   f_div_i_disallowed()                { f / i; }
+void   u_plus_f_disallowed()               { u + f; }
+void   u_minus_f_disallowed()              { u - f; }
+void   u_mul_f_disallowed()                { u * f; }
+void   u_div_f_disallowed()                { u / f; }
+void   f_plus_u_disallowed()               { f + u; }
+void   f_minus_u_disallowed()              { f - u; }
+void   f_mul_u_disallowed()                { f * u; }
+void   f_div_u_disallowed()                { f / u; }
+void   i_plus_u_disallowed()               { i + u; }
+void   i_minus_u_disallowed()              { i - u; }
+void   i_mul_u_disallowed()                { i * u; }
+void   i_div_u_disallowed()                { i / u; }
+void   u_plus_i_disallowed()               { u + i; }
+void   u_minus_i_disallowed()              { u - i; }
+void   u_mul_i_disallowed()                { u * i; }
+void   u_div_i_disallowed()                { u / i; }
