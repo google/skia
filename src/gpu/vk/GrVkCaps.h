@@ -162,6 +162,9 @@ public:
         return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
     }
 
+    // The max draw count that can be passed into indirect draw calls.
+    uint32_t  maxDrawIndirectDrawCount() const { return fMaxDrawIndirectDrawCount; }
+
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
@@ -368,6 +371,8 @@ private:
 
     bool fPreferDiscardableMSAAAttachment = false;
     bool fMustLoadFullImageWithDiscardableMSAA = false;
+
+    uint32_t fMaxDrawIndirectDrawCount = 0;
 
     using INHERITED = GrCaps;
 };
