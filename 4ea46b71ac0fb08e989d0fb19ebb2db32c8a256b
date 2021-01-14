@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29ed0cd0_7e8fbbca",
+        "filename": "tests/sksl/errors/golden/FieldAfterRuntimeArray.glsl",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-14T20:05:34Z",
+      "side": 0,
+      "message": "This test is obsolete and can be deleted.",
+      "range": {
+        "startLine": 1,
+        "startChar": 23,
+        "endLine": 5,
+        "endChar": 80
+      },
+      "revId": "4ea46b71ac0fb08e989d0fb19ebb2db32c8a256b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
