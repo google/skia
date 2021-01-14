@@ -195,8 +195,8 @@ private:
      */
     Slot getSlot(const Expression& e);
 
-    skvm::F32 f32(skvm::Val id) { return {fBuilder, id}; }
-    skvm::I32 i32(skvm::Val id) { return {fBuilder, id}; }
+    skvm::F32 f32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
+    skvm::I32 i32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
 
     // Shorthand for scalars
     skvm::F32 f32(const Value& v) { SkASSERT(v.slots() == 1); return f32(v[0]); }
@@ -1483,7 +1483,8 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord local,
                           SampleChildFn sampleChild) {
     skvm::Val args[2] = {local.x.id, local.y.id};
-    skvm::Val result[4] = {skvm::NA, skvm::NA, skvm::NA, skvm::NA};
+    skvm::Val zero = builder->splat(0.0f).id;
+    skvm::Val result[4] = {zero,zero,zero,zero};
     size_t paramSlots = 0;
     for (const SkSL::Variable* param : function.declaration().parameters()) {
         paramSlots += slot_count(param->type());
