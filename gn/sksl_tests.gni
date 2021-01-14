@@ -98,7 +98,6 @@ sksl_error_tests = [
   "$_tests/sksl/errors/DuplicateSymbol.sksl",
   "$_tests/sksl/errors/EnumValueMustBeConstInt.sksl",
   "$_tests/sksl/errors/ErrorsInDeadCode.sksl",
-  "$_tests/sksl/errors/FieldAfterRuntimeArray.sksl",
   "$_tests/sksl/errors/FloatRemainder.sksl",
   "$_tests/sksl/errors/ForTypeMismatch.sksl",
   "$_tests/sksl/errors/GenericArgumentMismatch.sksl",
