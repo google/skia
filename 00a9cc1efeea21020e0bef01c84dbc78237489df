@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c25d001a_89f03bb0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-14T15:46:11Z",
+      "side": 1,
+      "message": "I\u0027ll plead guilty on this one. John originally wrote this with \u0027\u0026\u0027, and I suggested changing it.",
+      "revId": "00a9cc1efeea21020e0bef01c84dbc78237489df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
