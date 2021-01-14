@@ -749,7 +749,7 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
                 } else if (srcKind == Type::NumberKind::kBoolean) {
                     // bool -> int
                     for (size_t i = 0; i < src.slots(); ++i) {
-                        dst[i] = i32(src[i]) & 1;
+                        dst[i] = skvm::select(i32(src[i]), 1, 0);
                     }
                     return dst;
                 }
