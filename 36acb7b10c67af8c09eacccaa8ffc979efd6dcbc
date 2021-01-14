@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3450074c_3d6b7fb0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-14T02:01:24Z",
+      "side": 1,
+      "message": "(see comments on original CL)\n\nThe artifacts are actually expected: 2-bit alpha ruins anything going through unpremul/premul hoops.\n\nShould be fine to reland.\n\n\n\n",
+      "revId": "36acb7b10c67af8c09eacccaa8ffc979efd6dcbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
