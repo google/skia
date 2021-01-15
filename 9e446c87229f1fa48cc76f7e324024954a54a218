@@ -52,6 +52,24 @@
       "parentUuid": "daa738c4_131f7a7d",
       "revId": "9e446c87229f1fa48cc76f7e324024954a54a218",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b06117bd_9bd8ad64",
+        "filename": "modules/svg/src/SkSVGMask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-15T15:05:48Z",
+      "side": 1,
+      "message": "Correct.",
+      "parentUuid": "28417595_8253f051",
+      "revId": "9e446c87229f1fa48cc76f7e324024954a54a218",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
