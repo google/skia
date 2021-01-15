@@ -252,8 +252,12 @@ void SkParticleEffect::advanceTime(double now) {
     SkASSERT(!this->effectCode() || this->effectCode()->getUniformLocation("dt") == 0);
     SkASSERT(!this->particleCode() || this->particleCode()->getUniformLocation("dt") == 0);
     SkASSERT(!this->particleCode() || this->particleCode()->getUniformLocation("effect.age") == 1);
-    fEffectUniforms[0] = deltaTime;
-    fParticleUniforms[0] = deltaTime;
+    if (this->effectCode()) {
+        fEffectUniforms[0] = deltaTime;
+    }
+    if (this->particleCode()) {
+        fParticleUniforms[0] = deltaTime;
+    }
 
     // Is this the first update after calling start()?
     // Run 'effectSpawn' to set initial emitter properties.
