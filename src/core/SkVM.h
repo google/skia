@@ -40,6 +40,8 @@ class SkWStream;
     #undef SKVM_JIT
 #endif
 
+namespace SkSL { class SkVMGenerator; }
+
 namespace skvm {
 
     class Assembler {
@@ -917,6 +919,8 @@ namespace skvm {
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
         const Features                                fFeatures;
+
+        friend class SkSL::SkVMGenerator;  // allImm
     };
 
     // Optimization passes and data structures normally used by Builder::optimize(),
