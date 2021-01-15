@@ -59,8 +59,7 @@ public:
     }
 
     CoercionCost coercionCost(const Type& target) const override {
-        if (target.isSigned() || target.isUnsigned() || target.isFloat() ||
-            target.typeKind() == Type::TypeKind::kEnum) {
+        if (target.isSigned() || target.isUnsigned() || target.isFloat() || target.isEnum()) {
             return CoercionCost::Free();
         }
         return INHERITED::coercionCost(target);
