@@ -16,6 +16,24 @@
       "message": "Do we need to put an outermost LinearToSRGB color filter if the color-interpolation is set to linear? We did that for filters, not sure if the semantics here require that as well.",
       "revId": "9e446c87229f1fa48cc76f7e324024954a54a218",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daa738c4_131f7a7d",
+        "filename": "modules/svg/src/SkSVGMask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-15T14:55:06Z",
+      "side": 1,
+      "message": "I think the difference is for masks we\u0027re converting mask -\u003e lrgb -\u003e luminance and then masking content with the result - lrgb does not apply to the content, and the mask itself is never displayed.\n\nBased on my reading [1], this is a one-way transformation:\n\nFor any graphics object that is used as a mask, the mask value at any point is computed from the color channel values and alpha channel value as follows. First a luminance value is computed from the color channel values:\n\nIf the computed value of ‘color-interpolation’ on the ‘mask’ element is linearRGB, first convert the original image color values (potentially in the sRGB color space) to the linear RGB color space (see Rendering properties). Then, using non-premultiplied linear RGB color values, apply the luminance-to-alpha coefficients (as defined in the ‘feColorMatrix’ filter primitive) to convert the linear RGB color values to linear luminance values.\n\nIf the computed value of ‘color-interpolation’ on the ‘mask’ element is sRGB then the luminance value is calculated by taking the non-premultiplied RGB color values, applying the luminance-to-alpha coefficients (as defined in the ‘feColorMatrix’ filter primitive) to convert the RGB color values to luminance values.\n\nFinally if the graphics object also includes an alpha channel, then the computed luminance value is multiplied by the corresponding alpha value to produce the mask value.\n\n[1] https://www.w3.org/TR/SVG11/masking.html#Masking",
+      "parentUuid": "7e55898c_e6b416fc",
+      "revId": "9e446c87229f1fa48cc76f7e324024954a54a218",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
