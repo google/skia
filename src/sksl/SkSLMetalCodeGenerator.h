@@ -299,6 +299,7 @@ protected:
     std::unordered_map<const InterfaceBlock*, String> fInterfaceBlockNameMap;
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;
+    const char* fGlobalsPtr = "_globals";
     const char* fLineEnding;
     const Context& fContext;
     String fFunctionHeader;

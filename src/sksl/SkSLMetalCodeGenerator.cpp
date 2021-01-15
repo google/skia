@@ -1172,7 +1172,8 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                            var.type().typeKind() != Type::TypeKind::kSampler) {
                     this->write("_uniforms.");
                 } else {
-                    this->write("_globals->");
+                    this->write(fGlobalsPtr);
+                    this->write("->");
                 }
             }
             this->writeName(var.name());
@@ -1201,7 +1202,8 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
                 this->write("_out->sk_PointSize");
             } else {
                 if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
-                    this->write("_globals->");
+                    this->write(fGlobalsPtr);
+                    this->write("->");
                     this->write(fInterfaceBlockNameMap[fInterfaceBlockMap[field]]);
                     this->write("->");
                 }
@@ -2191,9 +2193,16 @@ void MetalCodeGenerator::writeGlobalInit() {
         bool fFirst = true;
     } visitor;
 
+    // While we are writing out `globalStruct`, `_globals` doesn't exist yet, but it's possible
+    // for one global to refer to another. For this brief duration, we must refer to it directly.
+    const char* originalGlobalsPtr = fGlobalsPtr;
+    fGlobalsPtr = "(&globalStruct)";
+
     visitor.fCodeGen = this;
     this->visitGlobalStruct(&visitor);
     visitor.finish();
+
+    fGlobalsPtr = originalGlobalsPtr;
 }
 
 void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
