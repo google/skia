@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e55898c_e6b416fc",
+        "filename": "modules/svg/src/SkSVGMask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-15T14:40:55Z",
+      "side": 1,
+      "message": "Do we need to put an outermost LinearToSRGB color filter if the color-interpolation is set to linear? We did that for filters, not sure if the semantics here require that as well.",
+      "revId": "9e446c87229f1fa48cc76f7e324024954a54a218",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
