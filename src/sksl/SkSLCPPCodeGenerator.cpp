@@ -212,7 +212,7 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
         format.back() = ')';
         return format;
     }
-    if (type.typeKind() == Type::TypeKind::kEnum) {
+    if (type.isEnum()) {
         formatArgs->push_back("(int) " + cppCode);
         return "%d";
     }
@@ -551,7 +551,7 @@ static const char* glsltype_string(const Context& context, const Type& type) {
         return "kVoid_GrSLType";
     } else if (type == *context.fTypes.fBool) {
         return "kBool_GrSLType";
-    } else if (type.typeKind() == Type::TypeKind::kEnum) {
+    } else if (type.isEnum()) {
         return "int";
     }
     SkASSERT(false);
@@ -1333,8 +1333,7 @@ void CPPCodeGenerator::writeGetKey() {
                                varType == *fContext.fTypes.fFloat) {
                         this->writef("    b->add32(sk_bit_cast<uint32_t>(%s));\n",
                                      HCodeGenerator::FieldName(name).c_str());
-                    } else if (varType.isInteger() || varType == *fContext.fTypes.fBool ||
-                               varType.typeKind() == Type::TypeKind::kEnum) {
+                    } else if (varType.isInteger() || varType.isBoolean() || varType.isEnum()) {
                         this->writef("    b->add32((uint32_t) %s);\n",
                                      HCodeGenerator::FieldName(name).c_str());
                     } else {

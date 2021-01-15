@@ -323,6 +323,10 @@ public:
         return fTypeKind == TypeKind::kStruct;
     }
 
+    bool isEnum() const {
+        return fTypeKind == TypeKind::kEnum;
+    }
+
     bool isMultisampled() const {
         SkASSERT(TypeKind::kSampler == fTypeKind || TypeKind::kTexture == fTypeKind);
         return fIsMultisampled;
