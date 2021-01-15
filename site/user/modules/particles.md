@@ -44,7 +44,7 @@ Samples
   <figure>
     <canvas id=confetti width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/eb484bdbac5952c0184a7f1d25773746"
+      <a href="https://particles.skia.org/73bf9f720bb7ed03d94cdc18e366b1da"
          target=_blank rel=noopener>Confetti</a>
     </figcaption>
   </figure>
@@ -145,13 +145,11 @@ const confetti ={
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  float3 colors[4];",
-      "  colors[0] = float3(0.87, 0.24, 0.11);",
-      "  colors[1] = float3(1, 0.9, 0.2);",
-      "  colors[2] = float3(0.44, 0.73, 0.24);",
-      "  colors[3] = float3(0.38, 0.54, 0.95);",
       "  int idx = int(rand(p.seed) * 4);",
-      "  p.color.rgb = colors[idx];",
+      "  p.color.rgb = (idx == 0) ? float3(0.87, 0.24, 0.11)",
+      "              : (idx == 1) ? float3(1.00, 0.90, 0.20)",
+      "              : (idx == 2) ? float3(0.44, 0.73, 0.24)",
+      "              :              float3(0.38, 0.54, 0.95);",
       "",
       "  p.lifetime = (1 - effect.age) * effect.lifetime;",
       "  p.scale = mix(0.6, 1, rand(p.seed));",

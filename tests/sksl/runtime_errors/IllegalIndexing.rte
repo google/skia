@@ -1,0 +1,29 @@
+// Expect 4 errors
+
+// Legal cases that should not produce errors:
+void literal_index()    { int a[2]; a[0] = 0; a[1] = a[0]; }
+void loop_index()       { int a[2]; for (int i = 0; i <  2; ++i) { a[i]             = i; } }
+void loop_expr_binary() { int a[2]; for (int i = 0; i <  2; ++i) { a[1 - i]         = i; } }
+void loop_expr_unary()  { int a[2]; for (int i = 0; i > -2; --i) { a[-i]            = i; } }
+void loop_swizzle()     { int a[2]; for (int i = 0; i <  2; ++i) { a[i.x]           = i; } }
+void loop_ternary()     { int a[2]; for (int i = 0; i <  2; ++i) { a[i > 0 ? i : 0] = i; } }
+
+void loop_type_coerce() { float a[2]; for (float i = 0; i < 2; ++i) { a[int(i)] = i; } }
+
+void loop_nested() {
+    int a[3];
+    for (int i = 0; i < 2; ++i)
+    for (int j = 0; j < 2; ++j) {
+      a[i + j] = j;
+    }
+}
+
+uniform int u;
+
+// Illegal cases that should produce errors:
+void uniform_index()    { int a[2]; a[u] = 0; }
+void param_index(int p) { int a[2]; a[p] = 0; }
+
+// Legal in GLSL, not yet in SkSL:
+void func_index()      { int a[2]; a[int(abs(-1))] = 0; }        // skbug.com/10835
+void const_var_index() { int a[2]; const int b = 0; a[b] = 0; }  // skbug.com/10837

@@ -720,22 +720,6 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
     REPORTER_ASSERT(r, !program);
 }
 
-static void expect_run_failure(skiatest::Reporter* r, const char* src, float* in) {
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                           SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
-
-    auto byteCode = compiler.toByteCode(*program);
-    REPORTER_ASSERT(r, byteCode);
-
-    auto fun = byteCode->getFunction("main");
-    bool result = byteCode->run(fun, in, fun->getParameterCount(), nullptr, 0, nullptr, 0);
-    REPORTER_ASSERT(r, !result);
-}
-
 DEF_TEST(SkSLInterpreterRestrictLoops, r) {
     // while and do-while loops are not allowed
     expect_failure(r, "void main(inout float x) { while (x < 1) { x++; } }");
@@ -796,20 +780,6 @@ DEF_TEST(SkSLInterpreterEarlyReturn, r) {
 
     REPORTER_ASSERT(r, rets[0] == 1.0f);
     REPORTER_ASSERT(r, rets[1] == 2.0f);
-}
-
-DEF_TEST(SkSLInterpreterArrayBounds, r) {
-    // Out of bounds array access at compile time prevents a program from being generated at all
-    // (tested in ArrayIndexOutOfRange.sksl).
-
-    // Out of bounds array access at runtime is pinned, and we don't update any inout data.
-    float in[3] = { -1.0f, 1.0f, 2.0f };
-    expect_run_failure(r, "void main(inout float data[3]) { data[int(data[0])] = 0; }", in);
-    REPORTER_ASSERT(r, in[0] == -1.0f && in[1] == 1.0f && in[2] == 2.0f);
-
-    in[0] = 3.0f;
-    expect_run_failure(r, "void main(inout float data[3]) { data[int(data[0])] = 0; }", in);
-    REPORTER_ASSERT(r, in[0] == 3.0f && in[1] == 1.0f && in[2] == 2.0f);
 }
 
 DEF_TEST(SkSLInterpreterFunctions, r) {

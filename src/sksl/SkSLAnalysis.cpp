@@ -645,6 +645,108 @@ bool Analysis::ForLoopIsValidForES2(const ForStatement& loop,
     return true;
 }
 
+class ES2IndexExpressionVisitor : public ProgramVisitor {
+public:
+    ES2IndexExpressionVisitor(const std::set<const Variable*>* loopIndices)
+            : fLoopIndices(loopIndices) {}
+
+    bool visitExpression(const Expression& e) override {
+        // A constant-(index)-expression is one of...
+        switch (e.kind()) {
+            // ... a literal value
+            case Expression::Kind::kBoolLiteral:
+            case Expression::Kind::kIntLiteral:
+            case Expression::Kind::kFloatLiteral:
+                return false;
+
+            // ... loop indices as defined in section 4. Today, SkSL allows no other variables,
+            // but GLSL allows 'const' variables, because it requires that const variables be
+            // initialized with constant-expressions. We could support that usage by checking
+            // for variables that are const, and whose initializing expression also pass our
+            // checks. For now, we'll be conservative. (skbug.com/10837)
+            case Expression::Kind::kVariableReference:
+                return fLoopIndices->find(e.as<VariableReference>().variable()) ==
+                       fLoopIndices->end();
+
+            // ... expressions composed of both of the above
+            case Expression::Kind::kBinary:
+            case Expression::Kind::kConstructor:
+            case Expression::Kind::kFieldAccess:
+            case Expression::Kind::kIndex:
+            case Expression::Kind::kPrefix:
+            case Expression::Kind::kPostfix:
+            case Expression::Kind::kSwizzle:
+            case Expression::Kind::kTernary:
+                return INHERITED::visitExpression(e);
+
+            // These are completely disallowed in SkSL constant-index-expressions. GLSL allows
+            // calls to built-in functions where the arguments are all constant-expressions, but
+            // we don't guarantee that behavior. (skbug.com/10835)
+            case Expression::Kind::kExternalFunctionCall:
+            case Expression::Kind::kFunctionCall:
+                return true;
+
+            // These should never appear in final IR
+            case Expression::Kind::kDefined:
+            case Expression::Kind::kExternalFunctionReference:
+            case Expression::Kind::kFunctionReference:
+            case Expression::Kind::kSetting:
+            case Expression::Kind::kTypeReference:
+            default:
+                SkDEBUGFAIL("Unexpected expression type");
+                return true;
+        }
+    }
+
+private:
+    const std::set<const Variable*>* fLoopIndices;
+    using INHERITED = ProgramVisitor;
+};
+
+class ES2IndexingVisitor : public ProgramVisitor {
+public:
+    ES2IndexingVisitor(ErrorReporter& errors) : fErrors(errors) {}
+
+    bool visitStatement(const Statement& s) override {
+        if (s.is<ForStatement>()) {
+            const ForStatement& f = s.as<ForStatement>();
+            SkASSERT(f.initializer() && f.initializer()->is<VarDeclaration>());
+            const Variable* var = &f.initializer()->as<VarDeclaration>().var();
+            auto [iter, inserted] = fLoopIndices.insert(var);
+            SkASSERT(inserted);
+            bool result = this->visitStatement(*f.statement());
+            fLoopIndices.erase(iter);
+            return result;
+        }
+        return INHERITED::visitStatement(s);
+    }
+
+    bool visitExpression(const Expression& e) override {
+        if (e.is<IndexExpression>()) {
+            const IndexExpression& i = e.as<IndexExpression>();
+            ES2IndexExpressionVisitor indexerInvalid(&fLoopIndices);
+            if (indexerInvalid.visitExpression(*i.index())) {
+                fErrors.error(i.fOffset, "index expression must be constant");
+                return true;
+            }
+        }
+        return INHERITED::visitExpression(e);
+    }
+
+    using ProgramVisitor::visitProgramElement;
+
+private:
+    ErrorReporter& fErrors;
+    std::set<const Variable*> fLoopIndices;
+    using INHERITED = ProgramVisitor;
+};
+
+
+void Analysis::ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors) {
+    ES2IndexingVisitor visitor(errors);
+    visitor.visitProgramElement(pe);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // ProgramVisitor
 
