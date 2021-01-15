@@ -118,8 +118,7 @@ DEF_SIMPLE_GM(localmatrixshader_persp, canvas, 542, 266) {
 
     SkBitmap downsized;
     downsized.allocPixels(image->imageInfo().makeWH(128, 128));
-    image->scalePixels(downsized.pixmap(), SkSamplingOptions(SkFilterMode::kLinear,
-                                                             SkMipmapMode::kNone));
+    image->scalePixels(downsized.pixmap(), SkSamplingOptions(SkFilterMode::kLinear));
     image = downsized.asImage();
     SkRect imgRect = SkRect::MakeIWH(image->width(), image->height());
 

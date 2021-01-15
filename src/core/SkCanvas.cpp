@@ -1967,8 +1967,7 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
         this->onDrawImageLattice2(image, latticePlusBounds, dst, filter, &latticePaint);
     } else {
         this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst,
-                            SkSamplingOptions(filter, SkMipmapMode::kNone), paint,
-                            kStrict_SrcRectConstraint);
+                            SkSamplingOptions(filter), paint, kStrict_SrcRectConstraint);
     }
 }
 

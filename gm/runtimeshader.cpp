@@ -268,7 +268,7 @@ public:
         // LUT dimensions should be (kSize^2, kSize)
         constexpr float kSize = 16.0f;
 
-        const SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
+        const SkSamplingOptions sampling(SkFilterMode::kLinear);
 
         builder.uniform("rg_scale")     = (kSize - 1) / kSize;
         builder.uniform("rg_bias")      = 0.5f / kSize;

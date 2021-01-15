@@ -35,7 +35,7 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     pixels[1] = pixels[3] = color1;
 
     return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone));
+                         SkSamplingOptions(SkFilterMode::kLinear));
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {

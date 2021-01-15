@@ -140,8 +140,7 @@ protected:
 
         SkPaint p2;         // for drawVertices path
         p2.setColor(0xFF000000);
-        p2.setShader(fAtlas.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
-                                                         SkMipmapMode::kNone)));
+        p2.setShader(fAtlas.makeShader(SkSamplingOptions(SkFilterMode::kLinear)));
 
         for (int i = 0; i < loops; ++i, ++fNumSaved) {
             if (0 == i % kNumBeforeClear) {

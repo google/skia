@@ -48,7 +48,7 @@ DEF_SIMPLE_GM(bug6783, canvas, 500, 500) {
     m.preSkew(0.5f, 0.5f);
 
     // The bug was present at all filter levels, but you might not notice it at nearest.
-    SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
+    SkSamplingOptions sampling(SkFilterMode::kLinear);
 
     // It's only important to repeat or mirror in x to show off the bug.
     p.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kClamp, sampling, m));

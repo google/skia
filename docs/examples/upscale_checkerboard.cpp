@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
 
     SkPaint paint;
     paint.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                    SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone)));
+                                    SkSamplingOptions(SkFilterMode::kLinear)));
 
     canvas->translate(20, 20);
     canvas->scale(20, 20);

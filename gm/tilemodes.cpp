@@ -49,7 +49,7 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
 
 static void setup(SkPaint* paint, const SkBitmap& bm, SkFilterMode fm,
                   SkTileMode tmx, SkTileMode tmy) {
-    paint->setShader(bm.makeShader(tmx, tmy, SkSamplingOptions(fm, SkMipmapMode::kNone)));
+    paint->setShader(bm.makeShader(tmx, tmy, SkSamplingOptions(fm)));
 }
 
 constexpr SkColorType gColorTypes[] = {

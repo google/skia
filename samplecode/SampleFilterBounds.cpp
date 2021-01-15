@@ -183,7 +183,7 @@ public:
         blurPaint.setImageFilter(fBlur);
         canvas->saveLayer(&localContentRect, &blurPaint);
         canvas->drawImageRect(fImage.get(), localContentRect, localContentRect,
-                              SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone),
+                              SkSamplingOptions(SkFilterMode::kLinear),
                               nullptr, SkCanvas::kFast_SrcRectConstraint);
         canvas->restore();
 

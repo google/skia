@@ -49,7 +49,7 @@ public:
 
         create_gradient(&bm);
 
-        fPaint.setShader(bm.makeShader(xTile, yTile, SkSamplingOptions(fm, SkMipmapMode::kNone)));
+        fPaint.setShader(bm.makeShader(xTile, yTile, SkSamplingOptions(fm)));
 
         fName.printf("constXTile_");
 

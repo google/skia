@@ -348,8 +348,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
 
         SkPaint as_shader;
         as_shader.setColor4f({1,0,0,1}, p3.get());
-        as_shader.setShader(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
-                                                            SkMipmapMode::kNone)));
+        as_shader.setShader(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear)));
 
         canvas->drawBitmap(bm, 10,10, &as_bitmap);
         compare_pixel("A8 sprite bitmap P3 red",

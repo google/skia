@@ -38,8 +38,7 @@ class CameraView : public Sample {
                 SkRect dst = { -150, -150, 150, 150 };
                 SkMatrix matrix;
                 matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
-                fShaders.push_back(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
-                                                                   SkMipmapMode::kNone),
+                fShaders.push_back(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear),
                                                  matrix));
             }
         }
