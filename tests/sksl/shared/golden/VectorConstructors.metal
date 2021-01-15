@@ -43,7 +43,7 @@ struct Globals {
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals globalStruct{float2(1.0), float2(1.0, 2.0), float2(1.0), float3(float2(1.0), 1.0), int2(1), int2(float2(1.0, 2.0)), float2(int2(1, 2)), float2(_globals->v5), float4(float(_globals->v6.x), sqrt(2.0), float2(int2(3, 4))), int2(3, int(_globals->v1.x)), bool4(bool2(true, false), true, false), float2(1.0, 0.0), float2(0.0), float2(bool2(false)), bool2(true), bool2(float2(1.0)), bool3(true, bool2(int2(77)))};
+    Globals globalStruct{float2(1.0), float2(1.0, 2.0), float2(1.0), float3(float2(1.0), 1.0), int2(1), int2(float2(1.0, 2.0)), float2(int2(1, 2)), float2((&globalStruct)->v5), float4(float((&globalStruct)->v6.x), sqrt(2.0), float2(int2(3, 4))), int2(3, int((&globalStruct)->v1.x)), bool4(bool2(true, false), true, false), float2(1.0, 0.0), float2(0.0), float2(bool2(false)), bool2(true), bool2(float2(1.0)), bool3(true, bool2(int2(77)))};
     thread Globals* _globals = &globalStruct;
     (void)_globals;
     Outputs _outputStruct;
