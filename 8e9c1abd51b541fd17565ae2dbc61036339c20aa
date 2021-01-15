@@ -16,6 +16,24 @@
       "message": "The 1010102 images changed again. I\u0027m wondering if that\u0027s because we need to add support for the color-interpolation setting when applying the opacity layer?",
       "revId": "8e9c1abd51b541fd17565ae2dbc61036339c20aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e862f54_0da38dfd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-15T18:48:25Z",
+      "side": 1,
+      "message": "Maybe.  I just think 1010102 will keep getting worse the more complex effect chains we add - modulating opacity in 2 bits is just yucky.",
+      "parentUuid": "effaa98b_343d1a7c",
+      "revId": "8e9c1abd51b541fd17565ae2dbc61036339c20aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
