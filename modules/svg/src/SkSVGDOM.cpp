@@ -16,6 +16,7 @@
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGDefs.h"
 #include "modules/svg/include/SkSVGEllipse.h"
+#include "modules/svg/include/SkSVGFeBlend.h"
 #include "modules/svg/include/SkSVGFeColorMatrix.h"
 #include "modules/svg/include/SkSVGFeComposite.h"
 #include "modules/svg/include/SkSVGFeFlood.h"
@@ -260,6 +261,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "clipPath"      , []() -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();       }},
     { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
     { "ellipse"       , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
+    { "feBlend"       , []() -> sk_sp<SkSVGNode> { return SkSVGFeBlend::Make();        }},
     { "feColorMatrix" , []() -> sk_sp<SkSVGNode> { return SkSVGFeColorMatrix::Make();  }},
     { "feComposite"   , []() -> sk_sp<SkSVGNode> { return SkSVGFeComposite::Make();    }},
     { "feFlood"       , []() -> sk_sp<SkSVGNode> { return SkSVGFeFlood::Make();        }},
