@@ -10,6 +10,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 
@@ -218,6 +219,7 @@ public:
      *
      *  @param tmx  The tiling mode to use when sampling in the x-direction.
      *  @param tmy  The tiling mode to use when sampling in the y-direction.
+     *  @param mode How to filter the tiles
      *  @param localMatrix Optional matrix used when sampling
      *  @param tile The tile rectangle in picture coordinates: this represents the subset
      *              (or superset) of the picture used when building a tile. It is not
@@ -226,6 +228,10 @@ public:
      *              bounds.
      *  @return     Returns a new shader object. Note: this function never returns null.
      */
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMode mode,
+                               const SkMatrix* localMatrix, const SkRect* tileRect) const;
+
+    // DEPRECATED
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix, const SkRect* tileRect) const;
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
