@@ -1,0 +1,250 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fec4206d_fcace9b0",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "If we\u0027re not going to modify lm, let\u0027s just take one pre-composed SkMatrix?",
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93a6edb9_e60badab",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "Let\u0027s drop or use this unused maxTextureSize?",
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ccb37d3_1dff18d5",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "I\u0027d suggest\n\n   auto [effect, err] \u003d ...",
+      "range": {
+        "startLine": 200,
+        "startChar": 9,
+        "endLine": 200,
+        "endChar": 15
+      },
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f61b9db2_fc3ec109",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "Let\u0027s also (or alternatively) assert this succeeds?",
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "891953ed_66b546f8",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "It might help to explain some of the strategy you went over yesterday in the VC here in comments.",
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0fb92c3_4b578510",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "If this lambda is for scoping, I\u0027d skip the name?\n\n    sk_sp\u003cSkImage\u003e image \u003d [\u0026]{\n        ...\n        return SkImage::MakeFromPicture(...);\n    }();\n\n(If not for scoping, I\u0027d skip the lambda entirely.)",
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf4dcbf5_697d7ff9",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "This logic has become wrong in both directions, too conservative for R8G8_unorm late in the enum, and too low precision for 1010102/x.\n\nI don\u0027t think there\u0027s a threshold where SkColorTypeBytesPerPixel() would answer the question either... we really need to introduce and use SkColorTypeMaxBitsPerChannel().",
+      "range": {
+        "startLine": 216,
+        "startChar": 37,
+        "endLine": 216,
+        "endChar": 78
+      },
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e306bbe_756e026e",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "I find this sort of thing is easier to read the next day with its full explicit type.",
+      "range": {
+        "startLine": 224,
+        "startChar": 4,
+        "endLine": 224,
+        "endChar": 8
+      },
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "087e7aee_505089fb",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "This too.",
+      "range": {
+        "startLine": 239,
+        "startChar": 4,
+        "endLine": 239,
+        "endChar": 8
+      },
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "993d47a5_cde297df",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "Might be easier to follow if you start with imageShader-\u003eisOpaque() first.",
+      "range": {
+        "startLine": 241,
+        "startChar": 20,
+        "endLine": 244,
+        "endChar": 0
+      },
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e025a10_4f9866a8",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "Probably clearer to pick one of To or 2?",
+      "range": {
+        "startLine": 248,
+        "startChar": 20,
+        "endLine": 248,
+        "endChar": 47
+      },
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98ce4051_250f1706",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 1,
+      "message": "This may be why the local matrix wasn\u0027t working?",
+      "range": {
+        "startLine": 251,
+        "startChar": 30,
+        "endLine": 251,
+        "endChar": 37
+      },
+      "revId": "024cca609aa2638541dc5fc1b73059062b243fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

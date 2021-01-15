@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aeb05366_819f4dcf",
+        "filename": "gm/gradients.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-15T14:52:01Z",
+      "side": 0,
+      "message": "Weird spot for this GM?",
+      "revId": "a65441b3c495be834a665c14ae8cd96e69aa4062",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
