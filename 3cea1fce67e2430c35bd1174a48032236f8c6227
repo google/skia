@@ -22,6 +22,30 @@
       },
       "revId": "3cea1fce67e2430c35bd1174a48032236f8c6227",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34a9b271_8f3520b0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-01-15T14:40:34Z",
+      "side": 1,
+      "message": "It\u0027s pulled down by the bots for testing. The infra/bots/assets/skimage/VERSION adds the image to the set that gets downloaded.",
+      "parentUuid": "8e94be9d_86e6b3df",
+      "range": {
+        "startLine": 10,
+        "startChar": 28,
+        "endLine": 10,
+        "endChar": 44
+      },
+      "revId": "3cea1fce67e2430c35bd1174a48032236f8c6227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
