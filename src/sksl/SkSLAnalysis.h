@@ -82,6 +82,8 @@ struct Analysis {
     static bool ForLoopIsValidForES2(const ForStatement& loop,
                                      UnrollableLoopInfo* outLoopInfo,
                                      ErrorReporter* errors);
+
+    static void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 };
 
 /**

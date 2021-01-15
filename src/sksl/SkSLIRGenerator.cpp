@@ -2956,7 +2956,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         this->findAndDeclareBuiltinVariables();
     }
 
-    // Do a final pass looking for dangling FunctionReference or TypeReference expressions
+    // Do a pass looking for dangling FunctionReference or TypeReference expressions
     class FindIllegalExpressions : public ProgramVisitor {
     public:
         FindIllegalExpressions(IRGenerator* generator) : fGenerator(generator) {}
@@ -2972,6 +2972,15 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     };
     for (const auto& pe : *fProgramElements) {
         FindIllegalExpressions{this}.visitProgramElement(*pe);
+    }
+
+    // If we're in ES2 mode (runtime effects), do a pass to enforce Appendix A, Section 5 of the
+    // GLSL ES 1.00 spec -- Indexing. Don't bother if we've already found errors - this logic
+    // assumes that all loops meet the criteria of Section 4, and if they don't, could crash.
+    if (this->strictES2Mode() && this->errorReporter().errorCount() == 0) {
+        for (const auto& pe : *fProgramElements) {
+            Analysis::ValidateIndexingForES2(*pe, this->errorReporter());
+        }
     }
 
     fSettings = nullptr;
