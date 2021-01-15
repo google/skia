@@ -52,6 +52,24 @@
       "parentUuid": "525b961e_aa7cd8f8",
       "revId": "b6a92f358fc44940f9a8fdfab2408b4503cda6e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0189785a_d383ece3",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T15:10:33Z",
+      "side": 1,
+      "message": "After thinking about this for a bit, I am going to try and construct an adversarial test case which inlines a struct or enum into a location where it is absent from the symbol table. I\u0027m thinking `isArray` might not be a sufficient check, but the fuzzer has yet to discover how to write an enum or struct (there probably aren\u0027t any in its corpus).\n\nEnums might be safe if they\u0027re already boiled down to an IntLiteral at this stage.",
+      "parentUuid": "97b6b75c_901a6d3b",
+      "revId": "b6a92f358fc44940f9a8fdfab2408b4503cda6e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
