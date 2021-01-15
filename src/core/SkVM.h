@@ -40,6 +40,8 @@ class SkWStream;
     #undef SKVM_JIT
 #endif
 
+namespace SkSL { class SkVMGenerator; }
+
 namespace skvm {
 
     class Assembler {
@@ -897,15 +899,23 @@ namespace skvm {
         uint64_t hash() const;
 
         Val push(Instruction);
+
+        bool allImm() const { return true; }
+
+        template <typename T, typename... Rest>
+        bool allImm(Val id, T* imm, Rest... rest) const {
+            if (fProgram[id].op == Op::splat) {
+                static_assert(sizeof(T) == 4);
+                memcpy(imm, &fProgram[id].immy, 4);
+                return this->allImm(rest...);
+            }
+            return false;
+        }
+
     private:
         Val push(Op op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0) {
             return this->push(Instruction{op, x,y,z, immy,immz});
         }
-
-        bool allImm() const;
-
-        template <typename T, typename... Rest>
-        bool allImm(Val, T* imm, Rest...) const;
 
         template <typename T>
         bool isImm(Val id, T want) const {

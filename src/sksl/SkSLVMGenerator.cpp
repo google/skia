@@ -509,10 +509,17 @@ SkVMGenerator::Slot SkVMGenerator::getSlot(const Expression& e) {
             const IndexExpression& i = e.as<IndexExpression>();
             Slot baseSlot = this->getSlot(*i.base());
 
-            const Expression& index = *i.index();
-            SkASSERT(index.isCompileTimeConstant());
+            Value index = this->writeExpression(*i.index());
+            int indexValue = -1;
+            SkAssertResult(fBuilder->allImm(index[0], &indexValue));
 
-            SKSL_INT indexValue = index.getConstantInt();
+            // It's possible for indexValue to be out of range if execution is guaranteed to be
+            // masked off at this point. In that case, just pretend the indexValue is zero, to
+            // prevent the assert. This is tested in ArrayIndexing.rte.
+            if (int M; fBuilder->allImm(mask().id, &M) && !M) {
+                indexValue = 0;
+            }
+
             SkASSERT(indexValue >= 0 && indexValue < i.base()->type().columns());
 
             size_t stride = slot_count(i.type());
