@@ -289,9 +289,9 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    const auto scale_matrix = SkMatrix::MakeRectToRect(SkRect::MakeSize(anim->size()),
-                                                       SkRect::MakeIWH(FLAGS_width, FLAGS_height),
-                                                       SkMatrix::kCenter_ScaleToFit);
+    const auto scale_matrix = SkMatrix::RectToRect(SkRect::MakeSize(anim->size()),
+                                                   SkRect::MakeIWH(FLAGS_width, FLAGS_height),
+                                                   SkMatrix::kCenter_ScaleToFit);
     logger->report();
 
     const auto t0 = SkTPin(FLAGS_t0, 0.0, 1.0),

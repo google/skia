@@ -94,8 +94,7 @@ static sk_sp<SkImage> make_text_image(GrDirectContext* direct, const char* text,
 
     SkRect bounds;
     font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
-    const SkMatrix mat = SkMatrix::MakeRectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize),
-                                                  SkMatrix::kFill_ScaleToFit);
+    const SkMatrix mat = SkMatrix::RectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize));
 
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kLabelSize, kLabelSize);
     sk_sp<SkSurface> surf = SkSurface::MakeRaster(ii);

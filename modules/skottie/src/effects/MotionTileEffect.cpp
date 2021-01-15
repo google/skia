@@ -79,9 +79,8 @@ protected:
                                             tile_size.width(),
                                             tile_size.height());
 
-        const auto layerShaderMatrix = SkMatrix::MakeRectToRect(
-                    SkRect::MakeWH(fLayerSize.width(), fLayerSize.height()),
-                    tile, SkMatrix::kFill_ScaleToFit);
+        const auto layerShaderMatrix = SkMatrix::RectToRect(
+                    SkRect::MakeWH(fLayerSize.width(), fLayerSize.height()), tile);
 
         const auto tm = fMirrorEdges ? SkTileMode::kMirror : SkTileMode::kRepeat;
         auto layer_shader = fLayerPicture->makeShader(tm, tm, &layerShaderMatrix);

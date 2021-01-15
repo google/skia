@@ -113,8 +113,8 @@ public:
 
                         auto cropRect = SkIRect::MakeSize(scaledSize);
                         if (doCrop) {
-                            auto matrix = SkMatrix::MakeRectToRect(SkRect::Make(unscaledSize),
-                                    SkRect::Make(scaledSize), SkMatrix::kFill_ScaleToFit);
+                            auto matrix = SkMatrix::RectToRect(SkRect::Make(unscaledSize),
+                                                               SkRect::Make(scaledSize));
                             matrix.preConcat(SkEncodedOriginToMatrix(origin,
                                     unscaledSize.width(), unscaledSize.height()));
                             SkRect cropRectFloat = SkRect::Make(fCropRect);

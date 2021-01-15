@@ -91,10 +91,8 @@ protected:
 
     void onOnceBeforeDraw() override {
         sk_sp<SkImage> mandrill = GetResourceAsImage("images/mandrill_256.png");
-        const auto lm = SkMatrix::MakeRectToRect(SkRect::MakeWH(mandrill->width(),
-                                                                mandrill->height()),
-                                                 SkRect::MakeWH(kWheelSize, kWheelSize),
-                                                 SkMatrix::kFill_ScaleToFit);
+        const auto lm = SkMatrix::RectToRect(SkRect::MakeWH(mandrill->width(), mandrill->height()),
+                                             SkRect::MakeWH(kWheelSize, kWheelSize));
         fShaders.push_back(mandrill->makeShader(SkSamplingOptions(), &lm));
 
         static constexpr SkColor gGrads[][4] = {
