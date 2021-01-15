@@ -18,7 +18,7 @@ if (is_ios && skia_use_metal) {
       "-std=c++14",
       "-w",
     ]
-    libs = [
+    frameworks = [
       "Metal.framework",
       "MetalKit.framework",
       "UIKit.framework",
