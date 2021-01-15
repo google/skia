@@ -111,8 +111,18 @@ void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, Sk
         p->setColor(SkColorSetA(ctx.resolveSvgColor(svgPaint.color()), p->getAlpha()));
         break;
     case SkSVGPaint::Type::kIRI: {
+        // Out property inheritance is borked as it follows the render path and not the tree
+        // hierarchy.  To avoid gross transgressions like leaf node presentation attributes leaking
+        // into the paint server context, use a pristine presentation context when following hrefs.
+        SkSVGPresentationContext pctx;
+        SkSVGRenderContext local_context(ctx.canvas(),
+                                         ctx.fontMgr(),
+                                         ctx.idMapper(),
+                                         ctx.lengthContext(),
+                                         pctx, ctx.node());
+
         const auto node = ctx.findNodeById(svgPaint.iri());
-        if (!node || !node->asPaint(ctx, p)) {
+        if (!node || !node->asPaint(local_context, p)) {
             p->setColor(SK_ColorTRANSPARENT);
         }
         break;
