@@ -228,7 +228,7 @@ third_party("libsdl") {
       "SDL_VIDEO_OPENGL_ES=1",
       "SDL_VIDEO_OPENGL_ES2=1",
     ]
-    libs += [
+    frameworks = [
       "Foundation.framework",
       "QuartzCore.framework",
       "UIKit.framework",
