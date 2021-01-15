@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e65afdff_0d3e7751",
+        "filename": "src/gpu/tessellate/GrPathTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-15T20:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c2d7747_17bb8729",
+      "revId": "408a4df08b52c9da077786d2500031e1bf2698cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ea6891f_7fccc41e",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4644bef4_f59dc95f",
+        "filename": "src/gpu/tessellate/GrPathTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-15T20:15:21Z",
+      "side": 1,
+      "message": "It doesn\u0027t need a default value because we use fPatchVertexCount to check if the buffer has data, but it might be quicker to just zero out the whole thing anyway.",
+      "parentUuid": "5ea6891f_7fccc41e",
+      "range": {
+        "startLine": 76,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 25
+      },
+      "revId": "408a4df08b52c9da077786d2500031e1bf2698cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fcf3c12c_36336593",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-01-15T19:07:13Z",
       "side": 1,
       "message": "Do these not have ctors? Can you at least add the \"\u003d default;\" for them if thats the case.",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 2
+      },
+      "revId": "408a4df08b52c9da077786d2500031e1bf2698cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78dabb0f_f8983ddf",
+        "filename": "src/gpu/tessellate/GrPathTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-15T20:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcf3c12c_36336593",
       "range": {
         "startLine": 83,
         "startChar": 0,
