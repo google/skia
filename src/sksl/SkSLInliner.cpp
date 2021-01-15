@@ -159,7 +159,7 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
 }
 
 static const Type* copy_if_needed(const Type* type, SymbolTable* symbolTable) {
-    if (type->isArray()) {
+    if (type->isArray() || type->isStruct() || type->isEnum()) {
         const Symbol* copiedType = (*symbolTable)[type->name()];
         if (!copiedType) {
             copiedType = symbolTable->add(Type::MakeArrayType(type->name(), type->componentType(),
