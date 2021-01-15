@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixProvider.h"
@@ -188,6 +189,76 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     SkPicturePriv::Flatten(fPicture, buffer);
 }
 
+static SkFilterMode enum_to_filter(SkPictureShader::FilterEnum e, SkFilterQuality paintFQ) {
+    if (e == SkPictureShader::kInheritFromPaint) {
+        return (paintFQ == kNone_SkFilterQuality) ? SkFilterMode::kNearest
+                                                  : SkFilterMode::kLinear;
+    } else {
+        return (SkFilterMode)e;
+    }
+}
+
+sk_sp<SkShader> SkPictureShader::makeAnalyticShader(const SkMatrix& ctm,
+                                                    SkTCopyOnFirstWrite<SkMatrix>* lm,
+                                                    SkColorType dstColorType,
+                                                    SkColorSpace* dstColorSpace,
+                                                    SkFilterQuality paintFQ,
+                                                    const int maxTextureSize) const {
+    static const char* gRepeat = R"(
+        uniform float3x3 gLocalToUnit;
+        uniform float3x3 gUnitToTile;
+        uniform shader   gImageShader;
+
+        float tile(float x) {
+            return fract(x);
+        }
+
+        half4 main(float2 p) {
+            float3 unit = gLocalToUnit * p.xy1;
+            unit.x = tile(unit.x);    // Repeat
+            unit.y = tile(unit.y);    // Repeat
+
+            float3 local = gUnitToTile * unit;
+            return sample(gImageShader, local.xy);
+        }
+    )";
+    auto [effect, err] = SkRuntimeEffect::Make(SkString(gRepeat));
+    if (!effect) {
+        SkDebugf("failed to compile custom tiler\n");
+        SkDebugf("%s\n", err.c_str());
+        return nullptr;
+    }
+
+    SkMatrix mx = ctm * (**lm);
+    SkRect devBounds = mx.mapRect(fTile);
+    SkIRect ibounds = devBounds.roundOut();
+    mx.postTranslate(-SkIntToScalar(ibounds.left()), -SkIntToScalar(ibounds.top()));
+
+    auto image = [&] {
+        sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace)
+                                                  : SkColorSpace::MakeSRGB();
+        SkImage::BitDepth bitDepth = dstColorType >= kRGBA_F16Norm_SkColorType
+                                   ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
+        return SkImage::MakeFromPicture(fPicture, ibounds.size(), &mx, nullptr, bitDepth,
+                                        std::move(imgCS));
+    }();
+
+    SkMatrix unit2Tile = mx * SkMatrix::RectToRect({0,0,1,1}, fTile);
+    SkFilterMode filter = enum_to_filter(fFilter, paintFQ);
+
+    auto imageShader = image->makeShader(SkSamplingOptions(filter), nullptr);
+
+    const bool isOpaque = imageShader->isOpaque() &&
+                          fTmx != SkTileMode::kDecal && fTmx != SkTileMode::kDecal;
+
+    SkRuntimeShaderBuilder builder(effect);
+    builder.uniform("gLocalToUnit") = SkMatrix::RectToRect(fTile, {0,0,1,1});
+    builder.uniform("gUnitToTile")  = unit2Tile;
+    builder.child("gImageShader")   = imageShader;
+
+    return builder.makeShader(nullptr, isOpaque);
+}
+
 // Returns a cached image shader, which wraps a single picture tile at the given
 // CTM/local matrix.  Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
@@ -197,6 +268,9 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
                                                  SkFilterQuality paintFQ,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
+
+    return this->makeAnalyticShader(viewMatrix, localMatrix, dstColorType, dstColorSpace,
+                                    paintFQ, maxTextureSize);
 
     const SkMatrix m = SkMatrix::Concat(viewMatrix, **localMatrix);
 
@@ -272,13 +346,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 #ifdef SK_SUPPORT_LEGACY_INHERITED_PICTURE_SHADER_FILTER
         tileShader = SkImage_makeShaderImplicitFilterQuality(tileImage.get(), fTmx, fTmy, nullptr);
 #else
-        SkFilterMode filter;
-        if (fFilter == kInheritFromPaint) {
-            filter = (paintFQ == kNone_SkFilterQuality) ? SkFilterMode::kNearest
-                                                        : SkFilterMode::kLinear;
-        } else {
-            filter = (SkFilterMode)fFilter;
-        }
+        SkFilterMode filter = enum_to_filter(fFilter, paintFQ);
         tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(filter), nullptr);
 #endif
 
