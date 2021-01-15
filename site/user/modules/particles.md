@@ -37,7 +37,7 @@ Samples
   <figure>
     <canvas id=cube width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/5515ab65a31eab1ce5840a714d322643"
+      <a href="https://particles.skia.org/b65b5fa234bac91afacf25f4004b3b7e"
          target=_blank rel=noopener>Cuboid</a>
     </figcaption>
   </figure>
@@ -249,7 +249,7 @@ const cube = {
     "  pos = mix(pos, normalize(pos), s);",
     "  pos = pos * 100;",
     "",
-    "  float age = effect.loop + effect.age;",
+    "  float age = float(effect.loop) + effect.age;",
     "  float4x4 mat = rx(age * radians(60))",
     "               * ry(age * radians(70))",
     "               * rz(age * radians(80));",
