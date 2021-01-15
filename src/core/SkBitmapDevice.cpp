@@ -435,7 +435,6 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
         return;
     }
 
-    SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;
 
@@ -447,7 +446,7 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
     } else {
         tmpSrc = bitmapBounds;
     }
-    matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
+    SkMatrix matrix = SkMatrix::RectToRect(tmpSrc, dst);
 
     const SkRect* dstPtr = &dst;
     const SkBitmap* bitmapPtr = &bitmap;
