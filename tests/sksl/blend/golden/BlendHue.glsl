@@ -1,10 +1,10 @@
 #version 400
 out vec4 sk_FragColor;
+in vec4 src;
+in vec4 dst;
 vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     return minMidMax.x < minMidMax.z ? vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat) : vec3(0.0);
 }
-in vec4 src;
-in vec4 dst;
 void main() {
     float _1_alpha = dst.w * src.w;
     vec3 _2_sda = src.xyz * dst.w;

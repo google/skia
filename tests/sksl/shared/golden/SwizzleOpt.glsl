@@ -1,5 +1,6 @@
 
 out vec4 sk_FragColor;
+layout (set = 0) uniform vec3 colRGB;
 float fn(float v) {
     switch (int(v)) {
         case 1:
@@ -8,7 +9,6 @@ float fn(float v) {
             return 3.0;
     }
 }
-layout (set = 0) uniform vec3 colRGB;
 void main() {
     float v = sqrt(1.0);
     sk_FragColor = vec4(v);
