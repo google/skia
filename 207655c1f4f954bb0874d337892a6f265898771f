@@ -22,6 +22,30 @@
       },
       "revId": "207655c1f4f954bb0874d337892a6f265898771f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd36b4f1_f6175d88",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-15T19:06:35Z",
+      "side": 1,
+      "message": "I don\u0027t know - agree that it seems odd. Even if you are switching on a uint, the subsequent code should work correctly if we coerced to int, AFAICT.",
+      "parentUuid": "bd73428d_f6979cce",
+      "range": {
+        "startLine": 651,
+        "startChar": 8,
+        "endLine": 651,
+        "endChar": 47
+      },
+      "revId": "207655c1f4f954bb0874d337892a6f265898771f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
