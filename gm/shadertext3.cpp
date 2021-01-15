@@ -117,8 +117,7 @@ protected:
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
                 fillPaint.setShader(fBmp.makeShader(kTileModes[tm0], kTileModes[tm1],
-                                                    SkSamplingOptions(SkFilterMode::kLinear,
-                                                                      SkMipmapMode::kNone),
+                                                    SkSamplingOptions(SkFilterMode::kLinear),
                                                     localM));
 
                 constexpr char kText[] = "B";

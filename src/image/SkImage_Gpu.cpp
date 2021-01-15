@@ -443,7 +443,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrDirectContext* dContext,
         int newWidth = std::min(static_cast<int>(originalPixmap.width() * scale), maxTextureSize);
         int newHeight = std::min(static_cast<int>(originalPixmap.height() * scale), maxTextureSize);
         SkImageInfo info = originalPixmap.info().makeWH(newWidth, newHeight);
-        SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
+        SkSamplingOptions sampling(SkFilterMode::kLinear);
         if (!resized.tryAlloc(info) || !originalPixmap.scalePixels(resized, sampling)) {
             return nullptr;
         }

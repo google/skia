@@ -297,7 +297,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
         SkYUVAInfo newInfo = pixmaps.yuvaInfo().makeDimensions(newDimensions);
         SkYUVAPixmapInfo newPixmapInfo(newInfo, pixmaps.dataType(), /*row bytes*/ nullptr);
         tempPixmaps = SkYUVAPixmaps::Allocate(newPixmapInfo);
-        SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
+        SkSamplingOptions sampling(SkFilterMode::kLinear);
         if (!tempPixmaps.isValid()) {
             return nullptr;
         }

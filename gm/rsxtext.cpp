@@ -96,7 +96,7 @@ private:
 
         return surface->makeImageSnapshot()
                 ->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                             SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone), &lm)
+                             SkSamplingOptions(SkFilterMode::kLinear), &lm)
                 ->makeWithLocalMatrix(outer_lm);
     }
 

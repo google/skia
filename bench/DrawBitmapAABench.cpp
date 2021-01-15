@@ -39,7 +39,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
+        SkSamplingOptions sampling(SkFilterMode::kLinear);
         canvas->concat(fMatrix);
         for (int i = 0; i < loops; i++) {
             canvas->drawImage(fImage.get(), 0, 0, sampling, &fPaint);

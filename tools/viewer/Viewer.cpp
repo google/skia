@@ -698,8 +698,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     auto gamutImage = GetResourceAsImage("images/gamut.png");
     if (gamutImage) {
-        fImGuiGamutPaint.setShader(gamutImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear,
-                                                                            SkMipmapMode::kNone)));
+        fImGuiGamutPaint.setShader(gamutImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear)));
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
 

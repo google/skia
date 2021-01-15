@@ -245,8 +245,7 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
 
     decode_file("/skimages/logo.gif", &bm);
     size->set(bm.width(), bm.height());
-    return bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
-                                           SkMipmapMode::kNone));
+    return bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear));
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
