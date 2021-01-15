@@ -229,8 +229,12 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
                                                         this->columns()));
 
         case TypeKind::kStruct:
+            return symbolTable->add(Type::MakeStructType(this->fOffset, this->name(),
+                                                         this->fields()));
+
         case TypeKind::kEnum:
-            // TODO: implement Type cloning for structs and enums.
+            return symbolTable->add(Type::MakeEnumType(this->name()));
+
         default:
             SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());
             return nullptr;
