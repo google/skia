@@ -130,6 +130,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9ba63d95_8dc484ec",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-15T15:13:57Z",
+      "side": 1,
+      "message": "Yeah, I think that\u0027s right.\n\nI was just looking at my comments and maybe I should start marking them Comment#1, Comment#2, etc at the top to give a better reading order. The order in which the comments show up in the file isn\u0027t really the order I wrote them in and it\u0027s difficult to make them actually independent without a lot of repetition. Also, I always end up writing the overall review comment last, so it\u0027s kinda an abstract, but it looks like it came first even though it was written last. Order and structure in communication is interesting.",
+      "parentUuid": "bacdcec8_9c922bcb",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f9a091d4_dbf3c652",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
@@ -165,6 +183,30 @@
       "side": 1,
       "message": "Would you agree this would also be solved if we would return results from the API (which come into this function via the matrix argument) with FT_Face scale and transform pre-applied? Then we would not need to go back to font unit space, apply the transform, and come back?",
       "parentUuid": "f9a091d4_dbf3c652",
+      "range": {
+        "startLine": 485,
+        "startChar": 36,
+        "endLine": 485,
+        "endChar": 42
+      },
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77ca00da_b2ef141f",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-15T15:13:57Z",
+      "side": 1,
+      "message": "Yes, having the size and transform already applied here (putting everything into the same units as the path) means this function kinda evaporates.\n\nI wrote all these comments first then went back and looked at them and basically summarized the issue as just applying the size and transform to everything first. Maybe should have also noted that doing so fixes pretty much all my other comments :-)",
+      "parentUuid": "81bf2ac3_8779d95c",
       "range": {
         "startLine": 485,
         "startChar": 36,
