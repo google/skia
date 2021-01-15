@@ -648,8 +648,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
     if (!value) {
         return nullptr;
     }
-    if (value->type() != *fContext.fTypes.fUInt &&
-        value->type().typeKind() != Type::TypeKind::kEnum) {
+    if (value->type() != *fContext.fTypes.fUInt && !value->type().isEnum()) {
         value = this->coerce(std::move(value), *fContext.fTypes.fInt);
         if (!value) {
             return nullptr;
