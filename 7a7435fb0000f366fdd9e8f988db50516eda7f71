@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da4469c8_cf697e1f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-15T18:19:30Z",
+      "side": 1,
+      "message": "Should we add full SamplingOptions support?  I suspect some of the diffs we\u0027re seeing are due to blink using kMedium/kHigh, which are not representable with this scheme.",
+      "revId": "7a7435fb0000f366fdd9e8f988db50516eda7f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
