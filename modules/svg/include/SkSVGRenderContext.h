@@ -135,6 +135,8 @@ public:
                           const SkSVGLength& w, const SkSVGLength& h,
                           SkSVGObjectBoundingBoxUnits) const;
 
+    const SkSVGIDMapper& idMapper() const { return fIDMapper; }
+
 private:
     // Stack-only
     void* operator new(size_t)                               = delete;
