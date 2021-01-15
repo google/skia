@@ -36,8 +36,7 @@ class CameraView : public Sample {
             if (GetResourceAsBitmap(resource, &bm)) {
                 SkRect src = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
                 SkRect dst = { -150, -150, 150, 150 };
-                SkMatrix matrix;
-                matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+                SkMatrix matrix = SkMatrix::RectToRect(src, dst);
                 fShaders.push_back(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
                                                                    SkMipmapMode::kNone),
                                                  matrix));
