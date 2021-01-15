@@ -271,6 +271,13 @@ void commitToPaint<SkSVGAttribute::kColorInterpolationFilters>(const SkSVGPresen
 }
 
 template <>
+void commitToPaint<SkSVGAttribute::kColorInterpolation>(const SkSVGPresentationAttributes&,
+                                                        const SkSVGRenderContext&,
+                                                        SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied at render time.
+}
+
+template <>
 void commitToPaint<SkSVGAttribute::kFontFamily>(const SkSVGPresentationAttributes&,
                                                 const SkSVGRenderContext&,
                                                 SkSVGPresentationContext*) {
@@ -415,6 +422,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(TextAnchor);
     ApplyLazyInheritedAttribute(Visibility);
     ApplyLazyInheritedAttribute(Color);
+    ApplyLazyInheritedAttribute(ColorInterpolation);
     ApplyLazyInheritedAttribute(ColorInterpolationFilters);
 
     // Local 'color' attribute: update paints for attributes that are set to 'currentColor'.
