@@ -8,9 +8,11 @@
 #ifndef GrMiddleOutPolygonTriangulator_DEFINED
 #define GrMiddleOutPolygonTriangulator_DEFINED
 
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkPathPriv.h"
 
 // This class emits a polygon triangulation with a "middle-out" topology. Conceptually, middle-out
 // emits one large triangle with vertices on both endpoints and a middle point, then recurses on
@@ -113,6 +115,28 @@ public:
         SkASSERT(fTop == fVertexStack);  // The stack should only contain a starting point now.
         fTop->fPoint = startPt;  // Modify the starting point.
         SkASSERT(fTop->fVertexIdxDelta == 0);  // Ensure we are in the initial stack state.
+    }
+
+    static int WritePathInnerFan(SkPoint* vertexData, int perTriangleVertexAdvance,
+                                 const SkPath& path) {
+        GrMiddleOutPolygonTriangulator middleOut(vertexData, perTriangleVertexAdvance,
+                                                 path.countVerbs());
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+            switch (verb) {
+                case SkPathVerb::kMove:
+                    middleOut.closeAndMove(pts[0]);
+                    break;
+                case SkPathVerb::kLine:
+                case SkPathVerb::kQuad:
+                case SkPathVerb::kConic:
+                case SkPathVerb::kCubic:
+                    middleOut.pushVertex(pts[SkPathPriv::PtsInIter((unsigned)verb) - 1]);
+                    break;
+                case SkPathVerb::kClose:
+                    break;
+            }
+        }
+        return middleOut.close();
     }
 
 private:

@@ -13,7 +13,6 @@
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
-#include "src/gpu/tessellate/GrResolveLevelCounter.h"
 #include "src/gpu/tessellate/GrStrokeIndirectOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
@@ -52,27 +51,17 @@ static SkPath make_cubic_path() {
 }
 
 // This serves as a base class for benchmarking individual methods on GrPathTessellateOp.
-class GrPathTessellateOp::TestingOnly_Benchmark : public Benchmark {
+class PathTessellateBenchmark : public Benchmark {
 public:
-    TestingOnly_Benchmark(const char* subName, SkPath path, const SkMatrix& m)
-            : fOp(m, path, GrPaint(), GrAAType::kMSAA, GrTessellationPathRenderer::OpFlags::kNone) {
+    PathTessellateBenchmark(const char* subName, const SkPath& p, const SkMatrix& m)
+            : fPath(p), fMatrix(m) {
         fName.printf("tessellate_%s", subName);
     }
 
     const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
 
-    class prepareMiddleOutStencilGeometry;
-    class prepareMiddleOutStencilGeometry_indirect;
-    class prepareIndirectOuterCubics;
-    class prepareTessellatedOuterCubics;
-    class prepareTessellatedCubicWedges;
-    class wangs_formula_cubic_log2;
-    class wangs_formula_cubic_log2_scale;
-    class wangs_formula_cubic_log2_affine;
-    class middle_out_triangulation;
-
-private:
+protected:
     void onDelayedSetup() override {
         fTarget = std::make_unique<GrMockOpTarget>(make_mock_context());
     }
@@ -83,65 +72,41 @@ private:
             return;
         }
         for (int i = 0; i < loops; ++i) {
-            fOp.fTriangleBuffer.reset();
-            fOp.fTriangleVertexCount = 0;
-            fOp.fPipelineForStencils = nullptr;
-            fOp.fPipelineForFills = nullptr;
-            fOp.fStencilTrianglesProgram = nullptr;
-            fOp.fFillTrianglesProgram = nullptr;
-            fOp.fCubicBuffer.reset();
-            fOp.fCubicVertexCount = 0;
-            // Make fStencilCubicsProgram non-null to keep assertions happy.
-            fOp.fStencilCubicsProgram = (GrProgramInfo*)-1;
-            fOp.fFillPathProgram = nullptr;
-            this->runBench(fTarget.get(), &fOp);
+            this->runBench();
             fTarget->resetAllocator();
         }
     }
 
-    virtual void runBench(GrMeshDrawOp::Target*, GrPathTessellateOp*) = 0;
+    virtual void runBench() = 0;
 
-    GrPathTessellateOp fOp;
-    std::unique_ptr<GrMockOpTarget> fTarget;
     SkString fName;
+    std::unique_ptr<GrMockOpTarget> fTarget;
+    const SkPath fPath;
+    const SkMatrix& fMatrix;
 };
 
-#define DEF_PATH_TESS_BENCH(NAME, PATH, MATRIX, TARGET, OP) \
-    class GrPathTessellateOp::TestingOnly_Benchmark::NAME \
-            : public GrPathTessellateOp::TestingOnly_Benchmark { \
+#define DEF_PATH_TESS_BENCH(NAME, PATH, MATRIX) \
+    class PathTessellateBenchmark_##NAME : public PathTessellateBenchmark { \
     public: \
-        NAME() : TestingOnly_Benchmark(#NAME, (PATH), (MATRIX)) {} \
-        void runBench(GrMeshDrawOp::Target* target, GrPathTessellateOp* op) override; \
+        PathTessellateBenchmark_##NAME() : PathTessellateBenchmark(#NAME, (PATH), (MATRIX)) {} \
+        void runBench() override; \
     }; \
-    DEF_BENCH( return new GrPathTessellateOp::TestingOnly_Benchmark::NAME(); ); \
-    void GrPathTessellateOp::TestingOnly_Benchmark::NAME::runBench( \
-            GrMeshDrawOp::Target* TARGET, GrPathTessellateOp* op)
+    DEF_BENCH( return new PathTessellateBenchmark_##NAME(); ); \
+    void PathTessellateBenchmark_##NAME::runBench()
 
-DEF_PATH_TESS_BENCH(prepareMiddleOutStencilGeometry, make_cubic_path(), SkMatrix::I(), target, op) {
-    // Make fStencilTrianglesProgram non-null so we benchmark the tessellation path with separate
-    // triangles.
-    op->fStencilTrianglesProgram = (GrProgramInfo*)-1;
-    op->prepareMiddleOutTrianglesAndCubics(target);
+DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(), SkMatrix::I()) {
+    GrPathIndirectTessellator tess(fMatrix, fPath, GrPathIndirectTessellator::DrawInnerFan::kNo);
+    tess.prepare(fTarget.get(), fMatrix, fPath);
 }
 
-DEF_PATH_TESS_BENCH(prepareMiddleOutStencilGeometry_indirect, make_cubic_path(), SkMatrix::I(),
-                    target, op) {
-    GrResolveLevelCounter resolveLevelCounter;
-    op->prepareMiddleOutTrianglesAndCubics(target, &resolveLevelCounter);
+DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(), SkMatrix::I()) {
+    GrPathOuterCurveTessellator tess;
+    tess.prepare(fTarget.get(), fMatrix, fPath);
 }
 
-DEF_PATH_TESS_BENCH(prepareIndirectOuterCubics, make_cubic_path(), SkMatrix::I(), target, op) {
-    GrResolveLevelCounter resolveLevelCounter;
-    resolveLevelCounter.reset(op->fPath, SkMatrix::I(), 4);
-    op->prepareIndirectOuterCubics(target, resolveLevelCounter);
-}
-
-DEF_PATH_TESS_BENCH(prepareTessellatedOuterCubics, make_cubic_path(), SkMatrix::I(), target, op) {
-    op->prepareTessellatedOuterCubics(target, kNumCubicsInChalkboard);
-}
-
-DEF_PATH_TESS_BENCH(prepareTessellatedCubicWedges, make_cubic_path(), SkMatrix::I(), target, op) {
-    op->prepareTessellatedCubicWedges(target);
+DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(), SkMatrix::I()) {
+    GrPathWedgeTessellator tess;
+    tess.prepare(fTarget.get(), fMatrix, fPath);
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
@@ -158,45 +123,27 @@ static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkP
     }
 }
 
-DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2, make_cubic_path(), SkMatrix::I(), target, op) {
-    benchmark_wangs_formula_cubic_log2(op->fViewMatrix, op->fPath);
+DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2, make_cubic_path(), SkMatrix::I()) {
+    benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
 }
 
-DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_scale, make_cubic_path(), SkMatrix::Scale(1.1f, 0.9f),
-                    target, op) {
-    benchmark_wangs_formula_cubic_log2(op->fViewMatrix, op->fPath);
+DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_scale, make_cubic_path(),
+                    SkMatrix::Scale(1.1f, 0.9f)) {
+    benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
 }
 
 DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(),
-                    SkMatrix::MakeAll(.9f,0.9f,0,  1.1f,1.1f,0, 0,0,1), target, op) {
-    benchmark_wangs_formula_cubic_log2(op->fViewMatrix, op->fPath);
+                    SkMatrix::MakeAll(.9f,0.9f,0,  1.1f,1.1f,0, 0,0,1)) {
+    benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
 }
 
 DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     ToolUtils::make_star(SkRect::MakeWH(500, 500), kNumCubicsInChalkboard),
-                    SkMatrix::I(), target, op) {
+                    SkMatrix::I()) {
     int baseVertex;
-    auto vertexData = static_cast<SkPoint*>(target->makeVertexSpace(
+    auto vertexData = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, nullptr, &baseVertex));
-    GrMiddleOutPolygonTriangulator middleOut(vertexData, 3, kNumCubicsInChalkboard + 2);
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(op->fPath)) {
-        switch (verb) {
-            case SkPathVerb::kMove:
-                middleOut.closeAndMove(pts[0]);
-                break;
-            case SkPathVerb::kLine:
-                middleOut.pushVertex(pts[1]);
-                break;
-            case SkPathVerb::kClose:
-                middleOut.close();
-                break;
-            case SkPathVerb::kQuad:
-            case SkPathVerb::kConic:
-            case SkPathVerb::kCubic:
-                SkUNREACHABLE;
-        }
-        middleOut.closeAndMove(pts[0]);
-    }
+    GrMiddleOutPolygonTriangulator::WritePathInnerFan(vertexData, 3, fPath);
 }
 
 class GrStrokeTessellateOp::TestingOnly_Benchmark : public Benchmark {
