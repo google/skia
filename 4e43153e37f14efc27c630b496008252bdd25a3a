@@ -22,6 +22,30 @@
       },
       "revId": "4e43153e37f14efc27c630b496008252bdd25a3a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f633bf9_3727e544",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T19:59:08Z",
+      "side": 1,
+      "message": "Confirmed--SkSL enums and structs can only be created at global scope.",
+      "parentUuid": "91449e2b_724f4ab8",
+      "range": {
+        "startLine": 220,
+        "startChar": 4,
+        "endLine": 224,
+        "endChar": 5
+      },
+      "revId": "4e43153e37f14efc27c630b496008252bdd25a3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
