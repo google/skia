@@ -472,7 +472,7 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
 
     const SkRect srcR = SkRect::MakeSize(this->size());
     if (dstR) {
-        canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
+        canvas->concat(SkMatrix::RectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
     }
 
     if (!(renderFlags & RenderFlag::kDisableTopLevelClipping)) {

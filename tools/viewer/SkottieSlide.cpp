@@ -221,9 +221,8 @@ void SkottieSlide::draw(SkCanvas* canvas) {
             draw_stats_box(canvas, fAnimationStats);
         }
         if (fShowAnimationInval) {
-            const auto t = SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
-                                                    dstR,
-                                                    SkMatrix::kCenter_ScaleToFit);
+            const auto t = SkMatrix::RectToRect(SkRect::MakeSize(fAnimation->size()), dstR,
+                                                SkMatrix::kCenter_ScaleToFit);
             SkPaint fill, stroke;
             fill.setAntiAlias(true);
             fill.setColor(0x40ff0000);

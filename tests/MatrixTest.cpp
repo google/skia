@@ -133,24 +133,24 @@ static void test_matrix_recttorect(skiatest::Reporter* reporter) {
 
     src.setLTRB(0, 0, 10, 10);
     dst = src;
-    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    matrix = SkMatrix::RectToRect(src, dst);
     REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
 
     dst.offset(1, 1);
-    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    matrix = SkMatrix::RectToRect(src, dst);
     REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
 
     dst.fRight += 1;
-    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    matrix = SkMatrix::RectToRect(src, dst);
     REPORTER_ASSERT(reporter,
                     (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask) == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
 
     dst = src;
     dst.fRight = src.fRight * 2;
-    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    matrix = SkMatrix::RectToRect(src, dst);
     REPORTER_ASSERT(reporter, SkMatrix::kScale_Mask == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
 }
