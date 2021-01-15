@@ -162,8 +162,7 @@ const Symbol* Rehydrator::symbol() {
         case kEnumType_Command: {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeSimpleType(name, Type::TypeKind::kEnum));
+            const Type* result = fSymbolTable->takeOwnershipOfSymbol(Type::MakeEnumType(name));
             this->addSymbol(id, result);
             return result;
         }

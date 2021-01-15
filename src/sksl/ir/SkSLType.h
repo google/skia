@@ -20,6 +20,7 @@
 
 namespace SkSL {
 
+class BuiltinTypes;
 class Context;
 
 struct CoercionCost {
@@ -96,77 +97,23 @@ public:
 
     Type(const Type& other) = delete;
 
-    // Create an "other" (special) type with the given name. These types cannot be directly
-    // referenced from user code.
-    static std::unique_ptr<Type> MakeOtherType(const char* name) {
-        return std::unique_ptr<Type>(new Type(name));
+    /** Creates an enum type. */
+    static std::unique_ptr<Type> MakeEnumType(String name) {
+        return std::unique_ptr<Type>(new Type(std::move(name), TypeKind::kEnum));
     }
 
-    // Create an "other" (special) type that supports field access.
-    static std::unique_ptr<Type> MakeOtherStruct(const char* name, std::vector<Field> fields) {
-        return std::unique_ptr<Type>(new Type(name, std::move(fields)));
-    }
-
-    // Create a simple type.
-    static std::unique_ptr<Type> MakeSimpleType(String name, TypeKind kind) {
-        return std::unique_ptr<Type>(new Type(std::move(name), kind));
-    }
-
-    // Create a generic type which maps to the listed types--e.g. $genType is a generic type which
-    // can match float, float2, float3 or float4.
-    static std::unique_ptr<Type> MakeGenericType(const char* name, std::vector<const Type*> types) {
-        return std::unique_ptr<Type>(new Type(name, std::move(types)));
-    }
-
-    // Create a struct type with the given fields.
+    /** Creates a struct type with the given fields. */
     static std::unique_ptr<Type> MakeStructType(int offset, String name,
                                                 std::vector<Field> fields) {
         return std::unique_ptr<Type>(new Type(offset, std::move(name), std::move(fields)));
     }
 
-    // Create a scalar type.
-    static std::unique_ptr<Type> MakeScalarType(const char* name, NumberKind numberKind,
-                                                int priority, bool highPrecision = false) {
-        return std::unique_ptr<Type>(new Type(name, numberKind, priority, highPrecision));
-    }
-
-    // Create a type for literal scalars.
-    static std::unique_ptr<Type> MakeLiteralType(const char* name, const Type& scalarType,
-                                                 int priority) {
-        return std::unique_ptr<Type>(new Type(name, scalarType, priority));
-    }
-
-    // Create a vector type.
-    static std::unique_ptr<Type> MakeVectorType(const char* name, const Type& componentType,
-                                                int columns) {
-        return std::unique_ptr<Type>(new Type(name, TypeKind::kVector, componentType, columns));
-    }
-
-    // Create an array type.
+    /** Creates an array type. */
     static constexpr int kUnsizedArray = -1;
     static std::unique_ptr<Type> MakeArrayType(String name, const Type& componentType,
                                                int columns) {
         return std::unique_ptr<Type>(new Type(std::move(name), TypeKind::kArray, componentType,
                                               columns));
-    }
-
-    // Create a matrix type.
-    static std::unique_ptr<Type> MakeMatrixType(const char* name, const Type& componentType,
-                                                int columns, int rows) {
-        return std::unique_ptr<Type>(new Type(name, componentType, columns, rows));
-    }
-
-    // Create a texture type.
-    static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions,
-                                                 bool isDepth, bool isArrayedTexture,
-                                                 bool isMultisampled, bool isSampled) {
-        return std::unique_ptr<Type>(
-                new Type(name, dimensions, isDepth, isArrayedTexture, isMultisampled, isSampled));
-    }
-
-    // Create a sampler type.
-    static std::unique_ptr<Type> MakeSamplerType(const char* name, const Type& textureType) {
-        return std::unique_ptr<Type>(new Type(name, textureType));
     }
 
     String displayName() const {
@@ -400,6 +347,8 @@ public:
     const Type& toCompound(const Context& context, int columns, int rows) const;
 
 private:
+    friend class BuiltinTypes;
+
     using INHERITED = Symbol;
 
     // Constructor for MakeOtherType.
@@ -415,7 +364,7 @@ private:
             , fNumberKind(NumberKind::kNonnumeric)
             , fFields(std::move(fields)) {}
 
-    // Constructor for MakeSimpleType.
+    // Constructor for MakeEnumType and MakeSeparateSamplerType.
     Type(String name, TypeKind kind)
             : INHERITED(-1, kSymbolKind, "")
             , fNameString(std::move(name))
