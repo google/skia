@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d5fd41e_be8dd9ed",
+        "filename": "tests/sksl/inliner/golden/EnumsCanBeInlinedSafely.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T19:58:27Z",
+      "side": 1,
+      "message": "Neat! Everything in helper() became, but we aren\u0027t smart enough to eliminate this loop (synthesized by the inliner to simulate early returns). I guess it\u0027s still better code than the input code.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 5
+      },
+      "revId": "ba9aa477c7b0c336f493995daeeb1f17c2628542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38a8b153_46deccc1",
+        "filename": "tests/sksl/inliner/golden/StructsCanBeInlinedSafely.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T19:58:27Z",
+      "side": 1,
+      "message": "An unrelated bug--this struct has an associated StructDefinition program element, which is supposed to make it appear at global scope, but because the inliner moved it upwards, the struct is now used in the code before its definition. We emit the struct because it\u0027s never been seen before, but we\u0027re in the wrong scope (within `main` instead of at global scope).",
+      "range": {
+        "startLine": 5,
+        "startChar": 3,
+        "endLine": 5,
+        "endChar": 17
+      },
+      "revId": "ba9aa477c7b0c336f493995daeeb1f17c2628542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
