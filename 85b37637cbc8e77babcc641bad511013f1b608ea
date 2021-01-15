@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4912f86b_9202d3a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-15T13:59:39Z",
+      "side": 1,
+      "message": "Ben, thank you very much for taking the time to do an initial review, i\u0027s great to have your feedback! Yes, I believe we can move the API to a behaviour where it does apply the FT_Face size and transform, so that we don\u0027t have to go through extra steps to work in font unit space again.",
+      "parentUuid": "9a2843ff_ef9c9c0d",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa83cebc_55047f02",
@@ -94,6 +112,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bacdcec8_9c922bcb",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-15T13:59:39Z",
+      "side": 1,
+      "message": "Ok, if I understand your earlier comment regarding FT_Face\u0027s size and possible FT_Transform, then your request is to concatenate those before returning anything from the API, which would then still be y-up, and then turn it into y-down here by negating the fields that you mentioned. Formatting aside, is that what you have in mind here?",
+      "parentUuid": "12cfd2db_29b8c0d7",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f9a091d4_dbf3c652",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
@@ -117,6 +153,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "81bf2ac3_8779d95c",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-15T13:59:39Z",
+      "side": 1,
+      "message": "Would you agree this would also be solved if we would return results from the API (which come into this function via the matrix argument) with FT_Face scale and transform pre-applied? Then we would not need to go back to font unit space, apply the transform, and come back?",
+      "parentUuid": "f9a091d4_dbf3c652",
+      "range": {
+        "startLine": 485,
+        "startChar": 36,
+        "endLine": 485,
+        "endChar": 42
+      },
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8d58342d_b434f179",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
@@ -128,6 +188,24 @@
       "writtenOn": "2021-01-14T19:11:09Z",
       "side": 1,
       "message": "Is all the scale mucking about here because the FreeType code is always reporting the raw upem numbers here? Did we not get the option to set all these points as referring to points on some glyph so that we could vary or hint these? If internally they are, I don\u0027t see how we could be in upem space out of FreeType since they would need to be scaled to be hinted.\n\nEven so I don\u0027t see how \u0027scale\u0027 fits in here. Where are the skews? It seems the whole 2x2 matrix is needed here or the gradient won\u0027t rotate with the glyph and will be magically stuck to the surface?\n\nI think in order to get these into the same space as the paths coming out of generateFacePath it is necessary to map these upem though the same process as FreeType mapped those paths, which is to say, apply the FT_Size scale then apply the FT_Transform (see SkScalerContext_FreeType::setupSize for where these are set). These values are already on the FT_Face or its FT_Size, so \u0027scale\u0027 and the like shouldn\u0027t be needed here.",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52d21900_5771bd50",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-15T13:59:39Z",
+      "side": 1,
+      "message": "\u003e Is all the scale mucking about here because the FreeType code is always reporting the raw upem numbers here? \n\nPart 1 (API return values): So far yes, FT reports raw UPEM. I see your feedback at the beginning of the CL and will see if I can apply FT_Face\u0027s scale and transform before returning values since you\u0027re saying this would be more consistent and would allow FT to do other adjustments if needed.\n\nPart 2 (Gradient coords subject to hinting? Referencing glyph contours?): No, currently, the coordinates for gradients are not referencing particular contour points of the glyphs and cannot be hinted themselves. This came up in a separate discussion and it\u0027s under consideration whether we want to allow that. So, the coordinates for gradients P0, P1, P2 are in font unit space and are not subject to hinting. \n\nGood point regarding moving the scaling into FreeType - that would indeed allow us to remove the scale parameter here, which would probably look cleaner.",
+      "parentUuid": "8d58342d_b434f179",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -169,6 +247,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2efea3f5_a1adb3ef",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-15T13:59:39Z",
+      "side": 1,
+      "message": "I\u0027ll check, it may be that in a previous iteration of the code, the paint object was reused and had to be explicitly reset to an opaque color.",
+      "parentUuid": "3900ae4b_7740b547",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "621463d6_c44c1e27",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
@@ -186,6 +282,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7b85f522_4128f4cb",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-15T13:59:39Z",
+      "side": 1,
+      "message": "Ack, as discussed above.",
+      "parentUuid": "621463d6_c44c1e27",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "35131088_0318a22a",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
@@ -197,6 +311,24 @@
       "writtenOn": "2021-01-14T19:11:09Z",
       "side": 1,
       "message": "nit: Skia always uses braces. Usually this sort of thing is done like\n\n    if (e) {\n        return false;\n    }\n\nThough if there a bunch in a row and it seems clearer to do so it can all be on one line (though still with braces).",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c2a62a5_937f30de",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-15T13:59:39Z",
+      "side": 1,
+      "message": "Ack.",
+      "parentUuid": "35131088_0318a22a",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
