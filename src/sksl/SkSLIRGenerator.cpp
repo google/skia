@@ -648,14 +648,14 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
     if (!value) {
         return nullptr;
     }
-    if (value->type() != *fContext.fTypes.fUInt && !value->type().isEnum()) {
+    if (!value->type().isEnum()) {
         value = this->coerce(std::move(value), *fContext.fTypes.fInt);
         if (!value) {
             return nullptr;
         }
     }
     AutoSymbolTable table(this);
-    std::unordered_set<int> caseValues;
+    SkTHashSet<SKSL_INT> caseValues;
     std::vector<std::unique_ptr<SwitchCase>> cases;
     for (; iter != s.end(); ++iter) {
         const ASTNode& c = *iter;
@@ -677,10 +677,10 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
                                             "case value must be a constant integer");
                 return nullptr;
             }
-            if (caseValues.find(v) != caseValues.end()) {
+            if (caseValues.contains(v)) {
                 this->errorReporter().error(caseValue->fOffset, "duplicate case value");
             }
-            caseValues.insert(v);
+            caseValues.add(v);
         }
         ++childIter;
         StatementArray statements;
