@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3c09df4_95b2ba82",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-15T20:05:34Z",
+      "side": 1,
+      "message": "The name of this function throws me a little, because it\u0027s a conservative check (and we have isBuiltin on several other classes that are much more definitive). isGuaranteedBuiltin() ?",
+      "range": {
+        "startLine": 123,
+        "startChar": 36,
+        "endLine": 123,
+        "endChar": 49
+      },
+      "revId": "d4077f8bc9878ba42560e2a2c08c7d597ad0b3d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
