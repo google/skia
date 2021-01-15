@@ -51,19 +51,19 @@ if (is_ios) {
       "-std=c++14",
       "-w",
     ]
-    libs = [
+    frameworks = [
       "CoreFoundation.framework",
       "Foundation.framework",
       "QuartzCore.framework",
       "UIKit.framework",
     ]
     if (skia_enable_gpu && skia_use_metal) {
-      libs += [
+      frameworks += [
         "Metal.framework",
         "MetalKit.framework",
       ]
     } else if (skia_enable_gpu && skia_use_gl) {
-      libs += [
+      frameworks += [
         "GLKit.framework",
         "OpenGLES.framework",
       ]
