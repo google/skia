@@ -257,7 +257,7 @@ SkPath make_star(const SkRect& bounds, int numPts, int step) {
         builder.lineTo(x, y);
     }
     SkPath path = builder.detach();
-    path.transform(SkMatrix::MakeRectToRect(path.getBounds(), bounds, SkMatrix::kFill_ScaleToFit));
+    path.transform(SkMatrix::RectToRect(path.getBounds(), bounds));
     return path;
 }
 

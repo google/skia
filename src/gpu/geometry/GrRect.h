@@ -93,8 +93,7 @@ static inline bool GrRectsTouchOrOverlap(const SkRect& a, const SkRect& b) {
  */
 static inline void GrMapRectPoints(const SkRect& inRect, const SkRect& outRect,
                                    const SkPoint inPts[], SkPoint outPts[], int ptCount) {
-    SkMatrix rectTransform = SkMatrix::MakeRectToRect(inRect, outRect, SkMatrix::kFill_ScaleToFit);
-    rectTransform.mapPoints(outPts, inPts, ptCount);
+    SkMatrix::RectToRect(inRect, outRect).mapPoints(outPts, inPts, ptCount);
 }
 
 /**

@@ -447,8 +447,8 @@ DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
     canvas->clear(SK_ColorGRAY);
 
     SkRect rect = SkRect::MakeWH(256, 256);
-    SkMatrix local = SkMatrix::MakeRectToRect(SkRect::MakeWH(image->width(), image->height()),
-                                              SkRect::MakeWH(64, 64), SkMatrix::kFill_ScaleToFit);
+    SkMatrix local = SkMatrix::RectToRect(SkRect::MakeWH(image->width(), image->height()),
+                                          SkRect::MakeWH(64, 64));
     auto shader = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
                                     SkSamplingOptions(), &local);
 

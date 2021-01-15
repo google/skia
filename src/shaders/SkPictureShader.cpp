@@ -244,9 +244,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 
     sk_sp<SkShader> tileShader;
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
-        SkMatrix tileMatrix;
-        tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
-                                 SkMatrix::kFill_ScaleToFit);
+        SkMatrix tileMatrix = SkMatrix::RectToRect(fTile, SkRect::MakeIWH(tileSize.width(),
+                                                                          tileSize.height()));
 
         sk_sp<SkImage> tileImage = SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix,
                                                             nullptr, bitDepth, std::move(imgCS));

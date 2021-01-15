@@ -1134,7 +1134,8 @@ void Viewer::setupCurrentSlide() {
         // Start with a matrix that scales the slide to the available screen space
         if (fWindow->scaleContentToFit()) {
             if (windowRect.width() > 0 && windowRect.height() > 0) {
-                fDefaultMatrix.setRectToRect(slideBounds, windowRect, SkMatrix::kStart_ScaleToFit);
+                fDefaultMatrix = SkMatrix::RectToRect(slideBounds, windowRect,
+                                                      SkMatrix::kStart_ScaleToFit);
             }
         }
 

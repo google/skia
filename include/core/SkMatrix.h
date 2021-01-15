@@ -15,6 +15,9 @@
 struct SkRSXform;
 struct SkPoint3;
 
+// Remove when clients are updated to live without this
+#define SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
+
 /**
  *  When we transform points through a matrix containing perspective (the bottom row is something
  *  other than 0,0,1), the bruteforce math can produce confusing results (since we might divide
@@ -104,6 +107,38 @@ public:
     }
     static SkMatrix SK_WARN_UNUSED_RESULT RotateRad(SkScalar rad) {
         return RotateDeg(SkRadiansToDegrees(rad));
+    }
+
+    /** \enum SkMatrix::ScaleToFit
+        ScaleToFit describes how SkMatrix is constructed to map one SkRect to another.
+        ScaleToFit may allow SkMatrix to have unequal horizontal and vertical scaling,
+        or may restrict SkMatrix to square scaling. If restricted, ScaleToFit specifies
+        how SkMatrix maps to the side or center of the destination SkRect.
+    */
+    enum ScaleToFit {
+        kFill_ScaleToFit,   //!< scales in x and y to fill destination SkRect
+        kStart_ScaleToFit,  //!< scales and aligns to left and top
+        kCenter_ScaleToFit, //!< scales and aligns to center
+        kEnd_ScaleToFit,    //!< scales and aligns to right and bottom
+    };
+
+    /** Returns SkMatrix set to scale and translate src to dst. ScaleToFit selects
+        whether mapping completely fills dst or preserves the aspect ratio, and how to
+        align src within dst. Returns the identity SkMatrix if src is empty. If dst is
+        empty, returns SkMatrix set to:
+
+            | 0 0 0 |
+            | 0 0 0 |
+            | 0 0 1 |
+
+        @param src  SkRect to map from
+        @param dst  SkRect to map to
+        @param mode How to handle the mapping
+        @return     SkMatrix mapping src to dst
+    */
+    static SkMatrix SK_WARN_UNUSED_RESULT RectToRect(const SkRect& src, const SkRect& dst,
+                                                     ScaleToFit mode = kFill_ScaleToFit) {
+        return MakeRectToRect(src, dst, mode);
     }
 
     /** Sets SkMatrix to:
@@ -1083,19 +1118,9 @@ public:
     */
     SkMatrix& postConcat(const SkMatrix& other);
 
-    /** \enum SkMatrix::ScaleToFit
-        ScaleToFit describes how SkMatrix is constructed to map one SkRect to another.
-        ScaleToFit may allow SkMatrix to have unequal horizontal and vertical scaling,
-        or may restrict SkMatrix to square scaling. If restricted, ScaleToFit specifies
-        how SkMatrix maps to the side or center of the destination SkRect.
-    */
-    enum ScaleToFit {
-        kFill_ScaleToFit,   //!< scales in x and y to fill destination SkRect
-        kStart_ScaleToFit,  //!< scales and aligns to left and top
-        kCenter_ScaleToFit, //!< scales and aligns to center
-        kEnd_ScaleToFit,    //!< scales and aligns to right and bottom
-    };
-
+#ifndef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
+private:
+#endif
     /** Sets SkMatrix to scale and translate src SkRect to dst SkRect. stf selects whether
         mapping completely fills dst or preserves the aspect ratio, and how to align
         src within dst. Returns false if src is empty, and sets SkMatrix to identity.
@@ -1131,6 +1156,9 @@ public:
         m.setRectToRect(src, dst, stf);
         return m;
     }
+#ifndef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
+public:
+#endif
 
     /** Sets SkMatrix to map src to dst. count must be zero or greater, and four or less.
 
