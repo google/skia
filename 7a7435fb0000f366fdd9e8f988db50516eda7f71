@@ -16,6 +16,41 @@
       "message": "Should we add full SamplingOptions support?  I suspect some of the diffs we\u0027re seeing are due to blink using kMedium/kHigh, which are not representable with this scheme.",
       "revId": "7a7435fb0000f366fdd9e8f988db50516eda7f71",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c639fb1a_2a43d09f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-15T18:40:57Z",
+      "side": 1,
+      "message": "hmmm -- logically medium would never be useful (since we take care of scaling up-front). Possibly bicubic, but hopefully we\u0027re so close to perfect we don\u0027t need it.\n\nI guess my opinionated take is: keep it simple; linear seems like more than enough, don\u0027t want to have to document why we will ignore mipmapmodes, etc.\n\nNot super strong feeling, but we\u0027ve taken the same approach on drawLattice/ninepatch",
+      "parentUuid": "da4469c8_cf697e1f",
+      "revId": "7a7435fb0000f366fdd9e8f988db50516eda7f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2d5e579_23d2d799",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-15T18:40:57Z",
+      "side": 1,
+      "message": "definitely gonna wait and see what the damage is in chrome before landing",
+      "revId": "7a7435fb0000f366fdd9e8f988db50516eda7f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
