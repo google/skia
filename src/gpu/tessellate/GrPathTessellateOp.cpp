@@ -8,24 +8,14 @@
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
-#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTriangulator.h"
-#include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/tessellate/GrFillPathShader.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/GrMidpointContourParser.h"
-#include "src/gpu/tessellate/GrResolveLevelCounter.h"
 #include "src/gpu/tessellate/GrStencilPathShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
-
-constexpr static float kLinearizationIntolerance =
-        GrTessellationPathRenderer::kLinearizationIntolerance;
-
-constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
 
 using OpFlags = GrTessellationPathRenderer::OpFlags;
 
@@ -98,6 +88,7 @@ void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
 }
 
 void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
+    using DrawInnerFan = GrPathIndirectTessellator::DrawInnerFan;
     int numVerbs = fPath.countVerbs();
     if (numVerbs <= 0) {
         return;
@@ -126,6 +117,8 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
                 // We will need one final pass to cover the convex hulls of the cubics after
                 // drawing the inner triangles.
                 this->prePrepareFillCubicHullsProgram(args);
+                fTessellator = args.fArena->make<GrPathIndirectTessellator>(fViewMatrix, fPath,
+                                                                            DrawInnerFan::kNo);
             }
             return;
         }
@@ -143,6 +136,8 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
             this->prePrepareStencilTrianglesProgram(args);
         }
         this->prePrepareStencilCubicsProgram<GrMiddleOutCubicShader>(args);
+        fTessellator = args.fArena->make<GrPathIndirectTessellator>(
+                fViewMatrix, fPath, DrawInnerFan(drawTrianglesAsIndirectCubicDraw));
         return;
     }
 
@@ -158,11 +153,13 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
     if (rasterEdgeWork > 300 * 300) {
         this->prePrepareStencilTrianglesProgram(args);
         this->prePrepareStencilCubicsProgram<GrCubicTessellateShader>(args);
+        fTessellator = args.fArena->make<GrPathOuterCurveTessellator>();
         return;
     }
 
     // Fastest CPU approach: emit one cubic wedge per verb, fanning out from the center.
     this->prePrepareStencilCubicsProgram<GrWedgeTessellateShader>(args);
+    fTessellator = args.fArena->make<GrPathWedgeTessellator>();
 }
 
 bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArgs& args,
@@ -421,389 +418,22 @@ void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
                                                      &fTriangleBuffer, &fBaseTriangleVertex);
             memcpy(data, fOffThreadInnerTriangulation, fTriangleVertexCount * sizeof(SkPoint));
         }
-        if (fStencilCubicsProgram) {
-            // We always use indirect draws for inner-polygon-triangulation mode instead of
-            // tessellation.
-            SkASSERT(GrPrimitiveType::kPatches !=
-                     fStencilCubicsProgram->primProc().cast<GrStencilPathShader>().primitiveType());
-            GrResolveLevelCounter resolveLevelCounter;
-            resolveLevelCounter.reset(fPath, fViewMatrix, kLinearizationIntolerance);
-            this->prepareIndirectOuterCubics(flushState, resolveLevelCounter);
-        }
-        return;
+    } else if (fStencilTrianglesProgram) {
+        // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
+        // middle-out topology.
+        GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fTriangleBuffer,
+                                                  &fBaseTriangleVertex);
+        // No initial moveTo, plus an implicit close at the end; n-2 triangles fill an n-gon.
+        int maxInnerTriangles = fPath.countVerbs() - 1;
+        auto* triangleVertexData = vertexAlloc.lock<SkPoint>(maxInnerTriangles * 3);
+        fTriangleVertexCount = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+                triangleVertexData, 3/*perTriangleVertexAdvance*/, fPath) * 3;
+        vertexAlloc.unlock(fTriangleVertexCount);
     }
 
-    SkASSERT(fStencilCubicsProgram);
-    const auto& stencilCubicsShader = fStencilCubicsProgram->primProc().cast<GrPathShader>();
-
-    if (stencilCubicsShader.primitiveType() != GrPrimitiveType::kPatches) {
-        // Outer cubics need indirect draws.
-        GrResolveLevelCounter resolveLevelCounter;
-        this->prepareMiddleOutTrianglesAndCubics(flushState, &resolveLevelCounter);
-        return;
+    if (fTessellator) {
+        fTessellator->prepare(flushState, fViewMatrix, fPath);
     }
-
-    if (stencilCubicsShader.tessellationPatchVertexCount() == 4) {
-        // Triangles and tessellated curves will be drawn separately.
-        this->prepareMiddleOutTrianglesAndCubics(flushState);
-        return;
-    }
-
-    // We are drawing tessellated wedges.
-    SkASSERT(stencilCubicsShader.tessellationPatchVertexCount() == 5);
-    this->prepareTessellatedCubicWedges(flushState);
-}
-
-void GrPathTessellateOp::prepareMiddleOutTrianglesAndCubics(
-        GrMeshDrawOp::Target* target, GrResolveLevelCounter* resolveLevelCounter) {
-    SkASSERT(fStencilCubicsProgram);
-    SkASSERT(!fTriangleBuffer);
-    SkASSERT(!fFillTrianglesProgram);
-    SkASSERT(!fCubicBuffer);
-    SkASSERT(!fIndirectDrawBuffer);
-    SkASSERT(fTriangleVertexCount == 0);
-    SkASSERT(fCubicVertexCount == 0);
-
-    // No initial moveTo, plus an implicit close at the end; n-2 triangles fill an n-gon.
-    int maxInnerTriangles = fPath.countVerbs() - 1;
-    int maxCubics = fPath.countVerbs();
-
-    SkPoint* vertexData;
-    int vertexAdvancePerTriangle;
-    if (!fStencilTrianglesProgram) {
-        // Allocate the triangles as 4-point instances at the beginning of the cubic buffer.
-        SkASSERT(resolveLevelCounter);
-        vertexAdvancePerTriangle = 4;
-        int baseTriangleInstance;
-        vertexData = static_cast<SkPoint*>(target->makeVertexSpace(
-                sizeof(SkPoint) * 4, maxInnerTriangles + maxCubics, &fCubicBuffer,
-                &baseTriangleInstance));
-        fBaseCubicVertex = baseTriangleInstance * 4;
-    } else {
-        // Allocate the triangles as normal 3-point instances in the triangle buffer.
-        vertexAdvancePerTriangle = 3;
-        vertexData = static_cast<SkPoint*>(target->makeVertexSpace(
-                sizeof(SkPoint), maxInnerTriangles * 3, &fTriangleBuffer, &fBaseTriangleVertex));
-    }
-    if (!vertexData) {
-        return;
-    }
-
-    GrVectorXform xform(fViewMatrix);
-    GrMiddleOutPolygonTriangulator middleOut(vertexData, vertexAdvancePerTriangle,
-                                             fPath.countVerbs());
-    if (resolveLevelCounter) {
-        resolveLevelCounter->reset();
-    }
-    int numCountedCurves = 0;
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(fPath)) {
-        switch (verb) {
-            case SkPathVerb::kMove:
-                middleOut.closeAndMove(pts[0]);
-                break;
-            case SkPathVerb::kLine:
-                middleOut.pushVertex(pts[1]);
-                break;
-            case SkPathVerb::kConic:
-                // We use the same quadratic formula for conics, ignoring w. This appears to be an
-                // upper bound on what the actual number of subdivisions would have been.
-                [[fallthrough]];
-            case SkPathVerb::kQuad:
-                middleOut.pushVertex(pts[2]);
-                if (resolveLevelCounter) {
-                    resolveLevelCounter->countInstance(GrWangsFormula::quadratic_log2(
-                            kLinearizationIntolerance, pts, xform));
-                    break;
-                }
-                ++numCountedCurves;
-                break;
-            case SkPathVerb::kCubic:
-                middleOut.pushVertex(pts[3]);
-                if (resolveLevelCounter) {
-                    resolveLevelCounter->countInstance(GrWangsFormula::cubic_log2(
-                            kLinearizationIntolerance, pts, xform));
-                    break;
-                }
-                ++numCountedCurves;
-                break;
-            case SkPathVerb::kClose:
-                middleOut.close();
-                break;
-        }
-    }
-    int triangleCount = middleOut.close();
-    SkASSERT(triangleCount <= maxInnerTriangles);
-
-    if (!fStencilTrianglesProgram) {
-        SkASSERT(resolveLevelCounter);
-        int totalInstanceCount = triangleCount + resolveLevelCounter->totalInstanceCount();
-        SkASSERT(vertexAdvancePerTriangle == 4);
-        target->putBackVertices(maxInnerTriangles + maxCubics - totalInstanceCount,
-                                sizeof(SkPoint) * 4);
-        if (totalInstanceCount) {
-            this->prepareIndirectOuterCubicsAndTriangles(target, *resolveLevelCounter, vertexData,
-                                                         triangleCount);
-        }
-    } else {
-        SkASSERT(vertexAdvancePerTriangle == 3);
-        target->putBackVertices(maxInnerTriangles - triangleCount, sizeof(SkPoint) * 3);
-        fTriangleVertexCount = triangleCount * 3;
-        if (resolveLevelCounter) {
-            this->prepareIndirectOuterCubics(target, *resolveLevelCounter);
-        } else {
-            this->prepareTessellatedOuterCubics(target, numCountedCurves);
-        }
-    }
-}
-
-void GrPathTessellateOp::prepareIndirectOuterCubics(
-        GrMeshDrawOp::Target* target, const GrResolveLevelCounter& resolveLevelCounter) {
-    SkASSERT(resolveLevelCounter.totalInstanceCount() >= 0);
-    if (resolveLevelCounter.totalInstanceCount() == 0) {
-        return;
-    }
-    // Allocate a buffer to store the cubic data.
-    SkPoint* cubicData;
-    int baseInstance;
-    cubicData = static_cast<SkPoint*>(target->makeVertexSpace(
-            sizeof(SkPoint) * 4, resolveLevelCounter.totalInstanceCount(), &fCubicBuffer,
-            &baseInstance));
-    if (!cubicData) {
-        return;
-    }
-    fBaseCubicVertex = baseInstance * 4;
-    this->prepareIndirectOuterCubicsAndTriangles(target, resolveLevelCounter, cubicData,
-                                                 /*numTrianglesAtBeginningOfData=*/0);
-}
-
-void GrPathTessellateOp::prepareIndirectOuterCubicsAndTriangles(
-        GrMeshDrawOp::Target* target, const GrResolveLevelCounter& resolveLevelCounter,
-        SkPoint* cubicData, int numTrianglesAtBeginningOfData) {
-    SkASSERT(target->caps().drawInstancedSupport());
-    SkASSERT(numTrianglesAtBeginningOfData + resolveLevelCounter.totalInstanceCount() > 0);
-    SkASSERT(fStencilCubicsProgram);
-    SkASSERT(cubicData);
-    SkASSERT(fCubicVertexCount == 0);
-
-    fIndirectIndexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
-            target->resourceProvider());
-    if (!fIndirectIndexBuffer) {
-        return;
-    }
-
-    // Here we treat fCubicBuffer as an instance buffer. It should have been prepared with the base
-    // vertex on an instance boundary in order to accommodate this.
-    SkASSERT(fBaseCubicVertex % 4 == 0);
-    int baseInstance = fBaseCubicVertex >> 2;
-
-    // Start preparing the indirect draw buffer.
-    fIndirectDrawCount = resolveLevelCounter.totalIndirectDrawCount();
-    if (numTrianglesAtBeginningOfData) {
-        ++fIndirectDrawCount;  // Add an indirect draw for the triangles at the beginning.
-    }
-
-    // Allocate space for the GrDrawIndexedIndirectCommand structs.
-    GrDrawIndexedIndirectCommand* indirectData = target->makeDrawIndexedIndirectSpace(
-            fIndirectDrawCount, &fIndirectDrawBuffer, &fIndirectDrawOffset);
-    if (!indirectData) {
-        SkASSERT(!fIndirectDrawBuffer);
-        return;
-    }
-
-    // Fill out the GrDrawIndexedIndirectCommand structs and determine the starting instance data
-    // location at each resolve level.
-    SkPoint* instanceLocations[kMaxResolveLevel + 1];
-    int indirectIdx = 0;
-    int runningInstanceCount = 0;
-    if (numTrianglesAtBeginningOfData) {
-        // The caller has already packed "triangleInstanceCount" triangles into 4-point instances
-        // at the beginning of the instance buffer. Add a special-case indirect draw here that will
-        // emit the triangles [P0, P1, P2] from these 4-point instances.
-        indirectData[0] = GrMiddleOutCubicShader::MakeDrawTrianglesIndirectCmd(
-                numTrianglesAtBeginningOfData, baseInstance);
-        indirectIdx = 1;
-        runningInstanceCount = numTrianglesAtBeginningOfData;
-    }
-    for (int resolveLevel = 1; resolveLevel <= kMaxResolveLevel; ++resolveLevel) {
-        int instanceCountAtCurrLevel = resolveLevelCounter[resolveLevel];
-        if (!instanceCountAtCurrLevel) {
-            SkDEBUGCODE(instanceLocations[resolveLevel] = nullptr;)
-            continue;
-        }
-        instanceLocations[resolveLevel] = cubicData + runningInstanceCount * 4;
-        indirectData[indirectIdx++] = GrMiddleOutCubicShader::MakeDrawCubicsIndirectCmd(
-                resolveLevel, instanceCountAtCurrLevel, baseInstance + runningInstanceCount);
-        runningInstanceCount += instanceCountAtCurrLevel;
-    }
-
-#ifdef SK_DEBUG
-    SkASSERT(indirectIdx == fIndirectDrawCount);
-    SkASSERT(runningInstanceCount == numTrianglesAtBeginningOfData +
-                                     resolveLevelCounter.totalInstanceCount());
-    SkASSERT(fIndirectDrawCount > 0);
-
-    SkPoint* endLocations[kMaxResolveLevel + 1];
-    int lastResolveLevel = 0;
-    for (int resolveLevel = 1; resolveLevel <= kMaxResolveLevel; ++resolveLevel) {
-        if (!instanceLocations[resolveLevel]) {
-            endLocations[resolveLevel] = nullptr;
-            continue;
-        }
-        endLocations[lastResolveLevel] = instanceLocations[resolveLevel];
-        lastResolveLevel = resolveLevel;
-    }
-    int totalInstanceCount = numTrianglesAtBeginningOfData +
-                             resolveLevelCounter.totalInstanceCount();
-    endLocations[lastResolveLevel] = cubicData + totalInstanceCount * 4;
-#endif
-
-    fCubicVertexCount = numTrianglesAtBeginningOfData * 4;
-
-    if (resolveLevelCounter.totalInstanceCount()) {
-        GrVectorXform xform(fViewMatrix);
-        for (auto [verb, pts, w] : SkPathPriv::Iterate(fPath)) {
-            int level;
-            switch (verb) {
-                default:
-                    continue;
-                case SkPathVerb::kConic:
-                    // We use the same quadratic formula for conics, ignoring w. This appears to be
-                    // an upper bound on what the actual number of subdivisions would have been.
-                    [[fallthrough]];
-                case SkPathVerb::kQuad:
-                    level = GrWangsFormula::quadratic_log2(kLinearizationIntolerance, pts, xform);
-                    break;
-                case SkPathVerb::kCubic:
-                    level = GrWangsFormula::cubic_log2(kLinearizationIntolerance, pts, xform);
-                    break;
-            }
-            if (level == 0) {
-                continue;
-            }
-            level = std::min(level, kMaxResolveLevel);
-            switch (verb) {
-                case SkPathVerb::kQuad:
-                    GrPathUtils::convertQuadToCubic(pts, instanceLocations[level]);
-                    break;
-                case SkPathVerb::kCubic:
-                    memcpy(instanceLocations[level], pts, sizeof(SkPoint) * 4);
-                    break;
-                case SkPathVerb::kConic:
-                    GrPathShader::WriteConicPatch(pts, *w, instanceLocations[level]);
-                    break;
-                default:
-                    SkUNREACHABLE;
-            }
-            instanceLocations[level] += 4;
-            fCubicVertexCount += 4;
-        }
-    }
-
-#ifdef SK_DEBUG
-    for (int i = 1; i <= kMaxResolveLevel; ++i) {
-        SkASSERT(instanceLocations[i] == endLocations[i]);
-    }
-    SkASSERT(fCubicVertexCount == (numTrianglesAtBeginningOfData +
-                                   resolveLevelCounter.totalInstanceCount()) * 4);
-#endif
-}
-
-void GrPathTessellateOp::prepareTessellatedOuterCubics(GrMeshDrawOp::Target* target,
-                                                       int numCountedCurves) {
-    SkASSERT(target->caps().shaderCaps()->tessellationSupport());
-    SkASSERT(numCountedCurves >= 0);
-    SkASSERT(!fCubicBuffer);
-    SkASSERT(fStencilCubicsProgram);
-    SkASSERT(fCubicVertexCount == 0);
-
-    if (numCountedCurves == 0) {
-        return;
-    }
-
-    auto* vertexData = static_cast<SkPoint*>(target->makeVertexSpace(
-            sizeof(SkPoint), numCountedCurves * 4, &fCubicBuffer, &fBaseCubicVertex));
-    if (!vertexData) {
-        return;
-    }
-
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(fPath)) {
-        switch (verb) {
-            default:
-                continue;
-            case SkPathVerb::kQuad:
-                SkASSERT(fCubicVertexCount < numCountedCurves * 4);
-                GrPathUtils::convertQuadToCubic(pts, vertexData + fCubicVertexCount);
-                break;
-            case SkPathVerb::kCubic:
-                SkASSERT(fCubicVertexCount < numCountedCurves * 4);
-                memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
-                break;
-            case SkPathVerb::kConic:
-                SkASSERT(fCubicVertexCount < numCountedCurves * 4);
-                GrPathShader::WriteConicPatch(pts, *w, vertexData + fCubicVertexCount);
-                break;
-        }
-        fCubicVertexCount += 4;
-    }
-    SkASSERT(fCubicVertexCount == numCountedCurves * 4);
-}
-
-void GrPathTessellateOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* target) {
-    SkASSERT(target->caps().shaderCaps()->tessellationSupport());
-    SkASSERT(!fCubicBuffer);
-    SkASSERT(fStencilCubicsProgram);
-    SkASSERT(fCubicVertexCount == 0);
-
-    // No initial moveTo, one wedge per verb, plus an implicit close at the end.
-    // Each wedge has 5 vertices.
-    int maxVertices = (fPath.countVerbs() + 1) * 5;
-
-    GrEagerDynamicVertexAllocator vertexAlloc(target, &fCubicBuffer, &fBaseCubicVertex);
-    auto* vertexData = vertexAlloc.lock<SkPoint>(maxVertices);
-    if (!vertexData) {
-        return;
-    }
-
-    GrMidpointContourParser parser(fPath);
-    while (parser.parseNextContour()) {
-        SkPoint midpoint = parser.currentMidpoint();
-        SkPoint startPoint = {0, 0};
-        SkPoint lastPoint = startPoint;
-        for (auto [verb, pts, w] : parser.currentContour()) {
-            switch (verb) {
-                case SkPathVerb::kMove:
-                    startPoint = lastPoint = pts[0];
-                    continue;
-                case SkPathVerb::kClose:
-                    continue;  // Ignore. We can assume an implicit close at the end.
-                case SkPathVerb::kLine:
-                    GrPathUtils::convertLineToCubic(pts[0], pts[1], vertexData + fCubicVertexCount);
-                    lastPoint = pts[1];
-                    break;
-                case SkPathVerb::kQuad:
-                    GrPathUtils::convertQuadToCubic(pts, vertexData + fCubicVertexCount);
-                    lastPoint = pts[2];
-                    break;
-                case SkPathVerb::kCubic:
-                    memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
-                    lastPoint = pts[3];
-                    break;
-                case SkPathVerb::kConic:
-                    GrPathShader::WriteConicPatch(pts, *w, vertexData + fCubicVertexCount);
-                    lastPoint = pts[2];
-                    break;
-            }
-            vertexData[fCubicVertexCount + 4] = midpoint;
-            fCubicVertexCount += 5;
-        }
-        if (lastPoint != startPoint) {
-            GrPathUtils::convertLineToCubic(lastPoint, startPoint, vertexData + fCubicVertexCount);
-            vertexData[fCubicVertexCount + 4] = midpoint;
-            fCubicVertexCount += 5;
-        }
-    }
-
-    vertexAlloc.unlock(fCubicVertexCount);
 }
 
 void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -819,22 +449,9 @@ void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
     }
 
-    if (fCubicVertexCount > 0) {
-        SkASSERT(fStencilCubicsProgram);
-        SkASSERT(fCubicBuffer);
+    if (fTessellator) {
         flushState->bindPipelineAndScissorClip(*fStencilCubicsProgram, this->bounds());
-        if (fIndirectDrawBuffer) {
-            SkASSERT(fIndirectIndexBuffer);
-            flushState->bindBuffers(fIndirectIndexBuffer, fCubicBuffer, nullptr);
-            flushState->drawIndexedIndirect(fIndirectDrawBuffer.get(), fIndirectDrawOffset,
-                                            fIndirectDrawCount);
-        } else {
-            flushState->bindBuffers(nullptr, nullptr, fCubicBuffer);
-            flushState->draw(fCubicVertexCount, fBaseCubicVertex);
-            if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
-                flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
-            }
-        }
+        fTessellator->draw(flushState);
     }
 }
 
@@ -850,22 +467,14 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
         flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
 
-        if (fCubicVertexCount > 0) {
-            SkASSERT(fFillPathProgram);
-            SkASSERT(fCubicBuffer);
-
+        if (fTessellator) {
             // At this point, every pixel is filled in except the ones touched by curves.
             // fFillPathProgram will issue a final cover pass over the curves by drawing their
             // convex hulls. This will fill in any remaining samples and reset the stencil buffer.
+            SkASSERT(fFillPathProgram);
             flushState->bindPipelineAndScissorClip(*fFillPathProgram, this->bounds());
             flushState->bindTextures(fFillPathProgram->primProc(), nullptr, *fPipelineForFills);
-
-            // Here we treat fCubicBuffer as an instance buffer. It should have been prepared with
-            // the base vertex on an instance boundary in order to accommodate this.
-            SkASSERT((fCubicVertexCount % 4) == 0);
-            SkASSERT((fBaseCubicVertex % 4) == 0);
-            flushState->bindBuffers(nullptr, fCubicBuffer, nullptr);
-            flushState->drawInstanced(fCubicVertexCount >> 2, fBaseCubicVertex >> 2, 4, 0);
+            fTessellator->drawHullInstances(flushState);
         }
     } else if (fFillPathProgram) {
         // There are no triangles to fill. Just draw a bounding box.
