@@ -509,10 +509,9 @@ SkVMGenerator::Slot SkVMGenerator::getSlot(const Expression& e) {
             const IndexExpression& i = e.as<IndexExpression>();
             Slot baseSlot = this->getSlot(*i.base());
 
-            const Expression& index = *i.index();
-            SkASSERT(index.isCompileTimeConstant());
-
-            SKSL_INT indexValue = index.getConstantInt();
+            Value index = this->writeExpression(*i.index());
+            int indexValue = 0;
+            SkAssertResult(fBuilder->allImm(index[0], &indexValue));
             SkASSERT(indexValue >= 0 && indexValue < i.base()->type().columns());
 
             size_t stride = slot_count(i.type());
