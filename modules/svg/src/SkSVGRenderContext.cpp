@@ -131,7 +131,9 @@ inline uint8_t opacity_to_alpha(SkScalar o) {
 template <SkSVGAttribute>
 void commitToPaint(const SkSVGPresentationAttributes&,
                    const SkSVGRenderContext&,
-                   SkSVGPresentationContext*);
+                   SkSVGPresentationContext*) {
+    // Default/no-op impl for properties which are not part of the SkPaint state.
+}
 
 template <>
 void commitToPaint<SkSVGAttribute::kFill>(const SkSVGPresentationAttributes& attrs,
@@ -189,13 +191,6 @@ void commitToPaint<SkSVGAttribute::kStrokeDashArray>(const SkSVGPresentationAttr
 }
 
 template <>
-void commitToPaint<SkSVGAttribute::kStrokeDashOffset>(const SkSVGPresentationAttributes&,
-                                                      const SkSVGRenderContext&,
-                                                      SkSVGPresentationContext*) {
-    // Applied via kStrokeDashArray.
-}
-
-template <>
 void commitToPaint<SkSVGAttribute::kStrokeLineCap>(const SkSVGPresentationAttributes& attrs,
                                                    const SkSVGRenderContext&,
                                                    SkSVGPresentationContext* pctx) {
@@ -233,83 +228,6 @@ void commitToPaint<SkSVGAttribute::kStrokeWidth>(const SkSVGPresentationAttribut
     auto strokeWidth = ctx.lengthContext().resolve(*attrs.fStrokeWidth,
                                                    SkSVGLengthContext::LengthType::kOther);
     pctx->fStrokePaint.setStrokeWidth(strokeWidth);
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kFillRule>(const SkSVGPresentationAttributes&,
-                                              const SkSVGRenderContext&,
-                                              SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied to the path at render time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kClipRule>(const SkSVGPresentationAttributes&,
-                                              const SkSVGRenderContext&,
-                                              SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied to the path at clip time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kVisibility>(const SkSVGPresentationAttributes&,
-                                                const SkSVGRenderContext&,
-                                                SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; queried to veto rendering.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kColor>(const SkSVGPresentationAttributes&,
-                                           const SkSVGRenderContext&,
-                                           SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied via 'currentColor' color value
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kColorInterpolationFilters>(const SkSVGPresentationAttributes&,
-                                                               const SkSVGRenderContext&,
-                                                               SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied at render time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kColorInterpolation>(const SkSVGPresentationAttributes&,
-                                                        const SkSVGRenderContext&,
-                                                        SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied at render time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kFontFamily>(const SkSVGPresentationAttributes&,
-                                                const SkSVGRenderContext&,
-                                                SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied at render time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kFontSize>(const SkSVGPresentationAttributes&,
-                                              const SkSVGRenderContext&,
-                                              SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied at render time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kFontStyle>(const SkSVGPresentationAttributes&,
-                                               const SkSVGRenderContext&,
-                                               SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied at render time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kFontWeight>(const SkSVGPresentationAttributes&,
-                                                const SkSVGRenderContext&,
-                                                SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied at render time.
-}
-
-template <>
-void commitToPaint<SkSVGAttribute::kTextAnchor>(const SkSVGPresentationAttributes&,
-                                                const SkSVGRenderContext&,
-                                                SkSVGPresentationContext*) {
-    // Not part of the SkPaint state; applied at render time.
 }
 
 }  // namespace
