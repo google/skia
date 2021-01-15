@@ -45,6 +45,30 @@
       },
       "revId": "ba9aa477c7b0c336f493995daeeb1f17c2628542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62bdea30_e9e3d5cc",
+        "filename": "tests/sksl/inliner/golden/StructsCanBeInlinedSafely.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T20:04:36Z",
+      "side": 1,
+      "message": "Filed https://crbug.com/skia/11186",
+      "parentUuid": "38a8b153_46deccc1",
+      "range": {
+        "startLine": 5,
+        "startChar": 3,
+        "endLine": 5,
+        "endChar": 17
+      },
+      "revId": "ba9aa477c7b0c336f493995daeeb1f17c2628542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
