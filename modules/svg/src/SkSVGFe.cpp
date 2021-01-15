@@ -45,15 +45,6 @@ SkRect SkSVGFe::resolveBoundaries(const SkSVGRenderContext& ctx,
     return boundaries;
 }
 
-static bool AnyIsStandardInput(const std::vector<SkSVGFeInputType>& inputs) {
-    for (const auto& in : inputs) {
-        if (in.type() != SkSVGFeInputType::Type::kFilterPrimitiveReference) {
-            return true;
-        }
-    }
-    return false;
-}
-
 SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
                                        const SkSVGFilterContext& fctx) const {
     // From https://www.w3.org/TR/SVG11/filters.html#FilterPrimitiveSubRegion,
@@ -63,7 +54,7 @@ SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
     // (https://www.w3.org/TR/SVG11/filters.html#FilterEffectsRegion).
     const std::vector<SkSVGFeInputType> inputs = this->getInputs();
     SkRect subregion;
-    if (inputs.empty() || AnyIsStandardInput(inputs)) {
+    if (inputs.empty()) {
         subregion = fctx.filterEffectsRegion();
     } else {
         subregion = fctx.filterPrimitiveSubregion(inputs[0]);
