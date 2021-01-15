@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eceb1309_81a9bae9",
+        "filename": "src/core/SkMaskGamma.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-15T19:58:08Z",
+      "side": 0,
+      "message": "I think I added this because it seemed necessary to fight blooming, where light on dark tends to look visually heavier that dark on light. While we\u0027re changing all the things here, is it possible to check if DirectWrite does something like this?",
+      "revId": "f7cce2b243b2f44c2e37036d3280d26a398e1207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

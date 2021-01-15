@@ -51,6 +51,23 @@
       "parentUuid": "0cb7ca27_bc429a7d",
       "revId": "e1cf5a1b7b2ef43c5fba326aabdd8f04de8f9027",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20b53c8e_f33057bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-15T19:58:08Z",
+      "side": 1,
+      "message": "When I wrote this I had hoped that it was all temporary and would never need to be documented before going away. However, until everyone is on linear destinations this is going to remain. I\u0027m currently writing up a document to explain why each part of this exists.",
+      "revId": "e1cf5a1b7b2ef43c5fba326aabdd8f04de8f9027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
