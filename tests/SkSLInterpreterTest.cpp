@@ -374,11 +374,9 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
     for (int i = 0; i < 16; ++i) { expected[i] = 1.0f / (float)(i + 1); }
     test(r, "float4x4 main(float4x4 m) { return 1.0 / (m + 1); }", in, expected);
 
-#if 0
-    // Matrix negation - legal in GLSL, not in SkSL?
+    // Matrix negation
     for (int i = 0; i < 16; ++i) { expected[i] = (float)(-i); }
-    test(r, "float4x4 main(float4x4 m) { return -m; }", in, 16, expected);
-#endif
+    test(r, "float4x4 main(float4x4 m) { return -m; }", in, expected);
 
     // M*V, V*M
     for (int i = 0; i < 3; ++i) {
