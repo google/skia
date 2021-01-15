@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdf60062_45e5ae58",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-15T20:47:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6381bec1_04e26f7e",
+      "range": {
+        "startLine": 694,
+        "startChar": 0,
+        "endLine": 696,
+        "endChar": 28
+      },
+      "revId": "5ad8108c4b353068174868d694836e2b8307717b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f084fa0_49808e49",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-15T20:41:54Z",
       "side": 1,
       "message": "Isn\u0027t this also legal in GLSL? Intrinsics are constant expressions, I thought.",
+      "range": {
+        "startLine": 26,
+        "startChar": 38,
+        "endLine": 26,
+        "endChar": 50
+      },
+      "revId": "5ad8108c4b353068174868d694836e2b8307717b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e970737_c3fa28b6",
+        "filename": "tests/sksl/runtime_errors/IllegalIndexing.rte",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-15T20:47:57Z",
+      "side": 1,
+      "message": "Ah, yes. Forgot to comment that one. Good catch.",
+      "parentUuid": "4f084fa0_49808e49",
       "range": {
         "startLine": 26,
         "startChar": 38,
