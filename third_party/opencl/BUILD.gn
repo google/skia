@@ -8,7 +8,7 @@ third_party("opencl") {
   if (is_linux) {
     libs = [ "OpenCL" ]
   } else if (is_mac) {
-    libs = [ "OpenCL.framework" ]
+    frameworks = [ "OpenCL.framework" ]
   } else if (is_win) {
     libs = [ "OpenCL.lib" ]
   }
