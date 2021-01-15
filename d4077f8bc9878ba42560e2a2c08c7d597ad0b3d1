@@ -22,6 +22,30 @@
       },
       "revId": "d4077f8bc9878ba42560e2a2c08c7d597ad0b3d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "613fca25_3c723f2c",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T20:07:23Z",
+      "side": 1,
+      "message": "`isInBuiltinTypes`? That\u0027s really what we\u0027re trying to ascertain--is this type in the fContext or is it not?",
+      "parentUuid": "d3c09df4_95b2ba82",
+      "range": {
+        "startLine": 123,
+        "startChar": 36,
+        "endLine": 123,
+        "endChar": 49
+      },
+      "revId": "d4077f8bc9878ba42560e2a2c08c7d597ad0b3d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
