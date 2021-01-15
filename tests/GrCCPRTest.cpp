@@ -63,6 +63,9 @@ public:
                       fDContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
                       {kCanvasSize, kCanvasSize}))
             , fDoStroke(DoStroke::kYes == doStroke) {
+        if (!fCCPR) {
+            ERRORF(reporter, "ccpr not enabled in GrDirectContext for ccpr tests");
+        }
         if (!fRTC) {
             ERRORF(reporter, "failed to create GrSurfaceDrawContext for ccpr tests");
         }
