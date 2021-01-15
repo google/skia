@@ -30,12 +30,22 @@ SkRect SkSVGMask::bounds(const SkSVGRenderContext& ctx) const {
 void SkSVGMask::renderMask(const SkSVGRenderContext& ctx) const {
     // https://www.w3.org/TR/SVG11/masking.html#Masking
 
-    SkAutoCanvasRestore acr(ctx.canvas(), false);
+    // Propagate any inherited properties that may impact mask effect behavior (e.g.
+    // color-interpolation). We call this explicitly here because the SkSVGMask
+    // nodes do not participate in the normal onRender path, which is when property
+    // propagation currently occurs.
+    // The local context also restores the filter layer created below on scope exit.
+    SkSVGRenderContext lctx(ctx);
+    this->onPrepareToRender(&lctx);
 
-    // Generate mask alpha based on mask content luminance (LUMA function).
-    // TODO: color-interpolation support
+    const auto ci = *lctx.presentationContext().fInherited.fColorInterpolation;
+    auto ci_filter = (ci == SkSVGColorspace::kLinearRGB)
+            ? SkColorFilters::SRGBToLinearGamma()
+            : nullptr;
+
     SkPaint mask_filter;
-    mask_filter.setColorFilter(SkLumaColorFilter::Make());
+    mask_filter.setColorFilter(
+                SkColorFilters::Compose(SkLumaColorFilter::Make(), std::move(ci_filter)));
 
     // Mask color filter layer.
     // Note: We could avoid this extra layer if we invert the stacking order
@@ -43,17 +53,17 @@ void SkSVGMask::renderMask(const SkSVGRenderContext& ctx) const {
     // via the top (mask) layer paint.  That requires deferring mask rendering
     // until after node content, which introduces extra state/complexity.
     // Something to consider if masking performance ever becomes an issue.
-    ctx.canvas()->saveLayer(nullptr, &mask_filter);
+    lctx.canvas()->saveLayer(nullptr, &mask_filter);
 
     if (fMaskContentUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
         // Fot maskContentUnits == OBB the mask content is rendered in a normalized coordinate
         // system, which maps to the node OBB.
-        const auto obb = ctx.node()->objectBoundingBox(ctx);
-        ctx.canvas()->translate(obb.x(), obb.y());
-        ctx.canvas()->scale(obb.width(), obb.height());
+        const auto obb = lctx.node()->objectBoundingBox(ctx);
+        lctx.canvas()->translate(obb.x(), obb.y());
+        lctx.canvas()->scale(obb.width(), obb.height());
     }
 
     for (const auto& child : fChildren) {
-        child->render(ctx);
+        child->render(lctx);
     }
 }

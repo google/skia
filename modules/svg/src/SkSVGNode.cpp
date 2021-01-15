@@ -91,6 +91,7 @@ bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
     return PARSE_AND_SET(   "clip-path"                  , ClipPath)
            || PARSE_AND_SET("clip-rule"                  , ClipRule)
            || PARSE_AND_SET("color"                      , Color)
+           || PARSE_AND_SET("color-interpolation"        , ColorInterpolation)
            || PARSE_AND_SET("color-interpolation-filters", ColorInterpolationFilters)
            || PARSE_AND_SET("fill"                       , Fill)
            || PARSE_AND_SET("fill-opacity"               , FillOpacity)
