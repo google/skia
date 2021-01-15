@@ -26,8 +26,16 @@ class SkPictureShader : public SkShaderBase {
 public:
     ~SkPictureShader() override;
 
-    static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, const SkMatrix*,
-                                const SkRect*);
+    enum FilterEnum {
+        kNearest,           // SkFilterMode::kNearest
+        kLinear,            // SkFilterMode::kLinear
+        kInheritFromPaint,
+
+        kLastFilterEnum = kInheritFromPaint,
+    };
+
+    static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, FilterEnum,
+                                const SkMatrix*, const SkRect*);
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
@@ -49,10 +57,12 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkPictureShader)
 
-    SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, const SkMatrix*, const SkRect*);
+    SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, FilterEnum,
+                    const SkMatrix*, const SkRect*);
 
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                     SkColorType dstColorType, SkColorSpace* dstColorSpace,
+                                    SkFilterQuality fromPaint,
                                     const int maxTextureSize = 0) const;
 
     class PictureShaderContext : public Context {
@@ -74,6 +84,7 @@ private:
     sk_sp<SkPicture>    fPicture;
     SkRect              fTile;
     SkTileMode          fTmx, fTmy;
+    FilterEnum          fFilter;
 
     const uint32_t            fUniqueID;
     mutable std::atomic<bool> fAddedToCache;
