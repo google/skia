@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d1ba016_1bb3227c",
+        "filename": "tests/sksl/inliner/golden/StructsCanBeInlinedSafely.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T20:57:08Z",
+      "side": 1,
+      "message": "Here is the real fix; everything else in here is fine either way.",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 13
+      },
+      "revId": "30ddeb2145feb3406c82930390df94696adc7332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
