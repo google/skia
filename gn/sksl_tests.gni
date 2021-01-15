@@ -398,6 +398,7 @@ sksl_folding_tests = [
 sksl_inliner_tests = [
   "$_tests/sksl/inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/DoWhileTestCannotBeInlined.sksl",
+  "$_tests/sksl/inliner/EnumsCanBeInlinedSafely.sksl",
   "$_tests/sksl/inliner/ForBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/ForInitializerExpressionsCanBeInlined.sksl",
   "$_tests/sksl/inliner/ForWithReturnInsideCannotBeInlined.sksl",
@@ -423,6 +424,7 @@ sksl_inliner_tests = [
   "$_tests/sksl/inliner/InlinerWrapsEarlyReturnsWithForLoop.sksl",
   "$_tests/sksl/inliner/InlinerWrapsSwitchWithReturnInsideWithForLoop.sksl",
   "$_tests/sksl/inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl",
+  "$_tests/sksl/inliner/StructsCanBeInlinedSafely.sksl",
   "$_tests/sksl/inliner/SwitchWithCastCanBeInlined.sksl",
   "$_tests/sksl/inliner/SwitchWithoutReturnInsideCanBeInlined.sksl",
   "$_tests/sksl/inliner/SwizzleCanBeInlinedDirectly.sksl",
