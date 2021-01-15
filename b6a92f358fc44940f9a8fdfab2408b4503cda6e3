@@ -16,6 +16,24 @@
       "message": "I see that we\u0027re already doing this for constructors and function calls, what about others? Would it be better to just hoist the copy_if_needed out of the kind-specific switch? In most cases it\u0027s just going to return the original type anyway, so it\u0027s not particularly expensive.",
       "revId": "b6a92f358fc44940f9a8fdfab2408b4503cda6e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "525b961e_aa7cd8f8",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T14:43:51Z",
+      "side": 1,
+      "message": "I like the way you think! This was in fact my first take when I started working on this CL.\n\nThere are two reasons I ended up moving the `copy_if_needed` call back into the individual cases:\n- Most Expressions don\u0027t actually have a Type of their own, or take a Type in their constructor at all; they just get it from one of their inner Expressions. \n- By itself, calling `copy_if_needed` doesn\u0027t actually solve the issue. When constructing the cloned object, we have to actually pass `copiedType` instead of `expr.type()`. So each case still needed individual care.\n\nWhen all is said and done, this CL actually does use `copy_if_needed` in every place that expr.type() was previously used. It doesn\u0027t seem like a lot but that\u0027s because expressions with a novel Type are rare.",
+      "parentUuid": "ab30aa2c_248bb60c",
+      "revId": "b6a92f358fc44940f9a8fdfab2408b4503cda6e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
