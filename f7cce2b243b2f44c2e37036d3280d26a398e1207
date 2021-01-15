@@ -16,6 +16,24 @@
       "message": "I think I added this because it seemed necessary to fight blooming, where light on dark tends to look visually heavier that dark on light. While we\u0027re changing all the things here, is it possible to check if DirectWrite does something like this?",
       "revId": "f7cce2b243b2f44c2e37036d3280d26a398e1207",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80191391_27608100",
+        "filename": "src/core/SkMaskGamma.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2021-01-15T21:26:43Z",
+      "side": 0,
+      "message": "It does it in a different place, but yes, it does something similar (and for the same reason).\n\nDWrite\u0027s formula is:\n  multiplier \u003d fgLightness \u003e 0.75 ? 0.0 :\n               fgLightness \u003e 0.50 ? 4.0 - (0.75 - fgLightness) // lerp between [0,1]\n                                  : 1.0;\n  adjustedContrast \u003d contrast * multiplier;\n\n(FWIW, fgLightness doesn\u0027t appear to have been gamma-corrected in DWrite; it\u0027s doing the \"standard\" RGB -\u003e grey conversion... 0.3*r + 0.59*g + 0.11*b)\n\nSo DWrite is applying the full contrast enhancment until text lightness gets to 0.5, where it starts to taper off, and applies no enhancement at 0.75 lightness.",
+      "parentUuid": "eceb1309_81a9bae9",
+      "revId": "f7cce2b243b2f44c2e37036d3280d26a398e1207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
