@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "380699e9_43dd0d8a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-15T21:19:23Z",
+      "side": 1,
+      "message": "This is pretty yucky, but it does improve some cases and makes a larger cleanup CL I\u0027m working on more palatable.  Plus it\u0027s temporary (going to tackle fixing inheritance soonish).\n\nYou can see the stroke leaking into patterns in pservers-pattern-01-b.svg.",
+      "revId": "c277373e13b20e4b7c00cbcbb4fbba95d1e67f8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
