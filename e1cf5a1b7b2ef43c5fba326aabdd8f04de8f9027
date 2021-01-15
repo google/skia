@@ -33,6 +33,24 @@
       "message": "Thank you for pushing forward on this, Ian. Code change looks good to me but I am not a Skia owner, so Skia\u0027s response is needed.\n\nAre you also willing to take on rebaselining most of the Windows layout test baselines once this becomes the default? Can you run Windows layout tests locally (third_party/blink/tools/run_web_tests.bat) to see what impact it has in terms of number of baselines affected?\n\nWhat experiment percentages and what rollout plan do you have in mind? I don\u0027t think this needs and intent to ship, but it would probably be worthwhile to announce this as a PSA on blink-dev once we get to the stage of starting the experiment.\n\n",
       "revId": "e1cf5a1b7b2ef43c5fba326aabdd8f04de8f9027",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46be87a9_b308d6f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2021-01-15T01:44:36Z",
+      "side": 1,
+      "message": "Yes, I can take on the rebaselining work forward if/when this becomes the default.  (I\u0027d probably need help w/Skia Gold, though.)\n\nI just tried a full run_web_test pass on my Dev box, and the results were actually better than I feared... out of 98k tests, there were 567 regressions.  \n\nScanning through the results, I think a good number of the \"regressions\" are due to different fonts on my system vs. the test VMs (and sampling a few shows the same failure with the feature turned off), so the *real* number of failures is probably considerably lower than that.\n\nAll the tests under `virtual/text-antialias` suite failed, as was to be expected.\n\nIMO, this seems like a manageable set of failures to rebaseline.\n\n(I\u0027ve not run any \u0027experiments\u0027 before, so any advice on percentages/rollout-plan are appreciated.)",
+      "parentUuid": "0cb7ca27_bc429a7d",
+      "revId": "e1cf5a1b7b2ef43c5fba326aabdd8f04de8f9027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
