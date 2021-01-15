@@ -352,8 +352,9 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     // Uninherited attributes.  Only apply to the current context.
 
+    const bool hasFilter = attrs.fFilter.isValue();
     if (attrs.fOpacity.isValue()) {
-        this->applyOpacity(*attrs.fOpacity, flags);
+        this->applyOpacity(*attrs.fOpacity, flags, hasFilter);
     }
 
     if (attrs.fClipPath.isValue()) {
@@ -365,7 +366,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     }
 
     // TODO: when both a filter and opacity are present, we can apply both with a single layer
-    if (attrs.fFilter.isValue()) {
+    if (hasFilter) {
         this->applyFilter(*attrs.fFilter);
     }
 
@@ -378,7 +379,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     // - flood-opacity
 }
 
-void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
+void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags, bool hasFilter) {
     if (opacity >= 1) {
         return;
     }
@@ -386,11 +387,13 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
     const bool hasFill   = SkToBool(this->fillPaint());
     const bool hasStroke = SkToBool(this->strokePaint());
 
-    // We can apply the opacity as paint alpha iif it only affects one atomic draw.
-    // For now, this means a) the target node doesn't have any descendants, and
-    // b) it only has a stroke or a fill (but not both).  Going forward, we may need
-    // to refine this heuristic (e.g. to accommodate markers).
-    if ((flags & kLeaf) && (hasFill ^ hasStroke)) {
+    // We can apply the opacity as paint alpha if it only affects one atomic draw.
+    // For now, this means all of the following must be true:
+    //   - the target node doesn't have any descendants;
+    //   - it only has a stroke or a fill (but not both);
+    //   - it does not have a filter.
+    // Going forward, we may needto refine this heuristic (e.g. to accommodate markers).
+    if ((flags & kLeaf) && (hasFill ^ hasStroke) && !hasFilter) {
         auto* pctx = fPresentationContext.writable();
         if (hasFill) {
             pctx->fFillPaint.setAlpha(
