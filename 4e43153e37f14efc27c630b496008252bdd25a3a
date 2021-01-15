@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91449e2b_724f4ab8",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T19:22:42Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s possible for an Enum and a Struct to share the name name, but I should really double check that theory. If we haven\u0027t already done it, we should just enforce that these are globally scoped and remove all doubt.",
+      "range": {
+        "startLine": 220,
+        "startChar": 4,
+        "endLine": 224,
+        "endChar": 5
+      },
+      "revId": "4e43153e37f14efc27c630b496008252bdd25a3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
