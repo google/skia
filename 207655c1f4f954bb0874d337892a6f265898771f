@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd73428d_f6979cce",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-15T19:01:13Z",
+      "side": 1,
+      "message": "This check is a little weird. We don\u0027t coerce uints to int, but we DO coerce all other int-like types to int? (Including fInt itself!)\n\nWhy don\u0027t we just coerce everything...?",
+      "range": {
+        "startLine": 651,
+        "startChar": 8,
+        "endLine": 651,
+        "endChar": 47
+      },
+      "revId": "207655c1f4f954bb0874d337892a6f265898771f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
