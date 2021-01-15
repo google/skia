@@ -49,10 +49,11 @@ GrVkImage::GrVkImage(const GrVkGpu* gpu,
     if (forSecondaryCB) {
         fResource = nullptr;
     } else if (fIsBorrowed) {
-        fResource = new BorrowedResource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
+        fResource =
+            sk_sp<Resource>(new BorrowedResource(gpu, info.fImage, info.fAlloc, info.fImageTiling));
     } else {
         SkASSERT(VK_NULL_HANDLE != info.fAlloc.fMemory);
-        fResource = new Resource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
+        fResource = sk_sp<Resource>(new Resource(gpu, info.fImage, info.fAlloc, info.fImageTiling));
     }
 }
 
@@ -309,8 +310,7 @@ void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
 void GrVkImage::releaseImage() {
     if (fResource) {
         fResource->removeOwningTexture();
-        fResource->unref();
-        fResource = nullptr;
+        fResource.reset();
     }
 }
 

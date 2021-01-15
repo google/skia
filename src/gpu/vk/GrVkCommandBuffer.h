@@ -40,7 +40,7 @@ public:
     };
 
     void pipelineBarrier(const GrVkGpu* gpu,
-                         const GrManagedResource* resource,
+                         sk_sp<const GrManagedResource> resource,
                          VkPipelineStageFlags srcStageMask,
                          VkPipelineStageFlags dstStageMask,
                          bool byRegion,
@@ -251,10 +251,10 @@ public:
                    const VkImageCopy* copyRegions);
 
     void blitImage(const GrVkGpu* gpu,
-                   const GrManagedResource* srcResource,
+                   sk_sp<const GrManagedResource> srcResource,
                    VkImage srcImage,
                    VkImageLayout srcLayout,
-                   const GrManagedResource* dstResource,
+                   sk_sp<const GrManagedResource> dstResource,
                    VkImage dstImage,
                    VkImageLayout dstLayout,
                    uint32_t blitRegionCount,

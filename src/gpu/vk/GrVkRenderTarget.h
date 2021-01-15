@@ -61,7 +61,7 @@ public:
     GrVkImage* msaaImage();
 
     const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView.get(); }
-    const GrManagedResource* stencilImageResource() const;
+    sk_sp<const GrManagedResource> stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 
     // Returns the main target for draws. If using MSAA and we have a resolve target, it will be the

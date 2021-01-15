@@ -80,7 +80,7 @@ void GrVkCommandBuffer::releaseResources() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
-                                        const GrManagedResource* resource,
+                                        sk_sp<const GrManagedResource> resource,
                                         VkPipelineStageFlags srcStageMask,
                                         VkPipelineStageFlags dstStageMask,
                                         bool byRegion,
@@ -142,7 +142,7 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
 
     fHasWork = true;
     if (resource) {
-        this->addResource(resource);
+        this->addResource(std::move(resource));
     }
     if (fActiveRenderPass) {
         this->submitPipelineBarriers(gpu, true);
@@ -693,10 +693,10 @@ void GrVkPrimaryCommandBuffer::copyImage(const GrVkGpu* gpu,
 }
 
 void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
-                                         const GrManagedResource* srcResource,
+                                         sk_sp<const GrManagedResource> srcResource,
                                          VkImage srcImage,
                                          VkImageLayout srcLayout,
-                                         const GrManagedResource* dstResource,
+                                         sk_sp<const GrManagedResource> dstResource,
                                          VkImage dstImage,
                                          VkImageLayout dstLayout,
                                          uint32_t blitRegionCount,
@@ -705,8 +705,8 @@ void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addingWork(gpu);
-    this->addResource(srcResource);
-    this->addResource(dstResource);
+    this->addResource(std::move(srcResource));
+    this->addResource(std::move(dstResource));
     GR_VK_CALL(gpu->vkInterface(), CmdBlitImage(fCmdBuffer,
                                                 srcImage,
                                                 srcLayout,

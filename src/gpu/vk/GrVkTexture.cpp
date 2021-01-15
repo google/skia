@@ -141,7 +141,7 @@ void GrVkTexture::onRelease() {
     // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we
     // have to decide who will handle them. If the resource is still tied to a command buffer we let
     // it handle them. Otherwise, we handle them.
-    if (this->hasResource() && this->resource()->isQueuedForWorkOnGpu()) {
+    if (this->hasResource() && this->resourcePtr()->isQueuedForWorkOnGpu()) {
         this->removeFinishIdleProcs();
     }
 
@@ -174,7 +174,7 @@ void GrVkTexture::onAbandon() {
     // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we
     // have to decide who will handle them. If the resource is still tied to a command buffer we let
     // it handle them. Otherwise, we handle them.
-    if (this->hasResource() && this->resource()->isQueuedForWorkOnGpu()) {
+    if (this->hasResource() && this->resourcePtr()->isQueuedForWorkOnGpu()) {
         this->removeFinishIdleProcs();
     }
 
@@ -204,7 +204,7 @@ const GrVkImageView* GrVkTexture::textureView() {
 
 void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc) {
     INHERITED::addIdleProc(idleProc);
-    if (auto* resource = this->resource()) {
+    if (auto* resource = this->resourcePtr()) {
         resource->addIdleProc(this, std::move(idleProc));
     }
 }
@@ -213,15 +213,15 @@ void GrVkTexture::callIdleProcsOnBehalfOfResource() {
     // If we got here then the resource is being removed from its last command buffer and the
     // texture is idle in the cache. Any kFlush idle procs should already have been called. So
     // the texture and resource should have the same set of procs.
-    SkASSERT(this->resource());
-    SkASSERT(this->resource()->idleProcCnt() == fIdleProcs.count());
+    SkASSERT(this->hasResource());
+    SkASSERT(this->resourcePtr()->idleProcCnt() == fIdleProcs.count());
 #ifdef SK_DEBUG
     for (int i = 0; i < fIdleProcs.count(); ++i) {
-        SkASSERT(fIdleProcs[i] == this->resource()->idleProc(i));
+        SkASSERT(fIdleProcs[i] == this->resourcePtr()->idleProc(i));
     }
 #endif
     fIdleProcs.reset();
-    this->resource()->resetIdleProcs();
+    this->resourcePtr()->resetIdleProcs();
 }
 
 void GrVkTexture::willRemoveLastRef() {
@@ -230,7 +230,7 @@ void GrVkTexture::willRemoveLastRef() {
     }
     // This is called when the GrTexture is purgeable. However, we need to check whether the
     // Resource is still owned by any command buffers. If it is then it will call the proc.
-    auto* resource = this->hasResource() ? this->resource() : nullptr;
+    auto* resource = this->hasResource() ? this->resourcePtr() : nullptr;
     bool callFinishProcs = !resource || !resource->isQueuedForWorkOnGpu();
     if (callFinishProcs) {
         // Everything must go!
@@ -253,7 +253,7 @@ void GrVkTexture::willRemoveLastRef() {
 void GrVkTexture::removeFinishIdleProcs() {
     // This should only be called by onRelease/onAbandon when we have already checked for a
     // resource.
-    const auto* resource = this->resource();
+    const auto* resource = this->resourcePtr();
     SkASSERT(resource);
     SkSTArray<4, sk_sp<GrRefCntedCallback>> procsToKeep;
     int resourceIdx = 0;

@@ -123,7 +123,7 @@ public:
                                 VkPipelineStageFlags dstStageMask,
                                 bool byRegion,
                                 VkBufferMemoryBarrier* barrier) const;
-    void addImageMemoryBarrier(const GrManagedResource*,
+    void addImageMemoryBarrier(sk_sp<const GrManagedResource>,
                                VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
                                bool byRegion,

@@ -505,8 +505,9 @@ void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer,
     commandBuffer.addGrSurface(sk_ref_sp<const GrSurface>(this));
     commandBuffer.addResource(this->getFramebuffer(renderPass));
     commandBuffer.addResource(this->colorAttachmentView());
-    commandBuffer.addResource(fMSAAAttachment ? fMSAAAttachment->resource() : this->resource());
-    if (this->stencilImageResource()) {
+    commandBuffer.addResource(
+        fMSAAAttachment ? fMSAAAttachment->imageResource() : this->resource());
+    if (this->getStencilAttachment()) {
         commandBuffer.addResource(this->stencilImageResource());
         commandBuffer.addResource(this->stencilAttachmentView());
     }
@@ -582,7 +583,7 @@ GrVkImage* GrVkRenderTarget::msaaImage() {
     return fMSAAAttachment.get();
 }
 
-const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
+sk_sp<const GrManagedResource> GrVkRenderTarget::stencilImageResource() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     const GrAttachment* stencil = this->getStencilAttachment();
     if (stencil) {

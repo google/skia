@@ -40,7 +40,7 @@ public:
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
-    const GrManagedResource* imageResource() const { return this->resource(); }
+    sk_sp<const GrManagedResource> imageResource() const { return this->resource(); }
     const GrVkImageView* view() const { return fView.get(); }
 
 protected:

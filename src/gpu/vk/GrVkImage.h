@@ -8,6 +8,7 @@
 #ifndef GrVkImage_DEFINED
 #define GrVkImage_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
@@ -64,9 +65,13 @@ public:
     bool supportsInputAttachmentUsage() const {
         return fInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
     }
-    const Resource* resource() const {
+    sk_sp<const Resource> resource() const {
         SkASSERT(fResource);
         return fResource;
+    }
+    const Resource* resourcePtr() const {
+        SkASSERT(fResource);
+        return fResource.get();
     }
     bool isLinearTiled() const {
         // Should only be called when we have a real fResource object, i.e. never when being used as
@@ -164,7 +169,7 @@ public:
 
 protected:
     void releaseImage();
-    bool hasResource() const { return fResource; }
+    bool hasResource() const { return fResource.get(); }
 
     GrVkImageInfo                    fInfo;
     uint32_t                         fInitialQueueFamily;
@@ -221,7 +226,7 @@ private:
         void freeGPUData() const override;
     };
 
-    Resource* fResource;
+    sk_sp<Resource> fResource;
 
     friend class GrVkRenderTarget;
 };

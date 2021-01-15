@@ -2075,7 +2075,7 @@ void GrVkGpu::addBufferMemoryBarrier(const GrManagedResource* resource,
     }
     SkASSERT(resource);
     this->currentCommandBuffer()->pipelineBarrier(this,
-                                                  resource,
+                                                  sk_ref_sp<const GrManagedResource>(resource),
                                                   srcStageMask,
                                                   dstStageMask,
                                                   byRegion,
@@ -2083,7 +2083,7 @@ void GrVkGpu::addBufferMemoryBarrier(const GrManagedResource* resource,
                                                   barrier);
 }
 
-void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
+void GrVkGpu::addImageMemoryBarrier(sk_sp<const GrManagedResource> resource,
                                     VkPipelineStageFlags srcStageMask,
                                     VkPipelineStageFlags dstStageMask,
                                     bool byRegion,
