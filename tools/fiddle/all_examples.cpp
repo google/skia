@@ -495,7 +495,6 @@
 #include "../../docs/examples/Matrix_setPerspY.cpp"
 #include "../../docs/examples/Matrix_setPolyToPoly.cpp"
 #include "../../docs/examples/Matrix_setRSXform.cpp"
-#include "../../docs/examples/Matrix_setRectToRect.cpp"
 #include "../../docs/examples/Matrix_setRotate.cpp"
 #include "../../docs/examples/Matrix_setRotate_2.cpp"
 #include "../../docs/examples/Matrix_setScale.cpp"

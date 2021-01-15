@@ -9,8 +9,8 @@ void draw(SkCanvas* canvas) {
     SkRRect rrect;
     rrect.setRectRadii({10, 10, 110, 80}, radii);
     SkRRect transformed;
-    SkMatrix matrix = SkMatrix::MakeRectToRect(rrect.rect(), {140, 30, 220, 80},
-                                               SkMatrix::kCenter_ScaleToFit);
+    SkMatrix matrix = SkMatrix::RectToRect(rrect.rect(), {140, 30, 220, 80},
+                                           SkMatrix::kCenter_ScaleToFit);
     bool success = rrect.transform(matrix, &transformed);
     SkPaint paint;
     paint.setAntiAlias(true);

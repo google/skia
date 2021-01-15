@@ -263,8 +263,7 @@ protected:
 
         paint.setColor(SK_ColorRED);
         paint.setStroke(false);
-        SkPoint loc = SkMatrix::MakeRectToRect({0,0,1,1}, fDomain, SkMatrix::kFill_ScaleToFit)
-                      .mapXY(fCubic.B, fCubic.C);
+        SkPoint loc = SkMatrix::RectToRect({0,0,1,1}, fDomain).mapXY(fCubic.B, fCubic.C);
         canvas->drawCircle(loc.fX, loc.fY, 8, paint);
 
         SkString str;

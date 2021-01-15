@@ -234,9 +234,7 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, const SkSamplingOptions& s
     }
     bitmap.setImmutable();        // Don't copy when we create an image.
 
-    SkMatrix scale = SkMatrix::MakeRectToRect(SkRect::Make(src.bounds()),
-                                              SkRect::Make(dst.bounds()),
-                                              SkMatrix::kFill_ScaleToFit);
+    SkMatrix scale = SkMatrix::RectToRect(SkRect::Make(src.bounds()), SkRect::Make(dst.bounds()));
 
     sk_sp<SkShader> shader = SkImageShader::Make(bitmap.asImage(),
                                                  SkTileMode::kClamp,
