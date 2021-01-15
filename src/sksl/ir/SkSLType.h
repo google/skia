@@ -116,6 +116,19 @@ public:
                                               columns));
     }
 
+    /** Creates a clone of this Type, if needed, and inserts it into a different symbol table. */
+    const Type* clone(SymbolTable* symbolTable) const;
+
+    /**
+     * Returns true if this type is known to come from BuiltinTypes. If this returns true, the Type
+     * will always be available in the root SymbolTable and never needs to be copied to migrate an
+     * Expression from one location to another. If it returns false, the Type might not exist in a
+     * separate SymbolTable and you'll need to consider copying it.
+     */
+    bool isInBuiltinTypes() const {
+        return !(this->isArray() || this->isStruct() || this->isEnum());
+    }
+
     String displayName() const {
         return this->scalarTypeForLiteral().name();
     }

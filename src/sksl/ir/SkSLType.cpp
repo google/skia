@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLType.h"
+
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
@@ -205,6 +208,33 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
     ABORT("unsupported toCompound type %s", this->description().c_str());
 #endif
     return *context.fTypes.fVoid;
+}
+
+const Type* Type::clone(SymbolTable* symbolTable) const {
+    // Many types are built-ins, and exist in every SymbolTable by default.
+    if (this->isInBuiltinTypes()) {
+        return this;
+    }
+    // Even if the type isn't a built-in, it might already exist in the SymbolTable.
+    const Symbol* clonedSymbol = (*symbolTable)[this->name()];
+    if (clonedSymbol != nullptr) {
+        const Type& clonedType = clonedSymbol->as<Type>();
+        SkASSERT(clonedType.typeKind() == this->typeKind());
+        return &clonedType;
+    }
+    // This type actually needs to be cloned into the destination SymbolTable.
+    switch (this->typeKind()) {
+        case TypeKind::kArray:
+            return symbolTable->add(Type::MakeArrayType(this->name(), this->componentType(),
+                                                        this->columns()));
+
+        case TypeKind::kStruct:
+        case TypeKind::kEnum:
+            // TODO: implement Type cloning for structs and enums.
+        default:
+            SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());
+            return nullptr;
+    }
 }
 
 }  // namespace SkSL

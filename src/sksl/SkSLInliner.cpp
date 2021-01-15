@@ -158,18 +158,6 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
     return ContainsRecursiveCall{}.visit(funcDecl);
 }
 
-static const Type* copy_if_needed(const Type* type, SymbolTable* symbolTable) {
-    if (type->isArray()) {
-        const Symbol* copiedType = (*symbolTable)[type->name()];
-        if (!copiedType) {
-            copiedType = symbolTable->add(Type::MakeArrayType(type->name(), type->componentType(),
-                                                              type->columns()));
-        }
-        return &copiedType->as<Type>();
-    }
-    return type;
-}
-
 static std::unique_ptr<Statement>* find_parent_statement(
         const std::vector<std::unique_ptr<Statement>*>& stmtStack) {
     SkASSERT(!stmtStack.empty());
@@ -348,12 +336,12 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
     switch (expression.kind()) {
         case Expression::Kind::kBinary: {
             const BinaryExpression& binaryExpr = expression.as<BinaryExpression>();
-            const Type* type = copy_if_needed(&binaryExpr.type(), symbolTableForExpression);
-            return std::make_unique<BinaryExpression>(offset,
-                                                      expr(binaryExpr.left()),
-                                                      binaryExpr.getOperator(),
-                                                      expr(binaryExpr.right()),
-                                                      type);
+            return std::make_unique<BinaryExpression>(
+                    offset,
+                    expr(binaryExpr.left()),
+                    binaryExpr.getOperator(),
+                    expr(binaryExpr.right()),
+                    binaryExpr.type().clone(symbolTableForExpression));
         }
         case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kIntLiteral:
@@ -361,8 +349,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expression.as<Constructor>();
-            const Type* type = copy_if_needed(&constructor.type(), symbolTableForExpression);
-            return std::make_unique<Constructor>(offset, type, argList(constructor.arguments()));
+            return std::make_unique<Constructor>(offset,
+                                                 constructor.type().clone(symbolTableForExpression),
+                                                 argList(constructor.arguments()));
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
@@ -377,8 +366,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
-            const Type* type = copy_if_needed(&funcCall.type(), symbolTableForExpression);
-            return std::make_unique<FunctionCall>(offset, type, &funcCall.function(),
+            return std::make_unique<FunctionCall>(offset,
+                                                  funcCall.type().clone(symbolTableForExpression),
+                                                  &funcCall.function(),
                                                   argList(funcCall.arguments()));
         }
         case Expression::Kind::kFunctionReference:
@@ -526,15 +516,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             }
 
             // For more complex functions, assign their result into a variable.
-            const Type* resultType = copy_if_needed(&resultExpr->get()->type(),
-                                                    symbolTableForStatement);
             auto assignment =
                     std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                             offset,
                             clone_with_ref_kind(**resultExpr, VariableReference::RefKind::kWrite),
                             Token::Kind::TK_EQ,
                             expr(r.expression()),
-                            resultType));
+                            (*resultExpr)->type().clone(symbolTableForStatement)));
 
             // Early returns are wrapped in a for loop; we need to synthesize a continue statement
             // to "leave" the function.
@@ -566,26 +554,26 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             std::unique_ptr<Expression> initialValue = expr(decl.value());
-            int arraySize = decl.arraySize();
-            const Variable& old = decl.var();
+            const Variable& variable = decl.var();
+
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
-            auto name = std::make_unique<String>(fMangler.uniqueName(String(old.name()),
+            auto name = std::make_unique<String>(fMangler.uniqueName(variable.name(),
                                                                      symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
-            const Type* baseTypePtr = copy_if_needed(&decl.baseType(), symbolTableForStatement);
-            const Type* typePtr = copy_if_needed(&old.type(), symbolTableForStatement);
-            const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
+            const Variable* clonedVar = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
-                                               &old.modifiers(),
+                                               &variable.modifiers(),
                                                namePtr->c_str(),
-                                               typePtr,
+                                               variable.type().clone(symbolTableForStatement),
                                                isBuiltinCode,
-                                               old.storage(),
+                                               variable.storage(),
                                                initialValue.get()));
-            (*varMap)[&old] = std::make_unique<VariableReference>(offset, clone);
-            return std::make_unique<VarDeclaration>(clone, baseTypePtr, arraySize,
+            (*varMap)[&variable] = std::make_unique<VariableReference>(offset, clonedVar);
+            return std::make_unique<VarDeclaration>(clonedVar,
+                                                    decl.baseType().clone(symbolTableForStatement),
+                                                    decl.arraySize(),
                                                     std::move(initialValue));
         }
         default:
