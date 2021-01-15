@@ -5,6 +5,94 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 89
+------------
+
+  * Removed SkYUVAIndex and SkYUVASizeInfo. These were no longer used in any
+    public APIs.
+    https://review.skia.org/352497
+
+  * Numerous changes to SkRuntimeEffect, aligning the capabilities and restrictions with
+    The OpenGL ES Shading Language 1.00 (aka, the shading language of OpenGL ES2 and WebGL 1.0).
+    All built-in functions from sections 8.1 through 8.6 implemented & tested on all backends.
+    Removed types and features that require newer versions of GLSL:
+      https://review.skia.org/346657  [Non-square matrices]
+      https://review.skia.org/347046  [uint, short, ushort, byte, ubyte]
+      https://review.skia.org/349056  [while and do-while loops]
+      https://review.skia.org/350030  [Bitwise operators and integer remainder]
+
+  * Add SkShadowUtils::GetLocalBounds. Generates bounding box for shadows
+    relative to path.
+    https://review.skia.org/351922
+
+  * Removed SkPerlinNoiseShader::MakeImprovedNoise.
+    https://review.skia.org/352057
+
+  * Removed deprecated version of MakeFromYUVATextures. Use the version
+    that takes GrYUVABackendTextures instead.
+    https://review.skia.org/345174
+
+  * SkAnimatedImage: Always respect exif orientation
+    Replace SkPixmapPriv::ShouldSwapWidthHeight with
+    SkEncodedOriginSwapsWidthHeight.
+    https://review.skia.org/344762
+
+  * Add kDirectionalLight_ShadowFlag support. If enabled, light position represents
+    a vector pointing towards the light, and light radius is blur radius at elevation 1.
+    https://review.skia.org/321792
+
+  * Support GL_LUMINANCE8_ALPHA8 textures. These can be used with GrBackendTexture APIs
+    on GrDirectContext and as planes of YUVA images via GrYUVABackendTextures.
+    https://review.skia.org/344761
+
+  * Removed previously deprecated SkImage::MakeFromYUVATexturesCopyToExternal.
+    https://review.skia.org/342077
+
+  * Add versions of GrDirectContext::createBackendTexture and updateBackendTexture
+    that take a GrSurfaceOrigin. The previous versions are deprecated.
+    https://review.skia.org/341005
+
+  * Remove support for deprecated kDontClipToLayer_SaveLayerFlag in SkCanvas::SaveLayerRec
+    https://review.skia.org/339988
+
+  * Expose more info in SkCodec::FrameInfo
+    https://review.skia.org/339857
+
+  * Added dither control to the SkImageFilters::Shader factory.
+    https://review.skia.org/338156
+
+  * Add MTLBinaryArchive parameter to GrMtlBackendContext. This allows
+    Skia to cache PipelineStates in the given archive for faster
+    shader compiles on future runs. The client must handle loading and
+    saving of the archive.
+    https://review.skia.org/333758
+
+  * Deprecated enum SkYUVAInfo::PlanarConfig has been removed.
+    https://review.skia.org/334161
+
+  * Deprecated SkImage factories have been removed from
+    SkDeferredDisplayListRecorder.
+
+  * The following YUV image factories have been removed:
+    SkImage::MakeFromYUVTexturesCopyWithExternalBackend
+    SkImage::MakeFromNV12TexturesCopyWithExternalBackend
+    Replacement pattern outlined below.
+        1) Make image using MakeFromYUVATextures
+        2) Make a SkSurface around result texture using SkSurface::MakeFromBackendTexture
+        3) surface->getCanvas()->drawImage(image, 0, 0);
+        4) surface->flushAndSubmit()
+        5) Optional: SkImage::MakeFromBackendTexture() to use as SkImage.
+    https://review.skia.org/334596
+
+  * Added a new interface for GrDirectContext creation in Metal, using
+    a new struct called GrMtlBackendContext. The previous interface taking
+    a MTLDevice and MTLCommandQueue is deprecated.
+    https://review.skia.org/334426
+
+  * SkCanvas::flush has been deprecated.
+
+* * *
+
 Milestone 88
 ------------
 
