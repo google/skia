@@ -1,0 +1,29 @@
+13 registers, 27 instructions:
+0	r0 = uniform32 ptr0 4
+1	r1 = uniform32 ptr0 14
+2	r2 = uniform32 ptr0 18
+3	r3 = uniform32 ptr0 1C
+4	r4 = uniform32 ptr0 20
+5	r5 = uniform32 ptr0 24
+6	r6 = uniform32 ptr0 2C
+7	r7 = uniform32 ptr0 30
+8	r8 = uniform32 ptr0 38
+9	r9 = uniform32 ptr0 48
+10	r10 = uniform32 ptr0 54
+11	r11 = uniform32 ptr0 64
+12	r12 = splat 0 (0)
+13	r3 = add_f32 r4 r3
+14	r2 = add_f32 r3 r2
+15	r1 = add_f32 r2 r1
+16	r5 = mul_f32 r5 r5
+17	r6 = mul_f32 r5 r6
+18	r7 = mul_f32 r6 r7
+19	r8 = sub_f32 r12 r8
+20	r9 = sub_f32 r8 r9
+21	r10 = sub_f32 r9 r10
+22	r11 = sub_f32 r10 r11
+loop:
+23	    store32 ptr1 r0
+24	    store32 ptr2 r1
+25	    store32 ptr3 r7
+26	    store32 ptr4 r11

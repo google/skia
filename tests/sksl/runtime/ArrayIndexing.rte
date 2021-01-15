@@ -1,0 +1,41 @@
+uniform float u1[4];
+float index_by_literal() {
+    return u1[0];
+}
+
+uniform float u2[4];
+float index_by_loop() {
+    float sum = 0;
+    for (int i = 3; i >= 0; --i) {
+        sum += u2[i];
+    }
+    return sum;
+}
+
+uniform float u3[4];
+float index_by_complex_loop() {
+    float prod = 1;
+    for (int i = 0; i < 4; ++i) {
+        prod *= u3[i < 2 ? 0 : i];
+    }
+    return prod;
+}
+
+uniform float u4[16];
+float index_out_of_bounds_checked() {
+    float sum = 0;
+    for (float f = -2.3; f < 17.0; f += 3.7) {
+        if (f > 0 && f < 16) {
+            sum -= u4[int(f)];
+        }
+    }
+    return sum;
+}
+
+float4 main() {
+    return float4(
+        index_by_literal(),
+        index_by_loop(),
+        index_by_complex_loop(),
+        index_out_of_bounds_checked());
+}
