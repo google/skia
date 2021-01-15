@@ -1574,8 +1574,20 @@ bool GLSLCodeGenerator::generateCode() {
     OutputStream* rawOut = fOut;
     StringStream body;
     fOut = &body;
+    // Write all the program elements except for functions.
     for (const ProgramElement* e : fProgram.elements()) {
-        this->writeProgramElement(*e);
+        if (!e->is<FunctionDefinition>()) {
+            this->writeProgramElement(*e);
+        }
+    }
+    // Write the functions last.
+    // Why don't we write things in their original order? Because the Inliner likes to move function
+    // bodies around. After inlining, code can inadvertently move upwards, above ProgramElements
+    // that the code relies on.
+    for (const ProgramElement* e : fProgram.elements()) {
+        if (e->is<FunctionDefinition>()) {
+            this->writeProgramElement(*e);
+        }
     }
     fOut = rawOut;
 
