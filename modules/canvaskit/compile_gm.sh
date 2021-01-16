@@ -29,7 +29,7 @@ if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   DEBUG=true
   EXTRA_CFLAGS="\"-DSK_DEBUG\", \"-DGR_TEST_UTILS\", "
-  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 \
+  RELEASE_CONF="-O1 --js-opts 0 -s DEMANGLE_SUPPORT=1 -frtti -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g \
                 -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/wasm_gm_tests_debug"}
 else
@@ -177,8 +177,8 @@ TESTS_TO_BUILD="tests/*.cpp"
 # When developing locally, it can be faster to focus only on the gms or tests you care about
 # (since they all have to be recompiled/relinked) every time. To do so, mark the following as true
 if false; then
-   GMS_TO_BUILD="gm/coloremoji.cpp gm/gm.cpp"
-   TESTS_TO_BUILD="tests/OctoBoundsTest.cpp tests/Test.cpp"
+   GMS_TO_BUILD="gm/gm.cpp"
+   TESTS_TO_BUILD="tests/BulkRectTest.cpp tests/Test.cpp"
 fi
 
 # These gms do not compile or link with the WASM code. Thus, we omit them.

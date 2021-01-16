@@ -48,7 +48,6 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
                                      SkBlendMode blendMode, bool addOneByOne,
                                      bool allUniqueProxies,
                                      int requestedTotNumQuads, int expectedNumOps) {
-
     if (addOneByOne || allUniqueProxies) {
         return;
     }
