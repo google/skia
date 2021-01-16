@@ -342,16 +342,6 @@ public:
     static constexpr int kMPersp1 = 7; //!< input y perspective factor
     static constexpr int kMPersp2 = 8; //!< perspective bias
 
-    /** Affine arrays are in column-major order to match the matrix used by
-        PDF and XPS.
-    */
-    static constexpr int kAScaleX = 0; //!< horizontal scale factor
-    static constexpr int kASkewY  = 1; //!< vertical skew factor
-    static constexpr int kASkewX  = 2; //!< horizontal skew factor
-    static constexpr int kAScaleY = 3; //!< vertical scale factor
-    static constexpr int kATransX = 4; //!< horizontal translation
-    static constexpr int kATransY = 5; //!< vertical translation
-
     /** Returns one matrix value. Asserts if index is out of range and SK_DEBUG is
         defined.
 
@@ -1196,47 +1186,16 @@ public:
         return this->invertNonIdentity(inverse);
     }
 
-    /** Fills affine with identity values in column major order.
-        Sets affine to:
-
-            | 1 0 0 |
-            | 0 1 0 |
-
-        Affine 3 by 2 matrices in column major order are used by OpenGL and XPS.
-
-        @param affine  storage for 3 by 2 affine matrix
-
-        example: https://fiddle.skia.org/c/@Matrix_SetAffineIdentity
-    */
-    static void SetAffineIdentity(SkScalar affine[6]);
-
     /** Fills affine in column major order. Sets affine to:
-
-            | scale-x  skew-x translate-x |
-            | skew-y  scale-y translate-y |
-
-        If SkMatrix contains perspective, returns false and leaves affine unchanged.
-
-        @param affine  storage for 3 by 2 affine matrix; may be nullptr
-        @return        true if SkMatrix does not contain perspective
-    */
+     *  [0] scale_x     [2] skew_x      [4] translate_x
+     *  [1] skew_y      [3] scale_y     [5] translate_y
+     *
+     *  If SkMatrix contains perspective, returns false and leaves affine unchanged.
+     *
+     *  @param affine  storage for 3 by 2 affine matrix; may be nullptr
+     *  @return        true if SkMatrix does not contain perspective
+     */
     bool SK_WARN_UNUSED_RESULT asAffine(SkScalar affine[6]) const;
-
-    /** Sets SkMatrix to affine values, passed in column major order. Given affine,
-        column, then row, as:
-
-            | scale-x  skew-x translate-x |
-            |  skew-y scale-y translate-y |
-
-        SkMatrix is set, row, then column, to:
-
-            | scale-x  skew-x translate-x |
-            |  skew-y scale-y translate-y |
-            |       0       0           1 |
-
-        @param affine  3 by 2 affine matrix
-    */
-    SkMatrix& setAffine(const SkScalar affine[6]);
 
     /**
      *  A matrix is categorized as 'perspective' if the bottom row is not [0, 0, 1].
