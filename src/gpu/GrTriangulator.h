@@ -28,7 +28,8 @@ public:
     static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
         GrTriangulator triangulator(path);
-        int count = triangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator);
+        Poly* polys = triangulator.pathToPolys(tolerance, clipBounds);
+        int count = triangulator.polysToTriangles(polys, vertexAllocator);
         *isLinear = triangulator.fIsLinear;
         return count;
     }
@@ -75,7 +76,8 @@ public:
         GrTriangulator triangulator(path);
         triangulator.fCullCollinearVertices = false;
         triangulator.fBreadcrumbTriangles = breadcrumbTriangles;
-        int count = triangulator.pathToTriangles(0, SkRect::MakeEmpty(), vertexAllocator);
+        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty());
+        int count = triangulator.polysToTriangles(polys, vertexAllocator);
         *isLinear = triangulator.fIsLinear;
         return count;
     }
@@ -86,7 +88,8 @@ public:
         GrTriangulator triangulator(path);
         triangulator.fCullCollinearVertices = false;
         triangulator.fDisallowSelfIntersection = true;
-        int count = triangulator.pathToTriangles(0, SkRect::MakeEmpty(), vertexAllocator);
+        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty());
+        int count = triangulator.polysToTriangles(polys, vertexAllocator);
         *isLinear = triangulator.fIsLinear;
         return count;
     }
@@ -150,12 +153,7 @@ protected:
     virtual Poly* tessellate(const VertexList& vertices, const Comparator&);
 
     // 6) Triangulate the monotone polygons directly into a vertex buffer:
-    virtual int64_t countPoints(Poly* polys) const {
-        return this->countPointsImpl(polys, fPath.getFillType());
-    }
-    virtual void* polysToTriangles(Poly* polys, void* data) {
-        return this->polysToTrianglesImpl(polys, data, fPath.getFillType());
-    }
+    void* polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType);
 
     // The vertex sorting in step (3) is a merge sort, since it plays well with the linked list
     // of vertices (and the necessity of inserting new vertices on intersection).
@@ -237,10 +235,9 @@ protected:
     bool mergeCoincidentVertices(VertexList* mesh, const Comparator&);
     void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
     Poly* contoursToPolys(VertexList* contours, int contourCnt);
-    Poly* pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt);
-    int64_t countPointsImpl(Poly* polys, SkPathFillType overrideFillType) const;
-    void* polysToTrianglesImpl(Poly* polys, void* data, SkPathFillType overrideFillType);
-    int pathToTriangles(float tolerance, const SkRect& clipBounds, GrEagerVertexAllocator*);
+    Poly* pathToPolys(float tolerance, const SkRect& clipBounds);
+    static int64_t CountPoints(Poly* polys, SkPathFillType overrideFillType);
+    int polysToTriangles(Poly*, GrEagerVertexAllocator*);
 
     constexpr static int kArenaChunkSize = 16 * 1024;
     SkArenaAlloc fAlloc{kArenaChunkSize};
