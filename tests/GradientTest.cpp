@@ -30,12 +30,9 @@ static void test_big_grad(skiatest::Reporter* reporter) {
     bm.allocN32Pixels(2000, 1);
     SkCanvas c(bm);
 
-    const SkScalar affine[] = {
-        1.06608627e-06f, 4.26434525e-07f, 6.2855f, 2.6611f, 273.4393f, 244.0046f
-    };
-    SkMatrix matrix;
-    matrix.setAffine(affine);
-    c.concat(matrix);
+    c.concat(SkMatrix::MakeAll(1.06608627e-06f, 6.2855f, 273.4393f,
+                               4.26434525e-07f, 2.6611f, 244.0046f,
+                               0,               0,       1));
 
     c.drawPaint(paint);
 }

@@ -511,12 +511,12 @@ HRESULT SkXPSDevice::createXpsTransform(const SkMatrix& matrix,
         return S_FALSE;
     }
     XPS_MATRIX rawXpsMatrix = {
-        SkScalarToFLOAT(affine[SkMatrix::kAScaleX]),
-        SkScalarToFLOAT(affine[SkMatrix::kASkewY]),
-        SkScalarToFLOAT(affine[SkMatrix::kASkewX]),
-        SkScalarToFLOAT(affine[SkMatrix::kAScaleY]),
-        SkScalarToFLOAT(affine[SkMatrix::kATransX]),
-        SkScalarToFLOAT(affine[SkMatrix::kATransY]),
+        SkScalarToFLOAT(affine[0]),
+        SkScalarToFLOAT(affine[1]),
+        SkScalarToFLOAT(affine[2]),
+        SkScalarToFLOAT(affine[3]),
+        SkScalarToFLOAT(affine[4]),
+        SkScalarToFLOAT(affine[5]),
     };
     HRM(this->fXpsFactory->CreateMatrixTransform(&rawXpsMatrix, xpsTransform),
         "Could not create transform.");
