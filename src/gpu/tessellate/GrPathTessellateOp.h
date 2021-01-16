@@ -8,6 +8,7 @@
 #ifndef GrPathTessellateOp_DEFINED
 #define GrPathTessellateOp_DEFINED
 
+#include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
@@ -63,7 +64,6 @@ private:
         GrXferBarrierFlags fXferBarrierFlags;
         GrLoadOp fColorLoadOp;
         const GrCaps* fCaps;
-        GrEagerVertexAllocator* fInnerTriangleAllocator;
     };
 
     // Chooses the rendering method we will use and creates the corresponding stencil and fill
@@ -102,8 +102,8 @@ private:
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;
 
-    // This is filled off thread and then uploaded to fTriangleBuffer when using DDL.
-    const SkPoint* fOffThreadInnerTriangulation = nullptr;
+    GrInnerFanTriangulator* fInnerFanTriangulator = nullptr;
+    GrTriangulator::Poly* fInnerFanPolys;
     sk_sp<const GrBuffer> fTriangleBuffer;
     int fBaseTriangleVertex;
     int fTriangleVertexCount = 0;
