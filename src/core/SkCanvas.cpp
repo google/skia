@@ -121,7 +121,7 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
         }
 
         SkRect devRect;
-        this->getTotalMatrix().mapRectScaleTranslate(&devRect, *rect);
+        SkMatrixPriv::MapRectScaleTranslate(this->getTotalMatrix(), &devRect, *rect);
         if (!devRect.contains(bounds)) {
             return false;
         }

@@ -12,6 +12,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkScalerContext.h"
@@ -273,7 +274,7 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphIDs[],
         SkMatrix scaleMat = SkMatrix::Scale(scale, scale);
         SkRect* cursor = bounds;
         for (auto glyph : glyphs) {
-            scaleMat.mapRectScaleTranslate(cursor++, glyph->rect());
+            SkMatrixPriv::MapRectScaleTranslate(scaleMat, cursor++, glyph->rect());
         }
     }
 
