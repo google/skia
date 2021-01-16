@@ -933,15 +933,6 @@ DEF_TEST(Matrix, reporter) {
     SkScalar affine[6];
     REPORTER_ASSERT(reporter, mat.asAffine(affine));
 
-    #define affineEqual(e) affine[SkMatrix::kA##e] == mat.get(SkMatrix::kM##e)
-    REPORTER_ASSERT(reporter, affineEqual(ScaleX));
-    REPORTER_ASSERT(reporter, affineEqual(SkewY));
-    REPORTER_ASSERT(reporter, affineEqual(SkewX));
-    REPORTER_ASSERT(reporter, affineEqual(ScaleY));
-    REPORTER_ASSERT(reporter, affineEqual(TransX));
-    REPORTER_ASSERT(reporter, affineEqual(TransY));
-    #undef affineEqual
-
     mat.set(SkMatrix::kMPersp1, SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, !mat.asAffine(affine));
 
@@ -1003,7 +994,7 @@ DEF_TEST(Matrix_maprects, r) {
         mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
         dst[0].sort();
         mat.mapRect(&dst[1], src);
-        mat.mapRectScaleTranslate(&dst[2], src);
+        SkMatrixPriv::MapRectScaleTranslate(mat, &dst[2], src);
         dst[3] = mat.mapRect(src);
 
         REPORTER_ASSERT(r, dst[0] == dst[1]);

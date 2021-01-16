@@ -180,6 +180,10 @@ public:
     //
     // Returns positive infinity if the transformed homogeneous point has w <= 0.
     static SkScalar DifferentialAreaScale(const SkMatrix& m, const SkPoint& p);
+
+    static void MapRectScaleTranslate(const SkMatrix& m, SkRect* dst, const SkRect& src) {
+        m.mapRectScaleTranslate(dst, src);
+    }
 };
 
 #endif

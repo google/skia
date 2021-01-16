@@ -286,7 +286,7 @@ void FuzzNiceMatrix(Fuzz* fuzz, SkMatrix* m) {
     constexpr int kArrayLength = 9;
     SkScalar buffer[kArrayLength];
     int matrixType;
-    fuzz->nextRange(&matrixType, 0, 4);
+    fuzz->nextRange(&matrixType, 0, 3);
     switch (matrixType) {
         case 0:  // identity
             *m = SkMatrix::I();
@@ -304,11 +304,7 @@ void FuzzNiceMatrix(Fuzz* fuzz, SkMatrix* m) {
             *m = SkMatrix::Scale(buffer[0], buffer[1]);
             m->postTranslate(buffer[2], buffer[3]);
             return;
-        case 3:  // affine
-            fuzz->nextN(buffer, 6);
-            m->setAffine(buffer);
-            return;
-        case 4:  // perspective
+        case 3:  // perspective
             fuzz->nextN(buffer, kArrayLength);
             m->set9(buffer);
             return;
