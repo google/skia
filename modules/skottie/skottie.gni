@@ -6,11 +6,14 @@
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("src", "abspath")
 _include = get_path_info("include", "abspath")
+_utils = get_path_info("utils","abspath")
 
 skia_skottie_public = [
   "$_include/Skottie.h",
   "$_include/ExternalLayer.h",
   "$_include/SkottieProperty.h",
+
+  "$_utils/SkottieUtils.h",
 ]
 
 skia_skottie_sources = [
@@ -94,4 +97,6 @@ skia_skottie_sources = [
   "$_src/text/TextAnimator.h",
   "$_src/text/TextValue.cpp",
   "$_src/text/TextValue.h",
+
+  "$_utils/SkottieUtils.cpp"
 ]
