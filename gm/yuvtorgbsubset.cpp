@@ -16,24 +16,21 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/core/SkYUVAIndex.h"
-#include "include/private/GrTypesPriv.h"
+#include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 #include <memory>
 #include <utility>
 
 class SkCanvas;
-
-#define YSIZE 8
-#define USIZE 4
-#define VSIZE 4
 
 namespace skiagm {
 
@@ -55,13 +52,16 @@ protected:
 
     SkISize onISize() override { return {1310, 540}; }
 
-    void onOnceBeforeDraw() override {
-        SkImageInfo yinfo = SkImageInfo::MakeA8(YSIZE, YSIZE);
-        fBitmaps[0].allocPixels(yinfo);
-        SkImageInfo uinfo = SkImageInfo::MakeA8(USIZE, USIZE);
-        fBitmaps[1].allocPixels(uinfo);
-        SkImageInfo vinfo = SkImageInfo::MakeA8(VSIZE, VSIZE);
-        fBitmaps[2].allocPixels(vinfo);
+    void makePixmaps() {
+        SkYUVAInfo yuvaInfo = SkYUVAInfo({8, 8},
+                                         SkYUVAInfo::PlaneConfig::kY_U_V,
+                                         SkYUVAInfo::Subsampling::k420,
+                                         kJPEG_Full_SkYUVColorSpace);
+        SkColorType colorTypes[] = {kAlpha_8_SkColorType,
+                                    kAlpha_8_SkColorType,
+                                    kAlpha_8_SkColorType};
+        SkYUVAPixmapInfo pmapInfo(yuvaInfo, colorTypes, nullptr);
+        fPixmaps = SkYUVAPixmaps::Allocate(pmapInfo);
 
         unsigned char innerY[16] = {149, 160, 130, 105,
                                     160, 130, 105, 149,
@@ -70,45 +70,62 @@ protected:
         unsigned char innerU[4] = {43, 75, 145, 200};
         unsigned char innerV[4] = {88, 180, 200, 43};
         int outerYUV[] = {128, 128, 128};
+        SkBitmap bitmaps[3];
         for (int i = 0; i < 3; ++i) {
-            fBitmaps[i].eraseColor(SkColorSetARGB(outerYUV[i], 0, 0, 0));
+            bitmaps[i].installPixels(fPixmaps.plane(i));
+            bitmaps[i].eraseColor(SkColorSetARGB(outerYUV[i], 0, 0, 0));
         }
         SkPixmap innerYPM(SkImageInfo::MakeA8(4, 4), innerY, 4);
         SkPixmap innerUPM(SkImageInfo::MakeA8(2, 2), innerU, 2);
         SkPixmap innerVPM(SkImageInfo::MakeA8(2, 2), innerV, 2);
-        fBitmaps[0].writePixels(innerYPM, 2, 2);
-        fBitmaps[1].writePixels(innerUPM, 1, 1);
-        fBitmaps[2].writePixels(innerVPM, 1, 1);
-        for (auto& fBitmap : fBitmaps) {
-            fBitmap.setImmutable();
-        }
+        bitmaps[0].writePixels(innerYPM, 2, 2);
+        bitmaps[1].writePixels(innerUPM, 1, 1);
+        bitmaps[2].writePixels(innerVPM, 1, 1);
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
-                      SkCanvas* canvas, SkString* errorMsg) override {
-        GrSurfaceProxyView views[3];
-
-        for (int i = 0; i < 3; ++i) {
-            GrBitmapTextureMaker maker(context, fBitmaps[i], GrImageTexGenPolicy::kDraw);
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
+        if (!context) {
+            return DrawResult::kSkip;
+        }
+        if (!fPixmaps.isValid()) {
+            this->makePixmaps();
+        }
+        GrSurfaceProxyView views[SkYUVAInfo::kMaxPlanes];
+        GrColorType colorTypes[SkYUVAInfo::kMaxPlanes];
+        for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
+            SkBitmap bitmap;
+            bitmap.installPixels(fPixmaps.plane(i));
+            bitmap.setImmutable();
+            GrBitmapTextureMaker maker(
+                    context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
             views[i] = maker.view(GrMipmapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
-                return DrawResult::kFail;
+                return context->abandoned() ? DrawResult::kSkip : DrawResult::kFail;
             }
+            colorTypes[i] = SkColorTypeToGrColorType(bitmap.colorType());
         }
+        fProxies = GrYUVATextureProxies(fPixmaps.yuvaInfo(), views, colorTypes);
+        if (!fProxies.isValid()) {
+            *errorMsg = "Failed to create GrYUVATextureProxies";
+            return DrawResult::kFail;
+        }
+        return DrawResult::kOk;
+    }
 
+    void onGpuTeardown() override { fProxies = {}; }
+
+    DrawResult onDraw(GrRecordingContext* context,
+                      GrSurfaceDrawContext* surfaceDrawContext,
+                      SkCanvas* canvas,
+                      SkString* errorMsg) override {
         static const GrSamplerState::Filter kFilters[] = {GrSamplerState::Filter::kNearest,
                                                           GrSamplerState::Filter::kLinear};
         static const SkRect kColorRect = SkRect::MakeLTRB(2.f, 2.f, 6.f, 6.f);
 
-        SkYUVAIndex yuvaIndices[4] = {
-            { SkYUVAIndex::kY_Index, SkColorChannel::kA },
-            { SkYUVAIndex::kU_Index, SkColorChannel::kA },
-            { SkYUVAIndex::kV_Index, SkColorChannel::kA },
-            { -1, SkColorChannel::kA }
-        };
         // Outset to visualize wrap modes.
-        SkRect rect = SkRect::MakeWH(YSIZE, YSIZE).makeOutset(YSIZE/2, YSIZE/2);
+        SkRect rect = SkRect::Make(fProxies.yuvaInfo().dimensions());
+        rect = rect.makeOutset(fProxies.yuvaInfo().width()/2.f, fProxies.yuvaInfo().height()/2.f);
 
         SkScalar y = kTestPad;
         // Rows are filter modes.
@@ -129,9 +146,8 @@ protected:
                     samplerState.setWrapModeY(wm);
                 }
                 const auto& caps = *context->priv().caps();
-                std::unique_ptr<GrFragmentProcessor> fp(
-                        GrYUVtoRGBEffect::Make(views, yuvaIndices, kJPEG_SkYUVColorSpace,
-                                               samplerState, caps, SkMatrix::I(), subset));
+                std::unique_ptr<GrFragmentProcessor> fp =
+                        GrYUVtoRGBEffect::Make(fProxies, samplerState, caps, SkMatrix::I(), subset);
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.setColorFragmentProcessor(std::move(fp));
@@ -145,10 +161,11 @@ protected:
         }
 
         return DrawResult::kOk;
-     }
+    }
 
 private:
-    SkBitmap fBitmaps[3];
+    SkYUVAPixmaps fPixmaps;
+    GrYUVATextureProxies fProxies;
 
     static constexpr SkScalar kTestPad = 10.f;
 

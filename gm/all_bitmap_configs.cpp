@@ -121,7 +121,7 @@ static void draw(SkCanvas* canvas,
                  SkColorType colorType,
                  const char text[]) {
     SkASSERT(src.colorType() == colorType);
-    canvas->drawBitmap(src, 0.0f, 0.0f);
+    canvas->drawImage(src.asImage(), 0.0f, 0.0f);
     canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0.0f, 12.0f, font, p);
 }
 

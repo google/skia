@@ -81,39 +81,6 @@ skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
     return {};
 }
 
-// This should look familiar... see just above.
-skvm::HalfColor SkColorFilterBase::program(skvm::Builder* p, skvm::HalfColor c,
-                                           SkColorSpace* dstCS,
-                                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    skvm::Half original = c.a;
-    if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
-        if (this->isAlphaUnchanged()) {
-            c.a = original;
-        }
-        return c;
-    }
-    //SkDebugf("cannot onProgram %s\n", this->getTypeName());
-    return {};
-}
-
-skvm::Color SkColorFilterBase::onProgram(skvm::Builder* p, skvm::Color c,
-                                         SkColorSpace* dstCS,
-                                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    if (skvm::HalfColor hc = this->onProgram(p, to_Half(c), dstCS, uniforms, alloc)) {
-        return to_F32(hc);
-    }
-    return {};
-}
-skvm::HalfColor SkColorFilterBase::onProgram(skvm::Builder* p, skvm::HalfColor hc,
-                                             SkColorSpace* dstCS,
-                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    if (skvm::Color c = this->onProgram(p, to_F32(hc), dstCS, uniforms, alloc)) {
-        return to_Half(c);
-    }
-    return {};
-}
-
-
 SkColor SkColorFilter::filterColor(SkColor c) const {
     // This is mostly meaningless. We should phase-out this call entirely.
     SkColorSpace* cs = nullptr;

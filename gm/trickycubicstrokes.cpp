@@ -134,7 +134,7 @@ static void draw_test(SkCanvas* canvas, const SkColor strokeColor) {
 
         SkMatrix matrix;
         if (fillMode == CellFillMode::kStretch) {
-            matrix.setRectToRect(strokeBounds, cellRect, SkMatrix::kCenter_ScaleToFit);
+            matrix = SkMatrix::RectToRect(strokeBounds, cellRect, SkMatrix::kCenter_ScaleToFit);
         } else {
             matrix.setTranslate(cellRect.x() + kStrokeWidth +
                                 (cellRect.width() - strokeBounds.width()) / 2,

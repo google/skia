@@ -7,7 +7,6 @@
 
 #include "src/gpu/SkGpuDevice.h"
 
-#include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTPin.h"
@@ -283,7 +282,7 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
     }
 
     if (outDstRect) {
-        srcToDst->setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+        *srcToDst = SkMatrix::RectToRect(src, dst);
     } else {
         srcToDst->setIdentity();
     }
@@ -354,8 +353,10 @@ static void draw_texture(GrSurfaceDrawContext* rtc,
     if (GrColorTypeIsAlphaOnly(srcColorInfo.colorType())) {
         view.concatSwizzle(GrSwizzle("aaaa"));
     }
-    const GrColorInfo& dstInfo = rtc->colorInfo();
-    auto textureXform = GrColorSpaceXform::Make(srcColorInfo, rtc->colorInfo());
+    const GrColorInfo& dstInfo(rtc->colorInfo());
+    auto textureXform =
+        GrColorSpaceXform::Make(srcColorInfo.colorSpace(), srcColorInfo.alphaType(),
+                                dstInfo.colorSpace(), kPremul_SkAlphaType);
     GrSurfaceProxy* proxy = view.proxy();
     // Must specify the strict constraint when the proxy is not functionally exact and the src
     // rect would access pixels outside the proxy's content area without the constraint.
@@ -676,7 +677,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
 
     SkRect src = SkRect::Make(special->subset());
     SkRect dst = SkRect::MakeWH(special->width(), special->height());
-    SkMatrix srcToDst = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    SkMatrix srcToDst = SkMatrix::RectToRect(src, dst);
 
     GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, downgrade_to_filter(sampling));
     GrAA aa = paint.isAntiAlias() ? GrAA::kYes : GrAA::kNo;
@@ -855,8 +856,9 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
     int base = 0, n = 0, p = 0;
     auto draw = [&](int nextBase) {
         if (n > 0) {
-            auto textureXform = GrColorSpaceXform::Make(set[base].fImage->imageInfo().colorInfo(),
-                                                        fSurfaceDrawContext->colorInfo());
+            auto textureXform = GrColorSpaceXform::Make(
+                    set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
+                    fSurfaceDrawContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
             fSurfaceDrawContext->drawTextureSet(this->clip(),
                                                 textures.get() + base,
                                                 n,

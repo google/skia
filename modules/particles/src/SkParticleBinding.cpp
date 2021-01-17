@@ -14,7 +14,6 @@
 #include "include/private/SkTPin.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkTextUtils.h"
-#include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkReflected.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -22,57 +21,6 @@
 void SkParticleBinding::visitFields(SkFieldVisitor* v) {
     v->visit("Name", fName);
 }
-
-class SkEffectExternalValue : public SkParticleExternalValue {
-public:
-    SkEffectExternalValue(const char* name, SkSL::Compiler& compiler,
-                          sk_sp<SkParticleEffectParams> params)
-        : SkParticleExternalValue(name, compiler, *compiler.context().fTypes.fVoid)
-        , fParams(std::move(params)) {}
-
-    int callParameterCount() const override { return 1; }
-    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fTypes.fBool.get();
-    }
-
-    void call(int index, float* arguments, float* outReturn) const override {
-        bool loop = ((int*)arguments)[0] != 0;
-        fEffect->addSpawnRequest(index, loop, fParams);
-    }
-
-private:
-    sk_sp<SkParticleEffectParams> fParams;
-};
-
-class SkEffectBinding : public SkParticleBinding {
-public:
-    SkEffectBinding(const char* name = "", sk_sp<SkParticleEffectParams> params = nullptr)
-            : SkParticleBinding(name)
-            , fParams(std::move(params)) {
-        if (!fParams) {
-            fParams.reset(new SkParticleEffectParams());
-        }
-    }
-
-    REFLECTED(SkEffectBinding, SkParticleBinding)
-
-    void visitFields(SkFieldVisitor* v) override {
-        SkParticleBinding::visitFields(v);
-        fParams->visitFields(v);
-    }
-
-    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
-        return std::unique_ptr<SkParticleExternalValue>(
-            new SkEffectExternalValue(fName.c_str(), compiler, fParams));
-    }
-
-    void prepare(const skresources::ResourceProvider* resourceProvider) override {
-        fParams->prepare(resourceProvider);
-    }
-
-private:
-    sk_sp<SkParticleEffectParams> fParams;
-};
 
 struct SkPathContours {
     SkScalar fTotalLength;
@@ -265,11 +213,6 @@ private:
     SkBitmap fBitmap;
 };
 
-sk_sp<SkParticleBinding> SkParticleBinding::MakeEffect(const char* name,
-                                                       sk_sp<SkParticleEffectParams> params) {
-    return sk_sp<SkParticleBinding>(new SkEffectBinding(name, std::move(params)));
-}
-
 sk_sp<SkParticleBinding> SkParticleBinding::MakeImage(const char* name, const char* imagePath,
                                                       const char* imageName) {
     return sk_sp<SkParticleBinding>(new SkImageBinding(name, imagePath, imageName));
@@ -282,7 +225,6 @@ sk_sp<SkParticleBinding> SkParticleBinding::MakePath(const char* name, const cha
 
 void SkParticleBinding::RegisterBindingTypes() {
     REGISTER_REFLECTED(SkParticleBinding);
-    REGISTER_REFLECTED(SkEffectBinding);
     REGISTER_REFLECTED(SkImageBinding);
     REGISTER_REFLECTED(SkPathBinding);
     REGISTER_REFLECTED(SkTextBinding);

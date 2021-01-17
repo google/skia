@@ -263,12 +263,13 @@ public:
     IsAssignableVisitor(ErrorReporter* errors) : fErrors(errors) {}
 
     bool visit(Expression& expr, Analysis::AssignmentInfo* info) {
+        int oldErrorCount = fErrors->errorCount();
         this->visitExpression(expr);
         if (info) {
             info->fAssignedVar = fAssignedVar;
             info->fIsSwizzled = fIsSwizzled;
         }
-        return fErrors->errorCount() == 0;
+        return fErrors->errorCount() == oldErrorCount;
     }
 
     void visitExpression(Expression& expr) {
@@ -457,6 +458,293 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
            (expr.is<IndexExpression>() &&
             expr.as<IndexExpression>().index()->is<IntLiteral>() &&
             IsTrivialExpression(*expr.as<IndexExpression>().base()));
+}
+
+static const char* invalid_for_ES2(const ForStatement& loop,
+                                   Analysis::UnrollableLoopInfo& loopInfo) {
+    auto getConstant = [&](const std::unique_ptr<Expression>& expr, double* val) {
+        if (!expr->isCompileTimeConstant()) {
+            return false;
+        }
+        if (!expr->type().isNumber()) {
+            SkDEBUGFAIL("unexpected constant type");
+            return false;
+        }
+
+        *val = expr->type().isInteger() ? static_cast<double>(expr->getConstantInt())
+                                        : static_cast<double>(expr->getConstantFloat());
+        return true;
+    };
+
+    //
+    // init_declaration has the form: type_specifier identifier = constant_expression
+    //
+    if (!loop.initializer()) {
+        return "missing init declaration";
+    }
+    if (!loop.initializer()->is<VarDeclaration>()) {
+        return "invalid init declaration";
+    }
+    const VarDeclaration& initDecl = loop.initializer()->as<VarDeclaration>();
+    if (!initDecl.baseType().isNumber()) {
+        return "invalid type for loop index";
+    }
+    if (initDecl.arraySize() != 0) {
+        return "invalid type for loop index";
+    }
+    if (!initDecl.value()) {
+        return "missing loop index initializer";
+    }
+    if (!getConstant(initDecl.value(), &loopInfo.fStart)) {
+        return "loop index initializer must be a constant expression";
+    }
+
+    loopInfo.fIndex = &initDecl.var();
+
+    auto is_loop_index = [&](const std::unique_ptr<Expression>& expr) {
+        return expr->is<VariableReference>() &&
+               expr->as<VariableReference>().variable() == loopInfo.fIndex;
+    };
+
+    //
+    // condition has the form: loop_index relational_operator constant_expression
+    //
+    if (!loop.test()) {
+        return "missing condition";
+    }
+    if (!loop.test()->is<BinaryExpression>()) {
+        return "invalid condition";
+    }
+    const BinaryExpression& cond = loop.test()->as<BinaryExpression>();
+    if (!is_loop_index(cond.left())) {
+        return "expected loop index on left hand side of condition";
+    }
+    // relational_operator is one of: > >= < <= == or !=
+    switch (cond.getOperator()) {
+        case Token::Kind::TK_GT:
+        case Token::Kind::TK_GTEQ:
+        case Token::Kind::TK_LT:
+        case Token::Kind::TK_LTEQ:
+        case Token::Kind::TK_EQEQ:
+        case Token::Kind::TK_NEQ:
+            break;
+        default:
+            return "invalid relational operator";
+    }
+    double loopEnd = 0;
+    if (!getConstant(cond.right(), &loopEnd)) {
+        return "loop index must be compared with a constant expression";
+    }
+
+    //
+    // expression has one of the following forms:
+    //   loop_index++
+    //   loop_index--
+    //   loop_index += constant_expression
+    //   loop_index -= constant_expression
+    // The spec doesn't mention prefix increment and decrement, but there is some consensus that
+    // it's an oversight, so we allow those as well.
+    //
+    if (!loop.next()) {
+        return "missing loop expression";
+    }
+    switch (loop.next()->kind()) {
+        case Expression::Kind::kBinary: {
+            const BinaryExpression& next = loop.next()->as<BinaryExpression>();
+            if (!is_loop_index(next.left())) {
+                return "expected loop index in loop expression";
+            }
+            if (!getConstant(next.right(), &loopInfo.fDelta)) {
+                return "loop index must be modified by a constant expression";
+            }
+            switch (next.getOperator()) {
+                case Token::Kind::TK_PLUSEQ:                                      break;
+                case Token::Kind::TK_MINUSEQ: loopInfo.fDelta = -loopInfo.fDelta; break;
+                default:
+                    return "invalid operator in loop expression";
+            }
+        } break;
+        case Expression::Kind::kPrefix: {
+            const PrefixExpression& next = loop.next()->as<PrefixExpression>();
+            if (!is_loop_index(next.operand())) {
+                return "expected loop index in loop expression";
+            }
+            switch (next.getOperator()) {
+                case Token::Kind::TK_PLUSPLUS:   loopInfo.fDelta =  1; break;
+                case Token::Kind::TK_MINUSMINUS: loopInfo.fDelta = -1; break;
+                default:
+                    return "invalid operator in loop expression";
+            }
+        } break;
+        case Expression::Kind::kPostfix: {
+            const PostfixExpression& next = loop.next()->as<PostfixExpression>();
+            if (!is_loop_index(next.operand())) {
+                return "expected loop index in loop expression";
+            }
+            switch (next.getOperator()) {
+                case Token::Kind::TK_PLUSPLUS:   loopInfo.fDelta =  1; break;
+                case Token::Kind::TK_MINUSMINUS: loopInfo.fDelta = -1; break;
+                default:
+                    return "invalid operator in loop expression";
+            }
+        } break;
+        default:
+            return "invalid loop expression";
+    }
+
+    //
+    // Within the body of the loop, the loop index is not statically assigned to, nor is it used as
+    // argument to a function 'out' or 'inout' parameter.
+    //
+    if (Analysis::StatementWritesToVariable(*loop.statement(), initDecl.var())) {
+        return "loop index must not be modified within body of the loop";
+    }
+
+    // Finally, compute the iteration count, based on the bounds, and the termination operator.
+    constexpr int kMaxUnrollableLoopLength = 128;
+    loopInfo.fCount = 0;
+
+    double val = loopInfo.fStart;
+    auto evalCond = [&]() {
+        switch (cond.getOperator()) {
+            case Token::Kind::TK_GT:   return val >  loopEnd;
+            case Token::Kind::TK_GTEQ: return val >= loopEnd;
+            case Token::Kind::TK_LT:   return val <  loopEnd;
+            case Token::Kind::TK_LTEQ: return val <= loopEnd;
+            case Token::Kind::TK_EQEQ: return val == loopEnd;
+            case Token::Kind::TK_NEQ:  return val != loopEnd;
+            default: SkUNREACHABLE;
+        }
+    };
+
+    for (loopInfo.fCount = 0; loopInfo.fCount <= kMaxUnrollableLoopLength; ++loopInfo.fCount) {
+        if (!evalCond()) {
+            break;
+        }
+        val += loopInfo.fDelta;
+    }
+
+    if (loopInfo.fCount > kMaxUnrollableLoopLength) {
+        return "loop must guarantee termination in fewer iterations";
+    }
+
+    return nullptr;  // All checks pass
+}
+
+bool Analysis::ForLoopIsValidForES2(const ForStatement& loop,
+                                    Analysis::UnrollableLoopInfo* outLoopInfo,
+                                    ErrorReporter* errors) {
+    UnrollableLoopInfo ignored,
+                       *loopInfo = outLoopInfo ? outLoopInfo : &ignored;
+    if (const char* msg = invalid_for_ES2(loop, *loopInfo)) {
+        if (errors) {
+            errors->error(loop.fOffset, msg);
+        }
+        return false;
+    }
+    return true;
+}
+
+class ES2IndexExpressionVisitor : public ProgramVisitor {
+public:
+    ES2IndexExpressionVisitor(const std::set<const Variable*>* loopIndices)
+            : fLoopIndices(loopIndices) {}
+
+    bool visitExpression(const Expression& e) override {
+        // A constant-(index)-expression is one of...
+        switch (e.kind()) {
+            // ... a literal value
+            case Expression::Kind::kBoolLiteral:
+            case Expression::Kind::kIntLiteral:
+            case Expression::Kind::kFloatLiteral:
+                return false;
+
+            // ... loop indices as defined in section 4. Today, SkSL allows no other variables,
+            // but GLSL allows 'const' variables, because it requires that const variables be
+            // initialized with constant-expressions. We could support that usage by checking
+            // for variables that are const, and whose initializing expression also pass our
+            // checks. For now, we'll be conservative. (skbug.com/10837)
+            case Expression::Kind::kVariableReference:
+                return fLoopIndices->find(e.as<VariableReference>().variable()) ==
+                       fLoopIndices->end();
+
+            // ... expressions composed of both of the above
+            case Expression::Kind::kBinary:
+            case Expression::Kind::kConstructor:
+            case Expression::Kind::kFieldAccess:
+            case Expression::Kind::kIndex:
+            case Expression::Kind::kPrefix:
+            case Expression::Kind::kPostfix:
+            case Expression::Kind::kSwizzle:
+            case Expression::Kind::kTernary:
+                return INHERITED::visitExpression(e);
+
+            // These are completely disallowed in SkSL constant-index-expressions. GLSL allows
+            // calls to built-in functions where the arguments are all constant-expressions, but
+            // we don't guarantee that behavior. (skbug.com/10835)
+            case Expression::Kind::kExternalFunctionCall:
+            case Expression::Kind::kFunctionCall:
+                return true;
+
+            // These should never appear in final IR
+            case Expression::Kind::kDefined:
+            case Expression::Kind::kExternalFunctionReference:
+            case Expression::Kind::kFunctionReference:
+            case Expression::Kind::kSetting:
+            case Expression::Kind::kTypeReference:
+            default:
+                SkDEBUGFAIL("Unexpected expression type");
+                return true;
+        }
+    }
+
+private:
+    const std::set<const Variable*>* fLoopIndices;
+    using INHERITED = ProgramVisitor;
+};
+
+class ES2IndexingVisitor : public ProgramVisitor {
+public:
+    ES2IndexingVisitor(ErrorReporter& errors) : fErrors(errors) {}
+
+    bool visitStatement(const Statement& s) override {
+        if (s.is<ForStatement>()) {
+            const ForStatement& f = s.as<ForStatement>();
+            SkASSERT(f.initializer() && f.initializer()->is<VarDeclaration>());
+            const Variable* var = &f.initializer()->as<VarDeclaration>().var();
+            auto [iter, inserted] = fLoopIndices.insert(var);
+            SkASSERT(inserted);
+            bool result = this->visitStatement(*f.statement());
+            fLoopIndices.erase(iter);
+            return result;
+        }
+        return INHERITED::visitStatement(s);
+    }
+
+    bool visitExpression(const Expression& e) override {
+        if (e.is<IndexExpression>()) {
+            const IndexExpression& i = e.as<IndexExpression>();
+            ES2IndexExpressionVisitor indexerInvalid(&fLoopIndices);
+            if (indexerInvalid.visitExpression(*i.index())) {
+                fErrors.error(i.fOffset, "index expression must be constant");
+                return true;
+            }
+        }
+        return INHERITED::visitExpression(e);
+    }
+
+    using ProgramVisitor::visitProgramElement;
+
+private:
+    ErrorReporter& fErrors;
+    std::set<const Variable*> fLoopIndices;
+    using INHERITED = ProgramVisitor;
+};
+
+
+void Analysis::ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors) {
+    ES2IndexingVisitor visitor(errors);
+    visitor.visitProgramElement(pe);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

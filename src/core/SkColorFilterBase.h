@@ -29,11 +29,6 @@ public:
     skvm::Color program(skvm::Builder*, skvm::Color,
                         SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const;
 
-    SK_WARN_UNUSED_RESULT
-    skvm::HalfColor program(skvm::Builder*, skvm::HalfColor,
-                            SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const;
-
-
     /** Returns the flags for this filter. Override in subclasses to return custom flags.
     */
     virtual uint32_t onGetFlags() const { return 0; }
@@ -83,11 +78,8 @@ protected:
 private:
     virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
-    // These defaults just call each other, so you must override at least one of them.
-    virtual skvm::Color     onProgram(skvm::Builder*, skvm::Color,
-                                      SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const;
-    virtual skvm::HalfColor onProgram(skvm::Builder*, skvm::HalfColor,
-                                      SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const;
+    virtual skvm::Color onProgram(skvm::Builder*, skvm::Color,
+                                  SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const = 0;
 
     friend class SkColorFilter;
 

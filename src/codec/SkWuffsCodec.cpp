@@ -691,9 +691,8 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
 
         SkDraw draw;
         draw.fDst.reset(dstInfo(), fIncrDecDst, fIncrDecRowBytes);
-        SkMatrix               matrix = SkMatrix::MakeRectToRect(SkRect::Make(this->dimensions()),
-                                                   SkRect::Make(this->dstInfo().dimensions()),
-                                                   SkMatrix::kFill_ScaleToFit);
+        SkMatrix matrix = SkMatrix::RectToRect(SkRect::Make(this->dimensions()),
+                                               SkRect::Make(this->dstInfo().dimensions()));
         SkSimpleMatrixProvider matrixProvider(matrix);
         draw.fMatrixProvider = &matrixProvider;
         SkRasterClip rc(SkIRect::MakeSize(this->dstInfo().dimensions()));

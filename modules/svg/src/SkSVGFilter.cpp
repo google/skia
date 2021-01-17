@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "modules/svg/include/SkSVGFe.h"
 #include "modules/svg/include/SkSVGFilter.h"
@@ -24,28 +25,11 @@ bool SkSVGFilter::parseAndSetAttribute(const char* name, const char* value) {
                    "primitiveUnits", name, value));
 }
 
-SkRect SkSVGFilter::resolveFilterRegion(const SkSVGRenderContext& ctx) const {
-    const SkSVGLengthContext lctx =
-            fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox
-                    ? SkSVGLengthContext({1, 1})
-                    : ctx.lengthContext();
-
-    SkRect filterRegion = lctx.resolveRect(fX, fY, fWidth, fHeight);
-    if (fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        filterRegion = SkRect::MakeXYWH(objBounds.fLeft + filterRegion.fLeft * objBounds.width(),
-                                        objBounds.fTop + filterRegion.fTop * objBounds.height(),
-                                        filterRegion.width() * objBounds.width(),
-                                        filterRegion.height() * objBounds.height());
-    }
-
-    return filterRegion;
-}
-
 sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) const {
     sk_sp<SkImageFilter> filter;
-    SkSVGFilterContext fctx(resolveFilterRegion(ctx), fPrimitiveUnits);
+    SkSVGFilterContext fctx(ctx.resolveOBBRect(fX, fY, fWidth, fHeight, fFilterUnits),
+                            fPrimitiveUnits);
+    SkSVGColorspace cs = SkSVGColorspace::kSRGB;
     for (const auto& child : fChildren) {
         if (!SkSVGFe::IsFilterEffect(child)) {
             continue;
@@ -54,12 +38,26 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         const auto& feNode = static_cast<const SkSVGFe&>(*child);
         const auto& feResultType = feNode.getResult();
 
+        // Propagate any inherited properties that may impact filter effect behavior (e.g.
+        // color-interpolation-filters). We call this explicitly here because the SkSVGFe
+        // nodes do not participate in the normal onRender path, which is when property
+        // propagation currently occurs.
+        SkSVGRenderContext localCtx(ctx);
+        feNode.applyProperties(&localCtx);
+
         // TODO: there are specific composition rules that need to be followed
-        filter = feNode.makeImageFilter(ctx, fctx);
+        cs = feNode.resolveColorspace(ctx);
+        filter = feNode.makeImageFilter(localCtx, fctx);
 
         if (!feResultType.isEmpty()) {
-            fctx.registerResult(feResultType, filter, feNode.resolveFilterSubregion(ctx, fctx));
+            fctx.registerResult(
+                    feResultType, filter, feNode.resolveFilterSubregion(localCtx, fctx), cs);
         }
+    }
+
+    // Convert to final destination colorspace
+    if (cs != SkSVGColorspace::kSRGB) {
+        filter = SkImageFilters::ColorFilter(SkColorFilters::LinearToSRGBGamma(), filter);
     }
 
     return filter;

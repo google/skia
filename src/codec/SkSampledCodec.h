@@ -16,7 +16,7 @@
  */
 class SkSampledCodec : public SkAndroidCodec {
 public:
-    explicit SkSampledCodec(SkCodec*, ExifOrientationBehavior);
+    explicit SkSampledCodec(SkCodec*);
 
     ~SkSampledCodec() override {}
 

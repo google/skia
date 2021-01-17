@@ -1,0 +1,21 @@
+half4 helper();
+
+void main() {
+    sk_FragColor = helper();
+}
+
+enum class E {
+    kBlack = 0,
+    kGray  = 1,
+    kWhite = 2
+};
+
+half4 helper() {
+    E temp = E::kGray;
+    switch (temp) {
+        case E::kBlack: return half4(0, 0, 0, 1);
+        case E::kGray:  return half4(0.5, 0.5, 0.5, 1);
+        case E::kWhite: return half4(1);
+        default:        return half4(1, 0, 0, 1);
+    }
+}

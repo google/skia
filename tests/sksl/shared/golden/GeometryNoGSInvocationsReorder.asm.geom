@@ -50,18 +50,18 @@ OpBranchConditional %26 %21 %23
 %21 = OpLabel
 %28 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
 %30 = OpLoad %v4float %28
-%34 = OpLoad %int %sk_InvocationID
-%33 = OpConvertSToF %float %34
-%35 = OpCompositeConstruct %v4float %float_0_5 %float_0 %float_0 %33
+%33 = OpLoad %int %sk_InvocationID
+%34 = OpConvertSToF %float %33
+%35 = OpCompositeConstruct %v4float %float_0_5 %float_0 %float_0 %34
 %36 = OpFAdd %v4float %30 %35
 %37 = OpAccessChain %_ptr_Output_v4float %3 %int_0
 OpStore %37 %36
 OpEmitVertex
 %40 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
 %41 = OpLoad %v4float %40
-%44 = OpLoad %int %sk_InvocationID
-%43 = OpConvertSToF %float %44
-%45 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %43
+%43 = OpLoad %int %sk_InvocationID
+%44 = OpConvertSToF %float %43
+%45 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %44
 %46 = OpFAdd %v4float %41 %45
 %47 = OpAccessChain %_ptr_Output_v4float %3 %int_0
 OpStore %47 %46

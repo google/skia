@@ -6,6 +6,7 @@
 # found in the LICENSE file.
 
 import os
+import platform
 import shutil
 import stat
 import sys
@@ -21,11 +22,12 @@ os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
 gnzip = os.path.join(tempfile.mkdtemp(), 'gn.zip')
 with open(gnzip, 'wb') as f:
-  pkg = 'linux-amd64' if 'linux'  in sys.platform else \
-        'mac-amd64'   if 'darwin' in sys.platform else \
-        'windows-amd64'
-  rev = '9e993e3da82a9f4bc5c50c190afbcffd61e3d9e0'
-  url = 'https://chrome-infra-packages.appspot.com/dl/gn/gn/{}/+/git_revision:{}'.format(pkg,rev)
+  OS  = {'darwin': 'mac', 'linux': 'linux', 'linux2': 'linux', 'win32': 'windows'}[sys.platform]
+  cpu = {'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
+
+  rev = 'd62642c920e6a0d1756316d225a90fd6faa9e21e'
+  url = 'https://chrome-infra-packages.appspot.com/dl/gn/gn/{}-{}/+/git_revision:{}'.format(
+          OS,cpu,rev)
   f.write(urlopen(url).read())
 
 gn = 'gn.exe' if 'win32' in sys.platform else 'gn'

@@ -10,8 +10,6 @@
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSerialProcs.h"
-#include "include/core/SkYUVAIndex.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrYUVABackendTextures.h"
 #include "src/codec/SkCodecImageGenerator.h"
@@ -37,7 +35,7 @@ DDLPromiseImageHelper::PromiseImageInfo::PromiseImageInfo(PromiseImageInfo&& oth
         , fBaseLevel(other.fBaseLevel)
         , fMipLevels(std::move(other.fMipLevels))
         , fYUVAPixmaps(std::move(other.fYUVAPixmaps)) {
-    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
+    for (int i = 0; i < SkYUVAInfo::kMaxPlanes; ++i) {
         fCallbackContexts[i] = std::move(other.fCallbackContexts[i]);
     }
 }
@@ -322,9 +320,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
 
     sk_sp<SkImage> image;
     if (curImage.isYUV()) {
-        GrBackendFormat backendFormats[SkYUVASizeInfo::kMaxCount];
+        GrBackendFormat backendFormats[SkYUVAInfo::kMaxPlanes];
         const SkYUVAInfo& yuvaInfo = curImage.yuvaInfo();
-        void* contexts[SkYUVASizeInfo::kMaxCount] = { nullptr, nullptr, nullptr, nullptr };
+        void* contexts[SkYUVAInfo::kMaxPlanes] = {nullptr, nullptr, nullptr, nullptr};
         int textureCount = yuvaInfo.numPlanes();
         for (int i = 0; i < textureCount; ++i) {
             backendFormats[i] = curImage.backendFormat(i);

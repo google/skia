@@ -473,8 +473,6 @@ namespace skvm {
 
     struct Ptr { int ix; };
 
-    // 32-bit signed integer (with both signed sra() and unsigned/logical shr() available).
-    // Think "int" or "int32_t".
     struct I32 {
         Builder* builder = nullptr;
         Val      id      = NA;
@@ -482,71 +480,11 @@ namespace skvm {
         Builder* operator->()    const { return builder; }
     };
 
-    // 32-bit IEEE 754 float, think "float".
     struct F32 {
         Builder* builder = nullptr;
         Val      id      = NA;
         explicit operator bool() const { return id != NA; }
         Builder* operator->()    const { return builder; }
-    };
-
-    // Comparisons of F32 or I32 return I32 masks, with false=0 and true=~0.
-
-    // An opaque float-y type with ambiguous precision and at least [-2,+2) range.
-    // This could be FP16, FP32, signed 1.14 fixed point, bfloat16, etc.
-    struct Half {
-        Builder* builder = nullptr;
-        Val      id      = NA;
-        explicit operator bool() const { return id != NA; }
-        Builder* operator->()    const { return builder; }
-    };
-
-    // Integer mask returned by comparisons of Half, with false=0 and true=~0 as usual.
-    struct HalfMask {
-        Builder* builder = nullptr;
-        Val      id      = NA;
-        explicit operator bool() const { return id != NA; }
-        Builder* operator->()    const { return builder; }
-    };
-
-    // Some operations make sense with immediate arguments,
-    // so we use I32a/F32a/Halfa to receive them transparently.
-    //
-    // We omit overloads that may indicate a bug or performance issue.
-    // In general it does not make sense to pass immediates to unary operations,
-    // and even sometimes not for binary operations, e.g.
-    //
-    //   div(x,y)    -- normal every day divide
-    //   div(3.0f,y) -- yep, makes sense
-    //   div(x,3.0f) -- omitted as a reminder you probably want mul(x, 1/3.0f).
-    //
-    // You can of course always splat() to override these opinions.
-    struct I32a {
-        I32a(I32 v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
-        template <typename T>
-        I32a(T v, std::enable_if_t<std::is_integral<T>::value>* = nullptr) : imm(v) {}
-
-        SkDEBUGCODE(Builder* builder = nullptr;)
-        Val id  = NA;
-        int imm = 0;
-    };
-
-    struct F32a {
-        F32a(F32   v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
-        F32a(float v) : imm(v) {}
-
-        SkDEBUGCODE(Builder* builder = nullptr;)
-        Val   id  = NA;
-        float imm = 0;
-    };
-
-    struct Halfa {
-        Halfa(Half  v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
-        Halfa(float v) : imm(v) {}
-
-        SkDEBUGCODE(Builder* builder = nullptr;)
-        Val   id  = NA;
-        float imm = 0;
     };
 
     struct Color {
@@ -565,12 +503,6 @@ namespace skvm {
         F32 x,y;
         explicit operator bool() const { return x && y; }
         Builder* operator->()    const { return x.operator->(); }
-    };
-
-    struct HalfColor {
-        Half r,g,b,a;
-        explicit operator bool() const { return r && g && b && a; }
-        Builder* operator->()    const { return a.operator->(); }
     };
 
     struct Uniform {
@@ -669,8 +601,6 @@ namespace skvm {
         void assert_true(I32 cond, F32 debug) { assert_true(cond, pun_to_I32(debug)); }
         void assert_true(I32 cond)            { assert_true(cond, cond); }
 
-        // TODO: Half asserts?
-
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Ptr ptr, I32 val);
         void store16 (Ptr ptr, I32 val);
@@ -721,18 +651,52 @@ namespace skvm {
             memcpy(&bits, &f, 4);
             return pun_to_F32(splat(bits));
         }
-        Half half(float f) { return to_Half(splat(f)); }
+
+        // Some operations make sense with immediate arguments,
+        // so we provide overloads inline to make that seamless.
+        //
+        // We omit overloads that may indicate a bug or performance issue.
+        // In general it does not make sense to pass immediates to unary operations,
+        // and even sometimes not for binary operations, e.g.
+        //
+        //   div(x, y)    -- normal every day divide
+        //   div(3.0f, y) -- yep, makes sense
+        //   div(x, 3.0f) -- omitted as a reminder you probably want mul(x, 1/3.0f).
+        //
+        // You can of course always splat() to override these opinions.
 
         // float math, comparisons, etc.
-        F32 add(F32, F32);  F32 add(F32a x, F32a y) { return add(_(x), _(y)); }
-        F32 sub(F32, F32);  F32 sub(F32a x, F32a y) { return sub(_(x), _(y)); }
-        F32 mul(F32, F32);  F32 mul(F32a x, F32a y) { return mul(_(x), _(y)); }
-        F32 div(F32, F32);  F32 div(F32a x, F32  y) { return div(_(x),   y ); }
-        F32 min(F32, F32);  F32 min(F32a x, F32a y) { return min(_(x), _(y)); }
-        F32 max(F32, F32);  F32 max(F32a x, F32a y) { return max(_(x), _(y)); }
+        F32 add(F32, F32);
+        F32 add(F32 x, float y) { return add(x, splat(y)); }
+        F32 add(float x, F32 y) { return add(splat(x), y); }
 
-        F32 mad(F32  x, F32  y, F32  z) { return add(mul(x,y), z); }
-        F32 mad(F32a x, F32a y, F32a z) { return mad(_(x), _(y), _(z)); }
+        F32 sub(F32, F32);
+        F32 sub(F32 x, float y) { return sub(x, splat(y)); }
+        F32 sub(float x, F32 y) { return sub(splat(x), y); }
+
+        F32 mul(F32, F32);
+        F32 mul(F32 x, float y) { return mul(x, splat(y)); }
+        F32 mul(float x, F32 y) { return mul(splat(x), y); }
+
+        F32 div(F32, F32);
+        F32 div(float x, F32 y) { return div(splat(x), y); }
+
+        F32 min(F32, F32);
+        F32 min(F32 x, float y) { return min(x, splat(y)); }
+        F32 min(float x, F32 y) { return min(splat(x), y); }
+
+        F32 max(F32, F32);
+        F32 max(F32 x, float y) { return max(x, splat(y)); }
+        F32 max(float x, F32 y) { return max(splat(x), y); }
+
+        // TODO: remove mad()?  It's just sugar.
+        F32 mad(F32   x, F32   y, F32   z) { return add(mul(x,y), z); }
+        F32 mad(F32   x, F32   y, float z) { return mad(      x ,       y , splat(z)); }
+        F32 mad(F32   x, float y, F32   z) { return mad(      x , splat(y),       z ); }
+        F32 mad(F32   x, float y, float z) { return mad(      x , splat(y), splat(z)); }
+        F32 mad(float x, F32   y, F32   z) { return mad(splat(x),       y ,       z ); }
+        F32 mad(float x, F32   y, float z) { return mad(splat(x),       y , splat(z)); }
+        F32 mad(float x, float y, F32   z) { return mad(splat(x), splat(y),       z ); }
 
         F32        sqrt(F32);
         F32 approx_log2(F32);
@@ -740,8 +704,10 @@ namespace skvm {
         F32 approx_log (F32 x) { return mul(0.69314718f, approx_log2(x)); }
         F32 approx_exp (F32 x) { return approx_pow2(mul(x, 1.4426950408889634074f)); }
 
-        F32 approx_powf(F32  base, F32  exp);
-        F32 approx_powf(F32a base, F32a exp) { return approx_powf(_(base), _(exp)); }
+        F32 approx_powf(F32 base, F32 exp);
+        F32 approx_powf(F32 base, float exp) { return approx_powf(base, splat(exp)); }
+        F32 approx_powf(float base, F32 exp) { return approx_powf(splat(base), exp); }
+
 
         F32 approx_sin(F32 radians);
         F32 approx_cos(F32 radians) { return approx_sin(add(radians, SK_ScalarPI/2)); }
@@ -752,11 +718,22 @@ namespace skvm {
         F32 approx_atan(F32 x);
         F32 approx_atan2(F32 y, F32 x);
 
-        F32 lerp(F32  lo, F32  hi, F32  t);
-        F32 lerp(F32a lo, F32a hi, F32a t) { return lerp(_(lo), _(hi), _(t)); }
+        F32 lerp(F32   lo, F32   hi, F32   t);
+        F32 lerp(F32   lo, F32   hi, float t) { return lerp(      lo ,       hi , splat(t)); }
+        F32 lerp(F32   lo, float hi, float t) { return lerp(      lo , splat(hi), splat(t)); }
+        F32 lerp(F32   lo, float hi, F32   t) { return lerp(      lo , splat(hi),       t ); }
+        F32 lerp(float lo, F32   hi, F32   t) { return lerp(splat(lo),       hi ,       t ); }
+        F32 lerp(float lo, F32   hi, float t) { return lerp(splat(lo),       hi , splat(t)); }
+        F32 lerp(float lo, float hi, F32   t) { return lerp(splat(lo), splat(hi),       t ); }
 
-        F32 clamp(F32  x, F32  lo, F32  hi) { return max(lo, min(x, hi)); }
-        F32 clamp(F32a x, F32a lo, F32a hi) { return clamp(_(x), _(lo), _(hi)); }
+        F32 clamp(F32   x, F32   lo, F32   hi) { return max(lo, min(x, hi)); }
+        F32 clamp(F32   x, F32   lo, float hi) { return clamp(      x ,       lo , splat(hi)); }
+        F32 clamp(F32   x, float lo, float hi) { return clamp(      x , splat(lo), splat(hi)); }
+        F32 clamp(F32   x, float lo, F32   hi) { return clamp(      x , splat(lo),       hi ); }
+        F32 clamp(float x, F32   lo, F32   hi) { return clamp(splat(x),       lo ,       hi ); }
+        F32 clamp(float x, F32   lo, float hi) { return clamp(splat(x),       lo , splat(hi)); }
+        F32 clamp(float x, float lo, F32   hi) { return clamp(splat(x), splat(lo),       hi ); }
+
         F32 clamp01(F32 x) { return clamp(x, 0.0f, 1.0f); }
 
         F32    abs(F32 x) { return pun_to_F32(bit_and(pun_to_I32(x), 0x7fff'ffff)); }
@@ -773,96 +750,120 @@ namespace skvm {
         I32   to_fp16(F32 x);
         F32 from_fp16(I32 x);
 
-        I32  eq(F32, F32);  I32  eq(F32a x, F32a y) { return  eq(_(x), _(y)); }
-        I32 neq(F32, F32);  I32 neq(F32a x, F32a y) { return neq(_(x), _(y)); }
-        I32 lt (F32, F32);  I32 lt (F32a x, F32a y) { return lt (_(x), _(y)); }
-        I32 lte(F32, F32);  I32 lte(F32a x, F32a y) { return lte(_(x), _(y)); }
-        I32 gt (F32, F32);  I32 gt (F32a x, F32a y) { return gt (_(x), _(y)); }
-        I32 gte(F32, F32);  I32 gte(F32a x, F32a y) { return gte(_(x), _(y)); }
+        I32 eq(F32, F32);
+        I32 eq(F32 x, float y) { return eq(x, splat(y)); }
+        I32 eq(float x, F32 y) { return eq(splat(x), y); }
 
+        I32 neq(F32, F32);
+        I32 neq(F32 x, float y) { return neq(x, splat(y)); }
+        I32 neq(float x, F32 y) { return neq(splat(x), y); }
 
-        // Half math, comparisons, etc.
-        Half add(Half, Half);  Half add(Halfa x, Halfa y) { return add(_(x), _(y)); }
-        Half sub(Half, Half);  Half sub(Halfa x, Halfa y) { return sub(_(x), _(y)); }
-        Half mul(Half, Half);  Half mul(Halfa x, Halfa y) { return mul(_(x), _(y)); }
-        Half min(Half, Half);  Half min(Halfa x, Halfa y) { return min(_(x), _(y)); }
-        Half max(Half, Half);  Half max(Halfa x, Halfa y) { return max(_(x), _(y)); }
+        I32 lt(F32, F32);
+        I32 lt(F32 x, float y) { return lt(x, splat(y)); }
+        I32 lt(float x, F32 y) { return lt(splat(x), y); }
 
-        Half   sqrt(Half);
-        Half    abs(Half);
-        Half   ceil(Half);
-        Half  floor(Half);
-        Half  fract(Half x) { return sub(x, floor(x)); }
+        I32 lte(F32, F32);
+        I32 lte(F32 x, float y) { return lte(x, splat(y)); }
+        I32 lte(float x, F32 y) { return lte(splat(x), y); }
 
-        Half lerp(Half  lo, Half  hi, Half  t);
-        Half lerp(Halfa lo, Halfa hi, Halfa t) { return lerp(_(lo), _(hi), _(t)); }
+        I32 gt(F32, F32);
+        I32 gt(F32 x, float y) { return gt(x, splat(y)); }
+        I32 gt(float x, F32 y) { return gt(splat(x), y); }
 
-        Half clamp  (Half  x, Half  lo, Half  hi) { return max(lo, min(x, hi)); }
-        Half clamp  (Halfa x, Halfa lo, Halfa hi) { return clamp(_(x), _(lo), _(hi)); }
-        Half clamp01(Half x) { return clamp(x, 0.0f, 1.0f); }
-
-        Half to_Half(F32 );
-        F32  to_F32 (Half);
-
-        HalfMask  eq(Half, Half);  HalfMask  eq(Halfa x, Halfa y) { return  eq(_(x), _(y)); }
-        HalfMask neq(Half, Half);  HalfMask neq(Halfa x, Halfa y) { return neq(_(x), _(y)); }
-        HalfMask lt (Half, Half);  HalfMask lt (Halfa x, Halfa y) { return lt (_(x), _(y)); }
-        HalfMask lte(Half, Half);  HalfMask lte(Halfa x, Halfa y) { return lte(_(x), _(y)); }
-        HalfMask gt (Half, Half);  HalfMask gt (Halfa x, Halfa y) { return gt (_(x), _(y)); }
-        HalfMask gte(Half, Half);  HalfMask gte(Halfa x, Halfa y) { return gte(_(x), _(y)); }
-
-        HalfMask bit_and  (HalfMask, HalfMask);
-        HalfMask bit_or   (HalfMask, HalfMask);
-        HalfMask bit_xor  (HalfMask, HalfMask);
-        HalfMask bit_clear(HalfMask, HalfMask);
-
-        Half select(HalfMask, Half, Half);
-        Half select(HalfMask cond, Halfa t, Halfa f) { return select(cond, _(t), _(f)); }
+        I32 gte(F32, F32);
+        I32 gte(F32 x, float y) { return gte(x, splat(y)); }
+        I32 gte(float x, F32 y) { return gte(splat(x), y); }
 
         // int math, comparisons, etc.
-        I32 add(I32, I32);  I32 add(I32a x, I32a y) { return add(_(x), _(y)); }
-        I32 sub(I32, I32);  I32 sub(I32a x, I32a y) { return sub(_(x), _(y)); }
-        I32 mul(I32, I32);  I32 mul(I32a x, I32a y) { return mul(_(x), _(y)); }
+        I32 add(I32, I32);
+        I32 add(I32 x, int y) { return add(x, splat(y)); }
+        I32 add(int x, I32 y) { return add(splat(x), y); }
+
+        I32 sub(I32, I32);
+        I32 sub(I32 x, int y) { return sub(x, splat(y)); }
+        I32 sub(int x, I32 y) { return sub(splat(x), y); }
+
+        I32 mul(I32, I32);
+        I32 mul(I32 x, int y) { return mul(x, splat(y)); }
+        I32 mul(int x, I32 y) { return mul(splat(x), y); }
 
         I32 shl(I32 x, int bits);
         I32 shr(I32 x, int bits);
         I32 sra(I32 x, int bits);
 
-        I32 eq (I32 x, I32 y);  I32  eq(I32a x, I32a y) { return  eq(_(x), _(y)); }
-        I32 neq(I32 x, I32 y);  I32 neq(I32a x, I32a y) { return neq(_(x), _(y)); }
-        I32 lt (I32 x, I32 y);  I32 lt (I32a x, I32a y) { return lt (_(x), _(y)); }
-        I32 lte(I32 x, I32 y);  I32 lte(I32a x, I32a y) { return lte(_(x), _(y)); }
-        I32 gt (I32 x, I32 y);  I32 gt (I32a x, I32a y) { return gt (_(x), _(y)); }
-        I32 gte(I32 x, I32 y);  I32 gte(I32a x, I32a y) { return gte(_(x), _(y)); }
+        I32 eq(I32, I32);
+        I32 eq(I32 x, int y) { return eq(x, splat(y)); }
+        I32 eq(int x, I32 y) { return eq(splat(x), y); }
+
+        I32 neq(I32, I32);
+        I32 neq(I32 x, int y) { return neq(x, splat(y)); }
+        I32 neq(int x, I32 y) { return neq(splat(x), y); }
+
+        I32 lt(I32, I32);
+        I32 lt(I32 x, int y) { return lt(x, splat(y)); }
+        I32 lt(int x, I32 y) { return lt(splat(x), y); }
+
+        I32 lte(I32, I32);
+        I32 lte(I32 x, int y) { return lte(x, splat(y)); }
+        I32 lte(int x, I32 y) { return lte(splat(x), y); }
+
+        I32 gt(I32, I32);
+        I32 gt(I32 x, int y) { return gt(x, splat(y)); }
+        I32 gt(int x, I32 y) { return gt(splat(x), y); }
+
+        I32 gte(I32, I32);
+        I32 gte(I32 x, int y) { return gte(x, splat(y)); }
+        I32 gte(int x, I32 y) { return gte(splat(x), y); }
 
         F32 to_F32(I32 x);
         F32 pun_to_F32(I32 x) { return {x.builder, x.id}; }
 
         // Bitwise operations.
-        I32 bit_and  (I32, I32);  I32 bit_and  (I32a x, I32a y) { return bit_and  (_(x), _(y)); }
-        I32 bit_or   (I32, I32);  I32 bit_or   (I32a x, I32a y) { return bit_or   (_(x), _(y)); }
-        I32 bit_xor  (I32, I32);  I32 bit_xor  (I32a x, I32a y) { return bit_xor  (_(x), _(y)); }
-        I32 bit_clear(I32, I32);  I32 bit_clear(I32a x, I32a y) { return bit_clear(_(x), _(y)); }
+        I32 bit_and(I32, I32);
+        I32 bit_and(I32 x, int y) { return bit_and(x, splat(y)); }
+        I32 bit_and(int x, I32 y) { return bit_and(splat(x), y); }
+
+        I32 bit_or(I32, I32);
+        I32 bit_or(I32 x, int y) { return bit_or(x, splat(y)); }
+        I32 bit_or(int x, I32 y) { return bit_or(splat(x), y); }
+
+        I32 bit_xor(I32, I32);
+        I32 bit_xor(I32 x, int y) { return bit_xor(x, splat(y)); }
+        I32 bit_xor(int x, I32 y) { return bit_xor(splat(x), y); }
+
+        I32 bit_clear(I32, I32);
+        I32 bit_clear(I32 x, int y) { return bit_clear(x, splat(y)); }
+        I32 bit_clear(int x, I32 y) { return bit_clear(splat(x), y); }
 
         I32 min(I32 x, I32 y) { return select(lte(x,y), x, y); }
-        I32 max(I32 x, I32 y) { return select(gte(x,y), x, y); }
+        I32 min(I32 x, int y) { return min(x, splat(y)); }
+        I32 min(int x, I32 y) { return min(splat(x), y); }
 
-        I32 min(I32a x, I32a y) { return min(_(x), _(y)); }
-        I32 max(I32a x, I32a y) { return max(_(x), _(y)); }
+        I32 max(I32 x, I32 y) { return select(gte(x,y), x, y); }
+        I32 max(I32 x, int y) { return max(x, splat(y)); }
+        I32 max(int x, I32 y) { return max(splat(x), y); }
 
         I32 select(I32 cond, I32 t, I32 f);  // cond ? t : f
+        I32 select(I32 cond, int t, I32 f) { return select(cond, splat(t),       f ); }
+        I32 select(I32 cond, I32 t, int f) { return select(cond,       t , splat(f)); }
+        I32 select(I32 cond, int t, int f) { return select(cond, splat(t), splat(f)); }
+
         F32 select(I32 cond, F32 t, F32 f) {
             return pun_to_F32(select(cond, pun_to_I32(t)
                                          , pun_to_I32(f)));
         }
-        I32 select(I32a cond, I32a t, I32a f) { return select(_(cond), _(t), _(f)); }
-        F32 select(I32a cond, F32a t, F32a f) { return select(_(cond), _(t), _(f)); }
+        F32 select(I32 cond, float t, F32   f) { return select(cond, splat(t),       f ); }
+        F32 select(I32 cond, F32   t, float f) { return select(cond,       t , splat(f)); }
+        F32 select(I32 cond, float t, float f) { return select(cond, splat(t), splat(f)); }
 
         I32 extract(I32 x, int bits, I32 z);   // (x>>bits) & z
-        I32 pack   (I32 x, I32 y, int bits);   // x | (y<<bits)
+        I32 extract(I32 x, int bits, int z) { return extract(x, bits, splat(z)); }
+        I32 extract(int x, int bits, I32 z) { return extract(splat(x), bits, z); }
 
-        I32 extract(I32a x, int bits, I32a z) { return extract(_(x), bits, _(z)); }
-        I32 pack   (I32a x, I32a y, int bits) { return pack   (_(x), _(y), bits); }
+        I32 pack(I32 x, I32 y, int bits);   // x | (y<<bits)
+        I32 pack(I32 x, int y, int bits) { return pack(x, splat(y), bits); }
+        I32 pack(int x, I32 y, int bits) { return pack(splat(x), y, bits); }
+
 
         // Common idioms used in several places, worth centralizing for consistency.
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
@@ -899,30 +900,6 @@ namespace skvm {
     private:
         Val push(Op op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0) {
             return this->push(Instruction{op, x,y,z, immy,immz});
-        }
-
-        I32 _(I32a x) {
-            if (x.id != NA) {
-                SkASSERT(x.builder == this);
-                return {this, x.id};
-            }
-            return splat(x.imm);
-        }
-
-        F32 _(F32a x) {
-            if (x.id != NA) {
-                SkASSERT(x.builder == this);
-                return {this, x.id};
-            }
-            return splat(x.imm);
-        }
-
-        Half _(Halfa x) {
-            if (x.id != NA) {
-                SkASSERT(x.builder == this);
-                return {this, x.id};
-            }
-            return half(x.imm);
         }
 
         bool allImm() const;
@@ -1011,278 +988,275 @@ namespace skvm {
     // TODO: control flow
     // TODO: 64-bit values?
 
+#define SI static inline
 
-    static inline I32 operator+(I32 x, I32a y) { return x->add(x,y); }
-    static inline I32 operator+(int x, I32  y) { return y->add(x,y); }
+    SI I32 operator+(I32 x, I32 y) { return x->add(x,y); }
+    SI I32 operator+(I32 x, int y) { return x->add(x,y); }
+    SI I32 operator+(int x, I32 y) { return y->add(x,y); }
 
-    static inline I32 operator-(I32 x, I32a y) { return x->sub(x,y); }
-    static inline I32 operator-(int x, I32  y) { return y->sub(x,y); }
+    SI I32 operator-(I32 x, I32 y) { return x->sub(x,y); }
+    SI I32 operator-(I32 x, int y) { return x->sub(x,y); }
+    SI I32 operator-(int x, I32 y) { return y->sub(x,y); }
 
-    static inline I32 operator*(I32 x, I32a y) { return x->mul(x,y); }
-    static inline I32 operator*(int x, I32  y) { return y->mul(x,y); }
+    SI I32 operator*(I32 x, I32 y) { return x->mul(x,y); }
+    SI I32 operator*(I32 x, int y) { return x->mul(x,y); }
+    SI I32 operator*(int x, I32 y) { return y->mul(x,y); }
 
-    static inline I32 min(I32 x, I32a y) { return x->min(x,y); }
-    static inline I32 min(int x, I32  y) { return y->min(x,y); }
+    SI I32 min(I32 x, I32 y) { return x->min(x,y); }
+    SI I32 min(I32 x, int y) { return x->min(x,y); }
+    SI I32 min(int x, I32 y) { return y->min(x,y); }
 
-    static inline I32 max(I32 x, I32a y) { return x->max(x,y); }
-    static inline I32 max(int x, I32  y) { return y->max(x,y); }
+    SI I32 max(I32 x, I32 y) { return x->max(x,y); }
+    SI I32 max(I32 x, int y) { return x->max(x,y); }
+    SI I32 max(int x, I32 y) { return y->max(x,y); }
 
-    static inline I32 operator==(I32 x, I32 y) { return x->eq(x,y); }
-    static inline I32 operator==(I32 x, int y) { return x->eq(x,y); }
-    static inline I32 operator==(int x, I32 y) { return y->eq(x,y); }
+    SI I32 operator==(I32 x, I32 y) { return x->eq(x,y); }
+    SI I32 operator==(I32 x, int y) { return x->eq(x,y); }
+    SI I32 operator==(int x, I32 y) { return y->eq(x,y); }
 
-    static inline I32 operator!=(I32 x, I32 y) { return x->neq(x,y); }
-    static inline I32 operator!=(I32 x, int y) { return x->neq(x,y); }
-    static inline I32 operator!=(int x, I32 y) { return y->neq(x,y); }
+    SI I32 operator!=(I32 x, I32 y) { return x->neq(x,y); }
+    SI I32 operator!=(I32 x, int y) { return x->neq(x,y); }
+    SI I32 operator!=(int x, I32 y) { return y->neq(x,y); }
 
-    static inline I32 operator< (I32 x, I32a y) { return x->lt(x,y); }
-    static inline I32 operator< (int x, I32  y) { return y->lt(x,y); }
+    SI I32 operator< (I32 x, I32 y) { return x->lt(x,y); }
+    SI I32 operator< (I32 x, int y) { return x->lt(x,y); }
+    SI I32 operator< (int x, I32 y) { return y->lt(x,y); }
 
-    static inline I32 operator<=(I32 x, I32a y) { return x->lte(x,y); }
-    static inline I32 operator<=(int x, I32  y) { return y->lte(x,y); }
+    SI I32 operator<=(I32 x, I32 y) { return x->lte(x,y); }
+    SI I32 operator<=(I32 x, int y) { return x->lte(x,y); }
+    SI I32 operator<=(int x, I32 y) { return y->lte(x,y); }
 
-    static inline I32 operator> (I32 x, I32a y) { return x->gt(x,y); }
-    static inline I32 operator> (int x, I32  y) { return y->gt(x,y); }
+    SI I32 operator> (I32 x, I32 y) { return x->gt(x,y); }
+    SI I32 operator> (I32 x, int y) { return x->gt(x,y); }
+    SI I32 operator> (int x, I32 y) { return y->gt(x,y); }
 
-    static inline I32 operator>=(I32 x, I32a y) { return x->gte(x,y); }
-    static inline I32 operator>=(int x, I32  y) { return y->gte(x,y); }
+    SI I32 operator>=(I32 x, I32 y) { return x->gte(x,y); }
+    SI I32 operator>=(I32 x, int y) { return x->gte(x,y); }
+    SI I32 operator>=(int x, I32 y) { return y->gte(x,y); }
 
 
-    static inline F32 operator+(F32   x, F32a y) { return x->add(x,y); }
-    static inline F32 operator+(float x, F32  y) { return y->add(x,y); }
+    SI F32 operator+(F32   x, F32   y) { return x->add(x,y); }
+    SI F32 operator+(F32   x, float y) { return x->add(x,y); }
+    SI F32 operator+(float x, F32   y) { return y->add(x,y); }
 
-    static inline F32 operator-(F32   x, F32a y) { return x->sub(x,y); }
-    static inline F32 operator-(float x, F32  y) { return y->sub(x,y); }
+    SI F32 operator-(F32   x, F32   y) { return x->sub(x,y); }
+    SI F32 operator-(F32   x, float y) { return x->sub(x,y); }
+    SI F32 operator-(float x, F32   y) { return y->sub(x,y); }
 
-    static inline F32 operator*(F32   x, F32a y) { return x->mul(x,y); }
-    static inline F32 operator*(float x, F32  y) { return y->mul(x,y); }
+    SI F32 operator*(F32   x, F32   y) { return x->mul(x,y); }
+    SI F32 operator*(F32   x, float y) { return x->mul(x,y); }
+    SI F32 operator*(float x, F32   y) { return y->mul(x,y); }
 
-    static inline F32 operator/(F32   x, F32  y) { return x->div(x,y); }
-    static inline F32 operator/(float x, F32  y) { return y->div(x,y); }
-
-    static inline F32 min(F32   x, F32a y) { return x->min(x,y); }
-    static inline F32 min(float x, F32  y) { return y->min(x,y); }
-
-    static inline F32 max(F32   x, F32a y) { return x->max(x,y); }
-    static inline F32 max(float x, F32  y) { return y->max(x,y); }
-
-    static inline I32 operator==(F32   x, F32   y) { return x->eq(x,y); }
-    static inline I32 operator==(F32   x, float y) { return x->eq(x,y); }
-    static inline I32 operator==(float x, F32   y) { return y->eq(x,y); }
-
-    static inline I32 operator!=(F32   x, F32   y) { return x->neq(x,y); }
-    static inline I32 operator!=(F32   x, float y) { return x->neq(x,y); }
-    static inline I32 operator!=(float x, F32   y) { return y->neq(x,y); }
-
-    static inline I32 operator< (F32   x, F32a y) { return x->lt(x,y); }
-    static inline I32 operator< (float x, F32  y) { return y->lt(x,y); }
-
-    static inline I32 operator<=(F32   x, F32a y) { return x->lte(x,y); }
-    static inline I32 operator<=(float x, F32  y) { return y->lte(x,y); }
-
-    static inline I32 operator> (F32   x, F32a y) { return x->gt(x,y); }
-    static inline I32 operator> (float x, F32  y) { return y->gt(x,y); }
-
-    static inline I32 operator>=(F32   x, F32a y) { return x->gte(x,y); }
-    static inline I32 operator>=(float x, F32  y) { return y->gte(x,y); }
-
-    static inline I32& operator+=(I32& x, I32a y) { return (x = x + y); }
-    static inline I32& operator-=(I32& x, I32a y) { return (x = x - y); }
-    static inline I32& operator*=(I32& x, I32a y) { return (x = x * y); }
-
-    static inline F32& operator+=(F32& x, F32a y) { return (x = x + y); }
-    static inline F32& operator-=(F32& x, F32a y) { return (x = x - y); }
-    static inline F32& operator*=(F32& x, F32a y) { return (x = x * y); }
-    static inline F32& operator/=(F32& x, F32  y) { return (x = x / y); }
-
-    static inline Half operator+(Half  x, Halfa y) { return x->add(x,y); }
-    static inline Half operator+(float x, Half  y) { return y->add(x,y); }
-
-    static inline Half operator-(Half  x, Halfa y) { return x->sub(x,y); }
-    static inline Half operator-(float x, Half  y) { return y->sub(x,y); }
-
-    static inline Half operator*(Half  x, Halfa y) { return x->mul(x,y); }
-    static inline Half operator*(float x, Half  y) { return y->mul(x,y); }
-
-    static inline Half min(Half  x, Halfa y) { return x->min(x,y); }
-    static inline Half min(float x, Half  y) { return y->min(x,y); }
-
-    static inline Half max(Half  x, Halfa y) { return x->max(x,y); }
-    static inline Half max(float x, Half  y) { return y->max(x,y); }
-
-    static inline HalfMask operator==(Half  x, Half  y) { return x->eq(x,y); }
-    static inline HalfMask operator==(Half  x, float y) { return x->eq(x,y); }
-    static inline HalfMask operator==(float x, Half  y) { return y->eq(x,y); }
-
-    static inline HalfMask operator!=(Half  x, Half  y) { return x->neq(x,y); }
-    static inline HalfMask operator!=(Half  x, float y) { return x->neq(x,y); }
-    static inline HalfMask operator!=(float x, Half  y) { return y->neq(x,y); }
-
-    static inline HalfMask operator< (Half  x, Halfa y) { return x->lt(x,y); }
-    static inline HalfMask operator< (float x, Half  y) { return y->lt(x,y); }
-
-    static inline HalfMask operator<=(Half  x, Halfa y) { return x->lte(x,y); }
-    static inline HalfMask operator<=(float x, Half  y) { return y->lte(x,y); }
-
-    static inline HalfMask operator> (Half  x, Halfa y) { return x->gt(x,y); }
-    static inline HalfMask operator> (float x, Half  y) { return y->gt(x,y); }
-
-    static inline HalfMask operator>=(Half  x, Halfa y) { return x->gte(x,y); }
-    static inline HalfMask operator>=(float x, Half  y) { return y->gte(x,y); }
-
-    static inline Half to_Half(F32  x) { return x->to_Half(x); }
-    static inline F32  to_F32 (Half x) { return x->to_F32 (x); }
-
-    static inline void assert_true(I32 cond, I32 debug) { cond->assert_true(cond,debug); }
-    static inline void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
-    static inline void assert_true(I32 cond)            { cond->assert_true(cond); }
-
-    static inline void store8  (Ptr ptr, I32 val)                { val->store8  (ptr, val); }
-    static inline void store16 (Ptr ptr, I32 val)                { val->store16 (ptr, val); }
-    static inline void store32 (Ptr ptr, I32 val)                { val->store32 (ptr, val); }
-    static inline void storeF  (Ptr ptr, F32 val)                { val->storeF  (ptr, val); }
-    static inline void store64 (Ptr ptr, I32 lo, I32 hi)         { lo ->store64 (ptr, lo,hi); }
-    static inline void store128(Ptr ptr, I32 lo, I32 hi, int ix) { lo ->store128(ptr, lo,hi, ix); }
-
-    static inline I32 gather8 (Ptr ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
-    static inline I32 gather16(Ptr ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
-    static inline I32 gather32(Ptr ptr, int off, I32 ix) { return ix->gather32(ptr, off, ix); }
-    static inline F32 gatherF (Ptr ptr, int off, I32 ix) { return ix->gatherF (ptr, off, ix); }
-
-    static inline I32 gather8 (Uniform u, I32 ix) { return ix->gather8 (u, ix); }
-    static inline I32 gather16(Uniform u, I32 ix) { return ix->gather16(u, ix); }
-    static inline I32 gather32(Uniform u, I32 ix) { return ix->gather32(u, ix); }
-    static inline F32 gatherF (Uniform u, I32 ix) { return ix->gatherF (u, ix); }
-
-    static inline F32        sqrt(F32 x) { return x->       sqrt(x); }
-    static inline F32 approx_log2(F32 x) { return x->approx_log2(x); }
-    static inline F32 approx_pow2(F32 x) { return x->approx_pow2(x); }
-    static inline F32 approx_log (F32 x) { return x->approx_log (x); }
-    static inline F32 approx_exp (F32 x) { return x->approx_exp (x); }
-
-    static inline F32 approx_powf(F32   base, F32a exp) { return base->approx_powf(base, exp); }
-    static inline F32 approx_powf(float base, F32  exp) { return  exp->approx_powf(base, exp); }
-
-    static inline F32 approx_sin(F32 radians) { return radians->approx_sin(radians); }
-    static inline F32 approx_cos(F32 radians) { return radians->approx_cos(radians); }
-    static inline F32 approx_tan(F32 radians) { return radians->approx_tan(radians); }
-
-    static inline F32 approx_asin(F32 x) { return x->approx_asin(x); }
-    static inline F32 approx_acos(F32 x) { return x->approx_acos(x); }
-    static inline F32 approx_atan(F32 x) { return x->approx_atan(x); }
-    static inline F32 approx_atan2(F32 y, F32 x) { return x->approx_atan2(y, x); }
-
-    static inline F32   clamp01(F32 x) { return x->  clamp01(x); }
-    static inline F32       abs(F32 x) { return x->      abs(x); }
-    static inline F32      ceil(F32 x) { return x->     ceil(x); }
-    static inline F32     fract(F32 x) { return x->    fract(x); }
-    static inline F32     floor(F32 x) { return x->    floor(x); }
-    static inline I32    is_NaN(F32 x) { return x->   is_NaN(x); }
-    static inline I32 is_finite(F32 x) { return x->is_finite(x); }
-
-    static inline I32      trunc(F32 x) { return x->      trunc(x); }
-    static inline I32      round(F32 x) { return x->      round(x); }
-    static inline I32 pun_to_I32(F32 x) { return x-> pun_to_I32(x); }
-    static inline F32 pun_to_F32(I32 x) { return x-> pun_to_F32(x); }
-    static inline F32     to_F32(I32 x) { return x->     to_F32(x); }
-    static inline I32    to_fp16(F32 x) { return x->    to_fp16(x); }
-    static inline F32  from_fp16(I32 x) { return x->  from_fp16(x); }
-
-    static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
-    static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }
-    static inline F32 lerp(float lo, float hi, F32  t) { return  t->lerp(lo,hi,t); }
-
-    static inline F32 clamp(F32   x, F32a  lo, F32a hi) { return  x->clamp(x,lo,hi); }
-    static inline F32 clamp(float x, F32   lo, F32a hi) { return lo->clamp(x,lo,hi); }
-    static inline F32 clamp(float x, float lo, F32  hi) { return hi->clamp(x,lo,hi); }
-
-    static inline I32 operator<<(I32 x, int bits) { return x->shl(x, bits); }
-    static inline I32        shl(I32 x, int bits) { return x->shl(x, bits); }
-    static inline I32        shr(I32 x, int bits) { return x->shr(x, bits); }
-    static inline I32        sra(I32 x, int bits) { return x->sra(x, bits); }
-
-    static inline I32 operator&(I32 x, I32a y) { return x->bit_and(x,y); }
-    static inline I32 operator&(int x, I32  y) { return y->bit_and(x,y); }
-
-    static inline I32 operator|(I32 x, I32a y) { return x->bit_or (x,y); }
-    static inline I32 operator|(int x, I32  y) { return y->bit_or (x,y); }
-
-    static inline I32 operator^(I32 x, I32a y) { return x->bit_xor(x,y); }
-    static inline I32 operator^(int x, I32  y) { return y->bit_xor(x,y); }
-
-    static inline I32& operator&=(I32& x, I32a y) { return (x = x & y); }
-    static inline I32& operator|=(I32& x, I32a y) { return (x = x | y); }
-    static inline I32& operator^=(I32& x, I32a y) { return (x = x ^ y); }
-
-    static inline I32 bit_clear(I32 x, I32a y) { return x->bit_clear(x,y); }
-    static inline I32 bit_clear(int x, I32  y) { return y->bit_clear(x,y); }
-
-    static inline I32 select(I32 cond, I32a t, I32a f) { return cond->select(cond,t,f); }
-    static inline F32 select(I32 cond, F32a t, F32a f) { return cond->select(cond,t,f); }
-
-    static inline I32 extract(I32 x, int bits, I32a z) { return x->extract(x,bits,z); }
-    static inline I32 extract(int x, int bits, I32  z) { return z->extract(x,bits,z); }
-    static inline I32 pack   (I32 x, I32a y, int bits) { return x->pack   (x,y,bits); }
-    static inline I32 pack   (int x, I32  y, int bits) { return y->pack   (x,y,bits); }
-
-    static inline I32 operator~(I32 x) { return ~0 ^ x; }
-    static inline I32 operator-(I32 x) { return  0 - x; }
-    static inline F32 operator-(F32 x) { return 0.0f - x; }
-
-    static inline F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
-    static inline I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
-
-    static inline bool store(PixelFormat f, Ptr p, Color c) { return c->store(f,p,c); }
-    static inline Color gather(PixelFormat f, Ptr p, int off, I32 ix) {
-        return ix->gather(f,p,off,ix);
-    }
-    static inline Color gather(PixelFormat f, Uniform u, I32 ix) {
-        return ix->gather(f,u,ix);
-    }
-
-    static inline void   premul(F32* r, F32* g, F32* b, F32 a) { a->  premul(r,g,b,a); }
-    static inline void unpremul(F32* r, F32* g, F32* b, F32 a) { a->unpremul(r,g,b,a); }
-
-    static inline Color   premul(Color c) { return c->  premul(c); }
-    static inline Color unpremul(Color c) { return c->unpremul(c); }
-
-    static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
-
-    static inline Color blend(SkBlendMode m, Color s, Color d) { return s->blend(m,s,d); }
-
-    static inline Color clamp01(Color c) { return c->clamp01(c); }
-
-    static inline HSLA  to_hsla(Color c) { return c->to_hsla(c); }
-    static inline Color to_rgba(HSLA  c) { return c->to_rgba(c); }
+    SI F32 operator/(F32   x, F32  y) { return x->div(x,y); }
+    SI F32 operator/(float x, F32  y) { return y->div(x,y); }
+
+    SI F32 min(F32   x, F32   y) { return x->min(x,y); }
+    SI F32 min(F32   x, float y) { return x->min(x,y); }
+    SI F32 min(float x, F32   y) { return y->min(x,y); }
+
+    SI F32 max(F32   x, F32   y) { return x->max(x,y); }
+    SI F32 max(F32   x, float y) { return x->max(x,y); }
+    SI F32 max(float x, F32   y) { return y->max(x,y); }
+
+    SI I32 operator==(F32   x, F32   y) { return x->eq(x,y); }
+    SI I32 operator==(F32   x, float y) { return x->eq(x,y); }
+    SI I32 operator==(float x, F32   y) { return y->eq(x,y); }
+
+    SI I32 operator!=(F32   x, F32   y) { return x->neq(x,y); }
+    SI I32 operator!=(F32   x, float y) { return x->neq(x,y); }
+    SI I32 operator!=(float x, F32   y) { return y->neq(x,y); }
+
+    SI I32 operator< (F32   x, F32   y) { return x->lt(x,y); }
+    SI I32 operator< (F32   x, float y) { return x->lt(x,y); }
+    SI I32 operator< (float x, F32   y) { return y->lt(x,y); }
+
+    SI I32 operator<=(F32   x, F32   y) { return x->lte(x,y); }
+    SI I32 operator<=(F32   x, float y) { return x->lte(x,y); }
+    SI I32 operator<=(float x, F32   y) { return y->lte(x,y); }
+
+    SI I32 operator> (F32   x, F32   y) { return x->gt(x,y); }
+    SI I32 operator> (F32   x, float y) { return x->gt(x,y); }
+    SI I32 operator> (float x, F32   y) { return y->gt(x,y); }
+
+    SI I32 operator>=(F32   x, F32   y) { return x->gte(x,y); }
+    SI I32 operator>=(F32   x, float y) { return x->gte(x,y); }
+    SI I32 operator>=(float x, F32   y) { return y->gte(x,y); }
+
+    SI I32& operator+=(I32& x, I32 y) { return (x = x + y); }
+    SI I32& operator+=(I32& x, int y) { return (x = x + y); }
+
+    SI I32& operator-=(I32& x, I32 y) { return (x = x - y); }
+    SI I32& operator-=(I32& x, int y) { return (x = x - y); }
+
+    SI I32& operator*=(I32& x, I32 y) { return (x = x * y); }
+    SI I32& operator*=(I32& x, int y) { return (x = x * y); }
+
+    SI F32& operator+=(F32& x, F32   y) { return (x = x + y); }
+    SI F32& operator+=(F32& x, float y) { return (x = x + y); }
+
+    SI F32& operator-=(F32& x, F32   y) { return (x = x - y); }
+    SI F32& operator-=(F32& x, float y) { return (x = x - y); }
+
+    SI F32& operator*=(F32& x, F32   y) { return (x = x * y); }
+    SI F32& operator*=(F32& x, float y) { return (x = x * y); }
+
+    SI F32& operator/=(F32& x, F32   y) { return (x = x / y); }
+
+    SI void assert_true(I32 cond, I32 debug) { cond->assert_true(cond,debug); }
+    SI void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
+    SI void assert_true(I32 cond)            { cond->assert_true(cond); }
+
+    SI void store8  (Ptr ptr, I32 val)                { val->store8  (ptr, val); }
+    SI void store16 (Ptr ptr, I32 val)                { val->store16 (ptr, val); }
+    SI void store32 (Ptr ptr, I32 val)                { val->store32 (ptr, val); }
+    SI void storeF  (Ptr ptr, F32 val)                { val->storeF  (ptr, val); }
+    SI void store64 (Ptr ptr, I32 lo, I32 hi)         { lo ->store64 (ptr, lo,hi); }
+    SI void store128(Ptr ptr, I32 lo, I32 hi, int ix) { lo ->store128(ptr, lo,hi, ix); }
+
+    SI I32 gather8 (Ptr ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
+    SI I32 gather16(Ptr ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
+    SI I32 gather32(Ptr ptr, int off, I32 ix) { return ix->gather32(ptr, off, ix); }
+    SI F32 gatherF (Ptr ptr, int off, I32 ix) { return ix->gatherF (ptr, off, ix); }
+
+    SI I32 gather8 (Uniform u, I32 ix) { return ix->gather8 (u, ix); }
+    SI I32 gather16(Uniform u, I32 ix) { return ix->gather16(u, ix); }
+    SI I32 gather32(Uniform u, I32 ix) { return ix->gather32(u, ix); }
+    SI F32 gatherF (Uniform u, I32 ix) { return ix->gatherF (u, ix); }
+
+    SI F32        sqrt(F32 x) { return x->       sqrt(x); }
+    SI F32 approx_log2(F32 x) { return x->approx_log2(x); }
+    SI F32 approx_pow2(F32 x) { return x->approx_pow2(x); }
+    SI F32 approx_log (F32 x) { return x->approx_log (x); }
+    SI F32 approx_exp (F32 x) { return x->approx_exp (x); }
+
+    SI F32 approx_powf(F32   base, F32   exp) { return base->approx_powf(base, exp); }
+    SI F32 approx_powf(F32   base, float exp) { return base->approx_powf(base, exp); }
+    SI F32 approx_powf(float base, F32   exp) { return  exp->approx_powf(base, exp); }
+
+    SI F32 approx_sin(F32 radians) { return radians->approx_sin(radians); }
+    SI F32 approx_cos(F32 radians) { return radians->approx_cos(radians); }
+    SI F32 approx_tan(F32 radians) { return radians->approx_tan(radians); }
+
+    SI F32 approx_asin(F32 x) { return x->approx_asin(x); }
+    SI F32 approx_acos(F32 x) { return x->approx_acos(x); }
+    SI F32 approx_atan(F32 x) { return x->approx_atan(x); }
+    SI F32 approx_atan2(F32 y, F32 x) { return x->approx_atan2(y, x); }
+
+    SI F32   clamp01(F32 x) { return x->  clamp01(x); }
+    SI F32       abs(F32 x) { return x->      abs(x); }
+    SI F32      ceil(F32 x) { return x->     ceil(x); }
+    SI F32     fract(F32 x) { return x->    fract(x); }
+    SI F32     floor(F32 x) { return x->    floor(x); }
+    SI I32    is_NaN(F32 x) { return x->   is_NaN(x); }
+    SI I32 is_finite(F32 x) { return x->is_finite(x); }
+
+    SI I32      trunc(F32 x) { return x->      trunc(x); }
+    SI I32      round(F32 x) { return x->      round(x); }
+    SI I32 pun_to_I32(F32 x) { return x-> pun_to_I32(x); }
+    SI F32 pun_to_F32(I32 x) { return x-> pun_to_F32(x); }
+    SI F32     to_F32(I32 x) { return x->     to_F32(x); }
+    SI I32    to_fp16(F32 x) { return x->    to_fp16(x); }
+    SI F32  from_fp16(I32 x) { return x->  from_fp16(x); }
+
+    SI F32 lerp(F32   lo, F32   hi, F32   t) { return lo->lerp(lo,hi,t); }
+    SI F32 lerp(F32   lo, F32   hi, float t) { return lo->lerp(lo,hi,t); }
+    SI F32 lerp(F32   lo, float hi, F32   t) { return lo->lerp(lo,hi,t); }
+    SI F32 lerp(F32   lo, float hi, float t) { return lo->lerp(lo,hi,t); }
+    SI F32 lerp(float lo, F32   hi, F32   t) { return hi->lerp(lo,hi,t); }
+    SI F32 lerp(float lo, F32   hi, float t) { return hi->lerp(lo,hi,t); }
+    SI F32 lerp(float lo, float hi, F32   t) { return  t->lerp(lo,hi,t); }
+
+    SI F32 clamp(F32   x, F32   lo, F32   hi) { return  x->clamp(x,lo,hi); }
+    SI F32 clamp(F32   x, F32   lo, float hi) { return  x->clamp(x,lo,hi); }
+    SI F32 clamp(F32   x, float lo, F32   hi) { return  x->clamp(x,lo,hi); }
+    SI F32 clamp(F32   x, float lo, float hi) { return  x->clamp(x,lo,hi); }
+    SI F32 clamp(float x, F32   lo, F32   hi) { return lo->clamp(x,lo,hi); }
+    SI F32 clamp(float x, F32   lo, float hi) { return lo->clamp(x,lo,hi); }
+    SI F32 clamp(float x, float lo, F32   hi) { return hi->clamp(x,lo,hi); }
+
+    SI I32 operator<<(I32 x, int bits) { return x->shl(x, bits); }
+    SI I32        shl(I32 x, int bits) { return x->shl(x, bits); }
+    SI I32        shr(I32 x, int bits) { return x->shr(x, bits); }
+    SI I32        sra(I32 x, int bits) { return x->sra(x, bits); }
+
+    SI I32 operator&(I32 x, I32 y) { return x->bit_and(x,y); }
+    SI I32 operator&(I32 x, int y) { return x->bit_and(x,y); }
+    SI I32 operator&(int x, I32 y) { return y->bit_and(x,y); }
+
+    SI I32 operator|(I32 x, I32 y) { return x->bit_or (x,y); }
+    SI I32 operator|(I32 x, int y) { return x->bit_or (x,y); }
+    SI I32 operator|(int x, I32 y) { return y->bit_or (x,y); }
+
+    SI I32 operator^(I32 x, I32 y) { return x->bit_xor(x,y); }
+    SI I32 operator^(I32 x, int y) { return x->bit_xor(x,y); }
+    SI I32 operator^(int x, I32 y) { return y->bit_xor(x,y); }
+
+    SI I32& operator&=(I32& x, I32 y) { return (x = x & y); }
+    SI I32& operator&=(I32& x, int y) { return (x = x & y); }
+    SI I32& operator|=(I32& x, I32 y) { return (x = x | y); }
+    SI I32& operator|=(I32& x, int y) { return (x = x | y); }
+    SI I32& operator^=(I32& x, I32 y) { return (x = x ^ y); }
+    SI I32& operator^=(I32& x, int y) { return (x = x ^ y); }
+
+    SI I32 bit_clear(I32 x, I32 y) { return x->bit_clear(x,y); }
+    SI I32 bit_clear(I32 x, int y) { return x->bit_clear(x,y); }
+    SI I32 bit_clear(int x, I32 y) { return y->bit_clear(x,y); }
+
+    SI I32 select(I32 c, I32 t, I32 f) { return c->select(c,          t ,          f ); }
+    SI I32 select(I32 c, I32 t, int f) { return c->select(c,          t , c->splat(f)); }
+    SI I32 select(I32 c, int t, I32 f) { return c->select(c, c->splat(t),          f ); }
+    SI I32 select(I32 c, int t, int f) { return c->select(c, c->splat(t), c->splat(f)); }
+
+    SI F32 select(I32 c, F32   t, F32   f) { return c->select(c,          t ,          f ); }
+    SI F32 select(I32 c, F32   t, float f) { return c->select(c,          t , c->splat(f)); }
+    SI F32 select(I32 c, float t, F32   f) { return c->select(c, c->splat(t),          f ); }
+    SI F32 select(I32 c, float t, float f) { return c->select(c, c->splat(t), c->splat(f)); }
+
+    SI I32 extract(I32 x, int bits, I32 z) { return x->extract(x,bits,z); }
+    SI I32 extract(I32 x, int bits, int z) { return x->extract(x,bits,z); }
+    SI I32 extract(int x, int bits, I32 z) { return z->extract(x,bits,z); }
+
+    SI I32 pack(I32 x, I32 y, int bits) { return x->pack   (x,y,bits); }
+    SI I32 pack(I32 x, int y, int bits) { return x->pack   (x,y,bits); }
+    SI I32 pack(int x, I32 y, int bits) { return y->pack   (x,y,bits); }
+
+    SI I32 operator~(I32 x) { return ~0 ^ x; }
+    SI I32 operator-(I32 x) { return  0 - x; }
+    SI F32 operator-(F32 x) { return 0.0f - x; }
+
+    SI F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
+    SI I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
+
+    SI bool store(PixelFormat f, Ptr p, Color c) { return c->store(f,p,c); }
+
+    SI Color gather(PixelFormat f, Ptr p, int off, I32 ix) { return ix->gather(f,p,off,ix); }
+    SI Color gather(PixelFormat f, Uniform u     , I32 ix) { return ix->gather(f,u,ix); }
+
+    SI void   premul(F32* r, F32* g, F32* b, F32 a) { a->  premul(r,g,b,a); }
+    SI void unpremul(F32* r, F32* g, F32* b, F32 a) { a->unpremul(r,g,b,a); }
+
+    SI Color   premul(Color c) { return c->  premul(c); }
+    SI Color unpremul(Color c) { return c->unpremul(c); }
+
+    SI Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
+
+    SI Color blend(SkBlendMode m, Color s, Color d) { return s->blend(m,s,d); }
+
+    SI Color clamp01(Color c) { return c->clamp01(c); }
+
+    SI HSLA  to_hsla(Color c) { return c->to_hsla(c); }
+    SI Color to_rgba(HSLA  c) { return c->to_rgba(c); }
 
     // Evaluate polynomials: ax^n + bx^(n-1) + ... for n >= 1
-    template <typename... Rest>
-    static inline F32 poly(F32 x, F32a a, F32a b, Rest... rest) {
+    template <typename F32_or_float, typename... Rest>
+    SI F32 poly(F32 x, F32_or_float a, float b, Rest... rest) {
         if constexpr (sizeof...(rest) == 0) {
             return x*a+b;
         } else {
             return poly(x, x*a+b, rest...);
         }
     }
-
-    static inline HalfColor to_Half(Color c) {
-        return {
-            c->to_Half(c.r),
-            c->to_Half(c.g),
-            c->to_Half(c.b),
-            c->to_Half(c.a),
-        };
-    }
-
-    static inline Color to_F32(HalfColor c) {
-        return {
-            c->to_F32(c.r),
-            c->to_F32(c.g),
-            c->to_F32(c.b),
-            c->to_F32(c.a),
-        };
-    }
-
+#undef SI
 }  // namespace skvm
 
 #endif//SkVM_DEFINED

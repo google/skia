@@ -66,6 +66,11 @@ struct SK_API SkSamplingOptions {
         , filter(fm)
         , mipmap(mm) {}
 
+    explicit SkSamplingOptions(SkFilterMode fm)
+        : useCubic(false)
+        , filter(fm)
+        , mipmap(SkMipmapMode::kNone) {}
+
     explicit SkSamplingOptions(const SkCubicResampler& c)
         : useCubic(true)
         , cubic(c) {}

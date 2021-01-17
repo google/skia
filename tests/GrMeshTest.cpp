@@ -517,7 +517,7 @@ class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
             if (mp.fVertexPosition.isInitialized()) {
                 v->codeAppendf("float2 offset = %s;", mp.fVertexPosition.name());
             } else {
-                v->codeAppend ("float2 offset = float2(sk_VertexID / 2, sk_VertexID % 2);");
+                v->codeAppend("float2 offset = float2(sk_VertexID / 2, sk_VertexID % 2);");
             }
             v->codeAppendf("float2 vertex = %s + offset * %i;", mp.fInstanceLocation.name(),
                            kBoxSize);

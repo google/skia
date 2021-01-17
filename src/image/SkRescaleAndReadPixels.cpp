@@ -54,7 +54,7 @@ void SkRescaleAndReadPixels(SkBitmap bmp,
     auto rescaling_to_sampling = [](SkImage::RescaleMode rescaleMode) {
         SkSamplingOptions sampling;
         if (rescaleMode == SkImage::RescaleMode::kRepeatedLinear) {
-            sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+            sampling = SkSamplingOptions(SkFilterMode::kLinear);
         } else if (rescaleMode == SkImage::RescaleMode::kRepeatedCubic) {
             sampling = SkSamplingOptions({1.0f/3, 1.0f/3});
         }

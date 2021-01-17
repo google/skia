@@ -50,9 +50,9 @@ OpDecorate %sk_InvocationID BuiltIn InvocationId
 %19 = OpLabel
 %21 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
 %23 = OpLoad %v4float %21
-%27 = OpLoad %int %sk_InvocationID
-%26 = OpConvertSToF %float %27
-%28 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %26
+%26 = OpLoad %int %sk_InvocationID
+%27 = OpConvertSToF %float %26
+%28 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %27
 %29 = OpFAdd %v4float %23 %28
 %30 = OpAccessChain %_ptr_Output_v4float %3 %int_0
 OpStore %30 %29
@@ -80,9 +80,9 @@ OpStore %52 %51
 OpEmitVertex
 %54 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
 %55 = OpLoad %v4float %54
-%58 = OpLoad %int %sk_InvocationID
-%57 = OpConvertSToF %float %58
-%59 = OpCompositeConstruct %v4float %float_0_5 %float_0 %float_0 %57
+%57 = OpLoad %int %sk_InvocationID
+%58 = OpConvertSToF %float %57
+%59 = OpCompositeConstruct %v4float %float_0_5 %float_0 %float_0 %58
 %60 = OpFAdd %v4float %55 %59
 %61 = OpAccessChain %_ptr_Output_v4float %3 %int_0
 OpStore %61 %60

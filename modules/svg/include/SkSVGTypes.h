@@ -196,24 +196,22 @@ private:
     SkString   fIRI;
 };
 
-class SkSVGClip {
+// <funciri> | none (used for clip/mask/filter properties)
+class SkSVGFuncIRI {
 public:
     enum class Type {
         kNone,
         kIRI,
     };
 
-    SkSVGClip() : fType(Type::kNone) {}
-    explicit SkSVGClip(Type t) : fType(t)           {}
-    explicit SkSVGClip(const SkString& iri) : fType(Type::kIRI), fIRI(iri) {}
+    SkSVGFuncIRI() : fType(Type::kNone) {}
+    explicit SkSVGFuncIRI(Type t) : fType(t) {}
+    explicit SkSVGFuncIRI(SkString&& iri) : fType(Type::kIRI), fIRI(std::move(iri)) {}
 
-    SkSVGClip(const SkSVGClip&)            = default;
-    SkSVGClip& operator=(const SkSVGClip&) = default;
-
-    bool operator==(const SkSVGClip& other) const {
+    bool operator==(const SkSVGFuncIRI& other) const {
         return fType == other.fType && fIRI == other.fIRI;
     }
-    bool operator!=(const SkSVGClip& other) const { return !(*this == other); }
+    bool operator!=(const SkSVGFuncIRI& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
     const SkString& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
@@ -569,35 +567,6 @@ private:
     Type fType;
 };
 
-class SkSVGFilterType {
-public:
-    enum class Type {
-        kNone,
-        kIRI,
-        kInherit,
-    };
-
-    SkSVGFilterType() : fType(Type::kNone) {}
-    explicit SkSVGFilterType(Type t) : fType(t) {}
-    explicit SkSVGFilterType(const SkString& iri) : fType(Type::kIRI), fIRI(iri) {}
-
-    bool operator==(const SkSVGFilterType& other) const {
-        return fType == other.fType && fIRI == other.fIRI;
-    }
-    bool operator!=(const SkSVGFilterType& other) const { return !(*this == other); }
-
-    const SkString& iri() const {
-        SkASSERT(fType == Type::kIRI);
-        return fIRI;
-    }
-
-    Type type() const { return fType; }
-
-private:
-    Type fType;
-    SkString fIRI;
-};
-
 class SkSVGFeInputType {
 public:
     enum class Type {
@@ -679,6 +648,12 @@ struct SkSVGFeTurbulenceType {
 enum class SkSVGXmlSpace {
     kDefault,
     kPreserve,
+};
+
+enum class SkSVGColorspace {
+    kAuto,
+    kSRGB,
+    kLinearRGB,
 };
 
 #endif // SkSVGTypes_DEFINED

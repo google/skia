@@ -920,16 +920,20 @@ namespace skvm {
 
     I32 Builder:: eq(I32 x, I32 y) {
         if (x.id == y.id) { return splat(~0); }
+        if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X==Y ? ~0 : 0); }
         return {this, this->push(Op:: eq_i32, x.id, y.id)};
     }
     I32 Builder::neq(I32 x, I32 y) {
+        if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X!=Y ? ~0 : 0); }
         return ~(x == y);
     }
     I32 Builder:: gt(I32 x, I32 y) {
+        if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X> Y ? ~0 : 0); }
         return {this, this->push(Op:: gt_i32, x.id, y.id)};
     }
     I32 Builder::gte(I32 x, I32 y) {
         if (x.id == y.id) { return splat(~0); }
+        if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X>=Y ? ~0 : 0); }
         return ~(x < y);
     }
     I32 Builder:: lt(I32 x, I32 y) { return y>x; }
@@ -1027,11 +1031,6 @@ namespace skvm {
         F32 limit = splat((1<<bits)-1.0f);
         return round(mul(x, limit));
     }
-
-    // Shhh... it's a secret, but Half is secretly F32 underneath for now!
-    // (This will definitely change. :P)
-    F32  Builder::to_F32 (Half x) { return {x.builder, x.id}; }
-    Half Builder::to_Half(F32  x) { return {x.builder, x.id}; }
 
     bool SkColorType_to_PixelFormat(SkColorType ct, PixelFormat* f) {
         auto UNORM = PixelFormat::UNORM,
@@ -2414,7 +2413,9 @@ namespace skvm {
                                 (n,a[0],a[1],a[2],a[3],a[4]);
                 case 6: return ((void(*)(int,void*,void*,void*,void*,void*,void*))jit_entry)
                                 (n,a[0],a[1],a[2],a[3],a[4],a[5]);
-                default: SkASSERT(false);  // TODO: >6 args?
+                case 7: return ((void(*)(int,void*,void*,void*,void*,void*,void*,void*))jit_entry)
+                                (n,a[0],a[1],a[2],a[3],a[4],a[5],a[6]);
+                default: SkASSERT(fImpl->strides.size() <= 7);
             }
         }
     #endif

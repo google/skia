@@ -14,13 +14,11 @@
 
 namespace SkSL {
 
-class Statement;
 class Type;
 
 namespace dsl {
 
 class DSLExpression;
-class DSLStatement;
 
 enum TypeConstant : uint8_t {
     kBool,
@@ -61,6 +59,7 @@ private:
 
     TypeConstant fTypeConstant;
 
+    friend DSLType Array(const DSLType& base, int count);
     friend class DSLFunction;
     friend class DSLVar;
 };

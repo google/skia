@@ -8,16 +8,15 @@
 #ifndef GrYUVtoRGBEffect_DEFINED
 #define GrYUVtoRGBEffect_DEFINED
 
-#include "include/core/SkTypes.h"
-
-#include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVAInfo.h"
+#include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
+class GrYUVATextureProxies;
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView views[],
-                                                     const SkYUVAIndex indices[4],
-                                                     SkYUVColorSpace yuvColorSpace,
+    static std::unique_ptr<GrFragmentProcessor> Make(const GrYUVATextureProxies& yuvaProxies,
                                                      GrSamplerState samplerState,
                                                      const GrCaps&,
                                                      const SkMatrix& localMatrix = SkMatrix::I(),
@@ -30,7 +29,7 @@ public:
 private:
     GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4],
                      int numPlanes,
-                     const SkYUVAIndex yuvaIndices[4],
+                     const SkYUVAInfo::YUVALocations&,
                      const bool snap[2],
                      SkYUVColorSpace yuvColorSpace);
 
@@ -48,8 +47,8 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    SkYUVAIndex      fYUVAIndices[4];
-    SkYUVColorSpace  fYUVColorSpace;
-    bool             fSnap[2];
+    SkYUVAInfo::YUVALocations   fLocations;
+    SkYUVColorSpace             fYUVColorSpace;
+    bool                        fSnap[2];
 };
 #endif

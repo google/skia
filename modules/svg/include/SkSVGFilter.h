@@ -31,8 +31,6 @@ public:
 private:
     SkSVGFilter() : INHERITED(SkSVGTag::kFilter) {}
 
-    SkRect resolveFilterRegion(const SkSVGRenderContext&) const;
-
     bool parseAndSetAttribute(const char*, const char*) override;
 
     using INHERITED = SkSVGHiddenContainer;

@@ -28,6 +28,8 @@ skia_gpu_sources = [
   "$_include/private/GrResourceKey.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrTypesPriv.h",
+  "$_src/gpu/GrAATriangulator.cpp",
+  "$_src/gpu/GrAATriangulator.h",
   "$_src/gpu/GrAHardwareBufferImageGenerator.cpp",
   "$_src/gpu/GrAHardwareBufferImageGenerator.h",
   "$_src/gpu/GrAHardwareBufferUtils.cpp",
@@ -275,6 +277,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrXferProcessor.cpp",
   "$_src/gpu/GrXferProcessor.h",
   "$_src/gpu/GrYUVABackendTextures.cpp",
+  "$_src/gpu/GrYUVATextureProxies.cpp",
+  "$_src/gpu/GrYUVATextureProxies.h",
 
   # Ops
   "$_src/gpu/effects/GrBezierEffect.cpp",

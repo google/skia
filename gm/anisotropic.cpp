@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -66,7 +67,7 @@ protected:
                                     SkIntToScalar(xSize), SkIntToScalar(ySize));
         SkPaint p;
         p.setFilterQuality(fFilterQuality);
-        canvas->drawBitmapRect(fBM, r, &p);
+        canvas->drawImageRect(fBM.asImage(), r, &p);
     }
 
     void onDraw(SkCanvas* canvas) override {

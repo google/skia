@@ -102,8 +102,7 @@ private:
 class IRGenerator {
 public:
     IRGenerator(const Context* context,
-                const ShaderCapsClass* caps,
-                ErrorReporter& errorReporter);
+                const ShaderCapsClass* caps);
 
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
@@ -132,7 +131,7 @@ public:
 
     const Program::Settings* settings() const { return fSettings; }
 
-    ErrorReporter& errorReporter() const { return fErrors; }
+    ErrorReporter& errorReporter() const { return fContext.fErrors; }
 
     std::shared_ptr<SymbolTable>& symbolTable() {
         return fSymbolTable;
@@ -172,6 +171,7 @@ private:
                           const ExpressionArray& arguments);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
+    int convertArraySize(int offset, const ASTNode& s);
     std::unique_ptr<Expression> convertBinaryExpression(std::unique_ptr<Expression> left,
                                                         Token::Kind op,
                                                         std::unique_ptr<Expression> right);
@@ -212,8 +212,7 @@ private:
     std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
-                                             const ASTNode& index);
-    std::unique_ptr<Expression> convertEmptyIndex(std::unique_ptr<Expression> base);
+                                             std::unique_ptr<Expression> index);
     std::unique_ptr<Expression> convertPostfixExpression(std::unique_ptr<Expression> base,
                                                          Token::Kind op);
     std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
@@ -268,7 +267,6 @@ private:
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
     int fLoopLevel = 0;
     int fSwitchLevel = 0;
-    ErrorReporter& fErrors;
     int fInvocations;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
     std::vector<const ProgramElement*>*           fSharedElements = nullptr;

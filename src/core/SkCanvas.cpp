@@ -1967,8 +1967,7 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
         this->onDrawImageLattice2(image, latticePlusBounds, dst, filter, &latticePaint);
     } else {
         this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst,
-                            SkSamplingOptions(filter, SkMipmapMode::kNone), paint,
-                            kStrict_SrcRectConstraint);
+                            SkSamplingOptions(filter), paint, kStrict_SrcRectConstraint);
     }
 }
 
@@ -2569,6 +2568,14 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
         return;
     }
     this->onDrawImageRect2(image, src, dst, sampling, paint, constraint);
+}
+
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst,
+                             const SkSamplingOptions& sampling, const SkPaint* paint,
+                             SrcRectConstraint constraint) {
+    RETURN_ON_NULL(image);
+    this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, sampling,
+                        paint, constraint);
 }
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,

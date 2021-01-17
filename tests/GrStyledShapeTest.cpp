@@ -68,8 +68,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
     surface->getCanvas()->clear(0x0);
     SkRect clip = SkRect::MakeXYWH(kRes/4, kRes/4, kRes/2, kRes/2);
-    SkMatrix matrix;
-    matrix.setRectToRect(bounds, clip, SkMatrix::kFill_ScaleToFit);
+    SkMatrix matrix = SkMatrix::RectToRect(bounds, clip);
     clip.outset(SkIntToScalar(kTol), SkIntToScalar(kTol));
     surface->getCanvas()->clipRect(clip, kDifference_SkClipOp);
     surface->getCanvas()->concat(matrix);

@@ -25,10 +25,10 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %21 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
 %main = OpFunction %void None %11
 %12 = OpLabel
-%14 = OpExtInst %float %1 Sqrt %float_2
-%13 = OpConvertFToS %int %14
+%13 = OpExtInst %float %1 Sqrt %float_2
+%15 = OpConvertFToS %int %13
 OpSelectionMerge %17 None
-OpSwitch %13 %20 0 %18 1 %19
+OpSwitch %15 %20 0 %18 1 %19
 %18 = OpLabel
 OpBranch %19
 %19 = OpLabel

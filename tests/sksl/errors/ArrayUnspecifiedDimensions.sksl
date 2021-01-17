@@ -1,3 +1,5 @@
 in int arrUnsized[];
 in int arrFloat[1.];
 in int arrBool[true];
+
+int unsized_in_expression() { return int[](0)[0]; }

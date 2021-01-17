@@ -351,13 +351,19 @@ function fontMgrTests(CK: CanvasKit) {
     const tf = fm.makeTypefaceFromData(buff1); // $ExpectType Typeface
 }
 
-function globalTests(CK: CanvasKit) {
+function globalTests(CK: CanvasKit, path?: Path) {
+    if (!path) {
+        return;
+    }
     const ctx = CK.currentContext();
     CK.setCurrentContext(ctx);
     CK.deleteContext(ctx);
     const n = CK.getDecodeCacheLimitBytes();
     const u = CK.getDecodeCacheUsedBytes();
     CK.setDecodeCacheLimitBytes(1000);
+    const matr = CK.Matrix.rotated(Math.PI / 6);
+    const p = CK.getShadowLocalBounds(matr, path, [0, 0, 1], [500, 500, 20], 20,
+        CK.ShadowDirectionalLight | CK.ShadowGeometricOnly | CK.ShadowDirectionalLight);
 }
 
 function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: ImageFilter,

@@ -38,21 +38,23 @@ struct SkVMSignature {
 };
 
 /*
- * Converts 'function' to skvm instructions in 'builder'. Always adds one arg for uniforms, then
- * one per value in the parameter list, and finally one per value in the return type. For example:
+ * Converts 'function' to skvm instructions in 'builder'. Always adds one arg per value in the
+ * parameter list, then one per value in the return type. For example:
  *
- *   uniform float u; uniform float v;
  *   float2 fn(float2 a, float b) { ... }
  *
  * ... is mapped so that it can be called as:
  *
- *   p.eval(N, uniforms, &a.x, &a.y, &b, &return.x, &return.y);
+ *   p.eval(N, &a.x, &a.y, &b, &return.x, &return.y);
  *
  * The number of parameter and return slots (pointers) is placed in 'outSignature', if provided.
+ * If the program declares any uniforms, 'uniforms' should contain the IDs of each individual value
+ * (eg, one ID per component of a vector).
  */
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
+                   SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature = nullptr);
 
 const FunctionDefinition* Program_GetFunction(const Program& program, const char* function);

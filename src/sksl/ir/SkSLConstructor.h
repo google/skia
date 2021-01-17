@@ -145,6 +145,12 @@ public:
     bool getConstantBool() const override;
 
 private:
+    template <typename ResultType>
+    ResultType getConstantValue(const Expression& expr) const;
+
+    template <typename ResultType>
+    ResultType getInnerVecComponent(const Expression& expr, int position) const;
+
     ExpressionArray fArguments;
 
     using INHERITED = Expression;

@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLType.h"
+
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
@@ -14,20 +17,24 @@ CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return CoercionCost::Free();
     }
-    if (this->typeKind() == TypeKind::kVector && other.typeKind() == TypeKind::kVector) {
+    if (this->isVector() && other.isVector()) {
         if (this->columns() == other.columns()) {
             return this->componentType().coercionCost(other.componentType());
         }
         return CoercionCost::Impossible();
     }
-    if (this->typeKind() == TypeKind::kMatrix) {
+    if (this->isMatrix()) {
         if (this->columns() == other.columns() && this->rows() == other.rows()) {
             return this->componentType().coercionCost(other.componentType());
         }
         return CoercionCost::Impossible();
     }
     if (this->isNumber() && other.isNumber()) {
-        if (other.priority() >= this->priority()) {
+        if (this->isLiteral() && this->isInteger()) {
+            return CoercionCost::Free();
+        } else if (this->numberKind() != other.numberKind()) {
+            return CoercionCost::Impossible();
+        } else if (other.priority() >= this->priority()) {
             return CoercionCost::Normal(other.priority() - this->priority());
         } else {
             return CoercionCost::Narrowing(this->priority() - other.priority());
@@ -201,6 +208,37 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
     ABORT("unsupported toCompound type %s", this->description().c_str());
 #endif
     return *context.fTypes.fVoid;
+}
+
+const Type* Type::clone(SymbolTable* symbolTable) const {
+    // Many types are built-ins, and exist in every SymbolTable by default.
+    if (this->isInBuiltinTypes()) {
+        return this;
+    }
+    // Even if the type isn't a built-in, it might already exist in the SymbolTable.
+    const Symbol* clonedSymbol = (*symbolTable)[this->name()];
+    if (clonedSymbol != nullptr) {
+        const Type& clonedType = clonedSymbol->as<Type>();
+        SkASSERT(clonedType.typeKind() == this->typeKind());
+        return &clonedType;
+    }
+    // This type actually needs to be cloned into the destination SymbolTable.
+    switch (this->typeKind()) {
+        case TypeKind::kArray:
+            return symbolTable->add(Type::MakeArrayType(this->name(), this->componentType(),
+                                                        this->columns()));
+
+        case TypeKind::kStruct:
+            return symbolTable->add(Type::MakeStructType(this->fOffset, this->name(),
+                                                         this->fields()));
+
+        case TypeKind::kEnum:
+            return symbolTable->add(Type::MakeEnumType(this->name()));
+
+        default:
+            SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());
+            return nullptr;
+    }
 }
 
 }  // namespace SkSL

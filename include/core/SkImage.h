@@ -39,8 +39,6 @@ class GrRecordingContext;
 class GrContextThreadSafeProxy;
 class GrYUVABackendTextures;
 
-struct SkYUVAIndex;
-
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
     decoded in a raster bitmap, encoded in a SkPicture or compressed data stream,

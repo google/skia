@@ -23,9 +23,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %BF RelaxedPrecision
 OpDecorate %BI RelaxedPrecision
 OpDecorate %BB RelaxedPrecision
-OpDecorate %31 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %40 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
+OpDecorate %36 RelaxedPrecision
+OpDecorate %39 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -66,18 +66,18 @@ OpStore %FB %float_1
 OpStore %IF %int_1
 OpStore %II %int_1
 OpStore %IB %int_1
-%31 = OpLoad %bool %BF
-%30 = OpSelect %float %31 %float_1 %float_0
+%30 = OpLoad %bool %BF
+%31 = OpSelect %float %30 %float_1 %float_0
 %33 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %33 %30
-%37 = OpLoad %bool %BI
-%36 = OpSelect %float %37 %float_1 %float_0
+OpStore %33 %31
+%36 = OpLoad %bool %BI
+%37 = OpSelect %float %36 %float_1 %float_0
 %38 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %38 %36
-%40 = OpLoad %bool %BB
-%39 = OpSelect %float %40 %float_1 %float_0
+OpStore %38 %37
+%39 = OpLoad %bool %BB
+%40 = OpSelect %float %39 %float_1 %float_0
 %41 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %41 %39
+OpStore %41 %40
 %42 = OpLoad %float %FF
 %43 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %43 %42
@@ -87,17 +87,17 @@ OpStore %45 %44
 %46 = OpLoad %float %FB
 %47 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %47 %46
-%49 = OpLoad %int %IF
-%48 = OpConvertSToF %float %49
+%48 = OpLoad %int %IF
+%49 = OpConvertSToF %float %48
 %50 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %50 %48
-%52 = OpLoad %int %II
-%51 = OpConvertSToF %float %52
+OpStore %50 %49
+%51 = OpLoad %int %II
+%52 = OpConvertSToF %float %51
 %53 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %53 %51
-%55 = OpLoad %int %IB
-%54 = OpConvertSToF %float %55
+OpStore %53 %52
+%54 = OpLoad %int %IB
+%55 = OpConvertSToF %float %54
 %56 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %56 %54
+OpStore %56 %55
 OpReturn
 OpFunctionEnd

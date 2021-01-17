@@ -131,15 +131,22 @@ public:
         return fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
     }
 
+    SkRect resolveOBBRect(const SkSVGLength& x, const SkSVGLength& y,
+                          const SkSVGLength& w, const SkSVGLength& h,
+                          SkSVGObjectBoundingBoxUnits) const;
+
+    const SkSVGIDMapper& idMapper() const { return fIDMapper; }
+
 private:
     // Stack-only
     void* operator new(size_t)                               = delete;
     void* operator new(size_t, void*)                        = delete;
     SkSVGRenderContext& operator=(const SkSVGRenderContext&) = delete;
 
-    void applyOpacity(SkScalar opacity, uint32_t flags);
-    void applyFilter(const SkSVGFilterType&);
-    void applyClip(const SkSVGClip&);
+    void applyOpacity(SkScalar opacity, uint32_t flags, bool hasFilter);
+    void applyFilter(const SkSVGFuncIRI&);
+    void applyClip(const SkSVGFuncIRI&);
+    void applyMask(const SkSVGFuncIRI&);
     void updatePaintsWithCurrentColor(const SkSVGPresentationAttributes&);
 
     const sk_sp<SkFontMgr>&                       fFontMgr;

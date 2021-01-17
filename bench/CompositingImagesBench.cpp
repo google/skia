@@ -297,8 +297,7 @@ private:
             contentRect.fBottom = fTileSize.fHeight;
         }
 
-        SkMatrix srcToDst = SkMatrix::MakeRectToRect(entry.fSrcRect, entry.fDstRect,
-                                                     SkMatrix::kFill_ScaleToFit);
+        SkMatrix srcToDst = SkMatrix::RectToRect(entry.fSrcRect, entry.fDstRect);
 
         // Story entry's dstRect into dstQuad, and use contentRect and contentDst as its src and dst
         entry.fDstRect.toQuad(dstQuad);

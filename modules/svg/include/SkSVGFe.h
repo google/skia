@@ -19,7 +19,9 @@ class SkSVGFe : public SkSVGHiddenContainer {
 public:
     static bool IsFilterEffect(const sk_sp<SkSVGNode>& node) {
         return node->tag() == SkSVGTag::kFeTurbulence || node->tag() == SkSVGTag::kFeColorMatrix ||
-               node->tag() == SkSVGTag::kFeComposite || node->tag() == SkSVGTag::kFeFlood;
+               node->tag() == SkSVGTag::kFeComposite || node->tag() == SkSVGTag::kFeFlood ||
+               node->tag() == SkSVGTag::kFeGaussianBlur || node->tag() == SkSVGTag::kFeOffset ||
+               node->tag() == SkSVGTag::kFeBlend;
     }
 
     sk_sp<SkImageFilter> makeImageFilter(const SkSVGRenderContext& ctx,
@@ -27,6 +29,16 @@ public:
 
     // https://www.w3.org/TR/SVG11/filters.html#FilterPrimitiveSubRegion
     SkRect resolveFilterSubregion(const SkSVGRenderContext&, const SkSVGFilterContext&) const;
+
+    /**
+     * Resolves the colorspace within which this filter effect should be applied.
+     * Spec: https://www.w3.org/TR/SVG11/painting.html#ColorInterpolationProperties
+     * 'color-interpolation-filters' property.
+     */
+    SkSVGColorspace resolveColorspace(const SkSVGRenderContext&) const;
+
+    /** Propagates any inherited presentation attributes in the given context. */
+    void applyProperties(SkSVGRenderContext*) const;
 
     SVG_ATTR(In, SkSVGFeInputType, SkSVGFeInputType(SkSVGFeInputType::Type::kSourceGraphic))
     SVG_ATTR(Result, SkSVGStringType, SkSVGStringType())

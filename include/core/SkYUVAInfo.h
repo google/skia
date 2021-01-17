@@ -11,8 +11,8 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkYUVAIndex.h"
 
+#include <array>
 #include <tuple>
 
 /**
@@ -21,17 +21,24 @@
  */
 class SK_API SkYUVAInfo {
 public:
+    enum YUVAChannels { kY, kU, kV, kA, kLast = kA };
+    static constexpr int kYUVAChannelCount = static_cast<int>(YUVAChannels::kLast + 1);
+
+    struct YUVALocation;  // For internal use.
+    using YUVALocations = std::array<YUVALocation, kYUVAChannelCount>;
+
     /**
      * Specifies how YUV (and optionally A) are divided among planes. Planes are separated by
      * underscores in the enum value names. Within each plane the pixmap/texture channels are
      * mapped to the YUVA channels in the order specified, e.g. for kY_UV Y is in channel 0 of plane
      * 0, U is in channel 0 of plane 1, and V is in channel 1 of plane 1. Channel ordering
      * within a pixmap/texture given the channels it contains:
-     * A:               0:A
-     * Luminance/Gray:  0:Gray
-     * RG               0:R,    1:G
-     * RGB              0:R,    1:G, 2:B
-     * RGBA             0:R,    1:G, 2:B, 3:A
+     * A:                       0:A
+     * Luminance/Gray:          0:Gray
+     * Luminance/Gray + Alpha:  0:Gray, 1:A
+     * RG                       0:R,    1:G
+     * RGB                      0:R,    1:G, 2:B
+     * RGBA                     0:R,    1:G, 2:B, 3:A
      */
     enum class PlaneConfig {
         kUnknown,
@@ -86,6 +93,16 @@ public:
 
     static constexpr int kMaxPlanes = 4;
 
+    /** ratio of Y/A values to U/V values in x and y. */
+    static std::tuple<int, int> SubsamplingFactors(Subsampling);
+
+    /**
+     * SubsamplingFactors(Subsampling) if planedIdx refers to a U/V plane and otherwise {1, 1} if
+     * inputs are valid. Invalid inputs consist of incompatible PlaneConfig/Subsampling/planeIdx
+     * combinations. {0, 0} is returned for invalid inputs.
+     */
+    static std::tuple<int, int> PlaneSubsamplingFactors(PlaneConfig, Subsampling, int planeIdx);
+
     /**
      * Given image dimensions, a planer configuration, subsampling, and origin, determine the
      * expected size of each plane. Returns the number of expected planes. planeDimensions[0]
@@ -110,13 +127,11 @@ public:
     static constexpr int NumChannelsInPlane(PlaneConfig, int i);
 
     /**
-     * Given a PlaneConfig and a set of channel flags for each plane, convert to SkYUVAIndex
+     * Given a PlaneConfig and a set of channel flags for each plane, convert to YUVALocations
      * representation. Fails if channel flags aren't valid for the PlaneConfig (i.e. don't have
-     * enough channels in a plane).
+     * enough channels in a plane) by returning an invalid set of locations (plane indices are -1).
      */
-    static bool GetYUVAIndices(PlaneConfig,
-                               const uint32_t planeChannelFlags[kMaxPlanes],
-                               SkYUVAIndex indices[SkYUVAIndex::kIndexCount]);
+    static YUVALocations GetYUVALocations(PlaneConfig, const uint32_t* planeChannelFlags);
 
     /** Does the PlaneConfig have alpha values? */
     static bool HasAlpha(PlaneConfig);
@@ -141,6 +156,10 @@ public:
     PlaneConfig planeConfig() const { return fPlaneConfig; }
     Subsampling subsampling() const { return fSubsampling; }
 
+    std::tuple<int, int> planeSubsamplingFactors(int planeIdx) const {
+        return PlaneSubsamplingFactors(fPlaneConfig, fSubsampling, planeIdx);
+    }
+
     /**
      * Dimensions of the full resolution image (after planes have been oriented to how the image
      * is displayed as indicated by fOrigin).
@@ -154,6 +173,10 @@ public:
     Siting sitingY() const { return fSitingY; }
 
     SkEncodedOrigin origin() const { return fOrigin; }
+
+    SkMatrix originMatrix() const {
+        return SkEncodedOriginToMatrix(fOrigin, this->width(), this->height());
+    }
 
     bool hasAlpha() const { return HasAlpha(fPlaneConfig); }
 
@@ -179,13 +202,12 @@ public:
     int numChannelsInPlane(int i) const { return NumChannelsInPlane(fPlaneConfig, i); }
 
     /**
-     * Given a set of channel flags for each plane, converts this->planeConfig() to SkYUVAIndex
+     * Given a set of channel flags for each plane, converts this->planeConfig() to YUVALocations
      * representation. Fails if the channel flags aren't valid for the PlaneConfig (i.e. don't have
-     * enough channels in a plane).
+     * enough channels in a plane) by returning default initialized locations (all plane indices are
+     * -1).
      */
-    bool toYUVAIndices(const uint32_t channelFlags[4], SkYUVAIndex indices[4]) const {
-        return GetYUVAIndices(fPlaneConfig, channelFlags, indices);
-    }
+    YUVALocations toYUVALocations(const uint32_t* channelFlags) const;
 
     /**
      * Makes a SkYUVAInfo that is identical to this one but with the passed Subsampling. If the
@@ -194,6 +216,12 @@ public:
      * SkYUVAInfo.
      */
     SkYUVAInfo makeSubsampling(SkYUVAInfo::Subsampling) const;
+
+    /**
+     * Makes a SkYUVAInfo that is identical to this one but with the passed dimensions. If the
+     * passed dimensions is empty then the result will be an invalid SkYUVAInfo.
+     */
+    SkYUVAInfo makeDimensions(SkISize) const;
 
     bool operator==(const SkYUVAInfo& that) const;
     bool operator!=(const SkYUVAInfo& that) const { return !(*this == that); }

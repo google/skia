@@ -109,19 +109,18 @@ void test_skvm(skiatest::Reporter* r, const char* src, float* in, const float* e
 
     skvm::Builder b;
     SkSL::SkVMSignature sig;
-    SkSL::ProgramToSkVM(*program, *main, &b, &sig);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{}, &sig);
     skvm::Program p = b.done();
 
-    REPORTER_ASSERT(r, p.nargs() == (int)(1 /*uniforms*/ + sig.fParameterSlots + sig.fReturnSlots));
+    REPORTER_ASSERT(r, p.nargs() == (int)(sig.fParameterSlots + sig.fReturnSlots));
 
     auto out = std::make_unique<float[]>(sig.fReturnSlots);
-    auto args = std::make_unique<void*[]>(1 + sig.fParameterSlots + sig.fReturnSlots);
-    args[0] = nullptr;  // uniforms
+    auto args = std::make_unique<void*[]>(sig.fParameterSlots + sig.fReturnSlots);
     for (size_t i = 0; i < sig.fParameterSlots; ++i) {
-        args[1+ i] = in + i;
+        args[i] = in + i;
     }
     for (size_t i = 0; i < sig.fReturnSlots; ++i) {
-        args[1 + sig.fParameterSlots + i] = out.get() + i;
+        args[sig.fParameterSlots + i] = out.get() + i;
     }
 
     // TODO: Test with and without JIT?
@@ -207,12 +206,11 @@ void test_skvm(skiatest::Reporter* r, const char* src,
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     // TODO: Test with and without JIT?
-    const void* uniforms = nullptr;
-    p.eval(1, uniforms, &inR, &inG, &inB, &inA);
+    p.eval(1, &inR, &inG, &inB, &inA);
 
     float actual[4]   = { inR, inG, inB, inA };
     float expected[4] = { exR, exG, exB, exA };
@@ -224,11 +222,8 @@ void test_skvm(skiatest::Reporter* r, const char* src,
 
 void test(skiatest::Reporter* r, const char* src,
           float inR, float inG, float inB, float inA,
-          float exR, float exG, float exB, float exA,
-          bool testWithSkVM = true) {
-    if (testWithSkVM) {
-        test_skvm(r, src, inR, inG, inB, inA, exR, exG, exB, exA);
-    }
+          float exR, float exG, float exB, float exA) {
+    test_skvm(r, src, inR, inG, inB, inA, exR, exG, exB, exA);
 
     ByteCodeBuilder byteCode(r, src);
     if (!byteCode) { return; }
@@ -251,7 +246,7 @@ DEF_TEST(SkSLInterpreterAdd, r) {
     test(r, "void main(inout half4 color) { color += half4(1, 2, 3, 4); }", 4, 3, 2, 1, 5, 5, 5, 5);
     test(r, "void main(inout half4 color) { half4 c = color; color += c; }", 0.25, 0.5, 0.75, 1,
          0.5, 1, 1.5, 2);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) + int(color.g); }", 1, 3, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) + int(color.g)); }", 1, 3, 0, 0,
          4, 3, 0, 0);
 }
 
@@ -263,7 +258,7 @@ DEF_TEST(SkSLInterpreterSubtract, r) {
          0, 0, 0, 0);
     test(r, "void main(inout half4 color) { color.x = -color.x; }", 4, 3, 2, 1, -4, 3, 2, 1);
     test(r, "void main(inout half4 color) { color = -color; }", 4, 3, 2, 1, -4, -3, -2, -1);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) - int(color.g); }", 3, 1, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) - int(color.g)); }", 3, 1, 0, 0,
          2, 1, 0, 0);
 }
 
@@ -274,7 +269,7 @@ DEF_TEST(SkSLInterpreterMultiply, r) {
          20);
     test(r, "void main(inout half4 color) { half4 c = color; color *= c; }", 4, 3, 2, 1,
          16, 9, 4, 1);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) * int(color.g); }", 3, -2, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) * int(color.g)); }", 3, -2, 0, 0,
          -6, -2, 0, 0);
 }
 
@@ -285,7 +280,7 @@ DEF_TEST(SkSLInterpreterDivide, r) {
          4, 3);
     test(r, "void main(inout half4 color) { half4 c = color; color /= c; }", 4, 3, 2, 1,
          1, 1, 1, 1);
-    test(r, "void main(inout half4 color) { color.r = int(color.r) / int(color.g); }", 8, -2, 0, 0,
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) / int(color.g)); }", 8, -2, 0, 0,
          -4, -2, 0, 0);
 }
 
@@ -296,10 +291,10 @@ DEF_TEST(SkSLInterpreterAnd, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 1, 1, 0, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
             "color = half4(color.a); }", 2, 1, 1, 3, 2, 1, 1, 3);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
             "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
             "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0);
 }
@@ -311,10 +306,10 @@ DEF_TEST(SkSLInterpreterOr, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 3, 3, 3, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
             "color = half4(color.a); }", 1, 1, 1, 3, 1, 1, 1, 3);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
             "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123);
-    test(r, "int global; bool update() { global = 123; return true; }"
+    test(r, "half global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
             "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0);
 }
@@ -379,11 +374,9 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
     for (int i = 0; i < 16; ++i) { expected[i] = 1.0f / (float)(i + 1); }
     test(r, "float4x4 main(float4x4 m) { return 1.0 / (m + 1); }", in, expected);
 
-#if 0
-    // Matrix negation - legal in GLSL, not in SkSL?
+    // Matrix negation
     for (int i = 0; i < 16; ++i) { expected[i] = (float)(-i); }
-    test(r, "float4x4 main(float4x4 m) { return -m; }", in, 16, expected);
-#endif
+    test(r, "float4x4 main(float4x4 m) { return -m; }", in, expected);
 
     // M*V, V*M
     for (int i = 0; i < 3; ++i) {
@@ -502,32 +495,28 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
 }
 
 DEF_TEST(SkSLInterpreterFor, r) {
-    // TODO: SkVM for-loop support
-    test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }",
+    test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += half(i); }",
          0, 0, 0, 0,
-         55, 0, 0, 0,
-         /*testWithSkVM=*/false);
+         55, 0, 0, 0);
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
-         "        for (int j = i; j <= 10; ++j)"
-         "            color.r += j;"
+         "        for (int j = 1; j <= 10; ++j)"
+         "            if (j >= i) { color.r += half(j); }"
          "}",
          0, 0, 0, 0,
-         385, 0, 0, 0,
-         /*testWithSkVM=*/false);
+         385, 0, 0, 0);
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
-         "        for (int j = 1; ; ++j) {"
+         "        for (int j = 1; j < 20 ; ++j) {"
          "            if (i == j) continue;"
          "            if (j > 10) break;"
-         "            color.r += j;"
+         "            color.r += half(j);"
          "        }"
          "}",
          0, 0, 0, 0,
-         495, 0, 0, 0,
-         /*testWithSkVM=*/false);
+         495, 0, 0, 0);
 }
 
 DEF_TEST(SkSLInterpreterPrefixPostfix, r) {
@@ -539,13 +528,13 @@ DEF_TEST(SkSLInterpreterSwizzle, r) {
     test(r, "void main(inout half4 color) { color = color.abgr; }", 1, 2, 3, 4, 4, 3, 2, 1);
     test(r, "void main(inout half4 color) { color.rgb = half4(5, 6, 7, 8).bbg; }", 1, 2, 3, 4, 7, 7,
          6, 4);
-    test(r, "void main(inout half4 color) { color.bgr = int3(5, 6, 7); }", 1, 2, 3, 4, 7, 6,
+    test(r, "void main(inout half4 color) { color.bgr = half3(5, 6, 7); }", 1, 2, 3, 4, 7, 6,
          5, 4);
 }
 
 DEF_TEST(SkSLInterpreterGlobal, r) {
-    test(r, "int x; void main(inout half4 color) { x = 10; color.b = x; }", 1, 2, 3, 4, 1, 2, 10,
-         4);
+    test(r, "int x; void main(inout half4 color) { x = 10; color.b = half(x); }", 1, 2, 3, 4, 1, 2,
+         10, 4);
     test(r, "float4 x; void main(inout float4 color) { x = color * 2; color = x; }",
          1, 2, 3, 4, 2, 4, 6, 8);
     test(r, "float4 x; void main(inout float4 color) { x = float4(5, 6, 7, 8); color = x.wzyx; }",
@@ -597,52 +586,72 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         "  return tempFloats[7];\n"
         "}\n"
 
-        // Uniforms, array-of-structs, dynamic indices
+        // Uniforms, array-of-structs
         "uniform Rect gRects[4];\n"
-        "Rect get_rect(int i) { return gRects[i]; }\n"
+        "Rect get_rect_2() { return gRects[2]; }\n"
 
         // Kitchen sink (swizzles, inout, SoAoS)
         "struct ManyRects { int numRects; RectAndColor rects[4]; };\n"
         "void fill_rects(inout ManyRects mr) {\n"
-        "  for (int i = 0; i < mr.numRects; ++i) {\n"
+        "  for (int i = 0; i < 4; ++i) {\n"
+        "    if (i >= mr.numRects) { break; }\n"
         "    mr.rects[i].r = gRects[i];\n"
-        "    float b = mr.rects[i].r.p1.y;\n"
+        "    float b = float(mr.rects[i].r.p1.y);\n"
         "    mr.rects[i].color = float4(b, b, b, b);\n"
         "  }\n"
         "}\n";
 
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    settings.fRemoveDeadFunctions = false;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                                                     SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
+    ProgramBuilder program(r, src);
 
-    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-    REPORTER_ASSERT(r, !compiler.errorCount());
-
-    auto rect_height    = byteCode->getFunction("rect_height"),
-         make_blue_rect = byteCode->getFunction("make_blue_rect"),
-         median         = byteCode->getFunction("median"),
-         sums           = byteCode->getFunction("sums"),
-         get_rect       = byteCode->getFunction("get_rect"),
-         fill_rects     = byteCode->getFunction("fill_rects");
+    auto rect_height    = SkSL::Program_GetFunction(*program, "rect_height"),
+         make_blue_rect = SkSL::Program_GetFunction(*program, "make_blue_rect"),
+         median         = SkSL::Program_GetFunction(*program, "median"),
+         sums           = SkSL::Program_GetFunction(*program, "sums"),
+         get_rect_2     = SkSL::Program_GetFunction(*program, "get_rect_2"),
+         fill_rects     = SkSL::Program_GetFunction(*program, "fill_rects");
 
     SkIRect gRects[4] = { { 1,2,3,4 }, { 5,6,7,8 }, { 9,10,11,12 }, { 13,14,15,16 } };
-    const float* fRects = (const float*)gRects;
+
+    auto build = [&](const SkSL::FunctionDefinition* fn) {
+        skvm::Builder b;
+        skvm::Ptr uniformPtr = b.uniform();
+        skvm::Val uniforms[16];
+        for (int i = 0; i < 16; ++i) {
+            uniforms[i] = b.uniform32(uniformPtr, i * sizeof(int)).id;
+        }
+        SkSL::ProgramToSkVM(*program, *fn, &b, uniforms);
+        return b.done();
+    };
+
+    struct Args {
+        Args(void* uniformData) { fArgs.push_back(uniformData); }
+        void add(void* base, int n) {
+            for (int i = 0; i < n; ++i) {
+                fArgs.push_back(SkTAddOffset<void>(base, i * sizeof(float)));
+            }
+        }
+        std::vector<void*> fArgs;
+    };
 
     {
         SkIRect in = SkIRect::MakeXYWH(10, 10, 20, 30);
         int out = 0;
-        SkAssertResult(byteCode->run(rect_height, (float*)&in, 4, (float*)&out, 1, fRects, 16));
+        skvm::Program p = build(rect_height);
+        Args args(gRects);
+        args.add(&in, 4);
+        args.add(&out, 1);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == 30);
     }
 
     {
         int in[2] = { 15, 25 };
         RectAndColor out;
-        SkAssertResult(byteCode->run(make_blue_rect, (float*)in, 2, (float*)&out, 8, fRects, 16));
+        skvm::Program p = build(make_blue_rect);
+        Args args(gRects);
+        args.add(&in, 2);
+        args.add(&out, 8);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out.fRect.width() == 15);
         REPORTER_ASSERT(r, out.fRect.height() == 25);
         SkColor4f blue = { 0.0f, 1.0f, 0.0f, 1.0f };
@@ -652,29 +661,44 @@ DEF_TEST(SkSLInterpreterCompound, r) {
     {
         int in[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
         int out = 0;
-        SkAssertResult(byteCode->run(median, (float*)in, 15, (float*)&out, 1, fRects, 16));
+        skvm::Program p = build(median);
+        Args args(gRects);
+        args.add(&in, 15);
+        args.add(&out, 1);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == 8);
     }
 
-    {
+    // TODO: Doesn't work until SkVM generator supports indexing-by-loop variable
+    if (false) {
         float in[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
         float out = 0;
-        SkAssertResult(byteCode->run(sums, in, 8, &out, 1, fRects, 16));
+        skvm::Program p = build(sums);
+        Args args(gRects);
+        args.add(&in, 8);
+        args.add(&out, 1);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == static_cast<float>((7 + 1) * (7 + 2) / 2));
     }
 
     {
-        int in = 2;
         SkIRect out = SkIRect::MakeEmpty();
-        SkAssertResult(byteCode->run(get_rect, (float*)&in, 1, (float*)&out, 4, fRects, 16));
+        skvm::Program p = build(get_rect_2);
+        Args args(gRects);
+        args.add(&out, 4);
+        p.eval(1, args.fArgs.data());
         REPORTER_ASSERT(r, out == gRects[2]);
     }
 
-    {
+    // TODO: Doesn't work until SkVM generator supports indexing-by-loop variable
+    if (false) {
         ManyRects in;
         memset(&in, 0, sizeof(in));
         in.fNumRects = 2;
-        SkAssertResult(byteCode->run(fill_rects, (float*)&in, 33, nullptr, 0, fRects, 16));
+        skvm::Program p = build(fill_rects);
+        Args args(gRects);
+        args.add(&in, 33);
+        p.eval(1, args.fArgs.data());
         ManyRects expected;
         memset(&expected, 0, sizeof(expected));
         expected.fNumRects = 2;
@@ -694,22 +718,6 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
     auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                            SkSL::String(src), settings);
     REPORTER_ASSERT(r, !program);
-}
-
-static void expect_run_failure(skiatest::Reporter* r, const char* src, float* in) {
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                           SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
-
-    auto byteCode = compiler.toByteCode(*program);
-    REPORTER_ASSERT(r, byteCode);
-
-    auto fun = byteCode->getFunction("main");
-    bool result = byteCode->run(fun, in, fun->getParameterCount(), nullptr, 0, nullptr, 0);
-    REPORTER_ASSERT(r, !result);
 }
 
 DEF_TEST(SkSLInterpreterRestrictLoops, r) {
@@ -740,12 +748,11 @@ DEF_TEST(SkSLInterpreterReturnThenCall, r) {
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float xs[] = { -2.0f, 0.0f, 3.0f, -1.0f };
-    const void* uniforms = nullptr;
-    p.eval(4, uniforms, xs);
+    p.eval(4, xs);
 
     REPORTER_ASSERT(r, xs[0] == -2.0f);
     REPORTER_ASSERT(r, xs[1] ==  1.0f);
@@ -763,31 +770,16 @@ DEF_TEST(SkSLInterpreterEarlyReturn, r) {
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float xs[] = { 1.0f, 3.0f },
           ys[] = { 2.0f, 2.0f };
     float rets[2];
-    const void* uniforms = nullptr;
-    p.eval(2, uniforms, xs, ys, rets);
+    p.eval(2, xs, ys, rets);
 
     REPORTER_ASSERT(r, rets[0] == 1.0f);
     REPORTER_ASSERT(r, rets[1] == 2.0f);
-}
-
-DEF_TEST(SkSLInterpreterArrayBounds, r) {
-    // Out of bounds array access at compile time prevents a program from being generated at all
-    // (tested in ArrayIndexOutOfRange.sksl).
-
-    // Out of bounds array access at runtime is pinned, and we don't update any inout data.
-    float in[3] = { -1.0f, 1.0f, 2.0f };
-    expect_run_failure(r, "void main(inout float data[3]) { data[int(data[0])] = 0; }", in);
-    REPORTER_ASSERT(r, in[0] == -1.0f && in[1] == 1.0f && in[2] == 2.0f);
-
-    in[0] = 3.0f;
-    expect_run_failure(r, "void main(inout float data[3]) { data[int(data[0])] = 0; }", in);
-    REPORTER_ASSERT(r, in[0] == 3.0f && in[1] == 1.0f && in[2] == 2.0f);
 }
 
 DEF_TEST(SkSLInterpreterFunctions, r) {
@@ -820,12 +812,11 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
 
     auto test_fn = [&](const SkSL::FunctionDefinition* fn, float in, float expected) {
         skvm::Builder b;
-        SkSL::ProgramToSkVM(*program, *fn, &b);
+        SkSL::ProgramToSkVM(*program, *fn, &b, /*uniforms=*/{});
         skvm::Program p = b.done();
 
         float out = 0.0f;
-        const void* uniforms = nullptr;
-        p.eval(1, uniforms, &in, &out);
+        p.eval(1, &in, &out);
         REPORTER_ASSERT(r, out == expected);
     };
 

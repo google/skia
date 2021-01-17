@@ -37,14 +37,14 @@ Samples
   <figure>
     <canvas id=cube width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/5515ab65a31eab1ce5840a714d322643"
+      <a href="https://particles.skia.org/b65b5fa234bac91afacf25f4004b3b7e"
          target=_blank rel=noopener>Cuboid</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=confetti width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/eb484bdbac5952c0184a7f1d25773746"
+      <a href="https://particles.skia.org/73bf9f720bb7ed03d94cdc18e366b1da"
          target=_blank rel=noopener>Confetti</a>
     </figcaption>
   </figure>
@@ -58,15 +58,8 @@ Samples
   <figure>
     <canvas id=fireworks width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/4d2befa962190e14575075d5676b98bf"
+      <a href="https://particles.skia.org/d069873000ab1091296d4c0e561cc622"
          target=_blank rel=noopener>Fireworks</a>
-    </figcaption>
-  </figure>
-  <figure>
-    <canvas id=raincloud width=400 height=400></canvas>
-    <figcaption>
-      <a href="https://particles.skia.org/df5346ce2ab11a0f24e44143bded84d1"
-         target=_blank rel=noopener>Raincloud</a>
     </figcaption>
   </figure>
   <figure>
@@ -104,7 +97,6 @@ Samples
     ParticleExample(CanvasKit, 'curves', curves, 200, 300);
     ParticleExample(CanvasKit, 'cube', cube, 200, 200);
     ParticleExample(CanvasKit, 'fireworks', fireworks, 200, 300);
-    ParticleExample(CanvasKit, 'raincloud', raincloud, 200, 100);
     ParticleExample(CanvasKit, 'text', text, 75, 250);
   });
 
@@ -153,13 +145,11 @@ const confetti ={
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  float3 colors[4];",
-      "  colors[0] = float3(0.87, 0.24, 0.11);",
-      "  colors[1] = float3(1, 0.9, 0.2);",
-      "  colors[2] = float3(0.44, 0.73, 0.24);",
-      "  colors[3] = float3(0.38, 0.54, 0.95);",
       "  int idx = int(rand(p.seed) * 4);",
-      "  p.color.rgb = colors[idx];",
+      "  p.color.rgb = (idx == 0) ? float3(0.87, 0.24, 0.11)",
+      "              : (idx == 1) ? float3(1.00, 0.90, 0.20)",
+      "              : (idx == 2) ? float3(0.44, 0.73, 0.24)",
+      "              :              float3(0.38, 0.54, 0.95);",
       "",
       "  p.lifetime = (1 - effect.age) * effect.lifetime;",
       "  p.scale = mix(0.6, 1, rand(p.seed));",
@@ -257,7 +247,7 @@ const cube = {
     "  pos = mix(pos, normalize(pos), s);",
     "  pos = pos * 100;",
     "",
-    "  float age = effect.loop + effect.age;",
+    "  float age = float(effect.loop) + effect.age;",
     "  float4x4 mat = rx(age * radians(60))",
     "               * ry(age * radians(70))",
     "               * rz(age * radians(80));",
@@ -304,14 +294,15 @@ const curves = {
 };
 
 const fireworks = {
-   "MaxCount": 1000,
+   "MaxCount": 300,
    "Drawable": {
       "Type": "SkCircleDrawable",
-      "Radius": 1
+      "Radius": 3
    },
    "EffectCode": [
       "void effectSpawn(inout Effect effect) {",
-      "  effect.lifetime = 2;",
+      "  // Phase one: Launch",
+      "  effect.lifetime = 4;",
       "  effect.rate = 120;",
       "  float a = radians(mix(-20, 20, rand(effect.seed)) - 90);",
       "  float s = mix(200, 220, rand(effect.seed));",
@@ -320,167 +311,41 @@ const fireworks = {
       "  effect.color.rgb = float3(rand(effect.seed), rand(effect.seed), rand(effect.seed));",
       "  effect.pos.x = 0;",
       "  effect.pos.y = 0;",
+      "  effect.scale = 0.25;  // Also used as particle behavior flag",
       "}",
       "",
       "void effectUpdate(inout Effect effect) {",
-      "  effect.vel.y += dt * 90;",
-      "}",
-      "",
-      "void effectDeath(inout Effect effect) {",
-      "  explode(false);",
+      "  if (effect.age > 0.5 && effect.rate > 0) {",
+      "    // Phase two: Explode",
+      "    effect.rate = 0;",
+      "    effect.burst = 50;",
+      "    effect.scale = 1;",
+      "  } else {",
+      "    effect.vel.y += dt * 90;",
+      "  }",
       "}",
       ""
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 0.5;",
+      "  bool explode = p.scale == 1;",
+      "",
+      "  p.lifetime = explode ? (2 + rand(p.seed) * 0.5) : 0.5;",
       "  float a = radians(rand(p.seed) * 360);",
-      "  float s = mix(5, 10, rand(p.seed));",
+      "  float s = explode ? mix(90, 100, rand(p.seed)) : mix(5, 10, rand(p.seed));",
       "  p.vel.x = cos(a) * s;",
       "  p.vel.y = sin(a) * s;",
       "}",
       "",
       "void update(inout Particle p) {",
       "  p.color.a = 1 - p.age;",
-      "}",
-      ""
-   ],
-   "Bindings": [
-      {
-         "Type": "SkEffectBinding",
-         "Name": "explode",
-         "MaxCount": 50,
-         "Drawable": {
-            "Type": "SkCircleDrawable",
-            "Radius": 3
-         },
-         "EffectCode": [
-            "void effectSpawn(inout Effect effect) {",
-            "  effect.burst = 50;",
-            "  effect.lifetime = 2.5;",
-            "}",
-            ""
-         ],
-         "Code": [
-            "void spawn(inout Particle p) {",
-            "  p.lifetime = 2 + rand(p.seed) * 0.5;",
-            "  float a = radians(rand(p.seed) * 360);",
-            "  float s = mix(90, 100, rand(p.seed));",
-            "  p.vel.x = cos(a) * s;",
-            "  p.vel.y = sin(a) * s;",
-            "}",
-            "",
-            "void update(inout Particle p) {",
-            "  p.color.a = 1 - p.age;",
-            "  p.vel.y += dt * 50;",
-            "}",
-            ""
-         ],
-         "Bindings": []
-      }
-   ]
-};
-
-const raincloud = {
-   "MaxCount": 128,
-   "Drawable": {
-      "Type": "SkCircleDrawable",
-      "Radius": 2
-   },
-   "EffectCode": [
-      "void effectSpawn(inout Effect effect) {",
-      "  if (effect.loop == 0) {",
-      "    cloud(true);",
-      "  }",
-      "  effect.color = float4(0.1, 0.1, 1.0, 1.0);",
-      "  effect.rate = 10;",
-      "}",
-      ""
-   ],
-   "Code": [
-      "void spawn(inout Particle p) {",
-      "  p.lifetime = 4;",
-      "  p.pos.x = mix(-50, 50, rand(p.seed));",
-      "  p.vel.y = 50;",
-      "}",
-      "",
-      "void update(inout Particle p) {",
-      "  p.vel.y += 20 * dt;",
-      "  if (p.pos.y > 150 && p.scale > 0) {",
-      "    p.scale = 0;",
-      "    splash(false);",
+      "  if (p.scale == 1) {",
+      "    p.vel.y += dt * 50;",
       "  }",
       "}",
       ""
    ],
-   "Bindings": [
-      {
-         "Type": "SkEffectBinding",
-         "Name": "cloud",
-         "MaxCount": 60,
-         "Drawable": {
-            "Type": "SkCircleDrawable",
-            "Radius": 16
-         },
-         "EffectCode": [
-            "void effectSpawn(inout Effect effect) {",
-            "  effect.color = float4(0.8, 0.8, 0.8, 1);",
-            "  effect.rate = 30;",
-            "}",
-            ""
-         ],
-         "Code": [
-            "float2 circle(inout float seed) {",
-            "  float r = sqrt(rand(seed));",
-            "  float a = rand(seed) * 6.283185;",
-            "  return r * float2(sin(a), cos(a));",
-            "}",
-            "",
-            "void spawn(inout Particle p) {",
-            "  p.lifetime = 2.5;",
-            "  p.pos = circle(p.seed) * float2(50, 10);",
-            "  p.vel.x = mix(-10, 10, rand(p.seed));",
-            "  p.vel.y = mix(-10, 10, rand(p.seed));",
-            "}",
-            "",
-            "void update(inout Particle p) {",
-            "  p.color.a = 1 - (length(p.pos) / 150);",
-            "}",
-            ""
-         ],
-         "Bindings": []
-      },
-      {
-         "Type": "SkEffectBinding",
-         "Name": "splash",
-         "MaxCount": 8,
-         "Drawable": {
-            "Type": "SkCircleDrawable",
-            "Radius": 1
-         },
-         "EffectCode": [
-            "void effectSpawn(inout Effect effect) {",
-            "  effect.burst = 8;",
-            "  effect.scale = 1;",
-            "}",
-            ""
-         ],
-         "Code": [
-            "void spawn(inout Particle p) {",
-            "  p.lifetime = rand(p.seed);",
-            "  float a = radians(mix(-80, 80, rand(p.seed)) - 90);",
-            "  p.vel.x = cos(a) * 20;",
-            "  p.vel.y = sin(a) * 20;",
-            "}",
-            "",
-            "void update(inout Particle p) {",
-            "  p.vel.y += dt * 20;",
-            "}",
-            ""
-         ],
-         "Bindings": []
-      }
-   ]
+   "Bindings": []
 };
 
 const text = {

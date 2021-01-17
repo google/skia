@@ -27,6 +27,8 @@ SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
     result.fVisibility.set(SkSVGVisibility(SkSVGVisibility::Type::kVisible));
 
     result.fColor.set(SkSVGColorType(SK_ColorBLACK));
+    result.fColorInterpolation.set(SkSVGColorspace::kSRGB);
+    result.fColorInterpolationFilters.set(SkSVGColorspace::kLinearRGB);
 
     result.fFontFamily.init("Sans");
     result.fFontStyle.init(SkSVGFontStyle::Type::kNormal);

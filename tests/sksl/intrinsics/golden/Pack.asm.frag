@@ -15,11 +15,11 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %a RelaxedPrecision
 OpDecorate %b RelaxedPrecision
-OpDecorate %20 RelaxedPrecision
-OpDecorate %28 RelaxedPrecision
-OpDecorate %32 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
-OpDecorate %40 RelaxedPrecision
+OpDecorate %19 RelaxedPrecision
+OpDecorate %27 RelaxedPrecision
+OpDecorate %31 RelaxedPrecision
+OpDecorate %35 RelaxedPrecision
+OpDecorate %39 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -40,30 +40,30 @@ OpDecorate %40 RelaxedPrecision
 %int_0 = OpConstant %int 0
 %main = OpFunction %void None %16
 %17 = OpLabel
-%20 = OpLoad %v2float %a
-%19 = OpExtInst %uint %1 PackHalf2x16 %20
-%18 = OpConvertUToF %float %19
+%19 = OpLoad %v2float %a
+%18 = OpExtInst %uint %1 PackHalf2x16 %19
+%21 = OpConvertUToF %float %18
 %22 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %22 %18
-%28 = OpLoad %v2float %a
-%27 = OpExtInst %uint %1 PackUnorm2x16 %28
-%26 = OpConvertUToF %float %27
+OpStore %22 %21
+%27 = OpLoad %v2float %a
+%26 = OpExtInst %uint %1 PackUnorm2x16 %27
+%28 = OpConvertUToF %float %26
 %29 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %29 %26
-%32 = OpLoad %v2float %a
-%31 = OpExtInst %uint %1 PackSnorm2x16 %32
-%30 = OpConvertUToF %float %31
+OpStore %29 %28
+%31 = OpLoad %v2float %a
+%30 = OpExtInst %uint %1 PackSnorm2x16 %31
+%32 = OpConvertUToF %float %30
 %33 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %33 %30
-%36 = OpLoad %v4float %b
-%35 = OpExtInst %uint %1 PackUnorm4x8 %36
-%34 = OpConvertUToF %float %35
+OpStore %33 %32
+%35 = OpLoad %v4float %b
+%34 = OpExtInst %uint %1 PackUnorm4x8 %35
+%36 = OpConvertUToF %float %34
 %37 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %37 %34
-%40 = OpLoad %v4float %b
-%39 = OpExtInst %uint %1 PackSnorm4x8 %40
-%38 = OpConvertUToF %float %39
+OpStore %37 %36
+%39 = OpLoad %v4float %b
+%38 = OpExtInst %uint %1 PackSnorm4x8 %39
+%40 = OpConvertUToF %float %38
 %41 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %41 %38
+OpStore %41 %40
 OpReturn
 OpFunctionEnd

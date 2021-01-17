@@ -98,7 +98,6 @@ sksl_error_tests = [
   "$_tests/sksl/errors/DuplicateSymbol.sksl",
   "$_tests/sksl/errors/EnumValueMustBeConstInt.sksl",
   "$_tests/sksl/errors/ErrorsInDeadCode.sksl",
-  "$_tests/sksl/errors/FieldAfterRuntimeArray.sksl",
   "$_tests/sksl/errors/FloatRemainder.sksl",
   "$_tests/sksl/errors/ForTypeMismatch.sksl",
   "$_tests/sksl/errors/GenericArgumentMismatch.sksl",
@@ -111,6 +110,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/InvalidOutParams.sksl",
   "$_tests/sksl/errors/InvalidToken.sksl",
   "$_tests/sksl/errors/InvalidUnary.sksl",
+  "$_tests/sksl/errors/MismatchedNumbers.sksl",
   "$_tests/sksl/errors/ModifiersInStruct.sksl",
   "$_tests/sksl/errors/OpaqueTypeAssignment.sksl",
   "$_tests/sksl/errors/OpaqueTypeConstruction.sksl",
@@ -340,11 +340,14 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/Ossfuzz28050.sksl",
   "$_tests/sksl/shared/Ossfuzz28794.sksl",
   "$_tests/sksl/shared/Ossfuzz28904.sksl",
+  "$_tests/sksl/shared/Ossfuzz29444.sksl",
   "$_tests/sksl/shared/OutParams.sksl",
   "$_tests/sksl/shared/OutParamsTricky.sksl",
   "$_tests/sksl/shared/RectangleTexture.sksl",
   "$_tests/sksl/shared/ResizeMatrix.sksl",
+  "$_tests/sksl/shared/SampleLocations.vert",
   "$_tests/sksl/shared/SampleMask.sksl",
+  "$_tests/sksl/shared/ScalarConversionConstructors.sksl",
   "$_tests/sksl/shared/ScopedSymbol.sksl",
   "$_tests/sksl/shared/StackingVectorCasts.sksl",
   "$_tests/sksl/shared/StaticIf.sksl",
@@ -395,6 +398,7 @@ sksl_folding_tests = [
 sksl_inliner_tests = [
   "$_tests/sksl/inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/DoWhileTestCannotBeInlined.sksl",
+  "$_tests/sksl/inliner/EnumsCanBeInlinedSafely.sksl",
   "$_tests/sksl/inliner/ForBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/ForInitializerExpressionsCanBeInlined.sksl",
   "$_tests/sksl/inliner/ForWithReturnInsideCannotBeInlined.sksl",
@@ -420,6 +424,7 @@ sksl_inliner_tests = [
   "$_tests/sksl/inliner/InlinerWrapsEarlyReturnsWithForLoop.sksl",
   "$_tests/sksl/inliner/InlinerWrapsSwitchWithReturnInsideWithForLoop.sksl",
   "$_tests/sksl/inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl",
+  "$_tests/sksl/inliner/StructsCanBeInlinedSafely.sksl",
   "$_tests/sksl/inliner/SwitchWithCastCanBeInlined.sksl",
   "$_tests/sksl/inliner/SwitchWithoutReturnInsideCanBeInlined.sksl",
   "$_tests/sksl/inliner/SwizzleCanBeInlinedDirectly.sksl",
@@ -484,6 +489,8 @@ sksl_settings_tests = [
 
 sksl_rte_tests = [
   "$_tests/sksl/runtime/ConversionConstructors.rte",
+  "$_tests/sksl/runtime/LoopInt.rte",
+  "$_tests/sksl/runtime/LoopFloat.rte",
   "$_tests/sksl/runtime/SampleWithConstantMatrix.rte",
   "$_tests/sksl/runtime/SampleWithExplicitCoord.rte",
   "$_tests/sksl/runtime/SampleWithUniformMatrix.rte",
@@ -491,10 +498,15 @@ sksl_rte_tests = [
 ]
 
 sksl_rte_error_tests = [
-  "$_tests/sksl/errors/Discard.rte",
-  "$_tests/sksl/errors/IllegalOperators.rte",
-  "$_tests/sksl/errors/UnsupportedTypeSampler.rte",
-  "$_tests/sksl/errors/UnsupportedTypeTexture.rte",
+  "$_tests/sksl/runtime_errors/IllegalIndexing.rte",
+  "$_tests/sksl/runtime_errors/IllegalOperators.rte",
+  "$_tests/sksl/runtime_errors/IllegalStatements.rte",
+  "$_tests/sksl/runtime_errors/LoopConditionErrors.rte",
+  "$_tests/sksl/runtime_errors/LoopExpressionErrors.rte",
+  "$_tests/sksl/runtime_errors/LoopInitializerErrors.rte",
+  "$_tests/sksl/runtime_errors/LoopStructureErrors.rte",
+  "$_tests/sksl/runtime_errors/UnsupportedTypeSampler.rte",
+  "$_tests/sksl/runtime_errors/UnsupportedTypeTexture.rte",
 ]
 
 # Tests in sksl_fp_tests_sources will be compiled with --settings on, and are expected to generate

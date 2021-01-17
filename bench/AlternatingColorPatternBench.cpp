@@ -114,8 +114,7 @@ protected:
         int h = 40;
         makebm(&fBmp, w, h);
         fBmShader = fBmp.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                    SkSamplingOptions(SkFilterMode::kLinear,
-                                                      SkMipmapMode::kNone));
+                                    SkSamplingOptions(SkFilterMode::kLinear));
         int offset = 2;
         int count = 0;
         for (int j = 0; j < NY; ++j) {

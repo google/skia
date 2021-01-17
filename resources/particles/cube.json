@@ -78,7 +78,7 @@
       "  pos = mix(pos, normalize(pos), s);",
       "  pos = pos * 100;",
       "",
-      "  float age = effect.loop + effect.age;",
+      "  float age = float(effect.loop) + effect.age;",
       "  float4x4 mat = rx(age * radians(60))",
       "               * ry(age * radians(70))",
       "               * rz(age * radians(80));",

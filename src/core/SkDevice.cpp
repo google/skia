@@ -185,8 +185,7 @@ void SkBaseDevice::drawImageLattice(const SkImage* image, const SkCanvas::Lattic
                    this->drawRect(dstR, paintCopy);
               }
         } else {
-            SkSamplingOptions sampling(filter, SkMipmapMode::kNone);
-            this->drawImageRect(image, &srcR, dstR, sampling, paint,
+            this->drawImageRect(image, &srcR, dstR, SkSamplingOptions(filter), paint,
                                 SkCanvas::kStrict_SrcRectConstraint);
         }
     }

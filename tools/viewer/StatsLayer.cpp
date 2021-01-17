@@ -98,12 +98,11 @@ void StatsLayer::onPaint(SkSurface* surface) {
     canvas->save();
 
     // Scale the canvas while keeping the right edge in place.
-    canvas->concat(SkMatrix::MakeRectToRect(SkRect::Make(canvasSize),
-                                            SkRect::MakeXYWH(canvasSize.width()  * (1 - kScale),
-                                                             0,
-                                                             canvasSize.width()  * kScale,
-                                                             canvasSize.height() * kScale),
-                                            SkMatrix::kFill_ScaleToFit));
+    canvas->concat(SkMatrix::RectToRect(SkRect::Make(canvasSize),
+                                        SkRect::MakeXYWH(canvasSize.width()  * (1 - kScale),
+                                                         0,
+                                                         canvasSize.width()  * kScale,
+                                                         canvasSize.height() * kScale)));
 
     paint.setColor(SK_ColorBLACK);
     canvas->drawRect(rect, paint);

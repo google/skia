@@ -20,68 +20,88 @@
 #include <algorithm>
 #include <thread>
 
-DEF_TEST(SkRuntimeEffectInvalid, r) {
-    auto test = [r](const char* src, const char* expected) {
-        auto[effect, errorText] = SkRuntimeEffect::Make(SkString(src));
-        REPORTER_ASSERT(r, !effect);
-        REPORTER_ASSERT(r, errorText.contains(expected),
-                        "Expected error message to contain \"%s\". Actual message: \"%s\"",
-                        expected, errorText.c_str());
-    };
+void test_invalid_effect(skiatest::Reporter* r, const char* src, const char* expected) {
+    auto [effect, errorText] = SkRuntimeEffect::Make(SkString(src));
+    REPORTER_ASSERT(r, !effect);
+    REPORTER_ASSERT(r, errorText.contains(expected),
+                    "Expected error message to contain \"%s\". Actual message: \"%s\"",
+                    expected, errorText.c_str());
+};
 
 #define EMPTY_MAIN "half4 main() { return half4(0); }"
 
+DEF_TEST(SkRuntimeEffectInvalid_FPOnly, r) {
     // Features that are only allowed in .fp files (key, in uniform, ctype, when, tracked).
     // Ensure that these fail, and the error messages contain the relevant keyword.
-    test("layout(key) in bool Input;"                           EMPTY_MAIN, "key");
-    test("in uniform float Input;"                              EMPTY_MAIN, "in uniform");
-    test("layout(ctype=SkRect) float4 Input;"                   EMPTY_MAIN, "ctype");
-    test("in bool Flag; layout(when=Flag) uniform float Input;" EMPTY_MAIN, "when");
-    test("layout(tracked) uniform float Input;"                 EMPTY_MAIN, "tracked");
+    test_invalid_effect(r, "layout(key) in bool Input;"             EMPTY_MAIN, "key");
+    test_invalid_effect(r, "in uniform float Input;"                EMPTY_MAIN, "in uniform");
+    test_invalid_effect(r, "layout(ctype=SkRect) float4 Input;"     EMPTY_MAIN, "ctype");
+    test_invalid_effect(r, "in bool Flag; "
+                           "layout(when=Flag) uniform float Input;" EMPTY_MAIN, "when");
+    test_invalid_effect(r, "layout(tracked) uniform float Input;"   EMPTY_MAIN, "tracked");
+}
 
+DEF_TEST(SkRuntimeEffectInvalid_LimitedUniformTypes, r) {
     // Runtime SkSL supports a limited set of uniform types. No bool, or int, for example:
-    test("uniform bool b;" EMPTY_MAIN, "uniform");
-    test("uniform int i;"  EMPTY_MAIN, "uniform");
+    test_invalid_effect(r, "uniform bool b;" EMPTY_MAIN, "uniform");
+    test_invalid_effect(r, "uniform int i;"  EMPTY_MAIN, "uniform");
+}
 
+DEF_TEST(SkRuntimeEffectInvalid_NoInVariables, r) {
     // 'in' variables aren't allowed at all:
-    test("in bool b;"    EMPTY_MAIN, "'in'");
-    test("in float f;"   EMPTY_MAIN, "'in'");
-    test("in float2 v;"  EMPTY_MAIN, "'in'");
-    test("in half3x3 m;" EMPTY_MAIN, "'in'");
+    test_invalid_effect(r, "in bool b;"    EMPTY_MAIN, "'in'");
+    test_invalid_effect(r, "in float f;"   EMPTY_MAIN, "'in'");
+    test_invalid_effect(r, "in float2 v;"  EMPTY_MAIN, "'in'");
+    test_invalid_effect(r, "in half3x3 m;" EMPTY_MAIN, "'in'");
+}
 
+DEF_TEST(SkRuntimeEffectInvalid_MarkerRequiresFloat4x4, r) {
     // 'marker' is only permitted on float4x4 uniforms
-    test("layout(marker=local_to_world) uniform float3x3 localToWorld;" EMPTY_MAIN, "float4x4");
+    test_invalid_effect(r,
+                        "layout(marker=local_to_world) uniform float3x3 localToWorld;" EMPTY_MAIN,
+                        "float4x4");
+}
 
-    test("half4 missing(); half4 main() { return missing(); }", "undefined function");
+DEF_TEST(SkRuntimeEffectInvalid_UndefinedFunction, r) {
+    test_invalid_effect(r, "half4 missing(); half4 main() { return missing(); }",
+                           "undefined function");
+}
 
+DEF_TEST(SkRuntimeEffectInvalid_UndefinedMain, r) {
     // Shouldn't be possible to create an SkRuntimeEffect without "main"
-    test("", "main");
+    test_invalid_effect(r, "", "main");
+}
 
+DEF_TEST(SkRuntimeEffectInvalid_ShaderLimitations, r) {
     // Various places that shaders (fragmentProcessors) should not be allowed
-    test("half4 main() { shader child; return sample(child); }",
-         "must be global");
-    test("uniform shader child; half4 helper(shader fp) { return sample(fp); }"
-         "half4 main() { return helper(child); }",
-         "parameter");
-    test("uniform shader child; shader get_child() { return child; }"
-         "half4 main() { return sample(get_child()); }",
-         "return");
-    test("uniform shader child;"
-         "half4 main() { return sample(shader(child)); }",
-         "construct");
-    test("uniform shader child1; uniform shader child2;"
-         "half4 main(float2 p) { return sample(p.x > 10 ? child1 : child2); }",
-         "expression");
+    test_invalid_effect(r, "half4 main() { shader child; return sample(child); }",
+                        "must be global");
+    test_invalid_effect(r, "uniform shader child; half4 helper(shader fp) { return sample(fp); }"
+                           "half4 main() { return helper(child); }",
+                           "parameter");
+    test_invalid_effect(r, "uniform shader child; shader get_child() { return child; }"
+                           "half4 main() { return sample(get_child()); }",
+                           "return");
+    test_invalid_effect(r, "uniform shader child;"
+                           "half4 main() { return sample(shader(child)); }",
+                           "construct");
+    test_invalid_effect(r, "uniform shader child1; uniform shader child2;"
+                           "half4 main(float2 p) { return sample(p.x > 10 ? child1 : child2); }",
+                           "expression");
+}
 
+DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
     // sk_Caps is an internal system. It should not be visible to runtime effects
-    test("half4 main() { return sk_Caps.integerSupport ? half4(1) : half4(0); }",
-         "unknown identifier 'sk_Caps'");
+    test_invalid_effect(r, "half4 main() { return sk_Caps.integerSupport ? half4(1) : half4(0); }",
+                           "unknown identifier 'sk_Caps'");
+}
 
+DEF_TEST(SkRuntimeEffectInvalid_LateErrors, r) {
     // Errors that aren't caught until later in the compilation process (during optimize())
-    test("half4 main() { return half4(1); return half4(0); }", "unreachable");
-    test("half4 badFunc() {}"
-         "half4 main() { return badFunc(); }",
-         "without returning");
+    test_invalid_effect(r, "half4 main() { return half4(1); return half4(0); }", "unreachable");
+    test_invalid_effect(r, "half4 badFunc() {}"
+                           "half4 main() { return badFunc(); }",
+                           "without returning");
 }
 
 DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
@@ -312,6 +332,35 @@ DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
 
     b.uniform("x") = 1.0f;
     auto shader_1 = b.makeShader(nullptr, true);
+}
+
+DEF_TEST(SkRuntimeShaderBuilderSetUniforms, r) {
+    const char* kSource = R"(
+        uniform half x;
+        uniform vec2 offset;
+        half4 main() { return half4(x); }
+    )";
+
+    sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(kSource)));
+    REPORTER_ASSERT(r, effect);
+
+    SkRuntimeShaderBuilder b(std::move(effect));
+
+    // Test passes if this sequence doesn't assert.
+    float x = 1.0f;
+    REPORTER_ASSERT(r, b.uniform("x").set(&x, 1));
+
+    // add extra value to ensure that set doesn't try to use sizeof(array)
+    float origin[] = { 2.0f, 3.0f, 4.0f };
+    REPORTER_ASSERT(r, b.uniform("offset").set<float>(origin, 2));
+
+#ifndef SK_DEBUG
+    REPORTER_ASSERT(r, !b.uniform("offset").set<float>(origin, 1));
+    REPORTER_ASSERT(r, !b.uniform("offset").set<float>(origin, 3));
+#endif
+
+
+    auto shader = b.makeShader(nullptr, false);
 }
 
 DEF_TEST(SkRuntimeEffectThreaded, r) {

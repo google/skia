@@ -20,6 +20,7 @@
 
 namespace SkSL {
 
+class BuiltinTypes;
 class Context;
 
 struct CoercionCost {
@@ -96,46 +97,18 @@ public:
 
     Type(const Type& other) = delete;
 
-    // Create an "other" (special) type with the given name. These types cannot be directly
-    // referenced from user code.
-    static std::unique_ptr<Type> MakeOtherType(const char* name) {
-        return std::unique_ptr<Type>(new Type(name));
+    /** Creates an enum type. */
+    static std::unique_ptr<Type> MakeEnumType(String name) {
+        return std::unique_ptr<Type>(new Type(std::move(name), TypeKind::kEnum));
     }
 
-    // Create an "other" (special) type that supports field access.
-    static std::unique_ptr<Type> MakeOtherStruct(const char* name, std::vector<Field> fields) {
-        return std::unique_ptr<Type>(new Type(name, std::move(fields)));
-    }
-
-    // Create a simple type.
-    static std::unique_ptr<Type> MakeSimpleType(String name, TypeKind kind) {
-        return std::unique_ptr<Type>(new Type(std::move(name), kind));
-    }
-
-    // Create a generic type which maps to the listed types--e.g. $genType is a generic type which
-    // can match float, float2, float3 or float4.
-    static std::unique_ptr<Type> MakeGenericType(const char* name, std::vector<const Type*> types) {
-        return std::unique_ptr<Type>(new Type(name, std::move(types)));
-    }
-
-    // Create a struct type with the given fields.
-    static std::unique_ptr<Type> MakeStructType(int offset, String name, std::vector<Field> fields) {
+    /** Creates a struct type with the given fields. */
+    static std::unique_ptr<Type> MakeStructType(int offset, String name,
+                                                std::vector<Field> fields) {
         return std::unique_ptr<Type>(new Type(offset, std::move(name), std::move(fields)));
     }
 
-    // Create a scalar type.
-    static std::unique_ptr<Type> MakeScalarType(const char* name, NumberKind numberKind,
-                                                int priority, bool highPrecision = false) {
-        return std::unique_ptr<Type>(new Type(name, numberKind, priority, highPrecision));
-    }
-
-    // Create a vector type.
-    static std::unique_ptr<Type> MakeVectorType(const char* name, const Type& componentType,
-                                                int columns) {
-        return std::unique_ptr<Type>(new Type(name, TypeKind::kVector, componentType, columns));
-    }
-
-    // Create an array type.
+    /** Creates an array type. */
     static constexpr int kUnsizedArray = -1;
     static std::unique_ptr<Type> MakeArrayType(String name, const Type& componentType,
                                                int columns) {
@@ -143,34 +116,21 @@ public:
                                               columns));
     }
 
-    // Create a matrix type.
-    static std::unique_ptr<Type> MakeMatrixType(const char* name, const Type& componentType,
-                                                int columns, int rows) {
-        return std::unique_ptr<Type>(new Type(name, componentType, columns, rows));
-    }
+    /** Creates a clone of this Type, if needed, and inserts it into a different symbol table. */
+    const Type* clone(SymbolTable* symbolTable) const;
 
-    // Create a texture type.
-    static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions,
-                                                 bool isDepth, bool isArrayedTexture,
-                                                 bool isMultisampled, bool isSampled) {
-        return std::unique_ptr<Type>(
-                new Type(name, dimensions, isDepth, isArrayedTexture, isMultisampled, isSampled));
-    }
-
-    // Create a sampler type.
-    static std::unique_ptr<Type> MakeSamplerType(const char* name, const Type& textureType) {
-        return std::unique_ptr<Type>(new Type(name, textureType));
+    /**
+     * Returns true if this type is known to come from BuiltinTypes. If this returns true, the Type
+     * will always be available in the root SymbolTable and never needs to be copied to migrate an
+     * Expression from one location to another. If it returns false, the Type might not exist in a
+     * separate SymbolTable and you'll need to consider copying it.
+     */
+    bool isInBuiltinTypes() const {
+        return !(this->isArray() || this->isStruct() || this->isEnum());
     }
 
     String displayName() const {
-        StringFragment name = this->name();
-        if (name == "$floatLiteral") {
-            return "float";
-        }
-        if (name == "$intLiteral") {
-            return "int";
-        }
-        return name;
+        return this->scalarTypeForLiteral().name();
     }
 
     String description() const override {
@@ -326,8 +286,7 @@ public:
     }
 
     /**
-     * For generic types, returns the types that this generic type can substitute for. For other
-     * types, returns a list of other types that this type can be coerced into.
+     * For generic types, returns the types that this generic type can substitute for.
      */
     const std::vector<const Type*>& coercibleTypes() const {
         SkASSERT(fCoercibleTypes.size() > 0);
@@ -353,6 +312,14 @@ public:
         return fTypeKind == TypeKind::kScalar;
     }
 
+    bool isLiteral() const {
+        return fScalarTypeForLiteral != nullptr;
+    }
+
+    const Type& scalarTypeForLiteral() const {
+        return fScalarTypeForLiteral ? *fScalarTypeForLiteral : *this;
+    }
+
     bool isVector() const {
         return fTypeKind == TypeKind::kVector;
     }
@@ -367,6 +334,10 @@ public:
 
     bool isStruct() const {
         return fTypeKind == TypeKind::kStruct;
+    }
+
+    bool isEnum() const {
+        return fTypeKind == TypeKind::kEnum;
     }
 
     bool isMultisampled() const {
@@ -393,6 +364,8 @@ public:
     const Type& toCompound(const Context& context, int columns, int rows) const;
 
 private:
+    friend class BuiltinTypes;
+
     using INHERITED = Symbol;
 
     // Constructor for MakeOtherType.
@@ -408,7 +381,7 @@ private:
             , fNumberKind(NumberKind::kNonnumeric)
             , fFields(std::move(fields)) {}
 
-    // Constructor for MakeSimpleType.
+    // Constructor for MakeEnumType and MakeSeparateSamplerType.
     Type(String name, TypeKind kind)
             : INHERITED(-1, kSymbolKind, "")
             , fNameString(std::move(name))
@@ -425,7 +398,7 @@ private:
             , fCoercibleTypes(std::move(types)) {}
 
     // Constructor for MakeScalarType.
-    Type(const char* name, NumberKind numberKind, int priority, bool highPrecision = false)
+    Type(const char* name, NumberKind numberKind, int priority, bool highPrecision)
             : INHERITED(-1, kSymbolKind, name)
             , fTypeKind(TypeKind::kScalar)
             , fNumberKind(numberKind)
@@ -433,6 +406,17 @@ private:
             , fColumns(1)
             , fRows(1)
             , fHighPrecision(highPrecision) {}
+
+    // Constructor for MakeLiteralType.
+    Type(const char* name, const Type& scalarType, int priority)
+            : INHERITED(-1, kSymbolKind, name)
+            , fTypeKind(TypeKind::kScalar)
+            , fNumberKind(scalarType.numberKind())
+            , fPriority(priority)
+            , fColumns(1)
+            , fRows(1)
+            , fHighPrecision(scalarType.highPrecision())
+            , fScalarTypeForLiteral(&scalarType) {}
 
     // Constructor shared by MakeVectorType and MakeArrayType.
     Type(String name, TypeKind kind, const Type& componentType, int columns)
@@ -516,6 +500,7 @@ private:
     bool fIsSampled = false;
     bool fHighPrecision = false;
     const Type* fTextureType = nullptr;
+    const Type* fScalarTypeForLiteral = nullptr;
 };
 
 }  // namespace SkSL

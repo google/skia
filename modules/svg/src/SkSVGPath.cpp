@@ -39,3 +39,7 @@ SkPath SkSVGPath::onAsPath(const SkSVGRenderContext& ctx) const {
     this->mapToParent(&path);
     return path;
 }
+
+SkRect SkSVGPath::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+    return fPath.computeTightBounds();
+}

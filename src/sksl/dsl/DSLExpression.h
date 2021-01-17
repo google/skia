@@ -21,6 +21,7 @@ class Expression;
 namespace dsl {
 
 class DSLExpression;
+class DSLVar;
 
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.
@@ -54,7 +55,17 @@ public:
      */
     DSLExpression(bool value);
 
+    /**
+     * Creates an expression representing a variable reference.
+     */
+    DSLExpression(const DSLVar& var);
+
     ~DSLExpression();
+
+    /**
+     * Overloads the '=' operator to create an SkSL assignment statement.
+     */
+    DSLExpression operator=(DSLExpression other);
 
     /**
      * Invalidates this object and returns the SkSL expression it represents.
@@ -64,10 +75,53 @@ public:
 private:
     DSLExpression(std::unique_ptr<SkSL::Expression> expression);
 
+    /**
+     * Invalidates this object and returns the SkSL expression it represents coerced to the
+     * specified type. If the expression cannot be coerced, reports an error and returns null.
+     */
+    std::unique_ptr<SkSL::Expression> coerceAndRelease(const SkSL::Type& type);
+
     std::unique_ptr<SkSL::Expression> fExpression;
 
+    friend class DSLVar;
     friend class DSLWriter;
 };
+
+DSLExpression operator+(DSLExpression left, DSLExpression right);
+DSLExpression operator+=(DSLExpression left, DSLExpression right);
+DSLExpression operator-(DSLExpression left, DSLExpression right);
+DSLExpression operator-=(DSLExpression left, DSLExpression right);
+DSLExpression operator*(DSLExpression left, DSLExpression right);
+DSLExpression operator*=(DSLExpression left, DSLExpression right);
+DSLExpression operator/(DSLExpression left, DSLExpression right);
+DSLExpression operator/=(DSLExpression left, DSLExpression right);
+DSLExpression operator%(DSLExpression left, DSLExpression right);
+DSLExpression operator%=(DSLExpression left, DSLExpression right);
+DSLExpression operator<<(DSLExpression left, DSLExpression right);
+DSLExpression operator<<=(DSLExpression left, DSLExpression right);
+DSLExpression operator>>(DSLExpression left, DSLExpression right);
+DSLExpression operator>>=(DSLExpression left, DSLExpression right);
+DSLExpression operator&&(DSLExpression left, DSLExpression right);
+DSLExpression operator||(DSLExpression left, DSLExpression right);
+DSLExpression operator&(DSLExpression left, DSLExpression right);
+DSLExpression operator&=(DSLExpression left, DSLExpression right);
+DSLExpression operator|(DSLExpression left, DSLExpression right);
+DSLExpression operator|=(DSLExpression left, DSLExpression right);
+DSLExpression operator^(DSLExpression left, DSLExpression right);
+DSLExpression operator^=(DSLExpression left, DSLExpression right);
+DSLExpression operator,(DSLExpression left, DSLExpression right);
+DSLExpression operator==(DSLExpression left, DSLExpression right);
+DSLExpression operator!=(DSLExpression left, DSLExpression right);
+DSLExpression operator>(DSLExpression left, DSLExpression right);
+DSLExpression operator<(DSLExpression left, DSLExpression right);
+DSLExpression operator>=(DSLExpression left, DSLExpression right);
+DSLExpression operator<=(DSLExpression left, DSLExpression right);
+DSLExpression operator!(DSLExpression expr);
+DSLExpression operator~(DSLExpression expr);
+DSLExpression operator++(DSLExpression expr);
+DSLExpression operator++(DSLExpression expr, int);
+DSLExpression operator--(DSLExpression expr);
+DSLExpression operator--(DSLExpression expr, int);
 
 } // namespace dsl
 

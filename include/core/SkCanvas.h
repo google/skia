@@ -36,6 +36,7 @@
 // Working on allow this to be undefined
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 //#define SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
+#define SK_SUPPORT_LEGACY_DRAWBITMAP
 
 class GrBackendRenderTarget;
 class GrRecordingContext;
@@ -1647,6 +1648,8 @@ public:
                    const SkPaint* = nullptr);
     void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint*, SrcRectConstraint);
+    void drawImageRect(const SkImage*, const SkRect& dst, const SkSamplingOptions&,
+                       const SkPaint*, SrcRectConstraint);
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
         SkIRect center divides the image into nine sections: four sides, four corners, and
@@ -1684,6 +1687,11 @@ public:
         this->drawImageNine(image.get(), center, dst, paint);
     }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWBITMAP
+public:
+#else
+private:
+#endif
     /** Draws SkBitmap bitmap, with its top-left corner at (left, top),
         using clip, SkMatrix, and optional SkPaint paint.
 
@@ -1785,6 +1793,7 @@ public:
     */
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                         SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+public:
 
     /** \struct SkCanvas::Lattice
         SkCanvas::Lattice divides SkBitmap or SkImage into a rectangular grid.

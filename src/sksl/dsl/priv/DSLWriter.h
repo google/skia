@@ -8,6 +8,7 @@
 #ifndef SKSL_DSLWRITER
 #define SKSL_DSLWRITER
 
+#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -63,11 +64,35 @@ public:
     static const std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
 
     /**
+     * Returns the final pointer to a pooled Modifiers object that should be used to represent the
+     * given modifiers.
+     */
+    static const SkSL::Modifiers* Modifiers(SkSL::Modifiers modifiers);
+
+    /**
+     * Returns the (possibly mangled) final name that should be used for an entity with the given
+     * raw name.
+     */
+    static const char* Name(const char* name);
+
+    /**
      * Reports an error if the argument is null. Returns its argument unmodified.
      */
     static std::unique_ptr<SkSL::Expression> Check(std::unique_ptr<SkSL::Expression> expr);
 
+    static DSLExpression Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type);
+
     static DSLExpression Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs);
+
+    static DSLExpression ConvertBinary(std::unique_ptr<Expression> left, Token::Kind op,
+                                std::unique_ptr<Expression> right);
+
+    static DSLExpression ConvertIndex(std::unique_ptr<Expression> base,
+                                      std::unique_ptr<Expression> index);
+
+    static DSLExpression ConvertPostfix(std::unique_ptr<Expression> expr, Token::Kind op);
+
+    static DSLExpression ConvertPrefix(Token::Kind op, std::unique_ptr<Expression> expr);
 
     /**
      * Sets the ErrorHandler associated with the current thread. This object will be notified when
@@ -84,6 +109,13 @@ public:
      */
     static void ReportError(const char* msg);
 
+    /**
+     * Returns whether name mangling is enabled. This should always be enabled outside of tests.
+     */
+    static bool ManglingEnabled() {
+        return Instance().fMangle;
+    }
+
     static DSLWriter& Instance();
 
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
@@ -92,6 +124,8 @@ private:
     SkSL::Program::Settings fSettings;
     SkSL::Compiler* fCompiler;
     ErrorHandler* fErrorHandler = nullptr;
+    bool fMangle = true;
+    Mangler fMangler;
 
     friend class DSLCore;
     friend class ::AutoDSLContext;

@@ -32,12 +32,22 @@
 #include "src/gpu/SkGr.h"
 #endif
 
+sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMode filter,
+                                      const SkMatrix* localMatrix, const SkRect* tile) const {
+    if (localMatrix && !localMatrix->invert(nullptr)) {
+        return nullptr;
+    }
+    return SkPictureShader::Make(sk_ref_sp(this), tmx, tmy, (SkPictureShader::FilterEnum)filter,
+                                 localMatrix, tile);
+}
+
 sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
                                       const SkRect* tile) const {
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
-    return SkPictureShader::Make(sk_ref_sp(this), tmx, tmy, localMatrix, tile);
+    return SkPictureShader::Make(sk_ref_sp(this), tmx, tmy, SkPictureShader::kInheritFromPaint,
+                                 localMatrix, tile);
 }
 
 sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy,
@@ -123,12 +133,13 @@ uint32_t next_id() {
 } // namespace
 
 SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
-                                 const SkMatrix* localMatrix, const SkRect* tile)
+                                 FilterEnum filter, const SkMatrix* localMatrix, const SkRect* tile)
     : INHERITED(localMatrix)
     , fPicture(std::move(picture))
     , fTile(tile ? *tile : fPicture->cullRect())
     , fTmx(tmx)
     , fTmy(tmy)
+    , fFilter(filter)
     , fUniqueID(next_id())
     , fAddedToCache(false) {}
 
@@ -139,11 +150,11 @@ SkPictureShader::~SkPictureShader() {
 }
 
 sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
-                                      const SkMatrix* localMatrix, const SkRect* tile) {
+                                      FilterEnum filter, const SkMatrix* lm, const SkRect* tile) {
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return SkShaders::Empty();
     }
-    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
+    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, filter, lm, tile));
 }
 
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
@@ -151,16 +162,21 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     buffer.readMatrix(&lm);
     auto tmx = buffer.read32LE(SkTileMode::kLastTileMode);
     auto tmy = buffer.read32LE(SkTileMode::kLastTileMode);
-    SkRect tile;
-    buffer.readRect(&tile);
+    SkRect tile = buffer.readRect();
 
     sk_sp<SkPicture> picture;
-
-    bool didSerialize = buffer.readBool();
-    if (didSerialize) {
+    FilterEnum filter;
+    if (buffer.isVersionLT(SkPicturePriv::kPictureShaderFilterParam_Version)) {
+        filter = kInheritFromPaint;
+        bool didSerialize = buffer.readBool();
+        if (didSerialize) {
+            picture = SkPicturePriv::MakeFromBuffer(buffer);
+        }
+    } else {
+        filter = buffer.read32LE(SkPictureShader::kLastFilterEnum);
         picture = SkPicturePriv::MakeFromBuffer(buffer);
     }
-    return SkPictureShader::Make(picture, tmx, tmy, &lm, &tile);
+    return SkPictureShader::Make(picture, tmx, tmy, filter, &lm, &tile);
 }
 
 void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
@@ -168,8 +184,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((unsigned)fTmx);
     buffer.write32((unsigned)fTmy);
     buffer.writeRect(fTile);
-
-    buffer.writeBool(true);
+    buffer.write32((unsigned)fFilter);
     SkPicturePriv::Flatten(fPicture, buffer);
 }
 
@@ -179,6 +194,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
                                                  SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                                  SkColorType dstColorType,
                                                  SkColorSpace* dstColorSpace,
+                                                 SkFilterQuality paintFQ,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
@@ -244,9 +260,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 
     sk_sp<SkShader> tileShader;
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
-        SkMatrix tileMatrix;
-        tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
-                                 SkMatrix::kFill_ScaleToFit);
+        SkMatrix tileMatrix = SkMatrix::RectToRect(fTile, SkRect::MakeIWH(tileSize.width(),
+                                                                          tileSize.height()));
 
         sk_sp<SkImage> tileImage = SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix,
                                                             nullptr, bitDepth, std::move(imgCS));
@@ -257,9 +272,14 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 #ifdef SK_SUPPORT_LEGACY_INHERITED_PICTURE_SHADER_FILTER
         tileShader = SkImage_makeShaderImplicitFilterQuality(tileImage.get(), fTmx, fTmy, nullptr);
 #else
-        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(SkFilterMode::kLinear,
-                                                                         SkMipmapMode::kNone),
-                                           nullptr);
+        SkFilterMode filter;
+        if (fFilter == kInheritFromPaint) {
+            filter = (paintFQ == kNone_SkFilterQuality) ? SkFilterMode::kNearest
+                                                        : SkFilterMode::kLinear;
+        } else {
+            filter = (SkFilterMode)fFilter;
+        }
+        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(filter), nullptr);
 #endif
 
         SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
@@ -279,7 +299,8 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
     bitmapShader = this->refBitmapShader(rec.fMatrixProvider.localToDevice(), &lm,
-                                         rec.fDstColorType, rec.fDstCS);
+                                         rec.fDstColorType, rec.fDstCS,
+                                         rec.fPaint.getFilterQuality());
 
     if (!bitmapShader) {
         return false;
@@ -301,7 +322,7 @@ skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
     bitmapShader = this->refBitmapShader(matrices.localToDevice(), &lm,
-                                         dst.colorType(), dst.colorSpace());
+                                         dst.colorType(), dst.colorSpace(), quality);
     if (!bitmapShader) {
         return {};
     }
@@ -319,7 +340,9 @@ SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkA
 const {
     auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
     sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorType,
-                                                         rec.fDstColorSpace);
+                                                         rec.fDstColorSpace,
+                                                         rec.fPaint ? rec.fPaint->getFilterQuality()
+                                                                    : kNone_SkFilterQuality);
     if (!bitmapShader) {
         return nullptr;
     }
@@ -360,6 +383,11 @@ void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor ds
 
 #if SK_SUPPORT_GPU
 
+// Legacy: reconstruct what was in the paint (just care about none/low)
+static SkFilterQuality toFilterQuality(const SkSamplingOptions& sampling) {
+    return sampling == SkSamplingOptions() ? kNone_SkFilterQuality : kLow_SkFilterQuality;
+}
+
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     int maxTextureSize = 0;
@@ -374,7 +402,8 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     }
     sk_sp<SkShader> bitmapShader(
             this->refBitmapShader(args.fMatrixProvider.localToDevice(), &lm, dstColorType,
-                                  args.fDstColorInfo->colorSpace(), maxTextureSize));
+                                  args.fDstColorInfo->colorSpace(), toFilterQuality(args.fSampling),
+                                  maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }

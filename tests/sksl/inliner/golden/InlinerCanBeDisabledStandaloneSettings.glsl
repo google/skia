@@ -1,5 +1,6 @@
 
 out vec4 sk_FragColor;
+uniform vec4 color;
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
 
@@ -40,7 +41,6 @@ vec4 blend_hue(vec4 src, vec4 dst) {
     vec3 dsa = dst.xyz * src.w;
     return vec4((((_blend_set_color_luminance(_blend_set_color_saturation(sda, dsa), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
-uniform vec4 color;
 void main() {
     float _7_a = color.x * color.y;
     float _8_c = _7_a + color.z;

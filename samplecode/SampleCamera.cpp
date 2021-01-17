@@ -36,11 +36,8 @@ class CameraView : public Sample {
             if (GetResourceAsBitmap(resource, &bm)) {
                 SkRect src = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
                 SkRect dst = { -150, -150, 150, 150 };
-                SkMatrix matrix;
-                matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
-                fShaders.push_back(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
-                                                                   SkMipmapMode::kNone),
-                                                 matrix));
+                fShaders.push_back(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear),
+                                                 SkMatrix::RectToRect(src, dst)));
             }
         }
         this->setBGColor(0xFFDDDDDD);

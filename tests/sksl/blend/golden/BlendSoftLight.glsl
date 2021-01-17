@@ -1,5 +1,7 @@
 #version 400
 out vec4 sk_FragColor;
+in vec4 src;
+in vec4 dst;
 float _soft_light_component(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
         float _8_n = (d.x * d.x) * (s.y - 2.0 * s.x);
@@ -17,8 +19,6 @@ float _soft_light_component(vec2 s, vec2 d) {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
 }
-in vec4 src;
-in vec4 dst;
 void main() {
     sk_FragColor = dst.w == 0.0 ? src : vec4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 

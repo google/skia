@@ -57,9 +57,8 @@ void SkRiveSlide::draw(SkCanvas* canvas) {
 
     // Scale the Rive artboards to fill our window.
     SkAutoCanvasRestore acr(canvas, true);
-    canvas->concat(SkMatrix::MakeRectToRect(fRiveBounds,
-                                            SkRect::MakeSize(fWinSize),
-                                            SkMatrix::kCenter_ScaleToFit ));
+    canvas->concat(SkMatrix::RectToRect(fRiveBounds, SkRect::MakeSize(fWinSize),
+                                        SkMatrix::kCenter_ScaleToFit));
 
     for (const auto& ab : fRive->artboards()) {
         ab->render(canvas);

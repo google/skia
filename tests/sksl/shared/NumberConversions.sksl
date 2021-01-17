@@ -33,18 +33,20 @@ uint ui2ui = ui;
 uint h2ui = uint(h);
 uint f2ui = uint(f);
 uint b2ui = uint(b);
-float s2f = s;
-float i2f = i;
-float us2f = us;
-float ui2f = ui;
-float h2f = h;
-float f2f = f;
-float b2f = float(b); // bool-to-float is not implicitly convertible
+float s2f = float(s);
+float i2f = float(i);
+float us2f = float(us);
+float ui2f = float(ui);
+float h2f = float(h);
+float f2f = float(f);
+float b2f = float(b);
 
 void main() {
-    sk_FragColor.r = half(s + i + us + half(ui) + h + f + s2s + i2s + us2s + ui2s + h2s + f2s +
-                          b2s + s2i + i2i + us2i + ui2i + h2i + f2i + b2i + s2us + i2us + us2us);
-    sk_FragColor.r += half(ui2us + h2us + f2us + b2us + half(s2ui) + half(i2ui) + half(us2ui) +
-                           half(ui2ui) + half(h2ui) + half(f2ui) + half(b2ui) + s2f + i2f + us2f +
-                           ui2f + h2f + f2f + b2f);
+    sk_FragColor.r = half(s) + half(i) + half(us) + half(ui) + half(h) + half(f) + half(s2s) +
+                     half(i2s) + half(us2s) + half(ui2s) + half(h2s) + half(f2s) + half(b2s) +
+                     half(s2i) + half(i2i) + half(us2i) + half(ui2i) + half(h2i) + half(f2i) +
+                     half(b2i) + half(s2us) + half(i2us) + half(us2us);
+    sk_FragColor.r += half(ui2us) + half(h2us) + half(f2us) + half(b2us) + half(s2ui) + half(i2ui) +
+                      half(us2ui) + half(ui2ui) + half(h2ui) + half(f2ui) + half(b2ui) + half(s2f) +
+                      half(i2f) + half(us2f) + half(ui2f) + half(h2f) + half(f2f) + half(b2f);
 }
