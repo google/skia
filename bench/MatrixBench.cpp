@@ -8,6 +8,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixUtils.h"
 
 class MatrixBench : public Benchmark {
@@ -320,7 +321,7 @@ public:
         SkRect dst;
         if (fScaleTrans) {
             for (int i = 0; i < MEGA_LOOP; ++i) {
-                fM.mapRectScaleTranslate(&dst, fR);
+                SkMatrixPriv::MapRectScaleTranslate(fM, &dst, fR);
             }
         } else {
             for (int i = 0; i < MEGA_LOOP; ++i) {

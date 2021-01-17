@@ -68,20 +68,6 @@ SkMatrix& SkMatrix::set9(const SkScalar buffer[]) {
     return *this;
 }
 
-SkMatrix& SkMatrix::setAffine(const SkScalar buffer[]) {
-    fMat[kMScaleX] = buffer[kAScaleX];
-    fMat[kMSkewX]  = buffer[kASkewX];
-    fMat[kMTransX] = buffer[kATransX];
-    fMat[kMSkewY]  = buffer[kASkewY];
-    fMat[kMScaleY] = buffer[kAScaleY];
-    fMat[kMTransY] = buffer[kATransY];
-    fMat[kMPersp0] = 0;
-    fMat[kMPersp1] = 0;
-    fMat[kMPersp2] = 1;
-    this->setTypeMask(kUnknown_Mask);
-    return *this;
-}
-
 // this aligns with the masks, so we can compute a mask from a variable 0/1
 enum {
     kTranslate_Shift,
@@ -752,26 +738,17 @@ static double sk_inv_determinant(const float mat[9], int isPerspective) {
     return 1.0 / det;
 }
 
-void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
-    affine[kAScaleX] = 1;
-    affine[kASkewY] = 0;
-    affine[kASkewX] = 0;
-    affine[kAScaleY] = 1;
-    affine[kATransX] = 0;
-    affine[kATransY] = 0;
-}
-
 bool SkMatrix::asAffine(SkScalar affine[6]) const {
     if (this->hasPerspective()) {
         return false;
     }
     if (affine) {
-        affine[kAScaleX] = this->fMat[kMScaleX];
-        affine[kASkewY] = this->fMat[kMSkewY];
-        affine[kASkewX] = this->fMat[kMSkewX];
-        affine[kAScaleY] = this->fMat[kMScaleY];
-        affine[kATransX] = this->fMat[kMTransX];
-        affine[kATransY] = this->fMat[kMTransY];
+        affine[0] = fMat[kMScaleX];
+        affine[1] = fMat[kMSkewY];
+        affine[2] = fMat[kMSkewX];
+        affine[3] = fMat[kMScaleY];
+        affine[4] = fMat[kMTransX];
+        affine[5] = fMat[kMTransY];
     }
     return true;
 }
@@ -1133,6 +1110,13 @@ static Sk4f sort_as_rect(const Sk4f& ltrb) {
     return Sk4f(min[2], min[3], max[0], max[1]);
 }
 
+/** Sets dst to bounds of src corners mapped by SkMatrix. If matrix contains
+    elements other than scale or translate: asserts if SK_DEBUG is defined;
+    otherwise, results are undefined.
+
+    @param dst  storage for bounds of mapped SkPoint
+    @param src  SkRect to map
+*/
 void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
     SkASSERT(dst);
     SkASSERT(this->isScaleTranslate());

@@ -53,7 +53,7 @@ std::unique_ptr<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& r) {
 std::unique_ptr<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
     SkScalar a[6];
     if (!matrix.asAffine(a)) {
-        SkMatrix::SetAffineIdentity(a);
+        SkAssertResult(SkMatrix().asAffine(a)); // identity
     }
     return SkPDFMakeArray(a[0], a[1], a[2], a[3], a[4], a[5]);
 }
@@ -385,7 +385,7 @@ void SkPDFUtils::Base85Encode(std::unique_ptr<SkStreamAsset> stream, SkDynamicMe
 void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
     SkScalar values[6];
     if (!matrix.asAffine(values)) {
-        SkMatrix::SetAffineIdentity(values);
+        SkAssertResult(SkMatrix().asAffine(values)); // identity
     }
     for (SkScalar v : values) {
         SkPDFUtils::AppendScalar(v, content);
