@@ -415,49 +415,52 @@ uint32_t GrShape::segmentMask() const {
     SkUNREACHABLE;
 }
 
-void GrShape::asPath(SkPath* out, bool simpleFill) const {
+SkPath GrShape::asPath(bool simpleFill) const {
+    SkPathBuilder b;
+
     if (!this->isPath() && !this->isArc()) {
         // When not a path, we need to set fill type on the path to match invertedness.
         // All the non-path geometries produce equivalent shapes with either even-odd or winding
         // so we can use the default fill type.
-        out->reset();
-        out->setFillType(kDefaultFillType);
+        b.setFillType(kDefaultFillType);
         if (fInverted) {
-            out->toggleInverseFillType();
+            b.toggleInverseFillType();
         }
     } // Else when we're already a path, that will assign the fill type directly to 'out'.
 
     switch (this->type()) {
         case Type::kEmpty:
-            return;
+            return b.detach();
         case Type::kPoint:
             // A plain moveTo() or moveTo+close() does not match the expected path for a
             // point that is being dashed (see SkDashPath's handling of zero-length segments).
-            out->moveTo(fPoint);
-            out->lineTo(fPoint);
-            return;
+            b.moveTo(fPoint);
+            b.lineTo(fPoint);
+            return b.detach();
         case Type::kRect:
-            out->addRect(fRect, this->dir(), this->startIndex());
-            return;
+            b.addRect(fRect, this->dir(), this->startIndex());
+            return b.detach();
         case Type::kRRect:
-            out->addRRect(fRRect, this->dir(), this->startIndex());
-            return;
+            b.addRRect(fRRect, this->dir(), this->startIndex());
+            return b.detach();
         case Type::kPath:
-            *out = fPath;
-            return;
-        case Type::kArc:
-            SkPathPriv::CreateDrawArcPath(out, fArc.fOval, fArc.fStartAngle, fArc.fSweepAngle,
+            return fPath;
+        case Type::kArc: {
+            SkPath p = SkPathPriv::CreateDrawArcPath(fArc.fOval, fArc.fStartAngle, fArc.fSweepAngle,
                                           fArc.fUseCenter, simpleFill);
             // CreateDrawArcPath resets the output path and configures its fill type, so we just
             // have to ensure invertedness is correct.
             if (fInverted) {
-                out->toggleInverseFillType();
+                p.toggleInverseFillType();
             }
-            return;
+            return p;
+        }
         case Type::kLine:
-            out->moveTo(fLine.fP1);
-            out->lineTo(fLine.fP2);
-            return;
+            b.moveTo(fLine.fP1);
+            b.lineTo(fLine.fP2);
+            return b.detach();
     }
     SkUNREACHABLE;
+
+    return SkPath();
 }

@@ -368,8 +368,7 @@ GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
 
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
     if (path.isEmpty()) {
         SkDEBUGCODE(--fEndPathInstance);
         SkDEBUGCODE(--fEndStencilResolveInstance);
