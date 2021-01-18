@@ -145,14 +145,6 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
 }
 #endif
 
-sk_sp<SkShader> SkImage_makeShaderImplicitFilterQuality(const SkImage* image,
-                                                        SkTileMode tmx, SkTileMode tmy,
-                                                        const SkMatrix* localMatrix) {
-    const SkSamplingOptions* inherit_from_paint = nullptr;
-    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(image)), tmx, tmy, inherit_from_paint,
-                               localMatrix);
-}
-
 sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                     const SkSamplingOptions& sampling,
                                     const SkMatrix* localMatrix) const {

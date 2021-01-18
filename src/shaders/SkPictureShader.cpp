@@ -201,26 +201,12 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     const SkMatrix m = SkMatrix::Concat(viewMatrix, **localMatrix);
 
     // Use a rotation-invariant scale
-#ifdef SK_SUPPORT_LEGACY_INHERITED_PICTURE_SHADER_FILTER
-    SkPoint scale;
-    //
-    // TODO: replace this with decomposeScale() -- but beware LayoutTest rebaselines!
-    //
-    if (!SkDecomposeUpper2x2(m, nullptr, &scale, nullptr)) {
-        // Decomposition failed, use an approximation.
-        scale.set(SkScalarSqrt(m.getScaleX() * m.getScaleX() + m.getSkewX() * m.getSkewX()),
-                  SkScalarSqrt(m.getScaleY() * m.getScaleY() + m.getSkewY() * m.getSkewY()));
-    }
-    SkSize scaledSize = SkSize::Make(SkScalarAbs(scale.x() * fTile.width()),
-                                     SkScalarAbs(scale.y() * fTile.height()));
-#else
     SkSize scaledSize;
     if (!m.decomposeScale(&scaledSize, nullptr)) {
         scaledSize = {1, 1};
     }
     scaledSize.fWidth  *= fTile.width();
     scaledSize.fHeight *= fTile.height();
-#endif
 
     // Clamp the tile size to about 4M pixels
     static const SkScalar kMaxTileArea = 2048 * 2048;
@@ -269,9 +255,6 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
             return nullptr;
         }
 
-#ifdef SK_SUPPORT_LEGACY_INHERITED_PICTURE_SHADER_FILTER
-        tileShader = SkImage_makeShaderImplicitFilterQuality(tileImage.get(), fTmx, fTmy, nullptr);
-#else
         SkFilterMode filter;
         if (fFilter == kInheritFromPaint) {
             filter = (paintFQ == kNone_SkFilterQuality) ? SkFilterMode::kNearest
@@ -280,7 +263,6 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
             filter = (SkFilterMode)fFilter;
         }
         tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(filter), nullptr);
-#endif
 
         SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
         fAddedToCache.store(true);
