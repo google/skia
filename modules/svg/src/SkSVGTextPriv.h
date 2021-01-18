@@ -11,6 +11,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGText.h"
+#include "src/core/SkTLazy.h"
 
 #include <tuple>
 
@@ -190,8 +191,8 @@ private:
     size_t                          fCurrentCharIndex = 0;
 
     // cached for access from SkShaper callbacks.
-    const SkPaint*                  fCurrentFill;
-    const SkPaint*                  fCurrentStroke;
+    SkTLazy<SkPaint>                fCurrentFill;
+    SkTLazy<SkPaint>                fCurrentStroke;
 
     bool                            fPrevCharSpace = true; // WS filter state
 };
