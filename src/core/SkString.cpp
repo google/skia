@@ -294,6 +294,10 @@ SkString::SkString(const std::string& src) {
     fRec = Rec::Make(src.c_str(), src.size());
 }
 
+SkString::SkString(const std::string_view& src) {
+    fRec = Rec::Make(src.data(), src.size());
+}
+
 SkString::~SkString() {
     this->validate();
 }

@@ -122,6 +122,7 @@ public:
                 SkString(const SkString&);
                 SkString(SkString&&);
     explicit    SkString(const std::string&);
+    explicit    SkString(const std::string_view&);
                 ~SkString();
 
     bool        isEmpty() const { return 0 == fRec->fLength; }
