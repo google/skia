@@ -197,8 +197,20 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     layoutCreateInfo.flags = 0;
     layoutCreateInfo.setLayoutCount = layoutCount;
     layoutCreateInfo.pSetLayouts = dsLayout;
-    layoutCreateInfo.pushConstantRangeCount = 0;
-    layoutCreateInfo.pPushConstantRanges = nullptr;
+    bool usePushConstants = fUniformHandler.usePushConstants();
+    VkPushConstantRange pushConstantRange = {};
+    if (usePushConstants) {
+        pushConstantRange.stageFlags = GrPushConstantStageFlags(fGpu);
+        pushConstantRange.offset = 0;
+        // size must be a multiple of 4
+        SkASSERT(!SkToBool(fUniformHandler.fCurrentUBOOffset & 0x3));
+        pushConstantRange.size = fUniformHandler.fCurrentUBOOffset;
+        layoutCreateInfo.pushConstantRangeCount = 1;
+        layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    } else {
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+    }
 
     VkResult result;
     GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
@@ -220,7 +232,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     SkSL::Program::Settings settings;
     settings.fRTHeightBinding = this->gpu()->vkCaps().getFragmentUniformBinding();
     settings.fRTHeightSet = this->gpu()->vkCaps().getFragmentUniformSet();
-    settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = fUniformHandler.getFlipY();
     settings.fSharpenTextures =
                         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     settings.fRTHeightOffset = fUniformHandler.getRTHeightOffset();
@@ -357,6 +369,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
                                  fUniformHandler.fCurrentUBOOffset,
+                                 usePushConstants,
                                  fUniformHandler.fSamplers,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),

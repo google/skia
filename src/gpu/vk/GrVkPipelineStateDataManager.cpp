@@ -7,11 +7,13 @@
 
 #include "src/gpu/vk/GrVkPipelineStateDataManager.h"
 
+#include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkUniformBuffer.h"
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                           uint32_t uniformSize)
+                                                           uint32_t uniformSize,
+                                                           bool usePushConstants)
     : INHERITED(uniforms.count(), uniformSize) {
     // We must add uniforms in same order as the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
@@ -40,4 +42,12 @@ bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
     }
 
     return updatedBuffer;
+}
+
+void GrVkPipelineStateDataManager::uploadPushConstants(const GrVkGpu* gpu,
+                                                       VkPipelineLayout layout,
+                                                       GrVkCommandBuffer* commandBuffer) {
+    commandBuffer->pushConstants(gpu, layout,
+                                 GrPushConstantStageFlags(gpu),
+                                 0, fUniformSize, fUniformData.get());
 }

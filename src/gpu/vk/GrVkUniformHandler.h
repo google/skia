@@ -12,6 +12,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrTBlockList.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/vk/GrVkSampler.h"
 
@@ -78,11 +79,16 @@ public:
         return fUniforms.item(idx);
     }
 
+    bool getFlipY() const { return fFlipY; }
+
+    bool usePushConstants() const;
+
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
+        , fFlipY(program->origin() != kTopLeft_GrSurfaceOrigin)
         , fCurrentUBOOffset(0) {
     }
 
@@ -140,6 +146,7 @@ private:
     SkTArray<GrSwizzle> fSamplerSwizzles;
     UniformInfo         fInputUniform;
     GrSwizzle           fInputSwizzle;
+    bool                fFlipY;
 
     uint32_t            fCurrentUBOOffset;
 
