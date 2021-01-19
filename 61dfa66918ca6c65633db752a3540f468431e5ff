@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b367e217_86de5795",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T14:27:35Z",
+      "side": 1,
+      "message": "This looks ok, but is it possible to pass a reference to the struct (rather than a pointer), and then we can always use the original name (plus \".\")?",
+      "revId": "61dfa66918ca6c65633db752a3540f468431e5ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
