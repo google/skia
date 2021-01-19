@@ -43,8 +43,7 @@ float4 MatrixEffect_Stage1_c0_c0(thread Globals& _skGlobals, float4 _input, floa
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTextureSampler_0_Stage1[[texture(0)]], sampler uTextureSampler_0_Stage1Smplr[[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _skGlobals{&_anonInterface0, uTextureSampler_0_Stage1, uTextureSampler_0_Stage1Smplr};
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _skOut;
     float4 output_Stage1;
     float4 _8_output;
     _8_output = float4(0.0, 0.0, 0.0, 0.0);
@@ -128,7 +127,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTexture
     output_Stage1 = _8_output;
 
     {
-        _out->sk_FragColor = output_Stage1;
+        _skOut.sk_FragColor = output_Stage1;
     }
-    return *_out;
+    return _skOut;
 }
