@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "52e80835_9617fb07",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-19T16:24:58Z",
+      "side": 1,
+      "message": "Is the assert the only thing we\u0027re preventing?  Or are we actually also preventing out-of-bounds reads somewhere in this C++ code?  Just curious if\n\n   if (int M; fBuilder-\u003eallImm(mask().id, \u0026M) \u0026\u0026 M !\u003d 0) {\n       SkASSERT(...);\n   }\n\nor\n\n   SkASSERT(fBuilder-\u003eisImm(mask().id, 0) || \n            ( indexValue \u003e\u003d 0 \u0026\u0026 ...) );\n\nare equivalent.\n\nAlso, is my reasoning correct that we should be able to assert mask().id is an immediate here?  Is it possible for it not to be, and would that foul all this analysis?",
+      "range": {
+        "startLine": 517,
+        "startChar": 92,
+        "endLine": 518,
+        "endChar": 34
+      },
+      "revId": "9898d1b47adaffcbc9ba7b6774549e7b52e4b6b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "aaa07ebb_9f44ae53",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 4
