@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf5c63ed_845a24f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T14:17:10Z",
+      "side": 1,
+      "message": "This seems like a great thing to take private.",
+      "revId": "18c47e99f19418aeb9eefe0440b0fc7b0c836add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
