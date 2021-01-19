@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b2aa797_47ef8e00",
+        "filename": "gm/fiddle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T15:31:50Z",
+      "side": 1,
+      "message": "Done. I kinda like the bit patterns because it makes it pretty clear this was derived from the repro case in the cr bug",
+      "parentUuid": "1a6daeca_809c673b",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 55
+      },
+      "revId": "4f3da010d2f5ea57eed23851ed1d1a9729d43c48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a8e5b0a_7fbe5ac6",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-18T16:12:54Z",
       "side": 1,
       "message": "can this simplify to \"(*aaMask) | (d1v0 \u0026 skvx::shuffle\u003c2, 0, 3, 1\u003e(*aaMask))\"?",
+      "range": {
+        "startLine": 806,
+        "startChar": 22,
+        "endLine": 808,
+        "endChar": 44
+      },
+      "revId": "4f3da010d2f5ea57eed23851ed1d1a9729d43c48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b544a1d_58124cb7",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T15:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a8e5b0a_7fbe5ac6",
       "range": {
         "startLine": 806,
         "startChar": 22,
