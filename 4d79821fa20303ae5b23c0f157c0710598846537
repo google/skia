@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40d84c97_3be5c7f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T15:38:30Z",
+      "side": 1,
+      "message": "Yes, I don\u0027t see anything in the spec that prevents that...",
+      "parentUuid": "7d851fd9_93b7dc21",
+      "revId": "4d79821fa20303ae5b23c0f157c0710598846537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17651429_befab7c2",
@@ -70,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14d4b99f_741146b7",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T15:38:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80cffdb8_0cb5f1f7",
+      "revId": "4d79821fa20303ae5b23c0f157c0710598846537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b21eee7_53f1eb85",
@@ -83,6 +119,30 @@
       "writtenOn": "2021-01-19T14:51:04Z",
       "side": 1,
       "message": "-1 here so it\u0027d fail the SkASSERT() below if something went wrong?",
+      "range": {
+        "startLine": 513,
+        "startChar": 29,
+        "endLine": 513,
+        "endChar": 31
+      },
+      "revId": "4d79821fa20303ae5b23c0f157c0710598846537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "329e3a46_98c2a1fe",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T15:38:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b21eee7_53f1eb85",
       "range": {
         "startLine": 513,
         "startChar": 29,
@@ -130,6 +190,30 @@
       "side": 1,
       "message": "Oh, let\u0027s do one that iterates down too.",
       "parentUuid": "68b78ecb_42cea874",
+      "range": {
+        "startLine": 18,
+        "startChar": 26,
+        "endLine": 18,
+        "endChar": 30
+      },
+      "revId": "4d79821fa20303ae5b23c0f157c0710598846537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efee8c1c_5b1987ec",
+        "filename": "tests/sksl/runtime/ArrayIndexing.rte",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T15:38:30Z",
+      "side": 1,
+      "message": "Oof. I did this, and uncovered a wrinkle. This is legal min-spec GLSL:\n\nfloat sum \u003d 0;\nfor (int i \u003d -1; i \u003c 2; i++) {\n  if (i \u003e 0) { sum +\u003d u[i]; }\n}\n\n... but that triggers my assert about indexValue being in range, because we don\u0027t know/care about the execution mask at that point. ... and while I\u0027m typing this comment out, I think I just realized the answer: conditional control flow can/should use allImm to completely elide blocks that are guaranteed not to execute (which are going to be much more likely inside unrolled loops like this). That code is somewhat degenerate, but given the control-flow constraints of ES2, I can see using loops + if/else in other ways to get around the limitations.",
+      "parentUuid": "c9dae067_586efae0",
       "range": {
         "startLine": 18,
         "startChar": 26,
