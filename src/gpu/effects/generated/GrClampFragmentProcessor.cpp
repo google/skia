@@ -29,8 +29,9 @@ public:
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
+half alpha;
 @if (%s) {
-    half alpha = clamp(inputColor.w, 0.0, 1.0);
+    alpha = clamp(inputColor.w, 0.0, 1.0);
     return half4(clamp(inputColor.xyz, 0.0, alpha), alpha);
 } else {
     return clamp(inputColor, 0.0, 1.0);

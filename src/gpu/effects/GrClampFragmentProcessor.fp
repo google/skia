@@ -16,8 +16,9 @@ layout(key) in bool clampToPremul;
 
 half4 main() {
     half4 inputColor = sample(inputFP);
+    half alpha;
     @if (clampToPremul) {
-        half alpha = saturate(inputColor.a);
+        alpha = saturate(inputColor.a);
         return half4(clamp(inputColor.rgb, 0, alpha), alpha);
     } else {
         return saturate(inputColor);
