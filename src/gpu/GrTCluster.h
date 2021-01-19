@@ -72,11 +72,13 @@ void GrTCluster_Validate(SkSpan<const sk_sp<T>> input, const SkTInternalLList<T>
 template <typename T, typename Traits>
 bool GrTCluster_Visit(T* task, SkTInternalLList<T>* llist,
                       SkTHashMap<uint32_t, T*>* lastTaskMap) {
+    // TODO: This wrapper incurs surprising overhead. Move this code out of Visit into loop?
     SkScopeExit exit([&]{
         llist->addToTail(task);
         CLUSTER_DEBUGF("Cluster: Output order is now: %s\n",
                        GrTCluster_DebugStr<T, Traits>(*llist).c_str());
     });
+
     CLUSTER_DEBUGF("Cluster: ***Step***\nLooking at %s\n",
                    GrTCluster_DebugStr<T, Traits>(task).c_str());
     if (Traits::NumTargets(task) != 1) {
@@ -91,6 +93,8 @@ bool GrTCluster_Visit(T* task, SkTInternalLList<T>* llist,
 
     uint32_t target = Traits::GetTarget(task, 0);
     T* clusterTail = (lastTaskMap->find(target) ? *lastTaskMap->find(target) : nullptr);
+    // TODO: This is bottlenecking the whole algorithm. De-templatify this, and add temporary
+    // storage to the task instead.
     lastTaskMap->set(target, task);
 
     if (!clusterTail) {
@@ -118,21 +122,18 @@ bool GrTCluster_Visit(T* task, SkTInternalLList<T>* llist,
     }
 
     // We can't reorder if any moved task depends on anything in the cluster.
-    // Collect the cluster into a hash set.
-    // TODO: Is this overkill? Is a linear search appropriate for small clusters?
-    SkTHashSet<T*> clusterSet;
-    for (T* t = clusterHead; t != movedHead; t = t->fNext) {
-        clusterSet.add(t);
-    }
     // Then check the constraint.
+    // Time complexity here is high, but making a hash set is a lot worse.
     for (T* moved = movedHead; moved; moved = moved->fNext) {
         for (int j = 0; j < Traits::NumDependencies(moved); j++) {
             T* dep = Traits::Dependency(moved, j);
-            if (clusterSet.contains(dep)) {
-                CLUSTER_DEBUGF("Cluster: Bail, %s depends on %s.\n",
-                               GrTCluster_DebugStr<T, Traits>(moved).c_str(),
-                               GrTCluster_DebugStr<T, Traits>(dep).c_str());
-                return false;
+            for (T* c = clusterHead; c != movedHead; c = c->fNext) {
+                if (dep == c) {
+                    CLUSTER_DEBUGF("Cluster: Bail, %s depends on %s.\n",
+                                   GrTCluster_DebugStr<T, Traits>(moved).c_str(),
+                                   GrTCluster_DebugStr<T, Traits>(dep).c_str());
+                    return false;
+                }
             }
         }
     }
