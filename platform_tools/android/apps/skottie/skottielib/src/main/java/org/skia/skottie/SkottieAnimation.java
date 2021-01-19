@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLSurface;
@@ -31,7 +32,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
     private EGLSurface mEglSurface;
     private boolean mNewSurface = false;
     private SurfaceHolder mSurfaceHolder;
-    boolean mValidSurface = false;
+    private boolean mValidSurface = false;
     private int mRepeatCount;
     private int mRepeatCounter;
     private int mSurfaceWidth = 0;
@@ -148,8 +149,10 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
             Log.e(LOG_TAG, "start failed", t);
             throw new RuntimeException(t);
         }
-        for (AnimatorListener l : this.getListeners()) {
-            l.onAnimationStart(this);
+        if (this.getListeners() != null) {
+            for (AnimatorListener l : this.getListeners()) {
+                l.onAnimationStart(this);
+            }
         }
     }
 
@@ -171,8 +174,10 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
             Log.e(LOG_TAG, "stop failed", t);
             throw new RuntimeException(t);
         }
-        for (AnimatorListener l : this.getListeners()) {
-            l.onAnimationEnd(this);
+        if (this.getListeners() != null) {
+            for (AnimatorListener l : this.getListeners()) {
+                l.onAnimationEnd(this);
+            }
         }
     }
 
@@ -444,6 +449,20 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
     public void surfaceDestroyed(SurfaceHolder holder) {
         mValidSurface = false;
         surfaceChanged(null, 0, 0, 0);
+    }
+
+    HashMap<String, Integer> getBackingViewConfig() {
+        HashMap<String, Integer> config = new HashMap<>();
+        config.put("valid", mValidSurface ? 1 : 0);
+        config.put("width", mSurfaceWidth);
+        config.put("height", mSurfaceHeight);
+        return config;
+    }
+
+    void setBackingViewConfig(HashMap<String, Integer> config) {
+        mValidSurface = config.get("valid") == 1;
+        mSurfaceWidth = config.get("width");
+        mSurfaceHeight = config.get("height");
     }
 
     private native long nCreateProxy(long runner, ByteBuffer data);
