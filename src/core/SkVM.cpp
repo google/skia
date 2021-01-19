@@ -568,6 +568,18 @@ namespace skvm {
         return id;
     }
 
+    bool Builder::allImm() const { return true; }
+
+    template <typename T, typename... Rest>
+    bool Builder::allImm(Val id, T* imm, Rest... rest) const {
+        if (fProgram[id].op == Op::splat) {
+            static_assert(sizeof(T) == 4);
+            memcpy(imm, &fProgram[id].immA, 4);
+            return this->allImm(rest...);
+        }
+        return false;
+    }
+
     Ptr Builder::arg(int stride) {
         int ix = (int)fStrides.size();
         fStrides.push_back(stride);

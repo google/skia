@@ -509,14 +509,11 @@ SkVMGenerator::Slot SkVMGenerator::getSlot(const Expression& e) {
             const IndexExpression& i = e.as<IndexExpression>();
             Slot baseSlot = this->getSlot(*i.base());
 
-            Value index = this->writeExpression(*i.index());
-            int indexValue = -1;
-            SkAssertResult(fBuilder->allImm(index[0], &indexValue));
+            const Expression& index = *i.index();
+            SkASSERT(index.isCompileTimeConstant());
 
-            // When indexing by a literal, the front-end guarantees that we don't go out of bounds.
-            // But when indexing by a loop variable, it's possible to generate out-of-bounds access.
-            // The GLSL spec leaves that behavior undefined - we'll just clamp everything here.
-            indexValue = std::clamp(indexValue, 0, i.base()->type().columns() - 1);
+            SKSL_INT indexValue = index.getConstantInt();
+            SkASSERT(indexValue >= 0 && indexValue < i.base()->type().columns());
 
             size_t stride = slot_count(i.type());
             return baseSlot + indexValue * stride;
