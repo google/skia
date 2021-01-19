@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5910e26a_21ad7d78",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T16:42:13Z",
+      "side": 1,
+      "message": "Good questions. We are actually preventing out-of-bounds reads (so I should update the comment) - we use the index to compute a final slot index, so evaluating an expression like: u[i] turns into the slot that corresponds to \u0027u\u0027, adjusted by \u0027i\u0027 * stride. Then we have an skvm::Val stored in fSlots, so we\u0027d end up possibly fetching outside the bounds of fSlots in that case.\n\nAs for the control flow - unlike the index, we can\u0027t guarantee that it\u0027s immediate here:\n\n  uniform half4 color_stops[3];\n  half4 main(float2 p) {\n    return p.x \u003c 0 ? color_stops[0]\n         : p.x \u003c 1 ? color_stops[1]\n         :           color_stops[2];\n  }\n\nUnfortunately, I think you\u0027re on to something - the combination of the two different systems means we should statically reject compilation of something like:\n\n  int arr[1];\n  for (int i \u003d 7; i \u003c 10; ++i) { arr[i]++; }\n\n... but we won\u0027t. The front-end only validates the bounds of index-by-literal. Going to hold off on landing this until I think about it some more.",
+      "parentUuid": "52e80835_9617fb07",
+      "range": {
+        "startLine": 517,
+        "startChar": 92,
+        "endLine": 518,
+        "endChar": 34
+      },
+      "revId": "9898d1b47adaffcbc9ba7b6774549e7b52e4b6b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "aaa07ebb_9f44ae53",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 4
