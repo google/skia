@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "255c9bb0_7906badc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T18:43:14Z",
+      "side": 1,
+      "message": "OK, as usual, trying to be clever isn\u0027t worth it. The GLSL spec acknowledges the existence of out-of-bounds access, and leaves it as undefined behavior (while requiring that indexing-by-literals be range checked). Given that such a thing is possible (and useful in some situations, to get around other indexing and control flow restrictions), PS6 doesn\u0027t bother with the asserts, and just clamps any index to the bounds of the containing vector/array. We can still assert that the index itself is known statically (after unrolling), and that point trying to reason about whether or not it\u0027s possible to be in any particular state is unnecessary.",
+      "revId": "972c8a8f8670a25098c91601275d0aca651d4296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
