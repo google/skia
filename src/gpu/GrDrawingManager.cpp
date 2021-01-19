@@ -447,6 +447,16 @@ void GrDrawingManager::reorderTasks() {
     // TODO: Handle case where proposed order would blow our memory budget.
     // Such cases are currently pathological, so we could just return here and keep current order.
     reorder_array_by_llist(llist, &fDAG);
+
+    // Set up the chain of tasks to get them to share render passes if possible.
+    GrOpsTask* task = !fDAG.empty() ? fDAG[0]->asOpsTask() : nullptr;
+    for (int i = 1; i < fDAG.count(); i++) {
+        GrOpsTask* next = fDAG[i]->asOpsTask();
+        if (task && next && task->target(0) == next->target(0)) {
+            task->setNextOpsTask(next);
+        }
+        task = next;
+    }
 }
 
 void GrDrawingManager::closeAllTasks() {
