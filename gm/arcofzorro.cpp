@@ -15,6 +15,25 @@
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
 
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrResourceProvider.h"
+
+#if 0
+static void yeah(const GrCaps* caps) {
+    sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
+            [this](GrResourceProvider* rp,
+                   const GrSurfaceProxy::LazySurfaceDesc& desc)
+                    -> GrSurfaceProxy::LazyCallbackResult {
+                static constexpr SkISize kDimensions = {1234, 567};
+                sk_sp<GrTexture> texture = rp->createTexture(
+                        kDimensions, desc.fFormat, desc.fRenderable, desc.fSampleCnt,
+                        desc.fMipmapped, desc.fBudgeted, desc.fProtected);
+                return texture;
+            },
+            format, GrRenderable::kNo, 1, GrProtected::kNo, *caps, GrSurfaceProxy::UseAllocator::kYes);
+}
+#endif
+
 namespace skiagm {
 
 // This GM draws a lot of arcs in a 'Z' shape. It particularly exercises
@@ -22,7 +41,8 @@ namespace skiagm {
 // edge of one of its underlying quads).
 class ArcOfZorroGM : public GM {
 public:
-    ArcOfZorroGM() {
+    ArcOfZorroGM()
+            : fTopLeftContentRect(SkIRect::MakeXYWH(kXOff, kYOff, kContentSize, kContentSize)) {
         this->setBGColor(0xFFCCCCCC);
     }
 
@@ -33,54 +53,79 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
+        return SkISize::Make((2*kContentSize+kPad2) * kSkTileModeCount + kPad2,
+                             (2*kContentSize+kPad2) * kSkTileModeCount + kPad2);
+    }
+
+    void onOnceBeforeDraw() override {
+        SkImageInfo info = SkImageInfo::Make(kXOff + kContentSize + kXPad,
+                                             kYOff + kContentSize + kYPad,
+                                             kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+        SkBitmap bm;
+        bm.allocPixels(info);
+
+        bm.eraseColor(SK_ColorBLACK);
+
+        bm.eraseArea(fTopLeftContentRect, SK_ColorWHITE);
+
+        int halfM1 = kContentSize/2 - 1;
+
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff + halfM1,         kYOff + 2,      2,              halfM1), SK_ColorGRAY);
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff + 2,              kYOff + halfM1, kContentSize-4, 2), SK_ColorGRAY);
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff + 2,              kYOff + halfM1, 2,              2), SK_ColorRED);
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff + kContentSize-4, kYOff + halfM1, 2,              2), SK_ColorGREEN);
+
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff, kYOff, kContentSize, 1), SK_ColorBLUE);
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff, kYOff, 1, kContentSize), SK_ColorBLUE);
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff+kContentSize-1, kYOff, 1, kContentSize), SK_ColorBLUE);
+        bm.eraseArea(SkIRect::MakeXYWH(kXOff, kYOff+kContentSize-1, kContentSize, 1), SK_ColorBLUE);
+
+        fTopLeft = bm;
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
+//        canvas->drawBitmapRect(fTopLeft, fTopLeftContentRect, SkRect::MakeWH(kContentSize, kContentSize), nullptr);
 
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
-
+#if 1
+        SkSamplingOptions sampling(SkFilterMode::kNearest, SkMipmapMode::kNone);
         SkPaint p;
 
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
+        int y = kPad2;
+        for (auto yMode : { SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror, SkTileMode::kDecal }) {
+            int x = kPad2;
+            for (auto xMode : { SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror, SkTileMode::kDecal }) {
+                SkRect clipRect = SkRect::MakeXYWH(x, y, 2*kContentSize, 2*kContentSize);
+                SkRect drawRect = SkRect::MakeXYWH(x+kContentSize/2, y+kContentSize/2, kContentSize, kContentSize);
 
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
+                SkMatrix matrix = SkMatrix::Translate(drawRect.x(), drawRect.y());
 
-            canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
-            canvas->restore();
+                p.setShader(fTopLeft.makeShader(xMode, yMode, sampling, &matrix));
 
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
+
+                canvas->drawRect(clipRect, p);
+                x += 2*kContentSize+kPad2;
             }
+
+            y += 2*kContentSize+kPad2;
         }
+#endif
 
     }
 
 private:
+    static constexpr int kXOff = 0; //8;
+    static constexpr int kXPad = 0; //24;
+    static constexpr int kYOff = 0; //16;
+    static constexpr int kYPad = 0; //80;
+    static constexpr int kPad2 = 4; //80;
+
+
+    static constexpr int kContentSize = 32;
+
+    SkIRect  fTopLeftContentRect;
+    SkBitmap fTopLeft;
+
     using INHERITED = GM;
 };
 
