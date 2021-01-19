@@ -16,6 +16,58 @@
       "message": "This progresses pservers-grad-13-b.svg, which indicates there are bugs lurking in the old paint cache logic.\n\nNo noticeable perf impact in local testing.",
       "revId": "eaff63348d9726ce9e71be7868ccef9e896fe07e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "387c9223_cfa06c75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-19T14:30:58Z",
+      "side": 1,
+      "message": "Nice, I had assumed that test was some issue with my gradient calculations...",
+      "parentUuid": "c8d7e852_8e73d996",
+      "revId": "eaff63348d9726ce9e71be7868ccef9e896fe07e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "328eacdc_e00b87ed",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-19T14:30:58Z",
+      "side": 1,
+      "message": "nit: invert polarity and return early instead (this is a choice in some style guides, not sure what Google thinks)",
+      "revId": "eaff63348d9726ce9e71be7868ccef9e896fe07e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4f087d4_9aba9876",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-19T14:30:58Z",
+      "side": 1,
+      "message": "Does it make sense to reset p to nullptr instead?",
+      "revId": "eaff63348d9726ce9e71be7868ccef9e896fe07e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
