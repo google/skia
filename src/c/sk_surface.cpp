@@ -321,23 +321,36 @@ void sk_canvas_draw_path(sk_canvas_t* ccanvas, const sk_path_t* cpath, const sk_
     AsCanvas(ccanvas)->drawPath(AsPath(*cpath), AsPaint(*cpaint));
 }
 
+static SkSamplingOptions to_sampling(const sk_sampling_options_t* s) {
+    if (s) {
+        if (s->useCubic) {
+            return SkSamplingOptions({s->cubic.B, s->cubic.C});
+        } else {
+            return SkSamplingOptions(SkFilterMode(s->filter), SkMipmapMode(s->mipmap));
+        }
+    }
+    return SkSamplingOptions();
+}
+
 void sk_canvas_draw_image(sk_canvas_t* ccanvas, const sk_image_t* cimage, float x, float y,
-                          const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawImage(AsImage(cimage), x, y, AsPaint(cpaint));
+                          const sk_sampling_options_t* csamp, const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawImage(AsImage(cimage), x, y, to_sampling(csamp), AsPaint(cpaint));
 }
 
 void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage,
                                const sk_rect_t* csrcR, const sk_rect_t* cdstR,
-                               const sk_paint_t* cpaint) {
+                               const sk_sampling_options_t* csamp, const sk_paint_t* cpaint) {
     SkCanvas* canvas = AsCanvas(ccanvas);
     const SkImage* image = AsImage(cimage);
     const SkRect& dst = AsRect(*cdstR);
+    const SkSamplingOptions sampling = to_sampling(csamp);
     const SkPaint* paint = AsPaint(cpaint);
 
     if (csrcR) {
-        canvas->drawImageRect(image, AsRect(*csrcR), dst, paint);
+        canvas->drawImageRect(image, AsRect(*csrcR), dst, sampling, paint,
+                              SkCanvas::kStrict_SrcRectConstraint);
     } else {
-        canvas->drawImageRect(image, dst, paint);
+        canvas->drawImageRect(image, dst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 }
 
