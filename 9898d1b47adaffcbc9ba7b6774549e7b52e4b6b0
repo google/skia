@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aaa07ebb_9f44ae53",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-19T16:03:41Z",
+      "side": 1,
+      "message": "why don\u0027t we make isImm() public too?  That\u0027d be\n\n    if (fBuilder-\u003eisImm(mask().id, 0)) {",
+      "revId": "9898d1b47adaffcbc9ba7b6774549e7b52e4b6b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
