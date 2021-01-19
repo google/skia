@@ -48,6 +48,14 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kInt_GrSLType:
         case kUint_GrSLType:
             return 0x3;
+        case kInt2_GrSLType:
+        case kUint2_GrSLType:
+            return 0x7;
+        case kInt3_GrSLType:
+        case kUint3_GrSLType:
+        case kInt4_GrSLType:
+        case kUint4_GrSLType:
+            return 0xF;
         case kHalf_GrSLType: // fall through
         case kFloat_GrSLType:
             return 0x3;
@@ -59,14 +67,6 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
             return 0xF;
         case kHalf4_GrSLType: // fall through
         case kFloat4_GrSLType:
-            return 0xF;
-        case kUint2_GrSLType:
-            return 0x7;
-        case kInt2_GrSLType:
-            return 0x7;
-        case kInt3_GrSLType:
-            return 0xF;
-        case kInt4_GrSLType:
             return 0xF;
         case kHalf2x2_GrSLType: // fall through
         case kFloat2x2_GrSLType:
@@ -127,10 +127,6 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
             return 4 * sizeof(uint16_t);
         case kUShort4_GrSLType:
             return 4 * sizeof(uint16_t);
-        case kInt_GrSLType:
-            return sizeof(int32_t);
-        case kUint_GrSLType:
-            return sizeof(int32_t);
         case kHalf_GrSLType: // fall through
         case kFloat_GrSLType:
             return sizeof(float);
@@ -139,17 +135,19 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
             return 2 * sizeof(float);
         case kHalf3_GrSLType: // fall through
         case kFloat3_GrSLType:
-            return 4 * sizeof(float);
-        case kHalf4_GrSLType: // fall through
+        case kHalf4_GrSLType:
         case kFloat4_GrSLType:
             return 4 * sizeof(float);
+        case kInt_GrSLType: // fall through
+        case kUint_GrSLType:
+            return sizeof(int32_t);
+        case kInt2_GrSLType: // fall through
         case kUint2_GrSLType:
-            return 2 * sizeof(uint32_t);
-        case kInt2_GrSLType:
             return 2 * sizeof(int32_t);
-        case kInt3_GrSLType:
-            return 4 * sizeof(int32_t);
+        case kInt3_GrSLType: // fall through
+        case kUint3_GrSLType:
         case kInt4_GrSLType:
+        case kUint4_GrSLType:
             return 4 * sizeof(int32_t);
         case kHalf2x2_GrSLType: // fall through
         case kFloat2x2_GrSLType:
