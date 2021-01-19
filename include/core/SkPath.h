@@ -1850,17 +1850,15 @@ private:
     /** Returns the comvexity type, computing if needed. Never returns kUnknown.
         @return  path's convexity type (convex or concave)
     */
-    SkPathConvexity getConvexity() const {
-        SkPathConvexity convexity = this->getConvexityOrUnknown();
-        if (convexity == SkPathConvexity::kUnknown) {
-            convexity = this->computeConvexity();
-        }
-        SkASSERT(convexity != SkPathConvexity::kUnknown);
-        return convexity;
-    }
+    SkPathConvexity getConvexity() const;
+
     SkPathConvexity getConvexityOrUnknown() const {
         return (SkPathConvexity)fConvexity.load(std::memory_order_relaxed);
     }
+
+    // Compares the cached value with a freshly computed one (computeConvexity())
+    bool isConvexityAccurate() const;
+
     /** Stores a convexity type for this path. This is what will be returned if
      *  getConvexityOrUnknown() is called. If you pass kUnknown, then if getContexityType()
      *  is called, the real convexity will be computed.

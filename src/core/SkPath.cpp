@@ -580,6 +580,29 @@ SkPathFirstDirection SkPath::getFirstDirection() const {
     return (SkPathFirstDirection)fFirstDirection.load(std::memory_order_relaxed);
 }
 
+bool SkPath::isConvexityAccurate() const {
+    SkPathConvexity convexity = this->getConvexityOrUnknown();
+    if (convexity != SkPathConvexity::kUnknown) {
+        auto conv = this->computeConvexity();
+        if (conv != convexity) {
+            SkASSERT(false);
+            return false;
+        }
+    }
+    return true;
+}
+
+SkPathConvexity SkPath::getConvexity() const {
+// Enable once we fix all the bugs
+//    SkDEBUGCODE(this->isConvexityAccurate());
+    SkPathConvexity convexity = this->getConvexityOrUnknown();
+    if (convexity == SkPathConvexity::kUnknown) {
+        convexity = this->computeConvexity();
+    }
+    SkASSERT(convexity != SkPathConvexity::kUnknown);
+    return convexity;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //  Construction methods
 
