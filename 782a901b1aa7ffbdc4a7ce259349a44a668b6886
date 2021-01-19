@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbe8a155_a6de706b",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-19T17:08:08Z",
+      "side": 1,
+      "message": "These should go at the end of the prior line",
+      "range": {
+        "startLine": 547,
+        "startChar": 12,
+        "endLine": 547,
+        "endChar": 14
+      },
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "134150d3_5208f6d4",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-19T17:08:08Z",
+      "side": 1,
+      "message": "Maybe put in a \u0027collectAllSampledProxies\u0027 helper ?",
+      "range": {
+        "startLine": 618,
+        "startChar": 0,
+        "endLine": 629,
+        "endChar": 5
+      },
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c5b00d6_4a89fb77",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-19T17:08:08Z",
+      "side": 1,
+      "message": "Don\u0027t we have to do this stuff before landing?",
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "411a0bee_3fec1660",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-19T17:08:08Z",
+      "side": 1,
+      "message": "These always all the way to the left",
+      "range": {
+        "startLine": 652,
+        "startChar": 4,
+        "endLine": 652,
+        "endChar": 41
+      },
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
