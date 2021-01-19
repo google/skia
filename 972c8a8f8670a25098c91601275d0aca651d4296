@@ -16,6 +16,52 @@
       "message": "OK, as usual, trying to be clever isn\u0027t worth it. The GLSL spec acknowledges the existence of out-of-bounds access, and leaves it as undefined behavior (while requiring that indexing-by-literals be range checked). Given that such a thing is possible (and useful in some situations, to get around other indexing and control flow restrictions), PS6 doesn\u0027t bother with the asserts, and just clamps any index to the bounds of the containing vector/array. We can still assert that the index itself is known statically (after unrolling), and that point trying to reason about whether or not it\u0027s possible to be in any particular state is unnecessary.",
       "revId": "972c8a8f8670a25098c91601275d0aca651d4296",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "599ec95a_94739121",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-19T18:56:21Z",
+      "side": 1,
+      "message": "Maybe \"For\" -\u003e \"When\"?",
+      "range": {
+        "startLine": 516,
+        "startChar": 15,
+        "endLine": 516,
+        "endChar": 18
+      },
+      "revId": "972c8a8f8670a25098c91601275d0aca651d4296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eed639d6_3bee7b4c",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-19T18:56:21Z",
+      "side": 1,
+      "message": "Maybe, \"But when indexing by a loop variable\"?  The unrolledness of it isn\u0027t really the issue is it?",
+      "range": {
+        "startLine": 517,
+        "startChar": 15,
+        "endLine": 517,
+        "endChar": 40
+      },
+      "revId": "972c8a8f8670a25098c91601275d0aca651d4296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
