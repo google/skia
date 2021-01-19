@@ -488,6 +488,7 @@ sksl_settings_tests = [
 ]
 
 sksl_rte_tests = [
+  "$_tests/sksl/runtime/ArrayIndexing.rte",
   "$_tests/sksl/runtime/ConversionConstructors.rte",
   "$_tests/sksl/runtime/LoopInt.rte",
   "$_tests/sksl/runtime/LoopFloat.rte",
@@ -495,6 +496,7 @@ sksl_rte_tests = [
   "$_tests/sksl/runtime/SampleWithExplicitCoord.rte",
   "$_tests/sksl/runtime/SampleWithUniformMatrix.rte",
   "$_tests/sksl/runtime/SampleWithVariableMatrix.rte",
+  "$_tests/sksl/runtime/VectorIndexing.rte",
 ]
 
 sksl_rte_error_tests = [
