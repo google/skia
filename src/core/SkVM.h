@@ -546,9 +546,9 @@ namespace skvm {
 
     SK_BEGIN_REQUIRE_DENSE
     struct Instruction {
-        Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
-        Val x,y,z;      // Enough arguments for mad().
-        int immA,immB;  // Immediate bit pattern, shift count, argument index, etc.
+        Op  op;         // v* = op(x,y,z,w,immA,immB), where * == index of this Instruction.
+        Val x,y,z,w;    // Enough arguments for Op::store128.
+        int immA,immB;  // Immediate bit pattern, shift count, pointer index, byte offset, etc.
     };
     SK_END_REQUIRE_DENSE
 
@@ -559,7 +559,7 @@ namespace skvm {
 
     struct OptimizedInstruction {
         Op op;
-        Val x,y,z;
+        Val x,y,z,w;
         int immA,immB;
 
         Val  death;
@@ -898,8 +898,8 @@ namespace skvm {
 
         Val push(Instruction);
     private:
-        Val push(Op op, Val x, Val y=NA, Val z=NA, int immA=0, int immB=0) {
-            return this->push(Instruction{op, x,y,z, immA,immB});
+        Val push(Op op, Val x=NA, Val y=NA, Val z=NA, Val w=NA, int immA=0, int immB=0) {
+            return this->push(Instruction{op, x,y,z,w, immA,immB});
         }
 
         bool allImm() const;
@@ -926,10 +926,10 @@ namespace skvm {
 
     using Reg = int;
 
-    // d = op(x, y/imm, z/imm)
+    // d = op(x,y,z,w, immA,immB)
     struct InterpreterInstruction {
         Op  op;
-        Reg d,x,y,z;
+        Reg d,x,y,z,w;
         int immA,immB;
     };
 
