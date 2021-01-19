@@ -13,12 +13,15 @@ SkSVGShape::SkSVGShape(SkSVGTag t) : INHERITED(t) {}
 void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
     const auto fillType = ctx.presentationContext().fInherited.fFillRule->asFillType();
 
+    const auto fillPaint = ctx.fillPaint(),
+             strokePaint = ctx.strokePaint();
+
     // TODO: this approach forces duplicate geometry resolution in onDraw(); refactor to avoid.
-    if (const SkPaint* fillPaint = ctx.fillPaint()) {
+    if (fillPaint.isValid()) {
         this->onDraw(ctx.canvas(), ctx.lengthContext(), *fillPaint, fillType);
     }
 
-    if (const SkPaint* strokePaint = ctx.strokePaint()) {
+    if (strokePaint.isValid()) {
         this->onDraw(ctx.canvas(), ctx.lengthContext(), *strokePaint, fillType);
     }
 }
