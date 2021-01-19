@@ -312,7 +312,7 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         this->writeLine(";");
     }
 
-    // [int _skResult = ] myFunction(inputs, outputs, globals, _var0, _var1, _var2, _var3);
+    // [int _skResult = ] myFunction(inputs, outputs, _skGlobals, _var0, _var1, _var2, _var3);
     bool hasResult = (call.type().name() != "void");
     if (hasResult) {
         this->writeBaseType(call.type());
@@ -1136,7 +1136,7 @@ void MetalCodeGenerator::writeFragCoord() {
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
     // When assembling out-param helper functions, we copy variables into local clones with matching
-    // names. We never want to prepend "_in." or "_globals->" when writing these variables since
+    // names. We never want to prepend "_in." or "_skGlobals." when writing these variables since
     // we're actually targeting the clones.
     if (fIgnoreVariableReferenceModifiers) {
         this->writeName(ref.variable()->name());
@@ -1172,7 +1172,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                            var.type().typeKind() != Type::TypeKind::kSampler) {
                     this->write("_uniforms.");
                 } else {
-                    this->write("_globals->");
+                    this->write("_skGlobals.");
                 }
             }
             this->writeName(var.name());
@@ -1201,7 +1201,7 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
                 this->write("_out->sk_PointSize");
             } else {
                 if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
-                    this->write("_globals->");
+                    this->write("_skGlobals.");
                     this->write(fInterfaceBlockNameMap[fInterfaceBlockMap[field]]);
                     this->write("->");
                 }
@@ -1409,7 +1409,7 @@ void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration&
     }
     if (requirements & kGlobals_Requirement) {
         this->write(separator);
-        this->write("_globals");
+        this->write("_skGlobals");
         separator = ", ";
     }
     if (requirements & kFragCoord_Requirement) {
@@ -1439,7 +1439,7 @@ void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaratio
     }
     if (requirements & kGlobals_Requirement) {
         this->write(separator);
-        this->write("thread Globals* _globals");
+        this->write("thread Globals& _skGlobals");
         separator = ", ";
     }
     if (requirements & kFragCoord_Requirement) {
@@ -1450,7 +1450,7 @@ void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaratio
 }
 
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals->_anonInterface0->u_skRTHeight" : "";
+    fRTHeightName = fProgram.fInputs.fRTHeight ? "_skGlobals._anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
     if ("main" == f.name()) {
         switch (fProgram.fKind) {
@@ -2174,7 +2174,7 @@ void MetalCodeGenerator::writeGlobalInit() {
         }
         void addElement() {
             if (fFirst) {
-                fCodeGen->write("    Globals globalStruct{");
+                fCodeGen->write("    Globals _skGlobals{");
                 fFirst = false;
             } else {
                 fCodeGen->write(", ");
@@ -2183,8 +2183,6 @@ void MetalCodeGenerator::writeGlobalInit() {
         void finish() {
             if (!fFirst) {
                 fCodeGen->writeLine("};");
-                fCodeGen->writeLine("    thread Globals* _globals = &globalStruct;");
-                fCodeGen->writeLine("    (void)_globals;");
             }
         }
         MetalCodeGenerator* fCodeGen = nullptr;

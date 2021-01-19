@@ -13,11 +13,9 @@ struct Globals {
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals globalStruct{{}};
-    thread Globals* _globals = &globalStruct;
-    (void)_globals;
+    Globals _skGlobals{{}};
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.x = ldexp(_in.a, _globals->b);
+    _out->sk_FragColor.x = ldexp(_in.a, _skGlobals.b);
     return *_out;
 }

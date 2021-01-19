@@ -15,11 +15,9 @@ struct Globals {
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> texA[[texture(1)]], sampler texASmplr[[sampler(1)]], texture2d<float> texB[[texture(0)]], sampler texBSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals globalStruct{texA, texASmplr, texB, texBSmplr};
-    thread Globals* _globals = &globalStruct;
-    (void)_globals;
+    Globals _skGlobals{texA, texASmplr, texB, texBSmplr};
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor = _globals->texA.sample(_globals->texASmplr, float2(0.0)) * _globals->texB.sample(_globals->texBSmplr, float2(0.0));
+    _out->sk_FragColor = _skGlobals.texA.sample(_skGlobals.texASmplr, float2(0.0)) * _skGlobals.texB.sample(_skGlobals.texBSmplr, float2(0.0));
     return *_out;
 }

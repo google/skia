@@ -13,9 +13,7 @@ struct Globals {
     constant testBlock* test;
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& test [[buffer(456)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals globalStruct{&test};
-    thread Globals* _globals = &globalStruct;
-    (void)_globals;
+    Globals _skGlobals{&test};
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     _out->sk_FragColor = float4(_uniforms.test.x);
