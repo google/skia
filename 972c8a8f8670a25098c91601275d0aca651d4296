@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad8e5dc9_3efe99a0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T19:29:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "599ec95a_94739121",
+      "range": {
+        "startLine": 516,
+        "startChar": 15,
+        "endLine": 516,
+        "endChar": 18
+      },
+      "revId": "972c8a8f8670a25098c91601275d0aca651d4296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eed639d6_3bee7b4c",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-01-19T18:56:21Z",
       "side": 1,
       "message": "Maybe, \"But when indexing by a loop variable\"?  The unrolledness of it isn\u0027t really the issue is it?",
+      "range": {
+        "startLine": 517,
+        "startChar": 15,
+        "endLine": 517,
+        "endChar": 40
+      },
+      "revId": "972c8a8f8670a25098c91601275d0aca651d4296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "996b8eae_7824a921",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T19:29:39Z",
+      "side": 1,
+      "message": "Yup, that\u0027s clearer.",
+      "parentUuid": "eed639d6_3bee7b4c",
       "range": {
         "startLine": 517,
         "startChar": 15,
