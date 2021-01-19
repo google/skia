@@ -10,8 +10,7 @@ struct Outputs {
 };
 
 vertex Outputs vertexMain(Inputs _in [[stage_in]], uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _out;
     int x = sk_InstanceID % 200;
     int y = sk_InstanceID / 200;
     int ileft = (sk_InstanceID * 929) % 17;
@@ -27,8 +26,8 @@ vertex Outputs vertexMain(Inputs _in [[stage_in]], uint sk_VertexID [[vertex_id]
     float2 vertexpos;
     vertexpos.x = float(x) + (0 == sk_VertexID % 2 ? l : r);
     vertexpos.y = float(y) + (0 == sk_VertexID / 2 ? t : b);
-    _out->vcoord_Stage0.x = float(0 == sk_VertexID % 2 ? -1 : 1);
-    _out->vcoord_Stage0.y = float(0 == sk_VertexID / 2 ? -1 : 1);
-    _out->sk_Position = float4(vertexpos.x, vertexpos.y, 0.0, 1.0);
-    return (_out->sk_Position.y = -_out->sk_Position.y, *_out);
+    _out.vcoord_Stage0.x = float(0 == sk_VertexID % 2 ? -1 : 1);
+    _out.vcoord_Stage0.y = float(0 == sk_VertexID / 2 ? -1 : 1);
+    _out.sk_Position = float4(vertexpos.x, vertexpos.y, 0.0, 1.0);
+    return (_out.sk_Position.y = -_out.sk_Position.y, _out);
 }
