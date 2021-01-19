@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7660ed24_aaf9cc3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T17:19:10Z",
+      "side": 1,
+      "message": "PS1 is a straight reland. See diffs between PS1 and PS2 for just the fixes.",
+      "revId": "a0676444e6793edcdce61ee2ef260396b4ddffcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

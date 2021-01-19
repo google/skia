@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d72732f1_8b673f16",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T17:19:10Z",
+      "side": 1,
+      "message": "I missed this one the first time.",
+      "range": {
+        "startLine": 359,
+        "startChar": 0,
+        "endLine": 365,
+        "endChar": 0
+      },
+      "revId": "b634b8c285f50a903f4188ae2feeb803ff8c4207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "149f6cc1_46936b38",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T17:19:10Z",
+      "side": 1,
+      "message": "Noticed this and the corresponding assert in the .cpp. I had to comment this out when I first started sending images with non-default origins through this code path because the SkImage promise image factory would fail. It no longer does.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 44
+      },
+      "revId": "b634b8c285f50a903f4188ae2feeb803ff8c4207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13a78048_823fbcca",
+        "filename": "tools/gpu/YUVUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T17:19:10Z",
+      "side": 1,
+      "message": "Changes to this file are to a testing-only SkImageGenerator that stores planes as pixmaps and gets used in the wacky yuv GMs (among others). Both the DDL helper and the CPU backend call the function that gets the RGB pixels, which needed to be updated to account for origin now that that wacky GMs are using non-default origins.",
+      "revId": "b634b8c285f50a903f4188ae2feeb803ff8c4207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
