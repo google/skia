@@ -230,7 +230,9 @@ namespace skvm {
         Op  op = inst.op;
         Val  x = inst.x,
              y = inst.y,
-             z = inst.z;
+             z = inst.z,
+             w = inst.w;
+        (void)w;  // TODO: use in store128
         int immA = inst.immA,
             immB = inst.immB;
         switch (op) {
@@ -342,7 +344,9 @@ namespace skvm {
             Reg   d = inst.d,
                   x = inst.x,
                   y = inst.y,
-                  z = inst.z;
+                  z = inst.z,
+                  w = inst.w;
+            (void)w;  // TODO: use in store128
             int immA = inst.immA,
                 immB = inst.immB;
             switch (op) {
@@ -352,7 +356,7 @@ namespace skvm {
                 case Op::store16:  write(o, op, Ptr{immA}, R{x}                 ); break;
                 case Op::store32:  write(o, op, Ptr{immA}, R{x}                 ); break;
                 case Op::store64:  write(o, op, Ptr{immA}, R{x}, R{y}           ); break;
-                case Op::store128: write(o, op, Ptr{immA}, R{x}, R{y}, Hex{immB}); break;
+                case Op::store128: write(o, op, Ptr{immA}, R{x}, R{y}, Hex{immB}); break;  // TODO
 
                 case Op::index: write(o, R{d}, "=", op); break;
 
@@ -425,7 +429,7 @@ namespace skvm {
             if (live[id] == false) {
                 live[id] =  true;
                 Instruction inst = program[id];
-                for (Val arg : {inst.x, inst.y, inst.z}) {
+                for (Val arg : {inst.x, inst.y, inst.z, inst.w}) {
                     if (arg != NA) { recurse(arg, recurse); }
                 }
             }
@@ -443,7 +447,7 @@ namespace skvm {
         for (Val id = 0, next = 0; id < (Val)program.size(); id++) {
             if (live[id]) {
                 Instruction& inst = program[id];
-                for (Val* arg : {&inst.x, &inst.y, &inst.z}) {
+                for (Val* arg : {&inst.x, &inst.y, &inst.z, &inst.w}) {
                     if (*arg != NA) {
                         *arg = new_id[*arg];
                         SkASSERT(*arg != NA);
@@ -465,14 +469,14 @@ namespace skvm {
         std::vector<OptimizedInstruction> optimized(program.size());
         for (Val id = 0; id < (Val)program.size(); id++) {
             Instruction inst = program[id];
-            optimized[id] = {inst.op, inst.x,inst.y,inst.z, inst.immA,inst.immB,
+            optimized[id] = {inst.op, inst.x,inst.y,inst.z,inst.w, inst.immA,inst.immB,
                              /*death=*/id, /*can_hoist=*/true};
         }
 
         // Each Instruction's inputs need to live at least until that Instruction issues.
         for (Val id = 0; id < (Val)optimized.size(); id++) {
             OptimizedInstruction& inst = optimized[id];
-            for (Val arg : {inst.x, inst.y, inst.z}) {
+            for (Val arg : {inst.x, inst.y, inst.z, inst.w}) {
                 // (We're walking in order, so this is the same as max()ing with the existing Val.)
                 if (arg != NA) { optimized[arg].death = id; }
             }
@@ -487,7 +491,7 @@ namespace skvm {
 
             // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
             if (inst.can_hoist) {
-                for (Val arg : {inst.x, inst.y, inst.z}) {
+                for (Val arg : {inst.x, inst.y, inst.z, inst.w}) {
                     if (arg != NA) { inst.can_hoist &= optimized[arg].can_hoist; }
                 }
             }
@@ -496,7 +500,7 @@ namespace skvm {
         // Extend the lifetime of any hoisted value that's used in the loop to infinity.
         for (OptimizedInstruction& inst : optimized) {
             if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used-in-loop*/) {
-                for (Val arg : {inst.x, inst.y, inst.z}) {
+                for (Val arg : {inst.x, inst.y, inst.z, inst.w}) {
                     if (arg != NA && optimized[arg].can_hoist) {
                         optimized[arg].death = (Val)program.size();
                     }
@@ -534,6 +538,7 @@ namespace skvm {
             && a.x    == b.x
             && a.y    == b.y
             && a.z    == b.z
+            && a.w    == b.w
             && a.immA == b.immA
             && a.immB == b.immB;
     }
@@ -585,47 +590,47 @@ namespace skvm {
     #ifdef SK_DEBUG
         int imm;
         if (this->allImm(cond.id,&imm)) { SkASSERT(imm); return; }
-        (void)push(Op::assert_true, cond.id,debug.id,NA);
+        (void)push(Op::assert_true, cond.id, debug.id);
     #endif
     }
 
-    void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA, ptr.ix); }
-    void Builder::store16(Ptr ptr, I32 val) { (void)push(Op::store16, val.id,NA,NA, ptr.ix); }
-    void Builder::store32(Ptr ptr, I32 val) { (void)push(Op::store32, val.id,NA,NA, ptr.ix); }
+    void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA,NA, ptr.ix); }
+    void Builder::store16(Ptr ptr, I32 val) { (void)push(Op::store16, val.id,NA,NA,NA, ptr.ix); }
+    void Builder::store32(Ptr ptr, I32 val) { (void)push(Op::store32, val.id,NA,NA,NA, ptr.ix); }
     void Builder::store64(Ptr ptr, I32 lo, I32 hi) {
-        (void)push(Op::store64, lo.id,hi.id,NA, ptr.ix);
+        (void)push(Op::store64, lo.id,hi.id,NA,NA, ptr.ix);
     }
     void Builder::store128(Ptr ptr, I32 lo, I32 hi, int lane) {
-        (void)push(Op::store128, lo.id,hi.id,NA, ptr.ix,lane);
+        (void)push(Op::store128, lo.id,hi.id,NA,NA, ptr.ix,lane);
     }
 
-    I32 Builder::index() { return {this, push(Op::index , NA,NA,NA,0) }; }
+    I32 Builder::index() { return {this, push(Op::index)}; }
 
-    I32 Builder::load8 (Ptr ptr) { return {this, push(Op::load8 , NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load16(Ptr ptr) { return {this, push(Op::load16, NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load32(Ptr ptr) { return {this, push(Op::load32, NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load8 (Ptr ptr) { return {this, push(Op::load8 , NA,NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load16(Ptr ptr) { return {this, push(Op::load16, NA,NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load32(Ptr ptr) { return {this, push(Op::load32, NA,NA,NA,NA, ptr.ix) }; }
     I32 Builder::load64(Ptr ptr, int lane) {
-        return {this, push(Op::load64 , NA,NA,NA, ptr.ix,lane) };
+        return {this, push(Op::load64 , NA,NA,NA,NA, ptr.ix,lane) };
     }
     I32 Builder::load128(Ptr ptr, int lane) {
-        return {this, push(Op::load128, NA,NA,NA, ptr.ix,lane) };
+        return {this, push(Op::load128, NA,NA,NA,NA, ptr.ix,lane) };
     }
 
     I32 Builder::gather8 (Ptr ptr, int offset, I32 index) {
-        return {this, push(Op::gather8 , index.id,NA,NA, ptr.ix,offset)};
+        return {this, push(Op::gather8 , index.id,NA,NA,NA, ptr.ix,offset)};
     }
     I32 Builder::gather16(Ptr ptr, int offset, I32 index) {
-        return {this, push(Op::gather16, index.id,NA,NA, ptr.ix,offset)};
+        return {this, push(Op::gather16, index.id,NA,NA,NA, ptr.ix,offset)};
     }
     I32 Builder::gather32(Ptr ptr, int offset, I32 index) {
-        return {this, push(Op::gather32, index.id,NA,NA, ptr.ix,offset)};
+        return {this, push(Op::gather32, index.id,NA,NA,NA, ptr.ix,offset)};
     }
 
     I32 Builder::uniform32(Ptr ptr, int offset) {
-        return {this, push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
+        return {this, push(Op::uniform32, NA,NA,NA,NA, ptr.ix, offset)};
     }
 
-    I32 Builder::splat(int n) { return {this, push(Op::splat    , NA,NA,NA, n) }; }
+    I32 Builder::splat(int n) { return {this, push(Op::splat, NA,NA,NA,NA, n) }; }
 
     // Be careful peepholing float math!  Transformations you might expect to
     // be legal can fail in the face of NaN/Inf, e.g. 0*x is not always 0.
@@ -687,7 +692,7 @@ namespace skvm {
 
     F32 Builder::sqrt(F32 x) {
         if (float X; this->allImm(x.id,&X)) { return splat(std::sqrt(X)); }
-        return {this, this->push(Op::sqrt_f32, x.id,NA,NA)};
+        return {this, this->push(Op::sqrt_f32, x.id)};
     }
 
     // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
@@ -880,17 +885,17 @@ namespace skvm {
     I32 Builder::shl(I32 x, int bits) {
         if (bits == 0) { return x; }
         if (int X; this->allImm(x.id,&X)) { return splat(X << bits); }
-        return {this, this->push(Op::shl_i32, x.id,NA,NA, bits)};
+        return {this, this->push(Op::shl_i32, x.id,NA,NA,NA, bits)};
     }
     I32 Builder::shr(I32 x, int bits) {
         if (bits == 0) { return x; }
         if (int X; this->allImm(x.id,&X)) { return splat(unsigned(X) >> bits); }
-        return {this, this->push(Op::shr_i32, x.id,NA,NA, bits)};
+        return {this, this->push(Op::shr_i32, x.id,NA,NA,NA, bits)};
     }
     I32 Builder::sra(I32 x, int bits) {
         if (bits == 0) { return x; }
         if (int X; this->allImm(x.id,&X)) { return splat(X >> bits); }
-        return {this, this->push(Op::sra_i32, x.id,NA,NA, bits)};
+        return {this, this->push(Op::sra_i32, x.id,NA,NA,NA, bits)};
     }
 
     I32 Builder:: eq(F32 x, F32 y) {
@@ -2469,7 +2474,7 @@ namespace skvm {
         std::vector<llvm::Value*> vals(instructions.size());
 
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
-            auto [op, x,y,z, immA,immB, death,can_hoist] = instructions[i];
+            auto [op, x,y,z,w, immA,immB, death,can_hoist] = instructions[i];
 
             llvm::Type *i1    = llvm::Type::getInt1Ty (*ctx),
                        *i8    = llvm::Type::getInt8Ty (*ctx),
@@ -2968,6 +2973,7 @@ namespace skvm {
                 lookup_register(inst.x),
                 lookup_register(inst.y),
                 lookup_register(inst.z),
+                lookup_register(inst.w),
                 inst.immA,
                 inst.immB,
             };
@@ -3191,7 +3197,8 @@ namespace skvm {
             const Op op = inst.op;
             const Val x = inst.x,
                       y = inst.y,
-                      z = inst.z;
+                      z = inst.z,
+                      w = inst.w;
             const int immA = inst.immA,
                       immB = inst.immB;
 
@@ -3241,17 +3248,19 @@ namespace skvm {
                 regs[r] = NA;
             };
 
-            // Which register holds dst,x,y,z for this instruction?  NA if none does yet.
+            // Which register holds dst,x,y,z,w for this instruction?  NA if none does yet.
             int rd = NA,
                 rx = NA,
                 ry = NA,
-                rz = NA;
+                rz = NA,
+                rw = NA;
 
             auto update_regs = [&](Reg r, Val v) {
                 if (v == id) { rd = r; }
                 if (v ==  x) { rx = r; }
                 if (v ==  y) { ry = r; }
                 if (v ==  z) { rz = r; }
+                if (v ==  w) { rw = r; }
                 return r;
             };
 
@@ -3261,6 +3270,7 @@ namespace skvm {
                 if (v ==  x && rx != NA) { return rx; }
                 if (v ==  y && ry != NA) { return ry; }
                 if (v ==  z && rz != NA) { return rz; }
+                if (v ==  w && rw != NA) { return rw; }
 
                 // Search inter-instruction register map.
                 for (auto [r,val] : SkMakeEnumerate(regs)) {
@@ -3912,6 +3922,7 @@ namespace skvm {
             if (rx != NA && regs[rx] != NA && dies_here(regs[rx])) { regs[rx] = NA; }
             if (ry != NA && regs[ry] != NA && dies_here(regs[ry])) { regs[ry] = NA; }
             if (rz != NA && regs[rz] != NA && dies_here(regs[rz])) { regs[rz] = NA; }
+            if (rw != NA && regs[rw] != NA && dies_here(regs[rw])) { regs[rw] = NA; }
             return true;
         };
 

@@ -86,11 +86,13 @@ namespace SK_OPTS_NS {
             for (int i = start; i < ninsts; i++) {
                 InterpreterInstruction inst = insts[i];
 
-                // d = op(x,y/imm,z/imm)
+                // d = op(x,y,z,w, immA,immB)
                 Reg   d = inst.d,
                       x = inst.x,
                       y = inst.y,
-                      z = inst.z;
+                      z = inst.z,
+                      w = inst.w;
+                (void)w;  // TODO: use in store128
                 int immA = inst.immA,
                     immB = inst.immB;
 
