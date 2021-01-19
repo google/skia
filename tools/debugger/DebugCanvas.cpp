@@ -465,9 +465,9 @@ void DebugCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[],
 void DebugCanvas::onDrawImage2(const SkImage*           image,
                                SkScalar                 left,
                                SkScalar                 top,
-                               const SkSamplingOptions& sampling,   // todo
+                               const SkSamplingOptions& sampling,
                                const SkPaint*           paint) {
-    this->addDrawCommand(new DrawImageCommand(image, left, top, paint));
+    this->addDrawCommand(new DrawImageCommand(image, left, top, sampling, paint));
 }
 
 void DebugCanvas::onDrawImageLattice2(const SkImage* image,
@@ -481,7 +481,7 @@ void DebugCanvas::onDrawImageLattice2(const SkImage* image,
 void DebugCanvas::onDrawImageRect2(const SkImage*           image,
                                    const SkRect&            src,
                                    const SkRect&            dst,
-                                   const SkSamplingOptions& sampling,   // todo
+                                   const SkSamplingOptions& sampling,
                                    const SkPaint*           paint,
                                    SrcRectConstraint        constraint) {
     if (fnextDrawImageRectLayerId != -1 && fLayerManager) {
@@ -496,7 +496,7 @@ void DebugCanvas::onDrawImageRect2(const SkImage*           image,
         this->addDrawCommand(new DrawImageRectLayerCommand(
             fLayerManager, fnextDrawImageRectLayerId, fFrame, &src, dst, paint, constraint));
     } else {
-        this->addDrawCommand(new DrawImageRectCommand(image, &src, dst, paint, constraint));
+        this->addDrawCommand(new DrawImageRectCommand(image, src, dst, sampling, paint, constraint));
     }
     // Reset expectation so next drawImageRect is not special.
     fnextDrawImageRectLayerId = -1;
