@@ -543,7 +543,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
     // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
     // we shouldn't end up with GrOpsTasks with only discard.
-    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+    if (fExecutedWithPriorRenderpass
+            || this->isNoOp()
+            || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return false;
     }
 
@@ -614,6 +616,20 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             ? GrStoreOp::kDiscard
             : GrStoreOp::kStore;
 
+    // Append all the proxies from subsequent tasks to fSampledProxies.
+    int addlProxyCount = 0;
+    for (GrOpsTask* next = fNextOpsTask; next; next = next->fNextOpsTask) {
+        addlProxyCount += next->fSampledProxies.count();
+    }
+    GrSurfaceProxy** proxyPtr = fSampledProxies.push_back_n(addlProxyCount);
+    for (GrOpsTask* next = fNextOpsTask; next; next = next->fNextOpsTask) {
+        for (GrSurfaceProxy* proxy : next->fSampledProxies) {
+            *(proxyPtr++) = proxy;
+        }
+    }
+
+    // TODO: Merge fClippedContentBounds, fRenderPassXferBarriers, other params.
+
     GrOpsRenderPass* renderPass = create_render_pass(
             flushState->gpu(), proxy->peekRenderTarget(), stencil, this->target(0).origin(),
             fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
@@ -625,25 +641,29 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
-    // Draw all the generated geometry.
-    for (const auto& chain : fOpChains) {
-        if (!chain.shouldExecute()) {
-            continue;
+    for (GrOpsTask* task = this; task; task = task->fNextOpsTask) {
+        task->fExecutedWithPriorRenderpass = true;
+        SkASSERT(this->target(0) == task->target(0));
+        // Draw all the generated geometry.
+        for (const auto& chain : task->fOpChains) {
+            if (!chain.shouldExecute()) {
+                continue;
+            }
+    #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+            TRACE_EVENT0("skia.gpu", chain.head()->name());
+    #endif
+
+            GrOpFlushState::OpArgs opArgs(chain.head(),
+                                          task->target(0),
+                                          chain.appliedClip(),
+                                          chain.dstProxyView(),
+                                          task->fRenderPassXferBarriers,
+                                          task->fColorLoadOp);
+
+            flushState->setOpArgs(&opArgs);
+            chain.head()->execute(flushState, chain.bounds());
+            flushState->setOpArgs(nullptr);
         }
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        TRACE_EVENT0("skia.gpu", chain.head()->name());
-#endif
-
-        GrOpFlushState::OpArgs opArgs(chain.head(),
-                                      this->target(0),
-                                      chain.appliedClip(),
-                                      chain.dstProxyView(),
-                                      fRenderPassXferBarriers,
-                                      fColorLoadOp);
-
-        flushState->setOpArgs(&opArgs);
-        chain.head()->execute(flushState, chain.bounds());
-        flushState->setOpArgs(nullptr);
     }
 
     renderPass->end();
