@@ -51,10 +51,7 @@ public:
 
     void release() {
         ++fDoneCnt;
-        // YUVA Images can fail to create if they have a non-default encoded origin. This will be
-        // fixed when skbug.com/10632 is finished. This assert fires because done is called on
-        // failure and we never bumped fNumImages.
-        // SkASSERT(fDoneCnt <= fNumImages);
+        SkASSERT(fDoneCnt <= fNumImages);
     }
 
     void wasAddedToImage() { fNumImages++; }
