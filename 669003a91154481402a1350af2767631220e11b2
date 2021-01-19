@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "109f0ae0_974f28b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-19T18:38:59Z",
+      "side": 1,
+      "message": "Thanks for finding the fixes to re-enable so many of those tests!\n\nI\u0027m going to defer to Brian to check out the gm_bindings.cpp code, since I don\u0027t really understand the test gl context stuff. The other changes LGTM.",
+      "revId": "669003a91154481402a1350af2767631220e11b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
