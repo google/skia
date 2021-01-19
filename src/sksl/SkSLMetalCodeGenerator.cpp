@@ -1145,7 +1145,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
 
     switch (ref.variable()->modifiers().fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
-            this->write("_out->sk_FragColor");
+            this->write("_skOut.sk_FragColor");
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
@@ -1167,7 +1167,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
                     this->write("_in.");
                 } else if (var.modifiers().fFlags & Modifiers::kOut_Flag) {
-                    this->write("_out->");
+                    this->write("_skOut.");
                 } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
                            var.type().typeKind() != Type::TypeKind::kSampler) {
                     this->write("_uniforms.");
@@ -1194,11 +1194,11 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
     }
     switch (field->fModifiers.fLayout.fBuiltin) {
         case SK_POSITION_BUILTIN:
-            this->write("_out->sk_Position");
+            this->write("_skOut.sk_Position");
             break;
         default:
             if (field->fName == "sk_PointSize") {
-                this->write("_out->sk_PointSize");
+                this->write("_skOut.sk_PointSize");
             } else {
                 if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
                     this->write("_skGlobals.");
@@ -1399,7 +1399,7 @@ void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration&
     }
     if (requirements & kOutputs_Requirement) {
         this->write(separator);
-        this->write("_out");
+        this->write("_skOut");
         separator = ", ";
     }
     if (requirements & kUniforms_Requirement) {
@@ -1429,7 +1429,7 @@ void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaratio
     }
     if (requirements & kOutputs_Requirement) {
         this->write(separator);
-        this->write("thread Outputs* _out");
+        this->write("thread Outputs& _skOut");
         separator = ", ";
     }
     if (requirements & kUniforms_Requirement) {
@@ -1591,8 +1591,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     if (f.declaration().name() == "main") {
         this->writeGlobalInit();
-        this->writeLine("    Outputs _outputStruct;");
-        this->writeLine("    thread Outputs* _out = &_outputStruct;");
+        this->writeLine("    Outputs _skOut;");
     }
 
     fFunctionHeader = "";
@@ -1888,13 +1887,13 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 }
 
 void MetalCodeGenerator::writeReturnStatementFromMain() {
-    // main functions in Metal return a magic _out parameter that doesn't exist in SkSL.
+    // main functions in Metal return a magic _skOut parameter that doesn't exist in SkSL.
     switch (fProgram.fKind) {
         case Program::kFragment_Kind:
-            this->write("return *_out;");
+            this->write("return _skOut;");
             break;
         case Program::kVertex_Kind:
-            this->write("return (_out->sk_Position.y = -_out->sk_Position.y, *_out);");
+            this->write("return (_skOut.sk_Position.y = -_skOut.sk_Position.y, _skOut);");
             break;
         default:
             SkDEBUGFAIL("unsupported kind of program");
