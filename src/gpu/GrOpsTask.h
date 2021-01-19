@@ -89,6 +89,13 @@ public:
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
 
+    // Tell this task to try to execute `task` in the same render pass as `this`.
+    // Only call this if reduceOpsTaskSplitting is enabled.
+    void setNextOpsTask(GrOpsTask* task) {
+        SkASSERT(task->target(0) == this->target(0));
+        fNextOpsTask = task;
+    }
+
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
@@ -264,6 +271,12 @@ private:
 
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;
+
+    // If multiple ops tasks in a row have the same target, we put them in
+    // a chain and execute them all in the same render pass.
+    // TODO: Instead merge the tasks into one mega-ops-task instead?
+    GrOpsTask*             fNextOpsTask = nullptr;
+    bool                   fExecutedWithPriorRenderpass = false;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
