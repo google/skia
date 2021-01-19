@@ -252,7 +252,8 @@ private:
 
 class DrawImageCommand : public DrawCommand {
 public:
-    DrawImageCommand(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint);
+    DrawImageCommand(const SkImage* image, SkScalar left, SkScalar top,
+                     const SkSamplingOptions&, const SkPaint* paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -262,6 +263,7 @@ private:
     sk_sp<const SkImage> fImage;
     SkScalar             fLeft;
     SkScalar             fTop;
+    SkSamplingOptions    fSampling;
     SkTLazy<SkPaint>     fPaint;
 
     using INHERITED = DrawCommand;
@@ -290,8 +292,9 @@ private:
 class DrawImageRectCommand : public DrawCommand {
 public:
     DrawImageRectCommand(const SkImage*              image,
-                         const SkRect*               src,
+                         const SkRect&               src,
                          const SkRect&               dst,
+                         const SkSamplingOptions&    sampling,
                          const SkPaint*              paint,
                          SkCanvas::SrcRectConstraint constraint);
     void execute(SkCanvas* canvas) const override;
@@ -301,8 +304,9 @@ public:
 
 private:
     sk_sp<const SkImage>        fImage;
-    SkTLazy<SkRect>             fSrc;
+    SkRect                      fSrc;
     SkRect                      fDst;
+    SkSamplingOptions           fSampling;
     SkTLazy<SkPaint>            fPaint;
     SkCanvas::SrcRectConstraint fConstraint;
 
