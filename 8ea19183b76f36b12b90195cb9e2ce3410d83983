@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfc1388e_a8d017ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-01-19T21:04:48Z",
+      "side": 1,
+      "message": "We should now be able to call setSource again after the first time.\nNotes: it technically ends the first animation so onEnd listeners will go off, you also need to play the animation after you change the source\nLet me know if this works for you, it worked on a demo I tested on",
+      "revId": "8ea19183b76f36b12b90195cb9e2ce3410d83983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
