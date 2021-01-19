@@ -33,14 +33,14 @@ protected:
     bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const final;
 
     virtual sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
-                                         const SkColor*, const SkScalar*, int count,
+                                         const SkColor4f*, const SkScalar*, int count,
                                          SkTileMode, const SkMatrix& localMatrix) const = 0;
 
 private:
-    using StopPositionArray = SkSTArray<2, SkScalar, true>;
-    using    StopColorArray = SkSTArray<2,  SkColor, true>;
+    using StopPositionArray = SkSTArray<2, SkScalar , true>;
+    using    StopColorArray = SkSTArray<2, SkColor4f, true>;
     void collectColorStops(const SkSVGRenderContext&, StopPositionArray*, StopColorArray*) const;
-    SkColor resolveStopColor(const SkSVGRenderContext&, const SkSVGStop&) const;
+    SkColor4f resolveStopColor(const SkSVGRenderContext&, const SkSVGStop&) const;
 
     using INHERITED = SkSVGHiddenContainer;
 };

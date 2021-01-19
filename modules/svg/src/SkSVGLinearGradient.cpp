@@ -21,7 +21,7 @@ bool SkSVGLinearGradient::parseAndSetAttribute(const char* name, const char* val
 }
 
 sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
-                                                  const SkColor* colors, const SkScalar* pos,
+                                                  const SkColor4f* colors, const SkScalar* pos,
                                                   int count, SkTileMode tm,
                                                   const SkMatrix& localMatrix) const {
     const SkSVGLengthContext lctx =
@@ -36,5 +36,5 @@ sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
 
     const SkPoint pts[2] = { {x1, y1}, {x2, y2}};
 
-    return SkGradientShader::MakeLinear(pts, colors, pos, count, tm, 0, &localMatrix);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, pos, count, tm, 0, &localMatrix);
 }

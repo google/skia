@@ -22,7 +22,7 @@ bool SkSVGRadialGradient::parseAndSetAttribute(const char* name, const char* val
 }
 
 sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
-                                                  const SkColor* colors, const SkScalar* pos,
+                                                  const SkColor4f* colors, const SkScalar* pos,
                                                   int count, SkTileMode tm,
                                                   const SkMatrix& m) const {
     const SkSVGLengthContext lctx =
@@ -41,11 +41,12 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
                       : center.y());
 
     if (r == 0) {
-        const auto last_color = count > 0 ? colors[count - 1] : SK_ColorBLACK;
-        return SkShaders::Color(last_color);
+        const auto last_color = count > 0 ? colors[count - 1] : SkColors::kBlack;
+        return SkShaders::Color(last_color, nullptr);
     }
 
     return center == focal
-        ? SkGradientShader::MakeRadial(center, r, colors, pos, count, tm, 0, &m)
-        : SkGradientShader::MakeTwoPointConical(focal, 0, center, r, colors, pos, count, tm, 0, &m);
+        ? SkGradientShader::MakeRadial(center, r, colors, nullptr, pos, count, tm, 0, &m)
+        : SkGradientShader::MakeTwoPointConical(focal, 0, center, r, colors, nullptr, pos,
+                                                count, tm, 0, &m);
 }
