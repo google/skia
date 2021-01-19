@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "315c3e90_6c404c63",
+        "filename": "tests/sksl/metal/golden/SwizzleHelper.metal",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-19T17:52:49Z",
+      "side": 1,
+      "message": "This appears to be the only test where _skOut is passed to a non-inlined helper function (in case you\u0027re looking for an example of it).",
+      "range": {
+        "startLine": 24,
+        "startChar": 10,
+        "endLine": 24,
+        "endChar": 32
+      },
+      "revId": "ce5bd902dadb5303d57d2cc4738315a88de4d824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
