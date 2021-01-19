@@ -16,6 +16,29 @@
       "message": "Thanks for finding the fixes to re-enable so many of those tests!\n\nI\u0027m going to defer to Brian to check out the gm_bindings.cpp code, since I don\u0027t really understand the test gl context stuff. The other changes LGTM.",
       "revId": "669003a91154481402a1350af2767631220e11b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8e5fa94_86c29c6e",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T19:42:41Z",
+      "side": 1,
+      "message": "This is supposed to create a new GL context in a new GLTestContext. This will create a new GLTestContext but GL calls will still go to the original GL context. That would make tests not test what they\u0027re supposed to be testing.\n\nI don\u0027t think we actually can make another GL context directly from C++ code through emscriptem/wasm. Maybe we just need to make it so that this can return null and cause the tests to be skipped?",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 5
+      },
+      "revId": "669003a91154481402a1350af2767631220e11b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
