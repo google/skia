@@ -16,6 +16,75 @@
       "message": "We should now be able to call setSource again after the first time.\nNotes: it technically ends the first animation so onEnd listeners will go off, you also need to play the animation after you change the source\nLet me know if this works for you, it worked on a demo I tested on",
       "revId": "8ea19183b76f36b12b90195cb9e2ce3410d83983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50c15e6a_a820cad3",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-19T22:08:15Z",
+      "side": 1,
+      "message": "Not in this CL, but I wonder if we could get rid of this bit of state by setting e.g. mSurfaceWidth \u003d\u003d mSurfaceHeight \u003d\u003d 0?",
+      "range": {
+        "startLine": 463,
+        "startChar": 8,
+        "endLine": 463,
+        "endChar": 21
+      },
+      "revId": "8ea19183b76f36b12b90195cb9e2ce3410d83983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9915a272_e8b9e0c3",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-19T22:08:15Z",
+      "side": 1,
+      "message": "Instead of converting through a hashmap, could we add an actual type (Config) for both storing the config in SkottieAnimation (mConfig to replace mSurfaceWidth/mSurfaceHeight/mValidSurface) and passing it around in SkottieView?",
+      "range": {
+        "startLine": 454,
+        "startChar": 0,
+        "endLine": 467,
+        "endChar": 0
+      },
+      "revId": "8ea19183b76f36b12b90195cb9e2ce3410d83983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2f8c472_82bd0591",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-19T22:08:15Z",
+      "side": 1,
+      "message": "Can this really throw?  If not, let\u0027s hoist it out of the try/catch block to avoid confusion.",
+      "range": {
+        "startLine": 142,
+        "startChar": 16,
+        "endLine": 142,
+        "endChar": 59
+      },
+      "revId": "8ea19183b76f36b12b90195cb9e2ce3410d83983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
