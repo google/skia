@@ -105,10 +105,6 @@ SkPaint::Join toSkJoin(const SkSVGLineJoin& join) {
     }
 }
 
-inline uint8_t opacity_to_alpha(SkScalar o) {
-    return SkTo<uint8_t>(SkScalarRoundToInt(SkTPin<SkScalar>(o, 0, 1) * 255));
-}
-
 static sk_sp<SkPathEffect> dash_effect(const SkSVGPresentationAttributes& props,
                                        const SkSVGLengthContext& lctx) {
     if (props.fStrokeDashArray->type() != SkSVGDashArray::Type::kDashArray) {
@@ -276,7 +272,7 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags, bool has
     } else {
         // Expensive, layer-based fall back.
         SkPaint opacityPaint;
-        opacityPaint.setAlpha(opacity_to_alpha(opacity));
+        opacityPaint.setAlphaf(SkTPin(opacity, 0.0f, 1.0f));
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }
@@ -409,9 +405,7 @@ SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selecto
     //   - initial paint server opacity (e.g. color stop opacity)
     //   - paint-specific opacity (e.g. 'fill-opacity', 'stroke-opacity')
     //   - deferred opacity override (optimization for leaf nodes 'opacity')
-    // TODO: alphaf
-    p->setAlpha(SkTPin(SkScalarRoundToInt(p->getAlpha() * paint_opacity * fDeferredPaintOpacity),
-                       0, 255));
+    p->setAlphaf(SkTPin(p->getAlphaf() * paint_opacity * fDeferredPaintOpacity, 0.0f, 1.0f));
 
     return p;
 }

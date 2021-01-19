@@ -51,18 +51,19 @@ void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
     }
 }
 
-SkColor SkSVGGradient::resolveStopColor(const SkSVGRenderContext& ctx,
-                                        const SkSVGStop& stop) const {
+SkColor4f SkSVGGradient::resolveStopColor(const SkSVGRenderContext& ctx,
+                                          const SkSVGStop& stop) const {
     const auto& stopColor = stop.getStopColor();
     const auto& stopOpacity = stop.getStopOpacity();
     // Uninherited presentation attrs should have a concrete value at this point.
     if (!stopColor.isValue() || !stopOpacity.isValue()) {
         SkDebugf("unhandled: stop-color or stop-opacity has no value\n");
-        return SK_ColorBLACK;
+        return SkColors::kBlack;
     }
 
-    const SkColor color = ctx.resolveSvgColor(*stopColor);
-    return SkColorSetA(color, SkScalarRoundToInt(*stopOpacity * 255));
+    const auto color = SkColor4f::FromColor(ctx.resolveSvgColor(*stopColor));
+
+    return { color.fR, color.fG, color.fB, *stopOpacity };
 }
 
 bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
