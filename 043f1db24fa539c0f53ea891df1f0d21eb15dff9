@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "390c57b2_233ed390",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1664,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-19T14:11:47Z",
+      "side": 1,
+      "message": "We always set the convexity twice?",
+      "range": {
+        "startLine": 1659,
+        "startChar": 0,
+        "endLine": 1664,
+        "endChar": 53
+      },
+      "revId": "043f1db24fa539c0f53ea891df1f0d21eb15dff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
