@@ -230,3 +230,17 @@ DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
   canvas->drawPath(path, p);
 }
+
+DEF_SIMPLE_GM(b165379671, canvas, 300, 300) {
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setAntiAlias(false);
+    p.setStrokeWidth(16.0f);
+
+    SkPath path;
+    path.moveTo(100.0f, 72.0f);
+    path.lineTo(98.0f, 110.0f);
+    path.lineTo(97.0f, 121.0f);
+
+    canvas->drawPath(path, p);
+}
