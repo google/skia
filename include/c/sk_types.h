@@ -218,6 +218,28 @@ typedef struct sk_shader_t sk_shader_t;
 typedef struct sk_surface_t sk_surface_t;
 
 typedef enum {
+    NEAREST_SK_FILTER_MODE,
+    LINEAR_SK_FILTER_MODE,
+} sk_filter_mode_t;
+
+typedef enum {
+    NONE_SK_MIPMAP_MODE,
+    NEAREST_SK_MIPMAP_MODE,
+    LINEAR_SK_MIPMAP_MODE,
+} sk_mipmap_mode_t;
+
+typedef struct {
+    float B, C;
+} sk_cubic_resampler_t;
+
+typedef struct {
+    bool useCubic;
+    sk_cubic_resampler_t cubic;
+    sk_filter_mode_t filter;
+    sk_mipmap_mode_t mipmap;
+} sk_sampling_options_t;
+
+typedef enum {
     CLEAR_SK_XFERMODE_MODE,
     SRC_SK_XFERMODE_MODE,
     DST_SK_XFERMODE_MODE,

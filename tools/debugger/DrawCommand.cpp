@@ -1195,18 +1195,20 @@ void DrawAnnotationCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlData
 
 ////
 
-DrawImageCommand::DrawImageCommand(const SkImage* image,
-                                   SkScalar       left,
-                                   SkScalar       top,
-                                   const SkPaint* paint)
+DrawImageCommand::DrawImageCommand(const SkImage*           image,
+                                   SkScalar                 left,
+                                   SkScalar                 top,
+                                   const SkSamplingOptions& sampling,
+                                   const SkPaint*           paint)
         : INHERITED(kDrawImage_OpType)
         , fImage(SkRef(image))
         , fLeft(left)
         , fTop(top)
+        , fSampling(sampling)
         , fPaint(paint) {}
 
 void DrawImageCommand::execute(SkCanvas* canvas) const {
-    canvas->drawImage(fImage.get(), fLeft, fTop, fPaint.getMaybeNull());
+    canvas->drawImage(fImage.get(), fLeft, fTop, fSampling, fPaint.getMaybeNull());
 }
 
 bool DrawImageCommand::render(SkCanvas* canvas) const {
@@ -1299,20 +1301,21 @@ void DrawImageLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDa
 }
 
 DrawImageRectCommand::DrawImageRectCommand(const SkImage*              image,
-                                           const SkRect*               src,
+                                           const SkRect&               src,
                                            const SkRect&               dst,
+                                           const SkSamplingOptions&    sampling,
                                            const SkPaint*              paint,
                                            SkCanvas::SrcRectConstraint constraint)
         : INHERITED(kDrawImageRect_OpType)
         , fImage(SkRef(image))
         , fSrc(src)
         , fDst(dst)
+        , fSampling(sampling)
         , fPaint(paint)
         , fConstraint(constraint) {}
 
 void DrawImageRectCommand::execute(SkCanvas* canvas) const {
-    canvas->legacy_drawImageRect(
-            fImage.get(), fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
+    canvas->drawImageRect(fImage.get(), fSrc, fDst, fSampling, fPaint.getMaybeNull(), fConstraint);
 }
 
 bool DrawImageRectCommand::render(SkCanvas* canvas) const {
@@ -1332,10 +1335,8 @@ uint64_t DrawImageRectCommand::imageId(UrlDataManager& udm) const {
 void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
     flatten(*fImage, writer, urlDataManager);
-    if (fSrc.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
-        MakeJsonRect(writer, *fSrc);
-    }
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
+    MakeJsonRect(writer, fSrc);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
     MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {

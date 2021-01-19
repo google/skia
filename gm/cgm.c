@@ -65,7 +65,7 @@ void sk_test_c_api(sk_canvas_t* canvas) {
     sk_image_t* img0 = sk_surface_new_image_snapshot(surf);
     sk_surface_unref(surf);
 
-    sk_canvas_draw_image(canvas, img0, W + 10, 10, NULL);
+    sk_canvas_draw_image(canvas, img0, W + 10, 10, NULL, NULL);
 
     sk_data_t* data = sk_image_encode(img0);
     sk_image_unref(img0);
@@ -74,7 +74,7 @@ void sk_test_c_api(sk_canvas_t* canvas) {
     sk_data_unref(data);
 
     if (img1) {
-        sk_canvas_draw_image(canvas, img1, W/2, H/2, NULL);
+        sk_canvas_draw_image(canvas, img1, W/2, H/2, NULL, NULL);
         sk_image_unref(img1);
     }
 }

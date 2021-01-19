@@ -123,8 +123,8 @@ SK_API void sk_canvas_draw_path(sk_canvas_t*, const sk_path_t*, const sk_paint_t
 
     @param sk_paint_t* (may be NULL) the paint used to draw the image.
 */
-SK_API void sk_canvas_draw_image(sk_canvas_t*, const sk_image_t*,
-                                 float x, float y, const sk_paint_t*);
+SK_API void sk_canvas_draw_image(sk_canvas_t*, const sk_image_t*, float x, float y,
+                                 const sk_sampling_options_t*, const sk_paint_t*);
 /**
     Draw the specified image, scaling and translating so that it fills
     the specified dst rect. If the src rect is non-null, only that
@@ -133,8 +133,8 @@ SK_API void sk_canvas_draw_image(sk_canvas_t*, const sk_image_t*,
     @param sk_paint_t* (may be NULL) The paint used to draw the image.
 */
 SK_API void sk_canvas_draw_image_rect(sk_canvas_t*, const sk_image_t*,
-                                      const sk_rect_t* src,
-                                      const sk_rect_t* dst, const sk_paint_t*);
+                                      const sk_rect_t* src, const sk_rect_t* dst,
+                                      const sk_sampling_options_t*, const sk_paint_t*);
 
 /**
     Draw the picture into this canvas (replay the pciture's drawing commands).
