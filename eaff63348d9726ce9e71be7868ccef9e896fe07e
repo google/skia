@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbb80d4f_67912c18",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-19T15:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "328eacdc_e00b87ed",
+      "revId": "eaff63348d9726ce9e71be7868ccef9e896fe07e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4f087d4_9aba9876",
@@ -66,6 +84,24 @@
       "writtenOn": "2021-01-19T14:30:58Z",
       "side": 1,
       "message": "Does it make sense to reset p to nullptr instead?",
+      "revId": "eaff63348d9726ce9e71be7868ccef9e896fe07e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f946119c_106bb88b",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-19T15:14:00Z",
+      "side": 1,
+      "message": "Indeed, done.",
+      "parentUuid": "c4f087d4_9aba9876",
       "revId": "eaff63348d9726ce9e71be7868ccef9e896fe07e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
