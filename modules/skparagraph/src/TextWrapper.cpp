@@ -98,12 +98,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
 
         if (cluster->run()->isPlaceholder()) {
             if (!fClusters.empty()) {
-                // Placeholder ends the previous word
+                // Placeholder ends the previous word (placeholders are ignored in trimming)
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
                 fWords.extend(fClusters);
             }
 
-            // It also creates a separate word; it does not count in fMinIntrinsicWidth
+            // Placeholder is separate word and its width now is counted in minIntrinsicWidth
+            fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, cluster->width());
             fWords.extend(cluster);
         } else {
             fClusters.extend(cluster);
@@ -369,9 +370,10 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 lastWordLength = 0;
             } else if (cluster->run()->isPlaceholder()) {
                 // Placeholder ends the previous word and creates a separate one
-                // it does not count in fMinIntrinsicWidth
-                softLineMaxIntrinsicWidth += cluster->width();
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
+                // Placeholder width now counts in fMinIntrinsicWidth
+                softLineMaxIntrinsicWidth += cluster->width();
+                fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, cluster->width());
                 lastWordLength = 0;
             } else {
                 // Nothing out of ordinary - just add this cluster to the word and to the line
