@@ -69,8 +69,7 @@ void DDLPromiseImageHelper::PromiseImageInfo::setMipLevels(const SkBitmap& baseL
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 PromiseImageCallbackContext::~PromiseImageCallbackContext() {
-    // See comment in release() about YUVA image creation failures.
-    // SkASSERT(fDoneCnt == fNumImages);1
+    SkASSERT(fDoneCnt == fNumImages);
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
     if (fPromiseImageTexture) {

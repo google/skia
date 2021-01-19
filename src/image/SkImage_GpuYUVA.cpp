@@ -273,11 +273,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
         return nullptr;
     }
 
-    // SkImage_GpuYUVA doesn't yet support different encoded origins.
-    if (pixmaps.yuvaInfo().origin() != kTopLeft_SkEncodedOrigin) {
-        return nullptr;
-    }
-
     if (!context->priv().caps()->mipmapSupport()) {
         buildMips = GrMipMapped::kNo;
     }
@@ -359,13 +354,6 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     sk_sp<GrRefCntedCallback> releaseHelpers[4];
     for (int i = 0; i < n; ++i) {
         releaseHelpers[i] = GrRefCntedCallback::Make(textureReleaseProc, textureContexts[i]);
-    }
-
-    if (yuvaBackendTextureInfo.yuvaInfo().origin() != SkEncodedOrigin::kDefault_SkEncodedOrigin) {
-        // SkImage_GpuYUVA does not support this yet. This will get removed
-        // when the old APIs are gone and we only have to support YUVA configs described by
-        // SkYUVAInfo. Fix with skbug.com/10632.
-        return nullptr;
     }
 
     if (!context) {
