@@ -231,32 +231,32 @@ namespace skvm {
         Val  x = inst.x,
              y = inst.y,
              z = inst.z;
-        int immy = inst.immy,
-            immz = inst.immz;
+        int immA = inst.immA,
+            immB = inst.immB;
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-            case Op::store8:   write(o, op, Ptr{immy}   , V{x}                 ); break;
-            case Op::store16:  write(o, op, Ptr{immy}   , V{x}                 ); break;
-            case Op::store32:  write(o, op, Ptr{immy}   , V{x}                 ); break;
-            case Op::store64:  write(o, op, Ptr{immz}   , V{x},V{y}            ); break;
-            case Op::store128: write(o, op, Ptr{immz>>1}, V{x},V{y},Hex{immz&1}); break;
+            case Op::store8:   write(o, op, Ptr{immA}, V{x}               ); break;
+            case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
+            case Op::store32:  write(o, op, Ptr{immA}, V{x}               ); break;
+            case Op::store64:  write(o, op, Ptr{immA}, V{x},V{y}          ); break;
+            case Op::store128: write(o, op, Ptr{immA}, V{x},V{y},Hex{immB}); break;
 
             case Op::index: write(o, V{id}, "=", op); break;
 
-            case Op::load8:   write(o, V{id}, "=", op, Ptr{immy}); break;
-            case Op::load16:  write(o, V{id}, "=", op, Ptr{immy}); break;
-            case Op::load32:  write(o, V{id}, "=", op, Ptr{immy}); break;
-            case Op::load64:  write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}); break;
-            case Op::load128: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}); break;
+            case Op::load8:   write(o, V{id}, "=", op, Ptr{immA}); break;
+            case Op::load16:  write(o, V{id}, "=", op, Ptr{immA}); break;
+            case Op::load32:  write(o, V{id}, "=", op, Ptr{immA}); break;
+            case Op::load64:  write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}); break;
+            case Op::load128: write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}); break;
 
-            case Op::gather8:  write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}, V{x}); break;
-            case Op::gather16: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}, V{x}); break;
-            case Op::gather32: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}, V{x}); break;
+            case Op::gather8:  write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}, V{x}); break;
+            case Op::gather16: write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}, V{x}); break;
+            case Op::gather32: write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}, V{x}); break;
 
-            case Op::uniform32: write(o, V{id}, "=", op, Ptr{immy}, Hex{immz}); break;
+            case Op::uniform32: write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}); break;
 
-            case Op::splat: write(o, V{id}, "=", op, Splat{immy}); break;
+            case Op::splat: write(o, V{id}, "=", op, Splat{immA}); break;
 
             case Op:: add_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
             case Op:: sub_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
@@ -281,9 +281,9 @@ namespace skvm {
             case Op::sub_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
             case Op::mul_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
 
-            case Op::shl_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
-            case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
-            case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+            case Op::shl_i32: write(o, V{id}, "=", op, V{x}, Shift{immA}); break;
+            case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immA}); break;
+            case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immA}); break;
 
             case Op::eq_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
             case Op::gt_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
@@ -343,32 +343,32 @@ namespace skvm {
                   x = inst.x,
                   y = inst.y,
                   z = inst.z;
-            int immy = inst.immy,
-                immz = inst.immz;
+            int immA = inst.immA,
+                immB = inst.immB;
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
-                case Op::store8:   write(o, op, Ptr{immy}   , R{x}                   ); break;
-                case Op::store16:  write(o, op, Ptr{immy}   , R{x}                   ); break;
-                case Op::store32:  write(o, op, Ptr{immy}   , R{x}                   ); break;
-                case Op::store64:  write(o, op, Ptr{immz}   , R{x}, R{y}             ); break;
-                case Op::store128: write(o, op, Ptr{immz>>1}, R{x}, R{y}, Hex{immz&1}); break;
+                case Op::store8:   write(o, op, Ptr{immA}, R{x}                 ); break;
+                case Op::store16:  write(o, op, Ptr{immA}, R{x}                 ); break;
+                case Op::store32:  write(o, op, Ptr{immA}, R{x}                 ); break;
+                case Op::store64:  write(o, op, Ptr{immA}, R{x}, R{y}           ); break;
+                case Op::store128: write(o, op, Ptr{immA}, R{x}, R{y}, Hex{immB}); break;
 
                 case Op::index: write(o, R{d}, "=", op); break;
 
-                case Op::load8:   write(o, R{d}, "=", op, Ptr{immy}); break;
-                case Op::load16:  write(o, R{d}, "=", op, Ptr{immy}); break;
-                case Op::load32:  write(o, R{d}, "=", op, Ptr{immy}); break;
-                case Op::load64:  write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}); break;
-                case Op::load128: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}); break;
+                case Op::load8:   write(o, R{d}, "=", op, Ptr{immA}); break;
+                case Op::load16:  write(o, R{d}, "=", op, Ptr{immA}); break;
+                case Op::load32:  write(o, R{d}, "=", op, Ptr{immA}); break;
+                case Op::load64:  write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}); break;
+                case Op::load128: write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}); break;
 
-                case Op::gather8:  write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}, R{x}); break;
-                case Op::gather16: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}, R{x}); break;
-                case Op::gather32: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}, R{x}); break;
+                case Op::gather8:  write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}, R{x}); break;
+                case Op::gather16: write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}, R{x}); break;
+                case Op::gather32: write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}, R{x}); break;
 
-                case Op::uniform32: write(o, R{d}, "=", op, Ptr{immy}, Hex{immz}); break;
+                case Op::uniform32: write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}); break;
 
-                case Op::splat:     write(o, R{d}, "=", op, Splat{immy}); break;
+                case Op::splat:     write(o, R{d}, "=", op, Splat{immA}); break;
 
                 case Op::add_f32: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::sub_f32: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
@@ -392,9 +392,9 @@ namespace skvm {
                 case Op::sub_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
                 case Op::mul_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
 
-                case Op::shl_i32: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
-                case Op::shr_i32: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
-                case Op::sra_i32: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
+                case Op::shl_i32: write(o, R{d}, "=", op, R{x}, Shift{immA}); break;
+                case Op::shr_i32: write(o, R{d}, "=", op, R{x}, Shift{immA}); break;
+                case Op::sra_i32: write(o, R{d}, "=", op, R{x}, Shift{immA}); break;
 
                 case Op::eq_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
                 case Op::gt_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
@@ -465,7 +465,7 @@ namespace skvm {
         std::vector<OptimizedInstruction> optimized(program.size());
         for (Val id = 0; id < (Val)program.size(); id++) {
             Instruction inst = program[id];
-            optimized[id] = {inst.op, inst.x,inst.y,inst.z, inst.immy,inst.immz,
+            optimized[id] = {inst.op, inst.x,inst.y,inst.z, inst.immA,inst.immB,
                              /*death=*/id, /*can_hoist=*/true};
         }
 
@@ -534,8 +534,8 @@ namespace skvm {
             && a.x    == b.x
             && a.y    == b.y
             && a.z    == b.z
-            && a.immy == b.immy
-            && a.immz == b.immz;
+            && a.immA == b.immA
+            && a.immB == b.immB;
     }
 
     uint32_t InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
@@ -569,7 +569,7 @@ namespace skvm {
     bool Builder::allImm(Val id, T* imm, Rest... rest) const {
         if (fProgram[id].op == Op::splat) {
             static_assert(sizeof(T) == 4);
-            memcpy(imm, &fProgram[id].immy, 4);
+            memcpy(imm, &fProgram[id].immA, 4);
             return this->allImm(rest...);
         }
         return false;
@@ -593,10 +593,10 @@ namespace skvm {
     void Builder::store16(Ptr ptr, I32 val) { (void)push(Op::store16, val.id,NA,NA, ptr.ix); }
     void Builder::store32(Ptr ptr, I32 val) { (void)push(Op::store32, val.id,NA,NA, ptr.ix); }
     void Builder::store64(Ptr ptr, I32 lo, I32 hi) {
-        (void)push(Op::store64, lo.id,hi.id,NA, NA,ptr.ix);
+        (void)push(Op::store64, lo.id,hi.id,NA, ptr.ix);
     }
     void Builder::store128(Ptr ptr, I32 lo, I32 hi, int lane) {
-        (void)push(Op::store128, lo.id,hi.id,NA, NA,(ptr.ix<<1)|(lane&1));
+        (void)push(Op::store128, lo.id,hi.id,NA, ptr.ix,lane);
     }
 
     I32 Builder::index() { return {this, push(Op::index , NA,NA,NA,0) }; }
@@ -2469,7 +2469,7 @@ namespace skvm {
         std::vector<llvm::Value*> vals(instructions.size());
 
         auto emit = [&](size_t i, bool scalar, IRBuilder* b) {
-            auto [op, x,y,z, immy,immz, death,can_hoist] = instructions[i];
+            auto [op, x,y,z, immA,immB, death,can_hoist] = instructions[i];
 
             llvm::Type *i1    = llvm::Type::getInt1Ty (*ctx),
                        *i8    = llvm::Type::getInt8Ty (*ctx),
@@ -2509,17 +2509,17 @@ namespace skvm {
                 case Op::load16: t = I16; goto load;
                 case Op::load32: t = I32; goto load;
                 load: {
-                    llvm::Value* ptr = b->CreateBitCast(args[immy], t->getPointerTo());
+                    llvm::Value* ptr = b->CreateBitCast(args[immA], t->getPointerTo());
                     vals[i] = b->CreateZExt(b->CreateAlignedLoad(ptr, 1), I32);
                 } break;
 
 
-                case Op::splat: vals[i] = llvm::ConstantInt::get(I32, immy); break;
+                case Op::splat: vals[i] = llvm::ConstantInt::get(I32, immA); break;
 
                 case Op::uniform32: {
                     llvm::Value* ptr = b->CreateBitCast(b->CreateConstInBoundsGEP1_32(nullptr,
-                                                                                      args[immy],
-                                                                                      immz),
+                                                                                      args[immA],
+                                                                                      immB),
                                                         i32->getPointerTo());
                     llvm::Value* val = b->CreateZExt(b->CreateAlignedLoad(ptr, 1), i32);
                     vals[i] = I32->isVectorTy() ? b->CreateVectorSplat(K, val)
@@ -2530,11 +2530,11 @@ namespace skvm {
                 case Op::gather16: t = i16; goto gather;
                 case Op::gather32: t = i32; goto gather;
                 gather: {
-                    // Our gather base pointer is immz bytes off of uniform immy.
+                    // Our gather base pointer is immB bytes off of uniform immA.
                     llvm::Value* base =
                         b->CreateLoad(b->CreateBitCast(b->CreateConstInBoundsGEP1_32(nullptr,
-                                                                                     args[immy],
-                                                                                     immz),
+                                                                                     args[immA],
+                                                                                     immB),
                                                        t->getPointerTo()->getPointerTo()));
 
                     llvm::Value* ptr = b->CreateInBoundsGEP(nullptr, base, vals[x]);
@@ -2552,7 +2552,7 @@ namespace skvm {
                 case Op::store32: t = I32; goto store;
                 store: {
                     llvm::Value* val = b->CreateTrunc(vals[x], t);
-                    llvm::Value* ptr = b->CreateBitCast(args[immy],
+                    llvm::Value* ptr = b->CreateBitCast(args[immA],
                                                         val->getType()->getPointerTo());
                     vals[i] = b->CreateAlignedStore(val, ptr, 1);
                 } break;
@@ -2570,9 +2570,9 @@ namespace skvm {
                 case Op::sub_i32: vals[i] = b->CreateSub(vals[x], vals[y]); break;
                 case Op::mul_i32: vals[i] = b->CreateMul(vals[x], vals[y]); break;
 
-                case Op::shl_i32: vals[i] = b->CreateShl (vals[x], immy); break;
-                case Op::sra_i32: vals[i] = b->CreateAShr(vals[x], immy); break;
-                case Op::shr_i32: vals[i] = b->CreateLShr(vals[x], immy); break;
+                case Op::shl_i32: vals[i] = b->CreateShl (vals[x], immA); break;
+                case Op::sra_i32: vals[i] = b->CreateAShr(vals[x], immA); break;
+                case Op::shr_i32: vals[i] = b->CreateLShr(vals[x], immA); break;
 
                 case Op:: eq_i32: vals[i] = S(I32, b->CreateICmpEQ (vals[x], vals[y])); break;
                 case Op:: gt_i32: vals[i] = S(I32, b->CreateICmpSGT(vals[x], vals[y])); break;
@@ -2966,11 +2966,11 @@ namespace skvm {
                 inst.op,
                 lookup_register(id),
                 lookup_register(inst.x),
-               {lookup_register(inst.y)},
-               {lookup_register(inst.z)},
+                lookup_register(inst.y),
+                lookup_register(inst.z),
+                inst.immA,
+                inst.immB,
             };
-            if (inst.y == NA) { pinst.immy = inst.immy; }
-            if (inst.z == NA) { pinst.immz = inst.immz; }
             fImpl->instructions.push_back(pinst);
         };
 
@@ -3125,10 +3125,10 @@ namespace skvm {
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
-                if (instructions[v].immy == 0) {
+                if (instructions[v].immA == 0) {
                     a->vpxor(r,r,r);
                 } else {
-                    a->vmovups(r, constants.find(instructions[v].immy));
+                    a->vmovups(r, constants.find(instructions[v].immA));
                 }
             } else {
                 SkASSERT(stack_slot[v] != NA);
@@ -3162,10 +3162,10 @@ namespace skvm {
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
-                if (instructions[v].immy == 0) {
+                if (instructions[v].immA == 0) {
                     a->eor16b(r,r,r);
                 } else {
-                    a->ldrq(r, constants.find(instructions[v].immy));
+                    a->ldrq(r, constants.find(instructions[v].immA));
                 }
             } else {
                 SkASSERT(stack_slot[v] != NA);
@@ -3192,8 +3192,8 @@ namespace skvm {
             const Val x = inst.x,
                       y = inst.y,
                       z = inst.z;
-            const int immy = inst.immy,
-                      immz = inst.immz;
+            const int immA = inst.immA,
+                      immB = inst.immB;
 
             // alloc_tmp() returns a temporary register, freed manually with free_tmp().
             auto alloc_tmp = [&]() -> Reg {
@@ -3327,7 +3327,7 @@ namespace skvm {
                     return (Reg)found;
                 }
                 if (instructions[v].op == Op::splat) {
-                    return constants.find(instructions[v].immy);
+                    return constants.find(instructions[v].immA);
                 }
                 return A::Mem{A::rsp, stack_slot[v]*K*4};
             };
@@ -3342,7 +3342,7 @@ namespace skvm {
             switch (op) {
                 // Make sure splat constants can be found by load_from_memory() or any().
                 case Op::splat:
-                    (void)constants[immy];
+                    (void)constants[immA];
                     break;
 
             #if defined(__x86_64__) || defined(_M_X64)
@@ -3356,30 +3356,30 @@ namespace skvm {
 
                 case Op::store8:
                     if (scalar) {
-                        a->vpextrb(A::Mem{arg[immy]}, (A::Xmm)r(x), 0);
+                        a->vpextrb(A::Mem{arg[immA]}, (A::Xmm)r(x), 0);
                     } else {
                         a->vpackusdw(dst(x), r(x), r(x));
                         a->vpermq   (dst(), dst(), 0xd8);
                         a->vpackuswb(dst(), dst(), dst());
-                        a->vmovq    (A::Mem{arg[immy]}, (A::Xmm)dst());
+                        a->vmovq    (A::Mem{arg[immA]}, (A::Xmm)dst());
                     } break;
 
                 case Op::store16:
                     if (scalar) {
-                        a->vpextrw(A::Mem{arg[immy]}, (A::Xmm)r(x), 0);
+                        a->vpextrw(A::Mem{arg[immA]}, (A::Xmm)r(x), 0);
                     } else {
                         a->vpackusdw(dst(x), r(x), r(x));
                         a->vpermq   (dst(), dst(), 0xd8);
-                        a->vmovups  (A::Mem{arg[immy]}, (A::Xmm)dst());
+                        a->vmovups  (A::Mem{arg[immA]}, (A::Xmm)dst());
                     } break;
 
-                case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immy]}, (A::Xmm)r(x)); }
-                                  else        { a->vmovups(A::Mem{arg[immy]},         r(x)); }
+                case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immA]}, (A::Xmm)r(x)); }
+                                  else        { a->vmovups(A::Mem{arg[immA]},         r(x)); }
                                   break;
 
                 case Op::store64: if (scalar) {
-                                      a->vmovd(A::Mem{arg[immz],0}, (A::Xmm)r(x));
-                                      a->vmovd(A::Mem{arg[immz],4}, (A::Xmm)r(y));
+                                      a->vmovd(A::Mem{arg[immA],0}, (A::Xmm)r(x));
+                                      a->vmovd(A::Mem{arg[immA],4}, (A::Xmm)r(y));
                                   } else {
                                       // r(x) = {a,b,c,d|e,f,g,h}
                                       // r(y) = {i,j,k,l|m,n,o,p}
@@ -3389,17 +3389,17 @@ namespace skvm {
                                       a->vpunpckldq(L, r(x), any(y));  // L = {a,i,b,j|e,m,f,n}
                                       a->vpunpckhdq(H, r(x), any(y));  // H = {c,k,d,l|g,o,h,p}
                                       a->vperm2f128(dst(), L,H, 0x20); //   = {a,i,b,j|c,k,d,l}
-                                      a->vmovups(A::Mem{arg[immz], 0}, dst());
+                                      a->vmovups(A::Mem{arg[immA], 0}, dst());
                                       a->vperm2f128(dst(), L,H, 0x31); //   = {e,m,f,n|g,o,h,p}
-                                      a->vmovups(A::Mem{arg[immz],32}, dst());
+                                      a->vmovups(A::Mem{arg[immA],32}, dst());
                                       free_tmp(L);
                                       free_tmp(H);
                                   } break;
 
                 case Op::store128: {
                     // TODO: 8 64-bit stores instead of 16 32-bit stores?
-                    int ptr = immz>>1,
-                        lane = immz&1;
+                    int ptr = immA,
+                        lane = immB;
                     a->vmovd  (A::Mem{arg[ptr], 0*16 + 8*lane + 0}, (A::Xmm)r(x)   );
                     a->vmovd  (A::Mem{arg[ptr], 0*16 + 8*lane + 4}, (A::Xmm)r(y)   );
                     if (scalar) { break; }
@@ -3425,51 +3425,51 @@ namespace skvm {
 
                 case Op::load8:  if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immy]}, 0);
+                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immA]}, 0);
                                  } else {
-                                     a->vpmovzxbd(dst(), A::Mem{arg[immy]});
+                                     a->vpmovzxbd(dst(), A::Mem{arg[immA]});
                                  } break;
 
                 case Op::load16: if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immy]}, 0);
+                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immA]}, 0);
                                  } else {
-                                     a->vpmovzxwd(dst(), A::Mem{arg[immy]});
+                                     a->vpmovzxwd(dst(), A::Mem{arg[immA]});
                                  } break;
 
-                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), A::Mem{arg[immy]}); }
-                                 else        { a->vmovups(        dst(), A::Mem{arg[immy]}); }
+                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), A::Mem{arg[immA]}); }
+                                 else        { a->vmovups(        dst(), A::Mem{arg[immA]}); }
                                  break;
 
                 case Op::load64: if (scalar) {
-                                    a->vmovd((A::Xmm)dst(), A::Mem{arg[immy], 4*immz});
+                                    a->vmovd((A::Xmm)dst(), A::Mem{arg[immA], 4*immB});
                                  } else {
                                     A::Ymm tmp = alloc_tmp();
                                     a->vmovups(tmp, &load64_index);
-                                    a->vpermps(dst(), tmp, A::Mem{arg[immy],  0});
-                                    a->vpermps(  tmp, tmp, A::Mem{arg[immy], 32});
-                                    // Low 128 bits holds immz=0 lanes, high 128 bits holds immz=1.
-                                    a->vperm2f128(dst(), dst(),tmp, immz ? 0x31 : 0x20);
+                                    a->vpermps(dst(), tmp, A::Mem{arg[immA],  0});
+                                    a->vpermps(  tmp, tmp, A::Mem{arg[immA], 32});
+                                    // Low 128 bits holds immB=0 lanes, high 128 bits holds immB=1.
+                                    a->vperm2f128(dst(), dst(),tmp, immB ? 0x31 : 0x20);
                                     free_tmp(tmp);
                                  } break;
 
                 case Op::load128: if (scalar) {
-                                      a->vmovd((A::Xmm)dst(), A::Mem{arg[immy], 4*immz});
+                                      a->vmovd((A::Xmm)dst(), A::Mem{arg[immA], 4*immB});
                                   } else {
                                       // Load 4 low values into xmm tmp,
                                       A::Ymm tmp = alloc_tmp();
                                       A::Xmm t = (A::Xmm)tmp;
-                                      a->vmovd  (t,   A::Mem{arg[immy], 0*16 + 4*immz}   );
-                                      a->vpinsrd(t,t, A::Mem{arg[immy], 1*16 + 4*immz}, 1);
-                                      a->vpinsrd(t,t, A::Mem{arg[immy], 2*16 + 4*immz}, 2);
-                                      a->vpinsrd(t,t, A::Mem{arg[immy], 3*16 + 4*immz}, 3);
+                                      a->vmovd  (t,   A::Mem{arg[immA], 0*16 + 4*immB}   );
+                                      a->vpinsrd(t,t, A::Mem{arg[immA], 1*16 + 4*immB}, 1);
+                                      a->vpinsrd(t,t, A::Mem{arg[immA], 2*16 + 4*immB}, 2);
+                                      a->vpinsrd(t,t, A::Mem{arg[immA], 3*16 + 4*immB}, 3);
 
                                       // Load 4 high values into xmm dst(),
                                       A::Xmm d = (A::Xmm)dst();
-                                      a->vmovd  (d,   A::Mem{arg[immy], 4*16 + 4*immz}   );
-                                      a->vpinsrd(d,d, A::Mem{arg[immy], 5*16 + 4*immz}, 1);
-                                      a->vpinsrd(d,d, A::Mem{arg[immy], 6*16 + 4*immz}, 2);
-                                      a->vpinsrd(d,d, A::Mem{arg[immy], 7*16 + 4*immz}, 3);
+                                      a->vmovd  (d,   A::Mem{arg[immA], 4*16 + 4*immB}   );
+                                      a->vpinsrd(d,d, A::Mem{arg[immA], 5*16 + 4*immB}, 1);
+                                      a->vpinsrd(d,d, A::Mem{arg[immA], 6*16 + 4*immB}, 2);
+                                      a->vpinsrd(d,d, A::Mem{arg[immA], 7*16 + 4*immB}, 3);
 
                                       // Merge the two, ymm dst() = {xmm tmp|xmm dst()}
                                       a->vperm2f128(dst(), tmp,dst(), 0x20);
@@ -3477,8 +3477,8 @@ namespace skvm {
                                   } break;
 
                 case Op::gather8: {
-                    // As usual, the gather base pointer is immz bytes off of uniform immy.
-                    a->mov(GP0, A::Mem{arg[immy], immz});
+                    // As usual, the gather base pointer is immB bytes off of uniform immA.
+                    a->mov(GP0, A::Mem{arg[immA], immB});
 
                     A::Ymm tmp = alloc_tmp();
                     a->vmovups(tmp, any(x));
@@ -3498,7 +3498,7 @@ namespace skvm {
 
                 case Op::gather16: {
                     // Just as gather8 except vpinsrb->vpinsrw, ONE->TWO, and vpmovzxbd->vpmovzxwd.
-                    a->mov(GP0, A::Mem{arg[immy], immz});
+                    a->mov(GP0, A::Mem{arg[immA], immB});
 
                     A::Ymm tmp = alloc_tmp();
                     a->vmovups(tmp, any(x));
@@ -3516,8 +3516,8 @@ namespace skvm {
 
                 case Op::gather32:
                 if (scalar) {
-                    // Our gather base pointer is immz bytes off of uniform immy.
-                    a->mov(GP0, A::Mem{arg[immy], immz});
+                    // Our gather base pointer is immB bytes off of uniform immA.
+                    a->mov(GP0, A::Mem{arg[immA], immB});
 
                     // Grab our index from lane 0 of the index argument.
                     a->vmovd(GP1, (A::Xmm)r(x));
@@ -3525,7 +3525,7 @@ namespace skvm {
                     // dst = *(base + 4*index)
                     a->vmovd((A::Xmm)dst(x), A::Mem{GP0, 0, GP1, A::FOUR});
                 } else {
-                    a->mov(GP0, A::Mem{arg[immy], immz});
+                    a->mov(GP0, A::Mem{arg[immA], immB});
 
                     A::Ymm mask = alloc_tmp();
                     a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
@@ -3535,7 +3535,7 @@ namespace skvm {
                 }
                 break;
 
-                case Op::uniform32: a->vbroadcastss(dst(), A::Mem{arg[immy], immz});
+                case Op::uniform32: a->vbroadcastss(dst(), A::Mem{arg[immA], immB});
                                     break;
 
                 case Op::index: a->vmovd((A::Xmm)dst(), N);
@@ -3623,9 +3623,9 @@ namespace skvm {
                     else              { a->vpblendvb(dst(x), r(z), any(y), r(x)); }
                                         break;
 
-                case Op::shl_i32: a->vpslld(dst(x), r(x), immy); break;
-                case Op::shr_i32: a->vpsrld(dst(x), r(x), immy); break;
-                case Op::sra_i32: a->vpsrad(dst(x), r(x), immy); break;
+                case Op::shl_i32: a->vpslld(dst(x), r(x), immA); break;
+                case Op::shr_i32: a->vpsrld(dst(x), r(x), immA); break;
+                case Op::sra_i32: a->vpsrad(dst(x), r(x), immA); break;
 
                 case Op::eq_i32:
                     if (in_reg(x)) { a->vpcmpeqd(dst(x), r(x), any(y)); }
@@ -3702,38 +3702,38 @@ namespace skvm {
 
                 case Op::store8: a->xtns2h(dst(x), r(x));
                                  a->xtnh2b(dst(), dst());
-                   if (scalar) { a->strb  (dst(), arg[immy]); }
-                   else        { a->strs  (dst(), arg[immy]); }
+                   if (scalar) { a->strb  (dst(), arg[immA]); }
+                   else        { a->strs  (dst(), arg[immA]); }
                                  break;
 
                 case Op::store16: a->xtns2h(dst(x), r(x));
-                    if (scalar) { a->strh  (dst(), arg[immy]); }
-                    else        { a->strd  (dst(), arg[immy]); }
+                    if (scalar) { a->strh  (dst(), arg[immA]); }
+                    else        { a->strd  (dst(), arg[immA]); }
                                   break;
 
-                case Op::store32: if (scalar) { a->strs(r(x), arg[immy]); }
-                                  else        { a->strq(r(x), arg[immy]); }
+                case Op::store32: if (scalar) { a->strs(r(x), arg[immA]); }
+                                  else        { a->strq(r(x), arg[immA]); }
                                                 break;
 
                 // TODO: use st2.4s?
                 case Op::store64: if (scalar) {
-                                      a->strs(r(x), arg[immz], 0);
-                                      a->strs(r(y), arg[immz], 1);
+                                      a->strs(r(x), arg[immA], 0);
+                                      a->strs(r(y), arg[immA], 1);
                                   } else {
                                       // r(x) = {a,b,c,d}
                                       // r(y) = {e,f,g,h}
                                       // We want to write a,e, b,f, c,g, d,h
                                       A::V tmp = alloc_tmp();
                                       a->zip14s(tmp, r(x), r(y));   // a,e,b,f
-                                      a->strq(tmp, arg[immz], 0);
+                                      a->strq(tmp, arg[immA], 0);
                                       a->zip24s(tmp, r(x), r(y));   // c,g,d,h
-                                      a->strq(tmp, arg[immz], 1);
+                                      a->strq(tmp, arg[immA], 1);
                                       free_tmp(tmp);
                                   } break;
 
                 case Op::store128: {
-                    int ptr = immz>>1,
-                        lane = immz&1;
+                    int ptr = immA,
+                        lane = immB;
                     // TODO: zip r(x) and r(y) together, then 64-bit stores?  or some st2 variant?
                     for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP0, r(x), i);
@@ -3744,50 +3744,50 @@ namespace skvm {
                 } break;
 
 
-                case Op::load8: if (scalar) { a->ldrb(dst(), arg[immy]); }
-                                else        { a->ldrs(dst(), arg[immy]); }
+                case Op::load8: if (scalar) { a->ldrb(dst(), arg[immA]); }
+                                else        { a->ldrs(dst(), arg[immA]); }
                                               a->uxtlb2h(dst(), dst());
                                               a->uxtlh2s(dst(), dst());
                                               break;
 
-                case Op::load16: if (scalar) { a->ldrh(dst(), arg[immy]); }
-                                 else        { a->ldrd(dst(), arg[immy]); }
+                case Op::load16: if (scalar) { a->ldrh(dst(), arg[immA]); }
+                                 else        { a->ldrd(dst(), arg[immA]); }
                                                a->uxtlh2s(dst(), dst());
                                                break;
 
-                case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
-                                 else        { a->ldrq(dst(), arg[immy]); }
+                case Op::load32: if (scalar) { a->ldrs(dst(), arg[immA]); }
+                                 else        { a->ldrq(dst(), arg[immA]); }
                                                break;
 
                 // TODO: ld2.4s?
                 case Op::load64: if (scalar) {
-                                    a->ldrs(dst(), arg[immy], immz);
+                                    a->ldrs(dst(), arg[immA], immB);
                                  } else {
                                     A::V lo = dst(),
                                          hi = alloc_tmp();
-                                    a->ldrq(lo, arg[immy], 0);
-                                    a->ldrq(hi, arg[immy], 1);
-                                    switch (immz) {
+                                    a->ldrq(lo, arg[immA], 0);
+                                    a->ldrq(hi, arg[immA], 1);
+                                    switch (immB) {
                                         case 0: a->uzp14s(dst(),lo,hi); break;
                                         case 1: a->uzp24s(dst(),lo,hi); break;
                                     }
                                     free_tmp(hi);
                                  } break;
 
-                case Op::load128: a->ldrs(dst(), arg[immy], immz);
+                case Op::load128: a->ldrs(dst(), arg[immA], immB);
                                   for (int i = 1; i < active_lanes; i++) {
-                                      a->ldrs(GP0, arg[immy], immz+4*i);
+                                      a->ldrs(GP0, arg[immA], immB+4*i);
                                       a->inss(dst(), GP0, i);
                                   }
                                   break;
 
-                case Op::uniform32: a->add(GP0, arg[immy], immz);
+                case Op::uniform32: a->add(GP0, arg[immA], immB);
                                     a->ld1r4s(dst(), GP0);
                                     break;
 
                 case Op::gather8: {
-                    // As usual, the gather base pointer is immz bytes off of uniform immy.
-                    a->add (GP0, arg[immy], immz);  // GP0 = &(gather base pointer)
+                    // As usual, the gather base pointer is immB bytes off of uniform immA.
+                    a->add (GP0, arg[immA], immB);  // GP0 = &(gather base pointer)
                     a->ldrd(GP0, GP0);              // GP0 =   gather base pointer
 
                     for (int i = 0; i < active_lanes; i++) {
@@ -3800,7 +3800,7 @@ namespace skvm {
 
                 // See gather8 for general idea; comments here only where gather16 differs.
                 case Op::gather16: {
-                    a->add (GP0, arg[immy], immz);
+                    a->add (GP0, arg[immA], immB);
                     a->ldrd(GP0, GP0);
                     for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP1, r(x), i);
@@ -3812,7 +3812,7 @@ namespace skvm {
 
                 // See gather8 for general idea; comments here only where gather32 differs.
                 case Op::gather32: {
-                    a->add (GP0, arg[immy], immz);
+                    a->add (GP0, arg[immA], immB);
                     a->ldrd(GP0, GP0);
                     for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP1, r(x), i);
@@ -3882,9 +3882,9 @@ namespace skvm {
                                   a->bsl16b (dst(), r(y), r(x));
                                   break;
 
-                case Op::shl_i32: a-> shl4s(dst(x), r(x), immy); break;
-                case Op::shr_i32: a->ushr4s(dst(x), r(x), immy); break;
-                case Op::sra_i32: a->sshr4s(dst(x), r(x), immy); break;
+                case Op::shl_i32: a-> shl4s(dst(x), r(x), immA); break;
+                case Op::shr_i32: a->ushr4s(dst(x), r(x), immA); break;
+                case Op::sra_i32: a->sshr4s(dst(x), r(x), immA); break;
 
                 case Op::eq_i32: a->cmeq4s(dst(x,y), r(x), r(y)); break;
                 case Op::gt_i32: a->cmgt4s(dst(x,y), r(x), r(y)); break;

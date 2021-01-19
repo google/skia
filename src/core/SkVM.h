@@ -548,7 +548,7 @@ namespace skvm {
     struct Instruction {
         Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
         Val x,y,z;      // Enough arguments for mad().
-        int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
+        int immA,immB;  // Immediate bit pattern, shift count, argument index, etc.
     };
     SK_END_REQUIRE_DENSE
 
@@ -560,7 +560,7 @@ namespace skvm {
     struct OptimizedInstruction {
         Op op;
         Val x,y,z;
-        int immy,immz;
+        int immA,immB;
 
         Val  death;
         bool can_hoist;
@@ -898,8 +898,8 @@ namespace skvm {
 
         Val push(Instruction);
     private:
-        Val push(Op op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0) {
-            return this->push(Instruction{op, x,y,z, immy,immz});
+        Val push(Op op, Val x, Val y=NA, Val z=NA, int immA=0, int immB=0) {
+            return this->push(Instruction{op, x,y,z, immA,immB});
         }
 
         bool allImm() const;
@@ -929,9 +929,8 @@ namespace skvm {
     // d = op(x, y/imm, z/imm)
     struct InterpreterInstruction {
         Op  op;
-        Reg d,x;
-        union { Reg y; int immy; };
-        union { Reg z; int immz; };
+        Reg d,x,y,z;
+        int immA,immB;
     };
 
     class Program {
