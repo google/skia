@@ -22,6 +22,30 @@
       },
       "revId": "043f1db24fa539c0f53ea891df1f0d21eb15dff9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "239101b2_6da5f2f0",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1664,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-19T14:15:27Z",
+      "side": 1,
+      "message": "ooops, no, this was my hack to make the raster-backend not assert",
+      "parentUuid": "390c57b2_233ed390",
+      "range": {
+        "startLine": 1659,
+        "startChar": 0,
+        "endLine": 1664,
+        "endChar": 53
+      },
+      "revId": "043f1db24fa539c0f53ea891df1f0d21eb15dff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
