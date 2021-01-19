@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14a196c0_a776aa3a",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-19T19:18:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbe8a155_a6de706b",
+      "range": {
+        "startLine": 547,
+        "startChar": 12,
+        "endLine": 547,
+        "endChar": 14
+      },
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "134150d3_5208f6d4",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-19T17:08:08Z",
       "side": 1,
       "message": "Maybe put in a \u0027collectAllSampledProxies\u0027 helper ?",
+      "range": {
+        "startLine": 618,
+        "startChar": 0,
+        "endLine": 629,
+        "endChar": 5
+      },
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05b329bd_43d7f3eb",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-19T19:18:00Z",
+      "side": 1,
+      "message": "Skip since we\u0027re not looking to land this.",
+      "parentUuid": "134150d3_5208f6d4",
       "range": {
         "startLine": 618,
         "startChar": 0,
@@ -64,6 +112,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4fd5c83_3664339e",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-19T19:18:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c5b00d6_4a89fb77",
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "411a0bee_3fec1660",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-01-19T17:08:08Z",
       "side": 1,
       "message": "These always all the way to the left",
+      "range": {
+        "startLine": 652,
+        "startChar": 4,
+        "endLine": 652,
+        "endChar": 41
+      },
+      "revId": "782a901b1aa7ffbdc4a7ce259349a44a668b6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3ffa02e_2d5cd33f",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-19T19:18:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "411a0bee_3fec1660",
       "range": {
         "startLine": 652,
         "startChar": 4,
