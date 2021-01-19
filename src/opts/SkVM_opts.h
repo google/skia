@@ -92,7 +92,6 @@ namespace SK_OPTS_NS {
                       y = inst.y,
                       z = inst.z,
                       w = inst.w;
-                (void)w;  // TODO: use in store128
                 int immA = inst.immA,
                     immB = inst.immB;
 
@@ -175,12 +174,13 @@ namespace SK_OPTS_NS {
 
                     // These 128-bit ops are implemented serially for simplicity.
                     CASE(Op::store128): {
-                        int ptr = immA,
-                            lane = immB;
-                        U64 src = (skvx::cast<uint64_t>(r[x].u32) << 0 |
-                                   skvx::cast<uint64_t>(r[y].u32) << 32);
+                        U64 lo = (skvx::cast<uint64_t>(r[x].u32) << 0 |
+                                  skvx::cast<uint64_t>(r[y].u32) << 32),
+                            hi = (skvx::cast<uint64_t>(r[z].u32) << 0 |
+                                  skvx::cast<uint64_t>(r[w].u32) << 32);
                         for (int i = 0; i < stride; i++) {
-                            memcpy((char*)args[ptr] + 16*i + 8*lane, &src[i], 8);
+                            memcpy((char*)args[immA] + 16*i + 0, &lo[i], 8);
+                            memcpy((char*)args[immA] + 16*i + 8, &hi[i], 8);
                         }
                     } break;
 

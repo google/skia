@@ -232,7 +232,6 @@ namespace skvm {
              y = inst.y,
              z = inst.z,
              w = inst.w;
-        (void)w;  // TODO: use in store128
         int immA = inst.immA,
             immB = inst.immB;
         switch (op) {
@@ -242,7 +241,7 @@ namespace skvm {
             case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store32:  write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store64:  write(o, op, Ptr{immA}, V{x},V{y}          ); break;
-            case Op::store128: write(o, op, Ptr{immA}, V{x},V{y},Hex{immB}); break;
+            case Op::store128: write(o, op, Ptr{immA}, V{x},V{y},V{z},V{w}); break;
 
             case Op::index: write(o, V{id}, "=", op); break;
 
@@ -346,17 +345,16 @@ namespace skvm {
                   y = inst.y,
                   z = inst.z,
                   w = inst.w;
-            (void)w;  // TODO: use in store128
             int immA = inst.immA,
                 immB = inst.immB;
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
-                case Op::store8:   write(o, op, Ptr{immA}, R{x}                 ); break;
-                case Op::store16:  write(o, op, Ptr{immA}, R{x}                 ); break;
-                case Op::store32:  write(o, op, Ptr{immA}, R{x}                 ); break;
-                case Op::store64:  write(o, op, Ptr{immA}, R{x}, R{y}           ); break;
-                case Op::store128: write(o, op, Ptr{immA}, R{x}, R{y}, Hex{immB}); break;  // TODO
+                case Op::store8:   write(o, op, Ptr{immA}, R{x}                  ); break;
+                case Op::store16:  write(o, op, Ptr{immA}, R{x}                  ); break;
+                case Op::store32:  write(o, op, Ptr{immA}, R{x}                  ); break;
+                case Op::store64:  write(o, op, Ptr{immA}, R{x}, R{y}            ); break;
+                case Op::store128: write(o, op, Ptr{immA}, R{x}, R{y}, R{z}, R{w}); break;
 
                 case Op::index: write(o, R{d}, "=", op); break;
 
@@ -588,8 +586,8 @@ namespace skvm {
     void Builder::store64(Ptr ptr, I32 lo, I32 hi) {
         (void)push(Op::store64, lo.id,hi.id,NA,NA, ptr.ix);
     }
-    void Builder::store128(Ptr ptr, I32 lo, I32 hi, int lane) {
-        (void)push(Op::store128, lo.id,hi.id,NA,NA, ptr.ix,lane);
+    void Builder::store128(Ptr ptr, I32 x, I32 y, I32 z, I32 w) {
+        (void)push(Op::store128, x.id,y.id,z.id,w.id, ptr.ix);
     }
 
     I32 Builder::index() { return {this, push(Op::index)}; }
@@ -1236,8 +1234,7 @@ namespace skvm {
             }
             case 16: {
                 assert_16byte_is_rgba_f32(f);
-                store128(ptr, pun_to_I32(c.r), pun_to_I32(c.g), 0);
-                store128(ptr, pun_to_I32(c.b), pun_to_I32(c.a), 1);
+                store128(ptr, pun_to_I32(c.r), pun_to_I32(c.g), pun_to_I32(c.b), pun_to_I32(c.a));
                 return true;
             }
             default: SkUNREACHABLE;
@@ -3395,30 +3392,52 @@ namespace skvm {
                                   } break;
 
                 case Op::store128: {
-                    // TODO: 8 64-bit stores instead of 16 32-bit stores?
-                    int ptr = immA,
-                        lane = immB;
-                    a->vmovd  (A::Mem{arg[ptr], 0*16 + 8*lane + 0}, (A::Xmm)r(x)   );
-                    a->vmovd  (A::Mem{arg[ptr], 0*16 + 8*lane + 4}, (A::Xmm)r(y)   );
+                    // TODO: >32-bit stores
+                    a->vmovd  (A::Mem{arg[immA], 0*16 +  0}, (A::Xmm)r(x)   );
+                    a->vmovd  (A::Mem{arg[immA], 0*16 +  4}, (A::Xmm)r(y)   );
+                    a->vmovd  (A::Mem{arg[immA], 0*16 +  8}, (A::Xmm)r(z)   );
+                    a->vmovd  (A::Mem{arg[immA], 0*16 + 12}, (A::Xmm)r(w)   );
                     if (scalar) { break; }
-                    a->vpextrd(A::Mem{arg[ptr], 1*16 + 8*lane + 0}, (A::Xmm)r(x), 1);
-                    a->vpextrd(A::Mem{arg[ptr], 1*16 + 8*lane + 4}, (A::Xmm)r(y), 1);
-                    a->vpextrd(A::Mem{arg[ptr], 2*16 + 8*lane + 0}, (A::Xmm)r(x), 2);
-                    a->vpextrd(A::Mem{arg[ptr], 2*16 + 8*lane + 4}, (A::Xmm)r(y), 2);
-                    a->vpextrd(A::Mem{arg[ptr], 3*16 + 8*lane + 0}, (A::Xmm)r(x), 3);
-                    a->vpextrd(A::Mem{arg[ptr], 3*16 + 8*lane + 4}, (A::Xmm)r(y), 3);
-                    // Now we need to store the upper 128 bits of x and y.
-                    // Storing x then y rather than interlacing minimizes temporaries.
+
+                    a->vpextrd(A::Mem{arg[immA], 1*16 +  0}, (A::Xmm)r(x), 1);
+                    a->vpextrd(A::Mem{arg[immA], 1*16 +  4}, (A::Xmm)r(y), 1);
+                    a->vpextrd(A::Mem{arg[immA], 1*16 +  8}, (A::Xmm)r(z), 1);
+                    a->vpextrd(A::Mem{arg[immA], 1*16 + 12}, (A::Xmm)r(w), 1);
+
+                    a->vpextrd(A::Mem{arg[immA], 2*16 +  0}, (A::Xmm)r(x), 2);
+                    a->vpextrd(A::Mem{arg[immA], 2*16 +  4}, (A::Xmm)r(y), 2);
+                    a->vpextrd(A::Mem{arg[immA], 2*16 +  8}, (A::Xmm)r(z), 2);
+                    a->vpextrd(A::Mem{arg[immA], 2*16 + 12}, (A::Xmm)r(w), 2);
+
+                    a->vpextrd(A::Mem{arg[immA], 3*16 +  0}, (A::Xmm)r(x), 3);
+                    a->vpextrd(A::Mem{arg[immA], 3*16 +  4}, (A::Xmm)r(y), 3);
+                    a->vpextrd(A::Mem{arg[immA], 3*16 +  8}, (A::Xmm)r(z), 3);
+                    a->vpextrd(A::Mem{arg[immA], 3*16 + 12}, (A::Xmm)r(w), 3);
+                    // Now we need to store the upper 128 bits of x,y,z,w.
+                    // Storing in this order rather than interlacing minimizes temporaries.
                     a->vextracti128(dst(), r(x), 1);
-                    a->vmovd  (A::Mem{arg[ptr], 4*16 + 8*lane + 0}, (A::Xmm)dst()   );
-                    a->vpextrd(A::Mem{arg[ptr], 5*16 + 8*lane + 0}, (A::Xmm)dst(), 1);
-                    a->vpextrd(A::Mem{arg[ptr], 6*16 + 8*lane + 0}, (A::Xmm)dst(), 2);
-                    a->vpextrd(A::Mem{arg[ptr], 7*16 + 8*lane + 0}, (A::Xmm)dst(), 3);
+                    a->vmovd  (A::Mem{arg[immA], 4*16 +  0}, (A::Xmm)dst()   );
+                    a->vpextrd(A::Mem{arg[immA], 5*16 +  0}, (A::Xmm)dst(), 1);
+                    a->vpextrd(A::Mem{arg[immA], 6*16 +  0}, (A::Xmm)dst(), 2);
+                    a->vpextrd(A::Mem{arg[immA], 7*16 +  0}, (A::Xmm)dst(), 3);
+
                     a->vextracti128(dst(), r(y), 1);
-                    a->vmovd  (A::Mem{arg[ptr], 4*16 + 8*lane + 4}, (A::Xmm)dst()   );
-                    a->vpextrd(A::Mem{arg[ptr], 5*16 + 8*lane + 4}, (A::Xmm)dst(), 1);
-                    a->vpextrd(A::Mem{arg[ptr], 6*16 + 8*lane + 4}, (A::Xmm)dst(), 2);
-                    a->vpextrd(A::Mem{arg[ptr], 7*16 + 8*lane + 4}, (A::Xmm)dst(), 3);
+                    a->vmovd  (A::Mem{arg[immA], 4*16 +  4}, (A::Xmm)dst()   );
+                    a->vpextrd(A::Mem{arg[immA], 5*16 +  4}, (A::Xmm)dst(), 1);
+                    a->vpextrd(A::Mem{arg[immA], 6*16 +  4}, (A::Xmm)dst(), 2);
+                    a->vpextrd(A::Mem{arg[immA], 7*16 +  4}, (A::Xmm)dst(), 3);
+
+                    a->vextracti128(dst(), r(z), 1);
+                    a->vmovd  (A::Mem{arg[immA], 4*16 +  8}, (A::Xmm)dst()   );
+                    a->vpextrd(A::Mem{arg[immA], 5*16 +  8}, (A::Xmm)dst(), 1);
+                    a->vpextrd(A::Mem{arg[immA], 6*16 +  8}, (A::Xmm)dst(), 2);
+                    a->vpextrd(A::Mem{arg[immA], 7*16 +  8}, (A::Xmm)dst(), 3);
+
+                    a->vextracti128(dst(), r(w), 1);
+                    a->vmovd  (A::Mem{arg[immA], 4*16 + 12}, (A::Xmm)dst()   );
+                    a->vpextrd(A::Mem{arg[immA], 5*16 + 12}, (A::Xmm)dst(), 1);
+                    a->vpextrd(A::Mem{arg[immA], 6*16 + 12}, (A::Xmm)dst(), 2);
+                    a->vpextrd(A::Mem{arg[immA], 7*16 + 12}, (A::Xmm)dst(), 3);
                 } break;
 
                 case Op::load8:  if (scalar) {
@@ -3729,17 +3748,19 @@ namespace skvm {
                                       free_tmp(tmp);
                                   } break;
 
-                case Op::store128: {
-                    int ptr = immA,
-                        lane = immB;
-                    // TODO: zip r(x) and r(y) together, then 64-bit stores?  or some st2 variant?
+                // TODO: use st4.4s?
+                case Op::store128:
                     for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP0, r(x), i);
                         a->movs(GP1, r(y), i);
-                        a->strs(GP0, arg[ptr], i*4 + 2*lane + 0);
-                        a->strs(GP1, arg[ptr], i*4 + 2*lane + 1);
-                    }
-                } break;
+                        a->strs(GP0, arg[immA], i*4 + 0);
+                        a->strs(GP1, arg[immA], i*4 + 1);
+
+                        a->movs(GP0, r(z), i);
+                        a->movs(GP1, r(w), i);
+                        a->strs(GP0, arg[immA], i*4 + 2);
+                        a->strs(GP1, arg[immA], i*4 + 3);
+                    } break;
 
 
                 case Op::load8: if (scalar) { a->ldrb(dst(), arg[immA]); }
