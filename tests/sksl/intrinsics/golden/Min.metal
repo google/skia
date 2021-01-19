@@ -11,8 +11,7 @@ struct Outputs {
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.x = min(_in.a, _in.b);
-    return *_out;
+    Outputs _out;
+    _out.sk_FragColor.x = min(_in.a, _in.b);
+    return _out;
 }

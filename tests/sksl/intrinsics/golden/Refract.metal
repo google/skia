@@ -17,9 +17,8 @@ struct Outputs {
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.x = (refract(float2(_in.a, 0), float2(_in.b, 0), _in.c).x);
-    _out->sk_FragColor = refract(_in.d, _in.e, _in.c);
-    return *_out;
+    Outputs _out;
+    _out.sk_FragColor.x = (refract(float2(_in.a, 0), float2(_in.b, 0), _in.c).x);
+    _out.sk_FragColor = refract(_in.d, _in.e, _in.c);
+    return _out;
 }

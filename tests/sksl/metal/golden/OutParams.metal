@@ -283,8 +283,7 @@ void out_bool4(thread bool4& v) {
     v = bool4(false);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _out;
     float h;
     _skOutParamHelper0_out_half(h);
     float2 h2;
@@ -296,7 +295,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper4_out_half(h3);
     _skOutParamHelper5_out_half2(h3);
     _skOutParamHelper6_out_half4(h4);
-    _out->sk_FragColor = float4(h, h2.x, h3.x, h4.x);
+    _out.sk_FragColor = float4(h, h2.x, h3.x, h4.x);
     float2x2 h2x2;
     _skOutParamHelper7_out_half2x2(h2x2);
     float3x3 h3x3;
@@ -306,7 +305,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper10_out_half3(h3x3);
     _skOutParamHelper11_out_half4(h4x4);
     _skOutParamHelper12_out_half2(h2x2);
-    _out->sk_FragColor = float4(h2x2[0].x, h3x3[0].x, h4x4[0].x, 1.0);
+    _out.sk_FragColor = float4(h2x2[0].x, h3x3[0].x, h4x4[0].x, 1.0);
     int i;
     _skOutParamHelper13_out_int(i);
     int2 i2;
@@ -316,7 +315,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     int4 i4;
     _skOutParamHelper16_out_int4(i4);
     _skOutParamHelper17_out_int3(i4);
-    _out->sk_FragColor = float4(float(i), float(i2.x), float(i3.x), float(i4.x));
+    _out.sk_FragColor = float4(float(i), float(i2.x), float(i3.x), float(i4.x));
     float f;
     _skOutParamHelper18_out_float(f);
     float2 f2;
@@ -327,7 +326,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper21_out_float4(f4);
     _skOutParamHelper22_out_float2(f3);
     _skOutParamHelper23_out_float(f2);
-    _out->sk_FragColor = float4(f, f2.x, f3.x, f4.x);
+    _out.sk_FragColor = float4(f, f2.x, f3.x, f4.x);
     float2x2 f2x2;
     _skOutParamHelper24_out_float2x2(f2x2);
     float3x3 f3x3;
@@ -336,7 +335,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper26_out_float4x4(f4x4);
     _skOutParamHelper27_out_float(f2x2);
     _skOutParamHelper28_out_float4(f4x4);
-    _out->sk_FragColor = float4(f2x2[0].x, f3x3[0].x, f4x4[0].x, 1.0);
+    _out.sk_FragColor = float4(f2x2[0].x, f3x3[0].x, f4x4[0].x, 1.0);
     bool b;
     _skOutParamHelper29_out_bool(b);
     bool2 b2;
@@ -347,6 +346,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper32_out_bool4(b4);
     _skOutParamHelper33_out_bool2(b4);
     _skOutParamHelper34_out_bool(b3);
-    _out->sk_FragColor = float4(float(b), float(b2.x), float(b3.x), float(b4.x));
-    return *_out;
+    _out.sk_FragColor = float4(float(b), float(b2.x), float(b3.x), float(b4.x));
+    return _out;
 }

@@ -7,8 +7,7 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _out;
     float3 h3;
     h3 = float3(3.0);
 
@@ -21,7 +20,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 
     h4.zwxy = float4(4.0);
 
-    _out->sk_FragColor = float4(1.0, 2.0, h3.x, h4.x);
+    _out.sk_FragColor = float4(1.0, 2.0, h3.x, h4.x);
     float2x2 h2x2;
     h2x2 = float2x2(2.0);
 
@@ -37,7 +36,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 
     h2x2[0].x = 1.0;
 
-    _out->sk_FragColor = float4(h2x2[0].x, h3x3[0].x, h4x4[0].x, 1.0);
+    _out.sk_FragColor = float4(h2x2[0].x, h3x3[0].x, h4x4[0].x, 1.0);
     int2 i2;
     i2 = int2(2);
 
@@ -48,7 +47,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 
     i2.y = 1;
 
-    _out->sk_FragColor = float4(1.0, float(i2.x), 3.0, float(i4.x));
+    _out.sk_FragColor = float4(1.0, float(i2.x), 3.0, float(i4.x));
     float2 f2;
     f2 = float2(2.0);
 
@@ -59,13 +58,13 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 
     f2.x = 1.0;
 
-    _out->sk_FragColor = float4(1.0, f2.x, f3.x, 4.0);
+    _out.sk_FragColor = float4(1.0, f2.x, f3.x, 4.0);
     float2x2 f2x2;
     f2x2 = float2x2(2.0);
 
     f2x2[0].x = 1.0;
 
-    _out->sk_FragColor = float4(f2x2[0].x, float3x3(3.0)[0].x, float4x4(4.0)[0].x, 1.0);
+    _out.sk_FragColor = float4(f2x2[0].x, float3x3(3.0)[0].x, float4x4(4.0)[0].x, 1.0);
     bool3 b3;
     b3 = bool3(true);
 
@@ -76,6 +75,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 
     b3.z = true;
 
-    _out->sk_FragColor = float4(1.0, 0.0, float(b3.x), float(b4.x));
-    return *_out;
+    _out.sk_FragColor = float4(1.0, 0.0, float(b3.x), float(b4.x));
+    return _out;
 }
