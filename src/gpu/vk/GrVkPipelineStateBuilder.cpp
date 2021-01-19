@@ -197,15 +197,24 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     layoutCreateInfo.flags = 0;
     layoutCreateInfo.setLayoutCount = layoutCount;
     layoutCreateInfo.pSetLayouts = dsLayout;
-    layoutCreateInfo.pushConstantRangeCount = 0;
-    layoutCreateInfo.pPushConstantRanges = nullptr;
+    bool usePushConstants = fUniformHandler.usePushConstants();
+    VkPushConstantRange pushConstantRange = {};
+    if (usePushConstants) {
+        pushConstantRange.stageFlags = GrPushConstantStageFlags(fGpu);
+        pushConstantRange.offset = 0;
+        // size must be a multiple of 4
+        SkASSERT(!SkToBool(fUniformHandler.fCurrentOffset & 0x3));
+        pushConstantRange.size = fUniformHandler.fCurrentOffset;
+        layoutCreateInfo.pushConstantRangeCount = 1;
+        layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    } else {
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+    }
 
     VkResult result;
     GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
                                                          &pipelineLayout));
-    if (result != VK_SUCCESS) {
-        return nullptr;
-    }
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
     // from our glsl shaders.
@@ -220,7 +229,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     SkSL::Program::Settings settings;
     settings.fRTHeightBinding = this->gpu()->vkCaps().getFragmentUniformBinding();
     settings.fRTHeightSet = this->gpu()->vkCaps().getFragmentUniformSet();
-    settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = fUniformHandler.getFlipY();
     settings.fSharpenTextures =
                         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     settings.fRTHeightOffset = fUniformHandler.getRTHeightOffset();
@@ -356,7 +365,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                  samplerDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
-                                 fUniformHandler.fCurrentUBOOffset,
+                                 fUniformHandler.fCurrentOffset,
+                                 usePushConstants,
                                  fUniformHandler.fSamplers,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
