@@ -18,8 +18,7 @@ struct Globals {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _skGlobals{1.0, 1, 1u, true};
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _skOut;
     float f1 = _skGlobals.f;
     float f2 = float(_skGlobals.i);
     float f3 = float(_skGlobals.u);
@@ -36,9 +35,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     bool b2 = bool(_skGlobals.i);
     bool b3 = bool(_skGlobals.u);
     bool b4 = _skGlobals.b;
-    _out->sk_FragColor.x = ((f1 + f2) + f3) + f4;
-    _out->sk_FragColor.x = float(((i1 + i2) + i3) + i4);
-    _out->sk_FragColor.x = float(((u1 + u2) + u3) + u4);
-    _out->sk_FragColor.x = float(((b1 || b2) || b3) || b4);
-    return *_out;
+    _skOut.sk_FragColor.x = ((f1 + f2) + f3) + f4;
+    _skOut.sk_FragColor.x = float(((i1 + i2) + i3) + i4);
+    _skOut.sk_FragColor.x = float(((u1 + u2) + u3) + u4);
+    _skOut.sk_FragColor.x = float(((b1 || b2) || b3) || b4);
+    return _skOut;
 }
