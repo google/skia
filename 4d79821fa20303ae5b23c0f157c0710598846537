@@ -222,6 +222,30 @@
       },
       "revId": "4d79821fa20303ae5b23c0f157c0710598846537",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f9d3a41_0405a48b",
+        "filename": "tests/sksl/runtime/ArrayIndexing.rte",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-19T16:03:12Z",
+      "side": 1,
+      "message": "OK, added a loop that counts down, and a loop that stresses a few other things:\n\n- float loop variable, cast to int for indexing\n- non-integer bounds and stride\n- checked access (which asserts before the accompanying fix in getSlot)",
+      "parentUuid": "efee8c1c_5b1987ec",
+      "range": {
+        "startLine": 18,
+        "startChar": 26,
+        "endLine": 18,
+        "endChar": 30
+      },
+      "revId": "4d79821fa20303ae5b23c0f157c0710598846537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
