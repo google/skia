@@ -19,9 +19,8 @@ float _skOutParamHelper0_frexp(float _var0, thread int& b) {
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _skGlobals{{}};
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.x =     _skOutParamHelper0_frexp(_in.a, _skGlobals.b);
-    return *_out;
+    Globals _globals{{}};
+    Outputs _out;
+    _out.sk_FragColor.x =     _skOutParamHelper0_frexp(_in.a, _globals.b);
+    return _out;
 }

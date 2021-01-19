@@ -13,8 +13,7 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _out;
     float4 x;
     x.w = 0.0;
     x.yx = float2(0.0);
@@ -38,18 +37,18 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     s.af[0] = 2.0;
     s.h4 = float4(1.0);
     s.ah4[0] = float4(2.0);
-    _out->sk_FragColor = float4(0.0);
-    _out->sk_FragColor = float4(int4(1, 2, 3, 4));
-    _out->sk_FragColor = float3x3(float3(1.0, 2.0, 3.0), float3(4.0, 5.0, 6.0), float3(7.0, 8.0, 9.0))[0].xxyz;
-    _out->sk_FragColor = x;
-    _out->sk_FragColor = float4(float(ai[0]));
-    _out->sk_FragColor = float4(ai4[0]);
-    _out->sk_FragColor = ah2x4[0][0];
-    _out->sk_FragColor = af4[0];
-    _out->sk_FragColor = float4(0.0);
-    _out->sk_FragColor = float4(s.f);
-    _out->sk_FragColor = float4(s.af[1]);
-    _out->sk_FragColor = s.h4;
-    _out->sk_FragColor = s.ah4[0];
-    return *_out;
+    _out.sk_FragColor = float4(0.0);
+    _out.sk_FragColor = float4(int4(1, 2, 3, 4));
+    _out.sk_FragColor = float3x3(float3(1.0, 2.0, 3.0), float3(4.0, 5.0, 6.0), float3(7.0, 8.0, 9.0))[0].xxyz;
+    _out.sk_FragColor = x;
+    _out.sk_FragColor = float4(float(ai[0]));
+    _out.sk_FragColor = float4(ai4[0]);
+    _out.sk_FragColor = ah2x4[0][0];
+    _out.sk_FragColor = af4[0];
+    _out.sk_FragColor = float4(0.0);
+    _out.sk_FragColor = float4(s.f);
+    _out.sk_FragColor = float4(s.af[1]);
+    _out.sk_FragColor = s.h4;
+    _out.sk_FragColor = s.ah4[0];
+    return _out;
 }

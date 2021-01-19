@@ -14,8 +14,7 @@ float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _out;
     float _1_alpha = _in.dst.w * _in.src.w;
     float3 _2_sda = _in.src.xyz * _in.dst.w;
     float3 _3_dsa = _in.dst.xyz * _in.src.w;
@@ -46,9 +45,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     if (_9_minComp < 0.0 && _7_lum != _9_minComp) {
         _8_result = _7_lum + ((_8_result - _7_lum) * _7_lum) / (_7_lum - _9_minComp);
     }
-    _out->sk_FragColor = float4(((((_10_maxComp > _1_alpha && _10_maxComp != _7_lum ? _7_lum + ((_8_result - _7_lum) * (_1_alpha - _7_lum)) / (_10_maxComp - _7_lum) : _8_result) + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
+    _out.sk_FragColor = float4(((((_10_maxComp > _1_alpha && _10_maxComp != _7_lum ? _7_lum + ((_8_result - _7_lum) * (_1_alpha - _7_lum)) / (_10_maxComp - _7_lum) : _8_result) + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
 
 
 
-    return *_out;
+    return _out;
 }

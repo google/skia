@@ -7,8 +7,7 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _out;
     float _1_x = 1.0;
     _1_x = abs(1.0);
     _1_x = abs(_1_x - 2.0);
@@ -23,6 +22,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _3_x = normalize(_3_x);
     float2 y = _3_x;
 
-    _out->sk_FragColor = float4(x, y, 1.0);
-    return *_out;
+    _out.sk_FragColor = float4(x, y, 1.0);
+    return _out;
 }

@@ -7,8 +7,7 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _outputStruct;
-    thread Outputs* _out = &_outputStruct;
+    Outputs _out;
     float x;
     switch (int(sqrt(1.0))) {
         case 0:
@@ -20,6 +19,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         default:
             x = 2.0;
     }
-    _out->sk_FragColor = float4(x);
-    return *_out;
+    _out.sk_FragColor = float4(x);
+    return _out;
 }
