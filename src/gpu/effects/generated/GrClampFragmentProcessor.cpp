@@ -26,17 +26,19 @@ public:
         (void)_outer;
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
+        SkString clampedPM_name = fragBuilder->getMangledFunctionName("clampedPM");
+        const GrShaderVar clampedPM_args[] = {GrShaderVar("inputColor", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, clampedPM_name.c_str(), {clampedPM_args, 1},
+                                  R"SkSL(half alpha = clamp(inputColor.w, 0.0, 1.0);
+return half4(clamp(inputColor.xyz, 0.0, alpha), alpha);
+)SkSL");
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
-@if (%s) {
-    half alpha = clamp(inputColor.w, 0.0, 1.0);
-    return half4(clamp(inputColor.xyz, 0.0, alpha), alpha);
-} else {
-    return clamp(inputColor, 0.0, 1.0);
-}
+return %s ? %s(inputColor) : clamp(inputColor, 0.0, 1.0);
 )SkSL",
-                _sample0.c_str(), (_outer.clampToPremul ? "true" : "false"));
+                _sample0.c_str(), (_outer.clampToPremul ? "true" : "false"),
+                clampedPM_name.c_str());
     }
 
 private:
