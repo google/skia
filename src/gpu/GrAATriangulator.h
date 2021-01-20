@@ -11,14 +11,15 @@
 #include "src/gpu/GrTriangulator.h"
 
 // Triangulates the given path in device space with a mesh of alpha ramps for antialiasing.
-class GrAATriangulator : public GrTriangulator {
+class GrAATriangulator : private GrTriangulator {
 public:
-    static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                               GrEagerVertexAllocator* vertexAllocator) {
+    static int PathToAATriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
+                                 GrEagerVertexAllocator* vertexAllocator) {
         GrAATriangulator aaTriangulator(path);
         aaTriangulator.fRoundVerticesToQuarterPixel = true;
         aaTriangulator.fEmitCoverage = true;
-        return  aaTriangulator.pathToTriangles(tolerance, clipBounds, vertexAllocator);
+        Poly* polys = aaTriangulator.pathToPolys(tolerance, clipBounds);
+        return aaTriangulator.polysToAATriangles(polys, vertexAllocator);
     }
 
     // Structs used by GrAATriangulator internals.
@@ -62,8 +63,7 @@ private:
 
     // Run steps 3-6 above on the new mesh, and produce antialiased triangles.
     Poly* tessellate(const VertexList& mesh, const Comparator&) override;
-    int64_t countPoints(Poly* polys) const override;
-    void* polysToTriangles(Poly* polys, void* data) override;
+    int polysToAATriangles(Poly*, GrEagerVertexAllocator*);
 
     // Additional helpers and driver functions.
     void makeEvent(SSEdge*, EventList* events);

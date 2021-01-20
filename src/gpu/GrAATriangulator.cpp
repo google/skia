@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrAATriangulator.h"
 
+#include "src/gpu/GrEagerVertexAllocator.h"
 #include <queue>
 #include <vector>
 #include <unordered_map>
@@ -651,19 +652,28 @@ Poly* GrAATriangulator::tessellate(const VertexList& mesh, const Comparator& c) 
     }
 }
 
-int64_t GrAATriangulator::countPoints(Poly* polys) const {
-    int64_t count = this->countPointsImpl(polys, SkPathFillType::kWinding);
+int GrAATriangulator::polysToAATriangles(Poly* polys, GrEagerVertexAllocator* vertexAllocator) {
+    int64_t count64 = CountPoints(polys, SkPathFillType::kWinding);
     // Count the points from the outer mesh.
     for (Vertex* v = fOuterMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
-            count += TRIANGULATOR_WIREFRAME ? 12 : 6;
+            count64 += TRIANGULATOR_WIREFRAME ? 12 : 6;
         }
     }
-    return count;
-}
+    if (0 == count64 || count64 > SK_MaxS32) {
+        return 0;
+    }
+    int count = count64;
 
-void* GrAATriangulator::polysToTriangles(Poly* polys, void* data) {
-    data = this->polysToTrianglesImpl(polys, data, SkPathFillType::kWinding);
+    size_t vertexStride = sizeof(SkPoint) + sizeof(float);
+    void* verts = vertexAllocator->lock(vertexStride, count);
+    if (!verts) {
+        SkDebugf("Could not allocate vertices\n");
+        return 0;
+    }
+
+    TESS_LOG("emitting %d verts\n", count);
+    void* end = this->polysToTriangles(polys, verts, SkPathFillType::kWinding);
     // Emit the triangles from the outer mesh.
     for (Vertex* v = fOuterMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
@@ -671,9 +681,14 @@ void* GrAATriangulator::polysToTriangles(Poly* polys, void* data) {
             Vertex* v1 = e->fBottom;
             Vertex* v2 = e->fBottom->fPartner;
             Vertex* v3 = e->fTop->fPartner;
-            data = this->emitTriangle(v0, v1, v2, 0/*winding*/, data);
-            data = this->emitTriangle(v0, v2, v3, 0/*winding*/, data);
+            end = this->emitTriangle(v0, v1, v2, 0/*winding*/, end);
+            end = this->emitTriangle(v0, v2, v3, 0/*winding*/, end);
         }
     }
-    return data;
+
+    int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
+                                       / vertexStride);
+    SkASSERT(actualCount <= count);
+    vertexAllocator->unlock(actualCount);
+    return actualCount;
 }
