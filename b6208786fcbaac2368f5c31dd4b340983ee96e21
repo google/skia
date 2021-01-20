@@ -63,6 +63,30 @@
       },
       "revId": "b6208786fcbaac2368f5c31dd4b340983ee96e21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa767f5b_1e51355e",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-20T21:30:04Z",
+      "side": 1,
+      "message": "Had a hunch.  :D",
+      "parentUuid": "34537feb_768df00f",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 825
+      },
+      "revId": "b6208786fcbaac2368f5c31dd4b340983ee96e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
