@@ -153,8 +153,8 @@ bool GrTextureEffect::Sampling::hasBorderAlpha() const {
 static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view,
                        SkMatrix* outMatrix, bool* outLazyProxyNormalization) {
     SkMatrix combined = preMatrix;
-    bool normalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
-    if (normalize) {
+    bool canNormalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
+    if (canNormalize) {
         if (view.proxy()->isFullyLazy()) {
             *outLazyProxyNormalization = true;
         } else {
@@ -166,7 +166,7 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
         *outLazyProxyNormalization = false;
     }
     if (view.origin() == kBottomLeft_GrSurfaceOrigin) {
-        if (normalize) {
+        if (canNormalize) {
             // combined.postScale(1,-1);
             // combined.postTranslate(0,1);
             combined.set(SkMatrix::kMSkewY,
@@ -337,11 +337,6 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         }
         fb->codeAppendf(";");
     } else {
-        // Tripping this assert means we have a normalized fully lazy proxy with a
-        // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
-        // it hasn't been tested and this code path probably won't handle normalization
-        // properly in that case.
-        SkASSERT(!te.fLazyProxyNormalization);
         // Here is the basic flow of the various ShaderModes are implemented in a series of
         // steps. Not all the steps apply to all the modes. We try to emit only the steps
         // that are necessary for the given x/y shader modes.
@@ -365,7 +360,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 
         const auto& m = te.fShaderModes;
         GrTextureType textureType = te.view().proxy()->backendFormat().textureType();
-        bool normCoords = textureType != GrTextureType::kRectangle;
+        bool canNormCoords = textureType != GrTextureType::kRectangle;
 
         const char* borderName = nullptr;
         if (te.hasClampToBorderShaderMode()) {
@@ -436,15 +431,21 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         }
 
         const char* norm = nullptr;
-        if (normCoords && (modeRequiresUnormCoords(m[0]) ||
-                           modeRequiresUnormCoords(m[1]))) {
+        if (canNormCoords && (modeRequiresUnormCoords(m[0]) ||
+                              modeRequiresUnormCoords(m[1]) ||
+                              te.fLazyProxyNormalization)) {
             // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
             // always use?
             fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
                                                         kFloat4_GrSLType, "norm", &norm);
-            // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
-            // step here.
-            fb->codeAppendf("inCoord *= %s.xy;", norm);
+
+            if (!modeRequiresUnormCoords(m[0]) &&
+                !modeRequiresUnormCoords(m[1]) &&
+                !te.fLazyProxyNormalization) {
+                // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
+                // step here.
+                fb->codeAppendf("inCoord *= %s.xy;", norm);
+            }
         }
 
         // Generates a string to read at a coordinate, normalizing coords if necessary.
