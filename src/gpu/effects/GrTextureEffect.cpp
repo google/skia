@@ -153,8 +153,8 @@ bool GrTextureEffect::Sampling::hasBorderAlpha() const {
 static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view,
                        SkMatrix* outMatrix, bool* outLazyProxyNormalization) {
     SkMatrix combined = preMatrix;
-    bool normalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
-    if (normalize) {
+    bool canNormalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
+    if (canNormalize) {
         if (view.proxy()->isFullyLazy()) {
             *outLazyProxyNormalization = true;
         } else {
@@ -166,15 +166,18 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
         *outLazyProxyNormalization = false;
     }
     if (view.origin() == kBottomLeft_GrSurfaceOrigin) {
-        if (normalize) {
-            // combined.postScale(1,-1);
-            // combined.postTranslate(0,1);
-            combined.set(SkMatrix::kMSkewY,
-                         combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
-            combined.set(SkMatrix::kMScaleY,
-                         combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
-            combined.set(SkMatrix::kMTransY,
-                         combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+        if (canNormalize) {
+            if (view.proxy()->isFullyLazy()) {
+            } else {
+                // combined.postScale(1,-1);
+                // combined.postTranslate(0,1);
+                combined.set(SkMatrix::kMSkewY,
+                             combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
+                combined.set(SkMatrix::kMScaleY,
+                             combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
+                combined.set(SkMatrix::kMTransY,
+                             combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+            }
         } else {
             // combined.postScale(1, -1);
             // combined.postTranslate(0,1);
@@ -187,6 +190,30 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
                          h * combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
         }
     }
+
+#if 0
+    SkDebugf("combined:\n");
+    SkDebugf("%.2f %.2f %.2f\n", combined[0], combined[1], combined[2]);
+    SkDebugf("%.2f %.2f %.2f\n", combined[3], combined[4], combined[5]);
+    SkDebugf("%.2f %.2f %.2f\n", combined[6], combined[7], combined[8]);
+
+    SkPoint pts[4] = {
+        { 4.0, 4.0 },
+        { 4.0, 68.0 },
+        { 68.0, 4.0 },
+        { 68.0, 68.0 }
+    };
+
+    SkMatrix inv;
+    combined.invert(&inv);
+    inv.mapPoints(pts, 4);
+
+    SkDebugf("mapped pts:\n");
+    for (int i = 0; i < 4; ++i) {
+        SkDebugf("%.2f %.2f\n", pts[i].fX, pts[i].fY);
+    }
+#endif
+
     *outMatrix = combined;
 }
 
@@ -337,11 +364,6 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         }
         fb->codeAppendf(";");
     } else {
-        // Tripping this assert means we have a normalized fully lazy proxy with a
-        // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
-        // it hasn't been tested and this code path probably won't handle normalization
-        // properly in that case.
-        SkASSERT(!te.fLazyProxyNormalization);
         // Here is the basic flow of the various ShaderModes are implemented in a series of
         // steps. Not all the steps apply to all the modes. We try to emit only the steps
         // that are necessary for the given x/y shader modes.
@@ -365,7 +387,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 
         const auto& m = te.fShaderModes;
         GrTextureType textureType = te.view().proxy()->backendFormat().textureType();
-        bool normCoords = textureType != GrTextureType::kRectangle;
+        bool canNormCoords = textureType != GrTextureType::kRectangle;
 
         const char* borderName = nullptr;
         if (te.hasClampToBorderShaderMode()) {
@@ -435,16 +457,23 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "clamp", &clampName);
         }
 
+        bool unormCoordsRequired = modeRequiresUnormCoords(m[0]) ||
+                                   modeRequiresUnormCoords(m[1]);
+
         const char* norm = nullptr;
-        if (normCoords && (modeRequiresUnormCoords(m[0]) ||
-                           modeRequiresUnormCoords(m[1]))) {
+        if (canNormCoords && (unormCoordsRequired || te.fLazyProxyNormalization)) {
             // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
             // always use?
             fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
                                                         kFloat4_GrSLType, "norm", &norm);
-            // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
-            // step here.
-            fb->codeAppendf("inCoord *= %s.xy;", norm);
+
+            if (!te.fLazyProxyNormalization) {
+                // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
+                // step here.
+                fb->codeAppendf("inCoord *= %s.xy;", norm);
+            } else if (te.view().origin() == kBottomLeft_GrSurfaceOrigin) {
+                fb->codeAppendf("inCoord.y = %s.y - inCoord.y;", norm);
+            }
         }
 
         // Generates a string to read at a coordinate, normalizing coords if necessary.
@@ -724,11 +753,13 @@ void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
     float norm[4] = {w, h, 1.f/w, 1.f/h};
 
     if (fNormUni.isValid()) {
+//        SkDebugf("^^^^^^^^^^^^^^^^^^^^^^ norming to %.2f %.2f %.2f %.2f\n", norm[0], norm[1], norm[2], norm[3]);
+
         pdm.set4fv(fNormUni, 1, norm);
         SkASSERT(type != GrTextureType::kRectangle);
     }
 
-    auto pushRect = [&](float rect[4], UniformHandle uni) {
+    auto pushRect = [&](float rect[4], UniformHandle uni, const char* label) {
         if (te.view().origin() == kBottomLeft_GrSurfaceOrigin) {
             rect[1] = h - rect[1];
             rect[3] = h - rect[3];
@@ -740,18 +771,24 @@ void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
             rect[1] *= norm[3];
             rect[3] *= norm[3];
         }
+
+//        SkDebugf("+++++++++++++++++++++++ pushing %s %.2f %.2f %.2f %.2f %s\n", label, rect[0], rect[1], rect[2], rect[3],
+//                 te.view().origin() == kBottomLeft_GrSurfaceOrigin ? "bl" : "tl");
         pdm.set4fv(uni, 1, rect);
     };
 
     if (fSubsetUni.isValid()) {
         float subset[] = {s.fLeft, s.fTop, s.fRight, s.fBottom};
-        pushRect(subset, fSubsetUni);
+        pushRect(subset, fSubsetUni, "subset");
     }
     if (fClampUni.isValid()) {
         float subset[] = {c.fLeft, c.fTop, c.fRight, c.fBottom};
-        pushRect(subset, fClampUni);
+
+        pushRect(subset, fClampUni, "clamp");
     }
     if (fBorderUni.isValid()) {
+//        SkDebugf("+++++++++++++++++++++++ pushing border %.2f %.2f %.2f %.2f\n", te.fBorder[0], te.fBorder[1], te.fBorder[2], te.fBorder[3]);
+
         pdm.set4fv(fBorderUni, 1, te.fBorder);
     }
 }
@@ -762,6 +799,7 @@ void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyB
     auto m0 = static_cast<uint32_t>(fShaderModes[0]);
     auto m1 = static_cast<uint32_t>(fShaderModes[1]);
     b->add32((m0 << 16) | m1);
+    b->add32((fLazyProxyNormalization ? 1 : 0) | this->view().origin() << 1);
 }
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
