@@ -38,6 +38,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         return true;
     }
 
+#if 0
     if (!caps.driverDisableMSAACCPR() &&
         caps.internalMultisampleCount(defaultA8Format) > 1 &&
         caps.sampleLocationsSupport() &&
@@ -47,6 +48,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         }
         return true;
     }
+#endif
 
     return false;
 }
