@@ -267,7 +267,15 @@ int IRGenerator::convertArraySize(int offset, const ASTNode& s) {
         this->errorReporter().error(offset, "array must have a size");
         return 0;
     }
-    auto size = this->coerce(this->convertExpression(s), *fContext.fTypes.fInt);
+    auto size = this->convertExpression(s);
+    if (!size) {
+        return 0;
+    }
+    return this->convertArraySize(std::move(size));
+}
+
+int IRGenerator::convertArraySize(std::unique_ptr<Expression> size) {
+    size = this->coerce(std::move(size), *fContext.fTypes.fInt);
     if (!size) {
         return 0;
     }
@@ -287,79 +295,71 @@ int IRGenerator::convertArraySize(int offset, const ASTNode& s) {
     return static_cast<int>(count);
 }
 
-StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
-                                                   Variable::Storage storage) {
-    SkASSERT(decls.fKind == ASTNode::Kind::kVarDeclarations);
-    auto declarationsIter = decls.begin();
-    const Modifiers& modifiers = declarationsIter++->getModifiers();
-    const ASTNode& rawType = *(declarationsIter++);
-    const Type* baseType = this->convertType(rawType);
-    if (!baseType) {
-        return {};
-    }
+void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
+                                      Variable::Storage storage) {
     if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
         this->errorReporter().error(
-                decls.fOffset,
+                offset,
                 "variables of type '" + baseType->displayName() + "' must be global");
     }
     if (fKind != Program::kFragmentProcessor_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) && baseType->isMatrix()) {
-            this->errorReporter().error(decls.fOffset, "'in' variables may not have matrix type");
+            this->errorReporter().error(offset, "'in' variables may not have matrix type");
         }
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
             (modifiers.fFlags & Modifiers::kUniform_Flag)) {
             this->errorReporter().error(
-                    decls.fOffset,
+                    offset,
                     "'in uniform' variables only permitted within fragment processors");
         }
         if (modifiers.fLayout.fWhen.fLength) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'when' is only permitted within fragment processors");
         }
         if (modifiers.fLayout.fFlags & Layout::kTracked_Flag) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'tracked' is only permitted within fragment processors");
         }
         if (modifiers.fLayout.fCType != Layout::CType::kDefault) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'ctype' is only permitted within fragment processors");
         }
         if (modifiers.fLayout.fKey) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'key' is only permitted within fragment processors");
         }
     }
     if (fKind == Program::kRuntimeEffect_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
             *baseType != *fContext.fTypes.fFragmentProcessor) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'in' variables not permitted in runtime effects");
         }
     }
     if (modifiers.fLayout.fKey && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
-        this->errorReporter().error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
+        this->errorReporter().error(offset, "'key' is not permitted on 'uniform' variables");
     }
     if (modifiers.fLayout.fMarker.fLength) {
         if (fKind != Program::kRuntimeEffect_Kind) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'marker' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'marker' is only permitted on 'uniform' variables");
         }
         if (*baseType != *fContext.fTypes.fFloat4x4) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'marker' is only permitted on float4x4 variables");
         }
     }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
         if (fKind != Program::kRuntimeEffect_Kind) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'srgb_unpremul' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'srgb_unpremul' is only permitted on 'uniform' variables");
         }
         auto validColorXformType = [](const Type& t) {
@@ -368,19 +368,18 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         };
         if (!validColorXformType(*baseType) && !(baseType->isArray() &&
                                                  validColorXformType(baseType->componentType()))) {
-            this->errorReporter().error(decls.fOffset,
+            this->errorReporter().error(offset,
                                         "'srgb_unpremul' is only permitted on half3, half4, "
                                         "float3, or float4 variables");
         }
     }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
         if (fKind != Program::kRuntimeEffect_Kind) {
-            this->errorReporter().error(decls.fOffset,
-                                        "'varying' is only permitted in runtime effects");
+            this->errorReporter().error(offset, "'varying' is only permitted in runtime effects");
         }
         if (!baseType->isFloat() &&
             !(baseType->isVector() && baseType->componentType().isFloat())) {
-            this->errorReporter().error(decls.fOffset, "'varying' must be float scalar or vector");
+            this->errorReporter().error(offset, "'varying' must be float scalar or vector");
         }
     }
     int permitted = Modifiers::kConst_Flag;
@@ -393,71 +392,117 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                      Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag |
                      Modifiers::kCoherent_Flag | Modifiers::kBuffer_Flag;
     }
-    this->checkModifiers(decls.fOffset, modifiers, permitted);
+    this->checkModifiers(offset, modifiers, permitted);
+}
+
+std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
+                                                              const Modifiers& modifiers,
+                                                              const Type* baseType,
+                                                              StringFragment name,
+                                                              bool isArray,
+                                                              std::unique_ptr<Expression> arraySize,
+                                                              std::unique_ptr<Expression> value,
+                                                              Variable::Storage storage) {
+    if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
+        (modifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
+        name != "sk_FragColor") {
+        this->errorReporter().error(offset,
+                                    "out location=0, index=0 is reserved for sk_FragColor");
+    }
+    const Type* type = baseType;
+    int arraySizeValue = 0;
+    if (isArray) {
+        if (type->isOpaque()) {
+            this->errorReporter().error(
+                    offset,
+                    "opaque type '" + type->name() + "' may not be used in an array");
+        }
+        SkASSERT(arraySize);
+        arraySizeValue = this->convertArraySize(std::move(arraySize));
+        type = fSymbolTable->addArrayDimension(type, arraySizeValue);
+    }
+    auto var = std::make_unique<Variable>(offset, fModifiers->addToPool(modifiers),
+                                          name, type, fIsBuiltinCode, storage);
+    if (var->name() == Compiler::RTADJUST_NAME) {
+        SkASSERT(!fRTAdjust);
+        SkASSERT(var->type() == *fContext.fTypes.fFloat4);
+        fRTAdjust = var.get();
+    }
+    if (value) {
+        if (type->isOpaque()) {
+            this->errorReporter().error(
+                    value->fOffset,
+                    "opaque type '" + type->name() + "' cannot use initializer expressions");
+        }
+        if (modifiers.fFlags & Modifiers::kIn_Flag) {
+            this->errorReporter().error(value->fOffset,
+                                        "'in' variables cannot use initializer expressions");
+        }
+        value = this->coerce(std::move(value), *type);
+        if (!value) {
+            return {};
+        }
+        var->setInitialValue(value.get());
+    }
+    const Symbol* symbol = (*fSymbolTable)[var->name()];
+    if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
+        // Already defined, ignore.
+        return nullptr;
+    } else {
+        std::unique_ptr<Statement> result = std::make_unique<VarDeclaration>(
+                                                                         var.get(),
+                                                                         baseType,
+                                                                         arraySizeValue,
+                                                                         std::move(value));
+        fSymbolTable->add(std::move(var));
+        return result;
+    }
+}
+
+StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
+                                                   Variable::Storage storage) {
+    SkASSERT(decls.fKind == ASTNode::Kind::kVarDeclarations);
+    auto declarationsIter = decls.begin();
+    const Modifiers& modifiers = declarationsIter++->getModifiers();
+    const ASTNode& rawType = *(declarationsIter++);
+    const Type* baseType = this->convertType(rawType);
+    if (!baseType) {
+        return {};
+    }
+
+    this->checkVarDeclaration(decls.fOffset, modifiers, baseType, storage);
 
     StatementArray varDecls;
     for (; declarationsIter != decls.end(); ++declarationsIter) {
         const ASTNode& varDecl = *declarationsIter;
-        if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
-            (modifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
-            varDecl.getVarData().fName != "sk_FragColor") {
-            this->errorReporter().error(varDecl.fOffset,
-                                        "out location=0, index=0 is reserved for sk_FragColor");
-        }
         const ASTNode::VarData& varData = varDecl.getVarData();
-        const Type* type = baseType;
-        int arraySize = 0;
+        std::unique_ptr<Expression> arraySize;
+        std::unique_ptr<Expression> value;
         auto iter = varDecl.begin();
-        if (iter != varDecl.end()) {
-            if (varData.fIsArray) {
-                if (type->isOpaque()) {
-                    this->errorReporter().error(
-                            varDecl.fOffset,
-                            "opaque type '" + type->name() + "' may not be used in an array");
-                }
-                const ASTNode& rawSize = *iter++;
-                arraySize = this->convertArraySize(varDecl.fOffset, rawSize);
-                if (!arraySize) {
-                    return {};
-                }
-                type = fSymbolTable->addArrayDimension(type, arraySize);
+        if (iter != varDecl.end() && varData.fIsArray) {
+            if (*iter) {
+                arraySize = this->convertExpression(*iter++);
+            } else {
+                this->errorReporter().error(decls.fOffset, "array must have a size");
+                return {};
             }
         }
-        auto var = std::make_unique<Variable>(varDecl.fOffset, fModifiers->addToPool(modifiers),
-                                              varData.fName, type, fIsBuiltinCode, storage);
-        if (var->name() == Compiler::RTADJUST_NAME) {
-            SkASSERT(!fRTAdjust);
-            SkASSERT(var->type() == *fContext.fTypes.fFloat4);
-            fRTAdjust = var.get();
-        }
-        std::unique_ptr<Expression> value;
         if (iter != varDecl.end()) {
             value = this->convertExpression(*iter);
             if (!value) {
                 return {};
             }
-            if (type->isOpaque()) {
-                this->errorReporter().error(
-                        value->fOffset,
-                        "opaque type '" + type->name() + "' cannot use initializer expressions");
-            }
-            if (modifiers.fFlags & Modifiers::kIn_Flag) {
-                this->errorReporter().error(value->fOffset,
-                                            "'in' variables cannot use initializer expressions");
-            }
-            value = this->coerce(std::move(value), *type);
-            if (!value) {
-                return {};
-            }
-            var->setInitialValue(value.get());
         }
-        const Symbol* symbol = (*fSymbolTable)[var->name()];
-        if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
-            // Already defined, ignore.
-        } else {
-            varDecls.push_back(std::make_unique<VarDeclaration>(var.get(), baseType, arraySize,
-                                                                std::move(value)));
-            fSymbolTable->add(std::move(var));
+        std::unique_ptr<Statement> varDeclStmt = this->convertVarDeclaration(varDecl.fOffset,
+                                                                             modifiers,
+                                                                             baseType,
+                                                                             varData.fName,
+                                                                             varData.fIsArray,
+                                                                             std::move(arraySize),
+                                                                             std::move(value),
+                                                                             storage);
+        if (varDeclStmt) {
+            varDecls.push_back(std::move(varDeclStmt));
         }
     }
     return varDecls;
