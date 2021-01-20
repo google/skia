@@ -1,8 +1,18 @@
-void main() {
-    sk_FragColor.r = 1 == 1 || 2 == 8 ? 1 : -1;
-    sk_FragColor.r = 1 > 1 || 2 == 8 ? 2 : -2;
-    sk_FragColor.r = 1 == 1 && 2 <= 8 ? 3 : -3;
-    sk_FragColor.r = 1 == 2 && 2 == 8 ? 4 : -4;
-    sk_FragColor.r = 1 == 1 ^^ 1 != 1 ? 5 : -5;
-    sk_FragColor.r = 1 == 1 ^^ 1 == 1 ? 6 : -6;
+bool test() {
+    bool a = 1 == 1 || 2 == 8;
+    bool b = 1 > 1  || 2 == 8;
+    bool c = 1 == 1 && 2 <= 8;
+    bool d = 1 == 2 && 2 == 8;
+    bool e = 1 == 1 ^^ 1 != 1;
+    bool f = 1 == 1 ^^ 1 == 1;
+    bool g = true == true;
+    bool h = false == true;
+    bool i = true == !false;
+    bool j = false == !false;
+
+    return a && !b && c && !d && e && !f && g && !h && i && !j;
+}
+
+half4 main() {
+    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
 }
