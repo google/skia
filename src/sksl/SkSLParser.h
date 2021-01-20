@@ -8,10 +8,10 @@
 #ifndef SKSL_PARSER
 #define SKSL_PARSER
 
-#include <vector>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include "include/private/SkTArray.h"
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -123,8 +123,13 @@ private:
     Token peek();
 
     /**
-     * Checks to see if the next token is of the specified type. If so, stores it in result (if
-     * result is non-null) and returns true. Otherwise, pushes it back and returns false.
+     * Checks the next two non-whitespace tokens to see if they are of the specified kind.
+     */
+    bool checkNextTwo(Token::Kind firstKind, Token::Kind secondKind);
+
+    /**
+     * Checks to see if the next non-whitespace token is of the specified kind. If so, stores it in
+     * result (if result is non-null) and returns true. Otherwise, pushes it back and returns false.
      */
     bool checkNext(Token::Kind kind, Token* result = nullptr);
 
@@ -290,7 +295,7 @@ private:
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs
     int fDepth = 0;
-    Token fPushback;
+    SkSTArray<2, Token> fPushback;
     SymbolTable& fSymbols;
     ErrorReporter& fErrors;
 
