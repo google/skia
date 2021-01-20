@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f831e6ca_f2018354",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-20T22:33:11Z",
+      "side": 1,
+      "message": "This is just setup for the next CL. There should be no diffs on gold.",
+      "revId": "3c36496829c8f761bd360971874b54d24efe5a74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
