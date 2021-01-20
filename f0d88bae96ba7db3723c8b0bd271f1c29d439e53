@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "868470ee_2f853d13",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T22:44:19Z",
+      "side": 1,
+      "message": "Consider isspace(*a). (It will also catch \u0027\\r\u0027, tabs, etc.)",
+      "range": {
+        "startLine": 58,
+        "startChar": 15,
+        "endLine": 58,
+        "endChar": 38
+      },
+      "revId": "f0d88bae96ba7db3723c8b0bd271f1c29d439e53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91efea06_f2999de7",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T22:44:19Z",
+      "side": 1,
+      "message": "Can\u0027t you pass `x` by itself here (and below) instead of `x.release()-\u003edescription().c_str()`?",
+      "range": {
+        "startLine": 890,
+        "startChar": 55,
+        "endLine": 890,
+        "endChar": 88
+      },
+      "revId": "f0d88bae96ba7db3723c8b0bd271f1c29d439e53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

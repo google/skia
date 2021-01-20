@@ -191,6 +191,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8c8695a6_6dc89c3b",
+        "filename": "src/sksl/ir/SkSLVariable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T22:44:19Z",
+      "side": 1,
+      "message": "Is it hard to make the Variable have a pointer to its VarDeclaration instead, and then setInitialValue could set the varDecl\u0027s value const-safely?\n\nI\u0027d like Brian\u0027s opinion re mutable if there\u0027s no clean way to remove it. I know at one point a lot of his fixes for built-ins hinged on fixing const-correctness and getting rid of mutable, and I would hate to regress on that front.",
+      "parentUuid": "c74367c7_7d59deb2",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "09797f98_067af1da",
         "filename": "tests/SkSLDSLTest.cpp",
         "patchSetId": 4
