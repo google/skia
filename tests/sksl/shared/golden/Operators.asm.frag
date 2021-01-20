@@ -8,24 +8,16 @@ OpName %main "main"
 OpName %x "x"
 OpName %y "y"
 OpName %z "z"
-OpName %b "b"
 OpName %c "c"
 OpName %d "d"
 OpName %e "e"
-OpName %f "f"
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %35 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
-OpDecorate %42 RelaxedPrecision
-OpDecorate %45 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
-OpDecorate %82 RelaxedPrecision
-OpDecorate %85 RelaxedPrecision
-OpDecorate %88 RelaxedPrecision
-OpDecorate %91 RelaxedPrecision
-OpDecorate %94 RelaxedPrecision
+OpDecorate %27 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
+OpDecorate %63 RelaxedPrecision
+OpDecorate %66 RelaxedPrecision
+OpDecorate %69 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -42,7 +34,6 @@ OpDecorate %94 RelaxedPrecision
 %int_8 = OpConstant %int 8
 %_ptr_Function_bool = OpTypePointer Function %bool
 %true = OpConstantTrue %bool
-%false = OpConstantFalse %bool
 %float_12 = OpConstant %float 12
 %float_10 = OpConstant %float 10
 %int_0 = OpConstant %int 0
@@ -59,103 +50,68 @@ OpDecorate %94 RelaxedPrecision
 %x = OpVariable %_ptr_Function_float Function
 %y = OpVariable %_ptr_Function_float Function
 %z = OpVariable %_ptr_Function_int Function
-%b = OpVariable %_ptr_Function_bool Function
 %c = OpVariable %_ptr_Function_bool Function
 %d = OpVariable %_ptr_Function_bool Function
 %e = OpVariable %_ptr_Function_bool Function
-%f = OpVariable %_ptr_Function_bool Function
 OpStore %x %float_1
 OpStore %y %float_2
 OpStore %z %int_3
 OpStore %x %float_2
 OpStore %y %float_0_5
 OpStore %z %int_8
-%25 = OpLogicalEqual %bool %false %false
-OpSelectionMerge %27 None
-OpBranchConditional %25 %27 %26
-%26 = OpLabel
-%28 = OpExtInst %float %1 Sqrt %float_2
-%29 = OpFOrdGreaterThanEqual %bool %float_2 %28
-OpBranch %27
-%27 = OpLabel
-%30 = OpPhi %bool %true %8 %29 %26
-OpStore %b %30
-%32 = OpExtInst %float %1 Sqrt %float_2
-%33 = OpFOrdGreaterThan %bool %32 %float_2
-OpStore %c %33
-%35 = OpLoad %bool %b
-%36 = OpLoad %bool %c
-%37 = OpLogicalNotEqual %bool %35 %36
-OpStore %d %37
-%39 = OpLoad %bool %b
-OpSelectionMerge %41 None
-OpBranchConditional %39 %40 %41
-%40 = OpLabel
-%42 = OpLoad %bool %c
-OpBranch %41
-%41 = OpLabel
-%43 = OpPhi %bool %false %27 %42 %40
-OpStore %e %43
-%45 = OpLoad %bool %b
-OpSelectionMerge %47 None
-OpBranchConditional %45 %47 %46
-%46 = OpLabel
-%48 = OpLoad %bool %c
-OpBranch %47
-%47 = OpLabel
-%49 = OpPhi %bool %true %41 %48 %46
-OpStore %f %49
-%50 = OpLoad %float %x
-%52 = OpFAdd %float %50 %float_12
-OpStore %x %52
-%53 = OpLoad %float %x
-%54 = OpFSub %float %53 %float_12
-OpStore %x %54
-%55 = OpLoad %float %x
-%56 = OpLoad %float %y
-%58 = OpFDiv %float %56 %float_10
-OpStore %y %58
-%59 = OpFMul %float %55 %58
-OpStore %x %59
-%60 = OpLoad %int %z
-%62 = OpBitwiseOr %int %60 %int_0
-OpStore %z %62
-%63 = OpLoad %int %z
-%65 = OpBitwiseAnd %int %63 %int_n1
-OpStore %z %65
-%66 = OpLoad %int %z
-%67 = OpBitwiseXor %int %66 %int_0
-OpStore %z %67
-%68 = OpLoad %int %z
-%70 = OpShiftRightArithmetic %int %68 %int_2
-OpStore %z %70
-%71 = OpLoad %int %z
-%73 = OpShiftLeftLogical %int %71 %int_4
-OpStore %z %73
-%74 = OpLoad %int %z
-%76 = OpSMod %int %74 %int_5
-OpStore %z %76
-%77 = OpExtInst %float %1 Sqrt %float_1
-%78 = OpCompositeConstruct %v2float %77 %77
-%81 = OpConvertSToF %float %int_6
-OpStore %x %81
-%82 = OpLoad %bool %b
-%83 = OpSelect %float %82 %float_1 %float_0
-%85 = OpLoad %bool %c
-%86 = OpSelect %float %85 %float_1 %float_0
-%87 = OpFMul %float %83 %86
-%88 = OpLoad %bool %d
-%89 = OpSelect %float %88 %float_1 %float_0
-%90 = OpFMul %float %87 %89
-%91 = OpLoad %bool %e
-%92 = OpSelect %float %91 %float_1 %float_0
-%93 = OpFMul %float %90 %92
-%94 = OpLoad %bool %f
-%95 = OpSelect %float %94 %float_1 %float_0
-%96 = OpFMul %float %93 %95
+%23 = OpExtInst %float %1 Sqrt %float_2
+%24 = OpFOrdGreaterThan %bool %23 %float_2
+OpStore %c %24
+%27 = OpLoad %bool %c
+%28 = OpLogicalNotEqual %bool %true %27
+OpStore %d %28
+%30 = OpLoad %bool %c
+OpStore %e %30
+%31 = OpLoad %float %x
+%33 = OpFAdd %float %31 %float_12
+OpStore %x %33
+%34 = OpLoad %float %x
+%35 = OpFSub %float %34 %float_12
+OpStore %x %35
+%36 = OpLoad %float %x
+%37 = OpLoad %float %y
+%39 = OpFDiv %float %37 %float_10
+OpStore %y %39
+%40 = OpFMul %float %36 %39
+OpStore %x %40
+%41 = OpLoad %int %z
+%43 = OpBitwiseOr %int %41 %int_0
+OpStore %z %43
+%44 = OpLoad %int %z
+%46 = OpBitwiseAnd %int %44 %int_n1
+OpStore %z %46
+%47 = OpLoad %int %z
+%48 = OpBitwiseXor %int %47 %int_0
+OpStore %z %48
+%49 = OpLoad %int %z
+%51 = OpShiftRightArithmetic %int %49 %int_2
+OpStore %z %51
+%52 = OpLoad %int %z
+%54 = OpShiftLeftLogical %int %52 %int_4
+OpStore %z %54
+%55 = OpLoad %int %z
+%57 = OpSMod %int %55 %int_5
+OpStore %z %57
+%58 = OpExtInst %float %1 Sqrt %float_1
+%59 = OpCompositeConstruct %v2float %58 %58
+%62 = OpConvertSToF %float %int_6
+OpStore %x %62
+%63 = OpLoad %bool %c
+%64 = OpSelect %float %63 %float_1 %float_0
+%66 = OpLoad %bool %d
+%67 = OpSelect %float %66 %float_1 %float_0
+%68 = OpFMul %float %64 %67
+%69 = OpLoad %bool %e
+%70 = OpSelect %float %69 %float_1 %float_0
+%71 = OpFMul %float %68 %70
 OpStore %y %float_6
-%98 = OpExtInst %float %1 Sqrt %float_1
-%99 = OpCompositeConstruct %v2float %98 %98
+%73 = OpExtInst %float %1 Sqrt %float_1
+%74 = OpCompositeConstruct %v2float %73 %73
 OpStore %z %int_6
 OpReturn
 OpFunctionEnd

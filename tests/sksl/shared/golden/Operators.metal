@@ -16,11 +16,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     x = 2.0;
     y = 0.5;
     z = 8;
-    bool b = false == false || 2.0 >= sqrt(2.0);
     bool c = sqrt(2.0) > 2.0;
-    bool d = b != c;
-    bool e = b && c;
-    bool f = b || c;
+    bool d = true != c;
+    bool e = c;
     x += 12.0;
     x -= 12.0;
     x *= (y /= 10.0);
@@ -31,7 +29,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     z <<= 4;
     z %= 5;
     x = float((float2(sqrt(1.0)) , 6));
-    y = ((((float(b) * float(c)) * float(d)) * float(e)) * float(f) , 6.0);
+    y = ((float(c) * float(d)) * float(e) , 6.0);
     z = int((float2(sqrt(1.0)) , 6));
     return *_out;
 }

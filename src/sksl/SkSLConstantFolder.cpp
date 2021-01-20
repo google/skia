@@ -151,6 +151,8 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_LOGICALAND: result = leftVal && rightVal; break;
             case Token::Kind::TK_LOGICALOR:  result = leftVal || rightVal; break;
             case Token::Kind::TK_LOGICALXOR: result = leftVal ^  rightVal; break;
+            case Token::Kind::TK_EQEQ:       result = leftVal == rightVal; break;
+            case Token::Kind::TK_NEQ:        result = leftVal != rightVal; break;
             default: return nullptr;
         }
         return std::make_unique<BoolLiteral>(context, left.fOffset, result);
