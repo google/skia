@@ -21,6 +21,7 @@
 #include "modules/svg/include/SkSVGFeComposite.h"
 #include "modules/svg/include/SkSVGFeFlood.h"
 #include "modules/svg/include/SkSVGFeGaussianBlur.h"
+#include "modules/svg/include/SkSVGFeMorphology.h"
 #include "modules/svg/include/SkSVGFeOffset.h"
 #include "modules/svg/include/SkSVGFeTurbulence.h"
 #include "modules/svg/include/SkSVGFilter.h"
@@ -266,7 +267,8 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "feComposite"   , []() -> sk_sp<SkSVGNode> { return SkSVGFeComposite::Make();    }},
     { "feFlood"       , []() -> sk_sp<SkSVGNode> { return SkSVGFeFlood::Make();        }},
     { "feGaussianBlur", []() -> sk_sp<SkSVGNode> { return SkSVGFeGaussianBlur::Make(); }},
-    { "feOffset"      , []() -> sk_sp<SkSVGNode> { return SkSVGFeOffset::Make();   }},
+    { "feMorphology"  , []() -> sk_sp<SkSVGNode> { return SkSVGFeMorphology::Make();   }},
+    { "feOffset"      , []() -> sk_sp<SkSVGNode> { return SkSVGFeOffset::Make();       }},
     { "feTurbulence"  , []() -> sk_sp<SkSVGNode> { return SkSVGFeTurbulence::Make();   }},
     { "filter"        , []() -> sk_sp<SkSVGNode> { return SkSVGFilter::Make();         }},
     { "g"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
