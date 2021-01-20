@@ -241,49 +241,6 @@ void SkNWayCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-void SkNWayCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
-                               const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawImage(image, left, top, paint);
-    }
-}
-
-void SkNWayCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                   const SkPaint* paint, SrcRectConstraint constraint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->legacy_drawImageRect(image, src, dst, paint, constraint);
-    }
-}
-
-void SkNWayCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
-                                      const SkRect& dst, const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawImageLattice(image, lattice, dst, paint);
-    }
-}
-void SkNWayCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[], const SkRect tex[],
-                               const SkColor colors[], int count, SkBlendMode bmode,
-                               const SkRect* cull, const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawAtlas(image, xform, tex, colors, count, bmode, cull, paint);
-    }
-}
-void SkNWayCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                        const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                        const SkPaint* paint, SrcRectConstraint constraint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->experimental_DrawEdgeAAImageSet(
-                set, count, dstClips, preViewMatrices, paint, constraint);
-    }
-}
-#endif
-
 void SkNWayCanvas::onDrawImage2(const SkImage* image, SkScalar left, SkScalar top,
                                 const SkSamplingOptions& sampling, const SkPaint* paint) {
     Iter iter(fList);

@@ -269,18 +269,6 @@ DEF_TEST(RecordDraw_drawImage, r){
             this->resetTestValues();
         }
 
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-        void onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
-                         const SkPaint* paint) override {
-            fDrawImageCalled = true;
-        }
-
-        void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint) override {
-            fDrawImageRectCalled = true;
-        }
-#endif
-
         void resetTestValues() {
             fDrawImageCalled = fDrawImageRectCalled = false;
         }
@@ -294,23 +282,4 @@ DEF_TEST(RecordDraw_drawImage, r){
     sk_sp<SkImage> image(surface->makeImageSnapshot());
 
     SkCanvasMock canvas(10, 10);
-
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    {
-        SkRecord record;
-        SkRecorder recorder(&record, 10, 10);
-        recorder.drawImage(image, 0, 0);
-        SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr, nullptr);
-    }
-    REPORTER_ASSERT(r, canvas.fDrawImageCalled);
-    canvas.resetTestValues();
-
-    {
-        SkRecord record;
-        SkRecorder recorder(&record, 10, 10);
-        recorder.drawImageRect(image, SkRect::MakeWH(10, 10), nullptr);
-        SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr, nullptr);
-    }
-    REPORTER_ASSERT(r, canvas.fDrawImageRectCalled);
-#endif
 }
