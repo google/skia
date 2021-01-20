@@ -64,6 +64,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "282a059d_20e56b36",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-20T21:58:22Z",
+      "side": 1,
+      "message": "Ah, yes. Done",
+      "parentUuid": "5a7c6652_aa0993e2",
+      "range": {
+        "startLine": 807,
+        "startChar": 47,
+        "endLine": 807,
+        "endChar": 61
+      },
+      "revId": "5718547a8d1722317e5620c56a1d1211b6939255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d8b8b3b_51431f04",
@@ -77,6 +101,30 @@
       "writtenOn": "2021-01-20T21:21:50Z",
       "side": 1,
       "message": "and here?",
+      "range": {
+        "startLine": 813,
+        "startChar": 54,
+        "endLine": 813,
+        "endChar": 68
+      },
+      "revId": "5718547a8d1722317e5620c56a1d1211b6939255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd4b19b5_f1a04908",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-20T21:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d8b8b3b_51431f04",
       "range": {
         "startLine": 813,
         "startChar": 54,
