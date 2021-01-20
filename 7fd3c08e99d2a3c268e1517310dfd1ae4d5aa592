@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c37378f8_c454afbb",
+        "filename": "src/sksl/dsl/DSLStatement.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-20T22:20:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9ed8b614_d00c93a4",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 53
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92197329_10ad74e1",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fd21714_37c8429d",
+        "filename": "src/sksl/dsl/DSLStatement.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-20T22:20:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "92197329_10ad74e1",
+      "range": {
+        "startLine": 40,
+        "startChar": 84,
+        "endLine": 40,
+        "endChar": 95
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3de3f4c1_e14ab044",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-01-20T21:08:39Z",
       "side": 1,
       "message": "Please consider /*foo\u003d*/ labels on these arguments.",
+      "range": {
+        "startLine": 35,
+        "startChar": 78,
+        "endLine": 36,
+        "endChar": 61
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92b2d1c4_1d723fe9",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-20T22:20:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3de3f4c1_e14ab044",
       "range": {
         "startLine": 35,
         "startChar": 78,
@@ -95,6 +167,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c74367c7_7d59deb2",
+        "filename": "src/sksl/ir/SkSLVariable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-20T22:20:14Z",
+      "side": 1,
+      "message": "That would be ok for things like a \u003d 0, but I\u0027m not a fan of forcing the user to take something like Declare(a, Sqrt(b)) and move the calculation up out of the natural flow. It would make the code harder to both read and write, and I\u0027d rather have a tiny bit of ugliness in our code than make all user-written DSL code worse forevermore.\n\nI of course initially thought \"oh, I\u0027ll just make the Variable* non-const so I can modify it\", but that immediately turned into a nightmare - among other things, SymbolTable::takeOwnershipOfSymbol makes things const (for good reason).\n\nI\u0027m certainly no fan of mutable, but I didn\u0027t think this case was egregious. The Variable doesn\u0027t actually own the value - it belongs to the VarDeclaration, and this is just a pointer that gives us convenient access to it. I conceptually don\u0027t feel like changing this value is changing the Variable object at all, so it seemed like a textbook case in which mutable made sense.\n\nThere are of course ways to fix this, like tracking the initial values in some context structure external to the Variable or restructuring the calls to IRGenerator so that the DSL handles the creation of the Variable (which would be fairly unnatural), but everything I thought of seemed uglier to me than just making this mutable. Thoughts?",
+      "parentUuid": "1ac52a1d_03d7cf26",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "09797f98_067af1da",
         "filename": "tests/SkSLDSLTest.cpp",
         "patchSetId": 4
@@ -106,6 +202,30 @@
       "writtenOn": "2021-01-20T21:08:39Z",
       "side": 1,
       "message": "optional idea: It might make sense to write a helper function that calls dsl.release()-\u003edescription() and then does a string-compare which gives some leeway on whitespace:\n\n  REPORTER_ASSERT(r, WhitespaceInsensitiveCompare(y, \"{ int a\u003d1; int b\u003d2; (a\u003db); }\");",
+      "range": {
+        "startLine": 861,
+        "startChar": 54,
+        "endLine": 861,
+        "endChar": 95
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd2be852_d3e8deec",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-20T22:20:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09797f98_067af1da",
       "range": {
         "startLine": 861,
         "startChar": 54,
