@@ -46,7 +46,9 @@ protected:
         : INHERITED(std::move(typeface), effects, desc)
     {}
 
-    void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
+    void generateGlyphImage(FT_Face face,
+                            const SkGlyph& glyph,
+                            const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face face, SkPath* path);
     bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path);
 private:
