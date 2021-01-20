@@ -1,0 +1,76 @@
+bool test() {
+    int unknown = int(sqrt(1));
+
+    bool ok = true;
+    int x = 32 + 2;
+    ok = ok && (x == 34);
+    x = 32 - 2;
+    ok = ok && (x == 30);
+    x = 32 * 2;
+    ok = ok && (x == 64);
+    x = 32 / 2;
+    ok = ok && (x == 16);
+    x = -1 == -1 ? 1 : -1;
+    ok = ok && (x == 1);
+    x = -1 == -2 ? 2 : -2;
+    ok = ok && (x == -2);
+    x = 0 != 1 ? 3 : -3;
+    ok = ok && (x == 3);
+    x = 0 != 0 ? 4 : -4;
+    ok = ok && (x == -4);
+    x = 6 > 5 ? 5 : -5;
+    ok = ok && (x == 5);
+    x = 6 > 6 ? 6 : -6;
+    ok = ok && (x == -6);
+    x = -1 < 0 ? 7 : -7;
+    ok = ok && (x == 7);
+    x = 1 < 0 ? 8 : -8;
+    ok = ok && (x == -8);
+    x = 6 >= 6 ? 9 : -9;
+    ok = ok && (x == 9);
+    x = 6 >= 7 ? 10 : -10;
+    ok = ok && (x == -10);
+    x = 6 <= 6 ? 11 : -11;
+    ok = ok && (x == 11);
+    x = 6 <= 5 ? 12 : -12;
+    ok = ok && (x == -12);
+    x = unknown + 0;
+    ok = ok && (x == unknown);
+    x = 0 + unknown;
+    ok = ok && (x == unknown);
+    x = unknown - 0;
+    ok = ok && (x == unknown);
+    x = unknown * 0;
+    ok = ok && (x == 0);
+    x = unknown * 1;
+    ok = ok && (x == unknown);
+    x = 1 * unknown;
+    ok = ok && (x == unknown);
+    x = 0 * unknown;
+    ok = ok && (x == 0);
+    x = unknown / 1;
+    ok = ok && (x == unknown);
+    x = 0 / unknown;
+    ok = ok && (x == 0);
+    x += 1;                    // TODO(skia:11192): constant propagation for `+=` style operators
+    ok = ok && (x == 1);
+    x += 0;
+    ok = ok && (x == 1);
+    x -= 2;
+    ok = ok && (x == -1);
+    x -= 0;
+    ok = ok && (x == -1);
+    x *= 1;
+    ok = ok && (x == -1);
+    x *= 2;
+    ok = ok && (x == -2);
+    x /= 1;
+    ok = ok && (x == -2);
+    x /= 2;
+    ok = ok && (x == -1);
+    return ok;
+}
+
+half4 main() {
+    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+}
