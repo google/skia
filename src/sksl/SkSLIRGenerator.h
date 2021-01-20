@@ -33,6 +33,8 @@
 namespace SkSL {
 
 namespace dsl {
+    class DSLCore;
+    class DSLVar;
     class DSLWriter;
 }
 
@@ -153,6 +155,14 @@ private:
     std::unique_ptr<ModifiersPool> releaseModifiers();
 
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
+    void checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
+                             Variable::Storage storage);
+    std::unique_ptr<Statement> convertVarDeclaration(int offset, const Modifiers& modifiers,
+                                                     const Type* baseType, StringFragment name,
+                                                     bool isArray,
+                                                     std::unique_ptr<Expression> arraySize,
+                                                     std::unique_ptr<Expression> value,
+                                                     Variable::Storage storage);
     StatementArray convertVarDeclarations(const ASTNode& decl, Variable::Storage storage);
     void convertFunction(const ASTNode& f);
     std::unique_ptr<Statement> convertSingleStatement(const ASTNode& statement);
@@ -172,6 +182,7 @@ private:
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
     int convertArraySize(int offset, const ASTNode& s);
+    int convertArraySize(std::unique_ptr<Expression> s);
     std::unique_ptr<Expression> convertBinaryExpression(std::unique_ptr<Expression> left,
                                                         Token::Kind op,
                                                         std::unique_ptr<Expression> right);
@@ -290,6 +301,8 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class dsl::DSLCore;
+    friend class dsl::DSLVar;
     friend class dsl::DSLWriter;
 };
 

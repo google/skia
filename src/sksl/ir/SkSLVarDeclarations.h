@@ -15,6 +15,11 @@
 
 namespace SkSL {
 
+
+namespace dsl {
+    class DSLCore;
+}
+
 /**
  * A single variable declaration statement. Multiple variables declared together are expanded to
  * separate (sequential) statements. For instance, the SkSL 'int x = 2, y[3];' produces two
@@ -85,6 +90,8 @@ private:
     const Type& fBaseType;
     int fArraySize;  // zero means "not an array", Type::kUnsizedArray means var[]
     std::unique_ptr<Expression> fValue;
+
+    friend class dsl::DSLCore;
 
     using INHERITED = Statement;
 };
