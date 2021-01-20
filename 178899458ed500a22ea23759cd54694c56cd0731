@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b095ac98_d1ce1509",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-20T14:18:42Z",
+      "side": 1,
+      "message": "Is there another way to get the same benefits here? This seems like a step backwards in readability - it makes the code non-idiomatic. Someone in the future is likely to see that code and undo this CL without even realizing why this was done. (And I wouldn\u0027t blame them). ",
+      "revId": "178899458ed500a22ea23759cd54694c56cd0731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
