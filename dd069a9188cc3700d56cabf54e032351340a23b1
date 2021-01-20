@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62cc72d9_c82d1c47",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T22:34:46Z",
+      "side": 0,
+      "message": "std::move is not useful here as all of the types in Token are ints and enums.",
+      "range": {
+        "startLine": 223,
+        "startChar": 16,
+        "endLine": 223,
+        "endChar": 25
+      },
+      "revId": "dd069a9188cc3700d56cabf54e032351340a23b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
