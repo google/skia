@@ -245,6 +245,14 @@ private:
         this->tessellate(vertexSpec, fPrePreparedVertices);
     }
 
+    static void dump(const GrQuad& q, const char* label) {
+        SkDebugf("%s: ", label);
+        for (int i = 0; i < 4; ++i) {
+            SkDebugf("%.2f %.2f %.2f - ", q.x(i), q.y(i), q.w(i));
+        }
+        SkDebugf("\n");
+    }
+
     void tessellate(const VertexSpec& vertexSpec, char* dst) const {
         static constexpr SkRect kEmptyDomain = SkRect::MakeEmpty();
 
@@ -255,6 +263,10 @@ private:
             // matching !helper.isTrivial() (which is more conservative than helper.usesLocalCoords)
             SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
             auto info = iter.metadata();
+
+            dump(*iter.deviceQuad(), "deviceQuad");
+            dump(*iter.localQuad(), "localQuad");
+
             tessellator.append(iter.deviceQuad(), iter.localQuad(),
                                info.fColor, kEmptyDomain, info.fAAFlags);
         }
