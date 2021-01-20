@@ -240,6 +240,7 @@ gm_sources = [
   "$_gm/labyrinth.cpp",
   "$_gm/largeglyphblur.cpp",
   "$_gm/lattice.cpp",
+  "$_gm/lazytiling.cpp",
   "$_gm/lcdblendmodes.cpp",
   "$_gm/lcdoverlap.cpp",
   "$_gm/lcdtext.cpp",
