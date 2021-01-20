@@ -23,36 +23,41 @@
 
 namespace SkSL {
 
+static std::unique_ptr<Expression> eliminate_no_op_boolean(const Expression& left,
+                                                           Token::Kind op,
+                                                           const Expression& right) {
+    SkASSERT(right.is<BoolLiteral>());
+    bool rightVal = right.as<BoolLiteral>().value();
+
+    // Detect no-op Boolean expressions and optimize them away.
+    if ((op == Token::Kind::TK_LOGICALAND && rightVal)  ||  // (expr && true)  -> (expr)
+        (op == Token::Kind::TK_LOGICALOR  && !rightVal) ||  // (expr || false) -> (expr)
+        (op == Token::Kind::TK_LOGICALXOR && !rightVal) ||  // (expr ^^ false) -> (expr)
+        (op == Token::Kind::TK_EQEQ       && rightVal)  ||  // (expr == true)  -> (expr)
+        (op == Token::Kind::TK_NEQ        && !rightVal)) {  // (expr != false) -> (expr)
+
+        return left.clone();
+    }
+
+    return nullptr;
+}
+
 static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
                                                          Token::Kind op,
                                                          const Expression& right) {
     SkASSERT(left.is<BoolLiteral>());
     bool leftVal = left.as<BoolLiteral>().value();
 
-    if (op == Token::Kind::TK_LOGICALAND) {
-        // (true && expr) -> (expr) and (false && expr) -> (false)
-        return leftVal ? right.clone()
-                       : std::make_unique<BoolLiteral>(left.fOffset, /*value=*/false, &left.type());
-    }
-    if (op == Token::Kind::TK_LOGICALOR) {
-        // (true || expr) -> (true) and (false || expr) -> (expr)
-        return leftVal ? std::make_unique<BoolLiteral>(left.fOffset, /*value=*/true, &left.type())
-                       : right.clone();
-    }
-    if (op == Token::Kind::TK_EQEQ && leftVal) {
-        // (true == expr) -> (expr)
-        return right.clone();
-    }
-    if (op == Token::Kind::TK_NEQ && !leftVal) {
-        // (false != expr) -> (expr)
-        return right.clone();
-    }
-    if (op == Token::Kind::TK_LOGICALXOR && !leftVal) {
-        // (false ^^ expr) -> (expr)
-        return right.clone();
+    // When the literal is on the left, we can sometimes eliminate the other expression entirely.
+    if ((op == Token::Kind::TK_LOGICALAND && !leftVal) ||  // (false && expr) -> (false)
+        (op == Token::Kind::TK_LOGICALOR  && leftVal)) {   // (true  || expr) -> (true)
+
+        return left.clone();
     }
 
-    return nullptr;
+    // We can't eliminate the right-side expression via short-circuit, but we might still be able to
+    // simplify away a no-op expression.
+    return eliminate_no_op_boolean(right, op, left);
 }
 
 template <typename T>
@@ -132,25 +137,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                                      const Expression& left,
                                                      Token::Kind op,
                                                      const Expression& right) {
-    // If the left side is a constant boolean literal, the right side does not need to be constant
-    // for short-circuit optimizations to allow the constant to be folded.
-    if (left.is<BoolLiteral>() && !right.isCompileTimeConstant()) {
-        return short_circuit_boolean(left, op, right);
-    }
-
-    if (right.is<BoolLiteral>() && !left.isCompileTimeConstant()) {
-        // There aren't side effects in SkSL within expressions, so (left OP right) is equivalent to
-        // (right OP left) for short-circuit optimizations
-        // TODO: (true || (a=b)) seems to disqualify the above statement. Test this.
-        return short_circuit_boolean(right, op, left);
-    }
-
-    // Other than the short-circuit cases above, constant folding requires both sides to be constant
-    if (!left.isCompileTimeConstant() || !right.isCompileTimeConstant()) {
-        return nullptr;
-    }
-
-    // Perform constant folding on pairs of Booleans.
+    // Simplify the expression when both sides are constant Boolean literals.
     if (left.is<BoolLiteral>() && right.is<BoolLiteral>()) {
         bool leftVal  = left.as<BoolLiteral>().value();
         bool rightVal = right.as<BoolLiteral>().value();
@@ -164,6 +151,28 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             default: return nullptr;
         }
         return std::make_unique<BoolLiteral>(context, left.fOffset, result);
+    }
+
+    // If the left side is a Boolean literal, apply short-circuit optimizations.
+    if (left.is<BoolLiteral>()) {
+        return short_circuit_boolean(left, op, right);
+    }
+
+    // If the right side is a Boolean literal...
+    if (right.is<BoolLiteral>()) {
+        // ... and the left side has no side effects...
+        if (!left.hasSideEffects()) {
+            // We can reverse the expressions and short-circuit optimizations are still valid.
+            return short_circuit_boolean(right, op, left);
+        }
+
+        // We can't use short-circuiting, but we can still optimize away no-op Boolean expressions.
+        return eliminate_no_op_boolean(left, op, right);
+    }
+
+    // Other than the short-circuit cases above, constant folding requires both sides to be constant
+    if (!left.isCompileTimeConstant() || !right.isCompileTimeConstant()) {
+        return nullptr;
     }
 
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum

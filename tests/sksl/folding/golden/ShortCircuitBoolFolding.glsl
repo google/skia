@@ -96,6 +96,20 @@ vec4 main() {
     } else {
         ++_3_bad;
     }
-    return _2_ok == 20 && _3_bad == 0 ? vec4(0.0, 1.0, 0.0, 1.0) : vec4(1.0, 0.0, 0.0, 1.0);
+    float _4_a = sqrt(1.0);
+    float _5_b = sqrt(2.0);
+
+    if (_4_a == _5_b) {
+        ++_3_bad;
+    } else {
+        ++_2_ok;
+    }
+    bool(_4_a = _5_b) || true;
+    if (_4_a == _5_b) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    return _2_ok == 22 && _3_bad == 0 ? vec4(0.0, 1.0, 0.0, 1.0) : vec4(1.0, 0.0, 0.0, 1.0);
 
 }
