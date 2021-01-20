@@ -46,6 +46,30 @@
       },
       "revId": "6db259735d39763fa5b6894b09a57fcb4c7b1dd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4335b90_85b9525c",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-20T16:02:20Z",
+      "side": 1,
+      "message": "Hmm, actually, I think we lost something along the way. Previously, we called convertArraySize, which returned 0 on failure, and a positive integer (the actual size) if successful. Now, convertVarDeclarations is returning the expression, passing that in to convertVarDeclaration. That can now fail (convertArraySize can return zero)... but I guess that\u0027s ok, because convertArraySize will have emitted an error? I guess we just proceed longer after an error than we did before?",
+      "parentUuid": "50b1fdc2_34e041fc",
+      "range": {
+        "startLine": 422,
+        "startChar": 0,
+        "endLine": 424,
+        "endChar": 9
+      },
+      "revId": "6db259735d39763fa5b6894b09a57fcb4c7b1dd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
