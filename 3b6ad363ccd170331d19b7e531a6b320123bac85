@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61b6d687_9d76ef56",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T14:41:57Z",
+      "side": 1,
+      "message": "In convertIf, we put the type coercion in the AST-to-expression section, and then asserted its type-correctness in the Expressions-to-IfStatement part. I\u0027d like to keep that logic consistent if possible--where the coercions happen is not that important, but consistency across various statement types does feel important.\n\nAt the time, my (perhaps unstated?) rationale for placing `coerce` in the AST half was that `coerce` was part of the IRGenerator, and I was considering factoring away the Expressions-to-XxxxxStatement code into the individual Statement classes. The ultimate goal there would be to get code out of IRGenerator, since it\u0027s so oversized. I\u0027m not actively working on this goal at the moment though (shrinking IRGenerator is not an OKR and not a high tech-debt priority), so don\u0027t feel tied to that choice.",
+      "range": {
+        "startLine": 546,
+        "startChar": 3,
+        "endLine": 551,
+        "endChar": 5
+      },
+      "revId": "3b6ad363ccd170331d19b7e531a6b320123bac85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
