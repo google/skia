@@ -22,6 +22,30 @@
       },
       "revId": "3b6ad363ccd170331d19b7e531a6b320123bac85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ce5cd7e_d78ff224",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-20T15:12:18Z",
+      "side": 1,
+      "message": "Good catch about the inconsistency. I\u0027m going to address this by moving the convertIf coercion into the other side in the CL that adds if statement support to the DSL - it doesn\u0027t feel right to push the coercion into the callers, when everybody is going to end up needing it done.",
+      "parentUuid": "61b6d687_9d76ef56",
+      "range": {
+        "startLine": 546,
+        "startChar": 3,
+        "endLine": 551,
+        "endChar": 5
+      },
+      "revId": "3b6ad363ccd170331d19b7e531a6b320123bac85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
