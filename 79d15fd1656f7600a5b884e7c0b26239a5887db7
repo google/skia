@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "914ca757_e7a1148a",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-20T16:50:46Z",
+      "side": 1,
+      "message": "Hrm, I guess I never wrote int clamp() standalone functions.  You can use the float one if you swap clamp and trunc:\n\n    skvm::I32 index \u003d trunc(clamp(arguments[0] * 4, 0.0f,3.0f));",
+      "revId": "79d15fd1656f7600a5b884e7c0b26239a5887db7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
