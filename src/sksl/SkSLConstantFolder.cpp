@@ -39,6 +39,14 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
         return leftVal ? std::make_unique<BoolLiteral>(left.fOffset, /*value=*/true, &left.type())
                        : right.clone();
     }
+    if (op == Token::Kind::TK_EQEQ && leftVal) {
+        // (true == expr) -> (expr)
+        return right.clone();
+    }
+    if (op == Token::Kind::TK_NEQ && !leftVal) {
+        // (false != expr) -> (expr)
+        return right.clone();
+    }
     if (op == Token::Kind::TK_LOGICALXOR && !leftVal) {
         // (false ^^ expr) -> (expr)
         return right.clone();

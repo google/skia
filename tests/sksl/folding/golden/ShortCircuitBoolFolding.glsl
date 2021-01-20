@@ -1,28 +1,101 @@
 
-out vec4 sk_FragColor;
-void main() {
-    bool expr1 = gl_FragCoord.x > 0.0;
-    bool expr2 = gl_FragCoord.y > 0.0;
-    if (expr1) {
-        sk_FragColor.x = 1.0;
-    } else if (true ^^ expr1) {
-        sk_FragColor.x = 3.0;
-    } else if (expr2) {
-        sk_FragColor.x = 4.0;
-    } else if (expr2) {
-        sk_FragColor.x = 5.0;
+vec4 main() {
+    bool _1_expr = sqrt(1.0) > 0.0;
+    int _2_ok = 0;
+    int _3_bad = 0;
+
+    if (_1_expr) {
+        ++_2_ok;
     } else {
-        sk_FragColor.x = 6.0;
+        ++_3_bad;
     }
-    if (expr1) {
-        sk_FragColor.x = 1.0;
-    } else if (expr1 ^^ true) {
-        sk_FragColor.x = 3.0;
-    } else if (expr2) {
-        sk_FragColor.x = 4.0;
-    } else if (expr2) {
-        sk_FragColor.x = 5.0;
+    {
+        ++_2_ok;
+    }
+    if (true ^^ _1_expr) {
+        ++_3_bad;
     } else {
-        sk_FragColor.x = 6.0;
+        ++_2_ok;
     }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    {
+        ++_2_ok;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    if (false == _1_expr) {
+        ++_3_bad;
+    } else {
+        ++_2_ok;
+    }
+    if (true != _1_expr) {
+        ++_3_bad;
+    } else {
+        ++_2_ok;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    {
+        ++_2_ok;
+    }
+    if (_1_expr ^^ true) {
+        ++_3_bad;
+    } else {
+        ++_2_ok;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    {
+        ++_2_ok;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    if (_1_expr == false) {
+        ++_3_bad;
+    } else {
+        ++_2_ok;
+    }
+    if (_1_expr != true) {
+        ++_3_bad;
+    } else {
+        ++_2_ok;
+    }
+    if (_1_expr) {
+        ++_2_ok;
+    } else {
+        ++_3_bad;
+    }
+    return _2_ok == 20 && _3_bad == 0 ? vec4(0.0, 1.0, 0.0, 1.0) : vec4(1.0, 0.0, 0.0, 1.0);
+
 }
