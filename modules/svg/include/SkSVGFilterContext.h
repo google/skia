@@ -32,6 +32,8 @@ public:
 
     void registerResult(const SkSVGStringType&, const sk_sp<SkImageFilter>&, const SkRect&, SkSVGColorspace);
 
+    sk_sp<SkImageFilter> resolveInput(const SkSVGRenderContext&, const SkSVGFeInputType&) const;
+
     sk_sp<SkImageFilter> resolveInput(const SkSVGRenderContext&, const SkSVGFeInputType&, SkSVGColorspace) const;
 
 private:
@@ -42,6 +44,9 @@ private:
     };
 
     const Result* findResultById(const SkSVGStringType&) const;
+
+    std::tuple<sk_sp<SkImageFilter>, SkSVGColorspace> getInput(const SkSVGRenderContext&,
+                                                               const SkSVGFeInputType&) const;
 
     SkRect fFilterEffectsRegion;
 
