@@ -16,6 +16,24 @@
       "message": "Is there another way to get the same benefits here? This seems like a step backwards in readability - it makes the code non-idiomatic. Someone in the future is likely to see that code and undo this CL without even realizing why this was done. (And I wouldn\u0027t blame them). ",
       "revId": "178899458ed500a22ea23759cd54694c56cd0731",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc922365_ff55bedf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T15:04:01Z",
+      "side": 1,
+      "message": "PTAL? This is a more significant restructuring, but it gets us the same benefits and the code feels OK to me? (A two-line helper function might look a bit silly to some, but it gets us where we need to go.)",
+      "parentUuid": "b095ac98_d1ce1509",
+      "revId": "178899458ed500a22ea23759cd54694c56cd0731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
