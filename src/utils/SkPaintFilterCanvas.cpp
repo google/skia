@@ -116,51 +116,6 @@ void SkPaintFilterCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-void SkPaintFilterCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
-                                      const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawImage(image, left, top, &apf.paint());
-    }
-}
-
-void SkPaintFilterCanvas::onDrawImageRect(const SkImage* image, const SkRect* src,
-                                          const SkRect& dst, const SkPaint* paint,
-                                          SrcRectConstraint constraint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawImageRect(image, src, dst, &apf.paint(), constraint);
-    }
-}
-
-void SkPaintFilterCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
-                                             const SkRect& dst, const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawImageLattice(image, lattice, dst, &apf.paint());
-    }
-}
-void SkPaintFilterCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[],
-                                      const SkRect tex[], const SkColor colors[], int count,
-                                      SkBlendMode bmode, const SkRect* cull, const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawAtlas(image, xform, tex, colors, count, bmode, cull, &apf.paint());
-    }
-}
-void SkPaintFilterCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                               const SkPoint dstClips[],
-                                               const SkMatrix preViewMatrices[],
-                                               const SkPaint* paint, SrcRectConstraint constraint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawEdgeAAImageSet(
-                set, count, dstClips, preViewMatrices, &apf.paint(), constraint);
-    }
-}
-#endif
-
 void SkPaintFilterCanvas::onDrawImage2(const SkImage* image, SkScalar left, SkScalar top,
                                        const SkSamplingOptions& sampling, const SkPaint* paint) {
     AutoPaintFilter apf(this, paint);

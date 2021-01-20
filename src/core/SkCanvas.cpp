@@ -1853,13 +1853,7 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 }
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(image);
-    this->onDrawImage(image, x, y, paint);
-#else
     this->drawImage(image, x, y, paint_to_sampling(paint, this->recordingContext()), paint);
-#endif
 }
 
 // Returns true if the rect can be "filled" : non-empty and finite
@@ -1871,17 +1865,8 @@ static bool fillable(const SkRect& r) {
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(image);
-    if (!fillable(dst) || !fillable(src)) {
-        return;
-    }
-    this->onDrawImageRect(image, &src, dst, paint, constraint);
-#else
     this->drawImageRect(image, src, dst, paint_to_sampling(paint, this->recordingContext()),
                         paint, constraint);
-#endif
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
@@ -1928,23 +1913,7 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    RETURN_ON_NULL(image);
-
-    const int xdivs[] = {center.fLeft, center.fRight};
-    const int ydivs[] = {center.fTop, center.fBottom};
-
-    Lattice lat;
-    lat.fXDivs = xdivs;
-    lat.fYDivs = ydivs;
-    lat.fRectTypes = nullptr;
-    lat.fXCount = lat.fYCount = 2;
-    lat.fBounds = nullptr;
-    lat.fColors = nullptr;
-    this->drawImageLattice(image, lat, dst, paint);
-#else
     this->drawImageNine(image, center, dst, paint_to_filter(paint), paint);
-#endif
 }
 
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
@@ -1973,29 +1942,7 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
 
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                 const SkPaint* paint) {
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(image);
-    if (dst.isEmpty()) {
-        return;
-    }
-
-    SkIRect bounds;
-    Lattice latticePlusBounds = lattice;
-    if (!latticePlusBounds.fBounds) {
-        bounds = SkIRect::MakeWH(image->width(), image->height());
-        latticePlusBounds.fBounds = &bounds;
-    }
-
-    if (SkLatticeIter::Valid(image->width(), image->height(), latticePlusBounds)) {
-        SkPaint latticePaint = clean_paint_for_lattice(paint);
-        this->onDrawImageLattice(image, latticePlusBounds, dst, &latticePaint);
-    } else {
-        this->drawImageRect(image, dst, paint);
-    }
-#else
     this->drawImageLattice(image, lattice, dst, paint_to_filter(paint), paint);
-#endif
 }
 
 static sk_sp<SkImage> bitmap_as_image(const SkBitmap& bitmap) {
@@ -2042,19 +1989,8 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                          const SkColor colors[], int count, SkBlendMode mode,
                          const SkRect* cull, const SkPaint* paint) {
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(atlas);
-    if (count <= 0) {
-        return;
-    }
-    SkASSERT(atlas);
-    SkASSERT(tex);
-    this->onDrawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
-#else
     this->drawAtlas(atlas, xform, tex, colors, count, mode,
                     paint_to_sampling(paint, this->recordingContext()), cull, paint);
-#endif
 }
 
 void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
@@ -2100,14 +2036,9 @@ void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], i
                                                const SkMatrix preViewMatrices[],
                                                const SkPaint* paint,
                                                SrcRectConstraint constraint) {
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    this->onDrawEdgeAAImageSet(imageSet, cnt, dstClips, preViewMatrices, paint, constraint);
-#else
     this->experimental_DrawEdgeAAImageSet(imageSet, cnt, dstClips, preViewMatrices,
                                           paint_to_sampling(paint, this->recordingContext()),
                                           paint, constraint);
-#endif
 }
 
 void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
@@ -2355,135 +2286,6 @@ static SkPaint clean_paint_for_drawVertices(SkPaint paint) {
     paint.setPathEffect(nullptr);
     return paint;
 }
-
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkPaint realPaint = clean_paint_for_drawImage(paint);
-    SkSamplingOptions sampling = paint_to_sampling(&realPaint, this->recordingContext());
-
-    SkRect bounds = SkRect::MakeXYWH(x, y, image->width(), image->height());
-    if (this->internalQuickReject(bounds, realPaint)) {
-        return;
-    }
-
-    if (realPaint.getImageFilter() &&
-        this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), sampling, realPaint)  &&
-        !image_to_color_filter(&realPaint)) {
-        // Evaluate the image filter directly on the input image and then draw the result, instead
-        // of first drawing the image to a temporary layer and filtering.
-        SkBaseDevice* device = this->topDevice();
-        sk_sp<SkSpecialImage> special;
-        if ((special = device->makeSpecial(image))) {
-            sk_sp<SkImageFilter> filter = realPaint.refImageFilter();
-            realPaint.setImageFilter(nullptr);
-
-            // TODO(michaelludwig) - Many filters could probably be evaluated like this even if the
-            // CTM is not translate-only; the post-transformation of the filtered image by the CTM
-            // will probably look just as good and not require an extra layer.
-            // TODO(michaelludwig) - Once image filter implementations can support source images
-            // with non-(0,0) origins, we can just mark the origin as (x,y) instead of doing a
-            // pre-concat here.
-            SkMatrix layerToDevice = device->localToDevice();
-            layerToDevice.preTranslate(x, y);
-            skif::Mapping mapping(layerToDevice, SkMatrix::Translate(-x, -y));
-
-            this->predrawNotify();
-            device->drawFilteredImage(mapping, special.get(), filter.get(), sampling, realPaint);
-            return;
-        } // else fall through to regular drawing path
-    }
-
-    AutoLayerForImageFilter layer(this, realPaint, &bounds);
-    this->topDevice()->drawImageRect(image, nullptr, bounds, sampling,
-                                     layer.paint(), kStrict_SrcRectConstraint);
-}
-
-void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                               const SkPaint* paint, SrcRectConstraint constraint) {
-    SkPaint realPaint = clean_paint_for_drawImage(paint);
-    SkSamplingOptions sampling = paint_to_sampling(&realPaint, this->recordingContext());
-
-    if (this->internalQuickReject(dst, realPaint)) {
-        return;
-    }
-
-    AutoLayerForImageFilter layer(this, realPaint, &dst, CheckForOverwrite::kYes,
-                                  image->isOpaque() ? kOpaque_ShaderOverrideOpacity
-                                                    : kNotOpaque_ShaderOverrideOpacity);
-    this->topDevice()->drawImageRect(image, src, dst, sampling, layer.paint(), constraint);
-}
-
-void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
-                                  const SkPaint* paint) {
-    SkPaint realPaint = clean_paint_for_drawImage(paint);
-
-    if (this->internalQuickReject(dst, realPaint)) {
-        return;
-    }
-
-    AutoLayerForImageFilter layer(this, realPaint, &dst);
-    this->topDevice()->drawImageLattice(image, lattice, dst, paint_to_filter(&realPaint),
-                                        layer.paint());
-}
-
-void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                           const SkColor colors[], int count, SkBlendMode bmode,
-                           const SkRect* cull, const SkPaint* paint) {
-    // drawAtlas is a combination of drawVertices and drawImage...
-    SkPaint realPaint = clean_paint_for_drawVertices(clean_paint_for_drawImage(paint));
-    SkSamplingOptions sampling = paint_to_sampling(&realPaint, this->recordingContext());
-
-    if (cull && this->internalQuickReject(*cull, realPaint)) {
-        return;
-    }
-
-    AutoLayerForImageFilter layer(this, realPaint);
-    this->topDevice()->drawAtlas(atlas, xform, tex, colors, count, bmode, sampling, layer.paint());
-}
-
-void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
-                                    const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                    const SkPaint* paint, SrcRectConstraint constraint) {
-    if (count <= 0) {
-        // Nothing to draw
-        return;
-    }
-
-    SkPaint realPaint = clean_paint_for_drawImage(paint);
-
-    // We could calculate the set's dstRect union to always check quickReject(), but we can't reject
-    // individual entries and Chromium's occlusion culling already makes it likely that at least one
-    // entry will be visible. So, we only calculate the draw bounds when it's trivial (count == 1),
-    // or we need it for the autolooper (since it greatly improves image filter perf).
-    bool needsAutoLayer = SkToBool(realPaint.getImageFilter());
-    bool setBoundsValid = count == 1 || needsAutoLayer;
-    SkRect setBounds = imageSet[0].fDstRect;
-    if (imageSet[0].fMatrixIndex >= 0) {
-        // Account for the per-entry transform that is applied prior to the CTM when drawing
-        preViewMatrices[imageSet[0].fMatrixIndex].mapRect(&setBounds);
-    }
-    if (needsAutoLayer) {
-        for (int i = 1; i < count; ++i) {
-            SkRect entryBounds = imageSet[i].fDstRect;
-            if (imageSet[i].fMatrixIndex >= 0) {
-                preViewMatrices[imageSet[i].fMatrixIndex].mapRect(&entryBounds);
-            }
-            setBounds.joinPossiblyEmptyRect(entryBounds);
-        }
-    }
-
-    // If we happen to have the draw bounds, though, might as well check quickReject().
-    if (setBoundsValid && this->internalQuickReject(setBounds, realPaint)) {
-        return;
-    }
-
-    AutoLayerForImageFilter layer(this, realPaint, setBoundsValid ? &setBounds : nullptr);
-    this->topDevice()->drawEdgeAAImageSet(imageSet, count, dstClips, preViewMatrices,
-                                          SkSamplingOptions(SkPaintPriv::GetFQ(layer.paint())),
-                                          layer.paint(), constraint);
-}
-
-#endif
 
 void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
                             const SkSamplingOptions& sampling, const SkPaint* paint) {
