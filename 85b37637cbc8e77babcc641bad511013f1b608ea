@@ -72,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "221f669a_c34b406a",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-20T16:16:36Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "0d15cc7a_b23128f0",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dcbd24c8_5c835d30",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
@@ -142,6 +160,24 @@
       "side": 1,
       "message": "Yeah, I think that\u0027s right.\n\nI was just looking at my comments and maybe I should start marking them Comment#1, Comment#2, etc at the top to give a better reading order. The order in which the comments show up in the file isn\u0027t really the order I wrote them in and it\u0027s difficult to make them actually independent without a lot of repetition. Also, I always end up writing the overall review comment last, so it\u0027s kinda an abstract, but it looks like it came first even though it was written last. Order and structure in communication is interesting.",
       "parentUuid": "bacdcec8_9c922bcb",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99938d49_7236ee78",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-20T16:16:36Z",
+      "side": 1,
+      "message": "The negative signs are now added and we can avoid the neutralizeUpemTransform function, including the inversion.",
+      "parentUuid": "9ba63d95_8dc484ec",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -219,6 +255,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b225a3e6_f76e0ad3",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-20T16:16:36Z",
+      "side": 1,
+      "message": "Scale is now gone, inversion as well.",
+      "parentUuid": "77ca00da_b2ef141f",
+      "range": {
+        "startLine": 485,
+        "startChar": 36,
+        "endLine": 485,
+        "endChar": 42
+      },
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8d58342d_b434f179",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 22
@@ -248,6 +308,24 @@
       "side": 1,
       "message": "\u003e Is all the scale mucking about here because the FreeType code is always reporting the raw upem numbers here? \n\nPart 1 (API return values): So far yes, FT reports raw UPEM. I see your feedback at the beginning of the CL and will see if I can apply FT_Face\u0027s scale and transform before returning values since you\u0027re saying this would be more consistent and would allow FT to do other adjustments if needed.\n\nPart 2 (Gradient coords subject to hinting? Referencing glyph contours?): No, currently, the coordinates for gradients are not referencing particular contour points of the glyphs and cannot be hinted themselves. This came up in a separate discussion and it\u0027s under consideration whether we want to allow that. So, the coordinates for gradients P0, P1, P2 are in font unit space and are not subject to hinting. \n\nGood point regarding moving the scaling into FreeType - that would indeed allow us to remove the scale parameter here, which would probably look cleaner.",
       "parentUuid": "8d58342d_b434f179",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa5d4755_c94da0a7",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-20T16:16:36Z",
+      "side": 1,
+      "message": "Now relying on work-in-progress https://gitlab.freedesktop.org/drott/freetype/-/tree/internalScaling - (so far only applies x_scale and y_scale, still issues with PaintRotate and radial gradients when a transform is applied to FT_Face.",
+      "parentUuid": "52d21900_5771bd50",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -336,6 +414,24 @@
       "side": 1,
       "message": "Ack, as discussed above.",
       "parentUuid": "621463d6_c44c1e27",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1670d1c5_b1e0934c",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-20T16:16:36Z",
+      "side": 1,
+      "message": "That\u0027s now on the way - Skia side should be getting there but needs work for PaintRadialGradient and some other corners, when x_scale, y_scale is not symmetric and when a transform is applied to FT_Face.",
+      "parentUuid": "7b85f522_4128f4cb",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },

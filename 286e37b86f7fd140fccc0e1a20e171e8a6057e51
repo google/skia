@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3152404_b9e57437",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-20T16:16:36Z",
+      "side": 1,
+      "message": "A work-in-progress update - scale argument removed, relying on FT to scale. ",
+      "revId": "286e37b86f7fd140fccc0e1a20e171e8a6057e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
