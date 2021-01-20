@@ -60,7 +60,7 @@ public:
         return fInitialValue;
     }
 
-    void setInitialValue(const Expression* initialValue) {
+    void setInitialValue(const Expression* initialValue) const {
         SkASSERT(!this->initialValue());
         fInitialValue = initialValue;
     }
@@ -70,7 +70,7 @@ public:
     }
 
 private:
-    const Expression* fInitialValue = nullptr;
+    mutable const Expression* fInitialValue = nullptr;
     const Modifiers* fModifiers;
     VariableStorage fStorage;
     bool fBuiltin;
