@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ed8b614_d00c93a4",
+        "filename": "src/sksl/dsl/DSLStatement.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T21:08:39Z",
+      "side": 1,
+      "message": "Not sure what is being asserted here. Statement is null, error count is zero... what\u0027s going on? Maybe add a comment or make this an SkASSERTF.\n\n(My best guess: null statements are not expected in an error-free program, but could possibly occur in a program containing errors, because a statement that failed to compile will return null?)",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 53
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92197329_10ad74e1",
+        "filename": "src/sksl/dsl/DSLStatement.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T21:08:39Z",
+      "side": 1,
+      "message": "tiny nit: Maybe just \"program\" here? Our users probably aren\u0027t thinking about IRNode trees when they are assembling their SkSL code.",
+      "range": {
+        "startLine": 40,
+        "startChar": 84,
+        "endLine": 40,
+        "endChar": 95
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3de3f4c1_e14ab044",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T21:08:39Z",
+      "side": 1,
+      "message": "Please consider /*foo\u003d*/ labels on these arguments.",
+      "range": {
+        "startLine": 35,
+        "startChar": 78,
+        "endLine": 36,
+        "endChar": 61
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ac52a1d_03d7cf26",
+        "filename": "src/sksl/ir/SkSLVariable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T21:08:39Z",
+      "side": 1,
+      "message": ":( \nHow hard would it be to restructure things to avoid the mutable? Can the initialValue go on the `Var` instead of the `Declare`?",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09797f98_067af1da",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-20T21:08:39Z",
+      "side": 1,
+      "message": "optional idea: It might make sense to write a helper function that calls dsl.release()-\u003edescription() and then does a string-compare which gives some leeway on whitespace:\n\n  REPORTER_ASSERT(r, WhitespaceInsensitiveCompare(y, \"{ int a\u003d1; int b\u003d2; (a\u003db); }\");",
+      "range": {
+        "startLine": 861,
+        "startChar": 54,
+        "endLine": 861,
+        "endChar": 95
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
