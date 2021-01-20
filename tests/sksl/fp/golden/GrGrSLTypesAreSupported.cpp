@@ -27,10 +27,10 @@ public:
         const GrShaderVar test_i3_args[] = { GrShaderVar("a", kInt3_GrSLType) };
         SkString test_i4_name = fragBuilder->getMangledFunctionName("test_i4");
         const GrShaderVar test_i4_args[] = { GrShaderVar("a", kInt4_GrSLType) };
-        SkString test_h3x4_name = fragBuilder->getMangledFunctionName("test_h3x4");
-        const GrShaderVar test_h3x4_args[] = { GrShaderVar("a", kHalf3x4_GrSLType) };
-        SkString test_f2x4_name = fragBuilder->getMangledFunctionName("test_f2x4");
-        const GrShaderVar test_f2x4_args[] = { GrShaderVar("a", kFloat2x4_GrSLType) };
+        SkString test_h3x3_name = fragBuilder->getMangledFunctionName("test_h3x3");
+        const GrShaderVar test_h3x3_args[] = { GrShaderVar("a", kHalf3x3_GrSLType) };
+        SkString test_f2x2_name = fragBuilder->getMangledFunctionName("test_f2x2");
+        const GrShaderVar test_f2x2_args[] = { GrShaderVar("a", kFloat2x2_GrSLType) };
         fragBuilder->emitFunction(kInt_GrSLType, test_i_name.c_str(), {test_i_args, 1},
 R"SkSL(for (; ; ) {
     return a;
@@ -51,20 +51,20 @@ R"SkSL(for (; ; ) {
     return a;
 }
 )SkSL");
-        fragBuilder->emitFunction(kHalf3x4_GrSLType, test_h3x4_name.c_str(), {test_h3x4_args, 1},
+        fragBuilder->emitFunction(kHalf3x3_GrSLType, test_h3x3_name.c_str(), {test_h3x3_args, 1},
 R"SkSL(for (; ; ) {
     return a;
 }
 )SkSL");
-        fragBuilder->emitFunction(kFloat2x4_GrSLType, test_f2x4_name.c_str(), {test_f2x4_args, 1},
+        fragBuilder->emitFunction(kFloat2x2_GrSLType, test_f2x2_name.c_str(), {test_f2x2_args, 1},
 R"SkSL(for (; ; ) {
     return a;
 }
 )SkSL");
         fragBuilder->codeAppendf(
-R"SkSL(return ((((((int4(%s(1)) , %s(int2(1)).xxxx) , %s(int3(1)).xxxx) , %s(int4(1)).xxxx) , %s(half3x4(1.0))[0]) , %s(float2x4(1.0))[0]) , half4(1.0));
+R"SkSL(return ((((((int4(%s(1)) , %s(int2(1)).xxxx) , %s(int3(1)).xxxx) , %s(int4(1)).xxxx) , %s(half3x3(1.0))[0]) , %s(float2x2(1.0))[0]) , half4(1.0));
 )SkSL"
-, test_i_name.c_str(), test_i2_name.c_str(), test_i3_name.c_str(), test_i4_name.c_str(), test_h3x4_name.c_str(), test_f2x4_name.c_str());
+, test_i_name.c_str(), test_i2_name.c_str(), test_i3_name.c_str(), test_i4_name.c_str(), test_h3x3_name.c_str(), test_f2x2_name.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

@@ -487,74 +487,52 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 }
 
 static const char* glsltype_string(const Context& context, const Type& type) {
-    if (type == *context.fTypes.fFloat) {
-        return "kFloat_GrSLType";
-    } else if (type == *context.fTypes.fHalf) {
-        return "kHalf_GrSLType";
-    } else if (type == *context.fTypes.fInt) {
-        return "kInt_GrSLType";
-    } else if (type == *context.fTypes.fFloat2) {
-        return "kFloat2_GrSLType";
-    } else if (type == *context.fTypes.fHalf2) {
-        return "kHalf2_GrSLType";
-    } else if (type == *context.fTypes.fInt2) {
-        return "kInt2_GrSLType";
-    } else if (type == *context.fTypes.fFloat3) {
-        return "kFloat3_GrSLType";
-    } else if (type == *context.fTypes.fHalf3) {
-        return "kHalf3_GrSLType";
-    } else if (type == *context.fTypes.fInt3) {
-        return "kInt3_GrSLType";
-    } else if (type == *context.fTypes.fFloat4) {
-        return "kFloat4_GrSLType";
-    } else if (type == *context.fTypes.fHalf4) {
-        return "kHalf4_GrSLType";
-    } else if (type == *context.fTypes.fInt4) {
-        return "kInt4_GrSLType";
-    } else if (type == *context.fTypes.fFloat2x2) {
-        return "kFloat2x2_GrSLType";
-    } else if (type == *context.fTypes.fHalf2x2) {
-        return "kHalf2x2_GrSLType";
-    } else if (type == *context.fTypes.fFloat2x3) {
-        return "kFloat2x3_GrSLType";
-    } else if (type == *context.fTypes.fHalf2x3) {
-        return "kHalf2x3_GrSLType";
-    } else if (type == *context.fTypes.fFloat2x4) {
-        return "kFloat2x4_GrSLType";
-    } else if (type == *context.fTypes.fHalf2x4) {
-        return "kHalf2x4_GrSLType";
-    } else if (type == *context.fTypes.fFloat3x2) {
-        return "kFloat3x2_GrSLType";
-    } else if (type == *context.fTypes.fHalf3x2) {
-        return "kHalf3x2_GrSLType";
-    } else if (type == *context.fTypes.fFloat3x3) {
-        return "kFloat3x3_GrSLType";
-    } else if (type == *context.fTypes.fHalf3x3) {
-        return "kHalf3x3_GrSLType";
-    } else if (type == *context.fTypes.fFloat3x4) {
-        return "kFloat3x4_GrSLType";
-    } else if (type == *context.fTypes.fHalf3x4) {
-        return "kHalf3x4_GrSLType";
-    } else if (type == *context.fTypes.fFloat4x2) {
-        return "kFloat4x2_GrSLType";
-    } else if (type == *context.fTypes.fHalf4x2) {
-        return "kHalf4x2_GrSLType";
-    } else if (type == *context.fTypes.fFloat4x3) {
-        return "kFloat4x3_GrSLType";
-    } else if (type == *context.fTypes.fHalf4x3) {
-        return "kHalf4x3_GrSLType";
-    } else if (type == *context.fTypes.fFloat4x4) {
-        return "kFloat4x4_GrSLType";
-    } else if (type == *context.fTypes.fHalf4x4) {
-        return "kHalf4x4_GrSLType";
-    } else if (type == *context.fTypes.fVoid) {
-        return "kVoid_GrSLType";
-    } else if (type == *context.fTypes.fBool) {
-        return "kBool_GrSLType";
-    } else if (type.isEnum()) {
-        return "int";
-    }
-    SkASSERT(false);
+    // If a new GrSL type is added, this function will need to be updated.
+    static_assert(kGrSLTypeCount == 46);
+
+    if (type == *context.fTypes.fVoid    ) { return "kVoid_GrSLType";     }
+    if (type == *context.fTypes.fBool    ) { return "kBool_GrSLType";     }
+    if (type == *context.fTypes.fByte    ) { return "kByte_GrSLType";     }
+    if (type == *context.fTypes.fByte2   ) { return "kByte2_GrSLType";    }
+    if (type == *context.fTypes.fByte3   ) { return "kByte3_GrSLType";    }
+    if (type == *context.fTypes.fByte4   ) { return "kByte4_GrSLType";    }
+    if (type == *context.fTypes.fUByte   ) { return "kUByte_GrSLType";    }
+    if (type == *context.fTypes.fUByte2  ) { return "kUByte2_GrSLType";   }
+    if (type == *context.fTypes.fUByte3  ) { return "kUByte3_GrSLType";   }
+    if (type == *context.fTypes.fUByte4  ) { return "kUByte4_GrSLType";   }
+    if (type == *context.fTypes.fShort   ) { return "kShort_GrSLType";    }
+    if (type == *context.fTypes.fShort2  ) { return "kShort2_GrSLType";   }
+    if (type == *context.fTypes.fShort3  ) { return "kShort3_GrSLType";   }
+    if (type == *context.fTypes.fShort4  ) { return "kShort4_GrSLType";   }
+    if (type == *context.fTypes.fUShort  ) { return "kUShort_GrSLType";   }
+    if (type == *context.fTypes.fUShort2 ) { return "kUShort2_GrSLType";  }
+    if (type == *context.fTypes.fUShort3 ) { return "kUShort3_GrSLType";  }
+    if (type == *context.fTypes.fUShort4 ) { return "kUShort4_GrSLType";  }
+    if (type == *context.fTypes.fFloat   ) { return "kFloat_GrSLType";    }
+    if (type == *context.fTypes.fFloat2  ) { return "kFloat2_GrSLType";   }
+    if (type == *context.fTypes.fFloat3  ) { return "kFloat3_GrSLType";   }
+    if (type == *context.fTypes.fFloat4  ) { return "kFloat4_GrSLType";   }
+    if (type == *context.fTypes.fFloat2x2) { return "kFloat2x2_GrSLType"; }
+    if (type == *context.fTypes.fFloat3x3) { return "kFloat3x3_GrSLType"; }
+    if (type == *context.fTypes.fFloat4x4) { return "kFloat4x4_GrSLType"; }
+    if (type == *context.fTypes.fHalf    ) { return "kHalf_GrSLType";     }
+    if (type == *context.fTypes.fHalf2   ) { return "kHalf2_GrSLType";    }
+    if (type == *context.fTypes.fHalf3   ) { return "kHalf3_GrSLType";    }
+    if (type == *context.fTypes.fHalf4   ) { return "kHalf4_GrSLType";    }
+    if (type == *context.fTypes.fHalf2x2 ) { return "kHalf2x2_GrSLType";  }
+    if (type == *context.fTypes.fHalf3x3 ) { return "kHalf3x3_GrSLType";  }
+    if (type == *context.fTypes.fHalf4x4 ) { return "kHalf4x4_GrSLType";  }
+    if (type == *context.fTypes.fInt     ) { return "kInt_GrSLType";      }
+    if (type == *context.fTypes.fInt2    ) { return "kInt2_GrSLType";     }
+    if (type == *context.fTypes.fInt3    ) { return "kInt3_GrSLType";     }
+    if (type == *context.fTypes.fInt4    ) { return "kInt4_GrSLType";     }
+    if (type == *context.fTypes.fUInt    ) { return "kUint_GrSLType";     }
+    if (type == *context.fTypes.fUInt2   ) { return "kUint2_GrSLType";    }
+    if (type == *context.fTypes.fUInt3   ) { return "kUint3_GrSLType";    }
+    if (type == *context.fTypes.fUInt4   ) { return "kUint4_GrSLType";    }
+    if (type.isEnum())                     { return "kInt_GrSLType";      }
+
+    SkDEBUGFAILF("unsupported type: %s", type.description().c_str());
     return nullptr;
 }
 
