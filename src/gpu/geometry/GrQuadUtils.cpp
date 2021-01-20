@@ -783,7 +783,14 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
         return 2;
     } else {
         // This turns into a triangle. Replace corners as needed with the intersections between
-        // (e0,e3) and (e1,e2), which must now be calculated
+        // (e0,e3) and (e1,e2), which must now be calculated. Because of kDistTolarance we can
+        // have cases where the intersection lies far outside the quad. For example, consider top
+        // and bottom edges that are nearly parallel and their intersections with the right edge are
+        // nearly but not quite swapped (top edge intersection is barely above bottom edge
+        // intersection). In this case we replace the point with the average of itself and the point
+        // calculated using the edge equation it failed (in the example case this would be the
+        // average of the points calculated by the top and bottom edges intersected with the right
+        // edge.)
         using V2f = skvx::Vec<2, float>;
         V2f eDenom = skvx::shuffle<0, 1>(fA) * skvx::shuffle<3, 2>(fB) -
                      skvx::shuffle<0, 1>(fB) * skvx::shuffle<3, 2>(fA);
@@ -792,24 +799,34 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
         V2f ey = (skvx::shuffle<0, 1>(oc) * skvx::shuffle<3, 2>(fA) -
                   skvx::shuffle<0, 1>(fA) * skvx::shuffle<3, 2>(oc)) / eDenom;
 
-        if (SkScalarAbs(eDenom[0]) > kTolerance) {
-            px = if_then_else(d1v0, V4f(ex[0]), px);
-            py = if_then_else(d1v0, V4f(ey[0]), py);
-            // If we replace a vertex with an intersection then it will not fall along the
-            // edges that intersect at the original vertex. When we apply AA later to the
-            // original points we move along the original 3d edges to move towards the 2d
-            // points we're computing here. If we have an AA edge and a non-AA edge we
-            // can only move along 1 edge, but now the point we're moving toward isn't
-            // on that edge. Thus, we provide an additional degree of freedom by turning
-            // AA on for both edges if either edge is AA.
-            *aaMask = *aaMask | (d1v0 & skvx::shuffle<2, 0, 3, 1>(*aaMask));
-        }
-        if (SkScalarAbs(eDenom[1]) > kTolerance) {
-            px = if_then_else(d2v0, V4f(ex[1]), px);
-            py = if_then_else(d2v0, V4f(ey[1]), py);
-            *aaMask = *aaMask | (d2v0 & skvx::shuffle<2, 0, 3, 1>(*aaMask));
+        V4f avgX = 0.5f * (skvx::shuffle<0, 1, 0, 2>(px) + skvx::shuffle<2, 3, 1, 3>(px));
+        V4f avgY = 0.5f * (skvx::shuffle<0, 1, 0, 2>(py) + skvx::shuffle<2, 3, 1, 3>(py));
+        for (int i = 0; i < 4; ++i) {
+            // Note that we would not have taken this branch if any point failed both of its edges
+            // tests. That is, it can't be the case that d1v0[i] and d2v0[i] are both true.
+            if (dists1[i] < -kDistTolerance && abs(eDenom[0]) > kTolerance) {
+                px[i] = ex[0];
+                py[i] = ey[0];
+            } else if (d1v0[i]) {
+                px[i] = avgX[i % 2];
+                py[i] = avgY[i % 2];
+            } else if (dists2[i] < -kDistTolerance && abs(eDenom[1]) > kTolerance) {
+                px[i] = ex[1];
+                py[i] = ey[1];
+            } else if (d2v0[i]) {
+                px[i] = avgX[i / 2 + 2];
+                py[i] = avgY[i / 2 + 2];
+            }
         }
 
+        // If we replace a vertex with an intersection then it will not fall along the
+        // edges that intersect at the original vertex. When we apply AA later to the
+        // original points we move along the original 3d edges to move towards the 2d
+        // points we're computing here. If we have an AA edge and a non-AA edge we
+        // can only move along 1 edge, but now the point we're moving toward isn't
+        // on that edge. Thus, we provide an additional degree of freedom by turning
+        // AA on for both edges if either edge is AA.
+        *aaMask = *aaMask | (d1Or2 & skvx::shuffle<2, 0, 3, 1>(*aaMask));
         *x2d = px;
         *y2d = py;
         return 3;
