@@ -188,6 +188,8 @@ private:
                                                    ExpressionArray params);
     std::unique_ptr<Statement> convertContinue(const ASTNode& c);
     std::unique_ptr<Statement> convertDiscard(const ASTNode& d);
+    std::unique_ptr<Statement> convertDo(std::unique_ptr<Statement> stmt,
+                                         std::unique_ptr<Expression> test);
     std::unique_ptr<Statement> convertDo(const ASTNode& d);
     std::unique_ptr<Statement> convertSwitch(const ASTNode& s);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
@@ -195,6 +197,11 @@ private:
     std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              StringFragment field);
+    std::unique_ptr<Statement> convertFor(int offset,
+                                          std::unique_ptr<Statement> initializer,
+                                          std::unique_ptr<Expression> test,
+                                          std::unique_ptr<Expression> next,
+                                          std::unique_ptr<Statement> statement);
     std::unique_ptr<Statement> convertFor(const ASTNode& f);
     std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
     std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);

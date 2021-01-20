@@ -538,6 +538,30 @@ std::unique_ptr<Statement> IRGenerator::convertIf(int offset, bool isStatic,
                                          std::move(ifFalse));
 }
 
+std::unique_ptr<Statement> IRGenerator::convertFor(int offset,
+                                                   std::unique_ptr<Statement> initializer,
+                                                   std::unique_ptr<Expression> test,
+                                                   std::unique_ptr<Expression> next,
+                                                   std::unique_ptr<Statement> statement) {
+    if (test) {
+        test = this->coerce(std::move(test), *fContext.fTypes.fBool);
+        if (!test) {
+            return nullptr;
+        }
+    }
+
+    auto forStmt =
+            std::make_unique<ForStatement>(offset, std::move(initializer), std::move(test),
+                                           std::move(next), std::move(statement), fSymbolTable);
+    if (this->strictES2Mode()) {
+        if (!Analysis::ForLoopIsValidForES2(*forStmt, /*outLoopInfo=*/nullptr,
+                                            &this->errorReporter())) {
+            return nullptr;
+        }
+    }
+    return std::move(forStmt);
+}
+
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     SkASSERT(f.fKind == ASTNode::Kind::kFor);
     AutoLoopLevel level(this);
@@ -553,7 +577,7 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     ++iter;
     std::unique_ptr<Expression> test;
     if (*iter) {
-        test = this->coerce(this->convertExpression(*iter), *fContext.fTypes.fBool);
+        test = this->convertExpression(*iter);
         if (!test) {
             return nullptr;
         }
@@ -572,16 +596,8 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
         return nullptr;
     }
 
-    auto forStmt =
-            std::make_unique<ForStatement>(f.fOffset, std::move(initializer), std::move(test),
-                                           std::move(next), std::move(statement), fSymbolTable);
-    if (this->strictES2Mode()) {
-        if (!Analysis::ForLoopIsValidForES2(*forStmt, /*outLoopInfo=*/nullptr,
-                                            &this->errorReporter())) {
-            return nullptr;
-        }
-    }
-    return std::move(forStmt);
+    return this->convertFor(f.fOffset, std::move(initializer), std::move(test), std::move(next),
+                            std::move(statement));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr<Expression> test,
@@ -614,25 +630,33 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     return this->convertWhile(w.fOffset, std::move(test), std::move(statement));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
-    SkASSERT(d.fKind == ASTNode::Kind::kDo);
+std::unique_ptr<Statement> IRGenerator::convertDo(std::unique_ptr<Statement> stmt,
+                                                  std::unique_ptr<Expression> test) {
     if (this->strictES2Mode()) {
-        this->errorReporter().error(d.fOffset, "do-while loops are not supported");
+        this->errorReporter().error(stmt->fOffset, "do-while loops are not supported");
         return nullptr;
     }
 
     AutoLoopLevel level(this);
+    test = this->coerce(std::move(test), *fContext.fTypes.fBool);
+    if (!test) {
+        return nullptr;
+    }
+    return std::make_unique<DoStatement>(stmt->fOffset, std::move(stmt), std::move(test));
+}
+
+std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
+    SkASSERT(d.fKind == ASTNode::Kind::kDo);
     auto iter = d.begin();
     std::unique_ptr<Statement> statement = this->convertStatement(*(iter++));
     if (!statement) {
         return nullptr;
     }
-    std::unique_ptr<Expression> test =
-            this->coerce(this->convertExpression(*(iter++)), *fContext.fTypes.fBool);
+    std::unique_ptr<Expression> test = this->convertExpression(*(iter++));
     if (!test) {
         return nullptr;
     }
-    return std::make_unique<DoStatement>(d.fOffset, std::move(statement), std::move(test));
+    return this->convertDo(std::move(statement), std::move(test));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
