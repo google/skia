@@ -125,7 +125,6 @@ void Parser::InitLayoutMap() {
 
 Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
 : fText(text)
-, fPushback(Token::Kind::TK_NONE, -1, -1)
 , fSymbols(symbols)
 , fErrors(errors) {
     fLexer.start(text, length);
@@ -199,9 +198,9 @@ std::unique_ptr<ASTFile> Parser::compilationUnit() {
 }
 
 Token Parser::nextRawToken() {
-    if (fPushback.fKind != Token::Kind::TK_NONE) {
-        Token result = fPushback;
-        fPushback.fKind = Token::Kind::TK_NONE;
+    if (!fPushback.empty()) {
+        Token result = fPushback.back();
+        fPushback.pop_back();
         return result;
     }
     Token result = fLexer.next();
@@ -219,19 +218,27 @@ Token Parser::nextToken() {
 }
 
 void Parser::pushback(Token t) {
-    SkASSERT(fPushback.fKind == Token::Kind::TK_NONE);
-    fPushback = std::move(t);
+    fPushback.push_back(t);
 }
 
 Token Parser::peek() {
-    if (fPushback.fKind == Token::Kind::TK_NONE) {
-        fPushback = this->nextToken();
+    if (fPushback.empty()) {
+        fPushback.push_back(this->nextToken());
     }
-    return fPushback;
+    return fPushback.back();
+}
+
+bool Parser::checkNextTwo(Token::Kind firstKind, Token::Kind secondKind) {
+    Token first  = this->nextToken();
+    Token second = this->nextToken();
+    bool result = (first.fKind == firstKind && second.fKind == secondKind);
+    this->pushback(second);
+    this->pushback(first);
+    return result;
 }
 
 bool Parser::checkNext(Token::Kind kind, Token* result) {
-    if (fPushback.fKind != Token::Kind::TK_NONE && fPushback.fKind != kind) {
+    if (!fPushback.empty() && fPushback.back().fKind != kind) {
         return false;
     }
     Token next = this->nextToken();
@@ -508,6 +515,10 @@ ASTNode::ID Parser::declaration() {
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
 ASTNode::ID Parser::varDeclarations() {
+    if (this->checkNextTwo(Token::Kind::TK_IDENTIFIER, Token::Kind::TK_LPAREN)) {
+        // Interpret `identifier(` as a constructor expression, making this an expression-statement.
+        return this->expressionStatement();
+    }
     Modifiers modifiers = this->modifiers();
     ASTNode::ID type = this->type();
     if (!type) {
