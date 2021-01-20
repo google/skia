@@ -23,6 +23,12 @@ import javax.microedition.khronos.egl.EGLSurface;
 
 public class SkottieAnimation extends Animator implements Choreographer.FrameCallback,
         TextureView.SurfaceTextureListener, SurfaceHolder.Callback {
+    class Config {
+        int mSurfaceWidth;
+        int mSurfaceHeight;
+        boolean mValidSurface;
+    }
+
     private final SkottieRunner mRunner = SkottieRunner.getInstance();
     private static final String LOG_TAG = "SkottiePlayer";
 
@@ -31,11 +37,9 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
     private EGLSurface mEglSurface;
     private boolean mNewSurface = false;
     private SurfaceHolder mSurfaceHolder;
-    boolean mValidSurface = false;
     private int mRepeatCount;
     private int mRepeatCounter;
-    private int mSurfaceWidth = 0;
-    private int mSurfaceHeight = 0;
+    private Config config = new Config();
     private int mBackgroundColor;
     private long mNativeProxy;
     private long mDuration;  // duration in ms of the animation
@@ -124,8 +128,8 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
 
     // Always call this on GL thread
     public void updateSurface(int width, int height) {
-        mSurfaceWidth = width;
-        mSurfaceHeight = height;
+        config.mSurfaceWidth = width;
+        config.mSurfaceHeight = height;
         mNewSurface = true;
         drawFrame();
     }
@@ -148,8 +152,10 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
             Log.e(LOG_TAG, "start failed", t);
             throw new RuntimeException(t);
         }
-        for (AnimatorListener l : this.getListeners()) {
-            l.onAnimationStart(this);
+        if (this.getListeners() != null) {
+            for (AnimatorListener l : this.getListeners()) {
+                l.onAnimationStart(this);
+            }
         }
     }
 
@@ -171,8 +177,10 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
             Log.e(LOG_TAG, "stop failed", t);
             throw new RuntimeException(t);
         }
-        for (AnimatorListener l : this.getListeners()) {
-            l.onAnimationEnd(this);
+        if (this.getListeners() != null) {
+            for (AnimatorListener l : this.getListeners()) {
+                l.onAnimationEnd(this);
+            }
         }
     }
 
@@ -308,7 +316,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
                     return;
                 }
                 // only if nDrawFrames() returns true do we need to swap buffers
-                if(nDrawFrame(mNativeProxy, mSurfaceWidth, mSurfaceHeight, false,
+                if(nDrawFrame(mNativeProxy, config.mSurfaceWidth, config.mSurfaceHeight, false,
                         mProgress, mBackgroundColor, forceDraw)) {
                     if (!mRunner.mEgl.eglSwapBuffers(mRunner.mEglDisplay, mEglSurface)) {
                         int error = mRunner.mEgl.eglGetError();
@@ -380,7 +388,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
                 }
             }
         }
-        if (mValidSurface) {
+        if (config.mValidSurface) {
             drawFrame();
         }
     }
@@ -392,7 +400,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
             mRunner.runOnGLThread(() -> {
                 mSurfaceTexture = surface;
                 updateSurface(width, height);
-                mValidSurface = true;
+                config.mValidSurface = true;
             });
         }
         catch (Throwable t) {
@@ -411,7 +419,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         // will be called on UI thread
         onSurfaceTextureAvailable(null, 0, 0);
-        mValidSurface = false;
+        config.mValidSurface = false;
         return true;
     }
 
@@ -431,7 +439,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
             mRunner.runOnGLThread(() -> {
                 mSurfaceHolder = holder;
                 updateSurface(width, height);
-                mValidSurface = true;
+                config.mValidSurface = true;
             });
         }
         catch (Throwable t) {
@@ -442,8 +450,18 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        mValidSurface = false;
+        config.mValidSurface = false;
         surfaceChanged(null, 0, 0, 0);
+    }
+
+    Config getBackingViewConfig() {
+        return config;
+    }
+
+    void setBackingViewConfig(Config config) {
+        this.config.mSurfaceHeight = config.mSurfaceHeight;
+        this.config.mSurfaceWidth = config.mSurfaceWidth;
+        this.config.mValidSurface = config.mValidSurface;
     }
 
     private native long nCreateProxy(long runner, ByteBuffer data);
