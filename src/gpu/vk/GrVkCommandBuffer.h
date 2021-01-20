@@ -61,6 +61,10 @@ public:
                             uint32_t dynamicOffsetCount,
                             const uint32_t* dynamicOffsets);
 
+    void pushConstants(const GrVkGpu* gpu, VkPipelineLayout layout,
+                       VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size,
+                       const void* values);
+
     void setViewport(const GrVkGpu* gpu,
                      uint32_t firstViewport,
                      uint32_t viewportCount,

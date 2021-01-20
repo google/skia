@@ -181,8 +181,8 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
 static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
-                                   GrSLType type,
-                                   int arrayCount) {
+                                       GrSLType type,
+                                       int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
     // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
     if (arrayCount || type == kFloat2x2_GrSLType) {
@@ -237,13 +237,10 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
 
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
-    SkString layoutQualifier;
-    layoutQualifier.appendf("offset=%d", offset);
 
     VkUniformInfo& uni = fUniforms.push_back(VkUniformInfo{
         {
-            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
-                        std::move(layoutQualifier), SkString()},
+            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount},
             visibility, owner, SkString(name)
         },
         offset, nullptr
@@ -341,10 +338,15 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 #endif
 
+    // At this point we determine whether we'll be using push constants based on the
+    // uniforms set so far. Later checks will use the internal bool we set here to
+    // keep things consistent.
+    bool usePushConstants = this->determineIfUsePushConstants();
     SkString uniformsString;
     for (const VkUniformInfo& localUniform : fUniforms.items()) {
         if (visibility & localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
+                uniformsString.appendf("layout(offset=%d) ", localUniform.fUBOffset);
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
@@ -352,8 +354,13 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 
     if (!uniformsString.isEmpty()) {
-        out->appendf("layout (set=%d, binding=%d) uniform uniformBuffer\n{\n",
-                     kUniformBufferDescSet, kUniformBinding);
+        if (usePushConstants) {
+            out->append("layout (push_constant) ");
+        } else {
+            out->appendf("layout (set=%d, binding=%d) ",
+                         kUniformBufferDescSet, kUniformBinding);
+        }
+        out->append("uniform uniformBuffer\n{\n");
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
@@ -361,4 +368,14 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
 uint32_t GrVkUniformHandler::getRTHeightOffset() const {
     uint32_t currentOffset = fCurrentUBOOffset;
     return get_ubo_aligned_offset(&currentOffset, kFloat_GrSLType, 0);
+}
+
+bool GrVkUniformHandler::determineIfUsePushConstants() const {
+    // If flipY is enabled we may be adding the RTHeight uniform during compilation.
+    // We won't know that for sure until then but we need to make this determination now,
+    // so assume we will need it.
+    uint32_t pad = fFlipY ? sizeof(float) : 0;
+    fUsePushConstants = fCurrentUBOOffset > 0 &&
+                        fCurrentUBOOffset + pad <= fProgramBuilder->caps()->maxPushConstantsSize();
+    return fUsePushConstants;
 }
