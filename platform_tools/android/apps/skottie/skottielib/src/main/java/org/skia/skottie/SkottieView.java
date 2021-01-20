@@ -12,6 +12,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
@@ -20,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
 import org.skia.skottielib.R;
 
 public class SkottieView extends FrameLayout {
@@ -32,6 +34,7 @@ public class SkottieView extends FrameLayout {
 
     private static final int BACKING_VIEW_TEXTURE = 0;
     private static final int BACKING_VIEW_SURFACE = 1;
+    private final String LOG_TAG = "SkottieView";
 
     /*
      * Build function for SkottieViews backed with a texture view
@@ -130,13 +133,30 @@ public class SkottieView extends FrameLayout {
     }
 
     private SkottieAnimation setSourceHelper(InputStream inputStream) {
+        SkottieAnimation.Config config = null;
+        SkottieAnimation animation;
+        // if there is already an animation, save config and finalize it so as to not confuse GL
+        if (mAnimation != null) {
+            config = mAnimation.getBackingViewConfig();
+            try {
+                mAnimation.finalize();
+            } catch (Throwable t) {
+                Log.e(LOG_TAG, "existing animation couldn't finalize before setting new src");
+            }
+        }
         if (mBackingView instanceof TextureView) {
-            return SkottieRunner.getInstance()
+            animation = SkottieRunner.getInstance()
                 .createAnimation(((TextureView) mBackingView), inputStream, mBackgroundColor, mRepeatCount);
         } else {
-            return SkottieRunner.getInstance()
+            animation = SkottieRunner.getInstance()
                 .createAnimation(((SurfaceView) mBackingView), inputStream, mBackgroundColor, mRepeatCount);
         }
+        // restore config settings from previous animation if needed
+        if (config != null) {
+            animation.setBackingViewConfig(config);
+            animation.setProgress(0f);
+        }
+        return animation;
     }
 
     protected SkottieAnimation getSkottieAnimation() {
