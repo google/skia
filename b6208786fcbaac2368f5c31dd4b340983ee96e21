@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02746a3f_1242cda9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-20T17:49:42Z",
+      "side": 1,
+      "message": "Can be previewed at https://skia.org/dev/design/raster_tragedy?cl\u003d356305",
+      "revId": "b6208786fcbaac2368f5c31dd4b340983ee96e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
