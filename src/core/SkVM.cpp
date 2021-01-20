@@ -3736,11 +3736,13 @@ namespace skvm {
                                   else        { a->strq(r(x), arg[immA]); }
                                                 break;
 
-                // TODO: use st2.4s?
                 case Op::store64: if (scalar) {
                                       a->strs(r(x), arg[immA], 0);
                                       a->strs(r(y), arg[immA], 1);
+                                  } else if (r(y) == r(x)+1) {
+                                      a->st24s(r(x), arg[immA]);
                                   } else {
+                                      // TODO: always use st2.4s?
                                       // r(x) = {a,b,c,d}
                                       // r(y) = {e,f,g,h}
                                       // We want to write a,e, b,f, c,g, d,h
@@ -3752,18 +3754,29 @@ namespace skvm {
                                       free_tmp(tmp);
                                   } break;
 
-                // TODO: use st4.4s?
                 case Op::store128:
-                    for (int i = 0; i < active_lanes; i++) {
-                        a->movs(GP0, r(x), i);
-                        a->movs(GP1, r(y), i);
-                        a->strs(GP0, arg[immA], i*4 + 0);
-                        a->strs(GP1, arg[immA], i*4 + 1);
+                    if (scalar) {
+                        a->strs(r(x), arg[immA], 0);
+                        a->strs(r(y), arg[immA], 1);
+                        a->strs(r(z), arg[immA], 2);
+                        a->strs(r(w), arg[immA], 3);
+                    } else if (r(y) == r(x)+1 &&
+                               r(z) == r(x)+2 &&
+                               r(w) == r(x)+3) {
+                        a->st44s(r(x), arg[immA]);
+                    } else {
+                        // TODO: always use st4.4s?
+                        for (int i = 0; i < active_lanes; i++) {
+                            a->movs(GP0, r(x), i);
+                            a->movs(GP1, r(y), i);
+                            a->strs(GP0, arg[immA], i*4 + 0);
+                            a->strs(GP1, arg[immA], i*4 + 1);
 
-                        a->movs(GP0, r(z), i);
-                        a->movs(GP1, r(w), i);
-                        a->strs(GP0, arg[immA], i*4 + 2);
-                        a->strs(GP1, arg[immA], i*4 + 3);
+                            a->movs(GP0, r(z), i);
+                            a->movs(GP1, r(w), i);
+                            a->strs(GP0, arg[immA], i*4 + 2);
+                            a->strs(GP1, arg[immA], i*4 + 3);
+                        }
                     } break;
 
 
