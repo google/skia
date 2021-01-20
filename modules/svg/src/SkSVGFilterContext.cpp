@@ -49,9 +49,8 @@ void SkSVGFilterContext::registerResult(const SkSVGStringType& id,
     fResults[id] = {result, subregion, resultColorspace};
 }
 
-sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& ctx,
-                                                      const SkSVGFeInputType& inputType,
-                                                      SkSVGColorspace colorspace) const {
+std::tuple<sk_sp<SkImageFilter>, SkSVGColorspace> SkSVGFilterContext::getInput(
+        const SkSVGRenderContext& ctx, const SkSVGFeInputType& inputType) const {
     SkSVGColorspace inputCS = SkSVGColorspace::kSRGB;
     sk_sp<SkImageFilter> result;
     switch (inputType.type()) {
@@ -81,8 +80,25 @@ sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& 
         }
         default:
             SkDebugf("unhandled filter input type %d\n", inputType.type());
-            return nullptr;
+            break;
     }
 
+    return {result, inputCS};
+}
+
+SkSVGColorspace SkSVGFilterContext::resolveInputColorspace(
+        const SkSVGRenderContext& ctx, const SkSVGFeInputType& inputType) const {
+    return std::get<1>(this->getInput(ctx, inputType));
+}
+
+sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& ctx,
+                                                      const SkSVGFeInputType& inputType) const {
+    return std::get<0>(this->getInput(ctx, inputType));
+}
+
+sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& ctx,
+                                                      const SkSVGFeInputType& inputType,
+                                                      SkSVGColorspace colorspace) const {
+    auto [result, inputCS] = this->getInput(ctx, inputType);
     return ConvertFilterColorspace(std::move(result), inputCS, colorspace);
 }

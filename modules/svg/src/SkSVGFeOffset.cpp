@@ -28,6 +28,7 @@ sk_sp<SkImageFilter> SkSVGFeOffset::onMakeImageFilter(const SkSVGRenderContext& 
         dy *= objBounds.height();
     }
 
-    sk_sp<SkImageFilter> in = fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx));
+    sk_sp<SkImageFilter> in =
+            fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx, fctx));
     return SkImageFilters::Offset(dx, dy, std::move(in), this->resolveFilterSubregion(ctx, fctx));
 }

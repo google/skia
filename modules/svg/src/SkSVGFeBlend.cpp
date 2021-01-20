@@ -39,7 +39,7 @@ sk_sp<SkImageFilter> SkSVGFeBlend::onMakeImageFilter(const SkSVGRenderContext& c
                                                      const SkSVGFilterContext& fctx) const {
     const SkRect cropRect = this->resolveFilterSubregion(ctx, fctx);
     const SkBlendMode blendMode = GetBlendMode(this->getMode());
-    const SkSVGColorspace colorspace = this->resolveColorspace(ctx);
+    const SkSVGColorspace colorspace = this->resolveColorspace(ctx, fctx);
     const sk_sp<SkImageFilter> background = fctx.resolveInput(ctx, fIn2, colorspace);
     const sk_sp<SkImageFilter> foreground = fctx.resolveInput(ctx, this->getIn(), colorspace);
     return SkImageFilters::Blend(blendMode, background, foreground, cropRect);

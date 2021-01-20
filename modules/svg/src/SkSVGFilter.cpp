@@ -46,7 +46,7 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         feNode.applyProperties(&localCtx);
 
         // TODO: there are specific composition rules that need to be followed
-        cs = feNode.resolveColorspace(ctx);
+        cs = feNode.resolveColorspace(ctx, fctx);
         filter = feNode.makeImageFilter(localCtx, fctx);
 
         if (!feResultType.isEmpty()) {

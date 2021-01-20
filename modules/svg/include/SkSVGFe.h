@@ -35,7 +35,8 @@ public:
      * Spec: https://www.w3.org/TR/SVG11/painting.html#ColorInterpolationProperties
      * 'color-interpolation-filters' property.
      */
-    SkSVGColorspace resolveColorspace(const SkSVGRenderContext&) const;
+    virtual SkSVGColorspace resolveColorspace(const SkSVGRenderContext&,
+                                              const SkSVGFilterContext&) const;
 
     /** Propagates any inherited presentation attributes in the given context. */
     void applyProperties(SkSVGRenderContext*) const;
