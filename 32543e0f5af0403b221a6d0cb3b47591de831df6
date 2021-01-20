@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88b823b0_fc391d79",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-20T16:36:32Z",
+      "side": 1,
+      "message": "nit: seems like this or the other (dx,dy) should be an inline, calling the other.",
+      "range": {
+        "startLine": 750,
+        "startChar": 14,
+        "endLine": 750,
+        "endChar": 26
+      },
+      "revId": "32543e0f5af0403b221a6d0cb3b47591de831df6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
