@@ -16,7 +16,11 @@ class SkSVGLengthContext;
 
 class SkSVGSVG : public SkSVGContainer {
 public:
-    static sk_sp<SkSVGSVG> Make() { return sk_sp<SkSVGSVG>(new SkSVGSVG()); }
+    enum class Type {
+        kRoot,
+        kInner,
+    };
+    static sk_sp<SkSVGSVG> Make(Type t = Type::kInner) { return sk_sp<SkSVGSVG>(new SkSVGSVG(t)); }
 
     SVG_ATTR(X                  , SkSVGLength, SkSVGLength(0))
     SVG_ATTR(Y                  , SkSVGLength, SkSVGLength(0))
@@ -24,8 +28,7 @@ public:
     SVG_ATTR(Height             , SkSVGLength, SkSVGLength(100, SkSVGLength::Unit::kPercentage))
     SVG_ATTR(PreserveAspectRatio, SkSVGPreserveAspectRatio, SkSVGPreserveAspectRatio())
 
-    // TODO: SVG_ATTR is not smart enough to handle SkTLazy<T>
-    void setViewBox(const SkSVGViewBoxType&);
+    SVG_OPTIONAL_ATTR(ViewBox, SkSVGViewBoxType)
 
     SkSize intrinsicSize(const SkSVGLengthContext&) const;
 
@@ -35,9 +38,13 @@ protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
 private:
-    SkSVGSVG();
+    explicit SkSVGSVG(Type t)
+        : INHERITED(SkSVGTag::kSvg)
+        , fType(t)
+    {}
 
-    SkTLazy<SkSVGViewBoxType> fViewBox;
+    // Some attributes behave differently for the outermost svg element.
+    const Type fType;
 
     using INHERITED = SkSVGContainer;
 };
