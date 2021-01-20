@@ -23,14 +23,15 @@ class SkCanvas;
 class SkFieldVisitor;
 class SkParticleBinding;
 class SkParticleDrawable;
+struct SkParticleProgram;
 
 namespace skresources {
     class ResourceProvider;
 }  // namespace skresources
 
 namespace SkSL {
-    class ByteCode;
     class ExternalFunction;
+    struct UniformInfo;
 }  // namespace SkSL
 
 class SkParticleEffectParams : public SkRefCnt {
@@ -125,14 +126,8 @@ public:
 private:
     friend class SkParticleEffect;
 
-    // Cached
-    struct Program {
-        std::unique_ptr<SkSL::ByteCode> fByteCode;
-        std::vector<std::unique_ptr<SkSL::ExternalFunction>> fExternalValues;
-    };
-
-    Program fEffectProgram;
-    Program fParticleProgram;
+    std::unique_ptr<SkParticleProgram> fEffectProgram;
+    std::unique_ptr<SkParticleProgram> fParticleProgram;
 };
 
 class SkParticleEffect : public SkRefCnt {
@@ -182,8 +177,8 @@ public:
     void setColor   (SkColor4f c) { fState.fColor    = c; }
     void setFrame   (float     f) { fState.fFrame    = f; }
 
-    const SkSL::ByteCode* effectCode() const { return fParams->fEffectProgram.fByteCode.get(); }
-    const SkSL::ByteCode* particleCode() const { return fParams->fParticleProgram.fByteCode.get(); }
+    const SkSL::UniformInfo* effectUniformInfo() const;
+    const SkSL::UniformInfo* particleUniformInfo() const;
 
     float* effectUniforms() { return fEffectUniforms.data(); }
     float* particleUniforms() { return fParticleUniforms.data(); }
@@ -196,8 +191,13 @@ private:
     // Helpers to break down update
     void advanceTime(double now);
 
-    void runEffectScript(const char* entry);
-    void runParticleScript(const char* entry, int start, int count);
+    enum class EntryPoint {
+        kSpawn,
+        kUpdate,
+    };
+
+    void runEffectScript(EntryPoint entryPoint);
+    void runParticleScript(EntryPoint entryPoint, int start, int count);
 
     sk_sp<SkParticleEffectParams>        fParams;
 

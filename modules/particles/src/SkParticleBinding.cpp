@@ -7,7 +7,6 @@
 
 #include "modules/particles/include/SkParticleBinding.h"
 
-#include "include/core/SkBitmap.h"
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
@@ -16,58 +15,70 @@
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkReflected.h"
 #include "modules/skresources/include/SkResources.h"
+#include "src/core/SkMatrixProvider.h"
+#include "src/core/SkVM.h"
+#include "src/shaders/SkShaderBase.h"
 #include "src/sksl/SkSLCompiler.h"
 
 void SkParticleBinding::visitFields(SkFieldVisitor* v) {
     v->visit("Name", fName);
 }
 
-struct SkPathContours {
-    SkScalar fTotalLength;
-    SkTArray<sk_sp<SkContourMeasure>> fContours;
+namespace {
+    struct PosNrm { SkPoint pos; SkVector nrm; };
+    using LinearizedPath = std::vector<PosNrm>;
+}  // namespace
 
-    void rebuild(const SkPath& path) {
-        fTotalLength = 0;
-        fContours.reset();
-
-        SkContourMeasureIter iter(path, false);
-        while (auto contour = iter.next()) {
-            fContours.push_back(contour);
-            fTotalLength += contour->length();
+static LinearizedPath linearize_path(const SkPath& path) {
+    LinearizedPath lin;
+    SkContourMeasureIter iter(path, false);
+    while (auto contour = iter.next()) {
+        for (SkScalar x = 0; x < contour->length(); x++) {
+            SkPoint pos;
+            SkVector tan;
+            SkAssertResult(contour->getPosTan(x, &pos, &tan));
+            lin.push_back({pos, {tan.fY, -tan.fX}});
         }
     }
-};
+    return lin;
+}
 
-// Exposes an SkPath as an external, callable value. p(x) returns a float4 { pos.xy, normal.xy }
-class SkPathExternalValue : public SkParticleExternalValue {
+// Exposes an SkPath as an external, callable function. p(x) returns a float4 { pos.xy, normal.xy }
+class SkPathExternalFunction : public SkParticleExternalFunction {
 public:
-    SkPathExternalValue(const char* name, SkSL::Compiler& compiler, const SkPathContours* path)
-        : SkParticleExternalValue(name, compiler, *compiler.context().fTypes.fFloat4)
-        , fPath(path) { }
+    SkPathExternalFunction(const char* name,
+                           SkSL::Compiler& compiler,
+                           const LinearizedPath& path,
+                           skvm::Uniforms* uniforms,
+                           SkArenaAlloc* alloc)
+            : SkParticleExternalFunction(
+                      name, compiler, *compiler.context().fTypes.fFloat4, uniforms, alloc)
+            , fPath(path) {}
 
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
         outTypes[0] = fCompiler.context().fTypes.fFloat.get();
     }
 
-    void call(int index, float* arguments, float* outReturn) const override {
-        SkScalar len = fPath->fTotalLength * arguments[0];
-        int idx = 0;
-        while (idx < fPath->fContours.count() - 1 && len > fPath->fContours[idx]->length()) {
-            len -= fPath->fContours[idx++]->length();
+    void call(skvm::Builder* builder,
+              skvm::F32* arguments,
+              skvm::F32* outResult,
+              skvm::I32 mask) const override {
+        if (fPath.empty()) {
+            return;
         }
-        SkVector localXAxis;
-        if (idx >= fPath->fContours.count() ||
-            !fPath->fContours[idx]->getPosTan(len, (SkPoint*)outReturn, &localXAxis)) {
-            outReturn[0] = outReturn[1] = 0.0f;
-            localXAxis = { 1, 0 };
-        }
-        outReturn[2] = localXAxis.fY;
-        outReturn[3] = -localXAxis.fX;
+
+        skvm::Uniform ptr = fUniforms->pushPtr(fPath.data());
+        skvm::I32 index = trunc(clamp(arguments[0] * fPath.size(), 0, fPath.size() - 1));
+
+        outResult[0] = builder->gatherF(ptr, (index<<2)+0);
+        outResult[1] = builder->gatherF(ptr, (index<<2)+1);
+        outResult[2] = builder->gatherF(ptr, (index<<2)+2);
+        outResult[3] = builder->gatherF(ptr, (index<<2)+3);
     }
 
 private:
-    const SkPathContours* fPath;
+    const LinearizedPath& fPath;
 };
 
 class SkPathBinding : public SkParticleBinding {
@@ -85,16 +96,18 @@ public:
         v->visit("PathName", fPathName);
     }
 
-    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
-        return std::unique_ptr<SkParticleExternalValue>(
-            new SkPathExternalValue(fName.c_str(), compiler, &fContours));
+    std::unique_ptr<SkParticleExternalFunction> toFunction(SkSL::Compiler& compiler,
+                                                           skvm::Uniforms* uniforms,
+                                                           SkArenaAlloc* alloc) override {
+        return std::make_unique<SkPathExternalFunction>(fName.c_str(), compiler, fData, uniforms,
+                                                        alloc);
     }
 
     void prepare(const skresources::ResourceProvider* resourceProvider) override {
         if (auto pathData = resourceProvider->load(fPathPath.c_str(), fPathName.c_str())) {
             SkPath path;
             if (0 != path.readFromMemory(pathData->data(), pathData->size())) {
-                fContours.rebuild(path);
+                fData = linearize_path(path);
             }
         }
     }
@@ -104,7 +117,7 @@ private:
     SkString fPathName;
 
     // Cached
-    SkPathContours fContours;
+    LinearizedPath fData;
 };
 
 class SkTextBinding : public SkParticleBinding {
@@ -122,9 +135,11 @@ public:
         v->visit("FontSize", fFontSize);
     }
 
-    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
-        return std::unique_ptr<SkParticleExternalValue>(
-            new SkPathExternalValue(fName.c_str(), compiler, &fContours));
+    std::unique_ptr<SkParticleExternalFunction> toFunction(SkSL::Compiler& compiler,
+                                                           skvm::Uniforms* uniforms,
+                                                           SkArenaAlloc* alloc) override {
+        return std::make_unique<SkPathExternalFunction>(fName.c_str(), compiler, fData, uniforms,
+                                                        alloc);
     }
 
     void prepare(const skresources::ResourceProvider*) override {
@@ -135,7 +150,7 @@ public:
         SkFont font(nullptr, fFontSize);
         SkPath path;
         SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8, 0, 0, font, &path);
-        fContours.rebuild(path);
+        fData = linearize_path(path);
     }
 
 private:
@@ -143,32 +158,48 @@ private:
     SkScalar fFontSize;
 
     // Cached
-    SkPathContours fContours;
+    LinearizedPath fData;
 };
 
-// Exposes an SkBitmap as an external, callable value. p(xy) returns a float4
-class SkBitmapExternalValue : public SkParticleExternalValue {
+// Exposes an SkShader as an external, callable function. p(xy) returns a float4
+class SkShaderExternalFunction : public SkParticleExternalFunction {
 public:
-    SkBitmapExternalValue(const char* name, SkSL::Compiler& compiler, const SkBitmap& bitmap)
-            : SkParticleExternalValue(name, compiler, *compiler.context().fTypes.fFloat4)
-            , fBitmap(bitmap) {
-        SkASSERT(bitmap.colorType() == kRGBA_F32_SkColorType);
-    }
+    SkShaderExternalFunction(const char* name,
+                             SkSL::Compiler& compiler,
+                             sk_sp<SkShader> shader,
+                             skvm::Uniforms* uniforms,
+                             SkArenaAlloc* alloc)
+            : SkParticleExternalFunction(
+                      name, compiler, *compiler.context().fTypes.fFloat4, uniforms, alloc)
+            , fShader(std::move(shader)) {}
 
     int callParameterCount() const override { return 1; }
     void getCallParameterTypes(const SkSL::Type** outTypes) const override {
         outTypes[0] = fCompiler.context().fTypes.fFloat2.get();
     }
 
-    void call(int index, float* arguments, float* outReturn) const override {
-        int x = SkTPin(static_cast<int>(arguments[0] * fBitmap.width()), 0, fBitmap.width() - 1);
-        int y = SkTPin(static_cast<int>(arguments[1] * fBitmap.height()), 0, fBitmap.height() - 1);
-        float* p = static_cast<float*>(fBitmap.getAddr(x, y));
-        memcpy(outReturn, p, 4 * sizeof(float));
+    void call(skvm::Builder* builder,
+              skvm::F32* arguments,
+              skvm::F32* outResult,
+              skvm::I32 mask) const override {
+        skvm::Coord coord = {arguments[0], arguments[1]};
+        skvm::F32 zero = builder->splat(0.0f);
+        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+        SkColorInfo colorInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType, /*cs=*/nullptr);
+
+        skvm::Color result = as_SB(fShader)->program(
+                builder, /*device=*/coord, /*local=*/coord, /*paint=*/{zero, zero, zero, zero},
+                matrixProvider, /*localM=*/nullptr, kLow_SkFilterQuality, colorInfo, fUniforms,
+                fAlloc);
+        SkASSERT(result);
+        outResult[0] = result.r;
+        outResult[1] = result.g;
+        outResult[2] = result.b;
+        outResult[3] = result.a;
     }
 
 private:
-    SkBitmap fBitmap;
+    sk_sp<SkShader> fShader;
 };
 
 class SkImageBinding : public SkParticleBinding {
@@ -186,23 +217,24 @@ public:
         v->visit("ImageName", fImageName);
     }
 
-    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
-        return std::unique_ptr<SkParticleExternalValue>(
-            new SkBitmapExternalValue(fName.c_str(), compiler, fBitmap));
+    std::unique_ptr<SkParticleExternalFunction> toFunction(SkSL::Compiler& compiler,
+                                                           skvm::Uniforms* uniforms,
+                                                           SkArenaAlloc* alloc) override {
+        return std::make_unique<SkShaderExternalFunction>(fName.c_str(), compiler, fShader,
+                                                          uniforms, alloc);
     }
 
     void prepare(const skresources::ResourceProvider* resourceProvider) override {
         if (auto asset = resourceProvider->loadImageAsset(fImagePath.c_str(), fImageName.c_str(),
                                                           nullptr)) {
             if (auto image = asset->getFrame(0)) {
-                fBitmap.allocPixels(image->imageInfo().makeColorType(kRGBA_F32_SkColorType));
-                image->readPixels(nullptr, fBitmap.pixmap(), 0, 0);
+                SkMatrix normalize = SkMatrix::Scale(1.0f / image->width(), 1.0f / image->height());
+                fShader = image->makeShader(SkSamplingOptions(SkFilterMode::kLinear), &normalize);
                 return;
             }
         }
 
-        fBitmap.allocPixels(SkImageInfo::Make(1, 1, kRGBA_F32_SkColorType, kPremul_SkAlphaType));
-        fBitmap.eraseColor(SK_ColorWHITE);
+        fShader = SkShaders::Color(SK_ColorWHITE);
     }
 
 private:
@@ -210,7 +242,7 @@ private:
     SkString fImageName;
 
     // Cached
-    SkBitmap fBitmap;
+    sk_sp<SkShader> fShader;
 };
 
 sk_sp<SkParticleBinding> SkParticleBinding::MakeImage(const char* name, const char* imagePath,

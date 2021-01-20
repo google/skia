@@ -38,7 +38,7 @@ public:
      * value.
      * 'index' is the element index ([0 .. N-1]) within a call to ByteCode::run()
      */
-    virtual void call(int index, float* arguments, float* outResult) const  = 0;
+    virtual void call(int index, float* arguments, float* outResult) const { SkASSERT(false); }
 
     virtual void call(skvm::Builder* builder,
                       skvm::F32* arguments,

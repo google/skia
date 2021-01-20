@@ -11,7 +11,7 @@
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/skresources/include/SkResources.h"
-#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLVMGenerator.h"
 
 #include <string>
 
@@ -83,7 +83,7 @@ struct SimpleUniform {
     int slot; // the index into the uniforms array that this uniform begins.
 };
 
-SimpleUniform fromUniform(SkSL::ByteCode::Uniform u) {
+SimpleUniform fromUniform(const SkSL::UniformInfo::Uniform& u) {
     SimpleUniform su;
     su.columns = u.fColumns;
     su.rows = u.fRows;
@@ -102,63 +102,63 @@ EMSCRIPTEN_BINDINGS(Particles) {
             return reinterpret_cast<uintptr_t>(self.particleUniforms());
         }))
         .function("getEffectUniformCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.effectCode();
+            auto ec = self.effectUniformInfo();
             if (!ec) {
                 return -1;
             }
-            return ec->getUniformCount();
+            return ec->fUniforms.size();
         }))
         .function("getEffectUniformFloatCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.effectCode();
+            auto ec = self.effectUniformInfo();
             if (!ec) {
                 return -1;
             }
-            return ec->getUniformSlotCount();
+            return ec->fUniformSlotCount;
         }))
         .function("getEffectUniformName", optional_override([](SkParticleEffect& self, int i)->JSString {
-            auto ec = self.effectCode();
+            auto ec = self.effectUniformInfo();
             if (!ec) {
                 return emscripten::val::null();
             }
-            return emscripten::val(ec->getUniform(i).fName.c_str());
+            return emscripten::val(ec->fUniforms[i].fName.c_str());
         }))
         .function("getEffectUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
             SimpleUniform su;
-            auto ec = self.effectCode();
+            auto ec = self.effectUniformInfo();
             if (!ec) {
                 return su;
             }
-            su = fromUniform(ec->getUniform(i));
+            su = fromUniform(ec->fUniforms[i]);
             return su;
         }))
         .function("getParticleUniformCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.particleCode();
+            auto ec = self.particleUniformInfo();
             if (!ec) {
                 return -1;
             }
-            return ec->getUniformCount();
+            return ec->fUniforms.size();
         }))
         .function("getParticleUniformFloatCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.particleCode();
+            auto ec = self.particleUniformInfo();
             if (!ec) {
                 return -1;
             }
-            return ec->getUniformSlotCount();
+            return ec->fUniformSlotCount;
         }))
         .function("getParticleUniformName", optional_override([](SkParticleEffect& self, int i)->JSString {
-            auto ec = self.particleCode();
+            auto ec = self.particleUniformInfo();
             if (!ec) {
                 return emscripten::val::null();
             }
-            return emscripten::val(ec->getUniform(i).fName.c_str());
+            return emscripten::val(ec->fUniforms[i].fName.c_str());
         }))
         .function("getParticleUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
             SimpleUniform su;
-            auto ec = self.particleCode();
+            auto ec = self.particleUniformInfo();
             if (!ec) {
                 return su;
             }
-            su = fromUniform(ec->getUniform(i));
+            su = fromUniform(ec->fUniforms[i]);
             return su;
         }))
         .function("setPosition", select_overload<void (SkPoint)>(&SkParticleEffect::setPosition))
