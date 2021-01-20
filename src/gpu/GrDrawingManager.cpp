@@ -27,13 +27,13 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrRenderTask.h"
+#include "src/gpu/GrRenderTaskCluster.h"
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
-#include "src/gpu/GrTCluster.h"
 #include "src/gpu/GrTTopoSort.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -440,7 +440,7 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
 void GrDrawingManager::reorderTasks() {
     SkASSERT(fReduceOpsTaskSplitting);
     SkTInternalLList<GrRenderTask> llist;
-    bool clustered = GrTCluster<GrRenderTask, GrRenderTask::ClusterTraits>(fDAG, &llist);
+    bool clustered = GrClusterRenderTasks(fDAG, &llist);
     if (!clustered) {
         return;
     }
