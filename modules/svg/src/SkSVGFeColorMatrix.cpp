@@ -93,7 +93,7 @@ sk_sp<SkImageFilter> SkSVGFeColorMatrix::onMakeImageFilter(const SkSVGRenderCont
                                                            const SkSVGFilterContext& fctx) const {
     return SkImageFilters::ColorFilter(
             SkColorFilters::Matrix(makeMatrixForType()),
-            fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx)),
+            fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx, fctx)),
             this->resolveFilterSubregion(ctx, fctx));
 }
 

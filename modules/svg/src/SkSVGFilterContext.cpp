@@ -49,14 +49,12 @@ void SkSVGFilterContext::registerResult(const SkSVGStringType& id,
     fResults[id] = {result, subregion, resultColorspace};
 }
 
-sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& ctx,
-                                                      const SkSVGFeInputType& inputType,
-                                                      SkSVGColorspace colorspace) const {
+std::tuple<sk_sp<SkImageFilter>, SkSVGColorspace> SkSVGFilterContext::getInput(
+        const SkSVGRenderContext& ctx, const SkSVGFeInputType& inputType) const {
     SkSVGColorspace inputCS = SkSVGColorspace::kSRGB;
     sk_sp<SkImageFilter> result;
     switch (inputType.type()) {
         case SkSVGFeInputType::Type::kSourceGraphic:
-            // Do nothing.
             break;
         case SkSVGFeInputType::Type::kFillPaint:
             result = SkImageFilters::Paint(*ctx.fillPaint());
@@ -81,8 +79,27 @@ sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& 
         }
         default:
             SkDebugf("unhandled filter input type %d\n", inputType.type());
-            return nullptr;
+            break;
     }
 
-    return ConvertFilterColorspace(std::move(result), inputCS, colorspace);
+    return {result, inputCS};
+}
+
+SkSVGColorspace SkSVGFilterContext::resolveInputColorspace(
+        const SkSVGRenderContext& ctx, const SkSVGFeInputType& inputType) const {
+    auto [_, cs] = this->getInput(ctx, inputType);
+    return cs;
+}
+
+sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& ctx,
+                                                      const SkSVGFeInputType& inputType) const {
+    auto [result, _] = this->getInput(ctx, inputType);
+    return result;
+}
+
+sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& ctx,
+                                                      const SkSVGFeInputType& inputType,
+                                                      SkSVGColorspace colorspace) const {
+    auto [result, inputCS] = this->getInput(ctx, inputType);
+    return result ? ConvertFilterColorspace(std::move(result), inputCS, colorspace) : nullptr;
 }
