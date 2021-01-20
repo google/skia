@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ac75ae3_2c059816",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-20T21:09:32Z",
+      "side": 1,
+      "message": "nit: mConfig \u003d config?",
+      "range": {
+        "startLine": 462,
+        "startChar": 0,
+        "endLine": 464,
+        "endChar": 53
+      },
+      "revId": "d31e10363f192e4e7542acbb8868b213d6b8a1a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
