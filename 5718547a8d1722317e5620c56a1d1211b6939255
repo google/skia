@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbf1ea23_021b7463",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-20T21:21:50Z",
+      "side": 1,
+      "message": "nit",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 6
+      },
+      "revId": "5718547a8d1722317e5620c56a1d1211b6939255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b4811e4_3ba4feb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-20T21:21:50Z",
+      "side": 1,
+      "message": "Thanks!",
+      "revId": "5718547a8d1722317e5620c56a1d1211b6939255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a7c6652_aa0993e2",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-20T21:21:50Z",
+      "side": 1,
+      "message": "should this be abs(eDenom[0]) \u003e kTolerance? so we aren\u0027t trying to use ex or ey if the denominator was subnormal ?",
+      "range": {
+        "startLine": 807,
+        "startChar": 47,
+        "endLine": 807,
+        "endChar": 61
+      },
+      "revId": "5718547a8d1722317e5620c56a1d1211b6939255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d8b8b3b_51431f04",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-20T21:21:50Z",
+      "side": 1,
+      "message": "and here?",
+      "range": {
+        "startLine": 813,
+        "startChar": 54,
+        "endLine": 813,
+        "endChar": 68
+      },
+      "revId": "5718547a8d1722317e5620c56a1d1211b6939255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
