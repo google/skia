@@ -440,7 +440,7 @@ private:
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
-        int vertexCount = GrAATriangulator::PathToTriangles(path, tol, clipBounds, &allocator);
+        int vertexCount = GrAATriangulator::PathToAATriangles(path, tol, clipBounds, &allocator);
         if (vertexCount == 0) {
             return;
         }
