@@ -10,8 +10,6 @@
 #include "modules/svg/include/SkSVGSVG.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-SkSVGSVG::SkSVGSVG() : INHERITED(SkSVGTag::kSvg) { }
-
 static SkMatrix ViewboxMatrix(const SkRect& view_box, const SkRect& view_port,
                               const SkSVGPreserveAspectRatio& par) {
     SkASSERT(!view_box.isEmpty());
@@ -65,7 +63,11 @@ static SkMatrix ViewboxMatrix(const SkRect& view_box, const SkRect& view_port,
 }
 
 bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    auto viewPortRect  = ctx->lengthContext().resolveRect(fX, fY, fWidth, fHeight);
+    // x/y are ignored for outermost svg elements
+    const auto x = fType == Type::kInner ? fX : SkSVGLength(0);
+    const auto y = fType == Type::kInner ? fY : SkSVGLength(0);
+
+    auto viewPortRect  = ctx->lengthContext().resolveRect(x, y, fWidth, fHeight);
     auto contentMatrix = SkMatrix::Translate(viewPortRect.x(), viewPortRect.y());
     auto viewPort      = SkSize::Make(viewPortRect.width(), viewPortRect.height());
 
@@ -93,10 +95,6 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     }
 
     return this->INHERITED::onPrepareToRender(ctx);
-}
-
-void SkSVGSVG::setViewBox(const SkSVGViewBoxType& vb) {
-    fViewBox.set(vb);
 }
 
 void SkSVGSVG::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {

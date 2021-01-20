@@ -23,7 +23,7 @@ bool SkSVGFeMorphology::parseAndSetAttribute(const char* name, const char* value
 sk_sp<SkImageFilter> SkSVGFeMorphology::onMakeImageFilter(const SkSVGRenderContext& ctx,
                                                           const SkSVGFilterContext& fctx) const {
     const SkRect cropRect = this->resolveFilterSubregion(ctx, fctx);
-    const SkSVGColorspace colorspace = this->resolveColorspace(ctx);
+    const SkSVGColorspace colorspace = this->resolveColorspace(ctx, fctx);
     sk_sp<SkImageFilter> input = fctx.resolveInput(ctx, this->getIn(), colorspace);
 
     SkScalar rx = fRadius.fX;
