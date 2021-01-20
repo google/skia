@@ -255,6 +255,7 @@ private:
             // matching !helper.isTrivial() (which is more conservative than helper.usesLocalCoords)
             SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
             auto info = iter.metadata();
+
             tessellator.append(iter.deviceQuad(), iter.localQuad(),
                                info.fColor, kEmptyDomain, info.fAAFlags);
         }
