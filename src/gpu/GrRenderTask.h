@@ -16,6 +16,7 @@
 #include "src/gpu/GrTextureResolveManager.h"
 #include "src/gpu/ops/GrOp.h"
 
+class GrMockRenderTask;
 class GrOpFlushState;
 class GrOpsTask;
 class GrResourceAllocator;
@@ -62,6 +63,8 @@ public:
      * depends on.
      */
     void addDependenciesFromOtherTask(GrRenderTask* otherTask);
+
+    SkSpan<GrRenderTask*> dependencies() { return SkSpan<GrRenderTask*>(fDependencies); }
 
     /*
      * Does this renderTask depend on 'dependedOn'?
@@ -126,7 +129,7 @@ public:
     // it is required)?
     bool isInstantiated() const;
 
-    // Used by GrTCluster.
+    // Used by GrRenderTaskCluster.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrRenderTask);
 
 protected:
@@ -189,6 +192,7 @@ protected:
 private:
     // for TopoSortTraits, fTextureResolveTask, closeThoseWhoDependOnMe, addDependency
     friend class GrDrawingManager;
+    friend class GrMockRenderTask;
 
     // Derived classes can override to indicate usage of proxies _other than target proxies_.
     // GrRenderTask itself will handle checking the target proxies.
@@ -227,24 +231,6 @@ private:
         }
         static GrRenderTask* Dependency(GrRenderTask* renderTask, int index) {
             return renderTask->fDependencies[index];
-        }
-    };
-
-    struct ClusterTraits {
-        static int NumTargets(GrRenderTask* renderTask) {
-            return renderTask->numTargets();
-        }
-        static uint32_t GetTarget(GrRenderTask* renderTask, int index) {
-            return renderTask->target(index).proxy()->uniqueID().asUInt();
-        }
-        static int NumDependencies(const GrRenderTask* renderTask) {
-            return renderTask->fDependencies.count();
-        }
-        static GrRenderTask* Dependency(GrRenderTask* renderTask, int index) {
-            return renderTask->fDependencies[index];
-        }
-        static uint32_t GetID(GrRenderTask* renderTask) {
-            return renderTask->uniqueID();
         }
     };
 
