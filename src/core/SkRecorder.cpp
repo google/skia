@@ -204,56 +204,6 @@ void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
     this->append<SkRecords::DrawPath>(paint, path);
 }
 
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
-                             const SkPaint* paint) {
-    this->append<SkRecords::DrawImage>(this->copy(paint), sk_ref_sp(image), left, top);
-}
-
-void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                 const SkPaint* paint, SrcRectConstraint constraint) {
-    this->append<SkRecords::DrawImageRect>(this->copy(paint), sk_ref_sp(image), this->copy(src), dst, constraint);
-}
-
-void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
-                                    const SkPaint* paint) {
-    int flagCount = lattice.fRectTypes ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
-    SkASSERT(lattice.fBounds);
-    this->append<SkRecords::DrawImageLattice>(this->copy(paint), sk_ref_sp(image),
-           lattice.fXCount, this->copy(lattice.fXDivs, lattice.fXCount),
-           lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount),
-           flagCount, this->copy(lattice.fRectTypes, flagCount),
-           this->copy(lattice.fColors, flagCount), *lattice.fBounds, dst);
-}
-void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                             const SkColor colors[], int count, SkBlendMode mode,
-                             const SkRect* cull, const SkPaint* paint) {
-    this->append<SkRecords::DrawAtlas>(this->copy(paint),
-           sk_ref_sp(atlas),
-           this->copy(xform, count),
-           this->copy(tex, count),
-           this->copy(colors, count),
-           count,
-           mode,
-           this->copy(cull));
-}
-void SkRecorder::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                      const SkPaint* paint, SrcRectConstraint constraint) {
-    int totalDstClipCount, totalMatrixCount;
-    SkCanvasPriv::GetDstClipAndMatrixCounts(set, count, &totalDstClipCount, &totalMatrixCount);
-
-    SkAutoTArray<ImageSetEntry> setCopy(count);
-    for (int i = 0; i < count; ++i) {
-        setCopy[i] = set[i];
-    }
-
-    this->append<SkRecords::DrawEdgeAAImageSet>(this->copy(paint), std::move(setCopy), count,
-            this->copy(dstClips, totalDstClipCount),
-            this->copy(preViewMatrices, totalMatrixCount), constraint);
-}
-#endif
-
 void SkRecorder::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
                               const SkSamplingOptions& sampling, const SkPaint* paint) {
     this->append<SkRecords::DrawImage2>(this->copy(paint), sk_ref_sp(image), x, y, sampling);
