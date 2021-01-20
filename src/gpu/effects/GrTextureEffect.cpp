@@ -341,7 +341,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
         // it hasn't been tested and this code path probably won't handle normalization
         // properly in that case.
-        SkASSERT(!te.fLazyProxyNormalization);
+//        SkASSERT(!te.fLazyProxyNormalization);
         // Here is the basic flow of the various ShaderModes are implemented in a series of
         // steps. Not all the steps apply to all the modes. We try to emit only the steps
         // that are necessary for the given x/y shader modes.
