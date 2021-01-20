@@ -1365,16 +1365,9 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
                     font.currentFont(), bidi.currentLevel(),
                     std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]), len);
 
-#if SK_SHAPER_HARFBUZZ_USE_BAD_SCALE
-    int scaleX, scaleY;
-    hb_font_get_scale(hbFont.get(), &scaleX, &scaleY);
-    double SkScalarFromHBPosY = -(run.fFont.getSize() / scaleY);
-    double SkScalarFromHBPosX = run.fFont.getSize() / scaleX * run.fFont.getScaleX();
-#else
     // Undo skhb_position with (1.0/(1<<16)) and scale as needed.
     double SkScalarFromHBPosX = +(1.52587890625e-5) * run.fFont.getScaleX();
     double SkScalarFromHBPosY = -(1.52587890625e-5);  // HarfBuzz y-up, Skia y-down
-#endif
     SkVector runAdvance = { 0, 0 };
     for (unsigned i = 0; i < len; i++) {
         ShapedGlyph& glyph = run.fGlyphs[i];
