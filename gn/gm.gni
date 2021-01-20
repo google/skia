@@ -109,6 +109,13 @@ gm_sources = [
   "$_gm/crbug_1073670.cpp",
   "$_gm/crbug_1086705.cpp",
   "$_gm/crbug_1113794.cpp",
+<<<<<<< HEAD   (1c2818 Limit morphology radius to 100 pixels)
+=======
+  "$_gm/crbug_1139750.cpp",
+  "$_gm/crbug_1156804.cpp",
+  "$_gm/crbug_1162942.cpp",
+  "$_gm/crbug_1167277.cpp",
+>>>>>>> CHANGE (6d717d GrQuadUtils: Handle degenerate persp quads where edges inter)
   "$_gm/crbug_224618.cpp",
   "$_gm/crbug_691386.cpp",
   "$_gm/crbug_788500.cpp",
