@@ -13,7 +13,7 @@
 #include "modules/particles/include/SkReflected.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
-#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLVMGenerator.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -321,12 +321,12 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
                 effect->setPosition(mousePos);
             }
 
-            auto uniformsGui = [mousePos](const SkSL::ByteCode* code, float* data) {
-                if (!code || !data) {
+            auto uniformsGui = [mousePos](const SkSL::UniformInfo* info, float* data) {
+                if (!info || !data) {
                     return;
                 }
-                for (int i = 0; i < code->getUniformCount(); ++i) {
-                    const auto& uni = code->getUniform(i);
+                for (size_t i = 0; i < info->fUniforms.size(); ++i) {
+                    const auto& uni = info->fUniforms[i];
                     float* vals = data + uni.fSlot;
 
                     // Skip over builtin uniforms, to reduce clutter
@@ -336,14 +336,14 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
 
                     // Special case for 'uniform float2 mouse_pos' - an example of likely app logic
                     if (uni.fName == "mouse_pos" &&
-                        uni.fType == SkSL::TypeCategory::kFloat &&
+                        uni.fKind == SkSL::Type::NumberKind::kFloat &&
                         uni.fRows == 2 && uni.fColumns == 1) {
                         vals[0] = mousePos.fX;
                         vals[1] = mousePos.fY;
                         continue;
                     }
 
-                    if (uni.fType == SkSL::TypeCategory::kBool) {
+                    if (uni.fKind == SkSL::Type::NumberKind::kBoolean) {
                         for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
                             for (int r = 0; r < uni.fRows; ++r, ++vals) {
                                 ImGui::PushID(c*uni.fRows + r);
@@ -360,11 +360,12 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
                     }
 
                     ImGuiDataType dataType = ImGuiDataType_COUNT;
-                    switch (uni.fType) {
-                        case SkSL::TypeCategory::kSigned:   dataType = ImGuiDataType_S32;   break;
-                        case SkSL::TypeCategory::kUnsigned: dataType = ImGuiDataType_U32;   break;
-                        case SkSL::TypeCategory::kFloat:    dataType = ImGuiDataType_Float; break;
-                        default:                                                            break;
+                    using NumberKind = SkSL::Type::NumberKind;
+                    switch (uni.fKind) {
+                        case NumberKind::kSigned:   dataType = ImGuiDataType_S32;   break;
+                        case NumberKind::kUnsigned: dataType = ImGuiDataType_U32;   break;
+                        case NumberKind::kFloat:    dataType = ImGuiDataType_Float; break;
+                        default:                                                    break;
                     }
                     SkASSERT(dataType != ImGuiDataType_COUNT);
                     for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
@@ -374,8 +375,8 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
                     }
                 }
             };
-            uniformsGui(effect->effectCode(), effect->effectUniforms());
-            uniformsGui(effect->particleCode(), effect->particleUniforms());
+            uniformsGui(effect->effectUniformInfo(), effect->effectUniforms());
+            uniformsGui(effect->particleUniformInfo(), effect->particleUniforms());
             if (remove) {
                 fRunning.removeShuffle(i);
             }
