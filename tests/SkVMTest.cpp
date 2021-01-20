@@ -1800,6 +1800,18 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.ld24s(A::v0, A::x8);  // echo 'ld2.4s {v0,v1}, [x8]' | llvm-mc --show-encoding
+        a.ld44s(A::v0, A::x8);
+        a.st24s(A::v0, A::x8);
+        a.st44s(A::v0, A::x8);  // echo 'st4.4s {v0,v1,v2,v3}, [x8]' | llvm-mc --show-encoding
+    },{
+        0x00,0x89,0x40,0x4c,
+        0x00,0x09,0x40,0x4c,
+        0x00,0x89,0x00,0x4c,
+        0x00,0x09,0x00,0x4c,
+    });
+
+    test_asm(r, [&](A& a) {
         a.xtns2h(A::v0, A::v0);
         a.xtnh2b(A::v0, A::v0);
         a.strs  (A::v0, A::x0);
