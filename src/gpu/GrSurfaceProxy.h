@@ -321,7 +321,13 @@ public:
     SkString dump() const;
 #endif
 
-    SkDEBUGCODE(void validate(GrContext_Base*) const;)
+#ifdef SK_DEBUG
+    void validate(GrContext_Base*) const;
+    SkString getDebugName() {
+        return fDebugName.isEmpty() ? SkStringPrintf("%d", this->uniqueID().asUInt()) : fDebugName;
+    }
+    void setDebugName(SkString name) { fDebugName = std::move(name); }
+#endif
 
     // Provides access to functions that aren't part of the public API.
     inline GrSurfaceProxyPriv priv();
@@ -434,6 +440,7 @@ private:
     // If the proxy computes its own answer that answer is checked (in debug mode) in
     // the instantiation method.
     mutable size_t         fGpuMemorySize;
+    SkDEBUGCODE(SkString   fDebugName;)
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrSurfaceProxy::ResolveFlags)
