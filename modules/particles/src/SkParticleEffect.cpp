@@ -267,9 +267,6 @@ void SkParticleEffect::advanceTime(double now) {
 
     fState.fAge += deltaTime / fState.fLifetime;
     if (fState.fAge > 1) {
-        // We always run effectDeath when age crosses 1, whether we're looping or actually dying
-        this->runEffectScript("effectDeath");
-
         if (fLooping) {
             // If we looped, then run effectSpawn again (with the updated loop count)
             fState.fLoopCount += sk_float_floor2int(fState.fAge);
@@ -281,25 +278,20 @@ void SkParticleEffect::advanceTime(double now) {
         }
     }
 
-    // Advance age for existing particles, shuffle all dying particles to the end of the arrays
-    int numDyingParticles = 0;
+    // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
         fParticles.fData[SkParticles::kAge][i] +=
                 fParticles.fData[SkParticles::kLifetime][i] * deltaTime;
         if (fParticles.fData[SkParticles::kAge][i] > 1.0f) {
             // NOTE: This is fast, but doesn't preserve drawing order. Could be a problem...
             for (int j = 0; j < SkParticles::kNumChannels; ++j) {
-                std::swap(fParticles.fData[j][i], fParticles.fData[j][fCount - 1]);
+                fParticles.fData[j][i] = fParticles.fData[j][fCount - 1];
             }
-            std::swap(fStableRandoms[i], fStableRandoms[fCount - 1]);
+            fStableRandoms[i] = fStableRandoms[fCount - 1];
             --i;
             --fCount;
-            ++numDyingParticles;
         }
     }
-
-    // Run the death script for all particles that just died
-    this->runParticleScript("death", fCount, numDyingParticles);
 
     // Run 'effectUpdate' to adjust emitter properties
     this->runEffectScript("effectUpdate");
