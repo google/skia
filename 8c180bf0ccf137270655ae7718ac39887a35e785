@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f262dd97_b25f7534",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-20T23:17:02Z",
+      "side": 1,
+      "message": "Hey Robert, do you mind taking a look here? I think this strategy might be helpful for the normal triangulating path renderer as well, if avoiding the copy is worth it.",
+      "revId": "8c180bf0ccf137270655ae7718ac39887a35e785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
