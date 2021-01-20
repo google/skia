@@ -16,6 +16,29 @@
       "message": "Can be previewed at https://skia.org/dev/design/raster_tragedy?cl\u003d356305",
       "revId": "b6208786fcbaac2368f5c31dd4b340983ee96e21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e070802_52b00c1c",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-20T17:53:15Z",
+      "side": 1,
+      "message": "👍",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 825
+      },
+      "revId": "b6208786fcbaac2368f5c31dd4b340983ee96e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
