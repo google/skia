@@ -1391,24 +1391,13 @@ Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt) {
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
-void* GrTriangulator::polysToTrianglesImpl(Poly* polys, void* data,
-                                           SkPathFillType overrideFillType) {
+void* GrTriangulator::polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType) {
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(overrideFillType, poly)) {
             data = this->emitPoly(poly, data);
         }
     }
     return data;
-}
-
-Poly* GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds, int contourCnt) {
-    if (SkPathFillType_IsInverse(fPath.getFillType())) {
-        contourCnt++;
-    }
-    std::unique_ptr<VertexList[]> contours(new VertexList[contourCnt]);
-
-    this->pathToContours(tolerance, clipBounds, contours.get());
-    return this->contoursToPolys(contours.get(), contourCnt);
 }
 
 static int get_contour_count(const SkPath& path, SkScalar tolerance) {
@@ -1445,7 +1434,23 @@ static int get_contour_count(const SkPath& path, SkScalar tolerance) {
     return contourCnt;
 }
 
-int64_t GrTriangulator::countPointsImpl(Poly* polys, SkPathFillType overrideFillType) const {
+Poly* GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds) {
+    int contourCnt = get_contour_count(fPath, tolerance);
+    if (contourCnt <= 0) {
+        fIsLinear = true;
+        return nullptr;
+    }
+
+    if (SkPathFillType_IsInverse(fPath.getFillType())) {
+        contourCnt++;
+    }
+    std::unique_ptr<VertexList[]> contours(new VertexList[contourCnt]);
+
+    this->pathToContours(tolerance, clipBounds, contours.get());
+    return this->contoursToPolys(contours.get(), contourCnt);
+}
+
+int64_t GrTriangulator::CountPoints(Poly* polys, SkPathFillType overrideFillType) {
     int64_t count = 0;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(overrideFillType, poly) && poly->fCount >= 3) {
@@ -1457,15 +1462,8 @@ int64_t GrTriangulator::countPointsImpl(Poly* polys, SkPathFillType overrideFill
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
-int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
-                                    GrEagerVertexAllocator* vertexAllocator) {
-    int contourCnt = get_contour_count(fPath, tolerance);
-    if (contourCnt <= 0) {
-        fIsLinear = true;
-        return 0;
-    }
-    Poly* polys = this->pathToPolys(tolerance, clipBounds, contourCnt);
-    int64_t count64 = this->countPoints(polys);
+int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertexAllocator) {
+    int64_t count64 = CountPoints(polys, fPath.getFillType());
     if (0 == count64 || count64 > SK_MaxS32) {
         return 0;
     }
@@ -1482,7 +1480,7 @@ int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
     }
 
     TESS_LOG("emitting %d verts\n", count);
-    void* end = this->polysToTriangles(polys, verts);
+    void* end = this->polysToTriangles(polys, verts, fPath.getFillType());
 
     int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
                                        / vertexStride);
@@ -1493,14 +1491,9 @@ int GrTriangulator::pathToTriangles(float tolerance, const SkRect& clipBounds,
 
 int GrTriangulator::PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                    WindingVertex** verts) {
-    int contourCnt = get_contour_count(path, tolerance);
-    if (contourCnt <= 0) {
-        *verts = nullptr;
-        return 0;
-    }
     GrTriangulator triangulator(path);
-    Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, contourCnt);
-    int64_t count64 = triangulator.countPoints(polys);
+    Poly* polys = triangulator.pathToPolys(tolerance, clipBounds);
+    int64_t count64 = CountPoints(polys, path.getFillType());
     if (0 == count64 || count64 > SK_MaxS32) {
         *verts = nullptr;
         return 0;
