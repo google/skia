@@ -377,6 +377,11 @@ namespace skvm {
         void ld1r8h (V dst, X src);  // Each 16-bit lane = *src
         void ld1r16b(V dst, X src);  // Each  8-bit lane = *src
 
+        void ld24s(V dst, X src);  // deinterleave(dst,dst+1)             = 256-bit *src
+        void ld44s(V dst, X src);  // deinterleave(dst,dst+1,dst+2,dst+3) = 512-bit *src
+        void st24s(V src, X dst);  // 256-bit *dst = interleave_32bit_lanes(src,src+1)
+        void st44s(V src, X dst);  // 512-bit *dst = interleave_32bit_lanes(src,src+1,src+2,src+3)
+
     private:
         // TODO: can probably track two of these three?
         uint8_t* fCode;
