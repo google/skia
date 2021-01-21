@@ -291,7 +291,7 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
                                                          const ContextRec& rec)
     : INHERITED(shader, rec)
     , fFlags(this->INHERITED::getFlags())
-    , fDither(rec.fPaint->isDither())
+    , fDither(rec.fPaintDither)
 {
     const SkMatrix& inverse = this->getTotalInverse();
     fDstToPos.setConcat(shader.fPtsToUnit, inverse);

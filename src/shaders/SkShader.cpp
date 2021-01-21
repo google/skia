@@ -103,7 +103,7 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
     // invertible.
     SkAssertResult(fShader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &fTotalInverse));
 
-    fPaintAlpha = rec.fPaint->getAlpha();
+    fPaintAlpha = SkColorGetA(rec.fPaintColor);
 }
 
 SkShaderBase::Context::~Context() {}
