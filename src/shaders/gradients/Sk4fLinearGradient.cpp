@@ -96,7 +96,7 @@ LinearGradient4fContext::LinearGradient4fContext(const SkLinearGradient& shader,
     // Our fast path expects interval points to be monotonically increasing in x.
     const bool reverseIntervals = std::signbit(fDstToPos.getScaleX());
     fIntervals.init(shader, rec.fDstColorSpace, shader.fTileMode,
-                    fColorsArePremul, rec.fPaint->getAlpha() * (1.0f / 255), reverseIntervals);
+                    fColorsArePremul, rec.fPaintAlpha * (1.0f / 255), reverseIntervals);
 
     SkASSERT(fIntervals->count() > 0);
     fCachedInterval = fIntervals->begin();

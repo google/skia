@@ -224,35 +224,6 @@ static bool is_default_cubic_resampler(SkCubicResampler cubic) {
 }
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-static bool sampling_to_quality(SkSamplingOptions sampling, SkFilterQuality* quality) {
-    int q = -1; // not a legal quality enum
-
-    if (sampling.useCubic) {
-        if (is_default_cubic_resampler(sampling.cubic)) {
-            q = kHigh_SkFilterQuality;
-        }
-    } else {
-        switch (sampling.mipmap) {
-            case SkMipmapMode::kNone:
-                q = sampling.filter == SkFilterMode::kLinear ?
-                    kLow_SkFilterQuality :
-                    kNone_SkFilterQuality;
-                break;
-            case SkMipmapMode::kNearest:
-                if (sampling.filter == SkFilterMode::kLinear) {
-                    q = kMedium_SkFilterQuality;
-                }
-                break;
-            case SkMipmapMode::kLinear:
-                break;
-        }
-    }
-    if (q >= 0) {
-        *quality = (SkFilterQuality)q;
-        return true;
-    }
-    return false;
-}
 
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
     SkASSERT(!inv.hasPerspective());
@@ -293,16 +264,23 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
-    SkFilterQuality quality = rec.fPaint->getFilterQuality();
-    if (fUseSamplingOptions) {
-        // we turn our sampling backwards into a quality (if possible)
-        // Note: if/when we can retool the legacy shader to explicitly take SkFilterOptions
-        //       we can skip this funny step.
-        if (!sampling_to_quality(fSampling, &quality)) {
-            return nullptr;
+    SkSamplingOptions sampling = fUseSamplingOptions ? fSampling
+                                                     : rec.fPaintSampling;
+
+    auto supported = [](const SkSamplingOptions& sampling) {
+        const std::tuple<SkFilterMode,SkMipmapMode> supported[] = {
+            {SkFilterMode::kNearest, SkMipmapMode::kNone},    // legacy kNone_SkFilterQuality
+            {SkFilterMode::kLinear,  SkMipmapMode::kNone},    // legacy kLow_SkFilterQuality
+            {SkFilterMode::kLinear,  SkMipmapMode::kNearest}, // legacy kMedium_SkFilterQuality
+        };
+        for (auto [f, m] : supported) {
+            if (sampling.filter == f && sampling.mipmap == m) {
+                return true;
+            }
         }
-    }
-    if (quality == kHigh_SkFilterQuality) {
+        return false;
+    };
+    if (sampling.useCubic || !supported(sampling)) {
         return nullptr;
     }
 
@@ -331,14 +309,10 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
-    // Send in a modified paint with different filter-quality if we don't agree with the paint
-    SkPaint modifiedPaint;
+    // Can remove this once fUseSamplingOptions is always true
     ContextRec modifiedRec = rec;
-    if (quality != rec.fPaint->getFilterQuality()) {
-        modifiedPaint = *rec.fPaint;
-        modifiedPaint.setFilterQuality(quality);
-        modifiedRec.fPaint = &modifiedPaint;
-    }
+    modifiedRec.fPaintSampling = sampling;
+
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  as_IB(fImage.get()), modifiedRec, alloc);
 }
