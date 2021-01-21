@@ -39,7 +39,8 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrComposeLerpEffect& _outer = _proc.cast<GrComposeLerpEffect>();
         { pdman.set1f(weightVar, (_outer.weight)); }
     }

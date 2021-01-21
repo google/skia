@@ -63,7 +63,8 @@ return color;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrAlphaThresholdFragmentProcessor& _outer =
                 _proc.cast<GrAlphaThresholdFragmentProcessor>();
         {
