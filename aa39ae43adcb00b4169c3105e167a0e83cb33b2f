@@ -16,6 +16,24 @@
       "message": "Is there a bug# tracking this wacky needed for uint32_t for pointer-to-struct (e.g. for matrices)? I\u0027d like to advocate for that bug w/ the wasm team.",
       "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc1fc9b5_cb4c7ab0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-21T16:33:52Z",
+      "side": 1,
+      "message": "I think https://github.com/emscripten-core/emscripten/issues/9448 is probably one (although it was closed due to inactivity).\n\nThis problem has been around a while https://github.com/emscripten-core/emscripten/issues/5562",
+      "parentUuid": "d559087e_a6e10a15",
+      "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
