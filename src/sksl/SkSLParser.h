@@ -8,10 +8,10 @@
 #ifndef SKSL_PARSER
 #define SKSL_PARSER
 
-#include <vector>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include "include/private/SkTArray.h"
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -119,8 +119,8 @@ private:
     Token peek();
 
     /**
-     * Checks to see if the next token is of the specified type. If so, stores it in result (if
-     * result is non-null) and returns true. Otherwise, pushes it back and returns false.
+     * Checks to see if the next non-whitespace token is of the specified kind. If so, stores it in
+     * result (if result is non-null) and returns true. Otherwise, pushes it back and returns false.
      */
     bool checkNext(Token::Kind kind, Token* result = nullptr);
 
@@ -157,6 +157,13 @@ private:
         SkASSERT(id.fValue >= 0 && id.fValue < (int) fFile->fNodes.size());
         return fFile->fNodes[id.fValue];
     }
+
+    // Peeks ahead in the stream to see if the upcoming statement appears to be a vardecl.
+    bool peekVarDeclarations();
+    bool peekVarDeclarationsModifiers();
+    bool peekVarDeclarationsType();
+    bool peekVarDeclarationsArraySize();
+    bool peekVarDeclarationsName();
 
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
@@ -278,6 +285,16 @@ private:
 
     void createEmptyChild(ASTNode::ID target);
 
+    class TokenReturn {
+    public:
+        TokenReturn(Parser* p, const Token& t) : fParser(p), fToken(t) {}
+        ~TokenReturn() { fParser->pushback(fToken); }
+
+    private:
+        Parser* fParser;
+        const Token& fToken;
+    };
+
     static std::unordered_map<String, LayoutToken>* layoutTokens;
 
     const char* fText;
@@ -285,7 +302,7 @@ private:
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs
     int fDepth = 0;
-    Token fPushback;
+    SkSTArray<6, Token> fPushback;
     SymbolTable& fSymbols;
     ErrorReporter& fErrors;
 
