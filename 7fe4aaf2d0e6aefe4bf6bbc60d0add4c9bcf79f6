@@ -22,6 +22,30 @@
       },
       "revId": "7fe4aaf2d0e6aefe4bf6bbc60d0add4c9bcf79f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23643926_875f68b6",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-21T18:32:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9667a27d_96621085",
+      "range": {
+        "startLine": 768,
+        "startChar": 0,
+        "endLine": 771,
+        "endChar": 81
+      },
+      "revId": "7fe4aaf2d0e6aefe4bf6bbc60d0add4c9bcf79f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
