@@ -179,6 +179,7 @@ public:
 
 private:
     void setCapacity(int capacity);
+    void updateStorage();
 
     // Helpers to break down update
     void advanceTime(double now);
@@ -223,7 +224,7 @@ private:
     SkAutoTMalloc<float> fStableRandoms;
 
     // Cached
-    int fCapacity;
+    int fCapacity = 0;
     SkTArray<float, true> fUniforms;
 
     friend struct SkParticleProgram;
