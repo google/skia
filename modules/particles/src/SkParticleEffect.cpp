@@ -220,7 +220,43 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params)
         , fLastTime(-1.0)
         , fSpawnRemainder(0.0f) {
     fState.fAge = -1.0f;
-    this->setCapacity(fParams->fMaxCount);
+    this->updateStorage();
+}
+
+void SkParticleEffect::updateStorage() {
+    // Handle user edits to fMaxCount
+    if (fParams->fMaxCount != fCapacity) {
+        this->setCapacity(fParams->fMaxCount);
+    }
+
+    // Ensure our storage block for uniforms is large enough
+    if (this->uniformInfo()) {
+        int newCount = this->uniformInfo()->fUniformSlotCount;
+        if (newCount > fUniforms.count()) {
+            fUniforms.push_back_n(newCount - fUniforms.count(), 0.0f);
+        } else {
+            fUniforms.resize(newCount);
+        }
+    }
+}
+
+bool SkParticleEffect::setUniform(const char* name, const float* val, int count) {
+    const SkSL::UniformInfo* info = this->uniformInfo();
+    if (!info) {
+        return false;
+    }
+
+    auto it = std::find_if(info->fUniforms.begin(), info->fUniforms.end(),
+                           [name](const auto& u) { return u.fName == name; });
+    if (it == info->fUniforms.end()) {
+        return false;
+    }
+    if (it->fRows * it->fColumns != count) {
+        return false;
+    }
+
+    std::copy(val, val + count, this->uniformData() + it->fSlot);
+    return true;
 }
 
 void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVector heading,
@@ -317,23 +353,8 @@ void SkParticleEffect::advanceTime(double now) {
     }
     fLastTime = now;
 
-    // Handle user edits to fMaxCount
-    if (fParams->fMaxCount != fCapacity) {
-        this->setCapacity(fParams->fMaxCount);
-    }
-
-    // Ensure our storage block for uniforms are large enough
-    auto resizeWithZero = [](SkTArray<float, true>* uniforms, const SkSL::UniformInfo* info) {
-        if (info) {
-            int newCount = info->fUniformSlotCount;
-            if (newCount > uniforms->count()) {
-                uniforms->push_back_n(newCount - uniforms->count(), 0.0f);
-            } else {
-                uniforms->resize(newCount);
-            }
-        }
-    };
-    resizeWithZero(&fUniforms, this->uniformInfo());
+    // Possibly re-allocate cached storage, if our params have changed
+    this->updateStorage();
 
     // Copy known values into the uniform blocks
     if (fParams->fProgram) {

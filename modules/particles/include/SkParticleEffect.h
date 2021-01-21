@@ -175,10 +175,16 @@ public:
     const SkSL::UniformInfo* uniformInfo() const;
     float* uniformData() { return fUniforms.data(); }
 
+    // Sets named uniform to the data in 'val'. 'count' must be equal to the total number of floats
+    // in the uniform (eg, the number of elements in a vector). Returns false if the uniform isn't
+    // found, or if count is incorrect. Returns true if the value is changed successfully.
+    bool setUniform(const char* name, const float* val, int count);
+
     static void RegisterParticleTypes();
 
 private:
     void setCapacity(int capacity);
+    void updateStorage();
 
     // Helpers to break down update
     void advanceTime(double now);
@@ -223,7 +229,7 @@ private:
     SkAutoTMalloc<float> fStableRandoms;
 
     // Cached
-    int fCapacity;
+    int fCapacity = 0;
     SkTArray<float, true> fUniforms;
 
     friend struct SkParticleProgram;
