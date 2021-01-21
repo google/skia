@@ -99,6 +99,24 @@
       "parentUuid": "871f49cb_b2f775c6",
       "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aad25665_0f157789",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:56:41Z",
+      "side": 1,
+      "message": "Yeah, I actually went down this path earlier today, as I originally wrote it with make_unique, hit the error, then researched the situation online and learned that they arbitrarily (?) chose () over {} in make_unique. Sigh.",
+      "parentUuid": "b629ec0e_fbda1c8b",
+      "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
