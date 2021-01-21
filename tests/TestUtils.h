@@ -27,9 +27,13 @@ void TestWritePixels(skiatest::Reporter*, GrDirectContext*, GrSurfaceContext* sr
 
 // Ensure that the pixels can be copied from 'proxy' viewed as colorType, to an RGBA 8888
 // destination (both texture-backed and rendertarget-backed).
-void TestCopyFromSurface(skiatest::Reporter*, GrDirectContext*, GrSurfaceProxy* proxy,
-                         GrSurfaceOrigin origin, GrColorType colorType,
-                         uint32_t expectedPixelValues[], const char* testName);
+void TestCopyFromSurface(skiatest::Reporter*,
+                         GrDirectContext*,
+                         sk_sp<GrSurfaceProxy> proxy,
+                         GrSurfaceOrigin origin,
+                         GrColorType colorType,
+                         uint32_t expectedPixelValues[],
+                         const char* testName);
 
 // Encodes the bitmap into a data:/image/png;base64,... url suitable to view in a browser after
 // printing to a log. If false is returned, dst holds an error message instead of a URI.

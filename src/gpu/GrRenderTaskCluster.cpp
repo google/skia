@@ -13,9 +13,7 @@
 // Uncomment to get lots of logging.
 #define CLUSTER_DEBUGF(...) //SkDebugf(__VA_ARGS__)
 
-static GrSurfaceProxy* first_target(GrRenderTask* task) {
-    return task->target(0).proxy();
-}
+static GrSurfaceProxy* first_target(GrRenderTask* task) { return task->target(0); }
 
 #ifdef SK_DEBUG
 [[maybe_unused]] static SkString describe_task(GrRenderTask* t) {
@@ -74,7 +72,7 @@ static bool task_cluster_visit(GrRenderTask* task, SkTInternalLList<GrRenderTask
         // Tasks with 0 or multiple targets are treated as full barriers
         // for all their targets.
         for (int j = 0; j < task->numTargets(); j++) {
-            lastTaskMap->remove(task->target(0).proxy());
+            lastTaskMap->remove(task->target(0));
         }
         return false;
     }

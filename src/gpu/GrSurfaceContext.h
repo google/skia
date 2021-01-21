@@ -180,12 +180,13 @@ public:
     GrAuditTrail* auditTrail();
 
 #if GR_TEST_UTILS
-    bool testCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
-        return this->copy(src, srcRect, dstPoint);
+    bool testCopy(sk_sp<GrSurfaceProxy> src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+        return this->copy(std::move(src), srcRect, dstPoint);
     }
 
-    bool testCopy(GrSurfaceProxy* src) {
-        return this->copy(src, SkIRect::MakeSize(src->dimensions()), {0, 0});
+    bool testCopy(sk_sp<GrSurfaceProxy> src) {
+        auto rect = SkIRect::MakeSize(src->dimensions());
+        return this->copy(std::move(src), rect, {0, 0});
     }
 #endif
 
@@ -241,7 +242,7 @@ private:
      *       regions will not be shifted. The 'src' must have the same origin as the backing proxy
      *       of fSurfaceContext.
      */
-    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool copy(sk_sp<GrSurfaceProxy> src, SkIRect srcRect, SkIPoint dstPoint);
 
     class AsyncReadResult;
 
