@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb64040e_9d819046",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T14:21:29Z",
+      "side": 1,
+      "message": "LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a209ee12_7c45b5a5",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T14:21:29Z",
+      "side": 1,
+      "message": "If you make this \"if (USE_LAZY_PROXIES)\" then you can be sure this keeps compiling.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 20
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e169cc2e_cf221b67",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T14:21:29Z",
+      "side": 1,
+      "message": "Could we use MakeTextureProxyViewFromData here? I\u0027d like to remove createProxyFromBitmap in the not too distant future.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 72
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34840831_5c93adb2",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T14:21:29Z",
+      "side": 1,
+      "message": "I thought we had a rule about not allowing bottom-left with fully lazy proxies. I think we should. You can\u0027t reason about absolute rectangles for things like copies and uploads for bottom left if you don\u0027t know the size. Coincidentally I\u0027m working on making a task for write pixels and as part of that am removing the view from task targets.",
+      "range": {
+        "startLine": 69,
+        "startChar": 11,
+        "endLine": 69,
+        "endChar": 65
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "374b3f6b_a900939b",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T14:21:29Z",
+      "side": 1,
+      "message": "Can we alternatively disallow mipmapped fully lazy proxies?",
+      "range": {
+        "startLine": 163,
+        "startChar": 2,
+        "endLine": 163,
+        "endChar": 43
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13f45999_f6e66142",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T14:21:29Z",
+      "side": 1,
+      "message": "This means we will always generate a new share whenever for bottom-left textures. That seems pretty bad for clients that care about share compiles. Can\u0027t we still fold this into the matrix for most cases?",
+      "range": {
+        "startLine": 768,
+        "startChar": 49,
+        "endLine": 768,
+        "endChar": 77
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
