@@ -37,6 +37,98 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4f8ee4f4_63ae6d7a",
+        "filename": "modules/particles/src/SkParticleBinding.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:26:46Z",
+      "side": 1,
+      "message": "update?",
+      "range": {
+        "startLine": 164,
+        "startChar": 14,
+        "endLine": 164,
+        "endChar": 22
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8aaa13d9_3edea60e",
+        "filename": "modules/particles/src/SkParticleBinding.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:26:46Z",
+      "side": 1,
+      "message": "We\u0027ve got no way of signaling an error other than drawing 0000, huh?  Can we SkASSERT(result)?",
+      "range": {
+        "startLine": 194,
+        "startChar": 8,
+        "endLine": 194,
+        "endChar": 19
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bd46058_ab9ee665",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:26:46Z",
+      "side": 1,
+      "message": "This is neat and I\u0027m glad you realized we could do it, because I probably forgot to mention it was possible.  :)",
+      "range": {
+        "startLine": 136,
+        "startChar": 11,
+        "endLine": 136,
+        "endChar": 75
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7c75d14_477aa8a9",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:26:46Z",
+      "side": 1,
+      "message": "Clearer with ev -\u003e ef?",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 31
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4ad11eb3_4340fa9a",
         "filename": "modules/particles/src/SkParticleEffect.cpp",
         "patchSetId": 3
@@ -76,6 +168,29 @@
         "startChar": 77,
         "endLine": 41,
         "endChar": 92
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57699f15_30ddf02c",
+        "filename": "src/sksl/SkSLExternalFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:26:46Z",
+      "side": 1,
+      "message": "can this go \u003d0 now too?",
+      "range": {
+        "startLine": 46,
+        "startChar": 38,
+        "endLine": 49,
+        "endChar": 0
       },
       "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
