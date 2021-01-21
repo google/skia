@@ -785,7 +785,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             uintptr_t /* float* */ ctmPtr, const SkPath& path,
             const SkPoint3& zPlaneParams, const SkPoint3& lightPos, SkScalar lightRadius,
             uint32_t flags, uintptr_t /* SkRect* */ outPtr) -> bool {
-        OptionalMatrix ctm(ctmPtr);
+        SkMatrix ctm;
+        const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(ctmPtr);
+        ctm.set9(nineMatrixValues);
         SkRect* outputBounds = reinterpret_cast<SkRect*>(outPtr);
         return SkShadowUtils::GetLocalBounds(ctm, path, zPlaneParams, lightPos, lightRadius,
                               flags, outputBounds);

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - Improper error returned when a WebGL context could not be used.
+ - 4x4 matrices are "downsampled" properly if necessary to 3x3 matrices by removing the third
+   column and the third row.
 
 ## [0.22.0] - 2020-12-17
 
