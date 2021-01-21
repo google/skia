@@ -927,7 +927,11 @@ describe('Core canvas behavior', () => {
                           CanvasKit.BLACK, CanvasKit.MAGENTA, 0);
         canvas.drawText('Default Flags', 5, 250, textPaint, textFont);
 
-        const bounds = CanvasKit.getShadowLocalBounds(CanvasKit.Matrix.identity(),
+        let bounds = CanvasKit.getShadowLocalBounds(CanvasKit.Matrix.identity(),
+            path, zPlaneParams, lightPos, lightRadius, 0);
+        expectTypedArraysToEqual(bounds, Float32Array.of(-3.64462, -12.67541, 245.50, 242.59164));
+
+        bounds = CanvasKit.getShadowLocalBounds(CanvasKit.M44.identity(),
             path, zPlaneParams, lightPos, lightRadius, 0);
         expectTypedArraysToEqual(bounds, Float32Array.of(-3.64462, -12.67541, 245.50, 242.59164));
 
