@@ -117,6 +117,24 @@
       "parentUuid": "b629ec0e_fbda1c8b",
       "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86e43155_819f9d4d",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T22:00:08Z",
+      "side": 1,
+      "message": "Gosh Brian, what part of \"uniform initialization syntax\" do you not understand?",
+      "parentUuid": "aad25665_0f157789",
+      "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
