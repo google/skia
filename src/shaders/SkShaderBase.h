@@ -10,6 +10,8 @@
 
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkEffectPriv.h"
@@ -84,17 +86,22 @@ public:
     struct ContextRec {
         ContextRec(const SkPaint& paint, const SkMatrix& matrix, const SkMatrix* localM,
                    SkColorType dstColorType, SkColorSpace* dstColorSpace)
-            : fPaint(&paint)
-            , fMatrix(&matrix)
+            : fMatrix(&matrix)
             , fLocalMatrix(localM)
             , fDstColorType(dstColorType)
-            , fDstColorSpace(dstColorSpace) {}
+            , fDstColorSpace(dstColorSpace) {
+                fPaintSampling = SkSamplingOptions(paint.getFilterQuality());
+                fPaintAlpha = paint.getAlpha();
+                fPaintDither = paint.isDither();
+            }
 
-        const SkPaint*  fPaint;            // the current paint associated with the draw
         const SkMatrix* fMatrix;           // the current matrix in the canvas
         const SkMatrix* fLocalMatrix;      // optional local matrix
         SkColorType     fDstColorType;     // the color type of the dest surface
         SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
+        SkSamplingOptions fPaintSampling;  // only used for legacy-built shaders (inherit sampling)
+        SkAlpha           fPaintAlpha;
+        bool              fPaintDither;
 
         bool isLegacyCompatible(SkColorSpace* shadersColorSpace) const;
     };
