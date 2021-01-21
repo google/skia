@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9667a27d_96621085",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T18:04:55Z",
+      "side": 1,
+      "message": "Minor, there is actually plenty of room left in the first word (only a handful of ShaderMode values)",
+      "range": {
+        "startLine": 768,
+        "startChar": 0,
+        "endLine": 771,
+        "endChar": 81
+      },
+      "revId": "7fe4aaf2d0e6aefe4bf6bbc60d0add4c9bcf79f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
