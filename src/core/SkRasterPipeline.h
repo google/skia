@@ -162,11 +162,6 @@ struct SkRasterPipeline_CallbackCtx {
     float* read_from = rgba;
 };
 
-namespace SkSL {
-class ByteCode;
-class ByteCodeFunction;
-} // namespace SkSL
-
 struct SkRasterPipeline_GradientCtx {
     size_t stopCount;
     float* fs[4];

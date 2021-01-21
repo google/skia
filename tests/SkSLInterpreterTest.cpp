@@ -6,15 +6,12 @@
  */
 
 #include "include/core/SkM44.h"
-#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalFunction.h"
 #include "src/sksl/SkSLVMGenerator.h"
 #include "src/utils/SkJSON.h"
 
 #include "tests/Test.h"
-
-#if defined(SK_ENABLE_SKSL_INTERPRETER)
 
 struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)
@@ -39,24 +36,6 @@ struct ProgramBuilder {
     GrShaderCaps fCaps;
     SkSL::Compiler fCompiler;
     std::unique_ptr<SkSL::Program> fProgram;
-};
-
-struct ByteCodeBuilder {
-    ByteCodeBuilder(skiatest::Reporter* r, const char* src) : fProgram(r, src), fByteCode(nullptr) {
-        if (fProgram) {
-            fByteCode = fProgram.fCompiler.toByteCode(*fProgram);
-            if (!fByteCode) {
-                ERRORF(r, "Program failed to compile:\n%s\n%s\n", src,
-                       fProgram.fCompiler.errorText().c_str());
-            }
-        }
-    }
-
-    operator bool() const { return fByteCode != nullptr; }
-    SkSL::ByteCode* operator->() { return fByteCode.get(); }
-
-    ProgramBuilder fProgram;
-    std::unique_ptr<SkSL::ByteCode> fByteCode;
 };
 
 static void verify_values(skiatest::Reporter* r,
@@ -99,8 +78,8 @@ static void verify_values(skiatest::Reporter* r,
     REPORTER_ASSERT(r, valid);
 }
 
-void test_skvm(skiatest::Reporter* r, const char* src, float* in, const float* expected,
-               bool exactCompare) {
+void test(skiatest::Reporter* r, const char* src, float* in, const float* expected,
+          bool exactCompare = true) {
     ProgramBuilder program(r, src);
     if (!program) { return; }
 
@@ -129,76 +108,9 @@ void test_skvm(skiatest::Reporter* r, const char* src, float* in, const float* e
     verify_values(r, src, out.get(), expected, sig.fReturnSlots, exactCompare);
 }
 
-void test(skiatest::Reporter* r, const char* src, float* in, const float* expected,
-          bool exactCompare = true) {
-    test_skvm(r, src, in, expected, exactCompare);
-
-    ByteCodeBuilder byteCode(r, src);
-    if (!byteCode) { return; }
-
-    const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
-    int returnCount = main->getReturnCount();
-    std::unique_ptr<float[]> out = std::unique_ptr<float[]>(new float[returnCount]);
-    SkAssertResult(byteCode->run(main, in, main->getParameterCount(), out.get(), returnCount,
-                                 nullptr, 0));
-
-    verify_values(r, src, out.get(), expected, returnCount, exactCompare);
-}
-
-void vec_test(skiatest::Reporter* r, const char* src) {
-    ByteCodeBuilder byteCode(r, src);
-    if (!byteCode) { return; }
-
-    const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
-
-    // Test on four different vectors (with varying orderings to get divergent control flow)
-    const float input[16] = { 1, 2, 3, 4,
-                              4, 3, 2, 1,
-                              7, 5, 8, 6,
-                              6, 8, 5, 7 };
-
-    float out_s[16], out_v[16];
-    memcpy(out_s, input, sizeof(out_s));
-    memcpy(out_v, input, sizeof(out_v));
-
-    // First run in scalar mode to determine the expected output
-    for (int i = 0; i < 4; ++i) {
-        SkAssertResult(byteCode->run(main, out_s + i * 4, 4, nullptr, 0, nullptr, 0));
-    }
-
-    // Need to transpose input vectors for striped execution
-    auto transpose = [](float* v) {
-        for (int r = 0; r < 4; ++r)
-        for (int c = 0; c < r; ++c)
-            std::swap(v[r*4 + c], v[c*4 + r]);
-    };
-
-    // Need to transpose input vectors for striped execution
-    transpose(out_v);
-    float* args[] = { out_v, out_v + 4, out_v + 8, out_v + 12 };
-
-    // Now run in parallel and compare results
-    SkAssertResult(byteCode->runStriped(main, 4, args, 4, nullptr, 0, nullptr, 0));
-
-    // Transpose striped outputs back
-    transpose(out_v);
-
-    if (0 != memcmp(out_s, out_v, sizeof(out_s))) {
-        printf("for program: %s\n", src);
-        for (int i = 0; i < 4; ++i) {
-            printf("(%g %g %g %g) -> (%g %g %g %g), expected (%g %g %g %g)\n",
-                    input[4*i + 0], input[4*i + 1], input[4*i + 2], input[4*i + 3],
-                    out_v[4*i + 0], out_v[4*i + 1], out_v[4*i + 2], out_v[4*i + 3],
-                    out_s[4*i + 0], out_s[4*i + 1], out_s[4*i + 2], out_s[4*i + 3]);
-        }
-        main->disassemble();
-        REPORT_FAILURE(r, "VecInterpreter mismatch", SkString());
-    }
-}
-
-void test_skvm(skiatest::Reporter* r, const char* src,
-               float inR, float inG, float inB, float inA,
-               float exR, float exG, float exB, float exA) {
+void test(skiatest::Reporter* r, const char* src,
+          float inR, float inG, float inB, float inA,
+          float exR, float exG, float exB, float exA) {
     ProgramBuilder program(r, src);
     if (!program) { return; }
 
@@ -218,26 +130,6 @@ void test_skvm(skiatest::Reporter* r, const char* src,
     verify_values(r, src, actual, expected, 4, /*exactCompare=*/true);
 
     // TODO: vec_test with skvm
-}
-
-void test(skiatest::Reporter* r, const char* src,
-          float inR, float inG, float inB, float inA,
-          float exR, float exG, float exB, float exA) {
-    test_skvm(r, src, inR, inG, inB, inA, exR, exG, exB, exA);
-
-    ByteCodeBuilder byteCode(r, src);
-    if (!byteCode) { return; }
-
-    float inoutColor[4] = { inR, inG, inB, inA };
-    float expected[4]   = { exR, exG, exB, exA };
-
-    const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
-    SkAssertResult(byteCode->run(main, inoutColor, 4, nullptr, 0, nullptr, 0));
-
-    verify_values(r, src, inoutColor, expected, 4, /*exactCompare=*/true);
-
-    // Do additional testing of 4x1 vs 1x4 to stress divergent control flow, etc.
-    vec_test(r, src);
 }
 
 DEF_TEST(SkSLInterpreterAdd, r) {
@@ -964,10 +856,6 @@ public:
         outTypes[0] = fCompiler.context().fTypes.fFloat.get();
     }
 
-    void call(int /*unusedIndex*/, float* arguments, float* outReturn) const override {
-        outReturn[0] = sqrt(arguments[0]);
-    }
-
     void call(skvm::Builder* b,
               skvm::F32* arguments,
               skvm::F32* outResult,
@@ -1017,10 +905,6 @@ public:
         outTypes[0] = fCompiler.context().fTypes.fFloat.get();
     }
 
-    void call(int /*unusedIndex*/, float* arguments, float* outReturn) const override {
-        SkASSERT(false);
-    }
-
     void call(skvm::Builder* b,
               skvm::F32* arguments,
               skvm::F32* outResult,
@@ -1065,5 +949,3 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
     REPORTER_ASSERT(r, out[2] == 2.0);
     REPORTER_ASSERT(r, out[3] == 4.0);
 }
-
-#endif // SK_ENABLE_SKSL_INTERPRETER

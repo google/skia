@@ -25,7 +25,6 @@ declare_args() {
   skia_enable_pdf = true
   skia_enable_skottie = !(is_win && is_component_build)
   skia_enable_skrive = true
-  skia_enable_sksl_interpreter = is_skia_dev_build
   skia_enable_skvm_jit_when_possible = is_skia_dev_build
   skia_enable_svg = true
   skia_enable_tools = is_skia_dev_build

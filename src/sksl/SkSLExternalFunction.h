@@ -31,21 +31,10 @@ public:
      */
     virtual void getCallParameterTypes(const Type** outTypes) const  = 0;
 
-    /**
-     * Calls the function with the specified parameters. arguments must be a pointer to a
-     * structure containing the arguments expected by the external function in source order, and
-     * outResult must be a pointer to a region of sufficient size to hold the function's return
-     * value.
-     * 'index' is the element index ([0 .. N-1]) within a call to ByteCode::run()
-     */
-    virtual void call(int index, float* arguments, float* outResult) const { SkASSERT(false); }
-
     virtual void call(skvm::Builder* builder,
                       skvm::F32* arguments,
                       skvm::F32* outResult,
-                      skvm::I32 mask) const {
-        SkASSERT(false);
-    }
+                      skvm::I32 mask) const = 0;
 
     String description() const override {
         return String("external<") + this->name() + ">";

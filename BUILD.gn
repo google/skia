@@ -618,7 +618,6 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
       "src/sksl/sksl_frag.sksl",
       "src/sksl/sksl_geom.sksl",
       "src/sksl/sksl_gpu.sksl",
-      "src/sksl/sksl_interp.sksl",
       "src/sksl/sksl_public.sksl",
       "src/sksl/sksl_runtime.sksl",
       "src/sksl/sksl_vert.sksl",
@@ -1149,11 +1148,6 @@ optional("xml") {
   ]
 }
 
-optional("sksl_interpreter") {
-  enabled = skia_enable_sksl_interpreter
-  public_defines = [ "SK_ENABLE_SKSL_INTERPRETER" ]
-}
-
 optional("skvm_jit") {
   enabled = skia_enable_skvm_jit_when_possible
   public_defines = [ "SKVM_JIT_WHEN_POSSIBLE" ]
@@ -1226,7 +1220,6 @@ component("skia") {
     ":png_decode",
     ":png_encode",
     ":raw",
-    ":sksl_interpreter",
     ":skvm_jit",
     ":skx",
     ":sse2",

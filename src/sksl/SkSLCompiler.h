@@ -49,7 +49,6 @@ namespace dsl {
     class DSLWriter;
 }
 
-class ByteCode;
 class ExternalFunction;
 class IRGenerator;
 class IRIntrinsicMap;
@@ -174,8 +173,6 @@ public:
     bool toH(Program& program, String name, OutputStream& out);
 #endif
 
-    std::unique_ptr<ByteCode> toByteCode(Program& program);
-
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     bool toPipelineStage(Program& program, PipelineStageArgs* outArgs);
 #endif
@@ -235,7 +232,6 @@ private:
     const ParsedModule& loadFPModule();
     const ParsedModule& loadGeometryModule();
     const ParsedModule& loadPublicModule();
-    const ParsedModule& loadInterpreterModule();
     const ParsedModule& loadRuntimeEffectModule();
 
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
@@ -293,7 +289,6 @@ private:
     ParsedModule fFPModule;             // [GPU] + FP features
 
     ParsedModule fPublicModule;         // [Root] + Public features
-    ParsedModule fInterpreterModule;    // [Public] + Interpreter-only decls
     ParsedModule fRuntimeEffectModule;  // [Public] + Runtime effect decls
 
     // holds ModifiersPools belonging to the core includes for lifetime purposes

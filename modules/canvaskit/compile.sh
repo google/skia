@@ -123,14 +123,12 @@ if [[ $@ == *no_managed_skottie* || $@ == *no_skottie* ]]; then
   MANAGED_SKOTTIE_BINDINGS="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
 
-GN_PARTICLES="skia_enable_sksl_interpreter=true"
 PARTICLES_JS="--pre-js $BASE_DIR/particles.js"
 PARTICLES_BINDINGS="$BASE_DIR/particles_bindings.cpp"
 PARTICLES_LIB="$BUILD_DIR/libparticles.a"
 
 if [[ $@ == *no_particles* ]]; then
   echo "Omitting Particles"
-  GN_PARTICLES="skia_enable_sksl_interpreter=false"
   PARTICLES_JS=""
   PARTICLES_BINDINGS=""
   PARTICLES_LIB=""
@@ -312,7 +310,6 @@ echo "Compiling bitcode"
   ${GN_GPU} \
   ${GN_FONT} \
   ${WOFF2_FONT} \
-  ${GN_PARTICLES} \
   ${GN_VIEWER} \
   \
   skia_enable_skshaper=true \
