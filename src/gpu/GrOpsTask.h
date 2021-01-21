@@ -17,6 +17,7 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkClipStack.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrAppliedClip.h"
@@ -54,7 +55,7 @@ public:
     void onPrePrepare(GrRecordingContext*) override;
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
-     * of executeOps() indicates whether any commands were actually issued to the GPU.
+     * of onExecute() indicates whether any commands were actually issued to the GPU.
      */
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
@@ -88,6 +89,9 @@ public:
 
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
+
+    // Using the fNext field, merge all subsequent ops tasks that are compatible into this one.
+    void mergeFromLList(const SkTInternalLList<GrRenderTask>& llist, int* mergedCount);
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
