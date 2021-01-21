@@ -3268,6 +3268,42 @@ private:
     using INHERITED = Sample;
 };
 
+class ParagraphView54 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph54"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        //std::string text("يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ");
+        //auto text = "ד👨‍👩‍👧‍👦😀";
+        auto text = "👨‍👩‍👧‍👦😀";
+
+        //auto fontCollection = sk_make_sp<FontCollection>();
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        //fontCollection->disableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        //paragraph_style.setTextDirection(TextDirection::kRtl);
+
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+        text_style.setFontSize(36);
+        text_style.setColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+
+        auto paragraph = builder.Build();
+        paragraph->layout(/*360*/width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3322,3 +3358,4 @@ DEF_SAMPLE(return new ParagraphView50();)
 DEF_SAMPLE(return new ParagraphView51();)
 DEF_SAMPLE(return new ParagraphView52();)
 DEF_SAMPLE(return new ParagraphView53();)
+DEF_SAMPLE(return new ParagraphView54();)
