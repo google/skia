@@ -21,7 +21,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
-#define WIDTH 330
+#define WIDTH 660
 #define HEIGHT 660
 
 namespace skiagm {
@@ -76,7 +76,10 @@ protected:
         SkPoint3 spotLocation = SkPoint3::Make(spotTarget.fX + 70.7214f * cosAzimuth,
                                                spotTarget.fY + 70.7214f * sinAzimuth,
                                                spotTarget.fZ + SkIntToScalar(20));
-        SkScalar spotExponent = SK_Scalar1;
+        SkScalar spotExponent1 = SK_Scalar1;
+        SkScalar spotExponent10 = SkIntToScalar(10);
+        SkScalar cutoffAngleSmall = SkIntToScalar(15);
+        SkScalar cutoffAngleNone = SkIntToScalar(180);
 
         SkPoint3 pointLocation = SkPoint3::Make(spotTarget.fX + 50 * cosAzimuth,
                                                 spotTarget.fY + 50 * sinAzimuth,
@@ -86,12 +89,12 @@ protected:
         SkPoint3 distantDirection = SkPoint3::Make(cosAzimuth * SkScalarCos(elevationRad),
                                                    sinAzimuth * SkScalarCos(elevationRad),
                                                    SkScalarSin(elevationRad));
-        SkScalar cutoffAngle = SkIntToScalar(15);
         SkScalar kd = SkIntToScalar(2);
         SkScalar ks = SkIntToScalar(1);
         SkScalar shininess = SkIntToScalar(8);
         SkScalar surfaceScale = SkIntToScalar(1);
-        SkColor white(0xFFFFFFFF);
+        SkScalar surfaceScaleSmall = 0.1f;
+        SkColor greenYellow = SkColorSetARGB(255, 173, 255, 47);
         SkPaint paint;
 
         SkIRect cropRect = SkIRect::MakeXYWH(20, 10, 60, 65);
@@ -102,33 +105,69 @@ protected:
         for (int i = 0; i < 3; i++) {
             const SkIRect* cr = (i == 1) ? &cropRect : (i == 2) ? &fullSizeCropRect : nullptr;
             sk_sp<SkImageFilter> input = (i == 2) ? noopCropped : nullptr;
+            // Basic point, distant and spot lights with diffuse lighting
             paint.setImageFilter(SkImageFilters::PointLitDiffuse(
-                    pointLocation, white, surfaceScale, kd, input, cr));
+                    pointLocation, SK_ColorWHITE, surfaceScale, kd, input, cr));
             drawClippedBitmap(canvas, paint, 0, y);
 
             paint.setImageFilter(SkImageFilters::DistantLitDiffuse(
-                    distantDirection, white, surfaceScale, kd, input, cr));
+                    distantDirection, SK_ColorWHITE, surfaceScale, kd, input, cr));
             drawClippedBitmap(canvas, paint, 110, y);
 
             paint.setImageFilter(SkImageFilters::SpotLitDiffuse(
-                    spotLocation, spotTarget, spotExponent, cutoffAngle, white, surfaceScale, kd,
-                    input, cr));
+                    spotLocation, spotTarget, spotExponent1, cutoffAngleSmall, SK_ColorWHITE,
+                    surfaceScale, kd, input, cr));
             drawClippedBitmap(canvas, paint, 220, y);
+
+            // Spot light with no angle cutoff
+            paint.setImageFilter(SkImageFilters::SpotLitDiffuse(
+                    spotLocation, spotTarget, spotExponent10, cutoffAngleNone, SK_ColorWHITE,
+                    surfaceScale, kd,  input, cr));
+            drawClippedBitmap(canvas, paint, 330, y);
+
+            // Spot light with falloff exponent
+            paint.setImageFilter(SkImageFilters::SpotLitDiffuse(
+                    spotLocation, spotTarget, spotExponent1, cutoffAngleNone, SK_ColorWHITE,
+                    surfaceScaleSmall, kd, input, cr));
+            drawClippedBitmap(canvas, paint, 440, y);
+
+            // Large constant to show oversaturation
+            paint.setImageFilter(SkImageFilters::DistantLitDiffuse(
+                    distantDirection, greenYellow, surfaceScale, 4.f * kd, input, cr));
+            drawClippedBitmap(canvas, paint, 550, y);
 
             y += 110;
 
+            // Basic point, distant and spot lights with specular lighting
             paint.setImageFilter(SkImageFilters::PointLitSpecular(
-                    pointLocation, white, surfaceScale, ks, shininess, input, cr));
+                    pointLocation, SK_ColorWHITE, surfaceScale, ks, shininess, input, cr));
             drawClippedBitmap(canvas, paint, 0, y);
 
             paint.setImageFilter(SkImageFilters::DistantLitSpecular(
-                    distantDirection, white, surfaceScale, ks, shininess, input, cr));
+                    distantDirection, SK_ColorWHITE, surfaceScale, ks, shininess, input, cr));
             drawClippedBitmap(canvas, paint, 110, y);
 
             paint.setImageFilter(SkImageFilters::SpotLitSpecular(
-                    spotLocation, spotTarget, spotExponent, cutoffAngle, white, surfaceScale, ks,
-                    shininess, input, cr));
+                    spotLocation, spotTarget, spotExponent1, cutoffAngleSmall, SK_ColorWHITE,
+                    surfaceScale, ks, shininess, input, cr));
             drawClippedBitmap(canvas, paint, 220, y);
+
+            // Spot light with no angle cutoff
+            paint.setImageFilter(SkImageFilters::SpotLitSpecular(
+                    spotLocation, spotTarget, spotExponent10, cutoffAngleNone, SK_ColorWHITE,
+                    surfaceScale, ks,  shininess, input, cr));
+            drawClippedBitmap(canvas, paint, 330, y);
+
+            // Spot light with falloff exponent
+            paint.setImageFilter(SkImageFilters::SpotLitSpecular(
+                    spotLocation, spotTarget, spotExponent1, cutoffAngleNone, SK_ColorWHITE,
+                    surfaceScaleSmall, ks, shininess, input, cr));
+            drawClippedBitmap(canvas, paint, 440, y);
+
+            // Large constant to show oversaturation
+            paint.setImageFilter(SkImageFilters::DistantLitSpecular(
+                    distantDirection, greenYellow, surfaceScale, 4.f * ks, shininess, input, cr));
+            drawClippedBitmap(canvas, paint, 550, y);
 
             y += 110;
         }
