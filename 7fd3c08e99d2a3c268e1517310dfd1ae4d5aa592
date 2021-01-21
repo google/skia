@@ -239,6 +239,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d0f53289_055cd57d",
+        "filename": "src/sksl/ir/SkSLVariable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-21T15:05:18Z",
+      "side": 1,
+      "message": "Honestly either of these choices sounds better to me than reintroducing `mutable`:\n\n- tracking the initial values in some context structure external to the Variable\n- restructuring the calls to IRGenerator so that the DSL handles the creation of the Variable (which would be fairly unnatural)\n\nCan we at least give these ideas a try? I think keeping our const-correctness intact is worth the extra effort.",
+      "parentUuid": "2e5a8fc9_914bbc7a",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "09797f98_067af1da",
         "filename": "tests/SkSLDSLTest.cpp",
         "patchSetId": 4
