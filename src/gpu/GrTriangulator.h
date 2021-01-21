@@ -28,9 +28,8 @@ public:
     static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
         GrTriangulator triangulator(path);
-        Poly* polys = triangulator.pathToPolys(tolerance, clipBounds);
+        Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, isLinear);
         int count = triangulator.polysToTriangles(polys, vertexAllocator);
-        *isLinear = triangulator.fIsLinear;
         return count;
     }
 
@@ -76,9 +75,8 @@ public:
         GrTriangulator triangulator(path);
         triangulator.fCullCollinearVertices = false;
         triangulator.fBreadcrumbTriangles = breadcrumbTriangles;
-        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty());
+        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty(), isLinear);
         int count = triangulator.polysToTriangles(polys, vertexAllocator);
-        *isLinear = triangulator.fIsLinear;
         return count;
     }
 
@@ -88,9 +86,8 @@ public:
         GrTriangulator triangulator(path);
         triangulator.fCullCollinearVertices = false;
         triangulator.fDisallowSelfIntersection = true;
-        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty());
+        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty(), isLinear);
         int count = triangulator.polysToTriangles(polys, vertexAllocator);
-        *isLinear = triangulator.fIsLinear;
         return count;
     }
 
@@ -130,7 +127,8 @@ protected:
     // There are six stages to the basic algorithm:
     //
     // 1) Linearize the path contours into piecewise linear segments:
-    void pathToContours(float tolerance, const SkRect& clipBounds, VertexList* contours);
+    void pathToContours(float tolerance, const SkRect& clipBounds, VertexList* contours,
+                        bool* isLinear);
 
     // 2) Build a mesh of edges connecting the vertices:
     void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
@@ -235,14 +233,13 @@ protected:
     bool mergeCoincidentVertices(VertexList* mesh, const Comparator&);
     void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&);
     Poly* contoursToPolys(VertexList* contours, int contourCnt);
-    Poly* pathToPolys(float tolerance, const SkRect& clipBounds);
+    Poly* pathToPolys(float tolerance, const SkRect& clipBounds, bool* isLinear);
     static int64_t CountPoints(Poly* polys, SkPathFillType overrideFillType);
     int polysToTriangles(Poly*, GrEagerVertexAllocator*);
 
     constexpr static int kArenaChunkSize = 16 * 1024;
     SkArenaAlloc fAlloc{kArenaChunkSize};
     const SkPath fPath;
-    bool fIsLinear = false;
 
     // Internal control knobs.
     bool fRoundVerticesToQuarterPixel = false;
