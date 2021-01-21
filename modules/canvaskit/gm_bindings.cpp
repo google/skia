@@ -264,23 +264,6 @@ static JSObject RunTest(std::string name) {
 
 namespace skiatest {
 
-class WasmContextInfo : public sk_gpu_test::ContextInfo {
-public:
-    WasmContextInfo(GrDirectContext* context,
-                    const GrContextOptions& options)
-          : fContext(context), fOptions(options) {}
-
-    GrDirectContext* directContext() const { return fContext; }
-    sk_gpu_test::TestContext* testContext() const { return nullptr; }
-
-    sk_gpu_test::GLTestContext* glContext() const { return nullptr; }
-
-    const GrContextOptions& options() const { return fOptions; }
-private:
-    GrDirectContext* fContext = nullptr;
-    GrContextOptions fOptions;
-};
-
 using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
 // These are the supported GrContextTypeFilterFn
@@ -308,15 +291,15 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
             continue;
         }
-        sk_sp<GrDirectContext> ctx = (contextType == ContextType::kGLES_ContextType) ?
-                                     GrDirectContext::MakeGL(options) :
-                                     GrDirectContext::MakeMock(nullptr, options);
-        if (!ctx) {
-            SkDebugf("Could not make context\n");
+
+        sk_gpu_test::GrContextFactory factory(options);
+        sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
+
+        REPORTER_ASSERT(reporter, ctxInfo.directContext() != nullptr);
+        if (!ctxInfo.directContext()) {
             return;
         }
-        WasmContextInfo ctxInfo(ctx.get(), options);
-
+        ctxInfo.testContext()->makeCurrent();
         // From DMGpuTestProcs.cpp
         (*test)(reporter, ctxInfo);
         // Sync so any release/finished procs get called.
@@ -325,10 +308,40 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 }
 } // namespace skiatest
 
+namespace {
+
+// A GLtestContext that we can return from CreatePlatformGLTestContext below.
+// It doesn't have to do anything WebGL-specific that I know of but we can't return
+// a GLTestContext because it has pure virtual methods that need to be implemented.
+class WasmWebGlTestContext : public sk_gpu_test::GLTestContext {
+public:
+    WasmWebGlTestContext() {}
+    ~WasmWebGlTestContext() override {
+        this->teardown();
+    }
+    // We assume WebGL only has one context and that it is always current.
+    // Therefore these context related functions return null intentionally.
+    // It's possible that more tests will pass if these were correctly implemented.
+    std::unique_ptr<GLTestContext> makeNew() const override {
+        // This is supposed to create a new GL context in a new GLTestContext.
+        // Specifically for tests that do not want to re-use the existing one.
+        return nullptr;
+    }
+    void onPlatformMakeNotCurrent() const override { }
+    void onPlatformMakeCurrent() const override { }
+    std::function<void()> onPlatformGetAutoContextRestore() const override {
+        return nullptr;
+    }
+    GrGLFuncPtr onPlatformGetProcAddress(const char* procName) const override {
+        return nullptr;
+    }
+};
+} // namespace
+
 namespace sk_gpu_test {
 GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
                                            GLTestContext *shareContext) {
-    return nullptr;
+    return new WasmWebGlTestContext();
 }
 } // namespace sk_gpu_test
 
