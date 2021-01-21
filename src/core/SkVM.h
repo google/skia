@@ -383,9 +383,7 @@ namespace skvm {
         void st44s(V src, X dst);  // 512-bit *dst = interleave_32bit_lanes(src,src+1,src+2,src+3)
 
     private:
-        // TODO: can probably track two of these three?
         uint8_t* fCode;
-        uint8_t* fCurr;
         size_t   fSize;
 
         // x86-64
