@@ -60,7 +60,9 @@ struct BasicBlock {
         // or a single Case from a Switch. To maintain usage's bookkeeping, we remove references in
         // this node's pointed-to statement. By the time this is called, there is no path from our
         // statement to 'stmt', because it's been moved to the argument.
-        void setStatement(std::unique_ptr<Statement> stmt, ProgramUsage* usage);
+        // If stmt is Nop, returns the previous statement, otherwise nullptr.
+        std::unique_ptr<Statement> setStatement(std::unique_ptr<Statement> stmt,
+                                                ProgramUsage* usage);
 
 #ifdef SK_DEBUG
         String description() const {

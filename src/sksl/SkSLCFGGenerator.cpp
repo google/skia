@@ -17,6 +17,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -34,12 +35,18 @@ void BasicBlock::Node::setExpression(std::unique_ptr<Expression> expr, ProgramUs
     *fExpression = std::move(expr);
 }
 
-void BasicBlock::Node::setStatement(std::unique_ptr<Statement> stmt, ProgramUsage* usage) {
+std::unique_ptr<Statement> BasicBlock::Node::setStatement(std::unique_ptr<Statement> stmt,
+                                                          ProgramUsage* usage) {
     SkASSERT(!this->isExpression());
     // See comment in header - we assume that stmt was already counted in usage (it was a subset
     // of fStatement). There is no way to verify that, unfortunately.
     usage->remove(fStatement->get());
+    std::unique_ptr<Statement> result;
+    if (stmt->is<Nop>()) {
+        result = std::move(*fStatement);
+    }
     *fStatement = std::move(stmt);
+    return result;
 }
 
 BlockId CFG::newBlock() {

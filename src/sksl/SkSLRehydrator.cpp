@@ -289,8 +289,13 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 SkASSERT(s->kind() == Symbol::Kind::kVariable);
                 Variable& v = (Variable&) *s;
                 int value = this->readS32();
-                v.setInitialValue(symbols->takeOwnershipOfIRNode(
-                        std::make_unique<IntLiteral>(fContext, /*offset=*/-1, value)));
+                // enum variables aren't really 'declared', but we have to create a declaration to
+                // store the value
+                auto valueLiteral = std::make_unique<IntLiteral>(fContext, /*offset=*/-1, value);
+                auto declaration = std::make_unique<VarDeclaration>(&v, &v.type(), /*arraySize=*/0,
+                                                                    std::move(valueLiteral));
+                v.setDeclaration(declaration.get());
+                symbols->takeOwnershipOfIRNode(std::move(declaration));
             }
             return std::make_unique<Enum>(/*offset=*/-1, typeName, std::move(symbols),
                                           /*isSharedWithCpp=*/true, /*isBuiltin=*/true);
@@ -427,10 +432,10 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             const Type* baseType = this->type();
             int arraySize = this->readS8();
             std::unique_ptr<Expression> value = this->expression();
-            if (value) {
-                var->setInitialValue(value.get());
-            }
-            return std::make_unique<VarDeclaration>(var, baseType, arraySize, std::move(value));
+            auto result = std::make_unique<VarDeclaration>(var, baseType, arraySize,
+                                                           std::move(value));
+            var->setDeclaration(result.get());
+            return std::move(result);
         }
         case Rehydrator::kVoid_Command:
             return nullptr;
