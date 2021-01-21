@@ -105,6 +105,30 @@
       },
       "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c31d8f82_b7be7e88",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-21T18:13:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3155c86_af8fdbf5",
+      "range": {
+        "startLine": 18,
+        "startChar": 20,
+        "endLine": 18,
+        "endChar": 31
+      },
+      "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
