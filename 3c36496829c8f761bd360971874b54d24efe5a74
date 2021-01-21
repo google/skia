@@ -34,6 +34,24 @@
       "parentUuid": "f831e6ca_f2018354",
       "revId": "3c36496829c8f761bd360971874b54d24efe5a74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5654d4b_076d2cda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-21T14:25:31Z",
+      "side": 1,
+      "message": "Hmm. The filters-example diff occurs because in the previous code we had an early \u0027return nullptr\u0027 in the case of unimplemented filter inputs (e.g. SourceAlpha), and it was skipping the colorspace conversion. Now we return nullptr but we do add the colorspace conversion in that case.\n\nThe filters-overview diff I can\u0027t explain. Is it possible gold is finding old images? It looks like the \"closest negatives\" it\u0027s finding are from when feGaussianBlur was occurring in the wrong colorspace. And when I look at that test locally with this CL and at current HEAD, they look the same.",
+      "parentUuid": "8b7fef5a_23fea58e",
+      "revId": "3c36496829c8f761bd360971874b54d24efe5a74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
