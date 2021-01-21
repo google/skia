@@ -185,7 +185,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
     // We allow unknown alpha types but only if both src and dst are unknown. Otherwise, it's too
     // weird to reason about what should be expected.
 
-    GrSurfaceProxy* srcProxy = this->asSurfaceProxy();
+    sk_sp<GrSurfaceProxy> srcProxy = this->asSurfaceProxyRef();
 
     if (srcProxy->framebufferOnly()) {
         return false;
@@ -274,12 +274,22 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
             static constexpr auto kBudgeted = SkBudgeted::kYes;
             static constexpr auto kMipMapped = GrMipMapped::kNo;
             if (restrictions.fMustCopyWholeSrc) {
-                copy = GrSurfaceProxy::Copy(fContext, srcProxy, this->origin(), kMipMapped, kFit,
+                copy = GrSurfaceProxy::Copy(fContext,
+                                            std::move(srcProxy),
+                                            this->origin(),
+                                            kMipMapped,
+                                            kFit,
                                             kBudgeted);
             } else {
                 auto srcRect = SkIRect::MakePtSize(pt, dst.dimensions());
-                copy = GrSurfaceProxy::Copy(fContext, srcProxy, this->origin(), kMipMapped, srcRect,
-                                            kFit, kBudgeted, restrictions.fRectsMustMatch);
+                copy = GrSurfaceProxy::Copy(fContext,
+                                            std::move(srcProxy),
+                                            this->origin(),
+                                            kMipMapped,
+                                            srcRect,
+                                            kFit,
+                                            kBudgeted,
+                                            restrictions.fRectsMustMatch);
                 pt = {0, 0};
             }
             if (!copy) {
@@ -323,7 +333,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
         pt.fY = flip ? srcSurface->height() - pt.fY - dst.height() : pt.fY;
     }
 
-    dContext->priv().flushSurface(srcProxy);
+    dContext->priv().flushSurface(srcProxy.get());
     dContext->submit();
     if (!dContext->priv().getGpu()->readPixels(srcSurface, pt.fX, pt.fY, dst.width(), dst.height(),
                                                this->colorInfo().colorType(),
@@ -461,7 +471,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         } else {
             SkIRect srcRect = SkIRect::MakeSize(src.dimensions());
             SkIPoint dstPoint = SkIPoint::Make(pt.fX, pt.fY);
-            if (!this->copy(tempProxy.get(), srcRect, dstPoint)) {
+            if (!this->copy(std::move(tempProxy), srcRect, dstPoint)) {
                 return false;
             }
         }
@@ -1029,7 +1039,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                   flushInfo);
 }
 
-bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+bool GrSurfaceContext::copy(sk_sp<GrSurfaceProxy> src, SkIRect srcRect, SkIPoint dstPoint) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1044,14 +1054,26 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
         return false;
     }
 
-    if (!caps->canCopySurface(this->asSurfaceProxy(), src, srcRect, dstPoint)) {
+    if (!caps->canCopySurface(this->asSurfaceProxy(), src.get(), srcRect, dstPoint)) {
         return false;
     }
 
-    // The swizzle doesn't matter for copies and it is not used.
-    return this->drawingManager()->newCopyRenderTask(
-            GrSurfaceProxyView(sk_ref_sp(src), this->origin(), GrSwizzle("rgba")), srcRect,
-            this->readSurfaceView(), dstPoint);
+    if (!GrClipSrcRectAndDstPoint(this->dimensions(), src->dimensions(), srcRect, dstPoint,
+                                  &srcRect, &dstPoint)) {
+        return false;
+    }
+
+    if (this->origin() == kBottomLeft_GrSurfaceOrigin) {
+        int rectHeight = srcRect.height();
+        srcRect.fTop = src->backingStoreDimensions().height() - srcRect.fBottom;
+        srcRect.fBottom = srcRect.fTop + rectHeight;
+        dstPoint.fY = this->asSurfaceProxy()->backingStoreDimensions().height() -
+                      (dstPoint.fY + rectHeight);
+    }
+    return this->drawingManager()->newCopyRenderTask(std::move(src),
+                                                     srcRect,
+                                                     this->asSurfaceProxyRef(),
+                                                     dstPoint);
 }
 
 std::unique_ptr<GrSurfaceDrawContext> GrSurfaceContext::rescale(const GrImageInfo& info,
