@@ -11,6 +11,8 @@
 #include "include/core/SkPixmap.h"
 #include "src/gpu/GrImageInfo.h"
 
+class SkData;
+
 class GrPixmap {
 public:
     GrPixmap() = default;
@@ -28,6 +30,19 @@ public:
     /* implicit */ GrPixmap(const SkPixmap& pixmap)
             : GrPixmap(pixmap.info(), pixmap.writable_addr(), pixmap.rowBytes()) {}
 
+    /**
+     * Returns a GrPixmap that owns its backing store. Copies of the pixmap will share ownership.
+     */
+    static GrPixmap Allocate(const GrImageInfo& info) {
+        size_t rb = info.minRowBytes();
+        size_t size = info.height()*rb;
+        if (!size) {
+            return {};
+        }
+        auto data = SkData::MakeUninitialized(size);
+        return GrPixmap(info, std::move(data), rb);
+    }
+
     const GrImageInfo& info() const { return fInfo; }
     const GrColorInfo& colorInfo() const { return fInfo.colorInfo(); }
 
@@ -35,6 +50,8 @@ public:
     size_t rowBytes() const { return fRowBytes; }
 
     bool hasPixels() const { return SkToBool(fAddr); }
+    bool ownsPixels() const { return SkToBool(fPixelStorage); }
+    sk_sp<SkData> const pixelStorage() const { return fPixelStorage; }
 
     int width() const { return fInfo.width(); }
     int height() const { return fInfo.height(); }
@@ -62,21 +79,16 @@ public:
         return {this->info().makeDimensions(rect.size()), addr, fRowBytes};
     }
 
-    /** Returns a GrPixmap and a unique_ptr that owns the storage backing the pixmap. */
-    static std::tuple<GrPixmap, std::unique_ptr<char[]>> Allocate(const GrImageInfo& info) {
-        size_t rb = info.minRowBytes();
-        size_t size = info.height()*rb;
-        if (!size) {
-            return {};
-        }
-        std::unique_ptr<char[]> storage(new char[size]);
-        return {GrPixmap(info, storage.get(), rb), std::move(storage)};
+private:
+    GrPixmap(GrImageInfo info, sk_sp<SkData> storage, size_t rowBytes)
+            : GrPixmap(std::move(info), storage->writable_data(), rowBytes) {
+        fPixelStorage = std::move(storage);
     }
 
-private:
     void* fAddr = nullptr;
     size_t fRowBytes = 0;
     GrImageInfo fInfo;
+    sk_sp<SkData> fPixelStorage;
 };
 
 #endif

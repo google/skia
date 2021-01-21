@@ -80,6 +80,14 @@ public:
     bool newCopyRenderTask(GrSurfaceProxyView srcView, const SkIRect& srcRect,
                            GrSurfaceProxyView dstView, const SkIPoint& dstPoint);
 
+    bool newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
+                            SkIRect rect,
+                            GrColorType srcColorType,
+                            GrColorType dstColorType,
+                            const GrMipLevel[],
+                            int levelCount,
+                            sk_sp<SkData> storage);
+
     GrRecordingContext* getContext() { return fContext; }
 
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
