@@ -442,20 +442,17 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
         if (!value) {
             return {};
         }
-        var->setInitialValue(value.get());
     }
     const Symbol* symbol = (*fSymbolTable)[var->name()];
     if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
         // Already defined, ignore.
         return nullptr;
     } else {
-        std::unique_ptr<Statement> result = std::make_unique<VarDeclaration>(
-                                                                         var.get(),
-                                                                         baseType,
-                                                                         arraySizeValue,
-                                                                         std::move(value));
+        auto result = std::make_unique<VarDeclaration>(var.get(), baseType, arraySizeValue,
+                                                       std::move(value));
+        var->setDeclaration(result.get());
         fSymbolTable->add(std::move(var));
-        return result;
+        return std::move(result);
     }
 }
 
@@ -1399,10 +1396,17 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         }
         value = std::make_unique<IntLiteral>(fContext, e.fOffset, currentValue);
         ++currentValue;
-        fSymbolTable->add(std::make_unique<Variable>(e.fOffset, fModifiers->addToPool(modifiers),
-                                                     child.getString(), type, fIsBuiltinCode,
-                                                     Variable::Storage::kGlobal, value.get()));
+        auto var = std::make_unique<Variable>(e.fOffset, fModifiers->addToPool(modifiers),
+                                              child.getString(), type, fIsBuiltinCode,
+                                              Variable::Storage::kGlobal);
+        // enum variables aren't really 'declared', but we have to create a declaration to store
+        // the value
+        auto declaration = std::make_unique<VarDeclaration>(var.get(), &var->type(),
+                                                            /*arraySize=*/0, std::move(value));
+        var->setDeclaration(declaration.get());
+        fSymbolTable->add(std::move(var));
         fSymbolTable->takeOwnershipOfIRNode(std::move(value));
+        fSymbolTable->takeOwnershipOfIRNode(std::move(declaration));
     }
     // Now we orphanize the Enum's symbol table, so that future lookups in it are strict
     fSymbolTable->fParent = nullptr;
