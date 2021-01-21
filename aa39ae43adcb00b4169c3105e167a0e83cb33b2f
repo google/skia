@@ -34,6 +34,29 @@
       "parentUuid": "d559087e_a6e10a15",
       "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28db1e6d_edf6879d",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-01-21T16:43:24Z",
+      "side": 1,
+      "message": "downsample is an inaccurate term isn\u0027t it? you\u0027d never downsample a matrix, you\u0027re cropping/truncating it to the top left.",
+      "range": {
+        "startLine": 18,
+        "startChar": 20,
+        "endLine": 18,
+        "endChar": 31
+      },
+      "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
