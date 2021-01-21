@@ -403,7 +403,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         auto copySrc = maker.view(GrMipmapped::kNo);
 
         REPORTER_ASSERT(reporter, copySrc.proxy());
-        auto copyResult = surfContext->testCopy(copySrc.proxy());
+        auto copyResult = surfContext->testCopy(copySrc.refProxy());
         REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
         // Try the low level copy.
         dContext->flushAndSubmit();
@@ -811,8 +811,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
         auto proxy =
                 context->priv().proxyProvider()->testingOnly_createWrapped(std::move(idleTexture));
         context->flushAndSubmit();
-        SkAssertResult(sdc->testCopy(proxy.get()));
-        proxy.reset();
+        SkAssertResult(sdc->testCopy(std::move(proxy)));
         REPORTER_ASSERT(reporter, !called);
 
         // After a flush we expect idleTexture to have reached the kFlushed state on all backends.

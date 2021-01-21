@@ -246,7 +246,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 #endif
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
-                                           GrSurfaceProxy* src,
+                                           sk_sp<GrSurfaceProxy> src,
                                            GrSurfaceOrigin origin,
                                            GrMipmapped mipMapped,
                                            SkIRect srcRect,
@@ -304,7 +304,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                                      GrSwizzle::RGBA(),
                                                      origin,
                                                      budgeted);
-        GrSurfaceProxyView view(sk_ref_sp(src), origin, GrSwizzle::RGBA());
+        GrSurfaceProxyView view(std::move(src), origin, GrSwizzle::RGBA());
         if (dstContext && dstContext->blitTexture(std::move(view), srcRect, dstPoint)) {
             return dstContext->asSurfaceProxyRef();
         }
@@ -314,14 +314,14 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
-                                           GrSurfaceProxy* src,
+                                           sk_sp<GrSurfaceProxy> src,
                                            GrSurfaceOrigin origin,
                                            GrMipmapped mipMapped,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted) {
     SkASSERT(!src->isFullyLazy());
-    return Copy(context, src, origin, mipMapped, SkIRect::MakeSize(src->dimensions()), fit,
-                budgeted);
+    auto rect = SkIRect::MakeSize(src->dimensions());
+    return Copy(context, std::move(src), origin, mipMapped, rect, fit, budgeted);
 }
 
 #if GR_TEST_UTILS
