@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkColorFilter.h"
+#include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkImageFilters.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGNode.h"
@@ -55,6 +56,12 @@ sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& 
     SkSVGColorspace inputCS = SkSVGColorspace::kSRGB;
     sk_sp<SkImageFilter> result;
     switch (inputType.type()) {
+        case SkSVGFeInputType::Type::kSourceAlpha: {
+            SkColorMatrix m;
+            m.setScale(0, 0, 0, 1.0f);
+            result = SkImageFilters::ColorFilter(SkColorFilters::Matrix(m), nullptr);
+            break;
+        }
         case SkSVGFeInputType::Type::kSourceGraphic:
             // Do nothing.
             break;
