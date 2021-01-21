@@ -179,6 +179,7 @@ public:
 
 private:
     void setCapacity(int capacity);
+    void updateStorage();
 
     // Helpers to break down update
     void advanceTime(double now);
