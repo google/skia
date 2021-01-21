@@ -16,6 +16,24 @@
       "message": "This is just setup for the next CL. There should be no diffs on gold.",
       "revId": "3c36496829c8f761bd360971874b54d24efe5a74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b7fef5a_23fea58e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-21T01:36:34Z",
+      "side": 1,
+      "message": "Interestingly, there are diffs - I don\u0027t readily see the reason...",
+      "parentUuid": "f831e6ca_f2018354",
+      "revId": "3c36496829c8f761bd360971874b54d24efe5a74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
