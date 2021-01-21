@@ -121,6 +121,8 @@ public:
         bool fNeedsRescan = false;
         // Metadata about function and variable usage within the program
         ProgramUsage* fUsage = nullptr;
+        // Nodes which we can't throw away until the end of optimization
+        StatementArray fOwnedStatements;
     };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU

@@ -1475,7 +1475,12 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         optimizationContext->fNeedsRescan = true;
                     }
                 }
-                (*iter)->setStatement(std::make_unique<Nop>(), usage);
+                // There can still be (soon to be removed) references to the variable at this point.
+                // Allowing the VarDeclaration to be destroyed here will break those variable's
+                // initialValue()s, so we hang on to them until optimization is finished.
+                std::unique_ptr<Statement> old = (*iter)->setStatement(std::make_unique<Nop>(),
+                                                                       usage);
+                optimizationContext->fOwnedStatements.push_back(std::move(old));
                 optimizationContext->fUpdated = true;
             }
             break;

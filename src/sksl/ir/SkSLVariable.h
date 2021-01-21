@@ -17,6 +17,7 @@
 namespace SkSL {
 
 class Expression;
+class VarDeclaration;
 
 enum class VariableStorage : int8_t {
     kGlobal,
@@ -37,9 +38,8 @@ public:
     static constexpr Kind kSymbolKind = Kind::kVariable;
 
     Variable(int offset, const Modifiers* modifiers, StringFragment name, const Type* type,
-             bool builtin, Storage storage, const Expression* initialValue = nullptr)
+             bool builtin, Storage storage)
     : INHERITED(offset, kSymbolKind, name, type)
-    , fInitialValue(initialValue)
     , fModifiers(modifiers)
     , fStorage(storage)
     , fBuiltin(builtin) {}
@@ -56,13 +56,11 @@ public:
         return (Storage) fStorage;
     }
 
-    const Expression* initialValue() const {
-        return fInitialValue;
-    }
+    const Expression* initialValue() const;
 
-    void setInitialValue(const Expression* initialValue) {
-        SkASSERT(!this->initialValue());
-        fInitialValue = initialValue;
+    void setDeclaration(VarDeclaration* declaration) {
+        SkASSERT(!fDeclaration);
+        fDeclaration = declaration;
     }
 
     String description() const override {
@@ -70,7 +68,7 @@ public:
     }
 
 private:
-    const Expression* fInitialValue = nullptr;
+    VarDeclaration* fDeclaration = nullptr;
     const Modifiers* fModifiers;
     VariableStorage fStorage;
     bool fBuiltin;

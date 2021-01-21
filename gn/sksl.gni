@@ -121,6 +121,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLTypeReference.h",
   "$_src/sksl/ir/SkSLUnresolvedFunction.h",
   "$_src/sksl/ir/SkSLVarDeclarations.h",
+  "$_src/sksl/ir/SkSLVariable.cpp",
   "$_src/sksl/ir/SkSLVariable.h",
   "$_src/sksl/ir/SkSLVariableReference.cpp",
   "$_src/sksl/ir/SkSLVariableReference.h",
