@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7870bed0_03b5ce41",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-21T17:15:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb64040e_9d819046",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a209ee12_7c45b5a5",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbf80501_00d956b3",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-21T17:15:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a209ee12_7c45b5a5",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 20
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e169cc2e_cf221b67",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-01-21T14:21:29Z",
       "side": 1,
       "message": "Could we use MakeTextureProxyViewFromData here? I\u0027d like to remove createProxyFromBitmap in the not too distant future.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 72
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6049f73_ee959e56",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-21T17:15:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e169cc2e_cf221b67",
       "range": {
         "startLine": 54,
         "startChar": 0,
@@ -95,6 +167,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b6b511fd_7990a1eb",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-21T17:15:39Z",
+      "side": 1,
+      "message": "As discussed off-line, in this instance the fullyLazy proxy is just a stand-in for a \"DDL target\"-proxy which, in the offset-draw case, knows its recording width \u0026 height but not the width \u0026 height of the target into which it will finally be drawn. I will follow up and determine if Chrome can live with only TopLeft DDL targets.\n\nAdditionally, once the \"DDL target\"-proxy concept is exposed I will follow up on this CL and switch it over to using that type of proxy.",
+      "parentUuid": "34840831_5c93adb2",
+      "range": {
+        "startLine": 69,
+        "startChar": 11,
+        "endLine": 69,
+        "endChar": 65
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "374b3f6b_a900939b",
         "filename": "gm/lazytiling.cpp",
         "patchSetId": 19
@@ -118,6 +214,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9b73d6d7_bbe898a5",
+        "filename": "gm/lazytiling.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-21T17:15:39Z",
+      "side": 1,
+      "message": "I will follow up on this. Currently we ignore the isMipMapped status of the characterization when creating a DDL target proxy but there is a TODO to figure out why.",
+      "parentUuid": "374b3f6b_a900939b",
+      "range": {
+        "startLine": 163,
+        "startChar": 2,
+        "endLine": 163,
+        "endChar": 43
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "13f45999_f6e66142",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 19
@@ -129,6 +249,30 @@
       "writtenOn": "2021-01-21T14:21:29Z",
       "side": 1,
       "message": "This means we will always generate a new share whenever for bottom-left textures. That seems pretty bad for clients that care about share compiles. Can\u0027t we still fold this into the matrix for most cases?",
+      "range": {
+        "startLine": 768,
+        "startChar": 49,
+        "endLine": 768,
+        "endChar": 77
+      },
+      "revId": "5d2f9ec7386240c38d457bfe2fc6a0e492325c9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7016cc6_5ccd805b",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-21T17:15:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13f45999_f6e66142",
       "range": {
         "startLine": 768,
         "startChar": 49,
