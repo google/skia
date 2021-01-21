@@ -153,8 +153,8 @@ bool GrTextureEffect::Sampling::hasBorderAlpha() const {
 static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view,
                        SkMatrix* outMatrix, bool* outLazyProxyNormalization) {
     SkMatrix combined = preMatrix;
-    bool normalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
-    if (normalize) {
+    bool canNormalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
+    if (canNormalize) {
         if (view.proxy()->isFullyLazy()) {
             *outLazyProxyNormalization = true;
         } else {
@@ -166,15 +166,17 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
         *outLazyProxyNormalization = false;
     }
     if (view.origin() == kBottomLeft_GrSurfaceOrigin) {
-        if (normalize) {
-            // combined.postScale(1,-1);
-            // combined.postTranslate(0,1);
-            combined.set(SkMatrix::kMSkewY,
-                         combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
-            combined.set(SkMatrix::kMScaleY,
-                         combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
-            combined.set(SkMatrix::kMTransY,
-                         combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+        if (canNormalize) {
+            if (!view.proxy()->isFullyLazy()) {
+                // combined.postScale(1,-1);
+                // combined.postTranslate(0,1);
+                combined.set(SkMatrix::kMSkewY,
+                             combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
+                combined.set(SkMatrix::kMScaleY,
+                             combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
+                combined.set(SkMatrix::kMTransY,
+                             combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
+            }
         } else {
             // combined.postScale(1, -1);
             // combined.postTranslate(0,1);
@@ -337,11 +339,6 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         }
         fb->codeAppendf(";");
     } else {
-        // Tripping this assert means we have a normalized fully lazy proxy with a
-        // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
-        // it hasn't been tested and this code path probably won't handle normalization
-        // properly in that case.
-        SkASSERT(!te.fLazyProxyNormalization);
         // Here is the basic flow of the various ShaderModes are implemented in a series of
         // steps. Not all the steps apply to all the modes. We try to emit only the steps
         // that are necessary for the given x/y shader modes.
@@ -365,7 +362,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 
         const auto& m = te.fShaderModes;
         GrTextureType textureType = te.view().proxy()->backendFormat().textureType();
-        bool normCoords = textureType != GrTextureType::kRectangle;
+        bool canNormalize = textureType != GrTextureType::kRectangle;
 
         const char* borderName = nullptr;
         if (te.hasClampToBorderShaderMode()) {
@@ -435,16 +432,22 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "clamp", &clampName);
         }
 
+        bool unormCoordsRequired = modeRequiresUnormCoords(m[0]) || modeRequiresUnormCoords(m[1]);
+
         const char* norm = nullptr;
-        if (normCoords && (modeRequiresUnormCoords(m[0]) ||
-                           modeRequiresUnormCoords(m[1]))) {
+        if (canNormalize && (unormCoordsRequired || te.fLazyProxyNormalization)) {
             // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
             // always use?
             fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
                                                         kFloat4_GrSLType, "norm", &norm);
-            // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
-            // step here.
-            fb->codeAppendf("inCoord *= %s.xy;", norm);
+
+            if (!te.fLazyProxyNormalization) {
+                // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
+                // step here.
+                fb->codeAppendf("inCoord *= %s.xy;", norm);
+            } else if (te.view().origin() == kBottomLeft_GrSurfaceOrigin) {
+                fb->codeAppendf("inCoord.y = %s.y - inCoord.y;", norm);
+            }
         }
 
         // Generates a string to read at a coordinate, normalizing coords if necessary.
@@ -760,8 +763,17 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const { return 
 
 void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     auto m0 = static_cast<uint32_t>(fShaderModes[0]);
+    SkASSERT(SkTFitsIn<uint8_t>(m0));
+
     auto m1 = static_cast<uint32_t>(fShaderModes[1]);
-    b->add32((m0 << 16) | m1);
+    SkASSERT(SkTFitsIn<uint8_t>(m1));
+
+    // The origin only affects the shader code when we're doing last minute normalization
+    // for lazy proxies.
+    uint32_t normInfo = fLazyProxyNormalization ? (this->view().origin() << 1 | 0x1) : 0x0;
+    SkASSERT(SkTFitsIn<uint8_t>(normInfo));
+
+    b->add32((m0 << 16) | m1 << 8 | normInfo);
 }
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
