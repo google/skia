@@ -12,6 +12,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrTBlockList.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/vk/GrVkSampler.h"
 
@@ -45,8 +46,9 @@ public:
     };
 
     struct VkUniformInfo : public UniformInfo {
-        // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
-        uint32_t                fUBOffset;
+        // offsets are only valid if the GrSLType of the fVariable is not a sampler
+        uint32_t                fStd140Offset;
+        uint32_t                fStd430Offset;
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
@@ -78,12 +80,19 @@ public:
         return fUniforms.item(idx);
     }
 
+    bool getFlipY() const { return fFlipY; }
+
+    bool usePushConstants() const { return fUsePushConstants; }
+
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentUBOOffset(0) {
+        , fFlipY(program->origin() != kTopLeft_GrSurfaceOrigin)
+        , fUsePushConstants(false)
+        , fCurrentStd140Offset(0)
+        , fCurrentStd430Offset(0) {
     }
 
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
@@ -135,13 +144,18 @@ private:
         return fUniforms.item(u.toIndex());
     }
 
+    bool determineIfUsePushConstants() const;
+
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
     UniformInfo         fInputUniform;
     GrSwizzle           fInputSwizzle;
+    bool                fFlipY;
+    mutable bool        fUsePushConstants;
 
-    uint32_t            fCurrentUBOOffset;
+    uint32_t            fCurrentStd140Offset;
+    uint32_t            fCurrentStd430Offset;
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
