@@ -22,6 +22,30 @@
       },
       "revId": "d31e10363f192e4e7542acbb8868b213d6b8a1a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a48da7cd_d84850d7",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-01-21T16:23:49Z",
+      "side": 1,
+      "message": "Sure. Wasn\u0027t sure what the convention was for a wrapper of member variables, done.",
+      "parentUuid": "9ac75ae3_2c059816",
+      "range": {
+        "startLine": 462,
+        "startChar": 0,
+        "endLine": 464,
+        "endChar": 53
+      },
+      "revId": "d31e10363f192e4e7542acbb8868b213d6b8a1a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
