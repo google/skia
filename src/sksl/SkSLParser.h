@@ -119,11 +119,6 @@ private:
     Token peek();
 
     /**
-     * Checks the next non-whitespace tokens to see if they are of the specified kind.
-     */
-    bool checkNextTokens(std::initializer_list<Token::Kind> kinds);
-
-    /**
      * Checks to see if the next non-whitespace token is of the specified kind. If so, stores it in
      * result (if result is non-null) and returns true. Otherwise, pushes it back and returns false.
      */
@@ -162,6 +157,13 @@ private:
         SkASSERT(id.fValue >= 0 && id.fValue < (int) fFile->fNodes.size());
         return fFile->fNodes[id.fValue];
     }
+
+    // Peeks ahead in the stream to see if the upcoming statement appears to be a vardecl.
+    bool peekVarDeclarations();
+    bool peekVarDeclarationsModifiers();
+    bool peekVarDeclarationsType();
+    bool peekVarDeclarationsArraySize();
+    bool peekVarDeclarationsName();
 
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
@@ -283,7 +285,15 @@ private:
 
     void createEmptyChild(ASTNode::ID target);
 
-    bool checkNextTokens(const Token::Kind* begin, const Token::Kind* end);
+    class TokenReturn {
+    public:
+        TokenReturn(Parser* p, const Token& t) : fParser(p), fToken(t) {}
+        ~TokenReturn() { fParser->pushback(fToken); }
+
+    private:
+        Parser* fParser;
+        const Token& fToken;
+    };
 
     static std::unordered_map<String, LayoutToken>* layoutTokens;
 
