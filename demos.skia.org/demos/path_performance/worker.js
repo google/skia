@@ -1,8 +1,8 @@
-importScripts('https://particles.skia.org/static/canvaskit.js');
+importScripts('https://particles.skia.org/dist/canvaskit.js');
 importScripts('shared.js');
 
 const CanvasKitPromise =
-    CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/static/'+file});
+    CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/dist/'+file});
 
 const path2dAnimator = new Animator();
 const canvasKitAnimator = new Animator();
