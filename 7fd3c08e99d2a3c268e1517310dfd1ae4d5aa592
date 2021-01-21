@@ -215,6 +215,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2e5a8fc9_914bbc7a",
+        "filename": "src/sksl/ir/SkSLVariable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T14:21:04Z",
+      "side": 1,
+      "message": "Rambling train-of-thought...\n\nI looked at this last night, and wanted to noodle on it. I assume that having a pointer to the VarDeclaration poses the same problem - the Variable exists before the Declaration, so *that* pointer would need to be mutable?\n\nI know I previously asked about having the Declare be the thing that actually creates the Variable, too - but I remember that didn\u0027t make much sense (and because the Variable needs to be a C++ thing, it does seem like a problem).\n\nThe mutable does give me pause, though - when I got rid of all those, it was part of guaranteeing that we couldn\u0027t (accidentally) be modifying shared data owned by the pre-includes. That doesn\u0027t seem like an issue right now, but I don\u0027t want to stumble back into that corner later.\n\nRe-educate me: In the context of the DSL, can a single thing both create the Var object, and emit the declaration? Today (before this CL), you can use Var() to create dangling references to variables that are never declared. That functionality is useful for things that are known to be declared elsewhere (builtins), but the common case is that *every* Var is going to have to be accompanied by a Declare, right? Given that, can the common constructor for Var also serve as the Declare somehow? I guess this is awkward/impossible, as all statement factories (including Declare) need to return their statement...\n\nAlternately, it could look like:\n\n  Var foo(type, name, initialValue);\n  ...\n  foo.declare();\n\nWhich isn\u0027t much different from John\u0027s first idea, and still has the same basic issue. (Plus it makes the declaration look very different from other statements.\n\n... so, I\u0027m willing to concede - I think the DSL code will read much more naturally as written here, and I also think the mutable isn\u0027t a huge risk - we\u0027re still only modifying variables that were created nearby -- (hopefully) - can we add some error checks to prevent someone from writing:\n\n  Declare(Var(kFloat4, \"sk_FragColor\"), \"...\")",
+      "parentUuid": "8c8695a6_6dc89c3b",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "09797f98_067af1da",
         "filename": "tests/SkSLDSLTest.cpp",
         "patchSetId": 4
