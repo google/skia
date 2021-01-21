@@ -17,8 +17,9 @@ class GrInnerFanTriangulator : private GrTriangulator {
 public:
     using GrTriangulator::BreadcrumbTriangleCollector;
 
-    GrInnerFanTriangulator(const SkPath& path, BreadcrumbTriangleCollector* breadcrumbCollector)
-            : GrTriangulator(path) {
+    GrInnerFanTriangulator(const SkPath& path, SkArenaAlloc* alloc,
+                           BreadcrumbTriangleCollector* breadcrumbCollector)
+            : GrTriangulator(path, alloc) {
         fCullCollinearVertices = false;
         fDisallowSelfIntersection = !breadcrumbCollector;
         fBreadcrumbTriangles = breadcrumbCollector;
