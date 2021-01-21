@@ -86,6 +86,24 @@
       "parentUuid": "46be87a9_b308d6f6",
       "revId": "e1cf5a1b7b2ef43c5fba326aabdd8f04de8f9027",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f20b6a6_3bc42a7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-21T11:40:28Z",
+      "side": 1,
+      "message": "\u003e CL here:  https://chromium-review.googlesource.com/c/chromium/src/+/2586964\n\nAh, cool, great to have a reference for that. I had discussed the steps for that with Ben on a high level a few times but I never had it put that clearly into a CL - great for future reference.\n\nAgree that the rebaselines for Blink look manageable indeed. Would it affect all platforms or only Windows - what direction are we going for with the new formula? Also to find out, I added a couple more bot runs.",
+      "parentUuid": "b6f4841a_03f4eb39",
+      "revId": "e1cf5a1b7b2ef43c5fba326aabdd8f04de8f9027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
