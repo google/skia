@@ -30,10 +30,10 @@ bool test() {
     // Test that side-effects in the left-side expression prevent right-side expr elimination.
     float a = sqrt(1), b = sqrt(2);
 
-    (true || bool(a = b));                         // -> true
+    true || bool(a = b);                         // -> true
     if (a == b) { ++bad; } else { ++ok; }
 
-    (bool(a = b) || true);                         // -> unchanged
+    bool(a = b) || true;                         // -> unchanged
     if (a == b) { ++ok; } else { ++bad; }
 
     return ok == 22 && bad == 0;
