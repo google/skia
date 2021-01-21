@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4eda8c2_e80a7440",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "clang-tidy is complaining that I didn\u0027t use make_unique here, but I don\u0027t think it\u0027s possible as long as I\u0027m doing aggregate initialization? I guess I have to add a constructor to make it happy? Sigh.",
+      "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

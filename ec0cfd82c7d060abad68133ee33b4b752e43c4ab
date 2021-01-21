@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f35567a_37c01f0e",
+        "filename": "modules/particles/src/SkParticleBinding.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f8ee4f4_63ae6d7a",
+      "range": {
+        "startLine": 164,
+        "startChar": 14,
+        "endLine": 164,
+        "endChar": 22
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8aaa13d9_3edea60e",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-01-21T21:26:46Z",
       "side": 1,
       "message": "We\u0027ve got no way of signaling an error other than drawing 0000, huh?  Can we SkASSERT(result)?",
+      "range": {
+        "startLine": 194,
+        "startChar": 8,
+        "endLine": 194,
+        "endChar": 19
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30ed2e3c_3a911deb",
+        "filename": "modules/particles/src/SkParticleBinding.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "Hmm, probably. If the image fails to load, I replace the shader with a color shader, so I guess it should always generate something correctly?",
+      "parentUuid": "8aaa13d9_3edea60e",
       "range": {
         "startLine": 194,
         "startChar": 8,
@@ -104,6 +152,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e901e1c2_52e19d7e",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8bd46058_ab9ee665",
+      "range": {
+        "startLine": 136,
+        "startChar": 11,
+        "endLine": 136,
+        "endChar": 75
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d7c75d14_477aa8a9",
@@ -127,6 +199,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aba7a499_1f202fd9",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "Yup, missed that during my rename.",
+      "parentUuid": "d7c75d14_477aa8a9",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 31
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ad11eb3_4340fa9a",
@@ -140,6 +236,30 @@
       "writtenOn": "2021-01-21T21:23:51Z",
       "side": 1,
       "message": "tiny nit: extra line",
+      "range": {
+        "startLine": 486,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 0
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "630c8e9e_6b5dc742",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ad11eb3_4340fa9a",
       "range": {
         "startLine": 486,
         "startChar": 0,
@@ -175,6 +295,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7d0d3e32_06304d77",
+        "filename": "src/sksl/SkSLExternalFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "Yeah, this is placeholder. The next CL deletes this function entirely. ;)",
+      "parentUuid": "7e2d852c_7a55a9e5",
+      "range": {
+        "startLine": 41,
+        "startChar": 77,
+        "endLine": 41,
+        "endChar": 92
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "57699f15_30ddf02c",
         "filename": "src/sksl/SkSLExternalFunction.h",
         "patchSetId": 3
@@ -186,6 +330,30 @@
       "writtenOn": "2021-01-21T21:26:46Z",
       "side": 1,
       "message": "can this go \u003d0 now too?",
+      "range": {
+        "startLine": 46,
+        "startChar": 38,
+        "endLine": 49,
+        "endChar": 0
+      },
+      "revId": "ec0cfd82c7d060abad68133ee33b4b752e43c4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aafae8aa_372d4a1c",
+        "filename": "src/sksl/SkSLExternalFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T21:42:22Z",
+      "side": 1,
+      "message": "Yeah, I did that in the follow-up, though it could have happened here.",
+      "parentUuid": "57699f15_30ddf02c",
       "range": {
         "startLine": 46,
         "startChar": 38,
