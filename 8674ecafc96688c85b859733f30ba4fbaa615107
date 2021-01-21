@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "221234c6_63ccc590",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-21T17:22:48Z",
+      "side": 1,
+      "message": "Actually writing all of this down in one place was motivated by figuring out where in the API (if anywhere) parameters for the \u0027contrast hack\u0027 should go. This line of reasoning doesn\u0027t really say what form that API should take, but does make a case that it\u0027s a function of the contrast function used (including any parameters to it) which is chosen to affect how a given display is perceived by a given user.\n\nAs currently used the \u0027contrast hack\u0027 conflates stem contrast (a pixel issue) and optical sizing (a nominal size issue) which makes things awkward by continuing to tie the pixel size and nominal size, which we have been slowly trying to tease apart.",
+      "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
