@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d559087e_a6e10a15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-21T16:21:28Z",
+      "side": 1,
+      "message": "Is there a bug# tracking this wacky needed for uint32_t for pointer-to-struct (e.g. for matrices)? I\u0027d like to advocate for that bug w/ the wasm team.",
+      "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
