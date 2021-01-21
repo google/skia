@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df2847a5_31be2344",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:58:40Z",
+      "side": 0,
+      "message": "Think this change makes the option to enable/disable particles kind of moot?  It was for size only?",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 25
+      },
+      "revId": "c77bc7d2ba2d724fcfe0a928074bf5f2c46dd2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
