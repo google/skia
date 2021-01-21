@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17a73b0e_e7eca498",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-21T16:16:38Z",
+      "side": 1,
+      "message": "Thank you! Seems like a better factoring to me.",
+      "revId": "f6ea013c2151da496a4c363856028d2f2143a88a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
