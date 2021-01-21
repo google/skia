@@ -16,6 +16,23 @@
       "message": "Thank you! Seems like a better factoring to me.",
       "revId": "f6ea013c2151da496a4c363856028d2f2143a88a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8b2a1a0_fe117a55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T16:23:38Z",
+      "side": 1,
+      "message": "Agreed!",
+      "revId": "f6ea013c2151da496a4c363856028d2f2143a88a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
