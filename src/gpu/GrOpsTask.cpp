@@ -676,6 +676,54 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     }
 }
 
+void GrOpsTask::mergeFromLList(SkTInternalLList<GrRenderTask>* llist,
+                               SkSTArray<2, GrOpsTask*>* removedTasks) {
+    SkASSERT(llist->isInList(this));
+    GrOpsTask* last = this;
+    int addlProxyCount = 0;
+    int addlOpChainCount = 0;
+    int addlOpCount = 0;
+    for (GrRenderTask* task = fNext; task; task = task->fNext) {
+        auto opsTask = task->asOpsTask();
+        if (!opsTask || opsTask->target(0) != this->target(0)) {
+            break;
+        }
+        SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
+        SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
+        addlOpCount++;
+        addlProxyCount += opsTask->fSampledProxies.count();
+        addlOpChainCount += opsTask->fOpChains.count();
+        fClippedContentBounds.join(opsTask->fClippedContentBounds);
+        fTotalBounds.join(opsTask->fTotalBounds);
+        fRenderPassXferBarriers |= opsTask->fRenderPassXferBarriers;
+        SkDEBUGCODE(fNumClips += opsTask->fNumClips);
+        last = opsTask;
+    }
+    if (last == this) {
+        return;
+    }
+    fLastClipStackGenID = SK_InvalidUniqueID;
+    fSampledProxies.reserve_back(addlProxyCount);
+    fOpChains.reserve_back(addlOpChainCount);
+    removedTasks->reset(addlOpCount);
+    int i = 0;
+    GrRenderTask* end = last->fNext;
+    for (GrRenderTask* task = fNext; task != end; i++) {
+        auto opsTask = reinterpret_cast<GrOpsTask*>(task);
+        fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
+                                    opsTask->fSampledProxies.data());
+        fOpChains.move_back_n(opsTask->fOpChains.count(),
+                              opsTask->fOpChains.data());
+        opsTask->fSampledProxies.reset();
+        opsTask->fOpChains.reset();
+        GrRenderTask* next = task->fNext;
+        removedTasks->at(i) = opsTask;
+        llist->remove(task);
+        task = next;
+    }
+    fMustPreserveStencil = last->fMustPreserveStencil;
+}
+
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
     if (CanDiscardPreviousOps::kYes == canDiscardPreviousOps || this->isEmpty()) {
         this->deleteOps();
