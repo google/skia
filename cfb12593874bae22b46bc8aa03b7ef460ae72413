@@ -51,6 +51,23 @@
       "parentUuid": "8107fb0f_89afa926",
       "revId": "cfb12593874bae22b46bc8aa03b7ef460ae72413",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daca533e_14d9f4b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15814
+      },
+      "writtenOn": "2021-01-21T08:02:55Z",
+      "side": 1,
+      "message": "crash stack:\n\nThread 27 Crashed:\n0   AGXGLDriver                     0x00000001ccb099b4 0x00000001ccae1000 + 166324\n1   AGXGLDriver                     0x00000001ccb08528 0x00000001ccae1000 + 161064\n2   AGXGLDriver                     0x00000001ccb05bf0 0x00000001ccae1000 + 150512\n3   GLEngine                        0x00000001cdaee078 0x00000001cdad7000 + 94328\n4   Flutter                         0x0000000105ceeb74 GrOpsTask::onExecute(GrOpFlushState*) GrOpsRenderPass.cpp\n5   Flutter                         0x0000000105ce1164 GrDrawingManager::flush(GrSurfaceProxy**, int, SkSurface::BackendSurfaceAccess, GrFlushInfo const\u0026, GrPrepareForExternalIORequests const\u0026) GrRenderTask.h\n6   Flutter                         0x0000000105ce1720 GrDrawingManager::flushSurfaces(GrSurfaceProxy**, int, SkSurface::BackendSurfaceAccess, GrFlushInfo const\u0026) GrDrawingManager.cpp\n7   Flutter                         0x0000000105cff840 GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess, GrFlushInfo const\u0026) GrDrawingManager.h\n8   Flutter                         0x0000000105d76860 SkGpuDevice::flush() SkGpuDevice.cpp\n9   Flutter                         0x0000000105f095c4 std::__1::__function::__func\u003cflutter::GPUSurfaceGL::AcquireFrame(SkISize const\u0026)::$_1, std::__1::allocator\u003cflutter::GPUSurfaceGL::AcquireFrame(SkISize const\u0026)::$_1\u003e, bool ()(flutter::SurfaceFrame const\u0026, SkCanvas*)\u003e::operator()(flutter::SurfaceFrame const\u0026, SkCanvas*\u0026\u0026) SkCanvas.cpp\n10  Flutter                         0x0000000105b7deb8 flutter::SurfaceFrame::Submit() functional\n11  Flutter                         0x0000000105b6b3f0 flutter::Rasterizer::DrawToSurface(flutter::LayerTree\u0026) rasterizer.cc\n12  Flutter                         0x0000000105b6bd2c std::__1::__function::__func\u003cflutter::Rasterizer::Draw(fml::RefPtr\u003cflutter::Pipeline\u003cflutter::LayerTree\u003e \u003e)::$_0, std::__1::allocator\u003cflutter::Rasterizer::Draw(fml::RefPtr\u003cflutter::Pipeline\u003cflutter::LayerTree\u003e \u003e)::$_0\u003e, void ()(std::__1::unique_ptr\u003cflutter::LayerTree, std::__1::default_delete\u003cflutter::LayerTree\u003e \u003e)\u003e::operator()(std::__1::unique_ptr\u003cflutter::LayerTree, std::__1::default_delete\u003cflutter::LayerTree\u003e \u003e\u0026\u0026)\n13  Flutter                         0x0000000105b6b668 flutter::Rasterizer::Draw(fml::RefPtr\u003cflutter::Pipeline\u003cflutter::LayerTree\u003e \u003e) functional\n14  Flutter                         0x0000000105b710d8 std::__1::__function::__func\u003cflutter::Shell::OnAnimatorDraw(fml::RefPtr\u003cflutter::Pipeline\u003cflutter::LayerTree\u003e \u003e)::$_30, std::__1::allocator\u003cflutter::Shell::OnAnimatorDraw(fml::RefPtr\u003cflutter::Pipeline\u003cflutter::LayerTree\u003e \u003e)::$_30\u003e, void ()()\u003e::operator()() shell.cc\n15  Flutter                         0x0000000105b23554 fml::MessageLoopImpl::FlushTasks(fml::FlushType) functional\n16  Flutter                         0x0000000105b251bc fml::MessageLoopDarwin::OnTimerFire(__CFRunLoopTimer*, fml::MessageLoopDarwin*) message_loop_impl.cc\n",
+      "revId": "cfb12593874bae22b46bc8aa03b7ef460ae72413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
