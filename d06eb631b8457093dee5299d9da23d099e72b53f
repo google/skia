@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "964b6fcd_d0d71d82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T15:43:55Z",
+      "side": 1,
+      "message": "I was adding a WritePixelsTask and it doesn\u0027t make sense to have a view in that case as we don\u0027t allow any swizzling when writing pixels and the rectangle is always relative to top-left. Only OpsTask uses the swizzle. OpsTask and Copy use the origin. For Copy, that was because it was written before we knew backing store dimensions upfront. By adjusting it\u0027s inputs before construction it doesn\u0027t need the origin. So just store origin/swizzle on OpsTask.",
+      "revId": "d06eb631b8457093dee5299d9da23d099e72b53f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
