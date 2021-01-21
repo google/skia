@@ -33,6 +33,24 @@
       "message": "I don\u0027t think this is the right way to fix this. Why do we crash when backgrounding? Is it that the GL context has been deleted by the OS but we\u0027re still trying to use it?",
       "revId": "cfb12593874bae22b46bc8aa03b7ef460ae72413",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "176dbd12_0b5a960e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15814
+      },
+      "writtenOn": "2021-01-21T07:55:33Z",
+      "side": 1,
+      "message": "in my iphone flutter/skia app, i press the \u0027home\u0027 key to enter background, then my app crashed in skia, so we how to fix it ?",
+      "parentUuid": "8107fb0f_89afa926",
+      "revId": "cfb12593874bae22b46bc8aa03b7ef460ae72413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
