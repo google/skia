@@ -1,5 +1,4 @@
-Particles
-=========
+# Particles
 
 Skia’s particle module provides a way to quickly generate large numbers of
 drawing primitives with dynamic, animated behavior. Particles can be used to
@@ -7,9 +6,7 @@ create effects like fireworks, spark trails, ambient “weather”, and much mor
 Nearly all properties and behavior are controlled by scripts written in Skia’s
 custom language, SkSL.
 
-
-Samples
--------
+## Samples
 
 <style>
   #demo canvas {
@@ -37,35 +34,35 @@ Samples
   <figure>
     <canvas id=cube width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/b65b5fa234bac91afacf25f4004b3b7e"
+      <a href="https://particles.skia.org/?nameOrHash=@cube"
          target=_blank rel=noopener>Cuboid</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=confetti width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/73bf9f720bb7ed03d94cdc18e366b1da"
+      <a href="https://particles.skia.org/?nameOrHash=@confetti"
          target=_blank rel=noopener>Confetti</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=curves width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/632d713dacfa01d8905ffee98bc46acc"
+      <a href="https://particles.skia.org/?nameOrHash=@spiral"
          target=_blank rel=noopener>Curves</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=fireworks width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/d069873000ab1091296d4c0e561cc622"
+      <a href="https://particles.skia.org/?nameOrHash=@fireworks"
          target=_blank rel=noopener>Fireworks</a>
     </figcaption>
   </figure>
   <figure>
     <canvas id=text width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/9c18c154a286e7c5d64192c9d6661ce0"
+      <a href="https://particles.skia.org/?nameOrHash=@text"
          target=_blank rel=noopener>Text</a>
     </figcaption>
   </figure>
@@ -79,7 +76,7 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://particles.skia.org/static/';
+    locate_file = 'https://particles.skia.org/dist/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";

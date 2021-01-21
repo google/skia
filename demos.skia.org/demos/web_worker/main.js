@@ -4,7 +4,7 @@ const worker = new Worker('worker.js');
 worker.postMessage({ offscreenCanvas }, [offscreenCanvas]);
 
 const canvasKitInitPromise =
-    CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/static/'+file});
+    CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/dist/'+file});
 const skottieJsonPromise =
     fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json')
     .then((response) => response.text());
