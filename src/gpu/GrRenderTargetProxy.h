@@ -64,12 +64,10 @@ public:
         return fSurfaceFlags & GrInternalSurfaceFlags::kVkRTSupportsInputAttachment;
     }
 
-    void markMSAADirty(const SkIRect& dirtyRect, GrSurfaceOrigin origin) {
+    void markMSAADirty(SkIRect dirtyRect) {
         SkASSERT(SkIRect::MakeSize(this->backingStoreDimensions()).contains(dirtyRect));
         SkASSERT(this->requiresManualMSAAResolve());
-        auto nativeRect = GrNativeRect::MakeRelativeTo(
-                origin, this->backingStoreDimensions().height(), dirtyRect);
-        fMSAADirtyRect.join(nativeRect.asSkIRect());
+        fMSAADirtyRect.join(dirtyRect);
     }
     void markMSAAResolved() {
         SkASSERT(this->requiresManualMSAAResolve());

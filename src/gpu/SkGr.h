@@ -207,7 +207,7 @@ GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, G
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
  */
 sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
-                                                     GrSurfaceProxy* baseProxy,
+                                                     sk_sp<GrSurfaceProxy> baseProxy,
                                                      GrSurfaceOrigin origin,
                                                      SkBudgeted = SkBudgeted::kYes);
 /**

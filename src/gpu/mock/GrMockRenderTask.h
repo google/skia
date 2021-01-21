@@ -17,7 +17,7 @@ public:
         this->setFlag(kDisowned_Flag);
     }
 
-    void addTarget(GrSurfaceProxyView view) { fTargets.push_back(std::move(view)); }
+    void addTarget(GrSurfaceProxyView view) { fTargets.push_back(view.detachProxy()); }
     void addDependency(GrRenderTask* dep) { fDependencies.push_back(dep); }
 
     // Overrides.

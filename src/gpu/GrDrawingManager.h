@@ -77,8 +77,10 @@ public:
     // values in the dst rect corresponding to the area clipped by the src rect are not overwritten.
     // This method is not guaranteed to succeed depending on the type of surface, formats, etc, and
     // the backend-specific limitations.
-    bool newCopyRenderTask(GrSurfaceProxyView srcView, const SkIRect& srcRect,
-                           GrSurfaceProxyView dstView, const SkIPoint& dstPoint);
+    bool newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
+                           SkIRect srcRect,
+                           sk_sp<GrSurfaceProxy> dst,
+                           SkIPoint dstPoint);
 
     GrRecordingContext* getContext() { return fContext; }
 

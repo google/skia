@@ -22,17 +22,14 @@ struct GrNativeRect {
     int fWidth;
     int fHeight;
 
-    static GrNativeRect MakeRelativeTo(GrSurfaceOrigin org, int rtHeight, const SkIRect& devRect) {
+    static GrNativeRect MakeRelativeTo(GrSurfaceOrigin origin, int rtHeight, SkIRect devRect) {
         GrNativeRect nativeRect;
-        nativeRect.setRelativeTo(org, rtHeight, devRect);
+        nativeRect.setRelativeTo(origin, rtHeight, devRect);
         return nativeRect;
     }
 
-    static GrNativeRect MakeRelativeTo(GrSurfaceOrigin origin, int surfaceHeight, int leftOffset,
-                                       int topOffset, int width, int height) {
-        GrNativeRect nativeRect;
-        nativeRect.setRelativeTo(origin, surfaceHeight, leftOffset, topOffset, width, height);
-        return nativeRect;
+    static SkIRect MakeIRectRelativeTo(GrSurfaceOrigin origin, int rtHeight, SkIRect devRect) {
+        return MakeRelativeTo(origin, rtHeight, devRect).asSkIRect();
     }
 
     /**
