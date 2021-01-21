@@ -3,7 +3,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script type="text/javascript" src="https://particles.skia.org/static/canvaskit.js"></script>
+<script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
 
 <style>
   canvas {
@@ -18,7 +18,7 @@
 </body>
 
 <script type="text/javascript" charset="utf-8">
-  const ckLoaded = CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/static/'+file});
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://particles.skia.org/dist/' + file });
 
   ckLoaded.then((CanvasKit) => {
     const surface = CanvasKit.MakeCanvasSurface('draw');

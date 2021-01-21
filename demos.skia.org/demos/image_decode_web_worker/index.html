@@ -16,7 +16,7 @@
 
 <body>
   <h1>CanvasKit loading images in a webworker (using browser-based decoders)</h1>
-    <p>NOTE: this demo currently only works in chromium-based browsers, where
+  <p>NOTE: this demo currently only works in chromium-based browsers, where
     <a href="https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas#Browser_compatibility">
       Offscreen Canvas
     </a>
@@ -33,12 +33,12 @@
     </div>
     <p>
       Notice that decoding the image on the main thread pauses the circle animation until the
-     image is ready to be drawn, where as decoding it in a webworker does not have this pause
-     (or at least not as drastic a pause). You may want to reload the page, as browsers are
-     smart enough to not have to re-decode the image on subsequent requests.
-  </p>
+      image is ready to be drawn, where as decoding it in a webworker does not have this pause
+      (or at least not as drastic a pause). You may want to reload the page, as browsers are
+      smart enough to not have to re-decode the image on subsequent requests.
+    </p>
   </div>
 
 </body>
-<script type="text/javascript" src="https://particles.skia.org/static/canvaskit.js"></script>
+<script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
 <script type="text/javascript" src="main.js"></script>

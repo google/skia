@@ -1,10 +1,10 @@
-importScripts('https://particles.skia.org/static/canvaskit.js');
+importScripts('https://particles.skia.org/dist/canvaskit.js');
 importScripts('shared.js');
 
 const transferCanvasToOffscreenPromise =
     new Promise((resolve) => addEventListener('message', resolve));
 const canvasKitInitPromise =
-    CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/static/'+file});
+    CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/dist/'+file});
 const skottieJsonPromise =
     fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json')
     .then((response) => response.text());
