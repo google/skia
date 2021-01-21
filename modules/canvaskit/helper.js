@@ -302,28 +302,41 @@ var _scratch3x3Matrix;  // the result from CanvasKit.Malloc
 
 // Copies the given DOMMatrix/Array/TypedArray to the CanvasKit heap and
 // returns a pointer to the memory. This memory is a float* of length 9.
-// If the passed in matrix is null/undefined, we return 0 (nullptr). All calls
-// on the C++ side should check for nullptr where appropriate. It is generally
-// the responsibility of the JS side code to call CanvasKit._free on the
-// allocated memory before returning to the user code.
+// If the passed in matrix is null/undefined, we return 0 (nullptr). The
+// returned pointer should NOT be freed, as it is either null or a scratch
+// pointer.
 function copy3x3MatrixToWasm(matr) {
   if (!matr) {
     return nullptr;
   }
 
   if (matr.length) {
-    // TODO(kjlubick): Downsample a 16 length (4x4 matrix)
-    if (matr.length !== 6 && matr.length !== 9) {
-      throw 'invalid matrix size';
+    if (matr.length === 6 || matr.length === 9) {
+      // matr should be an array or typed array.
+      copy1dArray(matr, 'HEAPF32', _scratch3x3MatrixPtr);
+      if (matr.length === 6) {
+        // Overwrite the last 3 floats with the default perspective. The divide
+        // by 4 casts the pointer into a float pointer.
+        CanvasKit.HEAPF32.set(defaultPerspective, 6 + _scratch3x3MatrixPtr / 4);
+      }
+      return _scratch3x3MatrixPtr;
+    } else if (matr.length === 16) {
+      // Downsample the 4x4 matrix into a 3x3
+      var wasm3x3Matrix = _scratch3x3Matrix['toTypedArray']();
+      wasm3x3Matrix[0] = matr[0];
+      wasm3x3Matrix[1] = matr[1];
+      wasm3x3Matrix[2] = matr[3];
+
+      wasm3x3Matrix[3] = matr[4];
+      wasm3x3Matrix[4] = matr[5];
+      wasm3x3Matrix[5] = matr[7];
+
+      wasm3x3Matrix[6] = matr[12];
+      wasm3x3Matrix[7] = matr[13];
+      wasm3x3Matrix[8] = matr[15];
+      return _scratch3x3MatrixPtr;
     }
-    // matr should be an array or typed array.
-    var mPtr = copy1dArray(matr, 'HEAPF32', _scratch3x3MatrixPtr);
-    if (matr.length === 6) {
-      // Overwrite the last 3 floats with the default perspective. The divide
-      // by 4 casts the pointer into a float pointer.
-      CanvasKit.HEAPF32.set(defaultPerspective, 6 + mPtr / 4);
-    }
-    return mPtr;
+    throw 'invalid matrix size';
   }
   var wasm3x3Matrix = _scratch3x3Matrix['toTypedArray']();
   // Try as if it's a DOMMatrix. Reminder that DOMMatrix is column-major.
@@ -344,6 +357,11 @@ function copy3x3MatrixToWasm(matr) {
 var _scratch4x4MatrixPtr = nullptr;
 var _scratch4x4Matrix; // the result from CanvasKit.Malloc
 
+// Copies the given DOMMatrix/Array/TypedArray to the CanvasKit heap and
+// returns a pointer to the memory. This memory is a float* of length 16.
+// If the passed in matrix is null/undefined, we return 0 (nullptr). The
+// returned pointer should NOT be freed, as it is either null or a scratch
+// pointer.
 function copy4x4MatrixToWasm(matr) {
   if (!matr) {
     return nullptr;
