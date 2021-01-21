@@ -19,7 +19,12 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
     fCurrentRun->commit();
 
     auto oldUnresolvedCount = fUnresolvedBlocks.size();
-
+/*
+    SkDebugf("Run [%d:%d)\n", fCurrentRun->fTextRange.start, fCurrentRun->fTextRange.end);
+    for (size_t i = 0; i < fCurrentRun->size(); ++i) {
+        SkDebugf("[%d] %d %d %f\n", i, fCurrentRun->fGlyphs[i], fCurrentRun->fClusterIndexes[i], fCurrentRun->fPositions[i].fX);
+    }
+*/
     // Find all unresolved blocks
     sortOutGlyphs([&](GlyphRange block){
         if (block.width() == 0) {
@@ -291,6 +296,60 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
 
 // Glue whitespaces to the next/prev unresolved blocks
 // (so we don't have chinese text with english whitespaces broken into millions of tiny runs)
+#ifndef SK_PARAGRAPH_GRAPHEME_EDGES
+void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
+
+    size_t unresolvedGlyphs = 0;
+
+    GlyphRange block = EMPTY_RANGE;
+    bool graphemeResolved = false;
+    TextIndex graphemeStart = EMPTY_INDEX;
+    for (size_t i = 0; i < fCurrentRun->size(); ++i) {
+
+        ClusterIndex ci = clusterIndex(i);
+        // Removing all pretty optimizations for whitespaces
+        // because they get in a way of grapheme rounding
+        // Inspect the glyph
+        auto glyph = fCurrentRun->fGlyphs[i];
+
+        GraphemeIndex gi = fParagraph->findPreviousGraphemeBoundary(ci);
+        if ((fCurrentRun->leftToRight() ? gi > graphemeStart : gi < graphemeStart) || graphemeStart == EMPTY_INDEX) {
+            // We only count glyph resolved if all the glyphs in its grapheme are resolved
+            graphemeResolved = glyph != 0;
+            graphemeStart = gi;
+        } else if (glyph == 0) {
+            // Found unresolved glyph - the entire grapheme is unresolved now
+            graphemeResolved = false;
+        }
+
+        if (!graphemeResolved) { // Unresolved glyph and not control codepoint
+            ++unresolvedGlyphs;
+            if (block.start == EMPTY_INDEX) {
+                // Start new unresolved block
+                block.start = i;
+                block.end = EMPTY_INDEX;
+            } else {
+                // Keep skipping unresolved block
+            }
+        } else { // Resolved glyph or control codepoint
+            if (block.start == EMPTY_INDEX) {
+                // Keep skipping resolved code points
+            } else {
+                // This is the end of unresolved block
+                block.end = i;
+                sortOutUnresolvedBLock(block);
+                block = EMPTY_RANGE;
+            }
+        }
+    }
+
+    // One last block could have been left
+    if (block.start != EMPTY_INDEX) {
+        block.end = fCurrentRun->size();
+        sortOutUnresolvedBLock(block);
+    }
+}
+#else
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
 
     auto text = fCurrentRun->fOwner->text();
@@ -353,6 +412,7 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         sortOutUnresolvedBLock(block);
     }
 }
+#endif
 
 void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
                                              SkSpan<Block> styleSpan,

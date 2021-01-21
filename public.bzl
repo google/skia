@@ -723,6 +723,7 @@ def base_defines(os_conditions):
         # Google3 probably doesn't want this feature yet
         "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
         # Staging flags for API changes
+        "SK_PARAGRAPH_GRAPHEME_EDGES",
         # Should remove after we update golden images
         "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
         # Experiment to diagnose image diffs in Google3
