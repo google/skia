@@ -183,9 +183,10 @@ bool GrVkOpsRenderPass::beginRenderPass(const VkClearValue& clearColor,
     bool useFullBounds = fCurrentRenderPass->hasResolveAttachment() &&
                          fGpu->vkCaps().mustLoadFullImageWithDiscardableMSAA();
 
-    auto nativeBounds = GrNativeRect::MakeRelativeTo(
-            fOrigin, vkRT->height(),
-            useFullBounds ? SkIRect::MakeWH(vkRT->width(), vkRT->height()) : fBounds);
+    auto nativeBounds = GrNativeRect::MakeIRectRelativeTo(
+            fOrigin,
+            vkRT->height(),
+            useFullBounds ? SkIRect::MakeSize(vkRT->dimensions()) : fBounds);
 
     // The bounds we use for the render pass should be of the granularity supported
     // by the device.
@@ -193,10 +194,13 @@ bool GrVkOpsRenderPass::beginRenderPass(const VkClearValue& clearColor,
     SkIRect adjustedBounds;
     if ((0 != granularity.width && 1 != granularity.width) ||
         (0 != granularity.height && 1 != granularity.height)) {
-        adjust_bounds_to_granularity(&adjustedBounds, nativeBounds.asSkIRect(), granularity,
-                                     vkRT->width(), vkRT->height());
+        adjust_bounds_to_granularity(&adjustedBounds,
+                                     nativeBounds,
+                                     granularity,
+                                     vkRT->width(),
+                                     vkRT->height());
     } else {
-        adjustedBounds = nativeBounds.asSkIRect();
+        adjustedBounds = nativeBounds;
     }
 
     if (!fGpu->beginRenderPass(fCurrentRenderPass, &clearColor, vkRT, adjustedBounds,

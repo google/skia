@@ -1954,9 +1954,14 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,
         dstOffset = {copyRect.fLeft, copyRect.fTop};
         fit = SkBackingFit::kApprox;
     }
-    auto copy =
-            GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), this->origin(), GrMipmapped::kNo,
-                                 copyRect, fit, SkBudgeted::kYes, restrictions.fRectsMustMatch);
+    auto copy = GrSurfaceProxy::Copy(fContext,
+                                     this->asSurfaceProxyRef(),
+                                     this->origin(),
+                                     GrMipmapped::kNo,
+                                     copyRect,
+                                     fit,
+                                     SkBudgeted::kYes,
+                                     restrictions.fRectsMustMatch);
     SkASSERT(copy);
 
     dstProxyView->setProxyView({std::move(copy), this->origin(), this->readSwizzle()});
