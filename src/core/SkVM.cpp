@@ -2917,9 +2917,11 @@ namespace skvm {
             };
 
             // Take care to not recycle the same register twice.
-            if (true                                ) { maybe_recycle_register(inst.x); }
-            if (inst.y != inst.x                    ) { maybe_recycle_register(inst.y); }
-            if (inst.z != inst.x && inst.z != inst.y) { maybe_recycle_register(inst.z); }
+            const Val x = inst.x, y = inst.y, z = inst.z, w = inst.w;
+            if (true                      ) { maybe_recycle_register(x); }
+            if (y != x                    ) { maybe_recycle_register(y); }
+            if (z != x && z != y          ) { maybe_recycle_register(z); }
+            if (w != x && w != y && w != z) { maybe_recycle_register(w); }
 
             // Instructions that die at themselves (stores) don't need a register.
             if (inst.death != id) {
@@ -3200,7 +3202,7 @@ namespace skvm {
                         // We cannot spill REServed registers,
                         // nor any registers we need for this instruction.
                         if (v == RES ||
-                            v == TMP || v == id || v == x || v == y || v == z) {
+                            v == TMP || v == id || v == x || v == y || v == z || v == w) {
                             return 0x7fff'ffff;
                         }
                         // At this point spilling is arbitrary, so we're in the realm of heuristics.
@@ -3299,7 +3301,7 @@ namespace skvm {
 
             // Alias dst() to r(v) if dies_here(v).
             auto try_alias = [&](Val v) -> bool {
-                SkASSERT(v == x || v == y || v == z);
+                SkASSERT(v == x || v == y || v == z || v == w);
                 if (dies_here(v)) {
                     rd = r(v);      // Vals v and id share a register for this instruction.
                     regs[rd] = id;  // Next instruction, Val id will be in the register, not Val v.
