@@ -26,6 +26,8 @@ public:
     virtual void error(int offset, String msg) = 0;
 
     virtual int errorCount() = 0;
+
+    virtual void setErrorCount(int numErrors) = 0;
 };
 
 /**
@@ -35,6 +37,7 @@ class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
     void error(int offset, String msg) override { ABORT("%s", msg.c_str()); }
     int errorCount() override { return 0; }
+    void setErrorCount(int) override {}
 };
 
 }  // namespace SkSL

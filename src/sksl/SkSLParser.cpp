@@ -508,15 +508,22 @@ ASTNode::ID Parser::declaration() {
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
 ASTNode::ID Parser::varDeclarations() {
+    // We identify statements that lead with an identifier as variable declarations, but some
+    // statements are actually expression-statements. So if we get a parse failure here, we rewind
+    // and retry the parse as an expression-statement.
+    Checkpoint checkpoint(this);
     Modifiers modifiers = this->modifiers();
     ASTNode::ID type = this->type();
     if (!type) {
-        return ASTNode::ID::Invalid();
+        checkpoint.rewind();
+        return this->expressionStatement();
     }
     Token name;
     if (!this->expectIdentifier(&name)) {
-        return ASTNode::ID::Invalid();
+        checkpoint.rewind();
+        return this->expressionStatement();
     }
+    // At this point we're fully committed to parsing the statement as a vardecl.
     return this->varDeclarationEnd(modifiers, type, this->text(name));
 }
 
