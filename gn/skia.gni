@@ -69,7 +69,7 @@ declare_args() {
   skia_use_sfml = false
   skia_use_webgl = false
   skia_use_wuffs = false
-  skia_use_x11 = is_linux
+  skia_use_x11 = is_linux && !is_chromeos_lacros
   skia_use_xps = true
   skia_use_zlib = true
 
