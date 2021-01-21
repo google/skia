@@ -1960,6 +1960,11 @@ if (skia_enable_tools) {
     deps = [ ":skia" ]
   }
 
+  test_lib("experimental_path_effects") {
+    sources = [ "experimental/path_effects/SkAlignedDashPathEffect.cpp" ]
+    deps = [ ":skia" ]
+  }
+
   if (is_linux || is_mac) {
     test_app("skottie_tool") {
       deps = [ "modules/skottie:tool" ]
@@ -1982,6 +1987,7 @@ if (skia_enable_tools) {
     }
     public_deps = [ ":tool_utils" ]
     deps = [
+      ":experimental_path_effects",
       ":flags",
       ":gpu_tool_utils",
       ":xml",
