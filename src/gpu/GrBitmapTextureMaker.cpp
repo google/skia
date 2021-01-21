@@ -107,7 +107,7 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipmapped
         // We need a mipped proxy, but we found a proxy earlier that wasn't mipped. Thus we generate
         // a new mipped surface and copy the original proxy into the base layer. We will then let
         // the gpu generate the rest of the mips.
-        auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(),
+        auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy,
                                                           kTopLeft_GrSurfaceOrigin);
         if (!mippedProxy) {
             // We failed to make a mipped proxy with the base copied into it. This could have

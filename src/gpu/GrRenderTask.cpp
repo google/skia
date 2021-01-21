@@ -35,9 +35,9 @@ void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
     SkDEBUGCODE(fDrawingMgr = nullptr);
     this->setFlag(kDisowned_Flag);
 
-    for (const GrSurfaceProxyView& target : fTargets) {
-        if (this == drawingMgr->getLastRenderTask(target.proxy())) {
-            drawingMgr->setLastRenderTask(target.proxy(), nullptr);
+    for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
+        if (this == drawingMgr->getLastRenderTask(target.get())) {
+            drawingMgr->setLastRenderTask(target.get(), nullptr);
         }
     }
 }
@@ -65,13 +65,12 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
 
     SkIRect targetUpdateBounds;
     if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps, &targetUpdateBounds)) {
-        GrSurfaceProxy* proxy = this->target(0).proxy();
+        GrSurfaceProxy* proxy = this->target(0);
         if (proxy->requiresManualMSAAResolve()) {
-            SkASSERT(this->target(0).asRenderTargetProxy());
-            this->target(0).asRenderTargetProxy()->markMSAADirty(targetUpdateBounds,
-                                                                 this->target(0).origin());
+            SkASSERT(this->target(0)->asRenderTargetProxy());
+            this->target(0)->asRenderTargetProxy()->markMSAADirty(targetUpdateBounds);
         }
-        GrTextureProxy* textureProxy = this->target(0).asTextureProxy();
+        GrTextureProxy* textureProxy = this->target(0)->asTextureProxy();
         if (textureProxy && GrMipmapped::kYes == textureProxy->mipmapped()) {
             textureProxy->markMipmapsDirty();
         }
@@ -257,8 +256,8 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 }
 
 bool GrRenderTask::isInstantiated() const {
-    for (const GrSurfaceProxyView& target : fTargets) {
-        GrSurfaceProxy* proxy = target.proxy();
+    for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
+        GrSurfaceProxy* proxy = target.get();
         if (!proxy->isInstantiated()) {
             return false;
         }
@@ -272,13 +271,13 @@ bool GrRenderTask::isInstantiated() const {
     return true;
 }
 
-void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView view) {
-    SkASSERT(view);
+void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, sk_sp<GrSurfaceProxy> proxy) {
+    SkASSERT(proxy);
     SkASSERT(!this->isClosed());
     SkASSERT(!fDrawingMgr || drawingMgr == fDrawingMgr);
     SkDEBUGCODE(fDrawingMgr = drawingMgr);
-    drawingMgr->setLastRenderTask(view.proxy(), this);
-    fTargets.push_back(std::move(view));
+    drawingMgr->setLastRenderTask(proxy.get(), this);
+    fTargets.emplace_back(std::move(proxy));
 }
 
 #if GR_TEST_UTILS
@@ -293,11 +292,10 @@ void GrRenderTask::dump(const SkString& label,
 
     if (!fTargets.empty()) {
         SkDebugf("%sTargets: \n", indent.c_str());
-        for (const GrSurfaceProxyView& target : fTargets) {
-            if (target.proxy()) {
-                SkString proxyStr = target.proxy()->dump();
-                SkDebugf("%s%s\n", indent.c_str(), proxyStr.c_str());
-            }
+        for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
+            SkASSERT(target);
+            SkString proxyStr = target->dump();
+            SkDebugf("%s%s\n", indent.c_str(), proxyStr.c_str());
         }
     }
 

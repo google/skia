@@ -299,7 +299,7 @@ public:
     // will be the same as the src. Therefore, the copy can be used in a view with the same swizzle
     // as the original for use with a given color type.
     static sk_sp<GrSurfaceProxy> Copy(GrRecordingContext*,
-                                      GrSurfaceProxy* src,
+                                      sk_sp<GrSurfaceProxy> src,
                                       GrSurfaceOrigin,
                                       GrMipmapped,
                                       SkIRect srcRect,
@@ -309,7 +309,7 @@ public:
 
     // Same as above Copy but copies the entire 'src'
     static sk_sp<GrSurfaceProxy> Copy(GrRecordingContext*,
-                                      GrSurfaceProxy* src,
+                                      sk_sp<GrSurfaceProxy> src,
                                       GrSurfaceOrigin,
                                       GrMipmapped,
                                       SkBackingFit,

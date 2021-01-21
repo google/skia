@@ -94,9 +94,13 @@ public:
                                    SkIRect srcRect,
                                    SkBackingFit fit,
                                    SkBudgeted budgeted) {
-        auto origin = src.origin();
-        auto* proxy = src.proxy();
-        auto copy = GrSurfaceProxy::Copy(context, proxy, origin, mipMapped, srcRect, fit, budgeted);
+        auto copy = GrSurfaceProxy::Copy(context,
+                                         src.refProxy(),
+                                         src.origin(),
+                                         mipMapped,
+                                         srcRect,
+                                         fit,
+                                         budgeted);
         return {std::move(copy), src.origin(), src.swizzle()};
     }
 

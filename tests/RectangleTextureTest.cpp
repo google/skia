@@ -109,7 +109,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
                                                                  pixmap);
         // If this assert ever fails we can add a fallback to do copy as draw, but until then we can
         // be more restrictive.
-        SkAssertResult(dstContext->testCopy(srcView.proxy()));
+        SkAssertResult(dstContext->testCopy(srcView.refProxy()));
         TestReadPixels(reporter, dContext, dstContext, pixels.get(), testName);
     }
 }
@@ -179,8 +179,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
                                refPixels);
 
         // Test copy to both a texture and RT
-        TestCopyFromSurface(reporter, dContext, rectProxy.get(), origin, grII.colorType(),
-                            refPixels, "RectangleTexture-copy-from");
+        TestCopyFromSurface(reporter, dContext, rectProxy, origin, grII.colorType(), refPixels,
+                            "RectangleTexture-copy-from");
 
         auto rectContext = GrSurfaceContext::Make(dContext, std::move(view), grII.colorInfo());
         SkASSERT(rectContext);

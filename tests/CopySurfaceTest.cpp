@@ -111,7 +111,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
-                                    result = dstContext->testCopy(srcView.proxy(),
+                                    result = dstContext->testCopy(srcView.refProxy(),
                                                                   srcRect,
                                                                   dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {

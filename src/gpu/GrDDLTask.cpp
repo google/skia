@@ -24,7 +24,7 @@ GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
         SkASSERT(task->isClosed());
 
         for (int i = 0; i < task->numTargets(); ++i) {
-            drawingMgr->setLastRenderTask(task->target(i).proxy(), task.get());
+            drawingMgr->setLastRenderTask(task->target(i), task.get());
         }
     }
 

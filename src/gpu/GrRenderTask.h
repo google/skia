@@ -76,7 +76,7 @@ public:
     }
     uint32_t uniqueID() const { return fUniqueID; }
     virtual int numTargets() const { return fTargets.count(); }
-    const GrSurfaceProxyView& target(int i) const { return fTargets[i]; }
+    GrSurfaceProxy* target(int i) const { return fTargets[i].get(); }
 
     /*
      * Safely cast this GrRenderTask to a GrOpsTask (if possible).
@@ -101,15 +101,15 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-       for (const GrSurfaceProxyView& target : fTargets) {
-            fn(target.proxy(), GrMipmapped::kNo);
+        for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
+            fn(target.get(), GrMipmapped::kNo);
         }
     }
 #endif
 
     bool isUsed(GrSurfaceProxy* proxy) const {
-        for (const GrSurfaceProxyView& target : fTargets) {
-            if (target.proxy() == proxy) {
+        for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
+            if (target.get() == proxy) {
                 return true;
             }
         }
@@ -137,7 +137,12 @@ protected:
 
     // Add a target surface proxy to the list of targets for this task.
     // This also informs the drawing manager to update the lastRenderTask association.
-    void addTarget(GrDrawingManager*, GrSurfaceProxyView);
+    void addTarget(GrDrawingManager*, sk_sp<GrSurfaceProxy>);
+
+    // Helper that adds the proxy owned by a view.
+    void addTarget(GrDrawingManager* dm, const GrSurfaceProxyView& view) {
+        this->addTarget(dm, view.refProxy());
+    }
 
     enum class ExpectedOutcome : bool {
         kTargetUnchanged,
@@ -151,7 +156,7 @@ protected:
     // targetUpdateBounds must not extend beyond the proxy bounds.
     virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
-    SkSTArray<1, GrSurfaceProxyView> fTargets;
+    SkSTArray<1, sk_sp<GrSurfaceProxy>> fTargets;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins

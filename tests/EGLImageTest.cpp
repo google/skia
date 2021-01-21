@@ -204,7 +204,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     // TODO: why do we always need to draw to copy from an external texture?
     TestCopyFromSurface(reporter,
                         context0,
-                        surfaceContext->asSurfaceProxy(),
+                        surfaceContext->asSurfaceProxyRef(),
                         surfaceContext->origin(),
                         colorInfo.colorType(),
                         pixels.get(),

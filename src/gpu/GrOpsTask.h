@@ -251,6 +251,9 @@ private:
     GrRecordingContext::Arenas fArenas;
     GrAuditTrail*              fAuditTrail;
 
+    GrSwizzle fTargetSwizzle;
+    GrSurfaceOrigin fTargetOrigin;
+
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     std::array<float, 4> fLoadClearColor = {0, 0, 0, 0};
     StencilContent fInitialStencilContent = StencilContent::kDontCare;
