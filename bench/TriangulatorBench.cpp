@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkPath.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrTriangulator.h"
@@ -95,6 +96,7 @@ protected:
     SkTArray<SkPath> fPaths;
     SkAutoTMalloc<char> fVertexData;
     size_t fVertexAllocSize = 0;
+    SkArenaAllocWithReset fArena{GrTriangulator::kArenaDefaultChunkSize};
 };
 
 class PathToTrianglesBench : public TriangulatorBenchmark {
@@ -119,8 +121,9 @@ public:
     void doLoop() override {
         bool isLinear;
         for (const SkPath& path : fPaths) {
-            GrInnerFanTriangulator(path, this).pathToTriangles(this, &isLinear);
+            GrInnerFanTriangulator(path, &fArena, this).pathToTriangles(this, &isLinear);
         }
+        fArena.reset();
     }
 };
 
