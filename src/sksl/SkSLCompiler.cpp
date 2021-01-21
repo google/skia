@@ -11,7 +11,6 @@
 #include <unordered_set>
 
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLCPPCodeGenerator.h"
 #include "src/sksl/SkSLGLSLCodeGenerator.h"
@@ -59,7 +58,6 @@
 #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
 #include "src/sksl/generated/sksl_geom.dehydrated.sksl"
 #include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
-#include "src/sksl/generated/sksl_interp.dehydrated.sksl"
 #include "src/sksl/generated/sksl_public.dehydrated.sksl"
 #include "src/sksl/generated/sksl_runtime.dehydrated.sksl"
 #include "src/sksl/generated/sksl_vert.dehydrated.sksl"
@@ -254,14 +252,6 @@ const ParsedModule& Compiler::loadRuntimeEffectModule() {
     return fRuntimeEffectModule;
 }
 
-const ParsedModule& Compiler::loadInterpreterModule() {
-    if (!fInterpreterModule.fSymbols) {
-        fInterpreterModule = this->parseModule(Program::kGeneric_Kind, MODULE_DATA(interp),
-                                               this->loadPublicModule());
-    }
-    return fInterpreterModule;
-}
-
 const ParsedModule& Compiler::moduleForProgramKind(Program::Kind kind) {
     switch (kind) {
         case Program::kVertex_Kind:            return this->loadVertexModule();        break;
@@ -269,7 +259,7 @@ const ParsedModule& Compiler::moduleForProgramKind(Program::Kind kind) {
         case Program::kGeometry_Kind:          return this->loadGeometryModule();      break;
         case Program::kFragmentProcessor_Kind: return this->loadFPModule();            break;
         case Program::kRuntimeEffect_Kind:     return this->loadRuntimeEffectModule(); break;
-        case Program::kGeneric_Kind:           return this->loadInterpreterModule();   break;
+        case Program::kGeneric_Kind:           return this->loadPublicModule();        break;
     }
     SkUNREACHABLE;
 }
@@ -2030,17 +2020,6 @@ bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
     return result;
 }
 #endif
-
-std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
-    AutoSource as(this, program.fSource.get());
-    std::unique_ptr<ByteCode> result(new ByteCode());
-    ByteCodeGenerator cg(fContext.get(), &program, this, result.get());
-    bool success = cg.generateCode();
-    if (success) {
-        return result;
-    }
-    return nullptr;
-}
 
 const char* Compiler::OperatorName(Token::Kind op) {
     switch (op) {
