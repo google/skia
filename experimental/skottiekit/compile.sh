@@ -159,7 +159,6 @@ echo "Compiling bitcode"
   skia_use_system_libjpeg_turbo=false \
   skia_use_vulkan=false \
   skia_enable_fontmgr_custom_directory=false \
-  skia_enable_sksl_interpreter=false \
   \
   ${GN_GPU} \
   \
