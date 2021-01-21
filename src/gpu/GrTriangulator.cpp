@@ -401,10 +401,10 @@ void GrTriangulator::generateCubicPoints(const SkPoint& p0, const SkPoint& p1, c
 // Stage 1: convert the input path to a set of linear contours (linked list of Vertices).
 
 void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
-                                    VertexList* contours) {
+                                    VertexList* contours, bool* isLinear) {
     SkScalar toleranceSqd = tolerance * tolerance;
     SkPoint pts[4];
-    fIsLinear = true;
+    *isLinear = true;
     VertexList* contour = contours;
     SkPath::Iter iter(fPath, false);
     if (fPath.isInverseFillType()) {
@@ -420,7 +420,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kConic_Verb: {
-                fIsLinear = false;
+                *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
@@ -444,7 +444,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
                 break;
             }
             case SkPath::kQuad_Verb: {
-                fIsLinear = false;
+                *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
@@ -453,7 +453,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
                 break;
             }
             case SkPath::kCubic_Verb: {
-                fIsLinear = false;
+                *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[3], contour);
                     break;
@@ -1434,10 +1434,10 @@ static int get_contour_count(const SkPath& path, SkScalar tolerance) {
     return contourCnt;
 }
 
-Poly* GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds) {
+Poly* GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds, bool* isLinear) {
     int contourCnt = get_contour_count(fPath, tolerance);
     if (contourCnt <= 0) {
-        fIsLinear = true;
+        *isLinear = true;
         return nullptr;
     }
 
@@ -1446,7 +1446,7 @@ Poly* GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds) {
     }
     std::unique_ptr<VertexList[]> contours(new VertexList[contourCnt]);
 
-    this->pathToContours(tolerance, clipBounds, contours.get());
+    this->pathToContours(tolerance, clipBounds, contours.get(), isLinear);
     return this->contoursToPolys(contours.get(), contourCnt);
 }
 
@@ -1492,7 +1492,8 @@ int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertex
 int GrTriangulator::PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                    WindingVertex** verts) {
     GrTriangulator triangulator(path);
-    Poly* polys = triangulator.pathToPolys(tolerance, clipBounds);
+    bool isLinear;
+    Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, &isLinear);
     int64_t count64 = CountPoints(polys, path.getFillType());
     if (0 == count64 || count64 > SK_MaxS32) {
         *verts = nullptr;
