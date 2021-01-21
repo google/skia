@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e466406_aa457539",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-21T20:49:18Z",
+      "side": 1,
+      "message": "This is definitely the most elaborate SkSL-skvm arrangement, possibly even more than SkRuntimeEffect. For various reasons, it made sense to use *two* uniform args (one for uniforms injected by things like SkShaders invoked by the particle C++ bindings, and another for actual SkSL uniforms).\n\nThe upshot is that it all works, and even without JIT, is substantially faster than what we had before (2-4x faster in my experiments, depending on workload).\n\nWe can\u0027t JIT today, as effect and particle entry points have 21 and 18 arguments, respectively (including the two uniform args).\n\nOnce this lands, I\u0027m going to rip out all of the remaining ByteCode guts in a follow-up CL.",
+      "revId": "18d314431a3b62b5d6ffef97cb5b3142477fcace",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
