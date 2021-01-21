@@ -165,6 +165,16 @@ public:
         return fPropMgr->setOpacity(key, o);
     }
 
+    void setSound(emscripten::val sound) {
+        fSound = sound;
+    }
+
+    void testSound() {
+        if (!fSound.isNull()) {
+            fSound.call<void>("play", val("my_sound_file.mp3"));
+        }
+    }
+
     JSArray getMarkers() const {
         JSArray markers = emscripten::val::array();
         for (const auto& m : fPropMgr->markers()) {
@@ -181,10 +191,12 @@ private:
     ManagedAnimation(sk_sp<skottie::Animation> animation,
                      std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr)
         : fAnimation(std::move(animation))
-        , fPropMgr(std::move(propMgr)) {}
+        , fPropMgr(std::move(propMgr))
+        , fSound(emscripten::val::null()) {}
 
     sk_sp<skottie::Animation>                             fAnimation;
     std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
+    emscripten::val                                       fSound;
 };
 
 } // anonymous ns
@@ -248,7 +260,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("setOpacity", &ManagedAnimation::setOpacity)
         .function("getMarkers", &ManagedAnimation::getMarkers)
         .function("getColorProps"  , &ManagedAnimation::getColorProps)
-        .function("getOpacityProps", &ManagedAnimation::getOpacityProps);
+        .function("getOpacityProps", &ManagedAnimation::getOpacityProps)
+        .function("setSound", &ManagedAnimation::setSound)
+        .function("testSound", &ManagedAnimation::testSound);
 
     function("_MakeManagedAnimation", optional_override([](std::string json,
                                                            size_t assetCount,
