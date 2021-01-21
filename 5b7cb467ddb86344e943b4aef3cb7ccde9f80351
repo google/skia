@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "554a9063_40360547",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T22:35:16Z",
+      "side": 1,
+      "message": "I think we used to use this preferVRAMUseOverFlushes() cap to force more frequent flushes on ANGLE in many places. Now it\u0027s just used in writePixels, which seems odd. I preserved it, but I\u0027d like to try removing it afterwards.\n\nThe code this was copied from used to flush with a span of the surface being written to in the else case, but that\u0027s not necessary now that this is a task in the DAG. It was used to avoid data hazards before directly whacking the pixels with GrGpu outside of the DAG.",
+      "range": {
+        "startLine": 859,
+        "startChar": 0,
+        "endLine": 867,
+        "endChar": 0
+      },
+      "revId": "5b7cb467ddb86344e943b4aef3cb7ccde9f80351",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4647debe_168a2a5a",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T22:35:16Z",
+      "side": 1,
+      "message": "It may seem like we don\u0027t need to force this to be instantiated anymore since we add a task at the end rather than call GrGpu::writePixels with a GrSurface. However, we are passing the GrSurface to GrCaps::surfaceSupportsWritePixels on line 407. That function could use the proxy except for one case in the GL implementation. And that case is to check with whether the underlying API surface has ever been bound to GL framebuffer object for a driver workaround. We can\u0027t check that from a proxy. \n\nThis chain of changes, however, is motivated by changing how that workaround is implemented. When the workaround is in play we\u0027ll just always use an intermediate temp surface that is never recycled from the cache to ensure it hasn\u0027t ever been bound to a framebuffer object in a previous usage. First step, which this is a part of, is bottlenecking proxy instantiation in a single place where a not-recycled flag could be enforced.",
+      "revId": "5b7cb467ddb86344e943b4aef3cb7ccde9f80351",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
