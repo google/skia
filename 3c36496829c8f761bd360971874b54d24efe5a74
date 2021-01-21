@@ -72,6 +72,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0df34c36_cd71c679",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-21T17:57:44Z",
+      "side": 1,
+      "message": "The only diffs I see locally are the ones for unsupported input types (SourceAlpha, Background*), which does make sense now (see comment on nullptr early return). However, gold called out some diffs that I can\u0027t reproduce, e.g. this one: https://gold.skia.org/diff?test\u003dfilters-overview-01-b.svg\u0026left\u003d09424fa934d6229c4d092141ba357a1f\u0026right\u003d47d9aab62d4c89038de02840fccd0944\u0026changelist_id\u003d356416\u0026crs\u003dgerrit\n\nWhat do you think? I\u0027m inclined to land this and follow up / revert later as needed.",
+      "parentUuid": "8507679d_983bbe98",
+      "revId": "3c36496829c8f761bd360971874b54d24efe5a74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "35914b65_0f63ce1a",
@@ -85,6 +103,30 @@
       "writtenOn": "2021-01-21T17:04:59Z",
       "side": 1,
       "message": "These don\u0027t seem to be called - are they going to be used in follow-ups?",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 1
+      },
+      "revId": "3c36496829c8f761bd360971874b54d24efe5a74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7805c178_7fe1488e",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-21T17:57:44Z",
+      "side": 1,
+      "message": "Yeah, they are used in the feDisplacementMap CL.",
+      "parentUuid": "35914b65_0f63ce1a",
       "range": {
         "startLine": 89,
         "startChar": 0,
