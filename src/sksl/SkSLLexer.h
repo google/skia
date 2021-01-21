@@ -135,6 +135,10 @@ public:
 
     Token next();
 
+    int32_t getCheckpoint() const { return fOffset; }
+
+    int32_t rewindToCheckpoint(int32_t checkpoint) { fOffset = checkpoint; }
+
 private:
     const char* fText;
     int32_t fLength;
