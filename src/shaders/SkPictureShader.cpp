@@ -188,13 +188,32 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     SkPicturePriv::Flatten(fPicture, buffer);
 }
 
+// These are tricky "downscales" -- need to deduce the caller's intention.
+// For now, map anything that is not "nearest/none" to kLinear
+//
+// The "modern" version of pictureshader explicitly takes SkFilterMode.
+// The legacy version inherits it from the paint, hence the extra conversions/plumbing
+// needed to downscale either filter-quality or sampling (from the paint) if we're in
+// legacy mode. When all clients only use the modern/explicit version, we can eliminate
+// all of this extra stuff.
+
+static SkFilterMode sampling_to_filter(const SkSamplingOptions& sampling) {
+    return sampling == SkSamplingOptions() ? SkFilterMode::kNearest
+                                           : SkFilterMode::kLinear;
+}
+
+static SkFilterMode quality_to_filter(SkFilterQuality quality) {
+    return quality == kNone_SkFilterQuality ? SkFilterMode::kNearest
+                                            : SkFilterMode::kLinear;
+}
+
 // Returns a cached image shader, which wraps a single picture tile at the given
 // CTM/local matrix.  Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
                                                  SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                                  SkColorType dstColorType,
                                                  SkColorSpace* dstColorSpace,
-                                                 SkFilterQuality paintFQ,
+                                                 SkFilterMode paintFilter,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
@@ -257,8 +276,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 
         SkFilterMode filter;
         if (fFilter == kInheritFromPaint) {
-            filter = (paintFQ == kNone_SkFilterQuality) ? SkFilterMode::kNearest
-                                                        : SkFilterMode::kLinear;
+            filter = paintFilter;
         } else {
             filter = (SkFilterMode)fFilter;
         }
@@ -282,7 +300,7 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
     bitmapShader = this->refBitmapShader(rec.fMatrixProvider.localToDevice(), &lm,
                                          rec.fDstColorType, rec.fDstCS,
-                                         rec.fPaint.getFilterQuality());
+                                         quality_to_filter(rec.fPaint.getFilterQuality()));
 
     if (!bitmapShader) {
         return false;
@@ -304,7 +322,8 @@ skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
     bitmapShader = this->refBitmapShader(matrices.localToDevice(), &lm,
-                                         dst.colorType(), dst.colorSpace(), quality);
+                                         dst.colorType(), dst.colorSpace(),
+                                         quality_to_filter(quality));
     if (!bitmapShader) {
         return {};
     }
@@ -323,8 +342,7 @@ const {
     auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
     sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorType,
                                                          rec.fDstColorSpace,
-                                                         rec.fPaint ? rec.fPaint->getFilterQuality()
-                                                                    : kNone_SkFilterQuality);
+                                                         sampling_to_filter(rec.fPaintSampling));
     if (!bitmapShader) {
         return nullptr;
     }
@@ -365,11 +383,6 @@ void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor ds
 
 #if SK_SUPPORT_GPU
 
-// Legacy: reconstruct what was in the paint (just care about none/low)
-static SkFilterQuality toFilterQuality(const SkSamplingOptions& sampling) {
-    return sampling == SkSamplingOptions() ? kNone_SkFilterQuality : kLow_SkFilterQuality;
-}
-
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     int maxTextureSize = 0;
@@ -384,7 +397,8 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     }
     sk_sp<SkShader> bitmapShader(
             this->refBitmapShader(args.fMatrixProvider.localToDevice(), &lm, dstColorType,
-                                  args.fDstColorInfo->colorSpace(), toFilterQuality(args.fSampling),
+                                  args.fDstColorInfo->colorSpace(),
+                                  sampling_to_filter(args.fSampling),
                                   maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
