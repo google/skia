@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43170d47_011fc5d6",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-21T18:07:11Z",
+      "side": 1,
+      "message": "Maybe change this comment to something like \"In WebGL testing there is only every one context and it is always current\"",
+      "range": {
+        "startLine": 331,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 46
+      },
+      "revId": "cc6fcd2a57c5d3511d756e83b55c46c6e7f670da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
