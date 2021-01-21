@@ -81,6 +81,30 @@
       },
       "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3155c86_af8fdbf5",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-01-21T16:46:34Z",
+      "side": 1,
+      "message": "Just write that in the changelog. \"we make it 3x3 by throwing out the third row and third column\"",
+      "parentUuid": "d69a5ffe_c0e19052",
+      "range": {
+        "startLine": 18,
+        "startChar": 20,
+        "endLine": 18,
+        "endChar": 31
+      },
+      "revId": "aa39ae43adcb00b4169c3105e167a0e83cb33b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
