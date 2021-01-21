@@ -63,6 +63,24 @@
       "message": "clang-tidy is complaining that I didn\u0027t use make_unique here, but I don\u0027t think it\u0027s possible as long as I\u0027m doing aggregate initialization? I guess I have to add a constructor to make it happy? Sigh.",
       "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "871f49cb_b2f775c6",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:47:25Z",
+      "side": 1,
+      "message": "That\u0027s weird.  Yeah, I think make_unique calls new T() not new T{}.\n\nTry // NOLINT?  I\u0027d hate to the bad robot boss us around.",
+      "parentUuid": "f4eda8c2_e80a7440",
+      "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
