@@ -424,17 +424,19 @@ void GrDrawingManager::sortTasks() {
 }
 
 // Reorder the array to match the llist without reffing & unreffing sk_sp's.
-// Both args must contain the same objects.
+// The llist must contain a subset of the entries in the array.
 // This is basically a shim because clustering uses LList but the rest of drawmgr uses array.
 template <typename T>
 static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk_sp<T>>* array) {
+    for (sk_sp<T>& t : *array) {
+        [[maybe_unused]] T* old = t.release();
+    }
     int i = 0;
     for (T* t : llist) {
-        // Release the pointer that used to live here so it doesn't get unreffed.
-        [[maybe_unused]] T* old = array->at(i).release();
         array->at(i++).reset(t);
     }
-    SkASSERT(i == array->count());
+    SkASSERT(i <= array->count());
+    array->resize_back(i);
 }
 
 void GrDrawingManager::reorderTasks() {
@@ -446,6 +448,19 @@ void GrDrawingManager::reorderTasks() {
     }
     // TODO: Handle case where proposed order would blow our memory budget.
     // Such cases are currently pathological, so we could just return here and keep current order.
+
+    // Merge adjacent ops tasks.
+    for (GrRenderTask* task : llist) {
+        SkSTArray<2, GrOpsTask*> removedOpsTasks;
+        if (auto opsTask = task->asOpsTask()) {
+            opsTask->mergeFromLList(&llist, &removedOpsTasks);
+        }
+        for (GrOpsTask* t : removedOpsTasks) {
+            t->disown(this);
+            t->unref();
+        }
+    }
+
     reorder_array_by_llist(llist, &fDAG);
 }
 
