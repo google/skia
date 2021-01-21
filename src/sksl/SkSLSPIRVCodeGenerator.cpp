@@ -538,10 +538,11 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                     return this->nextId();
                 }
                 if (type.columns() > 0) {
-                    IntLiteral count(fContext, -1, type.columns());
-                    this->writeInstruction(SpvOpTypeArray, result,
-                                           this->getType(type.componentType(), layout),
-                                           this->writeIntLiteral(count), fConstantBuffer);
+                    SpvId typeId = this->getType(type.componentType(), layout);
+                    IntLiteral countLiteral(fContext, /*offset=*/-1, type.columns());
+                    SpvId countId = this->writeIntLiteral(countLiteral);
+                    this->writeInstruction(SpvOpTypeArray, result, typeId, countId,
+                                           fConstantBuffer);
                     this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
                                            (int32_t) layout.stride(type),
                                            fDecorationBuffer);
@@ -1890,15 +1891,11 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 fErrors.error(swizzle.fOffset, "unable to retrieve lvalue from swizzle");
             }
             if (count == 1) {
-                IntLiteral index(fContext, -1, swizzle.components()[0]);
                 SpvId member = this->nextId();
-                this->writeInstruction(SpvOpAccessChain,
-                                       this->getPointerType(type,
-                                                            get_storage_class(*swizzle.base())),
-                                       member,
-                                       base,
-                                       this->writeIntLiteral(index),
-                                       out);
+                SpvId typeId = this->getPointerType(type, get_storage_class(*swizzle.base()));
+                IntLiteral index(fContext, /*offset=*/-1, swizzle.components()[0]);
+                SpvId indexId = this->writeIntLiteral(index);
+                this->writeInstruction(SpvOpAccessChain, typeId, member, base, indexId, out);
                 return std::make_unique<PointerLValue>(*this, member, this->getType(type),
                                                        precision);
             } else {
@@ -1925,7 +1922,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             this->writeInstruction(SpvOpBranch, end, out);
             SpvId result = this->nextId();
             this->writeInstruction(SpvOpPhi, this->getType(*fContext.fTypes.fBool), result, ifTrue,
-                       ifTrueLabel, ifFalse, ifFalseLabel, out);
+                                   ifTrueLabel, ifFalse, ifFalseLabel, out);
             return std::make_unique<PointerLValue>(*this, result, this->getType(type), precision);
         }
         default: {
@@ -2664,8 +2661,10 @@ SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
 
 SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, OutputStream& out) {
     SpvId result = fFunctionMap[&f];
-    this->writeInstruction(SpvOpFunction, this->getType(f.returnType()), result,
-                           SpvFunctionControlMaskNone, this->getFunctionType(f), out);
+    SpvId returnTypeId = this->getType(f.returnType());
+    SpvId functionTypeId = this->getFunctionType(f);
+    this->writeInstruction(SpvOpFunction, returnTypeId, result,
+                           SpvFunctionControlMaskNone, functionTypeId, out);
     this->writeInstruction(SpvOpName, result, f.name(), fNameBuffer);
     const std::vector<const Variable*>& parameters = f.parameters();
     for (size_t i = 0; i < parameters.size(); i++) {
