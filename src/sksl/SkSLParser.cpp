@@ -125,7 +125,6 @@ void Parser::InitLayoutMap() {
 
 Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
 : fText(text)
-, fPushback(Token::Kind::TK_NONE, -1, -1)
 , fSymbols(symbols)
 , fErrors(errors) {
     fLexer.start(text, length);
@@ -199,9 +198,9 @@ std::unique_ptr<ASTFile> Parser::compilationUnit() {
 }
 
 Token Parser::nextRawToken() {
-    if (fPushback.fKind != Token::Kind::TK_NONE) {
-        Token result = fPushback;
-        fPushback.fKind = Token::Kind::TK_NONE;
+    if (!fPushback.empty()) {
+        Token result = fPushback.back();
+        fPushback.pop_back();
         return result;
     }
     Token result = fLexer.next();
@@ -219,19 +218,18 @@ Token Parser::nextToken() {
 }
 
 void Parser::pushback(Token t) {
-    SkASSERT(fPushback.fKind == Token::Kind::TK_NONE);
-    fPushback = std::move(t);
+    fPushback.push_back(t);
 }
 
 Token Parser::peek() {
-    if (fPushback.fKind == Token::Kind::TK_NONE) {
-        fPushback = this->nextToken();
+    if (fPushback.empty()) {
+        fPushback.push_back(this->nextToken());
     }
-    return fPushback;
+    return fPushback.back();
 }
 
 bool Parser::checkNext(Token::Kind kind, Token* result) {
-    if (fPushback.fKind != Token::Kind::TK_NONE && fPushback.fKind != kind) {
+    if (!fPushback.empty() && fPushback.back().fKind != kind) {
         return false;
     }
     Token next = this->nextToken();
@@ -519,6 +517,115 @@ ASTNode::ID Parser::varDeclarations() {
     }
     return this->varDeclarationEnd(modifiers, type, this->text(name));
 }
+
+static bool is_modifier_token(const Token& token) {
+    switch (token.fKind) {
+        case Token::Kind::TK_UNIFORM:
+        case Token::Kind::TK_CONST:
+        case Token::Kind::TK_IN:
+        case Token::Kind::TK_OUT:
+        case Token::Kind::TK_INOUT:
+        case Token::Kind::TK_FLAT:
+        case Token::Kind::TK_NOPERSPECTIVE:
+        case Token::Kind::TK_READONLY:
+        case Token::Kind::TK_WRITEONLY:
+        case Token::Kind::TK_COHERENT:
+        case Token::Kind::TK_VOLATILE:
+        case Token::Kind::TK_RESTRICT:
+        case Token::Kind::TK_BUFFER:
+        case Token::Kind::TK_HASSIDEEFFECTS:
+        case Token::Kind::TK_PLS:
+        case Token::Kind::TK_PLSIN:
+        case Token::Kind::TK_PLSOUT:
+        case Token::Kind::TK_VARYING:
+        case Token::Kind::TK_INLINE:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+bool Parser::peekVarDeclarations() {
+    // Vardecls can optionally begin with modifiers.
+    {
+        Token token = this->nextToken();
+        TokenReturn pushback(this, token);
+
+        // Avoid infinite recursion if someone puts 50 redundant modifiers in a row.
+        if (fPushback.size() > kMaxParseDepth) {
+            return false;
+        }
+
+        if (is_modifier_token(token)) {
+            return this->peekVarDeclarations();
+        }
+    }
+
+    // After modifiers, vardecls must have a type.
+    return this->peekVarDeclarationsType();
+}
+
+bool Parser::peekVarDeclarationsType() {
+    Token typeToken = this->nextToken();
+    TokenReturn pushback(this, typeToken);
+
+    if (typeToken.fKind != Token::Kind::TK_IDENTIFIER) {
+        return false;
+    }
+    if (!this->isType(this->text(typeToken))) {
+        return false;
+    }
+
+    // After the type, vardecls may have an array size in brackets.
+    return this->peekVarDeclarationsArraySize();
+}
+
+bool Parser::peekVarDeclarationsArraySize() {
+    // Array sizes always begin with a `[`.
+    {
+        Token lbracketToken = this->nextToken();
+        TokenReturn pushback(this, lbracketToken);
+
+        if (lbracketToken.fKind == Token::Kind::TK_LBRACKET) {
+            // Next we expect either a `]` or an int literal.
+            Token arrayToken = this->nextToken();
+            TokenReturn pushback(this, arrayToken);
+
+            if (arrayToken.fKind == Token::Kind::TK_RBRACKET) {
+                // We found `[]`, an unsized array.
+                return this->peekVarDeclarationsName();
+            }
+
+            if (arrayToken.fKind == Token::Kind::TK_INT_LITERAL) {
+                // We found `[123`.
+                Token nextArrayToken = this->nextToken();
+                TokenReturn pushback(this, nextArrayToken);
+
+                if (nextArrayToken.fKind == Token::Kind::TK_RBRACKET) {
+                    // We found `[123]`, a sized array.
+                    return this->peekVarDeclarationsName();
+                }
+            }
+
+            // This doesn't parse as a valid array size.
+            return false;
+        }
+    }
+
+    // There wasn't any array size at all, but that's totally fine.
+    return this->peekVarDeclarationsName();
+}
+
+bool Parser::peekVarDeclarationsName() {
+    Token nameToken = this->nextToken();
+    TokenReturn pushback(this, nameToken);
+
+    // After type and optional array size, vardecls must have a name.
+    // If we got this far, we can confidently say that we have a vardecl statement.
+    return nameToken.fKind == Token::Kind::TK_IDENTIFIER;
+}
+
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
 ASTNode::ID Parser::structDeclaration() {
@@ -1161,7 +1268,7 @@ ASTNode::ID Parser::statement() {
         case Token::Kind::TK_CONST:
             return this->varDeclarations();
         case Token::Kind::TK_IDENTIFIER:
-            if (this->isType(this->text(start))) {
+            if (this->peekVarDeclarations()) {
                 return this->varDeclarations();
             }
             [[fallthrough]];
