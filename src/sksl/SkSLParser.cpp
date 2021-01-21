@@ -40,6 +40,31 @@ static bool struct_is_too_deeply_nested(const Type& type, int limit) {
     return false;
 }
 
+static int parse_modifier_token(Token::Kind token) {
+    switch (token) {
+        case Token::Kind::TK_UNIFORM:        return Modifiers::kUniform_Flag;
+        case Token::Kind::TK_CONST:          return Modifiers::kConst_Flag;
+        case Token::Kind::TK_IN:             return Modifiers::kIn_Flag;
+        case Token::Kind::TK_OUT:            return Modifiers::kOut_Flag;
+        case Token::Kind::TK_INOUT:          return Modifiers::kIn_Flag | Modifiers::kOut_Flag;
+        case Token::Kind::TK_FLAT:           return Modifiers::kFlat_Flag;
+        case Token::Kind::TK_NOPERSPECTIVE:  return Modifiers::kNoPerspective_Flag;
+        case Token::Kind::TK_READONLY:       return Modifiers::kReadOnly_Flag;
+        case Token::Kind::TK_WRITEONLY:      return Modifiers::kWriteOnly_Flag;
+        case Token::Kind::TK_COHERENT:       return Modifiers::kCoherent_Flag;
+        case Token::Kind::TK_VOLATILE:       return Modifiers::kVolatile_Flag;
+        case Token::Kind::TK_RESTRICT:       return Modifiers::kRestrict_Flag;
+        case Token::Kind::TK_BUFFER:         return Modifiers::kBuffer_Flag;
+        case Token::Kind::TK_HASSIDEEFFECTS: return Modifiers::kHasSideEffects_Flag;
+        case Token::Kind::TK_PLS:            return Modifiers::kPLS_Flag;
+        case Token::Kind::TK_PLSIN:          return Modifiers::kPLSIn_Flag;
+        case Token::Kind::TK_PLSOUT:         return Modifiers::kPLSOut_Flag;
+        case Token::Kind::TK_VARYING:        return Modifiers::kVarying_Flag;
+        case Token::Kind::TK_INLINE:         return Modifiers::kInline_Flag;
+        default:                             return 0;
+    }
+}
+
 class AutoDepth {
 public:
     AutoDepth(Parser* p)
@@ -1032,88 +1057,14 @@ Modifiers Parser::modifiers() {
     int flags = 0;
     for (;;) {
         // TODO: handle duplicate / incompatible flags
-        switch (peek().fKind) {
-            case Token::Kind::TK_UNIFORM:
-                this->nextToken();
-                flags |= Modifiers::kUniform_Flag;
-                break;
-            case Token::Kind::TK_CONST:
-                this->nextToken();
-                flags |= Modifiers::kConst_Flag;
-                break;
-            case Token::Kind::TK_IN:
-                this->nextToken();
-                flags |= Modifiers::kIn_Flag;
-                break;
-            case Token::Kind::TK_OUT:
-                this->nextToken();
-                flags |= Modifiers::kOut_Flag;
-                break;
-            case Token::Kind::TK_INOUT:
-                this->nextToken();
-                flags |= Modifiers::kIn_Flag;
-                flags |= Modifiers::kOut_Flag;
-                break;
-            case Token::Kind::TK_FLAT:
-                this->nextToken();
-                flags |= Modifiers::kFlat_Flag;
-                break;
-            case Token::Kind::TK_NOPERSPECTIVE:
-                this->nextToken();
-                flags |= Modifiers::kNoPerspective_Flag;
-                break;
-            case Token::Kind::TK_READONLY:
-                this->nextToken();
-                flags |= Modifiers::kReadOnly_Flag;
-                break;
-            case Token::Kind::TK_WRITEONLY:
-                this->nextToken();
-                flags |= Modifiers::kWriteOnly_Flag;
-                break;
-            case Token::Kind::TK_COHERENT:
-                this->nextToken();
-                flags |= Modifiers::kCoherent_Flag;
-                break;
-            case Token::Kind::TK_VOLATILE:
-                this->nextToken();
-                flags |= Modifiers::kVolatile_Flag;
-                break;
-            case Token::Kind::TK_RESTRICT:
-                this->nextToken();
-                flags |= Modifiers::kRestrict_Flag;
-                break;
-            case Token::Kind::TK_BUFFER:
-                this->nextToken();
-                flags |= Modifiers::kBuffer_Flag;
-                break;
-            case Token::Kind::TK_HASSIDEEFFECTS:
-                this->nextToken();
-                flags |= Modifiers::kHasSideEffects_Flag;
-                break;
-            case Token::Kind::TK_PLS:
-                this->nextToken();
-                flags |= Modifiers::kPLS_Flag;
-                break;
-            case Token::Kind::TK_PLSIN:
-                this->nextToken();
-                flags |= Modifiers::kPLSIn_Flag;
-                break;
-            case Token::Kind::TK_PLSOUT:
-                this->nextToken();
-                flags |= Modifiers::kPLSOut_Flag;
-                break;
-            case Token::Kind::TK_VARYING:
-                this->nextToken();
-                flags |= Modifiers::kVarying_Flag;
-                break;
-            case Token::Kind::TK_INLINE:
-                this->nextToken();
-                flags |= Modifiers::kInline_Flag;
-                break;
-            default:
-                return Modifiers(layout, flags);
+        int tokenFlag = parse_modifier_token(peek().fKind);
+        if (!tokenFlag) {
+            break;
         }
+        flags |= tokenFlag;
+        this->nextToken();
     }
+    return Modifiers(layout, flags);
 }
 
 Modifiers Parser::modifiersWithDefaults(int defaultFlags) {
