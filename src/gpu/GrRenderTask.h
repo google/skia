@@ -75,6 +75,8 @@ public:
     virtual int numTargets() const { return fTargets.count(); }
     const GrSurfaceProxyView& target(int i) const { return fTargets[i]; }
 
+    virtual GrSurface* floob() { return nullptr; }
+
     /*
      * Safely cast this GrRenderTask to a GrOpsTask (if possible).
      */

@@ -9,6 +9,8 @@
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
@@ -98,14 +100,41 @@ void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
+GrSurface* GrDDLTask::floob() {
+    return fDDLTarget->peekSurface();
+}
+
+void bedazzle_me(GrGpu* gpu, GrRenderTask* renderTask, int id);
+
 bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
+//    SkDebugf("DDL offset %d %d\n", fOffset.fX, fOffset.fY);
+
+    flushState->setViewportOffset(fDDL->priv().targetProxy(), fOffset);
+
+//    SkIRect r = SkIRect::MakeXYWH(fOffset.fX,
+//                                  fOffset.fY,
+//                                  fDDLTarget->backingStoreDimensions().width(),
+//                                  fDDLTarget->backingStoreDimensions().height());
+
+//    flushState->booyah(r);
+
+//    flushState->gpu()->setViewport(r, fDDLTarget->backingStoreDimensions());
+
+    static int s_ID = 100;
+
     bool anyCommandsIssued = false;
     for (auto& task : fDDL->priv().renderTasks()) {
         if (task->execute(flushState)) {
             anyCommandsIssued = true;
+
+            bedazzle_me(flushState->gpu(), task.get(), s_ID++);
         }
     }
 
+//    flushState->gpu()->setViewport(SkIRect::MakeSize(fDDLTarget->backingStoreDimensions()),
+//                                   fDDLTarget->backingStoreDimensions());
+
+    flushState->setViewportOffset(nullptr, { 0, 0 });
     return anyCommandsIssued;
 }
 

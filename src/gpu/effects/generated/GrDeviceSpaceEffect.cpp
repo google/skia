@@ -24,17 +24,25 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDeviceSpaceEffect& _outer = args.fFp.cast<GrDeviceSpaceEffect>();
         (void)_outer;
-        SkString _coords0("sk_FragCoord.xy");
+        offsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                     kInt2_GrSLType, "offset");
+        SkString _coords0 = SkStringPrintf("sk_FragCoord.xy-%s.xy",
+                                           args.fUniformHandler->getUniformCStr(offsetVar));
         SkString _sample0 = this->invokeChild(0, args, _coords0.c_str());
-        fragBuilder->codeAppendf(
-                R"SkSL(return %s;
-)SkSL",
-                _sample0.c_str());
+        fragBuilder->codeAppendf(R"SkSL(return %s;)SkSL", _sample0.c_str());
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
+        if (viewportOffset != fPrevViewportOffset) {
+            pdman.set2i(offsetVar, viewportOffset.fX, viewportOffset.fY);
+            fPrevViewportOffset = viewportOffset;
+        }
+    }
+    SkIPoint                            fPrevViewportOffset = {0,0};
+    GrGLSLUniformHandler::UniformHandle offsetVar;
 };
 GrGLSLFragmentProcessor* GrDeviceSpaceEffect::onCreateGLSLInstance() const {
     return new GrGLSLDeviceSpaceEffect();

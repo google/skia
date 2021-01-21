@@ -257,7 +257,8 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
 
     private:
         void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrFragmentProcessor& proc) override {
+                       const GrFragmentProcessor& proc,
+                       SkIPoint viewportOffset) override {
             const GrYUVtoRGBEffect& yuvEffect = proc.cast<GrYUVtoRGBEffect>();
 
             if (yuvEffect.fYUVColorSpace != kIdentity_SkYUVColorSpace) {
