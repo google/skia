@@ -81,6 +81,24 @@
       "parentUuid": "f4eda8c2_e80a7440",
       "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b629ec0e_fbda1c8b",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-21T21:49:42Z",
+      "side": 1,
+      "message": "I\u0027m assured that the suggested std::make_unique version will start compiling correctly once we target C++20.  :|",
+      "parentUuid": "871f49cb_b2f775c6",
+      "revId": "089909640b3c0a908ddefe5643ad1ccad8d16542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
