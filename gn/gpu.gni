@@ -125,6 +125,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrImageInfo.h",
   "$_src/gpu/GrImageTextureMaker.cpp",
   "$_src/gpu/GrImageTextureMaker.h",
+  "$_src/gpu/GrInnerFanTriangulator.h",
   "$_src/gpu/GrManagedResource.cpp",
   "$_src/gpu/GrManagedResource.h",
   "$_src/gpu/GrMemoryPool.cpp",
