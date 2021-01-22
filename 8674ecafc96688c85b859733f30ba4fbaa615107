@@ -16,6 +16,75 @@
       "message": "Actually writing all of this down in one place was motivated by figuring out where in the API (if anywhere) parameters for the \u0027contrast hack\u0027 should go. This line of reasoning doesn\u0027t really say what form that API should take, but does make a case that it\u0027s a function of the contrast function used (including any parameters to it) which is chosen to affect how a given display is perceived by a given user.\n\nAs currently used the \u0027contrast hack\u0027 conflates stem contrast (a pixel issue) and optical sizing (a nominal size issue) which makes things awkward by continuing to tie the pixel size and nominal size, which we have been slowly trying to tease apart.",
       "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a56f9c27_0c8e68d6",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-01-22T21:52:47Z",
+      "side": 1,
+      "message": "However the art and knowledge of optical sizing, and rendering delicate features was lost during automation.",
+      "range": {
+        "startLine": 108,
+        "startChar": 57,
+        "endLine": 111,
+        "endChar": 23
+      },
+      "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae49981e_e6762c9b",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-01-22T21:52:47Z",
+      "side": 1,
+      "message": "An alternate way the designer could provide optical sized fonts is using multiple font files...",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 35
+      },
+      "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5da6feb_0ff00773",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-01-22T21:52:47Z",
+      "side": 1,
+      "message": "drawn",
+      "range": {
+        "startLine": 191,
+        "startChar": 69,
+        "endLine": 191,
+        "endChar": 73
+      },
+      "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
