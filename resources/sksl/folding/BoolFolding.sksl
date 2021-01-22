@@ -1,0 +1,19 @@
+bool test() {
+    bool a = 1 == 1 || 2 == 8;
+    bool b = 1 > 1  || 2 == 8;
+    bool c = 1 == 1 && 2 <= 8;
+    bool d = 1 == 2 && 2 == 8;
+    bool e = 1 == 1 ^^ 1 != 1;
+    bool f = 1 == 1 ^^ 1 == 1;
+    bool g = true == true;
+    bool h = false == true;
+    bool i = true == !false;
+    bool j = false == !false;
+
+    return a && !b && c && !d && e && !f && g && !h && i && !j;
+}
+
+half4 main() {
+    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+}
+

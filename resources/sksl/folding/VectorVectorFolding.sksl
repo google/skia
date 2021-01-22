@@ -1,0 +1,113 @@
+bool test_half() {
+    half unknown = half(sqrt(1));
+
+    bool ok = true;
+    ok = ok &&  (half4(half2(1), half2(2, 3)) + half4(5, 6, 7, 8)) == half4(6, 7, 9, 11);
+    ok = ok &&  (half4(8, half3(10)) - half4(1))                   == half4(7, 9, 9, 9);
+    ok = ok &&  (half4(2) * half4(1, 2, 3, 4))                     == half4(2, 4, 6, 8);
+    ok = ok &&  (half4(12) / half4(1, 2, 3, 4))                    == half4(12, 6, 4, 3);
+    ok = ok && !(half4(1) == half4(2));
+    ok = ok &&  (half2(1) == half2(1, 1));
+    ok = ok &&  (half2(1, 1) == half2(1, 1));
+    ok = ok && !(half2(1) == half2(1, 0));
+    ok = ok &&  (half4(1) == half4(half2(1), half2(1)));
+    ok = ok &&  (half4(half3(1), 1) == half4(half2(1), half2(1)));
+    ok = ok && !(half4(half3(1), 1) == half4(half2(1), 1, 0));
+    ok = ok &&  (half2(1) != half2(1, 0));
+    ok = ok && !(half4(1) != half4(half2(1), half2(1)));
+    ok = ok &&  ( half4(1) ==  half4(1));
+    ok = ok &&  (-half4(1) == -half4(1));
+    ok = ok &&  ( half4(1) != -half4(1));
+    ok = ok &&  (-half4(1) !=  half4(1));
+    ok = ok &&  ( half4(0) != -half4(1));
+    ok = ok &&  (-half4(0) !=  half4(1));
+    ok = ok &&  (-half4(0) != -half4(1));
+    ok = ok && !(-half4(1) ==  half4(1));
+    ok = ok && !( half4(1) == -half4(1));
+    ok = ok && !( half4(0) ==  half4(1));
+    ok = ok && !( half4(0) == -half4(1));
+    ok = ok && !(-half4(0) ==  half4(1));
+    ok = ok && !(-half4(0) == -half4(1));
+    ok = ok && !(-half4(1) != -half4(1));
+    ok = ok &&  (half4(unknown) * half4(1) == half4(unknown));
+    ok = ok &&  (half4(1) * half4(unknown) == half4(unknown));
+    ok = ok &&  (half4(unknown) * half4(0) == half4(0));
+    ok = ok &&  (half4(0) * half4(unknown) == half4(0));
+    ok = ok &&  (half4(0) / half4(unknown) == half4(0));
+    ok = ok &&  (half4(unknown) + half4(0) == half4(unknown));
+    ok = ok &&  (half4(0) + half4(unknown) == half4(unknown));
+    ok = ok &&  (half4(unknown) - half4(0) == half4(unknown));
+
+    half4 val = half4(unknown);
+    val += half4(1);
+    val += half4(0);
+    val -= half4(1);
+    val -= half4(0);
+    ok = ok && (val == half4(unknown));
+    val *= half4(1);
+    val *= half4(2);
+    val /= half4(1);
+    val /= half4(2);
+    ok = ok && (val == half4(unknown));
+
+    return ok;
+}
+
+bool test_int() {
+    int unknown = int(sqrt(1));
+
+    bool ok = true;
+    ok = ok &&  (int4(int2(1), int2(2, 3)) + int4(5, 6, 7, 8)) == int4(6, 7, 9, 11);
+    ok = ok &&  (int4(8, int3(10)) - int4(1))                   == int4(7, 9, 9, 9);
+    ok = ok &&  (int4(2) * int4(1, 2, 3, 4))                     == int4(2, 4, 6, 8);
+    ok = ok &&  (int4(12) / int4(1, 2, 3, 4))                    == int4(12, 6, 4, 3);
+    ok = ok && !(int4(1) == int4(2));
+    ok = ok &&  (int2(1) == int2(1, 1));
+    ok = ok &&  (int2(1, 1) == int2(1, 1));
+    ok = ok && !(int2(1) == int2(1, 0));
+    ok = ok &&  (int4(1) == int4(int2(1), int2(1)));
+    ok = ok &&  (int4(int3(1), 1) == int4(int2(1), int2(1)));
+    ok = ok && !(int4(int3(1), 1) == int4(int2(1), 1, 0));
+    ok = ok &&  (int2(1) != int2(1, 0));
+    ok = ok && !(int4(1) != int4(int2(1), int2(1)));
+    ok = ok &&  ( int4(1) ==  int4(1));
+    ok = ok &&  (-int4(1) == -int4(1));
+    ok = ok &&  ( int4(1) != -int4(1));
+    ok = ok &&  (-int4(1) !=  int4(1));
+    ok = ok &&  ( int4(0) != -int4(1));
+    ok = ok &&  (-int4(0) !=  int4(1));
+    ok = ok &&  (-int4(0) != -int4(1));
+    ok = ok && !(-int4(1) ==  int4(1));
+    ok = ok && !( int4(1) == -int4(1));
+    ok = ok && !( int4(0) ==  int4(1));
+    ok = ok && !( int4(0) == -int4(1));
+    ok = ok && !(-int4(0) ==  int4(1));
+    ok = ok && !(-int4(0) == -int4(1));
+    ok = ok && !(-int4(1) != -int4(1));
+    ok = ok &&  (int4(unknown) * int4(1) == int4(unknown));
+    ok = ok &&  (int4(1) * int4(unknown) == int4(unknown));
+    ok = ok &&  (int4(unknown) * int4(0) == int4(0));
+    ok = ok &&  (int4(0) * int4(unknown) == int4(0));
+    ok = ok &&  (int4(0) / int4(unknown) == int4(0));
+    ok = ok &&  (int4(unknown) + int4(0) == int4(unknown));
+    ok = ok &&  (int4(0) + int4(unknown) == int4(unknown));
+    ok = ok &&  (int4(unknown) - int4(0) == int4(unknown));
+
+    int4 val = int4(unknown);
+    val += int4(1);
+    val += int4(0);
+    val -= int4(1);
+    val -= int4(0);
+    ok = ok && (val == int4(unknown));
+    val *= int4(1);
+    val *= int4(2);
+    val /= int4(1);
+    val /= int4(2);
+    ok = ok && (val == int4(unknown));
+
+    return ok;
+}
+
+half4 main() {
+    return test_half() && test_int() ? half4(0,1,0,1) : half4(1,0,0,1);
+}
