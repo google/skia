@@ -1,0 +1,20 @@
+bool test() {
+    bool ok = true;
+    int x = 12 | 6;
+    ok = ok && (x == 14);
+    x = 254 & 7;
+    ok = ok && (x == 6);
+    x = 2 ^ 7;
+    ok = ok && (x == 5);
+    x = 1 << 4;
+    ok = ok && (x == 16);
+    x = 128 >> 2;
+    ok = ok && (x == 32);
+    x = 123 % 45;
+    ok = ok && (x == 33);
+    return ok;
+}
+
+half4 main() {
+    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+}
