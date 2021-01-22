@@ -107,8 +107,6 @@ class TextureUploadSample : public Sample {
 
     void onDrawContent(SkCanvas* canvas) override {
 #if SK_SUPPORT_GPU
-        SkPaint paint;
-
         auto direct = GrAsDirectContext(canvas->recordingContext());
         if (direct) {
             // One-time context-specific setup.
@@ -133,7 +131,7 @@ class TextureUploadSample : public Sample {
                     for (int x = 0; x < fTileCols; x++) {
                         int currentIndex = y * fTileCols + x;
                         canvas->drawImage(fTextures[currentIndex]->getImage(),
-                                          x * fTileSize, y * fTileSize, &paint);
+                                          x * fTileSize, y * fTileSize);
                     }
                 }
             }

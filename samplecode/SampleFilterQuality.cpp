@@ -68,7 +68,7 @@ static sk_sp<SkImage> zoom_up(SkSurface* origSurf, SkImage* orig) {
     canvas->scale(S, S);
     canvas->translate(-SkScalarHalf(orig->width()) * (S - D) / S,
                       -SkScalarHalf(orig->height()) * (S - D) / S);
-    canvas->drawImage(orig, 0, 0, nullptr);
+    canvas->drawImage(orig, 0, 0);
 
     if (S > 3) {
         SkPaint paint;

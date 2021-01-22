@@ -65,8 +65,7 @@ protected:
     void draw(SkCanvas* canvas, int x, int y, int xSize, int ySize) {
         SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
                                     SkIntToScalar(xSize), SkIntToScalar(ySize));
-        canvas->drawImageRect(fImage.get(), r, fSampling, nullptr,
-                              SkCanvas::kStrict_SrcRectConstraint);
+        canvas->drawImageRect(fImage, r, fSampling);
     }
 
     void onDraw(SkCanvas* canvas) override {

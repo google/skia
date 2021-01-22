@@ -569,7 +569,7 @@ static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, SkEncoded
     SkPaint p;
     p.setBlendMode(SkBlendMode::kSrc);
     surf->getCanvas()->concat(m);
-    surf->getCanvas()->drawImage(SkImage::MakeFromBitmap(bm), 0, 0, &p);
+    surf->getCanvas()->drawImage(SkImage::MakeFromBitmap(bm), 0, 0, SkSamplingOptions(), &p);
     return true;
 }
 

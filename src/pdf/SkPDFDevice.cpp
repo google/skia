@@ -1419,7 +1419,7 @@ static sk_sp<SkImage> color_filter(const SkImage* image,
     canvas->clear(SK_ColorTRANSPARENT);
     SkPaint paint;
     paint.setColorFilter(sk_ref_sp(colorFilter));
-    canvas->drawImage(image, 0, 0, &paint);
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
     return surface->makeImageSnapshot();
 }
 

@@ -350,7 +350,7 @@ void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage,
         canvas->drawImageRect(image, AsRect(*csrcR), dst, sampling, paint,
                               SkCanvas::kStrict_SrcRectConstraint);
     } else {
-        canvas->drawImageRect(image, dst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
+        canvas->drawImageRect(image, dst, sampling, paint);
     }
 }
 

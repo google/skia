@@ -40,13 +40,14 @@ protected:
     void dodraw(SkCanvas* canvas, sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float gap) {
         SkPaint paint;
         paint.setColorFilter(cf0);
-        canvas->drawImage(fImg, 0, 0, &paint);
+        canvas->drawImage(fImg, 0, 0, SkSamplingOptions(), &paint);
 
         paint.setColorFilter(SkColorFilters::Lerp(fWeight, cf0, cf1));
-        canvas->drawImage(fImg, fImg->width() + gap * fWeight, 0, &paint);
+        canvas->drawImage(fImg, fImg->width() + gap * fWeight, 0,
+                          SkSamplingOptions(), &paint);
 
         paint.setColorFilter(cf1);
-        canvas->drawImage(fImg, 2*fImg->width() + gap, 0, &paint);
+        canvas->drawImage(fImg, 2*fImg->width() + gap, 0, SkSamplingOptions(), &paint);
     }
 
     void onDrawContent(SkCanvas* canvas) override {

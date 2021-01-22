@@ -73,6 +73,8 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage
 
     SkCanvas* canvas = surf->getCanvas();
 
+    const SkSamplingOptions sampling(SkFilterMode::kLinear,
+                                     SkMipmapMode::kLinear);
     SkPaint p;
     SkPaintPriv::SetFQ(&p, kMedium_SkFilterQuality); // to force mipMapping
     p.setBlendMode(SkBlendMode::kSrc);
@@ -88,7 +90,7 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage
         canvas->clear(SK_ColorTRANSPARENT);
 
         SkRect r = SkRect::MakeWH(rectSize, rectSize);
-        canvas->drawImageRect(img, r, &p);
+        canvas->drawImageRect(img, r, sampling, &p);
 
         SkImageInfo readbackII = SkImageInfo::Make(rectSize, rectSize,
                                                    kRGBA_8888_SkColorType,
