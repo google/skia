@@ -261,6 +261,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f77104c7_75a4bc0f",
+        "filename": "src/sksl/ir/SkSLVariable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-22T19:45:24Z",
+      "side": 1,
+      "message": "I think this is all sorted out now.",
+      "parentUuid": "d0f53289_055cd57d",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "7fd3c08e99d2a3c268e1517310dfd1ae4d5aa592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "09797f98_067af1da",
