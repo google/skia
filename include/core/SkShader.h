@@ -25,6 +25,7 @@ class SkPath;
 class SkPicture;
 class SkRasterPipeline;
 class GrFragmentProcessor;
+class GrRecordingContext;
 
 /** \class SkShader
  *
@@ -38,6 +39,8 @@ class GrFragmentProcessor;
  */
 class SK_API SkShader : public SkFlattenable {
 public:
+    sk_sp<SkImage> makeImage(GrRecordingContext*, const SkImageInfo&, bool supportMipmaps) const;
+
     /**
      *  Returns true if the shader is guaranteed to produce only opaque
      *  colors, subject to the SkPaint using the shader to apply an opaque
