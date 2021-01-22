@@ -46,42 +46,52 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
     for (const std::string& t : tokens) {
         out << "        TK_" << t << ",\n";
     }
-    out << "        TK_NONE,\n";
-    out << "    };\n";
-    out << "\n";
-    out << "    " << token << "()\n";
-    out << "    : fKind(Kind::TK_NONE)\n";
-    out << "    , fOffset(-1)\n";
-    out << "    , fLength(-1) {}\n";
-    out << "\n";
-    out << "    " << token << "(Kind kind, int32_t offset, int32_t length)\n";
-    out << "    : fKind(kind)\n";
-    out << "    , fOffset(offset)\n";
-    out << "    , fLength(length) {}\n";
-    out << "\n";
-    out << "    Kind fKind;\n";
-    out << "    int fOffset;\n";
-    out << "    int fLength;\n";
-    out << "};\n";
-    out << "\n";
-    out << "class " << lexer << " {\n";
-    out << "public:\n";
-    out << "    void start(const char* text, int32_t length) {\n";
-    out << "        fText = text;\n";
-    out << "        fLength = length;\n";
-    out << "        fOffset = 0;\n";
-    out << "    }\n";
-    out << "\n";
-    out << "    " << token << " next();\n";
-    out << "\n";
-    out << "private:\n";
-    out << "    const char* fText;\n";
-    out << "    int32_t fLength;\n";
-    out << "    int32_t fOffset;\n";
-    out << "};\n";
-    out << "\n";
-    out << "} // namespace\n";
-    out << "#endif\n";
+    out << "        TK_NONE,";
+    out << R"(
+    };
+
+    )" << token << R"(()
+    : fKind(Kind::TK_NONE)
+    , fOffset(-1)
+    , fLength(-1) {}
+
+    )" << token << R"((Kind kind, int32_t offset, int32_t length)
+    : fKind(kind)
+    , fOffset(offset)
+    , fLength(length) {}
+
+    Kind fKind;
+    int fOffset;
+    int fLength;
+};
+
+class )" << lexer << R"( {
+public:
+    void start(const char* text, int32_t length) {
+        fText = text;
+        fLength = length;
+        fOffset = 0;
+    }
+
+    )" << token << R"( next();
+
+    int32_t getCheckpoint() const {
+        return fOffset;
+    }
+
+    void rewindToCheckpoint(int32_t checkpoint) {
+        fOffset = checkpoint;
+    }
+
+private:
+    const char* fText;
+    int32_t fLength;
+    int32_t fOffset;
+};
+
+} // namespace
+#endif
+)";
 }
 
 void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* include,
@@ -134,41 +144,42 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << " };\n";
     out << "\n";
 
-    out << token << " " << lexer << "::next() {\n";
-    out << "    // note that we cheat here: normally a lexer needs to worry about the case\n";
-    out << "    // where a token has a prefix which is not itself a valid token - for instance, \n";
-    out << "    // maybe we have a valid token 'while', but 'w', 'wh', etc. are not valid\n";
-    out << "    // tokens. Our grammar doesn't have this property, so we can simplify the logic\n";
-    out << "    // a bit.\n";
-    out << "    int32_t startOffset = fOffset;\n";
-    out << "    if (startOffset == fLength) {\n";
-    out << "        return " << token << "(" << token << "::Kind::TK_END_OF_FILE, startOffset,"
-           "0);\n";
-    out << "    }\n";
-    out << "    int16_t state = 1;\n";
-    out << "    for (;;) {\n";
-    out << "        if (fOffset >= fLength) {\n";
-    out << "            if (accepts[state] == -1) {\n";
-    out << "                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);\n";
-    out << "            }\n";
-    out << "            break;\n";
-    out << "        }\n";
-    out << "        uint8_t c = (uint8_t) fText[fOffset];";
-    out << "        if (c <= 8 || c >= " << dfa.fCharMappings.size() << ") {";
-    out << "            c = INVALID_CHAR;";
-    out << "        }";
-    out << "        int16_t newState = transitions[mappings[c]][state];\n";
-    out << "        if (!newState) {\n";
-    out << "            break;\n";
-    out << "        }\n";
-    out << "        state = newState;";
-    out << "        ++fOffset;\n";
-    out << "    }\n";
-    out << "    Token::Kind kind = (" << token << "::Kind) accepts[state];\n";
-    out << "    return " << token << "(kind, startOffset, fOffset - startOffset);\n";
-    out << "}\n";
-    out << "\n";
-    out << "} // namespace\n";
+    out << token << " " << lexer << "::next() {";
+    out << R"(
+    // note that we cheat here: normally a lexer needs to worry about the case
+    // where a token has a prefix which is not itself a valid token - for instance,
+    // maybe we have a valid token 'while', but 'w', 'wh', etc. are not valid
+    // tokens. Our grammar doesn't have this property, so we can simplify the logic
+    // a bit.
+    int32_t startOffset = fOffset;
+    if (startOffset == fLength) {
+        return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
+    }
+    int16_t state = 1;
+    for (;;) {
+        if (fOffset >= fLength) {
+            if (accepts[state] == -1) {
+                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
+            }
+            break;
+        }
+        uint8_t c = (uint8_t) fText[fOffset];
+        if (c <= 8 || c >= )" << dfa.fCharMappings.size() << R"() {
+            c = INVALID_CHAR;
+        }
+        int16_t newState = transitions[mappings[c]][state];
+        if (!newState) {
+            break;
+        }
+        state = newState;
+        ++fOffset;
+    }
+    Token::Kind kind = ()" << token << R"(::Kind) accepts[state];
+    return )" << token << R"((kind, startOffset, fOffset - startOffset);
+}
+
+} // namespace
+)";
 }
 
 void process(const char* inPath, const char* lexer, const char* token, const char* hPath,
