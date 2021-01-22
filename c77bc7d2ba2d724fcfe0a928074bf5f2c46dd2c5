@@ -46,6 +46,30 @@
       },
       "revId": "c77bc7d2ba2d724fcfe0a928074bf5f2c46dd2c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1741cd99_2e47fd39",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-22T14:07:29Z",
+      "side": 0,
+      "message": "If you wouldn\u0027t mind doing a local test, that would be great. I usually check raw size and gzipped or brotli compressed size as my before/after measurements.",
+      "parentUuid": "ffdcba3b_ba1f6228",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 25
+      },
+      "revId": "c77bc7d2ba2d724fcfe0a928074bf5f2c46dd2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
