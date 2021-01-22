@@ -63,6 +63,30 @@
       },
       "revId": "e89d8ea20b6202a65a7059f6549d644d89ec44f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "873d552d_7cf30bc5",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-22T14:42:15Z",
+      "side": 1,
+      "message": "Skimming ABI docs, I think we could bump up to 12 pointers with only incremental changes to the JITs; from 13 on we\u0027d need more substantial restructuring.  The minimum number of pointer-sized registers we have is x86-64\u0027s 16, and we use one for the stack pointer, one to hold our loop counter N, and two as temporaries, leaving 12 to hold pointers.  Beyond 12 we\u0027d need to start spilling pointer registers and breaking the assumption that the pointers live in a single register across the whole function.\n\nNot actually suggesting we rush to make that change from today\u0027s 6 up to 12, nor that change to push beyond 12, but it\u0027s probably worth working out whether 12 pointers would suffice for these two functions.  I think we can assume we\u0027ll work something out for float3, whether adding load96/store96 or padding/packing it to a virtual float4.",
+      "parentUuid": "b6913dbf_c1342bcf",
+      "range": {
+        "startLine": 279,
+        "startChar": 10,
+        "endLine": 279,
+        "endChar": 14
+      },
+      "revId": "e89d8ea20b6202a65a7059f6549d644d89ec44f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
