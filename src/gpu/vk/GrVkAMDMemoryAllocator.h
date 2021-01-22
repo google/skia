@@ -63,8 +63,7 @@ public:
     uint64_t totalAllocatedMemory() const override;
 
 private:
-    GrVkAMDMemoryAllocator(VmaAllocator allocator, sk_sp<const GrVkInterface> interface,
-                           bool preferCachedCpuMemory);
+    GrVkAMDMemoryAllocator(VmaAllocator allocator, sk_sp<const GrVkInterface> interface);
 
     VmaAllocator fAllocator;
 
@@ -72,8 +71,6 @@ private:
     // memory, then we won't need to save the GrVkInterface here since we won't need to make direct
     // vulkan calls.
     sk_sp<const GrVkInterface> fInterface;
-
-    bool fPreferCachedCpuMemory;
 
     using INHERITED = GrVkMemoryAllocator;
 };

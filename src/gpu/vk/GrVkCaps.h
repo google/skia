@@ -156,8 +156,6 @@ public:
 
     uint32_t maxInputAttachmentDescriptors() const { return fMaxInputAttachmentDescriptors; }
 
-    bool preferCachedCpuMemory() const { return fPreferCachedCpuMemory; }
-
     bool mustInvalidatePrimaryCmdBufferStateAfterClearAttachments() const {
         return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
     }
@@ -366,8 +364,6 @@ private:
     int fMaxPerPoolCachedSecondaryCommandBuffers = 100;
 
     uint32_t fMaxInputAttachmentDescriptors = 0;
-
-    bool fPreferCachedCpuMemory = true;
 
     bool fPreferDiscardableMSAAAttachment = false;
     bool fMustLoadFullImageWithDiscardableMSAA = false;
