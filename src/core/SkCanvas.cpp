@@ -2000,17 +2000,6 @@ void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* valu
     }
 }
 
-void SkCanvas::legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint, SrcRectConstraint constraint) {
-    RETURN_ON_NULL(image);
-    if (src) {
-        this->drawImageRect(image, *src, dst, paint, constraint);
-    } else {
-        this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()),
-                            dst, paint, constraint);
-    }
-}
-
 void SkCanvas::private_draw_shadow_rec(const SkPath& path, const SkDrawShadowRec& rec) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawShadowRec(path, rec);

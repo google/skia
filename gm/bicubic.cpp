@@ -26,9 +26,7 @@ DEF_SIMPLE_GM(bicubic, canvas, 300, 320) {
 
     canvas->scale(40, 8);
     for (auto q : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
-        SkPaint p;
-        p.setFilterQuality(q);
-        canvas->drawImage(img, 0, 0, &p);
+        canvas->drawImage(img, 0, 0, SkSamplingOptions(q), nullptr);
         canvas->translate(0, img->height() + 1.0f);
     }
 
