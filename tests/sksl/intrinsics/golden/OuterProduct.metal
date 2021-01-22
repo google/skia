@@ -20,6 +20,7 @@ struct Outputs {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     _out.sk_FragColor = outerProduct(_in.f2, _in.f2)[1].xyyy;
     _out.sk_FragColor = outerProduct(_in.f3, _in.f3)[2].xyzz;
     _out.sk_FragColor = outerProduct(_in.f4, _in.f4)[3];

@@ -8,6 +8,7 @@ struct Outputs {
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     float3 h3;
     h3 = float3(3.0);
 

@@ -8,6 +8,7 @@ struct Outputs {
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     int4 _0_i = int4(int(sqrt(1.0)));
     float4 _1_v = float4(sqrt(1.0));
     float _2_x = _1_v[_0_i.x];

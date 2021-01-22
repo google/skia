@@ -284,6 +284,7 @@ void out_bool4(thread bool4& v) {
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     float h;
     _skOutParamHelper0_out_half(h);
     float2 h2;

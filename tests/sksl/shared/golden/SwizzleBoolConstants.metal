@@ -8,6 +8,7 @@ struct Outputs {
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     bool4 v = bool4(sqrt(1.0) == 1.0);
     bool4 result;
     result = bool4(v.x, true, true, true);
