@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4ce8d3d_78ac7b1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T22:08:39Z",
+      "side": 1,
+      "message": "looks good, % incredibly obscure nit.",
+      "revId": "0b8238f3035266cc55e2059ad9e29fd6950e93a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0af0394e_ecb7586a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T22:08:39Z",
+      "side": 1,
+      "message": "You should probably make this earlier, and pass it to get_xformed_uniforms. In the extremely unlikely event that someone puts \"layout(marker\u003d...)\" in their SkSL, get_xformed_uniforms will assert if matrixProvider is nullptr. (Normally, you can\u0027t hit that path, because shaders supply one, and color filters aren\u0027t allowed to be created from SkSL that uses markers).",
+      "range": {
+        "startLine": 744,
+        "startChar": 22,
+        "endLine": 744,
+        "endChar": 44
+      },
+      "revId": "0b8238f3035266cc55e2059ad9e29fd6950e93a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
