@@ -85,6 +85,14 @@ public:
                                const SkMatrix* localMatrix,
                                bool isOpaque);
 
+    sk_sp<SkImage> makeImage(GrRecordingContext*,
+                             sk_sp<SkData> uniforms,
+                             sk_sp<SkShader> children[],
+                             size_t childCount,
+                             const SkMatrix* localMatrix,
+                             SkImageInfo resultInfo,
+                             bool mipmapped);
+
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms);
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms,
                                          sk_sp<SkColorFilter> children[],
@@ -255,6 +263,10 @@ public:
     BuilderChild child(const char* name) { return { this, fEffect->findChild(name) }; }
 
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix, bool isOpaque);
+    sk_sp<SkImage> makeImage(GrRecordingContext*,
+                             const SkMatrix* localMatrix,
+                             SkImageInfo resultInfo,
+                             bool mipmapped);
 
 private:
     void* writableUniformData();

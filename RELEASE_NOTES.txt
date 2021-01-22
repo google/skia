@@ -1,4 +1,4 @@
-Skia Graphics Release Notes
+iSkia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
@@ -10,6 +10,9 @@ Milestone 90
   * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
     https://review.skia.org/344763
 
+  * Added SkRuntimeEffect::makeImage() to capture the output of a
+    SkRuntimeEffect in an SkImage.
+    https://review.skia.org/357284
 
 Milestone 89
 ------------
