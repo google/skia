@@ -45,14 +45,16 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         SkSVGRenderContext localCtx(ctx);
         feNode.applyProperties(&localCtx);
 
-        // TODO: there are specific composition rules that need to be followed
+        const SkRect filterSubregion = feNode.resolveFilterSubregion(localCtx, fctx);
         cs = feNode.resolveColorspace(ctx, fctx);
         filter = feNode.makeImageFilter(localCtx, fctx);
 
         if (!feResultType.isEmpty()) {
-            fctx.registerResult(
-                    feResultType, filter, feNode.resolveFilterSubregion(localCtx, fctx), cs);
+            fctx.registerResult(feResultType, filter, filterSubregion, cs);
         }
+
+        // Unspecified 'in' and 'in2' inputs implicitly resolve to the previous filter's result.
+        fctx.setPreviousResult(filter, filterSubregion, cs);
     }
 
     // Convert to final destination colorspace

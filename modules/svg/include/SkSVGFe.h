@@ -41,7 +41,7 @@ public:
     /** Propagates any inherited presentation attributes in the given context. */
     void applyProperties(SkSVGRenderContext*) const;
 
-    SVG_ATTR(In, SkSVGFeInputType, SkSVGFeInputType(SkSVGFeInputType::Type::kSourceGraphic))
+    SVG_ATTR(In, SkSVGFeInputType, SkSVGFeInputType())
     SVG_ATTR(Result, SkSVGStringType, SkSVGStringType())
     SVG_OPTIONAL_ATTR(X, SkSVGLength)
     SVG_OPTIONAL_ATTR(Y, SkSVGLength)

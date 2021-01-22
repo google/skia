@@ -36,9 +36,12 @@ const SkSVGFilterContext::Result* SkSVGFilterContext::findResultById(
 }
 
 const SkRect& SkSVGFilterContext::filterPrimitiveSubregion(const SkSVGFeInputType& input) const {
-    const Result* res = input.type() == SkSVGFeInputType::Type::kFilterPrimitiveReference
-                                ? fResults.find(input.id())
-                                : nullptr;
+    const Result* res = nullptr;
+    if (input.type() == SkSVGFeInputType::Type::kFilterPrimitiveReference) {
+        res = fResults.find(input.id());
+    } else if (input.type() == SkSVGFeInputType::Type::kUnspecified) {
+        res = &fPreviousResult;
+    }
     return res ? res->fFilterSubregion : fFilterEffectsRegion;
 }
 
@@ -50,6 +53,17 @@ void SkSVGFilterContext::registerResult(const SkSVGStringType& id,
     fResults[id] = {result, subregion, resultColorspace};
 }
 
+void SkSVGFilterContext::setPreviousResult(const sk_sp<SkImageFilter>& result,
+                                           const SkRect& subregion,
+                                           SkSVGColorspace resultColorspace) {
+    fPreviousResult = {result, subregion, resultColorspace};
+}
+
+bool SkSVGFilterContext::previousResultIsSourceGraphic() const {
+    return fPreviousResult.fImageFilter == nullptr;
+}
+
+// https://www.w3.org/TR/SVG11/filters.html#FilterPrimitiveInAttribute
 std::tuple<sk_sp<SkImageFilter>, SkSVGColorspace> SkSVGFilterContext::getInput(
         const SkSVGRenderContext& ctx, const SkSVGFeInputType& inputType) const {
     SkSVGColorspace inputCS = SkSVGColorspace::kSRGB;
@@ -83,6 +97,11 @@ std::tuple<sk_sp<SkImageFilter>, SkSVGColorspace> SkSVGFilterContext::getInput(
                 result = res->fImageFilter;
                 inputCS = res->fColorspace;
             }
+            break;
+        }
+        case SkSVGFeInputType::Type::kUnspecified: {
+            result = fPreviousResult.fImageFilter;
+            inputCS = fPreviousResult.fColorspace;
             break;
         }
         default:

@@ -45,12 +45,28 @@ SkRect SkSVGFe::resolveBoundaries(const SkSVGRenderContext& ctx,
     return boundaries;
 }
 
-static bool AnyIsStandardInput(const std::vector<SkSVGFeInputType>& inputs) {
+static bool AnyIsStandardInput(const SkSVGFilterContext& fctx,
+                               const std::vector<SkSVGFeInputType>& inputs) {
     for (const auto& in : inputs) {
-        if (in.type() != SkSVGFeInputType::Type::kFilterPrimitiveReference) {
-            return true;
+        switch (in.type()) {
+            case SkSVGFeInputType::Type::kFilterPrimitiveReference:
+                break;
+            case SkSVGFeInputType::Type::kSourceGraphic:
+            case SkSVGFeInputType::Type::kSourceAlpha:
+            case SkSVGFeInputType::Type::kBackgroundImage:
+            case SkSVGFeInputType::Type::kBackgroundAlpha:
+            case SkSVGFeInputType::Type::kFillPaint:
+            case SkSVGFeInputType::Type::kStrokePaint:
+                return true;
+            case SkSVGFeInputType::Type::kUnspecified:
+                // Unspecified means previous result (which may be SourceGraphic).
+                if (fctx.previousResultIsSourceGraphic()) {
+                    return true;
+                }
+                break;
         }
     }
+
     return false;
 }
 
@@ -63,7 +79,7 @@ SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
     // (https://www.w3.org/TR/SVG11/filters.html#FilterEffectsRegion).
     const std::vector<SkSVGFeInputType> inputs = this->getInputs();
     SkRect subregion;
-    if (inputs.empty() || AnyIsStandardInput(inputs)) {
+    if (inputs.empty() || AnyIsStandardInput(fctx, inputs)) {
         subregion = fctx.filterEffectsRegion();
     } else {
         subregion = fctx.filterPrimitiveSubregion(inputs[0]);
