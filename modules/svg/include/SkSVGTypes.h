@@ -567,6 +567,7 @@ private:
     Type fType;
 };
 
+// https://www.w3.org/TR/SVG11/filters.html#FilterPrimitiveInAttribute
 class SkSVGFeInputType {
 public:
     enum class Type {
@@ -577,9 +578,10 @@ public:
         kFillPaint,
         kStrokePaint,
         kFilterPrimitiveReference,
+        kUnspecified,
     };
 
-    SkSVGFeInputType() : fType(Type::kSourceGraphic) {}
+    SkSVGFeInputType() : fType(Type::kUnspecified) {}
     explicit SkSVGFeInputType(Type t) : fType(t) {}
     explicit SkSVGFeInputType(const SkSVGStringType& id)
             : fType(Type::kFilterPrimitiveReference), fId(id) {}

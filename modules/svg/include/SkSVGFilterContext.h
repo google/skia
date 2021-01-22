@@ -32,6 +32,10 @@ public:
 
     void registerResult(const SkSVGStringType&, const sk_sp<SkImageFilter>&, const SkRect&, SkSVGColorspace);
 
+    void setPreviousResult(const sk_sp<SkImageFilter>&, const SkRect&, SkSVGColorspace);
+
+    bool havePreviousResult() const;
+
     SkSVGColorspace resolveInputColorspace(const SkSVGRenderContext&,
                                            const SkSVGFeInputType&) const;
 
@@ -56,6 +60,8 @@ private:
     SkSVGObjectBoundingBoxUnits fPrimitiveUnits;
 
     SkTHashMap<SkSVGStringType, Result> fResults;
+
+    SkTLazy<Result> fPreviousResult;
 };
 
 #endif  // SkSVGFilterContext_DEFINED
