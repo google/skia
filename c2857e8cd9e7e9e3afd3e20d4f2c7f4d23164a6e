@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "86106cf0_45846ccd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T18:19:57Z",
+      "side": 1,
+      "message": "There\u0027s no macro that does both - most unit tests end up moving the core logic to a static helper function, then add both a DEF_TEST and DEF_GPUTEST_... that call into it (after creating a surface, usually).",
+      "parentUuid": "e750c01c_3bd6c6fd",
+      "revId": "c2857e8cd9e7e9e3afd3e20d4f2c7f4d23164a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fa3b8b08_8fe9bcb8",
         "filename": "tests/SkSLTest.cpp",
         "patchSetId": 14
