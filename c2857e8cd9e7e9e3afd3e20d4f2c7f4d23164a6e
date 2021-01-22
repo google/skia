@@ -72,6 +72,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0da38245_df744acd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T19:06:03Z",
+      "side": 1,
+      "message": "Yeah, this is fine. The other pattern some tests use is to have a common function that takes an SkSurface (or an SkSurface factory function), then always do the readPixels (even though it\u0027s unnecessary on the CPU). (eg, PremulAlphaRoundTripTest.cpp)",
+      "parentUuid": "bff6aed8_71e15a68",
+      "revId": "c2857e8cd9e7e9e3afd3e20d4f2c7f4d23164a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa3b8b08_8fe9bcb8",
