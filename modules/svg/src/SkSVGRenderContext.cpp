@@ -27,8 +27,12 @@ SkScalar length_size_for_type(const SkSize& viewport, SkSVGLengthContext::Length
         return viewport.width();
     case SkSVGLengthContext::LengthType::kVertical:
         return viewport.height();
-    case SkSVGLengthContext::LengthType::kOther:
-        return SkScalarSqrt(viewport.width() * viewport.height());
+    case SkSVGLengthContext::LengthType::kOther: {
+        // https://www.w3.org/TR/SVG11/coords.html#Units_viewport_percentage
+        constexpr SkScalar rsqrt2 = 1.0f / SK_ScalarSqrt2;
+        const SkScalar w = viewport.width(), h = viewport.height();
+        return rsqrt2 * SkScalarSqrt(w * w + h * h);
+    }
     }
 
     SkASSERT(false);  // Not reached.
