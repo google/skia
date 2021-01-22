@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkMorphologyImageFilter.h"
+#include "src/effects/imagefilters/SkMorphologyImageFilter.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"

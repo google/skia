@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkDropShadowImageFilter.h"
+#include "src/effects/imagefilters/SkDropShadowImageFilter.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/effects/SkBlurImageFilter.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/imagefilters/SkBlurImageFilter.h"
 
 namespace {
 
@@ -180,4 +180,3 @@ SkIRect SkDropShadowImageFilterImpl::onFilterNodeBounds(
     }
     return dst;
 }
-

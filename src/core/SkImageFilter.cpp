@@ -9,7 +9,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
-#include "include/effects/SkComposeImageFilter.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkFuzzLogging.h"
 #include "src/core/SkImageFilterCache.h"
