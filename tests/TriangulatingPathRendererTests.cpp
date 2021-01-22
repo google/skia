@@ -869,15 +869,20 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
                                          SkPath path) {
     for (auto fillType : {SkPathFillType::kWinding}) {
         path.setFillType(fillType);
-        SimpleVertexAllocator alloc;
         SimpleBreadcrumbCollector breadcrumbs;
-        bool isLinear;
-        int count = GrInnerFanTriangulator(path, &breadcrumbs).pathToTriangles(&alloc, &isLinear);
+        SimpleVertexAllocator vertexAlloc;
+        int vertexCount;
+        {
+            bool isLinear;
+            SkArenaAlloc arena(GrTriangulator::kArenaDefaultChunkSize);
+            GrInnerFanTriangulator triangulator(path, &arena, &breadcrumbs);
+            vertexCount = triangulator.pathToTriangles(&vertexAlloc, &isLinear);
+        }
 
         // Count up all the triangulated edges.
         EdgeMap trianglePlusBreadcrumbEdges;
-        for (int i = 0; i < count; i += 3) {
-            add_tri_edges(r, trianglePlusBreadcrumbEdges, alloc.fPoints.data() + i);
+        for (int i = 0; i < vertexCount; i += 3) {
+            add_tri_edges(r, trianglePlusBreadcrumbEdges, vertexAlloc.fPoints.data() + i);
         }
         // Count up all the breadcrumb edges.
         for (int i = 0; i < breadcrumbs.count(); i += 3) {
