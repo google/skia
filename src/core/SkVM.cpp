@@ -3324,6 +3324,13 @@ namespace skvm {
                 return instructions[v].death == id;
             };
 
+            auto mark_tmp_as_dst = [&](Reg tmp) {
+                SkASSERT(regs[tmp] == TMP);
+                rd = tmp;
+                regs[rd] = id;
+                SkASSERT(r(id) == tmp);
+            };
+
             // Alias dst() to r(v) if dies_here(v).
             auto try_alias = [&](Val v) -> bool {
                 SkASSERT(v == x || v == y || v == z || v == w);
@@ -3820,27 +3827,39 @@ namespace skvm {
                                  else        { a->ldrq(dst(), arg[immA]); }
                                                break;
 
-                // TODO: ld2.4s?
                 case Op::load64: if (scalar) {
                                     a->ldrs(dst(), arg[immA], immB);
                                  } else {
-                                    A::V lo = dst(),
-                                         hi = alloc_tmp();
-                                    a->ldrq(lo, arg[immA], 0);
-                                    a->ldrq(hi, arg[immA], 1);
+                                    Reg tmp0 = alloc_tmp(2),
+                                        tmp1 = (Reg)(tmp0+1);
+                                    a->ld24s(tmp0, arg[immA]);
+                                    // TODO: return both
                                     switch (immB) {
-                                        case 0: a->uzp14s(dst(),lo,hi); break;
-                                        case 1: a->uzp24s(dst(),lo,hi); break;
+                                        case 0: mark_tmp_as_dst(tmp0); free_tmp(tmp1); break;
+                                        case 1: mark_tmp_as_dst(tmp1); free_tmp(tmp0); break;
                                     }
-                                    free_tmp(hi);
                                  } break;
 
-                case Op::load128: a->ldrs(dst(), arg[immA], immB);
-                                  for (int i = 1; i < active_lanes; i++) {
-                                      a->ldrs(GP0, arg[immA], immB+4*i);
-                                      a->inss(dst(), GP0, i);
-                                  }
-                                  break;
+                case Op::load128: if (scalar) {
+                                      a->ldrs(dst(), arg[immA], immB);
+                                  } else {
+                                      Reg tmp0 = alloc_tmp(4),
+                                          tmp1 = (Reg)(tmp0+1),
+                                          tmp2 = (Reg)(tmp0+2),
+                                          tmp3 = (Reg)(tmp0+3);
+                                      a->ld44s(tmp0, arg[immA]);
+                                      // TODO: return all four
+                                      switch (immB) {
+                                          case 0: mark_tmp_as_dst(tmp0); break;
+                                          case 1: mark_tmp_as_dst(tmp1); break;
+                                          case 2: mark_tmp_as_dst(tmp2); break;
+                                          case 3: mark_tmp_as_dst(tmp3); break;
+                                      }
+                                      if (immB != 0) { free_tmp(tmp0); }
+                                      if (immB != 1) { free_tmp(tmp1); }
+                                      if (immB != 2) { free_tmp(tmp2); }
+                                      if (immB != 3) { free_tmp(tmp3); }
+                                  } break;
 
                 case Op::uniform32: a->add(GP0, arg[immA], immB);
                                     a->ld1r4s(dst(), GP0);
