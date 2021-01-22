@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f323a9cb_657f4207",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-22T14:36:28Z",
+      "side": 1,
+      "message": "Can\u0027t we just *always* return the previous statement?\n\nIf the caller ignores the return value, returning it is the same as freeing it AFAICS. The Nop rule seems unnecessary.",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 77
+      },
+      "revId": "a93b1f4f7b7f532cf2f8281f82aad6d93dab8253",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6f512d6_94317f3a",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-22T14:36:28Z",
+      "side": 1,
+      "message": "How about an array of IRNode*s? We might want to use this as a dumping ground for expressions, too.",
+      "range": {
+        "startLine": 126,
+        "startChar": 8,
+        "endLine": 126,
+        "endChar": 22
+      },
+      "revId": "a93b1f4f7b7f532cf2f8281f82aad6d93dab8253",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
