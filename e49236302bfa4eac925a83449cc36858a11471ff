@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b51545f4_859a132e",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-22T19:56:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "544d3e80_083777f7",
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c72ad7d_53922584",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-01-22T19:30:06Z",
       "side": 1,
       "message": "Looking back at the comment in https://skia-review.googlesource.com/c/skia/+/336416, I suspect that the usual case will be that this unref will delete the renderTask and leave a dangling pointer in the array.\n\nThat shouldn\u0027t make a difference since we shouldn\u0027t access it in reorder_array_by_llist but it is still exciting.\n\nMaybe update the comment ?\n\nAlso, grab the next pointer and remove it from the list before unreffing it?",
+      "range": {
+        "startLine": 464,
+        "startChar": 0,
+        "endLine": 465,
+        "endChar": 41
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "778c2536_36b56352",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-22T19:56:49Z",
+      "side": 1,
+      "message": "Done. Updated the comment to be clearer, reordered the llistremove-unref, and added a comment in reorder_array_by_llist not to dereference anything in the array.",
+      "parentUuid": "0c72ad7d_53922584",
       "range": {
         "startLine": 464,
         "startChar": 0,
@@ -87,6 +129,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c88df552_90299169",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-22T19:56:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba045b75_9b9ab76f",
+      "range": {
+        "startLine": 680,
+        "startChar": 31,
+        "endLine": 680,
+        "endChar": 74
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8329d04_97ea486f",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-22T19:56:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40fa361c_dbcfe7b3",
+      "range": {
+        "startLine": 680,
+        "startChar": 81,
+        "endLine": 680,
+        "endChar": 92
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dac6faff_3088a210",
@@ -104,6 +194,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d4c33bd_2bb08653",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-22T19:56:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dac6faff_3088a210",
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0462af6b_58401716",
@@ -117,6 +225,30 @@
       "writtenOn": "2021-01-22T19:30:06Z",
       "side": 1,
       "message": "removed ?",
+      "range": {
+        "startLine": 276,
+        "startChar": 71,
+        "endLine": 276,
+        "endChar": 77
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08e494c2_cd814361",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-22T19:56:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0462af6b_58401716",
       "range": {
         "startLine": 276,
         "startChar": 71,
