@@ -90,6 +90,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1898e078_3e8c30c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-22T19:28:59Z",
+      "side": 1,
+      "message": "I like that pattern! Done at followup CL http://review.skia.org/357596",
+      "parentUuid": "0da38245_df744acd",
+      "revId": "c2857e8cd9e7e9e3afd3e20d4f2c7f4d23164a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa3b8b08_8fe9bcb8",
