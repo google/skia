@@ -172,8 +172,7 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsa
             break;
         case BufferUsage::kGpuWritesCpuReads:
             info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-            info.preferredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                                  VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            info.preferredFlags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
             break;
     }
 
@@ -259,7 +258,7 @@ VkResult GrVkAMDMemoryAllocator::invalidateMemory(const GrVkBackendMemory& memor
                                                   VkDeviceSize offset, VkDeviceSize size) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
-    return vmaFlushAllocation(fAllocator, allocation, offset, size);
+    return vmaInvalidateAllocation(fAllocator, allocation, offset, size);
 }
 
 uint64_t GrVkAMDMemoryAllocator::totalUsedMemory() const {

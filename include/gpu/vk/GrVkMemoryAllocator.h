@@ -38,6 +38,8 @@ public:
         // Buffers that will only be accessed from the device (large const buffers). Will always be
         // in device local memory.
         kGpuOnly,
+        // DEPRECATED: Depending on the direction of transfer buffers they should use
+        // kCpuWritesGpuReads or kGpuWritesCpuReads instead.
         // Buffers that will be accessed on the host and copied to and from a GPU resource (transfer
         // buffers). Will always be mappable and coherent memory.
         kCpuOnly,
@@ -46,7 +48,7 @@ public:
         // in device local memory.
         kCpuWritesGpuReads,
         // Buffers which are typically writted to by the GPU and then read on the host. Will always
-        // be mappable memory, and will prefer coherent and cached memory.
+        // be mappable memory, and will prefer cached memory.
         kGpuWritesCpuReads,
     };
 
