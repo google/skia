@@ -76,7 +76,7 @@ void GrAATriangulator::makeEvent(SSEdge* e, EventList* events) {
                  "will collapse to %g,%g alpha %d\n",
                   prev->fID, next->fID, e->fEdge->fTop->fID, e->fEdge->fBottom->fID, p.fX, p.fY,
                   alpha);
-        e->fEvent = fAlloc.make<Event>(e, p, alpha);
+        e->fEvent = fAlloc->make<Event>(e, p, alpha);
         events->push(e->fEvent);
     }
 }
@@ -101,7 +101,7 @@ void GrAATriangulator::makeEvent(SSEdge* edge, Vertex* v, SSEdge* other, Vertex*
         TESS_LOG("found p edge event for %g, %g (original %g -> %g), "
                  "will collapse to %g,%g alpha %d\n",
                  dest->fID, v->fID, top->fID, bottom->fID, p.fX, p.fY, alpha);
-        edge->fEvent = fAlloc.make<Event>(edge, p, alpha);
+        edge->fEvent = fAlloc->make<Event>(edge, p, alpha);
         events->push(edge->fEvent);
     }
 }
@@ -256,7 +256,7 @@ void GrAATriangulator::Event::apply(VertexList* mesh, const Comparator& c, Event
     }
     Vertex* dest = triangulator->makeSortedVertex(fPoint, fAlpha, mesh, prev, c);
     dest->fSynthetic = true;
-    SSVertex* ssv = triangulator->fAlloc.make<SSVertex>(dest);
+    SSVertex* ssv = triangulator->fAlloc->make<SSVertex>(dest);
     TESS_LOG("collapsing %g, %g (original edge %g -> %g) to %g (%g, %g) alpha %d\n",
              prev->fID, next->fID, fEdge->fEdge->fTop->fID, fEdge->fEdge->fBottom->fID, dest->fID,
              fPoint.fX, fPoint.fY, fAlpha);
@@ -341,13 +341,13 @@ bool GrAATriangulator::collapseOverlapRegions(VertexList* mesh, const Comparator
                 Vertex* nextVertex = e->fWinding < 0 ? e->fTop : e->fBottom;
                 SSVertex* ssPrev = ssVertices[prevVertex];
                 if (!ssPrev) {
-                    ssPrev = ssVertices[prevVertex] = fAlloc.make<SSVertex>(prevVertex);
+                    ssPrev = ssVertices[prevVertex] = fAlloc->make<SSVertex>(prevVertex);
                 }
                 SSVertex* ssNext = ssVertices[nextVertex];
                 if (!ssNext) {
-                    ssNext = ssVertices[nextVertex] = fAlloc.make<SSVertex>(nextVertex);
+                    ssNext = ssVertices[nextVertex] = fAlloc->make<SSVertex>(nextVertex);
                 }
-                SSEdge* ssEdge = fAlloc.make<SSEdge>(e, ssPrev, ssNext);
+                SSEdge* ssEdge = fAlloc->make<SSEdge>(e, ssPrev, ssNext);
                 ssEdges.push_back(ssEdge);
 //                SkASSERT(!ssPrev->fNext && !ssNext->fPrev);
                 ssPrev->fNext = ssNext->fPrev = ssEdge;
@@ -491,10 +491,10 @@ void GrAATriangulator::strokeBoundary(EdgeList* boundary, VertexList* innerMesh,
                          innerPoint1.fX, innerPoint1.fY, innerPoint2.fX, innerPoint2.fY);
                 TESS_LOG("outer (%g, %g), (%g, %g)\n",
                          outerPoint1.fX, outerPoint1.fY, outerPoint2.fX, outerPoint2.fY);
-                Vertex* innerVertex1 = fAlloc.make<Vertex>(innerPoint1, 255);
-                Vertex* innerVertex2 = fAlloc.make<Vertex>(innerPoint2, 255);
-                Vertex* outerVertex1 = fAlloc.make<Vertex>(outerPoint1, 0);
-                Vertex* outerVertex2 = fAlloc.make<Vertex>(outerPoint2, 0);
+                Vertex* innerVertex1 = fAlloc->make<Vertex>(innerPoint1, 255);
+                Vertex* innerVertex2 = fAlloc->make<Vertex>(innerPoint2, 255);
+                Vertex* outerVertex1 = fAlloc->make<Vertex>(outerPoint1, 0);
+                Vertex* outerVertex2 = fAlloc->make<Vertex>(outerPoint2, 0);
                 innerVertex1->fPartner = outerVertex1;
                 innerVertex2->fPartner = outerVertex2;
                 outerVertex1->fPartner = innerVertex1;
@@ -512,8 +512,8 @@ void GrAATriangulator::strokeBoundary(EdgeList* boundary, VertexList* innerMesh,
             } else {
                 TESS_LOG("inner (%g, %g), ", innerPoint.fX, innerPoint.fY);
                 TESS_LOG("outer (%g, %g)\n", outerPoint.fX, outerPoint.fY);
-                Vertex* innerVertex = fAlloc.make<Vertex>(innerPoint, 255);
-                Vertex* outerVertex = fAlloc.make<Vertex>(outerPoint, 0);
+                Vertex* innerVertex = fAlloc->make<Vertex>(innerPoint, 255);
+                Vertex* outerVertex = fAlloc->make<Vertex>(outerPoint, 0);
                 innerVertex->fPartner = outerVertex;
                 outerVertex->fPartner = innerVertex;
                 if (!inversion(innerVertices.fTail, innerVertex, prevEdge, c)) {
