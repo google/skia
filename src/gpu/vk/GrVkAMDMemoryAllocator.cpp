@@ -87,15 +87,13 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
     vmaCreateAllocator(&info, &allocator);
 
     return sk_sp<GrVkAMDMemoryAllocator>(new GrVkAMDMemoryAllocator(
-            allocator, std::move(interface), caps->preferCachedCpuMemory()));
+            allocator, std::move(interface)));
 }
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VmaAllocator allocator,
-                                               sk_sp<const GrVkInterface> interface,
-                                               bool preferCachedCpuMemory)
+                                               sk_sp<const GrVkInterface> interface)
         : fAllocator(allocator)
-        , fInterface(std::move(interface))
-        , fPreferCachedCpuMemory(preferCachedCpuMemory) {}
+        , fInterface(std::move(interface)) {}
 
 GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
     vmaDestroyAllocator(fAllocator);
@@ -156,12 +154,20 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsa
             info.preferredFlags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
             break;
         case BufferUsage::kCpuWritesGpuReads:
-            info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-            if (fPreferCachedCpuMemory) {
-                // First we will attempt to use memory that is also cached. If there is no cached
-                // version we will fall back to non cached.
-                info.requiredFlags |= VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-            }
+            // When doing cpu writes and gpu reads the general rule of thumb is to use coherent
+            // memory. Though this depends on the fact that we are not doing any cpu reads and the
+            // cpu writes are sequential. For sparse writes we'd want cpu cached memory, however we
+            // don't do these types of writes in Skia.
+            //
+            // TODO: In the future there may be times where specific types of memory could benefit
+            // from a coherent and cached memory. Typically these allow for the gpu to read cpu
+            // writes from the cache without needing to flush the writes throughout the cache. The
+            // reverse is not true and GPU writes tend to invalidate the cache regardless. Also
+            // these gpu cache read access are typically lower bandwidth than non-cached memory.
+            // For now Skia doesn't really have a need or want of this type of memory. But if we
+            // ever do we could pass in an AllocationPropertyFlag that requests the cached property.
+            info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
             info.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
             break;
         case BufferUsage::kGpuWritesCpuReads:
