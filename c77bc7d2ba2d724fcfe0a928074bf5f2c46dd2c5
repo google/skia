@@ -22,6 +22,30 @@
       },
       "revId": "c77bc7d2ba2d724fcfe0a928074bf5f2c46dd2c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffdcba3b_ba1f6228",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T14:01:36Z",
+      "side": 0,
+      "message": "I assume there\u0027s still some size benefits (the bindings, and the particle code itself), though presumably a much smaller delta than before. I can try building with/without now and see if it\u0027s worth keeping the option. (cc: +kjlubick)",
+      "parentUuid": "df2847a5_31be2344",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 25
+      },
+      "revId": "c77bc7d2ba2d724fcfe0a928074bf5f2c46dd2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
