@@ -40,8 +40,7 @@ public:
         // the max number of segments supported by the hardware.
         kDisableHWTessellation = (1 << 0),
         kStencilOnly = (1 << 1),
-        kWireframe = (1 << 2),
-        kDisableInnerFanTriangulation = (1 << 3)  // TEMPORARY
+        kWireframe = (1 << 2)
     };
 
     static bool IsSupported(const GrCaps&);
