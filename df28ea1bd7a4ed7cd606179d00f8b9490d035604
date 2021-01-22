@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "898457b4_b6935a5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T16:46:21Z",
+      "side": 1,
+      "message": "Update: https://skia-review.googlesource.com/c/skia/+/357436 fixes the one specific error reported in skbug.com/11205, but just leads to more errors. In particular, I think that GrVkPipelineStateDataManager will need to start overriding many of the base-class methods (much like GrMtlPipelineStateDataManager does).\n\nToday, Vk leans heavily on the base-class functionality in GrUniformDataManager, and that code is obeying the std140 packing rules. (see: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/GrUniformDataManager.cpp;l\u003d306;drc\u003dbe259dcce0faaae616a790797c30045244e1b93b).\n\nSo the changes in this CL to Vk\u0027s pipeline state data manager allocate a buffer based on the std430 packing rules, but then calls to setMatrix2f (for example) obey the std140 rules, and trigger buffer overruns.",
+      "revId": "df28ea1bd7a4ed7cd606179d00f8b9490d035604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
