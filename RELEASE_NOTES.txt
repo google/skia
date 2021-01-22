@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 90
 ------------
 
+  * Hide deprecated filter-specific headers in include/effects. All image filters must be created
+    using include/effects/SkImageFilters.h factory functions.
+    https://review.skia.org/357285
+
   * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
     https://review.skia.org/344763
 

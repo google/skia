@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkAlphaThresholdFilter.h"
+#include "src/effects/imagefilters/SkAlphaThresholdFilter.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRegion.h"
