@@ -67,6 +67,34 @@ public:
                                           renderPassXferBarriers, colorLoadOp);
     }
 
+    struct ProgramArgs {
+        SkArenaAlloc* fArena;
+        const GrSurfaceProxyView& fWriteView;
+        const GrXferProcessor::DstProxyView* fDstProxyView;
+        GrXferBarrierFlags fXferBarrierFlags;
+        GrLoadOp fColorLoadOp;
+        const GrCaps* fCaps;
+    };
+
+    static GrProgramInfo* MakeProgram(const ProgramArgs& args, const GrPathShader* shader,
+                                      GrAppliedClip&& appliedClip, GrProcessorSet&& processors,
+                                      GrPipeline::InputFlags pipelineFlags,
+                                      const GrUserStencilSettings* stencil) {
+        const auto* pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(
+                args.fCaps, args.fArena, args.fWriteView.swizzle(), std::move(appliedClip),
+                *args.fDstProxyView, std::move(processors), pipelineFlags);
+        return MakeProgram(args, shader, pipeline, stencil);
+    }
+
+    static GrProgramInfo* MakeProgram(const ProgramArgs& args, const GrPathShader* shader,
+                                      const GrPipeline* pipeline,
+                                      const GrUserStencilSettings* stencil) {
+        return args.fArena->make<GrProgramInfo>(args.fWriteView, pipeline, stencil, shader,
+                                                shader->fPrimitiveType,
+                                                shader->fTessellationPatchVertexCount,
+                                                args.fXferBarrierFlags, args.fColorLoadOp);
+    }
+
     // Fills in a 4-point patch in such a way that the shader will recognize it as a conic.
     static void WriteConicPatch(const SkPoint pts[3], float w, SkPoint patch[4]) {
         // Write out the 3 conic points to patch[0..2], the weight to patch[3].x, and then set
