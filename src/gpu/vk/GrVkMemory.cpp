@@ -21,12 +21,12 @@ static BufferUsage get_buffer_usage(GrVkBuffer::Type type, bool dynamic) {
         case GrVkBuffer::kIndirect_Type: // fall through
         case GrVkBuffer::kTexel_Type:
             return dynamic ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
-        case GrVkBuffer::kUniform_Type:
+        case GrVkBuffer::kUniform_Type: // fall through
+        case GrVkBuffer::kCopyRead_Type:
             SkASSERT(dynamic);
             return BufferUsage::kCpuWritesGpuReads;
-        case GrVkBuffer::kCopyRead_Type: // fall through
         case GrVkBuffer::kCopyWrite_Type:
-            return BufferUsage::kCpuOnly;
+            return BufferUsage::kGpuWritesCpuReads;
     }
     SK_ABORT("Invalid GrVkBuffer::Type");
 }
