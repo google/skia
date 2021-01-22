@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "544d3e80_083777f7",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-22T19:30:06Z",
+      "side": 1,
+      "message": "// This works out, however, because when we access the next element in llist it will be valid.\n\n?",
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c72ad7d_53922584",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-22T19:30:06Z",
+      "side": 1,
+      "message": "Looking back at the comment in https://skia-review.googlesource.com/c/skia/+/336416, I suspect that the usual case will be that this unref will delete the renderTask and leave a dangling pointer in the array.\n\nThat shouldn\u0027t make a difference since we shouldn\u0027t access it in reorder_array_by_llist but it is still exciting.\n\nMaybe update the comment ?\n\nAlso, grab the next pointer and remove it from the list before unreffing it?",
+      "range": {
+        "startLine": 464,
+        "startChar": 0,
+        "endLine": 465,
+        "endChar": 41
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40fa361c_dbcfe7b3",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-22T19:30:06Z",
+      "side": 1,
+      "message": "wdyt about returning the mergedCount instead?",
+      "range": {
+        "startLine": 680,
+        "startChar": 81,
+        "endLine": 680,
+        "endChar": 92
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba045b75_9b9ab76f",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-22T19:30:06Z",
+      "side": 1,
+      "message": "I don\u0027t know if this is worth the bother but, llist only needs to passed in for debug builds.",
+      "range": {
+        "startLine": 680,
+        "startChar": 31,
+        "endLine": 680,
+        "endChar": 74
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dac6faff_3088a210",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-22T19:30:06Z",
+      "side": 1,
+      "message": "Maybe:\n\n// Merge the \u0027mergedCount\u0027 opsTasks after \u0027this\u0027 one in \u0027llist\u0027 into \u0027this\u0027. They \n// should all be renderPass compatible.\n\n?",
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0462af6b_58401716",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-22T19:30:06Z",
+      "side": 1,
+      "message": "removed ?",
+      "range": {
+        "startLine": 276,
+        "startChar": 71,
+        "endLine": 276,
+        "endChar": 77
+      },
+      "revId": "e49236302bfa4eac925a83449cc36858a11471ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
