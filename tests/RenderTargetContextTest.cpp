@@ -58,7 +58,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
         check_instantiation_status(reporter, rtCtx.get(), false);
 
         SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(kSize, kSize);
-        auto [dstPM, dstStorage] = GrPixmap::Allocate(dstInfo);
+        GrPixmap dstPM = GrPixmap::Allocate(dstInfo);
 
         bool result = rtCtx->readPixels(dContext, dstPM, {0, 0});
         REPORTER_ASSERT(reporter, result);
