@@ -1729,13 +1729,13 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
     std::vector<SpvId> chain;
     switch (expr.kind()) {
         case Expression::Kind::kIndex: {
-            IndexExpression& indexExpr = (IndexExpression&) expr;
+            const IndexExpression& indexExpr = expr.as<IndexExpression>();
             chain = this->getAccessChain(*indexExpr.base(), out);
             chain.push_back(this->writeExpression(*indexExpr.index(), out));
             break;
         }
         case Expression::Kind::kFieldAccess: {
-            FieldAccess& fieldExpr = (FieldAccess&) expr;
+            const FieldAccess& fieldExpr = expr.as<FieldAccess>();
             chain = this->getAccessChain(*fieldExpr.base(), out);
             IntLiteral index(fContext, -1, fieldExpr.fieldIndex());
             chain.push_back(this->writeIntLiteral(index));
@@ -1893,7 +1893,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             return std::make_unique<PointerLValue>(*this, member, this->getType(type), precision);
         }
         case Expression::Kind::kSwizzle: {
-            Swizzle& swizzle = (Swizzle&) expr;
+            const Swizzle& swizzle = expr.as<Swizzle>();
             size_t count = swizzle.components().size();
             SpvId base = this->getLValue(*swizzle.base(), out)->getPointer();
             if (!base) {
@@ -1913,7 +1913,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             }
         }
         case Expression::Kind::kTernary: {
-            TernaryExpression& t = (TernaryExpression&) expr;
+            const TernaryExpression& t = expr.as<TernaryExpression>();
             SpvId test = this->writeExpression(*t.test(), out);
             SpvId end = this->nextId();
             SpvId ifTrueLabel = this->nextId();
@@ -2692,7 +2692,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
     fCurrentBlock = 0;
     this->writeLabel(this->nextId(), out);
     StringStream bodyBuffer;
-    this->writeBlock((Block&) *f.body(), bodyBuffer);
+    this->writeBlock(f.body()->as<Block>(), bodyBuffer);
     write_stringstream(fVariableBuffer, out);
     if (f.declaration().name() == "main") {
         write_stringstream(fGlobalInitializersBuffer, out);
@@ -2969,7 +2969,7 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
         case Statement::Kind::kNop:
             break;
         case Statement::Kind::kBlock:
-            this->writeBlock((Block&) s, out);
+            this->writeBlock(s.as<Block>(), out);
             break;
         case Statement::Kind::kExpression:
             this->writeExpression(*s.as<ExpressionStatement>().expression(), out);
