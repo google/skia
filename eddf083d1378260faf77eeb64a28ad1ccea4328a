@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4b5ba04_b125a282",
+        "filename": "tests/sksl/folding/IntFoldingES3.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-22T14:30:42Z",
+      "side": 1,
+      "message": "Unused?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "eddf083d1378260faf77eeb64a28ad1ccea4328a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5a4c60d_6fcc2f0a",
+        "filename": "tests/sksl/folding/VectorVectorFolding.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-22T14:30:42Z",
+      "side": 1,
+      "message": "Nit: looks like the intent was to line these up, but they don\u0027t",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "eddf083d1378260faf77eeb64a28ad1ccea4328a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
