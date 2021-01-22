@@ -12,8 +12,9 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
-                                      const GrFragmentProcessor& processor) {
-    this->onSetData(pdman, processor);
+                                      const GrFragmentProcessor& processor,
+                                      SkIPoint viewportOffset) {
+    this->onSetData(pdman, processor, viewportOffset);
 }
 
 void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) {

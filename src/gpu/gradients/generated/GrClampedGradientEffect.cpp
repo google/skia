@@ -67,7 +67,8 @@ return outColor;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrClampedGradientEffect& _outer = _proc.cast<GrClampedGradientEffect>();
         {
             const SkPMColor4f& leftBorderColorValue = _outer.leftBorderColor;

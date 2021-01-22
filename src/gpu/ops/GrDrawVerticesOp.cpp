@@ -317,7 +317,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     SkIPoint viewportOffset) override {
             const VerticesGP& vgp = gp.cast<VerticesGP>();
 
             this->setTransform(pdman, fViewMatrixUniform, vgp.viewMatrix(), &fViewMatrix);
