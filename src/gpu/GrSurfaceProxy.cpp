@@ -221,6 +221,8 @@ SkISize GrSurfaceProxy::backingStoreDimensions() const {
         return fTarget->dimensions();
     }
 
+    SkASSERT(!this->isDDLTarget());
+
     if (SkBackingFit::kExact == fFit) {
         return fDimensions;
     }
@@ -228,7 +230,7 @@ SkISize GrSurfaceProxy::backingStoreDimensions() const {
 }
 
 bool GrSurfaceProxy::isFunctionallyExact() const {
-    SkASSERT(!this->isFullyLazy());
+    SkASSERT(!this->isFullyLazy() && !this->isDDLTarget());
     return fFit == SkBackingFit::kExact ||
            fDimensions == GrResourceProvider::MakeApprox(fDimensions);
 }
@@ -344,13 +346,17 @@ SkString GrSurfaceProxy::dump() const {
                 this->uniqueID().asUInt(),
                 this->peekSurface() ? this->peekSurface()->uniqueID().asUInt()
                                     : -1);
+    if (this->isDDLTarget()) {
+        tmp.append(" isDDLTarget");
+    }
+
     return tmp;
 }
 
 #endif
 
 void GrSurfaceProxyPriv::exactify(bool allocatedCaseOnly) {
-    SkASSERT(!fProxy->isFullyLazy());
+    SkASSERT(!fProxy->isFullyLazy() && !fProxy->isDDLTarget());
     if (this->isExact()) {
         return;
     }

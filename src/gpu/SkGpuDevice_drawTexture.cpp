@@ -426,9 +426,10 @@ static void draw_texture_producer(GrRecordingContext* context,
                                   GrQuadAAFlags aaFlags,
                                   SkCanvas::SrcRectConstraint constraint,
                                   GrSamplerState sampler,
-                                  SkCubicResampler cubic) {
+                                  SkCubicResampler cubic,
+                                  bool unMippedWouldBeDDLProxy) {
     const SkMatrix& ctm(matrixProvider.localToDevice());
-    if (sampler.wrapModeX() == GrSamplerState::WrapMode::kClamp &&
+    if (!unMippedWouldBeDDLProxy && sampler.wrapModeX() == GrSamplerState::WrapMode::kClamp &&
         sampler.wrapModeY() == GrSamplerState::WrapMode::kClamp && !producer->isPlanar() &&
         can_use_draw_texture(paint, GrValidCubicResampler(cubic), sampler.mipmapMode())) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
@@ -651,7 +652,7 @@ void draw_tiled_bitmap(GrRecordingContext* context,
                 offsetSrcToDst.preTranslate(offset.fX, offset.fY);
                 draw_texture_producer(context, rtc, clip, matrixProvider, paint, &tileProducer,
                                       tileR, rectToDraw, nullptr, offsetSrcToDst, aa, aaFlags,
-                                      constraint, sampler, cubic);
+                                      constraint, sampler, cubic, false);
             }
         }
     }
@@ -687,13 +688,15 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
                           special->alphaType(), sk_ref_sp(special->getColorSpace()));
 
     GrSurfaceProxyView view = special->view(this->recordingContext());
+    bool isDDLTarget = view.proxy()->isDDLTarget();
     GrTextureAdjuster texture(fContext.get(), std::move(view), colorInfo, special->uniqueID());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
     SkOverrideDeviceMatrixProvider matrixProvider(this->asMatrixProvider(), localToDevice);
     draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), this->clip(), matrixProvider,
                           paint, &texture, src, dst, nullptr, srcToDst, aa, aaFlags,
-                          SkCanvas::kStrict_SrcRectConstraint, sampler, kInvalidCubicResampler);
+                          SkCanvas::kStrict_SrcRectConstraint, sampler, kInvalidCubicResampler,
+                          isDDLTarget);
 }
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
@@ -736,7 +739,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         GrYUVAImageTextureMaker maker(fContext.get(), image);
         draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              {wrapMode, fm, mm}, cubic);
+                              {wrapMode, fm, mm}, cubic, false);
         return;
     }
 
@@ -754,10 +757,12 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
             colorInfo = GrColorInfo(image->imageInfo().colorInfo());
         }
 
+        bool isDDLTarget = view.proxy()->isDDLTarget();
         GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID);
         draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
-                              constraint, {wrapMode, fm, mm}, cubic);
+                              constraint, {wrapMode, fm, mm}, cubic,
+                              isDDLTarget);
         return;
     }
 
@@ -799,7 +804,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
         draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              {wrapMode, fm, mm}, cubic);
+                              {wrapMode, fm, mm}, cubic,
+                              as_IB(image)->peekProxy() ? as_IB(image)->peekProxy()->isDDLTarget()
+                                                        : false);
         return;
     }
 
@@ -808,7 +815,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
         draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              {wrapMode, fm, mm}, cubic);
+                              {wrapMode, fm, mm}, cubic, false);
     }
 
     // Otherwise don't know how to draw it

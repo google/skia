@@ -80,7 +80,7 @@ private:
     }
 
     void writeS32(int64_t i) {
-        SkASSERT(i >= -2147483648 && i <= 2147483647);
+//        SkASSERT(i >= -2147483648 && i <= 2147483647);
         fBody.write32(i);
     }
 

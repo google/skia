@@ -637,6 +637,13 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
+    if (proxy == flushState->viewportOffsetTarget()) {
+        // The viewport offset needs to be set on the renderPass itself since it affects all
+        // future viewports and scissor rects.
+        renderPass->setViewportOffset(flushState->viewportOffset());
+        renderPass->setViewport_unused(proxy->backingStoreBoundsIRect());
+    }
+
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);
 
     // Draw all the generated geometry.
@@ -660,6 +667,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         flushState->setOpArgs(nullptr);
     }
 
+    renderPass->setViewportOffset({0, 0});
     renderPass->end();
     flushState->gpu()->submit(renderPass);
     flushState->setOpsRenderPass(nullptr);
@@ -673,7 +681,7 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     if (GrLoadOp::kClear == fColorLoadOp) {
         GrSurfaceProxy* proxy = this->target(0);
         SkASSERT(proxy);
-        fTotalBounds = proxy->backingStoreBoundsRect();
+        fTotalBounds = proxy->isDDLTarget() ? proxy->getBoundsRect() : proxy->backingStoreBoundsRect();
     }
 }
 
@@ -704,7 +712,6 @@ void GrOpsTask::discard() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 #if GR_TEST_UTILS
 void GrOpsTask::dump(const SkString& label,
                      SkString indent,
@@ -753,6 +760,13 @@ void GrOpsTask::dump(const SkString& label,
             SkDebugf("%sClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
                      indent.c_str(),
                      bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
+
+            {
+                GrAppliedClip* tmp = fOpChains[i].appliedClip();
+                SkString clipInfo = SkTabString(tmp->dumpInfo(), 1);
+                SkDebugf("%s%s\n", indent.c_str(), clipInfo.c_str());
+            }
+
             for (const auto& op : GrOp::ChainRange<>(fOpChains[i].head())) {
                 SkString info = SkTabString(op.dumpInfo(), 1);
                 SkDebugf("%s%s\n", indent.c_str(), info.c_str());
@@ -960,19 +974,38 @@ GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(const GrCaps& caps,
     this->forwardCombine(caps);
     if (!this->isNoOp()) {
         GrSurfaceProxy* proxy = this->target(0);
-        // Use the entire backing store bounds since the GPU doesn't clip automatically to the
-        // logical dimensions.
-        SkRect clippedContentBounds = proxy->backingStoreBoundsRect();
-        // TODO: If we can fix up GLPrograms test to always intersect the target proxy bounds
-        // then we can simply assert here that the bounds intersect.
-        if (clippedContentBounds.intersect(fTotalBounds)) {
-            clippedContentBounds.roundOut(&fClippedContentBounds);
-            *targetUpdateBounds = GrNativeRect::MakeIRectRelativeTo(
-                    fTargetOrigin,
-                    this->target(0)->backingStoreDimensions().height(),
-                    fClippedContentBounds);
+
+        if (proxy->isDDLTarget()) {
+            fClippedContentBounds = fTotalBounds.roundOut();
+            *targetUpdateBounds = fClippedContentBounds;
             return ExpectedOutcome::kTargetDirty;
+        } else {
+            // Use the entire backing store bounds since the GPU doesn't clip automatically to the
+            // logical dimensions.
+            SkRect clippedContentBounds = proxy->backingStoreBoundsRect();
+            // TODO: If we can fix up GLPrograms test to always intersect the target proxy bounds
+            // then we can simply assert here that the bounds intersect.
+            if (clippedContentBounds.intersect(fTotalBounds)) {
+                clippedContentBounds.roundOut(&fClippedContentBounds);
+                *targetUpdateBounds = GrNativeRect::MakeIRectRelativeTo(
+                        fTargetOrigin,
+                        this->target(0)->backingStoreDimensions().height(),
+                        fClippedContentBounds);
+                return ExpectedOutcome::kTargetDirty;
+            } else {
+                // Use the entire backing store bounds since the GPU doesn't clip automatically to the
+                // logical dimensions.
+                SkRect clippedContentBounds = proxy->backingStoreBoundsRect();
+                // TODO: If we can fix up GLPrograms test to always intersect the target proxy bounds
+                // then we can simply assert here that the bounds intersect.
+                if (clippedContentBounds.intersect(fTotalBounds)) {
+                    clippedContentBounds.roundOut(&fClippedContentBounds);
+                    *targetUpdateBounds = fClippedContentBounds;
+                    return ExpectedOutcome::kTargetDirty;
+                }
+            }
         }
     }
+
     return ExpectedOutcome::kTargetUnchanged;
 }

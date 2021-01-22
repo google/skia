@@ -31,7 +31,7 @@ R"SkSL(return half4(half(%s(7)));
 , factorial_name.c_str());
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
 };
 GrGLSLFragmentProcessor* GrRecursion::onCreateGLSLInstance() const {

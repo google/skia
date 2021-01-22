@@ -121,7 +121,8 @@ public:
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         const uint8_t* uniformData = outer.fUniforms->bytes();

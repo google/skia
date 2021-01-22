@@ -26,7 +26,7 @@ R"SkSL(return %s;
 , args.fUniformHandler->getUniformCStr(colorVar));
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
     UniformHandle colorVar;
 };
