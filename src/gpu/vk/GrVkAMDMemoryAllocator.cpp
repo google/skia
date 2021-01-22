@@ -172,8 +172,7 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsa
             break;
         case BufferUsage::kGpuWritesCpuReads:
             info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-            info.preferredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                                  VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            info.preferredFlags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
             break;
     }
 
