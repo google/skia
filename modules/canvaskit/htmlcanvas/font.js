@@ -20,7 +20,7 @@ function parseFontString(fontStr) {
 
   var font = fontStringRegex.exec(fontStr);
   if (!font) {
-    SkDebug('Invalid font string ' + fontStr);
+    Debug('Invalid font string ' + fontStr);
     return null;
   }
 

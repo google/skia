@@ -7,7 +7,7 @@ const LoadDebugger = new Promise(function(resolve, reject) {
     } else {
         DebuggerInit({
             locateFile: (file) => '/debugger/bin/'+file,
-        }).ready().then((_Debugger) => {
+        }).then((_Debugger) => {
             Debugger = _Debugger;
             resolve();
         });

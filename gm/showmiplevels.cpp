@@ -19,7 +19,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/private/SkNx.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "tools/ToolUtils.h"
 
 #include <math.h>
@@ -141,10 +141,10 @@ protected:
         SkPixmap prevPM;
         baseBM.peekPixels(&prevPM);
 
-        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, nullptr));
+        sk_sp<SkMipmap> mm(SkMipmap::Build(baseBM, nullptr));
 
         int index = 0;
-        SkMipMap::Level level;
+        SkMipmap::Level level;
         SkScalar scale = 0.5f;
         while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
             SkBitmap bm = func(prevPM, level.fPixmap);
@@ -193,7 +193,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ShowMipLevels(255); )
 DEF_GM( return new ShowMipLevels(256); )
@@ -249,10 +249,10 @@ protected:
         SkScalar x = 4;
         SkScalar y = 4;
 
-        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, nullptr));
+        sk_sp<SkMipmap> mm(SkMipmap::Build(baseBM, nullptr));
 
         int index = 0;
-        SkMipMap::Level level;
+        SkMipmap::Level level;
         SkScalar scale = 0.5f;
         while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
             SkBitmap bm;
@@ -306,9 +306,69 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ShowMipLevels2(255, 255); )
 DEF_GM( return new ShowMipLevels2(256, 255); )
 DEF_GM( return new ShowMipLevels2(255, 256); )
 DEF_GM( return new ShowMipLevels2(256, 256); )
+
+#include "tools/Resources.h"
+
+class ShowMipLevels3 : public skiagm::GM {
+    sk_sp<SkImage> fImg;
+
+    SkString onShortName() override { return SkString("showmiplevels_explicit"); }
+
+    SkISize onISize() override { return {1130, 970}; }
+
+    void onOnceBeforeDraw() override {
+        fImg = GetResourceAsImage("images/ship.png");
+        fImg = fImg->makeRasterImage(); // makeWithMips only works on raster for now
+
+        const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+
+        SkMipmapBuilder builder(fImg->imageInfo());
+        for (int i = 0; i < builder.countLevels(); ++i) {
+            auto surf = SkSurface::MakeRasterDirect(builder.level(i));
+            surf->getCanvas()->drawColor(colors[i % SK_ARRAY_COUNT(colors)]);
+        }
+        fImg = builder.attachTo(fImg.get());
+    }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString*) override {
+        if (canvas->recordingContext()) {
+            // mips not supported yet
+            return DrawResult::kSkip;
+        }
+
+        canvas->drawColor(0xFFDDDDDD);
+
+        canvas->translate(10, 10);
+        for (auto mm : {SkMipmapMode::kNone, SkMipmapMode::kNearest, SkMipmapMode::kLinear}) {
+            for (auto sa : {SkSamplingMode::kNearest, SkSamplingMode::kLinear}) {
+                canvas->translate(0, draw_downscaling(canvas, {sa, mm}));
+            }
+        }
+        return DrawResult::kOk;
+    }
+
+private:
+    SkScalar draw_downscaling(SkCanvas* canvas, SkFilterOptions options) {
+        SkAutoCanvasRestore acr(canvas, true);
+
+        SkPaint paint;
+        SkRect r = {0, 0, 150, 150};
+        for (float scale = 1; scale >= 0.1f; scale *= 0.7f) {
+            SkMatrix matrix = SkMatrix::Scale(scale, scale);
+            paint.setShader(fImg->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                             options, &matrix));
+            canvas->drawRect(r, paint);
+            canvas->translate(r.width() + 10, 0);
+        }
+        return r.height() + 10;
+    }
+
+    using INHERITED = skiagm::GM;
+};
+DEF_GM( return new ShowMipLevels3; )

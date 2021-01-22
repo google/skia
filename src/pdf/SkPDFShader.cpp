@@ -13,6 +13,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "src/pdf/SkPDFDevice.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
@@ -288,8 +289,8 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     }
 
     SkISize size = {
-        SkTClamp(SkScalarCeilToInt(rasterScale * surfaceBBox.width()),  1, kMaxBitmapArea),
-        SkTClamp(SkScalarCeilToInt(rasterScale * surfaceBBox.height()), 1, kMaxBitmapArea)};
+        SkTPin(SkScalarCeilToInt(rasterScale * surfaceBBox.width()),  1, kMaxBitmapArea),
+        SkTPin(SkScalarCeilToInt(rasterScale * surfaceBBox.height()), 1, kMaxBitmapArea)};
     SkSize scale = {SkIntToScalar(size.width()) / shaderRect.width(),
                     SkIntToScalar(size.height()) / shaderRect.height()};
 

@@ -11,7 +11,7 @@
 // Utilities for Skia's fuzzer
 
 // When SK_FUZZ_LOGGING is defined SkDebugfs relevant to image filter fuzzing
-// will be enabled. This allows the filter fuzzing code to white list fuzzer
+// will be enabled. This allows the filter fuzzing code to include fuzzer
 // failures based on the output logs.
 // Define this flag in your SkUserConfig.h or in your Make/Build system.
 #ifdef SK_FUZZ_LOGGING

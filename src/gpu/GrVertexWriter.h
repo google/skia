@@ -99,6 +99,11 @@ struct GrVertexWriter {
         this->write(remainder...);
     }
 
+    void writeRaw(const void* data, size_t size) {
+        memcpy(fPtr, data, size);
+        fPtr = SkTAddOffset<void>(fPtr, size);
+    }
+
     void write() {}
 
     /**
@@ -117,6 +122,10 @@ struct GrVertexWriter {
 
     static TriStrip<float> TriStripFromRect(const SkRect& r) {
         return { r.fLeft, r.fTop, r.fRight, r.fBottom };
+    }
+
+    static TriStrip<uint16_t> TriStripFromUVs(const std::array<uint16_t, 4>& rect) {
+        return { rect[0], rect[1], rect[2], rect[3] };
     }
 
     template <typename T>

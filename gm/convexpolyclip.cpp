@@ -14,7 +14,7 @@
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -39,7 +39,7 @@ static SkBitmap make_bmp(int w, int h) {
 
     SkPoint     pt = { wScalar / 2, hScalar / 2 };
 
-    SkScalar    radius = 3 * SkMaxScalar(wScalar, hScalar);
+    SkScalar    radius = 3 * std::max(wScalar, hScalar);
 
     SkColor colors[] = {SK_ColorDKGRAY,
                         ToolUtils::color_to_565(0xFF222255),
@@ -114,14 +114,13 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkPath tri;
-        tri.moveTo(5.f, 5.f);
-        tri.lineTo(100.f, 20.f);
-        tri.lineTo(15.f, 100.f);
+        fClips.addToTail()->setPath(SkPath::Polygon({
+            {  5.f,   5.f},
+            {100.f,  20.f},
+            { 15.f, 100.f},
+        }, false));
 
-        fClips.addToTail()->setPath(tri);
-
-        SkPath hexagon;
+        SkPathBuilder hexagon;
         constexpr SkScalar kRadius = 45.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < 6; ++i) {
@@ -135,22 +134,18 @@ protected:
                 hexagon.lineTo(point);
             }
         }
-        fClips.addToTail()->setPath(hexagon);
+        fClips.addToTail()->setPath(hexagon.snapshot());
 
         SkMatrix scaleM;
         scaleM.setScale(1.1f, 0.4f, kRadius, kRadius);
-        hexagon.transform(scaleM);
-        fClips.addToTail()->setPath(hexagon);
+        fClips.addToTail()->setPath(hexagon.detach().makeTransform(scaleM));
 
         fClips.addToTail()->setRect(SkRect::MakeXYWH(8.3f, 11.6f, 78.2f, 72.6f));
 
-        SkPath rotRect;
         SkRect rect = SkRect::MakeLTRB(10.f, 12.f, 80.f, 86.f);
-        rotRect.addRect(rect);
         SkMatrix rotM;
         rotM.setRotate(23.f, rect.centerX(), rect.centerY());
-        rotRect.transform(rotM);
-        fClips.addToTail()->setPath(rotRect);
+        fClips.addToTail()->setPath(SkPath::Rect(rect).makeTransform(rotM));
 
         fBmp = make_bmp(100, 100);
     }
@@ -212,8 +207,7 @@ protected:
                         canvas->save();
                     }
                     canvas->translate(x, y);
-                    SkPath closedClipPath;
-                    clip->asClosedPath(&closedClipPath);
+                    SkPath closedClipPath = clip->asClosedPath();
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
                     clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
@@ -245,7 +239,7 @@ private:
         void setOnCanvas(SkCanvas* canvas, SkClipOp op, bool aa) const {
             switch (fClipType) {
                 case kPath_ClipType:
-                    canvas->clipPath(fPath, op, aa);
+                    canvas->clipPath(fPathBuilder.snapshot(), op, aa);
                     break;
                 case kRect_ClipType:
                     canvas->clipRect(fRect, op, aa);
@@ -256,31 +250,29 @@ private:
             }
         }
 
-        void asClosedPath(SkPath* path) const {
+        SkPath asClosedPath() const {
             switch (fClipType) {
                 case kPath_ClipType:
-                    *path = fPath;
-                    path->close();
+                    return SkPathBuilder(fPathBuilder).close().detach();
                     break;
                 case kRect_ClipType:
-                    path->reset();
-                    path->addRect(fRect);
-                    break;
+                    return SkPath::Rect(fRect);
                 case kNone_ClipType:
                     SkDEBUGFAIL("Uninitialized Clip.");
                     break;
             }
+            return SkPath();
         }
 
         void setPath(const SkPath& path) {
             fClipType = kPath_ClipType;
-            fPath = path;
+            fPathBuilder = path;
         }
 
         void setRect(const SkRect& rect) {
             fClipType = kRect_ClipType;
             fRect = rect;
-            fPath.reset();
+            fPathBuilder.reset();
         }
 
         ClipType getType() const { return fClipType; }
@@ -288,7 +280,7 @@ private:
         void getBounds(SkRect* bounds) const {
             switch (fClipType) {
                 case kPath_ClipType:
-                    *bounds = fPath.getBounds();
+                    *bounds = fPathBuilder.computeBounds();
                     break;
                 case kRect_ClipType:
                     *bounds = fRect;
@@ -301,7 +293,7 @@ private:
 
     private:
         ClipType fClipType;
-        SkPath fPath;
+        SkPathBuilder fPathBuilder;
         SkRect fRect;
     };
 
@@ -309,8 +301,8 @@ private:
     ClipList         fClips;
     SkBitmap         fBmp;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new ConvexPolyClip;)
-}
+}  // namespace skiagm

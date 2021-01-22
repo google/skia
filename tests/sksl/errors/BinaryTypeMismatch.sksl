@@ -1,0 +1,8 @@
+void int_times_bool()   { float x = 3 * true; }
+void int_or_float()     { bool x = 1 || 2.0; }
+void float2_eq_int()    { bool x = float2(0) == 0; }
+void float2_neq_int()   { bool x = float2(0) != 0; }
+
+void float2_lt_float2() { bool x = float2(0) < float2(1); }
+void float2_lt_float()  { bool x = float2(0) < 0.0; }
+void float_lt_float2()  { bool x = 0.0 < float2(0); }

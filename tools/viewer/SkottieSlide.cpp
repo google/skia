@@ -11,12 +11,70 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkTime.h"
+#include "include/private/SkTPin.h"
+#include "modules/audioplayer/SkAudioPlayer.h"
 #include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <cmath>
+
+#include "imgui.h"
+
+namespace {
+
+class Track final : public skresources::ExternalTrackAsset {
+public:
+    explicit Track(std::unique_ptr<SkAudioPlayer> player) : fPlayer(std::move(player)) {}
+
+private:
+    void seek(float t) override {
+        if (fPlayer->isStopped() && t >=0) {
+            fPlayer->play();
+        }
+
+        if (fPlayer->isPlaying()) {
+            if (t < 0) {
+                fPlayer->stop();
+            } else {
+                static constexpr float kTolerance = 0.075f;
+                const auto player_pos = fPlayer->time();
+
+                if (std::abs(player_pos - t) > kTolerance) {
+                    fPlayer->setTime(t);
+                }
+            }
+        }
+    }
+
+    const std::unique_ptr<SkAudioPlayer> fPlayer;
+};
+
+class AudioProviderProxy final : public skresources::ResourceProviderProxyBase {
+public:
+    explicit AudioProviderProxy(sk_sp<skresources::ResourceProvider> rp)
+        : INHERITED(std::move(rp)) {}
+
+private:
+    sk_sp<skresources::ExternalTrackAsset> loadAudioAsset(const char path[],
+                                                          const char name[],
+                                                          const char[] /*id*/) override {
+        if (auto data = this->load(path, name)) {
+            if (auto player = SkAudioPlayer::Make(std::move(data))) {
+                return sk_make_sp<Track>(std::move(player));
+            }
+        }
+
+        return nullptr;
+    }
+
+    using INHERITED = skresources::ResourceProviderProxyBase;
+};
+
+} // namespace
 
 static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
@@ -32,10 +90,10 @@ static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::
 
     paint.setColor(SK_ColorBLACK);
 
-    const auto json_size = SkStringPrintf("Json size: %lu bytes",
+    const auto json_size = SkStringPrintf("Json size: %zu bytes",
                                           stats.fJsonSize);
     canvas->drawString(json_size, kR.x() + 10, kR.y() + kTextSize * 1, font, paint);
-    const auto animator_count = SkStringPrintf("Animator count: %lu",
+    const auto animator_count = SkStringPrintf("Animator count: %zu",
                                                stats.fAnimatorCount);
     canvas->drawString(animator_count, kR.x() + 10, kR.y() + kTextSize * 2, font, paint);
     const auto json_parse_time = SkStringPrintf("Json parse time: %.3f ms",
@@ -92,21 +150,36 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     };
 
     auto logger = sk_make_sp<Logger>();
-    skottie::Animation::Builder builder;
 
+    uint32_t flags = 0;
+    if (fPreferGlyphPaths) {
+        flags |= skottie::Animation::Builder::kPreferEmbeddedFonts;
+    }
+    skottie::Animation::Builder builder(flags);
+
+    auto resource_provider =
+        sk_make_sp<AudioProviderProxy>(
+            skresources::DataURIResourceProviderProxy::Make(
+                skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
+                                                        /*predecode=*/true),
+                /*predecode=*/true));
+
+    static constexpr char kInterceptPrefix[] = "__";
+    auto precomp_interceptor =
+            sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(resource_provider,
+                                                                           kInterceptPrefix);
     fAnimation      = builder
             .setLogger(logger)
-            .setResourceProvider(
-                skresources::DataURIResourceProviderProxy::Make(
-                    skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
-                                                              /*predecode=*/true),
-                    /*predecode=*/true))
+            .setResourceProvider(std::move(resource_provider))
+            .setPrecompInterceptor(std::move(precomp_interceptor))
             .makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
     fWinSize        = SkSize::Make(w, h);
     fTimeBase       = 0; // force a time reset
 
     if (fAnimation) {
+        fAnimation->seek(0);
+        fFrameTimes.resize(SkScalarCeilToInt(fAnimation->duration() * fAnimation->fps()));
         SkDebugf("Loaded Bodymovin animation v: %s, size: [%f %f]\n",
                  fAnimation->version().c_str(),
                  fAnimation->size().width(),
@@ -121,6 +194,10 @@ void SkottieSlide::unload() {
     fAnimation.reset();
 }
 
+void SkottieSlide::resize(SkScalar w, SkScalar h) {
+    fWinSize = { w, h };
+}
+
 SkISize SkottieSlide::getDimensions() const {
     // We always scale to fill the window.
     return fWinSize.toCeil();
@@ -130,7 +207,15 @@ void SkottieSlide::draw(SkCanvas* canvas) {
     if (fAnimation) {
         SkAutoCanvasRestore acr(canvas, true);
         const auto dstR = SkRect::MakeSize(fWinSize);
-        fAnimation->render(canvas, &dstR);
+
+        {
+            const auto t0 = SkTime::GetNSecs();
+            fAnimation->render(canvas, &dstR);
+
+            // TODO: this does not capture GPU flush time!
+            const auto  frame_index  = static_cast<size_t>(fCurrentFrame);
+            fFrameTimes[frame_index] = static_cast<float>((SkTime::GetNSecs() - t0) * 1e-6);
+        }
 
         if (fShowAnimationStats) {
             draw_stats_box(canvas, fAnimationStats);
@@ -153,21 +238,42 @@ void SkottieSlide::draw(SkCanvas* canvas) {
                 canvas->drawRect(bounds, stroke);
             }
         }
+        if (fShowUI) {
+            this->renderUI();
+        }
+
     }
 }
 
 bool SkottieSlide::animate(double nanos) {
-    SkMSec msec = TimeUtils::NanosToMSec(nanos);
-    if (fTimeBase == 0) {
+    if (!fTimeBase) {
         // Reset the animation time.
-        fTimeBase = msec;
+        fTimeBase = nanos;
     }
 
     if (fAnimation) {
         fInvalController.reset();
-        const auto t = msec - fTimeBase;
-        const auto d = fAnimation->duration() * 1000;
-        fAnimation->seek(std::fmod(t, d) / d, &fInvalController);
+
+        const auto frame_count = fAnimation->duration() * fAnimation->fps();
+
+        if (!fDraggingProgress) {
+            // Clock-driven progress: update current frame.
+            const double t_sec = (nanos - fTimeBase) * 1e-9;
+            fCurrentFrame = std::fmod(t_sec * fAnimation->fps(), frame_count);
+        } else {
+            // Slider-driven progress: update the time origin.
+            fTimeBase = nanos - fCurrentFrame / fAnimation->fps() * 1e9;
+        }
+
+        // Sanitize and rate-lock the current frame.
+        fCurrentFrame = SkTPin<float>(fCurrentFrame, 0.0f, frame_count - 1);
+        if (fFrameRate > 0) {
+            const auto fps_scale = fFrameRate / fAnimation->fps();
+            fCurrentFrame = std::trunc(fCurrentFrame * fps_scale) / fps_scale;
+        }
+
+        fAnimation->seekFrame(fCurrentFrame, fShowAnimationInval ? &fInvalController
+                                                                 : nullptr);
     }
     return true;
 }
@@ -176,9 +282,11 @@ bool SkottieSlide::onChar(SkUnichar c) {
     switch (c) {
     case 'I':
         fShowAnimationStats = !fShowAnimationStats;
-        break;
-    default:
-        break;
+        return true;
+    case 'G':
+        fPreferGlyphPaths = !fPreferGlyphPaths;
+        this->load(fWinSize.width(), fWinSize.height());
+        return true;
     }
 
     return INHERITED::onChar(c);
@@ -194,7 +302,65 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui:
         break;
     }
 
+    fShowUI = this->UIArea().contains(x, y);
+
     return false;
+}
+
+SkRect SkottieSlide::UIArea() const {
+    static constexpr float kUIHeight = 120.0f;
+
+    return SkRect::MakeXYWH(0, fWinSize.height() - kUIHeight, fWinSize.width(), kUIHeight);
+}
+
+void SkottieSlide::renderUI() {
+    static constexpr auto kUI_opacity     = 0.35f,
+                          kUI_hist_height = 50.0f,
+                          kUI_fps_width   = 100.0f;
+
+    auto add_frame_rate_option = [this](const char* label, double rate) {
+        const auto is_selected = (fFrameRate == rate);
+        if (ImGui::Selectable(label, is_selected)) {
+            fFrameRate      = rate;
+            fFrameRateLabel = label;
+        }
+        if (is_selected) {
+            ImGui::SetItemDefaultFocus();
+        }
+    };
+
+    ImGui::SetNextWindowBgAlpha(kUI_opacity);
+    if (ImGui::Begin("Skottie Controls", nullptr, ImGuiWindowFlags_NoDecoration |
+                                                  ImGuiWindowFlags_NoResize |
+                                                  ImGuiWindowFlags_NoMove |
+                                                  ImGuiWindowFlags_NoSavedSettings |
+                                                  ImGuiWindowFlags_NoFocusOnAppearing |
+                                                  ImGuiWindowFlags_NoNav)) {
+        const auto ui_area = this->UIArea();
+        ImGui::SetWindowPos(ImVec2(ui_area.x(), ui_area.y()));
+        ImGui::SetWindowSize(ImVec2(ui_area.width(), ui_area.height()));
+
+        ImGui::PushItemWidth(-1);
+        ImGui::PlotHistogram("", fFrameTimes.data(), fFrameTimes.size(),
+                                 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(0, kUI_hist_height));
+        ImGui::SliderFloat("", &fCurrentFrame, 0, fAnimation->duration() * fAnimation->fps() - 1);
+        fDraggingProgress = ImGui::IsItemActive();
+        ImGui::PopItemWidth();
+
+        ImGui::PushItemWidth(kUI_fps_width);
+        if (ImGui::BeginCombo("FPS", fFrameRateLabel)) {
+            add_frame_rate_option("", 0.0);
+            add_frame_rate_option("Native", fAnimation->fps());
+            add_frame_rate_option( "1",  1.0);
+            add_frame_rate_option("15", 15.0);
+            add_frame_rate_option("24", 24.0);
+            add_frame_rate_option("30", 30.0);
+            add_frame_rate_option("60", 60.0);
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+    }
+    ImGui::End();
 }
 
 #endif // SK_ENABLE_SKOTTIE

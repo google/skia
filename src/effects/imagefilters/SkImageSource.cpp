@@ -46,7 +46,7 @@ private:
     SkRect           fSrcRect, fDstRect;
     SkFilterQuality  fFilterQuality;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
@@ -77,7 +77,7 @@ void SkImageSource::RegisterFlattenables() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkImageSourceImpl::CreateProc(SkReadBuffer& buffer) {
-    SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
+    SkFilterQuality filterQuality = buffer.checkFilterQuality();
 
     SkRect src, dst;
     buffer.readRect(&src);

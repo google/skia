@@ -5,43 +5,33 @@
  * found in the LICENSE file.
  */
 
+#include <memory>
+
 #include "include/private/GrImageContext.h"
 
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
-
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
+#include "src/gpu/effects/GrSkSLFP.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-GrImageContext::GrImageContext(GrBackendApi backend,
-                               const GrContextOptions& options,
-                               uint32_t contextID)
-            : INHERITED(backend, options, contextID) {
-    fProxyProvider.reset(new GrProxyProvider(this));
+GrImageContext::GrImageContext(sk_sp<GrContextThreadSafeProxy> proxy)
+            : INHERITED(std::move(proxy)) {
+    fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }
 
 GrImageContext::~GrImageContext() {}
 
 void GrImageContext::abandonContext() {
-    ASSERT_SINGLE_OWNER
-
-    fAbandoned = true;
+    fThreadSafeProxy->priv().abandonContext();
 }
 
-bool GrImageContext::abandoned() const {
-    ASSERT_SINGLE_OWNER
-
-    return fAbandoned;
+bool GrImageContext::abandoned() {
+    return fThreadSafeProxy->priv().abandoned();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrImageContextPriv::refCaps() const {
     return fContext->refCaps();
-}
-
-sk_sp<GrSkSLFPFactoryCache> GrImageContextPriv::fpFactoryCache() {
-    return fContext->fpFactoryCache();
 }

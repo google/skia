@@ -24,13 +24,20 @@ Skia's Swarming bots are hosted in three places:
 Connecting to Swarming Bots
 ---------------------------
 
-- Machine name like “skia-gce-NNN”, “skia-ct-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
+If you need to make changes on a bot/device, please check with the Trooper or another Infra team member. Most
+bots/devices can be flashed/imaged back to a clean state, but others can not.
+
+- Machine name like “skia-e-gce-NNN”, “skia-ct-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
   * First determine the project for the bot:
-     + skia-gce-NNN, skia-ct-gce-NNN: [skia-swarming-bots](https://console.cloud.google.com/compute/instances?project=skia-swarming-bots)
+     + skia-e-gce-NNN, skia-ct-gce-NNN: [skia-swarming-bots](https://console.cloud.google.com/compute/instances?project=skia-swarming-bots)
      + skia-i-gce-NNN: [google.com:skia-buildbots](https://console.cloud.google.com/compute/instances?project=google.com:skia-buildbots)
      + ct-gce-NNN, ct-xxx-builder-NNN: [ct-swarming-bots](https://console.cloud.google.com/compute/instances?project=ct-swarming-bots)
   * To log in to a Linux bot in GCE, use `gcloud compute ssh --project <project> default@<machine name>`. Choose the zone listed on the VM's detail page (see links above). You may also specify the zone using the `--zone` command-line flag.
-  * To log in to a Windows bot in GCE, on the VM's detail page, first click the "Set Windows password" button, then click the "RDP" button. (If it hasn't been installed, you will be instructed to install the Chrome RDP Extension for GCP.)
+  * To log in to a Windows bot in GCE, first go to the VM's detail page and click the "Set Windows password"
+    button. (Alternatively, ask the Infra Team how to log in as chrome-bot.) There are two options to connect:
+     + SSH: Follow the instructions for Linux using your username rather than `default`.
+     + RDP: On the VM's detail page, click the "RDP" button. (You will be instructed to install the Chrome RDP Extension
+       for GCP if it hasn't already been installed.)
 
 - Machine name ends with “a9”, “m3”, "m5" -> Chrome Golo/Labs
   * To log in to Golo bots, see [go/chrome-infra-build-access](https://goto.google.com/chrome-infra-build-access).
@@ -53,8 +60,8 @@ For Googlers: If you need more control (e.g. to run GDB) and need to run directl
 If that does not work then the [current trooper][current trooper] can help you bring the device back to your desk and connect
 it to GoogleGuest Wifi or the [Google Test Network](http://go/gtn-criteria).
 
-If you need to make changes on a Skolo device, please check with an Infra team member. Most can be
-flashed/imaged back to a clean state, but others can not.
+If you need to make changes on a bot/device, please check with the Trooper or another Infra team member. Most
+bots/devices can be flashed/imaged back to a clean state, but others can not.
 
 If a permanent change needs to be made on the machine (such as an OS or driver update), please [file
 a bug][infra bug] and assign to jcgregorio for reassignment.
@@ -62,7 +69,7 @@ a bug][infra bug] and assign to jcgregorio for reassignment.
 For your convenience, the machine skolo-builder is available for checking out and compiling code within the Skolo. See
 more info in the [Skolo maintenance doc][remote access] remote access section.
 
-[current trooper]: http://skia-tree-status.appspot.com/trooper
+[current trooper]: http://tree-status.skia.org/trooper
 [remote access]:
     https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.v77cmwbwc5la
 [infra bug]: https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug

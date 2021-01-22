@@ -15,41 +15,36 @@
 class GrRecordingContext;
 
 /**
- * Base class for sources that start out as textures. Optionally allows for a content area subrect.
- * The intent is not to use content area for subrect rendering. Rather, the pixels outside the
- * content area have undefined values and shouldn't be read *regardless* of filtering mode or
- * the SkCanvas::SrcRectConstraint used for subrect draws.
+ * GrTextureProducer subclass that can be used when the user already has a texture that represents
+ * image contents.
  */
-class GrTextureAdjuster : public GrTextureProducer {
+class GrTextureAdjuster final : public GrTextureProducer {
 public:
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+    GrTextureAdjuster(GrRecordingContext*, GrSurfaceProxyView, const GrColorInfo&,
+                      uint32_t uniqueID);
+
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(const SkMatrix& textureMatrix,
+                                                                 const SkRect* subset,
+                                                                 const SkRect* domain,
+                                                                 GrSamplerState) override;
+
+    std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessor(
             const SkMatrix& textureMatrix,
-            const SkRect& constraintRect,
-            FilterConstraint,
-            bool coordsLimitedToConstraintRect,
-            const GrSamplerState::Filter* filterOrNullForBicubic) override;
-
-    GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, const GrColorInfo&,
-                      uint32_t uniqueID, bool useDecal = false);
-
-protected:
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
-
-    GrTextureProxy* originalProxy() const { return fOriginal.get(); }
-    sk_sp<GrTextureProxy> originalProxyRef() const { return fOriginal; }
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
+            SkImage::CubicResampler) override;
 
 private:
-    sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
-                                                     bool willBeMipped,
-                                                     SkScalar scaleAdjust[2]) override;
+    GrSurfaceProxyView onView(GrMipmapped) override;
 
-    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped);
+    GrSurfaceProxyView makeMippedCopy();
 
-    sk_sp<GrTextureProxy> fOriginal;
+    GrSurfaceProxyView fOriginal;
     uint32_t fUniqueID;
 
-    typedef GrTextureProducer INHERITED;
+    using INHERITED = GrTextureProducer;
 };
 
 #endif

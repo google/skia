@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
+#include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/utils/SkPatchUtils.h"
 
@@ -152,7 +153,7 @@ protected:
     SkColor     fColors[4];
     VertexMode  fVertexMode;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class SquarePatchBench : public PatchBench {
@@ -178,7 +179,7 @@ public:
         memcpy(fCubics, points, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
     }
 private:
-    typedef PatchBench INHERITED;
+    using INHERITED = PatchBench;
 };
 
 class LODDiffPatchBench : public PatchBench {
@@ -204,7 +205,7 @@ public:
         memcpy(fCubics, points, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
     }
 private:
-    typedef PatchBench INHERITED;
+    using INHERITED = PatchBench;
 };
 
 class LoopPatchBench : public PatchBench {
@@ -230,7 +231,7 @@ public:
         memcpy(fCubics, points, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
     }
 private:
-    typedef PatchBench INHERITED;
+    using INHERITED = PatchBench;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

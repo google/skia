@@ -1,1 +1,25 @@
-Checks: '-*,bugprone-use-after-move,google-build-namespaces'
+Checks: >
+    -*,
+    bugprone-argument-comment,
+    bugprone-bool-pointer-implicit-conversion,
+    bugprone-suspicious-string-compare,
+    bugprone-undelegated-constructor,
+    bugprone-unused-raii,
+    bugprone-use-after-move,
+    google-build-namespaces,
+    llvm-namespace-comment,
+    misc-definitions-in-headers,
+    modernize-make-unique,
+    modernize-use-nullptr,
+    modernize-use-override,
+    performance-for-range-copy,
+    performance-unnecessary-copy-initialization,
+    readability-const-return-type,
+    readability-redundant-preprocessor,
+    readability-redundant-smartptr-get,
+    readability-static-accessed-through-instance
+CheckOptions:
+  - key:             llvm-namespace-comment.ShortNamespaceLines
+    value:           40
+  - key:             llvm-namespace-comment.SpacesBeforeComments
+    value:           2

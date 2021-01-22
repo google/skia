@@ -13,38 +13,45 @@
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
-#define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
-#define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F #S)
-#define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*)get(ctx, "gl" #F)
-
-#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL##F = (GrEGL##F##Fn*)get(ctx, "egl" #F #S)
-
-#if SK_DISABLE_WEBGL_INTERFACE
+#if SK_DISABLE_WEBGL_INTERFACE || !defined(SK_USE_WEBGL)
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
     return nullptr;
 }
 #else
+
+// Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/webgl
+#include "webgl/webgl1.h"
+#include "webgl/webgl1_ext.h"
+#include "webgl/webgl2.h"
+#include "webgl/webgl2_ext.h"
+
+#define GET_PROC(F) functions->f##F = emscripten_gl##F
+#define GET_PROC_SUFFIX(F, S) functions->f##F = emscripten_gl##F##S
+
+// Adapter from standard GL signature to emscripten.
+void emscripten_glWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
+    uint32_t timeoutLo = timeout;
+    uint32_t timeoutHi = timeout >> 32;
+    emscripten_glWaitSync(sync, flags, timeoutLo, timeoutHi);
+}
+
+// Adapter from standard GL signature to emscripten.
+GLenum emscripten_glClientWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
+    uint32_t timeoutLo = timeout;
+    uint32_t timeoutHi = timeout >> 32;
+    return emscripten_glClientWaitSync(sync, flags, timeoutLo, timeoutHi);
+}
+
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
-    GET_PROC_LOCAL(GetString);
-    if (nullptr == GetString) {
-        return nullptr;
-    }
-
-    const char* verStr = reinterpret_cast<const char*>(GetString(GR_GL_VERSION));
+    const char* verStr = reinterpret_cast<const char*>(emscripten_glGetString(GR_GL_VERSION));
     GrGLVersion glVer = GrGLGetVersionFromString(verStr);
-
     if (glVer < GR_GL_VER(1,0)) {
         return nullptr;
     }
 
-    GET_PROC_LOCAL(GetIntegerv);
-    GET_PROC_LOCAL(GetStringi);
-    GrEGLQueryStringFn* queryString;
-    GrEGLDisplay display;
-    GrGetEGLQueryAndDisplay(&queryString, &display, ctx, get);
     GrGLExtensions extensions;
-    if (!extensions.init(kWebGL_GrGLStandard, GetString, GetStringi, GetIntegerv, queryString,
-                         display)) {
+    if (!extensions.init(kWebGL_GrGLStandard, emscripten_glGetString, emscripten_glGetStringi,
+                         emscripten_glGetIntegerv)) {
         return nullptr;
     }
 
@@ -167,9 +174,19 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
         GET_PROC(DrawElementsInstanced);
     }
 
+    if (extensions.has("GL_WEBGL_draw_instanced_base_vertex_base_instance")) {
+        GET_PROC_SUFFIX(DrawArraysInstancedBaseInstance, WEBGL);
+        GET_PROC_SUFFIX(DrawElementsInstancedBaseVertexBaseInstance, WEBGL);
+    }
+
     if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(DrawBuffers);
         GET_PROC(ReadBuffer);
+    }
+
+    if (extensions.has("GL_WEBGL_multi_draw_instanced_base_vertex_base_instance")) {
+        GET_PROC_SUFFIX(MultiDrawArraysInstancedBaseInstance, WEBGL);
+        GET_PROC_SUFFIX(MultiDrawElementsInstancedBaseVertexBaseInstance, WEBGL);
     }
 
     if (glVer >= GR_GL_VER(2,0)) {
@@ -239,6 +256,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     interface->fStandard = kWebGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return interface;
+    return std::move(interface);
 }
 #endif

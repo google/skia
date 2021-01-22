@@ -28,7 +28,7 @@ third_party("wuffs") {
     # ----
     #
     # Defining the WUFFS_CONFIG__MODULE* macros are optional, but it lets users
-    # of Wuffs' .c file whitelist which parts of Wuffs to build. That file
+    # of Wuffs' .c file specify which parts of Wuffs to build. That file
     # contains the entire Wuffs standard library, implementing a variety of
     # codecs and file formats. Without this macro definition, an optimizing
     # compiler or linker may very well discard Wuffs code for unused codecs,
@@ -45,7 +45,5 @@ third_party("wuffs") {
     "WUFFS_CONFIG__MODULE__LZW",
   ]
 
-  sources = [
-    "../externals/wuffs/release/c/wuffs-v0.2.c",
-  ]
+  sources = [ "../externals/wuffs/release/c/wuffs-v0.3.c" ]
 }

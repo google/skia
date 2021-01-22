@@ -39,8 +39,9 @@ protected:
                      const SkPaint& paint) override = 0;
     void onDrawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
                       const SkPaint& paint) override = 0;
-    void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
-                              SkBlendMode, const SkPaint&) override = 0;
+
+    // restore me later when clients are updated
+    //    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override = 0;
 
     void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy,
                      const SkPaint* paint) override = 0;
@@ -66,16 +67,6 @@ protected:
             const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
             SkCanvas::SrcRectConstraint constraint) override = 0;
 #endif
-
-    void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
-                      const SkPaint* paint) override = 0;
-    void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                          const SkPaint* paint,
-                          SkCanvas::SrcRectConstraint constraint) override = 0;
-    void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                          const SkPaint* paint) override = 0;
-    void onDrawBitmapLattice(const SkBitmap& bitmap, const SkCanvas::Lattice& lattice,
-                             const SkRect& dst, const SkPaint* paint) override = 0;
 
     void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                      const SkColor colors[], int count, SkBlendMode mode, const SkRect* cull,

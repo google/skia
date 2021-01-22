@@ -10,7 +10,8 @@
  **************************************************************************************************/
 #include "GrLinearGradientLayout.h"
 
-#include "include/gpu/GrTexture.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -23,13 +24,11 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrLinearGradientLayout& _outer = args.fFp.cast<GrLinearGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix;
-        (void)gradientMatrix;
-        SkString sk_TransformedCoords2D_0 =
-                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(
-                "half t = half(%s.x) + 9.9999997473787516e-06;\n%s = half4(t, 1.0, 0.0, 0.0);\n",
-                sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
+                R"SkSL(half t = half(%s.x) + 9.9999997473787516e-06;
+return half4(t, 1.0, 0.0, 0.0);
+)SkSL",
+                args.fSampleCoord);
     }
 
 private:
@@ -44,18 +43,20 @@ void GrLinearGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrLinearGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrLinearGradientLayout& that = other.cast<GrLinearGradientLayout>();
     (void)that;
-    if (gradientMatrix != that.gradientMatrix) return false;
     return true;
 }
+bool GrLinearGradientLayout::usesExplicitReturn() const { return true; }
 GrLinearGradientLayout::GrLinearGradientLayout(const GrLinearGradientLayout& src)
-        : INHERITED(kGrLinearGradientLayout_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
-        , gradientMatrix(src.gradientMatrix) {
-    this->addCoordTransform(&fCoordTransform0);
+        : INHERITED(kGrLinearGradientLayout_ClassID, src.optimizationFlags()) {
+    this->cloneAndRegisterAllChildProcessors(src);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(*this));
+    return std::make_unique<GrLinearGradientLayout>(*this);
 }
+#if GR_TEST_UTILS
+SkString GrLinearGradientLayout::onDumpInfo() const { return SkString(); }
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradientLayout);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::TestCreate(GrProcessorTestData* d) {
@@ -73,7 +74,7 @@ std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::TestCreate(GrProces
                                                          params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
-    GrAlwaysAssert(fp);
+    SkASSERT_RELEASE(fp);
     return fp;
 }
 #endif
@@ -81,9 +82,10 @@ std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::TestCreate(GrProces
 std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::Make(const SkLinearGradient& grad,
                                                                   const GrFPArgs& args) {
     SkMatrix matrix;
-    if (!grad.totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+    if (!grad.totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
         return nullptr;
     }
     matrix.postConcat(grad.getGradientMatrix());
-    return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(matrix));
+    return GrMatrixEffect::Make(matrix,
+                                std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout()));
 }

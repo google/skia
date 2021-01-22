@@ -43,7 +43,7 @@ private:
 
     friend class SkShaderMaskFilter;
 
-    typedef SkMaskFilter INHERITED;
+    using INHERITED = SkMaskFilter;
 };
 
 sk_sp<SkFlattenable> SkShaderMF::CreateProc(SkReadBuffer& buffer) {

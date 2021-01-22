@@ -13,7 +13,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkMakeUnique.h"
 #include "tests/CodecPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
@@ -51,7 +50,7 @@ static bool compare_bitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const Sk
     }
     const size_t rowBytes = info.minRowBytes();
     for (int i = 0; i < info.height(); i++) {
-        if (memcmp(bm1.getAddr(0, i), bm2.getAddr(0, i), rowBytes)) {
+        if (0 != memcmp(bm1.getAddr(0, i), bm2.getAddr(0, i), rowBytes)) {
             ERRORF(r, "Bitmaps have different pixels, starting on line %i!", i);
             return false;
         }
@@ -132,7 +131,7 @@ static void test_partial(skiatest::Reporter* r, const char* name, size_t minByte
 
     // This size is arbitrary, but deliberately different from the buffer size used by SkPngCodec.
     constexpr size_t kIncrement = 1000;
-    test_partial(r, name, file, SkTMax(file->size() / 2, minBytes), kIncrement);
+    test_partial(r, name, file, std::max(file->size() / 2, minBytes), kIncrement);
 }
 
 DEF_TEST(Codec_partial, r) {
@@ -260,7 +259,7 @@ DEF_TEST(Codec_partialAnim, r) {
 
     // This stream will be owned by fullCodec, but we hang on to the pointer
     // to determine frame offsets.
-    std::unique_ptr<SkCodec> fullCodec(SkCodec::MakeFromStream(skstd::make_unique<SkMemoryStream>(file)));
+    std::unique_ptr<SkCodec> fullCodec(SkCodec::MakeFromStream(std::make_unique<SkMemoryStream>(file)));
     const auto info = standardize_info(fullCodec.get());
 
     // frameByteCounts stores the number of bytes to decode a particular frame.
@@ -290,7 +289,7 @@ DEF_TEST(Codec_partialAnim, r) {
         }
 
         if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to decode frame %i from %s", i, path);
+            ERRORF(r, "Failed to decode frame %zu from %s", i, path);
             return;
         }
 
@@ -302,7 +301,7 @@ DEF_TEST(Codec_partialAnim, r) {
     std::unique_ptr<SkCodec> partialCodec(SkCodec::MakeFromStream(
                                                       std::unique_ptr<SkStream>(haltingStream)));
     if (!partialCodec) {
-        ERRORF(r, "Failed to create a partial codec from %s with %i bytes out of %i",
+        ERRORF(r, "Failed to create a partial codec from %s with %zu bytes out of %zu",
                path, frameByteCounts[0], file->size());
         return;
     }
@@ -326,7 +325,7 @@ DEF_TEST(Codec_partialAnim, r) {
         SkCodec::Result result = partialCodec->startIncrementalDecode(info,
                 frame.getPixels(), frame.rowBytes(), &opts);
         if (result != SkCodec::kSuccess) {
-            ERRORF(r, "Failed to start incremental decode for %s on frame %i",
+            ERRORF(r, "Failed to start incremental decode for %s on frame %zu",
                    path, i);
             return;
         }
@@ -342,11 +341,11 @@ DEF_TEST(Codec_partialAnim, r) {
         REPORTER_ASSERT(r, frameInfo.size() == i + 1);
         REPORTER_ASSERT(r, frameInfo[i].fFullyReceived);
         if (!compare_bitmaps(r, frames[i], frame)) {
-            ERRORF(r, "\tfailure was on frame %i", i);
-            SkString name = SkStringPrintf("expected_%i", i);
+            ERRORF(r, "\tfailure was on frame %zu", i);
+            SkString name = SkStringPrintf("expected_%zu", i);
             write_bm(name.c_str(), frames[i]);
 
-            name = SkStringPrintf("actual_%i", i);
+            name = SkStringPrintf("actual_%zu", i);
             write_bm(name.c_str(), frame);
         }
     }
@@ -362,7 +361,7 @@ static void test_interleaved(skiatest::Reporter* r, const char* name) {
     }
     const size_t halfSize = file->size() / 2;
     std::unique_ptr<SkCodec> partialCodec(SkCodec::MakeFromStream(
-                                  skstd::make_unique<HaltingStream>(std::move(file), halfSize)));
+                                  std::make_unique<HaltingStream>(std::move(file), halfSize)));
     if (!partialCodec) {
         ERRORF(r, "Failed to create codec for %s", name);
         return;
@@ -532,18 +531,18 @@ DEF_TEST(Codec_incomplete, r) {
         for (size_t len = 14; len <= file->size(); len += 5) {
             SkCodec::Result result;
             std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(
-                                   skstd::make_unique<SkMemoryStream>(file->data(), len), &result));
+                                   std::make_unique<SkMemoryStream>(file->data(), len), &result));
             if (codec) {
                 if (result != SkCodec::kSuccess) {
-                    ERRORF(r, "Created an SkCodec for %s with %lu bytes, but "
-                              "reported an error %i", name, len, result);
+                    ERRORF(r, "Created an SkCodec for %s with %zu bytes, but "
+                              "reported an error %i", name, len, (int)result);
                 }
                 break;
             }
 
             if (SkCodec::kIncompleteInput != result) {
-                ERRORF(r, "Reported error %i for %s with %lu bytes",
-                       result, name, len);
+                ERRORF(r, "Reported error %i for %s with %zu bytes",
+                       (int)result, name, len);
                 break;
             }
         }

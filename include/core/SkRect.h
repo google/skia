@@ -13,6 +13,7 @@
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTFitsIn.h"
 
+#include <algorithm>
 #include <utility>
 
 struct SkRect;
@@ -544,17 +545,8 @@ struct SK_API SkIRect {
         @return  sorted SkIRect
     */
     SkIRect makeSorted() const {
-        return MakeLTRB(SkMin32(fLeft, fRight), SkMin32(fTop, fBottom),
-                        SkMax32(fLeft, fRight), SkMax32(fTop, fBottom));
-    }
-
-    /** Returns a reference to immutable empty SkIRect, set to (0, 0, 0, 0).
-
-        @return  global SkIRect set to all zeroes
-    */
-    static const SkIRect& SK_WARN_UNUSED_RESULT EmptyIRect() {
-        static const SkIRect gEmpty = { 0, 0, 0, 0 };
-        return gEmpty;
+        return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
+                        std::max(fLeft, fRight), std::max(fTop, fBottom));
     }
 };
 
@@ -908,10 +900,10 @@ struct SK_API SkRect {
         @param p1  corner to include
     */
     void set(const SkPoint& p0, const SkPoint& p1) {
-        fLeft =   SkMinScalar(p0.fX, p1.fX);
-        fRight =  SkMaxScalar(p0.fX, p1.fX);
-        fTop =    SkMinScalar(p0.fY, p1.fY);
-        fBottom = SkMaxScalar(p0.fY, p1.fY);
+        fLeft =   std::min(p0.fX, p1.fX);
+        fRight =  std::max(p0.fX, p1.fX);
+        fTop =    std::min(p0.fY, p1.fY);
+        fBottom = std::max(p0.fY, p1.fY);
     }
 
     /** Sets SkRect to (x, y, x + width, y + height).
@@ -1097,10 +1089,10 @@ struct SK_API SkRect {
 private:
     static bool Intersects(SkScalar al, SkScalar at, SkScalar ar, SkScalar ab,
                            SkScalar bl, SkScalar bt, SkScalar br, SkScalar bb) {
-        SkScalar L = SkMaxScalar(al, bl);
-        SkScalar R = SkMinScalar(ar, br);
-        SkScalar T = SkMaxScalar(at, bt);
-        SkScalar B = SkMinScalar(ab, bb);
+        SkScalar L = std::max(al, bl);
+        SkScalar R = std::min(ar, br);
+        SkScalar T = std::max(at, bt);
+        SkScalar B = std::min(ab, bb);
         return L < R && T < B;
     }
 
@@ -1166,10 +1158,10 @@ public:
         @param r  expansion SkRect
     */
     void joinPossiblyEmptyRect(const SkRect& r) {
-        fLeft   = SkMinScalar(fLeft, r.left());
-        fTop    = SkMinScalar(fTop, r.top());
-        fRight  = SkMaxScalar(fRight, r.right());
-        fBottom = SkMaxScalar(fBottom, r.bottom());
+        fLeft   = std::min(fLeft, r.left());
+        fTop    = std::min(fTop, r.top());
+        fRight  = std::max(fRight, r.right());
+        fBottom = std::max(fBottom, r.bottom());
     }
 
     /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
@@ -1310,8 +1302,8 @@ public:
         @return  sorted SkRect
     */
     SkRect makeSorted() const {
-        return MakeLTRB(SkMinScalar(fLeft, fRight), SkMinScalar(fTop, fBottom),
-                        SkMaxScalar(fLeft, fRight), SkMaxScalar(fTop, fBottom));
+        return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
+                        std::max(fLeft, fRight), std::max(fTop, fBottom));
     }
 
     /** Returns pointer to first scalar in SkRect, to treat it as an array with four

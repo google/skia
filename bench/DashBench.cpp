@@ -93,7 +93,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class RectDashBench : public DashBench {
@@ -104,8 +104,7 @@ public:
     }
 
 protected:
-    virtual void handlePath(SkCanvas* canvas, const SkPath& path,
-                            const SkPaint& paint, int N) override {
+    void handlePath(SkCanvas* canvas, const SkPath& path, const SkPaint& paint, int N) override {
         SkPoint pts[2];
         if (!path.isLine(pts) || pts[0].fY != pts[1].fY) {
             this->INHERITED::handlePath(canvas, path, paint, N);
@@ -134,7 +133,7 @@ protected:
     }
 
 private:
-    typedef DashBench INHERITED;
+    using INHERITED = DashBench;
 };
 
 static void make_unit_star(SkPath* path, int n) {
@@ -151,7 +150,7 @@ static void make_unit_star(SkPath* path, int n) {
 
 static void make_poly(SkPath* path) {
     make_unit_star(path, 9);
-    const SkMatrix matrix = SkMatrix::MakeScale(SkIntToScalar(100), SkIntToScalar(100));
+    const SkMatrix matrix = SkMatrix::Scale(100, 100);
     path->transform(matrix);
 }
 
@@ -202,7 +201,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 /*
@@ -242,7 +241,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class DrawPointsDashingBench : public Benchmark {
@@ -289,7 +288,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 // Want to test how we handle dashing when 99% of the dash is clipped out
@@ -366,7 +365,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 // Want to test how we draw a dashed grid (like what is used in spreadsheets) of many
@@ -433,7 +432,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,8 @@
 
 #include "src/xml/SkDOM.h"
 
+#include <memory>
+
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
 #include "src/xml/SkXMLParser.h"
@@ -187,7 +189,7 @@ static char* dupstr(SkArenaAlloc* chunk, const char src[]) {
 
 class SkDOMParser : public SkXMLParser {
 public:
-    SkDOMParser(SkArenaAlloc* chunk) : SkXMLParser(&fParserError), fAlloc(chunk) {
+    SkDOMParser(SkArenaAllocWithReset* chunk) : SkXMLParser(&fParserError), fAlloc(chunk) {
         fAlloc->reset();
         fRoot = nullptr;
         fLevel = 0;
@@ -281,7 +283,7 @@ private:
     }
 
     SkTDArray<SkDOM::Node*> fParentStack;
-    SkArenaAlloc*           fAlloc;
+    SkArenaAllocWithReset*  fAlloc;
     SkDOM::Node*            fRoot;
     bool                    fNeedToFlush;
 
@@ -344,7 +346,7 @@ const SkDOM::Node* SkDOM::copy(const SkDOM& dom, const SkDOM::Node* node) {
 
 SkXMLParser* SkDOM::beginParsing() {
     SkASSERT(!fParser);
-    fParser.reset(new SkDOMParser(&fAlloc));
+    fParser = std::make_unique<SkDOMParser>(&fAlloc);
 
     return fParser.get();
 }

@@ -26,7 +26,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkBBoxHierarchy.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkMiniRecorder.h"
@@ -143,7 +142,7 @@ private:
     unsigned int fSaveBehindCount;
     unsigned int fRestoreCount;
 
-    typedef SkCanvas INHERITED;
+    using INHERITED = SkCanvas;
 };
 
 void check_save_state(skiatest::Reporter* reporter, SkPicture* picture,
@@ -240,7 +239,7 @@ DEF_TEST(PictureRecorder_replay, reporter) {
     {
         SkPictureRecorder recorder;
 
-        SkCanvas* canvas = recorder.beginRecording(4, 3, nullptr, 0);
+        SkCanvas* canvas = recorder.beginRecording(4, 3);
         create_imbalance(canvas);
 
         int expectedSaveCount = canvas->getSaveCount();
@@ -468,13 +467,6 @@ static void test_cull_rect_reset(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == finalCullRect.fTop);
     REPORTER_ASSERT(reporter, 100 == finalCullRect.fBottom);
     REPORTER_ASSERT(reporter, 100 == finalCullRect.fRight);
-
-    const SkBBoxHierarchy* pictureBBH = picture->bbh();
-    SkRect bbhCullRect = pictureBBH->getRootBound();
-    REPORTER_ASSERT(reporter, 0 == bbhCullRect.fLeft);
-    REPORTER_ASSERT(reporter, 0 == bbhCullRect.fTop);
-    REPORTER_ASSERT(reporter, 100 == bbhCullRect.fBottom);
-    REPORTER_ASSERT(reporter, 100 == bbhCullRect.fRight);
 }
 
 
@@ -513,7 +505,7 @@ public:
 private:
     unsigned fClipCount;
 
-    typedef SkCanvas INHERITED;
+    using INHERITED = SkCanvas;
 };
 
 static void test_clip_expansion(skiatest::Reporter* reporter) {
@@ -584,18 +576,11 @@ DEF_TEST(Picture, reporter) {
 static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
     const SkPaint paint;
     const SkRect rect = { 5.0f, 5.0f, 8.0f, 8.0f };
-    const SkIRect irect =  { 2, 2, 3, 3 };
-    int divs[] = { 2, 3 };
-    SkCanvas::Lattice lattice;
-    lattice.fXCount = lattice.fYCount = 2;
-    lattice.fXDivs = lattice.fYDivs = divs;
 
     // Don't care what these record, as long as they're legal.
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
     canvas->drawBitmapRect(bitmap, rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
-    canvas->drawBitmapNine(bitmap, irect, rect, &paint);
     canvas->drawBitmap(bitmap, 1, 1);   // drawSprite
-    canvas->drawBitmapLattice(bitmap, lattice, rect, &paint);
 }
 
 static void test_draw_bitmaps(SkCanvas* canvas) {
@@ -668,34 +653,33 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
 
 struct CountingBBH : public SkBBoxHierarchy {
     mutable int searchCalls;
-    SkRect rootBound;
 
-    CountingBBH(const SkRect& bound) : searchCalls(0), rootBound(bound) {}
+    CountingBBH() : searchCalls(0) {}
 
-    void search(const SkRect& query, SkTDArray<int>* results) const override {
+    void search(const SkRect& query, std::vector<int>* results) const override {
         this->searchCalls++;
     }
 
     void insert(const SkRect[], int) override {}
-    virtual size_t bytesUsed() const override { return 0; }
-    SkRect getRootBound() const override { return rootBound; }
+    size_t bytesUsed() const override { return 0; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {
 public:
-    explicit SpoonFedBBHFactory(SkBBoxHierarchy* bbh) : fBBH(bbh) {}
-    SkBBoxHierarchy* operator()() const override {
-        return SkRef(fBBH);
+    explicit SpoonFedBBHFactory(sk_sp<SkBBoxHierarchy> bbh) : fBBH(bbh) {}
+    sk_sp<SkBBoxHierarchy> operator()() const override {
+        return fBBH;
     }
 private:
-    SkBBoxHierarchy* fBBH;
+    sk_sp<SkBBoxHierarchy> fBBH;
 };
 
 // When the canvas clip covers the full picture, we don't need to call the BBH.
 DEF_TEST(Picture_SkipBBH, r) {
     SkRect bound = SkRect::MakeWH(320, 240);
-    CountingBBH bbh(bound);
-    SpoonFedBBHFactory factory(&bbh);
+
+    auto bbh = sk_make_sp<CountingBBH>();
+    SpoonFedBBHFactory factory(bbh);
 
     SkPictureRecorder recorder;
     SkCanvas* c = recorder.beginRecording(bound, &factory);
@@ -707,10 +691,10 @@ DEF_TEST(Picture_SkipBBH, r) {
     SkCanvas big(640, 480), small(300, 200);
 
     picture->playback(&big);
-    REPORTER_ASSERT(r, bbh.searchCalls == 0);
+    REPORTER_ASSERT(r, bbh->searchCalls == 0);
 
     picture->playback(&small);
-    REPORTER_ASSERT(r, bbh.searchCalls == 1);
+    REPORTER_ASSERT(r, bbh->searchCalls == 1);
 }
 
 DEF_TEST(Picture_BitmapLeak, r) {
@@ -864,6 +848,11 @@ DEF_TEST(Placeholder, r) {
         canvas->drawPicture(p2);
     sk_sp<SkPicture> pic = recorder.finishRecordingAsPicture();
     REPORTER_ASSERT(r, pic->approximateOpCount() == 2);
+
+    // Any upper limit when recursing into nested placeholders is fine as long
+    // as it doesn't overflow an int.
+    REPORTER_ASSERT(r, pic->approximateOpCount(/*nested?*/true) >=  2);
+    REPORTER_ASSERT(r, pic->approximateOpCount(/*nested?*/true) <= 10);
 }
 
 DEF_TEST(Picture_empty_serial, reporter) {
@@ -950,4 +939,63 @@ DEF_TEST(Picture_emptyNestedPictureBug, r) {
     REPORTER_ASSERT(r, (inner ->cullRect() == SkRect{-100,-100, -50,-50}));
     REPORTER_ASSERT(r, (middle->cullRect() == SkRect{-100,-100, -50,-50}));
     REPORTER_ASSERT(r, (outer ->cullRect() == SkRect{-100,-100, -50,-50}));   // Used to fail.
+}
+
+DEF_TEST(Picture_fillsBBH, r) {
+    // Test empty (0 draws), mini (1 draw), and big (2+) pictures, making sure they fill the BBH.
+    const SkRect rects[] = {
+        { 0, 0, 20,20},
+        {20,20, 40,40},
+    };
+
+    for (int n = 0; n <= 2; n++) {
+        SkRTreeFactory factory;
+        SkPictureRecorder rec;
+
+        sk_sp<SkBBoxHierarchy> bbh = factory();
+
+        SkCanvas* c = rec.beginRecording({0,0, 100,100}, bbh);
+        for (int i = 0; i < n; i++) {
+            c->drawRect(rects[i], SkPaint{});
+        }
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+
+        std::vector<int> results;
+        bbh->search({0,0, 100,100}, &results);
+        REPORTER_ASSERT(r, (int)results.size() == n,
+                        "results.size() == %d, want %d\n", (int)results.size(), n);
+    }
+}
+
+DEF_TEST(Picture_nested_op_count, r) {
+    auto make_pic = [](int n, sk_sp<SkPicture> pic) {
+        SkPictureRecorder rec;
+        SkCanvas* c = rec.beginRecording({0,0, 100,100});
+        for (int i = 0; i < n; i++) {
+            if (pic) {
+                c->drawPicture(pic);
+            } else {
+                c->drawRect({0,0, 100,100}, SkPaint{});
+            }
+        }
+        return rec.finishRecordingAsPicture();
+    };
+
+    auto check = [r](sk_sp<SkPicture> pic, int shallow, int nested) {
+        int s = pic->approximateOpCount(false);
+        int n = pic->approximateOpCount(true);
+        REPORTER_ASSERT(r, s == shallow);
+        REPORTER_ASSERT(r, n == nested);
+    };
+
+    sk_sp<SkPicture> leaf1 = make_pic(1, nullptr);
+    check(leaf1, 1, 1);
+
+    sk_sp<SkPicture> leaf10 = make_pic(10, nullptr);
+    check(leaf10, 10, 10);
+
+    check(make_pic( 1, leaf1),   1,   1);
+    check(make_pic( 1, leaf10),  1,  10);
+    check(make_pic(10, leaf1),  10,  10);
+    check(make_pic(10, leaf10), 10, 100);
 }

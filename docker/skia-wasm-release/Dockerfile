@@ -1,11 +1,42 @@
 # Dockerfile for building the WASM libraries used by jsfiddle.skia.org and debugger.skia.org
 FROM gcr.io/skia-public/emsdk-base:prod as builder
 
-# Checkout Skia.
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+  git \
+  libfreetype6-dev
+
+RUN cd /tmp \
+  && git clone --depth 1 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+
+ENV PATH=${PATH}:/tmp/depot_tools
+
+# Checkout Skia using fetch from depot_tools
 RUN mkdir -p /tmp/skia \
   && cd /tmp/skia \
-  && fetch skia \
-  && cd skia \
+  && fetch skia
+
+# Set fake identity for git rebase. See thread in
+# https://skia-review.googlesource.com/c/buildbot/+/286537/5/docker/Dockerfile#46
+RUN cd /tmp/skia/skia \
+    && git config user.email "skia@skia.org" \
+    && git config user.name "Skia"
+
+# HASH must be specified.
+ARG HASH
+RUN if [ -z "${HASH}" ] ; then echo "HASH must be specified as a --build-arg"; exit 1; fi
+
+RUN cd /tmp/skia/skia \
+  && git fetch \
+  && git reset --hard ${HASH}
+
+# If patch ref is specified then update the ref to patch in a CL.
+ARG PATCH_REF
+RUN if [ ! -z "${PATCH_REF}" ] ; then cd /tmp/skia/skia \
+    && git fetch https://skia.googlesource.com/skia ${PATCH_REF} \
+    && git checkout FETCH_HEAD \
+    && git rebase ${HASH}; fi
+
+RUN cd /tmp/skia/skia \
   && gclient sync \
   && ./bin/fetch-gn
 

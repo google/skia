@@ -1,0 +1,19 @@
+struct S  {
+    float f;
+};
+
+uniform int u;
+
+void assign_to_literal()                      { 1 = 2; }
+void assign_to_uniform()                      { u = 0; }
+void assign_to_const()                        { const int x; x = 0; }
+void assign_to_const_array()                  { const int x[1]; x[0] = 0; }
+void assign_to_const_swizzle()                { const half4 x; x.w = 0; }
+void assign_to_repeated_swizzle()             { half4 x; x.yy = half2(0); }
+void assign_to_const_struct()                 { const S s; s.f = 0; }
+void assign_to_foldable_ternary_const_left()  { const float l; float r; (true ? l : r) = 0; }
+void assign_to_foldable_ternary_const_right() { float l; const float r; (false ? l : r) = 0; }
+void assign_to_foldable_ternary_const_both()  { const float l; const float r; (true ? l : r) = 0; }
+void assign_to_unfoldable_ternary()           { float l, r; (sqrt(1) > 0 ? l : r) = 0; }
+void assign_to_unary_minus()                  { float x; -x = 0; }
+void assign_to_unary_plus()                   { float x; +x = 0; }  // TODO(skbug.com/10766)

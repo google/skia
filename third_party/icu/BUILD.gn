@@ -36,14 +36,11 @@ if (skia_use_system_icu) {
   }
   action("make_data_assembly") {
     if (target_cpu == "wasm") {
-      _u_icu_version_major_num = "63"  # defined in source/common/unicode/uvernum.h
+      _u_icu_version_major_num =
+          "65"  # defined in source/common/unicode/uvernum.h
       script = "make_data_cpp.py"
-      inputs = [
-        "$data_dir/icudtl.dat",
-      ]
-      outputs = [
-        data_assembly,
-      ]
+      inputs = [ "$data_dir/icudtl.dat" ]
+      outputs = [ data_assembly ]
       args = [
         "icudt${_u_icu_version_major_num}_dat",
         rebase_path(inputs[0], root_build_dir),
@@ -51,12 +48,8 @@ if (skia_use_system_icu) {
       ]
     } else {
       script = "../externals/icu/scripts/make_data_assembly.py"
-      inputs = [
-        "$data_dir/icudtl.dat",
-      ]
-      outputs = [
-        "$data_assembly",
-      ]
+      inputs = [ "$data_dir/icudtl.dat" ]
+      outputs = [ "$data_assembly" ]
       args = [
         rebase_path(inputs[0], root_build_dir),
         rebase_path(data_assembly, root_build_dir),
@@ -75,6 +68,7 @@ if (skia_use_system_icu) {
     ]
     public_defines = [
       "U_USING_ICU_NAMESPACE=0",
+      "U_DISABLE_RENAMING",
       "SK_USING_THIRD_PARTY_ICU",
     ]
     configs -= [ "//gn:no_rtti" ]
@@ -84,6 +78,13 @@ if (skia_use_system_icu) {
       "U_STATIC_IMPLEMENTATION",
       "U_ENABLE_DYLOAD=0",
       "U_I18N_IMPLEMENTATION",
+
+      # If we don't set this to zero, ICU will set it to 600,
+      # which makes Macs set _POSIX_C_SOURCE=200112L,
+      # which makes Macs set __DARWIN_C_LEVEL=_POSIX_C_SOURCE instead of =__DARWIN_C_FULL,
+      # which makes <time.h> not expose timespec_get,
+      # which makes recent libc++ <ctime> not #include-able with -std=c++17.
+      "_XOPEN_SOURCE=0",
     ]
     if (target_cpu == "wasm") {
       # Tell ICU that we are a 32 bit platform, otherwise,
@@ -92,9 +93,7 @@ if (skia_use_system_icu) {
     }
     sources = icu_sources
     if (is_win) {
-      deps = [
-        ":icudata",
-      ]
+      deps = [ ":icudata" ]
       public_defines += [
         "U_NOEXCEPT=",
         "U_STATIC_IMPLEMENTATION",
@@ -106,21 +105,13 @@ if (skia_use_system_icu) {
       ]
     } else {
       sources += [ "$data_assembly" ]
-      deps = [
-        ":make_data_assembly",
-      ]
+      deps = [ ":make_data_assembly" ]
     }
   }
 
   copy("icudata") {
-    sources = [
-      "../externals/icu/common/icudtl.dat",
-    ]
-    outputs = [
-      "$root_out_dir/icudtl.dat",
-    ]
-    data = [
-      "$root_out_dir/icudtl.dat",
-    ]
+    sources = [ "../externals/icu/common/icudtl.dat" ]
+    outputs = [ "$root_out_dir/icudtl.dat" ]
+    data = [ "$root_out_dir/icudtl.dat" ]
   }
 }

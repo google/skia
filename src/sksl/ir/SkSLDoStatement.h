@@ -16,28 +16,49 @@ namespace SkSL {
 /**
  * A 'do' statement.
  */
-struct DoStatement : public Statement {
+class DoStatement final : public Statement {
+public:
+    static constexpr Kind kStatementKind = Kind::kDo;
+
     DoStatement(int offset, std::unique_ptr<Statement> statement,
                 std::unique_ptr<Expression> test)
-    : INHERITED(offset, kDo_Kind)
-    , fStatement(std::move(statement))
-    , fTest(std::move(test)) {}
+        : INHERITED(offset, kStatementKind)
+        , fStatement(std::move(statement))
+        , fTest(std::move(test)) {}
+
+    std::unique_ptr<Statement>& statement() {
+        return fStatement;
+    }
+
+    const std::unique_ptr<Statement>& statement() const {
+        return fStatement;
+    }
+
+    std::unique_ptr<Expression>& test() {
+        return fTest;
+    }
+
+    const std::unique_ptr<Expression>& test() const {
+        return fTest;
+    }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new DoStatement(fOffset, fStatement->clone(),
-                                                          fTest->clone()));
+        return std::unique_ptr<Statement>(new DoStatement(fOffset, this->statement()->clone(),
+                                                          this->test()->clone()));
     }
 
     String description() const override {
-        return "do " + fStatement->description() + " while (" + fTest->description() + ");";
+        return "do " + this->statement()->description() + " while (" + this->test()->description() +
+               ");";
     }
 
+private:
     std::unique_ptr<Statement> fStatement;
     std::unique_ptr<Expression> fTest;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

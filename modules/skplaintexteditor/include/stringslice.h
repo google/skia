@@ -42,5 +42,5 @@ private:
     std::size_t fCapacity = 0;
     void realloc(std::size_t);
 };
-}  // namespace SkPlainTextEditor;
+}  // namespace SkPlainTextEditor
 #endif  // stringslice_DEFINED

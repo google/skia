@@ -62,6 +62,9 @@ sk_sp<SkTypeface> emoji_typeface();
 /** Sample text for the emoji_typeface font. */
 const char* emoji_sample_text();
 
+/** A simple SkUserTypeface for testing. */
+sk_sp<SkTypeface> sample_user_typeface();
+
 /**
  * Returns a platform-independent text renderer.
  */
@@ -142,7 +145,7 @@ void create_frustum_normal_map(SkBitmap* bm, const SkIRect& dst);
 
 void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
 
-void make_big_path(SkPath& path);
+SkPath make_big_path();
 
 // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
 class TopoTestNode : public SkRefCnt {
@@ -191,7 +194,7 @@ public:
 
     // Helper functions for TopoSortBench & TopoSortTest
     static void AllocNodes(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
-        graph->reserve(num);
+        graph->reserve_back(num);
 
         for (int i = 0; i < num; ++i) {
             graph->push_back(sk_sp<TopoTestNode>(new TopoTestNode(i)));

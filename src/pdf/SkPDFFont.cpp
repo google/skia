@@ -29,10 +29,9 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkImagePriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMask.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
@@ -119,7 +118,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
     }
     std::unique_ptr<SkAdvancedTypefaceMetrics> metrics = typeface->getAdvancedMetrics();
     if (!metrics) {
-        metrics = skstd::make_unique<SkAdvancedTypefaceMetrics>();
+        metrics = std::make_unique<SkAdvancedTypefaceMetrics>();
     }
 
     if (0 == metrics->fStemV || 0 == metrics->fCapHeight) {
@@ -135,7 +134,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
                 uint16_t g = font.unicharToGlyph(c);
                 SkRect bounds;
                 font.getBounds(&g, 1, &bounds, nullptr);
-                stemV = SkTMin(stemV, SkToS16(SkScalarRoundToInt(bounds.width())));
+                stemV = std::min(stemV, SkToS16(SkScalarRoundToInt(bounds.width())));
             }
             metrics->fStemV = stemV;
         }
@@ -168,7 +167,7 @@ const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typefac
 }
 
 SkAdvancedTypefaceMetrics::FontType SkPDFFont::FontType(const SkAdvancedTypefaceMetrics& metrics) {
-    if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag) ||
+    if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kVariable_FontFlag) ||
         SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag)) {
         // force Type3 fallback.
         return SkAdvancedTypefaceMetrics::kOther_Font;
@@ -216,7 +215,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFDocument* doc,
         firstNonZeroGlyph = 1;
     } else {
         firstNonZeroGlyph = subsetCode;
-        lastGlyph = SkToU16(SkTMin<int>((int)lastGlyph, 254 + (int)subsetCode));
+        lastGlyph = SkToU16(std::min<int>((int)lastGlyph, 254 + (int)subsetCode));
     }
     auto ref = doc->reserveRef();
     return doc->fFontMap.set(
@@ -436,7 +435,7 @@ private:
     const SkGlyphID fFirst;
     const SkGlyphID fLast;
 };
-}
+}  // namespace
 
 struct ImageAndOffset {
     sk_sp<SkImage> fImage;
@@ -456,7 +455,7 @@ static ImageAndOffset to_image(SkGlyphID gid, SkBulkGlyphMetricsAndImages* small
             for (int y = 0; y < bm.height(); ++y) {
                 for (int x8 = 0; x8 < bm.width(); x8 += 8) {
                     uint8_t v = *mask.getAddr1(x8 + bounds.x(), y + bounds.y());
-                    int e = SkTMin(x8 + 8, bm.width());
+                    int e = std::min(x8 + 8, bm.width());
                     for (int x = x8; x < e; ++x) {
                         *bm.getAddr8(x, y) = (v >> (x & 0x7)) & 0x1 ? 0xFF : 0x00;
                     }
@@ -540,11 +539,11 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     }
     int unitsPerEm;
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(*typeface, &unitsPerEm);
-    auto cache = strikeSpec.findOrCreateExclusiveStrike();
-    SkASSERT(cache);
+    auto strike = strikeSpec.findOrCreateStrike();
+    SkASSERT(strike);
     SkScalar emSize = (SkScalar)unitsPerEm;
-    SkScalar xHeight = cache->getFontMetrics().fXHeight;
-    SkBulkGlyphMetricsAndPaths metricsAndPaths(std::move(cache));
+    SkScalar xHeight = strike->getFontMetrics().fXHeight;
+    SkBulkGlyphMetricsAndPaths metricsAndPaths(std::move(strike));
 
     SkStrikeSpec strikeSpecSmall = kBitmapFontSize > 0 ? make_small_strike(*typeface)
                                                        : strikeSpec;
@@ -596,7 +595,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
             if (path && !path->isEmpty()) {
                 setGlyphWidthAndBoundingBox(glyph->advanceX(), glyphBBox, &content);
                 SkPDFUtils::EmitPath(*path, SkPaint::kFill_Style, &content);
-                SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getNewFillType(), &content);
+                SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getFillType(), &content);
             } else {
                 auto pimg = to_image(gID, &smallGlyphs);
                 if (!pimg.fImage) {

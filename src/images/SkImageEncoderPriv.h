@@ -35,4 +35,10 @@ static inline bool SkPixmapIsValid(const SkPixmap& src) {
     #define SkEncodeImageWithWIC(...) false
 #endif
 
+#ifdef SK_ENABLE_NDK_IMAGES
+    bool SkEncodeImageWithNDK(SkWStream*, const SkPixmap&, SkEncodedImageFormat, int quality);
+#else
+    #define SkEncodeImageWithNDK(...) false
+#endif
+
 #endif // SkImageEncoderPriv_DEFINED

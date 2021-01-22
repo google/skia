@@ -20,6 +20,7 @@ class GrColorInfo {
 public:
     GrColorInfo() = default;
     GrColorInfo(const GrColorInfo&);
+    GrColorInfo& operator=(const GrColorInfo&);
     GrColorInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
     /* implicit */ GrColorInfo(const SkColorInfo&);
 
@@ -28,10 +29,8 @@ public:
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
 
-    GrColorSpaceXform* colorSpaceXformFromSRGB() const;
-    sk_sp<GrColorSpaceXform> refColorSpaceXformFromSRGB() const {
-        return sk_ref_sp(this->colorSpaceXformFromSRGB());
-    }
+    GrColorSpaceXform* colorSpaceXformFromSRGB() const { return fColorXformFromSRGB.get(); }
+    sk_sp<GrColorSpaceXform> refColorSpaceXformFromSRGB() const { return fColorXformFromSRGB; }
 
     GrColorType colorType() const { return fColorType; }
     SkAlphaType alphaType() const { return fAlphaType; }
@@ -42,10 +41,9 @@ public:
 
 private:
     sk_sp<SkColorSpace> fColorSpace;
-    mutable sk_sp<GrColorSpaceXform> fColorXformFromSRGB;
+    sk_sp<GrColorSpaceXform> fColorXformFromSRGB;
     GrColorType fColorType = GrColorType::kUnknown;
     SkAlphaType fAlphaType = kUnknown_SkAlphaType;
-    mutable bool fInitializedColorSpaceXformFromSRGB = false;
 };
 
 #endif

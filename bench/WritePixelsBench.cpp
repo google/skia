@@ -51,7 +51,7 @@ private:
     sk_sp<SkColorSpace> fCS;
     SkString    fName;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 //////////////////////////////////////////////////////////////////////////////

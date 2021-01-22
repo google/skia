@@ -1,0 +1,2 @@
+void int_not_array()      { int x = 2[0]; }
+void index_float2_twice() { float2 x = float2(0); int y = x[0][0]; }

@@ -8,11 +8,25 @@
 #ifndef ProcStats_DEFINED
 #define ProcStats_DEFINED
 
+#include <cstdint>
+
 /**
  * ProcStats - Process Statistics Functions
  */
 
 namespace sk_tools {
+
+/**
+ *  If implemented, returns the current resident set size in bytes.
+ *  If not, returns -1.
+ */
+int64_t getCurrResidentSetSizeBytes();
+
+/**
+ *  If implemented, returns the maximum resident set size in MB.
+ *  If not, returns -1.
+ */
+int64_t getMaxResidentSetSizeBytes();
 
 /**
  *  If implemented, returns the maximum resident set size in MB.

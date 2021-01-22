@@ -10,18 +10,88 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/private/SkTPin.h"
 #include "include/utils/SkAnimCodecPlayer.h"
 #include "include/utils/SkBase64.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 
+#if defined(HAVE_VIDEO_DECODER)
+    #include "experimental/ffmpeg/SkVideoDecoder.h"
+#endif
+
 namespace skresources {
+namespace  {
+
+#if defined(HAVE_VIDEO_DECODER)
+
+class VideoAsset final : public ImageAsset {
+public:
+    static sk_sp<VideoAsset> Make(sk_sp<SkData> data) {
+        auto decoder = std::make_unique<SkVideoDecoder>();
+
+        if (!decoder->loadStream(SkMemoryStream::Make(std::move(data))) ||
+            decoder->duration() <= 0) {
+            return nullptr;
+        }
+
+        return sk_sp<VideoAsset>(new VideoAsset(std::move(decoder)));
+    }
+
+private:
+    explicit VideoAsset(std::unique_ptr<SkVideoDecoder> decoder)
+        : fDecoder(std::move(decoder)) {
+    }
+
+    bool isMultiFrame() override { return true; }
+
+    // Each frame has a presentation timestamp
+    //   => the timespan for frame N is [stamp_N .. stamp_N+1)
+    //   => we use a two-frame sliding window to track the current interval.
+    void advance() {
+        fWindow[0] = std::move(fWindow[1]);
+        fWindow[1].frame = fDecoder->nextImage(&fWindow[1].stamp);
+        fEof = !fWindow[1].frame;
+    }
+
+    sk_sp<SkImage> getFrame(float t_float) override {
+        const auto t = SkTPin(static_cast<double>(t_float), 0.0, fDecoder->duration());
+
+        if (t < fWindow[0].stamp) {
+            // seeking back requires a full rewind
+            fDecoder->rewind();
+            fWindow[0].stamp = fWindow[1].stamp = 0;
+            fEof = 0;
+        }
+
+        while (!fEof && t >= fWindow[1].stamp) {
+            this->advance();
+        }
+
+        SkASSERT(fWindow[0].stamp <= t && (fEof || t < fWindow[1].stamp));
+
+        return fWindow[0].frame;
+    }
+
+    const std::unique_ptr<SkVideoDecoder> fDecoder;
+
+    struct FrameRec {
+        sk_sp<SkImage> frame;
+        double         stamp = 0;
+    };
+
+    FrameRec fWindow[2];
+    bool     fEof = false;
+};
+
+#endif // defined(HAVE_VIDEO_DECODER)
+
+} // namespace
 
 sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, bool predecode) {
     if (auto codec = SkCodec::MakeFromData(std::move(data))) {
         return sk_sp<MultiFrameImageAsset>(
-              new MultiFrameImageAsset(skstd::make_unique<SkAnimCodecPlayer>(std::move(codec)),
+              new MultiFrameImageAsset(std::make_unique<SkAnimCodecPlayer>(std::move(codec)),
                                                                              predecode));
     }
 
@@ -39,7 +109,7 @@ bool MultiFrameImageAsset::isMultiFrame() {
     return fPlayer->duration() > 0;
 }
 
-sk_sp<SkImage> MultiFrameImageAsset::getFrame(float t) {
+sk_sp<SkImage> MultiFrameImageAsset::generateFrame(float t) {
     auto decode = [](sk_sp<SkImage> image) {
         SkASSERT(image->isLazyGenerated());
 
@@ -70,10 +140,22 @@ sk_sp<SkImage> MultiFrameImageAsset::getFrame(float t) {
     auto frame = fPlayer->getFrame();
 
     if (fPreDecode && frame && frame->isLazyGenerated()) {
+        // The multi-frame decoder should never return lazy images.
+        SkASSERT(!this->isMultiFrame());
         frame = decode(std::move(frame));
     }
 
     return frame;
+}
+
+sk_sp<SkImage> MultiFrameImageAsset::getFrame(float t) {
+    // For static images we can reuse the cached frame
+    // (which includes the optional pre-decode step).
+    if (!fCachedFrame || this->isMultiFrame()) {
+        fCachedFrame = this->generateFrame(t);
+    }
+
+    return fCachedFrame;
 }
 
 sk_sp<FileResourceProvider> FileResourceProvider::Make(SkString base_dir, bool predecode) {
@@ -96,7 +178,19 @@ sk_sp<SkData> FileResourceProvider::load(const char resource_path[],
 sk_sp<ImageAsset> FileResourceProvider::loadImageAsset(const char resource_path[],
                                                        const char resource_name[],
                                                        const char[]) const {
-    return MultiFrameImageAsset::Make(this->load(resource_path, resource_name), fPredecode);
+    auto data = this->load(resource_path, resource_name);
+
+    if (auto image = MultiFrameImageAsset::Make(data, fPredecode)) {
+        return std::move(image);
+    }
+
+#if defined(HAVE_VIDEO_DECODER)
+    if (auto video = VideoAsset::Make(data)) {
+        return std::move(video);
+    }
+#endif
+
+    return nullptr;
 }
 
 ResourceProviderProxyBase::ResourceProviderProxyBase(sk_sp<ResourceProvider> rp)
@@ -112,6 +206,12 @@ sk_sp<ImageAsset> ResourceProviderProxyBase::loadImageAsset(const char rpath[],
                                                             const char rname[],
                                                             const char rid[]) const {
     return fProxy ? fProxy->loadImageAsset(rpath, rname, rid)
+                  : nullptr;
+}
+
+sk_sp<SkTypeface> ResourceProviderProxyBase::loadTypeface(const char name[],
+                                                          const char url[]) const {
+    return fProxy ? fProxy->loadTypeface(name, url)
                   : nullptr;
 }
 
@@ -150,34 +250,47 @@ DataURIResourceProviderProxy::DataURIResourceProviderProxy(sk_sp<ResourceProvide
     : INHERITED(std::move(rp))
     , fPredecode(predecode) {}
 
-sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[],
-                                                               const char rname[],
-                                                               const char rid[]) const {
+static sk_sp<SkData> decode_datauri(const char prefix[], const char data[]) {
     // We only handle B64 encoded image dataURIs: data:image/<type>;base64,<data>
     // (https://en.wikipedia.org/wiki/Data_URI_scheme)
-    static constexpr char kDataURIImagePrefix[] = "data:image/",
-                          kDataURIEncodingStr[] = ";base64,";
+    static constexpr char kDataURIEncodingStr[] = ";base64,";
 
-    if (!strncmp(rname, kDataURIImagePrefix, SK_ARRAY_COUNT(kDataURIImagePrefix) - 1)) {
-        const char* encoding_start = strstr(rname + SK_ARRAY_COUNT(kDataURIImagePrefix) - 1,
-                                            kDataURIEncodingStr);
-        if (encoding_start) {
+    const auto prefix_len = strlen(prefix);
+    if (!strncmp(data, prefix, prefix_len)) {
+        if (const auto* encoding_start = strstr(data + prefix_len, kDataURIEncodingStr)) {
             const char* data_start = encoding_start + SK_ARRAY_COUNT(kDataURIEncodingStr) - 1;
 
             // TODO: SkBase64::decode ergonomics are... interesting.
             SkBase64 b64;
             if (SkBase64::kNoError == b64.decode(data_start, strlen(data_start))) {
-                return MultiFrameImageAsset::Make(SkData::MakeWithProc(b64.getData(),
-                                                                       b64.getDataSize(),
-                                                      [](const void* ptr, void*) {
-                                                          delete[] static_cast<const char*>(ptr);
-                                                      }, /*ctx=*/nullptr),
-                                                  fPredecode);
+                return SkData::MakeWithProc(b64.getData(), b64.getDataSize(),
+                                            [](const void* ptr, void*) {
+                                                delete[] static_cast<const char*>(ptr);
+                                            }, /*ctx=*/nullptr);
             }
         }
     }
 
+    return nullptr;
+}
+
+sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[],
+                                                               const char rname[],
+                                                               const char rid[]) const {
+    if (auto data = decode_datauri("data:image/", rname)) {
+        return MultiFrameImageAsset::Make(std::move(data), fPredecode);
+    }
+
     return this->INHERITED::loadImageAsset(rpath, rname, rid);
+}
+
+sk_sp<SkTypeface> DataURIResourceProviderProxy::loadTypeface(const char name[],
+                                                             const char url[]) const {
+    if (auto data = decode_datauri("data:font/", url)) {
+        return SkTypeface::MakeFromData(std::move(data));
+    }
+
+    return this->INHERITED::loadTypeface(name, url);
 }
 
 } // namespace skresources

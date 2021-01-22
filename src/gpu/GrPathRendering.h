@@ -94,17 +94,20 @@ public:
     struct StencilPathArgs {
         StencilPathArgs(bool useHWAA,
                         GrRenderTargetProxy* proxy,
+                        GrSurfaceOrigin origin,
                         const SkMatrix* viewMatrix,
                         const GrScissorState* scissor,
                         const GrStencilSettings* stencil)
             : fUseHWAA(useHWAA)
             , fProxy(proxy)
+            , fOrigin(origin)
             , fViewMatrix(viewMatrix)
             , fScissor(scissor)
             , fStencil(stencil) {
         }
         bool                     fUseHWAA;
         GrRenderTargetProxy*     fProxy;
+        GrSurfaceOrigin          fOrigin;
         const SkMatrix*          fViewMatrix;
         const GrScissorState*    fScissor;
         const GrStencilSettings* fStencil;
@@ -121,10 +124,7 @@ protected:
     GrPathRendering(GrGpu* gpu) : fGpu(gpu) { }
 
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(GrRenderTarget*,
-                            const GrProgramInfo&,
-                            const GrStencilSettings&,
-                            const GrPath*) = 0;
+    virtual void onDrawPath(const GrStencilSettings&, const GrPath*) = 0;
 
     GrGpu* fGpu;
 private:

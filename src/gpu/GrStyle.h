@@ -14,11 +14,11 @@
 #include "include/private/SkTemplates.h"
 
 /**
- * Represents the various ways that a GrShape can be styled. It has fill/stroking information
+ * Represents the various ways that a GrStyledShape can be styled. It has fill/stroking information
  * as well as an optional path effect. If the path effect represents dashing, the dashing
  * information is extracted from the path effect and stored explicitly.
  *
- * This will replace GrStrokeInfo as GrShape is deployed.
+ * This will replace GrStrokeInfo as GrStyledShape is deployed.
  */
 class GrStyle {
 public:

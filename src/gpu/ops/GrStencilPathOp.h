@@ -21,26 +21,17 @@ class GrStencilPathOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(GrRecordingContext* context,
-                                      const SkMatrix& viewMatrix,
-                                      bool useHWAA,
-                                      bool hasStencilClip,
-                                      const GrScissorState& scissor,
-                                      sk_sp<const GrPath> path);
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            const SkMatrix& viewMatrix,
+                            bool useHWAA,
+                            bool hasStencilClip,
+                            const GrScissorState& scissor,
+                            sk_sp<const GrPath> path);
 
     const char* name() const override { return "StencilPathOp"; }
 
-#ifdef SK_DEBUG
-    SkString dumpInfo() const override {
-        SkString string;
-        string.printf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);
-        string.append(INHERITED::dumpInfo());
-        return string;
-    }
-#endif
-
 private:
-    friend class GrOpMemoryPool; // for ctor
+    friend class GrOp; // for ctor
 
     GrStencilPathOp(const SkMatrix& viewMatrix,
                     bool useHWAA,
@@ -56,9 +47,21 @@ private:
         this->setBounds(fPath->getBounds(), HasAABloat::kNo, IsHairline::kNo);
     }
 
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* writeView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
+
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);
+    }
+#endif
 
     SkMatrix                  fViewMatrix;
     bool                      fUseHWAA;
@@ -66,7 +69,7 @@ private:
     GrScissorState            fScissor;
     sk_sp<const GrPath>       fPath;
 
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 
 #endif

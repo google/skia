@@ -1,0 +1,14 @@
+uniform half4 color;
+
+inline half4 switchy(half4 c) {
+    half4 result;
+    switch (int(c.x)) {
+        case 1: result = c.yyyy; break;
+        default: result = c.zzzz; break;
+    }
+    return result;
+}
+
+void main() {
+    sk_FragColor = switchy(color);
+}

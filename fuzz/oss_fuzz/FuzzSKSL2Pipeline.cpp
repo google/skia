@@ -11,26 +11,26 @@
 #include "fuzz/Fuzz.h"
 
 bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
-    SkSL::Compiler compiler;
-    SkSL::String output;
-    SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
+    SkSL::Compiler compiler(caps.get());
+    SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                     SkSL::Program::kPipelineStage_Kind,
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
                                                     settings);
-    std::vector<SkSL::Compiler::FormatArg> formatArgs;
-    std::vector<SkSL::Compiler::GLSLFunction> functions;
-    if (!program || !compiler.toPipelineStage(*program, &output, &formatArgs, &functions)) {
+    SkSL::PipelineStageArgs args;
+    if (!program || !compiler.toPipelineStage(*program, &args)) {
         return false;
     }
     return true;
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size > 3000) {
+        return 0;
+    }
     auto bytes = SkData::MakeWithoutCopy(data, size);
     FuzzSKSL2Pipeline(bytes);
     return 0;

@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
          int count = path.getVerbs(verbs, max);
          SkDebugf("%s verb count: %d  ", prefix, count);
          const char* verbStr[] = { "move", "line", "quad", "conic", "cubic", "close" };
-         for (int i = 0; i < SkTMin(count, max) && verbs; ++i) {
+         for (int i = 0; i < std::min(count, max) && verbs; ++i) {
              SkDebugf("%s ", verbStr[verbs[i]]);
          }
          SkDebugf("\n");

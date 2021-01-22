@@ -33,13 +33,14 @@ public:
                                                                GrSurfaceOrigin);
 
     // Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
-    GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&);
-
-    id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
-    void addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
+    GrMtlSampler* findOrCreateCompatibleSampler(GrSamplerState);
 
     // Destroy any cached resources. To be called before releasing the MtlDevice.
     void destroyResources();
+
+#if GR_TEST_UTILS
+    void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
+#endif
 
 private:
 #ifdef SK_DEBUG
@@ -73,28 +74,6 @@ private:
 #endif
     };
 
-    // Buffer allocator
-    class BufferSuballocator : public SkRefCnt {
-    public:
-        BufferSuballocator(id<MTLDevice> device, size_t size);
-        ~BufferSuballocator() {
-            fBuffer = nil;
-            fTotalSize = 0;
-        }
-
-        id<MTLBuffer> getAllocation(size_t size, size_t* offset);
-        void addCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
-        size_t size() { return fTotalSize; }
-
-    private:
-        id<MTLBuffer> fBuffer;
-        size_t        fTotalSize;
-        size_t        fHead SK_GUARDED_BY(fMutex);     // where we start allocating
-        size_t        fTail SK_GUARDED_BY(fMutex);     // where we start deallocating
-        SkSpinlock    fMutex;
-    };
-    static constexpr size_t kBufferSuballocatorStartSize = 1024*1024;
-
     GrMtlGpu* fGpu;
 
     // Cache of GrMtlPipelineStates
@@ -102,12 +81,6 @@ private:
 
     SkTDynamicHash<GrMtlSampler, GrMtlSampler::Key> fSamplers;
     SkTDynamicHash<GrMtlDepthStencil, GrMtlDepthStencil::Key> fDepthStencilStates;
-
-    // This is ref-counted because we might delete the GrContext before the command buffer
-    // finishes. The completion handler will retain a reference to this so it won't get
-    // deleted along with the GrContext.
-    sk_sp<BufferSuballocator> fBufferSuballocator;
-    size_t fBufferSuballocatorMaxSize;
 };
 
 #endif

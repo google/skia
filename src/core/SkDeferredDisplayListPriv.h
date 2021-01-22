@@ -8,33 +8,37 @@
 #ifndef SkDeferredDisplayListPriv_DEFINED
 #define SkDeferredDisplayListPriv_DEFINED
 
-#include "include/private/SkDeferredDisplayList.h"
+#include "include/core/SkDeferredDisplayList.h"
 
+/*************************************************************************************************/
 /** Class that adds methods to SkDeferredDisplayList that are only intended for use internal to Skia.
     This class is purely a privileged window into SkDeferredDisplayList. It should never have
     additional data members or virtual methods. */
 class SkDeferredDisplayListPriv {
 public:
-    int numRenderTasks() const {
+
 #if SK_SUPPORT_GPU
+    int numRenderTasks() const {
         return fDDL->fRenderTasks.count();
-#else
-        return 0;
-#endif
+    }
+
+    GrRenderTargetProxy* targetProxy() const {
+        return fDDL->fTargetProxy.get();
     }
 
     const SkDeferredDisplayList::LazyProxyData* lazyProxyData() const {
-#if SK_SUPPORT_GPU
         return fDDL->fLazyProxyData.get();
-#else
-        return nullptr;
-#endif
     }
+
+    const SkTArray<GrRecordingContext::ProgramData>& programData() const {
+        return fDDL->programData();
+    }
+#endif
 
 private:
     explicit SkDeferredDisplayListPriv(SkDeferredDisplayList* ddl) : fDDL(ddl) {}
-    SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&);            // unimpl
-    SkDeferredDisplayListPriv& operator=(const SkDeferredDisplayListPriv&); // unimpl
+    SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&) = delete;
+    SkDeferredDisplayListPriv& operator=(const SkDeferredDisplayListPriv&) = delete;
 
     // No taking addresses of this type.
     const SkDeferredDisplayListPriv* operator&() const;
@@ -49,7 +53,7 @@ inline SkDeferredDisplayListPriv SkDeferredDisplayList::priv() {
     return SkDeferredDisplayListPriv(this);
 }
 
-inline const SkDeferredDisplayListPriv SkDeferredDisplayList::priv () const {
+inline const SkDeferredDisplayListPriv SkDeferredDisplayList::priv () const {  // NOLINT(readability-const-return-type)
     return SkDeferredDisplayListPriv(const_cast<SkDeferredDisplayList*>(this));
 }
 

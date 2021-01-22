@@ -8,13 +8,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Open lottie file"/>
+    <Button
+        android:id="@+id/play"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Play"/>
+    <Button
+        android:id="@+id/pause"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pause"/>
+    <Button
+        android:id="@+id/reset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set progress to 0"/>
     <GridLayout
         android:id="@+id/grid_lotties"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_gravity="center"
-        android:columnCount="1"
-        >
+        android:columnCount="1">
     </GridLayout>
+
 
 </LinearLayout>

@@ -9,9 +9,9 @@
 #define GrVkUniformHandler_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/vk/GrVkSampler.h"
 
@@ -23,30 +23,39 @@ public:
         /**
          * Binding a descriptor set invalidates all higher index descriptor sets. We must bind
          * in the order of this enumeration. Samplers are after Uniforms because GrOps can specify
-         * GP textures as dynamic state, meaning they get rebound for each GrMesh in a draw while
-         * uniforms are bound once before all the draws.
+         * GP textures as dynamic state, meaning they get rebound for each draw in a pipeline while
+         * uniforms are bound once before all the draws. We bind input attachments after samplers
+         * so those also need to be rebound if we bind new samplers.
          */
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
+        kInputDescSet = 2,
+
+        kLastDescSet = kInputDescSet,
+    };
+    static constexpr int kDescSetCount = kLastDescSet + 1;
+
+    // The bindings within their respective sets for various descriptor types.
+    enum {
+        kUniformBinding = 0,
+        kInputBinding = 0,
     };
     enum {
-        kUniformBinding = 0
+        kDstInputAttachmentIndex = 0
     };
 
-    struct UniformInfo {
-        GrShaderVar             fVariable;
-        uint32_t                fVisibility;
+    struct VkUniformInfo : public UniformInfo {
         // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
         uint32_t                fUBOffset;
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
-    typedef GrTAllocator<UniformInfo> UniformInfoArray;
+    typedef GrTBlockList<VkUniformInfo> UniformInfoArray;
 
     ~GrVkUniformHandler() override;
 
     const GrShaderVar& getUniformVariable(UniformHandle u) const override {
-        return fUniforms[u.toIndex()].fVariable;
+        return fUniforms.item(u.toIndex()).fVariable;
     }
 
     const char* getUniformCStr(UniformHandle u) const override {
@@ -58,6 +67,17 @@ public:
      */
     uint32_t getRTHeightOffset() const;
 
+    int numUniforms() const override {
+        return fUniforms.count();
+    }
+
+    UniformInfo& uniform(int idx) override {
+        return fUniforms.item(idx);
+    }
+    const UniformInfo& uniform(int idx) const override {
+        return fUniforms.item(idx);
+    }
+
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
@@ -66,55 +86,67 @@ private:
         , fCurrentUBOOffset(0) {
     }
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
+    UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                          uint32_t visibility,
                                           GrSLType type,
                                           const char* name,
                                           bool mangleName,
                                           int arrayCount,
                                           const char** outName) override;
 
-    void updateUniformVisibility(UniformHandle u, uint32_t visibility) override {
-        fUniforms[u.toIndex()].fVisibility |= visibility;
-    }
-
-    SamplerHandle addSampler(const GrSurfaceProxy*,
-                             const GrSamplerState&,
+    SamplerHandle addSampler(const GrBackendFormat&,
+                             GrSamplerState,
                              const GrSwizzle&,
                              const char* name,
                              const GrShaderCaps*) override;
 
+    SamplerHandle addInputSampler(const GrSwizzle& swizzle, const char* name) override;
+
     int numSamplers() const { return fSamplers.count(); }
     const char* samplerVariable(SamplerHandle handle) const override {
-        return fSamplers[handle.toIndex()].fVariable.c_str();
+        return fSamplers.item(handle.toIndex()).fVariable.c_str();
     }
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
         return fSamplerSwizzles[handle.toIndex()];
     }
     uint32_t samplerVisibility(SamplerHandle handle) const {
-        return fSamplers[handle.toIndex()].fVisibility;
+        return fSamplers.item(handle.toIndex()).fVisibility;
     }
 
     const GrVkSampler* immutableSampler(UniformHandle u) const {
-        return fSamplers[u.toIndex()].fImmutableSampler;
+        return fSamplers.item(u.toIndex()).fImmutableSampler;
+    }
+
+    const char* inputSamplerVariable(SamplerHandle handle) const override {
+        // Currently we will only ever have one input sampler variable, though in the future we may
+        // expand to allow more inputs. For now assert that any requested handle maps to index 0,
+        // to make sure we didn't add multiple input samplers.
+        SkASSERT(handle.toIndex() == 0);
+        return fInputUniform.fVariable.c_str();
+    }
+    GrSwizzle inputSamplerSwizzle(SamplerHandle handle) const override {
+        SkASSERT(handle.toIndex() == 0);
+        return fInputSwizzle;
     }
 
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
-    const UniformInfo& getUniformInfo(UniformHandle u) const {
-        return fUniforms[u.toIndex()];
+    const VkUniformInfo& getUniformInfo(UniformHandle u) const {
+        return fUniforms.item(u.toIndex());
     }
-
 
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfo         fInputUniform;
+    GrSwizzle           fInputSwizzle;
 
     uint32_t            fCurrentUBOOffset;
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
 
-    typedef GrGLSLUniformHandler INHERITED;
+    using INHERITED = GrGLSLUniformHandler;
 };
 
 #endif

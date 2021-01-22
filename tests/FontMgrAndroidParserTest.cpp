@@ -119,7 +119,7 @@ static void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* lab
         fontFamilies[i]->fallbackFamilies.foreach(
             [](SkString, std::unique_ptr<FontFamily>* fallbackFamily) {
                 SkDebugf("  Fallback for: %s\n", (*fallbackFamily)->fFallbackFor.c_str());
-                DumpFiles(*(*fallbackFamily).get());
+                DumpFiles(**fallbackFamily);
             }
         );
     }
@@ -144,7 +144,7 @@ template <int N, typename T> static double test_parse_fixed_r(skiatest::Reporter
             double f2 = fix * SK_FixedEpsilon_double;
             double error = fabs(f - f2);
             REPORTER_ASSERT(reporter,  error <= SK_FixedEpsilon_double);
-            maxError = SkTMax(maxError, error);
+            maxError = std::max(maxError, error);
         } else {
             REPORTER_ASSERT(reporter, f < -SK_FixedMax_double || SK_FixedMax_double < f);
         }

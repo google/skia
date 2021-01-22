@@ -10,7 +10,9 @@
 
 #include "include/core/SkImage.h"
 #include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoMalloc.h"
 
 class SkData;
@@ -23,30 +25,42 @@ namespace sk_gpu_test {
 // the image if the context has changed, as in Viewer)
 class LazyYUVImage {
 public:
-    // Returns null if the data could not be extracted into YUVA8 planes
-    static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data);
+    // Returns null if the data could not be extracted into YUVA planes
+    static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data,
+                                              GrMipmapped = GrMipmapped::kNo,
+                                              sk_sp<SkColorSpace> = nullptr);
+    static std::unique_ptr<LazyYUVImage> Make(SkYUVAPixmaps,
+                                              GrMipmapped = GrMipmapped::kNo,
+                                              sk_sp<SkColorSpace> = nullptr);
 
-    sk_sp<SkImage> refImage(GrContext* context);
+    enum class Type {
+        kFromPixmaps,
+        kFromGenerator,
+        kFromTextures,
+        kFromTexturesCopyToExternal
+    };
 
-    const SkImage* getImage(GrContext* context);
+    SkISize dimensions() const { return fPixmaps.yuvaInfo().dimensions(); }
+
+    sk_sp<SkImage> refImage(GrRecordingContext* rContext, Type);
 
 private:
     // Decoded YUV data
-    SkYUVASizeInfo fSizeInfo;
-    SkYUVColorSpace fColorSpace;
-    SkYUVAIndex fComponents[SkYUVAIndex::kIndexCount];
-    SkAutoMalloc fPlaneData;
-    SkPixmap fPlanes[SkYUVASizeInfo::kMaxCount];
+    SkYUVAPixmaps fPixmaps;
 
-    // Memoized SkImage formed with planes
-    sk_sp<SkImage> fYUVImage;
-    uint32_t fOwningContextID;
+    GrMipmapped fMipmapped;
 
-    LazyYUVImage() : fOwningContextID(SK_InvalidGenID) {}
+    sk_sp<SkColorSpace> fColorSpace;
 
-    bool reset(sk_sp<SkData> data);
+    // Memoized SkImages formed with planes, one for each Type.
+    sk_sp<SkImage> fYUVImage[4];
 
-    bool ensureYUVImage(GrContext* context);
+    LazyYUVImage() = default;
+
+    bool reset(sk_sp<SkData> data, GrMipmapped, sk_sp<SkColorSpace>);
+    bool reset(SkYUVAPixmaps pixmaps, GrMipmapped, sk_sp<SkColorSpace>);
+
+    bool ensureYUVImage(GrRecordingContext* rContext, Type type);
 };
 
 } // namespace sk_gpu_test

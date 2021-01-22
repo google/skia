@@ -115,38 +115,6 @@ void SkPaintFilterCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-void SkPaintFilterCanvas::onDrawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
-                                       const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawBitmap(bm, left, top, &apf.paint());
-    }
-}
-
-void SkPaintFilterCanvas::onDrawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                                           const SkPaint* paint, SrcRectConstraint constraint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawBitmapRect(bm, src, dst, &apf.paint(), constraint);
-    }
-}
-
-void SkPaintFilterCanvas::onDrawBitmapNine(const SkBitmap& bm, const SkIRect& center,
-                                           const SkRect& dst, const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawBitmapNine(bm, center, dst, &apf.paint());
-    }
-}
-
-void SkPaintFilterCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                              const SkRect& dst, const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawBitmapLattice(bitmap, lattice, dst, &apf.paint());
-    }
-}
-
 void SkPaintFilterCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                       const SkPaint* paint) {
     AutoPaintFilter apf(this, paint);
@@ -181,11 +149,10 @@ void SkPaintFilterCanvas::onDrawImageLattice(const SkImage* image, const Lattice
 }
 
 void SkPaintFilterCanvas::onDrawVerticesObject(const SkVertices* vertices,
-                                               const SkVertices::Bone bones[], int boneCount,
                                                SkBlendMode bmode, const SkPaint& paint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawVerticesObject(vertices, bones, boneCount, bmode, apf.paint());
+        this->SkNWayCanvas::onDrawVerticesObject(vertices, bmode, apf.paint());
     }
 }
 
@@ -199,10 +166,24 @@ void SkPaintFilterCanvas::onDrawPatch(const SkPoint cubics[], const SkColor colo
 }
 
 void SkPaintFilterCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* m,
-                                        const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
+                                        const SkPaint* originalPaint) {
+    AutoPaintFilter apf(this, originalPaint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawPicture(picture, m, &apf.paint());
+        const SkPaint* newPaint = &apf.paint();
+
+        // Passing a paint (-vs- passing null) makes drawPicture draw into a layer...
+        // much slower, and can produce different blending. Thus we should only do this
+        // if the filter's effect actually impacts the picture.
+        if (originalPaint == nullptr) {
+            if (   newPaint->getAlphaf()      == 1.0f
+                && newPaint->getColorFilter() == nullptr
+                && newPaint->getImageFilter() == nullptr
+                && newPaint->getBlendMode()   == SkBlendMode::kSrcOver) {
+                // restore the original nullptr
+                newPaint = nullptr;
+            }
+        }
+        this->SkNWayCanvas::onDrawPicture(picture, m, newPaint);
     }
 }
 

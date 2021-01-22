@@ -9,6 +9,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkPathOpsDebug.h"
@@ -31,7 +32,6 @@ bool SkPathOpsDebug::gVeryVerbose;  // set to true to run extensive checking tes
 #define FAIL_WITH_NULL_IF(cond, span) \
          do { if (cond) log->record(SkPathOpsDebug::kFail_Glitch, span); } while (false)
 
-#undef RETURN_FALSE_IF
 #define RETURN_FALSE_IF(cond, span) \
          do { if (cond) log->record(SkPathOpsDebug::kReturnFalse_Glitch, span); \
          } while (false)
@@ -510,28 +510,6 @@ void SkPathOpsDebug::WindingPrintf(int wind) {
 }
 #endif //  defined SK_DEBUG || !FORCE_RELEASE
 
-
-#if DEBUG_SHOW_TEST_NAME
-void* SkPathOpsDebug::CreateNameStr() { return new char[DEBUG_FILENAME_STRING_LENGTH]; }
-
-void SkPathOpsDebug::DeleteNameStr(void* v) { delete[] reinterpret_cast<char*>(v); }
-
-void SkPathOpsDebug::BumpTestName(char* test) {
-    char* num = test + strlen(test);
-    while (num[-1] >= '0' && num[-1] <= '9') {
-        --num;
-    }
-    if (num[0] == '\0') {
-        return;
-    }
-    int dec = atoi(num);
-    if (dec == 0) {
-        return;
-    }
-    ++dec;
-    SK_SNPRINTF(num, DEBUG_FILENAME_STRING_LENGTH - (num - test), "%d", dec);
-}
-#endif
 
 static void show_function_header(const char* functionName) {
     SkDebugf("\nstatic void %s(skiatest::Reporter* reporter, const char* filename) {\n", functionName);
@@ -1120,15 +1098,15 @@ void SkOpSegment::debugReset() {
 void SkOpSegment::debugSetCoinT(int index, SkScalar t) const {
     if (fDebugBaseMax < 0 || fDebugBaseIndex == index) {
         fDebugBaseIndex = index;
-        fDebugBaseMin = SkTMin(t, fDebugBaseMin);
-        fDebugBaseMax = SkTMax(t, fDebugBaseMax);
+        fDebugBaseMin = std::min(t, fDebugBaseMin);
+        fDebugBaseMax = std::max(t, fDebugBaseMax);
         return;
     }
     SkASSERT(fDebugBaseMin >= t || t >= fDebugBaseMax);
     if (fDebugLastMax < 0 || fDebugLastIndex == index) {
         fDebugLastIndex = index;
-        fDebugLastMin = SkTMin(t, fDebugLastMin);
-        fDebugLastMax = SkTMax(t, fDebugLastMax);
+        fDebugLastMin = std::min(t, fDebugLastMin);
+        fDebugLastMax = std::max(t, fDebugLastMax);
         return;
     }
     SkASSERT(fDebugLastMin >= t || t >= fDebugLastMax);
@@ -2860,37 +2838,35 @@ static void output_points(const SkPoint* pts, int count) {
     }
 }
 
-static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
-    uint8_t verb;
-    SkPoint pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+static void showPathContours(const SkPath& path, const char* pathName) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 SkDebugf("    %s.moveTo(", pathName);
                 output_points(&pts[0], 1);
                 SkDebugf(");\n");
                 continue;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 SkDebugf("    %s.lineTo(", pathName);
                 output_points(&pts[1], 1);
                 SkDebugf(");\n");
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 SkDebugf("    %s.quadTo(", pathName);
                 output_points(&pts[1], 2);
                 SkDebugf(");\n");
                 break;
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kConic:
                 SkDebugf("    %s.conicTo(", pathName);
                 output_points(&pts[1], 2);
-                SkDebugf(", %1.9gf);\n", iter.conicWeight());
+                SkDebugf(", %1.9gf);\n", *w);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 SkDebugf("    %s.cubicTo(", pathName);
                 output_points(&pts[1], 3);
                 SkDebugf(");\n");
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 SkDebugf("    %s.close();\n", pathName);
                 break;
             default:
@@ -2908,7 +2884,6 @@ static const char* gFillTypeStr[] = {
 };
 
 void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration) {
-    SkPath::RawIter iter(path);
 #define SUPPORT_RECT_CONTOUR_DETECTION 0
 #if SUPPORT_RECT_CONTOUR_DETECTION
     int rectCount = path.isRectContours() ? path.rectContours(nullptr, nullptr) : 0;
@@ -2927,14 +2902,13 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
         return;
     }
 #endif
-    SkPathFillType fillType = path.getNewFillType();
+    SkPathFillType fillType = path.getFillType();
     SkASSERT(fillType >= SkPathFillType::kWinding && fillType <= SkPathFillType::kInverseEvenOdd);
     if (includeDeclaration) {
         SkDebugf("    SkPath %s;\n", name);
     }
     SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[(int)fillType]);
-    iter.setPath(path);
-    showPathContours(iter, name);
+    showPathContours(path, name);
 }
 
 #if DEBUG_DUMP_VERIFY

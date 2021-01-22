@@ -328,7 +328,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     memcpy(run.glyphs, glyphs.get(), sizeof(uint16_t) * glyphCount);
     memcpy(run.utf8text, text2, strlen(text2));
     for (int i = 0; i < glyphCount; ++i) {
-        run.clusters[i] = SkTMin(SkToU32(i), SkToU32(strlen(text2)));
+        run.clusters[i] = std::min(SkToU32(i), SkToU32(strlen(text2)));
     }
     sk_sp<SkTextBlob> blob(textBlobBuilder.make());
     REPORTER_ASSERT(reporter, blob);

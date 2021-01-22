@@ -7,13 +7,13 @@ import("../../gn/ios.gni")
 if (is_ios && skia_use_metal) {
   ios_app_bundle("minimal_ios_mtl_skia_app") {
     sources = [
-      "../skottie_ios/SkMetalViewBridge.h",
-      "../skottie_ios/SkMetalViewBridge.mm",
+      "../../tools/skottie_ios_app/GrContextHolder.h",
+      "../../tools/skottie_ios_app/GrContextHolder.mm",
+      "../../tools/skottie_ios_app/SkMetalViewBridge.h",
+      "../../tools/skottie_ios_app/SkMetalViewBridge.mm",
       "main.mm",
     ]
-    deps = [
-      "../..:skia",
-    ]
+    deps = [ "../..:skia" ]
     cflags_objcc = [
       "-std=c++14",
       "-w",

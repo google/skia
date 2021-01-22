@@ -18,7 +18,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkAnimCodecPlayer.h"
-#include "src/core/SkMakeUnique.h"
 #include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -155,13 +154,14 @@ DEF_TEST(Codec_frames, r) {
         { "images/blendBG.webp", 7,
             { 0, kNoFrame, kNoFrame, kNoFrame, 4, 4 },
             { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
-            { 525, 500, 525, 437, 609, 729, 444 }, 7,
+            { 525, 500, 525, 437, 609, 729, 444 },
+            6,
             { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
         { "images/required.webp", 7,
             { 0, 1, 1, kNoFrame, 4, 4 },
             { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque },
             { 100, 100, 100, 100, 100, 100, 100 },
-            1,
+            0,
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
     };
 
@@ -193,27 +193,27 @@ DEF_TEST(Codec_frames, r) {
 
         const int expected = rec.fFrameCount;
         if (rec.fRequiredFrames.size() + 1 != static_cast<size_t>(expected)) {
-            ERRORF(r, "'%s' has wrong number entries in fRequiredFrames; expected: %i\tactual: %i",
+            ERRORF(r, "'%s' has wrong number entries in fRequiredFrames; expected: %i\tactual: %zu",
                    rec.fName, expected - 1, rec.fRequiredFrames.size());
             continue;
         }
 
         if (expected > 1) {
             if (rec.fDurations.size() != static_cast<size_t>(expected)) {
-                ERRORF(r, "'%s' has wrong number entries in fDurations; expected: %i\tactual: %i",
+                ERRORF(r, "'%s' has wrong number entries in fDurations; expected: %i\tactual: %zu",
                        rec.fName, expected, rec.fDurations.size());
                 continue;
             }
 
             if (rec.fAlphas.size() + 1 != static_cast<size_t>(expected)) {
-                ERRORF(r, "'%s' has wrong number entries in fAlphas; expected: %i\tactual: %i",
+                ERRORF(r, "'%s' has wrong number entries in fAlphas; expected: %i\tactual: %zu",
                        rec.fName, expected - 1, rec.fAlphas.size());
                 continue;
             }
 
             if (rec.fDisposalMethods.size() != static_cast<size_t>(expected)) {
                 ERRORF(r, "'%s' has wrong number entries in fDisposalMethods; "
-                       "expected %i\tactual: %i",
+                       "expected %i\tactual: %zu",
                        rec.fName, expected, rec.fDisposalMethods.size());
                 continue;
             }
@@ -445,7 +445,7 @@ DEF_TEST(AndroidCodec_animated, r) {
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
             for (int y = 0; y < info.height(); ++y) {
-                if (memcmp(bm.getAddr32(0, y), bm2.getAddr32(0, y), info.minRowBytes())) {
+                if (0 != memcmp(bm.getAddr32(0, y), bm2.getAddr32(0, y), info.minRowBytes())) {
                     ERRORF(r, "pixel mismatch for sample size %i, frame %i resulting in "
                               "dimensions %i x %i line %i\n",
                               sampleSize, i, info.width(), info.height(), y);
@@ -472,7 +472,7 @@ DEF_TEST(AnimCodecPlayer, r) {
         auto codec = SkCodec::MakeFromData(GetResourceAsData(test.fFile));
         REPORTER_ASSERT(r, codec);
 
-        auto player = skstd::make_unique<SkAnimCodecPlayer>(std::move(codec));
+        auto player = std::make_unique<SkAnimCodecPlayer>(std::move(codec));
         if (player->duration() != test.fDuration) {
             printf("*** %d vs %d\n", player->duration(), test.fDuration);
         }

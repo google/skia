@@ -91,7 +91,7 @@ protected:
 
 private:
     sk_sp<SkImage> fImage;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

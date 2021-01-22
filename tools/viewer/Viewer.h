@@ -11,6 +11,7 @@
 #include "gm/gm.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkFont.h"
+#include "include/gpu/GrContextOptions.h"
 #include "src/core/SkScan.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -44,6 +45,8 @@ public:
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
     bool onPinch(skui::InputState state, float scale, float x, float y) override;
     bool onFling(skui::InputState state) override;
+
+    static GrContextOptions::ShaderErrorHandler* ShaderErrorHandler();
 
     struct SkFontFields {
         bool fTypeface = false;
@@ -88,6 +91,18 @@ public:
         bool fJoinType = false;
         bool fStyle = false;
         bool fFilterQuality = false;
+    };
+    struct SkSurfacePropsFields {
+        bool fFlags = false;
+        bool fPixelGeometry = false;
+    };
+    struct DisplayFields {
+        bool fColorType = false;
+        bool fColorSpace = false;
+        bool fMSAASampleCount = false;
+        bool fGrContextOptions = false;
+        SkSurfacePropsFields fSurfaceProps;
+        bool fDisableVsync = false;
     };
 private:
     enum class ColorMode {
@@ -175,6 +190,7 @@ private:
     bool                   fTiled;
     bool                   fDrawTileBoundaries;
     SkSize                 fTileScale;
+    bool                   fDrawViaSerialize = false;
 
     enum PerspectiveMode {
         kPerspective_Off,
@@ -186,13 +202,20 @@ private:
 
     SkTArray<std::function<void(void)>> fDeferredActions;
 
+    // fPaint contains override values, fPaintOverrides controls if overrides are applied.
     SkPaint fPaint;
     SkPaintFields fPaintOverrides;
+
+    // fFont contains override values, fFontOverrides controls if overrides are applied.
     SkFont fFont;
     SkFontFields fFontOverrides;
-    bool fPixelGeometryOverrides = false;
 
-    struct CachedGLSL {
+    // fDisplay contains default values (fWindow.fRequestedDisplayParams contains the overrides),
+    // fDisplayOverrides controls if overrides are applied.
+    sk_app::DisplayParams fDisplay;
+    DisplayFields fDisplayOverrides;
+
+    struct CachedShader {
         bool                fHovered = false;
 
         sk_sp<const SkData> fKey;
@@ -204,7 +227,7 @@ private:
     };
 
     sk_gpu_test::MemoryCache fPersistentCache;
-    SkTArray<CachedGLSL>     fCachedGLSL;
+    SkTArray<CachedShader>   fCachedShaders;
 };
 
 #endif

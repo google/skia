@@ -8,14 +8,13 @@
 #ifndef GrGLPathRendering_DEFINED
 #define GrGLPathRendering_DEFINED
 
+#include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrStencilSettings.h"
-#include "src/gpu/glsl/GrGLSLUtil.h"
 
-class GrGLNameAllocator;
 class GrGLGpu;
 class GrStyle;
 
@@ -65,8 +64,7 @@ public:
 
 protected:
     void onStencilPath(const StencilPathArgs&, const GrPath*) override;
-    void onDrawPath(GrRenderTarget*, const GrProgramInfo&, const GrStencilSettings&,
-                    const GrPath*) override;
+    void onDrawPath(const GrStencilSettings&, const GrPath*) override;
 
 private:
     /**
@@ -94,7 +92,7 @@ private:
         /**
          * Gets a matrix that goes from local coordinates to GL normalized device coords.
          */
-        template<int Size> void getRTAdjustedGLMatrix(float* destMatrix) {
+        void getRTAdjustedGLMatrix(float* destMatrix) {
             SkMatrix combined;
             if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
                 combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
@@ -106,7 +104,8 @@ private:
                                 0, 0, 1);
             }
             combined.preConcat(fViewMatrix);
-            GrGLSLGetMatrix<Size>(destMatrix, combined);
+            SkM44 combined44(combined);
+            combined44.getColMajor(destMatrix);
         }
     };
     GrGLGpu* gpu();

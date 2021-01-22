@@ -147,10 +147,10 @@ private:
     SkBitmap fBitmap;
     SkScalar fAzimuth;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new ImageLightingGM;)
-}
+}  // namespace skiagm

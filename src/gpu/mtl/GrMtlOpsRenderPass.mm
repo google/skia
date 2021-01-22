@@ -7,9 +7,9 @@
 
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrColor.h"
-#include "src/gpu/GrFixedClip.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
@@ -29,14 +29,11 @@ GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurf
 }
 
 GrMtlOpsRenderPass::~GrMtlOpsRenderPass() {
-    SkASSERT(nil == fActiveRenderCmdEncoder);
 }
 
 void GrMtlOpsRenderPass::precreateCmdEncoder() {
     // For clears, we may not have an associated draw. So we prepare a cmdEncoder that
     // will be submitted whether there's a draw or not.
-    SkASSERT(nil == fActiveRenderCmdEncoder);
-
     SkDEBUGCODE(id<MTLRenderCommandEncoder> cmdEncoder =)
             fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
     SkASSERT(nil != cmdEncoder);
@@ -49,103 +46,107 @@ void GrMtlOpsRenderPass::submit() {
     SkIRect iBounds;
     fBounds.roundOut(&iBounds);
     fGpu->submitIndirectCommandBuffer(fRenderTarget, fOrigin, &iBounds);
+    fActiveRenderCmdEncoder = nil;
 }
 
-GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(const GrProgramInfo& programInfo) {
-    // TODO: resolve textures and regenerate mipmaps as needed
+static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
+    const static MTLPrimitiveType mtlPrimitiveType[] {
+        MTLPrimitiveTypeTriangle,
+        MTLPrimitiveTypeTriangleStrip,
+        MTLPrimitiveTypePoint,
+        MTLPrimitiveTypeLine,
+        MTLPrimitiveTypeLineStrip
+    };
+    static_assert((int)GrPrimitiveType::kTriangles == 0);
+    static_assert((int)GrPrimitiveType::kTriangleStrip == 1);
+    static_assert((int)GrPrimitiveType::kPoints == 2);
+    static_assert((int)GrPrimitiveType::kLines == 3);
+    static_assert((int)GrPrimitiveType::kLineStrip == 4);
 
-    GrMtlPipelineState* pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, programInfo);
-    if (!pipelineState) {
-        return nullptr;
+    SkASSERT(primitiveType <= GrPrimitiveType::kLineStrip);
+    return mtlPrimitiveType[static_cast<int>(primitiveType)];
+}
+
+bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
+                                        const SkRect& drawBounds) {
+    fActivePipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
+            fRenderTarget, programInfo);
+    if (!fActivePipelineState) {
+        return false;
     }
 
-    pipelineState->setData(fRenderTarget, programInfo);
+    fActivePipelineState->setData(fRenderTarget, programInfo);
     fCurrentVertexStride = programInfo.primProc().vertexStride();
 
-    return pipelineState;
-}
-
-void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
-                                const GrMesh meshes[],
-                                int meshCount,
-                                const SkRect& bounds) {
-
-    SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
-
-    GrMtlPipelineState* pipelineState = this->prepareDrawState(programInfo);
-    if (!pipelineState) {
-        return;
+    if (!fActiveRenderCmdEncoder) {
+        fActiveRenderCmdEncoder =
+                fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
     }
 
-    SkASSERT(nil == fActiveRenderCmdEncoder);
-    fActiveRenderCmdEncoder = fGpu->commandBuffer()->getRenderCommandEncoder(
-            fRenderPassDesc, pipelineState, this);
-    SkASSERT(fActiveRenderCmdEncoder);
+    [fActiveRenderCmdEncoder setRenderPipelineState:fActivePipelineState->mtlPipelineState()];
+    fActivePipelineState->setDrawState(fActiveRenderCmdEncoder,
+                                       programInfo.pipeline().writeSwizzle(),
+                                       programInfo.pipeline().getXferProcessor());
+    if (this->gpu()->caps()->wireframeMode() || programInfo.pipeline().isWireframe()) {
+        [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+    } else {
+        [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeFill];
+    }
 
-    [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
-    pipelineState->setDrawState(fActiveRenderCmdEncoder,
-                                programInfo.pipeline().outputSwizzle(),
-                                programInfo.pipeline().getXferProcessor());
-
-    bool hasDynamicScissors = programInfo.hasDynamicScissors();
-    bool hasDynamicTextures = programInfo.hasDynamicPrimProcTextures();
-
-    if (!programInfo.pipeline().isScissorEnabled()) {
+    if (!programInfo.pipeline().isScissorTestEnabled()) {
+        // "Disable" scissor by setting it to the full pipeline bounds.
         GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
                                                        fRenderTarget, fOrigin,
                                                        SkIRect::MakeWH(fRenderTarget->width(),
                                                                        fRenderTarget->height()));
-    } else if (!hasDynamicScissors) {
-        SkASSERT(programInfo.hasFixedScissor());
-
-        GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
-                                                       fRenderTarget, fOrigin,
-                                                       programInfo.fixedScissor());
     }
 
-    if (!hasDynamicTextures) {
-        pipelineState->bindTextures(fActiveRenderCmdEncoder);
-    }
-
-    for (int i = 0; i < meshCount; ++i) {
-        const GrMesh& mesh = meshes[i];
-        SkASSERT(nil != fActiveRenderCmdEncoder);
-        SkASSERT(mesh.primitiveType() == programInfo.primitiveType());
-
-        if (hasDynamicScissors) {
-            GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
-                                                           fOrigin,
-                                                           programInfo.dynamicScissor(i));
-        }
-        if (hasDynamicTextures) {
-            auto meshProxies = programInfo.dynamicPrimProcTextures(i);
-            pipelineState->setTextures(programInfo, meshProxies);
-            pipelineState->bindTextures(fActiveRenderCmdEncoder);
-        }
-
-        mesh.sendToGpu(this);
-    }
-
-    fActiveRenderCmdEncoder = nil;
-    fBounds.join(bounds);
+    fActivePrimitiveType = gr_to_mtl_primitive(programInfo.primitiveType());
+    fBounds.join(drawBounds);
+    return true;
 }
 
-void GrMtlOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
-    // We should never end up here since all clears should either be done as draws or load ops in
-    // metal. If we hit this assert then we missed a chance to set a load op on the
-    // GrRenderTargetContext level.
-    SkASSERT(false);
+void GrMtlOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+    SkASSERT(fActivePipelineState);
+    SkASSERT(fActiveRenderCmdEncoder);
+    GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
+                                                   fOrigin, scissor);
 }
 
-void GrMtlOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
-    SkASSERT(!clip.hasWindowRectangles());
+bool GrMtlOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
+                                        const GrSurfaceProxy* const primProcTextures[],
+                                        const GrPipeline& pipeline) {
+    SkASSERT(fActivePipelineState);
+    SkASSERT(fActiveRenderCmdEncoder);
+    fActivePipelineState->setTextures(primProc, pipeline, primProcTextures);
+    fActivePipelineState->bindTextures(fActiveRenderCmdEncoder);
+    return true;
+}
 
-    GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
+void GrMtlOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+    // Partial clears are not supported
+    SkASSERT(!scissor.enabled());
+
+    // Ideally we should never end up here since all clears should either be done as draws or
+    // load ops in metal. However, if a client inserts a wait op we need to handle it.
+    fRenderPassDesc.colorAttachments[0].clearColor =
+            MTLClearColorMake(color[0], color[1], color[2], color[3]);
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    this->precreateCmdEncoder();
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    fActiveRenderCmdEncoder =
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
+}
+
+void GrMtlOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
+    // Partial clears are not supported
+    SkASSERT(!scissor.enabled());
+
+    GrAttachment* sb = fRenderTarget->getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
-    int stencilBitCount = sb->bits();
+    int stencilBitCount = GrBackendFormatStencilBits(sb->backendFormat());
 
     // The contract with the callers does not guarantee that we preserve all bits in the stencil
     // during this clear. Thus we will clear the entire stencil to the desired value.
@@ -158,6 +159,16 @@ void GrMtlOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool inside
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
     this->precreateCmdEncoder();
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
+    fActiveRenderCmdEncoder =
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
+}
+
+void GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
+    // TODO: this could be more efficient
+    state->doUpload(upload);
+    // doUpload() creates a blitCommandEncoder, so we need to recreate a renderCommandEncoder
+    fActiveRenderCmdEncoder =
+            fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
 }
 
 void GrMtlOpsRenderPass::initRenderState(id<MTLRenderCommandEncoder> encoder) {
@@ -181,9 +192,9 @@ void GrMtlOpsRenderPass::setupRenderPass(
         MTLLoadActionClear,
         MTLLoadActionDontCare
     };
-    GR_STATIC_ASSERT((int)GrLoadOp::kLoad == 0);
-    GR_STATIC_ASSERT((int)GrLoadOp::kClear == 1);
-    GR_STATIC_ASSERT((int)GrLoadOp::kDiscard == 2);
+    static_assert((int)GrLoadOp::kLoad == 0);
+    static_assert((int)GrLoadOp::kClear == 1);
+    static_assert((int)GrLoadOp::kDiscard == 2);
     SkASSERT(colorInfo.fLoadOp <= GrLoadOp::kDiscard);
     SkASSERT(stencilInfo.fLoadOp <= GrLoadOp::kDiscard);
 
@@ -191,8 +202,8 @@ void GrMtlOpsRenderPass::setupRenderPass(
         MTLStoreActionStore,
         MTLStoreActionDontCare
     };
-    GR_STATIC_ASSERT((int)GrStoreOp::kStore == 0);
-    GR_STATIC_ASSERT((int)GrStoreOp::kDiscard == 1);
+    static_assert((int)GrStoreOp::kStore == 0);
+    static_assert((int)GrStoreOp::kDiscard == 1);
     SkASSERT(colorInfo.fStoreOp <= GrStoreOp::kDiscard);
     SkASSERT(stencilInfo.fStoreOp <= GrStoreOp::kDiscard);
 
@@ -209,10 +220,9 @@ void GrMtlOpsRenderPass::setupRenderPass(
     renderPassDesc.colorAttachments[0].storeAction =
             mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    const GrMtlStencilAttachment* stencil = static_cast<GrMtlStencilAttachment*>(
-            fRenderTarget->renderTargetPriv().getStencilAttachment());
+    auto* stencil = static_cast<GrMtlAttachment*>(fRenderTarget->getStencilAttachment());
     if (stencil) {
-        renderPassDesc.stencilAttachment.texture = stencil->stencilView();
+        renderPassDesc.stencilAttachment.texture = stencil->view();
     }
     renderPassDesc.stencilAttachment.clearStencil = 0;
     renderPassDesc.stencilAttachment.loadAction =
@@ -236,99 +246,79 @@ void GrMtlOpsRenderPass::setupRenderPass(
     } else {
         fBounds.setEmpty();
     }
+
+    // For now, we lazily create the renderCommandEncoder because we may have no draws,
+    // and an empty renderCommandEncoder can still produce output. This can cause issues
+    // when we've cleared a texture upon creation -- we'll subsequently discard the contents.
+    // This can be removed when that ordering is fixed.
+    fActiveRenderCmdEncoder = nil;
 }
 
-static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
-    const static MTLPrimitiveType mtlPrimitiveType[] {
-        MTLPrimitiveTypeTriangle,
-        MTLPrimitiveTypeTriangleStrip,
-        MTLPrimitiveTypePoint,
-        MTLPrimitiveTypeLine,
-        MTLPrimitiveTypeLineStrip
-    };
-    GR_STATIC_ASSERT((int)GrPrimitiveType::kTriangles == 0);
-    GR_STATIC_ASSERT((int)GrPrimitiveType::kTriangleStrip == 1);
-    GR_STATIC_ASSERT((int)GrPrimitiveType::kPoints == 2);
-    GR_STATIC_ASSERT((int)GrPrimitiveType::kLines == 3);
-    GR_STATIC_ASSERT((int)GrPrimitiveType::kLineStrip == 4);
-
-    SkASSERT(primitiveType <= GrPrimitiveType::kLineStrip);
-    return mtlPrimitiveType[static_cast<int>(primitiveType)];
-}
-
-void GrMtlOpsRenderPass::bindGeometry(const GrBuffer* vertexBuffer,
-                                      size_t vertexOffset,
-                                      const GrBuffer* instanceBuffer) {
-    size_t bufferIndex = GrMtlUniformHandler::kLastUniformBinding + 1;
+void GrMtlOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
+                                       sk_sp<const GrBuffer> instanceBuffer,
+                                       sk_sp<const GrBuffer> vertexBuffer,
+                                       GrPrimitiveRestart primRestart) {
+    SkASSERT(GrPrimitiveRestart::kNo == primRestart);
+    int inputBufferIndex = 0;
     if (vertexBuffer) {
         SkASSERT(!vertexBuffer->isCpuBuffer());
-        SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
-
-        const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer);
-        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, vertexOffset, bufferIndex++);
+        SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer.get())->isMapped());
+        fActiveVertexBuffer = std::move(vertexBuffer);
+        fGpu->commandBuffer()->addGrBuffer(fActiveVertexBuffer);
+        ++inputBufferIndex;
     }
     if (instanceBuffer) {
         SkASSERT(!instanceBuffer->isCpuBuffer());
-        SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer)->isMapped());
-
-        const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer);
-        this->setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer, 0, bufferIndex++);
+        SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer.get())->isMapped());
+        this->setVertexBuffer(fActiveRenderCmdEncoder, instanceBuffer.get(), 0, inputBufferIndex++);
+        fActiveInstanceBuffer = std::move(instanceBuffer);
+        fGpu->commandBuffer()->addGrBuffer(fActiveInstanceBuffer);
     }
-}
-
-void GrMtlOpsRenderPass::sendMeshToGpu(GrPrimitiveType primitiveType,
-                                       const GrBuffer* vertexBuffer,
-                                       int vertexCount,
-                                       int baseVertex) {
-    this->bindGeometry(vertexBuffer, 0, nullptr);
-
-    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
-                                vertexStart:baseVertex
-                                vertexCount:vertexCount];
-}
-
-void GrMtlOpsRenderPass::sendIndexedMeshToGpu(GrPrimitiveType primitiveType,
-                                              const GrBuffer* indexBuffer,
-                                              int indexCount,
-                                              int baseIndex,
-                                              uint16_t /*minIndexValue*/,
-                                              uint16_t /*maxIndexValue*/,
-                                              const GrBuffer* vertexBuffer,
-                                              int baseVertex,
-                                              GrPrimitiveRestart restart) {
-    this->bindGeometry(vertexBuffer, fCurrentVertexStride*baseVertex, nullptr);
-
-    id<MTLBuffer> mtlIndexBuffer = nil;
     if (indexBuffer) {
         SkASSERT(!indexBuffer->isCpuBuffer());
-        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer)->isMapped());
-
-        mtlIndexBuffer = static_cast<const GrMtlBuffer*>(indexBuffer)->mtlBuffer();
-        SkASSERT(mtlIndexBuffer);
+        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer.get())->isMapped());
+        fActiveIndexBuffer = std::move(indexBuffer);
+        fGpu->commandBuffer()->addGrBuffer(fActiveIndexBuffer);
     }
+}
 
-    SkASSERT(restart == GrPrimitiveRestart::kNo);
-    size_t indexOffset = static_cast<const GrMtlBuffer*>(indexBuffer)->offset() +
-                         sizeof(uint16_t) * baseIndex;
-    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+void GrMtlOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
+    SkASSERT(fActivePipelineState);
+    SkASSERT(nil != fActiveRenderCmdEncoder);
+    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
+
+    [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
+                                vertexStart:baseVertex
+                                vertexCount:vertexCount];
+    fGpu->stats()->incNumDraws();
+}
+
+void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
+                                       uint16_t maxIndexValue, int baseVertex) {
+    SkASSERT(fActivePipelineState);
+    SkASSERT(nil != fActiveRenderCmdEncoder);
+    SkASSERT(fActiveIndexBuffer);
+    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(),
+                          fCurrentVertexStride * baseVertex, 0);
+
+    auto mtlIndexBufer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
+    size_t indexOffset = mtlIndexBufer->offset() + sizeof(uint16_t) * baseIndex;
+    [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
                                         indexCount:indexCount
                                          indexType:MTLIndexTypeUInt16
-                                       indexBuffer:mtlIndexBuffer
+                                       indexBuffer:mtlIndexBufer->mtlBuffer()
                                  indexBufferOffset:indexOffset];
     fGpu->stats()->incNumDraws();
 }
 
-void GrMtlOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType primitiveType,
-                                                const GrBuffer* vertexBuffer,
-                                                int vertexCount,
-                                                int baseVertex,
-                                                const GrBuffer* instanceBuffer,
-                                                int instanceCount,
-                                                int baseInstance) {
-    this->bindGeometry(vertexBuffer, 0, instanceBuffer);
+void GrMtlOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
+                                         int baseVertex) {
+    SkASSERT(fActivePipelineState);
+    SkASSERT(nil != fActiveRenderCmdEncoder);
+    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
+        [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
                                     vertexStart:baseVertex
                                     vertexCount:vertexCount
                                   instanceCount:instanceCount
@@ -336,38 +326,23 @@ void GrMtlOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType primitiveType,
     } else {
         SkASSERT(false);
     }
+    fGpu->stats()->incNumDraws();
 }
 
-void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
-                                                       const GrBuffer* indexBuffer,
-                                                       int indexCount,
-                                                       int baseIndex,
-                                                       const GrBuffer* vertexBuffer,
-                                                       int baseVertex,
-                                                       const GrBuffer* instanceBuffer,
-                                                       int instanceCount,
-                                                       int baseInstance,
-                                                       GrPrimitiveRestart restart) {
-    this->bindGeometry(vertexBuffer, 0, instanceBuffer);
+void GrMtlOpsRenderPass::onDrawIndexedInstanced(
+        int indexCount, int baseIndex, int instanceCount, int baseInstance, int baseVertex) {
+    SkASSERT(fActivePipelineState);
+    SkASSERT(nil != fActiveRenderCmdEncoder);
+    SkASSERT(fActiveIndexBuffer);
+    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
-    id<MTLBuffer> mtlIndexBuffer = nil;
-    if (indexBuffer) {
-        SkASSERT(!indexBuffer->isCpuBuffer());
-        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer)->isMapped());
-
-        mtlIndexBuffer = static_cast<const GrMtlBuffer*>(indexBuffer)->mtlBuffer();
-        SkASSERT(mtlIndexBuffer);
-    }
-
-    SkASSERT(restart == GrPrimitiveRestart::kNo);
-    size_t indexOffset = static_cast<const GrMtlBuffer*>(indexBuffer)->offset() +
-                         sizeof(uint16_t) * baseIndex;
-
+    auto mtlIndexBufer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
+    size_t indexOffset = mtlIndexBufer->offset() + sizeof(uint16_t) * baseIndex;
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+        [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
                                             indexCount:indexCount
                                              indexType:MTLIndexTypeUInt16
-                                           indexBuffer:mtlIndexBuffer
+                                           indexBuffer:mtlIndexBufer->mtlBuffer()
                                      indexBufferOffset:indexOffset
                                          instanceCount:instanceCount
                                             baseVertex:baseVertex
@@ -379,15 +354,18 @@ void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitive
 }
 
 void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
-                                         const GrMtlBuffer* buffer,
+                                         const GrBuffer* buffer,
                                          size_t vertexOffset,
-                                         size_t index) {
+                                         size_t inputBufferIndex) {
+    constexpr static int kFirstBufferBindingIdx = GrMtlUniformHandler::kLastUniformBinding + 1;
+    int index = inputBufferIndex + kFirstBufferBindingIdx;
     SkASSERT(index < 4);
-    id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
+    auto mtlBuffer = static_cast<const GrMtlBuffer*>(buffer);
+    id<MTLBuffer> mtlVertexBuffer = mtlBuffer->mtlBuffer();
     SkASSERT(mtlVertexBuffer);
     // Apple recommends using setVertexBufferOffset: when changing the offset
     // for a currently bound vertex buffer, rather than setVertexBuffer:
-    size_t offset = buffer->offset() + vertexOffset;
+    size_t offset = mtlBuffer->offset() + vertexOffset;
     if (fBufferBindings[index].fBuffer != mtlVertexBuffer) {
         [encoder setVertexBuffer: mtlVertexBuffer
                           offset: offset
@@ -399,9 +377,8 @@ void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
             [encoder setVertexBufferOffset: offset
                                    atIndex: index];
         } else {
-            [encoder setVertexBuffer: mtlVertexBuffer
-                              offset: offset
-                             atIndex: index];
+            // We only support iOS 9.0+, so we should never hit this
+            SK_ABORT("Missing interface. Skia only supports Metal on iOS 9.0 and higher");
         }
         fBufferBindings[index].fOffset = offset;
     }

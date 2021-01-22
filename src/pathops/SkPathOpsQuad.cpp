@@ -188,11 +188,11 @@ bool SkDQuad::isLinear(int startIndex, int endIndex) const {
     // FIXME: maybe it's possible to avoid this and compare non-normalized
     lineParameters.normalize();
     double distance = lineParameters.controlPtDistance(*this);
-    double tiniest = SkTMin(SkTMin(SkTMin(SkTMin(SkTMin(fPts[0].fX, fPts[0].fY),
+    double tiniest = std::min(std::min(std::min(std::min(std::min(fPts[0].fX, fPts[0].fY),
             fPts[1].fX), fPts[1].fY), fPts[2].fX), fPts[2].fY);
-    double largest = SkTMax(SkTMax(SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY),
+    double largest = std::max(std::max(std::max(std::max(std::max(fPts[0].fX, fPts[0].fY),
             fPts[1].fX), fPts[1].fY), fPts[2].fX), fPts[2].fY);
-    largest = SkTMax(largest, -tiniest);
+    largest = std::max(largest, -tiniest);
     return approximately_zero_when_compared_to(distance, largest);
 }
 

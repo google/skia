@@ -14,10 +14,24 @@
 using AllocationPropertyFlags = GrVkMemoryAllocator::AllocationPropertyFlags;
 using BufferUsage = GrVkMemoryAllocator::BufferUsage;
 
+static void report_memory_usage(GrVkMemoryAllocator* allocator) {
+#if SK_HISTOGRAMS_ENABLED
+    uint64_t allocatedMemory = allocator->totalAllocatedMemory();
+    uint64_t usedMemory = allocator->totalUsedMemory();
+    SkASSERT(usedMemory <= allocatedMemory);
+    SK_HISTOGRAM_PERCENTAGE("VulkanMemoryAllocator.PercentUsed",
+                            (usedMemory * 100) / allocatedMemory);
+    // allocatedMemory is in bytes and need to be reported it in kilobytes. SK_HISTOGRAM_MEMORY_KB
+    // supports samples up to around 500MB which should support the amounts of memory we allocate.
+    SK_HISTOGRAM_MEMORY_KB("VulkanMemoryAllocator.AmountAllocated", allocatedMemory >> 10);
+#endif
+}
+
 static BufferUsage get_buffer_usage(GrVkBuffer::Type type, bool dynamic) {
     switch (type) {
         case GrVkBuffer::kVertex_Type: // fall through
         case GrVkBuffer::kIndex_Type: // fall through
+        case GrVkBuffer::kIndirect_Type: // fall through
         case GrVkBuffer::kTexel_Type:
             return dynamic ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
         case GrVkBuffer::kUniform_Type:
@@ -56,7 +70,8 @@ bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
         propFlags = AllocationPropertyFlags::kNone;
     }
 
-    if (!allocator->allocateMemoryForBuffer(buffer, usage, propFlags, &memory)) {
+    VkResult result = allocator->allocateBufferMemory(buffer, usage, propFlags, &memory);
+    if (!gpu->checkVkResult(result)) {
         return false;
     }
     allocator->getAllocInfo(memory, alloc);
@@ -70,20 +85,17 @@ bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
         return false;
     }
 
+    report_memory_usage(allocator);
+
     return true;
 }
 
 void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, GrVkBuffer::Type type,
                                   const GrVkAlloc& alloc) {
-    if (alloc.fBackendMemory) {
-        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
-        allocator->freeMemory(alloc.fBackendMemory);
-    } else {
-        GR_VK_CALL(gpu->vkInterface(), FreeMemory(gpu->device(), alloc.fMemory, nullptr));
-    }
+    SkASSERT(alloc.fBackendMemory);
+    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    allocator->freeMemory(alloc.fBackendMemory);
 }
-
-const VkDeviceSize kMaxSmallImageSize = 256 * 1024;
 
 bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
                                          VkImage image,
@@ -97,8 +109,11 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
     GR_VK_CALL(gpu->vkInterface(), GetImageMemoryRequirements(gpu->device(), image, &memReqs));
 
     AllocationPropertyFlags propFlags;
-    if (memReqs.size > kMaxSmallImageSize ||
-               gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory()) {
+    // If we ever find that our allocator is not aggressive enough in using dedicated image
+    // memory we can add a size check here to force the use of dedicate memory. However for now,
+    // we let the allocators decide. The allocator can query the GPU for each image to see if the
+    // GPU recommends or requires the use of dedicated memory.
+    if (gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory()) {
         propFlags = AllocationPropertyFlags::kDedicatedAllocation;
     } else {
         propFlags = AllocationPropertyFlags::kNone;
@@ -108,9 +123,11 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
         propFlags |= AllocationPropertyFlags::kProtected;
     }
 
-    if (!allocator->allocateMemoryForImage(image, propFlags, &memory)) {
+    VkResult result = allocator->allocateImageMemory(image, propFlags, &memory);
+    if (!gpu->checkVkResult(result)) {
         return false;
     }
+
     allocator->getAllocInfo(memory, alloc);
 
     // Bind buffer
@@ -122,50 +139,34 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
         return false;
     }
 
+    report_memory_usage(allocator);
+
     return true;
 }
 
 void GrVkMemory::FreeImageMemory(const GrVkGpu* gpu, bool linearTiling,
                                  const GrVkAlloc& alloc) {
-    if (alloc.fBackendMemory) {
-        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
-        allocator->freeMemory(alloc.fBackendMemory);
-    } else {
-        GR_VK_CALL(gpu->vkInterface(), FreeMemory(gpu->device(), alloc.fMemory, nullptr));
-    }
+    SkASSERT(alloc.fBackendMemory);
+    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    allocator->freeMemory(alloc.fBackendMemory);
 }
 
 void* GrVkMemory::MapAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc) {
     SkASSERT(GrVkAlloc::kMappable_Flag & alloc.fFlags);
-#ifdef SK_DEBUG
-    if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
-        VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
-        SkASSERT(0 == (alloc.fOffset & (alignment-1)));
-        SkASSERT(0 == (alloc.fSize & (alignment-1)));
-    }
-#endif
-    if (alloc.fBackendMemory) {
-        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
-        return allocator->mapMemory(alloc.fBackendMemory);
-    }
-
+    SkASSERT(alloc.fBackendMemory);
+    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
     void* mapPtr;
-    VkResult err;
-    GR_VK_CALL_RESULT(gpu, err, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset, alloc.fSize,
-                                          0, &mapPtr));
-    if (err) {
-        mapPtr = nullptr;
+    VkResult result = allocator->mapMemory(alloc.fBackendMemory, &mapPtr);
+    if (!gpu->checkVkResult(result)) {
+        return nullptr;
     }
     return mapPtr;
 }
 
 void GrVkMemory::UnmapAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
-    if (alloc.fBackendMemory) {
-        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
-        allocator->unmapMemory(alloc.fBackendMemory);
-    } else {
-        GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
-    }
+    SkASSERT(alloc.fBackendMemory);
+    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    allocator->unmapMemory(alloc.fBackendMemory);
 }
 
 void GrVkMemory::GetNonCoherentMappedMemoryRange(const GrVkAlloc& alloc, VkDeviceSize offset,
@@ -191,41 +192,27 @@ void GrVkMemory::GetNonCoherentMappedMemoryRange(const GrVkAlloc& alloc, VkDevic
     range->size = size;
 }
 
-void GrVkMemory::FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+void GrVkMemory::FlushMappedAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
                                   VkDeviceSize size) {
     if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
         SkASSERT(offset == 0);
         SkASSERT(size <= alloc.fSize);
-        if (alloc.fBackendMemory) {
-            GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
-            allocator->flushMappedMemory(alloc.fBackendMemory, offset, size);
-        } else {
-            VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
-            VkMappedMemoryRange mappedMemoryRange;
-            GrVkMemory::GetNonCoherentMappedMemoryRange(alloc, offset, size, alignment,
-                                                        &mappedMemoryRange);
-            GR_VK_CALL(gpu->vkInterface(), FlushMappedMemoryRanges(gpu->device(), 1,
-                                                                   &mappedMemoryRange));
-        }
+        SkASSERT(alloc.fBackendMemory);
+        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+        VkResult result = allocator->flushMemory(alloc.fBackendMemory, offset, size);
+        gpu->checkVkResult(result);
     }
 }
 
-void GrVkMemory::InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc,
+void GrVkMemory::InvalidateMappedAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc,
                                        VkDeviceSize offset, VkDeviceSize size) {
     if (alloc.fFlags & GrVkAlloc::kNoncoherent_Flag) {
         SkASSERT(offset == 0);
         SkASSERT(size <= alloc.fSize);
-        if (alloc.fBackendMemory) {
-            GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
-            allocator->invalidateMappedMemory(alloc.fBackendMemory, offset, size);
-        } else {
-            VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
-            VkMappedMemoryRange mappedMemoryRange;
-            GrVkMemory::GetNonCoherentMappedMemoryRange(alloc, offset, size, alignment,
-                                                        &mappedMemoryRange);
-            GR_VK_CALL(gpu->vkInterface(), InvalidateMappedMemoryRanges(gpu->device(), 1,
-                                                                        &mappedMemoryRange));
-        }
+        SkASSERT(alloc.fBackendMemory);
+        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+        VkResult result = allocator->invalidateMemory(alloc.fBackendMemory, offset, size);
+        gpu->checkVkResult(result);
     }
 }
 

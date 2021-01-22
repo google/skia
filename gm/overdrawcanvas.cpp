@@ -24,9 +24,8 @@
 #define WIDTH 500
 #define HEIGHT 500
 
-
-static const uint32_t kOverdrawColors[6] = {
-        0x00000000, 0x5f00005f, 0x2f2f0000, 0x2f002f00, 0x3f00003f, 0x7f00007f,
+static const SkColor kOverdrawColors[6] = {
+    0x00000000, 0x5fff0000, 0x2f0000ff, 0x2f00ff00, 0x3fff0000, 0x7fff0000,
 };
 
 
@@ -52,7 +51,7 @@ DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
 
     // Draw overdraw colors to the canvas.  The color filter will convert counts to colors.
     SkPaint paint;
-    paint.setColorFilter(SkOverdrawColorFilter::Make(kOverdrawColors));
+    paint.setColorFilter(SkOverdrawColorFilter::MakeWithSkColors(kOverdrawColors));
     canvas->drawImage(counts.get(), 0.0f, 0.0f, &paint);
     canvas->drawString("This is some text:", 180, 300, SkFont(), SkPaint());
 }

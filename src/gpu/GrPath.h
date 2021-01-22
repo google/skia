@@ -10,11 +10,11 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrStyle.h"
 
-class GrShape;
+class GrStyledShape;
 
 class GrPath : public GrGpuResource {
 public:
@@ -32,7 +32,7 @@ public:
     {
     }
 
-    static void ComputeKey(const GrShape&, GrUniqueKey* key, bool* outIsVolatile);
+    static void ComputeKey(const GrStyledShape&, GrUniqueKey* key, bool* outIsVolatile);
 
     const SkRect& getBounds() const { return fBounds; }
 
@@ -52,7 +52,7 @@ protected:
 
 private:
     const char* getResourceType() const override { return "Path Data"; }
-    typedef GrGpuResource INHERITED;
+    using INHERITED = GrGpuResource;
 };
 
 #endif

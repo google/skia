@@ -8,15 +8,16 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
-#include <unordered_map>
-#include <memory>
-#include <vector>
+#include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
+#include <memory>
+#include <vector>
+
 namespace SkSL {
 
-struct FunctionDeclaration;
+class FunctionDeclaration;
 
 /**
  * Maps identifiers to symbols. Functions, in particular, are mapped to either FunctionDeclaration
@@ -24,43 +25,101 @@ struct FunctionDeclaration;
  */
 class SymbolTable {
 public:
-    SymbolTable(ErrorReporter* errorReporter)
-    : fErrorReporter(*errorReporter) {}
-
-    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter)
-    : fParent(parent)
+    SymbolTable(ErrorReporter* errorReporter, bool builtin)
+    : fBuiltin(builtin)
     , fErrorReporter(*errorReporter) {}
+
+    SymbolTable(std::shared_ptr<SymbolTable> parent, bool builtin)
+    : fParent(parent)
+    , fBuiltin(builtin)
+    , fErrorReporter(parent->fErrorReporter) {}
+
+    static std::shared_ptr<SymbolTable> WrapIfBuiltin(std::shared_ptr<SymbolTable> symbolTable) {
+        if (!symbolTable) {
+            return nullptr;
+        }
+        if (!symbolTable->isBuiltin()) {
+            return symbolTable;
+        }
+        return std::make_shared<SymbolTable>(std::move(symbolTable), /*builtin=*/false);
+    }
 
     const Symbol* operator[](StringFragment name);
 
-    void add(StringFragment name, std::unique_ptr<Symbol> symbol);
+    void addAlias(StringFragment name, const Symbol* symbol);
+    void addWithoutOwnership(const Symbol* symbol);
 
-    void addWithoutOwnership(StringFragment name, const Symbol* symbol);
+    template <typename T>
+    const T* add(std::unique_ptr<T> symbol) {
+        const T* ptr = symbol.get();
+        this->addWithoutOwnership(ptr);
+        this->takeOwnershipOfSymbol(std::move(symbol));
+        return ptr;
+    }
 
-    Symbol* takeOwnership(std::unique_ptr<Symbol> s);
+    template <typename T>
+    const T* takeOwnershipOfSymbol(std::unique_ptr<T> symbol) {
+        const T* ptr = symbol.get();
+        fOwnedSymbols.push_back(std::move(symbol));
+        return ptr;
+    }
 
-    IRNode* takeOwnership(std::unique_ptr<IRNode> n);
+    template <typename T>
+    const T* takeOwnershipOfIRNode(std::unique_ptr<T> node) {
+        const T* ptr = node.get();
+        fOwnedNodes.push_back(std::move(node));
+        return ptr;
+    }
 
-    void markAllFunctionsBuiltin();
+    // Call fn for every symbol in the table.  You may not mutate anything.
+    template <typename Fn>
+    void foreach(Fn&& fn) const {
+        fSymbols.foreach(
+                [&fn](const SymbolKey& key, const Symbol* symbol) { fn(key.fName, symbol); });
+    }
 
-    std::unordered_map<StringFragment, const Symbol*>::iterator begin();
+    size_t count() {
+        return fSymbols.count();
+    }
 
-    std::unordered_map<StringFragment, const Symbol*>::iterator end();
+    bool isBuiltin() const {
+        return fBuiltin;
+    }
 
-    const std::shared_ptr<SymbolTable> fParent;
+    const String* takeOwnershipOfString(std::unique_ptr<String> n);
+
+    std::shared_ptr<SymbolTable> fParent;
+
+    std::vector<std::unique_ptr<const Symbol>> fOwnedSymbols;
 
 private:
+    struct SymbolKey {
+        StringFragment fName;
+        uint32_t       fHash;
+
+        bool operator==(const SymbolKey& that) const { return fName == that.fName; }
+        bool operator!=(const SymbolKey& that) const { return fName != that.fName; }
+        struct Hash {
+            uint32_t operator()(const SymbolKey& key) const { return key.fHash; }
+        };
+    };
+
+    static SymbolKey MakeSymbolKey(StringFragment name) {
+        return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
+    }
+
+    const Symbol* lookup(SymbolTable* writableSymbolTable, const SymbolKey& key);
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
-    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
-
+    bool fBuiltin = false;
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
-
-    std::unordered_map<StringFragment, const Symbol*> fSymbols;
-
+    std::vector<std::unique_ptr<String>> fOwnedStrings;
+    SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     ErrorReporter& fErrorReporter;
+
+    friend class Dehydrator;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

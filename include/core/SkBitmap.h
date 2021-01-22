@@ -10,12 +10,14 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTileMode.h"
 
 struct SkMask;
+class SkMipmap;
 struct SkIRect;
 struct SkRect;
 class SkPaint;
@@ -49,7 +51,7 @@ public:
 
     /** Creates an empty SkBitmap without pixels, with kUnknown_SkColorType,
         kUnknown_SkAlphaType, and with a width and height of zero. SkPixelRef origin is
-        set to (0, 0). SkBitmap is not volatile.
+        set to (0, 0).
 
         Use setInfo() to associate SkColorType, SkAlphaType, width, and height
         after SkBitmap has been created.
@@ -144,22 +146,8 @@ public:
     */
     int height() const { return fPixmap.height(); }
 
-    /** Returns SkColorType, one of:
-        kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-        kGray_8_SkColorType, kRGBA_F16_SkColorType.
-
-        @return  SkColorType in SkImageInfo
-    */
     SkColorType colorType() const { return fPixmap.colorType(); }
 
-    /** Returns SkAlphaType, one of:
-        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType.
-
-        @return  SkAlphaType in SkImageInfo
-    */
     SkAlphaType alphaType() const { return fPixmap.alphaType(); }
 
     /** Returns SkColorSpace, the range of colors, associated with SkImageInfo. The
@@ -261,9 +249,6 @@ public:
         This changes SkAlphaType in SkPixelRef; all bitmaps sharing SkPixelRef
         are affected.
 
-        @param alphaType  one of:
-                          kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-                          kUnpremul_SkAlphaType
         @return           true if SkAlphaType is set
 
         example: https://fiddle.skia.org/c/@Bitmap_setAlphaType
@@ -318,30 +303,6 @@ public:
     bool isOpaque() const {
         return SkAlphaTypeIsOpaque(this->alphaType());
     }
-
-    /** Provides a hint to caller that pixels should not be cached. Only true if
-        setIsVolatile() has been called to mark as volatile.
-
-        Volatile state is not shared by other bitmaps sharing the same SkPixelRef.
-
-        @return  true if marked volatile
-
-        example: https://fiddle.skia.org/c/@Bitmap_isVolatile
-    */
-    bool isVolatile() const;
-
-    /** Sets if pixels should be read from SkPixelRef on every access. SkBitmap are not
-        volatile by default; a GPU back end may upload pixel values expecting them to be
-        accessed repeatedly. Marking temporary SkBitmap as volatile provides a hint to
-        SkBaseDevice that the SkBitmap pixels should not be cached. This can
-        improve performance by avoiding overhead and reducing resource
-        consumption on SkBaseDevice.
-
-        @param isVolatile  true if backing pixels are temporary
-
-        example: https://fiddle.skia.org/c/@Bitmap_setIsVolatile
-    */
-    void setIsVolatile(bool isVolatile);
 
     /** Resets to its initial state; all fields are set to zero, as if SkBitmap had
         been initialized by SkBitmap().
@@ -796,10 +757,10 @@ public:
     */
     void notifyPixelsChanged() const;
 
-    /** Replaces pixel values with c. All pixels contained by bounds() are affected.
-        If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then alpha
-        is ignored; RGB is treated as opaque. If colorType() is kAlpha_8_SkColorType,
-        then RGB is ignored.
+    /** Replaces pixel values with c, interpreted as being in the sRGB SkColorSpace.
+        All pixels contained by bounds() are affected. If the colorType() is
+        kGray_8_SkColorType or kRGB_565_SkColorType, then alpha is ignored; RGB is
+        treated as opaque. If colorType() is kAlpha_8_SkColorType, then RGB is ignored.
 
         @param c  unpremultiplied color
 
@@ -807,11 +768,11 @@ public:
     */
     void eraseColor(SkColor c) const;
 
-    /** Replaces pixel values with unpremultiplied color built from a, r, g, and b.
-        All pixels contained by bounds() are affected.
-        If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then a
-        is ignored; r, g, and b are treated as opaque. If colorType() is kAlpha_8_SkColorType,
-        then r, g, and b are ignored.
+    /** Replaces pixel values with unpremultiplied color built from a, r, g, and b,
+        interpreted as being in the sRGB SkColorSpace. All pixels contained by
+        bounds() are affected. If the colorType() is kGray_8_SkColorType or
+        kRGB_565_SkColorType, then a is ignored; r, g, and b are treated as opaque.
+        If colorType() is kAlpha_8_SkColorType, then r, g, and b are ignored.
 
         @param a  amount of alpha, from fully transparent (0) to fully opaque (255)
         @param r  amount of red, from no red (0) to full red (255)
@@ -822,8 +783,8 @@ public:
         this->eraseColor(SkColorSetARGB(a, r, g, b));
     }
 
-    /** Replaces pixel values inside area with c. If area does not intersect bounds(),
-        call has no effect.
+    /** Replaces pixel values inside area with c. interpreted as being in the sRGB
+        SkColorSpace. If area does not intersect bounds(), call has no effect.
 
         If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then alpha
         is ignored; RGB is treated as opaque. If colorType() is kAlpha_8_SkColorType,
@@ -939,8 +900,7 @@ public:
 
         subset may be larger than bounds(). Any area outside of bounds() is ignored.
 
-        Any contents of dst are discarded. isVolatile() setting is copied to dst.
-        dst is set to colorType(), alphaType(), and colorSpace().
+        Any contents of dst are discarded.
 
         Return false if:
         - dst is nullptr
@@ -1180,7 +1140,7 @@ public:
         */
         virtual bool allocPixelRef(SkBitmap* bitmap) = 0;
     private:
-        typedef SkRefCnt INHERITED;
+        using INHERITED = SkRefCnt;
     };
 
     /** \class SkBitmap::HeapAllocator
@@ -1204,14 +1164,11 @@ public:
     };
 
 private:
-    enum Flags {
-        kImageIsVolatile_Flag   = 0x02,
-    };
-
     sk_sp<SkPixelRef>   fPixelRef;
     SkPixmap            fPixmap;
-    uint8_t             fFlags;
+    sk_sp<SkMipmap>     fMips;
 
+    friend class SkImage_Raster;
     friend class SkReadBuffer;        // unflatten
 };
 

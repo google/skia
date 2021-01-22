@@ -15,8 +15,10 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 class GrShape;
+class GrStyledShape;
 class GrRecordingContext;
 class GrTextureProxy;
 
@@ -29,7 +31,7 @@ class GrTextureProxy;
  *
  *      draw one or more paths/rects specifying the required boolean ops
  *
- *   toTextureProxy();   // to get it from the internal bitmap to the GPU
+ *   toTextureView();   // to get it from the internal bitmap to the GPU
  *
  * The result of this process will be the final mask (on the GPU) in the
  * upper left hand corner of the texture.
@@ -48,10 +50,17 @@ public:
     // Draw a single rect into the accumulation bitmap using the specified op
     void drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
+    // Draw a single rrect into the accumulation bitmap using the specified op
+    void drawRRect(const SkRRect& rrect, const SkMatrix& matrix, SkRegion::Op op, GrAA,
+                   uint8_t alpha);
+
     // Draw a single path into the accumuation bitmap using the specified op
+    void drawShape(const GrStyledShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA,
+                   uint8_t alpha);
+    // Like the GrStyledShape variant, but assumes a simple fill style
     void drawShape(const GrShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
-    sk_sp<GrTextureProxy> toTextureProxy(GrRecordingContext*, SkBackingFit fit);
+    GrSurfaceProxyView toTextureView(GrRecordingContext*, SkBackingFit fit);
 
     // Reset the internal bitmap
     void clear(uint8_t alpha) {
@@ -65,7 +74,7 @@ private:
     SkDraw               fDraw;
     SkRasterClip         fRasterClip;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif // GrSWMaskHelper_DEFINED

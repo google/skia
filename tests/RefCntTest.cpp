@@ -138,7 +138,7 @@ struct EffectImpl : public Effect {
 static sk_sp<Effect> make_effect() {
     auto foo = EffectImpl::Create();
     foo->fValue = 42;
-    return foo;
+    return std::move(foo);
 }
 
 static void reset_counters() {
@@ -335,7 +335,7 @@ struct FooAbstract : public SkRefCnt {
 struct FooConcrete : public FooAbstract {
     void f() override {}
 };
-}
+}  // namespace
 static sk_sp<FooAbstract> make_foo() {
     // can not cast FooConcrete to FooAbstract.
     // can cast FooConcrete* to FooAbstract*.

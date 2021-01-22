@@ -62,7 +62,7 @@
     "cmd": [
       "python",
       "-u",
-      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
       "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
@@ -77,7 +77,7 @@
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@build_products = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']@@@",
+      "@@@STEP_LOG_LINE@python.inline@build_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk']@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@try:@@@",
       "@@@STEP_LOG_LINE@python.inline@  os.makedirs(dst)@@@",
@@ -98,13 +98,21 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "import psutil\nfor p in psutil.process_iter():\n  try:\n    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):\n      p.kill()\n  except psutil._error.AccessDenied:\n    pass\n"
+      "\n# [VPYTHON:BEGIN]\n# wheel: <\n#  name: \"infra/python/wheels/psutil/${vpython_platform}\"\n#  version: \"version:5.4.7\"\n# >\n# [VPYTHON:END]\n\nimport psutil\nfor p in psutil.process_iter():\n  try:\n    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):\n      p.kill()\n  except psutil._error.AccessDenied:\n    pass\n"
     ],
     "infra_step": true,
     "name": "cleanup",
     "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# [VPYTHON:BEGIN]@@@",
+      "@@@STEP_LOG_LINE@python.inline@# wheel: <@@@",
+      "@@@STEP_LOG_LINE@python.inline@#  name: \"infra/python/wheels/psutil/${vpython_platform}\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@#  version: \"version:5.4.7\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@# >@@@",
+      "@@@STEP_LOG_LINE@python.inline@# [VPYTHON:END]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import psutil@@@",
       "@@@STEP_LOG_LINE@python.inline@for p in psutil.process_iter():@@@",
       "@@@STEP_LOG_LINE@python.inline@  try:@@@",

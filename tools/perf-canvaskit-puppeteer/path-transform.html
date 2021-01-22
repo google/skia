@@ -1,0 +1,189 @@
+<!-- This benchmark aims to measure performance degredation related to
+moving a complex path. May be related to caching an alpha mask of the path at
+subpixel coordinates i.e. (25.234, 43.119) instead of (25, 43).
+As a consequence the cache may get full very quickly. Effect of paint opacity
+and rotation transformations on performance can also be tested using the query param options.
+
+Available query param options:
+ - snap: Round all path translations to the nearest integer. This means subpixel coordinate.
+    translations will not be used. Only has an effect when the translating option is used.
+ - opacity: Use a transparent color to fill the path. If this option is
+    not included then opaque black is used.
+ - translate: The path will be randomly translated every frame.
+ - rotate: The path will be randomly rotated every frame.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Complex Path translation Perf</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #test-svg {
+      height: 0;
+      width: 0;
+    }
+    #complex-path {
+      height: 1000px;
+      width: 1000px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Arbitrary svg for testing. Source: https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/gallardo.svg-->
+  <object type="image/svg+xml" data="/static/assets/car.svg" id="test-svg">
+    Car image
+  </object>
+
+  <main>
+    <button id="start_bench">Start Benchmark</button>
+    <br>
+    <canvas id=complex-path width=1000 height=1000></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+  const urlSearchParams = new URLSearchParams(window.location.search);
+
+  // We sample MAX_FRAMES or until MAX_SAMPLE_SECONDS has elapsed.
+  const MAX_FRAMES = 60 * 30; // ~30s at 60fps
+  const MAX_SAMPLE_MS = 30 * 1000; // in case something takes a while, stop after 30 seconds.
+  const TRANSPARENT_PINK = new Float32Array([1,0,1,0.1]);
+
+  const svgObjectElement = document.getElementById('test-svg');
+  svgObjectElement.addEventListener('load', () => {
+    CanvasKitInit({
+      locateFile: (file) => '/static/' + file,
+    }).then(run);
+  });
+
+  function run(CanvasKit) {
+
+    const surface = getSurface(CanvasKit);
+    if (!surface) {
+      console.error('Could not make surface', window._error);
+      return;
+    }
+    const skcanvas = surface.getCanvas();
+    const grContext = surface.grContext;
+
+    document.getElementById('start_bench').addEventListener('click', () => {
+      // Initialize drawing related objects
+      const svgElement = svgObjectElement.contentDocument;
+      const svgPathAndFillColorPairs = svgToPathAndFillColorPairs(svgElement, CanvasKit);
+
+      const paint = new CanvasKit.Paint();
+      paint.setAntiAlias(true);
+      paint.setStyle(CanvasKit.PaintStyle.Fill);
+      let paintColor = CanvasKit.BLACK;
+
+      // Path is large, scale canvas so entire path is visible
+      skcanvas.scale(0.5, 0.5);
+
+      // Initialize perf data
+      let currentFrameNumber = 0;
+      const frameTimesMs = new Float32Array(MAX_FRAMES);
+      let startTimeMs = performance.now();
+      let previousFrameTimeMs = performance.now();
+
+      const resourceCacheUsageBytes = new Float32Array(MAX_FRAMES);
+      const usedJSHeapSizesBytes = new Float32Array(MAX_FRAMES);
+
+      function drawFrame() {
+        // Draw complex path with random translations and rotations.
+        let randomHorizontalTranslation = 0;
+        let randomVerticalTranslation = 0;
+        let randomRotation = 0;
+
+        if (urlSearchParams.has('translate')) {
+          randomHorizontalTranslation = Math.random() * 50 - 25;
+          randomVerticalTranslation = Math.random() * 50 - 25;
+        }
+        if (urlSearchParams.has('snap')) {
+          randomHorizontalTranslation = Math.round(randomHorizontalTranslation);
+          randomVerticalTranslation = Math.round(randomVerticalTranslation);
+        }
+        if (urlSearchParams.has('opacity')) {
+          paintColor = TRANSPARENT_PINK;
+        }
+        if (urlSearchParams.has('rotate')) {
+          randomRotation = (Math.random() - 0.5) / 20;
+        }
+
+        skcanvas.clear(CanvasKit.WHITE);
+        for (const [path, color] of svgPathAndFillColorPairs) {
+          path.transform([Math.cos(randomRotation), -Math.sin(randomRotation), randomHorizontalTranslation,
+                          Math.sin(randomRotation), Math.cos(randomRotation), randomVerticalTranslation,
+                          0, 0, 1 ]);
+          paint.setColor(paintColor);
+          skcanvas.drawPath(path, paint);
+        }
+        surface.flush();
+
+        // Record perf data: measure frame times, memory usage
+        const currentFrameTimeMs = performance.now();
+        frameTimesMs[currentFrameNumber] = currentFrameTimeMs - previousFrameTimeMs;
+        previousFrameTimeMs = currentFrameTimeMs;
+
+        resourceCacheUsageBytes[currentFrameNumber] = grContext.getResourceCacheUsageBytes();
+        usedJSHeapSizesBytes[currentFrameNumber] = window.performance.memory.totalJSHeapSize;
+        currentFrameNumber++;
+
+        const timeSinceStart = performance.now() - startTimeMs;
+        if (currentFrameNumber >= MAX_FRAMES || timeSinceStart >= MAX_SAMPLE_MS) {
+          window._perfData = {
+            frames_ms: Array.from(frameTimesMs).slice(0, currentFrameNumber),
+            resourceCacheUsage_bytes: Array.from(resourceCacheUsageBytes).slice(0, currentFrameNumber),
+            usedJSHeapSizes_bytes: Array.from(usedJSHeapSizesBytes).slice(0, currentFrameNumber),
+          };
+          window._perfDone = true;
+          return;
+        }
+        window.requestAnimationFrame(drawFrame);
+      }
+      window.requestAnimationFrame(drawFrame);
+    });
+
+    console.log('Perf is ready');
+    window._perfReady = true;
+  }
+
+  function svgToPathAndFillColorPairs(svgElement, CanvasKit) {
+    const pathElements = Array.from(svgElement.getElementsByTagName('path'));
+    return pathElements.map((path) => [
+      CanvasKit.MakePathFromSVGString(path.getAttribute("d")),
+      CanvasKit.parseColorString(path.getAttribute("fill")??'#000000')
+    ]);
+  }
+
+  function getSurface(CanvasKit) {
+    let surface;
+    if (window.location.hash.indexOf('gpu') !== -1) {
+      surface = CanvasKit.MakeWebGLCanvasSurface('complex-path');
+      if (!surface) {
+        window._error = 'Could not make GPU surface';
+        return null;
+      }
+      let c = document.getElementById('complex-path');
+      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
+      // to CPU and add a ck-replaced class to the canvas element.
+      if (c.classList.contains('ck-replaced')) {
+        window._error = 'fell back to CPU';
+        return null;
+      }
+    } else {
+      surface = CanvasKit.MakeSWCanvasSurface('complex-path');
+      if (!surface) {
+        window._error = 'Could not make CPU surface';
+        return null;
+      }
+    }
+    return surface;
+  }
+  </script>
+</body>
+</html>

@@ -11,9 +11,7 @@
 #include "include/core/SkRRect.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkBlurPriv.h"
 #include "src/core/SkCachedData.h"
-#include "src/core/SkCoverageModePriv.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -23,7 +21,6 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/text/GrSDFMaskFilter.h"
 #endif
 
@@ -144,7 +141,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     // top
     r.setLTRB(innerR.left(), outerR.top(), innerR.right(), innerR.top());
     if (r.intersect(clipR)) {
-        int startY = SkMax32(0, r.top() - outerR.top());
+        int startY = std::max(0, r.top() - outerR.top());
         int stopY = startY + r.height();
         int width = r.width();
         for (int y = startY; y < stopY; ++y) {
@@ -255,13 +252,18 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
             case kUnimplemented_FilterReturn:
                 SkASSERT(nullptr == patch.fMask.fImage);
-                // fall through
+                // fall out
                 break;
         }
     }
 
     SkMask  srcM, dstM;
 
+#if defined(SK_BUILD_FOR_FUZZER)
+    if (devPath.countVerbs() > 1000 || devPath.countPoints() > 1000) {
+        return false;
+    }
+#endif
     if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), this, &matrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode,
                             style)) {
@@ -324,7 +326,7 @@ SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&) const {
 }
 bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }
 
-bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
+bool SkMaskFilterBase::canFilterMaskGPU(const GrStyledShape& shape,
                                         const SkIRect& devSpaceShapeBounds,
                                         const SkIRect& clipBounds,
                                         const SkMatrix& ctm,
@@ -335,19 +337,19 @@ bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
 bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
                                            GrRenderTargetContext*,
                                            GrPaint&&,
-                                           const GrClip&,
+                                           const GrClip*,
                                            const SkMatrix& viewMatrix,
-                                           const GrShape&) const {
+                                           const GrStyledShape&) const {
     return false;
 }
 
-sk_sp<GrTextureProxy> SkMaskFilterBase::filterMaskGPU(GrRecordingContext*,
-                                                      sk_sp<GrTextureProxy> srcProxy,
-                                                      GrColorType srcColorType,
-                                                      SkAlphaType srcAlphaType,
-                                                      const SkMatrix& ctm,
-                                                      const SkIRect& maskRect) const {
-    return nullptr;
+GrSurfaceProxyView SkMaskFilterBase::filterMaskGPU(GrRecordingContext*,
+                                                   GrSurfaceProxyView view,
+                                                   GrColorType srcColorType,
+                                                   SkAlphaType srcAlphaType,
+                                                   const SkMatrix& ctm,
+                                                   const SkIRect& maskRect) const {
+    return {};
 }
 #endif
 
@@ -366,353 +368,7 @@ void SkMaskFilterBase::computeFastBounds(const SkRect& src, SkRect* dst) const {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename T> static inline T join(const T& a, const T& b) {
-    T r = a;
-    r.join(b);
-    return r;
-}
-template <typename T> static inline T sect(const T& a, const T& b) {
-    T r = a;
-    return r.intersect(b) ? r : T::MakeEmpty();
-}
-
-class SkComposeMF : public SkMaskFilterBase {
-public:
-    SkComposeMF(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner)
-        : fOuter(std::move(outer))
-        , fInner(std::move(inner))
-    {
-        SkASSERT(as_MFB(fOuter)->getFormat() == SkMask::kA8_Format);
-        SkASSERT(as_MFB(fInner)->getFormat() == SkMask::kA8_Format);
-    }
-
-    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&, SkIPoint*) const override;
-
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override {
-        SkRect tmp;
-        as_MFB(fInner)->computeFastBounds(src, &tmp);
-        as_MFB(fOuter)->computeFastBounds(tmp, dst);
-    }
-
-    SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
-
-protected:
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override{
-        std::unique_ptr<GrFragmentProcessor> array[2] = {
-            as_MFB(fInner)->asFragmentProcessor(args),
-            as_MFB(fOuter)->asFragmentProcessor(args),
-        };
-        if (!array[0] || !array[1]) {
-            return nullptr;
-        }
-        return GrFragmentProcessor::RunInSeries(array, 2);
-    }
-
-    bool onHasFragmentProcessor() const override {
-        return as_MFB(fInner)->hasFragmentProcessor() && as_MFB(fOuter)->hasFragmentProcessor();
-    }
-#endif
-
-private:
-    SK_FLATTENABLE_HOOKS(SkComposeMF)
-
-    sk_sp<SkMaskFilter> fOuter;
-    sk_sp<SkMaskFilter> fInner;
-
-    void flatten(SkWriteBuffer&) const override;
-
-    friend class SkMaskFilter;
-
-    typedef SkMaskFilterBase INHERITED;
-};
-
-bool SkComposeMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
-                             SkIPoint* margin) const {
-    SkIPoint innerMargin;
-    SkMask innerMask;
-
-    if (!as_MFB(fInner)->filterMask(&innerMask, src, ctm, &innerMargin)) {
-        return false;
-    }
-    if (!as_MFB(fOuter)->filterMask(dst, innerMask, ctm, margin)) {
-        return false;
-    }
-    if (margin) {
-        margin->fX += innerMargin.fX;
-        margin->fY += innerMargin.fY;
-    }
-    sk_free(innerMask.fImage);
-    return true;
-}
-
-void SkComposeMF::flatten(SkWriteBuffer & buffer) const {
-    buffer.writeFlattenable(fOuter.get());
-    buffer.writeFlattenable(fInner.get());
-}
-
-sk_sp<SkFlattenable> SkComposeMF::CreateProc(SkReadBuffer& buffer) {
-    auto outer = buffer.readMaskFilter();
-    auto inner = buffer.readMaskFilter();
-    if (!buffer.validate(outer && inner)) {
-        return nullptr;
-    }
-    return SkMaskFilter::MakeCompose(std::move(outer), std::move(inner));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-class SkCombineMF : public SkMaskFilterBase {
-public:
-    SkCombineMF(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src, SkCoverageMode mode)
-        : fDst(std::move(dst))
-        , fSrc(std::move(src))
-        , fMode(mode)
-    {
-        SkASSERT(as_MFB(fSrc)->getFormat() == SkMask::kA8_Format);
-        SkASSERT(as_MFB(fDst)->getFormat() == SkMask::kA8_Format);
-    }
-
-    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&, SkIPoint*) const override;
-
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override {
-        SkRect srcR, dstR;
-        as_MFB(fSrc)->computeFastBounds(src, &srcR);
-        as_MFB(fDst)->computeFastBounds(src, &dstR);
-        *dst = join(srcR, dstR);
-    }
-
-    SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
-
-    SK_FLATTENABLE_HOOKS(SkCombineMF)
-
-protected:
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override{
-        auto src = as_MFB(fSrc)->asFragmentProcessor(args);
-        auto dst = as_MFB(fDst)->asFragmentProcessor(args);
-        if (!src || !dst) {
-            return nullptr;
-        }
-        return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(src), std::move(dst),
-                                                      SkUncorrelatedCoverageModeToBlendMode(fMode));
-    }
-
-    bool onHasFragmentProcessor() const override {
-        return as_MFB(fSrc)->hasFragmentProcessor() && as_MFB(fDst)->hasFragmentProcessor();
-    }
-#endif
-
-private:
-    sk_sp<SkMaskFilter> fDst;
-    sk_sp<SkMaskFilter> fSrc;
-    SkCoverageMode      fMode;
-
-    void flatten(SkWriteBuffer&) const override;
-
-    friend class SkMaskFilter;
-
-    typedef SkMaskFilterBase INHERITED;
-};
-
-#include "src/core/SkSafeMath.h"
-
-class DrawIntoMask : public SkDraw {
-public:
-    // we ignore the offset of the mask->fBounds
-    DrawIntoMask(SkMask* mask) {
-        int w = mask->fBounds.width();
-        int h = mask->fBounds.height();
-        size_t size = SkSafeMath::Mul(w, h);
-        mask->fFormat = SkMask::kA8_Format;
-        mask->fImage = SkMask::AllocImage(size, SkMask::kZeroInit_Alloc);
-        mask->fRowBytes = w;
-
-        SkAssertResult(fDst.reset(*mask));
-
-        fMatrixStorage.reset();
-        fMatrix = &fMatrixStorage;
-
-        fRCStorage.setRect({ 0, 0, w, h });
-        fRC = &fRCStorage;
-    }
-
-    void drawAsBitmap(const SkMask& m, const SkPaint& p) {
-        SkBitmap b;
-        b.installMaskPixels(m);
-        this->drawSprite(b, m.fBounds.fLeft, m.fBounds.fTop, p);
-    }
-
-private:
-    SkMatrix        fMatrixStorage;
-    SkRasterClip    fRCStorage;
-};
-
-static SkIRect join(const SkIRect& src, const SkIRect& dst, SkCoverageMode mode) {
-    switch (mode) {
-        case SkCoverageMode::kUnion:                return join(src, dst);
-        case SkCoverageMode::kIntersect:            return sect(src, dst);
-        case SkCoverageMode::kDifference:           return src;
-        case SkCoverageMode::kReverseDifference:    return dst;
-        case SkCoverageMode::kXor:                  return join(src, dst);
-    }
-    // not reached
-    return { 0, 0, 0, 0 };
-}
-
-bool SkCombineMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
-                             SkIPoint* margin) const {
-    SkIPoint srcP, dstP;
-    SkMask srcM, dstM;
-
-    if (!as_MFB(fSrc)->filterMask(&srcM, src, ctm, &srcP)) {
-        return false;
-    }
-    if (!as_MFB(fDst)->filterMask(&dstM, src, ctm, &dstP)) {
-        return false;
-    }
-
-    dst->fBounds = join(srcM.fBounds, dstM.fBounds, fMode);
-    dst->fFormat = SkMask::kA8_Format;
-    if (src.fImage == nullptr) {
-        dst->fImage = nullptr;
-        return true;
-    }
-
-    DrawIntoMask md(dst);
-    SkPaint      p;
-
-    p.setBlendMode(SkBlendMode::kSrc);
-    dstM.fBounds.offset(-dst->fBounds.fLeft, -dst->fBounds.fTop);
-    md.drawAsBitmap(dstM, p);
-    p.setBlendMode(SkUncorrelatedCoverageModeToBlendMode(fMode));
-    srcM.fBounds.offset(-dst->fBounds.fLeft, -dst->fBounds.fTop);
-    md.drawAsBitmap(srcM, p);
-
-    sk_free(srcM.fImage);
-    sk_free(dstM.fImage);
-    return true;
-}
-
-void SkCombineMF::flatten(SkWriteBuffer & buffer) const {
-    buffer.writeFlattenable(fDst.get());
-    buffer.writeFlattenable(fSrc.get());
-    buffer.write32(static_cast<uint32_t>(fMode));
-}
-
-sk_sp<SkFlattenable> SkCombineMF::CreateProc(SkReadBuffer& buffer) {
-    auto dst = buffer.readMaskFilter();
-    auto src = buffer.readMaskFilter();
-    SkCoverageMode mode = buffer.read32LE(SkCoverageMode::kLast);
-    if (!buffer.validate(dst && src)) {
-        return nullptr;
-    }
-    return SkMaskFilter::MakeCombine(std::move(dst), std::move(src), mode);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-class SkMatrixMF : public SkMaskFilterBase {
-public:
-    SkMatrixMF(sk_sp<SkMaskFilter> filter, const SkMatrix& lm)
-        : fFilter(std::move(filter))
-        , fLM(lm)
-    {}
-
-    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
-                    SkIPoint* margin) const override {
-        return as_MFB(fFilter)->filterMask(dst, src, SkMatrix::Concat(ctm, fLM), margin);
-    }
-
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override {
-        *dst = src;
-        SkRect tmp;
-        fLM.mapRect(&tmp, src);
-        as_MFB(fFilter)->computeFastBounds(tmp, dst);
-    }
-
-    SkMask::Format getFormat() const override { return as_MFB(fFilter)->getFormat(); }
-
-    SK_FLATTENABLE_HOOKS(SkMatrixMF)
-
-protected:
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override{
-        return as_MFB(fFilter)->asFragmentProcessor(GrFPArgs::WithPostLocalMatrix(args, fLM));
-    }
-
-    bool onHasFragmentProcessor() const override {
-        return as_MFB(fFilter)->hasFragmentProcessor();
-    }
-#endif
-
-private:
-    sk_sp<SkMaskFilter> fFilter;
-    const SkMatrix      fLM;
-
-    void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeMatrix(fLM);
-        buffer.writeFlattenable(fFilter.get());
-    }
-
-    friend class SkMaskFilter;
-    typedef SkMaskFilterBase INHERITED;
-};
-
-sk_sp<SkFlattenable> SkMatrixMF::CreateProc(SkReadBuffer& buffer) {
-    SkMatrix m;
-    buffer.readMatrix(&m);
-    auto filter = buffer.readMaskFilter();
-    return filter ? filter->makeWithMatrix(m) : nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkMaskFilter> SkMaskFilter::MakeCompose(sk_sp<SkMaskFilter> outer,
-                                              sk_sp<SkMaskFilter> inner) {
-    if (!outer) {
-        return inner;
-    }
-    if (!inner) {
-        return outer;
-    }
-    if (as_MFB(inner)->getFormat() != SkMask::kA8_Format ||
-        as_MFB(outer)->getFormat() != SkMask::kA8_Format) {
-        return nullptr;
-    }
-    return sk_sp<SkMaskFilter>(new SkComposeMF(std::move(outer), std::move(inner)));
-}
-
-sk_sp<SkMaskFilter> SkMaskFilter::MakeCombine(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src,
-                                              SkCoverageMode mode) {
-    if (!dst) {
-        return src;
-    }
-    if (!src) {
-        return dst;
-    }
-
-    if (as_MFB(dst)->getFormat() != SkMask::kA8_Format ||
-        as_MFB(src)->getFormat() != SkMask::kA8_Format) {
-        return nullptr;
-    }
-    return sk_sp<SkMaskFilter>(new SkCombineMF(std::move(dst), std::move(src), mode));
-}
-
-sk_sp<SkMaskFilter> SkMaskFilter::makeWithMatrix(const SkMatrix& lm) const {
-    sk_sp<SkMaskFilter> me = sk_ref_sp(const_cast<SkMaskFilter*>(this));
-    if (lm.isIdentity()) {
-        return me;
-    }
-    return sk_sp<SkMaskFilter>(new SkMatrixMF(std::move(me), lm));
-}
-
 void SkMaskFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkMatrixMF);
-    SK_REGISTER_FLATTENABLE(SkComposeMF);
-    SK_REGISTER_FLATTENABLE(SkCombineMF);
     sk_register_blur_maskfilter_createproc();
 #if SK_SUPPORT_GPU
     gr_register_sdf_maskfilter_createproc();

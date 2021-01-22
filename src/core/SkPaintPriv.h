@@ -73,9 +73,6 @@ public:
     // Since we may be filtering now, we need to know what color space to filter in,
     // typically the color space of the device we're drawing into.
     static void RemoveColorFilter(SkPaint*, SkColorSpace* dstCS);
-
-private:
-    static SkReadPaintResult Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer, SkFont*);
 };
 
 #endif

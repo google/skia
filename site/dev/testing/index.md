@@ -1,10 +1,9 @@
 Testing
 =======
 
-Skia relies heavily on our suite of unit and Golden Master \(GM\) tests, which
-are served by our Diamond Master \(DM\) test tool, for correctness testing.
-Tests are executed by our trybots, for every commit, across most of our
-supported platforms and configurations. 
+Skia relies heavily on our suite of unit and GM tests, which are served by our
+DM test tool, for correctness testing. Tests are executed by our trybots, for
+every commit, across most of our supported platforms and configurations.
 Skia [Gold](https://gold.skia.org) is a web interface for triaging these results.
 
 We also have a robust set of performance tests, served by the nanobench tool and

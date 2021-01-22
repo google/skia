@@ -1,0 +1,25 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+component("audioplayer") {
+  public = [ "SkAudioPlayer.h" ]
+  sources = [ "SkAudioPlayer.cpp" ]
+  deps = [ "../..:skia" ]
+
+  if (is_mac) {
+    sources += [ "SkAudioPlayer_mac.mm" ]
+    frameworks = [ "AVFoundation.framework" ]
+  } else if (is_linux && skia_use_sfml) {
+    sources += [ "SkAudioPlayer_sfml.cpp" ]
+    libs = [
+      "sfml-system",
+      "sfml-audio",
+    ]
+  } else {
+    sources += [ "SkAudioPlayer_none.cpp" ]
+  }
+}

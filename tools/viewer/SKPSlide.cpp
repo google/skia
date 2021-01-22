@@ -11,14 +11,19 @@
 #include "include/core/SkStream.h"
 #include "src/core/SkOSFile.h"
 
-SKPSlide::SKPSlide(const SkString& name, const SkString& path) : fPath(path) {
+SKPSlide::SKPSlide(const SkString& name, const SkString& path)
+        : SKPSlide(name, SkStream::MakeFromFile(path.c_str())) {
+}
+
+SKPSlide::SKPSlide(const SkString& name, std::unique_ptr<SkStream> stream)
+        : fStream(std::move(stream)) {
     fName = name;
 }
 
 SKPSlide::~SKPSlide() {}
 
 void SKPSlide::draw(SkCanvas* canvas) {
-    if (fPic.get()) {
+    if (fPic) {
         bool isOffset = SkToBool(fCullRect.left() | fCullRect.top());
         if (isOffset) {
             canvas->save();
@@ -33,25 +38,18 @@ void SKPSlide::draw(SkCanvas* canvas) {
     }
 }
 
-static sk_sp<SkPicture> read_picture(const char path[]) {
-    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
-    if (!stream) {
-        SkDebugf("Could not read %s.\n", path);
-        return nullptr;
-    }
-
-    auto pic = SkPicture::MakeFromStream(stream.get());
-    if (!pic) {
-        SkDebugf("Could not read %s as an SkPicture.\n", path);
-    }
-    return pic;
-}
-
 void SKPSlide::load(SkScalar, SkScalar) {
-    fPic = read_picture(fPath.c_str());
-    if (fPic) {
-        fCullRect = fPic->cullRect().roundOut();
+    if (!fStream) {
+        SkDebugf("No skp stream for slide %s.\n", fName.c_str());
+        return;
     }
+    fStream->rewind();
+    fPic = SkPicture::MakeFromStream(fStream.get());
+    if (!fPic) {
+        SkDebugf("Could parse SkPicture from skp stream for slide %s.\n", fName.c_str());
+        return;
+    }
+    fCullRect = fPic->cullRect().roundOut();
 }
 
 void SKPSlide::unload() {

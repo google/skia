@@ -6,10 +6,13 @@
  */
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/shaders/SkColorShader.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 static void test_bitmap(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
@@ -94,4 +97,52 @@ DEF_TEST(ShaderOpacity, reporter) {
     test_gradient(reporter);
     test_color(reporter);
     test_bitmap(reporter);
+}
+
+DEF_TEST(image_shader_filtering, reporter) {
+    auto make_checker_img = [](int w, int h) {
+        auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+        auto surf = SkSurface::MakeRaster(info);
+        ToolUtils::draw_checkerboard(surf->getCanvas(), SK_ColorRED, SK_ColorBLUE, 2);
+        return surf->makeImageSnapshot();
+    };
+
+    auto img = make_checker_img(4, 4);
+
+    const SkFilterQuality quals[] = {
+        kNone_SkFilterQuality,
+        kLow_SkFilterQuality,
+        kMedium_SkFilterQuality,
+        kHigh_SkFilterQuality,
+    };
+    const SkScalar scales[] = { 3.0f, 1.0f, 0.5f, 0.25f, 0.125f };
+
+    auto make_img = [&](const SkPaint& paint) {
+        auto info = SkImageInfo::Make(70, 70, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        auto surf = SkSurface::MakeRaster(info);
+        auto canvas = surf->getCanvas();
+        canvas->scale(1.06f, 1.06f);    // nicely exaggerates noise when not filtering
+        canvas->drawRect({0, 0, 64, 64}, paint);
+        return surf->makeImageSnapshot();
+    };
+
+    SkPaint paint;
+    for (auto q : quals) {
+        for (auto scale : scales) {
+            SkMatrix m = SkMatrix::Scale(scale, scale);
+            paint.setFilterQuality(kNone_SkFilterQuality); // this setting should be ignored
+            paint.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m, q));
+            auto img0 = make_img(paint);
+
+            paint.setFilterQuality(q);  // this should (still) be ignored
+            auto img1 = make_img(paint);
+
+            // make legacy form of shader, relying on the paint's filter-quality (q)
+            paint.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m));
+            auto img2 = make_img(paint);
+
+            REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
+            REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img2.get()));
+        }
+    }
 }

@@ -120,8 +120,8 @@ protected:
             path.lineTo(points[triangle[2]]);
             path.close();
         }
-        SkScalar scale = kBoxSize / SkTMax(path.getBounds().height(), path.getBounds().width());
-        path.transform(SkMatrix::MakeScale(scale, scale));
+        SkScalar scale = kBoxSize / std::max(path.getBounds().height(), path.getBounds().width());
+        path.transform(SkMatrix::Scale(scale, scale));
 
         this->drawRow(canvas, path);
         canvas->translate(0, kBoxSize + kPadSize);
@@ -163,4 +163,4 @@ protected:
 
 DEF_GM(return new SharedCornersGM;)
 
-}
+}  // namespace skiagm

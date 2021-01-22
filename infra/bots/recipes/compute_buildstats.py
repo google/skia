@@ -86,15 +86,23 @@ def RunSteps(api):
     if files:
       make_treemap(api, checkout_root, out_dir, files)
 
+    files = api.file.glob_paths(
+        'find dm',
+        bin_dir,
+        'dm',
+        test_data=['dm'])
+    analyzed += len(files)
+    if files:
+      make_treemap(api, checkout_root, out_dir, files)
+
   if not analyzed: # pragma: nocover
     raise Exception('No files were analyzed!')
 
 
 def keys_and_props(api):
   keys = []
-  keys_blacklist = ['role']
   for k in sorted(api.vars.builder_cfg.keys()):
-      if not k in keys_blacklist:
+      if not k in ['role']:
         keys.extend([k, api.vars.builder_cfg[k]])
   keystr = ' '.join(keys)
 
@@ -206,14 +214,14 @@ def make_treemap(api, checkout_root, out_dir, files):
       with api.context(cwd=skia_dir):
         script = skia_dir.join('infra', 'bots', 'buildstats',
                                'make_treemap.py')
-        api.run(api.python, 'Make code size treemap',
+        api.run(api.python, 'Make code size treemap %s' % f,
                              script=script,
                              args=[f, out_dir],
                              stdout=api.raw_io.output())
 
 
 def GenTests(api):
-  builder = 'BuildStats-Debian9-EMCC-wasm-Release-PathKit'
+  builder = 'BuildStats-Debian10-EMCC-wasm-Release-PathKit'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,

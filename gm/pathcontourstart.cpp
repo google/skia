@@ -23,8 +23,8 @@
 namespace skiagm {
 
 class ContourStartGM : public GM {
-public:
-    ContourStartGM() {
+protected:
+    void onOnceBeforeDraw() override {
         const SkScalar kMaxDashLen = 100;
         const SkScalar kDashGrowth = 1.2f;
 
@@ -46,7 +46,6 @@ public:
         fRect = SkRect::MakeLTRB(10, 10, 100, 70);
     }
 
-protected:
     SkString onShortName() override {
         return SkString("contour_start");
     }
@@ -56,43 +55,30 @@ protected:
     void onDraw(SkCanvas* canvas) override {
 
         drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
-            SkPath path;
-            path.addRect(rect, dir, startIndex);
-            return path;
+            return SkPath::Rect(rect, dir, startIndex);
         });
 
         drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
-            SkPath path;
-            path.addOval(rect, dir, startIndex);
-            return path;
+            return SkPath::Oval(rect, dir, startIndex);
         });
 
         drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkRRect rrect;
             const SkVector radii[4] = { {15, 15}, {15, 15}, {15, 15}, {15, 15}};
             rrect.setRectRadii(rect, radii);
-
-            SkPath path;
-            path.addRRect(rrect, dir, startIndex);
-            return path;
+            return SkPath::RRect(rrect, dir, startIndex);
         });
 
         drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkRRect rrect;
             rrect.setRect(rect);
-
-            SkPath path;
-            path.addRRect(rrect, dir, startIndex);
-            return path;
+            return SkPath::RRect(rrect, dir, startIndex);
         });
 
         drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
             SkRRect rrect;
             rrect.setOval(rect);
-
-            SkPath path;
-            path.addRRect(rrect, dir, startIndex);
-            return path;
+            return SkPath::RRect(rrect, dir, startIndex);
         });
 
     }
@@ -129,7 +115,7 @@ private:
         }
     }
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new ContourStartGM(); )

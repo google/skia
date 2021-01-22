@@ -97,7 +97,7 @@ protected:
             // force decoding, throw away reference to encoded data.
             SkAutoPixmapStorage pixmap;
             pixmap.alloc(SkImageInfo::MakeN32Premul(img->dimensions()));
-            if (img->readPixels(pixmap, 0, 0)) {
+            if (img->readPixels(nullptr, pixmap, 0, 0)) {
                 fImage = SkImage::MakeRasterCopy(pixmap);
             }
         }

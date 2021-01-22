@@ -1,0 +1,3 @@
+uniform testBlock {
+    float x;
+} test[x];

@@ -15,11 +15,14 @@
 #if SK_SUPPORT_GPU
 /**
  * This type is used to fulfill textures for PromiseImages. Once an instance is returned from a
- * PromiseImageTextureFulfillProc it must remain valid until the corresponding
- * PromiseImageTextureReleaseProc is called. For performance reasons it is recommended that the
- * the client reuse a single PromiseImageTexture every time a given texture is returned by
- * the PromiseImageTextureFulfillProc rather than recreating PromiseImageTextures representing
- * the same underlying backend API texture.
+ * PromiseImageTextureFulfillProc the GrBackendTexture it wraps must remain valid until the
+ * corresponding PromiseImageTextureReleaseProc is called. For performance reasons it is
+ * recommended that the client reuse a single PromiseImageTexture each time a given texture
+ * is returned by the PromiseImageTextureFulfillProc rather than creating a new PromiseImageTexture
+ * representing the same underlying backend API texture. If the underlying texture is deleted (after
+ * PromiseImageTextureReleaseProc has been called if this was returned by a
+ * PromiseImageTextureFulfillProc) then this object should be disposed as the texture it represented
+ * cannot be used to fulfill again.
  */
 class SK_API SkPromiseImageTexture : public SkNVRefCnt<SkPromiseImageTexture> {
 public:
@@ -37,7 +40,7 @@ public:
         return sk_sp<SkPromiseImageTexture>(new SkPromiseImageTexture(backendTexture));
     }
 
-    const GrBackendTexture& backendTexture() const { return fBackendTexture; }
+    GrBackendTexture backendTexture() const { return fBackendTexture; }
 
     void addKeyToInvalidate(uint32_t contextID, const GrUniqueKey& key);
     uint32_t uniqueID() const { return fUniqueID; }

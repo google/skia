@@ -37,6 +37,7 @@ public:
     void   writePoint(const SkPoint& point) override;
     void   writePointArray(const SkPoint* point, uint32_t count) override;
     void   writePoint3(const SkPoint3& point) override;
+    void   write(const SkM44&) override;
     void   writeMatrix(const SkMatrix& matrix) override;
     void   writeIRect(const SkIRect& rect) override;
     void   writeRect(const SkRect& rect) override;

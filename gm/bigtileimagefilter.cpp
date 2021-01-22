@@ -112,10 +112,10 @@ private:
     sk_sp<SkImage> fRedImage;
     sk_sp<SkImage> fGreenImage;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new BigTileImageFilterGM;)
-}
+}  // namespace skiagm

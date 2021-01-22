@@ -10,6 +10,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTPin.h"
 #include "tools/sk_app/Window.h"
 
 #include "imgui.h"
@@ -33,7 +34,7 @@ struct DragCanvas {
             aspect = h / w;
         }
 
-        float availWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 1.0f);
+        float availWidth = std::max(ImGui::GetContentRegionAvailWidth(), 1.0f);
         fPos = ImGui::GetCursorScreenPos();
         fSize = ImVec2(availWidth, availWidth * aspect);
 
@@ -72,7 +73,7 @@ struct DragCanvas {
         ImGui::SetCursorScreenPos(ImVec2(center.fX - 5, center.fY - 5));
         ImGui::InvisibleButton("", ImVec2(10, 10));
 
-        if (ImGui::IsItemActive() && ImGui::IsMouseDragging()) {
+        if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) {
             // Update screen position to track mouse, clamped to our area
             ImGuiIO& io = ImGui::GetIO();
             center.set(SkTPin(io.MousePos.x, fPos.x, fPos.x + fSize.x),
@@ -110,7 +111,7 @@ struct DragCanvas {
     bool fDragging;
 };
 
-}
+}  // namespace ImGui
 
 class ImGuiLayer : public sk_app::Window::Layer {
 public:

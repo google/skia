@@ -30,7 +30,7 @@ bool Path::onContains(const SkPoint& p) const {
 SkRect Path::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasInval());
 
-    const auto ft = fPath.getNewFillType();
+    const auto ft = fPath.getFillType();
     return (ft == SkPathFillType::kWinding || ft == SkPathFillType::kEvenOdd)
         // "Containing" fills have finite bounds.
         ? fPath.computeTightBounds()

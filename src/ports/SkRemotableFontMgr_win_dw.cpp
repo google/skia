@@ -443,7 +443,7 @@ private:
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
 
-    typedef SkRemotableFontMgr INHERITED;
+    using INHERITED = SkRemotableFontMgr;
 };
 
 SkRemotableFontMgr* SkRemotableFontMgr_New_DirectWrite() {

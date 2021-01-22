@@ -1,0 +1,97 @@
+<!-- This benchmark aims to accurately measure the time it takes for CanvasKit to render
+     an SKP from our test corpus. It is very careful to measure the time between frames. This form
+     of measurement makes sure we are capturing the GPU draw time. CanvasKit.flush() returns after
+     it has sent all the instructions to the GPU, but we don't know the GPU is done until the next
+     frame is requested. Thus, we need to keep track of the time between frames in order to
+     accurately calculate draw time. Keeping track of the drawPicture and drawPicture+flush is still
+     useful for telling us how much time we are spending in WASM land and if our drawing is CPU
+     bound or GPU bound. If total_frame_ms is close to with_flush_ms, we are CPU bound; if
+     total_frame_ms >> with_flush_ms, we are GPU bound.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CanvasKit SKP Perf</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/static/benchmark.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <button id="start_bench">Start Benchmark</button>
+    <br>
+    <canvas id=anim width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    const WIDTH  = 1000;
+    const HEIGHT = 1000;
+    const WARM_UP_FRAMES = 10;
+    const MAX_FRAMES = 201; // This should be sufficient to have low noise.
+    const SKP_PATH = '/static/test.skp';
+
+    (function() {
+
+      const loadKit = CanvasKitInit({
+        locateFile: (file) => '/static/' + file,
+      });
+
+      const loadSKP = fetch(SKP_PATH).then((resp) => {
+        return resp.arrayBuffer();
+      });
+
+      Promise.all([loadKit, loadSKP]).then((values) => {
+        const [CanvasKit, skpBytes] = values;
+        const loadStart = performance.now();
+        const skp = CanvasKit.MakePicture(skpBytes);
+        const loadTime = performance.now() - loadStart;
+        window._perfData = {
+          skp_load_ms: loadTime,
+        };
+        console.log('loaded skp', skp, loadTime);
+        if (!skp) {
+          window._error = 'could not read skp';
+          return;
+        }
+
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        let glversion = 2;
+        if (urlSearchParams.has('webgl1')) {
+          glversion = 1;
+        }
+
+        const surface = getSurface(CanvasKit, glversion);
+        if (!surface) {
+          console.error('Could not make surface', window._error);
+          return;
+        }
+        const canvas = surface.getCanvas();
+
+        document.getElementById('start_bench').addEventListener('click', async () => {
+          const clearColor = CanvasKit.WHITE;
+
+          function draw() {
+            canvas.clear(clearColor);
+            canvas.drawPicture(skp);
+          }
+
+          const results = await startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES);
+          Object.assign(window._perfData, results);
+          window._perfDone = true;
+        });
+        console.log('Perf is ready');
+        window._perfReady = true;
+      });
+    }
+  )();
+
+  </script>
+</body>
+</html>

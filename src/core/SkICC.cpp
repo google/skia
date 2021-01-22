@@ -246,13 +246,13 @@ const char* get_color_profile_description(const skcms_TransferFunction& fn,
     if (twoDotTwo && nearly_equal(toXYZD50, SkNamedGamut::kAdobeRGB)) {
         return "AdobeRGB";
     }
-    bool dcip3_gamut = nearly_equal(toXYZD50, SkNamedGamut::kDCIP3);
+    bool display_p3 = nearly_equal(toXYZD50, SkNamedGamut::kDisplayP3);
     if (srgb_xfer || line_xfer) {
-        if (srgb_xfer && dcip3_gamut) {
-            return "sRGB Transfer with DCI-P3 Gamut";
+        if (srgb_xfer && display_p3) {
+            return "sRGB Transfer with Display P3 Gamut";
         }
-        if (line_xfer && dcip3_gamut) {
-            return "Linear Transfer with DCI-P3 Gamut";
+        if (line_xfer && display_p3) {
+            return "Linear Transfer with Display P3 Gamut";
         }
         bool rec2020 = nearly_equal(toXYZD50, SkNamedGamut::kRec2020);
         if (srgb_xfer && rec2020) {

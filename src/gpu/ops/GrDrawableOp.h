@@ -20,33 +20,34 @@ class GrDrawableOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawableOp> Make(GrRecordingContext*,
-                                              std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
-                                              const SkRect& bounds);
+    static GrOp::Owner Make(GrRecordingContext*,
+                            std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
+                            const SkRect& bounds);
 
     const char* name() const override { return "Drawable"; }
 
-#ifdef SK_DEBUG
-    SkString dumpInfo() const override {
-        return INHERITED::dumpInfo();
-    }
-#endif
-
 private:
-    friend class GrOpMemoryPool; // for ctor
+    friend class GrOp; // for ctor
 
     GrDrawableOp(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
-    CombineResult onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* that, SkArenaAlloc*, const GrCaps& caps) override {
         return CombineResult::kCannotCombine;
     }
+
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* writeView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
+
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     std::unique_ptr<SkDrawable::GpuDrawHandler> fDrawable;
 
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 
 #endif

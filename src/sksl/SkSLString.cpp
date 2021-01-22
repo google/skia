@@ -33,58 +33,44 @@ void String::appendf(const char* fmt, ...) {
     va_end(args);
 }
 
-void String::reset() {
-    this->clear();
-}
-
-int String::findLastOf(const char c) const {
-    // Rely on find_last_of and remap the output
-    size_t index = this->find_last_of(c);
-    return (index == std::string::npos ? -1 : index);
-}
-
 void String::vappendf(const char* fmt, va_list args) {
-#ifdef SKSL_BUILD_FOR_WIN
-    #define VSNPRINTF    _vsnprintf
-#else
-    #define VSNPRINTF    vsnprintf
-#endif
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
     va_list reuse;
     va_copy(reuse, args);
-    size_t size = VSNPRINTF(buffer, BUFFER_SIZE, fmt, args);
-    if (BUFFER_SIZE >= size) {
+    size_t size = vsnprintf(buffer, BUFFER_SIZE, fmt, args);
+    if (BUFFER_SIZE >= size + 1) {
         this->append(buffer, size);
     } else {
         auto newBuffer = std::unique_ptr<char[]>(new char[size + 1]);
-        VSNPRINTF(newBuffer.get(), size + 1, fmt, reuse);
+        vsnprintf(newBuffer.get(), size + 1, fmt, reuse);
         this->append(newBuffer.get(), size);
     }
     va_end(reuse);
 }
 
-
-bool String::startsWith(const char* s) const {
-    return !strncmp(c_str(), s, strlen(s));
+bool String::startsWith(const char prefix[]) const {
+    return !strncmp(this->data(), prefix, strlen(prefix));
 }
 
-bool String::endsWith(const char* s) const {
-    size_t len = strlen(s);
-    if (size() < len) {
+bool String::endsWith(const char suffix[]) const {
+    size_t suffixLength = strlen(suffix);
+    if (this->length() < suffixLength) {
         return false;
     }
-    return !strncmp(c_str() + size() - len, s, len);
+    return !strncmp(this->data() + this->size() - suffixLength, suffix, suffixLength);
 }
 
-int String::find(const String& substring, int fromPos) const {
-    return find(substring.c_str(), fromPos);
-}
-
-int String::find(const char* substring, int fromPos) const {
-    SkASSERT(fromPos >= 0);
-    size_t found = INHERITED::find(substring, (size_t) fromPos);
-    return found == std::string::npos ? -1 : found;
+bool String::consumeSuffix(const char suffix[]) {
+    size_t suffixLength = strlen(suffix);
+    if (this->length() < suffixLength) {
+        return false;
+    }
+    if (0 != strncmp(this->data() + this->size() - suffixLength, suffix, suffixLength)) {
+        return false;
+    }
+    this->resize(this->length() - suffixLength);
+    return true;
 }
 
 String String::operator+(const char* s) const {
@@ -195,6 +181,18 @@ bool StringFragment::operator<(StringFragment other) const {
     return fLength < other.fLength;
 }
 
+String StringFragment::operator+(const char* other) const {
+    return String(*this) + other;
+}
+
+String StringFragment::operator+(const StringFragment& other) const {
+    return String(*this) + other;
+}
+
+String StringFragment::operator+(const String& other) const {
+    return String(*this) + other;
+}
+
 bool operator==(const char* s1, StringFragment s2) {
     return s2 == s1;
 }
@@ -271,4 +269,4 @@ long stol(const String& s) {
     return result;
 }
 
-} // namespace
+}  // namespace SkSL

@@ -43,7 +43,7 @@ private:
     SkFilterQuality fQuality   = kNone_SkFilterQuality;
     bool            fAntiAlias = true;
 
-    typedef RenderNode INHERITED;
+    using INHERITED = RenderNode;
 };
 
 } // namespace sksg

@@ -1,20 +1,22 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "gm/gm.h"
 #include "include/codec/SkCodec.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTHash.h"
+#include "modules/svg/include/SkSVGDOM.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
@@ -24,9 +26,11 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
+#include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/MemoryCache.h"
 #include "tools/trace/EventTracingPriv.h"
+
 #include <chrono>
 #include <functional>
 #include <stdio.h>
@@ -50,6 +54,9 @@ static DEFINE_string(at    , "premul", "The alpha type for any raster backend.")
 static DEFINE_string(gamut ,   "srgb", "The color gamut for any raster backend.");
 static DEFINE_string(tf    ,   "srgb", "The transfer function for any raster backend.");
 static DEFINE_bool  (legacy,    false, "Use a null SkColorSpace instead of --gamut and --tf?");
+static DEFINE_bool  (skvm  ,    false, "Use SkVMBlitter when supported?");
+static DEFINE_bool  (jit   ,     true, "JIT SkVM?");
+static DEFINE_bool  (dylib ,    false, "JIT SkVM via dylib?");
 
 static DEFINE_int   (samples ,         0, "Samples per pixel in GPU backends.");
 static DEFINE_bool  (stencils,      true, "If false, avoid stencil buffers in GPU backends.");
@@ -108,9 +115,12 @@ struct Result {
 static const Result ok = {Result::Ok,   {}},
                   skip = {Result::Skip, {}};
 
+static Result fail(const char* why) {
+    return { Result::Fail, SkString(why) };
+}
 template <typename... Args>
-static Result fail(const char* why, Args... args) {
-    return { Result::Fail, SkStringPrintf(why, args...) };
+static Result fail(const char* whyFmt, Args... args) {
+    return { Result::Fail, SkStringPrintf(whyFmt, args...) };
 }
 
 
@@ -125,7 +135,15 @@ static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
     source->size  = gm->getISize();
     source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
     source->draw  = [gm](SkCanvas* canvas) {
+        auto direct = GrAsDirectContext(canvas->recordingContext());
+
         SkString err;
+        switch (gm->gpuSetup(direct, canvas, &err)) {
+            case skiagm::DrawResult::kOk  : break;
+            case skiagm::DrawResult::kSkip: return skip;
+            case skiagm::DrawResult::kFail: return fail(err.c_str());
+        }
+
         switch (gm->draw(canvas, &err)) {
             case skiagm::DrawResult::kOk:   break;
             case skiagm::DrawResult::kSkip: return skip;
@@ -191,8 +209,8 @@ static void init(Source* source, sk_sp<skottie::Animation> animation) {
         for (int x : order) {
             SkRect dst = {x*dim, y*dim, (x+1)*dim, (y+1)*dim};
 
-            SkAutoCanvasRestore _(canvas, true/*save now*/);
-            canvas->clipRect(dst, /*aa=*/true);
+            SkAutoCanvasRestore _(canvas, /*doSave=*/true);
+            canvas->clipRect(dst, /*doAntiAlias=*/true);
             canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(animation->size()),
                                                     dst,
                                                     SkMatrix::kCenter_ScaleToFit));
@@ -212,7 +230,8 @@ static void init(Source* source, const skiatest::Test& test) {
             SkString msg;
 
             void reportFailed(const skiatest::Failure& failure) override {
-                msg = failure.toString();
+                msg += failure.toString();
+                msg += "\n";
             }
         } reporter;
 
@@ -285,16 +304,13 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
     auto overrides = GrContextFactory::ContextOverrides::kNone;
     if (!FLAGS_stencils) { overrides |= GrContextFactory::ContextOverrides::kAvoidStencilBuffers; }
 
-    GrContext* context = factory->getContextInfo(api, overrides)
-                                 .grContext();
+    auto context = factory->getContextInfo(api, overrides).directContext();
 
     uint32_t flags = FLAGS_dit ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag
                                : 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
 
     sk_sp<SkSurface> surface;
-    GrBackendTexture backendTexture;
-    GrBackendRenderTarget backendRT;
 
     switch (surfaceType) {
         case SurfaceType::kDefault:
@@ -306,32 +322,22 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
             break;
 
         case SurfaceType::kBackendTexture:
-            backendTexture = context->createBackendTexture(info.width(),
-                                                           info.height(),
-                                                           info.colorType(),
-                                                           GrMipMapped::kNo,
-                                                           GrRenderable::kYes,
-                                                           GrProtected::kNo);
-            surface = SkSurface::MakeFromBackendTexture(context,
-                                                        backendTexture,
-                                                        kTopLeft_GrSurfaceOrigin,
-                                                        FLAGS_samples,
-                                                        info.colorType(),
-                                                        info.refColorSpace(),
-                                                        &props);
+            surface = sk_gpu_test::MakeBackendTextureSurface(context,
+                                                             info,
+                                                             kTopLeft_GrSurfaceOrigin,
+                                                             FLAGS_samples,
+                                                             GrMipmapped::kNo,
+                                                             GrProtected::kNo,
+                                                             &props);
             break;
 
         case SurfaceType::kBackendRenderTarget:
-            backendRT = context->priv().getGpu()
-                ->createTestingOnlyBackendRenderTarget(info.width(),
-                                                       info.height(),
-                                                       SkColorTypeToGrColorType(info.colorType()));
-            surface = SkSurface::MakeFromBackendRenderTarget(context,
-                                                             backendRT,
-                                                             kBottomLeft_GrSurfaceOrigin,
-                                                             info.colorType(),
-                                                             info.refColorSpace(),
-                                                             &props);
+            surface = sk_gpu_test::MakeBackendRenderTargetSurface(context,
+                                                                  info,
+                                                                  kBottomLeft_GrSurfaceOrigin,
+                                                                  FLAGS_samples,
+                                                                  GrProtected::kNo,
+                                                                  &props);
             break;
     }
 
@@ -355,18 +361,12 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
         factory->releaseResourcesAndAbandonContexts();
     }
 
-    if (!context->abandoned()) {
-        surface.reset();
-        if (backendTexture.isValid()) {
-            context->deleteBackendTexture(backendTexture);
-        }
-        if (backendRT.isValid()) {
-            context->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
-        }
-    }
-
     return image;
 }
+
+extern bool gUseSkVMBlitter;
+extern bool gSkVMAllowJIT;
+extern bool gSkVMJITViaDylib;
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
@@ -375,6 +375,10 @@ int main(int argc, char** argv) {
     if (FLAGS_cpuDetect) {
         SkGraphics::Init();
     }
+    gUseSkVMBlitter  = FLAGS_skvm;
+    gSkVMAllowJIT    = FLAGS_jit;
+    gSkVMJITViaDylib = FLAGS_dylib;
+
     initializeEventTracingForTools();
     ToolUtils::SetDefaultFontMgr();
     SetAnalyticAAFromCommonFlags();
@@ -493,19 +497,22 @@ int main(int argc, char** argv) {
         { "mock"           , GrContextFactory::kMock_ContextType },
     };
     const FlagOption<SkColorType> kColorTypes[] = {
-        { "a8",           kAlpha_8_SkColorType },
-        { "g8",            kGray_8_SkColorType },
-        { "565",          kRGB_565_SkColorType },
-        { "4444",       kARGB_4444_SkColorType },
-        { "8888",             kN32_SkColorType },
-        { "888x",        kRGB_888x_SkColorType },
-        { "1010102", kRGBA_1010102_SkColorType },
-        { "101010x",  kRGB_101010x_SkColorType },
-        { "f16norm", kRGBA_F16Norm_SkColorType },
-        { "f16",         kRGBA_F16_SkColorType },
-        { "f32",         kRGBA_F32_SkColorType },
-        { "rgba",       kRGBA_8888_SkColorType },
-        { "bgra",       kBGRA_8888_SkColorType },
+        { "a8",                  kAlpha_8_SkColorType },
+        { "g8",                   kGray_8_SkColorType },
+        { "565",                 kRGB_565_SkColorType },
+        { "4444",              kARGB_4444_SkColorType },
+        { "8888",                    kN32_SkColorType },
+        { "888x",               kRGB_888x_SkColorType },
+        { "1010102",        kRGBA_1010102_SkColorType },
+        { "101010x",         kRGB_101010x_SkColorType },
+        { "bgra1010102",    kBGRA_1010102_SkColorType },
+        { "bgr101010x",      kBGR_101010x_SkColorType },
+        { "f16norm",        kRGBA_F16Norm_SkColorType },
+        { "f16",                kRGBA_F16_SkColorType },
+        { "f32",                kRGBA_F32_SkColorType },
+        { "rgba",              kRGBA_8888_SkColorType },
+        { "bgra",              kBGRA_8888_SkColorType },
+        { "16161616", kR16G16B16A16_unorm_SkColorType },
     };
     const FlagOption<SkAlphaType> kAlphaTypes[] = {
         {   "premul",   kPremul_SkAlphaType },
@@ -513,7 +520,7 @@ int main(int argc, char** argv) {
     };
     const FlagOption<skcms_Matrix3x3> kGamuts[] = {
         { "srgb",    SkNamedGamut::kSRGB },
-        { "p3",      SkNamedGamut::kDCIP3 },
+        { "p3",      SkNamedGamut::kDisplayP3 },
         { "rec2020", SkNamedGamut::kRec2020 },
         { "adobe",   SkNamedGamut::kAdobeRGB },
         { "narrow",  gNarrow_toXYZD50},
@@ -558,7 +565,7 @@ int main(int argc, char** argv) {
                 case Result::Ok:   break;
                 case Result::Skip: return false;
                 case Result::Fail:
-                    SK_ABORT(result.failure.c_str());
+                    SK_ABORT("%s", result.failure.c_str());
             }
             return true;
         };
@@ -605,7 +612,7 @@ int main(int argc, char** argv) {
             {
                 SkMD5 hash;
                 if (image) {
-                    hashAndEncode.write(&hash);
+                    hashAndEncode.feedHash(&hash);
                 } else {
                     hash.write(blob->data(), blob->size());
                 }
@@ -621,13 +628,13 @@ int main(int argc, char** argv) {
                 SkString path = SkStringPrintf("%s/%s%s",
                                                FLAGS_writePath[0], source.name.c_str(), ext);
 
+                SkFILEWStream file(path.c_str());
                 if (image) {
-                    if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
-                                                  FLAGS_key, FLAGS_properties)) {
+                    if (!hashAndEncode.encodePNG(&file, md5.c_str(),
+                                                 FLAGS_key, FLAGS_properties)) {
                         SK_ABORT("Could not write .png.");
                     }
                 } else {
-                    SkFILEWStream file(path.c_str());
                     file.write(blob->data(), blob->size());
                 }
             }

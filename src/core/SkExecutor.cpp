@@ -10,7 +10,6 @@
 #include "include/private/SkSemaphore.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTArray.h"
-#include "src/core/SkMakeUnique.h"
 #include <deque>
 #include <thread>
 
@@ -73,7 +72,7 @@ static inline std::function<void(void)> pop(SkTArray<std::function<void(void)>>*
 template <typename WorkList>
 class SkThreadPool final : public SkExecutor {
 public:
-    explicit SkThreadPool(int threads) {
+    explicit SkThreadPool(int threads, bool allowBorrowing) : fAllowBorrowing(allowBorrowing) {
         for (int i = 0; i < threads; i++) {
             fThreads.emplace_back(&Loop, this);
         }
@@ -90,7 +89,7 @@ public:
         }
     }
 
-    virtual void add(std::function<void(void)> work) override {
+    void add(std::function<void(void)> work) override {
         // Add some work to our pile of work to do.
         {
             SkAutoMutexExclusive lock(fWorkLock);
@@ -100,9 +99,9 @@ public:
         fWorkAvailable.signal(1);
     }
 
-    virtual void borrow() override {
-        // If there is work waiting, do it.
-        if (fWorkAvailable.try_wait()) {
+    void borrow() override {
+        // If there is work waiting and we're allowed to borrow work, do it.
+        if (fAllowBorrowing && fWorkAvailable.try_wait()) {
             SkAssertResult(this->do_work());
         }
     }
@@ -139,13 +138,16 @@ private:
     WorkList              fWork;
     Lock                  fWorkLock;
     SkSemaphore           fWorkAvailable;
+    bool                  fAllowBorrowing;
 };
 
-std::unique_ptr<SkExecutor> SkExecutor::MakeFIFOThreadPool(int threads) {
+std::unique_ptr<SkExecutor> SkExecutor::MakeFIFOThreadPool(int threads, bool allowBorrowing) {
     using WorkList = std::deque<std::function<void(void)>>;
-    return skstd::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores(),
+                                                    allowBorrowing);
 }
-std::unique_ptr<SkExecutor> SkExecutor::MakeLIFOThreadPool(int threads) {
+std::unique_ptr<SkExecutor> SkExecutor::MakeLIFOThreadPool(int threads, bool allowBorrowing) {
     using WorkList = SkTArray<std::function<void(void)>>;
-    return skstd::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores(),
+                                                    allowBorrowing);
 }

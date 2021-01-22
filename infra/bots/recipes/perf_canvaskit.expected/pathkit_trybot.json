@@ -31,6 +31,20 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "import os\nprint '%d:%d' % (os.getuid(), os.getgid())\n"
+    ],
+    "name": "Docker setup.Get uid and gid",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print '%d:%d' % (os.getuid(), os.getgid())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -196,6 +210,8 @@
       "run",
       "--shm-size=2gb",
       "--rm",
+      "--user",
+      "13:17",
       "--mount",
       "type=bind,source=[START_DIR],target=/SRC",
       "--mount",
@@ -203,7 +219,7 @@
       "gcr.io/skia-public/perf-karma-chrome-tests:77.0.3865.120_v1",
       "/SRC/skia/infra/canvaskit/perf_canvaskit.sh",
       "--builder",
-      "Perf-Debian9-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
+      "Perf-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
       "--git_hash",
       "abc123",
       "--buildbucket_build_id",

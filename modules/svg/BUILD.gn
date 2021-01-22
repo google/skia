@@ -1,0 +1,43 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+if (skia_enable_svg) {
+  config("public_config") {
+    defines = [ "SK_ENABLE_SVG" ]
+    include_dirs = [ "include" ]
+  }
+
+  component("svg") {
+    check_includes = false
+    import("svg.gni")
+    public_configs = [ ":public_config" ]
+    public = skia_svg_public
+    sources = skia_svg_sources
+    configs += [ "../../:skia_private" ]
+    deps = [ "../..:skia" ]
+  }
+
+  if (skia_enable_tools && defined(is_skia_standalone)) {
+    source_set("tool") {
+      check_includes = false
+      testonly = true
+
+      configs += [ "../..:skia_private" ]
+      sources = [ "utils/SvgTool.cpp" ]
+
+      deps = [
+        "../..:flags",
+        "../..:skia",
+      ]
+
+      public_deps = [ ":svg" ]
+    }
+  }
+} else {
+  group("svg") {
+  }
+}

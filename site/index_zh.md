@@ -2,7 +2,7 @@ Skia图形库
 =====================
 
 Skia是一个开源的二维图形库，提供各种常用的API，并可在多种软硬件平台上运行。谷歌Chrome浏览器、Chrome
-OS、安卓、火狐浏览器、火狐操作系统以及其它许多产品都使用它作为图形引擎。
+OS、安卓、Flutter、火狐浏览器、火狐操作系统以及其它许多产品都使用它作为图形引擎。
 
 <!-- Skia is an open source 2D graphics library which provides common APIs that work
 across a variety of hardware and software platforms.  It serves as the graphics

@@ -14,131 +14,110 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "src/core/SkColorFilterPriv.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "tools/Resources.h"
 
 #include <stddef.h>
 #include <utility>
 
-class GrContext;
-class GrRenderTargetContext;
-
-const char* SKSL_TEST_SRC = R"(
-    layout(ctype=float) uniform half b;
-
-    void main(inout half4 color) {
-        color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;
-        color.r = 0;
-        color.g = 0;
-        color.b = 0;
+const char* gNoop = R"(
+    uniform shader input;
+    half4 main() {
+        return sample(input);
     }
 )";
 
-static void runtimeCpuFunc(float color[4], const void* context) {
-    color[3] = color[0]*0.3 + color[1]*0.6 + color[2]*0.1;
-    color[0] = 0;
-    color[1] = 0;
-    color[2] = 0;
-}
-
-DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 768, 256) {
-    auto img = GetResourceAsImage("images/mandrill_256.png");
-    canvas->drawImage(img, 0, 0, nullptr);
-
-    float b = 0.75;
-    sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
-    static SkRuntimeColorFilterFactory fact = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC),
-                                                                          runtimeCpuFunc);
-    auto cf1 = fact.make(data);
-    SkPaint p;
-    p.setColorFilter(cf1);
-    canvas->drawImage(img, 256, 0, &p);
-
-    static constexpr size_t kBufferSize = 512;
-    char buffer[kBufferSize];
-    SkBinaryWriteBuffer wb(buffer, kBufferSize);
-    wb.writeFlattenable(cf1.get());
-    SkReadBuffer rb(buffer, kBufferSize);
-    auto cf2 = rb.readColorFilter();
-    if (cf2) {
-        p.setColorFilter(cf2);
-        canvas->drawImage(img, 512, 0, &p);
+const char* gLumaSrc = R"(
+    uniform shader input;
+    half4 main() {
+        return dot(sample(input).rgb, half3(0.3, 0.6, 0.1)).000r;
     }
-}
+)";
 
-DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 768, 256) {
-    auto img = GetResourceAsImage("images/mandrill_256.png");
-    canvas->drawImage(img, 0, 0, nullptr);
-
-    float b = 0.75;
-    sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
-    static SkRuntimeColorFilterFactory fact = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC),
-                                                                          nullptr);
-    auto cf1 = fact.make(data);
-    SkPaint p;
-    p.setColorFilter(cf1);
-    canvas->drawImage(img, 256, 0, &p);
-
-    static constexpr size_t kBufferSize = 512;
-    char buffer[kBufferSize];
-    SkBinaryWriteBuffer wb(buffer, kBufferSize);
-    wb.writeFlattenable(cf1.get());
-    SkReadBuffer rb(buffer, kBufferSize);
-    auto cf2 = rb.readColorFilter();
-    if (cf2) {
-        p.setColorFilter(cf2);
-        canvas->drawImage(img, 512, 0, &p);
+const char* gLumaSrcWithCoords = R"(
+    uniform shader input;
+    half4 main(float2 p) {
+        return dot(sample(input).rgb, half3(0.3, 0.6, 0.1)).000r;
     }
-}
+)";
 
-// These need to be static for some dm caching tests in DM...
-static SkRuntimeColorFilterFactory gInterp =
-    SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC), nullptr);
-static SkRuntimeColorFilterFactory gCpuProc =
-    SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC), runtimeCpuFunc);
+// Build up the same effect with increasingly complex control flow syntax.
+// All of these are semantically equivalent and can be reduced in principle to one basic block.
 
-class RuntimeCF : public skiagm::GM {
-public:
-    RuntimeCF(bool useCpuProc) : fFact(useCpuProc ? gCpuProc : gInterp) {
-        fName.printf("runtime_cf_interp_%d", !useCpuProc);
+// Simplest to run; hardest to write?
+const char* gTernary = R"(
+    uniform shader input;
+    half4 main() {
+        half4 color = sample(input);
+        half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
+
+        half scale = luma < 0.33333 ? 0.5
+                   : luma < 0.66666 ? (0.166666 + 2.0 * (luma - 0.33333)) / luma
+                   :   /* else */     (0.833333 + 0.5 * (luma - 0.66666)) / luma;
+        return half4(color.rgb * scale, color.a);
     }
+)";
 
-protected:
-    bool runAsBench() const override { return true; }
+// Uses conditional if statements but no early return.
+const char* gIfs = R"(
+    uniform shader input;
+    half4 main() {
+        half4 color = sample(input);
+        half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
 
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(512, 256);
-    }
-
-    void onOnceBeforeDraw() override {
-        fImg = GetResourceAsImage("images/mandrill_256.png")->makeRasterImage();
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        canvas->drawImage(fImg, 0, 0, nullptr);
-
-        if (!fCF) {
-            float b = 0.75;
-            sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
-            fCF = fFact.make(data);
+        half scale = 0;
+        if (luma < 0.33333) {
+            scale = 0.5;
+        } else if (luma < 0.66666) {
+            scale = (0.166666 + 2.0 * (luma - 0.33333)) / luma;
+        } else {
+            scale = (0.833333 + 0.5 * (luma - 0.66666)) / luma;
         }
-        SkPaint p;
-        p.setColorFilter(fCF);
-        canvas->drawImage(fImg, 256, 0, &p);
+        return half4(color.rgb * scale, color.a);
     }
-private:
-    sk_sp<SkImage> fImg;
-    SkRuntimeColorFilterFactory fFact;
-    SkString fName;
-    sk_sp<SkColorFilter> fCF;
+)";
 
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM(return new RuntimeCF(false);)
-//DEF_GM(return new RuntimeCF(true);)
+// Distilled from AOSP tone mapping shaders, more like what people tend to write.
+const char* gEarlyReturn = R"(
+    uniform shader input;
+    half4 main() {
+        half4 color = sample(input);
+        half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
+
+        half scale = 0;
+        if (luma < 0.33333) {
+            return half4(color.rgb * 0.5, color.a);
+        } else if (luma < 0.66666) {
+            scale = 0.166666 + 2.0 * (luma - 0.33333);
+        } else {
+            scale = 0.833333 + 0.5 * (luma - 0.66666);
+        }
+        return half4(color.rgb * (scale/luma), color.a);
+    }
+)";
+
+
+DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256 * 2) {
+    sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_256.png");
+
+    auto draw_filter = [&](const char* src) {
+        auto [effect, err] = SkRuntimeEffect::Make(SkString(src));
+        if (!effect) {
+            SkDebugf("%s\n%s\n", src, err.c_str());
+        }
+        SkASSERT(effect);
+        SkPaint p;
+        sk_sp<SkColorFilter> input = nullptr;
+        p.setColorFilter(effect->makeColorFilter(nullptr, &input, 1));
+        canvas->drawImage(img, 0, 0, &p);
+        canvas->translate(256, 0);
+    };
+
+    for (const char* src : { gNoop, gLumaSrc, gLumaSrcWithCoords}) {
+        draw_filter(src);
+    }
+    canvas->translate(-256*3, 256);
+    for (const char* src : { gTernary, gIfs, gEarlyReturn}) {
+        draw_filter(src);
+    }
+}

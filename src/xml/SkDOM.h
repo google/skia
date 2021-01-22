@@ -85,11 +85,11 @@ public:
     };
 
 private:
-    SkArenaAlloc                 fAlloc;
+    SkArenaAllocWithReset        fAlloc;
     Node*                        fRoot;
     std::unique_ptr<SkDOMParser> fParser;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif

@@ -16,7 +16,7 @@ namespace textlayout {
 
 class ParagraphBuilder {
 public:
-    ParagraphBuilder(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) { }
+    ParagraphBuilder(const ParagraphStyle&, sk_sp<FontCollection>) { }
 
     virtual ~ParagraphBuilder() = default;
 
@@ -57,6 +57,8 @@ public:
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     virtual std::unique_ptr<Paragraph> Build() = 0;
 
+
+    // Just until we fix all the google3 code
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
                                                   sk_sp<FontCollection> fontCollection);
 };

@@ -22,6 +22,7 @@ PATH_PATTERNS = [
   r'.*\.gn$',
   r'.*\.gni$',
   r'.*\.h$',
+  r'.*\.mm$',
   r'.*\.storyboard$',
 ]
 

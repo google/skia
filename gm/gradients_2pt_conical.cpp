@@ -407,4 +407,4 @@ DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, false); )
 DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, false); )
 DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, false); )
 
-}
+}  // namespace skiagm

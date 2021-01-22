@@ -9,7 +9,6 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkDiscardableMemory.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 
@@ -69,7 +68,7 @@ private:
 
     friend class PoolDiscardableMemory;
 
-    typedef SkDiscardableMemory::Factory INHERITED;
+    using INHERITED = SkDiscardableMemory::Factory;
 };
 
 /**
@@ -168,12 +167,12 @@ std::unique_ptr<SkDiscardableMemory> DiscardableMemoryPool::make(size_t bytes) {
     if (nullptr == addr) {
         return nullptr;
     }
-    auto dm = skstd::make_unique<PoolDiscardableMemory>(sk_ref_sp(this), std::move(addr), bytes);
+    auto dm = std::make_unique<PoolDiscardableMemory>(sk_ref_sp(this), std::move(addr), bytes);
     SkAutoMutexExclusive autoMutexAcquire(fMutex);
     fList.addToHead(dm.get());
     fUsed += bytes;
     this->dumpDownTo(fBudget);
-    return dm;
+    return std::move(dm);
 }
 
 void DiscardableMemoryPool::removeFromPool(PoolDiscardableMemory* dm) {

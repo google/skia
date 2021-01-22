@@ -11,6 +11,7 @@
 #include "include/core/SkMath.h"
 #include "include/core/SkPixmap.h"
 #include "include/private/SkVx.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "src/core/SkMathPriv.h"
 
 namespace skottie {
@@ -33,7 +34,7 @@ private:
     const sk_sp<RenderNode>& fChild;
 };
 
-sk_sp<MotionBlurEffect> MotionBlurEffect::Make(sk_sp<sksg::Animator> animator,
+sk_sp<MotionBlurEffect> MotionBlurEffect::Make(sk_sp<Animator> animator,
                                                sk_sp<sksg::RenderNode> child,
                                                size_t samples_per_frame,
                                                float shutter_angle, float shutter_phase) {
@@ -53,7 +54,7 @@ sk_sp<MotionBlurEffect> MotionBlurEffect::Make(sk_sp<sksg::Animator> animator,
                                                         phase, dt));
 }
 
-MotionBlurEffect::MotionBlurEffect(sk_sp<sksg::Animator> animator,
+MotionBlurEffect::MotionBlurEffect(sk_sp<Animator> animator,
                                    sk_sp<sksg::RenderNode> child,
                                    size_t samples, float phase, float dt)
     : INHERITED({std::move(child)})
@@ -68,7 +69,7 @@ const sksg::RenderNode* MotionBlurEffect::onNodeAt(const SkPoint&) const {
 
 SkRect MotionBlurEffect::seekToSample(size_t sample_idx, const SkMatrix& ctm) const {
     SkASSERT(sample_idx < fSampleCount);
-    fAnimator->tick(fT + fPhase + fDT * sample_idx);
+    fAnimator->seek(fT + fPhase + fDT * sample_idx);
 
     SkASSERT(this->children().size() == 1ul);
     return this->children()[0]->revalidate(nullptr, ctm);

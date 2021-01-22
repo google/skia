@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkThreadAnnotations.h"
+#include <algorithm>
 #include <atomic>
 
 class SkSemaphore {
@@ -18,7 +19,7 @@ public:
     constexpr SkSemaphore(int count = 0) : fCount(count), fOSSemaphore(nullptr) {}
 
     // Cleanup the underlying OS semaphore.
-    ~SkSemaphore();
+    SK_SPI ~SkSemaphore();
 
     // Increment the counter n times.
     // Generally it's better to call signal(n) instead of signal() n times.
@@ -29,7 +30,7 @@ public:
     void wait();
 
     // If the counter is positive, decrement it by 1 and return true, otherwise return false.
-    bool try_wait();
+    SK_SPI bool try_wait();
 
 private:
     // This implementation follows the general strategy of
@@ -43,8 +44,8 @@ private:
     // moving the count from >=0 to <0 or vice-versa, i.e. sleeping or waking threads.
     struct OSSemaphore;
 
-    void osSignal(int n);
-    void osWait();
+    SK_SPI void osSignal(int n);
+    SK_SPI void osWait();
 
     std::atomic<int> fCount;
     SkOnce           fOSSemaphoreOnce;
@@ -59,11 +60,11 @@ inline void SkSemaphore::signal(int n) {
     //
     // This is easiest to think about with specific examples of prev and n.
     // If n == 5 and prev == -3, there are 3 threads sleeping and we signal
-    // SkTMin(-(-3), 5) == 3 times on the OS semaphore, leaving the count at 2.
+    // std::min(-(-3), 5) == 3 times on the OS semaphore, leaving the count at 2.
     //
-    // If prev >= 0, no threads are waiting, SkTMin(-prev, n) is always <= 0,
+    // If prev >= 0, no threads are waiting, std::min(-prev, n) is always <= 0,
     // so we don't call the OS semaphore, leaving the count at (prev + n).
-    int toSignal = SkTMin(-prev, n);
+    int toSignal = std::min(-prev, n);
     if (toSignal > 0) {
         this->osSignal(toSignal);
     }

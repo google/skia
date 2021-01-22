@@ -10,16 +10,18 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/gpu/YUVUtils.h"
 
 // Modeled on the layout test css3/blending/background-blend-mode-image-image.html to reproduce
 // skbug.com/9619
 DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
-    sk_sp<SkImage> duckyBG = GetResourceAsImage("ducky.png");
-    sk_sp<SkImage> duckyFG[2] = {GetResourceAsImage("ducky.jpg"), nullptr};
+    sk_sp<SkImage> duckyBG = GetResourceAsImage("images/ducky.png");
+    sk_sp<SkImage> duckyFG[2] = {GetResourceAsImage("images/ducky.jpg"), nullptr};
     if (!duckyFG[0] || !duckyBG) {
         *errorMsg = "Image(s) failed to load.";
         return skiagm::DrawResult::kFail;
@@ -27,26 +29,15 @@ DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
 
     // If we're on the GPU we do a second round of draws where the source image is YUV planes.
     // Otherwise we just draw the original again,
-    if (auto* context = canvas->getGrContext()) {
-        SkYUVASizeInfo info;
-        SkYUVAIndex indices[4];
-        SkYUVColorSpace yuvColorSpace;
-        const void* planes[4];
-        auto data = as_IB(duckyFG[0])->getPlanes(&info, indices, &yuvColorSpace, planes);
-        SkPixmap pixmaps[4];
-        for (int i = 0; i < 4; ++i) {
-            if (indices[i].fIndex >= 0) {
-                pixmaps[i].reset(
-                        SkImageInfo::MakeA8(info.fSizes[i]), planes[i], info.fWidthBytes[i]);
-            }
+    if (auto* rContext = canvas->recordingContext(); rContext && !rContext->abandoned()) {
+        auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(GetResourceAsData("images/ducky.jpg"),
+                                                       GrMipmapped::kYes);
+        if (lazyYUV) {
+            duckyFG[1] = lazyYUV->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
         }
-        duckyFG[1] = SkImage::MakeFromYUVAPixmaps(context,
-                                                  yuvColorSpace,
-                                                  pixmaps,
-                                                  indices,
-                                                  duckyFG[0]->dimensions(),
-                                                  kTopLeft_GrSurfaceOrigin,
-                                                  true);
+        if (!duckyFG[1]) {
+            return skiagm::DrawResult::kFail;
+        }
     } else {
         duckyFG[1] = duckyFG[0];
     }

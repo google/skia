@@ -51,9 +51,6 @@ __argparse.add_argument('-d', '--duration',
   type=int, help="number of milliseconds to run each benchmark")
 __argparse.add_argument('-l', '--sample-ms',
   type=int, help="duration of a sample (minimum)")
-__argparse.add_argument('--force',
-  action='store_true',
-  help="perform benchmarking on unrecognized Android devices")
 __argparse.add_argument('--gpu',
   action='store_true',
   help="perform timing on the gpu clock instead of cpu (gpu work only)")
@@ -67,23 +64,27 @@ __argparse.add_argument('--cc',
   action='store_true', help="allow coverage counting shortcuts to render paths")
 __argparse.add_argument('--nocache',
   action='store_true', help="disable caching of path mask textures")
+__argparse.add_argument('--allPathsVolatile',
+  action='store_true',
+  help="Causes all GPU paths to be processed as if 'setIsVolatile' had been called.")
 __argparse.add_argument('-c', '--config',
   default='gl', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
   help="optional file to append results into")
 __argparse.add_argument('--ddl',
   action='store_true', help="record the skp into DDLs before rendering")
-__argparse.add_argument('--ddlNumAdditionalThreads',
+__argparse.add_argument('--ddlNumRecordingThreads',
   type=int, default=0,
-  help="number of DDL recording threads in addition to main one")
+  help="number of DDL recording threads (0=num_cores)")
 __argparse.add_argument('--ddlTilingWidthHeight',
   type=int, default=0, help="number of tiles along one edge when in DDL mode")
-__argparse.add_argument('--ddlRecordTime',
-  action='store_true', help="report just the cpu time spent recording DDLs")
 __argparse.add_argument('--gpuThreads',
   type=int, default=-1,
   help="Create this many extra threads to assist with GPU work, including"
        " software path rendering. Defaults to two.")
+__argparse.add_argument('--internalSamples',
+  type=int, default=-1,
+  help="Number of samples for internal draws that use MSAA or mixed samples.")
 __argparse.add_argument('srcs',
   nargs='+',
   help=".skp files or directories to expand for .skp files, and/or .svg files")
@@ -140,19 +141,21 @@ class SKPBench:
     ARGV.extend(['--cc', 'true'])
   if FLAGS.nocache:
     ARGV.extend(['--cachePathMasks', 'false'])
+  if FLAGS.allPathsVolatile:
+    ARGV.extend(['--allPathsVolatile', 'true'])
   if FLAGS.gpuThreads != -1:
     ARGV.extend(['--gpuThreads', str(FLAGS.gpuThreads)])
+  if FLAGS.internalSamples != -1:
+    ARGV.extend(['--internalSamples', str(FLAGS.internalSamples)])
 
   # DDL parameters
   if FLAGS.ddl:
     ARGV.extend(['--ddl', 'true'])
-  if FLAGS.ddlNumAdditionalThreads:
-    ARGV.extend(['--ddlNumAdditionalThreads',
-                 str(FLAGS.ddlNumAdditionalThreads)])
+  if FLAGS.ddlNumRecordingThreads:
+    ARGV.extend(['--ddlNumRecordingThreads',
+                 str(FLAGS.ddlNumRecordingThreads)])
   if FLAGS.ddlTilingWidthHeight:
     ARGV.extend(['--ddlTilingWidthHeight', str(FLAGS.ddlTilingWidthHeight)])
-  if FLAGS.ddlRecordTime:
-    ARGV.extend(['--ddlRecordTime', 'true'])
 
   if FLAGS.adb:
     if FLAGS.device_serial is None:
@@ -339,7 +342,7 @@ def main():
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
-    elif model == 'Pixel':
+    elif model == 'Pixel' or model == "Pixel XL":
       from _hardware_pixel import HardwarePixel
       hardware = HardwarePixel(adb)
     elif model == 'Pixel 2':
@@ -348,14 +351,11 @@ def main():
     elif model == 'Nexus 6P':
       from _hardware_nexus_6p import HardwareNexus6P
       hardware = HardwareNexus6P(adb)
-    elif FLAGS.force:
+    else:
       from _hardware_android import HardwareAndroid
       print("WARNING: %s: don't know how to monitor this hardware; results "
             "may be unreliable." % model, file=sys.stderr)
       hardware = HardwareAndroid(adb)
-    else:
-      raise Exception("%s: don't know how to monitor this hardware. "
-                      "Use --force to bypass this warning." % model)
   else:
     hardware = Hardware()
 

@@ -11,6 +11,8 @@ is_skia_dev_build = is_skia_standalone && !is_official_build
 declare_args() {
   skia_android_serial = ""
   skia_compile_processors = false
+  skia_enable_api_available_macro = true
+  skia_enable_android_utils = is_skia_dev_build
   skia_enable_ccpr = true
   skia_enable_discrete_gpu = true
   skia_enable_flutter_defines = false
@@ -20,42 +22,51 @@ declare_args() {
   skia_enable_fontmgr_win_gdi = is_win
   skia_enable_gpu = true
   skia_enable_pdf = true
+  skia_enable_skottie = !(is_win && is_component_build)
+  skia_enable_skrive = true
   skia_enable_sksl_interpreter = is_skia_dev_build
-  skia_enable_skvm_jit =
-      is_skia_dev_build && ((target_cpu == "x64" && (is_linux || is_mac)) ||
-                            (target_cpu == "arm64" && is_android))
+  skia_enable_skvm_jit_when_possible = is_skia_dev_build
+  skia_enable_svg = true
   skia_enable_tools = is_skia_dev_build
-  skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
+  skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
   skia_libgifcodec_path = "third_party/externals/libgifcodec"
-  skia_pdf_subset_harfbuzz = false  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
+  skia_pdf_subset_harfbuzz =
+      false  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
   skia_qt_path = getenv("QT_PATH")
   skia_skqp_global_error_tolerance = 0
   skia_tools_require_resources = false
   skia_update_fuchsia_sdk = false
   skia_use_angle = false
   skia_use_dawn = false
+  skia_use_direct3d = false
   skia_use_egl = false
   skia_use_expat = true
   skia_use_experimental_xform = false
   skia_use_ffmpeg = false
   skia_use_fixed_gamma_text = is_android
   skia_use_fontconfig = is_linux
-  skia_use_fonthost_mac = is_mac
+  skia_use_fonthost_mac = is_mac || is_ios
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_harfbuzz = true
   skia_use_gl = !is_fuchsia
-  skia_use_icu = !is_fuchsia && !is_ios
+  skia_use_icu = !is_fuchsia
   skia_use_libheif = is_skia_dev_build
-  skia_use_libjpeg_turbo = true
-  skia_use_libpng = true
-  skia_use_libwebp = true
+  skia_use_libjpeg_turbo_decode = true
+  skia_use_libjpeg_turbo_encode = true
+  skia_use_libpng_decode = true
+  skia_use_libpng_encode = true
+  skia_use_libwebp_decode = true
+  skia_use_libwebp_encode = true
   skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_metal = false
+  skia_use_ndk_images = is_android && defined(ndk_api) && ndk_api >= 30
   skia_use_opencl = false
   skia_use_piex = !is_win
+  skia_use_sfml = false
+  skia_use_webgl = false
   skia_use_wuffs = false
   skia_use_x11 = is_linux
   skia_use_xps = true
@@ -81,21 +92,56 @@ declare_args() {
   } else if (is_fuchsia) {
     skia_use_vulkan = true
   } else {
-    skia_use_vulkan = defined(skia_moltenvk_path) && skia_moltenvk_path != ""
+    skia_use_vulkan = false
   }
+
+  skia_build_fuzzers = is_clang && is_linux && target_cpu == "x64"
+  skia_use_libfuzzer_defaults = true
 }
 
 declare_args() {
-  skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
+  skia_compile_sksl_tests = skia_compile_processors
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
-  skia_enable_fontmgr_custom =
-      is_linux && skia_use_freetype && !skia_use_fontconfig
-  skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
+  skia_enable_fontmgr_custom_directory = skia_use_freetype && !is_fuchsia
+  skia_enable_fontmgr_custom_embedded = skia_use_freetype && !is_fuchsia
+  skia_enable_fontmgr_custom_empty = skia_use_freetype
+  skia_enable_fontmgr_fontconfig = skia_use_freetype && skia_use_fontconfig
+  skia_enable_fontmgr_FontConfigInterface =
+      skia_use_freetype && skia_use_fontconfig
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
-  skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_dng_sdk =
+      !is_fuchsia && skia_use_libjpeg_turbo_decode && skia_use_zlib
   skia_use_libgifcodec = !skia_use_wuffs
   skia_use_sfntly = skia_use_icu
+  skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
+  skia_enable_direct3d_debug_layer = skia_enable_gpu_debug_layers
+  skia_use_vma = skia_use_vulkan
+}
+
+declare_args() {
+  # skia_fontmgr_factory should define SkFontMgr::Factory()
+  if (skia_enable_fontmgr_empty) {
+    skia_fontmgr_factory = ":fontmgr_empty_factory"
+  } else if (is_android && skia_enable_fontmgr_android) {
+    skia_fontmgr_factory = ":fontmgr_android_factory"
+  } else if (is_win && skia_enable_fontmgr_win) {
+    skia_fontmgr_factory = ":fontmgr_win_factory"
+  } else if ((is_mac || is_ios) && skia_use_fonthost_mac) {
+    skia_fontmgr_factory = ":fontmgr_mac_ct_factory"
+  } else if (skia_enable_fontmgr_fontconfig) {
+    skia_fontmgr_factory = ":fontmgr_fontconfig_factory"
+  } else if (skia_enable_fontmgr_custom_directory) {
+    skia_fontmgr_factory = ":fontmgr_custom_directory_factory"
+  } else if (skia_enable_fontmgr_custom_embedded) {
+    skia_fontmgr_factory = ":fontmgr_custom_embedded_factory"
+  } else if (skia_enable_fontmgr_custom_empty) {
+    skia_fontmgr_factory = ":fontmgr_custom_empty_factory"
+  } else {
+    #"src/ports/SkFontMgr_FontConfigInterface_factory.cpp" #WontFix
+    #"src/ports/SkFontMgr_win_gdi_factory.cpp" # WontFix
+    skia_fontmgr_factory = ":fontmgr_empty_factory"
+  }
 }
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.

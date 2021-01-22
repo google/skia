@@ -72,8 +72,8 @@ def RunSteps(api):
 
 def GenTests(api):
   yield (
-      api.test('Test-Debian9-EMCC-GCE-GPU-WEBGL1-wasm-Debug-All-CanvasKit') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-GPU-WEBGL1'
+      api.test('Test-Debian10-EMCC-GCE-GPU-WEBGL1-wasm-Debug-All-CanvasKit') +
+      api.properties(buildername=('Test-Debian10-EMCC-GCE-GPU-WEBGL1'
                                   '-wasm-Debug-All-CanvasKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
@@ -83,7 +83,7 @@ def GenTests(api):
 
   yield (
       api.test('canvaskit_trybot') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+      api.properties(buildername=('Test-Debian10-EMCC-GCE-CPU-AVX2'
                                   '-wasm-Debug-All-CanvasKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',

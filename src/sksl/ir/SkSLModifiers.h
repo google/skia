@@ -10,6 +10,8 @@
 
 #include "src/sksl/ir/SkSLLayout.h"
 
+#include <vector>
+
 namespace SkSL {
 
 /**
@@ -34,6 +36,8 @@ struct Modifiers {
         kPLS_Flag            = 1 << 13,
         kPLSIn_Flag          = 1 << 14,
         kPLSOut_Flag         = 1 << 15,
+        kVarying_Flag        = 1 << 16,
+        kInline_Flag         = 1 << 17,
     };
 
     Modifiers()
@@ -88,6 +92,9 @@ struct Modifiers {
         if (fFlags & kPLSOut_Flag) {
             result += "__pixel_local_outEXT ";
         }
+        if (fFlags & kVarying_Flag) {
+            result += "varying ";
+        }
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {
             result += "inout ";
         } else if (fFlags & kIn_Flag) {
@@ -111,6 +118,17 @@ struct Modifiers {
     int fFlags;
 };
 
-} // namespace
+} // namespace SkSL
+
+namespace std {
+
+template <>
+struct hash<SkSL::Modifiers> {
+    size_t operator()(const SkSL::Modifiers& key) const {
+        return key.fFlags ^ (key.fLayout.fFlags << 8) ^ ((unsigned) key.fLayout.fBuiltin << 16);
+    }
+};
+
+} // namespace std
 
 #endif

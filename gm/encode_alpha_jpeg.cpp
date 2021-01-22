@@ -26,7 +26,7 @@ namespace skiagm {
 static inline void read_into_pixmap(SkPixmap* dst, SkImageInfo dstInfo, void* dstPixels,
         sk_sp<SkImage> src) {
     dst->reset(dstInfo, dstPixels, dstInfo.minRowBytes());
-    src->readPixels(*dst, 0, 0, SkImage::CachingHint::kDisallow_CachingHint);
+    src->readPixels(nullptr, *dst, 0, 0, SkImage::CachingHint::kDisallow_CachingHint);
 }
 
 static inline sk_sp<SkImage> encode_pixmap_and_make_image(const SkPixmap& src,
@@ -103,9 +103,9 @@ protected:
 private:
     SkAutoTMalloc<uint8_t> fStorage;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new EncodeJpegAlphaOptsGM; )
 
-};
+}  // namespace skiagm

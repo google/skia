@@ -74,7 +74,7 @@ struct Target {
     virtual void dumpStats() {}
 
     SkCanvas* getCanvas() const {
-        if (!surface.get()) {
+        if (!surface) {
             return nullptr;
         }
         return surface->getCanvas();

@@ -28,7 +28,7 @@ public:
 
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
-        SkASSERT(!fTargetView.proxy());
+        SkASSERT(0 == this->numTargets());
         return proxy == fSrcProxy.get();
     }
     // If fSrcProxy is uninstantiated at flush time we simply will skip doing the transfer.
@@ -41,9 +41,12 @@ private:
 
     bool onExecute(GrOpFlushState*) override;
 
+#if GR_TEST_UTILS
+    const char* name() const final { return "TransferFrom"; }
+#endif
 #ifdef SK_DEBUG
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {
-        fn(fSrcProxy.get(), GrMipMapped::kNo);
+        fn(fSrcProxy.get(), GrMipmapped::kNo);
     }
 #endif
 

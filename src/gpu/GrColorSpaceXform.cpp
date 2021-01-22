@@ -58,37 +58,29 @@ SkColor4f GrColorSpaceXform::apply(const SkColor4f& srcColor) {
 class GrGLColorSpaceXformEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
-        const GrColorSpaceXformEffect& csxe = args.fFp.cast<GrColorSpaceXformEffect>();
+        const GrColorSpaceXformEffect& proc = args.fFp.cast<GrColorSpaceXformEffect>();
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
-        fColorSpaceHelper.emitCode(uniformHandler, csxe.colorXform());
+        fColorSpaceHelper.emitCode(uniformHandler, proc.colorXform());
 
-        if (this->numChildProcessors()) {
-            SkString childColor("src_color");
-            this->invokeChild(0, &childColor, args);
+        SkString childColor = this->invokeChild(0, args);
 
-            SkString xformedColor;
-            fragBuilder->appendColorGamutXform(&xformedColor, childColor.c_str(), &fColorSpaceHelper);
-            fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, xformedColor.c_str(),
-                                     args.fInputColor);
-        } else {
-            SkString xformedColor;
-            fragBuilder->appendColorGamutXform(&xformedColor, args.fInputColor, &fColorSpaceHelper);
-            fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
-        }
+        SkString xformedColor;
+        fragBuilder->appendColorGamutXform(&xformedColor, childColor.c_str(), &fColorSpaceHelper);
+        fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& processor) override {
-        const GrColorSpaceXformEffect& csxe = processor.cast<GrColorSpaceXformEffect>();
-        fColorSpaceHelper.setData(pdman, csxe.colorXform());
+                   const GrFragmentProcessor& fp) override {
+        const GrColorSpaceXformEffect& proc = fp.cast<GrColorSpaceXformEffect>();
+        fColorSpaceHelper.setData(pdman, proc.colorXform());
     }
 
     GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -97,16 +89,17 @@ GrColorSpaceXformEffect::GrColorSpaceXformEffect(std::unique_ptr<GrFragmentProce
                                                  sk_sp<GrColorSpaceXform> colorXform)
         : INHERITED(kGrColorSpaceXformEffect_ClassID, OptFlags(child.get()))
         , fColorXform(std::move(colorXform)) {
-    if (child) {
-        this->registerChildProcessor(std::move(child));
-    }
+    this->registerChild(std::move(child));
+}
+
+GrColorSpaceXformEffect::GrColorSpaceXformEffect(const GrColorSpaceXformEffect& that)
+        : INHERITED(kGrColorSpaceXformEffect_ClassID, that.optimizationFlags())
+        , fColorXform(that.fColorXform) {
+    this->cloneAndRegisterAllChildProcessors(that);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::clone() const {
-    std::unique_ptr<GrFragmentProcessor> child =
-            this->numChildProcessors() ? this->childProcessor(0).clone() : nullptr;
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrColorSpaceXformEffect(std::move(child), fColorXform));
+    return std::unique_ptr<GrFragmentProcessor>(new GrColorSpaceXformEffect(*this));
 }
 
 bool GrColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -125,58 +118,28 @@ GrGLSLFragmentProcessor* GrColorSpaceXformEffect::onCreateGLSLInstance() const {
 
 GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
         const GrFragmentProcessor* child) {
-    // TODO: Implement constant output for constant input
-    if (child) {
-        OptimizationFlags flags = kNone_OptimizationFlags;
-        if (child->compatibleWithCoverageAsAlpha()) {
-            flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-        }
-        if (child->preservesOpaqueInput()) {
-            flags |= kPreservesOpaqueInput_OptimizationFlag;
-        }
-        return flags;
-    } else {
-        return kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-               kPreservesOpaqueInput_OptimizationFlag;
-    }
+    return (child ? ProcessorOptimizationFlags(child) : kAll_OptimizationFlags) &
+              (kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+               kPreservesOpaqueInput_OptimizationFlag |
+               kConstantOutputForConstantInput_OptimizationFlag);
 }
 
-std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(SkColorSpace* src,
-                                                                   SkAlphaType srcAT,
-                                                                   SkColorSpace* dst,
-                                                                   SkAlphaType dstAT) {
-    auto xform = GrColorSpaceXform::Make(src, srcAT,
-                                         dst, dstAT);
-    if (!xform) {
-        return nullptr;
-    }
-
-    return std::unique_ptr<GrFragmentProcessor>(new GrColorSpaceXformEffect(nullptr,
-                                                                            std::move(xform)));
+SkPMColor4f GrColorSpaceXformEffect::constantOutputForConstantInput(
+        const SkPMColor4f& input) const {
+    const auto c0 = ConstantOutputForConstantInput(this->childProcessor(0), input);
+    return this->fColorXform->apply(c0.unpremul()).premul();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
         std::unique_ptr<GrFragmentProcessor> child,
-        SkColorSpace* src, SkAlphaType srcAT, SkColorSpace* dst) {
-    if (!child) {
-        return nullptr;
-    }
-
-    auto xform = GrColorSpaceXform::Make(src, srcAT,
-                                         dst, kPremul_SkAlphaType);
-    if (!xform) {
-        return child;
-    }
-
-    return std::unique_ptr<GrFragmentProcessor>(new GrColorSpaceXformEffect(std::move(child),
-                                                                            std::move(xform)));
+        SkColorSpace* src, SkAlphaType srcAT,
+        SkColorSpace* dst, SkAlphaType dstAT) {
+    return Make(std::move(child), GrColorSpaceXform::Make(src, srcAT, dst, dstAT));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
-        std::unique_ptr<GrFragmentProcessor> child, sk_sp<GrColorSpaceXform> colorXform) {
-    if (!child) {
-        return nullptr;
-    }
+        std::unique_ptr<GrFragmentProcessor> child,
+        sk_sp<GrColorSpaceXform> colorXform) {
     if (!colorXform) {
         return child;
     }

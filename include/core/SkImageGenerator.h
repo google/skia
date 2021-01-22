@@ -13,16 +13,19 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
 
 class GrRecordingContext;
-class GrTextureProxy;
+class GrSurfaceProxyView;
 class GrSamplerState;
 class SkBitmap;
 class SkData;
 class SkMatrix;
 class SkPaint;
 class SkPicture;
+
+enum class GrImageTexGenPolicy : int;
 
 class SK_API SkImageGenerator {
 public:
@@ -54,7 +57,7 @@ public:
      *  Can this generator be used to produce images that will be drawable to the specified context
      *  (or to CPU, if context is nullptr)?
      */
-    bool isValid(GrContext* context) const {
+    bool isValid(GrRecordingContext* context) const {
         return this->onIsValid(context);
     }
 
@@ -82,34 +85,33 @@ public:
      */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
+    bool getPixels(const SkPixmap& pm) {
+        return this->getPixels(pm.info(), pm.writable_addr(), pm.rowBytes());
+    }
+
     /**
-     *  If decoding to YUV is supported, this returns true.  Otherwise, this
-     *  returns false and does not modify any of the parameters.
+     *  If decoding to YUV is supported, this returns true. Otherwise, this
+     *  returns false and the caller will ignore output parameter yuvaPixmapInfo.
      *
-     *  @param sizeInfo    Output parameter indicating the sizes and required
-     *                     allocation widths of the Y, U, V, and A planes.
-     *  @param yuvaIndices How the YUVA planes are organized/used
-     *  @param colorSpace  Output parameter.
+     * @param  supportedDataTypes Indicates the data type/planar config combinations that are
+     *                            supported by the caller. If the generator supports decoding to
+     *                            YUV(A), but not as a type in supportedDataTypes, this method
+     *                            returns false.
+     *  @param yuvaPixmapInfo Output parameter that specifies the planar configuration, subsampling,
+     *                        orientation, chroma siting, plane color types, and row bytes.
      */
-    bool queryYUVA8(SkYUVASizeInfo* sizeInfo,
-                    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                    SkYUVColorSpace* colorSpace) const;
+    bool queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
+                       SkYUVAPixmapInfo* yuvaPixmapInfo) const;
 
     /**
      *  Returns true on success and false on failure.
-     *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUVA8().
+     *  This always attempts to perform a full decode. To get the planar
+     *  configuration without decoding use queryYUVAInfo().
      *
-     *  @param sizeInfo    Needs to exactly match the values returned by the
-     *                     query, except the WidthBytes may be larger than the
-     *                     recommendation (but not smaller).
-     *  @param yuvaIndices Needs to exactly match the values returned by the query.
-     *  @param planes      Memory for the Y, U, V, and A planes. Note that, depending on the
-     *                     settings in yuvaIndices, anywhere from 1..4 planes could be returned.
+     *  @param yuvaPixmaps  Contains preallocated pixmaps configured according to a successful call
+     *                      to queryYUVAInfo().
      */
-    bool getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
-                        const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                        void* planes[]);
+    bool getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps);
 
 #if SK_SUPPORT_GPU
     /**
@@ -128,7 +130,7 @@ public:
      *          return false;
      *      }
      *
-     *  Regarding the GrContext parameter:
+     *  Regarding the GrRecordingContext parameter:
      *
      *  It must be non-NULL. The generator should only succeed if:
      *  - its internal context is the same
@@ -138,10 +140,14 @@ public:
      *  at least has the mip levels allocated and the base layer filled in. If this is not possible,
      *  the generator is allowed to return a non mipped proxy, but this will have some additional
      *  overhead in later allocating mips and copying of the base layer.
+     *
+     *  GrImageTexGenPolicy determines whether or not a new texture must be created (and its budget
+     *  status) or whether this may (but is not required to) return a pre-existing texture that is
+     *  retained by the generator (kDraw).
      */
-    sk_sp<GrTextureProxy> generateTexture(GrRecordingContext*, const SkImageInfo& info,
-                                          const SkIPoint& origin,
-                                          bool willNeedMipMaps);
+    GrSurfaceProxyView generateTexture(GrRecordingContext*, const SkImageInfo& info,
+                                       const SkIPoint& origin, GrMipmapped, GrImageTexGenPolicy);
+
 #endif
 
     /**
@@ -169,22 +175,14 @@ protected:
     virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
-    virtual bool onIsValid(GrContext*) const { return true; }
-    virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                              SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                                  void*[4] /*planes*/) { return false; }
+    virtual bool onIsValid(GrRecordingContext*) const { return true; }
+    virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
+                                 SkYUVAPixmapInfo*) const { return false; }
+    virtual bool onGetYUVAPlanes(const SkYUVAPixmaps&) { return false; }
 #if SK_SUPPORT_GPU
-    enum class TexGenType {
-        kNone,           //image generator does not implement onGenerateTexture
-        kCheap,          //onGenerateTexture is implemented and it is fast (does not render offscreen)
-        kExpensive,      //onGenerateTexture is implemented and it is relatively slow
-    };
-
-    virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
-    virtual sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                                    const SkIPoint&,
-                                                    bool willNeedMipMaps);  // returns nullptr
+    // returns nullptr
+    virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
+                                                 const SkIPoint&, GrMipmapped, GrImageTexGenPolicy);
 #endif
 
 private:

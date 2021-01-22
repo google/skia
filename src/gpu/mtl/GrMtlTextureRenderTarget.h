@@ -15,13 +15,13 @@ class GrMtlTextureRenderTarget: public GrMtlTexture, public GrMtlRenderTarget {
 public:
     static sk_sp<GrMtlTextureRenderTarget> MakeNewTextureRenderTarget(GrMtlGpu*,
                                                                       SkBudgeted,
-                                                                      const GrSurfaceDesc&,
+                                                                      SkISize,
                                                                       int sampleCnt,
                                                                       MTLTextureDescriptor*,
-                                                                      GrMipMapsStatus);
+                                                                      GrMipmapStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
-                                                                          const GrSurfaceDesc&,
+                                                                          SkISize,
                                                                           int sampleCnt,
                                                                           id<MTLTexture>,
                                                                           GrWrapCacheable);
@@ -43,30 +43,30 @@ protected:
 private:
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkBudgeted budgeted,
-                             const GrSurfaceDesc& desc,
+                             SkISize,
                              int sampleCnt,
                              id<MTLTexture> colorTexture,
                              id<MTLTexture> resolveTexture,
-                             GrMipMapsStatus);
+                             GrMipmapStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkBudgeted budgeted,
-                             const GrSurfaceDesc& desc,
+                             SkISize,
                              id<MTLTexture> colorTexture,
-                             GrMipMapsStatus);
+                             GrMipmapStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
-                             const GrSurfaceDesc& desc,
+                             SkISize,
                              int sampleCnt,
                              id<MTLTexture> colorTexture,
                              id<MTLTexture> resolveTexture,
-                             GrMipMapsStatus,
+                             GrMipmapStatus,
                              GrWrapCacheable cacheable);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
-                             const GrSurfaceDesc& desc,
+                             SkISize,
                              id<MTLTexture> colorTexture,
-                             GrMipMapsStatus,
+                             GrMipmapStatus,
                              GrWrapCacheable cacheable);
 
     size_t onGpuMemorySize() const override {
@@ -77,9 +77,8 @@ private:
         if (numColorSamples > 1) {
             ++numColorSamples;
         }
-        const GrCaps& caps = *this->getGpu()->caps();
-        return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipMapped::kNo);
+        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
+                                      numColorSamples, GrMipmapped::kNo);
     }
 };
 

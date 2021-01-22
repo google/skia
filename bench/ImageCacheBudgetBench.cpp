@@ -9,10 +9,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
 
 #include <utility>
 
@@ -44,14 +44,14 @@ static void draw_image(SkCanvas* canvas, SkImage* img) {
 void set_cache_budget(SkCanvas* canvas, int approxImagesInBudget) {
     // This is inexact but we attempt to figure out a baseline number of resources GrContext needs
     // to render an SkImage and add one additional resource for each image we'd like to fit.
-    GrContext* context =  canvas->getGrContext();
+    auto context =  canvas->recordingContext()->asDirectContext();
     SkASSERT(context);
-    context->flush();
+    context->flushAndSubmit();
     context->priv().testingOnly_purgeAllUnlockedResources();
     sk_sp<SkImage> image;
     make_images(&image, 1);
     draw_image(canvas, image.get());
-    context->flush();
+    context->flushAndSubmit();
     int baselineCount;
     context->getResourceCacheUsage(&baselineCount, nullptr);
     baselineCount -= 1; // for the image's textures.
@@ -89,7 +89,7 @@ protected:
     }
 
     void onPerCanvasPreDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->recordingContext()->asDirectContext();
         SkASSERT(context);
         fOldBytes = context->getResourceCacheLimit();
         set_cache_budget(canvas, fBudgetSize);
@@ -112,7 +112,7 @@ protected:
     }
 
     void onPerCanvasPostDraw(SkCanvas* canvas) override {
-        GrContext* context =  canvas->getGrContext();
+        auto context =  canvas->recordingContext()->asDirectContext();
         SkASSERT(context);
         context->setResourceCacheLimit(fOldBytes);
         for (int i = 0; i < kImagesToDraw; ++i) {
@@ -150,7 +150,7 @@ private:
     std::unique_ptr<int[]>      fIndices;
     size_t                      fOldBytes;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new ImageCacheBudgetBench(105, false); )
@@ -200,7 +200,7 @@ protected:
     }
 
     void onPerCanvasPreDraw(SkCanvas* canvas) override {
-        GrContext* context =  canvas->getGrContext();
+        auto context = canvas->recordingContext()->asDirectContext();
         SkASSERT(context);
         context->getResourceCacheLimits(&fOldCount, &fOldBytes);
         make_images(fImages, kMaxImagesToDraw);
@@ -208,7 +208,7 @@ protected:
     }
 
     void onPerCanvasPostDraw(SkCanvas* canvas) override {
-        GrContext* context =  canvas->getGrContext();
+        auto context = canvas->recordingContext()->asDirectContext();
         SkASSERT(context);
         context->setResourceCacheLimits(fOldCount, fOldBytes);
         for (int i = 0; i < kMaxImagesToDraw; ++i) {
@@ -254,7 +254,7 @@ private:
     size_t                      fOldBytes;
     int                         fOldCount;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new ImageCacheBudgetDynamicBench(ImageCacheBudgetDynamicBench::Mode::kPingPong); )

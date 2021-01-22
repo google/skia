@@ -14,7 +14,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -71,26 +71,29 @@ protected:
                 if (fConvexPath.isEmpty()) {
                     SkPoint points[4];
                     kRect.toQuad(points);
-                    fConvexPath.moveTo(points[0]);
-                    fConvexPath.quadTo(points[1], points[2]);
-                    fConvexPath.quadTo(points[3], points[0]);
+                    fConvexPath = SkPathBuilder().moveTo(points[0])
+                                                 .quadTo(points[1], points[2])
+                                                 .quadTo(points[3], points[0])
+                                                 .detach();
                     SkASSERT(fConvexPath.isConvex());
                 }
                 canvas->drawPath(fConvexPath, *paint);
                 break;
             case kConcavePath_ShapeType:
                 if (fConcavePath.isEmpty()) {
+                    SkPathBuilder b;
                     SkPoint points[5] = {{50.f, 0.f}};
                     SkMatrix rot;
                     rot.setRotate(360.f / 5, 50.f, 70.f);
                     for (int i = 1; i < 5; ++i) {
                         rot.mapPoints(points + i, points + i - 1, 1);
                     }
-                    fConcavePath.moveTo(points[0]);
+                    b.moveTo(points[0]);
                     for (int i = 0; i < 5; ++i) {
-                        fConcavePath.lineTo(points[(2 * i) % 5]);
+                        b.lineTo(points[(2 * i) % 5]);
                     }
-                    fConcavePath.setFillType(SkPathFillType::kEvenOdd);
+                    fConcavePath = b.setFillType(SkPathFillType::kEvenOdd)
+                                    .detach();
                     SkASSERT(!fConcavePath.isConvex());
                 }
                 canvas->drawPath(fConcavePath, *paint);
@@ -100,6 +103,7 @@ protected:
                 SkFont      font(ToolUtils::create_portable_typeface(), 100);
                 font.setEmbolden(true);
                 canvas->drawString(text, 0.f, 100.f, font, *paint);
+                break;
             }
             default:
                 break;
@@ -192,11 +196,11 @@ private:
     static constexpr SkColor kBackground = SK_ColorLTGRAY;
     SkPath fConcavePath;
     SkPath fConvexPath;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new DstReadShuffle; )
 
-}
+}  // namespace skiagm

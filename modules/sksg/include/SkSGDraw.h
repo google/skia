@@ -40,7 +40,7 @@ private:
     sk_sp<GeometryNode> fGeometry;
     sk_sp<PaintNode>    fPaint;
 
-    typedef RenderNode INHERITED;
+    using INHERITED = RenderNode;
 };
 
 } // namespace sksg

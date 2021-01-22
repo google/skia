@@ -10,39 +10,55 @@
  **************************************************************************************************/
 #ifndef GrCircleEffect_DEFINED
 #define GrCircleEffect_DEFINED
+
+#include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrCircleEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
-                                                     float radius) {
+    static GrFPResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                           GrClipEdgeType edgeType,
+                           SkPoint center,
+                           float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
         // inverted. We could handle this case by making the processor code more complicated.
         if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
-            return nullptr;
+            return GrFPFailure(std::move(inputFP));
         }
-        return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
+        return GrFPSuccess(std::unique_ptr<GrFragmentProcessor>(
+                new GrCircleEffect(std::move(inputFP), edgeType, center, radius)));
     }
     GrCircleEffect(const GrCircleEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleEffect"; }
+    bool usesExplicitReturn() const override;
     GrClipEdgeType edgeType;
     SkPoint center;
     float radius;
 
 private:
-    GrCircleEffect(GrClipEdgeType edgeType, SkPoint center, float radius)
+    GrCircleEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
+                   GrClipEdgeType edgeType,
+                   SkPoint center,
+                   float radius)
             : INHERITED(kGrCircleEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , edgeType(edgeType)
             , center(center)
-            , radius(radius) {}
+            , radius(radius) {
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 #endif

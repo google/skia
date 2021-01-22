@@ -127,10 +127,10 @@ private:
     SkBitmap fCompositeSrc;
     SkBitmap fCompositeDst;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new AndroidBlendModesGM;)
-}
+}  // namespace skiagm

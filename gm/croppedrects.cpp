@@ -35,7 +35,7 @@ constexpr SkRect kSrcImageClip{75, 75, 275, 275};
  */
 class CroppedRectsGM : public GM {
 private:
-    SkString onShortName() override final { return SkString("croppedrects"); }
+    SkString onShortName() final { return SkString("croppedrects"); }
     SkISize onISize() override { return SkISize::Make(500, 500); }
 
     void onOnceBeforeDraw() override {
@@ -89,9 +89,9 @@ private:
         {
             // GrRenderTargetContext::fillRectWithLocalMatrix.
             SkAutoCanvasRestore acr(canvas, true);
-            SkPath path;
-            path.moveTo(kSrcImageClip.fLeft - kSrcImageClip.width(), kSrcImageClip.centerY());
-            path.lineTo(kSrcImageClip.fRight + 3 * kSrcImageClip.width(), kSrcImageClip.centerY());
+            SkPath path = SkPath::Line(
+                   {kSrcImageClip.fLeft - kSrcImageClip.width(), kSrcImageClip.centerY()},
+                   {kSrcImageClip.fRight + 3 * kSrcImageClip.width(), kSrcImageClip.centerY()});
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(2 * kSrcImageClip.height());
@@ -110,9 +110,9 @@ private:
     sk_sp<SkImage> fSrcImage;
     sk_sp<SkShader> fSrcImageShader;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new CroppedRectsGM(); )
 
-}
+}  // namespace skiagm

@@ -61,7 +61,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     test.setFillType(SkPathFillType::kEvenOdd);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, result.isEmpty());
-    REPORTER_ASSERT(reporter, result.getNewFillType() == SkPathFillType::kWinding);
+    REPORTER_ASSERT(reporter, result.getFillType() == SkPathFillType::kWinding);
     // if test is convex
     test.addCircle(5, 5, 10);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
@@ -132,7 +132,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                 }
                 SkPath original = test;
                 REPORTER_ASSERT(reporter, AsWinding(test, &result));
-                REPORTER_ASSERT(reporter, result.getNewFillType() == SkPathFillType::kWinding);
+                REPORTER_ASSERT(reporter, result.getFillType() == SkPathFillType::kWinding);
                 test.reset();
                 if (aFirst) {
                     test.addRect(rectA, dirA);
@@ -148,7 +148,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                 REPORTER_ASSERT(reporter, test == result);
                 // test that result may be input
                 REPORTER_ASSERT(reporter, AsWinding(original, &original));
-                REPORTER_ASSERT(reporter, original.getNewFillType() == SkPathFillType::kWinding);
+                REPORTER_ASSERT(reporter, original.getFillType() == SkPathFillType::kWinding);
                 REPORTER_ASSERT(reporter, original == result);
             }
         }
@@ -170,7 +170,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                         }
                         test.setFillType(SkPathFillType::kEvenOdd);
                         REPORTER_ASSERT(reporter, AsWinding(test, &result));
-                       REPORTER_ASSERT(reporter, result.getNewFillType() == SkPathFillType::kWinding);
+                       REPORTER_ASSERT(reporter, result.getFillType() == SkPathFillType::kWinding);
                         for (SkScalar x = rectA.fLeft - 1; x <= rectA.fRight + 1; ++x) {
                             for (SkScalar y = rectA.fTop - 1; y <= rectA.fBottom + 1; ++y) {
                                 bool evenOddContains = test.contains(x, y);

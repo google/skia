@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<title>WIP Shaping in JS Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas {
+    border: 1px dashed #AAA;
+  }
+
+  #input {
+    height: 300px;
+  }
+
+</style>
+
+<h2> (Really Bad) Shaping in JS </h2>
+<textarea id=input></textarea>
+<canvas id=shaped_text width=300 height=300></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  let CanvasKit = null;
+  const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const loadFont = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
+  // This font works with interobang.
+  //const loadFont = fetch('https://storage.googleapis.com/skia-cdn/google-web-fonts/SourceSansPro-Regular.ttf').then((response) => response.arrayBuffer());
+
+  document.getElementById('input').value = 'An aegis protected the fox!?';
+
+  // Examples requiring external resources.
+  Promise.all([ckLoaded, loadFont]).then((results) => {
+    ShapingJS(...results);
+  });
+
+  function ShapingJS(CanvasKit, fontData) {
+    if (!CanvasKit || !fontData) {
+      return;
+    }
+
+    const surface = CanvasKit.MakeCanvasSurface('shaped_text');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const fontMgr = CanvasKit.FontMgr.RefDefault();
+    const typeface = fontMgr.MakeTypefaceFromData(fontData);
+
+    const paint = new CanvasKit.Paint();
+
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const textPaint = new CanvasKit.Paint();
+    const textFont = new CanvasKit.Font(typeface, 20);
+    textFont.setLinearMetrics(true);
+    textFont.setSubpixel(true);
+    textFont.setHinting(CanvasKit.FontHinting.Slight);
+
+
+    // Only care about these characters for now. If we get any unknown characters, we'll replace
+    // them with the first glyph here (the replacement glyph).
+    // We put the family code point second to make sure we handle >16 bit codes correctly.
+    const alphabet = "�👪abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 _.,?!æ‽";
+    const ids = textFont.getGlyphIDs(alphabet);
+    const unknownCharacterGlyphID = ids[0];
+    // char here means "string version of unicode code point". This makes the code below a bit more
+    // readable than just integers. We just have to take care when reading these in that we don't
+    // grab the second half of a 32 bit code unit.
+    const charsToGlyphIDs = {};
+    // Indexes in JS correspond to a 16 bit or 32 bit code unit. If a code point is wider than
+    // 16 bits, it overflows into the next index. codePointAt will return a >16 bit value if the
+    // given index overflows. We need to check for this and skip the next index lest we get a
+    // garbage value (the second half of the Unicode code point.
+    let glyphIdx = 0;
+    for (let i = 0; i < alphabet.length; i++) {
+      charsToGlyphIDs[alphabet[i]] = ids[glyphIdx];
+      if (alphabet.codePointAt(i) > 65535) {
+        i++; // skip the next index because that will be the second half of the code point.
+      }
+      glyphIdx++;
+    }
+
+    // TODO(kjlubick): linear metrics so we get "correct" data (e.g. floats).
+    const bounds = textFont.getGlyphBounds(ids, textPaint);
+    const widths = textFont.getGlyphWidths(ids, textPaint);
+    // See https://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
+    // Note that in Skia, y-down is positive, so it is common to see yMax below be negative.
+    const glyphMetricsByGlyphID = {};
+    for (let i = 0; i < ids.length; i++) {
+      glyphMetricsByGlyphID[ids[i]] = {
+        xMin: bounds[i*4],
+        yMax: bounds[i*4 + 1],
+        xMax: bounds[i*4 + 2],
+        yMin: bounds[i*4 + 3],
+        xAdvance: widths[i],
+      };
+    }
+
+    const shapeAndDrawText = (str, canvas, x, y, maxWidth, font, paint) => {
+      const LINE_SPACING = 20;
+
+      // This is a conservative estimate - it can be shorter if we have ligatures code points
+      // that span multiple 16bit words.
+      const glyphs = CanvasKit.MallocGlyphIDs(str.length);
+      let glyphArr = glyphs.toTypedArray();
+
+      // Turn the code points into glyphs, accounting for up to 2 ligatures.
+      let shapedGlyphIdx = -1;
+      for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        shapedGlyphIdx++;
+        // POC Ligature support.
+        if (charsToGlyphIDs['æ'] && char === 'a' && str[i+1] === 'e') {
+          glyphArr[shapedGlyphIdx] = charsToGlyphIDs['æ'];
+          i++; // skip next code point
+          continue;
+        }
+        if (charsToGlyphIDs['‽'] && (
+            (char === '?' && str[i+1] === '!') || (char === '!' && str[i+1] === '?' ))) {
+          glyphArr[shapedGlyphIdx] = charsToGlyphIDs['‽'];
+          i++; // skip next code point
+          continue;
+        }
+        glyphArr[shapedGlyphIdx] = charsToGlyphIDs[char] || unknownCharacterGlyphID;
+        if (str.codePointAt(i) > 65535) {
+          i++; // skip the next index because that will be the second half of the code point.
+        }
+      }
+      // Trim down our array of glyphs to only the amount we have after ligatures and code points
+      // that are > 16 bits.
+      glyphArr = glyphs.subarray(0, shapedGlyphIdx+1);
+
+      // Break our glyphs into runs based on the maxWidth and the xAdvance.
+      const glyphRuns = [];
+      let currentRunStartIdx = 0;
+      let currentWidth = 0;
+      for (let i = 0; i < glyphArr.length; i++) {
+        const nextGlyphWidth = glyphMetricsByGlyphID[glyphArr[i]].xAdvance;
+        if (currentWidth + nextGlyphWidth > maxWidth) {
+          glyphRuns.push(glyphs.subarray(currentRunStartIdx, i));
+          currentRunStartIdx = i;
+          currentWidth = 0;
+        }
+        currentWidth += nextGlyphWidth;
+      }
+      glyphRuns.push(glyphs.subarray(currentRunStartIdx, glyphArr.length));
+
+      // Draw all those runs.
+      for (let i = 0; i < glyphRuns.length; i++) {
+        const blob = CanvasKit.TextBlob.MakeFromGlyphs(glyphRuns[i], font);
+        if (blob) {
+          canvas.drawTextBlob(blob, x, y + LINE_SPACING*i, paint);
+        }
+        blob.delete();
+      }
+      CanvasKit.Free(glyphs);
+    }
+
+    const drawFrame = (canvas) => {
+      canvas.clear(CanvasKit.WHITE);
+      canvas.drawText('a + e = ae (no ligature)',
+        5, 30, textPaint, textFont);
+      canvas.drawText('a + e = æ (hard-coded ligature)',
+        5, 50, textPaint, textFont);
+
+      canvas.drawRect(CanvasKit.LTRBRect(10, 80, 280, 290), paint);
+      shapeAndDrawText(document.getElementById('input').value, canvas, 15, 100, 265, textFont, textPaint);
+
+      surface.requestAnimationFrame(drawFrame)
+    };
+    surface.requestAnimationFrame(drawFrame);
+  }
+</script>

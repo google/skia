@@ -19,15 +19,15 @@ class GrMtlGpu;
 // A wrapper for a MTLSamplerState object with caching support.
 class GrMtlSampler : public SkRefCnt {
 public:
-    static GrMtlSampler* Create(const GrMtlGpu* gpu, const GrSamplerState&);
-    ~GrMtlSampler() { fMtlSamplerState = nil; }
+    static GrMtlSampler* Create(const GrMtlGpu* gpu, GrSamplerState);
+    ~GrMtlSampler() override { fMtlSamplerState = nil; }
 
     id<MTLSamplerState> mtlSampler() const { return fMtlSamplerState; }
 
     typedef uint32_t Key;
 
     // Helpers for hashing GrMtlSampler
-    static Key GenerateKey(const GrSamplerState&);
+    static Key GenerateKey(GrSamplerState);
 
     static const Key& GetKey(const GrMtlSampler& sampler) { return sampler.fKey; }
     static uint32_t Hash(const Key& key) {

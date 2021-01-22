@@ -7,6 +7,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -19,6 +21,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -31,6 +35,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -71,6 +77,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -83,6 +91,8 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
@@ -90,14 +100,88 @@
   },
   {
     "cmd": [
-      "ios.py"
+      "idevicepair",
+      "validate"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "setup_device"
+    "name": "check if device is paired"
+  },
+  {
+    "cmd": [
+      "ideviceimagemounter",
+      "--list"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "list mounted image"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]",
+      "ios-dev-image*"
+    ],
+    "env": {
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
+    },
+    "infra_step": true,
+    "name": "locate ios-dev-image package",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/ios-dev-image-13.2@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/ios-dev-image-13.2"
+    ],
+    "env": {
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
+    },
+    "infra_step": true,
+    "name": "locate image and signature",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/ios-dev-image-13.2/DeveloperDiskImage.dmg@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/ios-dev-image-13.2/DeveloperDiskImage.dmg.signature@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ideviceimagemounter",
+      "[START_DIR]/ios-dev-image-13.2/DeveloperDiskImage.dmg",
+      "[START_DIR]/ios-dev-image-13.2/DeveloperDiskImage.dmg.signature"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "mount developer image"
   },
   {
     "cmd": [
@@ -107,10 +191,12 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "install_dm",
+    "name": "install dm",
     "~followup_annotations": [
       "@@@STEP_EXCEPTION@@@"
     ]
@@ -123,10 +209,12 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "uninstall_dm"
+    "name": "uninstall dm"
   },
   {
     "cmd": [
@@ -136,17 +224,19 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "install_dm (attempt 2)",
+    "name": "install dm (attempt 2)",
     "~followup_annotations": [
       "@@@STEP_EXCEPTION@@@"
     ]
   },
   {
     "failure": {
-      "humanReason": "Infra Failure: Step('install_dm (attempt 2)') (retcode: 1)"
+      "humanReason": "Infra Failure: Step('install dm (attempt 2)') (retcode: 1)"
     },
     "name": "$result"
   }

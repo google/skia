@@ -48,11 +48,29 @@ public:
         canvas->drawClippedToSaveBehind(paint);
     }
 
+    // Exposed for testing on non-Android framework builds
+    static void ReplaceClip(SkCanvas* canvas, const SkIRect& rect) {
+        canvas->androidFramework_replaceClip(rect);
+    }
+
     // The experimental_DrawEdgeAAImageSet API accepts separate dstClips and preViewMatrices arrays,
     // where entries refer into them, but no explicit size is provided. Given a set of entries,
     // computes the minimum length for these arrays that would provide index access errors.
     static void GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[], int count,
                                           int* totalDstClipCount, int* totalMatrixCount);
+
+    // Checks that the marker name is an identifier ([a-zA-Z][a-zA-Z0-9_]*)
+    // Identifiers with leading underscores are reserved (not allowed).
+    static bool ValidateMarker(const char*);
 };
+
+/**
+ *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
+ *  against the playback cost of recursing into the subpicture to get at its actual ops.
+ *
+ *  For now we pick a conservatively small value, though measurement (and other heuristics like
+ *  the type of ops contained) may justify changing this value.
+ */
+constexpr int kMaxPictureOpsToUnrollInsteadOfRef = 1;
 
 #endif

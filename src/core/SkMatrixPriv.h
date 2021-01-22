@@ -9,6 +9,7 @@
 #define SkMatrixPriv_DEFINE
 
 #include "include/core/SkFilterQuality.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkPointPriv.h"
@@ -150,6 +151,35 @@ public:
     // Returns the recommended filterquality, assuming the caller originally wanted kHigh (bicubic)
     static SkFilterQuality AdjustHighQualityFilterLevel(const SkMatrix&,
                                                         bool matrixIsInverse = false);
+
+    static bool PostIDiv(SkMatrix* matrix, int divx, int divy) {
+        return matrix->postIDiv(divx, divy);
+    }
+
+    static bool CheapEqual(const SkMatrix& a, const SkMatrix& b) {
+        return &a == &b || 0 == memcmp(a.fMat, b.fMat, sizeof(a.fMat));
+    }
+
+    static const SkScalar* M44ColMajor(const SkM44& m) { return m.fMat; }
+
+    // This is legacy functionality that only checks the 3x3 portion. The matrix could have Z-based
+    // shear, or other complex behavior. Only use this if you're planning to use the information
+    // to accelerate some purely 2D operation.
+    static bool IsScaleTranslateAsM33(const SkM44& m) {
+        return m.rc(1,0) == 0 && m.rc(3,0) == 0 &&
+               m.rc(0,1) == 0 && m.rc(3,1) == 0 &&
+               m.rc(3,3) == 1;
+
+    }
+
+    // Returns the differential area scale factor for a local point 'p' that will be transformed
+    // by 'm' (which may have perspective). If 'm' does not have perspective, this scale factor is
+    // constant regardless of 'p'; when it does have perspective, it is specific to that point.
+    //
+    // This can be crudely thought of as "device pixel area" / "local pixel area" at 'p'.
+    //
+    // Returns positive infinity if the transformed homogeneous point has w <= 0.
+    static SkScalar DifferentialAreaScale(const SkMatrix& m, const SkPoint& p);
 };
 
 #endif

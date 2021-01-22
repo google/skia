@@ -13,9 +13,9 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -48,29 +48,9 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
                             const GrCaps& caps) {
     int samplerTypeKey = texture_type_key(textureType);
 
-    GR_STATIC_ASSERT(2 == sizeof(swizzle.asKey()));
-    uint16_t swizzleKey = 0;
-    if (caps.shaderCaps()->textureSwizzleAppliedInShader()) {
-        swizzleKey = swizzle.asKey();
-    }
+    static_assert(2 == sizeof(swizzle.asKey()));
+    uint16_t swizzleKey = swizzle.asKey();
     return SkToU32(samplerTypeKey | swizzleKey << kSamplerOrImageTypeKeyBits);
-}
-
-static void add_fp_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
-                                const GrCaps& caps) {
-    int numTextureSamplers = fp.numTextureSamplers();
-    if (!numTextureSamplers) {
-        return;
-    }
-    for (int i = 0; i < numTextureSamplers; ++i) {
-        const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
-        const GrBackendFormat& backendFormat = sampler.proxy()->backendFormat();
-
-        uint32_t samplerKey = sampler_key(backendFormat.textureType(), sampler.swizzle(), caps);
-        b->add32(samplerKey);
-
-        caps.addExtraSamplerKey(b, sampler.samplerState(), backendFormat);
-    }
 }
 
 static void add_pp_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,
@@ -112,7 +92,12 @@ static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
         return false;
     }
 
-    add_fp_sampler_keys(b, fp, caps);
+    fp.visitTextureEffects([&](const GrTextureEffect& te) {
+        const GrBackendFormat& backendFormat = te.view().proxy()->backendFormat();
+        uint32_t samplerKey = sampler_key(backendFormat.textureType(), te.view().swizzle(), caps);
+        b->add32(samplerKey);
+        caps.addExtraSamplerKey(b, te.samplerState(), backendFormat);
+    });
 
     uint32_t* key = b->add32n(2);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
@@ -160,8 +145,13 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                         const GrCaps& caps,
                                         GrProcessorKeyBuilder* b) {
     for (int i = 0; i < fp.numChildProcessors(); ++i) {
-        if (!gen_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), caps, b)) {
-            return false;
+        if (auto child = fp.childProcessor(i)) {
+            if (!gen_frag_proc_and_meta_keys(primProc, *child, caps, b)) {
+                return false;
+            }
+        } else {
+            // Fold in a sentinel value as the "class ID" for any null children
+            b->add32(GrProcessor::ClassID::kNull_ClassID);
         }
     }
 
@@ -170,9 +160,10 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
     return gen_fp_meta_key(fp, caps, primProc.computeCoordTransformsKey(fp), b);
 }
 
-bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarget,
-                          const GrProgramInfo& programInfo, const GrCaps& caps) {
-
+bool GrProgramDesc::Build(GrProgramDesc* desc,
+                          GrRenderTarget* renderTarget,
+                          const GrProgramInfo& programInfo,
+                          const GrCaps& caps) {
 #ifdef SK_DEBUG
     if (renderTarget) {
         SkASSERT(programInfo.backendFormat() == renderTarget->backendFormat());
@@ -184,44 +175,52 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    GR_STATIC_ASSERT(0 == kProcessorKeysOffset % sizeof(uint32_t));
+    static_assert(0 == kProcessorKeysOffset % sizeof(uint32_t));
     // Make room for everything up to the effect keys.
     desc->key().reset();
     desc->key().push_back_n(kProcessorKeysOffset);
 
     GrProcessorKeyBuilder b(&desc->key());
 
-    programInfo.primProc().getGLSLProcessorKey(*caps.shaderCaps(), &b);
-    programInfo.primProc().getAttributeKey(&b);
-    if (!gen_pp_meta_key(programInfo.primProc(), caps, 0, &b)) {
+    const GrPrimitiveProcessor& primitiveProcessor = programInfo.primProc();
+    primitiveProcessor.getGLSLProcessorKey(*caps.shaderCaps(), &b);
+    primitiveProcessor.getAttributeKey(&b);
+    if (!gen_pp_meta_key(primitiveProcessor, caps, 0, &b)) {
         desc->key().reset();
         return false;
     }
 
-    for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
-        const GrFragmentProcessor& fp = programInfo.pipeline().getFragmentProcessor(i);
-        if (!gen_frag_proc_and_meta_keys(programInfo.primProc(), fp, caps, &b)) {
+    const GrPipeline& pipeline = programInfo.pipeline();
+    int numColorFPs = 0, numCoverageFPs = 0;
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
+        if (!gen_frag_proc_and_meta_keys(primitiveProcessor, fp, caps, &b)) {
             desc->key().reset();
             return false;
         }
+        if (pipeline.isColorFragmentProcessor(i)) {
+            ++numColorFPs;
+        } else if (pipeline.isCoverageFragmentProcessor(i)) {
+            ++numCoverageFPs;
+        }
     }
 
-    const GrXferProcessor& xp = programInfo.pipeline().getXferProcessor();
+    const GrXferProcessor& xp = pipeline.getXferProcessor();
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
     GrSurfaceOrigin origin;
-    if (programInfo.pipeline().dstProxyView().proxy()) {
-        origin = programInfo.pipeline().dstProxyView().origin();
+    if (pipeline.dstProxyView().proxy()) {
+        origin = pipeline.dstProxyView().origin();
         originIfDstTexture = &origin;
     }
-    xp.getGLSLProcessorKey(*caps.shaderCaps(), &b, originIfDstTexture);
+    xp.getGLSLProcessorKey(*caps.shaderCaps(), &b, originIfDstTexture, pipeline.dstSampleType());
     if (!gen_xp_meta_key(xp, &b)) {
         desc->key().reset();
         return false;
     }
 
     if (programInfo.requestedFeatures() & GrProcessor::CustomFeatures::kSampleLocations) {
-        SkASSERT(programInfo.pipeline().isHWAntialiasState());
-        b.add32(renderTarget->renderTargetPriv().getSamplePatternKey());
+        SkASSERT(pipeline.isHWAntialiasState());
+        b.add32(renderTarget->getSamplePatternKey());
     }
 
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
@@ -231,16 +230,11 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
-    header->fOutputSwizzle = programInfo.pipeline().outputSwizzle().asKey();
-    header->fColorFragmentProcessorCnt = programInfo.pipeline().numColorFragmentProcessors();
-    header->fCoverageFragmentProcessorCnt = programInfo.pipeline().numCoverageFragmentProcessors();
-    // Fail if the client requested more processors than the key can fit.
-    if (header->fColorFragmentProcessorCnt != programInfo.pipeline().numColorFragmentProcessors() ||
-        header->fCoverageFragmentProcessorCnt !=
-                                         programInfo.pipeline().numCoverageFragmentProcessors()) {
-        desc->key().reset();
-        return false;
-    }
+    header->fWriteSwizzle = pipeline.writeSwizzle().asKey();
+    header->fColorFragmentProcessorCnt = numColorFPs;
+    header->fCoverageFragmentProcessorCnt = numCoverageFPs;
+    SkASSERT(header->fColorFragmentProcessorCnt == numColorFPs);
+    SkASSERT(header->fCoverageFragmentProcessorCnt == numCoverageFPs);
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
     header->fSurfaceOriginKey =
@@ -248,7 +242,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     header->fProcessorFeatures = (uint8_t)programInfo.requestedFeatures();
     // Ensure enough bits.
     SkASSERT(header->fProcessorFeatures == (int) programInfo.requestedFeatures());
-    header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();
+    header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     // The base descriptor only stores whether or not the primitiveType is kPoints. Backend-
     // specific versions (e.g., Vulkan) require more detail
     header->fHasPointSize = (programInfo.primitiveType() == GrPrimitiveType::kPoints);

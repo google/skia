@@ -10,18 +10,21 @@ point, for the next six weeks, only high priority fixes are checked into the bra
 After the six week period, when another branch is cut, only critical (typically
 security) fixes will be committed to any previous branch.
 
-Skia 2019 schedule:
+Skia 2020 schedule:
 
   Milestone | Branch Date (beginning of day)
   ----------|-------------------------------
-  73        | 01/24/19
-  74        | 03/07/19
-  75        | 04/18/19
-  76        | 05/30/19
-  77        | 07/25/19
-  78        | 09/05/19
-  79        | 10/17/19
-  80        | 12/05/19
+  81        | 01/30/20
+  82        | 03/12/20
+  83        | 04/02/20*
+  84        | 05/14/20
+  85        | 06/25/20
+  86        | 08/20/20
+  87        | 10/01/20
+  88        | 11/12/20
+
+Note that 82 was abandoned by Chromium and 83 schedule moved in due to COVID-19 impact.
+Skia is maintaining 82 for our customers. Future dates are subject to change.
 
 The current milestone is included in the headers in
 [SkMilestone.h](https://skia.googlesource.com/skia/+/master/include/core/SkMilestone.h).

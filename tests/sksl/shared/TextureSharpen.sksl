@@ -1,0 +1,12 @@
+/*#pragma settings Sharpen*/
+
+layout(binding=0) uniform sampler1D one;
+layout(binding=1) uniform sampler2D two;
+
+void main() {
+    float4 a = sample(one, 0);
+    float4 b = sample(two, float2(0));
+    float4 c = sample(one, float2(0));
+    float4 d = sample(two, float3(0));
+    sk_FragColor = half4(half(a.x), half(b.x), half(c.x), half(d.x));
+}

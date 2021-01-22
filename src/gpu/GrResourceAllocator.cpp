@@ -11,7 +11,6 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -23,7 +22,7 @@
         static std::atomic<uint32_t> nextID{1};
         uint32_t id;
         do {
-            id = nextID++;
+            id = nextID.fetch_add(1, std::memory_order_relaxed);
         } while (id == SK_InvalidUniqueID);
         return id;
     }
@@ -264,7 +263,7 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
     // First look in the free pool
     GrScratchKey key;
 
-    proxy->priv().computeScratchKey(&key);
+    proxy->priv().computeScratchKey(*fResourceProvider->caps(), &key);
 
     auto filter = [] (const GrSurface* s) {
         return true;
@@ -444,15 +443,15 @@ void GrResourceAllocator::dumpIntervals() {
     unsigned int min = std::numeric_limits<unsigned int>::max();
     unsigned int max = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
-        SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d\n",
+        SkDebugf("{ %3d,%3d }: [%2d, %2d] - refProxys:%d surfaceRefs:%d\n",
                  cur->proxy()->uniqueID().asUInt(),
                  cur->proxy()->isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1,
                  cur->start(),
                  cur->end(),
                  cur->proxy()->priv().getProxyRefCnt(),
                  cur->proxy()->testingOnly_getBackingRefCnt());
-        min = SkTMin(min, cur->start());
-        max = SkTMax(max, cur->end());
+        min = std::min(min, cur->start());
+        max = std::max(max, cur->end());
     }
 
     // Draw a graph of the useage intervals

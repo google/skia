@@ -8,7 +8,7 @@
 #ifndef GrGpuResourcePriv_DEFINED
 #define GrGpuResourcePriv_DEFINED
 
-#include "include/gpu/GrGpuResource.h"
+#include "src/gpu/GrGpuResource.h"
 
 /**
  * This class allows code internal to Skia privileged access to manage the cache keys and budget
@@ -70,12 +70,14 @@ public:
 
     bool isPurgeable() const { return fResource->isPurgeable(); }
 
-    bool hasRef() const { return fResource->hasRef(); }
+    bool hasRefOrCommandBufferUsage() const {
+        return fResource->hasRef() || !fResource->hasNoCommandBufferUsages();
+    }
 
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }
     ResourcePriv(const ResourcePriv& that) : fResource(that.fResource) {}
-    ResourcePriv& operator=(const CacheAccess&); // unimpl
+    ResourcePriv& operator=(const CacheAccess&) = delete;
 
     // No taking addresses of this type.
     const ResourcePriv* operator&() const;
@@ -88,7 +90,7 @@ protected:
 
 inline GrGpuResource::ResourcePriv GrGpuResource::resourcePriv() { return ResourcePriv(this); }
 
-inline const GrGpuResource::ResourcePriv GrGpuResource::resourcePriv() const {
+inline const GrGpuResource::ResourcePriv GrGpuResource::resourcePriv() const {  // NOLINT(readability-const-return-type)
     return ResourcePriv(const_cast<GrGpuResource*>(this));
 }
 

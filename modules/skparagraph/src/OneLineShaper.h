@@ -12,9 +12,6 @@
 namespace skia {
 namespace textlayout {
 
-typedef size_t GlyphIndex;
-typedef SkRange<GlyphIndex> GlyphRange;
-
 class ParagraphImpl;
 class OneLineShaper : public SkShaper::RunHandler {
 public:
@@ -22,7 +19,8 @@ public:
         : fParagraph(paragraph)
         , fHeight(0.0f)
         , fAdvance(SkPoint::Make(0.0f, 0.0f))
-        , fUnresolvedGlyphs(0) { }
+        , fUnresolvedGlyphs(0)
+        , fUniqueRunId(paragraph->fRuns.size()){ }
 
     bool shape();
 
@@ -44,8 +42,8 @@ private:
         // Entire run comes as one block fully resolved
         explicit RunBlock(std::shared_ptr<Run> run)
             : fRun(std::move(run))
-            , fText(run->fTextRange)
-            , fGlyphs(GlyphRange(0, run->size())) { }
+            , fText(fRun->fTextRange)
+            , fGlyphs(GlyphRange(0, fRun->size())) { }
 
         std::shared_ptr<Run> fRun;
         TextRange fText;
@@ -54,18 +52,23 @@ private:
     };
 
     using ShapeVisitor =
-            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, TextIndex)>;
+            std::function<SkScalar(TextRange textRange, SkSpan<Block>, SkScalar&, TextIndex, uint8_t)>;
     bool iterateThroughShapingRegions(const ShapeVisitor& shape);
 
-    using ShapeSingleFontVisitor = std::function<void(Block)>;
-    void iterateThroughFontStyles(SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
+    using ShapeSingleFontVisitor = std::function<void(Block, SkTArray<SkShaper::Feature>)>;
+    void iterateThroughFontStyles(TextRange textRange, SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
 
-    using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
+    enum Resolved {
+        Nothing,
+        Something,
+        Everything
+    };
+
+    using TypefaceVisitor = std::function<Resolved(sk_sp<SkTypeface> typeface)>;
     void matchResolvedFonts(const TextStyle& textStyle, const TypefaceVisitor& visitor);
 #ifdef SK_DEBUG
     void printState();
 #endif
-    void dropUnresolved();
     void finish(TextRange text, SkScalar height, SkScalar& advanceX);
 
     void beginLine() override {}
@@ -78,14 +81,14 @@ private:
                                            info,
                                            fCurrentText.start,
                                            fHeight,
-                                           fParagraph->fRuns.count(),
+                                           ++fUniqueRunId,
                                            fAdvance.fX);
         return fCurrentRun->newRunBuffer();
     }
 
     void commitRunBuffer(const RunInfo&) override;
 
-    TextRange clusteredText(GlyphRange glyphs);
+    TextRange clusteredText(GlyphRange& glyphs);
     ClusterIndex clusterIndex(GlyphIndex glyph) {
         return fCurrentText.start + fCurrentRun->fClusterIndexes[glyph];
     }
@@ -93,7 +96,6 @@ private:
     void addUnresolvedWithRun(GlyphRange glyphRange);
     void sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock);
     ClusterRange normalizeTextRange(GlyphRange glyphRange);
-    void increment(TextIndex& index);
     void fillGaps(size_t);
 
     ParagraphImpl* fParagraph;
@@ -101,13 +103,33 @@ private:
     SkScalar fHeight;
     SkVector fAdvance;
     size_t fUnresolvedGlyphs;
+    size_t fUniqueRunId;
 
     // TODO: Something that is not thead-safe since we don't need it
     std::shared_ptr<Run> fCurrentRun;
-    std::queue<RunBlock> fUnresolvedBlocks;
+    std::deque<RunBlock> fUnresolvedBlocks;
     std::vector<RunBlock> fResolvedBlocks;
+
+    // Keeping all resolved typefaces
+    struct FontKey {
+
+        FontKey() {}
+
+        FontKey(SkUnichar unicode, SkFontStyle fontStyle, SkString locale)
+            : fUnicode(unicode), fFontStyle(fontStyle), fLocale(locale) { }
+        SkUnichar fUnicode;
+        SkFontStyle fFontStyle;
+        SkString fLocale;
+
+        bool operator==(const FontKey& other) const;
+
+        struct Hasher {
+            size_t operator()(const FontKey& key) const;
+        };
+    };
+    SkTHashMap<FontKey, sk_sp<SkTypeface>, FontKey::Hasher> fFallbackFonts;
 };
 
-}
-}
+}  // namespace textlayout
+}  // namespace skia
 #endif

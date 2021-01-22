@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
- - Updated to emscripten 1.38.47
+ - Now compile with emsdk 2.0.6
+
+## [0.7.0] 2019-07-20
+
+### Changed
+ - Updated to emscripten 1.39.16
+ - Support wombat-dressing-room. go/npm-publish
+
+### Breaking
+ - `PathKitInit(...)` now directly returns a Promise. As such, `PathKitInit(...).ready()`
+   has been removed.
 
 ## [0.6.0] 2019-02-25
 

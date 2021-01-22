@@ -63,6 +63,8 @@ Differences from GLSL
 * All texture functions are named "sample", e.g. sample(sampler2D, float3) is
   equivalent to GLSL's textureProj(sampler2D, float3).
 * Render target width and height are available via sk_Width and sk_Height
+* Functions support the 'inline' modifier, which causes the compiler to ignore
+  its normal inlining heuristics and inline the function if at all possible
 * some built-in functions and one or two rarely-used language features are not
   yet supported (sorry!)
 
@@ -82,7 +84,13 @@ SkSL Fragment Processors
 An extension of SkSL allows for the creation of fragment processors in pure
 SkSL. The program defines its inputs similarly to a normal SkSL program (with
 'in' and 'uniform' variables), but the 'main()' function represents only this
-fragment processor's portion of the overall fragment shader.
+fragment processor's portion of the overall fragment shader. The 'main' function
+can optionally have a 'float2' parameter that holds the sample coordinates the
+processor is evaluated at.
+
+Processors do not need to declare this parameter if they do not rely on local
+coordinates or only invoke child processors using the no-arg and matrix-based
+sample() functions.
 
 Within an '.fp' fragment processor file:
 
@@ -103,13 +111,11 @@ Within an '.fp' fragment processor file:
     @fields            (extra private fields, each terminated with a semicolon)
     @make              (replaces the default Make function)
     @clone             (replaces the default clone() function)
+    @dumpInfo          (replaces the default dumpInfo() function)
     @setData(<pdman>)  (extra code for the setData function, where <pdman> is
                         the name of the GrGLSLProgramDataManager)
     @test(<testData>)  (the body of the TestCreate function, where <testData> is
                         the name of the GrProcessorTestData* parameter)
-    @coordTransform(<sampler>)
-                       (the matrix to attach to the named sampler2D's
-                        GrCoordTransform)
     @samplerParams(<sampler>)
                        (the sampler params to attach to the named sampler2D)
 * global 'in' variables represent data passed to the fragment processor at
@@ -133,10 +139,6 @@ Within an '.fp' fragment processor file:
 * 'in uniform' variables support a 'tracked' flag in the layout that will
   have the generated code automatically implement state tracking on the uniform
   value to minimize GPU calls.
-* the 'sk_TransformedCoords2D' array provides access to 2D transformed
-  coordinates. sk_TransformedCoords2D[0] is equivalent to calling
-  fragBuilder->ensureCoords2D(args.fTransformedCoords[0]) (and the result is
-  cached, so you need not worry about using the value repeatedly).
 * Uniform variables support an additional 'when' layout key.
   'layout(when=foo) uniform int x;' means that this uniform will only be
   emitted when the 'foo' expression is true.
@@ -150,10 +152,12 @@ Within an '.fp' fragment processor file:
   The first variant emits the child with a solid white input color. The second
   variant emits the child with the result of the 2nd argument's expression,
   which must evaluate to a half4. The process function returns a half4.
-* By default, fragment processors must be non-null. The type for a nullable
-  fragment processor is 'fragmentProcessor?', as in
-  'in fragmentProcessor? <name>'. You can check for the presence of such a
-  fragment processor by comparing it to 'null'.
+* The 'fragmentProcessor' type cannot hold a null. Nullable fragment processors
+  should use the 'fragmentProcessor?' type: 'in fragmentProcessor? <name>'. You
+  can check for null fragment processors by comparing them against 'null', as 
+  in: 'if (inputFP != null) { ... }'. Invoking 'sample()' on a null fragment
+  processor will return the inputColor unchanged (this defaults to solid white
+  if not explicitly specified).
 
 
 Creating a new .fp file

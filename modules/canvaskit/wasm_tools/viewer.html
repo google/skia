@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<title>CanvasKit Viewer (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<canvas id=viewer_canvas></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+  const flags = {};
+  for (const pair of location.hash.substring(1).split(',')) {
+    // Parse "values" as an array in case the value has a colon (e.g., "slide:http://...").
+    const [key, ...values] = pair.split(':');
+    flags[key] = values.join(':');
+  }
+  window.onhashchange = function() {
+    location.reload();
+  };
+
+  CanvasKitInit({
+    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
+  }).then((CK) => {
+    if (!CK) {
+      throw 'CanvasKit not available.';
+    }
+    LoadSlide(CK);
+  });
+
+  function LoadSlide(CanvasKit) {
+    if (!CanvasKit.MakeSlide || !CanvasKit.MakeSkpSlide || !CanvasKit.MakeSvgSlide) {
+      throw 'Not compiled with Viewer.';
+    }
+    const slideName = flags.slide || 'PathText';
+    if (slideName.endsWith('.skp') || slideName.endsWith('.svg')) {
+      fetch(slideName).then(function(response) {
+        if (response.status != 200) {
+            throw 'Error fetching ' + slideName;
+        }
+        if (slideName.endsWith('.skp')) {
+          response.arrayBuffer().then((data) => ViewerMain(
+              CanvasKit, CanvasKit.MakeSkpSlide(slideName, data)));
+        } else {
+          response.text().then((text) => ViewerMain(
+              CanvasKit, CanvasKit.MakeSvgSlide(slideName, text)));
+        }
+      });
+    } else {
+      ViewerMain(CanvasKit, CanvasKit.MakeSlide(slideName));
+    }
+  }
+
+  function ViewerMain(CanvasKit, slide) {
+    if (!slide) {
+      throw 'Failed to parse slide.'
+    }
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const htmlCanvas = document.getElementById('viewer_canvas');
+    htmlCanvas.width = width;
+    htmlCanvas.height = height;
+    slide.load(width, height);
+
+    // For the msaa flag, only check if the key exists in flags. That way we don't need to assign it
+    // a value in the location hash. i.e.,:  http://.../viewer.html#msaa
+    const doMSAA = ('msaa' in flags);
+    // Create the WebGL context with our desired attribs before calling MakeWebGLCanvasSurface.
+    CanvasKit.GetWebGLContext(htmlCanvas, {antialias: doMSAA});
+    const surface = CanvasKit.MakeWebGLCanvasSurface(htmlCanvas, null);
+    if (!surface) {
+      throw 'Could not make canvas surface';
+    }
+    if (doMSAA && surface.sampleCnt() <= 1) {
+      // We requested antialias on the canvas but did not get MSAA. Since we don't know what type of
+      // AA is in use right now (if any), this surface is unusable.
+      throw 'MSAA rendering to the on-screen canvas is not supported. ' +
+            'Please try again without MSAA.';
+    }
+
+    window.onmousedown = (event) => (event.button === 0) && Mouse(CanvasKit.InputState.Down, event);
+    window.onmouseup = (event) => (event.button === 0) && Mouse(CanvasKit.InputState.Up, event);
+    window.onmousemove = (event) => Mouse(CanvasKit.InputState.Move, event);
+    window.onkeypress = function(event) {
+      if (slide.onChar(event.keyCode)) {
+        ScheduleDraw();
+        return false;
+      } else {
+        switch (event.keyCode) {
+          case 's'.charCodeAt(0):
+            // 's' is the magic key in the native viewer app that turns on FPS monitoring. Toggle
+            // forced animation when it is pressed in order to get fps logs.
+            // HINT: Launch chrome with --disable-frame-rate-limit and --disable-gpu-vsync in order
+            // to measure frame rates above 60.
+            ScheduleDraw.forceAnimation = !ScheduleDraw.forceAnimation;
+            ScheduleDraw();
+            break;
+        }
+      }
+      return true;
+    }
+    window.onkeydown = function(event) {
+      const upArrowCode = 38;
+      if (event.keyCode === upArrowCode) {
+        ScaleCanvas((event.shiftKey) ? Infinity : 1.1);
+        return false;
+      }
+      const downArrowCode = 40;
+      if (event.keyCode === downArrowCode) {
+        ScaleCanvas((event.shiftKey) ? 0 : 1/1.1);
+        return false;
+      }
+      return true;
+    }
+
+    let [canvasScale, canvasTranslateX, canvasTranslateY] = [1, 0, 0];
+    function ScaleCanvas(factor) {
+      factor = Math.min(Math.max(1/(5*canvasScale), factor), 5/canvasScale);
+      canvasTranslateX *= factor;
+      canvasTranslateY *= factor;
+      canvasScale *= factor;
+      ScheduleDraw();
+    }
+    function TranslateCanvas(dx, dy) {
+      canvasTranslateX += dx;
+      canvasTranslateY += dy;
+      ScheduleDraw();
+    }
+
+    function Mouse(state, event) {
+      let modifierKeys = CanvasKit.ModifierKey.None;
+      if (event.shiftKey) {
+        modifierKeys |= CanvasKit.ModifierKey.Shift;
+      }
+      if (event.altKey) {
+        modifierKeys |= CanvasKit.ModifierKey.Option;
+      }
+      if (event.ctrlKey) {
+        modifierKeys |= CanvasKit.ModifierKey.Ctrl;
+      }
+      if (event.metaKey) {
+        modifierKeys |= CanvasKit.ModifierKey.Command;
+      }
+      let [dx, dy] = [event.pageX - this.lastX, event.pageY - this.lastY];
+      this.lastX = event.pageX;
+      this.lastY = event.pageY;
+      if (slide.onMouse(event.pageX, event.pageY, state, modifierKeys)) {
+        ScheduleDraw();
+        return false;
+      } else if (event.buttons & 1) {  // Left-button pressed.
+        TranslateCanvas(dx, dy);
+        return false;
+      }
+      return true;
+    }
+
+    function ScheduleDraw() {
+      if (ScheduleDraw.hasPendingAnimationRequest) {
+        // It's possible for this ScheduleDraw() method to be called multiple times before an
+        // animation callback actually gets invoked. Make sure we only ever have one single
+        // requestAnimationFrame scheduled at a time, because otherwise we can get stuck in a
+        // position where multiple callbacks are coming in on a single compositing frame, and then
+        // rescheduling multiple more for the next frame.
+        return;
+      }
+      ScheduleDraw.hasPendingAnimationRequest = true;
+      surface.requestAnimationFrame((canvas) => {
+        ScheduleDraw.hasPendingAnimationRequest = false;
+
+        canvas.save();
+        canvas.translate(canvasTranslateX, canvasTranslateY);
+        canvas.scale(canvasScale, canvasScale);
+        canvas.clear(CanvasKit.WHITE);
+        slide.draw(canvas);
+        canvas.restore();
+
+        // HINT: Launch chrome with --disable-frame-rate-limit and --disable-gpu-vsync in order to
+        // allow this to go faster than 60fps.
+        const ms = (ScheduleDraw.fps && ScheduleDraw.fps.markFrameComplete()) ||
+                   window.performance.now();
+        if (slide.animate(ms * 1e6) || ScheduleDraw.forceAnimation) {
+          ScheduleDraw.fps = ScheduleDraw.fps || new FPSMeter(ms);
+          ScheduleDraw();
+        } else {
+          delete ScheduleDraw.fps;
+        }
+      });
+    }
+
+    ScheduleDraw();
+  }
+
+  function FPSMeter(startMs) {
+    this.frames = 0;
+    this.startMs = startMs;
+    this.markFrameComplete = () => {
+      ++this.frames;
+      const ms = window.performance.now();
+      const sec = (ms - this.startMs) / 1000;
+      if (sec > 2) {
+        console.log(Math.round(this.frames / sec) + ' fps');
+        this.frames = 0;
+        this.startMs = ms;
+      }
+      return ms;
+    };
+  }
+</script>

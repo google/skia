@@ -11,14 +11,13 @@
 #include "include/core/SkTypes.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
-#include "src/core/SkMakeUnique.h"
 
 #include <string>
 #include <vector>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
-#include "modules/canvaskit/WasmAliases.h"
+#include "modules/canvaskit/WasmCommon.h"
 
 #if SK_INCLUDE_MANAGED_SKOTTIE
 #include "modules/skottie/include/SkottieProperty.h"
@@ -65,6 +64,11 @@ public:
         return this->findAsset(name);
     }
 
+    sk_sp<SkData> load(const char[]/*path*/, const char name[]) const override {
+        // Ignore paths.
+        return this->findAsset(name);
+    }
+
 private:
     explicit SkottieAssetProvider(AssetVec assets) : fAssets(std::move(assets)) {}
 
@@ -85,12 +89,19 @@ private:
 class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
-                                        sk_sp<skottie::ResourceProvider> rp) {
-        auto mgr = skstd::make_unique<skottie_utils::CustomPropertyManager>();
+                                        sk_sp<skottie::ResourceProvider> rp,
+                                        std::string prop_prefix) {
+        auto mgr = std::make_unique<skottie_utils::CustomPropertyManager>(
+                        skottie_utils::CustomPropertyManager::Mode::kCollapseProperties,
+                        prop_prefix.empty() ? nullptr : prop_prefix.c_str());
+        static constexpr char kInterceptPrefix[] = "__";
+        auto pinterceptor =
+            sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(rp, kInterceptPrefix);
         auto animation = skottie::Animation::Builder()
                             .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())
-                            .setResourceProvider(rp)
+                            .setResourceProvider(std::move(rp))
+                            .setPrecompInterceptor(std::move(pinterceptor))
                             .make(json.c_str(), json.size());
 
         return animation
@@ -101,8 +112,7 @@ public:
     ~ManagedAnimation() override = default;
 
     // skottie::Animation API
-    void render(SkCanvas* canvas) const { fAnimation->render(canvas, nullptr); }
-    void render(SkCanvas* canvas, const SkRect& dst) const { fAnimation->render(canvas, &dst); }
+    void render(SkCanvas* canvas, const SkRect* dst) const { fAnimation->render(canvas, dst); }
     // Returns a damage rect.
     SkRect seek(SkScalar t) {
         sksg::InvalidationController ic;
@@ -196,12 +206,10 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("seekFrame", optional_override([](skottie::Animation& self, double t)->void {
             self.seekFrame(t);
         }))
-        .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas)->void {
-            self.render(canvas, nullptr);
-        }), allow_raw_pointers())
-        .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas,
-                                                 const SkRect r)->void {
-            self.render(canvas, &r);
+        .function("_render", optional_override([](skottie::Animation& self, SkCanvas* canvas,
+                                                  uintptr_t /* float* */ fPtr)->void {
+            const SkRect* dst = reinterpret_cast<const SkRect*>(fPtr);
+            self.render(canvas, dst);
         }), allow_raw_pointers());
 
     function("MakeAnimation", optional_override([](std::string json)->sk_sp<skottie::Animation> {
@@ -216,12 +224,27 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("size"      , &ManagedAnimation::size)
         .function("duration"  , &ManagedAnimation::duration)
         .function("fps"       , &ManagedAnimation::fps)
-        .function("seek"      , &ManagedAnimation::seek)
+        .function("_render", optional_override([](ManagedAnimation& self, SkCanvas* canvas,
+                                                  uintptr_t /* float* */ fPtr)->void {
+            const SkRect* dst = reinterpret_cast<const SkRect*>(fPtr);
+            self.render(canvas, dst);
+        }), allow_raw_pointers())
+        .function("_seek", optional_override([](ManagedAnimation& self, SkScalar t,
+                                                uintptr_t /* float* */ fPtr) {
+            SkRect* damageRect = reinterpret_cast<SkRect*>(fPtr);
+            damageRect[0] = self.seek(t);
+        }))
+        .function("_seekFrame", optional_override([](ManagedAnimation& self, double frame,
+                                                     uintptr_t /* float* */ fPtr) {
+            SkRect* damageRect = reinterpret_cast<SkRect*>(fPtr);
+            damageRect[0] = self.seekFrame(frame);
+        }))
         .function("seekFrame" , &ManagedAnimation::seekFrame)
-        .function("render"    , select_overload<void(SkCanvas*) const>(&ManagedAnimation::render), allow_raw_pointers())
-        .function("render"    , select_overload<void(SkCanvas*, const SkRect&) const>
-                                    (&ManagedAnimation::render), allow_raw_pointers())
-        .function("setColor"  , &ManagedAnimation::setColor)
+        .function("_setColor"  , optional_override([](ManagedAnimation& self, const std::string& key, uintptr_t /* float* */ cPtr) {
+            float* fourFloats = reinterpret_cast<float*>(cPtr);
+            SkColor4f color = { fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3] };
+            self.setColor(key, color.toSkColor());
+        }))
         .function("setOpacity", &ManagedAnimation::setOpacity)
         .function("getMarkers", &ManagedAnimation::getMarkers)
         .function("getColorProps"  , &ManagedAnimation::getColorProps)
@@ -231,7 +254,8 @@ EMSCRIPTEN_BINDINGS(Skottie) {
                                                            size_t assetCount,
                                                            uintptr_t /* char**     */ nptr,
                                                            uintptr_t /* uint8_t**  */ dptr,
-                                                           uintptr_t /* size_t*    */ sptr)
+                                                           uintptr_t /* size_t*    */ sptr,
+                                                           std::string prop_prefix)
                                                         ->sk_sp<ManagedAnimation> {
         // See the comment in canvaskit_bindings.cpp about the use of uintptr_t
         const auto assetNames = reinterpret_cast<char**   >(nptr);
@@ -248,8 +272,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         }
 
         return ManagedAnimation::Make(json,
-                 skresources::DataURIResourceProviderProxy::Make(
-                    SkottieAssetProvider::Make(std::move(assets))));
+                                      skresources::DataURIResourceProviderProxy::Make(
+                                          SkottieAssetProvider::Make(std::move(assets))),
+                                      prop_prefix);
     }));
     constant("managed_skottie", true);
 #endif // SK_INCLUDE_MANAGED_SKOTTIE

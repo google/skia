@@ -14,9 +14,6 @@ IMAGES = {
     'gcc-debian10-x86': (
         'gcr.io/skia-public/gcc-debian10-x86@sha256:'
         'b1ec55403ac66d9500d033d6ffd7663894d32335711fbbb0fb4c67dfce812203'),
-    'gcc-debian10-mips64el': (
-        'gcr.io/skia-public/gcc-debian10-mips64el@sha256:'
-        'c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540'),
 }
 
 
@@ -51,7 +48,10 @@ def compile_fn(api, checkout_root, out_dir):
       'target_cpu': target_arch,
       'werror': True
   }
-  if configuration != 'Debug':
+
+  if configuration == 'Debug':
+    args['extra_cflags'].append('-O1')
+  else:
     args['is_debug'] = False
 
   if 'NoGPU' in extra_tokens:
@@ -65,14 +65,14 @@ def compile_fn(api, checkout_root, out_dir):
   if os == 'Debian10' and compiler == 'GCC' and not extra_tokens:
     args['cc'] = 'gcc'
     args['cxx'] = 'g++'
+    # Newer GCC includes tons and tons of debugging symbols. This seems to
+    # negatively affect our bots (potentially only in combination with other
+    # bugs in Swarming or recipe code). Use g1 to reduce it a bit.
+    args['extra_cflags'].append('-g1')
     if target_arch == 'x86_64':
       image_name = 'gcc-debian10'
     elif target_arch == 'x86':
       image_name = 'gcc-debian10-x86'
-    elif target_arch in ['mips64el', 'loongson3a']:
-      image_name = 'gcc-debian10-mips64el'
-      args['cc'] = '/usr/bin/mips64el-linux-gnuabi64-gcc-8'
-      args['cxx'] = '/usr/bin/mips64el-linux-gnuabi64-g++-8'
 
   if not image_name:
     raise Exception('Not implemented: ' + api.vars.builder_name)

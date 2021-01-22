@@ -37,8 +37,8 @@ public:
     static GrRectanizer* Factory(int width, int height);
 
 private:
-    int fWidth;
-    int fHeight;
+    const int fWidth;
+    const int fHeight;
 };
 
 #endif

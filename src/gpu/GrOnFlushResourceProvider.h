@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
+#include "src/core/SkSpan.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -30,26 +31,22 @@ public:
     virtual ~GrOnFlushCallbackObject() {}
 
     /*
-     * The onFlush callback allows subsystems (e.g., text, path renderers) to create atlases
-     * for a specific flush. All the GrOpsTask IDs required for the flush are passed into the
-     * callback. The callback should return the render target contexts used to render the atlases
-     * in 'results'.
+     * The preFlush callback allows subsystems (e.g., text, path renderers) to create atlases
+     * for a specific flush. All the GrRenderTask IDs required for the flush are passed into the
+     * callback.
      */
-    virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
-                          int numOpsTaskIDs) = 0;
+    virtual void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> renderTaskIDs) = 0;
 
     /**
-     * Called once flushing is complete and all ops indicated by preFlush have been executed and
-     * released. startTokenForNextFlush can be used to track resources used in the current flush.
+     * Called once flushing is complete and all renderTasks indicated by preFlush have been executed
+     * and released. startTokenForNextFlush can be used to track resources used in the current
+     * flush.
      */
     virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                           const uint32_t* opsTaskIDs, int numOpsTaskIDs) {}
+                           SkSpan<const uint32_t> renderTaskIDs) {}
 
     /**
-     * Tells the callback owner to hold onto this object when freeing GPU resources
-     *
-     * In particular, GrDrawingManager::freeGPUResources() deletes all the path renderers.
-     * Any OnFlushCallbackObject associated with a path renderer will need to be deleted.
+     * Tells the callback owner to hold onto this object when freeing GPU resources.
      */
     virtual bool retainOnFreeGpuResources() { return false; }
 };
@@ -65,8 +62,10 @@ public:
 
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
-    std::unique_ptr<GrRenderTargetContext> makeRenderTargetContext(
-            sk_sp<GrSurfaceProxy>, GrColorType, sk_sp<SkColorSpace>, const SkSurfaceProps*);
+    std::unique_ptr<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
+                                                                   GrSurfaceOrigin, GrColorType,
+                                                                   sk_sp<SkColorSpace>,
+                                                                   const SkSurfaceProps*);
 
     void addTextureResolveTask(sk_sp<GrTextureProxy>, GrSurfaceProxy::ResolveFlags);
 
@@ -74,11 +73,7 @@ public:
     bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
     void removeUniqueKeyFromProxy(GrTextureProxy*);
     void processInvalidUniqueKey(const GrUniqueKey&);
-    // GrColorType is necessary to set the proxy's texture swizzle.
-    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&,
-                                                       GrColorType,
-                                                       GrSurfaceOrigin,
-                                                       UseAllocator);
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, UseAllocator);
 
     bool instatiateProxy(GrSurfaceProxy*);
 
@@ -91,6 +86,9 @@ public:
 
     uint32_t contextID() const;
     const GrCaps* caps() const;
+    GrRecordingContext* recordingContext() const;
+
+    void printWarningMessage(const char* msg) const;
 
 private:
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;

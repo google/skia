@@ -17,9 +17,9 @@ void draw(SkCanvas* canvas) {
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* subCanvas = recorder.getCanvas();
     subCanvas->clear(SK_ColorGREEN);
-    std::unique_ptr<SkDeferredDisplayList> displayList = recorder.detach();
+    sk_sp<SkDeferredDisplayList> displayList = recorder.detach();
     // end of threadable work
-    gpuSurface->draw(displayList.get());
+    gpuSurface->draw(displayList);
     sk_sp<SkImage> img = gpuSurface->makeImageSnapshot();
     canvas->drawImage(std::move(img), 0, 0);
 }

@@ -18,7 +18,7 @@
 struct GrContextOptions;
 namespace SkSL {
     class Compiler;
-}
+}  // namespace SkSL
 
 /**
  * Encapsulates information about an OpenGL context including the OpenGL
@@ -92,7 +92,7 @@ public:
      */
     static std::unique_ptr<GrGLContext> Make(sk_sp<const GrGLInterface>, const GrContextOptions&);
 
-    const GrGLInterface* interface() const { return fInterface.get(); }
+    const GrGLInterface* glInterface() const { return fInterface.get(); }
 
     SkSL::Compiler* compiler() const;
 
@@ -103,7 +103,7 @@ private:
 
     mutable SkSL::Compiler* fCompiler;
 
-    typedef GrGLContextInfo INHERITED;
+    using INHERITED = GrGLContextInfo;
 };
 
 #endif

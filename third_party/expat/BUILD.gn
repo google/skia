@@ -16,14 +16,18 @@ if (skia_use_system_expat) {
 } else {
   third_party("expat") {
     public_defines = [ "XML_STATIC" ]
-    public_include_dirs = [ "../externals/expat/lib" ]
+    public_include_dirs = [ "../externals/expat/expat/lib" ]
 
-    defines = [ "HAVE_MEMMOVE" ]
+    defines = [
+      "HAVE_MEMMOVE",
+      "XML_DEV_URANDOM",
+    ]
 
     sources = [
-      "../externals/expat/lib/xmlparse.c",
-      "../externals/expat/lib/xmlrole.c",
-      "../externals/expat/lib/xmltok.c",
+      "../externals/expat/expat/lib/expat.h",
+      "../externals/expat/expat/lib/xmlparse.c",
+      "../externals/expat/expat/lib/xmlrole.c",
+      "../externals/expat/expat/lib/xmltok.c",
     ]
   }
 }

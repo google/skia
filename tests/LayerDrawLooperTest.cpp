@@ -39,7 +39,7 @@ public:
     SkMatrix fLastMatrix;
 
 private:
-    typedef SkBitmapDevice INHERITED;
+    using INHERITED = SkBitmapDevice;
 };
 
 static void test_frontToBack(skiatest::Reporter* reporter) {

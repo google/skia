@@ -7,7 +7,6 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGGradient.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
@@ -18,31 +17,50 @@ namespace internal {
 
 namespace  {
 
-class GradientRampEffectAdapter final : public SkNVRefCnt<GradientRampEffectAdapter> {
+class GradientRampEffectAdapter final : public AnimatablePropertyContainer {
 public:
-    explicit GradientRampEffectAdapter(sk_sp<sksg::RenderNode> child)
-        : fRoot(sksg::ShaderEffect::Make(std::move(child))) {}
+    static sk_sp<GradientRampEffectAdapter> Make(const skjson::ArrayValue& jprops,
+                                                 sk_sp<sksg::RenderNode> layer,
+                                                 const AnimationBuilder* abuilder) {
+        return sk_sp<GradientRampEffectAdapter>(new GradientRampEffectAdapter(jprops,
+                                                                              std::move(layer),
+                                                                              abuilder));
+    }
 
-    ADAPTER_PROPERTY(StartPoint, SkPoint  , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(EndPoint  , SkPoint  , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(StartColor, SkColor4f,    SkColors::kBlack)
-    ADAPTER_PROPERTY(EndColor  , SkColor4f,    SkColors::kBlack)
-    ADAPTER_PROPERTY(Blend     , SkScalar ,                   0)
-    ADAPTER_PROPERTY(Scatter   , SkScalar ,                   0)
-
-    // Really an enum: 1 -> linear, 7 -> radial (?!)
-    ADAPTER_PROPERTY(Shape     , SkScalar,                   0)
-
-    const sk_sp<sksg::ShaderEffect>& root() const { return fRoot; }
+    sk_sp<sksg::RenderNode> node() const { return fShaderEffect; }
 
 private:
+    GradientRampEffectAdapter(const skjson::ArrayValue& jprops,
+                              sk_sp<sksg::RenderNode> layer,
+                              const AnimationBuilder* abuilder)
+        : fShaderEffect(sksg::ShaderEffect::Make(std::move(layer))) {
+        enum : size_t {
+             kStartPoint_Index = 0,
+             kStartColor_Index = 1,
+               kEndPoint_Index = 2,
+               kEndColor_Index = 3,
+              kRampShape_Index = 4,
+            kRampScatter_Index = 5,
+             kBlendRatio_Index = 6,
+        };
+
+        EffectBinder(jprops, *abuilder, this)
+                .bind( kStartPoint_Index, fStartPoint)
+                .bind( kStartColor_Index, fStartColor)
+                .bind(   kEndPoint_Index, fEndPoint  )
+                .bind(   kEndColor_Index, fEndColor  )
+                .bind(  kRampShape_Index, fShape     )
+                .bind(kRampScatter_Index, fScatter   )
+                .bind( kBlendRatio_Index, fBlend     );
+    }
+
     enum class InstanceType {
         kNone,
         kLinear,
         kRadial,
     };
 
-    void apply() {
+    void onSync() override {
         // This adapter manages a SG fragment with the following structure:
         //
         // - ShaderEffect [fRoot]
@@ -57,11 +75,12 @@ private:
                         ? sk_sp<sksg::Gradient>(sksg::LinearGradient::Make())
                         : sk_sp<sksg::Gradient>(sksg::RadialGradient::Make());
 
-                fRoot->setShader(fGradient);
+                fShaderEffect->setShader(fGradient);
                 fInstanceType = new_type;
             }
 
-            fGradient->setColorStops({ {0, fStartColor}, {1, fEndColor} });
+            fGradient->setColorStops({{0, fStartColor},
+                                      {1,   fEndColor}});
         };
 
         static constexpr int kLinearShapeValue = 1;
@@ -73,73 +92,45 @@ private:
         update_gradient(instance_type);
 
         // Sync instance-dependent gradient params.
+        const auto start_point = SkPoint{fStartPoint.x, fStartPoint.y},
+                     end_point = SkPoint{  fEndPoint.x,   fEndPoint.y};
         if (instance_type == InstanceType::kLinear) {
             auto* lg = static_cast<sksg::LinearGradient*>(fGradient.get());
-            lg->setStartPoint(fStartPoint);
-            lg->setEndPoint(fEndPoint);
+            lg->setStartPoint(start_point);
+            lg->setEndPoint(end_point);
         } else {
             SkASSERT(instance_type == InstanceType::kRadial);
 
             auto* rg = static_cast<sksg::RadialGradient*>(fGradient.get());
-            rg->setStartCenter(fStartPoint);
-            rg->setEndCenter(fStartPoint);
-            rg->setEndRadius(SkPoint::Distance(fStartPoint, fEndPoint));
+            rg->setStartCenter(start_point);
+            rg->setEndCenter(start_point);
+            rg->setEndRadius(SkPoint::Distance(start_point, end_point));
         }
 
         // TODO: blend, scatter
     }
 
-    sk_sp<sksg::ShaderEffect> fRoot;
-    sk_sp<sksg::Gradient>     fGradient;
+    const sk_sp<sksg::ShaderEffect> fShaderEffect;
+    sk_sp<sksg::Gradient>           fGradient;
+
     InstanceType              fInstanceType = InstanceType::kNone;
+
+    VectorValue fStartColor,
+                  fEndColor;
+    Vec2Value   fStartPoint = {0,0},
+                fEndPoint   = {0,0};
+    ScalarValue fBlend   = 0,
+                fScatter = 0,
+                fShape   = 0; // 1 -> linear, 7 -> radial (?!)
 };
 
-} // anonymous ns
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachGradientEffect(const skjson::ArrayValue& jprops,
                                                             sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kStartPoint_Index  = 0,
-        kStartColor_Index  = 1,
-        kEndPoint_Index    = 2,
-        kEndColor_Index    = 3,
-        kRampShape_Index   = 4,
-        kRampScatter_Index = 5,
-        kBlendRatio_Index  = 6,
-    };
-
-    auto adapter = sk_make_sp<GradientRampEffectAdapter>(std::move(layer));
-
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kStartPoint_Index),
-        [adapter](const VectorValue& p0) {
-            adapter->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(p0));
-        });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kEndPoint_Index),
-        [adapter](const VectorValue& p1) {
-            adapter->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(p1));
-        });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kStartColor_Index),
-        [adapter](const VectorValue& c0) {
-            adapter->setStartColor(ValueTraits<VectorValue>::As<SkColor4f>(c0));
-        });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kEndColor_Index),
-        [adapter](const VectorValue& c1) {
-            adapter->setEndColor(ValueTraits<VectorValue>::As<SkColor4f>(c1));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRampShape_Index),
-        [adapter](const ScalarValue& shape) {
-            adapter->setShape(shape);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kBlendRatio_Index),
-        [adapter](const ScalarValue& blend) {
-            adapter->setBlend(blend);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRampScatter_Index),
-        [adapter](const ScalarValue& scatter) {
-            adapter->setScatter(scatter);
-        });
-
-    return adapter->root();
+    return fBuilder->attachDiscardableAdapter<GradientRampEffectAdapter>(jprops,
+                                                                         std::move(layer),
+                                                                         fBuilder);
 }
 
 } // namespace internal

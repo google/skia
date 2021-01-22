@@ -79,11 +79,11 @@ protected:
 private:
     static constexpr int kSize = 512;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new BitmapImageGM; )
 
-}
+}  // namespace skiagm

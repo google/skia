@@ -6,7 +6,6 @@
  */
 
 #include "src/core/SkBlendModePriv.h"
-#include "src/core/SkCoverageModePriv.h"
 #include "src/core/SkRasterPipeline.h"
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
@@ -51,22 +50,25 @@ struct CoeffRec {
 };
 
 const CoeffRec gCoeffs[] = {
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kZero },
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kZero },
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kOne  },
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISA  },
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kOne  },
-    { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kZero },
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSA   },
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kZero },
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kISA  },
-    { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kISA  },
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kSA   },
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kISA  },
+    // For Porter-Duff blend functions, color = src * src coeff + dst * dst coeff
+    // src coeff                  dst coeff                     blend func
+    // ----------------------     -----------------------       ----------
+    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kZero }, // clear
+    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kZero }, // src
+    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kOne  }, // dst
+    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISA  }, // src-over
+    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kOne  }, // dst-over
+    { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kZero }, // src-in
+    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSA   }, // dst-in
+    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kZero }, // src-out
+    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kISA  }, // dst-out
+    { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kISA  }, // src-atop
+    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kSA   }, // dst-atop
+    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kISA  }, // xor
 
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kOne  },
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSC   },
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISC  },    // screen
+    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kOne  }, // plus
+    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSC   }, // modulate
+    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISC  }, // screen
 };
 
 bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoeff* dst) {
@@ -149,20 +151,4 @@ SkPMColor4f SkBlendMode_Apply(SkBlendMode mode, const SkPMColor4f& src, const Sk
     p.append(SkRasterPipeline::store_f32, &res_ctx);
     p.run(0,0, 1,1);
     return res_storage;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-const SkBlendMode gUncorrelatedCoverageToBlend[] = {
-    SkBlendMode::kSrcOver,  // or DstOver
-    SkBlendMode::kSrcIn,    // or kDstIn
-    SkBlendMode::kSrcOut,
-    SkBlendMode::kDstOut,
-    SkBlendMode::kXor,
-};
-
-SkBlendMode SkUncorrelatedCoverageModeToBlendMode(SkCoverageMode cm) {
-    unsigned index = static_cast<unsigned>(cm);
-    SkASSERT(index < SK_ARRAY_COUNT(gUncorrelatedCoverageToBlend));
-    return gUncorrelatedCoverageToBlend[index];
 }

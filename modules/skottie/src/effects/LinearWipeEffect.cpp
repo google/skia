@@ -9,7 +9,7 @@
 
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkShaderMaskFilter.h"
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "include/private/SkTPin.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "src/utils/SkJSON.h"
@@ -22,20 +22,41 @@ namespace internal {
 
 namespace  {
 
-class LinearWipeAdapter final : public MaskFilterEffectBase {
+class LinearWipeAdapter final : public MaskShaderEffectBase {
 public:
-    LinearWipeAdapter(sk_sp<sksg::RenderNode> layer, const SkSize& ls)
-        : INHERITED(std::move(layer), ls) {}
-
-    ADAPTER_PROPERTY(Completion, float, 0)
-    ADAPTER_PROPERTY(Angle     , float, 0)
-    ADAPTER_PROPERTY(Feather   , float, 0)
+    static sk_sp<LinearWipeAdapter> Make(const skjson::ArrayValue& jprops,
+                                         sk_sp<sksg::RenderNode> layer,
+                                         const SkSize& layer_size,
+                                         const AnimationBuilder* abuilder) {
+        return sk_sp<LinearWipeAdapter>(new LinearWipeAdapter(jprops,
+                                                              std::move(layer),
+                                                              layer_size,
+                                                              abuilder));
+    }
 
 private:
+    LinearWipeAdapter(const skjson::ArrayValue& jprops,
+                      sk_sp<sksg::RenderNode> layer,
+                      const SkSize& layer_size,
+                      const AnimationBuilder* abuilder)
+        : INHERITED(std::move(layer), layer_size) {
+        enum : size_t {
+            kCompletion_Index = 0,
+                 kAngle_Index = 1,
+               kFeather_Index = 2,
+        };
+
+        EffectBinder(jprops, *abuilder, this)
+                .bind(kCompletion_Index, fCompletion)
+                .bind(     kAngle_Index, fAngle     )
+                .bind(   kFeather_Index, fFeather   );
+    }
+
     MaskInfo onMakeMask() const override {
         if (fCompletion >= 100) {
             // The layer is fully disabled.
-            return { nullptr, false };
+            // TODO: fix layer controller visibility clash and pass a null shader instead.
+            return { SkShaders::Color(SK_ColorTRANSPARENT), false };
         }
 
         if (fCompletion <= 0) {
@@ -84,40 +105,24 @@ private:
         const SkScalar  pos[] = { adjusted_t,
                                   adjusted_t + feather / grad_len };
 
-        return { SkShaderMaskFilter::Make(SkGradientShader::MakeLinear(pts, colors, pos, 2,
-                                                                       SkTileMode::kClamp)),
-                 true };
+        return { SkGradientShader::MakeLinear(pts, colors, pos, 2, SkTileMode::kClamp), true };
     }
 
-    using INHERITED = MaskFilterEffectBase;
+    ScalarValue fCompletion = 0,
+                fAngle      = 0,
+                fFeather    = 0;
+
+    using INHERITED = MaskShaderEffectBase;
 };
 
 } // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachLinearWipeEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kCompletion_Index = 0,
-        kAngle_Index      = 1,
-        kFeather_Index    = 2,
-    };
-
-    auto adapter = sk_make_sp<LinearWipeAdapter>(std::move(layer), fLayerSize);
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
-        [adapter](const ScalarValue& c) {
-            adapter->setCompletion(c);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kAngle_Index),
-        [adapter](const ScalarValue& a) {
-            adapter->setAngle(a);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index),
-        [adapter](const ScalarValue& f) {
-            adapter->setFeather(f);
-        });
-
-    return adapter->root();
+    return fBuilder->attachDiscardableAdapter<LinearWipeAdapter>(jprops,
+                                                                 std::move(layer),
+                                                                 fLayerSize,
+                                                                 fBuilder);
 }
 
 } // namespace internal

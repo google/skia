@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
     SkDebugf("success: %s  ", success ? "true" : "false");
     SkDebugf("scale: %g, %g\n", scale.width(), scale.height());
     remaining.dump();
-    SkMatrix scaleMatrix = SkMatrix::MakeScale(scale.width(), scale.height());
+    SkMatrix scaleMatrix = SkMatrix::Scale(scale.width(), scale.height());
     SkMatrix combined = SkMatrix::Concat(scaleMatrix, remaining);
     combined.dump();
 }

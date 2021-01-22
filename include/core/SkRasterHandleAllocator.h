@@ -24,7 +24,7 @@ class SkMatrix;
  *
  *      std::unique_ptr<SkCanvas> canvas = SkRasterHandleAllocator::MakeCanvas(
  *              SkImageInfo::Make(...),
- *              skstd::make_unique<MySubclassRasterHandleAllocator>(...),
+ *              std::make_unique<MySubclassRasterHandleAllocator>(...),
  *              nullptr);
  *
  *  If you have already allocated the base layer (and its handle, release-proc etc.) then you

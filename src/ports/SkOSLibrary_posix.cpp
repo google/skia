@@ -11,11 +11,11 @@
 
 #include <dlfcn.h>
 
-void* DynamicLoadLibrary(const char* libraryName) {
+void* SkLoadDynamicLibrary(const char* libraryName) {
     return dlopen(libraryName, RTLD_LAZY);
 }
 
-void* GetProcedureAddress(void* library, const char* functionName) {
+void* SkGetProcedureAddress(void* library, const char* functionName) {
     return dlsym(library, functionName);
 }
 #endif//!defined(SK_BUILD_FOR_WIN)

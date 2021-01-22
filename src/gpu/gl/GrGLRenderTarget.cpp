@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTraceMemoryDump.h"
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrRenderTargetPriv.h"
-#include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLRenderTarget.h"
+
+#include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrBackendUtils.h"
+#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
@@ -22,12 +23,11 @@
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    const SkISize& dimensions,
                                    GrGLFormat format,
-                                   GrPixelConfig config,
                                    int sampleCount,
                                    const IDs& ids,
-                                   GrGLStencilAttachment* stencil)
-        : GrSurface(gpu, dimensions, config, GrProtected::kNo)
-        , INHERITED(gpu, dimensions, config, sampleCount, GrProtected::kNo, stencil) {
+                                   GrGLAttachment* stencil)
+        : GrSurface(gpu, dimensions, GrProtected::kNo)
+        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, stencil) {
     this->setFlags(gpu->glCaps(), ids);
     this->init(format, ids);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -36,11 +36,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    const SkISize& dimensions,
                                    GrGLFormat format,
-                                   GrPixelConfig config,
                                    int sampleCount,
                                    const IDs& ids)
-        : GrSurface(gpu, dimensions, config, GrProtected::kNo)
-        , INHERITED(gpu, dimensions, config, sampleCount, GrProtected::kNo) {
+        : GrSurface(gpu, dimensions, GrProtected::kNo)
+        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo) {
     this->setFlags(gpu->glCaps(), ids);
     this->init(format, ids);
 }
@@ -60,27 +59,44 @@ void GrGLRenderTarget::init(GrGLFormat format, const IDs& idDesc) {
     fNumSamplesOwnedPerPixel = this->totalSamples();
 }
 
+GrGLFormat stencil_bits_to_format(int stencilBits) {
+    SkASSERT(stencilBits);
+    switch (stencilBits) {
+        case 8:
+            // We pick the packed format here so when we query total size we are at least not
+            // underestimating the total size of the stencil buffer. However, in reality this
+            // rarely matters since we usually don't care about the size of wrapped objects.
+            return GrGLFormat::kDEPTH24_STENCIL8;
+        case 16:
+            return GrGLFormat::kSTENCIL_INDEX16;
+        default:
+            SkASSERT(false);
+            return GrGLFormat::kUnknown;
+    }
+}
+
 sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       const SkISize& dimensions,
                                                       GrGLFormat format,
-                                                      GrPixelConfig config,
                                                       int sampleCount,
                                                       const IDs& idDesc,
                                                       int stencilBits) {
-    GrGLStencilAttachment* sb = nullptr;
+    GrGLAttachment* sb = nullptr;
     if (stencilBits) {
-        GrGLStencilAttachment::IDDesc sbDesc;
-        GrGLStencilAttachment::Format format;
-        format.fInternalFormat = GrGLStencilAttachment::kUnknownInternalFormat;
-        format.fPacked = false;
-        format.fStencilBits = stencilBits;
-        format.fTotalBits = stencilBits;
+        GrGLAttachment::IDDesc sbDesc;
+        // We pick a "fake" actual format that matches the number of stencil bits. When wrapping
+        // an FBO with some number of stencil bits all we care about in the future is that we have
+        // a format with the same number of stencil bits. We don't even directly use the format or
+        // any other properties. Thus it is fine for us to just assign an arbitrary format that
+        // matches the stencil bit count.
+        GrGLFormat sFmt = stencil_bits_to_format(stencilBits);
+
         // Ownership of sb is passed to the GrRenderTarget so doesn't need to be deleted
-        sb = new GrGLStencilAttachment(gpu, sbDesc, dimensions.width(), dimensions.height(),
-                                       sampleCount, format);
+        sb = new GrGLAttachment(gpu, sbDesc, dimensions,
+                                GrAttachment::UsageFlags::kStencilAttachment, sampleCount, sFmt);
     }
     return sk_sp<GrGLRenderTarget>(
-            new GrGLRenderTarget(gpu, dimensions, format, config, sampleCount, idDesc, sb));
+            new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, sb));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
@@ -88,8 +104,8 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     fbi.fFBOID = fRTFBOID;
     fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
-    if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
-        numStencilBits = stencil->bits();
+    if (GrAttachment* stencil = this->getStencilAttachment()) {
+        numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
     }
 
     return GrBackendRenderTarget(
@@ -103,15 +119,14 @@ GrBackendFormat GrGLRenderTarget::backendFormat() const {
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {
-    const GrCaps& caps = *this->getGpu()->caps();
-    return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                  fNumSamplesOwnedPerPixel, GrMipMapped::kNo);
+    return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
+                                  fNumSamplesOwnedPerPixel, GrMipmapped::kNo);
 }
 
 bool GrGLRenderTarget::completeStencilAttachment() {
     GrGLGpu* gpu = this->getGLGpu();
     const GrGLInterface* interface = gpu->glInterface();
-    GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
+    GrAttachment* stencil = this->getStencilAttachment();
     if (nullptr == stencil) {
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
@@ -120,7 +135,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
                                                       GR_GL_DEPTH_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, 0));
 #ifdef SK_DEBUG
-        if (kChromium_GrGLDriver != gpu->glContext().driver()) {
+        if (!gpu->glCaps().skipErrorChecks()) {
             // This check can cause problems in Chromium if the context has been asynchronously
             // abandoned (see skbug.com/5200)
             GrGLenum status;
@@ -130,7 +145,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
 #endif
         return true;
     } else {
-        const GrGLStencilAttachment* glStencil = static_cast<const GrGLStencilAttachment*>(stencil);
+        const GrGLAttachment* glStencil = static_cast<const GrGLAttachment*>(stencil);
         GrGLuint rb = glStencil->renderbufferID();
 
         gpu->invalidateBoundRenderTarget();
@@ -138,7 +153,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, rb));
-        if (glStencil->format().fPacked) {
+        if (GrGLFormatIsPackedDepthStencil(glStencil->format())) {
             GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                           GR_GL_DEPTH_ATTACHMENT,
                                                           GR_GL_RENDERBUFFER, rb));
@@ -150,7 +165,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
 
 
 #ifdef SK_DEBUG
-        if (kChromium_GrGLDriver != gpu->glContext().driver()) {
+        if (!gpu->glCaps().skipErrorChecks()) {
             // This check can cause problems in Chromium if the context has been asynchronously
             // abandoned (see skbug.com/5200)
             GrGLenum status;
@@ -221,9 +236,8 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
 
     // Log any renderbuffer's contribution to memory.
     if (fMSColorRenderbufferID) {
-        const GrCaps& caps = *this->getGpu()->caps();
-        size_t size = GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                             this->msaaSamples(), GrMipMapped::kNo);
+        size_t size = GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
+                                             this->msaaSamples(), GrMipmapped::kNo);
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer

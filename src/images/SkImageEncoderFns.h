@@ -113,6 +113,24 @@ static inline void transform_scanline_1010102_premul(char* dst, const char* src,
           skcms_PixelFormat_RGBA_16161616BE, skcms_AlphaFormat_Unpremul);
 }
 
+static inline void transform_scanline_bgr_101010x(char* dst, const char* src, int width, int) {
+    skcms(dst, src, width,
+          skcms_PixelFormat_BGRA_1010102, skcms_AlphaFormat_Unpremul,
+          skcms_PixelFormat_RGB_161616BE, skcms_AlphaFormat_Unpremul);
+}
+
+static inline void transform_scanline_bgra_1010102(char* dst, const char* src, int width, int) {
+    skcms(dst, src, width,
+          skcms_PixelFormat_BGRA_1010102,    skcms_AlphaFormat_Unpremul,
+          skcms_PixelFormat_RGBA_16161616BE, skcms_AlphaFormat_Unpremul);
+}
+
+static inline void transform_scanline_bgra_1010102_premul(char* dst, const char* src, int width, int) {
+    skcms(dst, src, width,
+          skcms_PixelFormat_BGRA_1010102,    skcms_AlphaFormat_PremulAsEncoded,
+          skcms_PixelFormat_RGBA_16161616BE, skcms_AlphaFormat_Unpremul);
+}
+
 static inline void transform_scanline_F16(char* dst, const char* src, int width, int) {
     skcms(dst, src, width,
           skcms_PixelFormat_RGBA_hhhh,       skcms_AlphaFormat_Unpremul,

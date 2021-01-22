@@ -123,7 +123,7 @@ bool AlmostDequalUlps(double a, double b) {
     if (fabs(a) < SK_ScalarMax && fabs(b) < SK_ScalarMax) {
         return AlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
     }
-    return fabs(a - b) / SkTMax(fabs(a), fabs(b)) < FLT_EPSILON * 16;
+    return fabs(a - b) / std::max(fabs(a), fabs(b)) < FLT_EPSILON * 16;
 }
 
 bool AlmostEqualUlps(float a, float b) {

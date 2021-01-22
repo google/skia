@@ -9,7 +9,6 @@
 
 #ifdef SK_XML
 
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -30,6 +29,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkNoDrawCanvas.h"
+#include "modules/svg/include/SkSVGDOM.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
@@ -80,7 +80,7 @@ void TestSVGTypeface::Glyph::withSVG(Fn&& fn) const {
             return;
         }
 
-        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream.get());
+        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream);
         if (!svg) {
             return;
         }
@@ -158,6 +158,8 @@ void TestSVGTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphI
 }
 
 void TestSVGTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fName; }
+
+bool TestSVGTypeface::onGetPostScriptName(SkString*) const { return false; }
 
 SkTypeface::LocalizedStrings* TestSVGTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fName);
@@ -309,7 +311,7 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Default() {
     return sk_make_sp<DefaultTypeface>("Emoji",
                                        1000,
                                        metrics,
-                                       SkMakeSpan(glyphs),
+                                       SkSpan(glyphs),
                                        SkFontStyle::Normal());
 }
 
@@ -359,7 +361,7 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
     return sk_make_sp<PlanetTypeface>("Planets",
                                       200,
                                       metrics,
-                                      SkMakeSpan(glyphs),
+                                      SkSpan(glyphs),
                                       SkFontStyle::Normal());
 }
 
@@ -772,7 +774,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
                                    -bounds.fTop,
                                    font,
                                    paint);
-            surface->flush();
+            surface->flushAndSubmit();
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData>  data  = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
 
@@ -994,7 +996,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
                                    -bounds.fTop,
                                    font,
                                    paint);
-            surface->flush();
+            surface->flushAndSubmit();
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData>  data  = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
 
@@ -1121,17 +1123,14 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
     SkTArray<SkPoint, true> qPts;
     SkAutoConicToQuads      converter;
     const SkPoint*          quadPts;
-    SkPath::RawIter         iter(path);
-    uint8_t                 verb;
-    SkPoint                 pts[4];
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPath::kMove_Verb: quadPath->moveTo(pts[0].fX, pts[0].fY); break;
-            case SkPath::kLine_Verb: quadPath->lineTo(pts[1].fX, pts[1].fY); break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kMove: quadPath->moveTo(pts[0].fX, pts[0].fY); break;
+            case SkPathVerb::kLine: quadPath->lineTo(pts[1].fX, pts[1].fY); break;
+            case SkPathVerb::kQuad:
                 quadPath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 qPts.reset();
                 convertCubicToQuads(pts, SK_Scalar1, &qPts);
                 for (int i = 0; i < qPts.count(); i += 3) {
@@ -1139,8 +1138,8 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
                             qPts[i + 1].fX, qPts[i + 1].fY, qPts[i + 2].fX, qPts[i + 2].fY);
                 }
                 break;
-            case SkPath::kConic_Verb:
-                quadPts = converter.computeQuads(pts, iter.conicWeight(), SK_Scalar1);
+            case SkPathVerb::kConic:
+                quadPts = converter.computeQuads(pts, *w, SK_Scalar1);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     quadPath->quadTo(quadPts[i * 2 + 1].fX,
                                      quadPts[i * 2 + 1].fY,
@@ -1148,8 +1147,7 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
                                      quadPts[i * 2 + 2].fY);
                 }
                 break;
-            case SkPath::kClose_Verb: quadPath->close(); break;
-            default: SkDEBUGFAIL("bad verb"); return;
+            case SkPathVerb::kClose: quadPath->close(); break;
         }
     }
 }
@@ -1204,19 +1202,16 @@ public:
         fOut->writeDecAsText(ibounds.fBottom);
         fOut->writeText("\">\n");
 
-        SkPath::RawIter iter(quads);
-        uint8_t         verb;
-        SkPoint         pts[4];
-        bool            contourOpen = false;
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        bool contourOpen = false;
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(quads)) {
             switch (verb) {
-                case SkPath::kMove_Verb:
+                case SkPathVerb::kMove:
                     if (contourOpen) {
                         fOut->writeText("      </contour>\n");
                         contourOpen = false;
                     }
                     break;
-                case SkPath::kLine_Verb:
+                case SkPathVerb::kLine:
                     if (!contourOpen) {
                         fOut->writeText("      <contour>\n");
                         this->writePoint(pts[0].fX, pts[0].fY, true);
@@ -1224,7 +1219,7 @@ public:
                     }
                     this->writePoint(pts[1].fX, pts[1].fY, true);
                     break;
-                case SkPath::kQuad_Verb:
+                case SkPathVerb::kQuad:
                     if (!contourOpen) {
                         fOut->writeText("      <contour>\n");
                         this->writePoint(pts[0].fX, pts[0].fY, true);
@@ -1233,7 +1228,7 @@ public:
                     this->writePoint(pts[1].fX, pts[1].fY, false);
                     this->writePoint(pts[2].fX, pts[2].fY, true);
                     break;
-                case SkPath::kClose_Verb:
+                case SkPathVerb::kClose:
                     if (contourOpen) {
                         fOut->writeText("      </contour>\n");
                         contourOpen = false;

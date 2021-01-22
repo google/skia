@@ -20,10 +20,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
 class GrRenderTargetContext;
@@ -67,13 +67,13 @@ protected:
         fTypefaces[5] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
         this->drawText(canvas);
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
-            if (auto ctx = canvas->getGrContext()) {
-                auto img = ctx->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
+            if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
+                auto img = direct->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
                 canvas->drawImage(img, 0, 0);
             }
         }
@@ -130,7 +130,7 @@ private:
 
     GrContextOptions::Enable fAllowMultipleTextures;
     sk_sp<SkTypeface> fTypefaces[6];
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 constexpr SkScalar FontCacheGM::kSize;

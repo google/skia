@@ -10,7 +10,5 @@ in fragmentProcessor? child2;
 in uniform float weight;
 
 void main() {
-    sk_OutColor = mix(child1 != null ? sample(child1) : sk_InColor,
-                      child2 != null ? sample(child2) : sk_InColor,
-                      half(weight));
+    sk_OutColor = mix(sample(child1), sample(child2), half(weight));
 }

@@ -46,7 +46,7 @@ private:
     HWND              fHWND;
     HGLRC             fHGLRC;
 
-    typedef GLWindowContext INHERITED;
+    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_win::GLWindowContext_win(HWND wnd, const DisplayParams& params)
@@ -113,7 +113,7 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
                                               1,
                                               &kSampleCountAttr,
                                               &fSampleCount);
-            fSampleCount = SkTMax(fSampleCount, 1);
+            fSampleCount = std::max(fSampleCount, 1);
         } else {
             fSampleCount = 1;
         }

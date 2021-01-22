@@ -10,18 +10,27 @@
 std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
 std::atomic<uint32_t> GrOp::gCurrOpUniqueID{GrOp::kIllegalOpID + 1};
 
-#ifdef SK_DEBUG
-void* GrOp::operator new(size_t size) {
-    // All GrOp-derived class should be allocated in a GrMemoryPool
-    SkASSERT(0);
-    return ::operator new(size);
-}
+#if !defined(GR_OP_ALLOCATE_USE_NEW)
+    void GrOp::DeleteFromPool::operator() (GrOp* op) {
+        if (op != nullptr) {
+            op->~GrOp();
+            fPool->release(op);
+        }
+    }
+#endif
 
-void GrOp::operator delete(void* target) {
-    // All GrOp-derived class should be released from their owning GrMemoryPool
-    SkASSERT(0);
-    ::operator delete(target);
-}
+#if !defined(GR_OP_ALLOCATE_USE_NEW) && defined(SK_DEBUG)
+    void* GrOp::operator new(size_t size) {
+        // All GrOp-derived class should be allocated in a GrMemoryPool
+        SkASSERT(0);
+        return ::operator new(size);
+    }
+
+    void GrOp::operator delete(void* target) {
+        // All GrOp-derived class should be released from their owning GrMemoryPool
+        SkASSERT(0);
+        ::operator delete(target);
+    }
 #endif
 
 GrOp::GrOp(uint32_t classID) : fClassID(classID) {
@@ -30,19 +39,19 @@ GrOp::GrOp(uint32_t classID) : fClassID(classID) {
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 
-GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, const GrCaps& caps) {
+GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, SkArenaAlloc* alloc, const GrCaps& caps) {
     SkASSERT(this != that);
     if (this->classID() != that->classID()) {
         return CombineResult::kCannotCombine;
     }
-    auto result = this->onCombineIfPossible(that, caps);
+    auto result = this->onCombineIfPossible(that, alloc, caps);
     if (result == CombineResult::kMerged) {
         this->joinBounds(*that);
     }
     return result;
 }
 
-void GrOp::chainConcat(std::unique_ptr<GrOp> next) {
+void GrOp::chainConcat(GrOp::Owner next) {
     SkASSERT(next);
     SkASSERT(this->classID() == next->classID());
     SkASSERT(this->isChainTail());
@@ -51,7 +60,7 @@ void GrOp::chainConcat(std::unique_ptr<GrOp> next) {
     fNextInChain->fPrevInChain = this;
 }
 
-std::unique_ptr<GrOp> GrOp::cutChain() {
+GrOp::Owner GrOp::cutChain() {
     if (fNextInChain) {
         fNextInChain->fPrevInChain = nullptr;
         return std::move(fNextInChain);

@@ -36,19 +36,21 @@ void SkOpBuilder::ReversePath(SkPath* path) {
 }
 
 bool SkOpBuilder::FixWinding(SkPath* path) {
-    SkPathFillType fillType = path->getNewFillType();
+    SkPathFillType fillType = path->getFillType();
     if (fillType == SkPathFillType::kInverseEvenOdd) {
         fillType = SkPathFillType::kInverseWinding;
     } else if (fillType == SkPathFillType::kEvenOdd) {
         fillType = SkPathFillType::kWinding;
     }
-    SkPathPriv::FirstDirection dir;
-    if (one_contour(*path) && SkPathPriv::CheapComputeFirstDirection(*path, &dir)) {
-        if (dir != SkPathPriv::kCCW_FirstDirection) {
-            ReversePath(path);
+    if (one_contour(*path)) {
+        SkPathFirstDirection dir = SkPathPriv::ComputeFirstDirection(*path);
+        if (dir != SkPathFirstDirection::kUnknown) {
+            if (dir == SkPathFirstDirection::kCW) {
+                ReversePath(path);
+            }
+            path->setFillType(fillType);
+            return true;
         }
-        path->setFillType(fillType);
-        return true;
     }
     SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contourHead;
@@ -127,7 +129,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
     SkPath original = *result;
     int count = fOps.count();
     bool allUnion = true;
-    SkPathPriv::FirstDirection firstDir = SkPathPriv::kUnknown_FirstDirection;
+    SkPathFirstDirection firstDir = SkPathFirstDirection::kUnknown;
     for (int index = 0; index < count; ++index) {
         SkPath* test = &fPathRefs[index];
         if (kUnion_SkPathOp != fOps[index] || test->isInverseFillType()) {
@@ -136,12 +138,12 @@ bool SkOpBuilder::resolve(SkPath* result) {
         }
         // If all paths are convex, track direction, reversing as needed.
         if (test->isConvex()) {
-            SkPathPriv::FirstDirection dir;
-            if (!SkPathPriv::CheapComputeFirstDirection(*test, &dir)) {
+            SkPathFirstDirection dir = SkPathPriv::ComputeFirstDirection(*test);
+            if (dir == SkPathFirstDirection::kUnknown) {
                 allUnion = false;
                 break;
             }
-            if (firstDir == SkPathPriv::kUnknown_FirstDirection) {
+            if (firstDir == SkPathFirstDirection::kUnknown) {
                 firstDir = dir;
             } else if (firstDir != dir) {
                 ReversePath(test);

@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVM.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
+#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #endif
 
 #if SK_SUPPORT_GPU
@@ -62,17 +66,6 @@ SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, SkTileMode* mode) 
     return image;
 }
 
-SkPicture* SkLocalMatrixShader::isAPicture(SkMatrix* matrix,
-                                           SkTileMode tileModes[2],
-                                           SkRect* tile) const {
-    SkMatrix proxyMatrix;
-    SkPicture* picture = as_SB(fProxyShader)->isAPicture(&proxyMatrix, tileModes, tile);
-    if (picture && matrix) {
-        *matrix = SkMatrix::Concat(proxyMatrix, this->getLocalMatrix());
-    }
-    return picture;
-}
-
 bool SkLocalMatrixShader::onAppendStages(const SkStageRec& rec) const {
     SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
     if (rec.fLocalM) {
@@ -82,6 +75,22 @@ bool SkLocalMatrixShader::onAppendStages(const SkStageRec& rec) const {
     SkStageRec newRec = rec;
     newRec.fLocalM = lm;
     return as_SB(fProxyShader)->appendStages(newRec);
+}
+
+
+skvm::Color SkLocalMatrixShader::onProgram(skvm::Builder* p,
+                                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                           const SkMatrixProvider& matrices, const SkMatrix* localM,
+                                           SkFilterQuality quality, const SkColorInfo& dst,
+                                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
+    if (localM) {
+        lm.writable()->preConcat(*localM);
+    }
+    return as_SB(fProxyShader)->program(p, device,local, paint,
+                                        matrices,lm.get(),
+                                        quality,dst,
+                                        uniforms,alloc);
 }
 
 sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
@@ -103,4 +112,101 @@ sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const
     }
 
     return sk_make_sp<SkLocalMatrixShader>(std::move(baseShader), *lm);
+}
+
+////////////////////////////////////////////////////////////////////
+
+/**
+ *  Replaces the CTM when used. Created to support clipShaders, which have to be evaluated
+ *  using the CTM that was present at the time they were specified (which may be different
+ *  from the CTM at the time something is drawn through the clip.
+ */
+class SkCTMShader final : public SkShaderBase {
+public:
+    SkCTMShader(sk_sp<SkShader> proxy, const SkMatrix& ctm)
+    : fProxyShader(std::move(proxy))
+    , fCTM(ctm)
+    {}
+
+    GradientType asAGradient(GradientInfo* info) const override {
+        return fProxyShader->asAGradient(info);
+    }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#endif
+
+protected:
+    void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
+
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override { return nullptr; }
+#endif
+
+    bool onAppendStages(const SkStageRec& rec) const override {
+        SkOverrideDeviceMatrixProvider matrixProvider(rec.fMatrixProvider, fCTM);
+        SkStageRec newRec = {
+            rec.fPipeline,
+            rec.fAlloc,
+            rec.fDstColorType,
+            rec.fDstCS,
+            rec.fPaint,
+            rec.fLocalM,
+            matrixProvider,
+        };
+        return as_SB(fProxyShader)->appendStages(newRec);
+    }
+
+    skvm::Color onProgram(skvm::Builder* p,
+                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                          const SkMatrixProvider& matrices, const SkMatrix* localM,
+                          SkFilterQuality quality, const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        SkOverrideDeviceMatrixProvider matrixProvider(matrices, fCTM);
+        return as_SB(fProxyShader)->program(p, device,local, paint,
+                                            matrixProvider,localM,
+                                            quality,dst,
+                                            uniforms,alloc);
+    }
+
+private:
+    SK_FLATTENABLE_HOOKS(SkCTMShader)
+
+    sk_sp<SkShader> fProxyShader;
+    SkMatrix        fCTM;
+
+    using INHERITED = SkShaderBase;
+};
+
+
+#if SK_SUPPORT_GPU
+std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(
+        const GrFPArgs& args) const {
+    SkMatrix ctmInv;
+    if (!fCTM.invert(&ctmInv)) {
+        return nullptr;
+    }
+
+    auto ctmProvider = SkOverrideDeviceMatrixProvider(args.fMatrixProvider, fCTM);
+    auto base = as_SB(fProxyShader)->asFragmentProcessor(
+        GrFPArgs::WithPreLocalMatrix(args.withNewMatrixProvider(ctmProvider),
+                                     this->getLocalMatrix()));
+    if (!base) {
+        return nullptr;
+    }
+
+    // In order for the shader to be evaluated with the original CTM, we explicitly evaluate it
+    // at sk_FragCoord, and pass that through the inverse of the original CTM. This avoids requiring
+    // local coords for the shader and mapping from the draw's local to device and then back.
+    return GrDeviceSpaceEffect::Make(GrMatrixEffect::Make(ctmInv, std::move(base)));
+}
+#endif
+
+sk_sp<SkFlattenable> SkCTMShader::CreateProc(SkReadBuffer& buffer) {
+    SkASSERT(false);
+    return nullptr;
+}
+
+sk_sp<SkShader> SkShaderBase::makeWithCTM(const SkMatrix& postM) const {
+    return sk_sp<SkShader>(new SkCTMShader(sk_ref_sp(this), postM));
 }

@@ -28,7 +28,7 @@ public:
         Sk4u splat(c);
 
         Sk4px v;
-        memcpy(&v, &splat, 16);
+        memcpy((void*)&v, &splat, 16);
         return v;
     }
 
@@ -38,17 +38,17 @@ public:
     // When loading or storing fewer than 4 SkPMColors, we use the low lanes.
     static Sk4px Load4(const SkPMColor px[4]) {
         Sk4px v;
-        memcpy(&v, px, 16);
+        memcpy((void*)&v, px, 16);
         return v;
     }
     static Sk4px Load2(const SkPMColor px[2]) {
         Sk4px v;
-        memcpy(&v, px, 8);
+        memcpy((void*)&v, px, 8);
         return v;
     }
     static Sk4px Load1(const SkPMColor px[1]) {
         Sk4px v;
-        memcpy(&v, px, 4);
+        memcpy((void*)&v, px, 4);
         return v;
     }
 
@@ -80,7 +80,7 @@ public:
         Wide operator << (int bits) const { return INHERITED::operator<<(bits); }
 
     private:
-        typedef Sk16h INHERITED;
+        using INHERITED = Sk16h;
     };
 
     Wide widen() const;               // Widen 8-bit values to low 8-bits of 16-bit lanes.
@@ -231,8 +231,11 @@ public:
 private:
     Sk4px() = default;
 
-    typedef Sk16b INHERITED;
+    using INHERITED = Sk16b;
 };
+
+static_assert(sizeof(Sk4px) == sizeof(Sk16b));
+static_assert(sizeof(Sk4px) == 16);
 
 }  // namespace
 

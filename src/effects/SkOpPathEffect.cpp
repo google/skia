@@ -57,7 +57,7 @@ sk_sp<SkPathEffect> SkMatrixPathEffect::MakeTranslate(SkScalar dx, SkScalar dy) 
     if (!SkScalarsAreFinite(dx, dy)) {
         return nullptr;
     }
-    return sk_sp<SkPathEffect>(new SkMatrixPE(SkMatrix::MakeTrans(dx, dy)));
+    return sk_sp<SkPathEffect>(new SkMatrixPE(SkMatrix::Translate(dx, dy)));
 }
 
 sk_sp<SkPathEffect> SkMatrixPathEffect::Make(const SkMatrix& matrix) {
@@ -121,4 +121,55 @@ sk_sp<SkFlattenable> SkStrokePE::CreateProc(SkReadBuffer& buffer) {
     return buffer.isValid() ? SkStrokePathEffect::Make(width, join, cap, miter) : nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "include/effects/SkStrokeAndFillPathEffect.h"
+#include "src/core/SkPathPriv.h"
+
+sk_sp<SkPathEffect> SkStrokeAndFillPathEffect::Make() {
+    static SkPathEffect* strokeAndFill = new SkStrokeAndFillPE;
+    return sk_ref_sp(strokeAndFill);
+}
+
+void SkStrokeAndFillPE::flatten(SkWriteBuffer&) const {}
+
+static bool known_to_be_opposite_directions(const SkPath& a, const SkPath& b) {
+    auto a_dir = SkPathPriv::ComputeFirstDirection(a),
+         b_dir = SkPathPriv::ComputeFirstDirection(b);
+
+    return (a_dir == SkPathFirstDirection::kCCW &&
+            b_dir == SkPathFirstDirection::kCW)
+            ||
+           (a_dir == SkPathFirstDirection::kCW &&
+            b_dir == SkPathFirstDirection::kCCW);
+}
+
+bool SkStrokeAndFillPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                                     const SkRect*) const {
+    // This one is weird, since we exist to allow this paint-style to go away. If we see it,
+    // just let the normal machine run its course.
+    if (rec->getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
+        *dst = src;
+        return true;
+    }
+
+    if (rec->getStyle() == SkStrokeRec::kStroke_Style) {
+        if (!rec->applyToPath(dst, src)) {
+            return false;
+        }
+
+        if (known_to_be_opposite_directions(src, *dst)) {
+            dst->reverseAddPath(src);
+        } else {
+            dst->addPath(src);
+        }
+    } else {
+        *dst = src;
+    }
+    rec->setFillStyle();
+    return true;
+}
+
+sk_sp<SkFlattenable> SkStrokeAndFillPE::CreateProc(SkReadBuffer& buffer) {
+    return SkStrokeAndFillPathEffect::Make();
+}

@@ -23,15 +23,10 @@
 #endif
 
 /**
- *  Like the other Typeface create methods, this returns a new reference to the
- *  corresponding typeface for the specified CTFontRef. The caller must call
- *  unref() when it is finished.
- *
- *  The CFTypeRef parameter, if provided, will be kept referenced for the
- *  lifetime of the SkTypeface. This was introduced as a means to work around
- *  https://crbug.com/413332 .
+ *  Like the other Typeface make methods, this returns a new reference to the
+ *  corresponding typeface for the specified CTFontRef.
  */
-SK_API extern SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef, CFTypeRef = NULL);
+SK_API extern sk_sp<SkTypeface> SkMakeTypefaceFromCTFont(CTFontRef);
 
 /**
  *  Returns the platform-specific CTFontRef handle for a

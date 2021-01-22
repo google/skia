@@ -17,8 +17,29 @@
 
 #include <memory>
 
+#if !defined(SKSHAPER_IMPLEMENTATION)
+    #define SKSHAPER_IMPLEMENTATION 0
+#endif
+
+#if !defined(SKSHAPER_API)
+    #if defined(SKSHAPER_DLL)
+        #if defined(_MSC_VER)
+            #if SKSHAPER_IMPLEMENTATION
+                #define SKSHAPER_API __declspec(dllexport)
+            #else
+                #define SKSHAPER_API __declspec(dllimport)
+            #endif
+        #else
+            #define SKSHAPER_API __attribute__((visibility("default")))
+        #endif
+    #else
+        #define SKSHAPER_API
+    #endif
+#endif
+
 class SkFont;
 class SkFontMgr;
+class SkUnicode;
 
 /**
    Shapes text using HarfBuzz and places the shaped text into a
@@ -26,13 +47,16 @@ class SkFontMgr;
 
    If compiled without HarfBuzz, fall back on SkPaint::textToGlyphs.
  */
-class SkShaper {
+class SKSHAPER_API SkShaper {
 public:
     static std::unique_ptr<SkShaper> MakePrimitive();
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
     static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper(sk_sp<SkFontMgr> = nullptr);
     static std::unique_ptr<SkShaper> MakeShapeThenWrap(sk_sp<SkFontMgr> = nullptr);
     static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> = nullptr);
+    #endif
+    #ifdef SK_SHAPER_CORETEXT_AVAILABLE
+    static std::unique_ptr<SkShaper> MakeCoreText();
     #endif
 
     static std::unique_ptr<SkShaper> Make(sk_sp<SkFontMgr> = nullptr);
@@ -69,6 +93,12 @@ public:
         /** Should be BCP-47, c locale names may also work. */
         virtual const char* currentLanguage() const = 0;
     };
+    struct Feature {
+        SkFourByteTag tag;
+        uint32_t value;
+        size_t start; // Offset to the start (utf8) element of the run.
+        size_t end;   // Offset to one past the last (utf8) element of the run.
+    };
 
 private:
     template <typename RunIteratorSubclass>
@@ -104,7 +134,9 @@ public:
 
     static std::unique_ptr<BiDiRunIterator>
     MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
-    #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+    #ifdef SK_UNICODE_AVAILABLE
+    static std::unique_ptr<BiDiRunIterator>
+    MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
     static std::unique_ptr<BiDiRunIterator>
     MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
     #endif
@@ -119,7 +151,9 @@ public:
 
     static std::unique_ptr<ScriptRunIterator>
     MakeScriptRunIterator(const char* utf8, size_t utf8Bytes, SkFourByteTag script);
-    #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+    #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_UNICODE_AVAILABLE)
+    static std::unique_ptr<ScriptRunIterator>
+    MakeSkUnicodeHbScriptRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes);
     static std::unique_ptr<ScriptRunIterator>
     MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes);
     #endif
@@ -207,6 +241,15 @@ public:
                        SkScalar width,
                        RunHandler*) const = 0;
 
+    virtual void shape(const char* utf8, size_t utf8Bytes,
+                       FontRunIterator&,
+                       BiDiRunIterator&,
+                       ScriptRunIterator&,
+                       LanguageRunIterator&,
+                       const Feature* features, size_t featuresSize,
+                       SkScalar width,
+                       RunHandler*) const = 0;
+
 private:
     SkShaper(const SkShaper&) = delete;
     SkShaper& operator=(const SkShaper&) = delete;
@@ -215,7 +258,7 @@ private:
 /**
  * Helper for shaping text directly into a SkTextBlob.
  */
-class SkTextBlobBuilderRunHandler final : public SkShaper::RunHandler {
+class SKSHAPER_API SkTextBlobBuilderRunHandler final : public SkShaper::RunHandler {
 public:
     SkTextBlobBuilderRunHandler(const char* utf8Text, SkPoint offset)
         : fUtf8Text(utf8Text)

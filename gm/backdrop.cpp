@@ -54,7 +54,9 @@ static void do_draw(SkCanvas* canvas, bool useClip, bool useHintRect) {
     if (useClip) {
         canvas->clipRect(r);
     }
-    auto blur = SkImageFilters::Blur(sigma, sigma, nullptr);
+    // Using kClamp because kDecal, the default, produces transparency near the edge of the canvas's
+    // device.
+    auto blur = SkImageFilters::Blur(sigma, sigma, SkTileMode::kClamp, nullptr);
     auto rec = SkCanvas::SaveLayerRec(drawrptr, nullptr, blur.get(), 0);
     canvas->saveLayer(rec);
         // draw something inside, just to demonstrate that we don't blur the new contents,

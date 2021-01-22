@@ -16,7 +16,8 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkMemory.h"
@@ -31,10 +32,11 @@ static const int DEV_W = 16, DEV_H = 16;
 
 class TestDrawable : public SkDrawable {
 public:
-    TestDrawable(const GrVkInterface* interface, GrContext* context, int32_t width, int32_t height)
+    TestDrawable(const GrVkInterface* interface, GrDirectContext* dContext,
+                 int32_t width, int32_t height)
             : INHERITED()
             , fInterface(interface)
-            , fContext(context)
+            , fDContext(dContext)
             , fWidth(width)
             , fHeight(height) {}
 
@@ -85,16 +87,16 @@ public:
         int32_t              fWidth;
         int32_t              fHeight;
 
-        typedef GpuDrawHandler INHERITED;
+        using INHERITED = GpuDrawHandler;
     };
 
     typedef void (*DrawProc)(TestDrawable*, const SkMatrix&, const SkIRect&,
                              const SkImageInfo&, const GrVkDrawableInfo&);
     typedef void (*SubmitProc)(TestDrawable*);
 
-    // Exercises the exporting of a secondary command buffer from one GrContext and then importing
-    // it into a second GrContext. We then draw to the secondary command buffer from the second
-    // GrContext.
+    // Exercises the exporting of a secondary command buffer from one context and then importing
+    // it into a second context. We then draw to the secondary command buffer from the second
+    // context.
     class DrawHandlerImport : public GpuDrawHandler {
     public:
         DrawHandlerImport(TestDrawable* td, DrawProc drawProc, SubmitProc submitProc,
@@ -126,14 +128,15 @@ public:
         const SkIRect     fClipBounds;
         const SkImageInfo fBufferInfo;
 
-        typedef GpuDrawHandler INHERITED;
+        using INHERITED = GpuDrawHandler;
     };
 
     // Helper function to test drawing to a secondary command buffer that we imported into the
-    // GrContext using a GrVkSecondaryCBDrawContext.
+    // context using a GrVkSecondaryCBDrawContext.
     static void ImportDraw(TestDrawable* td, const SkMatrix& matrix, const SkIRect& clipBounds,
                            const SkImageInfo& bufferInfo, const GrVkDrawableInfo& info) {
-        td->fDrawContext = GrVkSecondaryCBDrawContext::Make(td->fContext, bufferInfo, info, nullptr);
+        td->fDrawContext = GrVkSecondaryCBDrawContext::Make(td->fDContext, bufferInfo,
+                                                            info, nullptr);
         if (!td->fDrawContext) {
             return;
         }
@@ -149,7 +152,7 @@ public:
 
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
         // buffers and the imported secondary command buffer.
-        sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(td->fContext, SkBudgeted::kYes,
+        sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(td->fDContext, SkBudgeted::kYes,
                                                             bufferInfo);
         surf->getCanvas()->clear(SK_ColorRED);
 
@@ -161,22 +164,22 @@ public:
     }
 
     // Helper function to test waiting for the imported secondary command buffer to be submitted on
-    // its original context and then cleaning up the GrVkSecondaryCBDrawContext from this GrContext.
+    // its original context and then cleaning up the GrVkSecondaryCBDrawContext from this context.
     static void ImportSubmitted(TestDrawable* td) {
         // Typical use case here would be to create a fence that we submit to the gpu and then wait
         // on before releasing the GrVkSecondaryCBDrawContext resources. To simulate that for this
         // test (and since we are running single threaded anyways), we will just force a sync of
         // the gpu and cpu here.
-        td->fContext->priv().getGpu()->testingOnly_flushGpuAndSync();
+        td->fDContext->priv().getGpu()->testingOnly_flushGpuAndSync();
 
         td->fDrawContext->releaseResources();
-        // We release the GrContext here manually to test that we waited long enough before
+        // We release the context here manually to test that we waited long enough before
         // releasing the GrVkSecondaryCBDrawContext. This simulates when a client is able to delete
-        // the GrContext it used to imported the secondary command buffer. If we had released the
-        // GrContext's resources earlier (before waiting on the gpu above), we would get vulkan
+        // the context it used to imported the secondary command buffer. If we had released the
+        // context's resources earlier (before waiting on the gpu above), we would get vulkan
         // validation layer errors saying we freed some vulkan objects while they were still in use
         // on the GPU.
-        td->fContext->releaseResourcesAndAbandonContext();
+        td->fDContext->releaseResourcesAndAbandonContext();
     }
 
 
@@ -188,11 +191,11 @@ public:
             return nullptr;
         }
         std::unique_ptr<GpuDrawHandler> draw;
-        if (fContext) {
-            draw.reset(new DrawHandlerImport(this, ImportDraw, ImportSubmitted, matrix,
-                                             clipBounds, bufferInfo));
+        if (fDContext) {
+            draw = std::make_unique<DrawHandlerImport>(this, ImportDraw, ImportSubmitted, matrix,
+                                                       clipBounds, bufferInfo);
         } else {
-            draw.reset(new DrawHandlerBasic(fInterface, fWidth, fHeight));
+            draw = std::make_unique<DrawHandlerBasic>(fInterface, fWidth, fHeight);
         }
         return draw;
     }
@@ -207,25 +210,27 @@ public:
 
 private:
     const GrVkInterface* fInterface;
-    GrContext*           fContext;
+    GrDirectContext*     fDContext;
     sk_sp<GrVkSecondaryCBDrawContext> fDrawContext;
     int32_t              fWidth;
     int32_t              fHeight;
 
-    typedef SkDrawable INHERITED;
+    using INHERITED = SkDrawable;
 };
 
-void draw_drawable_test(skiatest::Reporter* reporter, GrContext* context, GrContext* childContext) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+void draw_drawable_test(skiatest::Reporter* reporter,
+                        GrDirectContext* dContext,
+                        GrDirectContext* childDContext) {
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo,
                                                          ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);
 
-    sk_sp<TestDrawable> drawable(new TestDrawable(gpu->vkInterface(), childContext, DEV_W, DEV_H));
+    sk_sp<TestDrawable> drawable(new TestDrawable(gpu->vkInterface(), childDContext, DEV_W, DEV_H));
     canvas->drawDrawable(drawable.get());
 
     SkPaint paint;
@@ -263,7 +268,7 @@ void draw_drawable_test(skiatest::Reporter* reporter, GrContext* context, GrCont
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo) {
-    draw_drawable_test(reporter, ctxInfo.grContext(), nullptr);
+    draw_drawable_test(reporter, ctxInfo.directContext(), nullptr);
 }
 
 DEF_GPUTEST(VkDrawableImportTest, reporter, options) {
@@ -277,14 +282,14 @@ DEF_GPUTEST(VkDrawableImportTest, reporter, options) {
         sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
         skiatest::ReporterContext ctx(
                    reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
-        if (ctxInfo.grContext()) {
+        if (ctxInfo.directContext()) {
             sk_gpu_test::ContextInfo child =
-                    factory.getSharedContextInfo(ctxInfo.grContext(), 0);
-            if (!child.grContext()) {
+                    factory.getSharedContextInfo(ctxInfo.directContext(), 0);
+            if (!child.directContext()) {
                 continue;
             }
 
-            draw_drawable_test(reporter, ctxInfo.grContext(), child.grContext());
+            draw_drawable_test(reporter, ctxInfo.directContext(), child.directContext());
         }
     }
 }

@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
+// Make sure SkUserConfig.h is included so #defines are available on
+// Android.
+#include "include/core/SkTypes.h"
+#ifdef SK_ENABLE_ANDROID_UTILS
+#include "client_utils/android/FrontBufferedStream.h"
+#endif
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
-#include "include/utils/SkFrontBufferedStream.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkOSFile.h"
@@ -162,10 +167,10 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
     for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
         size_t n;
         if (!rstream->readPackedUInt(&n)) {
-            ERRORF(reporter, "[%d] sizes:%x could not be read\n", i, sizes[i]);
+            ERRORF(reporter, "[%zu] sizes:%zx could not be read\n", i, sizes[i]);
         }
         if (sizes[i] != n) {
-            ERRORF(reporter, "[%d] sizes:%x != n:%x\n", i, sizes[i], n);
+            ERRORF(reporter, "[%zu] sizes:%zx != n:%zx\n", i, sizes[i], n);
         }
     }
 }
@@ -231,12 +236,14 @@ static void test_fully_peekable_stream(skiatest::Reporter* r, SkStream* stream, 
     }
 }
 
+#ifdef SK_ENABLE_ANDROID_UTILS
 static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
                                                const SkStream& original,
                                                size_t bufferSize) {
     std::unique_ptr<SkStream> dupe(original.duplicate());
     REPORTER_ASSERT(r, dupe != nullptr);
-    auto bufferedStream = SkFrontBufferedStream::Make(std::move(dupe), bufferSize);
+    auto bufferedStream = android::skia::FrontBufferedStream::Make(
+            std::move(dupe), bufferSize);
     REPORTER_ASSERT(r, bufferedStream != nullptr);
 
     size_t peeked = 0;
@@ -256,7 +263,7 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
     }
 
     // Test that attempting to peek beyond the length of the buffer does not prevent rewinding.
-    bufferedStream = SkFrontBufferedStream::Make(original.duplicate(), bufferSize);
+    bufferedStream = android::skia::FrontBufferedStream::Make(original.duplicate(), bufferSize);
     REPORTER_ASSERT(r, bufferedStream != nullptr);
 
     const size_t bytesToPeek = bufferSize + 1;
@@ -283,6 +290,7 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
         REPORTER_ASSERT(r, bufferedStream->rewind());
     }
 }
+#endif
 
 // This test uses file system operations that don't work out of the
 // box on iOS. It's likely that we don't need them on iOS. Ignoring for now.
@@ -323,10 +331,12 @@ DEF_TEST(StreamPeek, reporter) {
         REPORTER_ASSERT(reporter, fileStream.peek(storage.get(), i) == 0);
     }
 
+#ifdef SK_ENABLE_ANDROID_UTILS
     // Now test some FrontBufferedStreams
     for (size_t i = 1; i < memStream.getLength(); i++) {
         test_peeking_front_buffered_stream(reporter, memStream, i);
     }
+#endif
 }
 #endif
 
@@ -343,7 +353,7 @@ static void stream_peek_test(skiatest::Reporter* rep,
     const uint8_t* expect = expected->bytes();
     for (size_t i = 0; i < asset->getLength(); ++i) {
         uint32_t maxSize =
-                SkToU32(SkTMin(sizeof(buffer), asset->getLength() - i));
+                SkToU32(std::min(sizeof(buffer), asset->getLength() - i));
         size_t size = rand.nextRangeU(1, maxSize);
         SkASSERT(size >= 1);
         SkASSERT(size <= sizeof(buffer));
@@ -401,7 +411,7 @@ public:
     DumbStream(const uint8_t* data, size_t n)
         : fData(data), fCount(n), fIdx(0) {}
     size_t read(void* buffer, size_t size) override {
-        size_t copyCount = SkTMin(fCount - fIdx, size);
+        size_t copyCount = std::min(fCount - fIdx, size);
         if (copyCount) {
             memcpy(buffer, &fData[fIdx], copyCount);
             fIdx += copyCount;

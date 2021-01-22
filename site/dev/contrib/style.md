@@ -17,8 +17,7 @@ include/private if they need to be used by public headers.
 We prefer to minimize includes. If forward declaring a name in a header is
 sufficient then that is preferred to an include.
 
-Forward declarations and file includes should be in alphabetical order (but we
-aren't very strict about it).
+Forward declarations and file includes should be in alphabetical order.
 
 <span id="no-define-before-sktypes"></span>
 Do not use #if/#ifdef before including "SkTypes.h" (directly or indirectly).
@@ -31,18 +30,12 @@ We use Unix style endlines (LF).
 We prefer no trailing whitespace but aren't very strict about it.
 
 We wrap lines at 100 columns unless it is excessively ugly (use your judgement).
-The soft line length limit was changed from 80 to 100 columns in June 2012. Thus,
-most files still adhere to the 80 column limit. It is not necessary or worth
-significant effort to promote 80 column wrapped files to 100 columns. Please
-don't willy-nilly insert longer lines in 80 column wrapped files. Either be
-consistent with the surrounding code or, if you really feel the need, promote
-the surrounding code to 100 column wrapping.
 
 Naming
 ------
 
-Both projects use a prefix to designate that they are Skia prefix for classes,
-enums, structs, typedefs etc is Sk. Ganesh's is Gr. Nested types should not be
+Most externally visibile types and functions use an Sk- prefix to designate
+they're part of Skia, but code in Ganesh uses Gr-.  Nested types need not be
 prefixed.
 
 <!--?prettify?-->
@@ -55,8 +48,8 @@ public:
 };
 ~~~~
 
-Data fields in structs, classes, unions begin with lowercase f and are then
-camel capped.
+Data fields in structs, classes, unions begin with lower-case f and are then
+camel-capped.
 
 <!--?prettify?-->
 ~~~~
@@ -67,19 +60,34 @@ struct GrCar {
 };
 ~~~~
 
-Globals variables are similar but prefixed with g and camel-capped
+Global variables are similar but prefixed with g and camel-capped.
 
 <!--?prettify?-->
 ~~~~
-bool gLoggingEnabled
-Local variables begin lowercases and are camel-capped.
+bool gLoggingEnabled;
+~~~~
 
+Local variables and arguments are camel-capped with no initial cap.
+
+<!--?prettify?-->
+~~~~
 int herdCats(const Array& cats) {
     int numCats = cats.count();
 }
 ~~~~
 
-Enum values are prefixed with k. Unscoped enum values are post fixed with
+Variables declared `constexpr` or `const`, and whose value is fixed for the
+duration of the program, are named with a leading "k" and then camel-capped.
+
+<!--?prettify?-->
+~~~~
+int drawPicture() {
+    constexpr SkISize kPictureSize = {100, 100};
+    constexpr float kZoom = 1.0f;
+}
+~~~~
+
+Enum values are also prefixed with k. Unscoped enum values are postfixed with
 an underscore and singular name of the enum name. The enum itself should be
 singular for exclusive values or plural for a bitfield. If a count is needed it
 is  `k<singular enum name>Count` and not be a member of the enum (see example),
@@ -87,6 +95,7 @@ or a kLast member of the enum is fine too.
 
 <!--?prettify?-->
 ~~~~
+// Enum class does not need suffixes.
 enum class SkPancakeType {
      kBlueberry,
      kPlain,
@@ -96,28 +105,26 @@ enum class SkPancakeType {
 
 <!--?prettify?-->
 ~~~~
-enum SkPancakeType {
-     kBlueberry_PancakeType,
-     kPlain_PancakeType,
-     kChocolateChip_PancakeType,
+// Enum should have a suffix after the enum name.
+enum SkDonutType {
+     kGlazed_DonutType,
+     kSprinkles_DonutType,
+     kChocolate_DonutType,
+     kMaple_DonutType,
 
-     kLast_PancakeType = kChocolateChip_PancakeType
+     kLast_DonutType = kMaple_DonutType
 };
 
-static const SkPancakeType kPancakeTypeCount = kLast_PancakeType + 1;
+static const SkDonutType kDonutTypeCount = kLast_DonutType + 1;
 ~~~~
-
-A bitfield:
 
 <!--?prettify?-->
 ~~~~
 enum SkSausageIngredientBits {
-    kFennel_SuasageIngredientBit = 0x1,
+    kFennel_SausageIngredientBit = 0x1,
     kBeef_SausageIngredientBit   = 0x2
 };
 ~~~~
-
-or:
 
 <!--?prettify?-->
 ~~~~
@@ -127,17 +134,10 @@ enum SkMatrixFlags {
 };
 ~~~~
 
-Exception: anonymous enums can be used to declare integral constants, e.g.:
-
-<!--?prettify?-->
-~~~~
-enum { kFavoriteNumber = 7 };
-~~~~
-
 Macros are all caps with underscores between words. Macros that have greater
 than file scope should be prefixed SK or GR.
 
-Static non-class functions in implementation files are lower case with
+Static non-class functions in implementation files are lower-case with
 underscores separating words:
 
 <!--?prettify?-->
@@ -156,6 +156,9 @@ bool SkIsOdd(int n);
 class SkFoo {
 public:
     static int FooInstanceCount();
+
+    // Not static.
+    int barBaz();
 };
 ~~~~
 
@@ -181,7 +184,7 @@ Ganesh prefers that macros are always defined and the use of `#if MACRO` rather 
 #endif
 ~~~~
 
-Skia tends to use `#ifdef SK_MACRO` for boolean flags.
+The rest of Skia tends to use `#ifdef SK_MACRO` for boolean flags.
 
 Braces
 ------
@@ -229,7 +232,7 @@ else {
 Flow Control
 ------------
 
-There is a space between flow control words and parentheses and between
+There is a space between flow control words and parentheses, and between
 parentheses and braces:
 
 <!--?prettify?-->
@@ -238,7 +241,7 @@ while (...) {
 }
 
 do {
-} while(...);
+} while (...);
 
 switch (...) {
 ...
@@ -263,15 +266,21 @@ switch (color) {
 }
 ~~~~
 
-Fallthrough from one case to the next is commented unless it is trivial:
+Fallthrough from one case to the next is annotated with `[[fallthrough]]`.
+However, when multiple case statements in a row are used, they do not need the
+`[[fallthrough]]` annotation.
 
 <!--?prettify?-->
 ~~~~
 switch (recipe) {
     ...
+    case kSmallCheesePizza_Recipe:
+    case kLargeCheesePizza_Recipe:
+        ingredients |= kCheese_Ingredient | kDough_Ingredient | kSauce_Ingredient;
+        break;
     case kCheeseOmelette_Recipe:
         ingredients |= kCheese_Ingredient;
-        // fallthrough
+        [[fallthrough]]
     case kPlainOmelette_Recipe:
         ingredients |= (kEgg_Ingredient | kMilk_Ingredient);
         break;
@@ -288,8 +297,7 @@ switch (filter) {
     case kGaussian_Filter: {
         Bitmap srcCopy = src->makeCopy();
         ...
-        break;
-    }
+    } break;
     ...
 };
 ~~~~
@@ -321,17 +329,6 @@ private:
 };
 ~~~~
 
-Subclasses should have a private typedef of their super class called INHERITED:
-
-<!--?prettify?-->
-~~~~
-class GrDillPickle : public GrPickle {
-    ...
-private:
-    typedef GrPickle INHERITED;
-};
-~~~~
-
 Virtual functions that are overridden in derived classes should use override,
 and the virtual keyword should be omitted.
 
@@ -341,21 +338,28 @@ void myVirtual() override {
 }
 ~~~~
 
-All references to base-class implementations of a virtual function
-should be explicitly qualified:
+If you call a method on a parent type that must stand out as specifically the
+parent's version of that method, we usually privately alias that parent type to
+`INHERITED` within the class.  That lets calls like `INHERITED::onFoo()` stand
+out visually.  No need for `this->` when using `INHERITED::`.
 
 <!--?prettify?-->
 ~~~~
-void myVirtual() override {
+class GrDillPickle : public GrPickle {
     ...
-    this->INHERITED::myVirtual();
+    bool onTasty() const override {
+        return INHERITED::onTasty()
+            && fFreshDill;
+    }
     ...
-}
+private:
+    bool fFreshDill;
+    using INHERITED = GrPickle;
+};
 ~~~~
 
 Constructor initializers should be one per line, indented, with punctuation
-placed before the initializer. This is a fairly new rule so much of the existing
-code is non-conforming. Please fix as you go!
+placed before the initializer.
 
 <!--?prettify?-->
 ~~~~
@@ -386,6 +390,52 @@ Method calls within method calls should be prefixed with dereference of the
 this->method();
 ~~~~
 
+A common pattern for virtual methods in Skia is to include a public non-virtual
+(or final) method, paired with a private virtual method named "onMethodName".
+This ensures that the base-class method is always invoked and gives it control
+over how the virtual method is used, rather than relying on each subclass to
+call `INHERITED::onMethodName`. For example:
+
+<!--?prettify?-->
+~~~~
+class SkSandwich {
+public:
+    void assemble() {
+        // All sandwiches must have bread on the top and bottom.
+        this->addIngredient(kBread_Ingredient);
+        this->onAssemble();
+        this->addIngredient(kBread_Ingredient);
+    }
+    bool cook() {
+        return this->onCook();
+    }
+
+private:
+    // All sandwiches must implement onAssemble.
+    virtual void onAssemble() = 0;
+    // Sandwiches can remain uncooked by default.
+    virtual bool onCook() { return true; }
+};
+
+class SkGrilledCheese : public SkSandwich {
+private:
+    void onAssemble() override {
+        this->addIngredient(kCheese_Ingredient);
+    }
+    bool onCook() override {
+        return this->toastOnGriddle();
+    }
+};
+
+class SkPeanutButterAndJelly : public SkSandwich {
+private:
+    void onAssemble() override {
+        this->addIngredient(kPeanutButter_Ingredient);
+        this->addIngredient(kGrapeJelly_Ingredient);
+    }
+};
+~~~~
+
 Integer Types
 -------------
 
@@ -397,29 +447,6 @@ Summary: Use `int` unless you have need a guarantee on the bit count, then use
 `stdint.h` types (`int32_t`, etc). Assert that counts, etc are not negative instead
 of using unsigned. Bitfields use `uint32_t` unless they have to be made shorter
 for packing or performance reasons.
-
-`nullptr`, 0
-------------
-
-Use `nullptr` for pointers, 0 for ints. We suggest explicit `nullptr` comparisons when
-checking for `nullptr` pointers, as documentation:
-
-<!--?prettify?-->
-~~~~
-if (nullptr == x) {  // slightly preferred over if (!x)
-   ...
-}
-~~~~
-
-When checking non-`nullptr` pointers we think implicit comparisons read better than
-an explicit comparison's double negative:
-
-<!--?prettify?-->
-~~~~
-if (x) {  // slightly preferred over if (nullptr != x)
-   ...
-}
-~~~~
 
 Function Parameters
 -------------------
@@ -457,8 +484,7 @@ or all parameters placed on the next line and indented eight spaces
 <!--?prettify?-->
 ~~~~
 void drawBitmapRect(
-        const SkBitmap& bitmap, const SkRect& dst,
-        const SkPaint* paint = nullptr) {
+        const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint = nullptr) {
     this->drawBitmapRectToRect(
             bitmap, nullptr, dst, paint, kNone_DrawBitmapRectFlag);
 }

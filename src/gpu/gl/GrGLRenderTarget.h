@@ -15,7 +15,7 @@
 
 class GrGLCaps;
 class GrGLGpu;
-class GrGLStencilAttachment;
+class GrGLAttachment;
 
 class GrGLRenderTarget : public GrRenderTarget {
 public:
@@ -35,7 +35,6 @@ public:
     static sk_sp<GrGLRenderTarget> MakeWrapped(GrGLGpu*,
                                                const SkISize&,
                                                GrGLFormat,
-                                               GrPixelConfig,
                                                int sampleCount,
                                                const IDs&,
                                                int stencilBits);
@@ -64,7 +63,6 @@ protected:
     GrGLRenderTarget(GrGLGpu*,
                      const SkISize&,
                      GrGLFormat,
-                     GrPixelConfig,
                      int sampleCount,
                      const IDs&);
 
@@ -77,13 +75,8 @@ protected:
 
 private:
     // Constructor for instances wrapping backend objects.
-    GrGLRenderTarget(GrGLGpu*,
-                     const SkISize&,
-                     GrGLFormat,
-                     GrPixelConfig,
-                     int sampleCount,
-                     const IDs&,
-                     GrGLStencilAttachment*);
+    GrGLRenderTarget(
+            GrGLGpu*, const SkISize&, GrGLFormat, int sampleCount, const IDs&, GrGLAttachment*);
 
     void setFlags(const GrGLCaps&, const IDs&);
 
@@ -108,7 +101,7 @@ private:
     // the IDs are just required for the computation in totalSamples we cache that result here.
     int         fNumSamplesOwnedPerPixel;
 
-    typedef GrRenderTarget INHERITED;
+    using INHERITED = GrRenderTarget;
 };
 
 #endif

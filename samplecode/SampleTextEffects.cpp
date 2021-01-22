@@ -19,7 +19,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/utils/SkUTF.h"
 
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkGradientShader.h"
 
 #include "include/effects/Sk2DPathEffect.h"
@@ -39,8 +38,7 @@ protected:
         this->INHERITED::begin(uvBounds, dst);
     }
 
-    virtual void next(const SkPoint& loc, int u, int v,
-                      SkPath* dst) const override {
+    void next(const SkPoint& loc, int u, int v, SkPath* dst) const override {
         if (fPts) {
             *fPts->append() = loc;
         }
@@ -57,7 +55,7 @@ private:
     SkScalar fRadius;
     SkTDArray<SkPoint>* fPts;
 
-    typedef Sk2DPathEffect INHERITED;
+    using INHERITED = Sk2DPathEffect;
 };
 
 // Register this path effect as deserializable before main().
@@ -67,7 +65,7 @@ namespace {
             SK_REGISTER_FLATTENABLE(Dot2DPathEffect);
         }
     } initializer;
-}
+}  // namespace
 
 
 sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
@@ -79,8 +77,7 @@ sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
 class InverseFillPE : public SkPathEffect {
 public:
     InverseFillPE() {}
-    virtual bool onFilterPath(SkPath* dst, const SkPath& src,
-                              SkStrokeRec*, const SkRect*) const override {
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override {
         *dst = src;
         dst->setFillType(SkPathFillType::kInverseWinding);
         return true;
@@ -89,7 +86,7 @@ public:
 private:
     SK_FLATTENABLE_HOOKS(InverseFillPE)
 
-    typedef SkPathEffect INHERITED;
+    using INHERITED = SkPathEffect;
 };
 
 sk_sp<SkFlattenable> InverseFillPE::CreateProc(SkReadBuffer& buffer) {
@@ -165,7 +162,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

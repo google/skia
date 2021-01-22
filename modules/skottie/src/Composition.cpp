@@ -8,119 +8,47 @@
 #include "modules/skottie/src/Composition.h"
 
 #include "include/core/SkCanvas.h"
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "include/private/SkTPin.h"
+#include "modules/skottie/src/Camera.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGGroup.h"
-#include "modules/sksg/include/SkSGTransform.h"
 
 #include <algorithm>
 
 namespace skottie {
 namespace internal {
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name) const {
-    class SkottieSGAdapter final : public sksg::RenderNode {
-    public:
-        explicit SkottieSGAdapter(sk_sp<Animation> animation)
-            : fAnimation(std::move(animation)) {
-            SkASSERT(fAnimation);
-        }
-
-    protected:
-        SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override {
-            return SkRect::MakeSize(fAnimation->size());
-        }
-
-        const RenderNode* onNodeAt(const SkPoint&) const override { return nullptr; }
-
-        void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
-            const auto local_scope =
-                ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(),
-                                                              canvas->getTotalMatrix(),
-                                                              true);
-            fAnimation->render(canvas);
-        }
-
-    private:
-        const sk_sp<Animation> fAnimation;
-    };
-
-    class SkottieAnimatorAdapter final : public sksg::Animator {
-    public:
-        SkottieAnimatorAdapter(sk_sp<Animation> animation, float time_scale)
-            : fAnimation(std::move(animation))
-            , fTimeScale(time_scale) {
-            SkASSERT(fAnimation);
-        }
-
-    protected:
-        void onTick(float t) {
-            // TODO: we prolly need more sophisticated timeline mapping for nested animations.
-            fAnimation->seek(t * fTimeScale);
-        }
-
-    private:
-        const sk_sp<Animation> fAnimation;
-        const float            fTimeScale;
-    };
-
-    const auto data = fResourceProvider->load("", name);
-    if (!data) {
-        this->log(Logger::Level::kError, nullptr, "Could not load: %s.", name);
-        return nullptr;
-    }
-
-    auto animation = Animation::Builder()
-            .setResourceProvider(fResourceProvider)
-            .setFontManager(fLazyFontMgr.getMaybeNull())
-            .make(static_cast<const char*>(data->data()), data->size());
-    if (!animation) {
-        this->log(Logger::Level::kError, nullptr, "Could not parse nested animation: %s.", name);
-        return nullptr;
-    }
-
-    fCurrentAnimatorScope->push_back(
-            sk_make_sp<SkottieAnimatorAdapter>(animation, animation->duration() / fDuration));
-
-    return sk_make_sp<SkottieSGAdapter>(std::move(animation));
-}
-
-sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
-    const skjson::ObjectValue& jlayer,
-    const std::function<sk_sp<sksg::RenderNode>(const skjson::ObjectValue&)>& func) const {
-
+AnimationBuilder::ScopedAssetRef::ScopedAssetRef(const AnimationBuilder* abuilder,
+                                                 const skjson::ObjectValue& jlayer) {
     const auto refId = ParseDefault<SkString>(jlayer["refId"], SkString());
     if (refId.isEmpty()) {
-        this->log(Logger::Level::kError, nullptr, "Layer missing refId.");
-        return nullptr;
+        abuilder->log(Logger::Level::kError, nullptr, "Layer missing refId.");
+        return;
     }
 
-    if (refId.startsWith("$")) {
-        return this->attachNestedAnimation(refId.c_str() + 1);
-    }
-
-    const auto* asset_info = fAssets.find(refId);
+    const auto* asset_info = abuilder->fAssets.find(refId);
     if (!asset_info) {
-        this->log(Logger::Level::kError, nullptr, "Asset not found: '%s'.", refId.c_str());
-        return nullptr;
+        abuilder->log(Logger::Level::kError, nullptr, "Asset not found: '%s'.", refId.c_str());
+        return;
     }
 
     if (asset_info->fIsAttaching) {
-        this->log(Logger::Level::kError, nullptr,
+        abuilder->log(Logger::Level::kError, nullptr,
                   "Asset cycle detected for: '%s'", refId.c_str());
-        return nullptr;
+        return;
     }
 
     asset_info->fIsAttaching = true;
-    auto asset = func(*asset_info->fAsset);
-    asset_info->fIsAttaching = false;
 
-    return asset;
+    fInfo = asset_info;
 }
 
 CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
-                                       const skjson::ObjectValue& jcomp) {
+                                       const SkSize& size,
+                                       const skjson::ObjectValue& jcomp)
+    : fSize(size) {
+
     // Optional motion blur params.
     if (const skjson::ObjectValue* jmb = jcomp["mb"]) {
         static constexpr size_t kMaxSamplesPerFrame = 64;
@@ -139,7 +67,8 @@ CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
             if (!jlayer) continue;
 
             const auto  lbuilder_index = fLayerBuilders.size();
-            const auto& lbuilder       = fLayerBuilders.emplace_back(*jlayer);
+            fLayerBuilders.emplace_back(*jlayer, fSize);
+            const auto& lbuilder = fLayerBuilders.back();
 
             fLayerIndexMap.set(lbuilder.index(), lbuilder_index);
 
@@ -163,19 +92,11 @@ CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
         fCameraTransform = fLayerBuilders[camera_builder_index].buildTransform(abuilder, this);
     } else if (ParseDefault<int>(jcomp["ddd"], 0)) {
         // Default/implicit camera when 3D layers are present.
-        fCameraTransform = CameraAdapter::MakeDefault(abuilder.fSize)->refTransform();
+        fCameraTransform = CameraAdaper::DefaultCameraTransform(fSize);
     }
 }
 
 CompositionBuilder::~CompositionBuilder() = default;
-
-void CompositionBuilder::pushMatte(sk_sp<sksg::RenderNode> matte) {
-    fCurrentMatte = std::move(matte);
-}
-
-sk_sp<sksg::RenderNode> CompositionBuilder::popMatte() {
-    return std::move(fCurrentMatte);
-}
 
 LayerBuilder* CompositionBuilder::layerBuilder(int layer_index) {
     if (layer_index < 0) {
@@ -199,10 +120,12 @@ sk_sp<sksg::RenderNode> CompositionBuilder::build(const AnimationBuilder& abuild
     std::vector<sk_sp<sksg::RenderNode>> layers;
     layers.reserve(fLayerBuilders.size());
 
+    LayerBuilder* prev_layer = nullptr;
     for (auto& lbuilder : fLayerBuilders) {
-        if (auto layer = lbuilder.buildRenderTree(abuilder, this)) {
+        if (auto layer = lbuilder.buildRenderTree(abuilder, this, prev_layer)) {
             layers.push_back(std::move(layer));
         }
+        prev_layer = &lbuilder;
     }
 
     if (layers.empty()) {

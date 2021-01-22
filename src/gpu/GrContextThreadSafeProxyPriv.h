@@ -9,8 +9,10 @@
 #define GrContextThreadSafeProxyPriv_DEFINED
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/private/GrContext_Base.h"
 
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/text/GrTextBlobCache.h"
 
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
@@ -19,24 +21,32 @@
  */
 class GrContextThreadSafeProxyPriv {
 public:
-    // from GrContext_Base
-    uint32_t contextID() const { return fProxy->contextID(); }
+    void init(sk_sp<const GrCaps> caps) const {
+        fProxy->init(std::move(caps));
+    }
 
-    bool matches(GrContext_Base* candidate) const { return fProxy->matches(candidate); }
+    bool matches(GrContext_Base* candidate) const {
+        return fProxy == candidate->threadSafeProxy().get();
+    }
 
-    const GrContextOptions& options() const { return fProxy->options(); }
+    GrBackend backend() const { return fProxy->fBackend; }
+    const GrContextOptions& options() const { return fProxy->fOptions; }
+    uint32_t contextID() const { return fProxy->fContextID; }
 
-    const GrCaps* caps() const { return fProxy->caps(); }
-    sk_sp<const GrCaps> refCaps() const { return fProxy->refCaps(); }
+    const GrCaps* caps() const { return fProxy->fCaps.get(); }
+    sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }
 
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
+    GrTextBlobCache* getTextBlobCache() { return fProxy->fTextBlobCache.get(); }
+    const GrTextBlobCache* getTextBlobCache() const { return fProxy->fTextBlobCache.get(); }
+
+    GrThreadSafeCache* threadSafeCache() { return fProxy->fThreadSafeCache.get(); }
+    const GrThreadSafeCache* threadSafeCache() const { return fProxy->fThreadSafeCache.get(); }
+
+    void abandonContext() { fProxy->abandonContext(); }
+    bool abandoned() const { return fProxy->abandoned(); }
 
     // GrContextThreadSafeProxyPriv
-    static sk_sp<GrContextThreadSafeProxy> Make(GrBackendApi,
-                                                const GrContextOptions&,
-                                                uint32_t contextID,
-                                                sk_sp<const GrCaps>,
-                                                sk_sp<GrSkSLFPFactoryCache>);
+    static sk_sp<GrContextThreadSafeProxy> Make(GrBackendApi, const GrContextOptions&);
 
 private:
     explicit GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy* proxy) : fProxy(proxy) {}
@@ -56,7 +66,7 @@ inline GrContextThreadSafeProxyPriv GrContextThreadSafeProxy::priv() {
     return GrContextThreadSafeProxyPriv(this);
 }
 
-inline const GrContextThreadSafeProxyPriv GrContextThreadSafeProxy::priv() const {
+inline const GrContextThreadSafeProxyPriv GrContextThreadSafeProxy::priv() const {  // NOLINT(readability-const-return-type)
     return GrContextThreadSafeProxyPriv(const_cast<GrContextThreadSafeProxy*>(this));
 }
 

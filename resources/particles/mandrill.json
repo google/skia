@@ -16,10 +16,10 @@
    "Code": [
       "void spawn(inout Particle p) {",
       "  p.lifetime = 1;",
-      "  p.pos = float2(rand, rand) * 200;",
-      "  p.vel = float2(rand, rand) * 2 - 1;",
+      "  p.pos = float2(rand(p.seed), rand(p.seed)) * 200;",
+      "  p.vel = float2(rand(p.seed), rand(p.seed)) * 2 - 1;",
       "  p.vel *= 20;",
-      "  p.scale = mix(0.25, 1, rand);",
+      "  p.scale = mix(0.25, 1, rand(p.seed));",
       "}",
       "",
       "void update(inout Particle p) {",

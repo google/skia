@@ -9,14 +9,14 @@
 #define GrVkCommandPool_DEFINED
 
 #include "src/gpu/vk/GrVkInterface.h"
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
 class GrVkPrimaryCommandBuffer;
 class GrVkSecondaryCommandBuffer;
 class GrVkGpu;
 
-class GrVkCommandPool : public GrVkResource {
+class GrVkCommandPool : public GrVkManagedResource {
 public:
     static GrVkCommandPool* Create(GrVkGpu* gpu);
 
@@ -26,7 +26,7 @@ public:
 
     void reset(GrVkGpu* gpu);
 
-    void releaseResources(GrVkGpu* gpu);
+    void releaseResources();
 
     GrVkPrimaryCommandBuffer* getPrimaryCommandBuffer() { return fPrimaryCommandBuffer.get(); }
 
@@ -41,7 +41,7 @@ public:
     // returns true if close() has not been called
     bool isOpen() const { return fOpen; }
 
-#ifdef SK_DEBUG
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkCommandPool: %p (%d refs)\n", fCommandPool, this->getRefCnt());
     }
@@ -52,9 +52,7 @@ private:
 
     GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
 
-    void abandonGPUData() const override;
-
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData() const override;
 
     bool fOpen = true;
 
@@ -64,6 +62,7 @@ private:
 
     // Array of available secondary command buffers that are not in flight
     SkSTArray<4, std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fAvailableSecondaryBuffers;
+    int fMaxCachedSecondaryCommandBuffers;
 };
 
 #endif

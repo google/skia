@@ -43,7 +43,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar angle = kAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
-        SkScalar size = SkIntToScalar(SkMin32(kWidth, kHeight));
+        SkScalar size = SkIntToScalar(std::min(kWidth, kHeight));
         SkPoint center = SkPoint::Make(SkScalarHalf(kWidth), SkScalarHalf(kHeight));
         SkScalar length = 5;
         SkScalar step = angle;
@@ -85,7 +85,7 @@ protected:
 private:
     int fNumSteps;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new StringArtGM; )
@@ -156,7 +156,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM( return new SkottieGM; )
 #endif

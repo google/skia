@@ -32,8 +32,6 @@
 
 #include <string.h>
 
-class GrContext;
-
 class DFTextGM : public skiagm::GM {
 public:
     DFTextGM() {
@@ -54,17 +52,19 @@ protected:
         return SkISize::Make(1024, 768);
     }
 
-    virtual void onDraw(SkCanvas* inputCanvas) override {
+    void onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
 
         // set up offscreen rendering with distance field text
-        GrContext* ctx = inputCanvas->getGrContext();
+        auto ctx = inputCanvas->recordingContext();
         SkISize size = onISize();
         SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
                                                 inputCanvas->imageInfo().refColorSpace());
-        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
-                             SkSurfaceProps::kLegacyFontHost_InitType);
+        SkSurfaceProps inputProps;
+        inputCanvas->getProps(&inputProps);
+        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | inputProps.flags(),
+                             inputProps.pixelGeometry());
         auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
@@ -244,7 +244,7 @@ private:
     sk_sp<SkTypeface> fEmojiTypeface;
     const char* fEmojiText;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new DFTextGM;)

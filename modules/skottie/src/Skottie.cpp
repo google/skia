@@ -15,13 +15,15 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
+#include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/Composition.h"
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/Transform.h"
 #include "modules/skottie/src/text/TextAdapter.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
@@ -34,6 +36,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <memory>
 
 #include "stdlib.h"
 
@@ -68,133 +71,26 @@ void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
     fLogger->log(lvl, buff, jsonstr.c_str());
 }
 
-sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValue& t,
-                                                        sk_sp<sksg::Transform> parent) const {
-    static const VectorValue g_default_vec_0   = {  0,   0},
-                             g_default_vec_100 = {100, 100};
-
-    auto matrix = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
-    auto adapter = sk_make_sp<TransformAdapter2D>(matrix);
-
-    auto bound = this->bindProperty<VectorValue>(t["a"],
-            [adapter](const VectorValue& a) {
-                adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
-            }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["p"],
-            [adapter](const VectorValue& p) {
-                adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-            }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["s"],
-            [adapter](const VectorValue& s) {
-                adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
-            }, g_default_vec_100);
-
-    const auto* jrotation = &t["r"];
-    if (jrotation->is<skjson::NullValue>()) {
-        // 3d rotations have separate rx,ry,rz components.  While we don't fully support them,
-        // we can still make use of rz.
-        jrotation = &t["rz"];
-    }
-    bound |= this->bindProperty<ScalarValue>(*jrotation,
-            [adapter](const ScalarValue& r) {
-                adapter->setRotation(r);
-            }, 0.0f);
-    bound |= this->bindProperty<ScalarValue>(t["sk"],
-            [adapter](const ScalarValue& sk) {
-                adapter->setSkew(sk);
-            }, 0.0f);
-    bound |= this->bindProperty<ScalarValue>(t["sa"],
-            [adapter](const ScalarValue& sa) {
-                adapter->setSkewAxis(sa);
-            }, 0.0f);
-
-    const auto dispatched = this->dispatchTransformProperty(adapter);
-
-    return (bound || dispatched)
-        ? sksg::Transform::MakeConcat(std::move(parent), std::move(matrix))
-        : parent;
-}
-
-sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& t,
-                                                        sk_sp<sksg::Transform> parent,
-                                                        sk_sp<TransformAdapter3D> adapter,
-                                                        bool precompose_parent) const {
-    static const VectorValue g_default_vec_0   = {  0,   0,   0},
-                             g_default_vec_100 = {100, 100, 100};
-
-    if (!adapter) {
-        // Default to TransformAdapter3D (we only use external adapters for cameras).
-        adapter = sk_make_sp<TransformAdapter3D>();
-    }
-
-    auto bound = this->bindProperty<VectorValue>(t["a"],
-            [adapter](const VectorValue& a) {
-                adapter->setAnchorPoint(TransformAdapter3D::Vec3(a));
-            }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["p"],
-            [adapter](const VectorValue& p) {
-                adapter->setPosition(TransformAdapter3D::Vec3(p));
-            }, g_default_vec_0);
-    bound |= this->bindProperty<VectorValue>(t["s"],
-            [adapter](const VectorValue& s) {
-                adapter->setScale(TransformAdapter3D::Vec3(s));
-            }, g_default_vec_100);
-
-    // Orientation and rx/ry/rz are mapped to the same rotation property -- the difference is
-    // in how they get interpolated (vector vs. scalar/decomposed interpolation).
-    bound |= this->bindProperty<VectorValue>(t["or"],
-            [adapter](const VectorValue& o) {
-                adapter->setRotation(TransformAdapter3D::Vec3(o));
-            }, g_default_vec_0);
-
-    bound |= this->bindProperty<ScalarValue>(t["rx"],
-            [adapter](const ScalarValue& rx) {
-                const auto& r = adapter->getRotation();
-                adapter->setRotation(TransformAdapter3D::Vec3({rx, r.fY, r.fZ}));
-            }, 0.0f);
-
-    bound |= this->bindProperty<ScalarValue>(t["ry"],
-            [adapter](const ScalarValue& ry) {
-                const auto& r = adapter->getRotation();
-                adapter->setRotation(TransformAdapter3D::Vec3({r.fX, ry, r.fZ}));
-            }, 0.0f);
-
-    bound |= this->bindProperty<ScalarValue>(t["rz"],
-            [adapter](const ScalarValue& rz) {
-                const auto& r = adapter->getRotation();
-                adapter->setRotation(TransformAdapter3D::Vec3({r.fX, r.fY, rz}));
-            }, 0.0f);
-
-    // TODO: dispatch 3D transform properties
-
-    if (!bound) {
-        return parent;
-    }
-
-    return precompose_parent
-        ? sksg::Transform::MakeConcat(adapter->refTransform(), std::move(parent))
-        : sksg::Transform::MakeConcat(std::move(parent), adapter->refTransform());
-}
-
-sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,
-                                                        sk_sp<sksg::RenderNode> childNode) const {
-    if (!childNode)
-        return nullptr;
-
-    auto opacityNode = sksg::OpacityEffect::Make(childNode);
-
-    const auto bound = this->bindProperty<ScalarValue>(jtransform["o"],
-        [opacityNode](const ScalarValue& o) {
-            // BM opacity is [0..100]
-            opacityNode->setOpacity(o * 0.01f);
-        }, 100.0f);
-    const auto dispatched = this->dispatchOpacityProperty(opacityNode);
-
-    // We can ignore constant full opacity.
-    return (bound || dispatched) ? std::move(opacityNode) : childNode;
-}
-
 namespace  {
+
+class OpacityAdapter final : public DiscardableAdapterBase<OpacityAdapter, sksg::OpacityEffect> {
+public:
+    OpacityAdapter(const skjson::ObjectValue& jobject,
+                   sk_sp<sksg::RenderNode> child,
+                   const AnimationBuilder& abuilder)
+        : INHERITED(sksg::OpacityEffect::Make(child)) {
+        this->bind(abuilder, jobject["o"], fOpacity);
+    }
+
+private:
+    void onSync() override {
+        this->node()->setOpacity(fOpacity * 0.01f);
+    }
+
+    ScalarValue fOpacity = 100;
+
+    using INHERITED = DiscardableAdapterBase<OpacityAdapter, sksg::OpacityEffect>;
+};
 
 static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
                                 const AnimationBuilder* abuilder) {
@@ -230,6 +126,27 @@ static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
 
 } // namespace
 
+sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jobject,
+                                                        sk_sp<sksg::RenderNode> child_node) const {
+    if (!child_node)
+        return nullptr;
+
+    auto adapter = OpacityAdapter::Make(jobject, child_node, *this);
+    const auto dispatched = this->dispatchOpacityProperty(adapter->node());
+
+    if (adapter->isStatic()) {
+        adapter->seek(0);
+        if (!dispatched && adapter->node()->getOpacity() >= 1) {
+            // No obeservable effects - we can discard.
+            return child_node;
+        }
+    } else {
+        fCurrentAnimatorScope->push_back(adapter);
+    }
+
+    return adapter->node();
+}
+
 sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::ObjectValue& jobject,
                                                           sk_sp<sksg::RenderNode> child) const {
     const auto bm = GetBlendMode(jobject, this);
@@ -241,61 +158,38 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::ObjectVa
     return child;
 }
 
-sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const {
-    auto path_node = sksg::Path::Make();
-    return this->bindProperty<ShapeValue>(jpath,
-        [path_node](const ShapeValue& p) {
-            // FillType is tracked in the SG node, not in keyframes -- make sure we preserve it.
-            auto path = ValueTraits<ShapeValue>::As<SkPath>(p);
-            path.setFillType(path_node->getFillType());
-            path_node->setPath(path);
-        })
-        ? path_node
-        : nullptr;
-}
-
-sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcolor,
-                                                 const char prop_name[]) const {
-    auto color_node = sksg::Color::Make(SK_ColorBLACK);
-
-    this->bindProperty<VectorValue>(jcolor[prop_name],
-        [color_node](const VectorValue& c) {
-            color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
-        });
-    this->dispatchColorProperty(color_node);
-
-    return color_node;
-}
-
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
-                                   sk_sp<MarkerObserver> mobserver,
+                                   sk_sp<MarkerObserver> mobserver, sk_sp<PrecompInterceptor> pi,
                                    Animation::Builder::Stats* stats,
-                                   const SkSize& size, float duration, float framerate)
+                                   const SkSize& comp_size, float duration, float framerate,
+                                   uint32_t flags)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
     , fMarkerObserver(std::move(mobserver))
+    , fPrecompInterceptor(std::move(pi))
     , fStats(stats)
-    , fSize(size)
+    , fCompSize(comp_size)
     , fDuration(duration)
     , fFrameRate(framerate)
+    , fFlags(flags)
     , fHasNontrivialBlending(false) {}
 
-std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
+AnimationBuilder::AnimationInfo AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
     this->dispatchMarkers(jroot["markers"]);
 
     this->parseAssets(jroot["assets"]);
     this->parseFonts(jroot["fonts"], jroot["chars"]);
 
     AutoScope ascope(this);
-    auto root = CompositionBuilder(*this, jroot).build(*this);
+    auto root = CompositionBuilder(*this, fCompSize, jroot).build(*this);
 
     auto animators = ascope.release();
     fStats->fAnimatorCount = animators.size();
 
-    return sksg::Scene::Make(std::move(root), std::move(animators));
+    return { sksg::Scene::Make(std::move(root)), std::move(animators) };
 }
 
 void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
@@ -346,7 +240,7 @@ bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const 
         fPropertyObserver->onColorProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
-                return std::unique_ptr<ColorPropertyHandle>(new ColorPropertyHandle(c));
+                return std::make_unique<ColorPropertyHandle>(c);
             });
     }
 
@@ -360,7 +254,7 @@ bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&
         fPropertyObserver->onOpacityProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
-                return std::unique_ptr<OpacityPropertyHandle>(new OpacityPropertyHandle(o));
+                return std::make_unique<OpacityPropertyHandle>(o);
             });
     }
 
@@ -374,7 +268,7 @@ bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t) const {
         fPropertyObserver->onTextProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
-                return std::unique_ptr<TextPropertyHandle>(new TextPropertyHandle(t));
+                return std::make_unique<TextPropertyHandle>(t);
             });
     }
 
@@ -388,7 +282,7 @@ bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter2D>
         fPropertyObserver->onTransformProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
-                return std::unique_ptr<TransformPropertyHandle>(new TransformPropertyHandle(t));
+                return std::make_unique<TransformPropertyHandle>(t);
             });
     }
 
@@ -407,7 +301,7 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
 
 void Logger::log(Level, const char[], const char*) {}
 
-Animation::Builder::Builder()  = default;
+Animation::Builder::Builder(uint32_t flags) : fFlags(flags) {}
 Animation::Builder::~Builder() = default;
 
 Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
@@ -432,6 +326,11 @@ Animation::Builder& Animation::Builder::setLogger(sk_sp<Logger> logger) {
 
 Animation::Builder& Animation::Builder::setMarkerObserver(sk_sp<MarkerObserver> mobserver) {
     fMarkerObserver = std::move(mobserver);
+    return *this;
+}
+
+Animation::Builder& Animation::Builder::setPrecompInterceptor(sk_sp<PrecompInterceptor> pi) {
+    fPrecompInterceptor = std::move(pi);
     return *this;
 }
 
@@ -465,7 +364,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     auto resolvedProvider = fResourceProvider
             ? fResourceProvider : sk_make_sp<NullResourceProvider>();
 
-    memset(&fStats, 0, sizeof(struct Stats));
+    fStats = Stats{};
 
     fStats.fJsonSize = data_len;
     const auto t0 = std::chrono::steady_clock::now();
@@ -488,7 +387,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        ParseDefault<float>(json["h"], 0.0f));
     const auto fps      = ParseDefault<float>(json["fr"], -1.0f),
                inPoint  = ParseDefault<float>(json["ip"], 0.0f),
-               outPoint = SkTMax(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint),
+               outPoint = std::max(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint),
                duration = sk_ieee_float_divide(outPoint - inPoint, fps);
 
     if (size.isEmpty() || version.isEmpty() || fps <= 0 ||
@@ -508,23 +407,25 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fPropertyObserver),
                                        std::move(fLogger),
                                        std::move(fMarkerObserver),
-                                       &fStats, size, duration, fps);
-    auto scene = builder.parse(json);
+                                       std::move(fPrecompInterceptor),
+                                       &fStats, size, duration, fps, fFlags);
+    auto ainfo = builder.parse(json);
 
     const auto t2 = std::chrono::steady_clock::now();
     fStats.fSceneParseTimeMS = std::chrono::duration<float, std::milli>{t2-t1}.count();
     fStats.fTotalLoadTimeMS  = std::chrono::duration<float, std::milli>{t2-t0}.count();
 
-    if (!scene && fLogger) {
+    if (!ainfo.fScene && fLogger) {
         fLogger->log(Logger::Level::kError, "Could not parse animation.\n");
     }
 
     uint32_t flags = 0;
     if (builder.hasNontrivialBlending()) {
-        flags |= Flags::kRequiresTopLevelIsolation;
+        flags |= Animation::Flags::kRequiresTopLevelIsolation;
     }
 
-    return sk_sp<Animation>(new Animation(std::move(scene),
+    return sk_sp<Animation>(new Animation(std::move(ainfo.fScene),
+                                          std::move(ainfo.fAnimators),
                                           std::move(version),
                                           size,
                                           inPoint,
@@ -541,9 +442,12 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
                 : nullptr;
 }
 
-Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
+Animation::Animation(std::unique_ptr<sksg::Scene> scene,
+                     std::vector<sk_sp<internal::Animator>>&& animators,
+                     SkString version, const SkSize& size,
                      double inPoint, double outPoint, double duration, double fps, uint32_t flags)
     : fScene(std::move(scene))
+    , fAnimators(std::move(animators))
     , fVersion(std::move(version))
     , fSize(size)
     , fInPoint(inPoint)
@@ -571,7 +475,9 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
         canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
     }
 
-    canvas->clipRect(srcR);
+    if (!(renderFlags & RenderFlag::kDisableTopLevelClipping)) {
+        canvas->clipRect(srcR);
+    }
 
     if ((fFlags & Flags::kRequiresTopLevelIsolation) &&
         !(renderFlags & RenderFlag::kSkipTopLevelIsolation)) {
@@ -590,9 +496,14 @@ void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
         return;
 
     // Per AE/Lottie semantics out_point is exclusive.
-    const auto kLastValidFrame = std::nextafterf(fOutPoint, fInPoint);
+    const auto kLastValidFrame = std::nextafterf(fOutPoint, fInPoint),
+                     comp_time = SkTPin<float>(fInPoint + t, fInPoint, kLastValidFrame);
 
-    fScene->animate(SkTPin<float>(fInPoint + t, fInPoint, kLastValidFrame), ic);
+    for (const auto& anim : fAnimators) {
+        anim->seek(comp_time);
+    }
+
+    fScene->revalidate(ic);
 }
 
 void Animation::seekFrameTime(double t, sksg::InvalidationController* ic) {

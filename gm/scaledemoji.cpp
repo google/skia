@@ -83,7 +83,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 class ScaledEmojiPosGM : public GM {
@@ -142,7 +142,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -150,4 +150,4 @@ private:
 DEF_GM(return new ScaledEmojiGM;)
 DEF_GM(return new ScaledEmojiPosGM;)
 
-}
+}  // namespace skiagm

@@ -10,47 +10,51 @@
  **************************************************************************************************/
 #ifndef GrAlphaThresholdFragmentProcessor_DEFINED
 #define GrAlphaThresholdFragmentProcessor_DEFINED
+
+#include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
-    inline OptimizationFlags optFlags(float outerThreshold);
-
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> mask,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     std::unique_ptr<GrFragmentProcessor> maskFP,
                                                      float innerThreshold,
-                                                     float outerThreshold,
-                                                     const SkIRect& bounds) {
+                                                     float outerThreshold) {
         return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
-                mask, innerThreshold, outerThreshold, bounds));
+                std::move(inputFP), std::move(maskFP), innerThreshold, outerThreshold));
     }
     GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
-    GrCoordTransform maskCoordTransform;
-    TextureSampler mask;
+    bool usesExplicitReturn() const override;
     float innerThreshold;
     float outerThreshold;
 
 private:
-    GrAlphaThresholdFragmentProcessor(sk_sp<GrSurfaceProxy> mask, float innerThreshold,
-                                      float outerThreshold, const SkIRect& bounds)
-            : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, kNone_OptimizationFlags)
-            , maskCoordTransform(
-                      SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
-                      mask.get())
-            , mask(std::move(mask))
+    GrAlphaThresholdFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                      std::unique_ptr<GrFragmentProcessor> maskFP,
+                                      float innerThreshold,
+                                      float outerThreshold)
+            : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID,
+                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
+                                                    : kAll_OptimizationFlags) &
+                                ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag
+                                                         : kNone_OptimizationFlags))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
-        this->setTextureSamplerCnt(1);
-        this->addCoordTransform(&maskCoordTransform);
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        SkASSERT(maskFP);
+        this->registerChild(std::move(maskFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
-    const TextureSampler& onTextureSampler(int) const override;
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 #endif

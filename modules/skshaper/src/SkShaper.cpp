@@ -13,7 +13,10 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkMakeUnique.h"
+
+#ifdef SK_UNICODE_AVAILABLE
+#include "modules/skshaper/src/SkUnicode.h"
+#endif
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
@@ -35,26 +38,37 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
-#ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+#ifdef SK_UNICODE_AVAILABLE
+    auto unicode = SkUnicode::Make();
+    if (!unicode) {
+        return nullptr;
+    }
     std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-        SkShaper::MakeIcuBiDiRunIterator(utf8, utf8Bytes, bidiLevel);
+        SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
+                                               utf8,
+                                               utf8Bytes,
+                                               bidiLevel);
     if (bidi) {
         return bidi;
     }
 #endif
-    return skstd::make_unique<SkShaper::TrivialBiDiRunIterator>(bidiLevel, utf8Bytes);
+    return std::make_unique<SkShaper::TrivialBiDiRunIterator>(bidiLevel, utf8Bytes);
 }
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
 SkShaper::MakeScriptRunIterator(const char* utf8, size_t utf8Bytes, SkFourByteTag scriptTag) {
-#ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_UNICODE_AVAILABLE)
+    auto unicode = SkUnicode::Make();
+    if (!unicode) {
+        return nullptr;
+    }
     std::unique_ptr<SkShaper::ScriptRunIterator> script =
-        SkShaper::MakeHbIcuScriptRunIterator(utf8, utf8Bytes);
+        SkShaper::MakeSkUnicodeHbScriptRunIterator(unicode.get(), utf8, utf8Bytes);
     if (script) {
         return script;
     }
 #endif
-    return skstd::make_unique<SkShaper::TrivialScriptRunIterator>(scriptTag, utf8Bytes);
+    return std::make_unique<SkShaper::TrivialScriptRunIterator>(scriptTag, utf8Bytes);
 }
 
 SkShaper::SkShaper() {}
@@ -165,7 +179,7 @@ std::unique_ptr<SkShaper::FontRunIterator>
 SkShaper::MakeFontMgrRunIterator(const char* utf8, size_t utf8Bytes,
                                  const SkFont& font, sk_sp<SkFontMgr> fallback)
 {
-    return skstd::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback));
+    return std::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback));
 }
 
 std::unique_ptr<SkShaper::FontRunIterator>
@@ -174,13 +188,13 @@ SkShaper::MakeFontMgrRunIterator(const char* utf8, size_t utf8Bytes, const SkFon
                                  const char* requestName, SkFontStyle requestStyle,
                                  const SkShaper::LanguageRunIterator* language)
 {
-    return skstd::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback),
+    return std::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback),
                                                   requestName, requestStyle, language);
 }
 
 std::unique_ptr<SkShaper::LanguageRunIterator>
 SkShaper::MakeStdLanguageRunIterator(const char* utf8, size_t utf8Bytes) {
-    return skstd::make_unique<TrivialLanguageRunIterator>(std::locale().name().c_str(), utf8Bytes);
+    return std::make_unique<TrivialLanguageRunIterator>(std::locale().name().c_str(), utf8Bytes);
 }
 
 void SkTextBlobBuilderRunHandler::beginLine() {
@@ -192,9 +206,9 @@ void SkTextBlobBuilderRunHandler::beginLine() {
 void SkTextBlobBuilderRunHandler::runInfo(const RunInfo& info) {
     SkFontMetrics metrics;
     info.fFont.getMetrics(&metrics);
-    fMaxRunAscent = SkTMin(fMaxRunAscent, metrics.fAscent);
-    fMaxRunDescent = SkTMax(fMaxRunDescent, metrics.fDescent);
-    fMaxRunLeading = SkTMax(fMaxRunLeading, metrics.fLeading);
+    fMaxRunAscent = std::min(fMaxRunAscent, metrics.fAscent);
+    fMaxRunDescent = std::max(fMaxRunDescent, metrics.fDescent);
+    fMaxRunLeading = std::max(fMaxRunLeading, metrics.fLeading);
 }
 
 void SkTextBlobBuilderRunHandler::commitRunInfo() {

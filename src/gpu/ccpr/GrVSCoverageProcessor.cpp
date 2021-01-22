@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 
-#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
@@ -18,10 +18,7 @@ public:
             : fShader(std::move(shader)), fNumSides(numSides) {}
 
 private:
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange& transformRange) final {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
-    }
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
@@ -452,7 +449,9 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
 }
 
-void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
+void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
+                                  GrResourceProvider* rp) {
+    SkASSERT(subpassIdx == 0);
     const GrCaps& caps = *rp->caps();
 
     fPrimitiveType = primitiveType;
@@ -504,16 +503,16 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     GrVertexAttribType xyAttribType;
     GrSLType xySLType;
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
-        GR_STATIC_ASSERT(offsetof(QuadPointInstance, fX) == 0);
-        GR_STATIC_ASSERT(sizeof(QuadPointInstance::fX) ==
-                         GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
-        GR_STATIC_ASSERT(sizeof(QuadPointInstance::fY) ==
-                         GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
+        static_assert(offsetof(QuadPointInstance, fX) == 0);
+        static_assert(sizeof(QuadPointInstance::fX) ==
+                      GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
+        static_assert(sizeof(QuadPointInstance::fY) ==
+                      GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
         xyAttribType = kFloat4_GrVertexAttribType;
         xySLType = kFloat4_GrSLType;
     } else {
-        GR_STATIC_ASSERT(sizeof(TriPointInstance) ==
-                         2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
+        static_assert(sizeof(TriPointInstance) ==
+                      2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
         xyAttribType = kFloat3_GrVertexAttribType;
         xySLType = kFloat3_GrSLType;
     }
@@ -530,16 +529,17 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     }
 }
 
-void GrVSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
+void GrVSCoverageProcessor::bindBuffers(GrOpsRenderPass* renderPass,
+                                        sk_sp<const GrBuffer> instanceBuffer) const {
     SkASSERT(fTriangleType == GrPrimitiveType::kTriangles ||
              fTriangleType == GrPrimitiveType::kTriangleStrip);
+    renderPass->bindBuffers(fIndexBuffer, std::move(instanceBuffer), fVertexBuffer,
+                            GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType));
+}
 
-    GrMesh& mesh = out->emplace_back(fTriangleType);
-    auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType);
-    mesh.setIndexedInstanced(fIndexBuffer, fNumIndicesPerInstance, std::move(instanceBuffer),
-                             instanceCount, baseInstance, primitiveRestart);
-    mesh.setVertexData(fVertexBuffer, 0);
+void GrVSCoverageProcessor::drawInstances(GrOpsRenderPass* renderPass, int instanceCount,
+                                          int baseInstance) const {
+    renderPass->drawIndexedInstanced(fNumIndicesPerInstance, 0, instanceCount, baseInstance, 0);
 }
 
 GrGLSLPrimitiveProcessor* GrVSCoverageProcessor::onCreateGLSLInstance(

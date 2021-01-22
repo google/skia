@@ -11,7 +11,6 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkStream.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/DecodeFile.h"
 #include "tools/Resources.h"
@@ -104,7 +103,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

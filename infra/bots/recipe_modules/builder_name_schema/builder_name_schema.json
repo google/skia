@@ -22,6 +22,11 @@
         "extra_config"
       ]
     },
+    "Canary": {
+      "keys": [
+        "project"
+      ]
+    },
     "Housekeeper": {
       "keys": [
         "frequency"
@@ -63,6 +68,30 @@
         "arch",
         "configuration",
         "test_filter"
+      ],
+      "optional_keys": [
+        "extra_config"
+      ]
+    },
+    "FM": {
+      "keys": [
+        "os",
+        "compiler",
+        "model",
+        "cpu_or_gpu",
+        "cpu_or_gpu_value",
+        "arch",
+        "configuration",
+        "test_filter"
+      ],
+      "optional_keys": [
+        "extra_config"
+      ]
+    },
+    "Fuzz": {
+      "keys": [
+        "os",
+        "compiler"
       ],
       "optional_keys": [
         "extra_config"

@@ -43,9 +43,9 @@ protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkPMColor4f& color() const { return fInputColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
+    bool doAA() const { return fDoAA; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
-    GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }
-    inline GrPipeline::InitArgs pipelineInitArgs(const GrOpFlushState&);
+    GrProcessorSet detachProcessorSet() { return std::move(fProcessorSet); }
     const GrProcessorSet::Analysis& doProcessorAnalysis(
             const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType);
     const GrProcessorSet::Analysis& processorAnalysis() const {
@@ -54,6 +54,12 @@ protected:
     }
 
 private:
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* writeView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) final {}
+
     void onPrepare(GrOpFlushState*) final {}
 
     SkMatrix fViewMatrix;
@@ -63,24 +69,20 @@ private:
     bool fDoAA;
     GrProcessorSet fProcessorSet;
 
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 class GrDrawPathOp final : public GrDrawPathOpBase {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(
+    static GrOp::Owner Make(
             GrRecordingContext*, const SkMatrix& viewMatrix, GrPaint&&, GrAA, sk_sp<const GrPath>);
 
     const char* name() const override { return "DrawPath"; }
 
-#ifdef SK_DEBUG
-    SkString dumpInfo() const override;
-#endif
-
 private:
-    friend class GrOpMemoryPool; // for ctor
+    friend class GrOp; // for ctor
 
     GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAA aa, sk_sp<const GrPath> path)
             : GrDrawPathOpBase(
@@ -91,10 +93,13 @@ private:
     }
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 
     sk_sp<const GrPath> fPath;
 
-    typedef GrDrawPathOpBase INHERITED;
+    using INHERITED = GrDrawPathOpBase;
 };
 
 #endif

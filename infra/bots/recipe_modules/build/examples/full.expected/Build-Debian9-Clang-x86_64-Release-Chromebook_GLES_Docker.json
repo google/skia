@@ -1,0 +1,156 @@
+[
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get clang_linux VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "Docker setup"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint '%d:%d' % (os.getuid(), os.getgid())\n"
+    ],
+    "name": "Docker setup.Get uid and gid",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print '%d:%d' % (os.getuid(), os.getgid())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker/Release"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.mkdirs out_dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "777",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker/Release"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 777 [START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker/Release",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "755",
+      "[START_DIR]/cache/work"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 755 [START_DIR]/cache/work",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "0755",
+      "RECIPE_MODULE[skia::build]/resources/docker-chromeos-compile.sh"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 0755 RECIPE_MODULE[skia::build]/resources/docker-chromeos-compile.sh",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "docker",
+      "run",
+      "--shm-size=2gb",
+      "--rm",
+      "--user",
+      "13:17",
+      "--mount",
+      "type=bind,source=[START_DIR]/cache/work,target=/SRC",
+      "--mount",
+      "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker/Release,target=/OUT",
+      "gcr.io/skia-public/debian9@sha256:f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569",
+      "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-chromeos-compile.sh",
+      "cc=\"/SRC/clang_linux/bin/clang\" cxx=\"/SRC/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\",\"-I/SRC/chromebook_x86_64_gles/include\",\"-DDUMMY_clang_linux_version=42\",\"-DDUMMY_docker_image=gcr.io/skia-public/debian9@sha256:f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569\"] extra_ldflags=[\"-L/SRC/chromebook_x86_64_gles/lib\",\"-static-libstdc++\",\"-static-libgcc\",\"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"x86_64\" werror=true"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Run build script in Docker"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker/Release",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
+    ],
+    "infra_step": true,
+    "name": "copy build products",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import errno@@@",
+      "@@@STEP_LOG_LINE@python.inline@import glob@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import shutil@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@build_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk']@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(dst)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except OSError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for pattern in build_products:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  path = os.path.join(src, pattern)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in glob.glob(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    dst_path = os.path.join(dst, os.path.relpath(f, src))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not os.path.isdir(os.path.dirname(dst_path)):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    shutil.move(f, dst_path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result"
+  }
+]

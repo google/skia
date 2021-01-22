@@ -11,7 +11,6 @@
 #include "include/core/SkExecutor.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/pdf/SkDeflate.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
@@ -22,72 +21,76 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFUnion::SkPDFUnion(Type t) : fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, int32_t v)  : fIntValue    (v), fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, bool v)     : fBoolValue   (v), fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, SkScalar v) : fScalarValue (v), fType(t) {}
-SkPDFUnion::SkPDFUnion(Type t, SkString v) : fType(t) { fSkString.init(std::move(v)); }
+SkPDFUnion::SkPDFUnion(Type t, int32_t     v) : fIntValue          (v) , fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, bool        v) : fBoolValue         (v) , fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, SkScalar    v) : fScalarValue       (v) , fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, const char* v) : fStaticString      (v) , fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, SkString    v) : fSkString(std::move(v)), fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, PDFObject   v) : fObject  (std::move(v)), fType(t) {}
 
 SkPDFUnion::~SkPDFUnion() {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            fSkString.destroy();
+            fSkString.~SkString();
             return;
         case Type::kObject:
-            SkASSERT(fObject);
-            delete fObject;
+            fObject.~PDFObject();
             return;
         default:
             return;
     }
 }
 
-SkPDFUnion& SkPDFUnion::operator=(SkPDFUnion&& other) {
-    if (this != &other) {
+SkPDFUnion::SkPDFUnion(SkPDFUnion&& that) : fType(that.fType) {
+    SkASSERT(this != &that);
+
+    switch (fType) {
+        case Type::kDestroyed:
+            break;
+        case Type::kInt:
+        case Type::kColorComponent:
+        case Type::kRef:
+            fIntValue = that.fIntValue;
+            break;
+        case Type::kBool:
+            fBoolValue = that.fBoolValue;
+            break;
+        case Type::kColorComponentF:
+        case Type::kScalar:
+            fScalarValue = that.fScalarValue;
+            break;
+        case Type::kName:
+        case Type::kString:
+            fStaticString = that.fStaticString;
+            break;
+        case Type::kNameSkS:
+        case Type::kStringSkS:
+            new (&fSkString) SkString(std::move(that.fSkString));
+            break;
+        case Type::kObject:
+            new (&fObject) PDFObject(std::move(that.fObject));
+            break;
+        default:
+            SkDEBUGFAIL("SkPDFUnion::SkPDFUnion with bad type");
+    }
+    that.fType = Type::kDestroyed;
+}
+
+SkPDFUnion& SkPDFUnion::operator=(SkPDFUnion&& that) {
+    if (this != &that) {
         this->~SkPDFUnion();
-        new (this) SkPDFUnion(std::move(other));
+        new (this) SkPDFUnion(std::move(that));
     }
     return *this;
 }
-
-SkPDFUnion::SkPDFUnion(SkPDFUnion&& other) {
-    SkASSERT(this != &other);
-    memcpy(this, &other, sizeof(*this));
-    other.fType = Type::kDestroyed;
-}
-
-#if 0
-SkPDFUnion SkPDFUnion::copy() const {
-    SkPDFUnion u(fType);
-    memcpy(&u, this, sizeof(u));
-    switch (fType) {
-        case Type::kNameSkS:
-        case Type::kStringSkS:
-            u.fSkString.init(fSkString.get());
-            return u;
-        case Type::kObject:
-            SkRef(u.fObject);
-            return u;
-        default:
-            return u;
-    }
-}
-SkPDFUnion& SkPDFUnion::operator=(const SkPDFUnion& other) {
-    return *this = other.copy();
-}
-SkPDFUnion::SkPDFUnion(const SkPDFUnion& other) {
-    *this = other.copy();
-}
-#endif
 
 bool SkPDFUnion::isName() const {
     return Type::kName == fType || Type::kNameSkS == fType;
 }
 
 #ifdef SK_DEBUG
-// Most names need no escaping.  Such names are handled as static
-// const strings.
+// Most names need no escaping.  Such names are handled as static const strings.
 bool is_valid_name(const char* n) {
     static const char kControlChars[] = "/%()<>[]{}";
     while (*n) {
@@ -100,8 +103,7 @@ bool is_valid_name(const char* n) {
 }
 #endif  // SK_DEBUG
 
-// Given an arbitrary string, write it as a valid name (not including
-// leading slash).
+// Given an arbitrary string, write it as a valid name (not including leading slash).
 static void write_name_escaped(SkWStream* o, const char* name) {
     static const char kToEscape[] = "#/%()<>[]{}";
     for (const uint8_t* n = reinterpret_cast<const uint8_t*>(name); *n; ++n) {
@@ -191,10 +193,10 @@ void SkPDFUnion::emitObject(SkWStream* stream) const {
             return;
         case Type::kNameSkS:
             stream->writeText("/");
-            write_name_escaped(stream, fSkString.get().c_str());
+            write_name_escaped(stream, fSkString.c_str());
             return;
         case Type::kStringSkS:
-            write_string(stream, fSkString.get().c_str(), fSkString.get().size());
+            write_string(stream, fSkString.c_str(), fSkString.size());
             return;
         case Type::kObject:
             fObject->emitObject(stream);
@@ -209,14 +211,16 @@ void SkPDFUnion::emitObject(SkWStream* stream) const {
     }
 }
 
-SkPDFUnion SkPDFUnion::Int(int32_t value) { return SkPDFUnion(Type::kInt, value); }
+SkPDFUnion SkPDFUnion::Int(int32_t value) {
+    return SkPDFUnion(Type::kInt, value);
+}
 
 SkPDFUnion SkPDFUnion::ColorComponent(uint8_t value) {
-    return SkPDFUnion(Type::kColorComponent, (int32_t)value);
+    return SkPDFUnion(Type::kColorComponent,  SkTo<int32_t>(value));
 }
 
 SkPDFUnion SkPDFUnion::ColorComponentF(float value) {
-    return SkPDFUnion(Type::kColorComponentF, (SkScalar)value);
+    return SkPDFUnion(Type::kColorComponentF, SkFloatToScalar(value));
 }
 
 SkPDFUnion SkPDFUnion::Bool(bool value) {
@@ -228,33 +232,32 @@ SkPDFUnion SkPDFUnion::Scalar(SkScalar value) {
 }
 
 SkPDFUnion SkPDFUnion::Name(const char* value) {
-    SkPDFUnion u(Type::kName);
     SkASSERT(value);
     SkASSERT(is_valid_name(value));
-    u.fStaticString = value;
-    return u;
+    return SkPDFUnion(Type::kName, value);
 }
 
 SkPDFUnion SkPDFUnion::String(const char* value) {
-    SkPDFUnion u(Type::kString);
     SkASSERT(value);
-    u.fStaticString = value;
-    return u;
+    return SkPDFUnion(Type::kString, value);
 }
 
-SkPDFUnion SkPDFUnion::Name(SkString s) { return SkPDFUnion(Type::kNameSkS, std::move(s)); }
+SkPDFUnion SkPDFUnion::Name(SkString s) {
+    return SkPDFUnion(Type::kNameSkS, std::move(s));
+}
 
-SkPDFUnion SkPDFUnion::String(SkString s) { return SkPDFUnion(Type::kStringSkS, std::move(s)); }
+SkPDFUnion SkPDFUnion::String(SkString s) {
+    return SkPDFUnion(Type::kStringSkS, std::move(s));
+}
 
 SkPDFUnion SkPDFUnion::Object(std::unique_ptr<SkPDFObject> objSp) {
-    SkPDFUnion u(Type::kObject);
     SkASSERT(objSp.get());
-    u.fObject = objSp.release();  // take ownership into union{}
-    return u;
+    return SkPDFUnion(Type::kObject, std::move(objSp));
 }
 
 SkPDFUnion SkPDFUnion::Ref(SkPDFIndirectReference ref) {
-    return SkASSERT(ref.fValue > 0), SkPDFUnion(Type::kRef, (int32_t)ref.fValue);
+    SkASSERT(ref.fValue > 0);
+    return SkPDFUnion(Type::kRef, SkTo<int32_t>(ref.fValue));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

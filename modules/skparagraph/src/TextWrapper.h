@@ -45,7 +45,7 @@ class TextWrapper {
         }
 
         inline SkScalar width() const { return fWidth; }
-        SkScalar withWithGhostSpaces() const { return fWidthWithGhostSpaces; }
+        SkScalar widthWithGhostSpaces() const { return fWidthWithGhostSpaces; }
         inline Cluster* startCluster() const { return fStart.cluster(); }
         inline Cluster* endCluster() const { return fEnd.cluster(); }
         inline Cluster* breakCluster() const { return fBreak.cluster(); }
@@ -65,6 +65,9 @@ class TextWrapper {
             stretch.clean();
         }
 
+        bool empty() { return fStart.cluster() == fEnd.cluster() &&
+                              fStart.position() == fEnd.position(); }
+
         void setMetrics(const InternalLineMetrics& metrics) { fMetrics = metrics; }
 
         void extend(Cluster* cluster) {
@@ -72,6 +75,7 @@ class TextWrapper {
                 fStart = ClusterPos(cluster, cluster->startPos());
             }
             fEnd = ClusterPos(cluster, cluster->endPos());
+            // TODO: Make sure all the checks are correct and there are no unnecessary checks
             if (!cluster->run()->isPlaceholder()) {
                 fMetrics.add(cluster->run());
             }
@@ -99,12 +103,17 @@ class TextWrapper {
             fBreak = fEnd;
         }
 
+        void restoreBreak() {
+            fWidth = fWidthWithGhostSpaces;
+            fEnd = fBreak;
+        }
+
         void trim() {
 
             if (fEnd.cluster() != nullptr &&
-                fEnd.cluster()->master() != nullptr &&
+                fEnd.cluster()->owner() != nullptr &&
                 fEnd.cluster()->run() != nullptr &&
-                fEnd.cluster()->run()->placeholder() == nullptr &&
+                fEnd.cluster()->run()->placeholderStyle() == nullptr &&
                 fWidth > 0) {
                 fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
             }
@@ -188,7 +197,7 @@ private:
     }
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
-    void moveForward();
+    void moveForward(bool hasEllipsis);
     void trimEndSpaces(TextAlign align);
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();

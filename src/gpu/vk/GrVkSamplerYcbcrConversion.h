@@ -8,14 +8,14 @@
 #ifndef GrVkSamplerYcbcrConverison_DEFINED
 #define GrVkSamplerYcbcrConverison_DEFINED
 
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkOpts.h"
 
 class GrVkGpu;
 
-class GrVkSamplerYcbcrConversion : public GrVkResource {
+class GrVkSamplerYcbcrConversion : public GrVkManagedResource {
 public:
     static GrVkSamplerYcbcrConversion* Create(GrVkGpu* gpu, const GrVkYcbcrConversionInfo&);
 
@@ -51,24 +51,25 @@ public:
         return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
     }
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkSamplerYcbcrConversion: %d (%d refs)\n", fYcbcrConversion, this->getRefCnt());
     }
 #endif
 
 private:
-    GrVkSamplerYcbcrConversion(VkSamplerYcbcrConversion ycbcrConversion, Key key)
-            : INHERITED()
+    GrVkSamplerYcbcrConversion(const GrVkGpu* gpu, VkSamplerYcbcrConversion ycbcrConversion,
+                               Key key)
+            : INHERITED(gpu)
             , fYcbcrConversion(ycbcrConversion)
             , fKey(key) {}
 
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData() const override;
 
     VkSamplerYcbcrConversion fYcbcrConversion;
     Key                      fKey;
 
-    typedef GrVkResource INHERITED;
+    using INHERITED = GrVkManagedResource;
 };
 
 #endif

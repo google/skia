@@ -10,8 +10,8 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkMakeUnique.h"
 
+#include <algorithm>
 #include <atomic>
 #include <new>
 
@@ -41,7 +41,7 @@ struct SkBufferBlock {
     //
     size_t append(const void* src, size_t length) {
         this->validate();
-        size_t amount = SkTMin(this->avail(), length);
+        size_t amount = std::min(this->avail(), length);
         memcpy(this->availData(), src, amount);
         fUsed += amount;
         this->validate();
@@ -60,7 +60,7 @@ struct SkBufferBlock {
 private:
     static size_t LengthToCapacity(size_t length) {
         const size_t minSize = kMinAllocSize - sizeof(SkBufferBlock);
-        return SkTMax(length, minSize);
+        return std::max(length, minSize);
     }
 };
 
@@ -72,7 +72,7 @@ struct SkBufferHead {
 
     static size_t LengthToCapacity(size_t length) {
         const size_t minSize = kMinAllocSize - sizeof(SkBufferHead);
-        return SkTMax(length, minSize);
+        return std::max(length, minSize);
     }
 
     static SkBufferHead* Alloc(size_t length) {
@@ -172,7 +172,7 @@ size_t SkROBuffer::Iter::size() const {
     if (!fBlock) {
         return 0;
     }
-    return SkTMin(fBlock->fCapacity, fRemaining);
+    return std::min(fBlock->fCapacity, fRemaining);
 }
 
 bool SkROBuffer::Iter::next() {
@@ -291,7 +291,7 @@ public:
         for (;;) {
             size_t size = fIter.size();
             SkASSERT(fLocalOffset <= size);
-            size_t avail = SkTMin(size - fLocalOffset, request - bytesRead);
+            size_t avail = std::min(size - fLocalOffset, request - bytesRead);
             if (dst) {
                 memcpy(dst, (const char*)fIter.data() + fLocalOffset, avail);
                 dst = (char*)dst + avail;
@@ -360,5 +360,5 @@ private:
 };
 
 std::unique_ptr<SkStreamAsset> SkRWBuffer::makeStreamSnapshot() const {
-    return skstd::make_unique<SkROBufferStreamAsset>(this->makeROBufferSnapshot());
+    return std::make_unique<SkROBufferStreamAsset>(this->makeROBufferSnapshot());
 }

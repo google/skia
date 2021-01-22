@@ -17,6 +17,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTileMode.h"
 
+#include <cstddef>
+
 class SkColorFilter;
 class SkPaint;
 class SkRegion;
@@ -27,6 +29,26 @@ class SkRegion;
 // drawing with SkCanvas, or an explicit SkImage if using SkImage::makeWithFilter.
 class SK_API SkImageFilters {
 public:
+    // This is just a convenience type to allow passing SkIRects, SkRects, and optional pointers
+    // to those types as a crop rect for the image filter factories. It's not intended to be used
+    // directly.
+    struct CropRect {
+        static constexpr SkRect kNoCropRect = {SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
+                                               SK_ScalarInfinity, SK_ScalarInfinity};
+        CropRect() : fCropRect(kNoCropRect) {}
+        // Intentionally not explicit so callers don't have to use this type but can use SkIRect or
+        // SkRect as desired.
+        CropRect(std::nullptr_t) : fCropRect(kNoCropRect) {}
+        CropRect(const SkIRect& crop) : fCropRect(SkRect::Make(crop)) {}
+        CropRect(const SkRect& crop) : fCropRect(crop) {}
+        CropRect(const SkIRect* optionalCrop) : fCropRect(optionalCrop ? SkRect::Make(*optionalCrop)
+                                                                       : kNoCropRect) {}
+        CropRect(const SkRect* optionalCrop) : fCropRect(optionalCrop ? *optionalCrop
+                                                                      : kNoCropRect) {}
+
+        SkRect fCropRect;
+    };
+
     /**
      *  Create a filter that updates the alpha of the image based on 'region'. Pixels inside the
      *  region are made more opaque and pixels outside are made more transparent.
@@ -42,7 +64,7 @@ public:
      */
     static sk_sp<SkImageFilter> AlphaThreshold(const SkRegion& region, SkScalar innerMin,
                                                SkScalar outerMax, sk_sp<SkImageFilter> input,
-                                               const SkIRect* cropRect = nullptr);
+                                               const CropRect& cropRect = {});
 
     /**
      *  Create a filter that implements a custom blend mode. Each output pixel is the result of
@@ -57,7 +79,18 @@ public:
     static sk_sp<SkImageFilter> Arithmetic(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
                                            bool enforcePMColor, sk_sp<SkImageFilter> background,
                                            sk_sp<SkImageFilter> foreground,
-                                           const SkIRect* cropRect = nullptr);
+                                           const CropRect& cropRect = {});
+
+    /**
+     *  This filter takes an SkBlendMode and uses it to composite the two filters together.
+     *  @param mode       The blend mode that defines the compositing operation
+     *  @param background The Dst pixels used in blending, if null the source bitmap is used.
+     *  @param foreground The Src pixels used in blending, if null the source bitmap is used.
+     *  @cropRect         Optional rectangle to crop input and output.
+     */
+    static sk_sp<SkImageFilter> Blend(SkBlendMode mode, sk_sp<SkImageFilter> background,
+                                      sk_sp<SkImageFilter> foreground = nullptr,
+                                      const CropRect& cropRect = {});
 
     /**
      *  Create a filter that blurs its input by the separate X and Y sigmas. The provided tile mode
@@ -70,10 +103,10 @@ public:
      *  @param cropRect Optional rectangle that crops the input and output.
      */
     static sk_sp<SkImageFilter> Blur(SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode,
-                                     sk_sp<SkImageFilter> input, const SkIRect* cropRect = nullptr);
+                                     sk_sp<SkImageFilter> input, const CropRect& cropRect = {});
     // As above, but defaults to the decal tile mode.
     static sk_sp<SkImageFilter> Blur(SkScalar sigmaX, SkScalar sigmaY, sk_sp<SkImageFilter> input,
-                                     const SkIRect* cropRect = nullptr) {
+                                     const CropRect& cropRect = {}) {
         return Blur(sigmaX, sigmaY, SkTileMode::kDecal, std::move(input), cropRect);
     }
 
@@ -84,7 +117,7 @@ public:
      *  @param cropRect Optional rectangle that crops the input and output.
      */
     static sk_sp<SkImageFilter> ColorFilter(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input,
-                                            const SkIRect* cropRect = nullptr);
+                                            const CropRect& cropRect = {});
 
     /**
      *  Create a filter that composes 'inner' with 'outer', such that the results of 'inner' are
@@ -110,7 +143,7 @@ public:
                                                 SkColorChannel yChannelSelector,
                                                 SkScalar scale, sk_sp<SkImageFilter> displacement,
                                                 sk_sp<SkImageFilter> color,
-                                                const SkIRect* cropRect = nullptr);
+                                                const CropRect& cropRect = {});
 
     /**
      *  Create a filter that draws a drop shadow under the input content. This filter produces an
@@ -126,7 +159,7 @@ public:
     static sk_sp<SkImageFilter> DropShadow(SkScalar dx, SkScalar dy,
                                            SkScalar sigmaX, SkScalar sigmaY,
                                            SkColor color, sk_sp<SkImageFilter> input,
-                                           const SkIRect* cropRect = nullptr);
+                                           const CropRect& cropRect = {});
     /**
      *  Create a filter that renders a drop shadow, in exactly the same manner as ::DropShadow,
      *  except that the resulting image does not include the input content. This allows the shadow
@@ -142,7 +175,7 @@ public:
     static sk_sp<SkImageFilter> DropShadowOnly(SkScalar dx, SkScalar dy,
                                                SkScalar sigmaX, SkScalar sigmaY,
                                                SkColor color, sk_sp<SkImageFilter> input,
-                                               const SkIRect* cropRect = nullptr);
+                                               const CropRect& cropRect = {});
 
     /**
      *  Create a filter that draws the 'srcRect' portion of image into 'dstRect' using the given
@@ -175,7 +208,7 @@ public:
      */
     static sk_sp<SkImageFilter> Magnifier(const SkRect& srcRect, SkScalar inset,
                                           sk_sp<SkImageFilter> input,
-                                          const SkIRect* cropRect = nullptr);
+                                          const CropRect& cropRect = {});
 
     /**
      *  Create a filter that applies an NxM image processing kernel to the input image. This can be
@@ -200,7 +233,7 @@ public:
                                                   SkScalar bias, const SkIPoint& kernelOffset,
                                                   SkTileMode tileMode, bool convolveAlpha,
                                                   sk_sp<SkImageFilter> input,
-                                                  const SkIRect* cropRect = nullptr);
+                                                  const CropRect& cropRect = {});
 
     /**
      *  Create a filter that transforms the input image by 'matrix'. This matrix transforms the
@@ -223,7 +256,7 @@ public:
      *  @param cropRect Optional rectangle that crops all input filters and the output.
      */
     static sk_sp<SkImageFilter> Merge(sk_sp<SkImageFilter>* const filters, int count,
-                                      const SkIRect* cropRect = nullptr);
+                                      const CropRect& cropRect = {});
     /**
      *  Create a filter that merges the results of the two filters together with src-over blending.
      *  @param first    The first input filter, or the source bitmap if this is null.
@@ -231,7 +264,7 @@ public:
      *  @param cropRect Optional rectangle that crops the inputs and output.
      */
     static sk_sp<SkImageFilter> Merge(sk_sp<SkImageFilter> first, sk_sp<SkImageFilter> second,
-                                      const SkIRect* cropRect = nullptr) {
+                                      const CropRect& cropRect = {}) {
         sk_sp<SkImageFilter> array[] = { std::move(first), std::move(second) };
         return Merge(array, 2, cropRect);
     }
@@ -244,15 +277,18 @@ public:
      *  @param cropRect Optional rectangle to crop the input and output.
      */
     static sk_sp<SkImageFilter> Offset(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input,
-                                       const SkIRect* cropRect = nullptr);
+                                       const CropRect& cropRect = {});
 
     /**
      *  Create a filter that fills the output with the given paint.
      *  @param paint    The paint to fill
      *  @param cropRect Optional rectangle that will be filled. If null, the source bitmap's bounds
      *                  are filled even though the source bitmap itself is not used.
+     *
+     * DEPRECATED: Use Shader() instead, since many features of SkPaint are ignored when filling
+     *             the target output, and paint color/alpha can be emulated with SkShaders::Color().
      */
-    static sk_sp<SkImageFilter> Paint(const SkPaint& paint, const SkIRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Paint(const SkPaint& paint, const CropRect& cropRect = {});
 
     /**
      *  Create a filter that produces the SkPicture as its output, drawn into targetRect. Note that
@@ -269,6 +305,18 @@ public:
     }
 
     /**
+     *  Create a filter that fills the output with the per-pixel evaluation of the SkShader. The
+     *  shader is defined in the image filter's local coordinate system, so will automatically
+     *  be affected by SkCanvas' transform.
+     *
+     *  Like Image() and Picture(), this is a leaf filter that can be used to introduce inputs to
+     *  a complex filter graph, but should generally be combined with a filter that as at least
+     *  one null input to use the implicit source image.
+     *  @param shader The shader that
+     */
+    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, const CropRect& cropRect = {});
+
+    /**
      *  Create a tile image filter.
      *  @param src   Defines the pixels to tile
      *  @param dst   Defines the pixel region that the tiles will be drawn to
@@ -279,13 +327,18 @@ public:
 
     /**
      *  This filter takes an SkBlendMode and uses it to composite the two filters together.
+     *  @param mode       The blend mode that defines the compositing operation
      *  @param background The Dst pixels used in blending, if null the source bitmap is used.
      *  @param foreground The Src pixels used in blending, if null the source bitmap is used.
      *  @cropRect         Optional rectangle to crop input and output.
+     *
+     *  DEPRECATED: Prefer the more idiomatic Blend function
      */
-    static sk_sp<SkImageFilter> Xfermode(SkBlendMode, sk_sp<SkImageFilter> background,
+    static sk_sp<SkImageFilter> Xfermode(SkBlendMode mode, sk_sp<SkImageFilter> background,
                                          sk_sp<SkImageFilter> foreground = nullptr,
-                                         const SkIRect* cropRect = nullptr);
+                                         const CropRect& cropRect = {}) {
+        return Blend(mode, std::move(background), std::move(foreground), cropRect);
+    }
 
     // Morphology filter effects
 
@@ -297,8 +350,9 @@ public:
      *  @param input    The image filter that is dilated, using source bitmap if this is null.
      *  @param cropRect Optional rectangle that crops the input and output.
      */
-    static sk_sp<SkImageFilter> Dilate(int radiusX, int radiusY, sk_sp<SkImageFilter> input,
-                                       const SkIRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Dilate(SkScalar radiusX, SkScalar radiusY,
+                                       sk_sp<SkImageFilter> input,
+                                       const CropRect& cropRect = {});
 
     /**
      *  Create a filter that erodes each input pixel's channel values to the minimum channel value
@@ -308,8 +362,9 @@ public:
      *  @param input    The image filter that is eroded, using source bitmap if this is null.
      *  @param cropRect Optional rectangle that crops the input and output.
      */
-    static sk_sp<SkImageFilter> Erode(int radiusX, int radiusY, sk_sp<SkImageFilter> input,
-                                      const SkIRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Erode(SkScalar radiusX, SkScalar radiusY,
+                                      sk_sp<SkImageFilter> input,
+                                      const CropRect& cropRect = {});
 
     // Lighting filter effects
 
@@ -328,7 +383,7 @@ public:
     static sk_sp<SkImageFilter> DistantLitDiffuse(const SkPoint3& direction, SkColor lightColor,
                                                   SkScalar surfaceScale, SkScalar kd,
                                                   sk_sp<SkImageFilter> input,
-                                                  const SkIRect* cropRect = nullptr);
+                                                  const CropRect& cropRect = {});
     /**
      *  Create a filter that calculates the diffuse illumination from a point light source, using
      *  alpha channel of the input as the height profile of the surface (to approximate normal
@@ -344,7 +399,7 @@ public:
     static sk_sp<SkImageFilter> PointLitDiffuse(const SkPoint3& location, SkColor lightColor,
                                                 SkScalar surfaceScale, SkScalar kd,
                                                 sk_sp<SkImageFilter> input,
-                                                const SkIRect* cropRect = nullptr);
+                                                const CropRect& cropRect = {});
     /**
      *  Create a filter that calculates the diffuse illumination from a spot light source, using
      *  alpha channel of the input as the height profile of the surface (to approximate normal
@@ -365,7 +420,7 @@ public:
                                                SkScalar falloffExponent, SkScalar cutoffAngle,
                                                SkColor lightColor, SkScalar surfaceScale,
                                                SkScalar kd, sk_sp<SkImageFilter> input,
-                                               const SkIRect* cropRect = nullptr);
+                                               const CropRect& cropRect = {});
 
     /**
      *  Create a filter that calculates the specular illumination from a distant light source,
@@ -383,7 +438,7 @@ public:
     static sk_sp<SkImageFilter> DistantLitSpecular(const SkPoint3& direction, SkColor lightColor,
                                                    SkScalar surfaceScale, SkScalar ks,
                                                    SkScalar shininess, sk_sp<SkImageFilter> input,
-                                                   const SkIRect* cropRect = nullptr);
+                                                   const CropRect& cropRect = {});
     /**
      *  Create a filter that calculates the specular illumination from a point light source, using
      *  alpha channel of the input as the height profile of the surface (to approximate normal
@@ -400,7 +455,7 @@ public:
     static sk_sp<SkImageFilter> PointLitSpecular(const SkPoint3& location, SkColor lightColor,
                                                  SkScalar surfaceScale, SkScalar ks,
                                                  SkScalar shininess, sk_sp<SkImageFilter> input,
-                                                 const SkIRect* cropRect = nullptr);
+                                                 const CropRect& cropRect = {});
     /**
      *  Create a filter that calculates the specular illumination from a spot light source, using
      *  alpha channel of the input as the height profile of the surface (to approximate normal
@@ -423,7 +478,7 @@ public:
                                                 SkColor lightColor, SkScalar surfaceScale,
                                                 SkScalar ks, SkScalar shininess,
                                                 sk_sp<SkImageFilter> input,
-                                                const SkIRect* cropRect = nullptr);
+                                                const CropRect& cropRect = {});
 
     static void RegisterFlattenables();
 

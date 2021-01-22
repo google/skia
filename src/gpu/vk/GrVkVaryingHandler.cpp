@@ -57,6 +57,7 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kSampler_GrSLType:
         case kTexture2D_GrSLType:
+        case kInput_GrSLType:
             return 0;
         case kTextureExternalSampler_GrSLType:
              return 0;
@@ -78,8 +79,7 @@ static inline int grsltype_to_location_size(GrSLType type) {
 
 static void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
-    for (int i = 0; i < vars.count(); ++i) {
-        GrShaderVar& var = vars[i];
+    for (GrShaderVar& var : vars.items()) {
         SkString location;
         location.appendf("location = %d", locationIndex);
         var.addLayoutQualifier(location.c_str());

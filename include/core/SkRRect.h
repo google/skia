@@ -13,6 +13,7 @@
 
 class SkPath;
 class SkMatrix;
+class SkString;
 
 /** \class SkRRect
     SkRRect describes a rounded rectangle with a bounds and a pair of radii for each corner.
@@ -68,23 +69,11 @@ public:
         kLastType       = kComplex_Type, //!< largest Type value
     };
 
-    /** Returns SkRRect::Type, one of:
-        kEmpty_Type, kRect_Type, kOval_Type, kSimple_Type, kNinePatch_Type,
-        kComplex_Type.
-
-        @return  SkRRect::Type
-    */
     Type getType() const {
         SkASSERT(this->isValid());
         return static_cast<Type>(fType);
     }
 
-    /** Returns SkRRect::Type, one of:
-        kEmpty_Type, kRect_Type, kOval_Type, kSimple_Type, kNinePatch_Type,
-        kComplex_Type.
-
-        @return  SkRRect::Type
-    */
     Type type() const { return this->getType(); }
 
     inline bool isEmpty() const { return kEmpty_Type == this->getType(); }
@@ -204,10 +193,16 @@ public:
         SkScalar xRad = SkScalarHalf(fRect.width());
         SkScalar yRad = SkScalarHalf(fRect.height());
 
-        for (int i = 0; i < 4; ++i) {
-            fRadii[i].set(xRad, yRad);
+        if (xRad == 0.0f || yRad == 0.0f) {
+            // All the corners will be square
+            memset(fRadii, 0, sizeof(fRadii));
+            fType = kRect_Type;
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                fRadii[i].set(xRad, yRad);
+            }
+            fType = kOval_Type;
         }
-        fType = kOval_Type;
 
         SkASSERT(this->isValid());
     }
@@ -287,8 +282,6 @@ public:
     /** Returns scalar pair for radius of curve on x-axis and y-axis for one corner.
         Both radii may be zero. If not zero, both are positive and finite.
 
-        @param corner  one of: kUpperLeft_Corner, kUpperRight_Corner,
-                       kLowerRight_Corner, kLowerLeft_Corner
         @return        x-axis and y-axis radii for one corner
     */
     SkVector radii(Corner corner) const { return fRadii[corner]; }
@@ -489,6 +482,7 @@ public:
         example: https://fiddle.skia.org/c/@RRect_dump
     */
     void dump(bool asHex) const;
+    SkString dumpToString(bool asHex) const;
 
     /** Writes text representation of SkRRect to standard output. The representation
         may be directly compiled as C++ code. Floating point values are written
@@ -520,7 +514,8 @@ private:
 
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
-    void scaleRadii(const SkRect& rect);
+    // Returns true if the radii had to be scaled to fit rect
+    bool scaleRadii();
 
     SkRect fRect = SkRect::MakeEmpty();
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]

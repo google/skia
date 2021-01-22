@@ -24,27 +24,31 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
     switch (bitmap.colorType()) {
         case kUnknown_SkColorType:            return;
 
-        case kAlpha_8_SkColorType:            srcFmt = skcms_PixelFormat_A_8;          break;
-        case kRGB_565_SkColorType:            srcFmt = skcms_PixelFormat_BGR_565;      break;
-        case kARGB_4444_SkColorType:          srcFmt = skcms_PixelFormat_ABGR_4444;    break;
-        case kRGBA_8888_SkColorType:          srcFmt = skcms_PixelFormat_RGBA_8888;    break;
-        case kBGRA_8888_SkColorType:          srcFmt = skcms_PixelFormat_BGRA_8888;    break;
-        case kRGBA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_1010102; break;
-        case kGray_8_SkColorType:             srcFmt = skcms_PixelFormat_G_8;          break;
-        case kRGBA_F16Norm_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
-        case kRGBA_F16_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
-        case kRGBA_F32_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_ffff;    break;
+        case kAlpha_8_SkColorType:            srcFmt = skcms_PixelFormat_A_8;             break;
+        case kRGB_565_SkColorType:            srcFmt = skcms_PixelFormat_BGR_565;         break;
+        case kARGB_4444_SkColorType:          srcFmt = skcms_PixelFormat_ABGR_4444;       break;
+        case kRGBA_8888_SkColorType:          srcFmt = skcms_PixelFormat_RGBA_8888;       break;
+        case kBGRA_8888_SkColorType:          srcFmt = skcms_PixelFormat_BGRA_8888;       break;
+        case kRGBA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_1010102;    break;
+        case kBGRA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_BGRA_1010102;    break;
+        case kGray_8_SkColorType:             srcFmt = skcms_PixelFormat_G_8;             break;
+        case kRGBA_F16Norm_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_hhhh;       break;
+        case kRGBA_F16_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_hhhh;       break;
+        case kRGBA_F32_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_ffff;       break;
+        case kR16G16B16A16_unorm_SkColorType: srcFmt = skcms_PixelFormat_RGBA_16161616LE; break;
 
         case kRGB_888x_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_8888;
                                               srcAlpha = skcms_AlphaFormat_Opaque;     break;
         case kRGB_101010x_SkColorType:        srcFmt = skcms_PixelFormat_RGBA_1010102;
                                               srcAlpha = skcms_AlphaFormat_Opaque;     break;
+        case kBGR_101010x_SkColorType:        srcFmt = skcms_PixelFormat_BGRA_1010102;
+                                              srcAlpha = skcms_AlphaFormat_Opaque;     break;
+
         case kR8G8_unorm_SkColorType:         return;
         case kR16G16_unorm_SkColorType:       return;
         case kR16G16_float_SkColorType:       return;
         case kA16_unorm_SkColorType:          return;
         case kA16_float_SkColorType:          return;
-        case kR16G16B16A16_unorm_SkColorType: return;
     }
 
     skcms_ICCProfile srcProfile = *skcms_sRGB_profile();
@@ -71,7 +75,7 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
     }
 }
 
-void HashAndEncode::write(SkWStream* st) const {
+void HashAndEncode::feedHash(SkWStream* st) const {
     st->write(&fSize, sizeof(fSize));
     if (const uint64_t* px = fPixels.get()) {
         st->write(px, sizeof(*px) * fSize.width() * fSize.height());
@@ -83,31 +87,35 @@ void HashAndEncode::write(SkWStream* st) const {
     st->write(&salt, sizeof(salt));
 }
 
-bool HashAndEncode::writePngTo(const char* path,
-                               const char* md5,
-                               CommandLineFlags::StringArray key,
-                               CommandLineFlags::StringArray properties) const {
-    if (!fPixels) {
-        return false;
-    }
+// NOTE: HashAndEncode uses libpng directly rather than through an abstraction
+// like SkPngEncoder to make sure we get stable, portable results independent
+// of any changes to Skia production encoder.
 
-    FILE* f = fopen(path, "wb");
-    if (!f) {
+bool HashAndEncode::encodePNG(SkWStream* st,
+                              const char* md5,
+                              CommandLineFlags::StringArray key,
+                              CommandLineFlags::StringArray properties) const {
+    if (!fPixels) {
         return false;
     }
 
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) {
-        fclose(f);
         return false;
     }
 
     png_infop info = png_create_info_struct(png);
     if (!info) {
         png_destroy_write_struct(&png, &info);
-        fclose(f);
         return false;
     }
+    auto write_to_stream = +[](png_structp png, png_bytep ptr, png_size_t len) {
+        auto st = (SkWStream*)png_get_io_ptr(png);
+        if (!st->write(ptr, len)) {
+            png_error(png, "HashAndEncode::encodePNG() failed writing stream");
+        }
+    };
+    png_set_write_fn(png, st, write_to_stream, nullptr);
 
     SkString description;
     description.append("Key: ");
@@ -129,7 +137,6 @@ bool HashAndEncode::writePngTo(const char* path,
     text[1].compression = PNG_TEXT_COMPRESSION_NONE;
     png_set_text(png, info, text, SK_ARRAY_COUNT(text));
 
-    png_init_io(png, f);
     png_set_IHDR(png, info, (png_uint_32)fSize.width()
                           , (png_uint_32)fSize.height()
                           , 16/*bits per channel*/
@@ -157,7 +164,6 @@ bool HashAndEncode::writePngTo(const char* path,
     png_write_end(png, info);
 
     png_destroy_write_struct(&png, &info);
-    fclose(f);
     return true;
 }
 

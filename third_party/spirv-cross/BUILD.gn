@@ -1,27 +1,13 @@
+import("../third_party.gni")
+
 spirv_cross = "//third_party/externals/spirv-cross"
 
-config("spirv_cross_config") {
-  include_dirs = [
+third_party("spirv_cross") {
+  public_include_dirs = [
     "//third_party/externals",
     "//third_party/externals/spirv-cross",
   ]
-  defines = [ "SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS" ]
-}
-
-static_library("spirv_cross") {
-  public_configs = [ ":spirv_cross_config" ]
-  configs -= [ "//gn:warnings" ]
-
-  cflags = []
-  if (is_win) {
-    cflags += [
-      "/wd5850",
-      "/wd4245",
-      "/wd4702",
-      "/wd4706",
-      "/wd4715",
-    ]
-  }
+  public_defines = [ "SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS" ]
 
   sources = rebase_path([
                           "GLSL.std.450.h",
@@ -43,6 +29,8 @@ static_library("spirv_cross") {
                           "spirv_msl.hpp",
                           "spirv_parser.cpp",
                           "spirv_parser.hpp",
+                          "spirv_reflect.cpp",
+                          "spirv_reflect.hpp",
                         ],
                         ".",
                         "${spirv_cross}")

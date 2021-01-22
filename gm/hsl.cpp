@@ -13,6 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 // Hue, Saturation, Color, and Luminosity blend modes are oddballs.
@@ -42,8 +43,8 @@
 //
 // I think the KHR version is just wrong... it produces values >1.  So we use the web version.
 
-static float min(float r, float g, float b) { return SkTMin(r, SkTMin(g, b)); }
-static float max(float r, float g, float b) { return SkTMax(r, SkTMax(g, b)); }
+static float min(float r, float g, float b) { return std::min(r, std::min(g, b)); }
+static float max(float r, float g, float b) { return std::max(r, std::max(g, b)); }
 
 static float sat(float r, float g, float b) { return max(r,g,b) - min(r,g,b); }
 static float lum(float r, float g, float b) { return r*0.30f + g*0.59f + b*0.11f; }
@@ -189,5 +190,73 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
         canvas->drawString(SkBlendMode_Name(test.mode), 20, 90, font, paint);
 
         canvas->translate(100,0);
+    }
+}
+
+#include "include/effects/SkGradientShader.h"
+
+// Trying to match sample images on https://www.w3.org/TR/compositing-1/#blendingnonseparable
+//
+static sk_sp<SkShader> make_grad(SkScalar width) {
+    SkColor colors[] = {
+        0xFF00CCCC, 0xFF0000CC, 0xFFCC00CC, 0xFFCC0000, 0xFFCCCC00, 0xFF00CC00,
+    };
+    SkPoint pts[] = {{0, 0}, {width, 0}};
+
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+                                        SkTileMode::kClamp);
+}
+
+DEF_SIMPLE_GM(HSL_duck, canvas, 1110, 620) {
+    auto src = GetResourceAsImage("images/ducky.png");
+    auto dst = make_grad(src->width());
+    SkRect r = SkRect::MakeIWH(src->width(), src->height());
+
+    canvas->translate(10, 50);
+    canvas->scale(0.5f, 0.5f);
+
+    const struct {
+        SkBlendMode fMode;
+        const char* fName;
+    } recs[] = {
+        { SkBlendMode::kHue,        "Hue" },
+        { SkBlendMode::kSaturation, "Saturation" },
+        { SkBlendMode::kColor,      "Color" },
+        { SkBlendMode::kLuminosity, "Luminosity" },
+    };
+
+    SkFont font;
+    font.setSize(40);
+    font.setEdging(SkFont::Edging::kAntiAlias);
+
+    canvas->save();
+    for (auto [_, name] : recs) {
+        canvas->drawSimpleText(name, strlen(name), SkTextEncoding::kUTF8, 150, -20,
+                               font, SkPaint());
+        canvas->translate(r.width() + 10, 0);
+    }
+    canvas->restore();
+
+    for (SkScalar src_a : {1.0f, 0.5f}) {
+        canvas->save();
+        for (auto [mode, _] : recs) {
+            SkPaint p;
+            p.setShader(dst);
+            canvas->drawRect(r, p); // bg
+
+            p.setShader(nullptr);
+            p.setBlendMode(mode);
+            p.setAlphaf(src_a);
+            canvas->drawImageRect(src, r, &p);
+
+            canvas->translate(r.width() + 10, 0);
+        }
+        SkString str;
+        str.printf("alpha %g", src_a);
+        canvas->drawSimpleText(str.c_str(), str.size(), SkTextEncoding::kUTF8, 10, r.height()/2,
+                               font, SkPaint());
+
+        canvas->restore();
+        canvas->translate(0, r.height() + 10);
     }
 }

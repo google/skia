@@ -5,20 +5,15 @@
  * found in the LICENSE file.
  */
 
-in half4x4 gradientMatrix;
-
-@coordTransform {
-    gradientMatrix
-}
-
-void main() {
-    half t = half(length(sk_TransformedCoords2D[0]));
-    sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
+half4 main(float2 coord) {
+    half t = half(length(coord));
+    return half4(t, 1, 0, 0); // y = 1 for always valid
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 @header {
+    #include "src/gpu/effects/GrMatrixEffect.h"
     #include "src/gpu/gradients/GrGradientShader.h"
     #include "src/shaders/gradients/SkRadialGradient.h"
 }
@@ -37,11 +32,12 @@ void main() {
     std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::Make(
             const SkRadialGradient& grad, const GrFPArgs& args) {
         SkMatrix matrix;
-        if (!grad.totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+        if (!grad.totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
             return nullptr;
         }
         matrix.postConcat(grad.getGradientMatrix());
-        return std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout(matrix));
+        return GrMatrixEffect::Make(
+                matrix, std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout()));
     }
 }
 

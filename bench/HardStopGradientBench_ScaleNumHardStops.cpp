@@ -13,6 +13,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/private/SkTemplates.h"
 
 class HardStopGradientBench_ScaleNumHardStops : public Benchmark {
 public:
@@ -94,7 +95,7 @@ private:
     int      fHardStopCount;
     SkPaint  fPaint;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new HardStopGradientBench_ScaleNumHardStops(10, 1);)

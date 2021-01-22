@@ -37,7 +37,7 @@ struct TestingRec : public SkResourceCache::Rec {
         return true;
     }
 };
-}
+}  // namespace
 
 static const int COUNT = 10;
 static const int DIM = 256;

@@ -33,14 +33,13 @@ class CircleGM : public GM {
     enum {
         kLooperColorSentinel = 0x01020304
     };
-public:
-    CircleGM() {
+
+protected:
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFF000000);
         this->makePaints();
         this->makeMatrices();
     }
-
-protected:
 
     SkString onShortName() override {
         return SkString("circles");
@@ -97,7 +96,7 @@ protected:
         // AA with stroke style
         SkPaint p;
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(SkIntToScalar(3));
         fPaints.push_back(p);
         }
@@ -106,7 +105,7 @@ protected:
         // AA with stroke style, width = 0
         SkPaint p;
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         fPaints.push_back(p);
         }
 
@@ -155,7 +154,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         // Draw a giant AA circle as the background.
         SkISize size = this->getISize();
-        SkScalar giantRadius = SkTMin(SkIntToScalar(size.fWidth),
+        SkScalar giantRadius = std::min(SkIntToScalar(size.fWidth),
                                       SkIntToScalar(size.fHeight)) / 2.f;
         SkPoint giantCenter = SkPoint::Make(SkIntToScalar(size.fWidth/2),
                                             SkIntToScalar(size.fHeight/2));
@@ -202,7 +201,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
     SkTArray<SkPaint> fPaints;
     SkTArray<SkMatrix> fMatrices;
 };
@@ -211,4 +210,4 @@ private:
 
 DEF_GM( return new CircleGM; )
 
-}
+}  // namespace skiagm

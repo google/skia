@@ -162,8 +162,12 @@ protected:
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
 
+    void onMarkCTM(const char*) override;
+    void didConcat44(const SkM44&) override;
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
+    void didScale(SkScalar, SkScalar) override;
+    void didTranslate(SkScalar, SkScalar) override;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
 
@@ -193,12 +197,12 @@ protected:
                             const SkPaint*) override;
 
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
-    void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
-                              SkBlendMode, const SkPaint&) override;
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
+    void onClipShader(sk_sp<SkShader>, SkClipOp) override;
     void onClipRegion(const SkRegion&, SkClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
@@ -227,23 +231,6 @@ protected:
     void recordSaveLayer(const SaveLayerRec&);
     void recordRestore(bool fillInSkips = true);
 
-    // SHOULD NEVER BE CALLED
-    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
-    void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
-                          SrcRectConstraint) override {
-        SK_ABORT("not reached");
-    }
-    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
-                          const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
-    void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice& lattice, const SkRect& dst,
-                             const SkPaint*) override {
-        SK_ABORT("not reached");
-    }
-
 private:
     SkTArray<SkPaint>  fPaints;
 
@@ -265,7 +252,7 @@ private:
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
 
-    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
+    using INHERITED = SkCanvasVirtualEnforcer<SkCanvas>;
 };
 
 #endif

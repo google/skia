@@ -10,10 +10,12 @@
  **************************************************************************************************/
 #ifndef GrSingleIntervalGradientColorizer_DEFINED
 #define GrSingleIntervalGradientColorizer_DEFINED
+
+#include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrSingleIntervalGradientColorizer : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f start, SkPMColor4f end) {
@@ -23,6 +25,7 @@ public:
     GrSingleIntervalGradientColorizer(const GrSingleIntervalGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SingleIntervalGradientColorizer"; }
+    bool usesExplicitReturn() const override;
     SkPMColor4f start;
     SkPMColor4f end;
 
@@ -30,11 +33,16 @@ private:
     GrSingleIntervalGradientColorizer(SkPMColor4f start, SkPMColor4f end)
             : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
             , start(start)
-            , end(end) {}
+            , end(end) {
+        this->setUsesSampleCoordsDirectly();
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 #endif

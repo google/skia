@@ -10,7 +10,8 @@
  **************************************************************************************************/
 #include "GrTwoPointConicalGradientLayout.h"
 
-#include "include/gpu/GrTexture.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -24,8 +25,6 @@ public:
         const GrTwoPointConicalGradientLayout& _outer =
                 args.fFp.cast<GrTwoPointConicalGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix;
-        (void)gradientMatrix;
         auto type = _outer.type;
         (void)type;
         auto isRadiusIncreasing = _outer.isRadiusIncreasing;
@@ -40,53 +39,93 @@ public:
         (void)isNativelyFocal;
         auto focalParams = _outer.focalParams;
         (void)focalParams;
-        focalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                          "focalParams");
-        SkString sk_TransformedCoords2D_0 =
-                fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+        focalParamsVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                          kHalf2_GrSLType, "focalParams");
         fragBuilder->codeAppendf(
-                "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
-                "   {\n            half r0_2 = %s.y;\n            t = float(r0_2) - p.y * p.y;\n   "
-                "         if (t >= 0.0) {\n                t = p.x + sqrt(t);\n            } else "
-                "{\n                v = -1.0;\n            }\n        }\n        break;\n    case "
-                "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
-                "  t = length(p) - float(r0);\n            } else {\n                t = "
-                "-length(p) - float(r0);\n       ",
-                sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
+                R"SkSL(float t = -1.0;
+half v = 1.0;
+@switch (%d) {
+    case 1:
+        {
+            half r0_2 = %s.y;
+            t = float(r0_2) - %s.y * %s.y;
+            if (t >= 0.0) {
+                t = %s.x + sqrt(t);
+            } else {
+                v = -1.0;
+            }
+        }
+        break;
+    case 0:
+        {
+            half r0 = %s.x;
+            @if (%s) {
+                t = length(%s) - float(r0);
+            } else {
+                t = -length(%s) - float(r0);
+            }
+        }
+        break;
+    case 2:
+        {
+            half invR1 = %s.x;
+            half fx = %s.y;
+            float x_t = -1.0;
+            @if (%s) {
+                x_t = dot(%s, %s) / %s.x;
+            } else if (%s) {
+                x_t = length(%s) - %s.x * float(invR1);
+            } else {
+                float temp = %s.x * %s.x - %s.y * %s.y;
+                if (temp >= 0.0) {
+                    @if (%s || !%s) {
+                        x_t = -sqrt(temp) - %s.x * float(invR1);
+                    } else {
+                        x_t = sqrt(temp) - %s.x * float(invR1);
+                    }
+                }
+            }
+            @if (!%s) {
+                if (x_t <= 0.0) {
+                    v = -1.0;
+                }
+            }
+            @if (%s) {
+                @if (%s) {
+                    t = x_t;
+                } else {
+                    t = x_t + float(fx);
+                }
+            } else {
+                @if (%s) {
+                    t = -x_t;
+                } else {
+                    t = -x_t + float(fx);
+                }
+            }
+            @if (%s) {
+                t = 1.0 - t;
+            }
+        }
+        break;
+}
+return half4(half(t), v, 0.0, 0.0);
+)SkSL",
+                (int)_outer.type, args.fUniformHandler->getUniformCStr(focalParamsVar),
+                args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+                (_outer.isRadiusIncreasing ? "true" : "false"), args.fSampleCoord,
+                args.fSampleCoord, args.fUniformHandler->getUniformCStr(focalParamsVar),
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
-                (_outer.isRadiusIncreasing ? "true" : "false"));
-        fragBuilder->codeAppendf(
-                "     }\n        }\n        break;\n    case 2:\n        {\n            half invR1 "
-                "= %s.x;\n            half fx = %s.y;\n            float x_t = -1.0;\n            "
-                "@if (%s) {\n                x_t = dot(p, p) / p.x;\n            } else if (%s) "
-                "{\n                x_t = length(p) - p.x * float(invR1);\n            } else {\n  "
-                "              float temp = p.x * p.x - p.y * p.y;\n                if (temp >= "
-                "0.0) {\n                    @if (%s || !%s) {\n                        x_t = "
-                "-sqrt(temp) - p.x * float(invR1)",
-                args.fUniformHandler->getUniformCStr(focalParamsVar),
-                args.fUniformHandler->getUniformCStr(focalParamsVar),
-                (_outer.isFocalOnCircle ? "true" : "false"),
-                (_outer.isWellBehaved ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),
-                (_outer.isRadiusIncreasing ? "true" : "false"));
-        fragBuilder->codeAppendf(
-                ";\n                    } else {\n                        x_t = sqrt(temp) - p.x * "
-                "float(invR1);\n                    }\n                }\n            }\n          "
-                "  @if (!%s) {\n                if (x_t <= 0.0) {\n                    v = -1.0;\n "
-                "               }\n            }\n            @if (%s) {\n                @if (%s) "
-                "{\n                    t = x_t;\n                } else {\n                    t "
-                "= x_t + float(fx);\n                }\n            } else {\n                @if "
-                "(%s) {\n              ",
-                (_outer.isWellBehaved ? "true" : "false"),
+                (_outer.isFocalOnCircle ? "true" : "false"), args.fSampleCoord, args.fSampleCoord,
+                args.fSampleCoord, (_outer.isWellBehaved ? "true" : "false"), args.fSampleCoord,
+                args.fSampleCoord, args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
+                args.fSampleCoord, (_outer.isSwapped ? "true" : "false"),
+                (_outer.isRadiusIncreasing ? "true" : "false"), args.fSampleCoord,
+                args.fSampleCoord, (_outer.isWellBehaved ? "true" : "false"),
                 (_outer.isRadiusIncreasing ? "true" : "false"),
                 (_outer.isNativelyFocal ? "true" : "false"),
-                (_outer.isNativelyFocal ? "true" : "false"));
-        fragBuilder->codeAppendf(
-                "      t = -x_t;\n                } else {\n                    t = -x_t + "
-                "float(fx);\n                }\n            }\n            @if (%s) {\n            "
-                "    t = 1.0 - t;\n            }\n        }\n        break;\n}\n%s = "
-                "half4(half(t), v, 0.0, 0.0);\n",
-                (_outer.isSwapped ? "true" : "false"), args.fOutputColor);
+                (_outer.isNativelyFocal ? "true" : "false"), (_outer.isSwapped ? "true" : "false"));
     }
 
 private:
@@ -110,17 +149,16 @@ GrGLSLFragmentProcessor* GrTwoPointConicalGradientLayout::onCreateGLSLInstance()
 }
 void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                             GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)type);
-    b->add32((int32_t)isRadiusIncreasing);
-    b->add32((int32_t)isFocalOnCircle);
-    b->add32((int32_t)isWellBehaved);
-    b->add32((int32_t)isSwapped);
-    b->add32((int32_t)isNativelyFocal);
+    b->add32((uint32_t)type);
+    b->add32((uint32_t)isRadiusIncreasing);
+    b->add32((uint32_t)isFocalOnCircle);
+    b->add32((uint32_t)isWellBehaved);
+    b->add32((uint32_t)isSwapped);
+    b->add32((uint32_t)isNativelyFocal);
 }
 bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTwoPointConicalGradientLayout& that = other.cast<GrTwoPointConicalGradientLayout>();
     (void)that;
-    if (gradientMatrix != that.gradientMatrix) return false;
     if (type != that.type) return false;
     if (isRadiusIncreasing != that.isRadiusIncreasing) return false;
     if (isFocalOnCircle != that.isFocalOnCircle) return false;
@@ -130,11 +168,10 @@ bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other
     if (focalParams != that.focalParams) return false;
     return true;
 }
+bool GrTwoPointConicalGradientLayout::usesExplicitReturn() const { return true; }
 GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         const GrTwoPointConicalGradientLayout& src)
         : INHERITED(kGrTwoPointConicalGradientLayout_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
-        , gradientMatrix(src.gradientMatrix)
         , type(src.type)
         , isRadiusIncreasing(src.isRadiusIncreasing)
         , isFocalOnCircle(src.isFocalOnCircle)
@@ -142,11 +179,23 @@ GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         , isSwapped(src.isSwapped)
         , isNativelyFocal(src.isNativelyFocal)
         , focalParams(src.focalParams) {
-    this->addCoordTransform(&fCoordTransform0);
+    this->cloneAndRegisterAllChildProcessors(src);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(*this));
+    return std::make_unique<GrTwoPointConicalGradientLayout>(*this);
 }
+#if GR_TEST_UTILS
+SkString GrTwoPointConicalGradientLayout::onDumpInfo() const {
+    return SkStringPrintf(
+            "(type=%d, isRadiusIncreasing=%s, isFocalOnCircle=%s, isWellBehaved=%s, isSwapped=%s, "
+            "isNativelyFocal=%s, focalParams=half2(%f, %f))",
+            (int)type, (isRadiusIncreasing ? "true" : "false"),
+            (isFocalOnCircle ? "true" : "false"), (isWellBehaved ? "true" : "false"),
+            (isSwapped ? "true" : "false"), (isNativelyFocal ? "true" : "false"), focalParams.fX,
+            focalParams.fY);
+}
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTwoPointConicalGradientLayout);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate(
@@ -176,7 +225,7 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate
             radius2 += offset;
         }
     } else if (type == static_cast<int>(Type::kStrip)) {
-        radius1 = SkTMax(radius1, .1f);  // Make sure that the radius is non-zero
+        radius1 = std::max(radius1, .1f);  // Make sure that the radius is non-zero
         radius2 = radius1;
         // Make sure that the centers are different
         if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
@@ -222,7 +271,7 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate
     GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
 
-    GrAlwaysAssert(fp);
+    SkASSERT_RELEASE(fp);
     return fp;
 }
 #endif
@@ -264,7 +313,7 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::Make(
     SkMatrix matrix;
 
     // Initialize the base matrix
-    if (!grad.totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+    if (!grad.totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
         return nullptr;
     }
 
@@ -298,7 +347,8 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::Make(
         matrix.postConcat(grad.getGradientMatrix());
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
-            matrix, grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved, isSwapped,
-            isNativelyFocal, focalParams));
+    return GrMatrixEffect::Make(
+            matrix, std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
+                            grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved, isSwapped,
+                            isNativelyFocal, focalParams)));
 }

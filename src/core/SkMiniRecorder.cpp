@@ -22,9 +22,9 @@ class SkEmptyPicture final : public SkPicture {
 public:
     void playback(SkCanvas*, AbortCallback*) const override { }
 
-    size_t approximateBytesUsed() const override { return sizeof(*this); }
-    int    approximateOpCount()   const override { return 0; }
-    SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
+    size_t approximateBytesUsed()   const override { return sizeof(*this); }
+    int    approximateOpCount(bool) const override { return 0; }
+    SkRect cullRect()               const override { return SkRect::MakeEmpty(); }
 };
 
 // Calculate conservative bounds for each type of draw op that can be its own mini picture.
@@ -47,17 +47,17 @@ static SkRect bounds(const DrawTextBlob& op) {
 template <typename T>
 class SkMiniPicture final : public SkPicture {
 public:
-    SkMiniPicture(const SkRect* cull, T* op) : fCull(cull ? *cull : bounds(*op)) {
-        memcpy(&fOp, op, sizeof(fOp));  // We take ownership of op's guts.
-    }
+    SkMiniPicture(const SkRect* cull, T&& op)
+        : fCull(cull ? *cull : bounds(op))
+        , fOp(std::move(op)) {}
 
     void playback(SkCanvas* c, AbortCallback*) const override {
         SkRecords::Draw(c, nullptr, nullptr, 0, nullptr)(fOp);
     }
 
-    size_t approximateBytesUsed() const override { return sizeof(*this); }
-    int    approximateOpCount()   const override { return 1; }
-    SkRect cullRect()             const override { return fCull; }
+    size_t approximateBytesUsed()   const override { return sizeof(*this); }
+    int    approximateOpCount(bool) const override { return 1; }
+    SkRect cullRect()               const override { return fCull; }
 
 private:
     SkRect fCull;
@@ -78,7 +78,7 @@ SkMiniRecorder::~SkMiniRecorder() {
 #define TRY_TO_STORE(Type, ...)                    \
     if (fState != State::kEmpty) { return false; } \
     fState = State::k##Type;                       \
-    new (fBuffer.get()) Type{__VA_ARGS__};         \
+    new (fBuffer) Type{__VA_ARGS__};               \
     return true
 
 bool SkMiniRecorder::drawRect(const SkRect& rect, const SkPaint& paint) {
@@ -96,10 +96,14 @@ bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, c
 
 
 sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect* cull) {
-#define CASE(Type)              \
-    case State::k##Type:        \
-        fState = State::kEmpty; \
-        return sk_make_sp<SkMiniPicture<Type>>(cull, reinterpret_cast<Type*>(fBuffer.get()))
+#define CASE(T)                                                        \
+    case State::k##T: {                                                \
+        T* op = reinterpret_cast<T*>(fBuffer);                         \
+        auto pic = sk_make_sp<SkMiniPicture<T>>(cull, std::move(*op)); \
+        op->~T();                                                      \
+        fState = State::kEmpty;                                        \
+        return std::move(pic);                                         \
+    }
 
     static SkOnce once;
     static SkPicture* empty;
@@ -108,9 +112,9 @@ sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect* cull) {
         case State::kEmpty:
             once([]{ empty = new SkEmptyPicture; });
             return sk_ref_sp(empty);
-        CASE(DrawPath);
-        CASE(DrawRect);
-        CASE(DrawTextBlob);
+        CASE(DrawPath)
+        CASE(DrawRect)
+        CASE(DrawTextBlob)
     }
     SkASSERT(false);
     return nullptr;
@@ -121,7 +125,7 @@ void SkMiniRecorder::flushAndReset(SkCanvas* canvas) {
 #define CASE(Type)                                                  \
     case State::k##Type: {                                          \
         fState = State::kEmpty;                                     \
-        Type* op = reinterpret_cast<Type*>(fBuffer.get());          \
+        Type* op = reinterpret_cast<Type*>(fBuffer);                \
         SkRecords::Draw(canvas, nullptr, nullptr, 0, nullptr)(*op); \
         op->~Type();                                                \
     } return

@@ -41,18 +41,17 @@ public:
             uint32_t numSamplers,
             std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferPRocessor,
-            std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
-            int fFragmentProcessorCnt);
+            std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors);
 
     id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
 
     void setData(const GrRenderTarget*, const GrProgramInfo&);
 
-    void setTextures(const GrProgramInfo& programInfo,
-                     const GrSurfaceProxy* const primProcTextures[]);
+    void setTextures(const GrPrimitiveProcessor&, const GrPipeline&, const GrSurfaceProxy* const[]);
     void bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder);
 
-    void setDrawState(id<MTLRenderCommandEncoder>, const GrSwizzle& outputSwizzle,
+    void setDrawState(id<MTLRenderCommandEncoder>,
+                      const GrSwizzle& writeSwizzle,
                       const GrXferProcessor&);
 
     static void SetDynamicScissorRectState(id<MTLRenderCommandEncoder> renderCmdEncoder,
@@ -111,7 +110,7 @@ private:
         GrMtlSampler*  fSampler;
         id<MTLTexture> fTexture;
 
-        SamplerBindings(const GrSamplerState& state, GrTexture* texture, GrMtlGpu*);
+        SamplerBindings(GrSamplerState state, GrTexture* texture, GrMtlGpu*);
     };
 
     GrMtlGpu* fGpu;
@@ -129,7 +128,6 @@ private:
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
-    int fFragmentProcessorCnt;
 
     GrMtlPipelineStateDataManager fDataManager;
 };

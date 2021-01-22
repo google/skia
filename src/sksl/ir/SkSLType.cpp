@@ -10,45 +10,49 @@
 
 namespace SkSL {
 
-int Type::coercionCost(const Type& other) const {
+CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
-        return 0;
+        return CoercionCost::Free();
     }
-    if (this->kind() == kNullable_Kind && other.kind() != kNullable_Kind) {
-        int result = this->componentType().coercionCost(other);
-        if (result != INT_MAX) {
-            ++result;
+    if (this->typeKind() == TypeKind::kNullable && other.typeKind() != TypeKind::kNullable) {
+        CoercionCost result = this->componentType().coercionCost(other);
+        if (result.isPossible(/*allowNarrowing=*/true)) {
+            ++result.fNormalCost;
         }
         return result;
     }
-    if (this->fName == "null" && other.kind() == kNullable_Kind) {
-        return 0;
+    if (this->name() == "null" && other.typeKind() == TypeKind::kNullable) {
+        return CoercionCost::Free();
     }
-    if (this->kind() == kVector_Kind && other.kind() == kVector_Kind) {
+    if (this->typeKind() == TypeKind::kVector && other.typeKind() == TypeKind::kVector) {
         if (this->columns() == other.columns()) {
             return this->componentType().coercionCost(other.componentType());
         }
-        return INT_MAX;
+        return CoercionCost::Impossible();
     }
-    if (this->kind() == kMatrix_Kind) {
+    if (this->typeKind() == TypeKind::kMatrix) {
         if (this->columns() == other.columns() && this->rows() == other.rows()) {
             return this->componentType().coercionCost(other.componentType());
         }
-        return INT_MAX;
+        return CoercionCost::Impossible();
     }
-    if (this->isNumber() && other.isNumber() && other.priority() > this->priority()) {
-        return other.priority() - this->priority();
+    if (this->isNumber() && other.isNumber()) {
+        if (other.priority() >= this->priority()) {
+            return CoercionCost::Normal(other.priority() - this->priority());
+        } else {
+            return CoercionCost::Narrowing(this->priority() - other.priority());
+        }
     }
     for (size_t i = 0; i < fCoercibleTypes.size(); i++) {
         if (*fCoercibleTypes[i] == other) {
-            return (int) i + 1;
+            return CoercionCost::Normal((int) i + 1);
         }
     }
-    return INT_MAX;
+    return CoercionCost::Impossible();
 }
 
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {
-    SkASSERT(this->kind() == Type::kScalar_Kind);
+    SkASSERT(this->typeKind() == Type::TypeKind::kScalar);
     if (columns == 1 && rows == 1) {
         return *this;
     }
@@ -112,38 +116,6 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                     case 2: return *context.fHalf2x4_Type;
                     case 3: return *context.fHalf3x4_Type;
                     case 4: return *context.fHalf4x4_Type;
-                    default: ABORT("unsupported matrix column count (%d)", columns);
-                }
-            default: ABORT("unsupported row count (%d)", rows);
-        }
-    } else if (*this == *context.fDouble_Type) {
-        switch (rows) {
-            case 1:
-                switch (columns) {
-                    case 2: return *context.fDouble2_Type;
-                    case 3: return *context.fDouble3_Type;
-                    case 4: return *context.fDouble4_Type;
-                    default: ABORT("unsupported vector column count (%d)", columns);
-                }
-            case 2:
-                switch (columns) {
-                    case 2: return *context.fDouble2x2_Type;
-                    case 3: return *context.fDouble3x2_Type;
-                    case 4: return *context.fDouble4x2_Type;
-                    default: ABORT("unsupported matrix column count (%d)", columns);
-                }
-            case 3:
-                switch (columns) {
-                    case 2: return *context.fDouble2x3_Type;
-                    case 3: return *context.fDouble3x3_Type;
-                    case 4: return *context.fDouble4x3_Type;
-                    default: ABORT("unsupported matrix column count (%d)", columns);
-                }
-            case 4:
-                switch (columns) {
-                    case 2: return *context.fDouble2x4_Type;
-                    case 3: return *context.fDouble3x4_Type;
-                    case 4: return *context.fDouble4x4_Type;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
@@ -226,7 +198,10 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
             default: ABORT("unsupported row count (%d)", rows);
         }
     }
+#ifdef SK_DEBUG
     ABORT("unsupported scalar_to_compound type %s", this->description().c_str());
+#endif
+    return *context.fVoid_Type;
 }
 
-} // namespace
+}  // namespace SkSL

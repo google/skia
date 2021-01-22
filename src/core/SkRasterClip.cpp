@@ -125,20 +125,37 @@ void SkConservativeClip::opIRect(const SkIRect& devRect, SkRegion::Op op) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkRasterClip::SkRasterClip(const SkRasterClip& src) {
-    AUTO_RASTERCLIP_VALIDATE(src);
+SkRasterClip::SkRasterClip(const SkRasterClip& that)
+    : fIsBW(that.fIsBW), fIsEmpty(that.fIsEmpty), fIsRect(that.fIsRect)
+    , fClipRestrictionRect(that.fClipRestrictionRect), fShader(that.fShader)
+{
+    AUTO_RASTERCLIP_VALIDATE(that);
 
-    fIsBW = src.fIsBW;
     if (fIsBW) {
-        fBW = src.fBW;
+        fBW = that.fBW;
     } else {
-        fAA = src.fAA;
+        fAA = that.fAA;
     }
 
-    fIsEmpty = src.isEmpty();
-    fIsRect = src.isRect();
-    fClipRestrictionRect = src.fClipRestrictionRect;
     SkDEBUGCODE(this->validate();)
+}
+
+SkRasterClip& SkRasterClip::operator=(const SkRasterClip& that) {
+    AUTO_RASTERCLIP_VALIDATE(that);
+
+    fIsBW = that.fIsBW;
+    if (fIsBW) {
+        fBW = that.fBW;
+    } else {
+        fAA = that.fAA;
+    }
+
+    fIsEmpty = that.isEmpty();
+    fIsRect = that.isRect();
+    fClipRestrictionRect = that.fClipRestrictionRect;
+    fShader = that.fShader;
+    SkDEBUGCODE(this->validate();)
+    return *this;
 }
 
 SkRasterClip::SkRasterClip(const SkRegion& rgn) : fBW(rgn) {
@@ -246,10 +263,7 @@ bool SkRasterClip::op(const SkRRect& rrect, const SkMatrix& matrix, const SkIRec
     SkIRect bounds(devBounds);
     this->applyClipRestriction(op, &bounds);
 
-    SkPath path;
-    path.addRRect(rrect);
-
-    return this->op(path, matrix, bounds, op, doAA);
+    return this->op(SkPath::RRect(rrect), matrix, bounds, op, doAA);
 }
 
 bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect& devBounds,
@@ -345,6 +359,17 @@ bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
         (void)fAA.op(*other, op);
     }
     return this->updateCacheAndReturnNonEmpty();
+}
+
+bool SkRasterClip::op(sk_sp<SkShader> sh) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+
+    if (!fShader) {
+        fShader = sh;
+    } else {
+        fShader = SkShaders::Blend(SkBlendMode::kSrcIn, sh, fShader);
+    }
+    return !this->isEmpty();
 }
 
 /**

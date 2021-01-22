@@ -52,6 +52,7 @@ using GrGLCreateProgramFn = GrGLuint GR_GL_FUNCTION_TYPE();
 using GrGLCreateShaderFn = GrGLuint GR_GL_FUNCTION_TYPE(GrGLenum type);
 using GrGLCullFaceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode);
 using GrGLDeleteBuffersFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, const GrGLuint* buffers);
+using GrGLDeleteFencesFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, const GrGLuint* fences);
 using GrGLDeleteFramebuffersFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, const GrGLuint* framebuffers);
 using GrGLDeleteProgramFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint program);
 using GrGLDeleteQueriesFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, const GrGLuint* ids);
@@ -76,6 +77,7 @@ using GrGLEnableFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum cap);
 using GrGLEnableVertexAttribArrayFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint index);
 using GrGLEndQueryFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target);
 using GrGLFinishFn = GrGLvoid GR_GL_FUNCTION_TYPE();
+using GrGLFinishFenceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint fence);
 using GrGLFlushFn = GrGLvoid GR_GL_FUNCTION_TYPE();
 using GrGLFlushMappedBufferRangeFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length);
 using GrGLFramebufferRenderbufferFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
@@ -83,6 +85,7 @@ using GrGLFramebufferTexture2DFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target,
 using GrGLFramebufferTexture2DMultisampleFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level, GrGLsizei samples);
 using GrGLFrontFaceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode);
 using GrGLGenBuffersFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, GrGLuint* buffers);
+using GrGLGenFencesFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, GrGLuint* fences);
 using GrGLGenFramebuffersFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, GrGLuint* framebuffers);
 using GrGLGenerateMipmapFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target);
 using GrGLGenQueriesFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, GrGLuint* ids);
@@ -125,6 +128,8 @@ using GrGLMapBufferFn = GrGLvoid* GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLenum 
 using GrGLMapBufferRangeFn = GrGLvoid* GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access);
 using GrGLMapBufferSubDataFn = GrGLvoid* GR_GL_FUNCTION_TYPE(GrGLuint target, GrGLintptr offset, GrGLsizeiptr size, GrGLenum access);
 using GrGLMapTexSubImage2DFn = GrGLvoid* GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLenum access);
+using GrGLMemoryBarrierFn = GrGLvoid* GR_GL_FUNCTION_TYPE(GrGLbitfield barriers);
+using GrGLPatchParameteriFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum pname, GrGLint value);
 using GrGLPixelStoreiFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum pname, GrGLint param);
 using GrGLPolygonModeFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum face, GrGLenum mode);
 using GrGLPopGroupMarkerFn = GrGLvoid GR_GL_FUNCTION_TYPE();
@@ -142,6 +147,7 @@ using GrGLSamplerParameterivFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint sampler, 
 using GrGLScissorFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
 // GL_CHROMIUM_bind_uniform_location
 using GrGLBindUniformLocationFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint program, GrGLint location, const char* name);
+using GrGLSetFenceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint fence, GrGLenum condition);
 using GrGLShaderSourceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint shader, GrGLsizei count, const char* const* str, const GrGLint* length);
 using GrGLStencilFuncFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum func, GrGLint ref, GrGLuint mask);
 using GrGLStencilFuncSeparateFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum face, GrGLenum func, GrGLint ref, GrGLuint mask);
@@ -158,6 +164,7 @@ using GrGLTexParameteriFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLen
 using GrGLTexParameterivFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLenum pname, const GrGLint* params);
 using GrGLTexStorage2DFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLsizei levels, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
 using GrGLDiscardFramebufferFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLsizei numAttachments, const GrGLenum* attachments);
+using GrGLTestFenceFn = GrGLboolean GR_GL_FUNCTION_TYPE(GrGLuint fence);
 using GrGLTexSubImage2DFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
 using GrGLTextureBarrierFn = GrGLvoid GR_GL_FUNCTION_TYPE();
 using GrGLUniform1fFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLint location, GrGLfloat v0);
@@ -226,9 +233,17 @@ using GrGLGetProgramResourceLocationFn = GrGLint GR_GL_FUNCTION_TYPE(GrGLuint pr
 /* GL_NV_framebuffer_mixed_samples */
 using GrGLCoverageModulationFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum components);
 
+/* EXT_base_instance */
+using GrGLDrawArraysInstancedBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, GrGLint first, GrGLsizei count, GrGLsizei instancecount, GrGLuint baseinstance);
+using GrGLDrawElementsInstancedBaseVertexBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, GrGLsizei count, GrGLenum type, const void *indices, GrGLsizei instancecount, GrGLint basevertex, GrGLuint baseinstance);
+
 /* EXT_multi_draw_indirect */
 using GrGLMultiDrawArraysIndirectFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, const GrGLvoid* indirect, GrGLsizei drawcount, GrGLsizei stride);
 using GrGLMultiDrawElementsIndirectFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect, GrGLsizei drawcount, GrGLsizei stride);
+
+/* ANGLE_base_vertex_base_instance */
+using GrGLMultiDrawArraysInstancedBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, const GrGLint* firsts, const GrGLsizei* counts, const GrGLsizei* instanceCounts, const GrGLuint* baseInstances, const GrGLsizei drawcount);
+using GrGLMultiDrawElementsInstancedBaseVertexBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, const GrGLint* counts, GrGLenum type, const GrGLvoid* const* indices, const GrGLsizei* instanceCounts, const GrGLint* baseVertices, const GrGLuint* baseInstances, const GrGLsizei drawcount);
 
 /* ARB_sync */
 using GrGLFenceSyncFn = GrGLsync GR_GL_FUNCTION_TYPE(GrGLenum condition, GrGLbitfield flags);

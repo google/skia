@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrStencilAtlasOp.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -34,7 +34,7 @@ private:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
     class Impl;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 // This processor draws pixel-aligned rectangles directly on top of every path in the atlas.
@@ -58,24 +58,22 @@ class StencilResolveProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = %s = half4(1);", args.fOutputColor, args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
 };
 
 GrGLSLPrimitiveProcessor* StencilResolveProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new Impl();
 }
 
-}
+}  // namespace
 
-std::unique_ptr<GrDrawOp> GrStencilAtlasOp::Make(
+GrOp::Owner GrStencilAtlasOp::Make(
         GrRecordingContext* context, sk_sp<const GrCCPerFlushResources> resources,
         FillBatchID fillBatchID, StrokeBatchID strokeBatchID, int baseStencilResolveInstance,
         int endStencilResolveInstance, const SkISize& drawBounds) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrStencilAtlasOp>(
-            std::move(resources), fillBatchID, strokeBatchID, baseStencilResolveInstance,
+    return GrOp::Make<GrStencilAtlasOp>(
+            context, std::move(resources), fillBatchID, strokeBatchID, baseStencilResolveInstance,
             endStencilResolveInstance, drawBounds);
 }
 
@@ -112,57 +110,83 @@ static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
         GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
         0xffff,                           0x0001,
         GrUserStencilOp::kZero,           GrUserStencilOp::kZero,
+        GrUserStencilOp::kKeep,           GrUserStencilOp::kZero,
+        0xffff,                           0xffff>()
+);
+
+// Same as above, but done in two passes for D3D, which doesn't support mismatched refs or masks on
+// dual sided stencil settings.
+static constexpr GrUserStencilSettings kResolveWindingCoverageAndReset(
+    GrUserStencilSettings::StaticInitSeparate<
+        0x0000,                           0x0000,
+        GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNever,
+        0xffff,                           0xffff,
+        GrUserStencilOp::kZero,           GrUserStencilOp::kKeep,
         GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
         0xffff,                           0xffff>()
 );
+static constexpr GrUserStencilSettings kResolveEvenOddCoverageAndReset(
+    GrUserStencilSettings::StaticInitSeparate<
+        0x0000,                           0x0000,
+        GrUserStencilTest::kNever,        GrUserStencilTest::kNotEqual,
+        0x0001,                           0x0001,
+        GrUserStencilOp::kKeep,           GrUserStencilOp::kZero,
+        GrUserStencilOp::kKeep,           GrUserStencilOp::kZero,
+        0xffff,                           0xffff>()
+);
+
 
 void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkIRect drawBoundsRect = SkIRect::MakeWH(fDrawBounds.width(), fDrawBounds.height());
 
-    GrPipeline pipeline(
-            GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
-            flushState->drawOpArgs().outputSwizzle(), GrPipeline::InputFlags::kHWAntialias,
-            &kIncrDecrStencil);
+    GrPipeline pipeline(GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
+                        flushState->drawOpArgs().writeSwizzle(),
+                        GrPipeline::InputFlags::kHWAntialias);
 
     GrSampleMaskProcessor sampleMaskProc;
 
     fResources->filler().drawFills(
-            flushState, &sampleMaskProc, pipeline, fFillBatchID, drawBoundsRect);
-
-    fResources->stroker().drawStrokes(
-            flushState, &sampleMaskProc, fStrokeBatchID, drawBoundsRect);
+            flushState, &sampleMaskProc, pipeline, fFillBatchID, drawBoundsRect, &kIncrDecrStencil);
 
     // We resolve the stencil coverage to alpha by drawing pixel-aligned boxes. Fine raster is
     // not necessary, and will even cause artifacts if using mixed samples.
     constexpr auto noHWAA = GrPipeline::InputFlags::kNone;
 
-    const auto* stencilResolveSettings = (flushState->caps().discardStencilValuesAfterRenderPass())
-            // The next draw will be the final op in the renderTargetContext. So if Ganesh is
-            // planning to discard the stencil values anyway, we don't actually need to reset them
-            // back to zero.
-            ? &kResolveStencilCoverage
-            : &kResolveStencilCoverageAndReset;
-
     GrPipeline resolvePipeline(GrScissorTest::kEnabled, SkBlendMode::kSrc,
-                               flushState->drawOpArgs().outputSwizzle(), noHWAA,
-                               stencilResolveSettings);
-    GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
-
-    GrMesh mesh(GrPrimitiveType::kTriangleStrip);
-    mesh.setInstanced(fResources->refStencilResolveBuffer(),
-                      fEndStencilResolveInstance - fBaseStencilResolveInstance,
-                      fBaseStencilResolveInstance, 4);
-
+                               flushState->drawOpArgs().writeSwizzle(), noHWAA);
     StencilResolveProcessor primProc;
 
+    if (!flushState->caps().twoSidedStencilRefsAndMasksMustMatch()) {
+        const GrUserStencilSettings* stencil =
+                (flushState->caps().discardStencilValuesAfterRenderPass()) ?
+                &kResolveStencilCoverage : &kResolveStencilCoverageAndReset;
+        this->drawResolve(flushState, resolvePipeline, stencil, primProc, drawBoundsRect);
+        return;
+    }
+
+    // If this ever becomes true then we should add new per-fill-type stencil settings that also
+    // don't reset back to zero.
+    SkASSERT(!flushState->caps().discardStencilValuesAfterRenderPass());
+
+    this->drawResolve(flushState, resolvePipeline, &kResolveWindingCoverageAndReset, primProc,
+                      drawBoundsRect);
+    this->drawResolve(flushState, resolvePipeline, &kResolveEvenOddCoverageAndReset, primProc,
+                      drawBoundsRect);
+}
+
+void GrStencilAtlasOp::drawResolve(GrOpFlushState* flushState, const GrPipeline& resolvePipeline,
+                                   const GrUserStencilSettings* stencil,
+                                   const GrPrimitiveProcessor& primProc,
+                                   const SkIRect& drawBounds) const {
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
-                              flushState->view()->origin(),
-                              &resolvePipeline,
-                              &primProc,
-                              &scissorRectState,
-                              nullptr, 0, GrPrimitiveType::kTriangleStrip);
-
-    flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::Make(drawBoundsRect));
+                              flushState->writeView()->origin(), &resolvePipeline, stencil,
+                              &primProc, GrPrimitiveType::kTriangleStrip, 0,
+                              flushState->renderPassBarriers());
+    flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
+    flushState->setScissorRect(drawBounds);
+    flushState->bindBuffers(nullptr, fResources->stencilResolveBuffer(), nullptr);
+    flushState->drawInstanced(fEndStencilResolveInstance - fBaseStencilResolveInstance,
+                              fBaseStencilResolveInstance, 4, 0);
 }

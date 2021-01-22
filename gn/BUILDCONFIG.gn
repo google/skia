@@ -31,6 +31,7 @@ declare_args() {
   win_toolchain_version = ""
 
   clang_win = ""
+  clang_win_version = ""
 
   skia_moltenvk_path = ""
 
@@ -176,6 +177,14 @@ if (is_tizen) {
     ncli_target = "i586-tizen-linux-gnueabi"
     ncli_platform = "tizen-${ncli_version}/mobile/rootstraps/mobile-${ncli_version}-emulator.core"
     ncli_gccdir = "i586-linux-gnueabi-gcc-${ncli_gcc_version_short}"
+  }
+  if (clang_win != "" && clang_win_version == "") {
+    clang_win_version = exec_script("//gn/highest_version_dir.py",
+                                    [
+                                      "$clang_win/lib/clang",
+                                      "[0-9]+\.[0-9]+\.[0-9]+",
+                                    ],
+                                    "trim string")
   }
 }
 

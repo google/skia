@@ -382,7 +382,7 @@ public:
         fPts[0].set(1, 1);
         fPts[1].set(5, 4);
         fPts[2].set(2, 6);
-        SkMatrix::MakeScale(SkIntToScalar(fZoom)).mapPoints(fPts, 3);
+        SkMatrix::Scale(fZoom, fZoom).mapPoints(fPts, 3);
         fIsRect = false;
     }
 
@@ -499,7 +499,7 @@ protected:
 
 private:
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

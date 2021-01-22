@@ -1,0 +1,18 @@
+in half2 x;
+
+inline half2 InlineB(half2 tmp)
+{
+    half2 reusedName = tmp + half2(3, 4);
+    return reusedName;
+}
+
+inline half2 InlineA()
+{
+    half2 reusedName = x + half2(1, 2);
+    return InlineB(reusedName);
+}
+
+half4 main()
+{
+    return InlineA().xyxy;
+}

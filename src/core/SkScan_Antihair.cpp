@@ -74,8 +74,14 @@ static void call_hline_blitter(SkBlitter* blitter, int x, int y, int count,
     int16_t runs[HLINE_STACK_BUFFER + 1];
     uint8_t  aa[HLINE_STACK_BUFFER];
 
-    aa[0] = ApplyGamma(gGammaTable, alpha);
     do {
+        // In theory, we should be able to just do this once (outside of the loop),
+        // since aa[] and runs[] are supposed" to be const when we call the blitter.
+        // In reality, some wrapper-blitters (e.g. SkRgnClipBlitter) cast away that
+        // constness, and modify the buffers in-place. Hence the need to be defensive
+        // here and reseed the aa value.
+        aa[0] = ApplyGamma(gGammaTable, alpha);
+
         int n = count;
         if (n > HLINE_STACK_BUFFER) {
             n = HLINE_STACK_BUFFER;
@@ -129,8 +135,7 @@ public:
         return fy - SK_Fixed1/2;
     }
 
-    virtual SkFixed drawLine(int x, int stopx, SkFixed fy,
-                             SkFixed slope) override {
+    SkFixed drawLine(int x, int stopx, SkFixed fy, SkFixed slope) override {
         SkASSERT(x < stopx);
         int count = stopx - x;
         fy += SK_Fixed1/2;
@@ -573,10 +578,10 @@ void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegi
         SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
 
         if (clip) {
-            SkFDot6 left = SkMin32(x0, x1);
-            SkFDot6 top = SkMin32(y0, y1);
-            SkFDot6 right = SkMax32(x0, x1);
-            SkFDot6 bottom = SkMax32(y0, y1);
+            SkFDot6 left = std::min(x0, x1);
+            SkFDot6 top = std::min(y0, y1);
+            SkFDot6 right = std::max(x0, x1);
+            SkFDot6 bottom = std::max(y0, y1);
             SkIRect ir;
 
             ir.setLTRB(SkFDot6Floor(left) - 1,
@@ -757,7 +762,7 @@ void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
     }
 }
 
-/*  This guy takes a float-rect, but with the key improvement that it has
+/*  This takes a float-rect, but with the key improvement that it has
     already been clipped, so we know that it is safe to convert it into a
     XRect (fixedpoint), as it won't overflow.
 */

@@ -141,10 +141,10 @@ protected:
 private:
     sk_sp<SkImage> fBitmap, fCheckerboard;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new TileImageFilterGM;)
-}
+}  // namespace skiagm

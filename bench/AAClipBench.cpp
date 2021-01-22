@@ -41,8 +41,8 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    const char* onGetName() override { return fName.c_str(); }
+    void onDraw(int loops, SkCanvas* canvas) override {
 
         SkPaint paint;
         this->setupPaint(&paint);
@@ -58,9 +58,9 @@ protected:
             canvas->save();
 #if 1
             if (fDoPath) {
-                canvas->clipPath(fClipPath, kReplace_SkClipOp, fDoAA);
+                canvas->clipPath(fClipPath, SkClipOp::kIntersect, fDoAA);
             } else {
-                canvas->clipRect(fClipRect, kReplace_SkClipOp, fDoAA);
+                canvas->clipRect(fClipRect, SkClipOp::kIntersect, fDoAA);
             }
 
             canvas->drawRect(fDrawRect, paint);
@@ -78,7 +78,7 @@ protected:
         }
     }
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
+    const char* onGetName() override { return fName.c_str(); }
 
 
     void recurse(SkCanvas* canvas,
@@ -128,9 +128,7 @@ protected:
             path.addRoundRect(temp, SkIntToScalar(3), SkIntToScalar(3));
             SkASSERT(path.isConvex());
 
-            canvas->clipPath(path,
-                             0 == depth ? kReplace_SkClipOp : kIntersect_SkClipOp,
-                             fDoAA);
+            canvas->clipPath(path, SkClipOp::kIntersect, fDoAA);
 
             if (kNestingDepth == depth) {
                 // we only draw the draw rect at the lowest nesting level
@@ -156,7 +154,7 @@ protected:
             canvas->restore();
     }
 
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    void onDraw(int loops, SkCanvas* canvas) override {
 
         for (int i = 0; i < loops; ++i) {
             SkPoint offset = SkPoint::Make(0, 0);
@@ -165,7 +163,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,8 +190,8 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(int loops, SkCanvas*) {
+    const char* onGetName() override { return fName.c_str(); }
+    void onDraw(int loops, SkCanvas*) override {
         SkPaint paint;
         this->setupPaint(&paint);
 
@@ -207,7 +205,7 @@ protected:
         }
     }
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -227,8 +225,8 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return "aaclip_setregion"; }
-    virtual void onDraw(int loops, SkCanvas*) {
+    const char* onGetName() override { return "aaclip_setregion"; }
+    void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             SkAAClip clip;
             clip.setRegion(fRegion);
@@ -237,7 +235,7 @@ protected:
 
 private:
     SkRegion fRegion;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

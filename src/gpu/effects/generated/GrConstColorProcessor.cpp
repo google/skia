@@ -10,7 +10,8 @@
  **************************************************************************************************/
 #include "GrConstColorProcessor.h"
 
-#include "include/gpu/GrTexture.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -25,17 +26,11 @@ public:
         (void)_outer;
         auto color = _outer.color;
         (void)color;
-        auto mode = _outer.mode;
-        (void)mode;
-        colorVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
+        colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                    kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
-                "@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n    case 1:\n      "
-                "  %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w * %s;\n        "
-                "break;\n}\n",
-                (int)_outer.mode, args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar),
-                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(colorVar),
-                args.fOutputColor, args.fInputColor,
+                R"SkSL(return %s;
+)SkSL",
                 args.fUniformHandler->getUniformCStr(colorVar));
     }
 
@@ -58,23 +53,26 @@ GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const {
     return new GrGLSLConstColorProcessor();
 }
 void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                  GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)mode);
-}
+                                                  GrProcessorKeyBuilder* b) const {}
 bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConstColorProcessor& that = other.cast<GrConstColorProcessor>();
     (void)that;
     if (color != that.color) return false;
-    if (mode != that.mode) return false;
     return true;
 }
+bool GrConstColorProcessor::usesExplicitReturn() const { return true; }
 GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
-        : INHERITED(kGrConstColorProcessor_ClassID, src.optimizationFlags())
-        , color(src.color)
-        , mode(src.mode) {}
-std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(*this));
+        : INHERITED(kGrConstColorProcessor_ClassID, src.optimizationFlags()), color(src.color) {
+    this->cloneAndRegisterAllChildProcessors(src);
 }
+std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
+    return std::make_unique<GrConstColorProcessor>(*this);
+}
+#if GR_TEST_UTILS
+SkString GrConstColorProcessor::onDumpInfo() const {
+    return SkStringPrintf("(color=half4(%f, %f, %f, %f))", color.fR, color.fG, color.fB, color.fA);
+}
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
@@ -97,7 +95,6 @@ std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcess
             color = SkPMColor4f::FromBytes_RGBA(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
-    InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
-    return GrConstColorProcessor::Make(color, mode);
+    return GrConstColorProcessor::Make(color);
 }
 #endif

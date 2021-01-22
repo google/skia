@@ -366,7 +366,7 @@ int SkEdgeBuilder::buildEdges(const SkPath& path,
     const bool canCullToTheRight = !path.isConvex();
 
     // We can use our buildPoly() optimization if all the segments are lines.
-    // (Edges are homogenous and stored contiguously in memory, no need for indirection.)
+    // (Edges are homogeneous and stored contiguously in memory, no need for indirection.)
     const int count = SkPath::kLine_SegmentMask == path.getSegmentMasks()
         ? this->buildPoly(path, shiftedClip, canCullToTheRight)
         : this->build    (path, shiftedClip, canCullToTheRight);

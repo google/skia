@@ -19,7 +19,7 @@ static bool parse_encoded_origin(const uint8_t* exifData, size_t data_length, ui
     // Tag (2 bytes), Datatype (2 bytes), Number of elements (4 bytes), Data (4 bytes)
     const uint32_t kEntrySize = 12;
     const auto max = SkTo<uint32_t>((data_length - offset - 2) / kEntrySize);
-    numEntries = SkTMin(numEntries, max);
+    numEntries = std::min(numEntries, max);
 
     // Advance the data to the start of the entries.
     auto data = exifData + offset + 2;

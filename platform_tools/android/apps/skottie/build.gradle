@@ -7,21 +7,22 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation 'com.android.support:support-v13:23.3.0'
-    implementation 'com.android.support:appcompat-v7:23.3.0'
+    implementation project("skottielib")
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.airbnb.android:lottie:3.4.1'
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 28
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     flavorDimensions "tier"
     defaultConfig {
-        applicationId "org.skia.skottie"
-        minSdkVersion 23
-        targetSdkVersion 23
+        minSdkVersion 26
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         signingConfig signingConfigs.debug
@@ -29,7 +30,15 @@ android {
     flavorDimensions "base"
     sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
     sourceSets.main.jniLibs.srcDir "src/main/libs"
-    productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "libskottie_android")
+    //    When building from Android Studio, ensure that local variables are set:
+    //    sdk.dir=[sdk file path]
+    //    depot_tools.dir=[depot tools file path]
+    //    x86.out.dir=[out file for x86]
+    //    x64.out.dir=[out file for x64]
+    //    arm64.out.dir=[out file for xarm64]
+    //    arm.out.dir=[out file for arm]
+
+    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan {}; }
+
 }

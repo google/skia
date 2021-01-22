@@ -19,8 +19,10 @@ class GrMtlGpu;
 
 class GrMtlRenderTarget: public GrRenderTarget {
 public:
+    // If sampleCnt is greater than 1 and the texture is single sampled, then a MSAA texture
+    // is created that will resolve to the wrapped single sample texture.
     static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
-                                                            const GrSurfaceDesc&,
+                                                            SkISize,
                                                             int sampleCnt,
                                                             id<MTLTexture>);
 
@@ -39,14 +41,12 @@ public:
 
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
+                      SkISize,
                       int sampleCnt,
                       id<MTLTexture> colorTexture,
                       id<MTLTexture> resolveTexture);
 
-    GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
-                      id<MTLTexture> colorTexture);
+    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, id<MTLTexture> colorTexture);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -62,9 +62,8 @@ protected:
         if (numColorSamples > 1) {
             ++numColorSamples;
         }
-        const GrCaps& caps = *this->getGpu()->caps();
-        return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipMapped::kNo);
+        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
+                                      numColorSamples, GrMipmapped::kNo);
     }
 
     id<MTLTexture> fColorTexture;
@@ -74,19 +73,16 @@ private:
     // Extra param to disambiguate from constructor used by subclasses.
     enum Wrapped { kWrapped };
     GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
+                      SkISize,
                       int sampleCnt,
                       id<MTLTexture> colorTexture,
                       id<MTLTexture> resolveTexture,
                       Wrapped);
-    GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
-                      id<MTLTexture> colorTexture,
-                      Wrapped);
+    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, id<MTLTexture> colorTexture, Wrapped);
 
     bool completeStencilAttachment() override;
 
-    typedef GrRenderTarget INHERITED;
+    using INHERITED = GrRenderTarget;
 };
 
 

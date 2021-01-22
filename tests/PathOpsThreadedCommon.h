@@ -21,7 +21,7 @@ class PathOpsThreadedRunnable;
 
 namespace skiatest {
 class Reporter;
-}
+}  // namespace skiatest
 
 struct PathOpsThreadState {
     unsigned char fA;

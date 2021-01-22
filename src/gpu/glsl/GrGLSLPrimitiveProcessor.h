@@ -25,65 +25,39 @@ class GrGLSLPrimitiveProcessor {
 public:
     using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
     using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
-    using CoordTransformRange   = GrFragmentProcessor::PipelineCoordTransformRange;
-
-    struct TransformVar {
-        TransformVar() = default;
-
-        TransformVar(SkString matrixCode, UniformHandle uniformMatrix, GrShaderVar varyingPoint)
-            : fMatrixCode(std::move(matrixCode))
-            , fUniformMatrix(uniformMatrix)
-            , fVaryingPoint(varyingPoint) {}
-
-        // a string of SkSL code which resolves to the transformation matrix
-        SkString fMatrixCode;
-        // the variable containing the matrix, if any, otherwise an invalid handle
-        UniformHandle fUniformMatrix;
-        // the transformed coordinate output by the vertex shader and consumed by the fragment
-        // shader
-        GrShaderVar fVaryingPoint;
-    };
-
 
     virtual ~GrGLSLPrimitiveProcessor() {}
 
     /**
-     * This class provides access to the GrCoordTransforms across all GrFragmentProcessors in a
-     * GrPipeline. It is also used by the primitive processor to specify the fragment shader
-     * variable that will hold the transformed coords for each GrCoordTransform. It is required that
-     * the primitive processor iterate over each coord transform and insert a shader var result for
-     * each. The GrGLSLFragmentProcessors will reference these variables in their fragment code.
+     * This class provides access to each GrFragmentProcessor in a GrPipeline that requires varying
+     * local coords to be produced by the primitive processor. It is also used by the primitive
+     * processor to specify the fragment shader variable that will hold the transformed coords for
+     * each of those GrFragmentProcessors. It is required that the primitive processor iterate over
+     * each fragment processor and insert a shader var result for each. The GrGLSLFragmentProcessors
+     * will reference these variables in their fragment code.
      */
     class FPCoordTransformHandler : public SkNoncopyable {
     public:
-        FPCoordTransformHandler(const GrPipeline&, SkTArray<TransformVar>*);
+        FPCoordTransformHandler(const GrPipeline&, SkTArray<GrShaderVar>*);
         ~FPCoordTransformHandler() { SkASSERT(!fIter); }
 
         operator bool() const { return (bool)fIter; }
 
-        // Gets the current coord transform and its owning GrFragmentProcessor.
-        std::pair<const GrCoordTransform&, const GrFragmentProcessor&> get() const;
+        // Gets the current GrFragmentProcessor
+        const GrFragmentProcessor& get() const;
 
         FPCoordTransformHandler& operator++();
 
-        // 'args' are constructor params to GrShaderVar.
-        template<typename... Args>
-        void specifyCoordsForCurrCoordTransform(Args&&... args) {
+        void specifyCoordsForCurrCoordTransform(GrShaderVar varyingVar) {
             SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->emplace_back(std::forward<Args>(args)...);
-            SkDEBUGCODE(fAddedCoord = true;)
-        }
-
-        void omitCoordsForCurrCoordTransform() {
-            SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->push_back();
+            fTransformedCoordVars->push_back(varyingVar);
             SkDEBUGCODE(fAddedCoord = true;)
         }
 
     private:
-        GrFragmentProcessor::CoordTransformIter fIter;
-        SkDEBUGCODE(bool                        fAddedCoord = false;)
-        SkTArray<TransformVar>*                 fTransformedCoordVars;
+        GrFragmentProcessor::CIter fIter;
+        SkDEBUGCODE(bool           fAddedCoord = false;)
+        SkTArray<GrShaderVar>*     fTransformedCoordVars;
     };
 
     struct EmitArgs {
@@ -96,7 +70,6 @@ public:
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const char* rtAdjustName,
                  const SamplerHandle* texSamplers,
                  FPCoordTransformHandler* transformHandler)
             : fVertBuilder(vertBuilder)
@@ -108,7 +81,6 @@ public:
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
-            , fRTAdjustName(rtAdjustName)
             , fTexSamplers(texSamplers)
             , fFPCoordTransformHandler(transformHandler) {}
         GrGLSLVertexBuilder* fVertBuilder;
@@ -120,7 +92,6 @@ public:
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
-        const char* fRTAdjustName;
         const SamplerHandle* fTexSamplers;
         FPCoordTransformHandler* fFPCoordTransformHandler;
     };
@@ -131,6 +102,12 @@ public:
      */
     virtual void emitCode(EmitArgs&) = 0;
 
+    /**
+     * Called after all effect emitCode() functions, to give the processor a chance to write out
+     * additional transformation code now that all uniforms have been emitted.
+     */
+    virtual void emitTransformCode(GrGLSLVertexBuilder* vb,
+                                   GrGLSLUniformHandler* uniformHandler) {}
     /**
      * A GrGLSLPrimitiveProcessor instance can be reused with any GrGLSLPrimitiveProcessor that
      * produces the same stage key; this function reads data from a GrGLSLPrimitiveProcessor and
@@ -143,10 +120,7 @@ public:
      * The range will iterate over the transforms in the same order as the TransformHandler passed
      * to emitCode.
      */
-    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                         const CoordTransformRange&) = 0;
-
-    static SkMatrix GetTransformMatrix(const GrCoordTransform&, const SkMatrix& preMatrix);
+    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) = 0;
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,

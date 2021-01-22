@@ -26,19 +26,6 @@ class GrGLOpsRenderPass : public GrOpsRenderPass {
 public:
     GrGLOpsRenderPass(GrGLGpu* gpu) : fGpu(gpu) {}
 
-    void begin() override {
-        fGpu->beginCommandBuffer(fRenderTarget, fContentBounds, fOrigin, fColorLoadAndStoreInfo,
-                                 fStencilLoadAndStoreInfo);
-    }
-
-    void end() override {
-        fGpu->endCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
-    }
-
-    void insertEventMarker(const char* msg) override {
-        fGpu->insertEventMarker(msg);
-    }
-
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
         state->doUpload(upload);
     }
@@ -53,26 +40,60 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    void onDraw(const GrProgramInfo& programInfo, const GrMesh mesh[], int meshCount,
-                const SkRect& bounds) override {
-        fGpu->draw(fRenderTarget, programInfo, mesh, meshCount);
+    void bindInstanceBuffer(const GrBuffer*, int baseInstance);
+    void bindVertexBuffer(const GrBuffer*, int baseVertex);
+
+    const void* offsetForBaseIndex(int baseIndex) const {
+        if (!fIndexPointer) {
+            // nullptr != 0. Adding an offset to a nullptr is undefined.
+            return (void*)(baseIndex * sizeof(uint16_t));
+        }
+        return fIndexPointer + baseIndex;
     }
 
-    void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override {
-        fGpu->clear(clip, color, fRenderTarget, fOrigin);
-    }
+    void onBegin() override;
+    void onEnd() override;
+    bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
+    void onSetScissorRect(const SkIRect& scissor) override;
+    bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
+                        const GrPipeline& pipeline) override;
+    void onBindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
+                       sk_sp<const GrBuffer> vertexBuffer, GrPrimitiveRestart) override;
+    void onDraw(int vertexCount, int baseVertex) override;
+    void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
+                       uint16_t maxIndexValue, int baseVertex) override;
+    void onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
+                         int baseVertex) override;
+    void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
+                                int baseVertex) override;
+    void onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset, int drawCount) override;
+    void multiDrawArraysANGLEOrWebGL(const GrBuffer* drawIndirectBuffer, size_t offset,
+                                     int drawCount);
+    void onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
+                               int drawCount) override;
+    void multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndirectBuffer, size_t offset,
+                                       int drawCount);
+    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
+    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
-    void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {
-        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin);
-    }
-
-    GrGLGpu*                fGpu;
-    SkIRect                 fContentBounds;
-    LoadAndStoreInfo        fColorLoadAndStoreInfo;
+    GrGLGpu* fGpu;
+    SkIRect fContentBounds;
+    LoadAndStoreInfo fColorLoadAndStoreInfo;
     StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
-    typedef GrOpsRenderPass INHERITED;
+    // Per-pipeline state.
+    GrPrimitiveType fPrimitiveType;
+    GrGLAttribArrayState* fAttribArrayState = nullptr;
+
+    // If using an index buffer, this gets set during onBindBuffers. It is either the CPU address of
+    // the indices, or nullptr if they reside physically in GPU memory.
+    const uint16_t* fIndexPointer;
+
+    // This tracks whether or not we bound the respective buffers during the bindBuffers call.
+    SkDEBUGCODE(bool fDidBindVertexBuffer = false;)
+    SkDEBUGCODE(bool fDidBindInstanceBuffer = false;)
+
+    using INHERITED = GrOpsRenderPass;
 };
 
 #endif
-

@@ -118,6 +118,8 @@ typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);
 extern bool IsGLContextType(GrContextFactoryContextType);
 extern bool IsVulkanContextType(GrContextFactoryContextType);
 extern bool IsMetalContextType(GrContextFactoryContextType);
+extern bool IsDawnContextType(GrContextFactoryContextType);
+extern bool IsDirect3DContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLOrMetalContextType(GrContextFactoryContextType);
 extern bool IsMockContextType(GrContextFactoryContextType);
@@ -146,16 +148,24 @@ private:
 
 }  // namespace skiatest
 
-#define REPORTER_ASSERT(r, cond, ...)                              \
-    do {                                                           \
-        if (!(cond)) {                                             \
-            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
-        }                                                          \
+static inline SkString reporter_string() { return {}; }
+/// Prevent security warnings when using a non-literal string i.e. not a format string.
+static inline SkString reporter_string(const char* s) { return SkString(s); }
+template<typename... Args>
+static inline SkString reporter_string(const char* fmt, Args... args)  {
+    return SkStringPrintf(fmt, std::forward<Args>(args)...);
+}
+
+#define REPORTER_ASSERT(r, cond, ...)                               \
+    do {                                                            \
+        if (!(cond)) {                                              \
+            REPORT_FAILURE(r, #cond, reporter_string(__VA_ARGS__)); \
+        }                                                           \
     } while (0)
 
-#define ERRORF(r, ...)                                      \
-    do {                                                    \
-        REPORT_FAILURE(r, "", SkStringPrintf(__VA_ARGS__)); \
+#define ERRORF(r, ...)                                       \
+    do {                                                     \
+        REPORT_FAILURE(r, "", reporter_string(__VA_ARGS__)); \
     } while (0)
 
 #define INFOF(REPORTER, ...)         \
@@ -206,6 +216,12 @@ private:
 #define DEF_GPUTEST_FOR_METAL_CONTEXT(name, reporter, context_info)                         \
         DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsMetalContextType,                       \
                                  reporter, context_info, nullptr)
+#define DEF_GPUTEST_FOR_D3D_CONTEXT(name, reporter, context_info)                           \
+    DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsDirect3DContextType,                        \
+                             reporter, context_info, nullptr)
+#define DEF_GPUTEST_FOR_DAWN_CONTEXT(name, reporter, context_info)                          \
+    DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsDawnContextType,                            \
+                             reporter, context_info, nullptr)
 
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                          \
     do {                                                                   \

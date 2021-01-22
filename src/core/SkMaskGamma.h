@@ -161,7 +161,7 @@ private:
     uint8_t fGammaTables[1 << MAX_LUM_BITS][256];
     bool fIsLinear;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 

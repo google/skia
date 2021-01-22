@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkRemoteGlyphCache.h"
-#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTLazy.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobTrace.h"
 #include "tools/Resources.h"
@@ -68,7 +68,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
     const size_t fCacheSize;
     SkString fName;
 };
@@ -107,7 +107,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
     const size_t fCacheSize;
     SkString fName;
 };
@@ -220,8 +220,9 @@ class DiffCanvasBench : public Benchmark {
 
     bool isSuitableFor(Backend b) override { return b == kNonRendering_Backend; }
 
-    void onDraw(int loops, SkCanvas*) override {
-        const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    void onDraw(int loops, SkCanvas* modelCanvas) override {
+        SkSurfaceProps props;
+        if (modelCanvas) { modelCanvas->getProps(&props); }
         SkTextBlobCacheDiffCanvas canvas{1024, 1024, props, fServer.get()};
         loops *= 100;
         while (loops --> 0) {

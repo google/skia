@@ -12,20 +12,18 @@
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
-                                       const SkISize& dimensions,
-                                       GrPixelConfig config,
+                                       SkISize dimensions,
                                        int sampleCnt,
-                                       const GrDawnImageInfo& info)
-        : GrSurface(gpu, dimensions, config, GrProtected::kNo)
-        , GrRenderTarget(gpu, dimensions, config, sampleCnt, GrProtected::kNo)
+                                       const GrDawnRenderTargetInfo& info)
+        : GrSurface(gpu, dimensions, GrProtected::kNo)
+        , GrRenderTarget(gpu, dimensions, sampleCnt, GrProtected::kNo)
         , fInfo(info) {}
 
 sk_sp<GrDawnRenderTarget> GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
-                                                          const SkISize& dimensions,
-                                                          GrPixelConfig config,
+                                                          SkISize dimensions,
                                                           int sampleCnt,
-                                                          const GrDawnImageInfo& info) {
-    sk_sp<GrDawnRenderTarget> rt(new GrDawnRenderTarget(gpu, dimensions, config, sampleCnt, info));
+                                                          const GrDawnRenderTargetInfo& info) {
+    sk_sp<GrDawnRenderTarget> rt(new GrDawnRenderTarget(gpu, dimensions, sampleCnt, info));
     rt->registerWithCacheWrapped(GrWrapCacheable::kNo);
     return rt;
 }
@@ -33,9 +31,8 @@ sk_sp<GrDawnRenderTarget> GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
 size_t GrDawnRenderTarget::onGpuMemorySize() const {
     // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
     int numSamples = this->numSamples() + 1;
-    const GrCaps& caps = *getGpu()->caps();
-    return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(), numSamples,
-                                  GrMipMapped::kNo);
+    return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(), numSamples,
+                                  GrMipmapped::kNo);
 }
 
 bool GrDawnRenderTarget::completeStencilAttachment() {

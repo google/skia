@@ -141,7 +141,7 @@ static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
  * Get a byte from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-static inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
+static inline uint8_t get_byte(const uint8_t* buffer, uint32_t i) {
     return buffer[i];
 }
 
@@ -149,7 +149,7 @@ static inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
  * Get a short from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-static inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
+static inline uint16_t get_short(const uint8_t* buffer, uint32_t i) {
     uint16_t result;
     memcpy(&result, &(buffer[i]), 2);
 #ifdef SK_CPU_BENDIAN
@@ -163,7 +163,7 @@ static inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
  * Get an int from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-static inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
+static inline uint32_t get_int(const uint8_t* buffer, uint32_t i) {
     uint32_t result;
     memcpy(&result, &(buffer[i]), 4);
 #ifdef SK_CPU_BENDIAN

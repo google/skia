@@ -79,9 +79,16 @@ static inline bool outside_interval(SkScalar numer, SkScalar denom, bool denomPo
            (!denomPositive && (numer > 0 || numer < denom));
 }
 
+// special zero-length test when we're using vdotv as a denominator
+static inline bool zero_length(const SkPoint& v, SkScalar vdotv) {
+    return !(SkScalarsAreFinite(v.fX, v.fY) && vdotv);
+}
+
 // Compute the intersection 'p' between segments s0 and s1, if any.
 // 's' is the parametric value for the intersection along 's0' & 't' is the same for 's1'.
 // Returns false if there is no intersection.
+// If the length squared of a segment is 0, then we treat the segment as degenerate
+// and use only the first endpoint for tests.
 static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s1,
                                  SkPoint* p, SkScalar* s, SkScalar* t) {
     const SkVector& v0 = s0.fV;
@@ -98,9 +105,11 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
         }
 
         // Check for zero-length segments
-        if (!SkPointPriv::CanNormalize(v0.fX, v0.fY)) {
+        SkScalar v0dotv0 = v0.dot(v0);
+        if (zero_length(v0, v0dotv0)) {
             // Both are zero-length
-            if (!SkPointPriv::CanNormalize(v1.fX, v1.fY)) {
+            SkScalar v1dotv1 = v1.dot(v1);
+            if (zero_length(v1, v1dotv1)) {
                 // Check if they're the same point
                 if (!SkPointPriv::CanNormalize(w.fX, w.fY)) {
                     *p = s0.fP0;
@@ -108,12 +117,13 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
                     *t = 0;
                     return true;
                 } else {
+                    // Intersection is indeterminate
                     return false;
                 }
             }
             // Otherwise project segment0's origin onto segment1
             tNumer = v1.dot(-w);
-            denom = v1.dot(v1);
+            denom = v1dotv1;
             if (outside_interval(tNumer, denom, true)) {
                 return false;
             }
@@ -121,12 +131,13 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
         } else {
             // Project segment1's endpoints onto segment0
             sNumer = v0.dot(w);
-            denom = v0.dot(v0);
+            denom = v0dotv0;
             tNumer = 0;
             if (outside_interval(sNumer, denom, true)) {
                 // The first endpoint doesn't lie on segment0
                 // If segment1 is degenerate, then there's no collision
-                if (!SkPointPriv::CanNormalize(v1.fX, v1.fY)) {
+                SkScalar v1dotv1 = v1.dot(v1);
+                if (zero_length(v1, v1dotv1)) {
                     return false;
                 }
 
@@ -143,7 +154,7 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
                     // otherwise project segment0's endpoint onto segment1 instead
                     sNumer = 0;
                     tNumer = v1.dot(-w);
-                    denom = v1.dot(v1);
+                    denom = v1dotv1;
                 }
             }
         }
@@ -885,7 +896,7 @@ public:
                 } else {
                     ActiveEdge *s = parent->fChild[!last];
 
-                    if (s != NULL) {
+                    if (s != nullptr) {
                         if (!IsRed(s->fChild[!last]) && !IsRed(s->fChild[last])) {
                             // color flip
                             parent->fRed = false;
@@ -1163,7 +1174,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // can't inset more than the half bounds of the polygon
-    if (offset > SkTMin(SkTAbs(SK_ScalarHalf*bounds.width()),
+    if (offset > std::min(SkTAbs(SK_ScalarHalf*bounds.width()),
                         SkTAbs(SK_ScalarHalf*bounds.height()))) {
         return false;
     }
@@ -1209,7 +1220,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                           &rotSin, &rotCos, &numSteps)) {
                     return false;
                 }
-                numEdges += SkTMax(numSteps, 1);
+                numEdges += std::max(numSteps, 1);
             }
         }
         numEdges++;
@@ -1222,7 +1233,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                   &rotSin, &rotCos, &numSteps)) {
             return false;
         }
-        numEdges += SkTMax(numSteps, 1);
+        numEdges += std::max(numSteps, 1);
     }
 
     // Make sure we don't overflow the max array count.
@@ -1249,7 +1260,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                       &rotSin, &rotCos, &numSteps)) {
                 return false;
             }
-            auto currEdge = edgeData.push_back_n(SkTMax(numSteps, 1));
+            auto currEdge = edgeData.push_back_n(std::max(numSteps, 1));
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
                                                      prevNormal.fY*rotCos + prevNormal.fX*rotSin);
@@ -1442,8 +1453,8 @@ static void compute_triangle_bounds(const SkPoint& p0, const SkPoint& p1, const 
     Sk4s xy(p1.fX, p1.fY, p2.fX, p2.fY);
     min = Sk4s::Min(min, xy);
     max = Sk4s::Max(max, xy);
-    bounds->setLTRB(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
-                    SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+    bounds->setLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
+                    std::max(max[0], max[2]), std::max(max[1], max[3]));
 }
 
 // test to see if point p is in triangle p0p1p2.
@@ -1490,7 +1501,7 @@ public:
         if (!SkScalarIsFinite(hCount)) {
             return false;
         }
-        fHCount = SkTMax(SkTMin(SkScalarRoundToInt(hCount), vertexCount), 1);
+        fHCount = std::max(std::min(SkScalarRoundToInt(hCount), vertexCount), 1);
         fVCount = vertexCount/fHCount;
         fGridConversion.set(sk_ieee_float_divide(fHCount - 0.001f, width),
                             sk_ieee_float_divide(fVCount - 0.001f, height));
@@ -1613,7 +1624,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     for (int currIndex = 0; currIndex < polygonSize; ++currIndex) {
         int nextIndex = (currIndex + 1) % polygonSize;
 
-        SkDEBUGCODE(memset(&triangulationVertices[currIndex], 0, sizeof(TriangulationVertex)));
+        triangulationVertices[currIndex] = TriangulationVertex{};
         triangulationVertices[currIndex].fPosition = polygonVerts[currIndex];
         triangulationVertices[currIndex].fIndex = currIndex;
         triangulationVertices[currIndex].fPrevIndex = prevIndex;

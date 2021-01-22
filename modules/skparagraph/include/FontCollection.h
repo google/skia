@@ -19,8 +19,6 @@ class FontCollection : public SkRefCnt {
 public:
     FontCollection();
 
-    ~FontCollection() = default;
-
     size_t getFontManagersCount() const;
 
     void setAssetFontManager(sk_sp<SkFontMgr> fontManager);
@@ -41,6 +39,8 @@ public:
     bool fontFallbackEnabled() { return fEnableFontFallback; }
 
     ParagraphCache* getParagraphCache() { return &fParagraphCache; }
+
+    void clearCaches();
 
 private:
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;

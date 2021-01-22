@@ -11,8 +11,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/GrMesh.h"
-#include "src/gpu/GrTessellator.h"
+#include "src/gpu/GrTriangulator.h"
+#include "src/gpu/ccpr/GrAutoMapVertexBuffer.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/ccpr/GrCCFillGeometry.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -51,7 +51,8 @@ public:
 
     // Called after prepareToDraw(). Draws the given batch of path fills.
     void drawFills(GrOpFlushState*, GrCCCoverageProcessor*, const GrPipeline&, BatchID,
-                   const SkIRect& drawBounds) const;
+                   const SkIRect& drawBounds,
+                   const GrUserStencilSettings* = &GrUserStencilSettings::kUnused) const;
 
 private:
     static constexpr int kNumScissorModes = 2;
@@ -72,7 +73,7 @@ private:
             SkASSERT(this->hasFanTessellation());
             return fFanTessellationCount;
         }
-        const GrTessellator::WindingVertex* fanTessellation() const {
+        const GrTriangulator::WindingVertex* fanTessellation() const {
             SkASSERT(this->hasFanTessellation());
             return fFanTessellation.get();
         }
@@ -84,7 +85,7 @@ private:
         GrScissorTest fScissorTest;
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
         int fFanTessellationCount = -1;
-        std::unique_ptr<const GrTessellator::WindingVertex[]> fFanTessellation;
+        std::unique_ptr<const GrTriangulator::WindingVertex[]> fFanTessellation;
     };
 
     // Defines a batch of CCPR primitives. Start indices are deduced by looking at the previous
@@ -103,11 +104,12 @@ private:
     };
 
     void emitTessellatedFan(
-            const GrTessellator::WindingVertex*, int numVertices, const Sk2f& devToAtlasOffset,
+            const GrTriangulator::WindingVertex*, int numVertices, const Sk2f& devToAtlasOffset,
             GrCCCoverageProcessor::TriPointInstance::Ordering,
             GrCCCoverageProcessor::TriPointInstance*, GrCCCoverageProcessor::QuadPointInstance*,
             GrCCFillGeometry::PrimitiveTallies*);
-    void drawPrimitives(GrOpFlushState*, const GrCCCoverageProcessor&, const GrPipeline&, BatchID,
+    void drawPrimitives(GrOpFlushState*, const GrCCCoverageProcessor&, const GrPipeline&,
+                        const GrUserStencilSettings*, BatchID,
                         int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const;
 
     const Algorithm fAlgorithm;
@@ -118,10 +120,8 @@ private:
     PrimitiveTallies fTotalPrimitiveCounts[kNumScissorModes];
     int fMaxMeshesPerDraw = 0;
 
-    sk_sp<GrGpuBuffer> fInstanceBuffer;
+    GrAutoMapVertexBuffer fInstanceBuffer;
     PrimitiveTallies fBaseInstances[kNumScissorModes];
-    mutable SkSTArray<32, GrMesh> fMeshesScratchBuffer;
-    mutable SkSTArray<32, SkIRect> fScissorRectScratchBuffer;
 };
 
 #endif

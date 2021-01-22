@@ -9,10 +9,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/utils/SkRandom.h"
 
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGr.h"
 
@@ -130,7 +129,7 @@ protected:
         SkASSERT(kImageMode == ImageMode::kNone);
         SkASSERT(kDrawMode == DrawMode::kBatch);
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->recordingContext();
         SkASSERT(context);
 
         GrRenderTargetContext::QuadSetEntry batch[kRectCount];
@@ -147,9 +146,10 @@ protected:
 
         GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
         SkMatrix view = canvas->getTotalMatrix();
+        SkSimpleMatrixProvider matrixProvider(view);
         GrPaint grPaint;
-        SkPaintToGrPaint(context, rtc->colorInfo(), paint, view, &grPaint);
-        rtc->drawQuadSet(GrNoClip(), std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
+        SkPaintToGrPaint(context, rtc->colorInfo(), paint, matrixProvider, &grPaint);
+        rtc->drawQuadSet(nullptr, std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
     }
 
     void drawSolidColorsRef(SkCanvas* canvas) const {
@@ -215,14 +215,23 @@ protected:
         // Push the skimages to the GPU when using the GPU backend so that the texture creation is
         // not part of the bench measurements. Always remake the images since they are so simple,
         // and since they are context-specific, this works when the bench runs multiple GPU backends
-        GrContext* context = canvas->getGrContext();
+        auto direct = GrAsDirectContext(canvas->recordingContext());
         for (int i = 0; i < kImageCount; ++i) {
             SkBitmap bm;
             bm.allocN32Pixels(256, 256);
             bm.eraseColor(fColors[i].toSkColor());
             auto image = SkImage::MakeFromBitmap(bm);
 
-            fImages[i] = context ? image->makeTextureImage(context) : std::move(image);
+            fImages[i] = direct ? image->makeTextureImage(direct) : std::move(image);
+        }
+    }
+
+    void onPerCanvasPostDraw(SkCanvas* canvas) override {
+        for (int i = 0; i < kImageCount; ++i) {
+            // For Vulkan we need to make sure the bench isn't holding onto any refs to the
+            // GrContext when we go to delete the vulkan context (which happens before the bench is
+            // deleted). So reset all the images here so they aren't holding GrContext refs.
+            fImages[i].reset();
         }
     }
 
@@ -248,7 +257,7 @@ protected:
         return { kWidth, kHeight };
     }
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 // constructor call is wrapped in () so the macro doesn't break parsing the commas in the template

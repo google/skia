@@ -165,10 +165,10 @@ private:
     SkBitmap fBitmap;
     sk_sp<SkImage> fCheckerboard, fSmall, fLarge, fLargeW, fLargeH;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new DisplacementMapGM;)
-}
+}  // namespace skiagm

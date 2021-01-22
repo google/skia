@@ -15,9 +15,6 @@ static int loopNo = 158;
 static std::atomic<int> gCubicsTestNo{0};
 
 static void testOpCubicsMain(PathOpsThreadState* data) {
-#if DEBUG_SHOW_TEST_NAME
-    strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
-#endif
     SkASSERT(data);
     const SkPathFillType fts[] = { SkPathFillType::kWinding, SkPathFillType::kEvenOdd };
     PathOpsThreadState& state = *data;

@@ -18,7 +18,6 @@
 #include <vector>
 
 class SkPDFDocument;
-class SkStrike;
 class SkString;
 
 /** \class SkPDFFont

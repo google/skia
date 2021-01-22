@@ -8,6 +8,7 @@
 #ifndef SkImageFilterTypes_DEFINED
 #define SkImageFilterTypes_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 
@@ -406,7 +407,8 @@ public:
             , fParamToLayerMatrix(paramToLayer) {}
 
     // Make the default decomposition Mapping, given the total CTM and the root image filter.
-    static Mapping Make(const SkMatrix& ctm, const SkImageFilter* filter);
+    static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
+                                const skif::ParameterSpace<SkPoint>& representativePoint);
 
     // Return a new Mapping object whose parameter-to-layer matrix is equal to this->layerMatrix() *
     // local, but both share the same layer-to-device matrix.
@@ -518,6 +520,9 @@ public:
     FilterResult(sk_sp<SkSpecialImage> image, const LayerSpace<SkIPoint>& origin)
             : fImage(std::move(image))
             , fOrigin(origin) {}
+    explicit FilterResult(sk_sp<SkSpecialImage> image)
+            : fImage(std::move(image))
+            , fOrigin{{0, 0}} {}
 
     // Allow explicit moves/copies in order to cast from one use type to another, except kInput0
     // and kInput1 can only be cast to kOutput (e.g. as part of a noop image filter).

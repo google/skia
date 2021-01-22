@@ -6,9 +6,9 @@ REG_FIDDLE(Path_getFillType, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
     SkDebugf("default path fill type is %s\n",
-            path.getNewFillType() == SkPathFillType::kWinding ? "kWinding" :
-            path.getNewFillType() == SkPathFillType::kEvenOdd ? "kEvenOdd" :
-            path.getNewFillType() == SkPathFillType::kInverseWinding ? "kInverseWinding" :
+            path.getFillType() == SkPathFillType::kWinding ? "kWinding" :
+            path.getFillType() == SkPathFillType::kEvenOdd ? "kEvenOdd" :
+            path.getFillType() == SkPathFillType::kInverseWinding ? "kInverseWinding" :
                                                                     "kInverseEvenOdd");
 }
 }  // END FIDDLE

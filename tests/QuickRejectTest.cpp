@@ -82,7 +82,7 @@ static void test_quick_reject(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, true == canvas.quickReject(r9));
     REPORTER_ASSERT(reporter, true == canvas.quickReject(r10));
 
-    SkMatrix m = SkMatrix::MakeScale(2.0f);
+    SkMatrix m = SkMatrix::Scale(2, 2);
     m.setTranslateX(10.0f);
     m.setTranslateY(10.0f);
     canvas.setMatrix(m);

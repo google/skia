@@ -22,12 +22,14 @@ public:
     ~SkSurface_Gpu() override;
 
     // This is an internal-only factory
-    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrContext*,
+    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrRecordingContext*,
                                                     std::unique_ptr<GrRenderTargetContext>);
+
+    GrRecordingContext* onGetRecordingContext() override;
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
     GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
-    bool onReplaceBackendTexture(const GrBackendTexture&, GrSurfaceOrigin, TextureReleaseProc,
+    bool onReplaceBackendTexture(const GrBackendTexture&, GrSurfaceOrigin, ContentChangeMode, TextureReleaseProc,
                                  ReleaseContext) override;
 
     SkCanvas* onNewCanvas() override;
@@ -49,19 +51,21 @@ public:
 
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
-    GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info) override;
-    bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
+    GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
+                                  const GrBackendSurfaceMutableState*) override;
+    bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+                 bool deleteSemaphoresAfterWait) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool onIsCompatible(const SkSurfaceCharacterization&) const override;
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
-    bool onDraw(const SkDeferredDisplayList*) override;
+    bool onDraw(sk_sp<const SkDeferredDisplayList>, int xOffset, int yOffset) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
 private:
     sk_sp<SkGpuDevice> fDevice;
 
-    typedef SkSurface_Base INHERITED;
+    using INHERITED = SkSurface_Base;
 };
 
 #endif // SK_SUPPORT_GPU

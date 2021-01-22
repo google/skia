@@ -29,6 +29,8 @@ class GrCoverageCountingPathRenderer : public GrPathRenderer, public GrOnFlushCa
 public:
     using CoverageType = GrCCAtlas::CoverageType;
 
+    const char* name() const final { return "CCPR"; }
+
     static bool IsSupported(const GrCaps&, CoverageType* = nullptr);
 
     enum class AllowCaching : bool {
@@ -61,13 +63,12 @@ public:
     }
 
     std::unique_ptr<GrFragmentProcessor> makeClipProcessor(
-            uint32_t oplistID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
-            const GrCaps&);
+            std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
+            const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps);
 
     // GrOnFlushCallbackObject overrides.
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
-                  int numOpsTaskIDs) override;
-    void postFlush(GrDeferredUploadToken, const uint32_t* opsTaskIDs, int numOpsTaskIDs) override;
+    void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
+    void postFlush(GrDeferredUploadToken, SkSpan<const uint32_t> taskIDs) override;
 
     void purgeCacheEntriesOlderThan(GrProxyProvider*, const GrStdSteadyClock::time_point&);
 
@@ -81,6 +82,8 @@ public:
     // than this will be converted to fill paths and drawn by the CCPR filler instead.
     static constexpr float kMaxBoundsInflationFromStroke = 4096;
 
+    static constexpr int kDoCopiesThreshold = 100;
+
     static float GetStrokeDevWidth(const SkMatrix&, const SkStrokeRec&,
                                    float* inflationRadius = nullptr);
 
@@ -88,14 +91,14 @@ private:
     GrCoverageCountingPathRenderer(CoverageType, AllowCaching, uint32_t contextUniqueID);
 
     // GrPathRenderer overrides.
-    StencilSupport onGetStencilSupport(const GrShape&) const override {
+    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
     bool onDrawPath(const DrawPathArgs&) override;
 
     GrCCPerOpsTaskPaths* lookupPendingPaths(uint32_t opsTaskID);
-    void recordOp(std::unique_ptr<GrCCDrawPathsOp>, const DrawPathArgs&);
+    void recordOp(GrOp::Owner, const DrawPathArgs&);
 
     const CoverageType fCoverageType;
 

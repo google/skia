@@ -93,10 +93,10 @@ private:
     static constexpr int kWidth = 275;
     static constexpr int kHeight = 200;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new TextBlobBlockReordering;)
-}
+}  // namespace skiagm

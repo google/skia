@@ -1,0 +1,32 @@
+
+void main() {
+    bool4 v = bool4(sqrt(1) == 1);
+    bool4 result;
+    result = bool4(v.x, true, true, true);
+    result = bool4(v.xy, false, true);
+    result = bool4(v.x1, true, false);
+    result = bool4(v.0y, true, true);
+    result = bool4(v.xyz, true);
+    result = bool4(v.xy1, true);
+    result = bool4(v.x0z, true);
+    result = bool4(v.x10, false);
+    result = bool4(v.1yz, false);
+    result = bool4(v.0y1, false);
+    result = bool4(v.11z, false);
+    result = v.xyzw;
+    result = v.xyz1;
+    result = v.xy0w;
+    result = v.xy10;
+    result = v.x1zw;
+    result = v.x0z1;
+    result = v.x11w;
+    result = v.x101;
+    result = v.1yzw;
+    result = v.0yz1;
+    result = v.0y1w;
+    result = v.1y11;
+    result = v.00zw;
+    result = v.00z1;
+    result = v.011w;
+    sk_FragColor = any(result) ? half4(1) : half4(0);
+}

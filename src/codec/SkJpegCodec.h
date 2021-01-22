@@ -44,10 +44,10 @@ protected:
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             int*) override;
 
-    bool onQueryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
+    bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
+                         SkYUVAPixmapInfo*) const override;
 
-    Result onGetYUV8Planes(const SkYUVASizeInfo& sizeInfo,
-                           void* planes[SkYUVASizeInfo::kMaxCount]) override;
+    Result onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kJPEG;
@@ -106,7 +106,7 @@ private:
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
                             bool needsCMYKToRGB);
-    void allocateStorage(const SkImageInfo& dstInfo);
+    bool SK_WARN_UNUSED_RESULT allocateStorage(const SkImageInfo& dstInfo);
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, const Options&);
 
     /*
@@ -138,7 +138,7 @@ private:
 
     friend class SkRawCodec;
 
-    typedef SkCodec INHERITED;
+    using INHERITED = SkCodec;
 };
 
 #endif

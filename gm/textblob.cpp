@@ -76,7 +76,7 @@ const struct BlobCfg {
 };
 
 const SkScalar kFontSize = 16;
-}
+}  // namespace
 
 class TextBlobGM : public skiagm::GM {
 public:
@@ -197,7 +197,7 @@ private:
     SkTDArray<uint16_t> fGlyphs;
     sk_sp<SkTypeface>   fTypeface;
     const char*         fText;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new TextBlobGM("hamburgefons");)

@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkShaderMaskFilter.h"
+#include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/utils/SkJSON.h"
@@ -45,33 +45,43 @@ protected:
 
         if (fCompletion <= 0) {
             fMaskSigma  = 0;
-            fMaskFilter = nullptr;
+            fMaskShader = nullptr;
         } else {
-            static constexpr float kFeatherToSigma = 0.3f; // close enough to AE
-            fMaskSigma = std::max(fFeather, 0.0f) * kFeatherToSigma;
+            fMaskSigma = std::max(fFeather, 0.0f) * kBlurSizeToSigma;
 
-            // The gradient is inverted between non-blurred and blurred (latter requires dstOut).
-            const SkColor c0 = fMaskSigma > 0 ? 0xffffffff : 0x00000000,
-                          c1 = 0xffffffff - c0;
-            auto t = fCompletion * 0.01f;
+            const auto t = fCompletion * 0.01f;
 
-            const SkColor grad_colors[] = { c0, c1 };
-            const SkScalar   grad_pos[] = {  t,  t };
+            // Note: this could be simplified as a one-hard-stop gradient + local matrix
+            // (to apply rotation).  Alas, local matrices are no longer supported in SkSG.
+            SkColor c0 = 0x00000000,
+                    c1 = 0xffffffff;
+            auto sanitize_angle = [](float a) {
+                a = std::fmod(a, 360);
+                if (a < 0) {
+                    a += 360;
+                }
+                return a;
+            };
 
-            SkMatrix lm;
-            lm.setRotate(fStartAngle - 90 + t * this->wipeAlignment(),
-                         fWipeCenter.x(), fWipeCenter.y());
+            auto a0 = sanitize_angle(fStartAngle - 90 + t * this->wipeAlignment()),
+                 a1 = sanitize_angle(a0 + t * 360);
+            if (a0 > a1) {
+                std::swap(a0, a1);
+                std::swap(c0, c1);
+            }
 
-            fMaskFilter = SkShaderMaskFilter::Make(
-                            SkGradientShader::MakeSweep(fWipeCenter.x(), fWipeCenter.y(),
-                                                        grad_colors, grad_pos,
-                                                        SK_ARRAY_COUNT(grad_colors), 0, &lm));
+            const SkColor grad_colors[] = { c1, c0, c0, c1 };
+            const SkScalar   grad_pos[] = {  0,  0,  1,  1 };
+
+            fMaskShader = SkGradientShader::MakeSweep(fWipeCenter.x(), fWipeCenter.y(),
+                                                      grad_colors, grad_pos,
+                                                      SK_ARRAY_COUNT(grad_colors),
+                                                      SkTileMode::kClamp,
+                                                      a0, a1, 0, nullptr);
 
             // Edge feather requires a real blur.
             if (fMaskSigma > 0) {
-                fMaskFilter = SkMaskFilter::MakeCompose(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
-                                                                               fMaskSigma),
-                                                        std::move(fMaskFilter));
+                // TODO: this feature is disabled ATM.
             }
         }
 
@@ -84,27 +94,9 @@ protected:
             return;
         }
 
-        if (!fMaskSigma) {
-            // No mask filter, or a shader-only mask filter: we can draw the content directly.
-            const auto local_ctx = ScopedRenderContext(canvas, ctx)
-                                        .modulateMaskFilter(fMaskFilter, canvas->getTotalMatrix());
-            this->children()[0]->render(canvas, local_ctx);
-            return;
-        }
-
-        // Blurred mask filters require a separate layer.
-        SkAutoCanvasRestore acr(canvas, false);
-        canvas->saveLayer(this->bounds(), nullptr);
-
-        this->children()[0]->render(canvas, ctx);
-
-        // Outset the mask to clip-out any edge blur.
-        const auto mask_bounds = this->bounds().makeOutset(fMaskSigma * 3, fMaskSigma * 3);
-
-        SkPaint mask_paint;
-        mask_paint.setBlendMode(SkBlendMode::kDstOut);
-        mask_paint.setMaskFilter(fMaskFilter);
-        canvas->drawRect(mask_bounds, mask_paint);
+        const auto local_ctx = ScopedRenderContext(canvas, ctx)
+                                    .modulateMaskShader(fMaskShader, canvas->getTotalMatrix());
+        this->children()[0]->render(canvas, local_ctx);
     }
 
 private:
@@ -125,48 +117,62 @@ private:
             fFeather    = 0;
 
     // Cached during revalidation.
-    sk_sp<SkMaskFilter> fMaskFilter;
-    float               fMaskSigma; // edge feather/blur
+    sk_sp<SkShader> fMaskShader;
+    float           fMaskSigma; // edge feather/blur
 
     using INHERITED = sksg::CustomRenderNode;
+};
+
+class RadialWipeAdapter final : public DiscardableAdapterBase<RadialWipeAdapter, RWipeRenderNode> {
+public:
+    RadialWipeAdapter(const skjson::ArrayValue& jprops,
+                      sk_sp<sksg::RenderNode> layer,
+                      const AnimationBuilder& abuilder)
+        : INHERITED(sk_make_sp<RWipeRenderNode>(std::move(layer))) {
+
+        enum : size_t {
+            kCompletion_Index = 0,
+            kStartAngle_Index = 1,
+            kWipeCenter_Index = 2,
+                  kWipe_Index = 3,
+               kFeather_Index = 4,
+        };
+
+        EffectBinder(jprops, abuilder, this)
+            .bind(kCompletion_Index, fCompletion)
+            .bind(kStartAngle_Index, fStartAngle)
+            .bind(kWipeCenter_Index, fWipeCenter)
+            .bind(      kWipe_Index, fWipe      )
+            .bind(   kFeather_Index, fFeather   );
+    }
+
+private:
+    void onSync() override {
+        const auto& wiper = this->node();
+
+        wiper->setCompletion(fCompletion);
+        wiper->setStartAngle(fStartAngle);
+        wiper->setWipeCenter({fWipeCenter.x, fWipeCenter.y});
+        wiper->setWipe(fWipe);
+        wiper->setFeather(fFeather);
+    }
+
+    Vec2Value   fWipeCenter = {0,0};
+    ScalarValue fCompletion = 0,
+                fStartAngle = 0,
+                fWipe       = 0,
+                fFeather    = 0;
+
+    using INHERITED = DiscardableAdapterBase<RadialWipeAdapter, RWipeRenderNode>;
 };
 
 } // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachRadialWipeEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kCompletion_Index = 0,
-        kStartAngle_Index = 1,
-        kWipeCenter_Index = 2,
-        kWipe_Index       = 3,
-        kFeather_Index    = 4,
-    };
-
-    auto wiper = sk_make_sp<RWipeRenderNode>(std::move(layer));
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
-        [wiper](const ScalarValue& c) {
-            wiper->setCompletion(c);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kStartAngle_Index),
-        [wiper](const ScalarValue& sa) {
-            wiper->setStartAngle(sa);
-        });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kWipeCenter_Index),
-        [wiper](const VectorValue& c) {
-            wiper->setWipeCenter(ValueTraits<VectorValue>::As<SkPoint>(c));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kWipe_Index),
-        [wiper](const ScalarValue& w) {
-            wiper->setWipe(w);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index),
-        [wiper](const ScalarValue& f) {
-            wiper->setFeather(f);
-        });
-
-    return wiper;
+    return fBuilder->attachDiscardableAdapter<RadialWipeAdapter>(jprops,
+                                                                 std::move(layer),
+                                                                 *fBuilder);
 }
 
 } // namespace internal

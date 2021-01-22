@@ -8,6 +8,8 @@
 #ifndef SKSL_CONTEXT
 #define SKSL_CONTEXT
 
+#include <memory>
+
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -22,45 +24,41 @@ public:
     : fInvalid_Type(new Type("<INVALID>"))
     , fVoid_Type(new Type("void"))
     , fNull_Type(new Type("null"))
-    , fFloatLiteral_Type(new Type("$floatLiteral", Type::kFloat_NumberKind, 3))
-    , fIntLiteral_Type(new Type("$intLiteral", Type::kSigned_NumberKind, 1))
-    , fDouble_Type(new Type("double", Type::kFloat_NumberKind, 6, true))
-    , fDouble2_Type(new Type("double2", *fDouble_Type, 2))
-    , fDouble3_Type(new Type("double3", *fDouble_Type, 3))
-    , fDouble4_Type(new Type("double4", *fDouble_Type, 4))
-    , fFloat_Type(new Type("float", Type::kFloat_NumberKind, 5, true))
+    , fFloatLiteral_Type(new Type("$floatLiteral", Type::NumberKind::kFloat, 3))
+    , fIntLiteral_Type(new Type("$intLiteral", Type::NumberKind::kSigned, 1))
+    , fFloat_Type(new Type("float", Type::NumberKind::kFloat, 5, true))
     , fFloat2_Type(new Type("float2", *fFloat_Type, 2))
     , fFloat3_Type(new Type("float3", *fFloat_Type, 3))
     , fFloat4_Type(new Type("float4", *fFloat_Type, 4))
-    , fHalf_Type(new Type("half", Type::kFloat_NumberKind, 4))
+    , fHalf_Type(new Type("half", Type::NumberKind::kFloat, 4))
     , fHalf2_Type(new Type("half2", *fHalf_Type, 2))
     , fHalf3_Type(new Type("half3", *fHalf_Type, 3))
     , fHalf4_Type(new Type("half4", *fHalf_Type, 4))
-    , fUInt_Type(new Type("uint", Type::kUnsigned_NumberKind, 2, true))
+    , fUInt_Type(new Type("uint", Type::NumberKind::kUnsigned, 2, true))
     , fUInt2_Type(new Type("uint2", *fUInt_Type, 2))
     , fUInt3_Type(new Type("uint3", *fUInt_Type, 3))
     , fUInt4_Type(new Type("uint4", *fUInt_Type, 4))
-    , fInt_Type(new Type("int", Type::kSigned_NumberKind, 2, true))
+    , fInt_Type(new Type("int", Type::NumberKind::kSigned, 2, true))
     , fInt2_Type(new Type("int2", *fInt_Type, 2))
     , fInt3_Type(new Type("int3", *fInt_Type, 3))
     , fInt4_Type(new Type("int4", *fInt_Type, 4))
-    , fUShort_Type(new Type("ushort", Type::kUnsigned_NumberKind, 0))
+    , fUShort_Type(new Type("ushort", Type::NumberKind::kUnsigned, 0))
     , fUShort2_Type(new Type("ushort2", *fUShort_Type, 2))
     , fUShort3_Type(new Type("ushort3", *fUShort_Type, 3))
     , fUShort4_Type(new Type("ushort4", *fUShort_Type, 4))
-    , fShort_Type(new Type("short", Type::kSigned_NumberKind, 0))
+    , fShort_Type(new Type("short", Type::NumberKind::kSigned, 0))
     , fShort2_Type(new Type("short2", *fShort_Type, 2))
     , fShort3_Type(new Type("short3", *fShort_Type, 3))
     , fShort4_Type(new Type("short4", *fShort_Type, 4))
-    , fUByte_Type(new Type("ubyte", Type::kUnsigned_NumberKind, 0))
+    , fUByte_Type(new Type("ubyte", Type::NumberKind::kUnsigned, 0))
     , fUByte2_Type(new Type("ubyte2", *fUByte_Type, 2))
     , fUByte3_Type(new Type("ubyte3", *fUByte_Type, 3))
     , fUByte4_Type(new Type("ubyte4", *fUByte_Type, 4))
-    , fByte_Type(new Type("byte", Type::kSigned_NumberKind, 0))
+    , fByte_Type(new Type("byte", Type::NumberKind::kSigned, 0))
     , fByte2_Type(new Type("byte2", *fByte_Type, 2))
     , fByte3_Type(new Type("byte3", *fByte_Type, 3))
     , fByte4_Type(new Type("byte4", *fByte_Type, 4))
-    , fBool_Type(new Type("bool", Type::kNonnumeric_NumberKind, -1))
+    , fBool_Type(new Type("bool", Type::NumberKind::kNonnumeric, -1))
     , fBool2_Type(new Type("bool2", *fBool_Type, 2))
     , fBool3_Type(new Type("bool3", *fBool_Type, 3))
     , fBool4_Type(new Type("bool4", *fBool_Type, 4))
@@ -82,15 +80,6 @@ public:
     , fHalf4x2_Type(new Type("half4x2", *fHalf_Type, 4, 2))
     , fHalf4x3_Type(new Type("half4x3", *fHalf_Type, 4, 3))
     , fHalf4x4_Type(new Type("half4x4", *fHalf_Type, 4, 4))
-    , fDouble2x2_Type(new Type("double2x2", *fDouble_Type, 2, 2))
-    , fDouble2x3_Type(new Type("double2x3", *fDouble_Type, 2, 3))
-    , fDouble2x4_Type(new Type("double2x4", *fDouble_Type, 2, 4))
-    , fDouble3x2_Type(new Type("double3x2", *fDouble_Type, 3, 2))
-    , fDouble3x3_Type(new Type("double3x3", *fDouble_Type, 3, 3))
-    , fDouble3x4_Type(new Type("double3x4", *fDouble_Type, 3, 4))
-    , fDouble4x2_Type(new Type("double4x2", *fDouble_Type, 4, 2))
-    , fDouble4x3_Type(new Type("double4x3", *fDouble_Type, 4, 3))
-    , fDouble4x4_Type(new Type("double4x4", *fDouble_Type, 4, 4))
     , fTexture1D_Type(new Type("texture1D", SpvDim1D, false, false, false, true))
     , fTexture2D_Type(new Type("texture2D", SpvDim2D, false, false, false, true))
     , fTexture3D_Type(new Type("texture3D", SpvDim3D, false, false, false, true))
@@ -122,7 +111,7 @@ public:
     // Related to below FIXME, gsampler*s don't currently expand to cover integer case.
     , fISampler2D_Type(new Type("isampler2D", *fITexture2D_Type))
 
-    , fSampler_Type(new Type("sampler", Type::kSeparateSampler_Kind))
+    , fSampler_Type(new Type("sampler", Type::TypeKind::kSeparateSampler))
     // FIXME express these as "gimage2D" that expand to image2D, iimage2D, and uimage2D.
     , fImage2D_Type(new Type("image2D", SpvDim2D, false, false, false, true))
     , fIImage2D_Type(new Type("iimage2D", SpvDim2D, false, false, false, true))
@@ -158,8 +147,6 @@ public:
                                            fFloat3_Type.get(), fFloat4_Type.get() }))
     , fGenHType_Type(new Type("$genHType", { fHalf_Type.get(), fHalf2_Type.get(),
                                              fHalf3_Type.get(), fHalf4_Type.get() }))
-    , fGenDType_Type(new Type("$genDType", { fDouble_Type.get(), fDouble2_Type.get(),
-                                             fDouble3_Type.get(), fDouble4_Type.get() }))
     , fGenIType_Type(new Type("$genIType", { fInt_Type.get(), fInt2_Type.get(),
                                              fInt3_Type.get(), fInt4_Type.get() }))
     , fGenUType_Type(new Type("$genUType", { fUInt_Type.get(), fUInt2_Type.get(),
@@ -174,22 +161,15 @@ public:
                                    fHalf2x3_Type.get(),   fHalf2x4_Type.get(),
                                    fHalf3x2_Type.get(),   fHalf3x3_Type.get(),
                                    fHalf3x4_Type.get(),   fHalf4x2_Type.get(),
-                                   fHalf4x3_Type.get(),   fHalf4x4_Type.get(),
-                                   fDouble2x2_Type.get(), fDouble2x3_Type.get(),
-                                   fDouble2x4_Type.get(), fDouble3x2_Type.get(),
-                                   fDouble3x3_Type.get(), fDouble3x4_Type.get(),
-                                   fDouble4x2_Type.get(), fDouble4x3_Type.get(),
-                                   fDouble4x4_Type.get() }))
+                                   fHalf4x3_Type.get(),   fHalf4x4_Type.get() }))
     , fVec_Type(new Type("$vec", { fInvalid_Type.get(), fFloat2_Type.get(),
-                                           fFloat3_Type.get(), fFloat4_Type.get() }))
+                                   fFloat3_Type.get(), fFloat4_Type.get() }))
     , fGVec_Type(new Type("$gvec"))
     , fGVec2_Type(new Type("$gfloat2"))
     , fGVec3_Type(new Type("$gfloat3"))
     , fGVec4_Type(new Type("$gfloat4", static_type(*fFloat4_Type)))
     , fHVec_Type(new Type("$hvec", { fInvalid_Type.get(), fHalf2_Type.get(),
                                      fHalf3_Type.get(), fHalf4_Type.get() }))
-    , fDVec_Type(new Type("$dvec", { fInvalid_Type.get(), fDouble2_Type.get(),
-                                     fDouble3_Type.get(), fDouble4_Type.get() }))
     , fIVec_Type(new Type("$ivec", { fInvalid_Type.get(), fInt2_Type.get(),
                                      fInt3_Type.get(), fInt4_Type.get() }))
     , fUVec_Type(new Type("$uvec", { fInvalid_Type.get(), fUInt2_Type.get(),
@@ -205,9 +185,8 @@ public:
     , fBVec_Type(new Type("$bvec", { fInvalid_Type.get(), fBool2_Type.get(),
                                      fBool3_Type.get(), fBool4_Type.get() }))
     , fSkCaps_Type(new Type("$sk_Caps"))
-    , fSkArgs_Type(new Type("$sk_Args"))
     , fFragmentProcessor_Type(fp_type(fInt_Type.get(), fBool_Type.get()))
-    , fDefined_Expression(new Defined(*fInvalid_Type)) {}
+    , fDefined_Expression(new Defined(fInvalid_Type.get())) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
         return { &t, &t, &t, &t };
@@ -218,11 +197,6 @@ public:
     const std::unique_ptr<Type> fNull_Type;
     const std::unique_ptr<Type> fFloatLiteral_Type;
     const std::unique_ptr<Type> fIntLiteral_Type;
-
-    const std::unique_ptr<Type> fDouble_Type;
-    const std::unique_ptr<Type> fDouble2_Type;
-    const std::unique_ptr<Type> fDouble3_Type;
-    const std::unique_ptr<Type> fDouble4_Type;
 
     const std::unique_ptr<Type> fFloat_Type;
     const std::unique_ptr<Type> fFloat2_Type;
@@ -289,16 +263,6 @@ public:
     const std::unique_ptr<Type> fHalf4x3_Type;
     const std::unique_ptr<Type> fHalf4x4_Type;
 
-    const std::unique_ptr<Type> fDouble2x2_Type;
-    const std::unique_ptr<Type> fDouble2x3_Type;
-    const std::unique_ptr<Type> fDouble2x4_Type;
-    const std::unique_ptr<Type> fDouble3x2_Type;
-    const std::unique_ptr<Type> fDouble3x3_Type;
-    const std::unique_ptr<Type> fDouble3x4_Type;
-    const std::unique_ptr<Type> fDouble4x2_Type;
-    const std::unique_ptr<Type> fDouble4x3_Type;
-    const std::unique_ptr<Type> fDouble4x4_Type;
-
     const std::unique_ptr<Type> fTexture1D_Type;
     const std::unique_ptr<Type> fTexture2D_Type;
     const std::unique_ptr<Type> fTexture3D_Type;
@@ -353,7 +317,6 @@ public:
 
     const std::unique_ptr<Type> fGenType_Type;
     const std::unique_ptr<Type> fGenHType_Type;
-    const std::unique_ptr<Type> fGenDType_Type;
     const std::unique_ptr<Type> fGenIType_Type;
     const std::unique_ptr<Type> fGenUType_Type;
     const std::unique_ptr<Type> fGenBType_Type;
@@ -378,21 +341,22 @@ public:
     const std::unique_ptr<Type> fBVec_Type;
 
     const std::unique_ptr<Type> fSkCaps_Type;
-    const std::unique_ptr<Type> fSkArgs_Type;
     const std::unique_ptr<Type> fFragmentProcessor_Type;
 
-    // dummy expression used to mark that a variable has a value during dataflow analysis (when it
-    // could have several different values, or the analyzer is otherwise unable to assign it a
+    // sentinel expression used to mark that a variable has a value during dataflow analysis (when
+    // it could have several different values, or the analyzer is otherwise unable to assign it a
     // specific expression)
     const std::unique_ptr<Expression> fDefined_Expression;
 
 private:
-    class Defined : public Expression {
+    class Defined final : public Expression {
     public:
-        Defined(const Type& type)
-        : INHERITED(-1, kDefined_Kind, type) {}
+        static constexpr Kind kExpressionKind = Kind::kDefined;
 
-        bool hasSideEffects() const override {
+        Defined(const Type* type)
+        : INHERITED(-1, kExpressionKind, type) {}
+
+        bool hasProperty(Property property) const override {
             return false;
         }
 
@@ -401,10 +365,10 @@ private:
         }
 
         std::unique_ptr<Expression> clone() const override {
-            return std::unique_ptr<Expression>(new Defined(fType));
+            return std::unique_ptr<Expression>(new Defined(&this->type()));
         }
 
-        typedef Expression INHERITED;
+        using INHERITED = Expression;
     };
 
     static std::unique_ptr<Type> fp_type(const Type* intType, const Type* boolType) {
@@ -413,17 +377,16 @@ private:
         Modifiers mods(Layout(), Modifiers::kConst_Flag);
         std::vector<Type::Field> fields = {
             Type::Field(mods, "numTextureSamplers", intType),
-            Type::Field(mods, "numCoordTransforms", intType),
             Type::Field(mods, "numChildProcessors", intType),
             Type::Field(mods, "usesLocalCoords", boolType),
             Type::Field(mods, "compatibleWithCoverageAsAlpha", boolType),
             Type::Field(mods, "preservesOpaqueInput", boolType),
             Type::Field(mods, "hasConstantOutputForConstantInput", boolType)
         };
-        return std::unique_ptr<Type>(new Type("fragmentProcessor", fields));
+        return std::make_unique<Type>("fragmentProcessor", fields);
     }
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

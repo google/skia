@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
@@ -64,10 +65,31 @@ public:
 private:
     explicit MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer>, bool predecode);
 
+    sk_sp<SkImage> generateFrame(float t);
+
     std::unique_ptr<SkAnimCodecPlayer> fPlayer;
+    sk_sp<SkImage>                     fCachedFrame;
     bool                               fPreDecode;
 
     using INHERITED = ImageAsset;
+};
+
+/**
+ * External track (e.g. audio playback) interface.
+ *
+ * Used to wrap data payload and playback controllers.
+ */
+class ExternalTrackAsset : public SkRefCnt {
+public:
+    /**
+     * Playback control callback, emitted for each corresponding Animation::seek().
+     *
+     * @param t  Frame time code, in seconds, relative to the layer's timeline origin
+     *           (in-point).
+     *
+     * Negative |t| values are used to signal off state (stop playback outside layer span).
+     */
+    virtual void seek(float t) = 0;
 };
 
 /**
@@ -96,6 +118,17 @@ public:
     }
 
     /**
+     * Load an external audio track specified by |path|/|name|/|id|.
+     */
+    virtual sk_sp<ExternalTrackAsset> loadAudioAsset(const char[] /* resource_path */,
+                                                     const char[] /* resource_name */,
+                                                     const char[] /* resource_id   */) {
+        return nullptr;
+    }
+
+    /**
+     * DEPRECATED: implement loadTypeface() instead.
+     *
      * Load an external font and return as SkData.
      *
      * @param name  font name    ("fName" Lottie property)
@@ -110,6 +143,17 @@ public:
      */
     virtual sk_sp<SkData> loadFont(const char[] /* name */,
                                    const char[] /* url  */) const {
+        return nullptr;
+    }
+
+    /**
+     * Load an external font and return as SkTypeface.
+     *
+     * @param name  font name
+     * @param url   web font URL
+     */
+    virtual sk_sp<SkTypeface> loadTypeface(const char[] /* name */,
+                                           const char[] /* url  */) const {
         return nullptr;
     }
 };
@@ -137,6 +181,7 @@ protected:
 
     sk_sp<SkData> load(const char[], const char[]) const override;
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
+    sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override;
     sk_sp<SkData> loadFont(const char[], const char[]) const override;
 
 private:
@@ -170,6 +215,7 @@ private:
     DataURIResourceProviderProxy(sk_sp<ResourceProvider>, bool);
 
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
+    sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override;
 
     const bool fPredecode;
 

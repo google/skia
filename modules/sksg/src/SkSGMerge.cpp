@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/pathops/SkPathOps.h"
+#include "src/core/SkPathPriv.h"
 
 namespace sksg {
 
@@ -68,17 +69,26 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     fMerged.reset();
     bool in_builder = false;
 
+    auto append = [&](const SkPath& path) {
+        if (in_builder) {
+            builder.resolve(&fMerged);
+            in_builder = false;
+        }
+
+        if (fMerged.isEmpty()) {
+            // First merge path determines the fill type.
+            fMerged = path;
+        } else {
+            fMerged.addPath(path);
+        }
+    };
+
     for (const auto& rec : fRecs) {
         rec.fGeo->revalidate(ic, ctm);
 
-        // Merge is not currently supported by SkOpBuidler.
         if (rec.fMode == Mode::kMerge) {
-            if (in_builder) {
-                builder.resolve(&fMerged);
-                in_builder = false;
-            }
-
-            fMerged.addPath(rec.fGeo->asPath());
+            // Merge (append) is not supported by SkOpBuidler.
+            append(rec.fGeo->asPath());
             continue;
         }
 
@@ -94,7 +104,7 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
         builder.resolve(&fMerged);
     }
 
-    fMerged.shrinkToFit();
+    SkPathPriv::ShrinkToFit(&fMerged);
 
     return fMerged.computeTightBounds();
 }

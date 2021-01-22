@@ -8,10 +8,10 @@
 #include "bench/Benchmark.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/gpu/GrContext.h"
-#include "include/gpu/GrGpuResource.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrResourceCache.h"
 
@@ -37,7 +37,7 @@ public:
 private:
     size_t onGpuMemorySize() const override { return 100; }
     const char* getResourceType() const override { return "bench"; }
-    typedef GrGpuResource INHERITED;
+    using INHERITED = GrGpuResource;
 };
 
 static void populate_cache(GrGpu* gpu, int resourceCount, int keyData32Count) {
@@ -69,7 +69,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        sk_sp<GrContext> context(GrContext::MakeMock(nullptr));
+        sk_sp<GrDirectContext> context(GrDirectContext::MakeMock(nullptr));
         if (nullptr == context) {
             return;
         }
@@ -93,7 +93,7 @@ protected:
 private:
     SkString fFullName;
     int fKeyData32Count;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class GrResourceCacheBenchFind : public Benchmark {
@@ -115,7 +115,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        fContext = GrContext::MakeMock(nullptr);
+        fContext = GrDirectContext::MakeMock(nullptr);
         if (!fContext) {
             return;
         }
@@ -150,10 +150,10 @@ protected:
     }
 
 private:
-    sk_sp<GrContext> fContext;
+    sk_sp<GrDirectContext> fContext;
     SkString fFullName;
     int fKeyData32Count;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new GrResourceCacheBenchAdd(1); )

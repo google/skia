@@ -85,7 +85,7 @@ DEF_GPUTEST(VulkanPriorityExtension, reporter, options) {
         apiVersion = VK_MAKE_VERSION(1, 1, 0);
     }
 
-    instanceVersion = SkTMin(instanceVersion, apiVersion);
+    instanceVersion = std::min(instanceVersion, apiVersion);
 
     VkPhysicalDevice physDev;
     VkDevice device;

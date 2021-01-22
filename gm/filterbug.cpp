@@ -22,7 +22,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 
-static const sk_sp<SkImage> make_image(int firstBlackRow, int lastBlackRow) {
+static sk_sp<SkImage> make_image(int firstBlackRow, int lastBlackRow) {
     static const int kWidth = 25;
     static const int kHeight = 27;
 
@@ -103,7 +103,7 @@ private:
     sk_sp<SkImage> fTop;
     sk_sp<SkImage> fBot;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

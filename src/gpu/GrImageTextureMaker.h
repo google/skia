@@ -10,66 +10,52 @@
 
 #include "include/core/SkImage.h"
 #include "src/gpu/GrTextureMaker.h"
+#include "src/gpu/SkGr.h"
 
 class SkImage_Lazy;
 class SkImage_GpuYUVA;
 
 /** This class manages the conversion of generator-backed images to GrTextures. If the caching hint
     is kAllow the image's ID is used for the cache key. */
-class GrImageTextureMaker : public GrTextureMaker {
+class GrImageTextureMaker final : public GrTextureMaker {
 public:
-    GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
-                        SkImage::CachingHint chint, bool useDecal = false);
-
-protected:
-    // TODO: consider overriding this, for the case where the underlying generator might be
-    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //          GrTexture* generateTextureForParams(const CopyParams&) override;
-    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  AllowedTexGenType onlyIfFast) override;
-
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
+    GrImageTextureMaker(GrRecordingContext*, const SkImage* client, GrImageTexGenPolicy);
 
 private:
-    const SkImage_Lazy*     fImage;
-    GrUniqueKey             fOriginalKey;
-    SkImage::CachingHint    fCachingHint;
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) override;
 
-    typedef GrTextureMaker INHERITED;
+    const SkImage_Lazy*     fImage;
+    GrImageTexGenPolicy     fTexGenPolicy;
+
+    using INHERITED = GrTextureMaker;
 };
 
 /** This class manages the conversion of generator-backed YUVA images to GrTextures. */
-class GrYUVAImageTextureMaker : public GrTextureMaker {
+class GrYUVAImageTextureMaker final : public GrTextureMaker {
 public:
-    GrYUVAImageTextureMaker(GrContext* context, const SkImage* client, bool useDecal = false);
+    GrYUVAImageTextureMaker(GrRecordingContext* context, const SkImage* client);
 
-    // This could be made more nuanced and compare all of the texture proxy resolutions, but
-    // it's probably not worth the effort.
-    bool hasMixedResolutions() const override { return true; }
-protected:
-    // TODO: consider overriding this, for the case where the underlying generator might be
-    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //          GrTexture* generateTextureForParams(const CopyParams&) override;
-    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  AllowedTexGenType onlyIfFast) override;
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(const SkMatrix& textureMatrix,
+                                                                 const SkRect* subset,
+                                                                 const SkRect* domain,
+                                                                 GrSamplerState) override;
 
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
+    std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
+            SkImage::CubicResampler) override;
 
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
-        const SkMatrix& textureMatrix,
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        const GrSamplerState::Filter* filterOrNullForBicubic) override;
+    bool isPlanar() const override { return true; }
 
 private:
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) override;
+
     const SkImage_GpuYUVA*  fImage;
-    GrUniqueKey             fOriginalKey;
 
-    typedef GrTextureMaker INHERITED;
+    using INHERITED = GrTextureMaker;
 };
-
 
 #endif

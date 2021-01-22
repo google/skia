@@ -8,9 +8,9 @@
 #ifndef GrCCStroker_DEFINED
 #define GrCCStroker_DEFINED
 
+#include "include/private/GrTypesPriv.h"
 #include "include/private/SkNx.h"
-#include "src/gpu/GrAllocator.h"
-#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/ccpr/GrCCStrokeGeometry.h"
 
 class GrGpuBuffer;
@@ -63,6 +63,7 @@ private:
     static constexpr BatchID kEmptyBatchID = -1;
     using Verb = GrCCStrokeGeometry::Verb;
     using InstanceTallies = GrCCStrokeGeometry::InstanceTallies;
+    using InstanceTalliesAllocator = GrTBlockList<InstanceTallies, 128>;
 
     // Every kBeginPath verb has a corresponding PathInfo entry.
     struct PathInfo {
@@ -74,7 +75,7 @@ private:
     // Defines a sub-batch of stroke instances that have a scissor test and the same scissor rect.
     // Start indices are deduced by looking at the previous ScissorSubBatch.
     struct ScissorSubBatch {
-        ScissorSubBatch(GrTAllocator<InstanceTallies>* alloc, const InstanceTallies& startIndices,
+        ScissorSubBatch(InstanceTalliesAllocator* alloc, const InstanceTallies& startIndices,
                         const SkIRect& scissor)
                 : fEndInstances(&alloc->emplace_back(startIndices)), fScissor(scissor) {}
         InstanceTallies* fEndInstances;
@@ -84,7 +85,7 @@ private:
     // Defines a batch of stroke instances that can be drawn with drawStrokes(). Start indices are
     // deduced by looking at the previous Batch in the list.
     struct Batch {
-        Batch(GrTAllocator<InstanceTallies>* alloc, const InstanceTallies& startNonScissorIndices,
+        Batch(InstanceTalliesAllocator* alloc, const InstanceTallies& startNonScissorIndices,
               int startScissorSubBatch)
                 : fNonScissorEndInstances(&alloc->emplace_back(startNonScissorIndices))
                 , fEndScissorSubBatch(startScissorSubBatch) {}
@@ -94,11 +95,10 @@ private:
 
     class InstanceBufferBuilder;
 
-    void appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch&,
-                                     const InstanceTallies* startIndices[2],
-                                     int startScissorSubBatch, const SkIRect& drawBounds) const;
-    void flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor&, GrOpFlushState*,
-                                      const GrPipeline&, const SkIRect& drawBounds) const;
+    // Draws a batch of strokes by chopping them into "2^numSegmentsLog2" linear segments each.
+    void drawLog2Strokes(int numSegmentsLog2, GrOpFlushState*, const GrPrimitiveProcessor&,
+                         const GrPipeline&, const Batch&, const InstanceTallies* startIndices[2],
+                         int startScissorSubBatch, const SkIRect& drawBounds) const;
 
     template<int GrCCStrokeGeometry::InstanceTallies::* InstanceType>
     void drawConnectingGeometry(GrOpFlushState*, const GrPipeline&,
@@ -114,15 +114,12 @@ private:
     bool fHasOpenBatch = false;
 
     const InstanceTallies fZeroTallies = InstanceTallies();
-    GrSTAllocator<128, InstanceTallies> fTalliesAllocator;
+    InstanceTalliesAllocator fTalliesAllocator;
     const InstanceTallies* fInstanceCounts[kNumScissorModes] = {&fZeroTallies, &fZeroTallies};
 
-    sk_sp<GrGpuBuffer> fInstanceBuffer;
+    sk_sp<const GrGpuBuffer> fInstanceBuffer;
     // The indices stored in batches are relative to these base instances.
     InstanceTallies fBaseInstances[kNumScissorModes];
-
-    mutable SkSTArray<32, GrMesh> fMeshesBuffer;
-    mutable SkSTArray<32, SkIRect> fScissorsBuffer;
 };
 
 #endif

@@ -218,9 +218,7 @@ protected:
         this->build_rgn(&rgn, op);
 
         {
-            SkRegion tmp, tmp2(rgn);
-
-            tmp = tmp2;
+            SkRegion tmp = rgn;
             tmp.translate(5, -3);
 
             {
@@ -326,8 +324,7 @@ protected:
         }
     }
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              skui::ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }
@@ -341,7 +338,7 @@ protected:
 private:
     SkIRect    fBase, fRect;
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

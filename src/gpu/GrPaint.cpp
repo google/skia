@@ -9,21 +9,19 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 GrPaint::GrPaint(const GrPaint& that)
         : fXPFactory(that.fXPFactory)
-        , fColorFragmentProcessors(that.fColorFragmentProcessors.count())
-        , fCoverageFragmentProcessors(that.fCoverageFragmentProcessors.count())
         , fTrivial(that.fTrivial)
         , fColor(that.fColor) {
-    for (int i = 0; i < that.fColorFragmentProcessors.count(); ++i) {
-        fColorFragmentProcessors.push_back(that.fColorFragmentProcessors[i]->clone());
-        SkASSERT(fColorFragmentProcessors[i]);
+    if (that.fColorFragmentProcessor) {
+        fColorFragmentProcessor = that.fColorFragmentProcessor->clone();
+        SkASSERT(fColorFragmentProcessor);
     }
-    for (int i = 0; i < that.fCoverageFragmentProcessors.count(); ++i) {
-        fCoverageFragmentProcessors.push_back(that.fCoverageFragmentProcessors[i]->clone());
-        SkASSERT(fCoverageFragmentProcessors[i]);
+    if (that.fCoverageFragmentProcessor) {
+        fCoverageFragmentProcessor = that.fCoverageFragmentProcessor->clone();
+        SkASSERT(fCoverageFragmentProcessor);
     }
 }
 
@@ -35,12 +33,6 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
     this->setXPFactory(GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage));
 }
 
-void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, SkAlphaType alphaType,
-                                       const SkMatrix& matrix, const GrSamplerState& samplerState) {
-    this->addColorFragmentProcessor(
-            GrSimpleTextureEffect::Make(std::move(proxy), alphaType, matrix, samplerState));
-}
-
 bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {
     // This used to do a more sophisticated analysis but now it just explicitly looks for common
     // cases.
@@ -50,7 +42,7 @@ bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {
         *constantColor = SK_PMColor4fTRANSPARENT;
         return true;
     }
-    if (this->numColorFragmentProcessors()) {
+    if (this->hasColorFragmentProcessor()) {
         return false;
     }
     if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {

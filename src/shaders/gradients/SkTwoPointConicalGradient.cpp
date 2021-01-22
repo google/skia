@@ -55,14 +55,14 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
     Type     gradientType;
 
     if (SkScalarNearlyZero((c0 - c1).length())) {
-        if (SkScalarNearlyZero(SkTMax(r0, r1)) || SkScalarNearlyEqual(r0, r1)) {
+        if (SkScalarNearlyZero(std::max(r0, r1)) || SkScalarNearlyEqual(r0, r1)) {
             // Degenerate case; avoid dividing by zero. Should have been caught by caller but
             // just in case, recheck here.
             return nullptr;
         }
         // Concentric case: we can pretend we're radial (with a tiny twist).
-        const SkScalar scale = sk_ieee_float_divide(1, SkTMax(r0, r1));
-        gradientMatrix = SkMatrix::MakeTrans(-c1.x(), -c1.y());
+        const SkScalar scale = sk_ieee_float_divide(1, std::max(r0, r1));
+        gradientMatrix = SkMatrix::Translate(-c1.x(), -c1.y());
         gradientMatrix.postScale(scale, scale);
 
         gradientType = Type::kRadial;
@@ -136,30 +136,6 @@ sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer)
     SkScalar r1 = buffer.readScalar();
     SkScalar r2 = buffer.readScalar();
 
-    if (buffer.isVersionLT(SkPicturePriv::k2PtConicalNoFlip_Version) && buffer.readBool()) {
-        using std::swap;
-        // legacy flipped gradient
-        swap(c1, c2);
-        swap(r1, r2);
-
-        SkColor4f* colors = desc.mutableColors();
-        SkScalar* pos = desc.mutablePos();
-        const int last = desc.fCount - 1;
-        const int half = desc.fCount >> 1;
-        for (int i = 0; i < half; ++i) {
-            swap(colors[i], colors[last - i]);
-            if (pos) {
-                SkScalar tmp = pos[i];
-                pos[i] = SK_Scalar1 - pos[last - i];
-                pos[last - i] = SK_Scalar1 - tmp;
-            }
-        }
-        if (pos) {
-            if (desc.fCount & 1) {
-                pos[half] = SK_Scalar1 - pos[half];
-            }
-        }
-    }
     if (!buffer.isValid()) {
         return nullptr;
     }
@@ -185,11 +161,10 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         p->append(SkRasterPipeline::xy_to_radius);
 
         // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
-        auto scale =  SkTMax(fRadius1, fRadius2) / dRadius;
+        auto scale =  std::max(fRadius1, fRadius2) / dRadius;
         auto bias  = -fRadius1 / dRadius;
 
-        p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
-                                                 SkMatrix::MakeScale(scale, 1)));
+        p->append_matrix(alloc, SkMatrix::Translate(bias, 0) * SkMatrix::Scale(scale, 1));
         return;
     }
 
@@ -232,6 +207,57 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
     if (!fFocalData.isWellBehaved()) {
         postPipeline->append(SkRasterPipeline::apply_vector_mask, &ctx->fMask);
     }
+}
+
+skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
+                                                skvm::Coord coord, skvm::I32* mask) const {
+    // See https://skia.org/dev/design/conical, and onAppendStages() above.
+    // There's a lot going on here, and I'm not really sure what's independent
+    // or disjoint, what can be reordered, simplified, etc.  Tweak carefully.
+
+    const skvm::F32 x = coord.x,
+                    y = coord.y;
+    if (fType == Type::kRadial) {
+        float denom = 1.0f / (fRadius2 - fRadius1),
+              scale = std::max(fRadius1, fRadius2) * denom,
+               bias =                  -fRadius1 * denom;
+        return norm(x,y) * p->uniformF(uniforms->pushF(scale))
+                         + p->uniformF(uniforms->pushF(bias ));
+    }
+
+    if (fType == Type::kStrip) {
+        float r = fRadius1 / this->getCenterX1();
+        skvm::F32 t = x + sqrt(p->splat(r*r) - y*y);
+
+        *mask = (t == t);   // t != NaN
+        return t;
+    }
+
+    const skvm::F32 invR1 = p->uniformF(uniforms->pushF(1 / fFocalData.fR1));
+
+    skvm::F32 t;
+    if (fFocalData.isFocalOnCircle()) {
+        t = (y/x) * y + x;       // (x^2 + y^2) / x  ~~>  x + y^2/x  ~~>  y/x * y + x
+    } else if (fFocalData.isWellBehaved()) {
+        t = norm(x,y) - x*invR1;
+    } else {
+        skvm::F32 k = sqrt(x*x - y*y);
+        if (fFocalData.isSwapped() || 1 - fFocalData.fFocalX < 0) {
+            k = -k;
+        }
+        t = k - x*invR1;
+    }
+
+    if (!fFocalData.isWellBehaved()) {
+        // TODO: not sure why we consider t == 0 degenerate
+        *mask = (t > 0.0f);  // and implicitly, t != NaN
+    }
+
+    const skvm::F32 focalX = p->uniformF(uniforms->pushF(fFocalData.fFocalX));
+    if (1 - fFocalData.fFocalX < 0)    { t = -t; }
+    if (!fFocalData.isNativelyFocal()) { t += focalX; }
+    if ( fFocalData.isSwapped())       { t = 1.0f - t; }
+    return t;
 }
 
 /////////////////////////////////////////////////////////////////////

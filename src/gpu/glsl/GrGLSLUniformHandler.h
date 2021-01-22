@@ -16,6 +16,7 @@
 #define GR_NO_MANGLE_PREFIX "sk_"
 
 class GrGLSLProgramBuilder;
+class GrGLSLShaderBuilder;
 class GrSamplerState;
 class GrSurfaceProxy;
 
@@ -31,6 +32,13 @@ struct GrGLSLBuiltinUniformHandles {
 
 class GrGLSLUniformHandler {
 public:
+    struct UniformInfo {
+        GrShaderVar                fVariable;
+        uint32_t                   fVisibility;
+        const GrFragmentProcessor* fOwner;
+        SkString                   fRawName;
+    };
+
     virtual ~GrGLSLUniformHandler() {}
 
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
@@ -43,37 +51,56 @@ public:
         supported at this time. The actual uniform name will be mangled. If outName is not nullptr
         then it will refer to the final uniform name after return. Use the addUniformArray variant
         to add an array of uniforms. */
-    UniformHandle addUniform(uint32_t visibility,
+    UniformHandle addUniform(const GrFragmentProcessor* owner,
+                             uint32_t visibility,
                              GrSLType type,
                              const char* name,
                              const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
-        return this->addUniformArray(visibility, type, name, 0, outName);
+        return this->addUniformArray(owner, visibility, type, name, 0, outName);
     }
 
-    UniformHandle addUniformArray(uint32_t visibility,
+    UniformHandle addUniformArray(const GrFragmentProcessor* owner,
+                                  uint32_t visibility,
                                   GrSLType type,
                                   const char* name,
                                   int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
         bool mangle = strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX));
-        return this->internalAddUniformArray(visibility, type, name, mangle, arrayCount, outName);
+        return this->internalAddUniformArray(owner, visibility, type, name, mangle, arrayCount,
+                                             outName);
     }
 
     virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
-
-    /**
-     * 'Or's the visibility parameter with the current uniform visibililty.
-     */
-    virtual void updateUniformVisibility(UniformHandle u, uint32_t visibility) = 0;
 
     /**
      * Shortcut for getUniformVariable(u).c_str()
      */
     virtual const char* getUniformCStr(UniformHandle u) const = 0;
 
+    virtual int numUniforms() const = 0;
+
+    virtual UniformInfo& uniform(int idx) = 0;
+    virtual const UniformInfo& uniform(int idx) const = 0;
+
+    // Looks up a uniform that was added by 'owner' with the given 'rawName' (pre-mangling).
+    // If there is no such uniform, a variable with type kVoid is returned.
+    GrShaderVar getUniformMapping(const GrFragmentProcessor& owner, SkString rawName) const;
+
+    // Like getUniformMapping(), but if the uniform is found it also marks it as accessible in
+    // the vertex shader.
+    GrShaderVar liftUniformToVertexShader(const GrFragmentProcessor& owner, SkString rawName);
+
 protected:
+    struct UniformMapping {
+        const GrFragmentProcessor* fOwner;
+        int fInfoIndex;
+        SkString fRawName;
+        const char* fFinalName;
+        GrSLType fType;
+    };
+
     explicit GrGLSLUniformHandler(GrGLSLProgramBuilder* program) : fProgramBuilder(program) {}
 
     // This is not owned by the class
@@ -81,13 +108,27 @@ protected:
 
 private:
     virtual const char * samplerVariable(SamplerHandle) const = 0;
-    // Only called if GrShaderCaps(:textureSwizzleAppliedInShader() == true.
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
-    virtual SamplerHandle addSampler(const GrSurfaceProxy*, const GrSamplerState&, const GrSwizzle&,
+    virtual const char* inputSamplerVariable(SamplerHandle) const {
+        SkDEBUGFAIL("Trying to get input sampler from unsupported backend");
+        return nullptr;
+    }
+    virtual GrSwizzle inputSamplerSwizzle(SamplerHandle) const {
+        SkDEBUGFAIL("Trying to get input sampler swizzle from unsupported backend");
+        return {};
+    }
+
+    virtual SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                                      const char* name, const GrShaderCaps*) = 0;
 
-    virtual UniformHandle internalAddUniformArray(uint32_t visibility,
+    virtual SamplerHandle addInputSampler(const GrSwizzle& swizzle, const char* name) {
+        SkDEBUGFAIL("Trying to add input sampler to unsupported backend");
+        return {};
+    }
+
+    virtual UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
+                                                  uint32_t visibility,
                                                   GrSLType type,
                                                   const char* name,
                                                   bool mangleName,

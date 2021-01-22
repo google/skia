@@ -1,0 +1,41 @@
+struct S  {
+    float f;
+    float af[5];
+    half4 h4;
+    half4 ah4[5];
+};
+
+void main() {
+    /* assign to scalar */               int i; i = 0;
+    /* assign to vector */               int4 i4; i4 = int4(1,2,3,4);
+    /* assign to matrix */               float3x3 f3x3; f3x3 = float3x3(1,2,3,4,5,6,7,8,9);
+    /* assign to swizzle */              half4 x; x.w = 0; x.yx = half2(0);
+    /* assign to array of scalar */      int ai[1]; ai[0] = 0;
+    /* assign to array of vector */      int4 ai4[1]; ai4[0] = int4(1,2,3,4);
+    /* assign to array of matrix */      half2x4 ah2x4[1]; ah2x4[0] = half2x4(1,2,3,4,5,6,7,8);
+    /* assign to array idx by lookup */  ai[0] = 0; ai[ai[0]] = 0;
+    /* assign to array swizzle */        float4 af4[1]; af4[0].x = 0; af4[0].ywxz = float4(1);
+    /* assign to struct variable */      S s; s.f = 0;
+    /* assign to struct array */         s.af[1] = 0;
+    /* assign to struct swizzle */       s.h4.zxy = half3(9);
+    /* assign to struct array swizzle */ s.ah4[2].yw = half2(5);
+
+// Not allowed natively in GLSL, but SkSL will turn these into valid GLSL expressions.
+    /* assign to folded ternary */       float l; float r; (true ? l : r) = 0;
+    /* assign to unary plus */           +s.f = 1; +s.af[0] = 2;
+                                         +s.h4 = half4(1); +s.ah4[0] = half4(2);
+
+    sk_FragColor = half(i).xxxx;
+    sk_FragColor = half4(i4);
+    sk_FragColor = half4(f3x3[0].xxyz);
+    sk_FragColor = x;
+    sk_FragColor = half(ai[0]).xxxx;
+    sk_FragColor = half4(ai4[0]);
+    sk_FragColor = ah2x4[0][0];
+    sk_FragColor = half4(af4[0]);
+    sk_FragColor = half(l).xxxx;
+    sk_FragColor = half(s.f).xxxx;
+    sk_FragColor = half(s.af[1]).xxxx;
+    sk_FragColor = s.h4;
+    sk_FragColor = s.ah4[0];
+}

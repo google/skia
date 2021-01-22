@@ -1,0 +1,73 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/ios.gni")
+
+if (is_ios) {
+  group("skottie_ios_app") {
+    deps = [ ":skottie_example" ]
+  }
+  ios_app_bundle("skottie_example") {
+    sources = [
+      "SkiaContext.h",
+      "SkiaContext.mm",
+      "SkiaViewController.h",
+      "SkiaViewController.mm",
+      "SkottieViewController.h",
+      "SkottieViewController.mm",
+      "main.mm",
+    ]
+    if (skia_enable_gpu && skia_use_metal) {
+      sources += [
+        "SkMetalViewBridge.h",
+        "SkMetalViewBridge.mm",
+        "SkiaMetalContext.mm",
+      ]
+    } else if (skia_enable_gpu && skia_use_gl) {
+      sources += [ "SkiaGLContext.mm" ]
+    } else {
+      sources += [ "SkiaUIContext.mm" ]
+    }
+    data_sources = [
+      "../../resources/skottie/skottie-3d-rotation-order.json",
+      "../../resources/skottie/skottie-camera-parent-3.json",
+      "../../resources/skottie/skottie-gradient-ramp.json",
+      "../../resources/skottie/skottie-linear-wipe-effect.json",
+      "../../resources/skottie/skottie-text-animator-1.json",
+      "../../resources/skottie/skottie-text-animator-2.json",
+      "../../resources/skottie/skottie-text-animator-3.json",
+      "../../resources/skottie/skottie-text-animator-4.json",
+      "../../resources/skottie/skottie-text-animator-5.json",
+      "../../resources/skottie/skottie-text-animator-8.json",
+      "../../resources/skottie/skottie-transform-effect.json",
+      "../../resources/skottie/skottie_sample_2.json",
+    ]
+    deps = [
+      "../..:skia",
+      "../../modules/skottie",
+    ]
+    cflags_objcc = [
+      "-std=c++14",
+      "-w",
+    ]
+    libs = [
+      "CoreFoundation.framework",
+      "Foundation.framework",
+      "QuartzCore.framework",
+      "UIKit.framework",
+    ]
+    if (skia_enable_gpu && skia_use_metal) {
+      libs += [
+        "Metal.framework",
+        "MetalKit.framework",
+      ]
+    } else if (skia_enable_gpu && skia_use_gl) {
+      libs += [
+        "GLKit.framework",
+        "OpenGLES.framework",
+      ]
+    }
+    launchscreen = "../../platform_tools/ios/app/LaunchScreen.storyboard"
+  }
+}

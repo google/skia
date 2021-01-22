@@ -15,6 +15,7 @@ module.exports = function(config) {
       '../../modules/pathkit/perf/perfReporter.js',
       'canvaskit/bin/canvaskit.js',
       'tests/canvaskitinit.js',
+      'tests/util.js',
       'perf/*.bench.js'
     ],
 

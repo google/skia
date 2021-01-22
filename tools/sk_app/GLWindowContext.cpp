@@ -9,10 +9,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include "src/image/SkImage_Base.h"
@@ -21,9 +21,9 @@
 namespace sk_app {
 
 GLWindowContext::GLWindowContext(const DisplayParams& params)
-    : WindowContext(params)
-    , fBackendContext(nullptr)
-    , fSurface(nullptr) {
+        : WindowContext(params)
+        , fBackendContext(nullptr)
+        , fSurface(nullptr) {
     fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
 
@@ -31,7 +31,8 @@ void GLWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
     fBackendContext = this->onInitializeContext();
-    fContext = GrContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
+
+    fContext = GrDirectContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();
@@ -43,7 +44,7 @@ void GLWindowContext::destroyContext() {
     fSurface.reset(nullptr);
 
     if (fContext) {
-        // in case we have outstanding refs to this guy (lua?)
+        // in case we have outstanding refs to this (lua?)
         fContext->abandonContext();
         fContext.reset();
     }

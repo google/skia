@@ -37,6 +37,10 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
+    SkRect computeFastBounds(const SkRect& src) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
+
 private:
     friend void SkPictureImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkPictureImageFilterImpl)
@@ -44,7 +48,7 @@ private:
     sk_sp<SkPicture>    fPicture;
     SkRect              fCropRect;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
@@ -66,18 +70,6 @@ void SkPictureImageFilter::RegisterFlattenables() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum PictureResolution {
-    kDeviceSpace_PictureResolution,
-    kLocalSpace_PictureResolution
-};
-static sk_sp<SkImageFilter> make_localspace_filter(sk_sp<SkPicture> pic, const SkRect& cropRect,
-                                                   SkFilterQuality fq) {
-    SkISize dim = { SkScalarRoundToInt(cropRect.width()), SkScalarRoundToInt(cropRect.height()) };
-    auto img = SkImage::MakeFromPicture(std::move(pic), dim, nullptr, nullptr,
-                                        SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
-    return SkImageSource::Make(img, cropRect, cropRect, fq);
-}
-
 sk_sp<SkFlattenable> SkPictureImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPicture> picture;
     SkRect cropRect;
@@ -87,14 +79,6 @@ sk_sp<SkFlattenable> SkPictureImageFilterImpl::CreateProc(SkReadBuffer& buffer) 
     }
     buffer.readRect(&cropRect);
 
-    if (buffer.isVersionLT(SkPicturePriv::kRemovePictureImageFilterLocalSpace)) {
-        PictureResolution pictureResolution = buffer.checkRange<PictureResolution>(
-            kDeviceSpace_PictureResolution, kLocalSpace_PictureResolution);
-        if (kLocalSpace_PictureResolution == pictureResolution) {
-            return make_localspace_filter(std::move(picture), cropRect,
-                                          buffer.checkFilterQuality());
-        }
-    }
     return SkPictureImageFilter::Make(std::move(picture), cropRect);
 }
 
@@ -143,4 +127,20 @@ sk_sp<SkSpecialImage> SkPictureImageFilterImpl::onFilterImage(const Context& ctx
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
     return surf->makeImageSnapshot();
+}
+
+SkRect SkPictureImageFilterImpl::computeFastBounds(const SkRect& src) const {
+    return fCropRect;
+}
+
+SkIRect SkPictureImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                     MapDirection direction,
+                                                     const SkIRect* inputRect) const {
+    if (kReverse_MapDirection == direction) {
+        return INHERITED::onFilterNodeBounds(src, ctm, direction, inputRect);
+    }
+
+    SkRect dstRect = fCropRect;
+    ctm.mapRect(&dstRect);
+    return dstRect.roundOut();
 }

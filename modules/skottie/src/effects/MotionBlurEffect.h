@@ -14,9 +14,11 @@
 namespace skottie {
 namespace internal {
 
+class Animator;
+
 class MotionBlurEffect final : public sksg::CustomRenderNode {
 public:
-    static sk_sp<MotionBlurEffect> Make(sk_sp<sksg::Animator> animator,
+    static sk_sp<MotionBlurEffect> Make(sk_sp<Animator> animator,
                                         sk_sp<sksg::RenderNode> child,
                                         size_t samples_per_frame,
                                         float shutter_angle, float shutter_phase);
@@ -36,14 +38,14 @@ private:
 
     SkRect seekToSample(size_t sample_idx, const SkMatrix& ctm) const;
 
-    MotionBlurEffect(sk_sp<sksg::Animator> animator,
+    MotionBlurEffect(sk_sp<Animator> animator,
                      sk_sp<sksg::RenderNode> child,
                      size_t sample_count, float phase, float dt);
 
-    const sk_sp<sksg::Animator> fAnimator;
-    const size_t                fSampleCount;
-    const float                 fPhase,
-                                fDT;
+    const sk_sp<Animator> fAnimator;
+    const size_t          fSampleCount;
+    const float           fPhase,
+                          fDT;
 
     float  fT                  = 0;
     size_t fVisibleSampleCount = 0;

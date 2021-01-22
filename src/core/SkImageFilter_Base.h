@@ -12,6 +12,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 
 #include "src/core/SkImageFilterTypes.h"
 
@@ -70,7 +71,7 @@ public:
      * @return The layer-space bounding box to use for an SkDevice when drawing the source image.
      */
     skif::LayerSpace<SkIRect> getInputBounds(
-            const skif::Mapping& mapping, const skif::DeviceSpace<SkRect>& desiredOutput,
+            const skif::Mapping& mapping, const skif::DeviceSpace<SkIRect>& desiredOutput,
             const skif::ParameterSpace<SkRect>* knownContentBounds) const;
 
     /**
@@ -413,7 +414,7 @@ private:
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
 
-    typedef SkImageFilter INHERITED;
+    using INHERITED = SkImageFilter;
 };
 
 static inline SkImageFilter_Base* as_IFB(SkImageFilter* filter) {

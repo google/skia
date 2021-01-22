@@ -35,18 +35,19 @@ GrVkDescriptorPool* GrVkDescriptorPool::Create(GrVkGpu* gpu, VkDescriptorType ty
     if (result != VK_SUCCESS) {
         return nullptr;
     }
-    return new GrVkDescriptorPool(pool, type, count);
+    return new GrVkDescriptorPool(gpu, pool, type, count);
 }
 
-GrVkDescriptorPool::GrVkDescriptorPool(VkDescriptorPool pool, VkDescriptorType type, uint32_t count)
-        : INHERITED(), fType(type), fCount(count), fDescPool(pool) {}
+GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorPool pool,
+                                       VkDescriptorType type, uint32_t count)
+        : INHERITED(gpu), fType(type), fCount(count), fDescPool(pool) {}
 
 bool GrVkDescriptorPool::isCompatible(VkDescriptorType type, uint32_t count) const {
     return fType == type && count <= fCount;
 }
 
-void GrVkDescriptorPool::freeGPUData(GrVkGpu* gpu) const {
+void GrVkDescriptorPool::freeGPUData() const {
     // Destroying the VkDescriptorPool will automatically free and delete any VkDescriptorSets
     // allocated from the pool.
-    GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorPool(gpu->device(), fDescPool, nullptr));
+    GR_VK_CALL(fGpu->vkInterface(), DestroyDescriptorPool(fGpu->device(), fDescPool, nullptr));
 }

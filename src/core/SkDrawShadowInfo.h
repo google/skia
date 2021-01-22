@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
+#include "include/private/SkTPin.h"
 
 class SkMatrix;
 class SkPath;
@@ -42,11 +43,11 @@ static inline float divide_and_pin(float numer, float denom, float min, float ma
 }
 
 inline SkScalar AmbientBlurRadius(SkScalar height) {
-    return SkTMin(height*kAmbientHeightFactor*kAmbientGeomFactor, kMaxAmbientRadius);
+    return std::min(height*kAmbientHeightFactor*kAmbientGeomFactor, kMaxAmbientRadius);
 }
 
 inline SkScalar AmbientRecipAlpha(SkScalar height) {
-    return 1.0f + SkTMax(height*kAmbientHeightFactor, 0.0f);
+    return 1.0f + std::max(height*kAmbientHeightFactor, 0.0f);
 }
 
 inline SkScalar SpotBlurRadius(SkScalar occluderZ, SkScalar lightZ, SkScalar lightRadius) {
@@ -72,6 +73,6 @@ bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
 // get bounds prior to the ctm being applied
 void GetLocalBounds(const SkPath&, const SkDrawShadowRec&, const SkMatrix& ctm, SkRect* bounds);
 
-}
+}  // namespace SkDrawShadowMetrics
 
 #endif

@@ -12,35 +12,6 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkSafeMath.h"
 
-#define sub_shift(zeros, x, n)  \
-    zeros -= n;                 \
-    x >>= n
-
-int SkCLZ_portable(uint32_t x) {
-    if (x == 0) {
-        return 32;
-    }
-
-    int zeros = 31;
-    if (x & 0xFFFF0000) {
-        sub_shift(zeros, x, 16);
-    }
-    if (x & 0xFF00) {
-        sub_shift(zeros, x, 8);
-    }
-    if (x & 0xF0) {
-        sub_shift(zeros, x, 4);
-    }
-    if (x & 0xC) {
-        sub_shift(zeros, x, 2);
-    }
-    if (x & 0x2) {
-        sub_shift(zeros, x, 1);
-    }
-
-    return zeros;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /* www.worldserver.com/turk/computergraphics/FixedSqrt.pdf

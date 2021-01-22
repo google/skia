@@ -10,7 +10,8 @@
  **************************************************************************************************/
 #include "GrLumaColorFilterEffect.h"
 
-#include "include/gpu/GrTexture.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -23,10 +24,14 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrLumaColorFilterEffect& _outer = args.fFp.cast<GrLumaColorFilterEffect>();
         (void)_outer;
+        SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
-                "\nhalf luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, "
-                "0.072200000286102295), %s.xyz), 0.0, 1.0);\n%s = half4(0.0, 0.0, 0.0, luma);\n",
-                args.fInputColor, args.fOutputColor);
+                R"SkSL(half4 inputColor = %s;
+;
+half luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, 0.072200000286102295), inputColor.xyz), 0.0, 1.0);
+%s = half4(0.0, 0.0, 0.0, luma);
+)SkSL",
+                _sample0.c_str(), args.fOutputColor);
     }
 
 private:
@@ -43,8 +48,14 @@ bool GrLumaColorFilterEffect::onIsEqual(const GrFragmentProcessor& other) const 
     (void)that;
     return true;
 }
+bool GrLumaColorFilterEffect::usesExplicitReturn() const { return false; }
 GrLumaColorFilterEffect::GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src)
-        : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()) {}
-std::unique_ptr<GrFragmentProcessor> GrLumaColorFilterEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrLumaColorFilterEffect(*this));
+        : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()) {
+    this->cloneAndRegisterAllChildProcessors(src);
 }
+std::unique_ptr<GrFragmentProcessor> GrLumaColorFilterEffect::clone() const {
+    return std::make_unique<GrLumaColorFilterEffect>(*this);
+}
+#if GR_TEST_UTILS
+SkString GrLumaColorFilterEffect::onDumpInfo() const { return SkString(); }
+#endif

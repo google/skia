@@ -9,10 +9,12 @@
 #define SkOpts_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkOpts_spi.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkXfermodePriv.h"
 
 struct SkBitmapProcState;
+namespace skvm { struct InterpreterInstruction; }
 
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
@@ -54,8 +56,6 @@ namespace SkOpts {
 
     extern float (*cubic_solver)(float, float, float, float);
 
-    // The fastest high quality 32-bit hash we can provide on this platform.
-    extern uint32_t (*hash_fn)(const void*, size_t, uint32_t seed);
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
@@ -77,6 +77,9 @@ namespace SkOpts {
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
 #undef M
 
-}
+    extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
+                                  int nregs, int loop, const int strides[], int nargs,
+                                  int n, void* args[]);
+}  // namespace SkOpts
 
 #endif//SkOpts_DEFINED

@@ -23,6 +23,7 @@ declare_args() {
     (is_tvos || is_watchos) &&
     (target_cpu == "arm" || target_cpu == "arm64")
 
+  werror = false
   xcode_sysroot = ""
 
   visibility_hidden = true
@@ -70,6 +71,15 @@ config("default") {
     }
   }
 
+  # Disable warnings about unknown attributes.
+  # (These unknown attribute warnings are on by default, so we don't make
+  # disabling them part of :warnings, as some targets remove :warnings.)
+  if (is_win && !is_clang) {
+    cflags += [ "/wd5030" ]
+  } else {
+    cflags += [ "-Wno-attributes" ]
+  }
+
   if (is_fuchsia && using_fuchsia_sdk) {
     ldflags += [
       "-v",
@@ -99,9 +109,6 @@ config("default") {
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
     cflags_cc += [ "/std:c++17" ]
-    if (is_clang) {
-      cflags += [ "-fms-compatibility-version=19" ]  # 2015
-    }
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
       "_HAS_EXCEPTIONS=0",  # Disables exceptions in MSVC STL.
@@ -159,17 +166,6 @@ config("default") {
       "-mfpu=neon",
       "-mthumb",
     ]
-  } else if (current_cpu == "loongson3a" && !is_win) {
-    asmflags += [ "-march=loongson3a" ]
-    cflags += [
-      "-march=loongson3a",
-
-      # Causes an internal compiler error.
-      "-DSKCMS_PORTABLE",
-    ]
-  } else if (current_cpu == "mips64el" && !is_win) {
-    asmflags += [ "-march=mips64" ]
-    cflags += [ "-march=mips64" ]
   } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
     cflags += [
@@ -249,13 +245,33 @@ config("default") {
   }
 
   if (is_ios) {
-    _target = target_cpu
     if (target_cpu == "arm") {
-      _target = "armv7"
+      _arch_flags = [
+        "-arch",
+        "armv7",
+      ]
+    } else if (target_cpu == "arm64") {
+      _arch_flags = [
+        "-arch",
+        "arm64",
+        "-arch",
+        "arm64e",
+      ]
     } else if (target_cpu == "x86") {
-      _target = "i386"
+      _arch_flags = [
+        "-arch",
+        "i386",
+      ]
     } else if (target_cpu == "x64") {
-      _target = "x86_64"
+      _arch_flags = [
+        "-arch",
+        "x86_64",
+      ]
+    } else {
+      _arch_flags = [
+        "-arch",
+        target_cpu,
+      ]
     }
     if (is_watchos) {
       if (target_cpu == "arm") {
@@ -265,28 +281,22 @@ config("default") {
       }
     }
     asmflags += [
-      "-isysroot",
-      xcode_sysroot,
-      "-arch",
-      _target,
-    ]
+                  "-isysroot",
+                  xcode_sysroot,
+                ] + _arch_flags
     cflags += [
-      "-isysroot",
-      xcode_sysroot,
-      "-arch",
-      _target,
-    ]
+                "-isysroot",
+                xcode_sysroot,
+              ] + _arch_flags
     cflags_cc += [
       "-stdlib=libc++",
       "-fno-aligned-allocation",
     ]
     ldflags += [
-      "-isysroot",
-      xcode_sysroot,
-      "-arch",
-      _target,
-      "-stdlib=libc++",
-    ]
+                 "-isysroot",
+                 xcode_sysroot,
+                 "-stdlib=libc++",
+               ] + _arch_flags
     libs += [ "objc" ]
   }
 
@@ -298,9 +308,6 @@ config("default") {
 
   if (is_linux) {
     libs += [ "pthread" ]
-    if (is_debug && sanitize == "") {
-      defines += [ "_GLIBCXX_DEBUG" ]
-    }
   }
 
   if (is_mac) {
@@ -327,6 +334,23 @@ config("default") {
     #     /System/Library/Frameworks/foo.framework/foo are out of sync.
     #     Falling back to library file for linking.
     ldflags += [ "-Wl,-w" ]
+
+    # As of 11/2020, gn is an x86 binary and defaults the host_cpu to x86_64.
+    # This allows you to build arm64 mac binaries by setting target_cpu = "arm64"
+    if (current_cpu == "arm64") {
+      asmflags += [
+        "-target",
+        "arm64-apple-macos11",
+      ]
+      cflags += [
+        "-target",
+        "arm64-apple-macos11",
+      ]
+      ldflags += [
+        "-target",
+        "arm64-apple-macos11",
+      ]
+    }
   }
 
   if (sanitize != "" && sanitize != "MSVC") {
@@ -334,12 +358,9 @@ config("default") {
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
 
-    if (sanitize == "ASAN" || sanitize == "UBSAN") {
+    if (sanitize == "ASAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "undefined"
-      if (sanitize == "ASAN") {
-        sanitizers += ",address"
-      }
+      sanitizers = "undefined,address"
 
       if (is_android) {
         # TODO(mtklein): work out UBSAN link errors
@@ -351,22 +372,31 @@ config("default") {
       sanitizers = "memory"
     }
 
-    _blacklist = rebase_path("../tools/xsan.blacklist")
+    _suppressions = rebase_path("../tools/xsan.supp")
 
     cflags += [
       "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
-      "-fsanitize-blacklist=$_blacklist",
+      "-fsanitize-blacklist=$_suppressions",
     ]
-    ldflags += [ "-fsanitize=$sanitizers" ]
 
     if (is_win) {
-      cflags += [ "/FI$_blacklist" ]
+      cflags += [
+        "/FI$_suppressions",
+
+        # On Release builds, we get strange warnings about string literals.
+        "/GF-",
+      ]
+
+      assert(clang_win != "")
+      libs += [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan-x86_64.lib" ]
     } else {
       cflags += [
-        "-include$_blacklist",
+        "-include$_suppressions",
         "-fno-omit-frame-pointer",
       ]
+
+      ldflags += [ "-fsanitize=$sanitizers" ]
     }
 
     if (is_linux) {
@@ -381,6 +411,11 @@ config("default") {
       cflags_cc += [ "-fno-aligned-allocation" ]
     }
   }
+}
+
+# See skia:9731.
+config("recover_pointer_overflow") {
+  cflags = [ "-fsanitize-recover=pointer-overflow" ]
 }
 
 config("no_exceptions") {
@@ -402,18 +437,27 @@ config("warnings") {
       # Disable a bunch of warnings:
       "/wd4244",  # conversion from 'float' to 'int', possible loss of data
       "/wd4267",  # conversion from 'size_t' to 'int', possible loss of data
-      "/wd4800",  # forcing value to bool 'true' or 'false' (performance warning)
+      "/wd4800",  # forcing value to bool 'true' or 'false' (performance
+                  # warning)
 
       # Probably only triggers when /EHsc is enabled.
       "/wd4291",  # no matching operator delete found;
-                  # memory will not be freed if initialization throws an exception
+                  # memory will not be freed if initialization throws an
+                  # exception
 
       # These only show up in shared builds:
-      "/wd4251",  # class 'type' needs to have dll-interface to be used by clients of class 'type2'
-      "/wd4275",  # non dll-interface class 'base' used as base for dll-interface class 'derived'
+      "/wd4251",  # class 'type' needs to have dll-interface to be used by
+                  # clients of class 'type2'
+      "/wd4275",  # non dll-interface class 'base' used as base for
+                  # dll-interface class 'derived'
 
       # It'd be nice to fix these and turn this on:
-      "/wd5041",  # out-of-line definition for constexpr static data member is not needed and is deprecated in C++17
+      "/wd5041",  # out-of-line definition for constexpr static data member is
+                  # not needed and is deprecated in C++17
+
+      # warning C4996: 'std::result_of_t': warning STL4014: std::result_of and std::result_of_t are
+      # deprecated in C++17. They are superseded by std::invoke_result and std::invoke_result_t.
+      "/wd4996",
     ]
   } else {
     cflags += [
@@ -426,17 +470,12 @@ config("warnings") {
 
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
+      "-Wno-psabi",
     ]
     cflags_cc += [
       "-Wnon-virtual-dtor",
       "-Wno-noexcept-type",
-
-      # GCC 8+ bundles a number of fundamentally different warnings under this same flag,
-      # ranging from false positive (only copying a prefix of SkRRect from serialized form)
-      # to possibly useful (memcpy() with non-trivial types).  Annoyingly you can't really
-      # break them up any finer.
-      # TODO(mtklein): suppress / fix each site as appropriate?
-      "-Wno-class-memaccess",
+      "-Wno-redundant-move",  #TODO: gcc conflict with return-std-move-in-c++11
     ]
   }
 
@@ -444,7 +483,8 @@ config("warnings") {
     cflags += [
       "-fcolor-diagnostics",
       "-Weverything",
-      "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
+      "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs'
+                                      # warnings.
     ]
 
     if (target_cpu == "arm" && is_ios) {
@@ -495,15 +535,19 @@ config("warnings") {
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
       "-Wno-thread-safety-negative",
+      "-Wno-non-c-typedef-for-linkage",  # Dawn, not Skia per se.
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
       "-Wno-weak-vtables",
     ]
 
+    # Turn back on after -Wno-conversion.
+    # This only affects public headers... see :warnings_except_public_headers.
+    cflags += [ "-Wsign-conversion" ]
+
     # We are unlikely to want to fix these.
     cflags += [
-      "-Wno-bad-function-cast",
       "-Wno-covered-switch-default",
       "-Wno-deprecated",
       "-Wno-missing-noreturn",
@@ -515,7 +559,6 @@ config("warnings") {
       "-Wno-c++98-compat",
       "-Wno-c++98-compat-pedantic",
       "-Wno-undefined-func-template",
-      "-Wno-return-std-move-in-c++11",
     ]
     cflags_objc += [
       "-Wno-direct-ivar-access",
@@ -525,14 +568,38 @@ config("warnings") {
       "-Wno-direct-ivar-access",
       "-Wno-objcc-interface-ivars",
     ]
-  }
-  if (!is_win || is_clang) {
-    cflags += [ "-Wno-implicit-fallthrough" ]
+
+    # Wno-deprecated turns off the whole group, but also has its own warnings like
+    # out-of-line definition of constexpr static data member is redundant in C++17 and is deprecated [-Werror,-Wdeprecated]
+    # but we would like others. Created from clang/include/clang/Basic/DiagnosticGroups.td
+    cflags += [
+      "-Wdeprecated-anon-enum-enum-conversion",
+      "-Wdeprecated-array-compare",
+      "-Wdeprecated-attributes",
+      "-Wdeprecated-comma-subscript",
+      "-Wdeprecated-copy",
+
+      #"-Wdeprecated-copy-dtor",
+      #"-Wdeprecated-declarations",
+      "-Wdeprecated-dynamic-exception-spec",
+      "-Wdeprecated-enum-compare",
+      "-Wdeprecated-enum-compare-conditional",
+      "-Wdeprecated-enum-enum-conversion",
+      "-Wdeprecated-enum-float-conversion",
+      "-Wdeprecated-increment-bool",
+      "-Wdeprecated-register",
+      "-Wdeprecated-this-capture",
+      "-Wdeprecated-volatile",
+      "-Wdeprecated-writable-str",
+    ]
   }
 }
 config("warnings_except_public_headers") {
   if (!is_win || is_clang) {
-    cflags = [ "-Wno-unused-parameter" ]
+    cflags = [
+      "-Wno-sign-conversion",
+      "-Wno-unused-parameter",
+    ]
   }
 }
 
@@ -630,7 +697,8 @@ config("executable") {
   } else if (is_win) {
     ldflags = [
       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
-      "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
+      "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link
+                          # by never trying to.
     ]
   }
 }

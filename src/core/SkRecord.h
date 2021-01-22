@@ -28,7 +28,7 @@
 class SkRecord : public SkRefCnt {
 public:
     SkRecord() = default;
-    ~SkRecord();
+    ~SkRecord() override;
 
     // Returns the number of canvas commands in this SkRecord.
     int count() const { return fCount; }
@@ -85,19 +85,6 @@ public:
         return fRecords[i].set(this->allocCommand<T>());
     }
 
-    // Replace the i-th command with a new command of type T.
-    // You are expected to placement new an object of type T onto this pointer.
-    // You must show proof that you've already adopted the existing command.
-    template <typename T, typename Existing>
-    T* replace(int i, const SkRecords::Adopted<Existing>& proofOfAdoption) {
-        SkASSERT(i < this->count());
-
-        SkASSERT(Existing::kType == fRecords[i].type());
-        SkASSERT(proofOfAdoption == fRecords[i].ptr());
-
-        return fRecords[i].set(this->allocCommand<T>());
-    }
-
     // Does not return the bytes in any pointers embedded in the Records; callers
     // need to iterate with a visitor to measure those they care for.
     size_t bytesUsed() const;
@@ -129,13 +116,13 @@ private:
     };
 
     template <typename T>
-    SK_WHEN(std::is_empty<T>::value, T*) allocCommand() {
+    std::enable_if_t<std::is_empty<T>::value, T*> allocCommand() {
         static T singleton = {};
         return &singleton;
     }
 
     template <typename T>
-    SK_WHEN(!std::is_empty<T>::value, T*) allocCommand() { return this->alloc<T>(); }
+    std::enable_if_t<!std::is_empty<T>::value, T*> allocCommand() { return this->alloc<T>(); }
 
     void grow();
 

@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     for (int y = 0; y < 512; y += height ) {
         for (int x = 0; x < 512; x += width ) {
-            if (image->readPixels(info, &dstPixels.front(), width * 4, x, y)) {
+            if (image->readPixels(nullptr, info, &dstPixels.front(), width * 4, x, y)) {
                 SkPixmap dstPixmap(info, &dstPixels.front(), width * 4);
                 SkBitmap bitmap;
                 bitmap.installPixels(dstPixmap);

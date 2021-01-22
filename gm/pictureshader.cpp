@@ -44,7 +44,7 @@ public:
     void onOnceBeforeDraw() override {
        // Build the picture.
         SkPictureRecorder recorder;
-        SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize, nullptr, 0);
+        SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize);
         this->drawTile(pictureCanvas);
         fPicture = recorder.finishRecordingAsPicture();
 
@@ -192,7 +192,7 @@ private:
     SkScalar    fSceneSize;
     bool        fUseLocalMatrixWrapper;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new PictureShaderGM(50, 100);)

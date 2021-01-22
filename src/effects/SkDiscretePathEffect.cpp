@@ -97,13 +97,18 @@ bool SkDiscretePathEffect::onFilterPath(SkPath* dst, const SkPath& src,
 
     do {
         SkScalar    length = meas.getLength();
+#if defined(SK_BUILD_FOR_FUZZER)
+        if (length > 1000) {
+            return false;
+        }
+#endif
 
         if (fSegLength * (2 + doFill) > length) {
             meas.getSegment(0, length, dst, true);  // to short for us to mangle
         } else {
             int         n = SkScalarRoundToInt(length / fSegLength);
             constexpr int kMaxReasonableIterations = 100000;
-            n = SkTMin(n, kMaxReasonableIterations);
+            n = std::min(n, kMaxReasonableIterations);
             SkScalar    delta = length / n;
             SkScalar    distance = 0;
 

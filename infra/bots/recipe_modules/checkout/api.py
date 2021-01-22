@@ -72,6 +72,11 @@ if 'cipd_bin_packages' not in git:
     # Use a persistent gclient cache for Swarming.
     cfg_kwargs['CACHE_DIR'] = gclient_cache
 
+    if checkout_flutter:
+      # Delete the flutter cache to start from scratch every time.
+      # See skbug.com/9994.
+      self.m.run.rmtree(checkout_root)
+
     # Create the checkout path if necessary.
     # TODO(borenet): 'makedirs checkout_root'
     self.m.file.ensure_directory('makedirs checkout_path', checkout_root)

@@ -11,6 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkTableColorFilter.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -18,7 +19,7 @@
 // The gradient shader will use the texture strip atlas if it has too many colors. Make sure
 // abandoning the context works.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     static const SkColor gColors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
                                        SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW,
@@ -48,7 +49,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest, reporte
 
 // The table color filter uses the texture strip atlas. Make sure abandoning the context works.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_128.png");
 

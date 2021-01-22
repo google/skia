@@ -50,10 +50,12 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
     if (gPrintSKSL || gPrintGLSL) {
         print_shader_banner(programKind);
         if (gPrintSKSL) {
-            GrShaderUtils::PrintLineByLine("SKSL:", GrShaderUtils::PrettyPrint(sksl));
+            SkDebugf("SKSL:\n");
+            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
         }
         if (gPrintGLSL) {
-            GrShaderUtils::PrintLineByLine("GLSL:", GrShaderUtils::PrettyPrint(*glsl));
+            SkDebugf("GLSL:\n");
+            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(*glsl));
         }
     }
 
@@ -66,7 +68,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const SkSL::String& glsl,
                                     GrGpu::Stats* stats,
                                     GrContextOptions::ShaderErrorHandler* errorHandler) {
-    const GrGLInterface* gli = glCtx.interface();
+    const GrGLInterface* gli = glCtx.glInterface();
 
     // Specify GLSL source to the driver.
     GrGLuint shaderId;
@@ -81,11 +83,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     stats->incShaderCompilations();
     GR_GL_CALL(gli, CompileShader(shaderId));
 
-    // Calling GetShaderiv in Chromium is quite expensive. Assume success in release builds.
-    bool checkCompiled = kChromium_GrGLDriver != glCtx.driver();
-#ifdef SK_DEBUG
-    checkCompiled = true;
-#endif
+    bool checkCompiled = !glCtx.caps()->skipErrorChecks();
+
     if (checkCompiled) {
         GrGLint compiled = GR_GL_INIT_ZERO;
         GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));

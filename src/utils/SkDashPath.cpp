@@ -7,6 +7,7 @@
 
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkStrokeRec.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/utils/SkDashPathPriv.h"
 
@@ -92,7 +93,7 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
 // Large values are scaled by SK_ScalarNearlyZero so significant bits change.
 static void adjust_zero_length_line(SkPoint pts[2]) {
     SkASSERT(pts[0] == pts[1]);
-    pts[1].fX += SkTMax(1.001f, pts[1].fX) * SK_ScalarNearlyZero;
+    pts[1].fX += std::max(1.001f, pts[1].fX) * SK_ScalarNearlyZero;
 }
 
 static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLength,
@@ -245,7 +246,7 @@ public:
         //     resulting points = 4 * segments
 
         SkScalar ptCount = pathLength * intervalCount / (float)intervalLength;
-        ptCount = SkTMin(ptCount, SkDashPath::kMaxDashCount);
+        ptCount = std::min(ptCount, SkDashPath::kMaxDashCount);
         int n = SkScalarCeilToInt(ptCount) << 2;
         dst->incReserve(n);
 
@@ -424,8 +425,9 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         }
     } while (meas.nextContour());
 
+    // TODO: do we still need this?
     if (segCount > 1) {
-        dst->setConvexityType(SkPathConvexityType::kConcave);
+        SkPathPriv::SetConvexity(*dst, SkPathConvexity::kConcave);
     }
 
     return true;

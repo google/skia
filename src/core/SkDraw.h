@@ -14,7 +14,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/core/SkVertices.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
 
@@ -23,11 +22,13 @@ class SkClipStack;
 class SkBaseDevice;
 class SkBlitter;
 class SkMatrix;
+class SkMatrixProvider;
 class SkPath;
 class SkRegion;
 class SkRasterClip;
 struct SkRect;
 class SkRRect;
+class SkVertices;
 
 class SkDraw : public SkGlyphRunListPainter::BitmapDevicePainter {
 public:
@@ -62,12 +63,7 @@ public:
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                              SkGlyphRunListPainter* glyphPainter) const;
-    void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
-                         const SkPoint vertices[], const SkPoint textures[],
-                         const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
-                         const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
-                         const uint16_t indices[], int ptCount,
-                         const SkPaint& paint, const SkVertices::Bone bones[], int boneCount) const;
+    void    drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) const;
     void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
                     SkBlendMode, const SkPaint&);
 
@@ -86,6 +82,7 @@ public:
 
     void paintPaths(SkDrawableGlyphBuffer* drawables,
                     SkScalar scale,
+                    SkPoint origin,
                     const SkPaint& paint) const override;
 
     void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override;
@@ -128,6 +125,10 @@ public:
 
 private:
     void drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
+    void draw_fixed_vertices(const SkVertices*, SkBlendMode, const SkPaint&, const SkMatrix&,
+                             const SkPoint dev2[], const SkPoint3 dev3[], SkArenaAlloc*) const;
+    void draw_vdata_vertices(const SkVertices*, const SkPaint&, const SkMatrix&,
+                             const SkPoint[], const SkPoint3[], SkArenaAlloc*) const;
 
     void drawPath(const SkPath&,
                   const SkPaint&,
@@ -154,9 +155,9 @@ private:
     bool SK_WARN_UNUSED_RESULT computeConservativeLocalClipBounds(SkRect* bounds) const;
 
 public:
-    SkPixmap        fDst;
-    const SkMatrix* fMatrix{nullptr};        // required
-    const SkRasterClip* fRC{nullptr};        // required
+    SkPixmap                fDst;
+    const SkMatrixProvider* fMatrixProvider{nullptr};  // required
+    const SkRasterClip*     fRC{nullptr};              // required
 
     // optional, will be same dimensions as fDst if present
     const SkPixmap* fCoverage{nullptr};

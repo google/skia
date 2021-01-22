@@ -7,6 +7,8 @@
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
+skia_pdf_public = [ "$_include/docs/SkPDFDocument.h" ]
+
 skia_pdf_sources = [
   "$_include/docs/SkPDFDocument.h",
   "$_src/pdf/SkBitmapKey.h",

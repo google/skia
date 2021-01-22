@@ -81,7 +81,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new MorphologyBench(SMALL, kErode_MT); )

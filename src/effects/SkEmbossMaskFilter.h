@@ -42,7 +42,7 @@ private:
     Light       fLight;
     SkScalar    fBlurSigma;
 
-    typedef SkMaskFilter INHERITED;
+    using INHERITED = SkMaskFilter;
 };
 
 #endif

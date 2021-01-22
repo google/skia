@@ -7,10 +7,9 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
-
-#include "include/gpu/GrContext.h"
 
 static uint32_t pack_unpremul_rgba(SkColor c) {
     uint32_t packed;
@@ -101,8 +100,7 @@ DEF_TEST(PremulAlphaRoundTrip, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
 
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
-                                                      SkBudgeted::kNo,
-                                                      info));
+    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.directContext(),
+                                                      SkBudgeted::kNo, info));
     test_premul_alpha_roundtrip(reporter, surf.get());
 }

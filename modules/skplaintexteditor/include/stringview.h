@@ -15,5 +15,5 @@ struct Span {
 
 using StringView = Span<const char>;
 
-}
+}  // namespace SkPlainTextEditor
 #endif  // stringview_DEFINED

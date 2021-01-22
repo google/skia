@@ -36,8 +36,12 @@ void FuzzRegionSetPath(Fuzz* fuzz) {
     }
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+// TODO(kjlubick): remove IS_FUZZING... after https://crrev.com/c/2410304 lands
+#if defined(SK_BUILD_FOR_LIBFUZZER) || defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size > 512) {
+        return 0;
+    }
     sk_sp<SkData> bytes(SkData::MakeWithoutCopy(data, size));
     Fuzz fuzz(bytes);
     FuzzRegionSetPath(&fuzz);

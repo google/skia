@@ -26,7 +26,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -60,14 +60,11 @@ SkPaint make_overstroke_paint() {
 }
 
 SkPath quad_path() {
-    SkPath path;
-    path.moveTo(0, 0);
-    path.lineTo(100, 0);
-    path.quadTo(50, -40,
-                0, 0);
-    path.close();
-
-    return path;
+    return SkPathBuilder().moveTo(0, 0)
+                          .lineTo(100, 0)
+                          .quadTo(50, -40, 0, 0)
+                          .close()
+                          .detach();
 }
 
 SkPath cubic_path() {
@@ -83,11 +80,7 @@ SkPath cubic_path() {
 SkPath oval_path() {
     SkRect oval = SkRect::MakeXYWH(0, -25, 100, 50);
 
-    SkPath path;
-    path.arcTo(oval, 0, 359, true);
-    path.close();
-
-    return path;
+    return SkPathBuilder().arcTo(oval, 0, 359, true).close().detach();
 }
 
 SkPath ribs_path(SkPath path, SkScalar radius) {

@@ -12,16 +12,78 @@
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkTLazy.h"
 
-class GrContext;
+class GrDirectContext;
 class SkImage;
+class SkMipmap;
 class SkPicture;
+class SkTaskGroup;
 struct SkYUVAIndex;
+
+// This class acts as a proxy for a GrBackendTexture that backs an image.
+// Whenever a promise image is created for the image, the promise image receives a ref to
+// potentially several of these objects. Once all the promise images receive their done
+// callbacks this object is deleted - removing the GrBackendTexture from VRAM.
+// Note that while the DDLs are being created in the threads, the PromiseImageHelper holds
+// a ref on all the PromiseImageCallbackContexts. However, once all the threads are done
+// it drops all of its refs (via "reset").
+class PromiseImageCallbackContext : public SkRefCnt {
+public:
+    PromiseImageCallbackContext(GrDirectContext* direct, GrBackendFormat backendFormat)
+            : fContext(direct)
+            , fBackendFormat(backendFormat) {}
+
+    ~PromiseImageCallbackContext() override;
+
+    const GrBackendFormat& backendFormat() const { return fBackendFormat; }
+
+    void setBackendTexture(const GrBackendTexture& backendTexture);
+
+    void destroyBackendTexture();
+
+    sk_sp<SkPromiseImageTexture> fulfill() {
+        ++fTotalFulfills;
+        return fPromiseImageTexture;
+    }
+
+    void release() {
+        ++fDoneCnt;
+        SkASSERT(fDoneCnt <= fNumImages);
+    }
+
+    void wasAddedToImage() { fNumImages++; }
+
+    const SkPromiseImageTexture* promiseImageTexture() const {
+        return fPromiseImageTexture.get();
+    }
+
+    static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        return callbackContext->fulfill();
+    }
+
+    static void PromiseImageReleaseProc(void* textureContext) {
+        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        callbackContext->release();
+        callbackContext->unref();
+    }
+
+private:
+    GrDirectContext*             fContext;
+    GrBackendFormat              fBackendFormat;
+    sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
+    int                          fNumImages = 0;
+    int                          fTotalFulfills = 0;
+    int                          fDoneCnt = 0;
+
+    using INHERITED = SkRefCnt;
+};
 
 // This class consolidates tracking & extraction of the original image data from an skp,
 // the upload of said data to the GPU and the fulfillment of promise images.
@@ -47,13 +109,17 @@ struct SkYUVAIndex;
 // all the replaying is complete. This will pin the GrBackendTextures in VRAM.
 class DDLPromiseImageHelper {
 public:
-    DDLPromiseImageHelper() = default;
+    DDLPromiseImageHelper(const SkYUVAPixmapInfo::SupportedDataTypes& supportedYUVADataTypes)
+            : fSupportedYUVADataTypes(supportedYUVADataTypes) {}
     ~DDLPromiseImageHelper() = default;
 
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
     sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
 
-    void uploadAllToGPU(GrContext* context);
+    void createCallbackContexts(GrDirectContext*);
+
+    void uploadAllToGPU(SkTaskGroup*, GrDirectContext*);
+    void deleteAllFromGPU(SkTaskGroup*, GrDirectContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
@@ -64,73 +130,18 @@ public:
     void reset() { fImageInfo.reset(); }
 
 private:
-    // This class acts as a proxy for a GrBackendTexture that is part of an image.
-    // Whenever a promise image is created for the image, the promise image receives a ref to
-    // potentially several of these objects. Once all the promise images receive their done
-    // callbacks this object is deleted - removing the GrBackendTexture from VRAM.
-    // Note that while the DDLs are being created in the threads, the PromiseImageHelper holds
-    // a ref on all the PromiseImageCallbackContexts. However, once all the threads are done
-    // it drops all of its refs (via "reset").
-    class PromiseImageCallbackContext : public SkRefCnt {
-    public:
-        PromiseImageCallbackContext(GrContext* context) : fContext(context) {}
-
-        ~PromiseImageCallbackContext();
-
-        void setBackendTexture(const GrBackendTexture& backendTexture);
-
-        sk_sp<SkPromiseImageTexture> fulfill() {
-            SkASSERT(fPromiseImageTexture);
-            SkASSERT(fUnreleasedFulfills >= 0);
-            ++fUnreleasedFulfills;
-            ++fTotalFulfills;
-            return fPromiseImageTexture;
-        }
-
-        void release() {
-            SkASSERT(fUnreleasedFulfills > 0);
-            --fUnreleasedFulfills;
-            ++fTotalReleases;
-        }
-
-        void done() {
-            ++fDoneCnt;
-            SkASSERT(fDoneCnt <= fNumImages);
-        }
-
-        void wasAddedToImage() { fNumImages++; }
-
-        const SkPromiseImageTexture* promiseImageTexture() const {
-          return fPromiseImageTexture.get();
-        }
-
-    private:
-        GrContext* fContext;
-        sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
-        int fNumImages = 0;
-        int fTotalFulfills = 0;
-        int fTotalReleases = 0;
-        int fUnreleasedFulfills = 0;
-        int fDoneCnt = 0;
-
-        typedef SkRefCnt INHERITED;
-    };
-
     // This is the information extracted into this class from the parsing of the skp file.
     // Once it has all been uploaded to the GPU and distributed to the promise images, it
     // is all dropped via "reset".
     class PromiseImageInfo {
     public:
-        PromiseImageInfo(int index, uint32_t originalUniqueID, const SkImageInfo& ii)
-                : fIndex(index)
-                , fOriginalUniqueID(originalUniqueID)
-                , fImageInfo(ii) {
-        }
-        ~PromiseImageInfo() {}
+        PromiseImageInfo(int index, uint32_t originalUniqueID, const SkImageInfo& ii);
+        PromiseImageInfo(PromiseImageInfo&& other);
+        ~PromiseImageInfo();
 
         int index() const { return fIndex; }
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
-        bool isYUV() const { return SkToBool(fYUVData.get()); }
+        bool isYUV() const { return fYUVAPixmaps.isValid(); }
 
         int overallWidth() const { return fImageInfo.width(); }
         int overallHeight() const { return fImageInfo.height(); }
@@ -138,23 +149,21 @@ private:
         SkAlphaType overallAlphaType() const { return fImageInfo.alphaType(); }
         sk_sp<SkColorSpace> refOverallColorSpace() const { return fImageInfo.refColorSpace(); }
 
-        SkYUVColorSpace yuvColorSpace() const {
-            SkASSERT(this->isYUV());
-            return fYUVColorSpace;
-        }
-        const SkYUVAIndex* yuvaIndices() const {
-            SkASSERT(this->isYUV());
-            return fYUVAIndices;
-        }
+        const SkYUVAInfo& yuvaInfo() const { return fYUVAPixmaps.yuvaInfo(); }
+
         const SkPixmap& yuvPixmap(int index) const {
             SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
-            return fYUVPlanes[index];
+            return fYUVAPixmaps.planes()[index];
         }
-        const SkBitmap& normalBitmap() const {
+
+        const SkBitmap& baseLevel() const {
             SkASSERT(!this->isYUV());
-            return fBitmap;
+            return fBaseLevel;
         }
+        // This returns an array of all the available mipLevels - suitable for passing into
+        // createBackendTexture.
+        std::unique_ptr<SkPixmap[]> normalMipLevels() const;
+        int numMipLevels() const;
 
         void setCallbackContext(int index, sk_sp<PromiseImageCallbackContext> callbackContext) {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
@@ -169,25 +178,25 @@ private:
             return fCallbackContexts[index];
         }
 
+        GrMipmapped mipMapped(int index) const {
+            if (this->isYUV()) {
+                return GrMipmapped::kNo;
+            }
+            return fMipLevels ? GrMipmapped::kYes : GrMipmapped::kNo;
+        }
+        const GrBackendFormat& backendFormat(int index) const {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
+            return fCallbackContexts[index]->backendFormat();
+        }
         const SkPromiseImageTexture* promiseTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->promiseImageTexture();
         }
 
-        void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
+        void setMipLevels(const SkBitmap& baseLevel, std::unique_ptr<SkMipmap> mipLevels);
 
-        void setYUVData(sk_sp<SkCachedData> yuvData,
-                        SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                        SkYUVColorSpace cs) {
-            fYUVData = yuvData;
-            memcpy(fYUVAIndices, yuvaIndices, sizeof(fYUVAIndices));
-            fYUVColorSpace = cs;
-        }
-        void addYUVPlane(int index, const SkImageInfo& ii, const void* plane, size_t widthBytes) {
-            SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
-            fYUVPlanes[index].reset(ii, plane, widthBytes);
-        }
+        /** Takes ownership of the plane data. */
+        void setYUVPlanes(SkYUVAPixmaps yuvaPixmaps) { fYUVAPixmaps = std::move(yuvaPixmaps); }
 
     private:
         const int                          fIndex;                // index in the 'fImageInfo' array
@@ -195,14 +204,12 @@ private:
 
         const SkImageInfo                  fImageInfo;            // info for the overarching image
 
-        // CPU-side cache of a normal SkImage's contents
-        SkBitmap                           fBitmap;
+        // CPU-side cache of a normal SkImage's mipmap levels
+        SkBitmap                           fBaseLevel;
+        std::unique_ptr<SkMipmap>          fMipLevels;
 
         // CPU-side cache of a YUV SkImage's contents
-        sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image
-        SkYUVColorSpace                    fYUVColorSpace = kJPEG_SkYUVColorSpace;
-        SkYUVAIndex                        fYUVAIndices[SkYUVAIndex::kIndexCount];
-        SkPixmap                           fYUVPlanes[SkYUVASizeInfo::kMaxCount];
+        SkYUVAPixmaps                      fYUVAPixmaps;
 
         // Up to SkYUVASizeInfo::kMaxCount for a YUVA image. Only one for a normal image.
         sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVASizeInfo::kMaxCount];
@@ -216,27 +223,14 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        return callbackContext->fulfill();
-    }
+    static void CreateBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
+    static void DeleteBETexturesForPromiseImage(PromiseImageInfo*);
 
-    static void PromiseImageReleaseProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->release();
-    }
-
-    static void PromiseImageDoneProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->done();
-        callbackContext->unref();
-    }
-
-    static sk_sp<SkImage> PromiseImageCreator(const void* rawData, size_t length, void* ctxIn);
+    static sk_sp<SkImage> CreatePromiseImages(const void* rawData, size_t length, void* ctxIn);
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
-    void uploadImage(GrContext*, PromiseImageInfo*);
+    void uploadImage(GrDirectContext*, PromiseImageInfo*);
 
     // returns -1 if not found
     int findImage(SkImage* image) const;
@@ -247,6 +241,7 @@ private:
     // returns -1 on failure
     int findOrDefineImage(SkImage* image);
 
+    SkYUVAPixmapInfo::SupportedDataTypes fSupportedYUVADataTypes;
     SkTArray<PromiseImageInfo> fImageInfo;
 };
 

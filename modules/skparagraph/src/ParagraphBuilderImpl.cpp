@@ -1,25 +1,57 @@
 // Copyright 2019 Google LLC.
-#include "include/core/SkPaint.h"
+
+#include "include/core/SkTypes.h"
+#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "src/core/SkMakeUnique.h"
-#include "src/core/SkSpan.h"
-#include "unicode/unistr.h"
+
+#include <algorithm>
+#include <utility>
+#include "src/core/SkStringUtils.h"
 
 namespace skia {
 namespace textlayout {
 
 std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) {
-    return skstd::make_unique<ParagraphBuilderImpl>(style, fontCollection);
+    return ParagraphBuilderImpl::make(style, fontCollection);
+}
+
+std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(
+        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) {
+    auto unicode = SkUnicode::Make();
+    if (nullptr == unicode) {
+        return nullptr;
+    }
+    return std::make_unique<ParagraphBuilderImpl>(style, fontCollection);
+}
+
+std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(
+        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection, std::unique_ptr<SkUnicode> unicode) {
+    if (nullptr == unicode) {
+        return nullptr;
+    }
+    return std::make_unique<ParagraphBuilderImpl>(style, fontCollection, std::move(unicode));
+}
+
+ParagraphBuilderImpl::ParagraphBuilderImpl(
+        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection, std::unique_ptr<SkUnicode> unicode)
+        : ParagraphBuilder(style, fontCollection)
+        , fUtf8()
+        , fFontCollection(std::move(fontCollection))
+        , fUnicode(std::move(unicode)) {
+    SkASSERT(fUnicode);
+    this->setParagraphStyle(style);
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilder(style, fontCollection), fUtf8(), fFontCollection(std::move(fontCollection)) {
-    this->setParagraphStyle(style);
-}
+        : ParagraphBuilderImpl(style, fontCollection, SkUnicode::Make())
+{ }
 
 ParagraphBuilderImpl::~ParagraphBuilderImpl() = default;
 
@@ -68,40 +100,16 @@ TextStyle ParagraphBuilderImpl::peekStyle() {
 }
 
 void ParagraphBuilderImpl::addText(const std::u16string& text) {
-    icu::UnicodeString unicode;
-    unicode.setTo((UChar*)text.data());
-    std::string str;
-    unicode.toUTF8String(str);
-    fUtf8.insert(fUtf8.size(), str.c_str());
-
-    UText utf16UText = UTEXT_INITIALIZER;
-    UErrorCode errorCode = U_ZERO_ERROR;
-
-    auto iter = ubrk_open(UBRK_WORD, icu::Locale().getName(), nullptr, 0, &errorCode);
-    if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not create line break iterator: %s", u_errorName(errorCode));
-        return;
-    }
-
-    utext_openUnicodeString(&utf16UText, &unicode, &errorCode);
-    if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
-        return;
-    }
-
-    ubrk_setUText(iter, &utf16UText, &errorCode);
-    if (U_FAILURE(errorCode)) {
-        SkDEBUGF("Could not setText on break iterator: %s", u_errorName(errorCode));
-        return;
-    }
+    auto utf8 = fUnicode->convertUtf16ToUtf8(text);
+    fUtf8.append(utf8);
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
-    fUtf8.insert(fUtf8.size(), text);
+    fUtf8.append(text);
 }
 
 void ParagraphBuilderImpl::addText(const char* text, size_t len) {
-    fUtf8.insert(fUtf8.size(), text, len);
+    fUtf8.append(text, len);
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle) {
@@ -146,8 +154,8 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 
     // Add one fake placeholder with the rest of the text
     addPlaceholder(PlaceholderStyle(), true);
-    return skstd::make_unique<ParagraphImpl>(
-            fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection);
+    return std::make_unique<ParagraphImpl>(
+            fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, std::move(fUnicode));
 }
 
 }  // namespace textlayout

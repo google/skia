@@ -11,7 +11,5 @@ import("../third_party.gni")
 third_party("cpu-features") {
   public_include_dirs = [ "$ndk/sources/android/cpufeatures" ]
 
-  sources = [
-    "$ndk/sources/android/cpufeatures/cpu-features.c",
-  ]
+  sources = [ "$ndk/sources/android/cpufeatures/cpu-features.c" ]
 }

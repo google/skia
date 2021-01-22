@@ -1,0 +1,14 @@
+{
+  "name": "skottiekit-wasm",
+  "version": "0.1.1",
+  "description": "A WASM version of Skottie",
+  "homepage": "https://skia.org/user/modules/skottie",
+  "bugs": {
+    "url": "https://bugs.chromium.org/p/skia/issues/entry"
+  },
+  "permsRepo": "skia-dev/.github",
+  "publishConfig": {
+    "registry":"https://wombat-dressing-room.appspot.com"
+  },
+  "license": "BSD-3-Clause"
+}

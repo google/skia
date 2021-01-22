@@ -15,10 +15,14 @@
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
     SkASSERT(SkAlign4(length) == length);
-    return std::unique_ptr<SkDescriptor>(static_cast<SkDescriptor*>(::operator new (length)));
+    void* allocation = ::operator new (length);
+    return std::unique_ptr<SkDescriptor>(new (allocation) SkDescriptor{});
 }
 
 void SkDescriptor::operator delete(void* p) { ::operator delete(p); }
+void* SkDescriptor::operator new(size_t) {
+    SK_ABORT("Descriptors are created with placement new.");
+}
 
 void* SkDescriptor::addEntry(uint32_t tag, size_t length, const void* data) {
     SkASSERT(tag);
@@ -134,7 +138,7 @@ SkAutoDescriptor::~SkAutoDescriptor() { this->free(); }
 void SkAutoDescriptor::reset(size_t size) {
     this->free();
     if (size <= sizeof(fStorage)) {
-        fDesc = reinterpret_cast<SkDescriptor*>(&fStorage);
+        fDesc = new (&fStorage) SkDescriptor{};
     } else {
         fDesc = SkDescriptor::Alloc(size).release();
     }

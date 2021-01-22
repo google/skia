@@ -115,10 +115,10 @@ private:
     SkBitmap         fBM;
     SkFilterQuality  fFilterQuality;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new AnisotropicGM;)
-}
+}  // namespace skiagm

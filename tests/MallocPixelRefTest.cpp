@@ -19,9 +19,6 @@ static void set_to_one_proc(void*, void* context) {
     *(static_cast<int*>(context)) = 1;
 }
 
-/**
- *  This test contains basic sanity checks concerning SkMallocPixelRef.
- */
 DEF_TEST(MallocPixelRef, reporter) {
     REPORTER_ASSERT(reporter, true);
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 13);
@@ -41,7 +38,7 @@ DEF_TEST(MallocPixelRef, reporter) {
         REPORTER_ASSERT(reporter, nullptr == pr.get());
     }
     {
-        size_t rowBytes = info.minRowBytes() + 2;
+        size_t rowBytes = info.minRowBytes() + info.bytesPerPixel();
         size_t size = info.computeByteSize(rowBytes) - 1;
         sk_sp<SkData> data(SkData::MakeUninitialized(size));
         sk_sp<SkPixelRef> pr(
@@ -49,7 +46,7 @@ DEF_TEST(MallocPixelRef, reporter) {
         // data too small.
         REPORTER_ASSERT(reporter, nullptr == pr.get());
     }
-    size_t rowBytes = info.minRowBytes() + 7;
+    size_t rowBytes = info.minRowBytes() + info.bytesPerPixel();
     size_t size = info.computeByteSize(rowBytes) + 9;
     {
         SkAutoMalloc memory(size);

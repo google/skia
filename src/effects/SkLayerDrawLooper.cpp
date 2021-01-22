@@ -60,7 +60,7 @@ static SkColor4f xferColor(const SkColor4f& src, const SkColor4f& dst, SkBlendMo
     }
 }
 
-// Even with kEntirePaint_Bits, we always ensure that the master paint's
+// Even with kEntirePaint_Bits, we always ensure that the base paint's
 // text-encoding is respected, since that controls how we interpret the
 // text/length parameters of a draw[Pos]Text call.
 void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
@@ -213,6 +213,11 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     int count = buffer.readInt();
 
+#if defined(SK_BUILD_FOR_FUZZER)
+    if (count > 100) {
+        count = 100;
+    }
+#endif
     Builder builder;
     for (int i = 0; i < count; i++) {
         LayerInfo info;

@@ -9,9 +9,10 @@
 #define GrGLProgramDataManager_DEFINED
 
 #include "include/gpu/gl/GrGLTypes.h"
-#include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 #include "include/private/SkTArray.h"
 
@@ -25,22 +26,20 @@ class GrGLProgram;
  */
 class GrGLProgramDataManager : public GrGLSLProgramDataManager {
 public:
-    struct UniformInfo {
-        GrShaderVar fVariable;
-        uint32_t        fVisibility;
-        GrGLint         fLocation;
+    struct GLUniformInfo : public GrGLSLUniformHandler::UniformInfo {
+        GrGLint fLocation;
     };
 
     struct VaryingInfo {
         GrShaderVar fVariable;
-        GrGLint         fLocation;
+        GrGLint     fLocation;
     };
 
-    // This uses an allocator rather than array so that the GrShaderVars don't move in memory
-    // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
-    // name strings. Otherwise, we'd have to hand out copies.
-    typedef GrTAllocator<UniformInfo> UniformInfoArray;
-    typedef GrTAllocator<VaryingInfo> VaryingInfoArray;
+    // This uses a GrTBlockList rather than SkTArray/std::vector so that the GrShaderVars
+    // don't move in memory after they are inserted. Users of GrGLShaderBuilder get refs to the vars
+    // and ptrs to their name strings. Otherwise, we'd have to hand out copies.
+    typedef GrTBlockList<GLUniformInfo> UniformInfoArray;
+    typedef GrTBlockList<VaryingInfo>   VaryingInfoArray;
 
     GrGLProgramDataManager(GrGLGpu*, GrGLuint programID, const UniformInfoArray&,
                            const VaryingInfoArray&);
@@ -111,7 +110,7 @@ private:
     GrGLGpu* fGpu;
     GrGLuint fProgramID;
 
-    typedef GrGLSLProgramDataManager INHERITED;
+    using INHERITED = GrGLSLProgramDataManager;
 };
 
 #endif

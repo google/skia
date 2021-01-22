@@ -7,6 +7,8 @@
 
 #include "tests/Test.h"
 
+#include "include/gpu/GrDirectContext.h"
+
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
 using sk_gpu_test::ContextInfo;
@@ -21,6 +23,12 @@ bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
 }
 bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return GrBackendApi::kMetal == GrContextFactory::ContextTypeBackend(type);
+}
+bool IsDirect3DContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return GrBackendApi::kDirect3D == GrContextFactory::ContextTypeBackend(type);
+}
+bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return GrBackendApi::kDawn == GrContextFactory::ContextTypeBackend(type);
 }
 bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
@@ -62,9 +70,13 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         }
 
         ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
-        if (ctxInfo.grContext()) {
+        if (ctxInfo.directContext()) {
             (*test)(reporter, ctxInfo);
-            ctxInfo.grContext()->flush();
+            // In case the test changed the current context make sure we move it back before
+            // calling flush.
+            ctxInfo.testContext()->makeCurrent();
+            // Sync so any release/finished procs get called.
+            ctxInfo.directContext()->flushAndSubmit(/*sync*/true);
         }
     }
 }

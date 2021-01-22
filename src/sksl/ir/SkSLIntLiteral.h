@@ -14,57 +14,69 @@
 namespace SkSL {
 
 /**
- * A literal integer.
+ * A literal integer. These are generally referred to as IntLiteral, but Literal<SKSL_INT> is
+ * also available for use with template code.
  */
-struct IntLiteral : public Expression {
+template <typename T> class Literal;
+using IntLiteral = Literal<SKSL_INT>;
+
+template <>
+class Literal<SKSL_INT> final : public Expression {
+public:
+    static constexpr Kind kExpressionKind = Kind::kIntLiteral;
+
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
-    IntLiteral(const Context& context, int offset, int64_t value)
-    : INHERITED(offset, kIntLiteral_Kind, *context.fInt_Type)
-    , fValue(value) {}
+    Literal(const Context& context, int offset, int64_t value)
+        : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
+        , fValue(value) {}
 
-    IntLiteral(int offset, int64_t value, const Type* type = nullptr)
-    : INHERITED(offset, kIntLiteral_Kind, *type)
-    , fValue(value) {}
+    Literal(int offset, int64_t value, const Type* type = nullptr)
+        : INHERITED(offset, kExpressionKind, type)
+        , fValue(value) {}
 
-    String description() const override {
-        return to_string(fValue);
+    int64_t value() const {
+        return fValue;
     }
 
-    bool hasSideEffects() const override {
+    String description() const override {
+        return to_string(this->value());
+    }
+
+    bool hasProperty(Property property) const override {
         return false;
     }
 
-    bool isConstant() const override {
+    bool isCompileTimeConstant() const override {
         return true;
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        IntLiteral& i = (IntLiteral&) other;
-        return fValue == i.fValue;
+        return this->value() == other.as<IntLiteral>().value();
     }
 
-    int coercionCost(const Type& target) const override {
+    CoercionCost coercionCost(const Type& target) const override {
         if (target.isSigned() || target.isUnsigned() || target.isFloat() ||
-            target.kind() == Type::kEnum_Kind) {
-            return 0;
+            target.typeKind() == Type::TypeKind::kEnum) {
+            return CoercionCost::Free();
         }
         return INHERITED::coercionCost(target);
     }
 
     int64_t getConstantInt() const override {
-        return fValue;
+        return this->value();
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &fType));
+        return std::make_unique<IntLiteral>(fOffset, this->value(), &this->type());
     }
 
-    const int64_t fValue;
+private:
+    int64_t fValue;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

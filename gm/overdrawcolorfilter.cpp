@@ -29,19 +29,20 @@ static inline void set_bitmap(SkBitmap* bitmap, uint8_t alpha) {
     bitmap->notifyPixelsChanged();
 }
 
-class OverdrawColorFilter : public skiagm::GM {
-    SkString onShortName() override { return SkString("overdrawcolorfilter"); }
+struct OverdrawColorFilter : public skiagm::GM {
+    SkString onShortName() override {
+        return SkString{"overdrawcolorfilter"};
+    }
 
     SkISize onISize() override { return {200, 400}; }
 
     void onDraw(SkCanvas* canvas) override {
-        static const SkPMColor colors[SkOverdrawColorFilter::kNumColors] = {
-                0x80800000, 0x80008000, 0x80000080, 0x80808000, 0x80008080, 0x80800080,
+        static const SkColor colors[SkOverdrawColorFilter::kNumColors] = {
+                0x80FF0000, 0x8000FF00, 0x800000FF, 0x80FFFF00, 0x8000FFFF, 0x80FF00FF,
         };
 
         SkPaint paint;
-        sk_sp<SkColorFilter> colorFilter = SkOverdrawColorFilter::Make(colors);
-        paint.setColorFilter(colorFilter);
+        paint.setColorFilter(SkOverdrawColorFilter::MakeWithSkColors(colors));
 
         SkImageInfo info = SkImageInfo::MakeA8(100, 100);
         SkBitmap bitmap;

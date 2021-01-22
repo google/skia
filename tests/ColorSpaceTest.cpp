@@ -269,7 +269,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     p3.fBY = 0.060f;
     p3.fWX = 0.3127f;
     p3.fWY = 0.3290f;
-    space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+    space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
     skcms_Matrix3x3 reference;
     SkAssertResult(space->toXYZD50(&reference));
     check_primaries(r, p3, reference);
@@ -347,4 +347,22 @@ DEF_TEST(ColorSpace_classifyUnderflow, r) {
     fn.g = INT_MIN;
     sk_sp<SkColorSpace> bad = SkColorSpace::MakeRGB(fn, SkNamedGamut::kSRGB);
     REPORTER_ASSERT(r, bad == nullptr);
+}
+
+DEF_TEST(ColorSpace_equiv, r) {
+    skcms_TransferFunction tf = SkNamedTransferFn::kSRGB;
+    skcms_Matrix3x3     gamut = SkNamedGamut::kSRGB;
+
+    // Previously a NaN anywhere in the tf or gamut would trip up Equals(),
+    // making us think we'd hit a hash collision where we hadn't.
+    gamut.vals[1][1] = SK_FloatNaN;
+
+    // There's a quick pointer comparison in SkColorSpace::Equals() we want to get past.
+    sk_sp<SkColorSpace> x = SkColorSpace::MakeRGB(tf, gamut),
+                        y = SkColorSpace::MakeRGB(tf, gamut);
+    REPORTER_ASSERT(r, x && y);
+    REPORTER_ASSERT(r, x.get() != y.get());
+
+    // Most important to test in debug mode that we don't SkASSERT().
+    REPORTER_ASSERT(r, SkColorSpace::Equals(x.get(), y.get()));
 }

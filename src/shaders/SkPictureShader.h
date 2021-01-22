@@ -33,12 +33,15 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SkPicture* isAPicture(SkMatrix*, SkTileMode[2], SkRect* tile) const override;
-
 protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
+    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                          const SkMatrixProvider&, const SkMatrix* localM,
+                          SkFilterQuality quality, const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
+
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 #endif
@@ -65,7 +68,7 @@ private:
         SkShaderBase::Context*  fBitmapShaderContext;
         void*                   fBitmapShaderContextStorage;
 
-        typedef Context INHERITED;
+        using INHERITED = Context;
     };
 
     sk_sp<SkPicture>    fPicture;
@@ -75,7 +78,7 @@ private:
     const uint32_t            fUniqueID;
     mutable std::atomic<bool> fAddedToCache;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 #endif // SkPictureShader_DEFINED

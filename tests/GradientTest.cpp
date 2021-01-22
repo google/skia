@@ -456,7 +456,7 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
 
     SkPaint paint;
 
-    for (auto colorSpace : colorSpaces) {
+    for (const SkColorSpace* colorSpace : colorSpaces) {
 
         sk_sp<SkSurface> surface = SkSurface::MakeRaster(SkImageInfo::Make(100, 100,
                                                                            kN32_SkColorType,
@@ -469,7 +469,7 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
             SkTLazy<SkMatrix> localMatrix;
             if (config.fLocalMatrix) {
                 localMatrix.init();
-                localMatrix.get()->set9(config.fLocalMatrix);
+                localMatrix->set9(config.fLocalMatrix);
             }
 
             paint.setShader(SkGradientShader::MakeLinear(config.fPts,

@@ -11,10 +11,11 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   && groupadd -g 2000 skia \
   && useradd -u 2000 -g 2000 skia
 
+# TODO(kjlubick): Try a shallow clone of depot_tools
 RUN cd /tmp \
   && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
 
 ENV PATH=${PATH}:/tmp/depot_tools
 
-ADD --chown=skia:skia https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libGLESv2.so /usr/local/lib/libGLESv2.so
-ADD --chown=skia:skia  https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
+ADD --chown=skia:skia https://storage.googleapis.com/skia-swiftshader/libGLESv2.so /usr/local/lib/libGLESv2.so
+ADD --chown=skia:skia  https://storage.googleapis.com/skia-swiftshader/libEGL.so /usr/local/lib/libEGL.so

@@ -92,6 +92,42 @@ static void test_allocpixels(skiatest::Reporter* reporter) {
     bool success = bm.setInfo(info, info.minRowBytes() - 1);   // invalid for 32bit
     REPORTER_ASSERT(reporter, !success);
     REPORTER_ASSERT(reporter, bm.isNull());
+
+    for (SkColorType ct : {
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGB_888x_SkColorType,
+        kRGBA_1010102_SkColorType,
+        kRGB_101010x_SkColorType,
+        kGray_8_SkColorType,
+        kRGBA_F16Norm_SkColorType,
+        kRGBA_F16_SkColorType,
+        kRGBA_F32_SkColorType,
+        kR8G8_unorm_SkColorType,
+        kA16_unorm_SkColorType,
+        kR16G16_unorm_SkColorType,
+        kA16_float_SkColorType,
+        kR16G16_float_SkColorType,
+        kR16G16B16A16_unorm_SkColorType,
+    }) {
+        SkImageInfo imageInfo = info.makeColorType(ct);
+        for (int rowBytesPadding = 1; rowBytesPadding <= 17; rowBytesPadding++) {
+            bm.reset();
+            success = bm.setInfo(imageInfo, imageInfo.minRowBytes() + rowBytesPadding);
+            if (rowBytesPadding % imageInfo.bytesPerPixel() == 0) {
+                REPORTER_ASSERT(reporter, success);
+                success = bm.tryAllocPixels();
+                REPORTER_ASSERT(reporter, success);
+            } else {
+                // Not pixel aligned.
+                REPORTER_ASSERT(reporter, !success);
+                REPORTER_ASSERT(reporter, bm.isNull());
+            }
+        }
+    }
 }
 
 static void test_bigwidth(skiatest::Reporter* reporter) {
@@ -111,9 +147,6 @@ static void test_bigwidth(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !bm.setInfo(info.makeColorType(kN32_SkColorType)));
 }
 
-/**
- *  This test contains basic sanity checks concerning bitmaps.
- */
 DEF_TEST(Bitmap, reporter) {
     // Zero-sized bitmaps are allowed
     for (int width = 0; width < 2; ++width) {
@@ -215,6 +248,20 @@ DEF_TEST(Bitmap_erase_f16_erase_getColor, r) {
             }
         }
     }
+}
+
+// Verify that SkBitmap::erase erases in SRGB, regardless of the SkColorSpace of the
+// SkBitmap.
+DEF_TEST(Bitmap_erase_srgb, r) {
+    SkBitmap bm;
+    // Use a color spin from SRGB.
+    bm.allocPixels(SkImageInfo::Make(1, 1, kN32_SkColorType, kPremul_SkAlphaType,
+                                     SkColorSpace::MakeSRGB()->makeColorSpin()));
+    // RED will be converted into the spun color space.
+    bm.eraseColor(SK_ColorRED);
+    // getColor doesn't take the color space into account, so the returned color
+    // is different due to the color spin.
+    REPORTER_ASSERT(r, bm.getColor(0, 0) == SK_ColorBLUE);
 }
 
 // Make sure that the bitmap remains valid when pixelref is removed.
@@ -360,5 +407,40 @@ DEF_TEST(getalphaf, reporter) {
         } else {
             SkDebugf("can't readpixels\n");
         }
+    }
+}
+
+/*  computeByteSize() is documented to return 0 if height is zero, but does not
+ *  special-case width==0, so computeByteSize() can return non-zero for that
+ *  (since it is defined to return (height-1)*rb + ...
+ *
+ *  Test that allocPixels() respects this, and allocates a buffer as large as
+ *  computeByteSize()... even though the bitmap is logicallly empty.
+ */
+DEF_TEST(bitmap_zerowidth_crbug_1103827, reporter) {
+    const size_t big_rb = 1 << 16;
+
+    struct {
+        int width, height;
+        size_t rowbytes, expected_size;
+    } rec[] = {
+        { 2, 0,     big_rb,         0 },    // zero-height means zero-size
+        { 0, 2,     big_rb,    big_rb },    // zero-width is computed normally
+    };
+
+    for (const auto& r : rec) {
+        auto info = SkImageInfo::Make(r.width, r.height,
+                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        size_t size = info.computeByteSize(r.rowbytes);
+        REPORTER_ASSERT(reporter, size == r.expected_size);
+
+        SkBitmap bm;
+        bm.setInfo(info, r.rowbytes);
+        REPORTER_ASSERT(reporter, size == bm.computeByteSize());
+
+        // Be sure we can actually write to that much memory. If the bitmap underallocated
+        // the buffer, this should trash memory and crash (we hope).
+        bm.allocPixels();
+        sk_bzero(bm.getPixels(), size);
     }
 }

@@ -167,6 +167,11 @@ public:
      */
     static ImageGeneratorFromEncodedDataFactory
                     SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDataFactory);
+
+    /**
+     *  Call early in main() to allow Skia to use a JIT to accelerate CPU-bound operations.
+     */
+    static void AllowJIT();
 };
 
 class SkAutoGraphics {

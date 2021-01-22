@@ -9,7 +9,7 @@
 #define GrVkBuffer_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrVkGpu;
 
@@ -20,7 +20,7 @@ class GrVkGpu;
 class GrVkBuffer : public SkNoncopyable {
 public:
     virtual ~GrVkBuffer() {
-        // either release or abandon should have been called by the owner of this object.
+        // release should have been called by the owner of this object.
         SkASSERT(!fResource);
         delete [] (unsigned char*)fMapPtr;
     }
@@ -41,6 +41,7 @@ public:
     enum Type {
         kVertex_Type,
         kIndex_Type,
+        kIndirect_Type,
         kUniform_Type,
         kTexel_Type,
         kCopyRead_Type,
@@ -56,10 +57,10 @@ protected:
 
     class Resource : public GrVkRecycledResource {
     public:
-        Resource(VkBuffer buf, const GrVkAlloc& alloc, Type type)
-            : INHERITED(), fBuffer(buf), fAlloc(alloc), fType(type) {}
+        Resource(GrVkGpu* gpu, VkBuffer buf, const GrVkAlloc& alloc, Type type)
+            : GrVkRecycledResource(gpu), fBuffer(buf), fAlloc(alloc), fType(type) {}
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
             SkDebugf("GrVkBuffer: %d (%d refs)\n", fBuffer, this->getRefCnt());
         }
@@ -68,12 +69,13 @@ protected:
         GrVkAlloc          fAlloc;
         Type               fType;
 
+    protected:
+        void freeGPUData() const override;
+
     private:
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void onRecycle() const override { this->unref(); }
 
-        void onRecycle(GrVkGpu* gpu) const override { this->unref(gpu); }
-
-        typedef GrVkRecycledResource INHERITED;
+        using INHERITED = GrVkRecycledResource;
     };
 
     // convenience routine for raw buffer creation
@@ -95,8 +97,7 @@ protected:
     bool vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
                       bool* createdNewBuffer = nullptr);
 
-    void vkAbandon();
-    void vkRelease(const GrVkGpu* gpu);
+    void vkRelease(GrVkGpu* gpu);
 
 private:
     virtual const Resource* createResource(GrVkGpu* gpu,
@@ -116,7 +117,7 @@ private:
     VkDeviceSize            fOffset;
     void*                   fMapPtr;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif

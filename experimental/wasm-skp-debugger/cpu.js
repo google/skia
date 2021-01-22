@@ -36,6 +36,7 @@
         // We are sending these pixels directly into the HTML canvas,
         // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
         'alphaType': DebuggerView.AlphaType.Unpremul,
+        'imageAddress': 0, // unused here. field only relevant for some UI stuff in resource tab.
       }
       var surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width * 4);
       if (surface) {

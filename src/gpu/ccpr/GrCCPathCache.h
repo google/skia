@@ -8,27 +8,28 @@
 #ifndef GrCCPathCache_DEFINED
 #define GrCCPathCache_DEFINED
 
+#include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTHash.h"
-#include "src/core/SkExchange.h"
 #include "src/core/SkTInternalLList.h"
+#include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
-#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 
 class GrCCPathCacheEntry;
-class GrShape;
+class GrStyledShape;
 
 /**
- * This class implements an LRU cache that maps from GrShape to GrCCPathCacheEntry objects. Shapes
- * are only given one entry in the cache, so any time they are accessed with a different matrix, the
- * old entry gets evicted.
+ * This class implements an LRU cache that maps from GrStyledShape to GrCCPathCacheEntry objects.
+ * Shapes are only given one entry in the cache, so any time they are accessed with a different
+ * matrix, the old entry gets evicted.
  */
 class GrCCPathCache {
 public:
     GrCCPathCache(uint32_t contextUniqueID);
     ~GrCCPathCache();
 
-    class Key : public SkPathRef::GenIDChangeListener {
+    class Key : public SkIDChangeListener {
     public:
         static sk_sp<Key> Make(uint32_t pathCacheUniqueID, int dataCountU32,
                                const void* data = nullptr);
@@ -50,7 +51,7 @@ public:
         }
 
         // Called when our corresponding path is modified or deleted. Not threadsafe.
-        void onChange() override;
+        void changed() override;
 
         // TODO(b/30449950): use sized delete once P0722R3 is available
         static void operator delete(void* p);
@@ -66,8 +67,8 @@ public:
         const uint32_t fPathCacheUniqueID;
         int fDataSizeInBytes;
         SkDEBUGCODE(const int fDataReserveCountU32);
-        // The GrShape's unstyled key is stored as a variable-length footer to this class. GetKey
-        // provides access to it.
+        // The GrStyledShape's unstyled key is stored as a variable-length footer to this class.
+        // GetKey provides access to it.
     };
 
     // Stores the components of a transformation that affect a path mask (i.e. everything but
@@ -88,14 +89,14 @@ public:
     public:
         static OnFlushEntryRef OnFlushRef(GrCCPathCacheEntry*);
         OnFlushEntryRef() = default;
-        OnFlushEntryRef(OnFlushEntryRef&& ref) : fEntry(skstd::exchange(ref.fEntry, nullptr)) {}
+        OnFlushEntryRef(OnFlushEntryRef&& ref) : fEntry(std::exchange(ref.fEntry, nullptr)) {}
         ~OnFlushEntryRef();
 
         GrCCPathCacheEntry* get() const { return fEntry; }
         GrCCPathCacheEntry* operator->() const { return fEntry; }
         GrCCPathCacheEntry& operator*() const { return *fEntry; }
         explicit operator bool() const { return fEntry; }
-        void operator=(OnFlushEntryRef&& ref) { fEntry = skstd::exchange(ref.fEntry, nullptr); }
+        void operator=(OnFlushEntryRef&& ref) { fEntry = std::exchange(ref.fEntry, nullptr); }
 
     private:
         OnFlushEntryRef(GrCCPathCacheEntry* entry) : fEntry(entry) {}
@@ -108,7 +109,7 @@ public:
     //
     // NOTE: Shapes are only given one entry, so any time they are accessed with a new
     // transformation, the old entry gets evicted.
-    OnFlushEntryRef find(GrOnFlushResourceProvider*, const GrShape&,
+    OnFlushEntryRef find(GrOnFlushResourceProvider*, const GrStyledShape&,
                          const SkIRect& clippedDrawBounds, const SkMatrix& viewMatrix,
                          SkIVector* maskShift);
 
@@ -136,7 +137,7 @@ private:
         }
 
         HashNode() = default;
-        HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrShape&);
+        HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrStyledShape&);
         HashNode(HashNode&& node)
                 : fPathCache(node.fPathCache), fEntry(std::move(node.fEntry)) {
             SkASSERT(!node.fEntry);
@@ -248,7 +249,7 @@ private:
             : fCacheKey(std::move(cacheKey)), fMaskTransform(maskTransform) {
     }
 
-    bool hasBeenEvicted() const { return fCacheKey->shouldUnregisterFromPath(); }
+    bool hasBeenEvicted() const { return fCacheKey->shouldDeregister(); }
 
     // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
     // resource cache if needed.
@@ -270,7 +271,7 @@ private:
 
     friend class GrCCPathCache;
     friend void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry&, const SkIVector&,
-                                                 uint64_t color, GrFillRule);  // To access data.
+                                                 const SkPMColor4f&, GrFillRule);
 
 public:
     int testingOnly_peekOnFlushRefCnt() const;
@@ -340,7 +341,7 @@ public:
 
 
 inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* pathCache, sk_sp<Key> key,
-                                         const MaskTransform& m, const GrShape& shape)
+                                         const MaskTransform& m, const GrStyledShape& shape)
         : fPathCache(pathCache)
         , fEntry(new GrCCPathCacheEntry(key, m)) {
     SkASSERT(shape.hasUnstyledKey());
@@ -358,11 +359,11 @@ inline GrCCPathCache::HashNode::~HashNode() {
 
 inline void GrCCPathCache::HashNode::operator=(HashNode&& node) {
     SkASSERT(!fEntry || fEntry->hasBeenEvicted());  // Should have called GrCCPathCache::evict().
-    fEntry = skstd::exchange(node.fEntry, nullptr);
+    fEntry = std::exchange(node.fEntry, nullptr);
 }
 
 inline void GrCCPathProcessor::Instance::set(
-        const GrCCPathCacheEntry& entry, const SkIVector& shift, uint64_t color,
+        const GrCCPathCacheEntry& entry, const SkIVector& shift, const SkPMColor4f& color,
         GrFillRule fillRule) {
     float dx = (float)shift.fX, dy = (float)shift.fY;
     this->set(entry.fOctoBounds.makeOffset(dx, dy), entry.fAtlasOffset - shift, color, fillRule);

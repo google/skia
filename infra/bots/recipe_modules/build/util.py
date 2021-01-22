@@ -11,6 +11,7 @@ DEFAULT_BUILD_PRODUCTS = [
   'dm',
   'dm.exe',
   'dm.app',
+  'fm',
   'nanobench.app',
   'get_images_from_skps',
   'get_images_from_skps.exe',
@@ -28,8 +29,24 @@ DEFAULT_BUILD_PRODUCTS = [
   'lib/*.so',
   'run_testlab',
   'skqp-universal-debug.apk',
-  'whitelist_devices.json',
 ]
+
+# TODO(westont): Use this in docker.py, instead of a copy of it.
+def py_to_gn(val):
+  """Convert val to a string that can be used as GN args."""
+  if isinstance(val, bool):
+    return 'true' if val else 'false'
+  elif isinstance(val, basestring):
+    # TODO(dogben): Handle quoting "$\
+    return '"%s"' % val
+  elif isinstance(val, (list, tuple)):
+    return '[%s]' % (','.join(py_to_gn(x) for x in val))
+  elif isinstance(val, dict):
+    gn = ' '.join(
+        '%s=%s' % (k, py_to_gn(v)) for (k, v) in sorted(val.iteritems()))
+    return gn
+  else:  # pragma: nocover
+    raise Exception('Converting %s to gn is not implemented.' % type(val))
 
 
 def copy_listed_files(api, src, dst, product_list):

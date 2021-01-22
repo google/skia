@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -38,7 +38,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(15);
 
         const SkScalar inset = paint.getStrokeWidth() + 4;
@@ -53,9 +53,9 @@ protected:
             SkScalar speed = SkScalarSqrt(16 / r.width()) * 0.5f;
             startAngle += fRotate * 360 * speed * sign;
 
-            SkPath path;
+            SkPathBuilder path;
             path.addArc(r, startAngle, sweepAngle);
-            canvas->drawPath(path, paint);
+            canvas->drawPath(path.detach(), paint);
 
             r.inset(inset, inset);
             sign = -sign;
@@ -69,7 +69,7 @@ protected:
 
 private:
     SkScalar fRotate;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new AddArcGM; )
 
@@ -82,7 +82,7 @@ DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         SkPaint measPaint;
         measPaint.setAntiAlias(true);
@@ -98,9 +98,7 @@ DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
 
             canvas->drawLine(0, 0, rx, ry, paint);
 
-            SkPath path;
-            path.addArc(oval, 0, deg);
-            SkPathMeasure meas(path, false);
+            SkPathMeasure meas(SkPathBuilder().addArc(oval, 0, deg).detach(), false);
             SkScalar arcLen = rad * R;
             SkPoint pos;
             if (meas.getPosTan(arcLen, &pos, nullptr)) {
@@ -129,7 +127,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(SK_Scalar1 / 2);
 
         const SkScalar delta = paint.getStrokeWidth() * 3 / 2;
@@ -156,7 +154,7 @@ protected:
 private:
     SkScalar fRotate;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new StrokeCircleGM; )
 
@@ -179,7 +177,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(SK_Scalar1 / 2);
 
         const SkScalar strokeWidth = paint.getStrokeWidth();
@@ -188,7 +186,7 @@ protected:
         SkRandom rand;
 
         // Reset style to fill. We only need stroke stype for producing delta and strokeWidth
-        paint.setStyle(SkPaint::kFill_Style);
+        paint.setStroke(false);
 
         SkScalar sign = 1;
         while (r.width() > strokeWidth * 2) {
@@ -209,13 +207,13 @@ protected:
 private:
     SkScalar fRotate;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new FillCircleGM; )
 
 //////////////////////
 
-static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, SkScalar start,
+static void html_canvas_arc(SkPathBuilder* path, SkScalar x, SkScalar y, SkScalar r, SkScalar start,
                             SkScalar end, bool ccw, bool callArcTo) {
     SkRect bounds = { x - r, y - r, x + r, y + r };
     SkScalar sweep = ccw ? end - start : start - end;
@@ -229,7 +227,7 @@ static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, Sk
 DEF_SIMPLE_GM(manyarcs, canvas, 620, 330) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         canvas->translate(10, 10);
 
@@ -257,12 +255,12 @@ DEF_SIMPLE_GM(manyarcs, canvas, 620, 330) {
             SkScalar startAngle = startAngles[i % SK_ARRAY_COUNT(startAngles)] * sign;
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(sweepAngles); ++j) {
-                SkPath path;
+                SkPathBuilder path;
                 path.moveTo(0, 2);
                 html_canvas_arc(&path, 18, 15, 10, startAngle, startAngle + (sweepAngles[j] * sign),
                                 anticlockwise, true);
                 path.lineTo(0, 28);
-                canvas->drawPath(path, paint);
+                canvas->drawPath(path.detach(), paint);
                 canvas->translate(30, 0);
             }
             canvas->restore();
@@ -274,7 +272,7 @@ DEF_SIMPLE_GM(manyarcs, canvas, 620, 330) {
 DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         canvas->translate(50, 50);
 
@@ -286,7 +284,7 @@ DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
         SkScalar sweepAngle = 10.0f / outerRadius;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(startAngles); ++i) {
-            SkPath path;
+            SkPathBuilder path;
             SkScalar endAngle = startAngles[i] + sweepAngle;
             path.moveTo(centerX + innerRadius * sk_float_cos(startAngles[i]),
                         centerY + innerRadius * sk_float_sin(startAngles[i]));
@@ -301,7 +299,7 @@ DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
             html_canvas_arc(&path, centerX, outerRadius, innerRadius,
                             endAngle * 180 / SK_ScalarPI, startAngles[i] * 180 / SK_ScalarPI,
                             true, false);
-            canvas->drawPath(path, paint);
+            canvas->drawPath(path.detach(), paint);
             canvas->translate(20, 0);
         }
 }

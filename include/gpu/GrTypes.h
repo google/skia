@@ -127,64 +127,17 @@ template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFla
     friend X& operator |=(X&, X); \
     friend constexpr bool operator &(X, X)
 
-////////////////////////////////////////////////////////////////////////////////
-
-// compile time versions of min/max
-#define GR_CT_MAX(a, b) (((b) < (a)) ? (a) : (b))
-#define GR_CT_MIN(a, b) (((b) < (a)) ? (b) : (a))
-
-/**
- *  divide, rounding up
- */
-static inline constexpr int32_t GrIDivRoundUp(int x, int y) {
-    SkASSERT(y > 0);
-    return (x + (y-1)) / y;
-}
-static inline constexpr uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
-    return (x + (y-1)) / y;
-}
-static inline constexpr size_t GrSizeDivRoundUp(size_t x, size_t y) { return (x + (y - 1)) / y; }
-
-/**
- *  align up
- */
-static inline constexpr uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
-    return GrUIDivRoundUp(x, alignment) * alignment;
-}
-static inline constexpr size_t GrSizeAlignUp(size_t x, size_t alignment) {
-    return GrSizeDivRoundUp(x, alignment) * alignment;
-}
-
-/**
- * amount of pad needed to align up
- */
-static inline constexpr uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
-    return (alignment - x % alignment) % alignment;
-}
-static inline constexpr size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
-    return (alignment - x % alignment) % alignment;
-}
-
-/**
- *  align down
- */
-static inline constexpr uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
-    return (x / alignment) * alignment;
-}
-static inline constexpr size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
-    return (x / alignment) * alignment;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
  * Possible 3D APIs that may be used by Ganesh.
  */
 enum class GrBackendApi : unsigned {
-    kMetal,
-    kDawn,
     kOpenGL,
     kVulkan,
+    kMetal,
+    kDirect3D,
+    kDawn,
     /**
      * Mock is a backend that does not draw anything. It is used for unit tests
      * and to measure CPU overhead.
@@ -213,10 +166,12 @@ static constexpr GrBackendApi kMock_GrBackend = GrBackendApi::kMock;
 /**
  * Used to say whether a texture has mip levels allocated or not.
  */
-enum class GrMipMapped : bool {
+enum class GrMipmapped : bool {
     kNo = false,
     kYes = true
 };
+/** Deprecated legacy alias of GrMipmapped. */
+using GrMipMapped = GrMipmapped;
 
 /*
  * Can a GrBackendObject be rendered to?
@@ -272,14 +227,11 @@ enum GrGLBackendState {
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
 
-enum GrFlushFlags {
-    kNone_GrFlushFlags = 0,
-    // flush will wait till all submitted GPU work is finished before returning.
-    kSyncCpu_GrFlushFlag = 0x1,
-};
-
 typedef void* GrGpuFinishedContext;
 typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
+
+typedef void* GrGpuSubmittedContext;
+typedef void (*GrGpuSubmittedProc)(GrGpuSubmittedContext submittedContext, bool success);
 
 /**
  * Struct to supply options to flush calls.
@@ -288,7 +240,8 @@ typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
  * passes in an array of fNumSemaphores GrBackendSemaphores. In general these GrBackendSemaphore's
  * can be either initialized or not. If they are initialized, the backend uses the passed in
  * semaphore. If it is not initialized, a new semaphore is created and the GrBackendSemaphore
- * object is initialized with that semaphore.
+ * object is initialized with that semaphore. The semaphores are not sent to the GPU until the next
+ * GrContext::submit call is made. See the GrContext::submit for more information.
  *
  * The client will own and be responsible for deleting the underlying semaphores that are stored
  * and returned in initialized GrBackendSemaphore objects. The GrBackendSemaphore objects
@@ -298,52 +251,39 @@ typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
  * from this flush call and all previous flush calls has finished on the GPU. If the flush call
  * fails due to an error and nothing ends up getting sent to the GPU, the finished proc is called
  * immediately.
+ *
+ * If a submittedProc is provided, the submittedProc will be called when all work from this flush
+ * call is submitted to the GPU. If the flush call fails due to an error and nothing will get sent
+ * to the GPU, the submitted proc is called immediately. It is possibly that when work is finally
+ * submitted, that the submission actual fails. In this case we will not reattempt to do the
+ * submission. Skia notifies the client of these via the success bool passed into the submittedProc.
+ * The submittedProc is useful to the client to know when semaphores that were sent with the flush
+ * have actually been submitted to the GPU so that they can be waited on (or deleted if the submit
+ * fails).
+ * Note about GL: In GL work gets sent to the driver immediately during the flush call, but we don't
+ * really know when the driver sends the work to the GPU. Therefore, we treat the submitted proc as
+ * we do in other backends. It will be called when the next GrContext::submit is called after the
+ * flush (or possibly during the flush if there is no work to be done for the flush). The main use
+ * case for the submittedProc is to know when semaphores have been sent to the GPU and even in GL
+ * it is required to call GrContext::submit to flush them. So a client should be able to treat all
+ * backend APIs the same in terms of how the submitted procs are treated.
  */
 struct GrFlushInfo {
-    GrFlushFlags         fFlags = kNone_GrFlushFlags;
-    int                  fNumSemaphores = 0;
-    GrBackendSemaphore*  fSignalSemaphores = nullptr;
-    GrGpuFinishedProc    fFinishedProc = nullptr;
+    int fNumSemaphores = 0;
+    GrBackendSemaphore* fSignalSemaphores = nullptr;
+    GrGpuFinishedProc fFinishedProc = nullptr;
     GrGpuFinishedContext fFinishedContext = nullptr;
+    GrGpuSubmittedProc fSubmittedProc = nullptr;
+    GrGpuSubmittedContext fSubmittedContext = nullptr;
 };
 
 /**
- * Enum used as return value when flush with semaphores so the client knows whether the semaphores
- * were submitted to GPU or not.
+ * Enum used as return value when flush with semaphores so the client knows whether the valid
+ * semaphores will be submitted on the next GrContext::submit call.
  */
 enum class GrSemaphoresSubmitted : bool {
     kNo = false,
     kYes = true
-};
-
-/**
- * Array of SkImages and SkSurfaces which Skia will prepare for external use when passed into a
- * flush call on GrContext. All the SkImages and SkSurfaces must be GPU backed.
- *
- * If fPrepareSurfaceForPresent is not nullptr, then it must be an array the size of fNumSurfaces.
- * Each entry in the array corresponds to the SkSurface at the same index in the fSurfaces array. If
- * an entry is true, then that surface will be prepared for both external use and present.
- *
- * Currently this only has an effect if the backend API is Vulkan. In this case, all the underlying
- * VkImages associated with the SkImages and SkSurfaces will be transitioned into the VkQueueFamily
- * in which they were originally wrapped or created with. This allows a client to wrap a VkImage
- * from a queue which is different from the graphics queue and then have Skia transition it back to
- * that queue without needing to delete the SkImage or SkSurface. If the an SkSurface is also
- * flagged to be prepared for present, then its VkImageLayout will be set to
- * VK_IMAGE_LAYOUT_PRESENT_SRC_KHR if the VK_KHR_swapchain extension has been enabled for the
- * GrContext and the original queue is not VK_QUEUE_FAMILY_EXTERNAL or VK_QUEUE_FAMILY_FOREIGN_EXT.
- *
- * If an SkSurface or SkImage is used again, it will be transitioned back to the graphics queue and
- * whatever layout is needed for its use.
- */
-struct GrPrepareForExternalIORequests {
-    int fNumImages = 0;
-    SkImage** fImages = nullptr;
-    int fNumSurfaces = 0;
-    SkSurface** fSurfaces = nullptr;
-    bool* fPrepareSurfaceForPresent = nullptr;
-
-    bool hasRequests() const { return fNumImages || fNumSurfaces; }
 };
 
 #endif

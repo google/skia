@@ -14,30 +14,39 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkThreadID.h"
 
+#define GR_ASSERT_SINGLE_OWNER(obj) \
+    GrSingleOwner::AutoEnforce debug_SingleOwner(obj, __FILE__, __LINE__);
+
 // This is a debug tool to verify an object is only being used from one thread at a time.
 class GrSingleOwner {
 public:
      GrSingleOwner() : fOwner(kIllegalThreadID), fReentranceCount(0) {}
 
      struct AutoEnforce {
-         AutoEnforce(GrSingleOwner* so) : fSO(so) { fSO->enter(); }
-         ~AutoEnforce() { fSO->exit(); }
+         AutoEnforce(GrSingleOwner* so, const char* file, int line)
+                : fFile(file), fLine(line), fSO(so) {
+             fSO->enter(file, line);
+         }
+         ~AutoEnforce() { fSO->exit(fFile, fLine); }
 
+         const char* fFile;
+         int fLine;
          GrSingleOwner* fSO;
      };
 
 private:
-     void enter() {
+     void enter(const char* file, int line) {
          SkAutoMutexExclusive lock(fMutex);
          SkThreadID self = SkGetThreadID();
-         SkASSERT(fOwner == self || fOwner == kIllegalThreadID);
+         SkASSERTF(fOwner == self || fOwner == kIllegalThreadID, "%s:%d Single owner failure.",
+                   file, line);
          fReentranceCount++;
          fOwner = self;
      }
 
-     void exit() {
+     void exit(const char* file, int line) {
          SkAutoMutexExclusive lock(fMutex);
-         SkASSERT(fOwner == SkGetThreadID());
+         SkASSERTF(fOwner == SkGetThreadID(), "%s:%d Single owner failure.", file, line);
          fReentranceCount--;
          if (fReentranceCount == 0) {
              fOwner = kIllegalThreadID;
@@ -49,6 +58,7 @@ private:
      int fReentranceCount SK_GUARDED_BY(fMutex);
 };
 #else
+#define GR_ASSERT_SINGLE_OWNER(obj)
 class GrSingleOwner {}; // Provide a dummy implementation so we can pass pointers to constructors
 #endif
 

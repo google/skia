@@ -28,9 +28,9 @@ public:
 private:
     void destroyGLContext();
 
+    void onPlatformMakeNotCurrent() const override;
     void onPlatformMakeCurrent() const override;
     std::function<void()> onPlatformGetAutoContextRestore() const override;
-    void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     CGLContextObj fContext;
@@ -40,18 +40,41 @@ private:
 MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
     : fContext(nullptr)
     , fGLLibrary(RTLD_DEFAULT) {
+    // We first try to request a Radeon eGPU if one is available.
+    // This will be a Radeon HD7000 and up, which includes all eGPU configs.
+    // If that fails, we try again with only the base parameters.
     CGLPixelFormatAttribute attributes[] = {
+        // base parameters
 #if MAC_OS_X_VERSION_10_7
-        kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
+        kCGLPFAOpenGLProfile,
+        (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
 #endif
         kCGLPFADoubleBuffer,
-        (CGLPixelFormatAttribute)0
+
+#if MAC_OS_X_VERSION_10_8
+        // eGPU parameters
+        kCGLPFAAllowOfflineRenderers,  // Enables e-GPU.
+        kCGLPFANoRecovery,  // Disallows software rendering.
+        kCGLPFARendererID, (CGLPixelFormatAttribute)kCGLRendererATIRadeonX4000ID, // Select Radeon
+#endif
+        (CGLPixelFormatAttribute)NULL
     };
+#if MAC_OS_X_VERSION_10_8
+    static const int kFirstEGPUParameter = 3;
+    SkASSERT(kCGLPFAAllowOfflineRenderers == attributes[kFirstEGPUParameter]);
+#endif
+
     CGLPixelFormatObj pixFormat;
     GLint npix;
-
     CGLChoosePixelFormat(attributes, &pixFormat, &npix);
 
+#if MAC_OS_X_VERSION_10_8
+    if (nullptr == pixFormat) {
+        // Move the NULL-termination up to remove the eGPU parameters and try again
+        attributes[kFirstEGPUParameter] = (CGLPixelFormatAttribute)NULL;
+        CGLChoosePixelFormat(attributes, &pixFormat, &npix);
+    }
+#endif
     if (nullptr == pixFormat) {
         SkDebugf("CGLChoosePixelFormat failed.");
         return;
@@ -106,6 +129,10 @@ void MacGLTestContext::destroyGLContext() {
     }
 }
 
+void MacGLTestContext::onPlatformMakeNotCurrent() const {
+    CGLSetCurrentContext(nullptr);
+}
+
 void MacGLTestContext::onPlatformMakeCurrent() const {
     CGLSetCurrentContext(fContext);
 }
@@ -115,10 +142,6 @@ std::function<void()> MacGLTestContext::onPlatformGetAutoContextRestore() const 
         return nullptr;
     }
     return context_restorer();
-}
-
-void MacGLTestContext::onPlatformSwapBuffers() const {
-    CGLFlushDrawable(fContext);
 }
 
 GrGLFuncPtr MacGLTestContext::onPlatformGetProcAddress(const char* procName) const {

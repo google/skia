@@ -16,15 +16,24 @@ DEFINE_int(gpuThreads,
 
 static DEFINE_bool(cachePathMasks, true,
                    "Allows path mask textures to be cached in GPU configs.");
+static DEFINE_bool(allPathsVolatile, false,
+                   "Causes all GPU paths to be processed as if 'setIsVolatile' had been called.");
 
-static DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
+static DEFINE_bool(gs, true, "Enables support for geometry shaders (if hw allows).");
+static DEFINE_bool(ts, true, "Enables support for tessellation shaders (if hw allows.).");
+
+static DEFINE_int(maxTessellationSegments, 0,
+                  "Overrides the max number of tessellation segments supported by the caps.");
 
 static DEFINE_bool(cc, false, "Allow coverage counting shortcuts to render paths?");
 
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
-              "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
-              "[~]small [~]tess] [~]all");
+              "[~]none [~]dashline [~]tess [~]nvpr [~]ccpr [~]aahairline [~]aaconvex "
+              "[~]aalinearizing [~]small [~]tri] [~]all");
+
+static DEFINE_int(internalSamples, 4,
+                  "Number of samples for internal draws that use MSAA or mixed samples.");
 
 static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");
@@ -37,6 +46,8 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kNone;
     } else if (!strcmp(name, "dashline")) {
         return GpuPathRenderers::kDashLine;
+    } else if (!strcmp(name, "tess")) {
+        return GpuPathRenderers::kTessellation;
     } else if (!strcmp(name, "nvpr")) {
         return GpuPathRenderers::kStencilAndCover;
     } else if (!strcmp(name, "ccpr")) {
@@ -49,21 +60,21 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kAALinearizing;
     } else if (!strcmp(name, "small")) {
         return GpuPathRenderers::kSmall;
-    } else if (!strcmp(name, "tess")) {
-        return GpuPathRenderers::kTessellating;
-    } else if (!strcmp(name, "all")) {
-        return GpuPathRenderers::kAll;
+    } else if (!strcmp(name, "tri")) {
+        return GpuPathRenderers::kTriangulating;
+    } else if (!strcmp(name, "default")) {
+        return GpuPathRenderers::kDefault;
     }
-    SK_ABORT(SkStringPrintf("error: unknown named path renderer \"%s\"\n", name).c_str());
+    SK_ABORT("error: unknown named path renderer \"%s\"\n", name);
 }
 
 static GpuPathRenderers collect_gpu_path_renderers_from_flags() {
     if (FLAGS_pr.isEmpty()) {
-        return GpuPathRenderers::kAll;
+        return GpuPathRenderers::kDefault;
     }
 
     GpuPathRenderers gpuPathRenderers = ('~' == FLAGS_pr[0][0])
-            ? GpuPathRenderers::kAll
+            ? GpuPathRenderers::kDefault
             : GpuPathRenderers::kNone;
 
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
@@ -85,8 +96,12 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fExecutor                            = gGpuExecutor.get();
     ctxOptions->fDisableCoverageCountingPaths        = !FLAGS_cc;
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
-    ctxOptions->fSuppressGeometryShaders             = FLAGS_noGS;
+    ctxOptions->fAllPathsVolatile                    = FLAGS_allPathsVolatile;
+    ctxOptions->fSuppressGeometryShaders             = !FLAGS_gs;
+    ctxOptions->fSuppressTessellationShaders         = !FLAGS_ts;
+    ctxOptions->fMaxTessellationSegmentsOverride     = FLAGS_maxTessellationSegments;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
+    ctxOptions->fInternalMultisampleCount            = FLAGS_internalSamples;
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
 
     if (FLAGS_reduceOpsTaskSplitting) {

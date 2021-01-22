@@ -103,16 +103,6 @@ static inline SkScalar SkScalarFraction(SkScalar x) {
     return x - SkScalarTruncToScalar(x);
 }
 
-static inline SkScalar SkScalarClampMax(SkScalar x, SkScalar max) {
-    x = SkTMin(x, max);
-    x = SkTMax<SkScalar>(x, 0);
-    return x;
-}
-
-static inline SkScalar SkScalarPin(SkScalar x, SkScalar min, SkScalar max) {
-    return SkTPin(x, min, max);
-}
-
 static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
 #define SkScalarInvert(x)           sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(SK_Scalar1, (x))
@@ -121,9 +111,6 @@ static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
 #define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
 #define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
-
-static inline SkScalar SkMaxScalar(SkScalar a, SkScalar b) { return a > b ? a : b; }
-static inline SkScalar SkMinScalar(SkScalar a, SkScalar b) { return a < b ? a : b; }
 
 static inline bool SkScalarIsInt(SkScalar x) {
     return x == SkScalarFloorToScalar(x);
@@ -180,14 +167,13 @@ static inline SkScalar SkScalarInterp(SkScalar A, SkScalar B, SkScalar t) {
 }
 
 /** Interpolate along the function described by (keys[length], values[length])
-    for the passed searchKey.  SearchKeys outside the range keys[0]-keys[Length]
-    clamp to the min or max value.  This function was inspired by a desire
-    to change the multiplier for thickness in fakeBold; therefore it assumes
-    the number of pairs (length) will be small, and a linear search is used.
+    for the passed searchKey. SearchKeys outside the range keys[0]-keys[Length]
+    clamp to the min or max value. This function assumes the number of pairs
+    (length) will be small and a linear search is used.
+
     Repeated keys are allowed for discontinuous functions (so long as keys is
-    monotonically increasing), and if key is the value of a repeated scalar in
-    keys, the first one will be used.  However, that may change if a binary
-    search is used.
+    monotonically increasing). If key is the value of a repeated scalar in
+    keys the first one will be used.
 */
 SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
                             const SkScalar values[], int length);

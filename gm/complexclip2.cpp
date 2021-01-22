@@ -67,36 +67,32 @@ protected:
 
         fRects[0].setLTRB(xB, yB, xE, yE);
         fRRects[0].setRectXY(fRects[0], 7, 7);
-        fPaths[0].addRoundRect(fRects[0], 5, 5);
+        fPaths[0] = SkPath::RRect(fRects[0], 5, 5);
         fRectColors[0] = SK_ColorRED;
 
         fRects[1].setLTRB(xA, yA, xD, yD);
         fRRects[1].setRectXY(fRects[1], 7, 7);
-        fPaths[1].addRoundRect(fRects[1], 5, 5);
+        fPaths[1] = SkPath::RRect(fRects[1], 5, 5);
         fRectColors[1] = SK_ColorGREEN;
 
         fRects[2].setLTRB(xC, yA, xF, yD);
         fRRects[2].setRectXY(fRects[2], 7, 7);
-        fPaths[2].addRoundRect(fRects[2], 5, 5);
+        fPaths[2] = SkPath::RRect(fRects[2], 5, 5);
         fRectColors[2] = SK_ColorBLUE;
 
         fRects[3].setLTRB(xA, yC, xD, yF);
         fRRects[3].setRectXY(fRects[3], 7, 7);
-        fPaths[3].addRoundRect(fRects[3], 5, 5);
+        fPaths[3] = SkPath::RRect(fRects[3], 5, 5);
         fRectColors[3] = SK_ColorYELLOW;
 
         fRects[4].setLTRB(xC, yC, xF, yF);
         fRRects[4].setRectXY(fRects[4], 7, 7);
-        fPaths[4].addRoundRect(fRects[4], 5, 5);
+        fPaths[4] = SkPath::RRect(fRects[4], 5, 5);
         fRectColors[4] = SK_ColorCYAN;
 
         const SkClipOp ops[] = {
             kDifference_SkClipOp,
             kIntersect_SkClipOp,
-            kUnion_SkClipOp,
-            kXOR_SkClipOp,
-            kReverseDifference_SkClipOp,
-            kReplace_SkClipOp,
         };
 
         SkRandom r;
@@ -213,7 +209,7 @@ private:
     SkScalar fTotalWidth;
     SkScalar fTotalHeight;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -228,4 +224,4 @@ DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRect_Clip, true); )
 DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRRect_Clip, true); )
 DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kPath_Clip, true); )
 
-}
+}  // namespace skiagm

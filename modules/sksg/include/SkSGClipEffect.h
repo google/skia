@@ -43,7 +43,7 @@ private:
 
     bool                      fNoop = false;
 
-    typedef EffectNode INHERITED;
+    using INHERITED = EffectNode;
 };
 
 } // namespace sksg

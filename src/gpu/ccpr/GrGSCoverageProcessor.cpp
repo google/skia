@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 
-#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
@@ -23,10 +23,7 @@ protected:
 
     virtual bool hasCoverage(const GrGSCoverageProcessor& proc) const { return false; }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange& transformRange) final {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
-    }
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrGSCoverageProcessor& proc = args.fGP.cast<GrGSCoverageProcessor>();
@@ -37,7 +34,7 @@ protected:
 
         // Geometry shader.
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
-        this->emitGeometryShader(proc, varyingHandler, args.fGeomBuilder, args.fRTAdjustName);
+        this->emitGeometryShader(proc, varyingHandler, args.fGeomBuilder);
         varyingHandler->emitAttributes(proc);
         varyingHandler->setNoPerspective();
         SkASSERT(!*args.fFPCoordTransformHandler);
@@ -52,7 +49,7 @@ protected:
 
     void emitGeometryShader(
             const GrGSCoverageProcessor& proc, GrGLSLVaryingHandler* varyingHandler,
-            GrGLSLGeometryBuilder* g, const char* rtAdjust) const {
+            GrGLSLGeometryBuilder* g) const {
         int numInputPoints = proc.numInputPoints();
         SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
@@ -70,7 +67,7 @@ protected:
             g->codeAppendf("%s *= half(sk_in[0].sk_Position.w);", wind.c_str());
         }
 
-        SkString emitVertexFn;
+        SkString emitVertexFn = g->getMangledFunctionName("emitVertex");
         SkSTArray<3, GrShaderVar> emitArgs;
         const char* corner = emitArgs.emplace_back("corner", kFloat2_GrSLType).c_str();
         const char* bloatdir = emitArgs.emplace_back("bloatdir", kFloat2_GrSLType).c_str();
@@ -82,7 +79,8 @@ protected:
         if (Subpass::kCorners == proc.fSubpass) {
             cornerCoverage = emitArgs.emplace_back("corner_coverage", kHalf2_GrSLType).c_str();
         }
-        g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
+        g->emitFunction(kVoid_GrSLType, emitVertexFn.c_str(),
+                        {&emitArgs.front(), emitArgs.size()}, [&] {
             SkString fnBody;
             fnBody.appendf("float2 vertexpos = fma(%s, float2(bloat), %s);", bloatdir, corner);
             const char* coverage = inputCoverage;
@@ -104,9 +102,9 @@ protected:
             }
             fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
                                   "vertexpos", coverage, cornerCoverage, wind.c_str());
-            g->emitVertex(&fnBody, "vertexpos", rtAdjust);
+            g->emitVertex(&fnBody, "vertexpos");
             return fnBody;
-        }().c_str(), &emitVertexFn);
+        }().c_str());
 
         float bloat = kAABloatRadius;
 #ifdef SK_DEBUG
@@ -138,7 +136,7 @@ protected:
     const std::unique_ptr<Shader> fShader;
     const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
 
-    typedef GrGLSLGeometryProcessor INHERITED;
+    using INHERITED = GrGLSLGeometryProcessor;
 };
 
 /**
@@ -409,46 +407,42 @@ public:
     }
 };
 
-void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider*) {
+void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
+                                  GrResourceProvider*) {
     fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
 
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
         fInputXOrYValues =
                 {"x_or_y_values", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-        GR_STATIC_ASSERT(sizeof(QuadPointInstance) ==
-                         2 * GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
-        GR_STATIC_ASSERT(offsetof(QuadPointInstance, fY) ==
-                         GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
+        static_assert(sizeof(QuadPointInstance) ==
+                      2 * GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
+        static_assert(offsetof(QuadPointInstance, fY) ==
+                      GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
     } else {
         fInputXOrYValues =
                 {"x_or_y_values", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-        GR_STATIC_ASSERT(sizeof(TriPointInstance) ==
-                         2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
+        static_assert(sizeof(TriPointInstance) ==
+                      2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
     }
 
     this->setVertexAttributes(&fInputXOrYValues, 1);
+
+    SkASSERT(subpassIdx == 0 || subpassIdx == 1);
+    fSubpass = (Subpass)subpassIdx;
 }
 
-void GrGSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
+void GrGSCoverageProcessor::bindBuffers(GrOpsRenderPass* renderPass,
+                                        sk_sp<const GrBuffer> instanceBuffer) const {
+    renderPass->bindBuffers(nullptr, nullptr, std::move(instanceBuffer));
+}
+
+void GrGSCoverageProcessor::drawInstances(GrOpsRenderPass* renderPass, int instanceCount,
+                                          int baseInstance) const {
     // We don't actually make instanced draw calls. Instead, we feed transposed x,y point values to
     // the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex invocation
     // receives either the shape's x or y values as inputs, which it forwards to the geometry
     // shader.
-    GrMesh& mesh = out->emplace_back(GrPrimitiveType::kLines);
-    mesh.setNonIndexedNonInstanced(instanceCount * 2);
-    mesh.setVertexData(std::move(instanceBuffer), baseInstance * 2);
-}
-
-void GrGSCoverageProcessor::draw(
-        GrOpFlushState* flushState, const GrPipeline& pipeline, const SkIRect scissorRects[],
-        const GrMesh meshes[], int meshCount, const SkRect& drawBounds) const {
-    // The geometry shader impl draws primitives in two subpasses: The first pass fills the interior
-    // and does edge AA. The second pass does touch up on corner pixels.
-    for (int i = 0; i < 2; ++i) {
-        fSubpass = (Subpass) i;
-        INHERITED::draw(flushState, pipeline, scissorRects, meshes, meshCount, drawBounds);
-    }
+    renderPass->draw(instanceCount * 2, baseInstance * 2);
 }
 
 GrGLSLPrimitiveProcessor* GrGSCoverageProcessor::onCreateGLSLInstance(

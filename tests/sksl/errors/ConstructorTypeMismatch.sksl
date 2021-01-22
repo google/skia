@@ -1,0 +1,11 @@
+struct Foo { int x; };
+Foo foo;
+
+void construct_float2_from_float_bool() { float2 x = float2(1.0, false); }
+void construct_float2_from_bool2()      { float2 x = float2(bool2(false)); }
+void construct_bool2_from_float2()      { bool2 x = bool2(float2(1)); }
+void construct_bool_from_float()        { bool x = bool(1.0); }
+void construct_struct_from_int()        { Foo x = Foo(5); }
+void construct_float_from_struct()      { float x = float(foo); }
+void construct_float2_from_struct()     { float2 x = float2(foo); }
+void construct_float2x2_from_bool()     { float2x2 x = float2x2(true); }

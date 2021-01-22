@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPaint.h"
+#include "include/private/SkTPin.h"
 #include "src/shaders/gradients/Sk4fLinearGradient.h"
 
 #include <cmath>
@@ -58,7 +59,7 @@ template<>
 SkScalar pinFx<SkTileMode::kRepeat>(SkScalar fx) {
     SkScalar f = SkScalarIsFinite(fx) ? SkScalarFraction(fx) : 0;
     if (f < 0) {
-        f = SkTMin(f + 1, nextafterf(1, 0));
+        f = std::min(f + 1, nextafterf(1, 0));
     }
     SkASSERT(f >= 0);
     SkASSERT(f < 1.0f);
@@ -69,7 +70,7 @@ template<>
 SkScalar pinFx<SkTileMode::kMirror>(SkScalar fx) {
     SkScalar f = SkScalarIsFinite(fx) ? SkScalarMod(fx, 2.0f) : 0;
     if (f < 0) {
-        f = SkTMin(f + 2, nextafterf(2, 0));
+        f = std::min(f + 2, nextafterf(2, 0));
     }
     SkASSERT(f >= 0);
     SkASSERT(f < 2.0f);
@@ -190,17 +191,17 @@ LinearGradient4fContext::shadePremulSpan(int x, int y, SkPMColor dst[], int coun
     const SkLinearGradient& shader = static_cast<const SkLinearGradient&>(fShader);
     switch (shader.fTileMode) {
         case SkTileMode::kDecal:
-        SkASSERT(false);    // decal only supported via stages
-        // fall-through
+            SkASSERT(false);    // decal only supported via stages
+            [[fallthrough]];
         case SkTileMode::kClamp:
             this->shadeSpanInternal<premul, SkTileMode::kClamp >(x, y, dst, count, bias0, bias1);
-        break;
+            break;
         case SkTileMode::kRepeat:
             this->shadeSpanInternal<premul, SkTileMode::kRepeat>(x, y, dst, count, bias0, bias1);
-        break;
+            break;
         case SkTileMode::kMirror:
             this->shadeSpanInternal<premul, SkTileMode::kMirror>(x, y, dst, count, bias0, bias1);
-        break;
+            break;
     }
 }
 
@@ -227,7 +228,7 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y, SkPMColor dst[], int co
     while (count > 0) {
         // What we really want here is SkTPin(advance, 1, count)
         // but that's a significant perf hit for >> stops; investigate.
-        const int n = SkTMin(SkScalarTruncToInt(proc.currentAdvance() + 1), count);
+        const int n = std::min(SkScalarTruncToInt(proc.currentAdvance() + 1), count);
 
         // The current interval advance can be +inf (e.g. when reaching
         // the clamp mode end intervals) - when that happens, we expect to

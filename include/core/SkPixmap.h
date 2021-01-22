@@ -160,22 +160,8 @@ public:
      */
     SkISize dimensions() const { return fInfo.dimensions(); }
 
-    /** Returns SkColorType, one of:
-        kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-        kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-        kGray_8_SkColorType, kRGBA_F16_SkColorType.
-
-        @return  SkColorType in SkImageInfo
-    */
     SkColorType colorType() const { return fInfo.colorType(); }
 
-    /** Returns SkAlphaType, one of:
-        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType.
-
-        @return  SkAlphaType in SkImageInfo
-    */
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
 
     /** Returns SkColorSpace, the range of colors, associated with SkImageInfo. The
@@ -383,7 +369,7 @@ public:
     const uint8_t* addr8(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint8_t*)((const char*)this->addr8() + y * fRowBytes + (x << 0));
+        return (const uint8_t*)((const char*)this->addr8() + (size_t)y * fRowBytes + (x << 0));
     }
 
     /** Returns readable pixel address at (x, y).
@@ -401,7 +387,7 @@ public:
     const uint16_t* addr16(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint16_t*)((const char*)this->addr16() + y * fRowBytes + (x << 1));
+        return (const uint16_t*)((const char*)this->addr16() + (size_t)y * fRowBytes + (x << 1));
     }
 
     /** Returns readable pixel address at (x, y).
@@ -419,7 +405,7 @@ public:
     const uint32_t* addr32(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint32_t*)((const char*)this->addr32() + y * fRowBytes + (x << 2));
+        return (const uint32_t*)((const char*)this->addr32() + (size_t)y * fRowBytes + (x << 2));
     }
 
     /** Returns readable pixel address at (x, y).
@@ -437,7 +423,7 @@ public:
     const uint64_t* addr64(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint64_t*)((const char*)this->addr64() + y * fRowBytes + (x << 3));
+        return (const uint64_t*)((const char*)this->addr64() + (size_t)y * fRowBytes + (x << 3));
     }
 
     /** Returns readable pixel address at (x, y).
@@ -676,8 +662,6 @@ public:
         kHigh_SkFilterQuality is slowest, typically implemented with bicubic filter.
 
         @param dst            SkImageInfo and pixel address to write to
-        @param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
-                              kMedium_SkFilterQuality, kHigh_SkFilterQuality
         @return               true if pixels are scaled to fit dst
 
         example: https://fiddle.skia.org/c/@Pixmap_scalePixels
@@ -688,7 +672,7 @@ public:
         Returns false if colorType() is kUnknown_SkColorType, or if subset does
         not intersect bounds().
 
-        @param color   unpremultiplied color to write
+        @param color   sRGB unpremultiplied color to write
         @param subset  bounding integer SkRect of written pixels
         @return        true if pixels are changed
 
@@ -700,7 +684,7 @@ public:
         Returns false if colorType() is kUnknown_SkColorType, or if bounds()
         is empty.
 
-        @param color  unpremultiplied color to write
+        @param color  sRGB unpremultiplied color to write
         @return       true if pixels are changed
     */
     bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
@@ -710,13 +694,27 @@ public:
         colorType() is kUnknown_SkColorType, if subset is not nullptr and does
         not intersect bounds(), or if subset is nullptr and bounds() is empty.
 
-        @param color   unpremultiplied color to write
+        @param color   sRGB unpremultiplied color to write
         @param subset  bounding integer SkRect of pixels to write; may be nullptr
         @return        true if pixels are changed
 
         example: https://fiddle.skia.org/c/@Pixmap_erase_3
     */
-    bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
+    bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const {
+        return this->erase(color, nullptr, subset);
+    }
+
+    /** Writes color to pixels bounded by subset; returns true on success.
+        if subset is nullptr, writes colors pixels inside bounds(). Returns false if
+        colorType() is kUnknown_SkColorType, if subset is not nullptr and does
+        not intersect bounds(), or if subset is nullptr and bounds() is empty.
+
+        @param color   unpremultiplied color to write
+        @param cs      SkColorSpace of color
+        @param subset  bounding integer SkRect of pixels to write; may be nullptr
+        @return        true if pixels are changed
+    */
+    bool erase(const SkColor4f& color, SkColorSpace* cs, const SkIRect* subset = nullptr) const;
 
 private:
     const void*     fPixels;

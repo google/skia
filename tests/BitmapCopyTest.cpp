@@ -91,13 +91,11 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
         // Extract a subset which has the same width as the original. This
         // catches a bug where we cloned the genID incorrectly.
         r.setLTRB(0, 1, W, 3);
-        bitmap.setIsVolatile(true);
         // Relies on old behavior of extractSubset failing if colortype is unknown
         if (kUnknown_SkColorType != bitmap.colorType() && bitmap.extractSubset(&subset, r)) {
             REPORTER_ASSERT(reporter, subset.width() == W);
             REPORTER_ASSERT(reporter, subset.height() == 2);
             REPORTER_ASSERT(reporter, subset.alphaType() == bitmap.alphaType());
-            REPORTER_ASSERT(reporter, subset.isVolatile() == true);
 
             // Test copying an extracted subset.
             for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
@@ -120,10 +118,8 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
         }
 
         bitmap = srcPremul;
-        bitmap.setIsVolatile(false);
         if (bitmap.extractSubset(&subset, r)) {
             REPORTER_ASSERT(reporter, subset.alphaType() == bitmap.alphaType());
-            REPORTER_ASSERT(reporter, subset.isVolatile() == false);
         }
     }
 }

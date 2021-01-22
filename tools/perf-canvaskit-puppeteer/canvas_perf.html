@@ -1,0 +1,133 @@
+<!-- This benchmark run a lot of small benchmarks that are defined with a karma-like sytax
+  in canvas_perf.js
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CanvasKit SKP Perf</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/static/benchmark.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/static/canvas_perf.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <button id="start_bench">Start Benchmark</button>
+    <br>
+    <canvas id=anim width=600 height=600 style="height: 600px; width: 600px;"></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    const WIDTH  = 600;
+    const HEIGHT = 600;
+    const WARM_UP_FRAMES = 5;
+    // Keeping this a little lower because this test runs many smaller tests,
+    // each for this many frames, which could add up to a long time.
+    const MAX_FRAMES = 51;
+
+    // Any external files needed by tests in canvas_perf.js must be listed here.
+    // And checked in under canvas_perf_assets/
+    // tests may then fetch them from ctx.files['filename']
+    const testDataFiles = [
+      'test_64x64.png',
+      'test_512x512.png',
+      'test_1500x959.jpg',
+      'Roboto-Regular.ttf',
+    ];
+
+    (function() {
+      const filePromises = [];
+      for (const filename of testDataFiles) {
+        filePromises.push(fetch('/static/assets/'+filename).then((resp) => {
+          return resp.arrayBuffer(); // this is also a promise.
+        }));
+      }
+      const externals = Promise.all(filePromises).then((results) => {
+        const files = {};
+        let i=0;
+        for (const bytes of results) {
+          // store them by name
+          files[testDataFiles[i]] = bytes;
+          i++;
+        }
+        return files;
+      });
+
+      const loadCanvasKit = CanvasKitInit({
+        locateFile: (file) => '/static/' + file,
+      });
+
+      Promise.all([loadCanvasKit, externals]).then(([CanvasKit, externalFiles]) => {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        let glversion = 2;
+        if (urlSearchParams.has('webgl1')) {
+          glversion = 1;
+        }
+        let surface = getSurface(CanvasKit, glversion);
+        if (!surface) {
+          console.error('Could not make surface', window._error);
+          return;
+        }
+
+        document.getElementById('start_bench').addEventListener('click', async () => {
+          window._perfData = {};
+
+          // canvas_perf.js should have defined an array called tests whose objects have:
+          //  setup:    A function called once before testing begins, it is expected to make its
+          //            own canvas and put it in ctx.
+          //  test:     A function called to draw one frame
+          //  teardown: A function called after testing finishes
+          //  description:     A human readable description
+          //  perfkey:  A key used to save the results in perf.skia.org.
+          //
+          // For quick local bench testing, there is also an array called onlytests. This way
+          // a developer can replace tests.push with onlytests.push to just run one or two
+          // performance benchmarks they care about.
+          let testsToRun = tests;
+          if (onlytests.length) {
+            testsToRun = onlytests;
+          }
+
+          for (const t of testsToRun) {
+            let ctx = {
+              'surface': surface,
+              'files': externalFiles,
+            };
+            console.log('Benchmarking "' + t.description + '"');
+            t.setup(CanvasKit, ctx);
+            function draw() {
+              t.test(CanvasKit, ctx);
+            }
+            // TODO(nifong): is it ok to keep re-using the surface?
+            results = await startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES);
+            t.teardown(CanvasKit, ctx);
+            window._perfData[t.perfKey] = results;
+
+            // Delete and re-create surface between tests, to prevent the possibility of
+            // interference between them through the state of surface, the gl context, or things
+            // that are keyed by the surface's gen id.
+            surface.delete();
+            surface = getSurface(CanvasKit, glversion);
+
+            // TODO(nifong): provide a function similar to startTimingFrames for timing
+            // non-visual tests.
+          }
+          surface.delete();
+          window._perfDone = true;
+        });
+        console.log('Perf is ready');
+        window._perfReady = true;
+      });
+    }
+  )();
+
+  </script>
+</body>
+</html>

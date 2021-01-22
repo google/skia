@@ -36,7 +36,7 @@ static sk_sp<SkImage> makebm(int w, int h) {
 
     const SkPoint     pt = { wScalar / 2, hScalar / 2 };
 
-    const SkScalar    radius = 4 * SkMaxScalar(wScalar, hScalar);
+    const SkScalar    radius = 4 * std::max(wScalar, hScalar);
 
     constexpr SkColor     colors[] = { SK_ColorRED, SK_ColorYELLOW,
                                           SK_ColorGREEN, SK_ColorMAGENTA,
@@ -145,7 +145,7 @@ private:
     sk_sp<SkImage>  fImage;
     SkString        fName;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM( return new DrawMiniBitmapRectGM(true); )

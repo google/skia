@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkSpecialImage.h"
@@ -19,7 +20,6 @@
 #include "tools/gpu/GrContextFactory.h"
 
 class SkColorSpace;
-class GrContext;
 
 class DeviceTestingAccess {
 public:
@@ -77,7 +77,7 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     static const int kWidth = 100;
     static const int kHeight = 90;
@@ -86,7 +86,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
 
     sk_sp<SkBaseDevice> gpuDev(SkGpuDevice::Make(context, SkBudgeted::kNo, ii,
                                                  1, kBottomLeft_GrSurfaceOrigin, nullptr,
-                                                 GrMipMapped::kNo,
+                                                 GrMipmapped::kNo,
                                                  SkGpuDevice::kClear_InitContents));
 
     SkBitmap bm;

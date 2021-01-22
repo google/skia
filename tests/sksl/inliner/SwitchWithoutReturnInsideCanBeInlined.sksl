@@ -1,0 +1,13 @@
+uniform int value;
+
+inline half4 switchy(int v) {
+    half4 result = half4(1.0);
+    switch (v) {
+        case 0: result = half4(0.5);
+    }
+    return result;
+}
+
+void main() {
+    sk_FragColor = switchy(value);
+}

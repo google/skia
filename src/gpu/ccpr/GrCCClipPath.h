@@ -37,8 +37,10 @@ public:
     }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
-    void init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
-              GrCCAtlas::CoverageType atlasCoverageType, const GrCaps&);
+    void init(const SkPath& deviceSpacePath,
+              const SkIRect& desc,
+              GrCCAtlas::CoverageType atlasCoverageType,
+              const GrCaps&);
 
     void addAccess(const SkIRect& accessRect) {
         SkASSERT(this->isInitialized());
@@ -60,8 +62,10 @@ public:
     void accountForOwnPath(GrCCPerFlushResourceSpecs*) const;
     void renderPathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
 
-    const SkVector& atlasScale() const { SkASSERT(fHasAtlasTransform); return fAtlasScale; }
-    const SkVector& atlasTranslate() const { SkASSERT(fHasAtlasTransform); return fAtlasTranslate; }
+    const SkIVector& atlasTranslate() const {
+        SkASSERT(fHasAtlasTranslate);
+        return fDevToAtlasOffset;
+    }
 
 private:
     sk_sp<GrTextureProxy> fAtlasLazyProxy;
@@ -72,10 +76,7 @@ private:
     const GrCCAtlas* fAtlas = nullptr;
     SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
     SkDEBUGCODE(bool fHasAtlas = false;)
-
-    SkVector fAtlasScale;
-    SkVector fAtlasTranslate;
-    SkDEBUGCODE(bool fHasAtlasTransform = false;)
+    SkDEBUGCODE(bool fHasAtlasTranslate = false;)
 };
 
 #endif

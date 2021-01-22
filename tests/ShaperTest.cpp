@@ -37,9 +37,9 @@ struct RunHandler final : public SkShaper::RunHandler {
     SkShaper::RunHandler::Buffer runBuffer(const SkShaper::RunHandler::RunInfo& info) override {
         fGlyphCount = SkToUInt(info.glyphCount);
         fRange = info.utf8Range;
-        fGlyphs.reset(new SkGlyphID[info.glyphCount]);
-        fPositions.reset(new SkPoint[info.glyphCount]);
-        fClusters.reset(new uint32_t[info.glyphCount]);
+        fGlyphs = std::make_unique<SkGlyphID[]>(info.glyphCount);
+        fPositions = std::make_unique<SkPoint[]>(info.glyphCount);
+        fClusters = std::make_unique<uint32_t[]>(info.glyphCount);
         return SkShaper::RunHandler::Buffer{fGlyphs.get(),
                                             fPositions.get(),
                                             nullptr,

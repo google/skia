@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
-#if defined(SK_BUILD_FOR_MAC)
+#ifdef SK_BUILD_FOR_MAC
 
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
@@ -79,4 +79,4 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
 
-#endif//defined(SK_BUILD_FOR_MAC)
+#endif  // SK_BUILD_FOR_MAC

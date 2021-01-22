@@ -9,7 +9,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
-#include "src/core/SkTSort.h"
 
 namespace sk_app {
 
@@ -99,8 +98,8 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     }
 
     // Sort commands for current mode:
-    SkTQSort(fCommands.begin(), fCommands.end() - 1,
-             kAlphabetical_HelpMode == fHelpMode ? compareCommandKey : compareCommandGroup);
+    std::stable_sort(fCommands.begin(), fCommands.end(),
+                     kAlphabetical_HelpMode == fHelpMode ? compareCommandKey : compareCommandGroup);
 
     SkFont font;
     font.setSize(16);
@@ -126,7 +125,7 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     // Measure all key strings:
     SkScalar keyWidth = 0;
     for (Command& cmd : fCommands) {
-        keyWidth = SkMaxScalar(keyWidth,
+        keyWidth = std::max(keyWidth,
                                font.measureText(cmd.fKeyName.c_str(), cmd.fKeyName.size(),
                                                 SkTextEncoding::kUTF8));
     }

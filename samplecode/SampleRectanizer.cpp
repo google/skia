@@ -12,8 +12,8 @@
 #include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrRectanizer_pow2.h"
-#include "src/gpu/GrRectanizer_skyline.h"
+#include "src/gpu/GrRectanizerPow2.h"
+#include "src/gpu/GrRectanizerSkyline.h"
 
 // This slide visualizes the various GrRectanizer-derived classes behavior
 // for various input sets
@@ -180,7 +180,7 @@ private:
         fCurRandRect = 0;
     }
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

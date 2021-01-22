@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="SkottieView">
+    <attr name="backing_view" format="enum">
+      <enum name="texture_view" value="0"/>
+      <enum name="surface_view" value="1"/>
+    </attr>
+    <attr name="background_color" format="color"/>
+    <attr name="src" format="reference"/>
+    <attr name="android:repeatCount" format="integer"/>
+  </declare-styleable>
+</resources>

@@ -1,0 +1,27 @@
+// Certain useful GLSL intrinsics (or integer versions of those) that aren't in GLSL ES 1.00,
+// but are supported by the ByteCode interpreter.
+
+$genIType min($genIType x, $genIType y);
+$genIType min($genIType x, int       y);
+$genIType max($genIType x, $genIType y);
+$genIType max($genIType x, int       y);
+$genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
+$genIType clamp($genIType x, int       minVal, int       maxVal);
+
+$genType  mix($genType  x, $genType  y, $genBType a);
+$genHType mix($genHType x, $genHType y, $genBType a);
+$genIType mix($genIType x, $genIType y, $genBType a);
+$genBType mix($genBType x, $genBType y, $genBType a);
+
+$bvec lessThan($ivec x, $ivec y);
+$bvec lessThan($uvec x, $uvec y);
+$bvec lessThanEqual($ivec x, $ivec y);
+$bvec lessThanEqual($uvec x, $uvec y);
+$bvec greaterThan($ivec x, $ivec y);
+$bvec greaterThan($uvec x, $uvec y);
+$bvec greaterThanEqual($ivec x, $ivec y);
+$bvec greaterThanEqual($uvec x, $uvec y);
+$bvec equal($ivec x, $ivec y);
+$bvec equal($uvec x, $uvec y);
+$bvec notEqual($ivec x, $ivec y);
+$bvec notEqual($uvec x, $uvec y);

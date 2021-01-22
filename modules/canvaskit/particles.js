@@ -38,9 +38,9 @@ CanvasKit.MakeParticles = function(json, assets) {
 
   // Not entirely sure if it matters, but the uintptr_t are 32 bits
   // we want to copy our array of uintptr_t into the right size memory.
-  var namesPtr      = copy1dArray(assetNamePtrs, CanvasKit.HEAPU32);
-  var assetsPtr     = copy1dArray(assetDataPtrs, CanvasKit.HEAPU32);
-  var assetSizesPtr = copy1dArray(assetSizes,    CanvasKit.HEAPU32);
+  var namesPtr      = copy1dArray(assetNamePtrs, "HEAPU32");
+  var assetsPtr     = copy1dArray(assetDataPtrs, "HEAPU32");
+  var assetSizesPtr = copy1dArray(assetSizes,    "HEAPU32");
 
   var particles = CanvasKit._MakeParticles(json, assetKeys.length,
                                            namesPtr, assetsPtr, assetSizesPtr);
@@ -52,3 +52,25 @@ CanvasKit.MakeParticles = function(json, assets) {
 
   return particles;
 };
+
+CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
+CanvasKit._extraInitializations.push(function() {
+
+  CanvasKit.ParticleEffect.prototype.effectUniforms = function() {
+    var fptr = this._effectUniformPtr();
+    var numFloats = this.getEffectUniformFloatCount();
+    if (!fptr || numFloats <= 0) {
+      return new Float32Array();
+    }
+    return new Float32Array(CanvasKit.HEAPU8.buffer, fptr, numFloats);
+  }
+
+  CanvasKit.ParticleEffect.prototype.particleUniforms = function() {
+    var fptr = this._particleUniformPtr();
+    var numFloats = this.getParticleUniformFloatCount();
+    if (!fptr || numFloats <= 0) {
+      return new Float32Array();
+    }
+    return new Float32Array(CanvasKit.HEAPU8.buffer, fptr, numFloats);
+  }
+});

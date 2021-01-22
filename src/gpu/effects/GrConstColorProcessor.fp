@@ -5,59 +5,20 @@
  * found in the LICENSE file.
  */
 
-enum class InputMode {
-    kIgnore,
-    kModulateRGBA,
-    kModulateA,
-
-    kLast = kModulateA
-};
-
 layout(ctype=SkPMColor4f, tracked) in uniform half4 color;
-layout(key) in InputMode mode;
 
 @optimizationFlags {
-    OptFlags(color, mode)
+    (kConstantOutputForConstantInput_OptimizationFlag |
+     (color.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags))
 }
 
-void main() {
-    @switch (mode) {
-        case InputMode::kIgnore:
-            sk_OutColor = color;
-            break;
-        case InputMode::kModulateRGBA:
-            sk_OutColor = sk_InColor * color;
-            break;
-        case InputMode::kModulateA:
-            sk_OutColor = sk_InColor.a * color;
-            break;
-    }
+half4 main() {
+    return color;
 }
 
 @class {
-    static const int kInputModeCnt = (int) InputMode::kLast + 1;
-
-    static OptimizationFlags OptFlags(const SkPMColor4f& color, InputMode mode) {
-        OptimizationFlags flags = kConstantOutputForConstantInput_OptimizationFlag;
-        if (mode != InputMode::kIgnore) {
-            flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-        }
-        if (color.isOpaque()) {
-            flags |= kPreservesOpaqueInput_OptimizationFlag;
-        }
-        return flags;
-    }
-
-    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
-        switch (mode) {
-            case InputMode::kIgnore:
-                return color;
-            case InputMode::kModulateA:
-                return color * input.fA;
-            case InputMode::kModulateRGBA:
-                return color * input;
-        }
-        SK_ABORT("Unexpected mode");
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+        return color;
     }
 }
 
@@ -81,6 +42,5 @@ void main() {
             color = SkPMColor4f::FromBytes_RGBA(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
-    InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
-    return GrConstColorProcessor::Make(color, mode);
+    return GrConstColorProcessor::Make(color);
 }

@@ -9,6 +9,7 @@
 #define SkFontStyle_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkTPin.h"
 
 class SK_API SkFontStyle {
 public:
@@ -74,7 +75,7 @@ public:
     }
 
 private:
-    uint32_t fValue;
+    int32_t fValue;
 };
 
 #endif

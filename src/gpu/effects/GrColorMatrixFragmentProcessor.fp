@@ -5,23 +5,22 @@
  * found in the LICENSE file.
  */
 
-layout(ctype=SkMatrix44, tracked) in uniform half4x4 m;
-layout(ctype=SkVector4, tracked) in uniform half4 v;
+in fragmentProcessor? inputFP;
+layout(ctype=SkM44, tracked) in uniform half4x4 m;
+layout(ctype=SkV4, tracked) in uniform half4 v;
 layout(key) in bool unpremulInput;
 layout(key) in bool clampRGBOutput;
 layout(key) in bool premulOutput;
 
 @optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
     kConstantOutputForConstantInput_OptimizationFlag
 }
 
 void main() {
-    half4 inputColor = sk_InColor;
+    half4 inputColor = sample(inputFP);
     @if (unpremulInput) {
-        // The max() is to guard against 0 / 0 during unpremul when the incoming color is
-        // transparent black.
-        half nonZeroAlpha = max(inputColor.a, 0.0001);
-        inputColor = half4(inputColor.rgb / nonZeroAlpha, nonZeroAlpha);
+        inputColor = unpremul(inputColor);
     }
     sk_OutColor = m * inputColor + v;
     @if (clampRGBOutput) {
@@ -35,7 +34,8 @@ void main() {
 }
 
 @class {
-    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+        SkPMColor4f input = ConstantOutputForConstantInput(this->childProcessor(0), inColor);
         SkColor4f color;
         if (unpremulInput) {
             color = input.unpremul();
@@ -45,11 +45,8 @@ void main() {
             color.fB = input.fB;
             color.fA = input.fA;
         }
-        m.mapScalars(color.vec());
-        color.fR += v.fData[0];
-        color.fG += v.fData[1];
-        color.fB += v.fData[2];
-        color.fA += v.fData[3];
+        auto v4 = m.map(color.fR, color.fG, color.fB, color.fA) + v;
+        color = {v4.x, v4.y, v4.z, v4.w};
         color.fA = SkTPin(color.fA, 0.f, 1.f);
         if (clampRGBOutput) {
             color.fR = SkTPin(color.fR, 0.f, 1.f);
@@ -65,16 +62,18 @@ void main() {
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(const float matrix[20], bool unpremulInput, bool clampRGBOutput, bool premulOutput) {
-        SkMatrix44 m44;
-        m44.set4x4(
-                matrix[0], matrix[5], matrix[10], matrix[15],
-                matrix[1], matrix[6], matrix[11], matrix[16],
-                matrix[2], matrix[7], matrix[12], matrix[17],
-                matrix[3], matrix[8], matrix[13], matrix[18]
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     const float matrix[20], bool unpremulInput,
+                                                     bool clampRGBOutput, bool premulOutput) {
+        SkM44 m44(
+            matrix[ 0], matrix[ 1], matrix[ 2], matrix[ 3],
+            matrix[ 5], matrix[ 6], matrix[ 7], matrix[ 8],
+            matrix[10], matrix[11], matrix[12], matrix[13],
+            matrix[15], matrix[16], matrix[17], matrix[18]
         );
-        auto v4 = SkVector4(matrix[4], matrix[9], matrix[14], matrix[19]);
-        return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(m44, v4, unpremulInput, clampRGBOutput, premulOutput));
+        SkV4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
+        return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(
+            std::move(inputFP), m44, v4, unpremulInput, clampRGBOutput, premulOutput));
     }
 }
 
@@ -86,5 +85,5 @@ void main() {
     bool unpremul = d->fRandom->nextBool();
     bool clampRGB = d->fRandom->nextBool();
     bool premul = d->fRandom->nextBool();
-    return Make(m, unpremul, clampRGB, premul);
+    return Make(d->inputFP(), m, unpremul, clampRGB, premul);
 }

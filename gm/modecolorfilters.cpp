@@ -133,7 +133,7 @@ protected:
 
         SkPaint paint;
         int idx = 0;
-        const int kRectsPerRow = SkMax32(this->getISize().fWidth / kRectWidth, 1);
+        const int kRectsPerRow = std::max(this->getISize().fWidth / kRectWidth, 1);
         for (size_t cfm = 0; cfm < SK_ARRAY_COUNT(modes); ++cfm) {
             for (size_t cfc = 0; cfc < SK_ARRAY_COUNT(colors); ++cfc) {
                 paint.setColorFilter(SkColorFilters::Blend(colors[cfc], modes[cfm]));
@@ -162,11 +162,11 @@ protected:
 
 private:
     sk_sp<SkShader> fBmpShader;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new ModeColorFilterGM; )
 
-}
+}  // namespace skiagm

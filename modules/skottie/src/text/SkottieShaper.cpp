@@ -12,6 +12,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkTLazy.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
@@ -81,9 +82,9 @@ public:
         SkFontMetrics metrics;
         info.fFont.getMetrics(&metrics);
         if (!fLineCount) {
-            fFirstLineAscent = SkTMin(fFirstLineAscent, metrics.fAscent);
+            fFirstLineAscent = std::min(fFirstLineAscent, metrics.fAscent);
         }
-        fLastLineDescent = SkTMax(fLastLineDescent, metrics.fDescent);
+        fLastLineDescent = std::max(fLastLineDescent, metrics.fDescent);
     }
 
     void commitRunInfo() override {}
@@ -140,12 +141,10 @@ public:
             // All glyphs are pending in a single blob.
             SkASSERT(fResult.fFragments.empty());
             fResult.fFragments.reserve(1);
-            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, false});
+            fResult.fFragments.push_back({fBuilder.make(), {fBox.x(), fBox.y()}, 0, 0, 0, false});
         }
 
-        // Use the explicit ascent, when specified.
-        // Note: ascent values are negative (relative to the baseline).
-        const auto ascent = fDesc.fAscent ? fDesc.fAscent : fFirstLineAscent;
+        const auto ascent = this->ascent();
 
         // For visual VAlign modes, we use a hybrid extent box computed as the union of
         // actual visual bounds and the vertical typographical extent.
@@ -172,34 +171,38 @@ public:
             return box;
         };
 
-        SkASSERT(!shaped_size || fDesc.fVAlign == Shaper::VAlign::kVisualCenter);
+        // Only compute the extent box when needed.
+        SkTLazy<SkRect> ebox;
 
-        // Perform additional adjustments based on VAlign.
-        float v_offset = 0;
+        // Vertical adjustments.
+        float v_offset = -fDesc.fLineShift;
+
         switch (fDesc.fVAlign) {
         case Shaper::VAlign::kTop:
-            v_offset = -ascent;
+            v_offset -= ascent;
             break;
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
         case Shaper::VAlign::kVisualTop:
-            v_offset = fBox.fTop - extent_box().fTop;
+            ebox.init(extent_box());
+            v_offset += fBox.fTop - ebox->fTop;
             break;
-        case Shaper::VAlign::kVisualCenter: {
-            const auto ebox = extent_box();
-            v_offset = fBox.centerY() - ebox.centerY();
-            if (shaped_size) {
-                *shaped_size = SkSize::Make(ebox.width(), ebox.height());
-            }
-        } break;
+        case Shaper::VAlign::kVisualCenter:
+            ebox.init(extent_box());
+            v_offset += fBox.centerY() - ebox->centerY();
+            break;
         case Shaper::VAlign::kVisualBottom:
-            v_offset = fBox.fBottom - extent_box().fBottom;
+            ebox.init(extent_box());
+            v_offset += fBox.fBottom - ebox->fBottom;
             break;
-        case Shaper::VAlign::kVisualResizeToFit:
-        case Shaper::VAlign::kVisualDownscaleToFit:
-            SkASSERT(false);
-            break;
+        }
+
+        if (shaped_size) {
+            if (!ebox.isValid()) {
+                ebox.init(extent_box());
+            }
+            *shaped_size = SkSize::Make(ebox->width(), ebox->height());
         }
 
         if (v_offset) {
@@ -224,10 +227,19 @@ public:
             return;
         }
 
-        // When no text box is present, text is laid out on a single infinite line
-        // (modulo explicit line breaks).
-        const auto shape_width = fBox.isEmpty() ? SK_ScalarMax
-                                                : fBox.width();
+        // In default paragraph mode (VAlign::kTop), AE clips out lines when the baseline
+        // goes below the box lower edge.
+        if (fDesc.fVAlign == Shaper::VAlign::kTop) {
+            // fOffset is relative to the first line baseline.
+            const auto max_offset = fBox.height() + this->ascent(); // NB: ascent is negative
+            if (fOffset.y() > max_offset) {
+                return;
+            }
+        }
+
+        const auto shape_width = fDesc.fLinebreak == Shaper::LinebreakPolicy::kExplicit
+                                    ? SK_ScalarMax
+                                    : fBox.width();
 
         fUTF8 = start;
         fShaper->shape(start, SkToSizeT(end - start), fFont, true, shape_width, this);
@@ -250,6 +262,20 @@ private:
             return c == ' ' || c == '\t' || c == '\r' || c == '\n';
         };
 
+        float ascent = 0;
+
+        if (fDesc.fFlags & Shaper::Flags::kTrackFragmentAdvanceAscent) {
+            SkFontMetrics metrics;
+            rec.fFont.getMetrics(&metrics);
+            ascent = metrics.fAscent;
+
+            // Note: we use per-glyph advances for anchoring, but it's unclear whether this
+            // is exactly the same as AE.  E.g. are 'acute' glyphs anchored separately for fonts
+            // in which they're distinct?
+            fAdvanceBuffer.resize(rec.fGlyphCount);
+            fFont.getWidths(glyphs, SkToInt(rec.fGlyphCount), fAdvanceBuffer.data());
+        }
+
         // In fragmented mode we immediately push the glyphs to fResult,
         // one fragment (blob) per glyph.  Glyph positioning is externalized
         // (positions returned in Fragment::fPos).
@@ -258,10 +284,15 @@ private:
             blob_buffer.glyphs[0] = glyphs[i];
             blob_buffer.pos[0] = blob_buffer.pos[1] = 0;
 
+            const auto advance = (fDesc.fFlags & Shaper::Flags::kTrackFragmentAdvanceAscent)
+                    ? fAdvanceBuffer[SkToInt(i)]
+                    : 0.0f;
+
             // Note: we only check the first code point in the cluster for whitespace.
             // It's unclear whether thers's a saner approach.
             fResult.fFragments.push_back({fBuilder.make(),
                                           { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
+                                          advance, ascent,
                                           line_index, is_whitespace(fUTF8[clusters[i]])
                                          });
             fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
@@ -293,6 +324,12 @@ private:
         return 0.0f; // go home, msvc...
     }
 
+    SkScalar ascent() const {
+        // Use the explicit ascent, when specified.
+        // Note: ascent values are negative (relative to the baseline).
+        return fDesc.fAscent ? fDesc.fAscent : fFirstLineAscent;
+    }
+
     static constexpr SkGlyphID kMissingGlyphID = 0;
 
     const Shaper::TextDesc&   fDesc;
@@ -309,6 +346,8 @@ private:
     SkSTArray<16, RunRec>         fLineRuns;
     size_t                        fLineGlyphCount = 0;
 
+    SkSTArray<64, float, true>    fAdvanceBuffer;
+
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
@@ -324,8 +363,6 @@ private:
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
                          const SkRect& box, const sk_sp<SkFontMgr>& fontmgr,
                          SkSize* shaped_size = nullptr) {
-    SkASSERT(desc.fVAlign != Shaper::VAlign::kVisualResizeToFit);
-
     const auto& is_line_break = [](SkUnichar uch) {
         // TODO: other explicit breaks?
         return uch == '\r';
@@ -349,8 +386,6 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
                           const SkRect& box, const sk_sp<SkFontMgr>& fontmgr) {
-    SkASSERT(orig_desc.fVAlign == Shaper::VAlign::kVisualResizeToFit);
-
     Shaper::Result best_result;
 
     if (box.isEmpty() || orig_desc.fTextSize <= 0) {
@@ -358,7 +393,6 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
     }
 
     auto desc = orig_desc;
-    desc.fVAlign = Shaper::VAlign::kVisualCenter;
 
     float in_scale = 0,                                 // maximum scale that fits inside
          out_scale = std::numeric_limits<float>::max(), // minimum scale that doesn't fit
@@ -374,6 +408,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         SkASSERT(try_scale >= in_scale && try_scale <= out_scale);
         desc.fTextSize   = try_scale * orig_desc.fTextSize;
         desc.fLineHeight = try_scale * orig_desc.fLineHeight;
+        desc.fLineShift  = try_scale * orig_desc.fLineShift;
         desc.fAscent     = try_scale * orig_desc.fAscent;
 
         SkSize res_size = {0, 0};
@@ -402,35 +437,30 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    return (desc.fVAlign == VAlign::kVisualResizeToFit ||
-            desc.fVAlign == VAlign::kVisualDownscaleToFit) // makes no sense in point mode
+    return (desc.fResize == ResizePolicy::kScaleToFit ||
+            desc.fResize == ResizePolicy::kDownscaleToFit) // makes no sense in point mode
             ? Result()
             : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
 }
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    if (desc.fVAlign == VAlign::kVisualResizeToFit) {
+    switch(desc.fResize) {
+    case ResizePolicy::kNone:
+        return ShapeImpl(txt, desc, box, fontmgr);
+    case ResizePolicy::kScaleToFit:
         return ShapeToFit(txt, desc, box, fontmgr);
-    }
-
-    if (desc.fVAlign == VAlign::kVisualDownscaleToFit) {
-        auto adjusted_desc = desc;
-        adjusted_desc.fVAlign = VAlign::kVisualCenter;
-
+    case ResizePolicy::kDownscaleToFit: {
         SkSize size;
-        auto result = ShapeImpl(txt, adjusted_desc, box, fontmgr, &size);
+        auto result = ShapeImpl(txt, desc, box, fontmgr, &size);
 
-        if (size.width() <= box.width() && size.height() <= box.height()) {
-            return result;
-        }
-
-        adjusted_desc.fVAlign = VAlign::kVisualResizeToFit;
-
-        return ShapeToFit(txt, adjusted_desc, box, fontmgr);
+        return (size.width() <= box.width() && size.height() <= box.height())
+                ? result
+                : ShapeToFit(txt, desc, box, fontmgr);
+    }
     }
 
-    return ShapeImpl(txt, desc, box, fontmgr);
+    SkUNREACHABLE;
 }
 
 SkRect Shaper::Result::computeVisualBounds() const {

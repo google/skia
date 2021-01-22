@@ -135,7 +135,7 @@ private:
 static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer,
                            sk_sp<SkColorSpace> colorSpace, int writeFd) {
     const SkIRect bounds = pic.cullRect().round();
-    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    const SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
     SkTextBlobCacheDiffCanvas filter(bounds.width(), bounds.height(), props,
                                      strikeServer, std::move(colorSpace), true);
     pic.playback(&filter);
@@ -258,7 +258,7 @@ static int renderer(
                 return 0;
             }
             if (gPurgeFontCaches) discardableManager.purgeAll();
-            push_font_data(*pic.get(), &server, colorSpace, writeFd);
+            push_font_data(*pic, &server, colorSpace, writeFd);
         }
     } else {
         stream = skpData;

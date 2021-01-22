@@ -218,11 +218,11 @@ private:
     sk_sp<SkShader> fBGShader;
     sk_sp<SkShader> fBmpShader;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new Xfermodes3GM;)
 
-}
+}  // namespace skiagm

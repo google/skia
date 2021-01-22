@@ -1,0 +1,22 @@
+/*#pragma settings NoInline*/
+
+float this_function_is_prototyped_at_the_start_and_never_defined();
+half4 this_function_is_defined_before_use();
+half4 this_function_is_defined_after_use();
+
+half4 this_function_is_defined_before_use() {
+    return half4(1);
+}
+
+bool this_function_is_prototyped_in_the_middle_and_never_defined(float4x4 a);
+
+void main() {
+    sk_FragColor = this_function_is_defined_before_use();
+    sk_FragColor = this_function_is_defined_after_use();
+}
+
+half4 this_function_is_defined_after_use() {
+    return half4(2);
+}
+
+int3 this_function_is_prototyped_at_the_very_end_and_never_defined(half2x3 x, bool2 y);

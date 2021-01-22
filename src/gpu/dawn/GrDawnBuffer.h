@@ -12,11 +12,11 @@
 #include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
-struct GrDawnStagingBuffer;
 
 class GrDawnBuffer : public GrGpuBuffer {
 public:
-    GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType tpye, GrAccessPattern pattern);
+    GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type, GrAccessPattern pattern);
+
     ~GrDawnBuffer() override;
 
     void onMap() override;
@@ -26,10 +26,27 @@ public:
     GrDawnGpu* getDawnGpu() const;
     wgpu::Buffer get() const { return fBuffer; }
 
+    void mapWriteAsync();
+    void mapReadAsync();
+
+    void setMapPtr(void* mapPtr) {
+        fMapPtr = mapPtr;
+    }
+
 private:
     wgpu::Buffer fBuffer;
-    GrDawnStagingBuffer* fStagingBuffer;
-    typedef GrGpuBuffer INHERITED;
+
+    enum class Mappable {
+        kNot,
+        kReadOnly,
+        kWriteOnly,
+    };
+    Mappable fMappable = Mappable::kNot;
+
+    wgpu::Buffer fStagingBuffer;
+    size_t fStagingOffset = 0;
+
+    using INHERITED = GrGpuBuffer;
 };
 
 #endif

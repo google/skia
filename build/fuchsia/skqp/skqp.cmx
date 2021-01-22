@@ -1,7 +1,7 @@
 {
     "program": {
         "binary": "bin/skqp",
-        "args" : [ "/pkg/data", "tmp/logs" ]
+        "args" : [ "/pkg/data", "skqp/rendertests_fuchsia.txt", "/tmp/logs" ]
     },
     "sandbox": {
         "dev": [
@@ -9,9 +9,10 @@
         ],
         "features": [
             "vulkan",
-            "system-temp"
+            "isolated-temp"
         ],
         "services": [
+            "fuchsia.logger.LogSink",
             "fuchsia.sysmem.Allocator",
             "fuchsia.tracing.provider.Registry",
             "fuchsia.vulkan.loader.Loader"

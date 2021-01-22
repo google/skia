@@ -14,6 +14,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkColorSpace;
@@ -78,8 +79,17 @@ protected:
 
     bool onAppendStages(const SkStageRec&) const override;
 
+    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                          const SkMatrixProvider&, const SkMatrix* localM,
+                          SkFilterQuality quality, const SkColorInfo& dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
+
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
+
+    // Produce t from (x,y), modifying mask if it should be anything other than ~0.
+    virtual skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
+                                 skvm::Coord coord, skvm::I32* mask) const = 0;
 
     template <typename T, typename... Args>
     static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {
@@ -131,7 +141,7 @@ private:
 
     bool                                        fColorsAreOpaque;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

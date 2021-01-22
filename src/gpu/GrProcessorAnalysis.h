@@ -86,7 +86,7 @@ private:
 enum class GrProcessorAnalysisCoverage { kNone, kSingleChannel, kLCD };
 
 /**
- * GrColorFragmentProcessorAnalysis gathers invariant data from a set of color fragment processor.
+ * GrColorFragmentProcessorAnalysis gathers invariant data from a set of color fragment processors.
  * It is used to recognize optimizations that can simplify the generated shader or make blending
  * more effecient.
  */
@@ -95,7 +95,7 @@ public:
     GrColorFragmentProcessorAnalysis() = delete;
 
     GrColorFragmentProcessorAnalysis(const GrProcessorAnalysisColor& input,
-                                     const GrFragmentProcessor* const* processors,
+                                     std::unique_ptr<GrFragmentProcessor> const fps[],
                                      int cnt);
 
     bool isOpaque() const { return fIsOpaque; }

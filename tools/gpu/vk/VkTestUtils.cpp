@@ -17,6 +17,11 @@
     #endif
 #endif
 
+#include <algorithm>
+
+#if defined(SK_BUILD_FOR_UNIX)
+#include <execinfo.h>
+#endif
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "src/core/SkAutoMalloc.h"
@@ -30,23 +35,17 @@ namespace sk_gpu_test {
 
 bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
                                       PFN_vkGetDeviceProcAddr* devProc) {
-#ifdef SK_MOLTENVK
-    // MoltenVK is a statically linked framework, so there is no Vulkan library to load.
-    *instProc = &vkGetInstanceProcAddr;
-    *devProc = &vkGetDeviceProcAddr;
-    return true;
-#else
     static void* vkLib = nullptr;
     static PFN_vkGetInstanceProcAddr localInstProc = nullptr;
     static PFN_vkGetDeviceProcAddr localDevProc = nullptr;
     if (!vkLib) {
-        vkLib = DynamicLoadLibrary(SK_GPU_TOOLS_VK_LIBRARY_NAME);
+        vkLib = SkLoadDynamicLibrary(SK_GPU_TOOLS_VK_LIBRARY_NAME);
         if (!vkLib) {
             return false;
         }
-        localInstProc = (PFN_vkGetInstanceProcAddr) GetProcedureAddress(vkLib,
+        localInstProc = (PFN_vkGetInstanceProcAddr) SkGetProcedureAddress(vkLib,
                                                                         "vkGetInstanceProcAddr");
-        localDevProc = (PFN_vkGetDeviceProcAddr) GetProcedureAddress(vkLib,
+        localDevProc = (PFN_vkGetDeviceProcAddr) SkGetProcedureAddress(vkLib,
                                                                      "vkGetDeviceProcAddr");
     }
     if (!localInstProc || !localDevProc) {
@@ -55,7 +54,6 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
     *instProc = localInstProc;
     *devProc = localDevProc;
     return true;
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,12 +61,8 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
 
 #ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
-    // elements of VK_LAYER_LUNARG_standard_validation
-    "VK_LAYER_GOOGLE_threading",
-    "VK_LAYER_LUNARG_parameter_validation",
-    "VK_LAYER_LUNARG_object_tracker",
-    "VK_LAYER_LUNARG_core_validation",
-    "VK_LAYER_GOOGLE_unique_objects",
+    // single merged layer
+    "VK_LAYER_KHRONOS_validation",
     // not included in standard_validation
     //"VK_LAYER_LUNARG_api_dump",
     //"VK_LAYER_LUNARG_vktrace",
@@ -98,6 +92,16 @@ static int should_include_debug_layer(const char* layerName,
     return -1;
 }
 
+static void print_backtrace() {
+#if defined(SK_BUILD_FOR_UNIX)
+    void* stack[64];
+    int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+    backtrace_symbols_fd(stack, count, 2);
+#else
+    // Please add implementations for other platforms.
+#endif
+}
+
 VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     VkDebugReportFlagsEXT       flags,
     VkDebugReportObjectTypeEXT  objectType,
@@ -108,19 +112,26 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     const char*                 pMessage,
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        // See https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/1887
+        if (strstr(pMessage, "VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-01521") ||
+            strstr(pMessage, "VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-01522")) {
+            return VK_FALSE;
+        }
+        // See https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/2171
+        if (strstr(pMessage, "VUID-vkCmdDraw-None-02686") ||
+            strstr(pMessage, "VUID-vkCmdDrawIndexed-None-02686")) {
+            return VK_FALSE;
+        }
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        print_backtrace();
+        SkDEBUGFAIL("Vulkan debug layer error");
         return VK_TRUE; // skip further layers
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-        // There is currently a bug in the spec which doesn't have
-        // VK_STRUCTURE_TYPE_BLEND_OPERATION_ADVANCED_FEATURES_EXT as an allowable pNext struct in
-        // VkDeviceCreateInfo. So we ignore that warning since it is wrong.
-        if (!strstr(pMessage,
-                    "pCreateInfo->pNext chain includes a structure with unexpected VkStructureType "
-                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT")) {
-            SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
-        }
+        SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        print_backtrace();
     } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
         SkDebugf("Vulkan perf warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        print_backtrace();
     } else {
         SkDebugf("Vulkan info/debug [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
     }
@@ -441,7 +452,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         apiVersion = VK_MAKE_VERSION(1, 1, 0);
     }
 
-    instanceVersion = SkTMin(instanceVersion, apiVersion);
+    instanceVersion = std::min(instanceVersion, apiVersion);
 
     VkPhysicalDevice physDev;
     VkDevice device;
@@ -472,7 +483,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         instanceLayerNames.push_back(instanceLayers[i].layerName);
     }
     for (int i = 0; i < instanceExtensions.count(); ++i) {
-        if (strncmp(instanceExtensions[i].extensionName, "VK_KHX", 6)) {
+        if (strncmp(instanceExtensions[i].extensionName, "VK_KHX", 6) != 0) {
             instanceExtensionNames.push_back(instanceExtensions[i].extensionName);
         }
     }
@@ -557,7 +568,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
 
     VkPhysicalDeviceProperties physDeviceProperties;
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
-    int physDeviceVersion = SkTMin(physDeviceProperties.apiVersion, apiVersion);
+    int physDeviceVersion = std::min(physDeviceProperties.apiVersion, apiVersion);
 
     if (isProtected && physDeviceVersion < VK_MAKE_VERSION(1, 1, 0)) {
         SkDebugf("protected requires vk physical device version 1.1\n");
@@ -630,13 +641,35 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     for (int i = 0; i < deviceLayers.count(); ++i) {
         deviceLayerNames.push_back(deviceLayers[i].layerName);
     }
+
+    // We can't have both VK_KHR_buffer_device_address and VK_EXT_buffer_device_address as
+    // extensions. So see if we have the KHR version and if so don't push back the EXT version in
+    // the next loop.
+    bool hasKHRBufferDeviceAddress = false;
+    for (int i = 0; i < deviceExtensions.count(); ++i) {
+        if (!strcmp(deviceExtensions[i].extensionName, "VK_KHR_buffer_device_address")) {
+            hasKHRBufferDeviceAddress = true;
+            break;
+        }
+    }
+
     for (int i = 0; i < deviceExtensions.count(); ++i) {
         // Don't use experimental extensions since they typically don't work with debug layers and
         // often are missing dependecy requirements for other extensions. Additionally, these are
         // often left behind in the driver even after they've been promoted to real extensions.
-        if (strncmp(deviceExtensions[i].extensionName, "VK_KHX", 6) &&
-            strncmp(deviceExtensions[i].extensionName, "VK_NVX", 6)) {
-            deviceExtensionNames.push_back(deviceExtensions[i].extensionName);
+        if (0 != strncmp(deviceExtensions[i].extensionName, "VK_KHX", 6) &&
+            0 != strncmp(deviceExtensions[i].extensionName, "VK_NVX", 6)) {
+
+            // This is an nvidia extension that isn't supported by the debug layers so we get lots
+            // of warnings. We don't actually use it, so it is easiest to just not enable it.
+            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency")) {
+                continue;
+            }
+
+            if (!hasKHRBufferDeviceAddress ||
+                0 != strcmp(deviceExtensions[i].extensionName, "VK_EXT_buffer_device_address")) {
+                deviceExtensionNames.push_back(deviceExtensions[i].extensionName);
+            }
         }
     }
 
@@ -770,6 +803,6 @@ void FreeVulkanFeaturesStructs(const VkPhysicalDeviceFeatures2* features) {
     }
 }
 
-}
+}  // namespace sk_gpu_test
 
 #endif

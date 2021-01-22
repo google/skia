@@ -16,41 +16,75 @@ namespace SkSL {
 /**
  * An 'if' statement.
  */
-struct IfStatement : public Statement {
+class IfStatement final : public Statement {
+public:
+    static constexpr Kind kStatementKind = Kind::kIf;
+
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-    : INHERITED(offset, kIf_Kind)
-    , fIsStatic(isStatic)
-    , fTest(std::move(test))
-    , fIfTrue(std::move(ifTrue))
-    , fIfFalse(std::move(ifFalse)) {}
+        : INHERITED(offset, kStatementKind)
+        , fTest(std::move(test))
+        , fIfTrue(std::move(ifTrue))
+        , fIfFalse(std::move(ifFalse))
+        , fIsStatic(isStatic) {}
+
+    bool isStatic() const {
+        return fIsStatic;
+    }
+
+    std::unique_ptr<Expression>& test() {
+        return fTest;
+    }
+
+    const std::unique_ptr<Expression>& test() const {
+        return fTest;
+    }
+
+    std::unique_ptr<Statement>& ifTrue() {
+        return fIfTrue;
+    }
+
+    const std::unique_ptr<Statement>& ifTrue() const {
+        return fIfTrue;
+    }
+
+    std::unique_ptr<Statement>& ifFalse() {
+        return fIfFalse;
+    }
+
+    const std::unique_ptr<Statement>& ifFalse() const {
+        return fIfFalse;
+    }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new IfStatement(fOffset, fIsStatic, fTest->clone(),
-                fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
+        return std::unique_ptr<Statement>(new IfStatement(fOffset, this->isStatic(),
+                                                          this->test()->clone(),
+                                                          this->ifTrue()->clone(),
+                                                          this->ifFalse() ? this->ifFalse()->clone()
+                                                                          : nullptr));
     }
 
     String description() const override {
         String result;
-        if (fIsStatic) {
+        if (this->isStatic()) {
             result += "@";
         }
-        result += "if (" + fTest->description() + ") " + fIfTrue->description();
-        if (fIfFalse) {
-            result += " else " + fIfFalse->description();
+        result += "if (" + this->test()->description() + ") " + this->ifTrue()->description();
+        if (this->ifFalse()) {
+            result += " else " + this->ifFalse()->description();
         }
         return result;
     }
 
-    bool fIsStatic;
+private:
     std::unique_ptr<Expression> fTest;
     std::unique_ptr<Statement> fIfTrue;
-    // may be null
     std::unique_ptr<Statement> fIfFalse;
+    bool fIsStatic;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

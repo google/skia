@@ -74,33 +74,28 @@ public:
     // V71: Unify erode and dilate image filters
     // V72: SkColorFilter_Matrix domain (rgba vs. hsla)
     // V73: Use SkColor4f in per-edge AA quad API
+    // V74: MorphologyImageFilter internal radius is SkScaler
+    // V75: SkVertices switched from unsafe use of SkReader32 to SkReadBuffer (like everything else)
+    // V76: Add filtering enum to ImageShader
+    // V77: Explicit filtering options on imageshaders
+    // V78: Serialize skmipmap data for images that have it
+    // V79: Cubic Resampler option on imageshader
 
     enum Version {
-        kTileModeInBlurImageFilter_Version  = 56,
-        kTileInfoInSweepGradient_Version    = 57,
-        k2PtConicalNoFlip_Version           = 58,
-        kRemovePictureImageFilterLocalSpace = 59,
-        kRemoveHeaderFlags_Version          = 60,
-        kTwoColorDrawShadow_Version         = 61,
-        kDontNegateImageSize_Version        = 62,
-        kStoreImageBounds_Version           = 63,
-        kRemoveOccluderFromBlurMaskFilter   = 64,
-        kFloat4PaintColor_Version           = 65,
-        kSaveBehind_Version                 = 66,
-        kSerializeFonts_Version             = 67,
-        kPaintDoesntSerializeFonts_Version  = 68,
-        kCleanupImageFilterEnums_Version    = 69,
-        kHideImageFilterImpls_Version       = 70,
-        kUnifyErodeDilateImpls_Version      = 71,
-        kMatrixColorFilterDomain_Version    = 72,
-        kEdgeAAQuadColor4f_Version          = 73,
+        kMorphologyTakesScalar_Version      = 74,
+        kVerticesUseReadBuffer_Version      = 75,
+        kFilterEnumInImageShader_Version    = 76,
+        kFilterOptionsInImageShader_Version = 77,
+        kSerializeMipmaps_Version           = 78,
+        kCubicResamplerImageShader_Version  = 79,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
-        kMin_Version     = kTileModeInBlurImageFilter_Version,
-        kCurrent_Version = kEdgeAAQuadColor4f_Version
+        kMin_Version     = kMorphologyTakesScalar_Version,
+        kCurrent_Version = kCubicResamplerImageShader_Version
     };
 
-    static_assert(kMin_Version <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
+    static_assert(SkPicturePriv::kMin_Version <= SkPicturePriv::kCubicResamplerImageShader_Version,
+        "Remove SkFontDescriptor::maybeAsSkFontData, SkFontMgr::makeFromFontData, kFontAxes");
 };
 
 #endif

@@ -13,7 +13,7 @@
 #include "src/core/SkDiscardableMemory.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkOpts.h"
 
 #include <stddef.h>
@@ -70,7 +70,7 @@ namespace {
             return rec->getKey();
         }
     };
-}
+}  // namespace
 
 class SkResourceCache::Hash :
     public SkTHashTable<SkResourceCache::Rec*, SkResourceCache::Key, HashTraits> {};
@@ -434,7 +434,7 @@ size_t SkResourceCache::getEffectiveSingleAllocationByteLimit() const {
         if (0 == limit) {
             limit = fTotalByteLimit;
         } else {
-            limit = SkTMin(limit, fTotalByteLimit);
+            limit = std::min(limit, fTotalByteLimit);
         }
     }
     return limit;

@@ -1,0 +1,24 @@
+void test_half() {
+    half one = 1;
+    half two = 2;
+
+    sk_FragColor.r = (half4(-1) == -half4(-half2(-1), half2(1))) ? 1 : 0;
+    sk_FragColor.g = (half4(1) != -half4(1)) ? 1 : 0;
+    sk_FragColor.b = (-half4(two) == half4(-two, half3(-two))) ? 1 : 0;
+    sk_FragColor.a = (-half2(-one, one + one) == -half2(one - two, two)) ? 1 : 0;
+}
+
+void test_int() {
+    int one = 1;
+    int two = 2;
+
+    sk_FragColor.r = (int4(-1) == -int4(-int2(-1), int2(1))) ? 1 : 0;
+    sk_FragColor.g = (int4(1) != -int4(1)) ? 1 : 0;
+    sk_FragColor.b = (-int4(two) == int4(-two, int3(-two))) ? 1 : 0;
+    sk_FragColor.a = (-int2(-one, one + one) == -int2(one - two, two)) ? 1 : 0;
+}
+
+void main() {
+    test_half();
+    test_int();
+}

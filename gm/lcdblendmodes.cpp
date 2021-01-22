@@ -72,7 +72,8 @@ protected:
         canvas->drawRect(r, p);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-        auto        surface(ToolUtils::makeSurface(canvas, info));
+        SkSurfaceProps props = SkSurfaceProps(0, kRGB_H_SkPixelGeometry);
+        auto surface(ToolUtils::makeSurface(canvas, info, &props));
 
         SkCanvas* surfCanvas = surface->getCanvas();
         this->drawColumn(surfCanvas, SK_ColorBLACK, SK_ColorWHITE, false);
@@ -146,10 +147,10 @@ protected:
 private:
     SkScalar fTextHeight;
     sk_sp<SkShader> fCheckerboard;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new LcdBlendGM; )
-}
+}  // namespace skiagm

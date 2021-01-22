@@ -38,7 +38,7 @@ private:
     const SkString fFamilyName;
     const int fIndex;
 
-    typedef SkTypeface_FreeType INHERITED;
+    using INHERITED = SkTypeface_FreeType;
 };
 
 /** The empty SkTypeface implementation for the custom font manager.
@@ -51,9 +51,10 @@ public:
 protected:
     std::unique_ptr<SkStreamAsset> onOpenStream(int*) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
+    std::unique_ptr<SkFontData> onMakeFontData() const override;
 
 private:
-    typedef SkTypeface_Custom INHERITED;
+    using INHERITED = SkTypeface_Custom;
 };
 
 /** The stream SkTypeface implementation for the custom font manager. */
@@ -71,7 +72,7 @@ protected:
 private:
     const std::unique_ptr<const SkFontData> fData;
 
-    typedef SkTypeface_Custom INHERITED;
+    using INHERITED = SkTypeface_Custom;
 };
 
 /** The file SkTypeface implementation for the custom font manager. */
@@ -83,11 +84,12 @@ public:
 protected:
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
+    std::unique_ptr<SkFontData> onMakeFontData() const override;
 
 private:
     SkString fPath;
 
-    typedef SkTypeface_Custom INHERITED;
+    using INHERITED = SkTypeface_Custom;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -21,19 +21,21 @@ public:
     SkClipStack& cs() { return fClipStack; }
     const SkClipStack& cs() const { return fClipStack; }
 
-    SkIRect devClipBounds() const;
-
 protected:
     void onSave() override;
     void onRestore() override;
     void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
     void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
     void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
+    void onClipShader(sk_sp<SkShader>) override;
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
+    void onReplaceClip(const SkIRect& rect) override;
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     bool onClipIsAA() const override;
+    bool onClipIsWideOpen() const override;
     void onAsRgnClip(SkRegion*) const override;
     ClipType onGetClipType() const override;
+    SkIRect onDevClipBounds() const override;
 
 private:
     enum {
@@ -42,7 +44,7 @@ private:
     intptr_t fStorage[kPreallocCount * sizeof(SkClipStack::Element) / sizeof(intptr_t)];
     SkClipStack fClipStack;
 
-    typedef SkBaseDevice INHERITED;
+    using INHERITED = SkBaseDevice;
 };
 
 #endif

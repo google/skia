@@ -53,7 +53,7 @@ The changes created by the release rollers:
 View current and upcoming RoboCops
 ----------------------------------
 
-The list of RoboCops is specified in the [skia-tree-status web app](http://skia-tree-status.appspot.com/robocop). The current RoboCop is highlighted in green.
+The list of RoboCops is specified in the [tree-status web app](http://tree-status.skia.org/robocop). The current RoboCop is highlighted in green.
 The banner on the top of the [status page](https://status.skia.org) also displays the current RoboCop.
 
 

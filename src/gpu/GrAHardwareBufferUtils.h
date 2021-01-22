@@ -14,7 +14,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 
-class GrContext;
+class GrDirectContext;
 
 extern "C" {
     typedef struct AHardwareBuffer AHardwareBuffer;
@@ -24,12 +24,12 @@ namespace GrAHardwareBufferUtils {
 
 SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat);
 
-GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendFormat GetBackendFormat(GrDirectContext* context, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat);
 
 typedef void* TexImageCtx;
 typedef void (*DeleteImageProc)(TexImageCtx);
-typedef void (*UpdateImageProc)(TexImageCtx, GrContext*);
+typedef void (*UpdateImageProc)(TexImageCtx, GrDirectContext*);
 
 /**
  * Create a GrBackendTexture from AHardwareBuffer
@@ -53,7 +53,7 @@ typedef void (*UpdateImageProc)(TexImageCtx, GrContext*);
  *                          attachment
  * @return                  valid GrBackendTexture object on success
  */
-GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendTexture MakeBackendTexture(GrDirectContext* context, AHardwareBuffer* hardwareBuffer,
                                     int width, int height,
                                     DeleteImageProc* deleteProc,
                                     UpdateImageProc* updateProc,

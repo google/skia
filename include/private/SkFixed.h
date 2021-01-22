@@ -11,6 +11,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSafe_math.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 
 /** \file SkFixed.h
@@ -62,7 +63,7 @@ typedef int32_t             SkFixed;
         SkASSERT(n >= -32768 && n <= 32767);
         // Left shifting a negative value has undefined behavior in C, so we cast to unsigned before
         // shifting.
-        return (unsigned)n << 16;
+        return (SkFixed)( (unsigned)n << 16 );
     }
 #else
     // Left shifting a negative value has undefined behavior in C, so we cast to unsigned before
@@ -76,13 +77,13 @@ typedef int32_t             SkFixed;
 #define SkFixedFloorToInt(x)    ((x) >> 16)
 
 static inline SkFixed SkFixedRoundToFixed(SkFixed x) {
-    return (x + SK_FixedHalf) & 0xFFFF0000;
+    return (SkFixed)( (uint32_t)(x + SK_FixedHalf) & 0xFFFF0000 );
 }
 static inline SkFixed SkFixedCeilToFixed(SkFixed x) {
-    return (x + SK_Fixed1 - 1) & 0xFFFF0000;
+    return (SkFixed)( (uint32_t)(x + SK_Fixed1 - 1) & 0xFFFF0000 );
 }
 static inline SkFixed SkFixedFloorToFixed(SkFixed x) {
-    return x & 0xFFFF0000;
+    return (SkFixed)( (uint32_t)x & 0xFFFF0000 );
 }
 
 #define SkFixedAbs(x)       SkAbs32(x)
@@ -101,7 +102,7 @@ static inline SkFixed SkFixedMul(SkFixed a, SkFixed b) {
 
 // The VCVT float-to-fixed instruction is part of the VFPv3 instruction set.
 #if defined(__ARM_VFPV3__)
-    /* This guy does not handle NaN or other obscurities, but is faster than
+    /* This does not handle NaN or other obscurities, but is faster than
        than (int)(x*65536).  When built on Android with -Os, needs forcing
        to inline or we lose the speed benefit.
     */

@@ -12,6 +12,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 static char const* const gErrorStrings[] = {
@@ -80,7 +81,7 @@ struct ParsingContext {
     }
 
     SkXMLParser* fParser;
-    SkAutoTCallVProc<skstd::remove_pointer_t<XML_Parser>, XML_ParserFree> fXMLParser;
+    SkAutoTCallVProc<std::remove_pointer_t<XML_Parser>, XML_ParserFree> fXMLParser;
 
 private:
     SkString fBufferedText;

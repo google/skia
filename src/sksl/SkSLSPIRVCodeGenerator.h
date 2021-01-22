@@ -38,24 +38,27 @@
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 #include "src/sksl/spirv.h"
 
 union ConstantValue {
     ConstantValue(int64_t i)
-        : fInt(i) {}
+        : fInt(i) {
+        SkASSERT(sizeof(*this) == sizeof(int64_t));
+    }
 
-    ConstantValue(double d)
-        : fDouble(d) {}
+    ConstantValue(SKSL_FLOAT f) {
+        memset(this, 0, sizeof(*this));
+        fFloat = f;
+    }
 
     bool operator==(const ConstantValue& other) const {
         return fInt == other.fInt;
     }
 
     int64_t fInt;
-    double fDouble;
+    SKSL_FLOAT fFloat;
 };
 
 enum class ConstantType {
@@ -77,7 +80,7 @@ struct hash<std::pair<ConstantValue, ConstantType>> {
     }
 };
 
-}
+}  // namespace std
 
 namespace SkSL {
 
@@ -101,18 +104,20 @@ public:
         virtual void store(SpvId value, OutputStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
+    SPIRVCodeGenerator(const Context* context,
+                       const Program* program,
+                       ErrorReporter* errors,
                        OutputStream* out)
-    : INHERITED(program, errors, out)
-    , fContext(*context)
-    , fDefaultLayout(MemoryLayout::k140_Standard)
-    , fCapabilities(0)
-    , fIdCount(1)
-    , fBoolTrue(0)
-    , fBoolFalse(0)
-    , fSetupFragPosition(false)
-    , fCurrentBlock(0)
-    , fSynthetics(nullptr, errors) {
+            : INHERITED(program, errors, out)
+            , fContext(*context)
+            , fDefaultLayout(MemoryLayout::k140_Standard)
+            , fCapabilities(0)
+            , fIdCount(1)
+            , fBoolTrue(0)
+            , fBoolFalse(0)
+            , fSetupFragPosition(false)
+            , fCurrentBlock(0)
+            , fSynthetics(errors, /*builtin=*/true) {
         this->setupIntrinsics();
     }
 
@@ -148,7 +153,7 @@ private:
 
     SpvId nextId();
 
-    Type getActualType(const Type& type);
+    const Type& getActualType(const Type& type);
 
     SpvId getType(const Type& type);
 
@@ -177,7 +182,7 @@ private:
 
     void writeProgramElement(const ProgramElement& pe, OutputStream& out);
 
-    SpvId writeInterfaceBlock(const InterfaceBlock& intf);
+    SpvId writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight = true);
 
     SpvId writeFunctionStart(const FunctionDeclaration& f, OutputStream& out);
 
@@ -185,9 +190,9 @@ private:
 
     SpvId writeFunction(const FunctionDefinition& f, OutputStream& out);
 
-    void writeGlobalVars(Program::Kind kind, const VarDeclarations& v, OutputStream& out);
+    void writeGlobalVar(Program::Kind kind, const VarDeclaration& v, OutputStream& out);
 
-    void writeVarDeclarations(const VarDeclarations& decl, OutputStream& out);
+    void writeVarDeclaration(const VarDeclaration& var, OutputStream& out);
 
     SpvId writeVariableReference(const VariableReference& ref, OutputStream& out);
 
@@ -210,8 +215,7 @@ private:
      * returns (vec2(float), vec2). It is an error to use mismatched vector sizes, e.g. (float,
      * vec2, vec3).
      */
-    std::vector<SpvId> vectorize(const std::vector<std::unique_ptr<Expression>>& args,
-                                 OutputStream& out);
+    std::vector<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 
@@ -387,8 +391,6 @@ private:
     SpvId fBoolTrue;
     SpvId fBoolFalse;
     std::unordered_map<std::pair<ConstantValue, ConstantType>, SpvId> fNumberConstants;
-    // The constant float2(0, 1), used in swizzling
-    SpvId fConstantZeroOneVector = 0;
     bool fSetupFragPosition;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
@@ -396,6 +398,7 @@ private:
     std::stack<SpvId> fContinueTarget;
     SpvId fRTHeightStructId = (SpvId) -1;
     SpvId fRTHeightFieldIndex = (SpvId) -1;
+    SpvStorageClass_ fRTHeightStorageClass;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
     int fSkInCount = 1;
@@ -403,9 +406,9 @@ private:
     friend class PointerLValue;
     friend class SwizzleLValue;
 
-    typedef CodeGenerator INHERITED;
+    using INHERITED = CodeGenerator;
 };
 
-}
+}  // namespace SkSL
 
 #endif

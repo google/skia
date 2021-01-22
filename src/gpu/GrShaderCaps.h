@@ -15,7 +15,8 @@
 
 namespace SkSL {
 class ShaderCapsFactory;
-}
+class SharedCompiler;
+}  // namespace SkSL
 
 struct GrContextOptions;
 class SkJSONWriter;
@@ -88,6 +89,8 @@ public:
     // SkSL only.
     bool builtinFMASupport() const { return fBuiltinFMASupport; }
 
+    bool builtinDeterminantSupport() const { return fBuiltinDeterminantSupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -126,6 +129,8 @@ public:
     // required by the spec. SKSL will always emit full ints.
     bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
 
+    bool colorSpaceMathNeedsFloat() const { return fColorSpaceMathNeedsFloat; }
+
     // If true, then conditions in for loops need "&& true" to work around driver bugs.
     bool addAndTrueToLoopCondition() const { return fAddAndTrueToLoopCondition; }
 
@@ -149,6 +154,13 @@ public:
         return fMustGuardDivisionEvenAfterExplicitZeroCheck;
     }
 
+    // On Pixel 3, 3a, and 4 devices we've noticed that the simple function:
+    // half4 blend(half4 a, half4 b) { return a.a * b; }
+    // may return (0, 0, 0, 1) when b is (0, 0, 0, 0).
+    bool inBlendModesFailRandomlyForAllZeroVec() const {
+        return fInBlendModesFailRandomlyForAllZeroVec;
+    }
+
     // On Nexus 6, the GL context can get lost if a shader does not write a value to gl_FragColor.
     // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
     bool mustWriteToFragColor() const { return fMustWriteToFragColor; }
@@ -163,6 +175,10 @@ public:
     // use sample mask while rendering to stencil seem to work fine.
     // http://skbug.com/8921
     bool canOnlyUseSampleMaskWithStencil() const { return fCanOnlyUseSampleMaskWithStencil; }
+
+    // ANGLE disallows do loops altogether, and we're seeing crashes on Tegra3 with do loops in at
+    // least some cases.
+    bool canUseDoLoops() const { return fCanUseDoLoops; }
 
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
@@ -226,9 +242,17 @@ public:
         return fSampleVariablesExtensionString;
     }
 
+    const char* tessellationExtensionString() const {
+        SkASSERT(this->tessellationSupport());
+        return fTessellationExtensionString;
+    }
+
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
-    bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
+    // Maximum number of segments a tessellation edge can be divided into.
+    int maxTessellationSegments() const { return fMaxTessellationSegments; }
+
+    bool tessellationSupport() const { return SkToBool(fMaxTessellationSegments);}
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
@@ -257,10 +281,10 @@ private:
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
     bool fHasLowFragmentPrecision           : 1;
-    bool fTextureSwizzleAppliedInShader     : 1;
 
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport : 1;
+    bool fBuiltinDeterminantSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseAnyFunctionInShader                   : 1;
@@ -272,6 +296,7 @@ private:
     bool fRequiresLocalOutputColorForFBFetch          : 1;
     bool fMustObfuscateUniformColor                   : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
+    bool fInBlendModesFailRandomlyForAllZeroVec       : 1;
     bool fCanUseFragCoord                             : 1;
     bool fIncompleteShortIntPrecision                 : 1;
     bool fAddAndTrueToLoopCondition                   : 1;
@@ -282,6 +307,8 @@ private:
     bool fMustWriteToFragColor                        : 1;
     bool fNoDefaultPrecisionForExternalSamplers       : 1;
     bool fCanOnlyUseSampleMaskWithStencil             : 1;
+    bool fColorSpaceMathNeedsFloat                    : 1;
+    bool fCanUseDoLoops                               : 1;
 
     const char* fVersionDeclString;
 
@@ -294,21 +321,25 @@ private:
     const char* fSecondExternalTextureExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fSampleVariablesExtensionString;
+    const char* fTessellationExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
 
     int fMaxFragmentSamplers;
+    int fMaxTessellationSegments;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
     friend class GrCaps;  // For initialization.
     friend class GrDawnCaps;
+    friend class GrD3DCaps;
     friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;
     friend class GrVkCaps;
     friend class SkSL::ShaderCapsFactory;
+    friend class SkSL::SharedCompiler;
 };
 
 #endif

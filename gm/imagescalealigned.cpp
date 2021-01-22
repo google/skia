@@ -155,7 +155,7 @@ private:
     static constexpr unsigned  kStretchFactor = 4;
     SkSTArray<2, ImageSet> fSets;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new ImageScaleAlignedGM();)

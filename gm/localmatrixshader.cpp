@@ -19,6 +19,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
@@ -74,8 +76,8 @@ DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
         },
     };
 
-    static const auto inner = SkMatrix::MakeScale(2, 2),
-                      outer = SkMatrix::MakeTrans(20, 20);
+    static const auto inner = SkMatrix::Scale(2, 2),
+                      outer = SkMatrix::Translate(20, 20);
 
     SkPaint border;
     border.setAntiAlias(true);
@@ -108,4 +110,99 @@ DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
     canvas->translate(rect.width() * 1.5f, 0);
     canvas->scale(2, 2);
     drawColumn();
+}
+
+DEF_SIMPLE_GM(localmatrixshader_persp, canvas, 542, 266) {
+    auto image = GetResourceAsImage("images/yellow_rose.png");
+
+    SkBitmap downsized;
+    downsized.allocPixels(image->imageInfo().makeWH(128, 128));
+    image->scalePixels(downsized.pixmap(), kLow_SkFilterQuality);
+    image = SkImage::MakeFromBitmap(downsized);
+    SkRect imgRect = SkRect::MakeIWH(image->width(), image->height());
+
+    // scale matrix
+    SkMatrix scale = SkMatrix::Scale(1.f / 5.f, 1.f / 5.f);
+
+    // perspective matrix
+    SkPoint src[4];
+    imgRect.toQuad(src);
+    SkPoint dst[4] = {{0, 10.f},
+                      {image->width() + 28.f, -100.f},
+                      {image->width() - 28.f, image->height() + 100.f},
+                      {0.f, image->height() - 10.f}};
+    SkMatrix persp;
+    SkAssertResult(persp.setPolyToPoly(src, dst, 4));
+
+    // combined persp * scale
+    SkMatrix perspScale = SkMatrix::Concat(persp, scale);
+
+    auto draw = [&](sk_sp<SkShader> shader, bool applyPerspToCTM) {
+        canvas->save();
+        canvas->clipRect(imgRect);
+        if (applyPerspToCTM) {
+            canvas->concat(persp);
+        }
+        SkPaint imgShaderPaint;
+        imgShaderPaint.setShader(std::move(shader));
+        canvas->drawPaint(imgShaderPaint);
+        canvas->restore();
+
+        canvas->translate(10.f + image->width(), 0.f); // advance
+    };
+
+    // SkImageShader
+    canvas->save();
+    // 4 variants that all attempt to apply sample at persp * scale w/ an image shader
+    // 1. scale provided to SkImage::makeShader(...) but drawn with persp
+    auto s1 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &scale);
+    draw(s1, true);
+
+    // 2. persp provided to SkImage::makeShader, then wrapped in scale makeWithLocalMatrix
+    // These pre-concat, so it ends up as persp * scale.
+    auto s2 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &persp)
+                   ->makeWithLocalMatrix(scale);
+    draw(s2, false);
+
+    // 3. Providing pre-computed persp*scale to SkImage::makeShader()
+    auto s3 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &perspScale);
+    draw(s3, false);
+
+    // 4. Providing pre-computed persp*scale to makeWithLocalMatrix
+    auto s4 = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat)
+                   ->makeWithLocalMatrix(perspScale);
+    draw(s4, false);
+    canvas->restore();
+
+    canvas->translate(0.f, 10.f + image->height()); // advance to next row
+
+    // SkGradientShader
+    const SkColor kGradColors[] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
+    canvas->save();
+    // 1. scale provided to Make, drawn with persp
+    auto g1 = SkGradientShader::MakeRadial({imgRect.centerX(), imgRect.centerY()},
+                                           imgRect.width() / 2.f, kGradColors, nullptr, 2,
+                                           SkTileMode::kRepeat, 0, &scale);
+    draw(g1, true);
+
+    // 2. persp provided to Make, then wrapped with makeWithLocalMatrix (pre-concat as before).
+    auto g2 = SkGradientShader::MakeRadial({imgRect.centerX(), imgRect.centerY()},
+                                           imgRect.width() / 2.f, kGradColors, nullptr, 2,
+                                           SkTileMode::kRepeat, 0, &persp)
+                              ->makeWithLocalMatrix(scale);
+    draw(g2, false);
+
+    // 3. Provide per-computed persp*scale to Make
+    auto g3 = SkGradientShader::MakeRadial({imgRect.centerX(), imgRect.centerY()},
+                                           imgRect.width() / 2.f, kGradColors, nullptr, 2,
+                                           SkTileMode::kRepeat, 0, &perspScale);
+    draw(g3, false);
+
+    // 4.  Providing pre-computed persp*scale to makeWithLocalMatrix
+    auto g4 = SkGradientShader::MakeRadial({imgRect.centerX(), imgRect.centerY()},
+                                           imgRect.width() / 2.f, kGradColors, nullptr, 2,
+                                           SkTileMode::kRepeat)
+                              ->makeWithLocalMatrix(perspScale);
+    draw(g4, false);
+    canvas->restore();
 }

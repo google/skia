@@ -4,6 +4,10 @@
 #define DartTypes_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+
+#include <iterator>
+#include <limits>
 
 namespace skia {
 namespace textlayout {
@@ -73,6 +77,16 @@ struct TextBox {
     TextBox(SkRect r, TextDirection d) : rect(r), direction(d) {}
 };
 
+// -------------------------------------------------------------------
+// --- Reversed iterable
+
+template<typename C, typename UnaryFunction>
+UnaryFunction directional_for_each(C& c, bool forwards, UnaryFunction f) {
+    return forwards
+              ? std::for_each(std::begin(c), std::end(c), f)
+              : std::for_each(std::rbegin(c), std::rend(c), f);
+}
+
 const size_t EMPTY_INDEX = std::numeric_limits<size_t>::max();
 template <typename T> struct SkRange {
     SkRange() : start(), end() {}
@@ -96,7 +110,11 @@ template <typename T> struct SkRange {
     }
 
     bool intersects(SkRange<size_t> other) const {
-        return SkTMax(start, other.start) <= SkTMin(end, other.end);
+        return std::max(start, other.start) <= std::min(end, other.end);
+    }
+
+    SkRange<size_t> intersection(SkRange<size_t> other) const {
+        return SkRange<size_t>(std::max(start, other.start), std::min(end, other.end));
     }
 
     bool empty() const {
@@ -110,6 +128,26 @@ const SkRange<size_t> EMPTY_RANGE = SkRange<size_t>(EMPTY_INDEX, EMPTY_INDEX);
 enum class TextBaseline {
     kAlphabetic,
     kIdeographic,
+};
+
+enum TextHeightBehavior {
+    kAll = 0x0,
+    kDisableFirstAscent = 0x1,
+    kDisableLastDescent = 0x2,
+    kDisableAll = 0x1 | 0x2,
+};
+
+enum class LineMetricStyle : uint8_t {
+    // Use ascent, descent, etc from a fixed baseline.
+    Typographic,
+    // Use ascent, descent, etc like css with the leading split and with height adjustments
+    CSS
+};
+
+enum class DrawOptions {
+    kRecord,
+    kReplay,
+    kDirect
 };
 
 }  // namespace textlayout

@@ -7,7 +7,7 @@
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoMalloc.h"
 #include "tools/sk_app/DawnWindowContext.h"
 
@@ -31,18 +31,20 @@ DawnWindowContext::DawnWindowContext(const DisplayParams& params,
 }
 
 void DawnWindowContext::initializeContext(int width, int height) {
+    SkASSERT(!fContext);
+
     fWidth = width;
     fHeight = height;
     fDevice = onInitializeContext();
-    fContext = GrContext::MakeDawn(fDevice, fDisplayParams.fGrContextOptions);
 
+    fContext = GrDirectContext::MakeDawn(fDevice, fDisplayParams.fGrContextOptions);
     if (!fContext) {
         return;
     }
     fSwapChainImplementation = this->createSwapChainImplementation(-1, -1, fDisplayParams);
     wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
-    fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
+    fSwapChain = fDevice.CreateSwapChain(nullptr, &swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;
@@ -66,28 +68,23 @@ void DawnWindowContext::destroyContext() {
 }
 
 sk_sp<SkSurface> DawnWindowContext::getBackbufferSurface() {
-    GrDawnImageInfo imageInfo;
-    imageInfo.fTexture = fSwapChain.GetNextTexture();
-    imageInfo.fFormat = fSwapChainFormat;
-    imageInfo.fLevelCount = 1; // FIXME
-    GrBackendTexture backendTexture(fWidth, fHeight, imageInfo);
-    fSurface = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext.get(),
-                                                               backendTexture,
-                                                               this->getRTOrigin(),
-                                                               fDisplayParams.fMSAASampleCount,
-                                                               fDisplayParams.fColorType,
-                                                               fDisplayParams.fColorSpace,
-                                                               &fDisplayParams.fSurfaceProps);
+    GrDawnRenderTargetInfo rtInfo;
+    rtInfo.fTextureView = fSwapChain.GetCurrentTextureView();
+    rtInfo.fFormat = fSwapChainFormat;
+    rtInfo.fLevelCount = 1; // FIXME
+    GrBackendRenderTarget backendRenderTarget(fWidth, fHeight, fDisplayParams.fMSAASampleCount, 8,
+                                              rtInfo);
+    fSurface = SkSurface::MakeFromBackendRenderTarget(fContext.get(),
+                                                      backendRenderTarget,
+                                                      this->getRTOrigin(),
+                                                      fDisplayParams.fColorType,
+                                                      fDisplayParams.fColorSpace,
+                                                      &fDisplayParams.fSurfaceProps);
     return fSurface;
 }
 
 void DawnWindowContext::swapBuffers() {
-    GrBackendRenderTarget backendRT = fSurface->getBackendRenderTarget(
-        SkSurface::kFlushRead_BackendHandleAccess);
-    GrDawnImageInfo imageInfo;
-    SkAssertResult(backendRT.getDawnImageInfo(&imageInfo));
-
-    fSwapChain.Present(imageInfo.fTexture);
+    fSwapChain.Present();
     this->onSwapBuffers();
 }
 
@@ -97,7 +94,7 @@ void DawnWindowContext::resize(int w, int h) {
     fSwapChainImplementation = this->createSwapChainImplementation(w, h, fDisplayParams);
     wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
-    fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
+    fSwapChain = fDevice.CreateSwapChain(nullptr, &swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;

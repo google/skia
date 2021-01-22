@@ -6,6 +6,8 @@
  */
 
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
@@ -190,8 +192,17 @@ void SkRasterPipeline::append_load(SkColorType ct, const SkRasterPipeline_Memory
                                              this->append(force_opaque);
                                              break;
 
+        case kBGRA_1010102_SkColorType:      this->append(load_1010102, ctx);
+                                             this->append(swap_rb);
+                                             break;
+
         case kRGB_101010x_SkColorType:       this->append(load_1010102, ctx);
                                              this->append(force_opaque);
+                                             break;
+
+        case kBGR_101010x_SkColorType:       this->append(load_1010102, ctx);
+                                             this->append(force_opaque);
+                                             this->append(swap_rb);
                                              break;
 
         case kBGRA_8888_SkColorType:         this->append(load_8888, ctx);
@@ -227,8 +238,17 @@ void SkRasterPipeline::append_load_dst(SkColorType ct, const SkRasterPipeline_Me
                                               this->append(force_opaque_dst);
                                               break;
 
+        case kBGRA_1010102_SkColorType:       this->append(load_1010102_dst, ctx);
+                                              this->append(swap_rb_dst);
+                                              break;
+
         case kRGB_101010x_SkColorType:        this->append(load_1010102_dst, ctx);
                                               this->append(force_opaque_dst);
+                                              break;
+
+        case kBGR_101010x_SkColorType:        this->append(load_1010102_dst, ctx);
+                                              this->append(force_opaque_dst);
+                                              this->append(swap_rb_dst);
                                               break;
 
         case kBGRA_8888_SkColorType:          this->append(load_8888_dst, ctx);
@@ -260,7 +280,16 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
                                               this->append(store_8888, ctx);
                                               break;
 
+        case kBGRA_1010102_SkColorType:       this->append(swap_rb);
+                                              this->append(store_1010102, ctx);
+                                              break;
+
         case kRGB_101010x_SkColorType:        this->append(force_opaque);
+                                              this->append(store_1010102, ctx);
+                                              break;
+
+        case kBGR_101010x_SkColorType:        this->append(force_opaque);
+                                              this->append(swap_rb);
                                               this->append(store_1010102, ctx);
                                               break;
 
@@ -295,6 +324,10 @@ void SkRasterPipeline::append_transfer_function(const skcms_TransferFunction& tf
 // Clamp premul values to [0,alpha] (logical [0,1]) to avoid the confusing
 // scenario of being able to store a logical color channel > 1.0 when alpha < 1.0.
 // Most software that works with normalized premul values expect r,g,b channels all <= a.
+//
+// In addition, GL clamps all its color channels to limits of the format just
+// before the blend step (~here).  To match that auto-clamp, we clamp alpha to
+// [0,1] too, just in case someone gave us a crazy alpha.
 void SkRasterPipeline::append_gamut_clamp_if_normalized(const SkImageInfo& info) {
     if (info.alphaType() == kPremul_SkAlphaType && SkColorTypeIsNormalized(info.colorType())) {
         this->unchecked_append(SkRasterPipeline::clamp_gamut, nullptr);

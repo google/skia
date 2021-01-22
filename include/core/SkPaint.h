@@ -191,9 +191,6 @@ public:
 
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
-
-        @return  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
-                 kMedium_SkFilterQuality, kHigh_SkFilterQuality
     */
     SkFilterQuality getFilterQuality() const {
         return (SkFilterQuality)fBitfields.fFilterQuality;
@@ -202,9 +199,6 @@ public:
     /** Sets SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
         Does not check to see if quality is valid.
-
-        @param quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
-                        kMedium_SkFilterQuality, kHigh_SkFilterQuality
 
         example: https://fiddle.skia.org/c/@Color_Methods
         example: https://fiddle.skia.org/c/@Paint_setFilterQuality
@@ -230,20 +224,21 @@ public:
     static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
 
     /** Returns whether the geometry is filled, stroked, or filled and stroked.
-
-        @return  one of:kFill_Style, kStroke_Style, kStrokeAndFill_Style
     */
     Style getStyle() const { return (Style)fBitfields.fStyle; }
 
     /** Sets whether the geometry is filled, stroked, or filled and stroked.
         Has no effect if style is not a legal SkPaint::Style value.
 
-        @param style  one of: kFill_Style, kStroke_Style, kStrokeAndFill_Style
-
         example: https://fiddle.skia.org/c/@Paint_setStyle
         example: https://fiddle.skia.org/c/@Stroke_Width
     */
     void setStyle(Style style);
+
+    /**
+     *  Set paint's style to kStroke if true, or kFill if false.
+     */
+    void setStroke(bool);
 
     /** Retrieves alpha and RGB, unpremultiplied, packed into 32 bits.
         Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract
@@ -254,7 +249,7 @@ public:
     SkColor getColor() const { return fColor4f.toSkColor(); }
 
     /** Retrieves alpha and RGB, unpremultiplied, as four floating point values. RGB are
-        are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
+        extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
 
         @return  unpremultiplied RGBA
     */
@@ -326,9 +321,10 @@ public:
     */
     SkScalar getStrokeWidth() const { return fWidth; }
 
-    /** Sets the thickness of the pen used by the paint to
-        outline the shape.
-        Has no effect if width is less than zero.
+    /** Sets the thickness of the pen used by the paint to outline the shape.
+        A stroke-width of zero is treated as "hairline" width. Hairlines are always exactly one
+        pixel wide in device space (their thickness does not change as the canvas is scaled).
+        Negative stroke-widths are invalid; setting a negative width will have no effect.
 
         @param width  zero thickness for hairline; greater than zero for pen thickness
 
@@ -394,15 +390,10 @@ public:
     static constexpr int kJoinCount = kLast_Join + 1;
 
     /** Returns the geometry drawn at the beginning and end of strokes.
-
-        @return  one of: kButt_Cap, kRound_Cap, kSquare_Cap
     */
     Cap getStrokeCap() const { return (Cap)fBitfields.fCapType; }
 
     /** Sets the geometry drawn at the beginning and end of strokes.
-
-        @param cap  one of: kButt_Cap, kRound_Cap, kSquare_Cap;
-                    has no effect if cap is not valid
 
         example: https://fiddle.skia.org/c/@Paint_setStrokeCap_a
         example: https://fiddle.skia.org/c/@Paint_setStrokeCap_b
@@ -410,15 +401,10 @@ public:
     void setStrokeCap(Cap cap);
 
     /** Returns the geometry drawn at the corners of strokes.
-
-        @return  one of: kMiter_Join, kRound_Join, kBevel_Join
     */
     Join getStrokeJoin() const { return (Join)fBitfields.fJoinType; }
 
     /** Sets the geometry drawn at the corners of strokes.
-
-        @param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
-                     otherwise, has no effect
 
         example: https://fiddle.skia.org/c/@Paint_setStrokeJoin
     */
@@ -609,7 +595,6 @@ public:
 
         @param imageFilter  how SkImage is sampled when transformed
 
-        example: https://fiddle.skia.org/c/@Draw_Looper_Methods
         example: https://fiddle.skia.org/c/@Paint_setImageFilter
     */
     void setImageFilter(sk_sp<SkImageFilter> imageFilter);

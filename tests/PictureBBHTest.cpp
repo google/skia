@@ -10,7 +10,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
-#include "src/core/SkBBoxHierarchy.h"
 #include "src/core/SkRectPriv.h"
 
 #include "tests/Test.h"
@@ -101,7 +100,8 @@ DEF_TEST(PictureNegativeSpace, r) {
     SkRect cull = {-200,-200,+200,+200};
 
     {
-        auto canvas = recorder.beginRecording(cull, &factory);
+        sk_sp<SkBBoxHierarchy> bbh = factory();
+        auto canvas = recorder.beginRecording(cull, bbh);
             canvas->save();
             canvas->clipRect(cull);
             canvas->drawRect({-20,-20,-10,-10}, SkPaint{});

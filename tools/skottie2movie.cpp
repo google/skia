@@ -11,6 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "include/private/SkTPin.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/utils/SkOSPath.h"
@@ -92,7 +93,7 @@ int main(int argc, char** argv) {
 
     SkVideoEncoder encoder;
 
-    GrContext* context = nullptr;
+    GrDirectContext* context = nullptr;
     sk_sp<SkSurface> surf;
     sk_sp<SkData> data;
 
@@ -108,7 +109,7 @@ int main(int argc, char** argv) {
         // lazily allocate the surfaces
         if (!surf) {
             if (FLAGS_gpu) {
-                context = factory.getContextInfo(contextType).grContext();
+                context = factory.getContextInfo(contextType).directContext();
                 surf = SkSurface::MakeRenderTarget(context,
                                                    SkBudgeted::kNo,
                                                    info,
@@ -146,6 +147,7 @@ int main(int argc, char** argv) {
                                                 SkSurface::RescaleGamma::kSrc,
                                                 kNone_SkFilterQuality,
                                                 read_pixels_cb, &asyncRec);
+                context->submit();
             } else {
                 SkPixmap pm;
                 SkAssertResult(surf->peekPixels(&pm));

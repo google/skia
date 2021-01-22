@@ -25,29 +25,48 @@ EMCC=`which emcc`
 EMCXX=`which em++`
 EMAR=`which emar`
 
-RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
+RELEASE_CONF="-Oz --closure 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
+IS_OFFICIAL_BUILD="true"
+
+# Tracing will be disabled in release/profiling unless this flag is seen. Tracing will
+# be on debug builds always.
+if [[ $@ != *force_tracing* ]] ; then
+  RELEASE_CONF+=" -DSK_DISABLE_TRACING"
+  EXTRA_CFLAGS+="\"-DSK_DISABLE_TRACING\","
+fi
+
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
-  EXTRA_CFLAGS="\"-DSK_DEBUG\""
+  EXTRA_CFLAGS="\"-DSK_DEBUG\","
   RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
                 --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
-  RELEASE_CONF="-O3 --source-map-base /node_modules/canvaskit/bin/ --profiling -g4 -DSK_RELEASE \
-                --pre-js $BASE_DIR/release.js -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
+  RELEASE_CONF+=" --profiling-funcs --closure 0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
+elif [[ $@ == *simd* ]]; then
+  echo "Building with SIMD operations"
+  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_experimental_simd"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
 fi
 
+if [[ $@ == *simd* ]]; then
+  RELEASE_CONF+=" -msimd128"
+  EXTRA_CFLAGS+="\"-msimd128\","
+fi
+
 mkdir -p $BUILD_DIR
+# sometimes the .a files keep old symbols around - cleaning them out makes sure
+# we get a fresh build.
+rm -f $BUILD_DIR/*.a
 
 GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
-WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
+WASM_GPU="-lGL -DSK_SUPPORT_GPU=1 -DSK_GL \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js\
           -s USE_WEBGL2=1"
 if [[ $@ == *cpu* ]]; then
@@ -55,6 +74,21 @@ if [[ $@ == *cpu* ]]; then
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
+fi
+
+SKP_JS="--pre-js $BASE_DIR/skp.js"
+GN_SKP_FLAGS=""
+WASM_SKP="-DSK_SERIALIZE_SKP"
+if [[ $@ == *no_skp_serialization* ]]; then
+  # This saves about 20kb compressed.
+  SKP_JS=""
+  WASM_SKP=""
+  GN_SKP_FLAGS="\"-DSK_DISABLE_EFFECT_DESERIALIZATION\","
+fi
+if [[ $@ == *no_effects_deserialization* ]]; then
+  # This saves about 60kb compressed.
+  echo "disabling effects deserialization"
+  GN_SKP_FLAGS="\"-DSK_DISABLE_EFFECT_DESERIALIZATION\","
 fi
 
 SKOTTIE_JS="--pre-js $BASE_DIR/skottie.js"
@@ -70,11 +104,22 @@ if [[ $@ == *no_skottie* ]]; then
   SKOTTIE_BINDINGS=""
 fi
 
+GN_VIEWER="skia_use_expat=false skia_enable_ccpr=false"
+VIEWER_BINDINGS=""
+VIEWER_LIB=""
+
+if [[ $@ == *viewer* ]]; then
+  echo "Including viewer"
+  GN_VIEWER="skia_use_expat=true skia_enable_ccpr=true"
+  VIEWER_BINDINGS="$BASE_DIR/viewer_bindings.cpp"
+  VIEWER_LIB="$BUILD_DIR/libviewer_wasm.a"
+  IS_OFFICIAL_BUILD="false"
+fi
+
 MANAGED_SKOTTIE_BINDINGS="\
   -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
-  modules/skottie/utils/SkottieUtils.cpp \
-  modules/skresources/src/SkResources.cpp"
-if [[ $@ == *no_managed_skottie* ]]; then
+  modules/skottie/utils/SkottieUtils.cpp"
+if [[ $@ == *no_managed_skottie* || $@ == *no_skottie* ]]; then
   echo "Omitting managed Skottie"
   MANAGED_SKOTTIE_BINDINGS="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
@@ -90,6 +135,25 @@ if [[ $@ == *no_particles* ]]; then
   PARTICLES_JS=""
   PARTICLES_BINDINGS=""
   PARTICLES_LIB=""
+fi
+
+if [[ $@ != *no_particles* || $@ != *no_skottie* ]] ; then
+  PARTICLES_BINDINGS+=" modules/skresources/src/SkResources.cpp"
+fi
+
+WASM_PATHOPS="-DSK_INCLUDE_PATHOPS"
+PATHOPS_JS="--pre-js $BASE_DIR/pathops.js"
+if [[ $@ == *no_pathops* ]] ; then
+  # This saves about 2kb compressed.
+  WASM_PATHOPS=""
+  PATHOPS_JS=""
+fi
+
+WASM_RT_SHADER="-DSK_INCLUDE_RUNTIME_EFFECT"
+RT_SHADER_JS="--pre-js $BASE_DIR/rt_shader.js"
+if [[ $@ == *no_rt_shader* ]] ; then
+  WASM_RT_SHADER=""
+  RT_SHADER_JS=""
 fi
 
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
@@ -109,18 +173,20 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
-GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=false"
+GN_FONT="skia_enable_fontmgr_custom_directory=false "
+WOFF2_FONT="skia_use_freetype_woff2=true"
 FONT_CFLAGS=""
-BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
+BUILTIN_FONT=""
+FONT_JS="--pre-js $BASE_DIR/font.js"
 if [[ $@ == *no_font* ]]; then
   echo "Omitting the built-in font(s), font manager and all code dealing with fonts"
-  BUILTIN_FONT=""
   FONT_CFLAGS="-DSK_NO_FONTS"
-  GN_FONT="skia_enable_fontmgr_empty=true"
+  WOFF2_FONT=""
+  FONT_JS=""
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=false skia_enable_fontmgr_custom_empty=false"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
-  BUILTIN_FONT=""
-  GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=true"
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=false skia_enable_fontmgr_custom_empty=true"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \
@@ -128,17 +194,26 @@ else
       --input $BASE_DIR/fonts/NotoMono-Regular.ttf \
       --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
       --align 4
+  BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_empty=false"
+fi
+
+if [[ $@ == *no_woff2* ]]; then
+  WOFF2_FONT="skia_use_freetype_woff2=false"
+fi
+
+if [[ $@ == *no_alias_font* ]]; then
+EXTRA_CFLAGS+="\"-DCANVASKIT_NO_ALIAS_FONT\","
+FONT_CFLAGS+=" -DCANVASKIT_NO_ALIAS_FONT"
 fi
 
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
             $BUILD_DIR/libicu.a"
-SHAPER_TARGETS="libharfbuzz.a libicu.a"
-if [[ $@ == *primitive_shaper* ]]; then
+if [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Using the primitive shaper instead of the harfbuzz/icu one"
   GN_SHAPER="skia_use_icu=false skia_use_harfbuzz=false"
   SHAPER_LIB=""
-  SHAPER_TARGETS=""
 fi
 
 PARAGRAPH_JS="--pre-js $BASE_DIR/paragraph.js"
@@ -146,13 +221,38 @@ PARAGRAPH_LIB="$BUILD_DIR/libskparagraph.a"
 PARAGRAPH_BINDINGS="-DSK_INCLUDE_PARAGRAPH=1 \
   $BASE_DIR/paragraph_bindings.cpp"
 
-if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]]; then
-  echo "Omitting paragraph (must also have non-primitive shaper)"
+if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
+  echo "Omitting paragraph (must have fonts and non-primitive shaper)"
   PARAGRAPH_JS=""
   PARAGRAPH_LIB=""
   PARAGRAPH_BINDINGS=""
 fi
 
+DO_DECODE="true"
+if [[ $@ == *no_codecs* ]]; then
+  echo "Omitting codecs"
+  DO_DECODE="false"
+  ENCODE_PNG="false"
+  ENCODE_JPEG="false"
+  ENCODE_WEBP="false"
+else
+
+  ENCODE_PNG="true"
+  if [[ $@ == *no_encode_png* ]]; then
+    ENCODE_PNG="false"
+  fi
+
+  ENCODE_JPEG="false"
+  if [[ $@ == *force_encode_jpeg* ]]; then
+    ENCODE_JPEG="true"
+  fi
+
+  ENCODE_WEBP="false"
+  if [[ $@ == *force_encode_webp* ]]; then
+    ENCODE_WEBP="true"
+  fi
+
+fi # no_codecs
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -173,35 +273,37 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
-  extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_READBUFFER\",
-    \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
+  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
+    \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
+    ${GN_SKP_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
-  is_official_build=true \
+  is_official_build=${IS_OFFICIAL_BUILD} \
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
-  use_PIC=false \
   \
   skia_use_angle=false \
   skia_use_dng_sdk=false \
-  skia_use_egl=true \
-  skia_use_expat=false \
+  skia_use_webgl=true \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
   skia_use_libheif=false \
-  skia_use_libjpeg_turbo=true \
-  skia_use_libpng=true \
-  skia_use_libwebp=false \
+  skia_use_libjpeg_turbo_decode=${DO_DECODE} \
+  skia_use_libjpeg_turbo_encode=${ENCODE_JPEG} \
+  skia_use_libpng_decode=${DO_DECODE} \
+  skia_use_libpng_encode=${ENCODE_PNG} \
+  skia_use_libwebp_decode=${DO_DECODE} \
+  skia_use_libwebp_encode=${ENCODE_WEBP} \
   skia_use_lua=false \
   skia_use_piex=false \
-  skia_use_system_libpng=false \
   skia_use_system_freetype2=false \
   skia_use_system_libjpeg_turbo=false \
+  skia_use_system_libpng=false \
+  skia_use_system_libwebp=false \
   skia_use_system_zlib=false\
   skia_use_vulkan=false \
   skia_use_wuffs=true \
@@ -210,65 +312,92 @@ echo "Compiling bitcode"
   ${GN_SHAPER} \
   ${GN_GPU} \
   ${GN_FONT} \
+  ${WOFF2_FONT} \
   ${GN_PARTICLES} \
+  ${GN_VIEWER} \
   \
   skia_enable_skshaper=true \
-  skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skparagraph=true \
   skia_enable_pdf=false"
 
-# Build all the libs, we'll link the appropriate ones down below
-${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a \
-    libskparagraph.a libskshaper.a libparticles.a $SHAPER_TARGETS
+# Build all the libs we will need below
+parse_targets() {
+  for LIBPATH in $@; do
+    basename $LIBPATH
+  done
+}
+${NINJA} -C ${BUILD_DIR} libskia.a libskshaper.a \
+  $(parse_targets $SKOTTIE_LIB $VIEWER_LIB $PARTICLES_LIB $SHAPER_LIB $PARAGRAPH_LIB)
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
 echo "Generating final wasm"
 
+# Disable '-s STRICT=1' outside of Linux until
+# https://github.com/emscripten-core/emscripten/issues/12118 is resovled.
+STRICTNESS="-s STRICT=1"
+if [[ `uname` != "Linux" ]]; then
+  echo "Disabling '-s STRICT=1'. See: https://github.com/emscripten-core/emscripten/issues/12118"
+  STRICTNESS=""
+fi
+
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
-${EMCXX} \
+EMCC_DEBUG=1 ${EMCXX} \
     $RELEASE_CONF \
     -I. \
     -Ithird_party/icu \
     -Ithird_party/skcms \
     -Ithird_party/externals/icu/source/common/ \
-    -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
+    -DSK_FORCE_8_BYTE_ALIGNMENT \
+    -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
+    -fno-rtti \
     $WASM_GPU \
+    $WASM_PATHOPS \
+    $WASM_RT_SHADER \
+    $WASM_SKP \
     $FONT_CFLAGS \
-    -std=c++14 \
+    -std=c++17 \
     --bind \
+    --no-entry \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
     $PARAGRAPH_JS \
     $SKOTTIE_JS \
     $PARTICLES_JS \
+    $PATHOPS_JS \
+    $FONT_JS \
+    $SKP_JS \
+    $RT_SHADER_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
-    --post-js $BASE_DIR/ready.js \
     $BASE_DIR/canvaskit_bindings.cpp \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
+    $VIEWER_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
     $PARAGRAPH_BINDINGS \
     $SKOTTIE_LIB \
+    $VIEWER_LIB \
     $PARTICLES_LIB \
     $PARAGRAPH_LIB \
     $BUILD_DIR/libskshaper.a \
     $SHAPER_LIB \
     $BUILD_DIR/libskia.a \
     $BUILTIN_FONT \
+    -s LLD_REPORT_UNDEFINED \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
+    -s EXPORTED_FUNCTIONS=['_malloc','_free'] \
     -s FORCE_FILESYSTEM=0 \
+    -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
-    -s STRICT=1 \
-    -s TOTAL_MEMORY=128MB \
-    -s WARN_UNALIGNED=1 \
+    -s INITIAL_MEMORY=128MB \
     -s WASM=1 \
+    $STRICTNESS \
     -o $BUILD_DIR/canvaskit.js

@@ -25,16 +25,31 @@
 template <typename T, typename K, typename Traits = T>
 class SkTHashTable {
 public:
-    SkTHashTable() : fCount(0), fCapacity(0) {}
-    SkTHashTable(SkTHashTable&& other)
-        : fCount(other.fCount)
-        , fCapacity(other.fCapacity)
-        , fSlots(std::move(other.fSlots)) { other.fCount = other.fCapacity = 0; }
+    SkTHashTable()  = default;
+    ~SkTHashTable() = default;
 
-    SkTHashTable& operator=(SkTHashTable&& other) {
-        if (this != &other) {
-            this->~SkTHashTable();
-            new (this) SkTHashTable(std::move(other));
+    SkTHashTable(const SkTHashTable&  that) { *this = that; }
+    SkTHashTable(      SkTHashTable&& that) { *this = std::move(that); }
+
+    SkTHashTable& operator=(const SkTHashTable& that) {
+        if (this != &that) {
+            fCount     = that.fCount;
+            fCapacity  = that.fCapacity;
+            fSlots.reset(that.fCapacity);
+            for (int i = 0; i < fCapacity; i++) {
+                fSlots[i] = that.fSlots[i];
+            }
+        }
+        return *this;
+    }
+
+    SkTHashTable& operator=(SkTHashTable&& that) {
+        if (this != &that) {
+            fCount    = that.fCount;
+            fCapacity = that.fCapacity;
+            fSlots    = std::move(that.fSlots);
+
+            that.fCount = that.fCapacity = 0;
         }
         return *this;
     }
@@ -104,38 +119,13 @@ public:
             Slot& s = fSlots[index];
             SkASSERT(!s.empty());
             if (hash == s.hash && key == Traits::GetKey(s.val)) {
-                fCount--;
-                break;
+               this->removeSlot(index);
+               if (4 * fCount <= fCapacity && fCapacity > 4) {
+                   this->resize(fCapacity / 2);
+               }
+               return;
             }
             index = this->next(index);
-        }
-
-        // Rearrange elements to restore the invariants for linear probing.
-        for (;;) {
-            Slot& emptySlot = fSlots[index];
-            int emptyIndex = index;
-            int originalIndex;
-            // Look for an element that can be moved into the empty slot.
-            // If the empty slot is in between where an element landed, and its native slot, then
-            // move it to the empty slot. Don't move it if its native slot is in between where
-            // the element landed and the empty slot.
-            // [native] <= [empty] < [candidate] == GOOD, can move candidate to empty slot
-            // [empty] < [native] < [candidate] == BAD, need to leave candidate where it is
-            do {
-                index = this->next(index);
-                Slot& s = fSlots[index];
-                if (s.empty()) {
-                    // We're done shuffling elements around.  Clear the last empty slot.
-                    emptySlot = Slot();
-                    return;
-                }
-                originalIndex = s.hash & (fCapacity - 1);
-            } while ((index <= originalIndex && originalIndex < emptyIndex)
-                     || (originalIndex < emptyIndex && emptyIndex < index)
-                     || (emptyIndex < index && index <= originalIndex));
-            // Move the element to the empty slot.
-            Slot& moveFrom = fSlots[index];
-            emptySlot = std::move(moveFrom);
         }
     }
 
@@ -204,6 +194,38 @@ private:
         SkASSERT(fCount == oldCount);
     }
 
+    void removeSlot(int index) {
+        fCount--;
+
+        // Rearrange elements to restore the invariants for linear probing.
+        for (;;) {
+            Slot& emptySlot = fSlots[index];
+            int emptyIndex = index;
+            int originalIndex;
+            // Look for an element that can be moved into the empty slot.
+            // If the empty slot is in between where an element landed, and its native slot, then
+            // move it to the empty slot. Don't move it if its native slot is in between where
+            // the element landed and the empty slot.
+            // [native] <= [empty] < [candidate] == GOOD, can move candidate to empty slot
+            // [empty] < [native] < [candidate] == BAD, need to leave candidate where it is
+            do {
+                index = this->next(index);
+                Slot& s = fSlots[index];
+                if (s.empty()) {
+                    // We're done shuffling elements around.  Clear the last empty slot.
+                    emptySlot = Slot();
+                    return;
+                }
+                originalIndex = s.hash & (fCapacity - 1);
+            } while ((index <= originalIndex && originalIndex < emptyIndex)
+                     || (originalIndex < emptyIndex && emptyIndex < index)
+                     || (emptyIndex < index && index <= originalIndex));
+            // Move the element to the empty slot.
+            Slot& moveFrom = fSlots[index];
+            emptySlot = std::move(moveFrom);
+        }
+    }
+
     int next(int index) const {
         index--;
         if (index < 0) { index += fCapacity; }
@@ -216,26 +238,18 @@ private:
     }
 
     struct Slot {
-        Slot() : val{}, hash(0) {}
+        Slot() = default;
         Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
-        Slot(Slot&& o) { *this = std::move(o); }
-        Slot& operator=(Slot&& o) {
-            val  = std::move(o.val);
-            hash = o.hash;
-            return *this;
-        }
 
         bool empty() const { return this->hash == 0; }
 
-        T        val;
-        uint32_t hash;
+        T        val{};
+        uint32_t hash = 0;
     };
 
-    int fCount, fCapacity;
+    int fCount    = 0,
+        fCapacity = 0;
     SkAutoTArray<Slot> fSlots;
-
-    SkTHashTable(const SkTHashTable&) = delete;
-    SkTHashTable& operator=(const SkTHashTable&) = delete;
 };
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
@@ -243,10 +257,6 @@ private:
 template <typename K, typename V, typename HashK = SkGoodHash>
 class SkTHashMap {
 public:
-    SkTHashMap() {}
-    SkTHashMap(SkTHashMap&&) = default;
-    SkTHashMap& operator=(SkTHashMap&&) = default;
-
     // Clear the map.
     void reset() { fTable.reset(); }
 
@@ -308,19 +318,12 @@ private:
     };
 
     SkTHashTable<Pair, K> fTable;
-
-    SkTHashMap(const SkTHashMap&) = delete;
-    SkTHashMap& operator=(const SkTHashMap&) = delete;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
 template <typename T, typename HashT = SkGoodHash>
 class SkTHashSet {
 public:
-    SkTHashSet() {}
-    SkTHashSet(SkTHashSet&&) = default;
-    SkTHashSet& operator=(SkTHashSet&&) = default;
-
     // Clear the set.
     void reset() { fTable.reset(); }
 
@@ -361,9 +364,6 @@ private:
         static auto Hash(const T& item) { return HashT()(item); }
     };
     SkTHashTable<T, T, Traits> fTable;
-
-    SkTHashSet(const SkTHashSet&) = delete;
-    SkTHashSet& operator=(const SkTHashSet&) = delete;
 };
 
 #endif//SkTHash_DEFINED

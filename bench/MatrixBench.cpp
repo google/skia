@@ -37,7 +37,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 
@@ -59,7 +59,7 @@ protected:
         junk ^= (m2 == m0);
     }
 private:
-    typedef MatrixBench INHERITED;
+    using INHERITED = MatrixBench;
 };
 
 class ScaleMatrixBench : public MatrixBench {
@@ -80,11 +80,11 @@ protected:
 private:
     SkMatrix fM0, fM1, fM2;
     SkScalar fSX, fSY;
-    typedef MatrixBench INHERITED;
+    using INHERITED = MatrixBench;
 };
 
 // having unknown values in our arrays can throw off the timing a lot, perhaps
-// handling NaN values is a lot slower. Anyway, this guy is just meant to put
+// handling NaN values is a lot slower. Anyway, this is just meant to put
 // reasonable values in our arrays.
 template <typename T> void init9(T array[9]) {
     SkRandom rand;
@@ -137,7 +137,7 @@ private:
     SkMatrix fMatrix;
     float fArray[9];
     SkRandom fRnd;
-    typedef MatrixBench INHERITED;
+    using INHERITED = MatrixBench;
 };
 
 class DecomposeMatrixBench : public MatrixBench {
@@ -165,7 +165,7 @@ protected:
 private:
     SkMatrix fMatrix[10];
     SkRandom fRandom;
-    typedef MatrixBench INHERITED;
+    using INHERITED = MatrixBench;
 };
 
 class InvertMapRectMatrixBench : public MatrixBench {
@@ -220,7 +220,7 @@ private:
     SkMatrix fMatrix;
     int fFlags;
     unsigned fIteration;
-    typedef MatrixBench INHERITED;
+    using INHERITED = MatrixBench;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -266,7 +266,7 @@ DEF_BENCH( return new InvertMapRectMatrixBench(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkMatrix make_trans() { return SkMatrix::MakeTrans(2, 3); }
+static SkMatrix make_trans() { return SkMatrix::Translate(2, 3); }
 static SkMatrix make_scale() { SkMatrix m(make_trans()); m.postScale(1.5f, 0.5f); return m; }
 static SkMatrix make_afine() { SkMatrix m(make_trans()); m.postRotate(15); return m; }
 

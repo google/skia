@@ -1,0 +1,25 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+component("viewer_wasm") {
+  testonly = true
+  include_dirs = [ "../.." ]
+  sources = [
+    "../../tools/viewer/SKPSlide.cpp",
+    "../../tools/viewer/SampleSlide.cpp",
+    "../../tools/viewer/SvgSlide.cpp",
+  ]
+  deps = [ "../..:samples" ]
+}
+
+component("gm_wasm") {
+  testonly = true
+  include_dirs = [ "../.." ]
+  deps = [
+    "../..:hash_and_encode",
+    "../..:tool_utils",
+    "../../modules/svg:svg",
+  ]
+}

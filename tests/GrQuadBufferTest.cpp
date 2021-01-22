@@ -24,11 +24,11 @@ static void assert_quad_eq(skiatest::Reporter* r, const GrQuad& expected, const 
     ASSERTF(expected.quadType() == actual.quadType(), "Expected type %d, got %d",
             (int) expected.quadType(), (int) actual.quadType());
     for (int i = 0; i < 4; ++i) {
-        ASSERTF(expected.x(i) == actual.x(i), "Expected x(%d) = %f, got %d",
+        ASSERTF(expected.x(i) == actual.x(i), "Expected x(%d) = %f, got %f",
                 i, expected.x(i), actual.x(i));
-        ASSERTF(expected.y(i) == actual.y(i), "Expected y(%d) = %f, got %d",
+        ASSERTF(expected.y(i) == actual.y(i), "Expected y(%d) = %f, got %f",
                 i, expected.y(i), actual.y(i));
-        ASSERTF(expected.w(i) == actual.w(i), "Expected w(%d) = %f, got %d",
+        ASSERTF(expected.w(i) == actual.w(i), "Expected w(%d) = %f, got %f",
                 i, expected.w(i), actual.w(i));
     }
 }
@@ -71,7 +71,7 @@ static std::vector<GrQuad> generate_quads(float seed, int cnt, const GrQuad::Typ
                 break;
         }
 
-        SkASSERT(quad.quadType() == types[i]); // sanity check
+        SkASSERT(quad.quadType() == types[i]);
         quads.push_back(quad);
     }
     return quads;
@@ -149,7 +149,6 @@ TEST(Concat) {
         buffer2.append(quadsB[i], {2 * i, 0.5f * i}, i % 2 == 0 ? nullptr : &quadsA[i]);
     }
 
-    // Sanity check
     ASSERT(kQuadCount == buffer1.count());
     ASSERT(kQuadCount == buffer2.count());
 

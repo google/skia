@@ -27,7 +27,7 @@ SK_MILESTONE_H = os.path.join('include', 'core', 'SkMilestone.h')
 SK_MILESTONE_TMPL = r'#define SK_MILESTONE %s'
 SK_MILESTONE_RE = SK_MILESTONE_TMPL % r'(\d+)'
 SKIA_REPO = 'https://skia.googlesource.com/skia.git'
-SUPPORTED_CHROME_BRANCHES = 2  # Per infra policy; see skbug.com/8940
+SUPPORTED_CHROME_BRANCHES = 3
 UPDATE_MILESTONE_COMMIT_MSG = '''Update Skia milestone to %d'''
 
 
@@ -75,13 +75,15 @@ def update_infra_config(old_branch, new_branch):
     print >> sys.stderr, ('No configured git user; please run '
                           '"git config user.email <your email>".')
     sys.exit(1)
-  go.get(go.INFRA_GO+'/go/supported_branches/cmd/new-branch')
+  go.mod_download()
+  go.install(go.INFRA_GO+'/go/supported_branches/cmd/new-branch')
   subprocess.check_call(['new-branch',
                          '--branch', new_branch[len(REFS_HEADS_PREFIX):],
                          '--delete', old_branch[len(REFS_HEADS_PREFIX):],
                          '--owner', owner,
                          '--exclude-trybots=chromium.*',
                          '--exclude-trybots=.*Android_Framework.*',
+                         '--exclude-trybots=.*G3_Framework.*',
                          '--submit'])
 
 

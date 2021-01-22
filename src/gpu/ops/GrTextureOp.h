@@ -32,7 +32,7 @@ public:
     /**
      * Creates an op that draws a sub-quadrilateral of a texture. The passed color is modulated by
      * the texture's color. 'deviceQuad' specifies the device-space coordinates to draw, using
-     * 'localQuad' to map into the proxy's texture space. If non-null, 'domain' represents the
+     * 'localQuad' to map into the proxy's texture space. If non-null, 'subset' represents the
      * boundary for the strict src rect constraint. If GrAAType is kCoverage then AA is applied to
      * the edges indicated by GrQuadAAFlags. Otherwise, GrQuadAAFlags is ignored.
      *
@@ -40,28 +40,30 @@ public:
      * deconstructed into the texture, filter, modulating color, and blend mode. When blend mode is
      * src over, this will return a GrFillRectOp with a paint that samples the proxy.
      */
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                          GrSurfaceProxyView,
-                                          SkAlphaType srcAlphaType,
-                                          sk_sp<GrColorSpaceXform>,
-                                          GrSamplerState::Filter,
-                                          const SkPMColor4f&,
-                                          Saturate,
-                                          SkBlendMode,
-                                          GrAAType,
-                                          GrQuadAAFlags,
-                                          const GrQuad& deviceQuad,
-                                          const GrQuad& localQuad,
-                                          const SkRect* domain = nullptr);
+    static GrOp::Owner Make(GrRecordingContext*,
+                            GrSurfaceProxyView,
+                            SkAlphaType srcAlphaType,
+                            sk_sp<GrColorSpaceXform>,
+                            GrSamplerState::Filter,
+                            GrSamplerState::MipmapMode,
+                            const SkPMColor4f&,
+                            Saturate,
+                            SkBlendMode,
+                            GrAAType,
+                            DrawQuad*,
+                            const SkRect* subset = nullptr);
 
     // Automatically falls back to using one GrFillRectOp per entry if dynamic states are not
-    // supported, or if the blend mode is not src-over.
+    // supported, or if the blend mode is not src-over. 'cnt' is the size of the entry array.
+    // 'proxyCnt' <= 'cnt' and represents the number of proxy switches within the array.
     static void AddTextureSetOps(GrRenderTargetContext*,
-                                 const GrClip& clip,
+                                 const GrClip* clip,
                                  GrRecordingContext*,
                                  GrRenderTargetContext::TextureSetEntry[],
                                  int cnt,
+                                 int proxyRunCnt,
                                  GrSamplerState::Filter,
+                                 GrSamplerState::MipmapMode,
                                  Saturate,
                                  SkBlendMode,
                                  GrAAType,

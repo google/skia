@@ -29,7 +29,16 @@ enum GrXferBarrierType {
     kBlend_GrXferBarrierType,    //<! Required by certain blend extensions.
 };
 /** Should be able to treat kNone as false in boolean expressions */
-GR_STATIC_ASSERT(SkToBool(kNone_GrXferBarrierType) == false);
+static_assert(SkToBool(kNone_GrXferBarrierType) == false);
+
+// Flag version of the above enum.
+enum class GrXferBarrierFlags {
+    kNone    = 0,
+    kTexture = 1 << 0,
+    kBlend   = 1 << 1,
+};
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
 
 /**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
@@ -62,23 +71,17 @@ public:
             *this = other;
         }
 
-        DstProxyView(GrSurfaceProxyView view, const SkIPoint& offset)
-            : fProxyView(std::move(view)) {
-            if (fProxyView.proxy()) {
-                fOffset = offset;
-            } else {
-                fOffset.set(0, 0);
-            }
-        }
-
         DstProxyView& operator=(const DstProxyView& other) {
             fProxyView = other.fProxyView;
             fOffset = other.fOffset;
+            fDstSampleType = other.fDstSampleType;
             return *this;
         }
 
         bool operator==(const DstProxyView& that) const {
-            return fProxyView == that.fProxyView && fOffset == that.fOffset;
+            return fProxyView == that.fProxyView &&
+                   fOffset == that.fOffset &&
+                   fDstSampleType == that.fDstSampleType;
         }
         bool operator!=(const DstProxyView& that) const { return !(*this == that); }
 
@@ -87,7 +90,7 @@ public:
         void setOffset(const SkIPoint& offset) { fOffset = offset; }
         void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
 
-        GrTextureProxy* proxy() const { return fProxyView.asTextureProxy(); }
+        GrSurfaceProxy* proxy() const { return fProxyView.proxy(); }
         const GrSurfaceProxyView& proxyView() const { return fProxyView; }
 
         void setProxyView(GrSurfaceProxyView view) {
@@ -97,9 +100,14 @@ public:
             }
         }
 
+        GrDstSampleType dstSampleType() const { return fDstSampleType; }
+
+        void setDstSampleType(GrDstSampleType dstSampleType) { fDstSampleType = dstSampleType; }
+
     private:
-        GrSurfaceProxyView fProxyView;
-        SkIPoint           fOffset;
+        GrSurfaceProxyView       fProxyView;
+        SkIPoint                 fOffset;
+        GrDstSampleType          fDstSampleType = GrDstSampleType::kNone;
     };
 
     /**
@@ -108,7 +116,8 @@ public:
      */
     void getGLSLProcessorKey(const GrShaderCaps&,
                              GrProcessorKeyBuilder*,
-                             const GrSurfaceOrigin* originIfDstTexture) const;
+                             const GrSurfaceOrigin* originIfDstTexture,
+                             GrDstSampleType dstSampleType) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
@@ -217,7 +226,7 @@ private:
     bool fDstReadUsesMixedSamples;
     bool fIsLCD;
 
-    typedef GrProcessor INHERITED;
+    using INHERITED = GrProcessor;
 };
 
 /**
@@ -277,6 +286,10 @@ public:
          * texture or because we need an xfer barrier).
          */
         kRequiresNonOverlappingDraws = 0x20,
+        /**
+         * If set the draw will use fixed function non coherent advanced blends.
+         */
+        kUsesNonCoherentHWBlending = 0x40,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 

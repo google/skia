@@ -16,7 +16,6 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 #include "src/ports/SkFontMgr_custom.h"
 
@@ -54,6 +53,8 @@ sk_sp<SkTypeface> SkTypeface_Empty::onMakeClone(const SkFontArguments& args) con
     return sk_ref_sp(this);
 }
 
+std::unique_ptr<SkFontData> SkTypeface_Empty::onMakeFontData() const { return nullptr; }
+
 SkTypeface_Stream::SkTypeface_Stream(std::unique_ptr<SkFontData> fontData,
                                      const SkFontStyle& style, bool isFixedPitch, bool sysFont,
                                      const SkString familyName)
@@ -67,7 +68,7 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Stream::onOpenStream(int* ttcIndex) co
 }
 
 std::unique_ptr<SkFontData> SkTypeface_Stream::onMakeFontData() const {
-    return skstd::make_unique<SkFontData>(*fData);
+    return std::make_unique<SkFontData>(*fData);
 }
 
 sk_sp<SkTypeface> SkTypeface_Stream::onMakeClone(const SkFontArguments& args) const {
@@ -111,6 +112,15 @@ sk_sp<SkTypeface> SkTypeface_File::onMakeClone(const SkFontArguments& args) cons
                                          this->isFixedPitch(),
                                          this->isSysFont(),
                                          familyName);
+}
+
+std::unique_ptr<SkFontData> SkTypeface_File::onMakeFontData() const {
+    int index;
+    std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
+    if (!stream) {
+        return nullptr;
+    }
+    return std::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +237,7 @@ SkTypeface* SkFontMgr_Custom::onMatchFaceStyle(const SkTypeface* familyMember,
 }
 
 sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromData(sk_sp<SkData> data, int ttcIndex) const {
-    return this->makeFromStream(skstd::make_unique<SkMemoryStream>(std::move(data)), ttcIndex);
+    return this->makeFromStream(std::make_unique<SkMemoryStream>(std::move(data)), ttcIndex);
 }
 
 sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
@@ -252,7 +262,7 @@ sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromStreamArgs(std::unique_ptr<SkStrea
     SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
     Scanner::computeAxisValues(axisDefinitions, position, axisValues, name);
 
-    auto data = skstd::make_unique<SkFontData>(std::move(stream), args.getCollectionIndex(),
+    auto data = std::make_unique<SkFontData>(std::move(stream), args.getCollectionIndex(),
                                                axisValues.get(), axisDefinitions.count());
     return sk_sp<SkTypeface>(new SkTypeface_Stream(std::move(data), style, isFixedPitch, false, name));
 }

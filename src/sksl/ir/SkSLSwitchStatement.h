@@ -8,6 +8,7 @@
 #ifndef SKSL_SWITCHSTATEMENT
 #define SKSL_SWITCHSTATEMENT
 
+#include "src/sksl/ir/SkSLNodeArrayWrapper.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 
@@ -18,48 +19,78 @@ class SymbolTable;
 /**
  * A 'switch' statement.
  */
-struct SwitchStatement : public Statement {
+class SwitchStatement final : public Statement {
+public:
+    static constexpr Kind kStatementKind = Kind::kSwitch;
+
     SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
                     const std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, kSwitch_Kind)
-    , fIsStatic(isStatic)
-    , fValue(std::move(value))
-    , fSymbols(std::move(symbols))
-    , fCases(std::move(cases)) {}
+        : INHERITED(offset, kStatementKind)
+        , fIsStatic(isStatic)
+        , fValue(std::move(value))
+        , fCases(std::move(cases))
+        , fSymbols(std::move(symbols)) {}
+
+    std::unique_ptr<Expression>& value() {
+        return fValue;
+    }
+
+    const std::unique_ptr<Expression>& value() const {
+        return fValue;
+    }
+
+    std::vector<std::unique_ptr<SwitchCase>>& cases() {
+        return fCases;
+    }
+
+    const std::vector<std::unique_ptr<SwitchCase>>& cases() const {
+        return fCases;
+    }
+
+    bool isStatic() const {
+        return fIsStatic;
+    }
+
+    const std::shared_ptr<SymbolTable>& symbols() const {
+        return fSymbols;
+    }
 
     std::unique_ptr<Statement> clone() const override {
         std::vector<std::unique_ptr<SwitchCase>> cloned;
-        for (const auto& s : fCases) {
-            cloned.push_back(std::unique_ptr<SwitchCase>((SwitchCase*) s->clone().release()));
+        for (const std::unique_ptr<SwitchCase>& sc : this->cases()) {
+            cloned.emplace_back(&sc->clone().release()->as<SwitchCase>());
         }
-        return std::unique_ptr<Statement>(new SwitchStatement(fOffset, fIsStatic, fValue->clone(),
-                                                              std::move(cloned), fSymbols));
+        return std::unique_ptr<Statement>(new SwitchStatement(
+                                                      fOffset,
+                                                      this->isStatic(),
+                                                      this->value()->clone(),
+                                                      std::move(cloned),
+                                                      SymbolTable::WrapIfBuiltin(this->symbols())));
     }
 
     String description() const override {
         String result;
-        if (fIsStatic) {
+        if (this->isStatic()) {
             result += "@";
         }
-        result += String::printf("switch (%s) {\n", fValue->description().c_str());
-        for (const auto& c : fCases) {
+        result += String::printf("switch (%s) {\n", this->value()->description().c_str());
+        for (const auto& c : this->cases()) {
             result += c->description();
         }
         result += "}";
         return result;
     }
 
+private:
     bool fIsStatic;
     std::unique_ptr<Expression> fValue;
-    // it's important to keep fCases defined after (and thus destroyed before) fSymbols, because
-    // destroying statements can modify reference counts in symbols
-    const std::shared_ptr<SymbolTable> fSymbols;
     std::vector<std::unique_ptr<SwitchCase>> fCases;
+    std::shared_ptr<SymbolTable> fSymbols;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

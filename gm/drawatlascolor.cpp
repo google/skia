@@ -171,6 +171,6 @@ private:
     static constexpr int kPad = 2;
     static constexpr int kTextPad = 8;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM( return new DrawAtlasColorsGM; )

@@ -209,10 +209,10 @@ DEF_TEST(SkPDF_unicode_metadata, r) {
     }
     sk_sp<SkData> data(wStream.detachAsData());
     static const char* expectations[] = {
-        "<</Title <FEFFD835DCD0D835DCD1D835DCD2D835DCD3D835DCD40020"
-            "D835DCD5D835DCD6D835DCD7D835DCD8D835DCD9>",
-        "/Author (ABCDE FGHIJ)",
-        "Subject <FEFF03B103B203B303B403B5002003B603B703B803B903BA>",
+        ("<</Title <FEFFD835DCD0D835DCD1D835DCD2D835DCD3D835DCD40020"
+            "D835DCD5D835DCD6D835DCD7D835DCD8D835DCD9>"),
+         "/Author (ABCDE FGHIJ)",
+         "Subject <FEFF03B103B203B303B403B5002003B603B703B803B903BA>",
     };
     for (const char* expectation : expectations) {
         if (!contains(data->bytes(), data->size(), expectation)) {

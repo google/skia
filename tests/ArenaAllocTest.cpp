@@ -55,16 +55,20 @@ namespace {
     struct FooRefCnt : public SkRefCnt {
         FooRefCnt() : x(-2), y(-3.0f) { created++; }
         FooRefCnt(int X, float Y) : x(X), y(Y) { created++; }
-        ~FooRefCnt() { destroyed++; }
+        ~FooRefCnt() override { destroyed++; }
 
         int x;
         float y;
     };
 
-}
+}  // namespace
 
 struct WithDtor {
     ~WithDtor() { }
+};
+
+struct alignas(8) OddAlignment {
+    char buf[10];
 };
 
 DEF_TEST(ArenaAlloc, r) {
@@ -90,7 +94,7 @@ DEF_TEST(ArenaAlloc, r) {
         REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
         REPORTER_ASSERT(r, created == 11);
         REPORTER_ASSERT(r, destroyed == 0);
-        arena.make<typename std::aligned_storage<10,8>::type>();
+        arena.make<OddAlignment>();
     }
     REPORTER_ASSERT(r, created == 11);
     REPORTER_ASSERT(r, destroyed == 11);
@@ -116,7 +120,7 @@ DEF_TEST(ArenaAlloc, r) {
         REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
         REPORTER_ASSERT(r, created == 11);
         REPORTER_ASSERT(r, destroyed == 0);
-        arena.make<typename std::aligned_storage<10,8>::type>();
+        arena.make<OddAlignment>();
     }
     REPORTER_ASSERT(r, created == 11);
     REPORTER_ASSERT(r, destroyed == 11);
@@ -143,13 +147,13 @@ DEF_TEST(ArenaAlloc, r) {
         REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
         REPORTER_ASSERT(r, created == 11);
         REPORTER_ASSERT(r, destroyed == 0);
-        arena.make<typename std::aligned_storage<10,8>::type>();
+        arena.make<OddAlignment>();
     }
     REPORTER_ASSERT(r, created == 11);
     REPORTER_ASSERT(r, destroyed == 11);
 
     {
-        SkSTArenaAlloc<64> arena;
+        SkSTArenaAllocWithReset<64> arena;
         arena.makeArrayDefault<char>(256);
         arena.reset();
         arena.reset();
@@ -169,7 +173,19 @@ DEF_TEST(ArenaAlloc, r) {
         start.start = current;
     }
 
+    {
+        SkSTArenaAlloc<64> arena;
+        auto a = arena.makeInitializedArray<int>(8, [](size_t i ) { return i; });
+        for (size_t i = 0; i < 8; i++) {
+            REPORTER_ASSERT(r, a[i] == (int)i);
+        }
+    }
+
     REPORTER_ASSERT(r, created == 128);
     REPORTER_ASSERT(r, destroyed == 128);
 
+    {
+        SkArenaAlloc arena(4096);
+        arena.makeBytesAlignedTo(4081, 8);
+    }
 }

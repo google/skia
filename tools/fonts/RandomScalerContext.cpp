@@ -10,7 +10,6 @@
 #include "include/core/SkPath.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkRectPriv.h"
 #include "tools/fonts/RandomScalerContext.h"
 
@@ -192,6 +191,10 @@ int SkRandomTypeface::onGetUPEM() const { return fProxy->getUnitsPerEm(); }
 
 void SkRandomTypeface::onGetFamilyName(SkString* familyName) const {
     fProxy->getFamilyName(familyName);
+}
+
+bool SkRandomTypeface::onGetPostScriptName(SkString* postScriptName) const {
+    return fProxy->getPostScriptName(postScriptName);
 }
 
 SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateFamilyNameIterator() const {

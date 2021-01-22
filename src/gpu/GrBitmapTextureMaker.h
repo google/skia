@@ -10,27 +10,30 @@
 
 #include "include/core/SkBitmap.h"
 #include "src/gpu/GrTextureMaker.h"
+#include "src/gpu/SkGr.h"
 
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
     non-volatile the texture is cached using a key created from the pixels' image id and the
     subset of the pixelref specified by the bitmap. */
-class GrBitmapTextureMaker : public GrTextureMaker {
+class GrBitmapTextureMaker final : public GrTextureMaker {
 public:
-    GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
-                         bool useDecal = false);
+    GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, GrImageTexGenPolicy);
 
-protected:
-    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  AllowedTexGenType onlyIfFast) override;
-
-    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
-    void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
+    // Always uncached-budgeted. It doesn't make sense to have kApprox cached textures. Moreover,we
+    // create kApprox textures intermediate buffers and those ought to be budgeted.
+    GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, SkBackingFit);
 
 private:
-    const SkBitmap  fBitmap;
-    GrUniqueKey     fOriginalKey;
+    GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, GrImageTexGenPolicy, SkBackingFit);
 
-    typedef GrTextureMaker INHERITED;
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) override;
+
+    const SkBitmap     fBitmap;
+    const SkBackingFit fFit;
+    const SkBudgeted   fBudgeted;
+    GrUniqueKey        fKey;
+
+    using INHERITED = GrTextureMaker;
 };
 
 #endif

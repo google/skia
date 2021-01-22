@@ -10,7 +10,7 @@
 #include "src/core/SkLeanWindows.h"
 #include "src/ports/SkOSLibrary.h"
 
-void* DynamicLoadLibrary(const char* libraryName) {
+void* SkLoadDynamicLibrary(const char* libraryName) {
 #ifdef SK_BUILD_FOR_WINRT
     int str_len = ::MultiByteToWideChar(CP_UTF8, 0, libraryName, -1, nullptr, 0);
     wchar_t *wideLibraryName = new wchar_t[str_len];
@@ -22,7 +22,7 @@ void* DynamicLoadLibrary(const char* libraryName) {
 #endif // SK_BUILD_FOR_WINRT
 }
 
-void* GetProcedureAddress(void* library, const char* functionName) {
+void* SkGetProcedureAddress(void* library, const char* functionName) {
     return reinterpret_cast<void*>(::GetProcAddress((HMODULE)library, functionName));
 }
 

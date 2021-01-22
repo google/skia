@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     pixels.resize(image->height() * image->width() * 4);
     SkPixmap pixmap(SkImageInfo::Make(image->width(), image->height(), kN32_SkColorType,
             image->alphaType()), (const void*) &pixels.front(), image->width() * 4);
-    image->readPixels(pixmap, 0, 0);
+    image->readPixels(nullptr, pixmap, 0, 0);
     for (int y = 0; y < pixmap.height() / 2; ++y) {
         for (int x = 0; x < pixmap.width(); ++x) {
             if ((x & 4) == (y & 4)) {

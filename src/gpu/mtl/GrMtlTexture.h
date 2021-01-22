@@ -8,7 +8,7 @@
 #ifndef GrMtlTexture_DEFINED
 #define GrMtlTexture_DEFINED
 
-#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrTexture.h"
 
 #import <Metal/Metal.h>
 
@@ -16,13 +16,17 @@ class GrMtlGpu;
 
 class GrMtlTexture : public GrTexture {
 public:
-    static sk_sp<GrMtlTexture> MakeNewTexture(GrMtlGpu*, SkBudgeted budgeted,
-                                              const GrSurfaceDesc&,
+    static sk_sp<GrMtlTexture> MakeNewTexture(GrMtlGpu*,
+                                              SkBudgeted budgeted,
+                                              SkISize,
                                               MTLTextureDescriptor*,
-                                              GrMipMapsStatus);
+                                              GrMipmapStatus);
 
-    static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>,
-                                                  GrWrapCacheable, GrIOType);
+    static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*,
+                                                  SkISize,
+                                                  id<MTLTexture>,
+                                                  GrWrapCacheable,
+                                                  GrIOType);
 
     ~GrMtlTexture() override;
 
@@ -37,7 +41,7 @@ public:
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
 protected:
-    GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
+    GrMtlTexture(GrMtlGpu*, SkISize, id<MTLTexture>, GrMipmapStatus);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -57,15 +61,19 @@ protected:
 private:
     enum Wrapped { kWrapped };
 
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>,
-                 GrMipMapsStatus);
+    GrMtlTexture(GrMtlGpu*, SkBudgeted, SkISize, id<MTLTexture>, GrMipmapStatus);
 
-    GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus,
-                 GrWrapCacheable, GrIOType);
+    GrMtlTexture(GrMtlGpu*,
+                 Wrapped,
+                 SkISize,
+                 id<MTLTexture>,
+                 GrMipmapStatus,
+                 GrWrapCacheable,
+                 GrIOType);
 
     id<MTLTexture> fTexture;
 
-    typedef GrTexture INHERITED;
+    using INHERITED = GrTexture;
 };
 
 #endif

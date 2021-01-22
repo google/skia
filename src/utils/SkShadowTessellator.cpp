@@ -9,6 +9,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
@@ -900,7 +901,7 @@ public:
 private:
     bool computePathPolygon(const SkPath& path, const SkMatrix& ctm);
 
-    typedef SkBaseShadowTessellator INHERITED;
+    using INHERITED = SkBaseShadowTessellator;
 };
 
 SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
@@ -913,8 +914,8 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // umbraColor is the interior value, penumbraColor the exterior value.
     auto outset = SkDrawShadowMetrics::AmbientBlurRadius(baseZ);
     auto inset = outset * SkDrawShadowMetrics::AmbientRecipAlpha(baseZ) - outset;
-    inset = SkScalarPin(inset, 0, SkTMin(path.getBounds().width(),
-                                         path.getBounds().height()));
+    inset = SkTPin(inset, 0.0f, std::min(path.getBounds().width(),
+                                       path.getBounds().height()));
 
     if (!this->computePathPolygon(path, ctm)) {
         return;
@@ -997,7 +998,7 @@ private:
                                     const SkMatrix& shadowTransform);
     void addToClip(const SkVector& nextPoint);
 
-    typedef SkBaseShadowTessellator INHERITED;
+    using INHERITED = SkBaseShadowTessellator;
 };
 
 SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,

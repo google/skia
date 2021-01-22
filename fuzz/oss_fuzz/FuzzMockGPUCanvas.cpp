@@ -20,6 +20,9 @@ extern "C" {
     }
 
     int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+        if (size > 4000) {
+            return 0;
+        }
         gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
         auto fuzz = Fuzz(SkData::MakeWithoutCopy(data, size));
         fuzz_MockGPUCanvas(&fuzz);

@@ -39,5 +39,5 @@ namespace SkCodecAnimation {
          */
         kRestorePrevious    = 3,
     };
-}
+} // namespace SkCodecAnimation
 #endif // SkCodecAnimation_DEFINED

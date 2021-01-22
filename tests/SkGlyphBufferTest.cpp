@@ -160,19 +160,19 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     {
         SkDrawableGlyphBuffer drawable;
         drawable.ensureSize(100);
-        drawable.startSource(source, {100, 100});
+        drawable.startSource(source);
         for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             REPORTER_ASSERT(reporter, packedID.packedID().glyphID() == glyphIDs[i]);
-            REPORTER_ASSERT(reporter, pos == positions[i] + SkPoint::Make(100, 100));
+            REPORTER_ASSERT(reporter, pos == positions[i]);
         }
     }
 
     {
         SkDrawableGlyphBuffer drawable;
         drawable.ensureSize(100);
-        SkMatrix matrix = SkMatrix::MakeScale(0.5);
+        SkMatrix matrix = SkMatrix::Scale(0.5, 0.5);
         SkGlyphPositionRoundingSpec rounding{true, kX_SkAxisAlignment};
-        drawable.startDevice(source, {100, 100}, matrix, rounding);
+        drawable.startBitmapDevice(source, {100, 100}, matrix, rounding);
         for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             REPORTER_ASSERT(reporter, glyphIDs[i] == packedID.packedID().glyphID());
             REPORTER_ASSERT(reporter,
@@ -184,7 +184,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     {
         SkDrawableGlyphBuffer drawable;
         drawable.ensureSize(100);
-        drawable.startSource(source, {100, 100});
+        drawable.startSource(source);
         for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             drawable.push_back(&glyphs[i], i);
         }

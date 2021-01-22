@@ -23,9 +23,7 @@ class SkPath;
  */
 class GrConvexPolyEffect : public GrFragmentProcessor {
 public:
-    enum {
-        kMaxEdges = 8,
-    };
+    static constexpr int kMaxEdges = 8;
 
     /**
      * edges is a set of n edge equations where n is limited to kMaxEdges. It contains 3*n values.
@@ -38,24 +36,26 @@ public:
      * have to modify the effect/shaderbuilder interface to make it possible (e.g. give access
      * to the view matrix or untransformed positions in the fragment shader).
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, int n,
-                                                     const SkScalar edges[]) {
-        if (n <= 0 || n > kMaxEdges || GrClipEdgeType::kHairlineAA == edgeType) {
-            return nullptr;
+    static GrFPResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                           GrClipEdgeType edgeType, int n, const SkScalar edges[]) {
+        if (n <= 0 || n > kMaxEdges) {
+            return GrFPFailure(std::move(inputFP));
         }
-        return std::unique_ptr<GrFragmentProcessor>(new GrConvexPolyEffect(edgeType, n, edges));
+
+        return GrFPSuccess(std::unique_ptr<GrFragmentProcessor>(
+                    new GrConvexPolyEffect(std::move(inputFP), edgeType, n, edges)));
     }
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
-     * inverse filled, or has too many edges, this will return nullptr.
+     * inverse filled, or has too many edges, creation will fail.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType, const SkPath&);
+    static GrFPResult Make(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkPath&);
 
     /**
      * Creates an effect that fills inside the rect with AA edges..
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType, const SkRect&);
+    static GrFPResult Make(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkRect&);
 
     ~GrConvexPolyEffect() override;
 
@@ -70,7 +70,9 @@ public:
     const SkScalar* getEdges() const { return fEdges; }
 
 private:
-    GrConvexPolyEffect(GrClipEdgeType edgeType, int n, const SkScalar edges[]);
+    GrConvexPolyEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
+                       GrClipEdgeType edgeType,
+                       int n, const SkScalar edges[]);
     GrConvexPolyEffect(const GrConvexPolyEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -85,7 +87,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 

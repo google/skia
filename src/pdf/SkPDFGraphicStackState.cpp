@@ -6,12 +6,7 @@
 #include "include/core/SkStream.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/pdf/SkPDFUtils.h"
-
-static SkPath to_path(const SkRect& r) {
-    SkPath p;
-    p.addRect(r);
-    return p;
-}
+#include "src/utils/SkClipStackUtils.h"
 
 static void emit_pdf_color(SkColor4f color, SkWStream* result) {
     SkASSERT(color.fA == 1);  // We handle alpha elsewhere.
@@ -92,7 +87,7 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
             operand.isInverseFillType() ||
             !kHuge.contains(operand.getBounds()))
         {
-            Op(to_path(bounds), operand, op, &operand);
+            Op(SkPath::Rect(bounds), operand, op, &operand);
         }
         SkASSERT(!operand.isInverseFillType());
         fn(operand);
@@ -104,7 +99,7 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
 
 static void append_clip_path(const SkPath& clipPath, SkWStream* wStream) {
     SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, wStream);
-    SkPathFillType clipFill = clipPath.getNewFillType();
+    SkPathFillType clipFill = clipPath.getFillType();
     NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseEvenOdd, false);
     NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseWinding, false);
     if (clipFill == SkPathFillType::kEvenOdd) {
@@ -131,8 +126,8 @@ static void append_clip(const SkClipStack& clipStack,
 
     if (is_complex_clip(clipStack)) {
         SkPath clipPath;
-        (void)clipStack.asPath(&clipPath);
-        if (Op(clipPath, to_path(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
+        SkClipStack_AsPath(clipStack, &clipPath);
+        if (Op(clipPath, SkPath::Rect(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
             append_clip_path(clipPath, wStream);
         }
         // If Op() fails (pathological case; e.g. input values are

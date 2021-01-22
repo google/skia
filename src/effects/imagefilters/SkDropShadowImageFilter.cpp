@@ -46,7 +46,7 @@ private:
     SkColor  fColor;
     bool     fShadowOnly;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
@@ -125,8 +125,8 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(const Context& 
 
     SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
     ctx.ctm().mapVectors(&sigma, 1);
-    sigma.fX = SkMaxScalar(0, sigma.fX);
-    sigma.fY = SkMaxScalar(0, sigma.fY);
+    sigma.fX = SkScalarAbs(sigma.fX);
+    sigma.fY = SkScalarAbs(sigma.fY);
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -136,8 +136,8 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(const Context& 
     SkVector offsetVec = SkVector::Make(fDx, fDy);
     ctx.ctm().mapVectors(&offsetVec, 1);
 
-    canvas->translate(SkIntToScalar(inputOffset.fX - bounds.fLeft),
-                      SkIntToScalar(inputOffset.fY - bounds.fTop));
+    canvas->translate(SkIntToScalar(inputOffset.fX) - SkIntToScalar(bounds.fLeft),
+                      SkIntToScalar(inputOffset.fY) - SkIntToScalar(bounds.fTop));
     input->draw(canvas, offsetVec.fX, offsetVec.fY, &paint);
 
     if (!fShadowOnly) {

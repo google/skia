@@ -14,7 +14,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
-#include <stdlib.h>
+#include "src/gpu/GrProgramInfo.h"
+#include <cstdlib>
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
@@ -36,7 +37,7 @@ GrCCFiller::GrCCFiller(Algorithm algorithm, int numPaths, int numSkPoints, int n
 void GrCCFiller::parseDeviceSpaceFill(const SkPath& path, const SkPoint* deviceSpacePts,
                                       GrScissorTest scissorTest, const SkIRect& clippedDevIBounds,
                                       const SkIVector& devToAtlasOffset) {
-    SkASSERT(!fInstanceBuffer);  // Can't call after prepareToDraw().
+    SkASSERT(!fInstanceBuffer.hasGpuBuffer());  // Can't call after prepareToDraw().
     SkASSERT(!path.isEmpty());
 
     int currPathPointsIdx = fGeometry.points().count();
@@ -139,7 +140,7 @@ void GrCCFiller::PathInfo::tessellateFan(
         // When counting winding numbers in the stencil buffer, it works to use even/odd for the fan
         // tessellation (where applicable). But we need to strip out inverse fill info because
         // inverse-ness gets accounted for later on.
-        fan.setFillType(SkPathFillType_ConvertToNonInverse(originalPath.getNewFillType()));
+        fan.setFillType(SkPathFillType_ConvertToNonInverse(originalPath.getFillType()));
     }
     SkASSERT(Verb::kBeginPath == verbs[verbsIdx]);
     for (int i = verbsIdx + 1; i < verbs.count(); ++i) {
@@ -174,9 +175,9 @@ void GrCCFiller::PathInfo::tessellateFan(
         }
     }
 
-    GrTessellator::WindingVertex* vertices = nullptr;
+    GrTriangulator::WindingVertex* vertices = nullptr;
     SkASSERT(!fan.isInverseFillType());
-    fFanTessellationCount = GrTessellator::PathToVertices(
+    fFanTessellationCount = GrTriangulator::PathToVertices(
             fan, std::numeric_limits<float>::infinity(), SkRect::Make(clippedDevIBounds),
             &vertices);
     if (fFanTessellationCount <= 0) {
@@ -187,30 +188,11 @@ void GrCCFiller::PathInfo::tessellateFan(
 
     SkASSERT(0 == fFanTessellationCount % 3);
     for (int i = 0; i < fFanTessellationCount; i += 3) {
-        int tessWinding = vertices[i].fWinding;
-        SkASSERT(tessWinding == vertices[i + 1].fWinding);
-        SkASSERT(tessWinding == vertices[i + 2].fWinding);
-
-        // Ensure this triangle's points actually wind in the same direction as tessWinding.
-        // CCPR shaders use the sign of wind to determine which direction to bloat, so even for
-        // "wound" triangles the winding sign and point ordering need to agree.
-        float ax = vertices[i].fPos.fX - vertices[i + 1].fPos.fX;
-        float ay = vertices[i].fPos.fY - vertices[i + 1].fPos.fY;
-        float bx = vertices[i].fPos.fX - vertices[i + 2].fPos.fX;
-        float by = vertices[i].fPos.fY - vertices[i + 2].fPos.fY;
-        float wind = ax*by - ay*bx;
-        if ((wind > 0) != (-tessWinding > 0)) { // Tessellator has opposite winding sense.
-            std::swap(vertices[i + 1].fPos, vertices[i + 2].fPos);
-        }
-
-        int weight = abs(tessWinding);
-        if (SkPathFillType::kEvenOdd == fan.getNewFillType()) {
-            SkASSERT(Algorithm::kCoverageCount != algorithm);  // Covg. count always uses winding.
-            if (weight != 1) {
-                // The tessellator doesn't wrap weights modulo 2 when we request even/odd fill type.
-                SkASSERT(weight & 1);  // Even wind regions are empty and should have been omitted.
-                weight = 1;
-            }
+        int weight = abs(vertices[i].fWinding);
+        if (SkPathFillType::kEvenOdd == fan.getFillType()) {
+            // The tessellator doesn't wrap weights modulo 2 when we request even/odd fill type.
+            SkASSERT(weight & 1);
+            weight = 1;
         }
         if (weight > 1 && Algorithm::kCoverageCount == algorithm) {
             ++newTriangleCounts->fWeightedTriangles;
@@ -224,12 +206,12 @@ void GrCCFiller::PathInfo::tessellateFan(
 }
 
 GrCCFiller::BatchID GrCCFiller::closeCurrentBatch() {
-    SkASSERT(!fInstanceBuffer);
+    SkASSERT(!fInstanceBuffer.hasGpuBuffer());
     SkASSERT(!fBatches.empty());
 
     const auto& lastBatch = fBatches.back();
     int maxMeshes = 1 + fScissorSubBatches.count() - lastBatch.fEndScissorSubBatchIdx;
-    fMaxMeshesPerDraw = SkTMax(fMaxMeshesPerDraw, maxMeshes);
+    fMaxMeshesPerDraw = std::max(fMaxMeshesPerDraw, maxMeshes);
 
     const auto& lastScissorSubBatch = fScissorSubBatches[lastBatch.fEndScissorSubBatchIdx - 1];
     PrimitiveTallies batchTotalCounts = fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled] -
@@ -290,9 +272,10 @@ static TriPointInstance* emit_recursive_fan(
 }
 
 void GrCCFiller::emitTessellatedFan(
-        const GrTessellator::WindingVertex* vertices, int numVertices, const Sk2f& devToAtlasOffset,
-        TriPointInstance::Ordering ordering, TriPointInstance* triPointInstanceData,
-        QuadPointInstance* quadPointInstanceData, GrCCFillGeometry::PrimitiveTallies* indices) {
+        const GrTriangulator::WindingVertex* vertices, int numVertices,
+        const Sk2f& devToAtlasOffset, TriPointInstance::Ordering ordering,
+        TriPointInstance* triPointInstanceData, QuadPointInstance* quadPointInstanceData,
+        GrCCFillGeometry::PrimitiveTallies* indices) {
     for (int i = 0; i < numVertices; i += 3) {
         int weight = vertices[i].fWinding;
         SkASSERT(weight >= 1);
@@ -312,7 +295,7 @@ void GrCCFiller::emitTessellatedFan(
 
 bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     using Verb = GrCCFillGeometry::Verb;
-    SkASSERT(!fInstanceBuffer);
+    SkASSERT(!fInstanceBuffer.hasGpuBuffer());
     SkASSERT(fBatches.back().fEndNonScissorIndices == // Call closeCurrentBatch().
              fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled]);
     SkASSERT(fBatches.back().fEndScissorSubBatchIdx == fScissorSubBatches.count());
@@ -358,16 +341,14 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     fBaseInstances[1].fConics = fBaseInstances[0].fConics + fTotalPrimitiveCounts[0].fConics;
     int quadEndIdx = fBaseInstances[1].fConics + fTotalPrimitiveCounts[1].fConics;
 
-    fInstanceBuffer =
-            onFlushRP->makeBuffer(GrGpuBufferType::kVertex, quadEndIdx * sizeof(QuadPointInstance));
-    if (!fInstanceBuffer) {
+    fInstanceBuffer.resetAndMapBuffer(onFlushRP, quadEndIdx * sizeof(QuadPointInstance));
+    if (!fInstanceBuffer.hasGpuBuffer()) {
         SkDebugf("WARNING: failed to allocate CCPR fill instance buffer.\n");
         return false;
     }
 
-    TriPointInstance* triPointInstanceData = static_cast<TriPointInstance*>(fInstanceBuffer->map());
-    QuadPointInstance* quadPointInstanceData =
-            reinterpret_cast<QuadPointInstance*>(triPointInstanceData);
+    auto triPointInstanceData = reinterpret_cast<TriPointInstance*>(fInstanceBuffer.data());
+    auto quadPointInstanceData = reinterpret_cast<QuadPointInstance*>(fInstanceBuffer.data());
     SkASSERT(quadPointInstanceData);
 
     PathInfo* nextPathInfo = fPathInfos.begin();
@@ -452,7 +433,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
                     SkASSERT(!currFan.empty());
                     currFan.pop_back();
                 }
-            // fallthru.
+                [[fallthrough]];
             case Verb::kEndOpenContour:  // endPt != startPt.
                 SkASSERT(!currFanIsTessellated || currFan.empty());
                 if (!currFanIsTessellated && currFan.count() >= 3) {
@@ -471,7 +452,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
         }
     }
 
-    fInstanceBuffer->unmap();
+    fInstanceBuffer.unmapBuffer();
 
     SkASSERT(nextPathInfo == fPathInfos.end());
     SkASSERT(ptsIdx == pts.count() - 1);
@@ -486,63 +467,72 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(instanceIndices[0].fConics == fBaseInstances[1].fConics);
     SkASSERT(instanceIndices[1].fConics == quadEndIdx);
 
-    fMeshesScratchBuffer.reserve(fMaxMeshesPerDraw);
-    fScissorRectScratchBuffer.reserve(fMaxMeshesPerDraw);
-
     return true;
 }
 
 void GrCCFiller::drawFills(
         GrOpFlushState* flushState, GrCCCoverageProcessor* proc, const GrPipeline& pipeline,
-        BatchID batchID, const SkIRect& drawBounds) const {
+        BatchID batchID, const SkIRect& drawBounds, const GrUserStencilSettings* stencil) const {
     using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
 
-    SkASSERT(fInstanceBuffer);
+    SkASSERT(fInstanceBuffer.hasGpuBuffer());
 
     GrResourceProvider* rp = flushState->resourceProvider();
     const PrimitiveTallies& batchTotalCounts = fBatches[batchID].fTotalPrimitiveCounts;
 
+    int numSubpasses = proc->numSubpasses();
+
     if (batchTotalCounts.fTriangles) {
-        proc->reset(PrimitiveType::kTriangles, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fTriangles, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kTriangles, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
+                                 &PrimitiveTallies::fTriangles, drawBounds);
+        }
     }
 
     if (batchTotalCounts.fWeightedTriangles) {
         SkASSERT(Algorithm::kStencilWindingCount != fAlgorithm);
-        proc->reset(PrimitiveType::kWeightedTriangles, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fWeightedTriangles,
-                drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kWeightedTriangles, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
+                                 &PrimitiveTallies::fWeightedTriangles, drawBounds);
+        }
     }
 
     if (batchTotalCounts.fQuadratics) {
-        proc->reset(PrimitiveType::kQuadratics, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fQuadratics, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kQuadratics, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
+                                 &PrimitiveTallies::fQuadratics, drawBounds);
+        }
     }
 
     if (batchTotalCounts.fCubics) {
-        proc->reset(PrimitiveType::kCubics, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fCubics, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kCubics, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
+                                 &PrimitiveTallies::fCubics, drawBounds);
+        }
     }
 
     if (batchTotalCounts.fConics) {
-        proc->reset(PrimitiveType::kConics, rp);
-        this->drawPrimitives(
-                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fConics, drawBounds);
+        for (int i = 0; i < numSubpasses; ++i) {
+            proc->reset(PrimitiveType::kConics, i, rp);
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
+                                 &PrimitiveTallies::fConics, drawBounds);
+        }
     }
 }
 
 void GrCCFiller::drawPrimitives(
         GrOpFlushState* flushState, const GrCCCoverageProcessor& proc, const GrPipeline& pipeline,
-        BatchID batchID, int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const {
-    SkASSERT(pipeline.isScissorEnabled());
+        const GrUserStencilSettings* stencil, BatchID batchID, int PrimitiveTallies::*instanceType,
+        const SkIRect& drawBounds) const {
+    SkASSERT(pipeline.isScissorTestEnabled());
 
-    // Don't call reset(), as that also resets the reserve count.
-    fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
-    fScissorRectScratchBuffer.pop_back_n(fScissorRectScratchBuffer.count());
+    GrOpsRenderPass* renderPass = flushState->opsRenderPass();
+    proc.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds), stencil);
+    proc.bindBuffers(renderPass, fInstanceBuffer.gpuBuffer());
 
     SkASSERT(batchID > 0);
     SkASSERT(batchID < fBatches.count());
@@ -555,9 +545,9 @@ void GrCCFiller::drawPrimitives(
         SkASSERT(instanceCount > 0);
         int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
-        proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer);
-        fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
-                                                      drawBounds.height());
+        renderPass->setScissorRect(SkIRect::MakeXYWH(0, 0, drawBounds.width(),
+                                                     drawBounds.height()));
+        proc.drawInstances(renderPass, instanceCount, baseInstance);
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
 
@@ -573,19 +563,10 @@ void GrCCFiller::drawPrimitives(
             continue;
         }
         SkASSERT(instanceCount > 0);
-        proc.appendMesh(fInstanceBuffer, instanceCount, baseScissorInstance + startIndex,
-                        &fMeshesScratchBuffer);
-        fScissorRectScratchBuffer.push_back() = scissorSubBatch.fScissor;
+        renderPass->setScissorRect(scissorSubBatch.fScissor);
+        proc.drawInstances(renderPass, instanceCount, baseScissorInstance + startIndex);
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
 
-    SkASSERT(fMeshesScratchBuffer.count() == fScissorRectScratchBuffer.count());
-    SkASSERT(fMeshesScratchBuffer.count() <= fMaxMeshesPerDraw);
     SkASSERT(totalInstanceCount == batch.fTotalPrimitiveCounts.*instanceType);
-
-    if (!fMeshesScratchBuffer.empty()) {
-        proc.draw(flushState, pipeline, fScissorRectScratchBuffer.begin(),
-                  fMeshesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
-                  SkRect::Make(drawBounds));
-    }
 }

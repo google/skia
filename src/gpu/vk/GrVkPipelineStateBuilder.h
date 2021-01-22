@@ -19,7 +19,7 @@
 class GrProgramDesc;
 class GrVkGpu;
 class GrVkRenderPass;
-class SkReader32;
+class SkReadBuffer;
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
@@ -27,14 +27,12 @@ public:
      *
      * The GrVkPipelineState implements what is specified in the GrPipeline and GrPrimitiveProcessor
      * as input. After successful generation, the builder result objects are available to be used.
-     * This function may modify the program key by setting the surface origin key to 0 (unspecified)
-     * if it turns out the program does not care about the surface origin.
-     * @return true if generation was successful.
+     * @return the created pipeline if generation was successful; nullptr otherwise
      */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
+                                                  const GrProgramDesc&,
                                                   const GrProgramInfo&,
-                                                  GrProgramDesc*,
                                                   VkRenderPass compatibleRenderPass);
 
     const GrCaps* caps() const override;
@@ -45,12 +43,12 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
+    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
 
-    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, GrProgramDesc*);
+    GrVkPipelineState* finalize(const GrProgramDesc&, VkRenderPass compatibleRenderPass);
 
     // returns number of shader stages
-    int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],
+    int loadShadersFromCache(SkReadBuffer* cached, VkShaderModule outShaderModules[],
                              VkPipelineShaderStageCreateInfo* outStageInfo);
 
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
@@ -61,7 +59,6 @@ private:
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::Program::Settings& settings,
-                              GrProgramDesc* desc,
                               SkSL::String* outSPIRV,
                               SkSL::Program::Inputs* outInputs);
 
@@ -80,7 +77,7 @@ private:
     GrVkVaryingHandler fVaryingHandler;
     GrVkUniformHandler fUniformHandler;
 
-    typedef GrGLSLProgramBuilder INHERITED;
+    using INHERITED = GrGLSLProgramBuilder;
 };
 
 #endif

@@ -93,11 +93,11 @@ protected:
 private:
     SkBitmap fBitmap;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new MorphologyGM;)
 
-}
+}  // namespace skiagm

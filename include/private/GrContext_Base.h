@@ -15,19 +15,24 @@
 
 class GrBaseContextPriv;
 class GrCaps;
-class GrContext;
+class GrContextThreadSafeProxy;
+class GrDirectContext;
 class GrImageContext;
 class GrRecordingContext;
-class GrSkSLFPFactoryCache;
 
 class GrContext_Base : public SkRefCnt {
 public:
-    virtual ~GrContext_Base();
+    ~GrContext_Base() override;
+
+    /*
+     * Safely downcast to a GrDirectContext.
+     */
+    virtual GrDirectContext* asDirectContext() { return nullptr; }
 
     /*
      * The 3D API backing this context
      */
-    SK_API GrBackendApi backend() const { return fBackend; }
+    SK_API GrBackendApi backend() const;
 
     /*
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
@@ -38,16 +43,21 @@ public:
      */
     SK_API GrBackendFormat defaultBackendFormat(SkColorType, GrRenderable) const;
 
+    SK_API GrBackendFormat compressedBackendFormat(SkImage::CompressionType) const;
+
+    // TODO: When the public version is gone, rename to refThreadSafeProxy and add raw ptr ver.
+    sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
+
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
-    const GrBaseContextPriv priv() const;
+    const GrBaseContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
 protected:
     friend class GrBaseContextPriv; // for hidden functions
 
-    GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t contextID);
+    GrContext_Base(sk_sp<GrContextThreadSafeProxy>);
 
-    virtual bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>);
+    virtual bool init();
 
     /**
      * An identifier for this context. The id is used by all compatible contexts. For example,
@@ -56,34 +66,27 @@ protected:
      * a third thread with a direct context, then all three contexts will report the same id.
      * It is an error for an image to be used with contexts that report different ids.
      */
-    uint32_t contextID() const { return fContextID; }
+    uint32_t contextID() const;
 
     bool matches(GrContext_Base* candidate) const {
-        return candidate->contextID() == this->contextID();
+        return candidate && candidate->contextID() == this->contextID();
     }
 
     /*
      * The options in effect for this context
      */
-    const GrContextOptions& options() const { return fOptions; }
+    const GrContextOptions& options() const;
 
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
-
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
-    virtual GrContext* asDirectContext() { return nullptr; }
+
+    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
-    const GrBackendApi          fBackend;
-    const GrContextOptions      fOptions;
-    const uint32_t              fContextID;
-    sk_sp<const GrCaps>         fCaps;
-    sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
-
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

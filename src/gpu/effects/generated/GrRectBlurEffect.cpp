@@ -10,7 +10,8 @@
  **************************************************************************************************/
 #include "GrRectBlurEffect.h"
 
-#include "include/gpu/GrTexture.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -25,118 +26,121 @@ public:
         (void)_outer;
         auto rect = _outer.rect;
         (void)rect;
-        auto invSixSigma = _outer.invSixSigma;
-        (void)invSixSigma;
+        auto applyInvVM = _outer.applyInvVM;
+        (void)applyInvVM;
+        auto invVM = _outer.invVM;
+        (void)invVM;
         auto isFast = _outer.isFast;
         (void)isFast;
         highp = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
                  abs(rect.right()) > 16000.0) ||
                 abs(rect.bottom()) > 16000.0;
         if (highp) {
-            rectFVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                        "rectF");
+            rectFVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kFloat4_GrSLType, "rectF");
         }
         if (!highp) {
-            rectHVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                        "rectH");
+            rectHVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kHalf4_GrSLType, "rectH");
         }
-        invSixSigmaVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                          "invSixSigma");
+        if (applyInvVM) {
+            invVMVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kFloat3x3_GrSLType, "invVM");
+        }
         fragBuilder->codeAppendf(
-                "/* key */ bool highp = %s;\nhalf xCoverage, yCoverage;\n@if (%s) {\n    half x, "
-                "y;\n    @if (highp) {\n        x = max(half(%s.x - sk_FragCoord.x), "
-                "half(sk_FragCoord.x - %s.z));\n        y = max(half(%s.y - sk_FragCoord.y), "
-                "half(sk_FragCoord.y - %s.w));\n    } else {\n        x = max(half(float(%s.x) - "
-                "sk_FragCoord.x), half(sk_FragCoord.x - float(%s.z)));\n        y = "
-                "max(half(float(%s.y) - sk_FragCoord.y), half(sk_FragCoord.y - float(%s.w)));\n    "
-                "}\n    xCoverage = sample(%s, float2(half2(x * %s, 0.5))).",
-                (highp ? "true" : "false"), (_outer.isFast ? "true" : "false"),
+                R"SkSL(/* key */ bool highp = %s;
+half xCoverage;
+half yCoverage;
+
+float2 pos = sk_FragCoord.xy;
+@if (%s) {
+    pos = (%s * float3(pos, 1.0)).xy;
+}
+@if (%s) {
+    half2 xy;
+    @if (highp) {
+        xy = max(half2(%s.xy - pos), half2(pos - %s.zw));
+    } else {
+        xy = max(half2(float2(%s.xy) - pos), half2(pos - float2(%s.zw)));
+    })SkSL",
+                (highp ? "true" : "false"), (_outer.applyInvVM ? "true" : "false"),
+                invVMVar.isValid() ? args.fUniformHandler->getUniformCStr(invVMVar) : "float3x3(1)",
+                (_outer.isFast ? "true" : "false"),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                args.fUniformHandler->getUniformCStr(invSixSigmaVar));
-        fragBuilder->codeAppendf(
-                "%s.w;\n    yCoverage = sample(%s, float2(half2(y * %s, 0.5))).%s.w;\n    %s = (%s "
-                "* xCoverage) * yCoverage;\n} else {\n    half l, r, t, b;\n    @if (highp) {\n    "
-                "    l = half(sk_FragCoord.x - %s.x);\n        r = half(%s.z - sk_FragCoord.x);\n  "
-                "      t = half(sk_FragCoord.y - %s.y);\n        b = half(%s.w - "
-                "sk_FragCoord.y);\n    } else {\n        l = half(sk_FragCoord.x - float(%s.x));\n "
-                "       r = half(float(%s.z) - sk_FragCoord.x);\n        t = half(sk_FragCoord.y - "
-                "float(%s.y));\n        b = half(float(",
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str(),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                args.fUniformHandler->getUniformCStr(invSixSigmaVar),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str(),
-                args.fOutputColor, args.fInputColor,
-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
-                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
+        SkString _coords0("float2(half2(xy.x, 0.5))");
+        SkString _sample0 = this->invokeChild(1, args, _coords0.c_str());
         fragBuilder->codeAppendf(
-                "%s.w) - sk_FragCoord.y);\n    }\n    half il = 1.0 + l * %s;\n    half ir = 1.0 + "
-                "r * %s;\n    half it = 1.0 + t * %s;\n    half ib = 1.0 + b * %s;\n    xCoverage "
-                "= (1.0 - sample(%s, float2(half2(il, 0.5))).%s.w) - sample(%s, float2(half2(ir, "
-                "0.5))).%s.w;\n    yCoverage = (1.0 - sample(%s, float2(half2(it, 0.5))).%s.w) - "
-                "sample(%s, float2(half2(ib, 0.5))).%s.w;\n}\n%s = (%s * xCoverage) * yCoverage;\n",
+                R"SkSL(
+    xCoverage = %s.w;)SkSL",
+                _sample0.c_str());
+        SkString _coords1("float2(half2(xy.y, 0.5))");
+        SkString _sample1 = this->invokeChild(1, args, _coords1.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+    yCoverage = %s.w;
+} else {
+    half4 rect;
+    @if (highp) {
+        rect.xy = half2(%s.xy - pos);
+        rect.zw = half2(pos - %s.zw);
+    } else {
+        rect.xy = half2(float2(%s.xy) - pos);
+        rect.zw = half2(pos - float2(%s.zw));
+    })SkSL",
+                _sample1.c_str(),
+                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
+                rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
-                args.fUniformHandler->getUniformCStr(invSixSigmaVar),
-                args.fUniformHandler->getUniformCStr(invSixSigmaVar),
-                args.fUniformHandler->getUniformCStr(invSixSigmaVar),
-                args.fUniformHandler->getUniformCStr(invSixSigmaVar),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str(),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str(),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str(),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str(),
-                args.fOutputColor, args.fInputColor);
+                rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
+        SkString _coords2("float2(half2(rect.x, 0.5))");
+        SkString _sample2 = this->invokeChild(1, args, _coords2.c_str());
+        SkString _coords3("float2(half2(rect.z, 0.5))");
+        SkString _sample3 = this->invokeChild(1, args, _coords3.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+    xCoverage = (1.0 - %s.w) - %s.w;)SkSL",
+                _sample2.c_str(), _sample3.c_str());
+        SkString _coords4("float2(half2(rect.y, 0.5))");
+        SkString _sample4 = this->invokeChild(1, args, _coords4.c_str());
+        SkString _coords5("float2(half2(rect.w, 0.5))");
+        SkString _sample5 = this->invokeChild(1, args, _coords5.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+    yCoverage = (1.0 - %s.w) - %s.w;
+})SkSL",
+                _sample4.c_str(), _sample5.c_str());
+        SkString _sample6 = this->invokeChild(0, args);
+        fragBuilder->codeAppendf(
+                R"SkSL(
+half4 inputColor = %s;
+%s = (inputColor * xCoverage) * yCoverage;
+)SkSL",
+                _sample6.c_str(), args.fOutputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
-        { pdman.set1f(invSixSigmaVar, (_outer.invSixSigma)); }
+        {
+            if (invVMVar.isValid()) {
+                static_assert(1 == 1);
+                pdman.setSkMatrix(invVMVar, (_outer.invVM));
+            }
+        }
         auto rect = _outer.rect;
         (void)rect;
         UniformHandle& rectF = rectFVar;
         (void)rectF;
         UniformHandle& rectH = rectHVar;
         (void)rectH;
-        GrSurfaceProxy& integralProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& integral = *integralProxy.peekTexture();
-        (void)integral;
-        UniformHandle& invSixSigma = invSixSigmaVar;
-        (void)invSixSigma;
+        auto applyInvVM = _outer.applyInvVM;
+        (void)applyInvVM;
+        UniformHandle& invVM = invVMVar;
+        (void)invVM;
         auto isFast = _outer.isFast;
         (void)isFast;
 
@@ -146,7 +150,7 @@ private:
     bool highp = false;
     UniformHandle rectFVar;
     UniformHandle rectHVar;
-    UniformHandle invSixSigmaVar;
+    UniformHandle invVMVar;
 };
 GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRectBlurEffect();
@@ -156,39 +160,53 @@ void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     bool highp = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
                   abs(rect.right()) > 16000.0) ||
                  abs(rect.bottom()) > 16000.0;
-    b->add32((int32_t)highp);
-    b->add32((int32_t)isFast);
+    b->add32((uint32_t)highp);
+    b->add32((uint32_t)applyInvVM);
+    b->add32((uint32_t)isFast);
 }
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRectBlurEffect& that = other.cast<GrRectBlurEffect>();
     (void)that;
     if (rect != that.rect) return false;
-    if (integral != that.integral) return false;
-    if (invSixSigma != that.invSixSigma) return false;
+    if (applyInvVM != that.applyInvVM) return false;
+    if (invVM != that.invVM) return false;
     if (isFast != that.isFast) return false;
     return true;
 }
+bool GrRectBlurEffect::usesExplicitReturn() const { return false; }
 GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
         : INHERITED(kGrRectBlurEffect_ClassID, src.optimizationFlags())
         , rect(src.rect)
-        , integral(src.integral)
-        , invSixSigma(src.invSixSigma)
+        , applyInvVM(src.applyInvVM)
+        , invVM(src.invVM)
         , isFast(src.isFast) {
-    this->setTextureSamplerCnt(1);
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(*this));
+    return std::make_unique<GrRectBlurEffect>(*this);
 }
-const GrFragmentProcessor::TextureSampler& GrRectBlurEffect::onTextureSampler(int index) const {
-    return IthTextureSampler(index, integral);
+#if GR_TEST_UTILS
+SkString GrRectBlurEffect::onDumpInfo() const {
+    return SkStringPrintf(
+            "(rect=float4(%f, %f, %f, %f), applyInvVM=%s, invVM=float3x3(%f, %f, %f, %f, %f, %f, "
+            "%f, %f, %f), isFast=%s)",
+            rect.left(), rect.top(), rect.right(), rect.bottom(), (applyInvVM ? "true" : "false"),
+            invVM.rc(0, 0), invVM.rc(1, 0), invVM.rc(2, 0), invVM.rc(0, 1), invVM.rc(1, 1),
+            invVM.rc(2, 1), invVM.rc(0, 2), invVM.rc(1, 2), invVM.rc(2, 2),
+            (isFast ? "true" : "false"));
 }
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* data) {
     float sigma = data->fRandom->nextRangeF(3, 8);
+    int x = data->fRandom->nextRangeF(1, 200);
+    int y = data->fRandom->nextRangeF(1, 200);
     float width = data->fRandom->nextRangeF(200, 300);
     float height = data->fRandom->nextRangeF(200, 300);
-    return GrRectBlurEffect::Make(data->proxyProvider(), *data->caps()->shaderCaps(),
-                                  SkRect::MakeWH(width, height), sigma);
+    SkMatrix vm = GrTest::TestMatrixPreservesRightAngles(data->fRandom);
+    auto rect = SkRect::MakeXYWH(x, y, width, height);
+    return GrRectBlurEffect::Make(data->inputFP(), data->context(), *data->caps()->shaderCaps(),
+                                  rect, vm, sigma);
 }
 #endif

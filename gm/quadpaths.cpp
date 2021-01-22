@@ -149,7 +149,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 class QuadClosePathGM : public GM {
@@ -279,7 +279,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -288,4 +288,4 @@ DEF_GM( return new QuadPathGM; )
 
 DEF_GM( return new QuadClosePathGM; )
 
-}
+}  // namespace skiagm

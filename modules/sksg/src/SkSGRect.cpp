@@ -34,9 +34,7 @@ SkRect Rect::onRevalidate(InvalidationController*, const SkMatrix&) {
 }
 
 SkPath Rect::onAsPath() const {
-    SkPath path;
-    path.addRect(fRect, this->getDirection(), this->getInitialPointIndex());
-    return path;
+    return SkPath::Rect(fRect, this->getDirection(), this->getInitialPointIndex());
 }
 
 RRect::RRect(const SkRRect& rr) : fRRect(rr) {}
@@ -72,9 +70,7 @@ SkRect RRect::onRevalidate(InvalidationController*, const SkMatrix&) {
 }
 
 SkPath RRect::onAsPath() const {
-    SkPath path;
-    path.addRRect(fRRect, this->getDirection(), this->getInitialPointIndex());
-    return path;
+    return SkPath::RRect(fRRect, this->getDirection(), this->getInitialPointIndex());
 }
 
 } // namespace sksg

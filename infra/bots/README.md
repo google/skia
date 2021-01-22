@@ -16,7 +16,7 @@ Jobs are collections of related tasks which help define sub-sections of the DAG,
 for example, to be used as try jobs. Each job is defined as an entry point into
 the DAG.
 
-The tasks.json file in this directory is the master list of tasks and jobs for
+The tasks.json file in this directory is the list of tasks and jobs for
 the repo. Note that tasks.json is NEVER edited by hand but generated via
 gen_task.go and the input files enumerated below. The
 [Task Scheduler](https://skia.googlesource.com/buildbot/+/master/task_scheduler/README.md)
@@ -27,7 +27,7 @@ gen_tasks.go or one of the following input JSON files, rather than tasks.json
 itself:
 
   * cfg.json - Basic configuration information for gen_tasks.go.
-  * jobs.json - The master list of all jobs to run. Edit this to add or remove
+  * jobs.json - The list of all jobs to run. Edit this to add or remove
       bots.
 
 Whenever gen_tasks.go, any of the above JSON files, or assets are changed, you
@@ -39,7 +39,7 @@ Or:
 
 	$ cd infra/bots; make train
 
-There is also a test mode which performs sanity-checks and verifies that
+There is also a test mode which performs consistency checks and verifies that
 tasks.json is unchanged:
 
 	$ go run infra/bots/gen_tasks.go --test

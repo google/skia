@@ -48,11 +48,24 @@ declare_args() {
   # slowest steps in a build, so we don't want to limit too much. Use the number
   # of CPUs as a default.
   dlsymutil_pool_depth = exec_script("num_cpus.py", [], "value")
+
+  # Too many linkers running at once causes issues for some builders. Allow
+  # such builders to limit the number of concurrent link steps.
+  # link_pool_depth < 0 means no pool, 0 means cpu count, > 0 sets pool size.
+  link_pool_depth = -1
 }
 
+declare_args() {
+  host_link = host_cxx
+  target_link = target_cxx
+}
+
+# For 'shell' see https://ninja-build.org/manual.html#ref_rule_command
 if (host_os == "win") {
-  stamp = "cmd.exe /c echo >"
+  shell = "cmd.exe /c "
+  stamp = "$shell echo >"
 } else {
+  shell = ""
   stamp = "touch"
 }
 
@@ -60,9 +73,19 @@ if (current_toolchain == default_toolchain) {
   pool("dsymutil_pool") {
     depth = dlsymutil_pool_depth
   }
+  if (0 <= link_pool_depth) {
+    pool("link_pool") {
+      if (link_pool_depth == 0) {
+        depth = exec_script("num_cpus.py", [], "value")
+      } else {
+        depth = link_pool_depth
+      }
+    }
+  }
 }
 
 toolchain("msvc") {
+  lib_switch = ""
   lib_dir_switch = "/LIBPATH:"
 
   bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
@@ -110,9 +133,8 @@ toolchain("msvc") {
       _ml += "64"
     }
     command = "$env_setup \"$bin/$_ml.exe\" {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
+    outputs =
+        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
     description = "assemble {{source}}"
   }
 
@@ -123,9 +145,8 @@ toolchain("msvc") {
     # Label names may have spaces so pdbname must be quoted.
     command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
+    outputs =
+        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
     description = "compile {{source}}"
   }
 
@@ -136,9 +157,8 @@ toolchain("msvc") {
     # Label names may have spaces so pdbname must be quoted.
     command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
+    outputs =
+        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
     description = "compile {{source}}"
   }
 
@@ -157,6 +177,9 @@ toolchain("msvc") {
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}}"
     description = "link {{output}}"
+    if (0 <= link_pool_depth) {
+      pool = ":link_pool($default_toolchain)"
+    }
   }
 
   tool("solink") {
@@ -189,6 +212,9 @@ toolchain("msvc") {
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
     description = "link {{output}}"
+    if (0 <= link_pool_depth) {
+      pool = ":link_pool($default_toolchain)"
+    }
   }
 
   tool("link") {
@@ -199,13 +225,14 @@ toolchain("msvc") {
     command = "$env_setup $link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
-    outputs = [
-      exename,
-    ]
+    outputs = [ exename ]
 
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
     description = "link {{output}}"
+    if (0 <= link_pool_depth) {
+      pool = ":link_pool($default_toolchain)"
+    }
   }
 
   tool("stamp") {
@@ -215,7 +242,7 @@ toolchain("msvc") {
 
   tool("copy") {
     cp_py = rebase_path("../cp.py")
-    command = "python $cp_py {{source}} {{output}}"
+    command = "$shell python \"$cp_py\" {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }
@@ -225,6 +252,7 @@ template("gcc_like_toolchain") {
     ar = invoker.ar
     cc = invoker.cc
     cxx = invoker.cxx
+    link = invoker.link
     lib_switch = "-l"
     lib_dir_switch = "-L"
 
@@ -232,9 +260,8 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
@@ -242,29 +269,26 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
     tool("objc") {
       depfile = "{{output}}.d"
-      command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
+      command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{framework_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
     tool("objcxx") {
       depfile = "{{output}}.d"
-      command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} {{cflags_objcc}} -c {{source}} -o {{output}}"
+      command = "$cc_wrapper $cxx -MD -MF $depfile {{defines}} {{include_dirs}} {{framework_dirs}} {{cflags}} {{cflags_cc}} {{cflags_objcc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "compile {{source}}"
     }
 
@@ -272,9 +296,8 @@ template("gcc_like_toolchain") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
-      outputs = [
-        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-      ]
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
       description = "assemble {{source}}"
     }
 
@@ -288,15 +311,18 @@ template("gcc_like_toolchain") {
       } else {
         rspfile = "{{output}}.rsp"
         rspfile_content = "{{inputs}}"
-        command = "$ar rcs {{output}} @$rspfile"
+        rm_py = rebase_path("../rm.py")
+        command = "$shell python \"$rm_py\" \"{{output}}\" && $ar rcs {{output}} @$rspfile"
       }
 
-      outputs = [
-        "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
-      ]
+      outputs =
+          [ "{{root_out_dir}}/{{target_output_name}}{{output_extension}}" ]
       default_output_extension = ".a"
       output_prefix = "lib"
       description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
     }
 
     tool("solink") {
@@ -326,13 +352,14 @@ template("gcc_like_toolchain") {
         _end_group = ""
       }
 
-      command = "$cxx -shared {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
-      outputs = [
-        "{{root_out_dir}}/$soname",
-      ]
+      command = "$link -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
+      outputs = [ "{{root_out_dir}}/$soname" ]
       output_prefix = "lib"
       default_output_extension = ".so"
       description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
     }
 
     tool("link") {
@@ -352,12 +379,13 @@ template("gcc_like_toolchain") {
         _start_group = ""
         _end_group = ""
       }
-      command = "$cxx {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} -o $exe_name"
+      command = "$link {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} -o $exe_name"
 
-      outputs = [
-        "$exe_name",
-      ]
+      outputs = [ "$exe_name" ]
       description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
     }
 
     tool("stamp") {
@@ -367,13 +395,13 @@ template("gcc_like_toolchain") {
 
     tool("copy") {
       cp_py = rebase_path("../cp.py")
-      command = "python $cp_py {{source}} {{output}}"
+      command = "python \"$cp_py\" {{source}} {{output}}"
       description = "copy {{source}} {{output}}"
     }
 
     tool("copy_bundle_data") {
       cp_py = rebase_path("../cp.py")
-      command = "python $cp_py {{source}} {{output}}"
+      command = "python \"$cp_py\" {{source}} {{output}}"
       description = "copy_bundle_data {{source}} {{output}}"
     }
 
@@ -396,6 +424,7 @@ gcc_like_toolchain("gcc_like") {
   ar = target_ar
   cc = target_cc
   cxx = target_cxx
+  link = target_link
 }
 
 gcc_like_toolchain("gcc_like_host") {
@@ -404,4 +433,5 @@ gcc_like_toolchain("gcc_like_host") {
   ar = host_ar
   cc = host_cc
   cxx = host_cxx
+  link = host_link
 }

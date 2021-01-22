@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -53,19 +53,19 @@ protected:
         kShapeCount
     };
 
-    static void AddShape(SkPath* path, const SkRect& rect, Shapes shape, SkPathDirection dir) {
+    static void AddShape(SkPathBuilder* b, const SkRect& rect, Shapes shape, SkPathDirection dir) {
         switch (shape) {
             case kRect_Shape:
-                path->addRect(rect, dir);
+                b->addRect(rect, dir);
                 break;
             case kRRect_Shape: {
                 SkRRect rr;
                 rr.setRectXY(rect, 5, 5);
-                path->addRRect(rr, dir);
+                b->addRRect(rr, dir);
                 break;
                 }
             case kOval_Shape:
-                path->addOval(rect, dir);
+                b->addOval(rect, dir);
                 break;
             default:
                 break;
@@ -103,10 +103,10 @@ protected:
         for (int outerShape = 0; outerShape < kShapeCount; ++outerShape) {
             for (int innerShape = 0; innerShape < kShapeCount; ++innerShape) {
                 for (size_t innerRect = 0; innerRect < SK_ARRAY_COUNT(innerRects); ++innerRect) {
-                    SkPath path;
+                    SkPathBuilder builder;
 
-                    AddShape(&path, outerRect, (Shapes) outerShape, SkPathDirection::kCW);
-                    AddShape(&path, innerRects[innerRect], (Shapes) innerShape,
+                    AddShape(&builder, outerRect, (Shapes) outerShape, SkPathDirection::kCW);
+                    AddShape(&builder, innerRects[innerRect], (Shapes) innerShape,
                              SkPathDirection::kCCW);
 
                     canvas->save();
@@ -117,7 +117,7 @@ protected:
                         canvas->translate(xOff, yOff);
                     }
 
-                    canvas->drawPath(path, shapePaint);
+                    canvas->drawPath(builder.detach(), shapePaint);
                     canvas->restore();
 
                     xOff += 45;
@@ -137,7 +137,7 @@ private:
     bool fDoAA;
     bool fFlipped;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,4 +147,4 @@ DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ false); )
 DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ true); )
 DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ true); )
 
-}
+}  // namespace skiagm

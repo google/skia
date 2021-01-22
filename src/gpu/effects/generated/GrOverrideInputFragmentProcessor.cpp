@@ -10,7 +10,8 @@
  **************************************************************************************************/
 #include "GrOverrideInputFragmentProcessor.h"
 
-#include "include/gpu/GrTexture.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -31,21 +32,20 @@ public:
         auto literalColor = _outer.literalColor;
         (void)literalColor;
         if (useUniform) {
-            uniformColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+            uniformColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "uniformColor");
         }
-        fragBuilder->codeAppendf(
-                "half4 constColor;\n@if (%s) {\n    constColor = %s;\n} else {\n    constColor = "
-                "half4(%f, %f, %f, %f);\n}",
-                (_outer.useUniform ? "true" : "false"),
+        SkString _input0 = SkStringPrintf(
+                "%s ? %s : half4(%f, %f, %f, %f)", (_outer.useUniform ? "true" : "false"),
                 uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
                                           : "half4(0)",
                 _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
                 _outer.literalColor.fA);
-        SkString _input1992("constColor");
-        SkString _sample1992("_sample1992");
-        this->invokeChild(_outer.fp_index, _input1992.c_str(), &_sample1992, args);
-        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1992.c_str());
+        SkString _sample0 = this->invokeChild(0, _input0.c_str(), args);
+        fragBuilder->codeAppendf(
+                R"SkSL(return %s;
+)SkSL",
+                _sample0.c_str());
     }
 
 private:
@@ -66,7 +66,7 @@ GrGLSLFragmentProcessor* GrOverrideInputFragmentProcessor::onCreateGLSLInstance(
 }
 void GrOverrideInputFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                              GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)useUniform);
+    b->add32((uint32_t)useUniform);
     if (!useUniform) {
         uint16_t red = SkFloatToHalf(literalColor.fR);
         uint16_t green = SkFloatToHalf(literalColor.fG);
@@ -84,15 +84,24 @@ bool GrOverrideInputFragmentProcessor::onIsEqual(const GrFragmentProcessor& othe
     if (literalColor != that.literalColor) return false;
     return true;
 }
+bool GrOverrideInputFragmentProcessor::usesExplicitReturn() const { return true; }
 GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         const GrOverrideInputFragmentProcessor& src)
         : INHERITED(kGrOverrideInputFragmentProcessor_ClassID, src.optimizationFlags())
-        , fp_index(src.fp_index)
         , useUniform(src.useUniform)
         , uniformColor(src.uniformColor)
         , literalColor(src.literalColor) {
-    this->registerChildProcessor(src.childProcessor(fp_index).clone());
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrOverrideInputFragmentProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrOverrideInputFragmentProcessor(*this));
+    return std::make_unique<GrOverrideInputFragmentProcessor>(*this);
 }
+#if GR_TEST_UTILS
+SkString GrOverrideInputFragmentProcessor::onDumpInfo() const {
+    return SkStringPrintf(
+            "(useUniform=%s, uniformColor=half4(%f, %f, %f, %f), literalColor=half4(%f, %f, %f, "
+            "%f))",
+            (useUniform ? "true" : "false"), uniformColor.fR, uniformColor.fG, uniformColor.fB,
+            uniformColor.fA, literalColor.fR, literalColor.fG, literalColor.fB, literalColor.fA);
+}
+#endif

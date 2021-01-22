@@ -11,8 +11,8 @@
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
+#include "include/private/SkTPin.h"
 #include "include/utils/SkParsePath.h"
-#include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkReflected.h"
@@ -36,7 +36,7 @@ public:
         outTypes[0] = fCompiler.context().fBool_Type.get();
     }
 
-    void call(int index, float* arguments, float* outReturn) override {
+    void call(int index, float* arguments, float* outReturn) const override {
         bool loop = ((int*)arguments)[0] != 0;
         fEffect->addSpawnRequest(index, loop, fParams);
     }
@@ -104,7 +104,7 @@ public:
         outTypes[0] = fCompiler.context().fFloat_Type.get();
     }
 
-    void call(int index, float* arguments, float* outReturn) override {
+    void call(int index, float* arguments, float* outReturn) const override {
         SkScalar len = fPath->fTotalLength * arguments[0];
         int idx = 0;
         while (idx < fPath->fContours.count() - 1 && len > fPath->fContours[idx]->length()) {
@@ -215,7 +215,7 @@ public:
         outTypes[0] = fCompiler.context().fFloat2_Type.get();
     }
 
-    void call(int index, float* arguments, float* outReturn) override {
+    void call(int index, float* arguments, float* outReturn) const override {
         int x = SkTPin(static_cast<int>(arguments[0] * fBitmap.width()), 0, fBitmap.width() - 1);
         int y = SkTPin(static_cast<int>(arguments[1] * fBitmap.height()), 0, fBitmap.height() - 1);
         float* p = static_cast<float*>(fBitmap.getAddr(x, y));
@@ -251,7 +251,7 @@ public:
                                                           nullptr)) {
             if (auto image = asset->getFrame(0)) {
                 fBitmap.allocPixels(image->imageInfo().makeColorType(kRGBA_F32_SkColorType));
-                image->readPixels(fBitmap.pixmap(), 0, 0);
+                image->readPixels(nullptr, fBitmap.pixmap(), 0, 0);
                 return;
             }
         }

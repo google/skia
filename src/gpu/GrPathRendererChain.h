@@ -15,7 +15,6 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 
-class GrContext;
 class GrCoverageCountingPathRenderer;
 
 /**
@@ -28,7 +27,7 @@ class GrPathRendererChain : public SkNoncopyable {
 public:
     struct Options {
         bool fAllowPathMaskCaching = false;
-        GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+        GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
     };
     GrPathRendererChain(GrRecordingContext* context, const Options&);
 

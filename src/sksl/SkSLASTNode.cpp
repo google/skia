@@ -11,6 +11,7 @@
 
 namespace SkSL {
 
+#ifdef SK_DEBUG
 String ASTNode::description() const {
     switch (fKind) {
         case Kind::kNull: return "";
@@ -33,7 +34,7 @@ String ASTNode::description() const {
             return "break";
         case Kind::kCall: {
             auto iter = this->begin();
-            String result = iter->description();
+            String result = (iter++)->description();
             result += "(";
             const char* separator = "";
             while (iter != this->end()) {
@@ -169,6 +170,8 @@ String ASTNode::description() const {
                 return "return " + this->begin()->description() + ";";
             }
             return "return;";
+        case Kind::kScope:
+            return this->begin()->description() + "::" + getString();
         case Kind::kSection:
             return "@section { ... }";
         case Kind::kSwitchCase: {
@@ -229,10 +232,16 @@ String ASTNode::description() const {
             }
             return result;
         }
+        case Kind::kWhile: {
+            return "while (" + this->begin()->description() + ") " +
+                   (this->begin() + 1)->description();
+
+        }
         default:
             SkASSERT(false);
             return "<error>";
     }
 }
+#endif
 
-} // namespace
+}  // namespace SkSL

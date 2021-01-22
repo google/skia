@@ -10,7 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "tools/ToolUtils.h"
@@ -48,10 +48,10 @@ private:
     void onDelayedSetup() override {
         SkFont defaultFont;
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
-        auto cache = strikeSpec.findOrCreateExclusiveStrike();
+        auto strike = strikeSpec.findOrCreateStrike();
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkPackedGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));
-            sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &fGlyphs[i]));
+            sk_ignore_unused_variable(strike->getScalerContext()->getPath(id, &fGlyphs[i]));
             fGlyphs[i].setIsVolatile(fUncached);
         }
 
@@ -59,11 +59,11 @@ private:
         for (int i = 0; i < kNumDraws; ++i) {
             const SkPath& glyph = fGlyphs[i % kNumGlyphs];
             const SkRect& bounds = glyph.getBounds();
-            float glyphSize = SkTMax(bounds.width(), bounds.height());
+            float glyphSize = std::max(bounds.width(), bounds.height());
 
             float t0 = pow(rand.nextF(), 100);
-            float size = (1 - t0) * SkTMin(kScreenWidth, kScreenHeight) / 50 +
-                         t0 * SkTMin(kScreenWidth, kScreenHeight) / 3;
+            float size = (1 - t0) * std::min(kScreenWidth, kScreenHeight) / 50 +
+                         t0 * std::min(kScreenWidth, kScreenHeight) / 3;
             float scale = size / glyphSize;
             float t1 = rand.nextF(), t2 = rand.nextF();
             fXforms[i].setTranslate((1 - t1) * sqrt(2) * scale/2 * glyphSize +
@@ -103,7 +103,7 @@ private:
     SkMatrix fXforms[kNumDraws];
     SkPath fClipPath;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new PathTextBench(false, false);)

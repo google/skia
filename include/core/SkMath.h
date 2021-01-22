@@ -21,24 +21,6 @@ static inline int64_t sk_64_mul(int64_t a, int64_t b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Given an integer and a positive (max) integer, return the value
- *  pinned against 0 and max, inclusive.
- *  @param value    The value we want returned pinned between [0...max]
- *  @param max      The positive max value
- *  @return 0 if value < 0, max if value > max, else value
- */
-static inline int SkClampMax(int value, int max) {
-    // ensure that max is positive
-    SkASSERT(max >= 0);
-    if (value < 0) {
-        value = 0;
-    }
-    if (value > max) {
-        value = max;
-    }
-    return value;
-}
-
 /**
  *  Returns true if value is a power of 2. Does not explicitly check for
  *  value <= 0.
@@ -66,10 +48,7 @@ static inline unsigned SkMul16ShiftRound(U16CPU a, U16CPU b, int shift) {
  *  Only valid if a and b are unsigned and <= 32767.
  */
 static inline U8CPU SkMulDiv255Round(U16CPU a, U16CPU b) {
-    SkASSERT(a <= 32767);
-    SkASSERT(b <= 32767);
-    unsigned prod = a*b + 128;
-    return (prod + (prod >> 8)) >> 8;
+    return SkMul16ShiftRound(a,b,8);
 }
 
 #endif

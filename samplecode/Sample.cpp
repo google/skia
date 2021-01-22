@@ -10,16 +10,16 @@
 #include "samplecode/Sample.h"
 
 #if SK_SUPPORT_GPU
-#   include "include/gpu/GrContext.h"
+#   include "include/gpu/GrDirectContext.h"
 #else
-class GrContext;
+class GrDirectContext;
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 
 void Sample::setSize(SkScalar width, SkScalar height) {
-    width = SkMaxScalar(0, width);
-    height = SkMaxScalar(0, height);
+    width = std::max(0.0f, width);
+    height = std::max(0.0f, height);
 
     if (fWidth != width || fHeight != height)
     {
@@ -49,9 +49,9 @@ void Sample::draw(SkCanvas* canvas) {
         SkAutoCanvasRestore acr(canvas, true);
         this->onDrawContent(canvas);
 #if SK_SUPPORT_GPU
-        // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
-        if (GrContext* context = canvas->getGrContext()) {
-            context->flush();
+        // Ensure the context doesn't combine GrDrawOps across draw loops.
+        if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
+            direct->flushAndSubmit();
         }
 #endif
 
@@ -62,12 +62,13 @@ void Sample::draw(SkCanvas* canvas) {
 ////////////////////////////////////////////////////////////////////////////
 
 bool Sample::mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey modifierKeys) {
+    auto dispatch = [this](Click* c) {
+        return c->fHasFunc ? c->fFunc(c) : this->onClick(c);
+    };
+
     switch (clickState) {
         case skui::InputState::kDown:
             fClick = nullptr;
-            if (point.x() < 0 || point.y() < 0 || point.x() >= fWidth || point.y() >= fHeight) {
-                return false;
-            }
             fClick.reset(this->onFindClickHandler(point.x(), point.y(), modifierKeys));
             if (!fClick) {
                 return false;
@@ -75,7 +76,7 @@ bool Sample::mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey
             fClick->fPrev = fClick->fCurr = fClick->fOrig = point;
             fClick->fState = skui::InputState::kDown;
             fClick->fModifierKeys = modifierKeys;
-            this->onClick(fClick.get());
+            dispatch(fClick.get());
             return true;
         case skui::InputState::kMove:
             if (fClick) {
@@ -83,7 +84,7 @@ bool Sample::mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey
                 fClick->fCurr = point;
                 fClick->fState = skui::InputState::kMove;
                 fClick->fModifierKeys = modifierKeys;
-                return this->onClick(fClick.get());
+                return dispatch(fClick.get());
             }
             return false;
         case skui::InputState::kUp:
@@ -92,7 +93,7 @@ bool Sample::mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey
                 fClick->fCurr = point;
                 fClick->fState = skui::InputState::kUp;
                 fClick->fModifierKeys = modifierKeys;
-                bool result = this->onClick(fClick.get());
+                bool result = dispatch(fClick.get());
                 fClick = nullptr;
                 return result;
             }

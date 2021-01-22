@@ -7,14 +7,16 @@
 
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
+GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(GrProcessorSet* processorSet,
+                                                   GrAAType aaType,
                                                    InputFlags inputFlags)
-        : fProcessors(args.fProcessorSet)
+        : fProcessors(processorSet)
         , fPipelineFlags((GrPipeline::InputFlags)inputFlags)
         , fAAType((int)aaType)
         , fUsesLocalCoords(false)
@@ -33,8 +35,8 @@ GrSimpleMeshDrawOpHelper::~GrSimpleMeshDrawOpHelper() {
 }
 
 GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelper::fixedFunctionFlags() const {
-    return GrAATypeIsHW((this->aaType())) ? GrDrawOp::FixedFunctionFlags::kUsesHWAA
-                                          : GrDrawOp::FixedFunctionFlags::kNone;
+    return GrAATypeIsHW(this->aaType()) ? GrDrawOp::FixedFunctionFlags::kUsesHWAA
+                                        : GrDrawOp::FixedFunctionFlags::kNone;
 }
 
 bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
@@ -88,7 +90,7 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
     if (fProcessors) {
         GrProcessorAnalysisCoverage coverage = geometryCoverage;
         if (GrProcessorAnalysisCoverage::kNone == coverage) {
-            coverage = clip->numClipCoverageFragmentProcessors()
+            coverage = clip->hasCoverageFragmentProcessor()
                                ? GrProcessorAnalysisCoverage::kSingleChannel
                                : GrProcessorAnalysisCoverage::kNone;
         }
@@ -106,18 +108,132 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
     return analysis;
 }
 
-void GrSimpleMeshDrawOpHelper::executeDrawsAndUploads(
-        const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
-    if (fProcessors) {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, std::move(*fProcessors), fPipelineFlags);
-    } else {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags);
-    }
+const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
+                                                const GrCaps* caps,
+                                                SkArenaAlloc* arena,
+                                                GrSwizzle writeViewSwizzle,
+                                                GrAppliedClip&& appliedClip,
+                                                const GrXferProcessor::DstProxyView& dstProxyView,
+                                                GrProcessorSet&& processorSet,
+                                                GrPipeline::InputFlags pipelineFlags) {
+    GrPipeline::InitArgs pipelineArgs;
+
+    pipelineArgs.fInputFlags = pipelineFlags;
+    pipelineArgs.fCaps = caps;
+    pipelineArgs.fDstProxyView = dstProxyView;
+    pipelineArgs.fWriteSwizzle = writeViewSwizzle;
+
+    return arena->make<GrPipeline>(pipelineArgs,
+                                   std::move(processorSet),
+                                   std::move(appliedClip));
 }
 
-#ifdef SK_DEBUG
+const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
+                                                GrOpFlushState* flushState,
+                                                GrProcessorSet&& processorSet,
+                                                GrPipeline::InputFlags pipelineFlags) {
+    return CreatePipeline(&flushState->caps(),
+                          flushState->allocator(),
+                          flushState->writeView()->swizzle(),
+                          flushState->detachAppliedClip(),
+                          flushState->dstProxyView(),
+                          std::move(processorSet),
+                          pipelineFlags);
+}
+
+const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(GrOpFlushState* flushState) {
+    return CreatePipeline(&flushState->caps(),
+                          flushState->allocator(),
+                          flushState->writeView()->swizzle(),
+                          flushState->detachAppliedClip(),
+                          flushState->dstProxyView(),
+                          this->detachProcessorSet(),
+                          this->pipelineFlags());
+}
+
+const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(
+        const GrCaps* caps,
+        SkArenaAlloc* arena,
+        GrSwizzle writeViewSwizzle,
+        GrAppliedClip&& appliedClip,
+        const GrXferProcessor::DstProxyView& dstProxyView) {
+    return GrSimpleMeshDrawOpHelper::CreatePipeline(caps,
+                                                    arena,
+                                                    writeViewSwizzle,
+                                                    std::move(appliedClip),
+                                                    dstProxyView,
+                                                    this->detachProcessorSet(),
+                                                    this->pipelineFlags());
+}
+
+GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
+            const GrCaps* caps,
+            SkArenaAlloc* arena,
+            const GrSurfaceProxyView* writeView,
+            GrAppliedClip&& appliedClip,
+            const GrXferProcessor::DstProxyView& dstProxyView,
+            GrGeometryProcessor* geometryProcessor,
+            GrProcessorSet&& processorSet,
+            GrPrimitiveType primitiveType,
+            GrXferBarrierFlags renderPassXferBarriers,
+            GrPipeline::InputFlags pipelineFlags,
+            const GrUserStencilSettings* stencilSettings) {
+    auto pipeline = CreatePipeline(caps,
+                                   arena,
+                                   writeView->swizzle(),
+                                   std::move(appliedClip),
+                                   dstProxyView,
+                                   std::move(processorSet),
+                                   pipelineFlags);
+
+    return CreateProgramInfo(arena, pipeline, writeView, geometryProcessor, primitiveType,
+                             renderPassXferBarriers, stencilSettings);
+}
+
+GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
+                                                           const GrPipeline* pipeline,
+                                                           const GrSurfaceProxyView* writeView,
+                                                           GrGeometryProcessor* geometryProcessor,
+                                                           GrPrimitiveType primitiveType,
+                                                           GrXferBarrierFlags xferBarrierFlags,
+                                                           const GrUserStencilSettings* stencilSettings) {
+    GrRenderTargetProxy* outputProxy = writeView->asRenderTargetProxy();
+
+    auto tmp = arena->make<GrProgramInfo>(outputProxy->numSamples(),
+                                          outputProxy->numStencilSamples(),
+                                          outputProxy->backendFormat(),
+                                          writeView->origin(),
+                                          pipeline,
+                                          stencilSettings,
+                                          geometryProcessor,
+                                          primitiveType,
+                                          0,
+                                          xferBarrierFlags);
+    return tmp;
+}
+
+GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
+                                            const GrCaps* caps,
+                                            SkArenaAlloc* arena,
+                                            const GrSurfaceProxyView* writeView,
+                                            GrAppliedClip&& appliedClip,
+                                            const GrXferProcessor::DstProxyView& dstProxyView,
+                                            GrGeometryProcessor* gp,
+                                            GrPrimitiveType primType,
+                                            GrXferBarrierFlags renderPassXferBarriers) {
+    return CreateProgramInfo(caps,
+                             arena,
+                             writeView,
+                             std::move(appliedClip),
+                             dstProxyView,
+                             gp,
+                             this->detachProcessorSet(),
+                             primType,
+                             renderPassXferBarriers,
+                             this->pipelineFlags());
+}
+
+#if GR_TEST_UTILS
 static void dump_pipeline_flags(GrPipeline::InputFlags flags, SkString* result) {
     if (GrPipeline::InputFlags::kNone != flags) {
         if (flags & GrPipeline::InputFlags::kSnapVerticesToPixelCenters) {
@@ -125,6 +241,12 @@ static void dump_pipeline_flags(GrPipeline::InputFlags flags, SkString* result) 
         }
         if (flags & GrPipeline::InputFlags::kHWAntialias) {
             result->append("HW Antialiasing enabled.\n");
+        }
+        if (flags & GrPipeline::InputFlags::kWireframe) {
+            result->append("Wireframe enabled.\n");
+        }
+        if (flags & GrPipeline::InputFlags::kConservativeRaster) {
+            result->append("Conservative raster enabled.\n");
         }
         return;
     }
@@ -147,60 +269,6 @@ SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
             break;
     }
     dump_pipeline_flags(fPipelineFlags, &result);
-    return result;
-}
-#endif
-
-GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
-        const MakeArgs& args, GrAAType aaType, const GrUserStencilSettings* stencilSettings,
-        InputFlags inputFlags)
-        : INHERITED(args, aaType, inputFlags)
-        , fStencilSettings(stencilSettings ? stencilSettings : &GrUserStencilSettings::kUnused) {}
-
-GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionFlags() const {
-    GrDrawOp::FixedFunctionFlags flags = INHERITED::fixedFunctionFlags();
-    if (fStencilSettings != &GrUserStencilSettings::kUnused) {
-        flags |= GrDrawOp::FixedFunctionFlags::kUsesStencil;
-    }
-    return flags;
-}
-
-GrProcessorSet::Analysis GrSimpleMeshDrawOpHelperWithStencil::finalizeProcessors(
-        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
-        GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
-        SkPMColor4f* geometryColor, bool* wideColor) {
-    GrProcessorAnalysisColor color = *geometryColor;
-    auto result = this->finalizeProcessors(
-            caps, clip, hasMixedSampledCoverage, clampType, geometryCoverage, &color);
-    color.isConstant(geometryColor);
-    if (wideColor) {
-        *wideColor = !geometryColor->fitsInBytes();
-    }
-    return result;
-}
-
-bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
-        const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
-        const SkRect& thisBounds, const SkRect& thatBounds, bool ignoreAAType) const {
-    return INHERITED::isCompatible(that, caps, thisBounds, thatBounds, ignoreAAType) &&
-           fStencilSettings == that.fStencilSettings;
-}
-
-void GrSimpleMeshDrawOpHelperWithStencil::executeDrawsAndUploads(
-        const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
-    if (fProcessors) {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, std::move(*fProcessors), fPipelineFlags, fStencilSettings);
-    } else {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags, fStencilSettings);
-    }
-}
-
-#ifdef SK_DEBUG
-SkString GrSimpleMeshDrawOpHelperWithStencil::dumpInfo() const {
-    SkString result = INHERITED::dumpInfo();
-    result.appendf("Stencil settings: %s\n", (fStencilSettings ? "yes" : "no"));
     return result;
 }
 #endif

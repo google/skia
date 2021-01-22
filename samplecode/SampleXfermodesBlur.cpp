@@ -25,8 +25,8 @@
 #include "src/utils/SkUTF.h"
 
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkStream.h"
-#include "include/effects/SkBlurMaskFilter.h"
 
 static void setNamedTypeface(SkFont* font, const char name[]) {
     font->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
@@ -73,9 +73,9 @@ public:
     }
 
 protected:
-    virtual SkString name() { return SkString("XfermodesBlur"); }
+    SkString name() override { return SkString("XfermodesBlur"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const SkBlendMode gModes[] = {
@@ -141,7 +141,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -23,59 +23,24 @@ class InvalidationController;
 class RenderNode;
 
 /**
- * Base class for animators.
- *
- */
-class Animator : public SkRefCnt {
-public:
-    virtual ~Animator();
-    Animator(const Animator&) = delete;
-    Animator& operator=(const Animator&) = delete;
-
-    void tick(float t);
-
-protected:
-    Animator();
-
-    virtual void onTick(float t) = 0;
-};
-
-using AnimatorList = std::vector<sk_sp<Animator>>;
-
-class GroupAnimator : public Animator {
-protected:
-    explicit GroupAnimator(AnimatorList&&);
-
-    void onTick(float t) override;
-
-private:
-    const AnimatorList fAnimators;
-
-    using INHERITED = Animator;
-};
-
-/**
- * Holds a scene root and a list of animators.
- *
- * Provides high-level mehods for driving rendering and animations.
+ * Holds a scene root.  Provides high-level methods for rendering.
  *
  */
 class Scene final {
 public:
-    static std::unique_ptr<Scene> Make(sk_sp<RenderNode> root, AnimatorList&& animators);
+    static std::unique_ptr<Scene> Make(sk_sp<RenderNode> root);
     ~Scene();
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
 
     void render(SkCanvas*) const;
-    void animate(float t, InvalidationController* = nullptr);
+    void revalidate(InvalidationController* = nullptr);
     const RenderNode* nodeAt(const SkPoint&) const;
 
 private:
-    Scene(sk_sp<RenderNode> root, AnimatorList&& animators);
+    explicit Scene(sk_sp<RenderNode> root);
 
     const sk_sp<RenderNode> fRoot;
-    const AnimatorList      fAnimators;
 };
 
 } // namespace sksg

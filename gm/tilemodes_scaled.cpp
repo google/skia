@@ -159,7 +159,7 @@ protected:
 
 private:
     bool fPowerOfTwoSize;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 constexpr int gWidth = 32;

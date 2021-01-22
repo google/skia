@@ -7,8 +7,9 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "tests/Test.h"
+#include "tools/Resources.h"
 
 static void make_bitmap(SkBitmap* bm, int width, int height) {
     bm->allocN32Pixels(width, height);
@@ -23,22 +24,22 @@ DEF_TEST(MipMap, reporter) {
         int width = 1 + rand.nextU() % 1000;
         int height = 1 + rand.nextU() % 1000;
         make_bitmap(&bm, width, height);
-        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
+        sk_sp<SkMipmap> mm(SkMipmap::Build(bm, nullptr));
 
-        REPORTER_ASSERT(reporter, mm->countLevels() == SkMipMap::ComputeLevelCount(width, height));
+        REPORTER_ASSERT(reporter, mm->countLevels() == SkMipmap::ComputeLevelCount(width, height));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SkSize::Make(SK_Scalar1, SK_Scalar1),
                                                     nullptr));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SkSize::Make(SK_Scalar1 * 2, SK_Scalar1 * 2),
                                                     nullptr));
 
-        SkMipMap::Level prevLevel;
+        SkMipmap::Level prevLevel;
         sk_bzero(&prevLevel, sizeof(prevLevel));
 
         SkScalar scale = SK_Scalar1;
         for (int j = 0; j < 30; ++j) {
             scale = scale * 2 / 3;
 
-            SkMipMap::Level level;
+            SkMipmap::Level level;
             if (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
                 REPORTER_ASSERT(reporter, level.fPixmap.addr());
                 REPORTER_ASSERT(reporter, level.fPixmap.width() > 0);
@@ -60,21 +61,21 @@ static void test_mipmap_generation(int width, int height, int expectedMipLevelCo
     SkBitmap bm;
     bm.allocN32Pixels(width, height);
     bm.eraseColor(SK_ColorWHITE);
-    sk_sp<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
+    sk_sp<SkMipmap> mm(SkMipmap::Build(bm, nullptr));
 
     const int mipLevelCount = mm->countLevels();
     REPORTER_ASSERT(reporter, mipLevelCount == expectedMipLevelCount);
-    REPORTER_ASSERT(reporter, mipLevelCount == SkMipMap::ComputeLevelCount(width, height));
+    REPORTER_ASSERT(reporter, mipLevelCount == SkMipmap::ComputeLevelCount(width, height));
     for (int i = 0; i < mipLevelCount; ++i) {
-        SkMipMap::Level level;
+        SkMipmap::Level level;
         REPORTER_ASSERT(reporter, mm->getLevel(i, &level));
         // Make sure the mipmaps contain valid data and that the sizes are correct
         REPORTER_ASSERT(reporter, level.fPixmap.addr());
-        SkISize size = SkMipMap::ComputeLevelSize(width, height, i);
+        SkISize size = SkMipmap::ComputeLevelSize(width, height, i);
         REPORTER_ASSERT(reporter, level.fPixmap.width() == size.width());
         REPORTER_ASSERT(reporter, level.fPixmap.height() == size.height());
 
-        // + 1 because SkMipMap does not include the base mipmap level.
+        // + 1 because SkMipmap does not include the base mipmap level.
         int twoToTheMipLevel = 1 << (i + 1);
         int currentWidth = width / twoToTheMipLevel;
         int currentHeight = height / twoToTheMipLevel;
@@ -86,11 +87,11 @@ static void test_mipmap_generation(int width, int height, int expectedMipLevelCo
 DEF_TEST(MipMap_DirectLevelAccess, reporter) {
     // create mipmap with invalid size
     {
-        // SkMipMap current requires the dimensions be greater than 2x2
+        // SkMipmap current requires the dimensions be greater than 2x2
         SkBitmap bm;
         bm.allocN32Pixels(1, 1);
         bm.eraseColor(SK_ColorWHITE);
-        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
+        sk_sp<SkMipmap> mm(SkMipmap::Build(bm, nullptr));
 
         REPORTER_ASSERT(reporter, mm == nullptr);
     }
@@ -120,7 +121,7 @@ DEF_TEST(MipMap_ComputeLevelCount, reporter) {
         {-100, -100, 0},
 
         // Test mipmaps with 0, 1, 2 as dimensions
-        // (SkMipMap::Build requires a min size of 1)
+        // (SkMipmap::Build requires a min size of 1)
         //
         // 0
         {0, 100, 0},
@@ -150,7 +151,7 @@ DEF_TEST(MipMap_ComputeLevelCount, reporter) {
     };
 
     for (auto& currentTest : tests) {
-        int levelCount = SkMipMap::ComputeLevelCount(currentTest.fWidth, currentTest.fHeight);
+        int levelCount = SkMipmap::ComputeLevelCount(currentTest.fWidth, currentTest.fHeight);
         REPORTER_ASSERT(reporter, currentTest.fExpectedLevelCount == levelCount);
     }
 }
@@ -170,7 +171,7 @@ DEF_TEST(MipMap_ComputeLevelSize, reporter) {
         {-100, -100, 0, SkISize::Make(0, 0)},
 
         // Test mipmaps with 0, 1, 2 as dimensions
-        // (SkMipMap::Build requires a min size of 1)
+        // (SkMipmap::Build requires a min size of 1)
         //
         // 0
         {0, 100, 0, SkISize::Make(0, 0)},
@@ -196,7 +197,7 @@ DEF_TEST(MipMap_ComputeLevelSize, reporter) {
     };
 
     for (auto& currentTest : tests) {
-        SkISize levelSize = SkMipMap::ComputeLevelSize(currentTest.fBaseWidth,
+        SkISize levelSize = SkMipmap::ComputeLevelSize(currentTest.fBaseWidth,
                                                        currentTest.fBaseHeight,
                                                        currentTest.fLevel);
         REPORTER_ASSERT(reporter, currentTest.fExpectedMipMapLevelSize == levelSize);
@@ -207,5 +208,59 @@ DEF_TEST(MipMap_F16, reporter) {
     SkBitmap bmp;
     bmp.allocPixels(SkImageInfo::Make(10, 10, kRGBA_F16_SkColorType, kPremul_SkAlphaType));
     bmp.eraseColor(0);
-    sk_sp<SkMipMap> mipmap(SkMipMap::Build(bmp, nullptr));
+    sk_sp<SkMipmap> mipmap(SkMipmap::Build(bmp, nullptr));
+}
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+
+static void fill_in_mips(SkMipmapBuilder* builder, sk_sp<SkImage> img) {
+    int count = builder->countLevels();
+    for (int i = 0; i < count; ++i) {
+        SkPixmap pm = builder->level(i);
+        auto surf = SkSurface::MakeRasterDirect(pm);
+        surf->getCanvas()->drawImageRect(img, SkRect::MakeIWH(pm.width(), pm.height()), nullptr);
+    }
+}
+
+DEF_TEST(image_mip_factory, reporter) {
+    // TODO: what do to about lazy images and mipmaps?
+    auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
+
+    REPORTER_ASSERT(reporter, !img->hasMipmaps());
+    auto img1 = img->withDefaultMipmaps();
+    REPORTER_ASSERT(reporter, img.get() != img1.get());
+    REPORTER_ASSERT(reporter, img1->hasMipmaps());
+
+    SkMipmapBuilder builder(img->imageInfo());
+    fill_in_mips(&builder, img);
+
+    auto img2 = builder.attachTo(img);
+    REPORTER_ASSERT(reporter, img.get()  != img2.get());
+    REPORTER_ASSERT(reporter, img1.get() != img2.get());
+    REPORTER_ASSERT(reporter, img2->hasMipmaps());
+}
+
+// Ensure we can't attach mips that don't "match" the image
+//
+DEF_TEST(image_mip_mismatch, reporter) {
+    auto check_fails = [reporter](sk_sp<SkImage> img, const SkImageInfo& info) {
+        SkMipmapBuilder builder(info);
+        fill_in_mips(&builder, img);
+        auto img2 = builder.attachTo(img);
+        // if withMipmaps() succeeds, it returns a new image, otherwise it returns the original
+        REPORTER_ASSERT(reporter, img.get() == img2.get());
+    };
+
+    auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
+
+    // check size, colortype, and alphatype
+
+    check_fails(img, img->imageInfo().makeWH(img->width() + 2, img->height() - 3));
+
+    SkASSERT(img->imageInfo().colorType() != kRGB_565_SkColorType);
+    check_fails(img, img->imageInfo().makeColorType(kRGB_565_SkColorType));
+
+    SkASSERT(img->imageInfo().alphaType() != kUnpremul_SkAlphaType);
+    check_fails(img, img->imageInfo().makeAlphaType(kUnpremul_SkAlphaType));
 }

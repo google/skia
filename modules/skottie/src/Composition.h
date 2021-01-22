@@ -10,39 +10,38 @@
 
 #include "modules/skottie/src/SkottiePriv.h"
 
-#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "modules/skottie/src/Layer.h"
+
+#include <vector>
 
 namespace skottie {
 namespace internal {
 
 class CompositionBuilder final : SkNoncopyable {
 public:
-    CompositionBuilder(const AnimationBuilder&, const skjson::ObjectValue&);
+    CompositionBuilder(const AnimationBuilder&, const SkSize&, const skjson::ObjectValue&);
     ~CompositionBuilder();
 
     sk_sp<sksg::RenderNode> build(const AnimationBuilder&);
 
-private:
     LayerBuilder* layerBuilder(int layer_index);
 
+private:
     const sk_sp<sksg::Transform>& getCameraTransform() const { return fCameraTransform; }
-
-    void pushMatte(sk_sp<sksg::RenderNode>);
-    sk_sp<sksg::RenderNode> popMatte();
 
     friend class LayerBuilder;
 
-    SkSTArray<64, LayerBuilder> fLayerBuilders;
-    SkTHashMap<int, size_t>     fLayerIndexMap; // Maps layer "ind" to layer builder index.
+    const SkSize              fSize;
 
-    sk_sp<sksg::Transform>      fCameraTransform;
-    sk_sp<sksg::RenderNode>     fCurrentMatte;  // Tracks the current/active matte.
+    std::vector<LayerBuilder> fLayerBuilders;
+    SkTHashMap<int, size_t>   fLayerIndexMap; // Maps layer "ind" to layer builder index.
 
-    size_t                      fMotionBlurSamples = 1;
-    float                       fMotionBlurAngle   = 0,
-                                fMotionBlurPhase   = 0;
+    sk_sp<sksg::Transform>    fCameraTransform;
+
+    size_t                    fMotionBlurSamples = 1;
+    float                     fMotionBlurAngle   = 0,
+                              fMotionBlurPhase   = 0;
 };
 
 } // namespace internal

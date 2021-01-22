@@ -8,14 +8,15 @@
 
 #include "src/gpu/GrPathRendererChain.h"
 
-#include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAAConvexPathRenderer.h"
 #include "src/gpu/ops/GrAAHairLinePathRenderer.h"
 #include "src/gpu/ops/GrAALinearizingConvexPathRenderer.h"
@@ -23,12 +24,20 @@
 #include "src/gpu/ops/GrDefaultPathRenderer.h"
 #include "src/gpu/ops/GrSmallPathRenderer.h"
 #include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
-#include "src/gpu/ops/GrTessellatingPathRenderer.h"
+#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
+        if (GrTessellationPathRenderer::IsSupported(caps)) {
+            auto tess = sk_make_sp<GrTessellationPathRenderer>(context);
+            context->priv().addOnFlushCallbackObject(tess.get());
+            fChain.push_back(std::move(tess));
+        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
@@ -50,12 +59,10 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
-        auto spr = sk_make_sp<GrSmallPathRenderer>();
-        context->priv().addOnFlushCallbackObject(spr.get());
-        fChain.push_back(std::move(spr));
+        fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
-        auto direct = context->priv().asDirectContext();
+        auto direct = context->asDirectContext();
         if (direct) {
             auto resourceProvider = direct->priv().resourceProvider();
 
@@ -66,8 +73,8 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
             }
         }
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {
-        fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
+    if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
+        fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
     }
 
     // We always include the default path renderer (as well as SW), so we can draw any path
@@ -78,10 +85,10 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
         const GrPathRenderer::CanDrawPathArgs& args,
         DrawType drawType,
         GrPathRenderer::StencilSupport* stencilSupport) {
-    GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
-                     GrPathRenderer::kStencilOnly_StencilSupport);
-    GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
-                     GrPathRenderer::kNoRestriction_StencilSupport);
+    static_assert(GrPathRenderer::kNoSupport_StencilSupport <
+                  GrPathRenderer::kStencilOnly_StencilSupport);
+    static_assert(GrPathRenderer::kStencilOnly_StencilSupport <
+                  GrPathRenderer::kNoRestriction_StencilSupport);
     GrPathRenderer::StencilSupport minStencilSupport;
     if (DrawType::kStencil == drawType) {
         minStencilSupport = GrPathRenderer::kStencilOnly_StencilSupport;

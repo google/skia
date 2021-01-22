@@ -155,40 +155,42 @@ DEF_TEST(String, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
         a.reset();
         a.appendScalar(gRec[i].fValue);
-        REPORTER_ASSERT(reporter, a.size() <= SkStrAppendScalar_MaxSize);
+        REPORTER_ASSERT(reporter, a.size() <= kSkStrAppendScalar_MaxSize);
         if (!a.equals(gRec[i].fString)) {
             ERRORF(reporter, "received <%s> expected <%s>\n", a.c_str(), gRec[i].fString);
         }
     }
 
     REPORTER_ASSERT(reporter, SkStringPrintf("%i", 0).equals("0"));
+}
 
+static void assert_2000_spaces(skiatest::Reporter* reporter, const SkString& str) {
+    REPORTER_ASSERT(reporter, str.size() == 2000);
+    for (size_t i = 0; i < str.size(); ++i) {
+        REPORTER_ASSERT(reporter, str[i] == ' ');
+    }
+}
+
+DEF_TEST(String_overflow, reporter) {
     // 2000 is larger than the static buffer size inside SkString.cpp
-    a = SkStringPrintf("%2000s", " ");
-    REPORTER_ASSERT(reporter, a.size() == 2000);
-    for (size_t i = 0; i < a.size(); ++i) {
-        if (a[i] != ' ') {
-            ERRORF(reporter, "SkStringPrintf fail: a[%d] = '%c'", i, a[i]);
-            break;
-        }
-    }
-    a.reset();
+    SkString a = SkStringPrintf("%2000s", " ");
+    assert_2000_spaces(reporter, a);
+
+    a = "X";
     a.printf("%2000s", " ");
-    REPORTER_ASSERT(reporter, a.size() == 2000);
-    for (size_t i = 0; i < a.size(); ++i) {
-        if (a[i] != ' ') {
-            ERRORF(reporter, "SkString::printf fail: a[%d] = '%c'", i, a[i]);
-            break;
-        }
-    }
-    a.appendf("%2000s", " ");
-    REPORTER_ASSERT(reporter, a.size() == 4000);
-    for (size_t i = 0; i < a.size(); ++i) {
-        if (a[i] != ' ') {
-            ERRORF(reporter, "SkString::appendf fail: a[%d] = '%c'", i, a[i]);
-            break;
-        }
-    }
+    assert_2000_spaces(reporter, a);
+
+    a = "X";
+    a.appendf("%1999s", " ");
+    REPORTER_ASSERT(reporter, a[0] == 'X');
+    a[0] = ' ';
+    assert_2000_spaces(reporter, a);
+
+    a = "X";
+    a.prependf("%1999s", " ");
+    REPORTER_ASSERT(reporter, a[1999] == 'X');
+    a[1999] = ' ';
+    assert_2000_spaces(reporter, a);
 }
 
 DEF_TEST(String_SkStrSplit, r) {
@@ -272,7 +274,7 @@ DEF_TEST(String_Threaded, r) {
     std::thread threads[5];
     for (auto& thread : threads) {
         thread = std::thread([&] {
-            SkString copy = str;
+            SkString copy = str;  // NOLINT(performance-unnecessary-copy-initialization)
             (void)copy.equals("test");
         });
     }
@@ -320,3 +322,132 @@ DEF_TEST(String_fromUTF16, r) {
     REPORTER_ASSERT(r, SkStringFromUTF16(test3, SK_ARRAY_COUNT(test3)).equals("αβγδε ζηθικ"));
 }
 
+static void test_va_list_print(skiatest::Reporter* r, const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+
+    SkString str("123");
+    str.printVAList(format, args);
+    REPORTER_ASSERT(r, str.equals("hello world"));
+
+    va_end(args);
+}
+
+static void test_va_list_append(skiatest::Reporter* r, const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+
+    SkString str("123");
+    str.appendVAList(format, args);
+    REPORTER_ASSERT(r, str.equals("123hello world"));
+
+    va_end(args);
+}
+
+static void test_va_list_prepend(skiatest::Reporter* r, const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+
+    SkString str("123");
+    str.prependVAList(format, args);
+    REPORTER_ASSERT(r, str.equals("hello world123"));
+
+    va_end(args);
+}
+
+DEF_TEST(String_VAList, r) {
+    test_va_list_print(r, "%s %c%c%c%c%c", "hello", 'w', 'o', 'r', 'l', 'd');
+    test_va_list_append(r, "%s %c%c%c%c%c", "hello", 'w', 'o', 'r', 'l', 'd');
+    test_va_list_prepend(r, "%s %c%c%c%c%c", "hello", 'w', 'o', 'r', 'l', 'd');
+}
+
+static void test_va_list_overflow_print(skiatest::Reporter* r, const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+
+    SkString str("X");
+    str.printVAList(format, args);
+    assert_2000_spaces(r, str);
+
+    va_end(args);
+}
+
+static void test_va_list_overflow_append(skiatest::Reporter* r, const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+
+    SkString str("X");
+    str.appendVAList(format, args);
+    REPORTER_ASSERT(r, str[0] == 'X');
+    str[0] = ' ';
+    assert_2000_spaces(r, str);
+
+    va_end(args);
+}
+
+static void test_va_list_overflow_prepend(skiatest::Reporter* r, const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+
+    SkString str("X");
+    str.prependVAList(format, args);
+    REPORTER_ASSERT(r, str[1999] == 'X');
+    str[1999] = ' ';
+    assert_2000_spaces(r, str);
+
+    va_end(args);
+}
+
+DEF_TEST(String_VAList_overflow, r) {
+    test_va_list_overflow_print(r, "%2000s", " ");
+    test_va_list_overflow_append(r, "%1999s", " ");
+    test_va_list_overflow_prepend(r, "%1999s", " ");
+}
+
+DEF_TEST(String_resize_to_nothing, r) {
+    SkString s("hello world!");
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(0);
+    REPORTER_ASSERT(r, s.equals(""));
+}
+
+DEF_TEST(String_resize_shrink, r) {
+    SkString s("hello world!");
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(5);
+    REPORTER_ASSERT(r, s.equals("hello"));
+}
+
+DEF_TEST(String_resize_grow, r) {
+    SkString s("hello world!");
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(25);
+    REPORTER_ASSERT(r, 0 == strcmp(s.c_str(), "hello world!"));  // no promises about data past \0
+    REPORTER_ASSERT(r, s.size() == 25);
+}
+
+DEF_TEST(String_resize_after_assignment, r) {
+    SkString s("hello world!");
+    SkString t;
+    t = s;
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(25);
+    REPORTER_ASSERT(r, 0 == strcmp(s.c_str(), "hello world!"));
+    REPORTER_ASSERT(r, s.size() == 25);
+    s.resize(5);
+    REPORTER_ASSERT(r, s.equals("hello"));
+}
+
+static void resize_helper_function(skiatest::Reporter* r, SkString s) {
+    REPORTER_ASSERT(r, s.equals("hello world!"));
+    s.resize(5);
+    REPORTER_ASSERT(r, s.equals("hello"));
+    s.resize(25);
+    REPORTER_ASSERT(r, 0 == strcmp(s.c_str(), "hello"));
+    REPORTER_ASSERT(r, s.size() == 25);
+}
+
+DEF_TEST(String_resize_after_copy_construction, r) {
+    SkString s("hello world!");
+    resize_helper_function(r, s);
+}

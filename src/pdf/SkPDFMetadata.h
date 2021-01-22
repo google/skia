@@ -25,5 +25,5 @@ SkPDFIndirectReference MakeXMPObject(const SkPDF::Metadata& metadata,
                                      const SkUUID& doc,
                                      const SkUUID& instance,
                                      SkPDFDocument*);
-}
+}  // namespace SkPDFMetadata
 #endif  // SkPDFMetadata_DEFINED

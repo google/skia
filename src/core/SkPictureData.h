@@ -18,7 +18,6 @@
 
 class SkData;
 class SkPictureRecord;
-class SkReader32;
 struct SkSerialProcs;
 class SkStream;
 class SkWStream;
@@ -65,7 +64,7 @@ public:
 #define SK_PICT_VERTICES_BUFFER_TAG SkSetFourByteTag('v', 'e', 'r', 't')
 #define SK_PICT_IMAGE_BUFFER_TAG    SkSetFourByteTag('i', 'm', 'a', 'g')
 
-// Always write this guy last (with no length field afterwards)
+// Always write this last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
 
 template <typename T>
@@ -117,14 +116,12 @@ public:
         return read_index_base_1_or_null(reader, fDrawables);
     }
 
-    const SkPaint* getPaint(SkReadBuffer* reader) const {
-        int index = reader->readInt();
-        if (index == 0) {
-            return nullptr; // recorder wrote a zero for no paint (likely drawimage)
-        }
-        return reader->validate(index > 0 && index <= fPaints.count()) ?
-                &fPaints[index - 1] : nullptr;
-    }
+    // Return a paint if one was used for this op, or nullptr if none was used.
+    const SkPaint* optionalPaint(SkReadBuffer* reader) const;
+
+    // Return the paint used for this op, invalidating the SkReadBuffer if there appears to be none.
+    // The returned paint is always safe to use.
+    const SkPaint& requiredPaint(SkReadBuffer* reader) const;
 
     const SkTextBlob* getTextBlob(SkReadBuffer* reader) const {
         return read_index_base_1_or_null(reader, fTextBlobs);

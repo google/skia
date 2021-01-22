@@ -30,4 +30,4 @@ namespace SkOpts {
 
         S32_alpha_D32_filter_DX  = ssse3::S32_alpha_D32_filter_DX;
     }
-}
+}  // namespace SkOpts

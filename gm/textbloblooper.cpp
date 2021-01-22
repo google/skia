@@ -267,10 +267,10 @@ private:
     sk_sp<SkTextBlob> fBlob;
     SkTArray<sk_sp<SkDrawLooper>> fLoopers;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new TextBlobLooperGM;)
-}
+}  // namespace skiagm

@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTPin.h"
 
 #include <utility>
 
@@ -65,8 +66,8 @@ protected:
 private:
     sk_sp<SkImage> fImage;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new ColorCubeGM; )
-}
+}  // namespace skiagm

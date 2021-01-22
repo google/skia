@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMatrixPriv.h"
 
 // Both [I]Vectors and Sk[I]Sizes are transformed as non-positioned values, i.e. go through
 // mapVectors() not mapPoints().
@@ -24,7 +26,8 @@ static SkVector map_as_vector(SkScalar x, SkScalar y, const SkMatrix& matrix) {
 
 namespace skif {
 
-Mapping Mapping::Make(const SkMatrix& ctm, const SkImageFilter* filter) {
+Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
+                              const skif::ParameterSpace<SkPoint>& representativePoint) {
     SkMatrix remainder, layer;
     SkSize scale;
     if (ctm.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM()) {
@@ -33,16 +36,25 @@ Mapping Mapping::Make(const SkMatrix& ctm, const SkImageFilter* filter) {
         remainder = SkMatrix::I();
         layer = ctm;
     } else if (ctm.decomposeScale(&scale, &remainder)) {
-        // TODO (michaelludwig) - Should maybe strip out any fractional part of the translation in
-        // 'ctm' so that can be incorporated during regular drawing, instead of by resampling the
-        // filtered image.
-        layer = SkMatrix::MakeScale(scale.fWidth, scale.fHeight);
+        // This case implies some amount of sampling post-filtering, either due to skew or rotation
+        // in the original matrix. As such, keep the layer matrix as simple as possible.
+        layer = SkMatrix::Scale(scale.fWidth, scale.fHeight);
     } else {
-        // Perspective
-        // TODO (michaelludwig) - Should investigate choosing a scale factor for the layer matrix
-        // that minimizes the aliasing in the final draw.
+        // Perspective, which has a non-uniform scaling effect on the filter. Pick a single scale
+        // factor that best matches where the filter will be evaluated.
+        SkScalar scale = SkMatrixPriv::DifferentialAreaScale(ctm, SkPoint(representativePoint));
+        if (SkScalarIsFinite(scale)) {
+            // Now take the sqrt to go from an area scale factor to a scaling per X and Y
+            // FIXME: It would be nice to be able to choose a non-uniform scale.
+            scale = SkScalarSqrt(scale);
+        } else {
+            // The representative point was behind the W = 0 plane, so don't factor out any scale.
+            scale = 1.f;
+        }
+
         remainder = ctm;
-        layer = SkMatrix::I();
+        remainder.preScale(SkScalarInvert(scale), SkScalarInvert(scale));
+        layer = SkMatrix::Scale(scale, scale);
     }
     return Mapping(remainder, layer);
 }

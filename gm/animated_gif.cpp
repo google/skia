@@ -17,7 +17,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkAnimCodecPlayer.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -197,7 +196,7 @@ public:
             completepath.printf("%s%s", root, path.c_str());
             auto codec = load_codec(completepath.c_str());
             if (codec) {
-                fPlayers.push_back(skstd::make_unique<SkAnimCodecPlayer>(std::move(codec)));
+                fPlayers.push_back(std::make_unique<SkAnimCodecPlayer>(std::move(codec)));
             }
         }
     }

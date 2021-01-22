@@ -15,6 +15,7 @@
 #include "include/core/SkRect.h"
 
 class SkAndroidCodec;
+class SkImage;
 class SkPicture;
 
 /**
@@ -34,19 +35,6 @@ public:
      */
     static sk_sp<SkAnimatedImage> Make(std::unique_ptr<SkAndroidCodec>,
             const SkImageInfo& info, SkIRect cropRect, sk_sp<SkPicture> postProcess);
-
-    /**
-     *  Create an SkAnimatedImage from the SkAndroidCodec.
-     *
-     *  Returns null on failure to allocate pixels. On success, this will
-     *  decode the first frame.
-     *
-     *  @param scaledSize Size to draw the image, possibly requiring scaling.
-     *  @param cropRect Rectangle to crop to after scaling.
-     *  @param postProcess Picture to apply after scaling and cropping.
-     */
-    static sk_sp<SkAnimatedImage> Make(std::unique_ptr<SkAndroidCodec>,
-            SkISize scaledSize, SkIRect cropRect, sk_sp<SkPicture> postProcess);
 
     /**
      *  Simpler version that uses the default size, no cropping, and no postProcess.
@@ -83,6 +71,13 @@ public:
     int decodeNextFrame();
 
     /**
+     *  Returns the current frame as an SkImage. The SkImage will not change
+     *  after it has been returned.
+     *  If there is no current frame, nullptr will be returned.
+     */
+    sk_sp<SkImage> getCurrentFrame();
+
+    /**
      *  How long to display the current frame.
      *
      *  Useful for the first frame, for which decodeNextFrame is called
@@ -114,11 +109,6 @@ public:
      *  Return the total number of frames in the animation.
      */
     int getFrameCount() const { return fFrameCount; }
-
-    /**
-     * Return the (possibly scaled) dimensions of the image.
-     */
-    SkISize dimensions() const { return fScaledSize; }
 
 protected:
     SkRect onGetBounds() override;
@@ -171,7 +161,7 @@ private:
     int computeNextFrame(int current, bool* animationEnded);
     double finish();
 
-    typedef SkDrawable INHERITED;
+    using INHERITED = SkDrawable;
 };
 
 #endif // SkAnimatedImage_DEFINED

@@ -14,8 +14,8 @@ import ssh
 
 class ChromebookFlavor(ssh.SSHFlavor):
 
-  def __init__(self, m):
-    super(ChromebookFlavor, self).__init__(m)
+  def __init__(self, m, app_name):
+    super(ChromebookFlavor, self).__init__(m, app_name)
     self.chromeos_homedir = '/home/chronos/user/'
     self.device_dirs = default.DeviceDirs(
       bin_dir        = self.chromeos_homedir + 'bin',

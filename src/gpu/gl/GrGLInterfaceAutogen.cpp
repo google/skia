@@ -19,6 +19,54 @@ GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
 }
 
+#if GR_GL_CHECK_ERROR
+static const char* get_error_string(GrGLenum err) {
+    switch (err) {
+        case GR_GL_NO_ERROR:
+            return "";
+        case GR_GL_INVALID_ENUM:
+            return "Invalid Enum";
+        case GR_GL_INVALID_VALUE:
+            return "Invalid Value";
+        case GR_GL_INVALID_OPERATION:
+            return "Invalid Operation";
+        case GR_GL_OUT_OF_MEMORY:
+            return "Out of Memory";
+        case GR_GL_CONTEXT_LOST:
+            return "Context Lost";
+    }
+    return "Unknown";
+}
+
+GrGLenum GrGLInterface::checkError(const char* location, const char* call) const {
+    GrGLenum error = fFunctions.fGetError();
+    if (error != GR_GL_NO_ERROR && !fSuppressErrorLogging) {
+        SkDebugf("---- glGetError 0x%x(%s)", error, get_error_string(error));
+        if (location) {
+            SkDebugf(" at\n\t%s", location);
+        }
+        if (call) {
+            SkDebugf("\n\t\t%s", call);
+        }
+        SkDebugf("\n");
+        if (error == GR_GL_OUT_OF_MEMORY) {
+            fOOMed = true;
+        }
+    }
+    return error;
+}
+
+bool GrGLInterface::checkAndResetOOMed() const {
+    if (fOOMed) {
+        fOOMed = false;
+        return true;
+    }
+    return false;
+}
+
+void GrGLInterface::suppressErrorLogging() { fSuppressErrorLogging = true; }
+#endif
+
 #define RETURN_FALSE_INTERFACE                                                 \
     SkDEBUGF("%s:%d GrGLInterface::validate() failed.\n", __FILE__, __LINE__); \
     return false
@@ -150,6 +198,13 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if ((GR_IS_GR_GL(fStandard) && (
+          (glVer >= GR_GL_VER(4,2)))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          (glVer >= GR_GL_VER(3,1))))) {
+        // all functions were marked optional or test_only
+    }
+
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
@@ -161,6 +216,17 @@ bool GrGLInterface::validate() const {
         if (!fFunctions.fBindVertexArray ||
             !fFunctions.fDeleteVertexArrays ||
             !fFunctions.fGenVertexArrays) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
+    if ((GR_IS_GR_GL(fStandard) && (
+          (glVer >= GR_GL_VER(4,0)) ||
+          fExtensions.has("GL_ARB_tessellation_shader"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          (glVer >= GR_GL_VER(3,2)) ||
+          fExtensions.has("GL_OES_tessellation_shader")))) {
+        if (!fFunctions.fPatchParameteri) {
             RETURN_FALSE_INTERFACE;
         }
     }
@@ -218,6 +284,20 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if ((GR_IS_GR_GL(fStandard) && (
+          (glVer >= GR_GL_VER(4,2)) ||
+          fExtensions.has("GL_ARB_base_instance"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          fExtensions.has("GL_EXT_base_instance") ||
+          fExtensions.has("GL_ANGLE_base_vertex_base_instance"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          fExtensions.has("GL_WEBGL_draw_instanced_base_vertex_base_instance")))) {
+        if (!fFunctions.fDrawArraysInstancedBaseInstance ||
+            !fFunctions.fDrawElementsInstancedBaseVertexBaseInstance) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)))) ||
@@ -236,6 +316,16 @@ bool GrGLInterface::validate() const {
           (glVer >= GR_GL_VER(3,1))))) {
         if (!fFunctions.fDrawArraysIndirect ||
             !fFunctions.fDrawElementsIndirect) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
+    if ((GR_IS_GR_GL_ES(fStandard) && (
+          fExtensions.has("GL_ANGLE_base_vertex_base_instance"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          fExtensions.has("GL_WEBGL_multi_draw_instanced_base_vertex_base_instance")))) {
+        if (!fFunctions.fMultiDrawArraysInstancedBaseInstance ||
+            !fFunctions.fMultiDrawElementsInstancedBaseVertexBaseInstance) {
             RETURN_FALSE_INTERFACE;
         }
     }
@@ -335,10 +425,7 @@ bool GrGLInterface::validate() const {
 
     if ((GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_QCOM_tiled_rendering")))) {
-        if (!fFunctions.fEndTiling ||
-            !fFunctions.fStartTiling) {
-            RETURN_FALSE_INTERFACE;
-        }
+        // all functions were marked optional or test_only
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
@@ -726,6 +813,19 @@ bool GrGLInterface::validate() const {
        GR_IS_GR_GL_ES(fStandard) ||
        GR_IS_GR_WEBGL(fStandard)) {
         if (!fFunctions.fGetShaderPrecisionFormat) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
+    if ((GR_IS_GR_GL(fStandard) && (
+          fExtensions.has("GL_NV_fence"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          fExtensions.has("GL_NV_fence")))) {
+        if (!fFunctions.fDeleteFences ||
+            !fFunctions.fFinishFence ||
+            !fFunctions.fGenFences ||
+            !fFunctions.fSetFence ||
+            !fFunctions.fTestFence) {
             RETURN_FALSE_INTERFACE;
         }
     }

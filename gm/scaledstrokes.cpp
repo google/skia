@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -30,13 +30,13 @@ protected:
 
     static void draw_path(SkScalar size, SkCanvas* canvas, SkPaint paint) {
         SkScalar c = 0.551915024494f * size;
-        SkPath path;
+        SkPathBuilder path;
         path.moveTo(0.0f, size);
         path.cubicTo(c, size, size, c, size, 0.0f);
         path.cubicTo(size, -c, c, -size, 0.0f, -size);
         path.cubicTo(-c, -size, -size, -c, -size, 0.0f);
         path.cubicTo(-size, c, -c, size, 0.0f, size);
-        canvas->drawPath(path, paint);
+        canvas->drawPath(path.detach(), paint);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -81,7 +81,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new ScaledStrokesGM; )

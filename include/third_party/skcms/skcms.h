@@ -79,6 +79,11 @@ static inline bool skcms_TransferFunction_makeHLG(skcms_TransferFunction* tf) {
                                                , 1/0.17883277f, 0.28466892f, 0.55991073f);
 }
 
+// Is this an ordinary sRGB-ish transfer function, or one of the HDR forms we support?
+SKCMS_API bool skcms_TransferFunction_isSRGBish(const skcms_TransferFunction*);
+SKCMS_API bool skcms_TransferFunction_isPQish  (const skcms_TransferFunction*);
+SKCMS_API bool skcms_TransferFunction_isHLGish (const skcms_TransferFunction*);
+
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
     struct {
@@ -209,6 +214,8 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_BGR_888,
     skcms_PixelFormat_RGBA_8888,
     skcms_PixelFormat_BGRA_8888,
+    skcms_PixelFormat_RGBA_8888_sRGB,   // Automatic sRGB encoding / decoding.
+    skcms_PixelFormat_BGRA_8888_sRGB,   // (Generally used with linear transfer functions.)
 
     skcms_PixelFormat_RGBA_1010102,
     skcms_PixelFormat_BGRA_1010102,
@@ -293,11 +300,20 @@ SKCMS_API bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile);
 // profile unchanged and return false.
 SKCMS_API bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile);
 
+// Returns a matrix to adapt XYZ color from given the whitepoint to D50.
+SKCMS_API bool skcms_AdaptToXYZD50(float wx, float wy,
+                                   skcms_Matrix3x3* toXYZD50);
+
+// Returns a matrix to convert RGB color into XYZ adapted to D50, given the
+// primaries and whitepoint of the RGB model.
 SKCMS_API bool skcms_PrimariesToXYZD50(float rx, float ry,
                                        float gx, float gy,
                                        float bx, float by,
                                        float wx, float wy,
                                        skcms_Matrix3x3* toXYZD50);
+
+// Call before your first call to skcms_Transform() to skip runtime CPU detection.
+SKCMS_API void skcms_DisableRuntimeCPUDetection(void);
 
 // Utilities for programmatically constructing profiles
 static inline void skcms_Init(skcms_ICCProfile* p) {

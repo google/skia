@@ -8,13 +8,15 @@
 #ifndef SkImage_Gpu_DEFINED
 #define SkImage_Gpu_DEFINED
 
-#include "include/gpu/GrContext.h"
 #include "src/core/SkImagePriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/SkGr.h"
 #include "src/image/SkImage_GpuBase.h"
 
+class GrDirectContext;
+class GrRecordingContext;
 class GrTexture;
 
 class SkBitmap;
@@ -22,54 +24,78 @@ struct SkYUVAIndex;
 
 class SkImage_Gpu : public SkImage_GpuBase {
 public:
-    SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
-                sk_sp<SkColorSpace>);
+    SkImage_Gpu(sk_sp<GrImageContext>, uint32_t uniqueID, GrSurfaceProxyView, SkColorType,
+                SkAlphaType, sk_sp<SkColorSpace>);
     ~SkImage_Gpu() override;
 
-    GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
+    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
     GrTextureProxy* peekProxy() const override {
-        return fProxy.get();
-    }
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const override {
-        return fProxy;
+        return fView.asTextureProxy();
     }
 
-    bool onIsTextureBacked() const override { return SkToBool(fProxy.get()); }
+    const GrSurfaceProxyView* view(GrRecordingContext* context) const override {
+        if (!fView.proxy()) {
+            return nullptr;
+        }
+        return &fView;
+    }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
-                                                SkColorType, sk_sp<SkColorSpace>) const final;
+    bool onIsTextureBacked() const override {
+        SkASSERT(fView.proxy());
+        return true;
+    }
+
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
+                                                GrDirectContext*) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
+
+    void onAsyncRescaleAndReadPixels(const SkImageInfo&,
+                                     const SkIRect& srcRect,
+                                     RescaleGamma,
+                                     SkFilterQuality,
+                                     ReadPixelsCallback,
+                                     ReadPixelsContext) override;
+
+    void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+                                           sk_sp<SkColorSpace>,
+                                           const SkIRect& srcRect,
+                                           const SkISize& dstSize,
+                                           RescaleGamma,
+                                           SkFilterQuality,
+                                           ReadPixelsCallback,
+                                           ReadPixelsContext) override;
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
      */
-    static sk_sp<SkImage> MakePromiseTexture(GrContext* context,
+    static sk_sp<SkImage> MakePromiseTexture(GrRecordingContext*,
                                              const GrBackendFormat& backendFormat,
-                                             int width,
-                                             int height,
-                                             GrMipMapped mipMapped,
+                                             SkISize dimensions,
+                                             GrMipmapped mipMapped,
                                              GrSurfaceOrigin origin,
                                              SkColorType colorType,
                                              SkAlphaType alphaType,
                                              sk_sp<SkColorSpace> colorSpace,
                                              PromiseImageTextureFulfillProc textureFulfillProc,
                                              PromiseImageTextureReleaseProc textureReleaseProc,
-                                             PromiseImageTextureDoneProc textureDoneProc,
-                                             PromiseImageTextureContext textureContext,
-                                             PromiseImageApiVersion);
+                                             PromiseImageTextureContext textureContext);
 
-    static sk_sp<SkImage> ConvertYUVATexturesToRGB(GrContext*, SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendTexture yuvaTextures[],
-                                                   const SkYUVAIndex yuvaIndices[4],
-                                                   SkISize imageSize, GrSurfaceOrigin imageOrigin,
-                                                   GrRenderTargetContext*);
+    static sk_sp<SkImage> ConvertYUVATexturesToRGB(
+            GrRecordingContext*,
+            SkYUVColorSpace,
+            const GrBackendTexture[],
+            const SkYUVAIndex[SkYUVAIndex::kIndexCount],
+            SkISize,
+            GrSurfaceOrigin,
+            GrRenderTargetContext*,
+            sk_sp<GrRefCntedCallback> releaseHelper = nullptr);
 
 private:
-    sk_sp<GrTextureProxy> fProxy;
+    GrSurfaceProxyView fView;
 
-    typedef SkImage_GpuBase INHERITED;
+    using INHERITED = SkImage_GpuBase;
 };
 
 #endif

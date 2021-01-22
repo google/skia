@@ -10,6 +10,7 @@
 #include "src/core/SkFDot6.h"
 #include "src/core/SkLineClipper.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
 
@@ -121,7 +122,11 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
             if (ix0 == ix1) {// too short to draw
                 continue;
             }
-
+#if defined(SK_BUILD_FOR_FUZZER)
+            if ((ix1 - ix0) > 100000 || (ix1 - ix0) < 0) {
+                continue; // too big to draw
+            }
+#endif
             SkFixed slope = SkFixedDiv(dy, dx);
             SkFixed startY = SkFDot6ToFixed(y0) + (slope * ((32 - x0) & 63) >> 6);
 
@@ -137,7 +142,11 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
             if (iy0 == iy1) { // too short to draw
                 continue;
             }
-
+#if defined(SK_BUILD_FOR_FUZZER)
+            if ((iy1 - iy0) > 100000 || (iy1 - iy0) < 0) {
+                continue; // too big to draw
+            }
+#endif
             SkFixed slope = SkFixedDiv(dx, dy);
             SkFixed startX = SkFDot6ToFixed(x0) + (slope * ((32 - y0) & 63) >> 6);
 
@@ -310,7 +319,7 @@ static inline Sk2s abs(const Sk2s& value) {
 static inline SkScalar max_component(const Sk2s& value) {
     SkScalar components[2];
     value.store(components);
-    return SkTMax(components[0], components[1]);
+    return std::max(components[0], components[1]);
 }
 
 static inline int compute_cubic_segs(const SkPoint pts[4]) {
@@ -438,7 +447,7 @@ static int compute_quad_level(const SkPoint pts[3]) {
      than a pixel.
      */
     int level = (33 - SkCLZ(d)) >> 1;
-    // sanity check on level (from the previous version)
+    // safety check on level (from the previous version)
     if (level > kMaxQuadSubdivideLevel) {
         level = kMaxQuadSubdivideLevel;
     }
@@ -558,41 +567,45 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
         }
     }
 
-    SkPath::RawIter     iter(path);
-    SkPoint             pts[4], firstPt, lastPt;
-    SkPath::Verb        verb, prevVerb;
-    SkAutoConicToQuads  converter;
+    SkPathPriv::RangeIter iter = SkPathPriv::Iterate(path).begin();
+    SkPathPriv::RangeIter end = SkPathPriv::Iterate(path).end();
+    SkPoint               pts[4], firstPt, lastPt;
+    SkPath::Verb          prevVerb;
+    SkAutoConicToQuads    converter;
 
     if (SkPaint::kButt_Cap != capStyle) {
         prevVerb = SkPath::kDone_Verb;
     }
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    while (iter != end) {
+        auto [pathVerb, pathPts, w] = *iter++;
+        SkPath::Verb verb = (SkPath::Verb)pathVerb;
+        SkPath::Verb nextVerb = (iter != end) ? (SkPath::Verb)iter.peekVerb() : SkPath::kDone_Verb;
+        memcpy(pts, pathPts, SkPathPriv::PtsInIter(verb) * sizeof(SkPoint));
         switch (verb) {
             case SkPath::kMove_Verb:
                 firstPt = lastPt = pts[0];
                 break;
             case SkPath::kLine_Verb:
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 2);
+                    extend_pts<capStyle>(prevVerb, nextVerb, pts, 2);
                 }
                 lineproc(pts, 2, clip, blitter);
                 lastPt = pts[1];
                 break;
             case SkPath::kQuad_Verb:
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
+                    extend_pts<capStyle>(prevVerb, nextVerb, pts, 3);
                 }
                 hairquad(pts, clip, insetClip, outsetClip, blitter, compute_quad_level(pts), lineproc);
                 lastPt = pts[2];
                 break;
             case SkPath::kConic_Verb: {
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
+                    extend_pts<capStyle>(prevVerb, nextVerb, pts, 3);
                 }
                 // how close should the quads be to the original conic?
                 const SkScalar tol = SK_Scalar1 / 4;
-                const SkPoint* quadPts = converter.computeQuads(pts,
-                                                       iter.conicWeight(), tol);
+                const SkPoint* quadPts = converter.computeQuads(pts, *w, tol);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     int level = compute_quad_level(quadPts);
                     hairquad(quadPts, clip, insetClip, outsetClip, blitter, level, lineproc);
@@ -603,7 +616,7 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
             }
             case SkPath::kCubic_Verb: {
                 if (SkPaint::kButt_Cap != capStyle) {
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 4);
+                    extend_pts<capStyle>(prevVerb, nextVerb, pts, 4);
                 }
                 haircubic(pts, clip, insetClip, outsetClip, blitter, kMaxCubicSubdivideLevel, lineproc);
                 lastPt = pts[3];
@@ -613,7 +626,7 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 pts[1] = firstPt;
                 if (SkPaint::kButt_Cap != capStyle && prevVerb == SkPath::kMove_Verb) {
                     // cap moveTo/close to match svg expectations for degenerate segments
-                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 2);
+                    extend_pts<capStyle>(prevVerb, nextVerb, pts, 2);
                 }
                 lineproc(pts, 2, clip, blitter);
                 break;

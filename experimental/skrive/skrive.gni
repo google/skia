@@ -1,0 +1,27 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("src", "abspath")
+_include = get_path_info("include", "abspath")
+
+skia_skrive_public = [ "$_include/SkRive.h" ]
+
+skia_skrive_sources = [
+  "$_src/Artboard.cpp",
+  "$_src/Color.cpp",
+  "$_src/Component.cpp",
+  "$_src/Drawable.cpp",
+  "$_src/Ellipse.cpp",
+  "$_src/Node.cpp",
+  "$_src/Paint.cpp",
+  "$_src/Rectangle.cpp",
+  "$_src/Shape.cpp",
+  "$_src/SkRive.cpp",
+  "$_src/reader/BinaryReader.cpp",
+  "$_src/reader/JsonReader.cpp",
+  "$_src/reader/StreamReader.cpp",
+  "$_src/reader/StreamReader.h",
+]

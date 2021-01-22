@@ -11,6 +11,7 @@
 #include <iterator>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
@@ -77,7 +78,7 @@ public:
     constexpr Iterator begin() const { return Iterator{this, 0}; }
     constexpr Iterator end() const { return Iterator{this, this->size()}; }
     template<size_t I> constexpr auto get() const {
-        return SkMakeSpan(std::get<I>(fPointers), fSize);
+        return SkSpan(std::get<I>(fPointers), fSize);
     }
     constexpr std::tuple<Ts*...> data() const { return fPointers; }
     constexpr SkZip first(size_t n) const {
@@ -105,22 +106,22 @@ private:
     constexpr ReturnTuple index(size_t i) const {
         SkASSERT(this->size() > 0);
         SkASSERT(i < this->size());
-        return indexDetail(i, skstd::make_index_sequence<sizeof...(Ts)>{});
+        return indexDetail(i, std::make_index_sequence<sizeof...(Ts)>{});
     }
 
     template<std::size_t... Is>
-    constexpr ReturnTuple indexDetail(size_t i, skstd::index_sequence<Is...>) const {
+    constexpr ReturnTuple indexDetail(size_t i, std::index_sequence<Is...>) const {
         return ReturnTuple((std::get<Is>(fPointers))[i]...);
     }
 
     std::tuple<Ts*...> pointersAt(size_t i) const {
         SkASSERT(this->size() > 0);
         SkASSERT(i < this->size());
-        return pointersAtDetail(i, skstd::make_index_sequence<sizeof...(Ts)>{});
+        return pointersAtDetail(i, std::make_index_sequence<sizeof...(Ts)>{});
     }
 
     template<std::size_t... Is>
-    constexpr std::tuple<Ts*...> pointersAtDetail(size_t i, skstd::index_sequence<Is...>) const {
+    constexpr std::tuple<Ts*...> pointersAtDetail(size_t i, std::index_sequence<Is...>) const {
         return std::tuple<Ts*...>{&(std::get<Is>(fPointers))[i]...};
     }
 
@@ -191,8 +192,8 @@ public:
         size_t maxSize = 0;
         for (size_t s : {Span<Ts>::Size(std::forward<Ts>(ts))...}) {
             if (s != SIZE_MAX) {
-                minSize = SkTMin(minSize, s);
-                maxSize = SkTMax(maxSize, s);
+                minSize = std::min(minSize, s);
+                maxSize = std::max(maxSize, s);
             }
         }
         SkASSERT(minSize == maxSize);

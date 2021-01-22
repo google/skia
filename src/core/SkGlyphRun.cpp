@@ -13,7 +13,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -286,7 +286,7 @@ SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         if (count > 0) {
             fScratchGlyphIDs.resize(count);
             font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs.data(), count);
-            return SkMakeSpan(fScratchGlyphIDs);
+            return SkSpan(fScratchGlyphIDs);
         } else {
             return SkSpan<const SkGlyphID>();
         }
@@ -317,8 +317,7 @@ void SkGlyphRunBuilder::makeGlyphRunList(
         const SkPaint& paint, const SkTextBlob* blob, SkPoint origin) {
 
     fGlyphRunList.~SkGlyphRunList();
-    new (&fGlyphRunList) SkGlyphRunList{
-        paint, blob, origin, SkMakeSpan(fGlyphRunListStorage)};
+    new (&fGlyphRunList) SkGlyphRunList{paint, blob, origin, SkSpan(fGlyphRunListStorage)};
 }
 
 void SkGlyphRunBuilder::simplifyDrawText(

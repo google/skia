@@ -10,23 +10,28 @@
  **************************************************************************************************/
 #ifndef GrMagnifierEffect_DEFINED
 #define GrMagnifierEffect_DEFINED
+
+#include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrMagnifierEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> src, SkIRect bounds,
-                                                     SkRect srcRect, float xInvZoom, float yInvZoom,
-                                                     float xInvInset, float yInvInset) {
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> src,
+                                                     SkIRect bounds,
+                                                     SkRect srcRect,
+                                                     float xInvZoom,
+                                                     float yInvZoom,
+                                                     float xInvInset,
+                                                     float yInvInset) {
         return std::unique_ptr<GrFragmentProcessor>(new GrMagnifierEffect(
-                src, bounds, srcRect, xInvZoom, yInvZoom, xInvInset, yInvInset));
+                std::move(src), bounds, srcRect, xInvZoom, yInvZoom, xInvInset, yInvInset));
     }
     GrMagnifierEffect(const GrMagnifierEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MagnifierEffect"; }
-    GrCoordTransform srcCoordTransform;
-    TextureSampler src;
+    bool usesExplicitReturn() const override;
     SkIRect bounds;
     SkRect srcRect;
     float xInvZoom;
@@ -35,25 +40,31 @@ public:
     float yInvInset;
 
 private:
-    GrMagnifierEffect(sk_sp<GrSurfaceProxy> src, SkIRect bounds, SkRect srcRect, float xInvZoom,
-                      float yInvZoom, float xInvInset, float yInvInset)
+    GrMagnifierEffect(std::unique_ptr<GrFragmentProcessor> src,
+                      SkIRect bounds,
+                      SkRect srcRect,
+                      float xInvZoom,
+                      float yInvZoom,
+                      float xInvInset,
+                      float yInvInset)
             : INHERITED(kGrMagnifierEffect_ClassID, kNone_OptimizationFlags)
-            , srcCoordTransform(SkMatrix::I(), src.get())
-            , src(std::move(src))
             , bounds(bounds)
             , srcRect(srcRect)
             , xInvZoom(xInvZoom)
             , yInvZoom(yInvZoom)
             , xInvInset(xInvInset)
             , yInvInset(yInvInset) {
-        this->setTextureSamplerCnt(1);
-        this->addCoordTransform(&srcCoordTransform);
+        this->setUsesSampleCoordsDirectly();
+        SkASSERT(src);
+        this->registerChild(std::move(src), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
-    const TextureSampler& onTextureSampler(int) const override;
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 #endif

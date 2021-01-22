@@ -11,6 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkScalerContext.h"
 
 class TestEmptyTypeface : public SkTypeface {
 public:
@@ -20,18 +21,20 @@ protected:
     TestEmptyTypeface() : SkTypeface(SkFontStyle(), true) {}
 
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
-    sk_sp<SkTypeface>              onMakeClone(const SkFontArguments& args) const override {
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         return sk_ref_sp(this);
     }
-    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
-                                           const SkDescriptor*) const override {
-        return nullptr;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects& effects,
+                                           const SkDescriptor* desc) const override {
+        return SkScalerContext::MakeEmptyContext(
+                sk_ref_sp(const_cast<TestEmptyTypeface*>(this)), effects, desc);
+
     }
-    void                                       onFilterRec(SkScalerContextRec*) const override {}
+    void onFilterRec(SkScalerContextRec*) const override {}
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
         return nullptr;
     }
-    void        onGetFontDescriptor(SkFontDescriptor*, bool*) const override {}
+    void onGetFontDescriptor(SkFontDescriptor*, bool*) const override {}
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
         sk_bzero(glyphs, count * sizeof(glyphs[0]));
     }
@@ -44,6 +47,7 @@ protected:
         bool next(SkTypeface::LocalizedString*) override { return false; }
     };
     void onGetFamilyName(SkString* familyName) const override { familyName->reset(); }
+    bool onGetPostScriptName(SkString*) const override { return false; }
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         return new EmptyLocalizedStrings;
     }

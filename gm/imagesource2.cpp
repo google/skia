@@ -90,7 +90,7 @@ private:
     SkFilterQuality fFilter;
     sk_sp<SkImage>  fImage;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,4 +99,4 @@ DEF_GM(return new ImageSourceGM("none", kNone_SkFilterQuality);)
 DEF_GM(return new ImageSourceGM("low", kLow_SkFilterQuality);)
 DEF_GM(return new ImageSourceGM("med", kMedium_SkFilterQuality);)
 DEF_GM(return new ImageSourceGM("high", kHigh_SkFilterQuality);)
-}
+}  // namespace skiagm

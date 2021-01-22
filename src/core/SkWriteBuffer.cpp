@@ -9,10 +9,12 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPtrRecorder.h"
 
@@ -102,6 +104,10 @@ void SkBinaryWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) 
     fWriter.write(point, count * sizeof(SkPoint));
 }
 
+void SkBinaryWriteBuffer::write(const SkM44& matrix) {
+    fWriter.write(SkMatrixPriv::M44ColMajor(matrix), sizeof(float) * 16);
+}
+
 void SkBinaryWriteBuffer::writeMatrix(const SkMatrix& matrix) {
     fWriter.writeMatrix(matrix);
 }
@@ -135,14 +141,22 @@ bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) const {
     return fWriter.writeToStream(stream);
 }
 
+#include "src/image/SkImage_Base.h"
+
 /*  Format:
- *  (subset) bounds
- *  size (31bits)
- *  data [ encoded, with raw width/height ]
+ *      flags: U32
+ *      encoded : size_32 + data[]
+ *      [subset: IRect]
+ *      [mips]  : size_32 + data[]
  */
 void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
-    const SkIRect bounds = SkImage_getSubset(image);
-    this->writeIRect(bounds);
+    uint32_t flags = 0;
+    const SkMipmap* mips = as_IB(image)->onPeekMips();
+    if (mips) {
+        flags |= SkWriteBufferImageFlags::kHasMipmap;
+    }
+
+    this->write32(flags);
 
     sk_sp<SkData> data;
     if (fProcs.fImageProc) {
@@ -151,14 +165,10 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     if (!data) {
         data = image->encodeToData();
     }
+    this->writeDataAsByteArray(data.get());
 
-    size_t size = data ? data->size() : 0;
-    if (!SkTFitsIn<int32_t>(size)) {
-        size = 0;   // too big to store
-    }
-    this->write32(SkToS32(size));   // writing 0 signals failure
-    if (size) {
-        this->writePad32(data->data(), size);
+    if (flags & SkWriteBufferImageFlags::kHasMipmap) {
+        this->writeDataAsByteArray(mips->serialize().get());
     }
 }
 
@@ -209,42 +219,35 @@ void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
 
     /*
      *  We can write 1 of 2 versions of the flattenable:
-     *  1.  index into fFactorySet : This assumes the writer will later
-     *      resolve the function-ptrs into strings for its reader. SkPicture
-     *      does exactly this, by writing a table of names (matching the indices)
-     *      up front in its serialized form.
-     *  2.  string name of the flattenable or index into fFlattenableDict:  We
-     *      store the string to allow the reader to specify its own factories
-     *      after write time.  In order to improve compression, if we have
-     *      already written the string, we write its index instead.
+     *
+     *  1. index into fFactorySet: This assumes the writer will later resolve the function-ptrs
+     *     into strings for its reader. SkPicture does exactly this, by writing a table of names
+     *     (matching the indices) up front in its serialized form.
+     *
+     *  2. string name of the flattenable or index into fFlattenableDict:  We store the string to
+     *     allow the reader to specify its own factories after write time. In order to improve
+     *     compression, if we have already written the string, we write its index instead.
      */
 
-    SkFlattenable::Factory factory = flattenable->getFactory();
-    SkASSERT(factory);
-
-    if (fFactorySet) {
+    if (SkFlattenable::Factory factory = flattenable->getFactory(); factory && fFactorySet) {
         this->write32(fFactorySet->add(factory));
     } else {
+        const char* name = flattenable->getTypeName();
+        SkASSERT(name);
+        SkASSERT(0 != strcmp("", name));
 
-        if (uint32_t* indexPtr = fFlattenableDict.find(factory)) {
+        if (uint32_t* indexPtr = fFlattenableDict.find(name)) {
             // We will write the index as a 32-bit int.  We want the first byte
             // that we send to be zero - this will act as a sentinel that we
             // have an index (not a string).  This means that we will send the
             // the index shifted left by 8.  The remaining 24-bits should be
             // plenty to store the index.  Note that this strategy depends on
-            // being little endian.
+            // being little endian, and type names being non-empty.
             SkASSERT(0 == *indexPtr >> 24);
             this->write32(*indexPtr << 8);
         } else {
-            const char* name = flattenable->getTypeName();
-            SkASSERT(name);
-            // Otherwise write the string.  Clients should not use the empty
-            // string as a name, or we will have a problem.
-            SkASSERT(0 != strcmp("", name));
             this->writeString(name);
-
-            // Add key to dictionary.
-            fFlattenableDict.set(factory, fFlattenableDict.count() + 1);
+            fFlattenableDict.set(name, fFlattenableDict.count() + 1);
         }
     }
 

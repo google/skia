@@ -82,6 +82,6 @@ std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo& info,
     return ctx;
 }
 
-}  // namespace VulkanWindowContextFactory
+}  // namespace window_context_factory
 
 }  // namespace sk_app

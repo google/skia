@@ -77,10 +77,6 @@ public:
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
     void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
     void drawPath(const SkPath& origpath, const SkPaint& paint, bool pathIsMutable) override;
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                        const SkRect& dst, const SkPaint&, SkCanvas::SrcRectConstraint) override;
-    void drawSprite(const SkBitmap& bitmap, int x, int y,
-                    const SkPaint& paint) override;
 
     void drawImageRect(const SkImage*,
                        const SkRect* src,
@@ -88,12 +84,11 @@ public:
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
-    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
-                      const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
     // PDF specific methods.
+    void drawSprite(const SkBitmap& bitmap, int x, int y,
+                    const SkPaint& paint);
 
     /** Create the resource dictionary for this device. Destructive. */
     std::unique_ptr<SkPDFDict> makeResourceDict();
@@ -114,8 +109,9 @@ protected:
 
     void drawAnnotation(const SkRect&, const char key[], SkData* value) override;
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                     SkImage*, const SkMatrix&) override;
+    void drawDevice(SkBaseDevice*, const SkPaint&) override;
+    void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkPaint&) override;
+
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     SkImageFilterCache* getImageFilterCache() override;
@@ -194,7 +190,7 @@ private:
 
     void reset();
 
-    typedef SkClipStackDevice INHERITED;
+    using INHERITED = SkClipStackDevice;
 };
 
 #endif

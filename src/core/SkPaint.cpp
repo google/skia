@@ -7,7 +7,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkImageFilter.h"
@@ -19,6 +18,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkDraw.h"
@@ -107,6 +107,10 @@ void SkPaint::setStyle(Style style) {
         SkDebugf("SkPaint::setStyle(%d) out of range\n", style);
 #endif
     }
+}
+
+void SkPaint::setStroke(bool isStroke) {
+    fBitfields.fStyle = isStroke ? kStroke_Style : kFill_Style;
 }
 
 void SkPaint::setColor(SkColor color) {
@@ -203,61 +207,8 @@ enum FlatFlags {
     kFlatFlagMask         = 0x3,
 };
 
-enum BitsPerField {
-    kFlags_BPF  = 16,
-    kHint_BPF   = 2,
-    kFilter_BPF = 2,
-    kFlatFlags_BPF  = 3,
-};
-
-static inline int BPF_Mask(int bits) {
-    return (1 << bits) - 1;
-}
-
 // SkPaint originally defined flags, some of which now apply to SkFont. These are renames
 // of those flags, split into categories depending on which objects they (now) apply to.
-
-enum PaintFlagsForPaint {
-    kAA_PaintFlagForPaint     = 0x01,
-    kDither_PaintFlagForPaint = 0x04,
-};
-
-enum PaintFlagsForFont {
-    kFakeBold_PaintFlagForFont       = 0x20,
-    kLinear_PaintFlagForFont         = 0x40,
-    kSubpixel_PaintFlagForFont       = 0x80,
-    kLCD_PaintFlagForFont            = 0x200,
-    kEmbeddedBitmap_PaintFlagForFont = 0x400,
-    kAutoHinting_PaintFlagForFont    = 0x800,
-};
-
-static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed, SkFont* font) {
-    uint32_t f = packed >> 16;
-    paint->setAntiAlias((f & kAA_PaintFlagForPaint) != 0);
-    paint->setDither((f & kDither_PaintFlagForPaint) != 0);
-    if (font) {
-        font->setEmbolden((f & kFakeBold_PaintFlagForFont) != 0);
-        font->setLinearMetrics((f & kLinear_PaintFlagForFont) != 0);
-        font->setSubpixel((f & kSubpixel_PaintFlagForFont) != 0);
-        font->setEmbeddedBitmaps((f & kEmbeddedBitmap_PaintFlagForFont) != 0);
-        font->setForceAutoHinting((f & kAutoHinting_PaintFlagForFont) != 0);
-
-        font->setHinting((SkFontHinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
-
-        if (f & kAA_PaintFlagForPaint) {
-            if (f & kLCD_PaintFlagForFont) {
-                font->setEdging(SkFont::Edging::kSubpixelAntiAlias);
-            } else {
-                font->setEdging(SkFont::Edging::kAntiAlias);
-            }
-        } else {
-            font->setEdging(SkFont::Edging::kAlias);
-        }
-    }
-
-    paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
-    return (FlatFlags)(packed & kFlatFlagMask);
-}
 
 template <typename T> uint32_t shift_bits(T value, unsigned shift, unsigned bits) {
     SkASSERT(shift + bits <= 32);
@@ -336,74 +287,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     }
 }
 
-SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
-    SkSafeRange safe;
-
-    {
-        SkScalar sz = buffer.readScalar();
-        SkScalar sx = buffer.readScalar();
-        SkScalar kx = buffer.readScalar();
-        if (font) {
-            font->setSize(sz);
-            font->setScaleX(sx);
-            font->setSkewX(kx);
-        }
-    }
-
-    paint->setStrokeWidth(buffer.readScalar());
-    paint->setStrokeMiter(buffer.readScalar());
-    if (buffer.isVersionLT(SkPicturePriv::kFloat4PaintColor_Version)) {
-        paint->setColor(buffer.readColor());
-    } else {
-        SkColor4f color;
-        buffer.readColor4f(&color);
-        paint->setColor(color, sk_srgb_singleton());
-    }
-
-    unsigned flatFlags = unpack_paint_flags(paint, buffer.readUInt(), font);
-
-    uint32_t tmp = buffer.readUInt();
-    paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
-    paint->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, SkPaint::kLast_Join));
-    paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kStrokeAndFill_Style));
-    paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
-
-    sk_sp<SkTypeface> tf;
-    if (flatFlags & kHasTypeface_FlatFlag) {
-        tf = buffer.readTypeface();
-    }
-    if (font) {
-        font->setTypeface(tf);
-    }
-
-    if (flatFlags & kHasEffects_FlatFlag) {
-        paint->setPathEffect(buffer.readPathEffect());
-        paint->setShader(buffer.readShader());
-        paint->setMaskFilter(buffer.readMaskFilter());
-        paint->setColorFilter(buffer.readColorFilter());
-        (void)buffer.read32();  // use to be SkRasterizer
-        (void)buffer.read32();  // used to be drawlooper
-        paint->setImageFilter(buffer.readImageFilter());
-    } else {
-        paint->setPathEffect(nullptr);
-        paint->setShader(nullptr);
-        paint->setMaskFilter(nullptr);
-        paint->setColorFilter(nullptr);
-        paint->setImageFilter(nullptr);
-    }
-
-    if (!buffer.validate(safe)) {
-        paint->reset();
-        return kFailed_ReadPaint;
-    }
-    return kSuccess_PaintAndFont;
-}
-
 SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
-    if (buffer.isVersionLT(SkPicturePriv::kPaintDoesntSerializeFonts_Version)) {
-        return Unflatten_PreV68(paint, buffer, font);
-    }
-
     SkSafeRange safe;
 
     paint->setStrokeWidth(buffer.readScalar());
@@ -448,6 +332,13 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
     }
 
     SkStrokeRec rec(*this, resScale);
+
+#if defined(SK_BUILD_FOR_FUZZER)
+    // Prevent lines with small widths from timing out.
+    if (rec.getStyle() == SkStrokeRec::Style::kStroke_Style && rec.getWidth() < 0.001) {
+        return false;
+    }
+#endif
 
     const SkPath* srcPtr = &src;
     SkPath tmpPath;
@@ -513,7 +404,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
 
 // return true if the filter exists, and may affect alpha
 static bool affects_alpha(const SkColorFilter* cf) {
-    return cf && !(cf->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+    return cf && !as_CFB(cf)->isAlphaUnchanged();
 }
 
 // return true if the filter exists, and may affect alpha

@@ -7,6 +7,8 @@
 
 #include "include/effects/SkImageFilters.h"
 
+#include "include/core/SkPaint.h"
+
 // TODO (michaelludwig) - Right now there is a bit of a weird dependency where the implementations
 // of the new, preferred filter factories depends on the per-filter headers in include/effects,
 // which have themselves been marked as deprecated. But, once clients are updated to use the
@@ -38,12 +40,16 @@
 
 // TODO (michaelludwig) - We are phasing out the use of SkImageFilter::CropRect since it does not
 // appear as though edge flags are actually used and will move towards an explicit cropping filter.
-// To assist with this, the new factory functions just take the basic SkIRect* even though the
+// To assist with this, the new factory functions just take the basic rects even though the
 // implementations have not been updated yet.
-static SkImageFilter::CropRect make_crop_rect(const SkIRect* cropRect) {
-    return cropRect ? SkImageFilter::CropRect(SkRect::Make(*cropRect))
-                    : SkImageFilter::CropRect(SkRect::MakeEmpty(), 0x0);
+static SkImageFilter::CropRect to_legacy_crop_rect(const SkImageFilters::CropRect& cropRect) {
+    return cropRect.fCropRect.isFinite() ? SkImageFilter::CropRect(cropRect.fCropRect)
+                                         : SkImageFilter::CropRect(SkRect::MakeEmpty(), 0x0);
 }
+
+// Allow kNoCropRect to be referenced (for certain builds, e.g. macOS libFuzzer chromium target,
+// see crbug.com/1139725)
+constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
 
 void SkImageFilters::RegisterFlattenables() {
     SkAlphaThresholdFilter::RegisterFlattenables();
@@ -70,29 +76,37 @@ void SkImageFilters::RegisterFlattenables() {
 
 sk_sp<SkImageFilter> SkImageFilters::AlphaThreshold(
         const SkRegion& region, SkScalar innerMin, SkScalar outerMax, sk_sp<SkImageFilter> input,
-        const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkAlphaThresholdFilter::Make(region, innerMin, outerMax, std::move(input), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Arithmetic(
         SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4, bool enforcePMColor,
-        sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
+        const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkArithmeticImageFilter::Make(k1, k2, k3, k4, enforcePMColor, std::move(background),
                                          std::move(foreground), &r);
 }
 
+sk_sp<SkImageFilter> SkImageFilters::Blend(
+        SkBlendMode mode, sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
+        const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
+    return SkXfermodeImageFilter::Make(mode, std::move(background), std::move(foreground), &r);
+}
+
 sk_sp<SkImageFilter> SkImageFilters::Blur(
         SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode, sk_sp<SkImageFilter> input,
-        const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkBlurImageFilter::Make(sigmaX, sigmaY, tileMode, std::move(input), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::ColorFilter(
-        sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkColorFilterImageFilter::Make(std::move(cf), std::move(input), &r);
 }
 
@@ -103,16 +117,16 @@ sk_sp<SkImageFilter> SkImageFilters::Compose(
 
 sk_sp<SkImageFilter> SkImageFilters::DisplacementMap(
         SkColorChannel xChannelSelector, SkColorChannel yChannelSelector, SkScalar scale,
-        sk_sp<SkImageFilter> displacement, sk_sp<SkImageFilter> color, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> displacement, sk_sp<SkImageFilter> color, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkDisplacementMapEffect::Make(xChannelSelector, yChannelSelector, scale,
                                          std::move(displacement), std::move(color), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::DropShadow(
         SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor color,
-        sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     // TODO (michaelludwig) - Once SkDropShadowImageFilter is fully hidden, this can be updated to
     // pass a constant bool into the internal factory.
     return SkDropShadowImageFilter::Make(
@@ -123,8 +137,8 @@ sk_sp<SkImageFilter> SkImageFilters::DropShadow(
 
 sk_sp<SkImageFilter> SkImageFilters::DropShadowOnly(
         SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor color,
-        sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     // TODO (michaelludwig) - Once SkDropShadowImageFilter is fully hidden, this can be updated to
     // pass a constant bool into the internal factory.
     return SkDropShadowImageFilter::Make(dx, dy, sigmaX, sigmaY, color,
@@ -139,16 +153,17 @@ sk_sp<SkImageFilter> SkImageFilters::Image(
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Magnifier(
-        const SkRect& srcRect, SkScalar inset, sk_sp<SkImageFilter> input,const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        const SkRect& srcRect, SkScalar inset, sk_sp<SkImageFilter> input,
+        const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkMagnifierImageFilter::Make(srcRect, inset, std::move(input), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::MatrixConvolution(
         const SkISize& kernelSize,  const SkScalar kernel[], SkScalar gain, SkScalar bias,
         const SkIPoint& kernelOffset, SkTileMode tileMode, bool convolveAlpha,
-        sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkMatrixConvolutionImageFilter::Make(kernelSize, kernel, gain, bias, kernelOffset,
                                                 tileMode, convolveAlpha, std::move(input), &r);
 }
@@ -159,19 +174,19 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Merge(
-        sk_sp<SkImageFilter>* const filters, int count, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter>* const filters, int count, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkMergeImageFilter::Make(filters, count, &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Offset(
-        SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkOffsetImageFilter::Make(dx, dy, std::move(input), &r);
 }
 
-sk_sp<SkImageFilter> SkImageFilters::Paint(const SkPaint& paint, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+sk_sp<SkImageFilter> SkImageFilters::Paint(const SkPaint& paint, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkPaintImageFilter::Make(paint, &r);
 }
 
@@ -179,29 +194,29 @@ sk_sp<SkImageFilter> SkImageFilters::Picture(sk_sp<SkPicture> pic, const SkRect&
     return SkPictureImageFilter::Make(std::move(pic), targetRect);
 }
 
+sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
+    SkPaint paint;
+    paint.setShader(std::move(shader));
+    return SkPaintImageFilter::Make(paint, &r);
+}
+
 sk_sp<SkImageFilter> SkImageFilters::Tile(
         const SkRect& src, const SkRect& dst, sk_sp<SkImageFilter> input) {
     return SkTileImageFilter::Make(src, dst, std::move(input));
 }
 
-sk_sp<SkImageFilter> SkImageFilters::Xfermode(
-        SkBlendMode mode, sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
-        const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
-    return SkXfermodeImageFilter::Make(mode, std::move(background), std::move(foreground), &r);
-}
-
 // Morphology filter effects
 
 sk_sp<SkImageFilter> SkImageFilters::Dilate(
-        int radiusX, int radiusY, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        SkScalar radiusX, SkScalar radiusY, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkDilateImageFilter::Make(radiusX, radiusY, std::move(input), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Erode(
-        int radiusX, int radiusY, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        SkScalar radiusX, SkScalar radiusY, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkErodeImageFilter::Make(radiusX, radiusY, std::move(input), &r);
 }
 
@@ -209,16 +224,16 @@ sk_sp<SkImageFilter> SkImageFilters::Erode(
 
 sk_sp<SkImageFilter> SkImageFilters::DistantLitDiffuse(
         const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkLightingImageFilter::MakeDistantLitDiffuse(direction, lightColor, surfaceScale, kd,
                                                         std::move(input), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::PointLitDiffuse(
         const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkLightingImageFilter::MakePointLitDiffuse(location, lightColor, surfaceScale, kd,
                                                       std::move(input), &r);
 }
@@ -226,8 +241,8 @@ sk_sp<SkImageFilter> SkImageFilters::PointLitDiffuse(
 sk_sp<SkImageFilter> SkImageFilters::SpotLitDiffuse(
         const SkPoint3& location, const SkPoint3& target, SkScalar falloffExponent,
         SkScalar cutoffAngle, SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkLightingImageFilter::MakeSpotLitDiffuse(location, target, falloffExponent, cutoffAngle,
                                                      lightColor, surfaceScale, kd,
                                                      std::move(input), &r);
@@ -235,16 +250,16 @@ sk_sp<SkImageFilter> SkImageFilters::SpotLitDiffuse(
 
 sk_sp<SkImageFilter> SkImageFilters::DistantLitSpecular(
         const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        SkScalar shininess, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkLightingImageFilter::MakeDistantLitSpecular(direction, lightColor, surfaceScale,
                                                          ks, shininess, std::move(input), &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::PointLitSpecular(
         const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        SkScalar shininess, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkLightingImageFilter::MakePointLitSpecular(location, lightColor, surfaceScale, ks,
                                                        shininess, std::move(input), &r);
 }
@@ -252,8 +267,8 @@ sk_sp<SkImageFilter> SkImageFilters::PointLitSpecular(
 sk_sp<SkImageFilter> SkImageFilters::SpotLitSpecular(
         const SkPoint3& location, const SkPoint3& target, SkScalar falloffExponent,
         SkScalar cutoffAngle, SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, sk_sp<SkImageFilter> input, const SkIRect* cropRect) {
-    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+        SkScalar shininess, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     return SkLightingImageFilter::MakeSpotLitSpecular(location, target, falloffExponent,
                                                       cutoffAngle, lightColor, surfaceScale,
                                                       ks, shininess, std::move(input), &r);

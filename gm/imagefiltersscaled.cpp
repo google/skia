@@ -37,7 +37,7 @@
 static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     SkScalar x = SkIntToScalar(width / 2);
     SkScalar y = SkIntToScalar(height / 2);
-    SkScalar radius = SkMinScalar(x, y) * 4 / 5;
+    SkScalar radius = std::min(x, y) * 4 / 5;
     sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(width, height));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0x00000000);
@@ -83,10 +83,6 @@ protected:
         sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
         sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
 
-        SkPaint noisePaint;
-        noisePaint.setShader(SkPerlinNoiseShader::MakeFractalNoise(SkDoubleToScalar(0.1),
-                                                                   SkDoubleToScalar(0.05), 1, 0));
-
         SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
         SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10),
                                                SkIntToScalar(-10),
@@ -109,7 +105,8 @@ protected:
             SkImageFilters::Erode(1, 1, checkerboard),
             SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
             SkImageFilters::MatrixTransform(resizeMatrix, kNone_SkFilterQuality, nullptr),
-            SkImageFilters::Paint(noisePaint),
+            SkImageFilters::Shader(SkPerlinNoiseShader::MakeFractalNoise(
+                    SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
             SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
             SkImageFilters::SpotLitDiffuse(spotLocation, spotTarget, spotExponent,
                                            cutoffAngle, white, surfaceScale, kd, nullptr),
@@ -156,10 +153,10 @@ protected:
 private:
     sk_sp<SkImage> fCheckerboard, fGradientCircle;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new ImageFiltersScaledGM;)
-}
+}  // namespace skiagm

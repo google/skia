@@ -151,7 +151,7 @@ public:
         this->validate();
     }
 
-    int count() const { return SkTMax(fCount ,0); }
+    int count() const { return std::max(fCount ,0); }
     bool isEmpty() const { this->validate(); return 0 == fCount || -1 == fCount; }
 
     bool operator== (const SkTLList& list) const {
@@ -177,7 +177,7 @@ public:
     /** The iterator becomes invalid if the element it refers to is removed from the list. */
     class Iter : private NodeList::Iter {
     private:
-        typedef typename NodeList::Iter INHERITED;
+        using INHERITED = typename NodeList::Iter;
 
     public:
         typedef typename INHERITED::IterStart IterStart;
@@ -187,6 +187,8 @@ public:
         static const IterStart kTail_IterStart = INHERITED::kTail_IterStart;
 
         Iter() {}
+        Iter(const Iter& that) : INHERITED(that) {}
+        Iter& operator=(const Iter& that) { INHERITED::operator=(that); return *this; }
 
         Iter(const SkTLList& list, IterStart start = kHead_IterStart) {
             INHERITED::init(list.fList, start);
@@ -201,8 +203,6 @@ public:
         T* next() { return this->nodeToObj(INHERITED::next()); }
 
         T* prev() { return this->nodeToObj(INHERITED::prev()); }
-
-        Iter& operator= (const Iter& iter) { INHERITED::operator=(iter); return *this; }
 
     private:
         friend class SkTLList;

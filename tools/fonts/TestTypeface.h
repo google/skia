@@ -47,7 +47,7 @@ struct SkTestFontData {
 class SkTestFont : public SkRefCnt {
 public:
     SkTestFont(const SkTestFontData&);
-    virtual ~SkTestFont();
+    ~SkTestFont() override;
     SkGlyphID glyphForUnichar(SkUnichar charCode) const;
     void      init(const SkScalar* pts, const unsigned char* verbs);
 
@@ -57,9 +57,9 @@ private:
     const SkFixed*       fWidths;
     const SkFontMetrics& fMetrics;
     const char*          fName;
-    SkPath**             fPaths;
+    SkPath*              fPaths;
     friend class TestTypeface;
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 class TestTypeface : public SkTypeface {
@@ -67,13 +67,13 @@ public:
     TestTypeface(sk_sp<SkTestFont>, const SkFontStyle& style);
     void getAdvance(SkGlyph* glyph);
     void getFontMetrics(SkFontMetrics* metrics);
-    void getPath(SkGlyphID glyph, SkPath* path);
+    SkPath getPath(SkGlyphID glyph);
 
 protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor* desc) const override;
-    void             onFilterRec(SkScalerContextRec* rec) const override;
-    void             getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
+    void onFilterRec(SkScalerContextRec* rec) const override;
+    void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
 
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
@@ -92,7 +92,8 @@ protected:
 
     int onGetUPEM() const override { return 2048; }
 
-    void                          onGetFamilyName(SkString* familyName) const override;
+    void onGetFamilyName(SkString* familyName) const override;
+    bool onGetPostScriptName(SkString*) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],

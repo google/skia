@@ -1,0 +1,7 @@
+struct S {
+    const float a;
+    uniform int b;
+    flat half4 c;
+    noperspective float4 d;
+    inout volatile restrict varying buffer coherent bool e;
+};

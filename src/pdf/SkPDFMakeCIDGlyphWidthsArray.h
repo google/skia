@@ -9,7 +9,6 @@
 
 #include "src/pdf/SkPDFTypes.h"
 
-class SkStrike;
 class SkPDFGlyphUse;
 class SkTypeface;
 

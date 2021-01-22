@@ -64,6 +64,19 @@
       "GetStringi",
     ]
   },
+  {
+    "GL":    [{"min_version": [4, 2], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+    "WebGL": null,
+
+    "functions": [
+      "MemoryBarrier",
+    ],
+    // TODO: Remove 'optional' once Chrome sets this function in the interface.
+    "optional": [
+      "MemoryBarrier",
+    ]
+  },
 
   {
     "GL":    [{"ext": "<core>"}],
@@ -77,6 +90,18 @@
     // creates an alias called genVertexArray which papers over this difference.
     "functions": [
       "BindVertexArray", "DeleteVertexArrays", "GenVertexArrays",
+    ],
+  },
+
+  {
+    "GL":    [{"min_version": [4, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_tessellation_shader"}],
+    "GLES":  [{"min_version": [3, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_tessellation_shader"}],
+    "WebGL": null,
+
+    "functions": [
+      "PatchParameteri",
     ],
   },
 
@@ -139,6 +164,19 @@
       "DrawArraysInstanced", "DrawElementsInstanced",
     ]
   },
+
+  {
+    "GL":    [{"min_version": [4, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_base_instance"}],
+    "GLES":  [{"ext": "GL_EXT_base_instance"},
+              {/*    else if      */  "ext": "GL_ANGLE_base_vertex_base_instance"}],
+    "WebGL": [{"ext": "GL_WEBGL_draw_instanced_base_vertex_base_instance"}],
+
+    "functions": [
+      "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseVertexBaseInstance"
+    ]
+  },
+
   { // ES 3.0 has glDrawBuffers but not glDrawBuffer
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
@@ -157,6 +195,16 @@
 
     "functions": [
       "DrawArraysIndirect", "DrawElementsIndirect",
+    ]
+  },
+
+  {
+    "GL":    null,
+    "GLES":  [{"ext": "GL_ANGLE_base_vertex_base_instance"}],
+    "WebGL": [{"ext": "GL_WEBGL_multi_draw_instanced_base_vertex_base_instance"}],
+
+    "functions": [
+      "MultiDrawArraysInstancedBaseInstance", "MultiDrawElementsInstancedBaseVertexBaseInstance",
     ]
   },
 
@@ -270,6 +318,11 @@
     "WebGL": null,
 
     "functions": [
+      "StartTiling", "EndTiling",
+    ],
+    // https://github.com/flutter/flutter/issues/47164
+    // https://github.com/flutter/flutter/issues/47804
+    "optional": [
       "StartTiling", "EndTiling",
     ]
   },
@@ -689,4 +742,13 @@
     ],
   },
 
+  {
+    "GL":    [{"ext": "GL_NV_fence"}],
+    "GLES":  [{"ext": "GL_NV_fence"}],
+    "WebGL": null,
+
+    "functions": [
+      "DeleteFences", "FinishFence", "GenFences", "SetFence", "TestFence",
+    ],
+  }
 ]

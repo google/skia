@@ -10,78 +10,29 @@
 #ifndef SkCamera_DEFINED
 #define SkCamera_DEFINED
 
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/private/SkNoncopyable.h"
 
+// NOTE -- This entire header / impl is deprecated, and will be removed from Skia soon.
+//
+// Skia now has support for a 4x matrix (SkM44) in SkCanvas.
+//
+
 class SkCanvas;
 
-struct SkUnit3D {
-    SkScalar fX, fY, fZ;
-
-    void set(SkScalar x, SkScalar y, SkScalar z) {
-        fX = x; fY = y; fZ = z;
-    }
-    static SkScalar Dot(const SkUnit3D&, const SkUnit3D&);
-    static void Cross(const SkUnit3D&, const SkUnit3D&, SkUnit3D* cross);
-};
-
-struct SkPoint3D {
-    SkScalar    fX, fY, fZ;
-
-    void set(SkScalar x, SkScalar y, SkScalar z) {
-        fX = x; fY = y; fZ = z;
-    }
-    SkScalar    normalize(SkUnit3D*) const;
-};
-typedef SkPoint3D SkVector3D;
-
-struct SkMatrix3D {
-    SkScalar    fMat[3][4];
-
-    void reset();
-
-    void setRow(int row, SkScalar a, SkScalar b, SkScalar c, SkScalar d = 0) {
-        SkASSERT((unsigned)row < 3);
-        fMat[row][0] = a;
-        fMat[row][1] = b;
-        fMat[row][2] = c;
-        fMat[row][3] = d;
-    }
-
-    void setRotateX(SkScalar deg);
-    void setRotateY(SkScalar deg);
-    void setRotateZ(SkScalar deg);
-    void setTranslate(SkScalar x, SkScalar y, SkScalar z);
-
-    void preRotateX(SkScalar deg);
-    void preRotateY(SkScalar deg);
-    void preRotateZ(SkScalar deg);
-    void preTranslate(SkScalar x, SkScalar y, SkScalar z);
-
-    void setConcat(const SkMatrix3D& a, const SkMatrix3D& b);
-    void mapPoint(const SkPoint3D& src, SkPoint3D* dst) const;
-    void mapVector(const SkVector3D& src, SkVector3D* dst) const;
-
-    void mapPoint(SkPoint3D* v) const {
-        this->mapPoint(*v, v);
-    }
-
-    void mapVector(SkVector3D* v) const {
-        this->mapVector(*v, v);
-    }
-};
-
+// DEPRECATED
 class SkPatch3D {
 public:
     SkPatch3D();
 
     void    reset();
-    void    transform(const SkMatrix3D&, SkPatch3D* dst = nullptr) const;
+    void    transform(const SkM44&, SkPatch3D* dst = nullptr) const;
 
     // dot a unit vector with the patch's normal
     SkScalar dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const;
-    SkScalar dotWith(const SkVector3D& v) const {
-        return this->dotWith(v.fX, v.fY, v.fZ);
+    SkScalar dotWith(const SkV3& v) const {
+        return this->dotWith(v.x, v.y, v.z);
     }
 
     // deprecated, but still here for animator (for now)
@@ -90,12 +41,13 @@ public:
 
 private:
 public: // make public for SkDraw3D for now
-    SkVector3D  fU, fV;
-    SkPoint3D   fOrigin;
+    SkV3  fU, fV;
+    SkV3  fOrigin;
 
     friend class SkCamera3D;
 };
 
+// DEPRECATED
 class SkCamera3D {
 public:
     SkCamera3D();
@@ -104,10 +56,10 @@ public:
     void update();
     void patchToMatrix(const SkPatch3D&, SkMatrix* matrix) const;
 
-    SkPoint3D   fLocation;   // origin of the camera's space
-    SkPoint3D   fAxis;       // view direction
-    SkPoint3D   fZenith;     // up direction
-    SkPoint3D   fObserver;   // eye position (may not be the same as the origin)
+    SkV3   fLocation;   // origin of the camera's space
+    SkV3   fAxis;       // view direction
+    SkV3   fZenith;     // up direction
+    SkV3   fObserver;   // eye position (may not be the same as the origin)
 
 private:
     mutable SkMatrix    fOrientation;
@@ -116,6 +68,7 @@ private:
     void doUpdate() const;
 };
 
+// DEPRECATED
 class SK_API Sk3DView : SkNoncopyable {
 public:
     Sk3DView();
@@ -143,8 +96,8 @@ public:
 
 private:
     struct Rec {
-        Rec*        fNext;
-        SkMatrix3D  fMatrix;
+        Rec*    fNext;
+        SkM44   fMatrix;
     };
     Rec*        fRec;
     Rec         fInitialRec;

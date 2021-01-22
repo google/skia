@@ -17,7 +17,7 @@
 #endif
 #include "src/codec/SkIcoCodec.h"
 #include "src/codec/SkJpegCodec.h"
-#ifdef SK_HAS_PNG_LIBRARY
+#ifdef SK_CODEC_DECODES_PNG
 #include "src/codec/SkPngCodec.h"
 #endif
 #include "include/core/SkStream.h"
@@ -37,10 +37,10 @@ struct DecoderProc {
 
 static std::vector<DecoderProc>* decoders() {
     static auto* decoders = new std::vector<DecoderProc> {
-    #ifdef SK_HAS_JPEG_LIBRARY
+    #ifdef SK_CODEC_DECODES_JPEG
         { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
     #endif
-    #ifdef SK_HAS_WEBP_LIBRARY
+    #ifdef SK_CODEC_DECODES_WEBP
         { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
     #endif
     #ifdef SK_HAS_WUFFS_LIBRARY
@@ -48,7 +48,7 @@ static std::vector<DecoderProc>* decoders() {
     #elif defined(SK_USE_LIBGIFCODEC)
         { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
     #endif
-    #ifdef SK_HAS_PNG_LIBRARY
+    #ifdef SK_CODEC_DECODES_PNG
         { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
     #endif
         { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
@@ -112,7 +112,7 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
 
     // PNG is special, since we want to be able to supply an SkPngChunkReader.
     // But this code follows the same pattern as the loop.
-#ifdef SK_HAS_PNG_LIBRARY
+#ifdef SK_CODEC_DECODES_PNG
     if (SkPngCodec::IsPng(buffer, bytesRead)) {
         return SkPngCodec::MakeFromStream(std::move(stream), outResult, chunkReader);
     } else
@@ -125,8 +125,10 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
         }
 
 #ifdef SK_HAS_HEIF_LIBRARY
-        if (SkHeifCodec::IsHeif(buffer, bytesRead)) {
-            return SkHeifCodec::MakeFromStream(std::move(stream), selectionPolicy, outResult);
+        SkEncodedImageFormat format;
+        if (SkHeifCodec::IsSupported(buffer, bytesRead, &format)) {
+            return SkHeifCodec::MakeFromStream(std::move(stream), selectionPolicy,
+                    format, outResult);
         }
 #endif
 
@@ -167,6 +169,25 @@ SkCodec::SkCodec(SkEncodedInfo&& info, XformFormat srcFormat, std::unique_ptr<Sk
 
 SkCodec::~SkCodec() {}
 
+bool SkCodec::queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
+                            SkYUVAPixmapInfo* yuvaPixmapInfo) const {
+    if (!yuvaPixmapInfo) {
+        return false;
+    }
+    return this->onQueryYUVAInfo(supportedDataTypes, yuvaPixmapInfo) &&
+           yuvaPixmapInfo->isSupported(supportedDataTypes);
+}
+
+SkCodec::Result SkCodec::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
+    if (!yuvaPixmaps.isValid()) {
+        return kInvalidInput;
+    }
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
+    }
+    return this->onGetYUVAPlanes(yuvaPixmaps);
+}
+
 bool SkCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque, bool needsColorXform) {
     if (!valid_alpha(dst.alphaType(), srcIsOpaque)) {
         return false;
@@ -175,9 +196,8 @@ bool SkCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque, bool
     switch (dst.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            return true;
         case kRGBA_F16_SkColorType:
-            return dst.colorSpace();
+            return true;
         case kRGB_565_SkColorType:
             return srcIsOpaque;
         case kGray_8_SkColorType:
@@ -331,13 +351,8 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         ? kSuccess : kInvalidConversion;
 }
 
-SkCodec::Result SkCodec::getPixels(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
+SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                    const Options* options) {
-    SkImageInfo info = dstInfo;
-    if (!info.colorSpace()) {
-        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
-    }
-
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
@@ -406,14 +421,10 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& dstInfo, void* pixels, siz
     return result;
 }
 
-SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& dstInfo, void* pixels,
+SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* pixels,
         size_t rowBytes, const SkCodec::Options* options) {
     fStartedIncrementalDecode = false;
 
-    SkImageInfo info = dstInfo;
-    if (!info.colorSpace()) {
-        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
-    }
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
@@ -479,15 +490,10 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& dstInfo, void
 }
 
 
-SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo,
+SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& info,
         const SkCodec::Options* options) {
     // Reset fCurrScanline in case of failure.
     fCurrScanline = -1;
-
-    SkImageInfo info = dstInfo;
-    if (!info.colorSpace()) {
-        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
-    }
 
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
@@ -649,11 +655,18 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
                                    bool srcIsOpaque) {
     fXformTime = kNo_XformTime;
     bool needsColorXform = false;
-    if (this->usesColorXform() && dstInfo.colorSpace()) {
-        dstInfo.colorSpace()->toProfile(&fDstProfile);
+    if (this->usesColorXform()) {
         if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
             needsColorXform = true;
-        } else {
+            if (dstInfo.colorSpace()) {
+                dstInfo.colorSpace()->toProfile(&fDstProfile);
+            } else {
+                // Use the srcProfile to avoid conversion.
+                const auto* srcProfile = fEncodedInfo.profile();
+                fDstProfile = srcProfile ? *srcProfile : *skcms_sRGB_profile();
+            }
+        } else if (dstInfo.colorSpace()) {
+            dstInfo.colorSpace()->toProfile(&fDstProfile);
             const auto* srcProfile = fEncodedInfo.profile();
             if (!srcProfile) {
                 srcProfile = skcms_sRGB_profile();

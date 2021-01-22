@@ -49,7 +49,7 @@ private:
     SkAlphaType fAT;
     sk_sp<SkColorSpace> fCS;
     SkString fName;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new ReadPixBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr); )
 DEF_BENCH( return new ReadPixBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr); )
@@ -97,7 +97,7 @@ protected:
 private:
     SkBitmap fSrc, fDst;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new PixmapOrientBench(); )
 
@@ -137,7 +137,7 @@ protected:
 private:
     SkBitmap fBM;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new GetAlphafBench(kN32_SkColorType, "rgba"); )
 DEF_BENCH( return new GetAlphafBench(kRGB_888x_SkColorType, "rgbx"); )

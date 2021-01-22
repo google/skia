@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkRect.h"
+#include "include/private/SkTemplates.h"
 #include "src/utils/SkPolyUtils.h"
 
 class PolyUtilsBench : public Benchmark {
@@ -101,7 +102,7 @@ private:
     SkString           fName;
     Type               fType;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class StarPolyUtilsBench : public PolyUtilsBench {
@@ -127,7 +128,7 @@ public:
         }
     }
 private:
-    typedef PolyUtilsBench INHERITED;
+    using INHERITED = PolyUtilsBench;
 };
 
 class CirclePolyUtilsBench : public PolyUtilsBench {
@@ -150,7 +151,7 @@ public:
         }
     }
 private:
-    typedef PolyUtilsBench INHERITED;
+    using INHERITED = PolyUtilsBench;
 };
 
 class IntersectingPolyUtilsBench : public PolyUtilsBench {
@@ -175,7 +176,7 @@ public:
         }
     }
 private:
-    typedef PolyUtilsBench INHERITED;
+    using INHERITED = PolyUtilsBench;
 };
 
 // familiar videogame character
@@ -201,7 +202,7 @@ public:
         *poly->push() = SkPoint::Make(45, 45);
     }
 private:
-    typedef PolyUtilsBench INHERITED;
+    using INHERITED = PolyUtilsBench;
 };
 
 class IceCreamPolyUtilsBench : public PolyUtilsBench {
@@ -226,7 +227,7 @@ public:
         *poly->push() = SkPoint::Make(90, 0);
     }
 private:
-    typedef PolyUtilsBench INHERITED;
+    using INHERITED = PolyUtilsBench;
 };
 
 DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kConvexCheck);)

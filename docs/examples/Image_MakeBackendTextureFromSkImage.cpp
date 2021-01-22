@@ -3,9 +3,9 @@
 #include "tools/fiddle/examples.h"
 // HASH=06aeb3cf63ffccf7b49fe556e5def351
 REG_FIDDLE(Image_MakeBackendTextureFromSkImage, 256, 64, false, 0) {
-static sk_sp<SkImage> create_gpu_image(GrContext* grContext) {
+static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
     SkPaint paint;
@@ -15,20 +15,20 @@ static sk_sp<SkImage> create_gpu_image(GrContext* grContext) {
 }
 
 void draw(SkCanvas* canvas) {
-    GrContext* grContext = canvas->getGrContext();
-    if (!grContext) {
+    auto dContext = GrAsDirectContext(canvas->recordingContext());
+    if (!dContext) {
         return;
     }
-    sk_sp<SkImage> backEndImage = create_gpu_image(grContext);
+    sk_sp<SkImage> backEndImage = create_gpu_image(dContext);
     canvas->drawImage(backEndImage, 0, 0);
     GrBackendTexture texture;
     SkImage::BackendTextureReleaseProc proc;
-    if (!SkImage::MakeBackendTextureFromSkImage(grContext, std::move(backEndImage),
-            &texture, &proc)) {
+    if (!SkImage::MakeBackendTextureFromSkImage(dContext, std::move(backEndImage),
+                                                &texture, &proc)) {
         return;
     }
-    sk_sp<SkImage> i2 = SkImage::MakeFromTexture(grContext, texture, kTopLeft_GrSurfaceOrigin,
-            kN32_SkColorType, kOpaque_SkAlphaType, nullptr);
+    sk_sp<SkImage> i2 = SkImage::MakeFromTexture(dContext, texture, kTopLeft_GrSurfaceOrigin,
+                                                 kN32_SkColorType, kOpaque_SkAlphaType, nullptr);
     canvas->drawImage(i2, 30, 30);
 }
 }  // END FIDDLE

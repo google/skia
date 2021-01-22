@@ -31,7 +31,7 @@ public:
 private:
     NSView*              fMainView;
 
-    typedef MetalWindowContext INHERITED;
+    using INHERITED = MetalWindowContext;
 };
 
 MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info,
@@ -64,6 +64,9 @@ bool MetalWindowContext_mac::onInitializeContext() {
     fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
     fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
     fMetalLayer.contentsGravity = kCAGravityTopLeft;
+    fMetalLayer.magnificationFilter = kCAFilterNearest;
+    NSColorSpace* cs = fMainView.window.colorSpace;
+    fMetalLayer.colorspace = cs.CGColorSpace;
 
     fMainView.layer = fMetalLayer;
     fMainView.wantsLayer = YES;

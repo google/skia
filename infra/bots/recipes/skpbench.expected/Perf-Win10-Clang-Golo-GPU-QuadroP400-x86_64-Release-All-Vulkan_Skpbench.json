@@ -75,6 +75,8 @@
       "[START_DIR]\\[SWARM_OUT_DIR]\\table",
       "--config",
       "vk",
+      "--internalSamples",
+      "8",
       "-v5",
       "[START_DIR]\\skp"
     ],

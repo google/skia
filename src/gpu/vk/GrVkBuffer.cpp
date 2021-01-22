@@ -37,6 +37,9 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
         case kIndex_Type:
             bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
             break;
+        case kIndirect_Type:
+            bufInfo.usage = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+            break;
         case kUniform_Type:
             bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
             break;
@@ -71,7 +74,7 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
         return nullptr;
     }
 
-    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(buffer, alloc, desc.fType);
+    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(gpu, buffer, alloc, desc.fType);
     if (!resource) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
         GrVkMemory::FreeBufferMemory(gpu, desc.fType, alloc);
@@ -104,26 +107,25 @@ void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
                                 &bufferMemoryBarrier);
 }
 
-void GrVkBuffer::Resource::freeGPUData(GrVkGpu* gpu) const {
+void GrVkBuffer::Resource::freeGPUData() const {
     SkASSERT(fBuffer);
     SkASSERT(fAlloc.fMemory);
-    VK_CALL(gpu, DestroyBuffer(gpu->device(), fBuffer, nullptr));
-    GrVkMemory::FreeBufferMemory(gpu, fType, fAlloc);
+    VK_CALL(fGpu, DestroyBuffer(fGpu->device(), fBuffer, nullptr));
+    GrVkMemory::FreeBufferMemory(fGpu, fType, fAlloc);
 }
 
-void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
+void GrVkBuffer::vkRelease(GrVkGpu* gpu) {
     VALIDATE();
-    fResource->recycle(const_cast<GrVkGpu*>(gpu));
-    fResource = nullptr;
-    if (!fDesc.fDynamic) {
-        delete[] (unsigned char*)fMapPtr;
+    if (this->vkIsMapped()) {
+        // Only unmap resources that are not backed by a CPU buffer. Otherwise we may end up
+        // creating a new transfer buffer resources that sends us into a spiral of creating and
+        // destroying resources if we are at our budget limit. Also there really isn't a need to
+        // upload the CPU data if we are deleting this buffer.
+        if (fDesc.fDynamic) {
+            this->vkUnmap(gpu);
+        }
     }
-    fMapPtr = nullptr;
-    VALIDATE();
-}
-
-void GrVkBuffer::vkAbandon() {
-    fResource->unrefAndAbandon();
+    fResource->recycle();
     fResource = nullptr;
     if (!fDesc.fDynamic) {
         delete[] (unsigned char*)fMapPtr;
@@ -153,7 +155,7 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
     if (!fResource->unique()) {
         if (fDesc.fDynamic) {
             // in use by the command buffer, so we need to create a new one
-            fResource->recycle(gpu);
+            fResource->recycle();
             fResource = this->createResource(gpu, fDesc);
             if (createdNewBuffer) {
                 *createdNewBuffer = true;
@@ -262,7 +264,8 @@ bool GrVkBuffer::vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInByt
 }
 
 void GrVkBuffer::validate() const {
-    SkASSERT(!fResource || kVertex_Type == fDesc.fType || kIndex_Type == fDesc.fType
-             || kTexel_Type == fDesc.fType || kCopyRead_Type == fDesc.fType
-             || kCopyWrite_Type == fDesc.fType || kUniform_Type == fDesc.fType);
+    SkASSERT(!fResource || kVertex_Type == fDesc.fType || kIndex_Type == fDesc.fType ||
+             kIndirect_Type == fDesc.fType || kTexel_Type == fDesc.fType ||
+             kCopyRead_Type == fDesc.fType || kCopyWrite_Type == fDesc.fType ||
+             kUniform_Type == fDesc.fType);
 }

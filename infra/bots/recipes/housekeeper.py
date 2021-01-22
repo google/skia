@@ -12,7 +12,6 @@ import calendar
 DEPS = [
   'checkout',
   'doxygen',
-  'flavor',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -27,7 +26,6 @@ def RunSteps(api):
   checkout_root = api.checkout.default_checkout_root
   api.checkout.bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
   # TODO(borenet): Detect static initializers?
 

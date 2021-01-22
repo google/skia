@@ -27,7 +27,7 @@ private:
                                  fStopT;
     const SkTrimPathEffect::Mode fMode;
 
-    typedef SkPathEffect INHERITED;
+    using INHERITED = SkPathEffect;
 };
 
 #endif

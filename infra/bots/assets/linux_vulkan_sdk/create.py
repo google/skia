@@ -15,7 +15,7 @@ import subprocess
 import sys
 import utils
 
-SDK_VERSION='1.1.97.0'
+SDK_VERSION='1.2.141.0'
 SDK_URL=('https://sdk.lunarg.com/sdk/download/%s/linux/'
          'vulkansdk-linux-x86_64-%s.tar.gz' % (SDK_VERSION, SDK_VERSION))
 

@@ -170,10 +170,10 @@ private:
     static constexpr int kWidth = 1000;
     static constexpr int kHeight = 1200;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new TextBlobTransforms;)
-}
+}  // namespace skiagm

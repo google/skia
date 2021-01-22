@@ -14,6 +14,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -44,7 +45,7 @@ static void test4(SkCanvas* canvas) {
         0, 1, 1, 1, 4,
         0, 1, 1, 1, 4
     };
-    SkPath path;
+    SkPathBuilder path;
     SkPoint* ptPtr = pts;
     for (size_t i = 0; i < sizeof(verbs); ++i) {
         switch ((SkPath::Verb) verbs[i]) {
@@ -66,7 +67,7 @@ static void test4(SkCanvas* canvas) {
     }
     SkRect clip = {0, 130, 772, 531};
     canvas->clipRect(clip);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 
 constexpr SkBlendMode gModes[] = {
@@ -121,7 +122,7 @@ static sk_sp<SkShader> make_bg_shader() {
     *bm.getAddr32(1, 0) = *bm.getAddr32(0, 1) = SkPackARGB32(0xFF, 0xCE,
                                                              0xCF, 0xCE);
 
-    const SkMatrix m = SkMatrix::MakeScale(SkIntToScalar(6), SkIntToScalar(6));
+    const SkMatrix m = SkMatrix::Scale(SkIntToScalar(6), SkIntToScalar(6));
     return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
 }
 

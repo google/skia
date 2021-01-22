@@ -25,6 +25,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
@@ -39,7 +40,6 @@
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 
@@ -83,11 +83,6 @@ public:
     bool generateCode() override;
 
 protected:
-    enum class SwizzleOrder {
-        MASK_FIRST,
-        CONSTANTS_FIRST
-    };
-
     void write(const char* s);
 
     void writeLine();
@@ -118,6 +113,8 @@ protected:
 
     void writeFunctionDeclaration(const FunctionDeclaration& f);
 
+    void writeFunctionPrototype(const FunctionPrototype& f);
+
     virtual void writeFunction(const FunctionDefinition& f);
 
     void writeLayout(const Layout& layout);
@@ -132,7 +129,7 @@ protected:
 
     void writeTypePrecision(const Type& type);
 
-    void writeVarDeclarations(const VarDeclarations& decl, bool global);
+    void writeVarDeclaration(const VarDeclaration& var, bool global);
 
     void writeFragCoord();
 
@@ -158,15 +155,6 @@ protected:
 
     virtual void writeFieldAccess(const FieldAccess& f);
 
-    void writeConstantSwizzle(const Swizzle& swizzle, const String& constants);
-
-    void writeSwizzleMask(const Swizzle& swizzle, const String& mask);
-
-    void writeSwizzleConstructor(const Swizzle& swizzle, const String& constants,
-                                 const String& mask, SwizzleOrder order);
-
-    void writeSwizzleConstructor(const Swizzle& swizzle, const String& constants,
-                                 const String& mask, const String& reswizzle);
     virtual void writeSwizzle(const Swizzle& swizzle);
 
     static Precedence GetBinaryPrecedence(Token::Kind op);
@@ -192,8 +180,6 @@ protected:
     virtual void writeSetting(const Setting& s);
 
     void writeStatement(const Statement& s);
-
-    void writeStatements(const std::vector<std::unique_ptr<Statement>>& statements);
 
     void writeBlock(const Block& b);
 
@@ -258,9 +244,9 @@ protected:
     };
     static std::unordered_map<StringFragment, FunctionClass>* fFunctionClasses;
 
-    typedef CodeGenerator INHERITED;
+    using INHERITED = CodeGenerator;
 };
 
-}
+}  // namespace SkSL
 
 #endif

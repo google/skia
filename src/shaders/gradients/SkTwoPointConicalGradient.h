@@ -69,6 +69,9 @@ protected:
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
+    skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
+                         skvm::Coord coord, skvm::I32* mask) const final;
+
 private:
     SK_FLATTENABLE_HOOKS(SkTwoPointConicalGradient)
 
@@ -85,7 +88,7 @@ private:
     FocalData fFocalData;
 
     friend class SkGradientShader;
-    typedef SkGradientShaderBase INHERITED;
+    using INHERITED = SkGradientShaderBase;
 };
 
 #endif

@@ -32,167 +32,104 @@ struct SkRect;
  */
 class GrTextureProducer : public SkNoncopyable {
 public:
-    struct CopyParams {
-        GrSamplerState::Filter fFilter;
-        SkISize fDimensions;
-    };
-
-    enum FilterConstraint {
-        kYes_FilterConstraint,
-        kNo_FilterConstraint,
-    };
+    virtual ~GrTextureProducer() = default;
 
     /**
      * Helper for creating a fragment processor to sample the texture with a given filtering mode.
-     * It attempts to avoid making texture copies or using domains whenever possible.
+     * Attempts to avoid unnecessary copies (e.g. for planar sources or subsets) by generating more
+     * complex shader code.
      *
      * @param textureMatrix                    Matrix used to access the texture. It is applied to
      *                                         the local coords. The post-transformed coords should
      *                                         be in texel units (rather than normalized) with
      *                                         respect to this Producer's bounds (width()/height()).
-     * @param constraintRect                   A rect that represents the area of the texture to be
-     *                                         sampled. It must be contained in the Producer's
-     *                                         bounds as defined by width()/height().
-     * @param filterConstriant                 Indicates whether filtering is limited to
-     *                                         constraintRect.
-     * @param coordsLimitedToConstraintRect    Is it known that textureMatrix*localCoords is bound
-     *                                         by the portion of the texture indicated by
-     *                                         constraintRect (without consideration of filter
-     *                                         width, just the raw coords).
-     * @param filterOrNullForBicubic           If non-null indicates the filter mode. If null means
-     *                                         use bicubic filtering.
+     * @param subset                           If not null, a subset of the texture to restrict
+     *                                         sampling to. The wrap modes apply to this subset.
+     * @param domain                           If not null, a known limit on the texture coordinates
+     *                                         that will be accessed. Applies after textureMatrix.
+     * @param sampler                          Sampler state. Wrap modes applies to subset if not
+     *                                         null, otherwise to the entire source.
      **/
     virtual std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,
-            const SkRect& constraintRect,
-            FilterConstraint filterConstraint,
-            bool coordsLimitedToConstraintRect,
-            const GrSamplerState::Filter* filterOrNullForBicubic) = 0;
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState sampler) = 0;
 
     /**
-     *  Returns a texture that is safe for use with the params.
+     * Similar createFragmentProcessor but produces a fragment processor that does bicubic
+     * interpolation of the source. Attempts to avoid unnecessary copies (e.g. for planar sources or
+     * subsets) by generating more complex shader code.
      *
-     * If the size of the returned texture does not match width()/height() then the contents of the
-     * original may have been scaled to fit the texture or the original may have been copied into
-     * a subrect of the copy. 'scaleAdjust' must be  applied to the normalized texture coordinates
-     * in order to correct for the latter case.
-     *
-     * If the GrSamplerState is known to clamp and use kNearest or kBilerp filter mode then the
-     * proxy will always be unscaled and nullptr can be passed for scaleAdjust. There is a weird
-     * contract that if scaleAdjust is not null it must be initialized to {1, 1} before calling
-     * this method. (TODO: Fix this and make this function always initialize scaleAdjust).
+     * @param textureMatrix                    Matrix used to access the texture. It is applied to
+     *                                         the local coords. The post-transformed coords should
+     *                                         be in texel units (rather than normalized) with
+     *                                         respect to this Producer's bounds (width()/height()).
+     * @param subset                           If not null, a subset of the texture to restrict
+     *                                         sampling to. The wrap modes apply to this subset.
+     * @param domain                           If not null, a known limit on the texture coordinates
+     *                                         that will be accessed. Applies after textureMatrix.
+     * @param wrapX                            Wrap mode on x axis. Applied to subset if not null,
+     *                                         otherwise to the entire source.
+     * @param wrapY                            Wrap mode on y axis. Applied to subset if not null,
+     *                                         otherwise to the entire source.
      */
-    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
-                                                   SkScalar scaleAdjust[2]);
-
-    sk_sp<GrTextureProxy> refTextureProxyForParams(
-            const GrSamplerState::Filter* filterOrNullForBicubic, SkScalar scaleAdjust[2]);
+    virtual std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
+            SkImage::CubicResampler kernel) = 0;
 
     /**
-     * Returns a texture. If willNeedMips is true then the returned texture is guaranteed to have
-     * allocated mip map levels. This can be a performance win if future draws with the texture
-     * require mip maps.
+     * Returns a texture view, possibly with MIP maps. The request for MIP maps may not be honored
+     * base on caps, format, and whether the texture is 1x1. A non-MIP mapped request may still
+     * receive a MIP mapped texture (if that is what is available in the cache).
      */
-    // TODO: Once we remove support for npot textures, we should add a flag for must support repeat
-    // wrap mode. To support that flag now would require us to support scaleAdjust array like in
-    // refTextureProxyForParams, however the current public API that uses this call does not expose
-    // that array.
-    sk_sp<GrTextureProxy> refTextureProxy(GrMipMapped willNeedMips);
-
-    virtual ~GrTextureProducer() {}
+    GrSurfaceProxyView view(GrMipmapped);
 
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkISize dimensions() const { return fImageInfo.dimensions(); }
-    const GrColorInfo& colorInfo() const { return fImageInfo.colorInfo(); }
     GrColorType colorType() const { return fImageInfo.colorType(); }
     SkAlphaType alphaType() const { return fImageInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fImageInfo.colorType()); }
-    bool domainNeedsDecal() const { return fDomainNeedsDecal; }
-    // If the "texture" samples multiple images that have different resolutions (e.g. YUV420)
-    virtual bool hasMixedResolutions() const { return false; }
+    /* Is it a planar image consisting of multiple textures that may have different resolutions? */
+    virtual bool isPlanar() const { return false; }
 
 protected:
-    friend class GrTextureProducer_TestAccess;
+    GrTextureProducer(GrRecordingContext* context, const GrImageInfo& imageInfo)
+            : fContext(context), fImageInfo(imageInfo) {}
 
-    GrTextureProducer(GrRecordingContext* context,
-                      const GrImageInfo& imageInfo,
-                      bool domainNeedsDecal)
-            : fContext(context), fImageInfo(imageInfo), fDomainNeedsDecal(domainNeedsDecal) {}
-
-    /** Helper for creating a key for a copy from an original key. */
-    static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,
-                                       const CopyParams& copyParams,
-                                       GrUniqueKey* copyKey) {
-        SkASSERT(!copyKey->isValid());
-        if (origKey.isValid()) {
-            static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-            GrUniqueKey::Builder builder(copyKey, origKey, kDomain, 3);
-            builder[0] = static_cast<uint32_t>(copyParams.fFilter);
-            builder[1] = copyParams.fDimensions.width();
-            builder[2] = copyParams.fDimensions.height();
-        }
-    }
-
-    /**
-    *  If we need to make a copy in order to be compatible with GrTextureParams producer is asked to
-    *  return a key that identifies its original content + the CopyParms parameter. If the producer
-    *  does not want to cache the stretched version (e.g. the producer is volatile), this should
-    *  simply return without initializing the copyKey. If the texture generated by this producer
-    *  depends on the destination color space, then that information should also be incorporated
-    *  in the key.
-    */
-    virtual void makeCopyKey(const CopyParams&, GrUniqueKey* copyKey) = 0;
-
-    /**
-    *  If a stretched version of the texture is generated, it may be cached (assuming that
-    *  makeCopyKey() returns true). In that case, the maker is notified in case it
-    *  wants to note that for when the maker is destroyed.
-    */
-    virtual void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) = 0;
-
-    enum DomainMode {
-        kNoDomain_DomainMode,
-        kDomain_DomainMode,
-        kTightCopy_DomainMode
-    };
-
-    // This can draw to accomplish the copy, thus the recording context is needed
-    static sk_sp<GrTextureProxy> CopyOnGpu(GrRecordingContext*,
-                                           sk_sp<GrTextureProxy> inputProxy,
-                                           GrColorType,
-                                           const CopyParams& copyParams,
-                                           bool dstWillRequireMipMaps);
-
-    static DomainMode DetermineDomainMode(const SkRect& constraintRect,
-                                          FilterConstraint filterConstraint,
-                                          bool coordsLimitedToConstraintRect,
-                                          GrTextureProxy*,
-                                          const GrSamplerState::Filter* filterModeOrNullForBicubic,
-                                          SkRect* domainRect);
-
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForDomainAndFilter(
-            sk_sp<GrTextureProxy> proxy,
+    // Helper for making a texture effect from a single proxy view.
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForView(
+            GrSurfaceProxyView view,
             const SkMatrix& textureMatrix,
-            DomainMode,
-            const SkRect& domain,
-            const GrSamplerState::Filter* filterOrNullForBicubic);
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState sampler);
+
+    // Helper for making a bicubic effect from a single proxy view.
+    std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessorForView(
+            GrSurfaceProxyView view,
+            const SkMatrix& textureMatrix,
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState::WrapMode wrapX,
+            GrSamplerState::WrapMode wrapY,
+            SkImage::CubicResampler kernel);
 
     GrRecordingContext* context() const { return fContext; }
 
 private:
-    virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
-                                                             bool willBeMipped,
-                                                             SkScalar scaleAdjust[2]) = 0;
+    virtual GrSurfaceProxyView onView(GrMipmapped) = 0;
 
     GrRecordingContext* fContext;
     const GrImageInfo fImageInfo;
-    // If true, any domain effect uses kDecal instead of kClamp, and sampler filter uses
-    // kClampToBorder instead of kClamp.
-    const bool  fDomainNeedsDecal;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif

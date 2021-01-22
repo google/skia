@@ -22,11 +22,9 @@
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -66,6 +64,16 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     skif::Mapping mapping(SkMatrix::I(), ctm);
     if (kReverse_MapDirection == direction) {
         skif::LayerSpace<SkIRect> targetOutput(src);
+        if (as_IFB(this)->cropRectIsSet()) {
+           skif::LayerSpace<SkIRect> outputCrop = mapping.paramToLayer(
+                    skif::ParameterSpace<SkRect>(as_IFB(this)->getCropRect().rect())).roundOut();
+            // Just intersect directly; unlike the forward-mapping case, since we start with the
+            // external target output, there's no need to embiggen due to affecting trans. black
+            if (!targetOutput.intersect(outputCrop)) {
+                // Nothing would be output by the filter, so return empty rect
+                return SkIRect::MakeEmpty();
+            }
+        }
         skif::LayerSpace<SkIRect> content(inputRect ? *inputRect : src);
         return SkIRect(as_IFB(this)->onGetInputLayerBounds(mapping, targetOutput, content));
     } else {
@@ -114,7 +122,7 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     if (!this->isColorFilterNode(filterPtr)) {
         return false;
     }
-    if (nullptr != this->getInput(0) || (*filterPtr)->affectsTransparentBlack()) {
+    if (nullptr != this->getInput(0) || as_CFB(*filterPtr)->affectsTransparentBlack()) {
         (*filterPtr)->unref();
         return false;
     }
@@ -142,7 +150,7 @@ static int32_t next_image_filter_unique_id() {
 
     int32_t id;
     do {
-        id = nextID++;
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id == 0);
     return id;
 }
@@ -175,6 +183,12 @@ bool SkImageFilter_Base::Common::unflatten(SkReadBuffer& buffer, int expectedCou
     if (!buffer.validate(expectedCount < 0 || count == expectedCount)) {
         return false;
     }
+
+#if defined(SK_BUILD_FOR_FUZZER)
+    if (count > 4) {
+        return false;
+    }
+#endif
 
     SkASSERT(fInputs.empty());
     for (int i = 0; i < count; i++) {
@@ -231,14 +245,9 @@ skif::FilterResult<For::kOutput> SkImageFilter_Base::filterImage(const skif::Con
 
     result = this->onFilterImage(context);
 
-#if SK_SUPPORT_GPU
-    if (context.gpuBacked() && result.image() && !result.image()->isTextureBacked()) {
-        // Keep the result on the GPU - this is still required for some
-        // image filters that don't support GPU in all cases
-        auto asTexture = result.image()->makeTextureImage(context.getContext());
-        result = skif::FilterResult<For::kOutput>(std::move(asTexture), result.layerOrigin());
+    if (context.gpuBacked()) {
+        SkASSERT(!result.image() || result.image()->isTextureBacked());
     }
-#endif
 
     if (context.cache()) {
         context.cache()->set(key, this, result);
@@ -248,10 +257,22 @@ skif::FilterResult<For::kOutput> SkImageFilter_Base::filterImage(const skif::Con
 }
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
-        const skif::Mapping& mapping, const skif::DeviceSpace<SkRect>& desiredOutput,
+        const skif::Mapping& mapping, const skif::DeviceSpace<SkIRect>& desiredOutput,
         const skif::ParameterSpace<SkRect>* knownContentBounds) const {
     // Map both the device-space desired coverage area and the known content bounds to layer space
-    skif::LayerSpace<SkIRect> desiredBounds = mapping.deviceToLayer(desiredOutput).roundOut();
+    skif::LayerSpace<SkIRect> desiredBounds = mapping.deviceToLayer(desiredOutput);
+
+    // TODO (michaelludwig) - To be removed once cropping is its own filter, since then an output
+    // crop would automatically adjust the required input of its child filter in this same way.
+    if (this->cropRectIsSet()) {
+        skif::LayerSpace<SkIRect> outputCrop =
+                mapping.paramToLayer(skif::ParameterSpace<SkRect>(fCropRect.rect())).roundOut();
+        if (!desiredBounds.intersect(outputCrop)) {
+            // Nothing would be output by the filter, so return empty rect
+            return skif::LayerSpace<SkIRect>(SkIRect::MakeEmpty());
+        }
+    }
+
     // If we have no known content bounds use the desired coverage area, because that is the most
     // conservative possibility.
     skif::LayerSpace<SkIRect> contentBounds =
@@ -533,7 +554,6 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
 
 template<skif::Usage kU>
 skif::FilterResult<kU> SkImageFilter_Base::filterInput(int index, const skif::Context& ctx) const {
-    // Sanity checks for the index-specific input usages
     SkASSERT(kU != skif::Usage::kInput0 || index == 0);
     SkASSERT(kU != skif::Usage::kInput1 || index == 1);
 
@@ -572,21 +592,13 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                                      const SkColorSpace* colorSpace,
                                                      GrProtected isProtected) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto renderTargetContext =
-            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
-                                                            bounds.width(),
-                                                            bounds.height(),
-                                                            SkColorTypeToGrColorType(colorType),
-                                                            sk_ref_sp(colorSpace),
-                                                            1,
-                                                            GrMipMapped::kNo,
-                                                            kBottomLeft_GrSurfaceOrigin,
-                                                            nullptr,
-                                                            SkBudgeted::kYes,
-                                                            isProtected);
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            context, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
+            SkBackingFit::kApprox, bounds.size(), 1, GrMipmapped::kNo, isProtected,
+            kBottomLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -594,13 +606,12 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
     SkIRect dstIRect = SkIRect::MakeWH(bounds.width(), bounds.height());
     SkRect srcRect = SkRect::Make(bounds);
     SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
-    GrFixedClip clip(dstIRect);
-    renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
-                                        srcRect);
+    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                        dstRect, srcRect);
 
     return SkSpecialImage::MakeDeferredFromGpu(
             context, dstIRect, kNeedNewImageUniqueID_SpecialImage,
-            renderTargetContext->asTextureProxyRef(), renderTargetContext->colorInfo().colorType(),
+            renderTargetContext->readSurfaceView(), renderTargetContext->colorInfo().colorType(),
             renderTargetContext->colorInfo().refColorSpace());
 }
 

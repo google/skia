@@ -17,7 +17,9 @@
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
-    void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
+    void computeScratchKey(const GrCaps& caps, GrScratchKey* key) const {
+        return fProxy->computeScratchKey(caps, key);
+    }
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
     // of the GrSurfaceProxy.
@@ -40,8 +42,8 @@ public:
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
-    GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) {} // unimpl
-    GrSurfaceProxyPriv& operator=(const GrSurfaceProxyPriv&); // unimpl
+    GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) = delete;
+    GrSurfaceProxyPriv& operator=(const GrSurfaceProxyPriv&) = delete;
 
     // No taking addresses of this type.
     const GrSurfaceProxyPriv* operator&() const;
@@ -54,7 +56,7 @@ private:
 
 inline GrSurfaceProxyPriv GrSurfaceProxy::priv() { return GrSurfaceProxyPriv(this); }
 
-inline const GrSurfaceProxyPriv GrSurfaceProxy::priv () const {
+inline const GrSurfaceProxyPriv GrSurfaceProxy::priv () const {  // NOLINT(readability-const-return-type)
     return GrSurfaceProxyPriv(const_cast<GrSurfaceProxy*>(this));
 }
 

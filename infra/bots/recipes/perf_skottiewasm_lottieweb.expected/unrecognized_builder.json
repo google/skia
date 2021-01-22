@@ -37,12 +37,12 @@
       "    return callable_obj(*props, **additional_args)",
       "  File \"RECIPE_REPO[skia]/infra/bots/recipes/perf_skottiewasm_lottieweb.py\", line 128, in RunSteps",
       "    raise Exception('Could not recognize the buildername %s' % buildername)",
-      "Exception: Could not recognize the buildername Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized"
+      "Exception: Could not recognize the buildername Perf-Debian10-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized"
     ]
   },
   {
     "failure": {
-      "humanReason": "Uncaught Exception: Exception('Could not recognize the buildername Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized',)"
+      "humanReason": "Uncaught Exception: Exception('Could not recognize the buildername Perf-Debian10-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized',)"
     },
     "name": "$result"
   }

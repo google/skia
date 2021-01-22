@@ -1,0 +1,211 @@
+[
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "mkdirs out_dir"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "/tmp/lottie_files"
+    ],
+    "infra_step": true,
+    "name": "remove previous lottie files"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copytree",
+      "[START_DIR]/lottie-samples",
+      "/tmp/lottie_files"
+    ],
+    "infra_step": true,
+    "name": "copy lottie files"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "Docker setup"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint '%d:%d' % (os.getuid(), os.getgid())\n"
+    ],
+    "name": "Docker setup.Get uid and gid",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print '%d:%d' % (os.getuid(), os.getgid())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.mkdirs out_dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 777 [START_DIR]/[SWARM_OUT_DIR]",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "755",
+      "[START_DIR]"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 755 [START_DIR]",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "0755",
+      "[START_DIR]/skia/infra/lottiecap/docker/lottiecap_gold.sh"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod 0755 [START_DIR]/skia/infra/lottiecap/docker/lottiecap_gold.sh",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "-R",
+      "a+r",
+      "[START_DIR]/lottie/build/player"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod -R a+r [START_DIR]/lottie/build/player",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "chmod",
+      "-R",
+      "a+r",
+      "/tmp/lottie_files"
+    ],
+    "infra_step": true,
+    "name": "Docker setup.chmod -R a+r /tmp/lottie_files",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "docker",
+      "run",
+      "--shm-size=2gb",
+      "--rm",
+      "--user",
+      "13:17",
+      "--mount",
+      "type=bind,source=[START_DIR],target=/SRC",
+      "--mount",
+      "type=bind,source=[START_DIR]/[SWARM_OUT_DIR],target=/OUT",
+      "--mount",
+      "type=bind,source=[START_DIR]/lottie/build/player,target=/LOTTIE_BUILD",
+      "--mount",
+      "type=bind,source=/tmp/lottie_files,target=/LOTTIE_FILES",
+      "gcr.io/skia-public/gold-lottie-web-puppeteer:v2",
+      "/SRC/skia/infra/lottiecap/docker/lottiecap_gold.sh",
+      "--builder",
+      "Test-Debian10-none-GCE-CPU-AVX2-x86_64-Debug-All-LottieWeb",
+      "--git_hash",
+      "abc123",
+      "--buildbucket_build_id",
+      "",
+      "--bot_id",
+      "",
+      "--task_id",
+      "",
+      "--browser",
+      "Chrome",
+      "--config",
+      "Debug"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Generate LottieWeb Gold output with Docker"
+  },
+  {
+    "name": "$result"
+  }
+]

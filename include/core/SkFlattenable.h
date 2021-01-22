@@ -28,7 +28,7 @@ public:
     enum Type {
         kSkColorFilter_Type,
         kSkDrawable_Type,
-        kSkDrawLooper_Type,
+        kSkDrawLooper_Type, // no longer used internally by Skia
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
         kSkPathEffect_Type,
@@ -37,7 +37,7 @@ public:
         kSkShaderBase_Type,
         kSkUnused_Type,     // used to be SkUnitMapper
         kSkUnused_Type2,
-        kSkNormalSource_Type,
+        kSkUnused_Type3,    // use to be NormalSource,
     };
 
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
@@ -92,15 +92,26 @@ private:
 
     friend class SkGraphics;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
-#define SK_REGISTER_FLATTENABLE(type) SkFlattenable::Register(#type, type::CreateProc)
+#if defined(SK_DISABLE_EFFECT_DESERIALIZATION)
+    #define SK_REGISTER_FLATTENABLE(type) do{}while(false)
 
-#define SK_FLATTENABLE_HOOKS(type)                                   \
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);           \
-    friend class SkFlattenable::PrivateInitializer;                  \
-    Factory getFactory() const override { return type::CreateProc; } \
-    const char* getTypeName() const override { return #type; }
+    #define SK_FLATTENABLE_HOOKS(type)                                   \
+        static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);           \
+        friend class SkFlattenable::PrivateInitializer;                  \
+        Factory getFactory() const override { return nullptr; }          \
+        const char* getTypeName() const override { return #type; }
+#else
+    #define SK_REGISTER_FLATTENABLE(type)                                \
+        SkFlattenable::Register(#type, type::CreateProc)
+
+    #define SK_FLATTENABLE_HOOKS(type)                                   \
+        static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);           \
+        friend class SkFlattenable::PrivateInitializer;                  \
+        Factory getFactory() const override { return type::CreateProc; } \
+        const char* getTypeName() const override { return #type; }
+#endif
 
 #endif

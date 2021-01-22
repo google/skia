@@ -2,17 +2,27 @@
 #ifndef TextLine_DEFINED
 #define TextLine_DEFINED
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
-#include "src/core/SkSpan.h"
+
+#include <stddef.h>
+#include <functional>
+#include <memory>
+#include <vector>
+
+class SkCanvas;
+class SkString;
 
 namespace skia {
 namespace textlayout {
+
+class ParagraphImpl;
 
 class TextLine {
 public:
@@ -27,9 +37,13 @@ public:
     };
 
     TextLine() = default;
+    TextLine(const TextLine&) = delete;
+    TextLine& operator=(const TextLine&) = delete;
+    TextLine(TextLine&&) = default;
+    TextLine& operator=(TextLine&&) = default;
     ~TextLine() = default;
 
-    TextLine(ParagraphImpl* master,
+    TextLine(ParagraphImpl* owner,
              SkVector offset,
              SkVector advance,
              BlockRange blocks,
@@ -40,8 +54,6 @@ public:
              SkScalar widthWithSpaces,
              InternalLineMetrics sizes);
 
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
-
     TextRange trimmedText() const { return fTextRange; }
     TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
     ClusterRange clusters() const { return fClusterRange; }
@@ -50,6 +62,7 @@ public:
     InternalLineMetrics sizes() const { return fSizes; }
     bool empty() const { return fTextRange.empty(); }
 
+    SkScalar spacesWidth() { return fWidthWithSpaces - width(); }
     SkScalar height() const { return fAdvance.fY; }
     SkScalar width() const {
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0);
@@ -67,22 +80,25 @@ public:
     SkScalar iterateThroughSingleRunByStyles(const Run* run, SkScalar runOffset, TextRange textRange,
                                          StyleType styleType, const RunStyleVisitor& visitor) const;
 
-
-    using ClustersVisitor = std::function<bool(const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost)>;
+    using ClustersVisitor = std::function<bool(const Cluster* cluster, bool ghost)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
-    void format(TextAlign effectiveAlign, SkScalar maxWidth);
-    void paint(SkCanvas* canvas);
+    void format(TextAlign align, SkScalar maxWidth);
+    SkRect paint(SkCanvas* canvas, SkScalar x, SkScalar y);
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
     // For testing internal structures
     void scanStyles(StyleType style, const RunStyleVisitor& visitor);
 
-    TextAlign assumedTextAlign() const;
-
     void setMaxRunMetrics(const InternalLineMetrics& metrics) { fMaxRunMetrics = metrics; }
     InternalLineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
+
+    bool isFirstLine();
+    bool isLastLine();
+    void getRectsForRange(TextRange textRange, RectHeightStyle rectHeightStyle, RectWidthStyle rectWidthStyle, std::vector<TextBox>& boxes);
+    void getRectsForPlaceholders(std::vector<TextBox>& boxes);
+    PositionWithAffinity getGlyphPositionAtCoordinate(SkScalar dx);
 
     ClipContext measureTextInsideOneRun(TextRange textRange,
                                         const Run* run,
@@ -93,41 +109,46 @@ public:
 
     LineMetrics getMetrics() const;
 
+    SkRect extendHeight(const ClipContext& context) const;
+
+    SkScalar metricsWithoutMultiplier(TextHeightBehavior correction);
+    void shiftVertically(SkScalar shift) { fOffset.fY += shift; }
+
+    bool endsWithHardLineBreak() const;
+
 private:
 
-    Run* shapeEllipsis(const SkString& ellipsis, Run* run);
+    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
-    void paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintText(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintBackground(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintShadow(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintDecorations(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
 
-    void computeDecorationPaint(SkPaint& paint, SkRect clip, const TextStyle& style, SkScalar thickness,
-                                SkPath& path) const;
+    void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);
 
-    bool contains(const Cluster* cluster) const {
-        return fTextRange.contains(cluster->textRange());
-    }
-
-    ParagraphImpl* fMaster;
+    ParagraphImpl* fOwner;
     BlockRange fBlockRange;
     TextRange fTextRange;
     TextRange fTextWithWhitespacesRange;
     ClusterRange fClusterRange;
     ClusterRange fGhostClusterRange;
-
-    SkTArray<size_t, true> fRunsInVisualOrder;
+    // Avoid the malloc/free in the common case of one run per line
+    SkSTArray<1, size_t, true> fRunsInVisualOrder;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
-    SkScalar fShift;                    // Left right
+    SkScalar fShift;                    // Let right
     SkScalar fWidthWithSpaces;
-    std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
+    std::unique_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
     InternalLineMetrics fSizes;                 // Line metrics as a max of all run metrics and struts
     InternalLineMetrics fMaxRunMetrics;         // No struts - need it for GetRectForRange(max height)
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
+
+    LineMetricStyle fAscentStyle;
+    LineMetricStyle fDescentStyle;
 };
 }  // namespace textlayout
 }  // namespace skia

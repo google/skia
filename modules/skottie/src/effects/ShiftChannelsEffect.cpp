@@ -8,7 +8,9 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/private/SkColorData.h"
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "include/private/SkTPin.h"
+#include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 
 namespace skottie {
@@ -25,47 +27,35 @@ namespace {
  *
  *     C.r, C.g, C.b, C.a, Luminance(C), Hue(C), Saturation(C), Lightness(C), 1 or 0.
  */
-class ShiftChannelsEffectAdapter final : public DiscardableAdaptorBase {
+class ShiftChannelsEffectAdapter final : public AnimatablePropertyContainer {
 public:
     static sk_sp<ShiftChannelsEffectAdapter> Make(const skjson::ArrayValue& jprops,
                                                   sk_sp<sksg::RenderNode> layer,
                                                   const AnimationBuilder* abuilder) {
-        enum : size_t {
-            kTakeAlphaFrom_Index = 0,
-            kTakeRedFrom_Index   = 1,
-            kTakeGreenFrom_Index = 2,
-            kTakeBlueFrom_Index  = 3,
-
-            kMax_Index = kTakeBlueFrom_Index
-        };
-
-        auto adapter = sk_sp<ShiftChannelsEffectAdapter>(
-                    new ShiftChannelsEffectAdapter(std::move(layer)));
-
-        // Use raw captures, pending TheBigRefactoringToComeReallySoonNow.
-        auto* raw_adapter = adapter.get();
-
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeRedFrom_Index),
-            [raw_adapter](const ScalarValue& r) { raw_adapter->fR = r; });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeGreenFrom_Index),
-            [raw_adapter](const ScalarValue& g) { raw_adapter->fG = g; });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeBlueFrom_Index),
-            [raw_adapter](const ScalarValue& b) { raw_adapter->fB = b; });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeAlphaFrom_Index),
-            [raw_adapter](const ScalarValue& a) { raw_adapter->fA = a; });
-
-        return adapter;
+        return sk_sp<ShiftChannelsEffectAdapter>(
+                    new ShiftChannelsEffectAdapter(jprops, std::move(layer), abuilder));
     }
 
-    const sk_sp<sksg::ExternalColorFilter>& renderNode() const { return fColorFilter; }
+    const sk_sp<sksg::ExternalColorFilter>& node() const { return fColorFilter; }
 
 private:
-    explicit ShiftChannelsEffectAdapter(sk_sp<sksg::RenderNode> layer)
-        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {}
+    ShiftChannelsEffectAdapter(const skjson::ArrayValue& jprops,
+                               sk_sp<sksg::RenderNode> layer,
+                               const AnimationBuilder* abuilder)
+        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {
+        enum : size_t {
+            kTakeAlphaFrom_Index = 0,
+              kTakeRedFrom_Index = 1,
+            kTakeGreenFrom_Index = 2,
+             kTakeBlueFrom_Index = 3,
+        };
+
+        EffectBinder(jprops, *abuilder, this)
+                .bind(  kTakeRedFrom_Index, fR)
+                .bind(kTakeGreenFrom_Index, fG)
+                .bind( kTakeBlueFrom_Index, fB)
+                .bind(kTakeAlphaFrom_Index, fA);
+    }
 
     enum class Source : uint8_t {
         kAlpha      = 1,
@@ -123,12 +113,10 @@ private:
 
     const sk_sp<sksg::ExternalColorFilter> fColorFilter;
 
-    float fR = static_cast<float>(Source::kRed),
-          fG = static_cast<float>(Source::kGreen),
-          fB = static_cast<float>(Source::kBlue),
-          fA = static_cast<float>(Source::kAlpha);
-
-    using INHERITED = DiscardableAdaptorBase;
+    ScalarValue fR = static_cast<float>(Source::kRed),
+                fG = static_cast<float>(Source::kGreen),
+                fB = static_cast<float>(Source::kBlue),
+                fA = static_cast<float>(Source::kAlpha);
 };
 
 } // namespace

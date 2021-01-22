@@ -12,7 +12,6 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
-#include "src/core/SkTLS.h"
 #include "src/ports/SkOSLibrary.h"
 #include "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.h"
 
@@ -93,21 +92,21 @@ static void load_command_buffer_functions() {
 #else
         "libcommand_buffer_gles2.so";
 #endif // defined _WIN32
-        gLibrary = DynamicLoadLibrary(libName);
+        gLibrary = SkLoadDynamicLibrary(libName);
         if (gLibrary) {
-            gfGetDisplay = (GetDisplayProc)GetProcedureAddress(gLibrary, "eglGetDisplay");
-            gfInitialize = (InitializeProc)GetProcedureAddress(gLibrary, "eglInitialize");
-            gfTerminate = (TerminateProc)GetProcedureAddress(gLibrary, "eglTerminate");
-            gfChooseConfig = (ChooseConfigProc)GetProcedureAddress(gLibrary, "eglChooseConfig");
-            gfGetConfigAttrib = (GetConfigAttrib)GetProcedureAddress(gLibrary, "eglGetConfigAttrib");
-            gfCreateWindowSurface = (CreateWindowSurfaceProc)GetProcedureAddress(gLibrary, "eglCreateWindowSurface");
-            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)GetProcedureAddress(gLibrary, "eglCreatePbufferSurface");
-            gfDestroySurface = (DestroySurfaceProc)GetProcedureAddress(gLibrary, "eglDestroySurface");
-            gfCreateContext = (CreateContextProc)GetProcedureAddress(gLibrary, "eglCreateContext");
-            gfDestroyContext = (DestroyContextProc)GetProcedureAddress(gLibrary, "eglDestroyContext");
-            gfMakeCurrent = (MakeCurrentProc)GetProcedureAddress(gLibrary, "eglMakeCurrent");
-            gfSwapBuffers = (SwapBuffersProc)GetProcedureAddress(gLibrary, "eglSwapBuffers");
-            gfGetProcAddress = (GetProcAddressProc)GetProcedureAddress(gLibrary, "eglGetProcAddress");
+            gfGetDisplay = (GetDisplayProc)SkGetProcedureAddress(gLibrary, "eglGetDisplay");
+            gfInitialize = (InitializeProc)SkGetProcedureAddress(gLibrary, "eglInitialize");
+            gfTerminate = (TerminateProc)SkGetProcedureAddress(gLibrary, "eglTerminate");
+            gfChooseConfig = (ChooseConfigProc)SkGetProcedureAddress(gLibrary, "eglChooseConfig");
+            gfGetConfigAttrib = (GetConfigAttrib)SkGetProcedureAddress(gLibrary, "eglGetConfigAttrib");
+            gfCreateWindowSurface = (CreateWindowSurfaceProc)SkGetProcedureAddress(gLibrary, "eglCreateWindowSurface");
+            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)SkGetProcedureAddress(gLibrary, "eglCreatePbufferSurface");
+            gfDestroySurface = (DestroySurfaceProc)SkGetProcedureAddress(gLibrary, "eglDestroySurface");
+            gfCreateContext = (CreateContextProc)SkGetProcedureAddress(gLibrary, "eglCreateContext");
+            gfDestroyContext = (DestroyContextProc)SkGetProcedureAddress(gLibrary, "eglDestroyContext");
+            gfMakeCurrent = (MakeCurrentProc)SkGetProcedureAddress(gLibrary, "eglMakeCurrent");
+            gfSwapBuffers = (SwapBuffersProc)SkGetProcedureAddress(gLibrary, "eglSwapBuffers");
+            gfGetProcAddress = (GetProcAddressProc)SkGetProcedureAddress(gLibrary, "eglGetProcAddress");
 
             gfFunctionsLoadedSuccessfully =
                     gfGetDisplay && gfInitialize && gfTerminate && gfChooseConfig &&
@@ -193,10 +192,9 @@ private:
     EGLContext fContext = EGL_NO_CONTEXT;
 
     static TLSCurrentObjects* Get() {
-        return (TLSCurrentObjects*) SkTLS::Get(TLSCreate, TLSDelete);
+        static thread_local TLSCurrentObjects objects;
+        return &objects;
     }
-    static void* TLSCreate() { return new TLSCurrentObjects(); }
-    static void TLSDelete(void* objs) { delete (TLSCurrentObjects*)objs; }
 };
 
 std::function<void()> context_restorer() {
@@ -337,6 +335,15 @@ void CommandBufferGLTestContext::destroyGLContext() {
     fDisplay = EGL_NO_DISPLAY;
 }
 
+void CommandBufferGLTestContext::onPlatformMakeNotCurrent() const {
+    if (!gfFunctionsLoadedSuccessfully) {
+        return;
+    }
+    if (!TLSCurrentObjects::MakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+        SkDebugf("Command Buffer: Could not null out current EGL context.\n");
+    }
+}
+
 void CommandBufferGLTestContext::onPlatformMakeCurrent() const {
     if (!gfFunctionsLoadedSuccessfully) {
         return;
@@ -353,15 +360,6 @@ std::function<void()> CommandBufferGLTestContext::onPlatformGetAutoContextRestor
     return context_restorer();
 }
 
-void CommandBufferGLTestContext::onPlatformSwapBuffers() const {
-    if (!gfFunctionsLoadedSuccessfully) {
-        return;
-    }
-    if (!gfSwapBuffers(fDisplay, fSurface)) {
-        SkDebugf("Command Buffer: Could not complete gfSwapBuffers.\n");
-    }
-}
-
 GrGLFuncPtr CommandBufferGLTestContext::onPlatformGetProcAddress(const char *name) const {
     if (!gfFunctionsLoadedSuccessfully) {
         return nullptr;
@@ -374,7 +372,12 @@ void CommandBufferGLTestContext::presentCommandBuffer() {
         this->gl()->fFunctions.fFlush();
     }
 
-    this->onPlatformSwapBuffers();
+    if (!gfFunctionsLoadedSuccessfully) {
+        return;
+    }
+    if (!gfSwapBuffers(fDisplay, fSurface)) {
+        SkDebugf("Command Buffer: Could not complete gfSwapBuffers.\n");
+    }
 }
 
 bool CommandBufferGLTestContext::makeCurrent() {

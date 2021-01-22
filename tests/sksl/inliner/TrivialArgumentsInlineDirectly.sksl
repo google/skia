@@ -1,0 +1,62 @@
+in half val;
+uniform int ui;
+uniform half4 uh4;
+
+struct S {
+    half4 ah4[1];
+    half ah[1];
+    half4 h4;
+    half h;
+};
+
+void funcb(bool b, out half4 outColor) {
+    outColor = b ? outColor.xxxx : outColor.yyyy;
+}
+
+void func1(half h, out half4 outColor) {
+    outColor = h.xxxx;
+}
+
+void func2(half2 h2, out half4 outColor) {
+    outColor = h2.xyxy;
+}
+
+void func3(half3 h3, out half4 outColor) {
+    outColor = h3.xyzx;
+}
+
+void func4(half4 h4, out half4 outColor) {
+    outColor = h4;
+}
+
+void main() {
+    S s;
+    s.ah4[0] = half4(val);
+    s.ah[0] = val;
+    s.h4 = half4(val);
+    s.h = val;
+
+    S as[1];
+    as[0].ah4[0] = half4(val);
+
+    // These expressions are considered "trivial" and will be cloned directly into the inlined
+    // function without a temporary variable.
+    funcb(sk_Caps.floatIs32Bits, sk_FragColor);
+    func1(+s.h,                  sk_FragColor);
+    func2(s.ah4[0].yw,           sk_FragColor);
+    func2(as[0].ah4[0].xy,       sk_FragColor);
+    func3(s.h4.zzz,              sk_FragColor);
+    func3(uh4.xyz,               sk_FragColor);
+    func3(s.h.xxx,               sk_FragColor);
+    func4(half4(s.h),            sk_FragColor);
+    func4(s.ah4[0].xxxy,         sk_FragColor);
+    func4(uh4,                   sk_FragColor);
+
+    // These expressions are considered "non-trivial" and will be placed in a temporary variable
+    // when inlining occurs.
+    funcb(!sk_Caps.floatIs32Bits, sk_FragColor);
+    func1(-s.h,                   sk_FragColor);
+    func2(s.ah4[ui].yw,           sk_FragColor);
+    func3(s.h4.yyy + s.h4.zzz,    sk_FragColor);
+    func4(s.h4.y001,              sk_FragColor);
+}

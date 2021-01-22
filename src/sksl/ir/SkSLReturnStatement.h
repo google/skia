@@ -16,34 +16,46 @@ namespace SkSL {
 /**
  * A 'return' statement.
  */
-struct ReturnStatement : public Statement {
+class ReturnStatement final : public Statement {
+public:
+    static constexpr Kind kStatementKind = Kind::kReturn;
+
     ReturnStatement(int offset)
-    : INHERITED(offset, kReturn_Kind) {}
+        : INHERITED(offset, kStatementKind) {}
 
     ReturnStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fOffset, kReturn_Kind)
-    , fExpression(std::move(expression)) {}
+        : INHERITED(expression->fOffset, kStatementKind)
+        , fExpression(std::move(expression)) {}
+
+    std::unique_ptr<Expression>& expression() {
+        return fExpression;
+    }
+
+    const std::unique_ptr<Expression>& expression() const {
+        return fExpression;
+    }
 
     std::unique_ptr<Statement> clone() const override {
-        if (fExpression) {
-            return std::unique_ptr<Statement>(new ReturnStatement(fExpression->clone()));
+        if (this->expression()) {
+            return std::unique_ptr<Statement>(new ReturnStatement(this->expression()->clone()));
         }
         return std::unique_ptr<Statement>(new ReturnStatement(fOffset));
     }
 
     String description() const override {
-        if (fExpression) {
-            return "return " + fExpression->description() + ";";
+        if (this->expression()) {
+            return "return " + this->expression()->description() + ";";
         } else {
             return String("return;");
         }
     }
 
+private:
     std::unique_ptr<Expression> fExpression;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

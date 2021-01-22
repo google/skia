@@ -39,12 +39,24 @@ def check():
     _fail('%s not in PATH; is Golang properly installed?' % go_bin)
 
 
-def get(url):
-  '''Clone or update the given repo URL via "go get".'''
+def get(pkg):
+  '''Obtain/update the given package/module via "go get".'''
   check()
-  subprocess.check_call(['go', 'get', '-u', url])
+  subprocess.check_call(['go', 'get', '-u', pkg])
 
 
 def update_infra():
   '''Update the local checkout of the Skia infra codebase.'''
   get(INFRA_GO + '/...')
+
+
+def mod_download(*pkgs):
+  '''Run "go mod download" to obtain the given package(s).'''
+  check()
+  subprocess.check_call(['go', 'mod', 'download']+list(pkgs))
+
+
+def install(pkg):
+  '''"go install" the given package.'''
+  check()
+  subprocess.check_call(['go', 'install', pkg])

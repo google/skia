@@ -16,7 +16,7 @@
 #include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 class GrColorInfo;
 class GrRenderTargetContext;
 #endif
@@ -70,7 +70,8 @@ public:
         virtual ~BitmapDevicePainter() = default;
 
         virtual void paintPaths(
-                SkDrawableGlyphBuffer* drawables, SkScalar scale, const SkPaint& paint) const = 0;
+                SkDrawableGlyphBuffer* drawables, SkScalar scale, SkPoint origin,
+                const SkPaint& paint) const = 0;
 
         virtual void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const = 0;
     };
@@ -83,10 +84,10 @@ public:
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
     void processGlyphRunList(const SkGlyphRunList& glyphRunList,
-                             const SkMatrix& viewMatrix,
+                             const SkMatrix& drawMatrix,
                              const SkSurfaceProps& props,
                              bool contextSupportsDistanceFieldText,
-                             const GrTextContext::Options& options,
+                             const GrSDFTOptions& options,
                              SkGlyphRunPainterInterface* process);
 #endif  // SK_SUPPORT_GPU
 
@@ -101,9 +102,6 @@ private:
     };
 
     ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRunList& glyphRunList);
-
-    // TODO: Remove once I can hoist ensureBuffers above the list for loop in all cases.
-    ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
@@ -135,7 +133,8 @@ public:
     virtual ~SkGlyphRunPainterInterface() = default;
 
     virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                    const SkStrikeSpec& strikeSpec) = 0;
+                                    const SkStrikeSpec& strikeSpec,
+                                    SkPoint residual) = 0;
 
     virtual void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;

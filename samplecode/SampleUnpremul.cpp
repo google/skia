@@ -158,7 +158,7 @@ private:
         this->decodeCurrFile();
     }
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

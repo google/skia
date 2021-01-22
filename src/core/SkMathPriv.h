@@ -121,10 +121,6 @@ static inline unsigned SkDiv255Round(unsigned prod) {
     return (prod + (prod >> 8)) >> 8;
 }
 
-static inline float SkPinToUnitFloat(float x) {
-    return SkTMin(SkTMax(x, 0.0f), 1.0f);
-}
-
 /**
  * Swap byte order of a 4-byte value, e.g. 0xaarrggbb -> 0xbbggrraa.
  */
@@ -136,32 +132,77 @@ static inline float SkPinToUnitFloat(float x) {
 #endif
 
 //! Returns the number of leading zero bits (0...32)
-int SkCLZ_portable(uint32_t);
+// From Hacker's Delight 2nd Edition
+constexpr int SkCLZ_portable(uint32_t x) {
+    int n = 32;
+    uint32_t y = x >> 16; if (y != 0) {n -= 16; x = y;}
+             y = x >>  8; if (y != 0) {n -=  8; x = y;}
+             y = x >>  4; if (y != 0) {n -=  4; x = y;}
+             y = x >>  2; if (y != 0) {n -=  2; x = y;}
+             y = x >>  1; if (y != 0) {return n - 2;}
+    return n - x;
+}
 
 #ifndef SkCLZ
     #if defined(SK_BUILD_FOR_WIN)
         #include <intrin.h>
 
-        static inline int SkCLZ(uint32_t mask) {
+        constexpr int SkCLZ(uint32_t mask) {
             if (mask) {
-                unsigned long index;
+                unsigned long index = 0;
                 _BitScanReverse(&index, mask);
                 // Suppress this bogus /analyze warning. The check for non-zero
                 // guarantees that _BitScanReverse will succeed.
-#pragma warning(suppress : 6102) // Using 'index' from failed function call
+                #pragma warning(suppress : 6102) // Using 'index' from failed function call
                 return index ^ 0x1F;
             } else {
                 return 32;
             }
         }
     #elif defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__)
-        static inline int SkCLZ(uint32_t mask) {
+        constexpr int SkCLZ(uint32_t mask) {
             // __builtin_clz(0) is undefined, so we have to detect that case.
             return mask ? __builtin_clz(mask) : 32;
         }
     #else
-        #define SkCLZ(x)    SkCLZ_portable(x)
+        constexpr int SkCLZ(uint32_t mask) {
+            return SkCLZ_portable(mask);
+        }
     #endif
+#endif
+
+//! Returns the number of trailing zero bits (0...32)
+// From Hacker's Delight 2nd Edition
+constexpr int SkCTZ_portable(uint32_t x) {
+    return 32 - SkCLZ(~x & (x - 1));
+}
+
+#ifndef SkCTZ
+    #if defined(SK_BUILD_FOR_WIN)
+    #include <intrin.h>
+
+    constexpr int SkCTZ(uint32_t mask) {
+        if (mask) {
+            unsigned long index = 0;
+            _BitScanForward(&index, mask);
+            // Suppress this bogus /analyze warning. The check for non-zero
+            // guarantees that _BitScanReverse will succeed.
+            #pragma warning(suppress : 6102) // Using 'index' from failed function call
+            return index;
+        } else {
+            return 32;
+        }
+    }
+#elif defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__)
+    constexpr int SkCTZ(uint32_t mask) {
+        // __builtin_ctz(0) is undefined, so we have to detect that case.
+        return mask ? __builtin_ctz(mask) : 32;
+    }
+#else
+    constexpr int SkCTZ(uint32_t mask) {
+        return SkCTZ_portable(mask);
+    }
+#endif
 #endif
 
 /**
@@ -169,7 +210,7 @@ int SkCLZ_portable(uint32_t);
  *  is already a power of 2, then it is returned unchanged. It is undefined
  *  if value is <= 0.
  */
-static inline int SkNextPow2(int value) {
+constexpr int SkNextPow2(int value) {
     SkASSERT(value > 0);
     return 1 << (32 - SkCLZ(value - 1));
 }
@@ -179,7 +220,7 @@ static inline int SkNextPow2(int value) {
 *  is already a power of 2, then it is returned unchanged. It is undefined
 *  if value is <= 0.
 */
-static inline int SkPrevPow2(int value) {
+constexpr int SkPrevPow2(int value) {
     SkASSERT(value > 0);
     return 1 << (32 - SkCLZ(value >> 1));
 }
@@ -193,7 +234,7 @@ static inline int SkPrevPow2(int value) {
  *  SkNextLog2(4) -> 2
  *  SkNextLog2(5) -> 3
  */
-static inline int SkNextLog2(uint32_t value) {
+constexpr int SkNextLog2(uint32_t value) {
     SkASSERT(value != 0);
     return 32 - SkCLZ(value - 1);
 }
@@ -207,7 +248,7 @@ static inline int SkNextLog2(uint32_t value) {
 *  SkPrevLog2(4) -> 2
 *  SkPrevLog2(5) -> 2
 */
-static inline int SkPrevLog2(uint32_t value) {
+constexpr int SkPrevLog2(uint32_t value) {
     SkASSERT(value != 0);
     return 32 - SkCLZ(value >> 1);
 }

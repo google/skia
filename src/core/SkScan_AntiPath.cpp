@@ -44,8 +44,7 @@ public:
                      const SkIRect& clipBounds, bool isInverse);
 
     /// Must be explicitly defined on subclasses.
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]) override {
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
         SkDEBUGFAIL("How did I get here?");
     }
     /// May not be called on BaseSuperBlitter because it blits out of order.
@@ -658,7 +657,7 @@ static bool ShouldUseAAA(const SkPath& path, SkScalar avgLength, SkScalar comple
         // every pixel row/column is significantly greater than zero. Hence
         // Aanlytic AA is not likely to produce visible quality improvements,
         // and Analytic AA might be slower than supersampling.
-        return path.countPoints() < SkTMax(bounds.width(), bounds.height()) / 2 - 10;
+        return path.countPoints() < std::max(bounds.width(), bounds.height()) / 2 - 10;
     #else
         if (path.countPoints() >= path.getBounds().height()) {
             // SAA is faster than AAA in this case even if there are no

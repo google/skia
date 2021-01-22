@@ -1,0 +1,11 @@
+struct Test {
+    layout(offset = 0) int x;
+    layout(offset = 4) int y;
+    int z;
+} test;
+
+void main() {
+    Test t;
+    t.x = 0;
+    sk_FragColor.r = half(t.x);
+}

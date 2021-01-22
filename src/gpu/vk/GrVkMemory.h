@@ -42,15 +42,15 @@ namespace GrVkMemory {
     // For the Flush and Invalidate calls, the offset should be relative to the GrVkAlloc. Thus this
     // will often be 0. The client does not need to make sure the offset and size are aligned to the
     // nonCoherentAtomSize, the internal calls will handle that.
-    void FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+    void FlushMappedAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
                           VkDeviceSize size);
-    void InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+    void InvalidateMappedAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
                                VkDeviceSize size);
 
     // Helper for aligning and setting VkMappedMemoryRange for flushing/invalidating noncoherent
     // memory.
     void GetNonCoherentMappedMemoryRange(const GrVkAlloc&, VkDeviceSize offset, VkDeviceSize size,
                                          VkDeviceSize alignment, VkMappedMemoryRange*);
-}
+}  // namespace GrVkMemory
 
 #endif

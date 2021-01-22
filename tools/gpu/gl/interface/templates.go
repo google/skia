@@ -76,7 +76,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return interface;
+    return std::move(interface);
 }
 #endif
 `
@@ -143,7 +143,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return interface;
+    return std::move(interface);
 }
 #endif
 `
@@ -163,38 +163,45 @@ const ASSEMBLE_INTERFACE_WEBGL = `/*
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
-#define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
-#define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F #S)
-#define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*)get(ctx, "gl" #F)
-
-#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL##F = (GrEGL##F##Fn*)get(ctx, "egl" #F #S)
-
-#if SK_DISABLE_WEBGL_INTERFACE
+#if SK_DISABLE_WEBGL_INTERFACE || !defined(SK_USE_WEBGL)
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
     return nullptr;
 }
 #else
+
+// Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/webgl
+#include "webgl/webgl1.h"
+#include "webgl/webgl1_ext.h"
+#include "webgl/webgl2.h"
+#include "webgl/webgl2_ext.h"
+
+#define GET_PROC(F) functions->f##F = emscripten_gl##F
+#define GET_PROC_SUFFIX(F, S) functions->f##F = emscripten_gl##F##S
+
+// Adapter from standard GL signature to emscripten.
+void emscripten_glWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
+    uint32_t timeoutLo = timeout;
+    uint32_t timeoutHi = timeout >> 32;
+    emscripten_glWaitSync(sync, flags, timeoutLo, timeoutHi);
+}
+
+// Adapter from standard GL signature to emscripten.
+GLenum emscripten_glClientWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
+    uint32_t timeoutLo = timeout;
+    uint32_t timeoutHi = timeout >> 32;
+    return emscripten_glClientWaitSync(sync, flags, timeoutLo, timeoutHi);
+}
+
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
-    GET_PROC_LOCAL(GetString);
-    if (nullptr == GetString) {
-        return nullptr;
-    }
-
-    const char* verStr = reinterpret_cast<const char*>(GetString(GR_GL_VERSION));
+    const char* verStr = reinterpret_cast<const char*>(emscripten_glGetString(GR_GL_VERSION));
     GrGLVersion glVer = GrGLGetVersionFromString(verStr);
-
     if (glVer < GR_GL_VER(1,0)) {
         return nullptr;
     }
 
-    GET_PROC_LOCAL(GetIntegerv);
-    GET_PROC_LOCAL(GetStringi);
-    GrEGLQueryStringFn* queryString;
-    GrEGLDisplay display;
-    GrGetEGLQueryAndDisplay(&queryString, &display, ctx, get);
     GrGLExtensions extensions;
-    if (!extensions.init(kWebGL_GrGLStandard, GetString, GetStringi, GetIntegerv, queryString,
-                         display)) {
+    if (!extensions.init(kWebGL_GrGLStandard, emscripten_glGetString, emscripten_glGetStringi,
+                         emscripten_glGetIntegerv)) {
         return nullptr;
     }
 
@@ -208,7 +215,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     interface->fStandard = kWebGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return interface;
+    return std::move(interface);
 }
 #endif
 `
@@ -233,6 +240,54 @@ const VALIDATE_INTERFACE = `/*
 GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
 }
+
+#if GR_GL_CHECK_ERROR
+static const char* get_error_string(GrGLenum err) {
+    switch (err) {
+        case GR_GL_NO_ERROR:
+            return "";
+        case GR_GL_INVALID_ENUM:
+            return "Invalid Enum";
+        case GR_GL_INVALID_VALUE:
+            return "Invalid Value";
+        case GR_GL_INVALID_OPERATION:
+            return "Invalid Operation";
+        case GR_GL_OUT_OF_MEMORY:
+            return "Out of Memory";
+        case GR_GL_CONTEXT_LOST:
+            return "Context Lost";
+    }
+    return "Unknown";
+}
+
+GrGLenum GrGLInterface::checkError(const char* location, const char* call) const {
+    GrGLenum error = fFunctions.fGetError();
+    if (error != GR_GL_NO_ERROR && !fSuppressErrorLogging) {
+        SkDebugf("---- glGetError 0x%x(%s)", error, get_error_string(error));
+        if (location) {
+            SkDebugf(" at\n\t%s", location);
+        }
+        if (call) {
+            SkDebugf("\n\t\t%s", call);
+        }
+        SkDebugf("\n");
+        if (error == GR_GL_OUT_OF_MEMORY) {
+            fOOMed = true;
+        }
+    }
+    return error;
+}
+
+bool GrGLInterface::checkAndResetOOMed() const {
+    if (fOOMed) {
+        fOOMed = false;
+        return true;
+    }
+    return false;
+}
+
+void GrGLInterface::suppressErrorLogging() { fSuppressErrorLogging = true; }
+#endif
 
 #define RETURN_FALSE_INTERFACE                                                 \
     SkDEBUGF("%s:%d GrGLInterface::validate() failed.\n", __FILE__, __LINE__); \

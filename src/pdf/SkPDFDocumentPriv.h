@@ -31,7 +31,7 @@ struct SkPDFStrokeGraphicState;
 namespace SkPDFGradientShader {
 struct Key;
 struct KeyHash;
-}
+}  // namespace SkPDFGradientShader
 
 const char* SkPDFGetNodeIdKey();
 
@@ -53,6 +53,27 @@ struct SkPDFNamedDestination {
     SkPoint fPoint;
     SkPDFIndirectReference fPage;
 };
+
+
+struct SkPDFLink {
+    enum class Type {
+        kNone,
+        kUrl,
+        kNamedDestination,
+    };
+
+    SkPDFLink(Type type, SkData* data, const SkRect& rect, int nodeId)
+        : fType(type)
+        , fData(sk_ref_sp(data))
+        , fRect(rect)
+        , fNodeId(nodeId) {}
+    const Type fType;
+    // The url or named destination, depending on |fType|.
+    const sk_sp<SkData> fData;
+    const SkRect fRect;
+    const int fNodeId;
+};
+
 
 /** Concrete implementation of SkDocument that creates PDF files. This
     class does not produced linearized or optimized PDFs; instead it
@@ -95,8 +116,16 @@ public:
     SkPDFIndirectReference currentPage() const {
         return SkASSERT(!fPageRefs.empty()), fPageRefs.back();
     }
-    // Returns -1 if no mark ID.
-    int getMarkIdForNodeId(int nodeId);
+    // Used to allow marked content to refer to its corresponding structure
+    // tree node, via a page entry in the parent tree. Returns -1 if no
+    // mark ID.
+    int createMarkIdForNodeId(int nodeId);
+    // Used to allow annotations to refer to their corresponding structure
+    // tree node, via the struct parent tree. Returns -1 if no struct parent
+    // key.
+    int createStructParentKeyForNodeId(int nodeId);
+
+    std::unique_ptr<SkPDFArray> getAnnotations();
 
     SkPDFIndirectReference reserveRef() { return SkPDFIndirectReference{fNextObjectNumber++}; }
 
@@ -123,9 +152,7 @@ public:
     SkTHashMap<SkPDFFillGraphicState, SkPDFIndirectReference> fFillGSMap;
     SkPDFIndirectReference fInvertFunction;
     SkPDFIndirectReference fNoSmaskGraphicState;
-
-    std::vector<std::pair<sk_sp<SkData>, SkRect>> fCurrentPageLinkToURLs;
-    std::vector<std::pair<sk_sp<SkData>, SkRect>> fCurrentPageLinkToDestinations;
+    std::vector<std::unique_ptr<SkPDFLink>> fCurrentPageLinks;
     std::vector<SkPDFNamedDestination> fNamedDestinations;
 
 private:

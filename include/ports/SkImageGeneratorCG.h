@@ -15,6 +15,6 @@
 
 namespace SkImageGeneratorCG {
 SK_API std::unique_ptr<SkImageGenerator> MakeFromEncodedCG(sk_sp<SkData>);
-}
+}  // namespace SkImageGeneratorCG
 
 #endif //defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

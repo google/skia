@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CanvasKit Demo</title>
+
+  <script type="text/javascript" src="https://particles.skia.org/static/canvaskit.js"></script>
+
+  <script type="text/javascript" charset="utf-8">
+    const bootTime = performance.now();
+    const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+    // loadKit resolves with CanvasKit.
+    const loadKit = CanvasKitInit({
+      locateFile: (file) => 'https://particles.skia.org/static/'+file,
+    });
+
+    loadKit.then(() => {
+      const n = performance.now();
+      console.log(`loaded Kit in ${(n - bootTime).toFixed(2)} ms`)
+    });
+
+    const loadLegoJSON = fetch(cdn + 'lego_loader.json').then((resp) => {
+      return resp.text();
+    });
+    const loadPartyJSON = fetch(cdn + 'confetti.json').then((resp) => {
+      return resp.text();
+    });
+    const loadDrinksJSON = fetch(cdn + 'drinks.json').then((resp) => {
+      return resp.text();
+    });
+    const loadOnboardingJSON = fetch(cdn + 'onboarding.json').then((resp) => {
+      return resp.text();
+    });
+
+
+
+    function SkottieDemo(values, canvasID, width=400, height=400) {
+      const [CanvasKit, legoJSON] = values;
+      const animation = CanvasKit.MakeManagedAnimation(legoJSON);
+      const duration = animation.duration() * 1000;
+      const size = animation.size();
+
+      const bounds = {fLeft: 0, fTop: 0, fRight: width, fBottom: height};
+
+      const surface = CanvasKit.MakeCanvasSurface(canvasID);
+      if (!surface) {
+        console.error('Could not make surface');
+        return;
+      }
+
+      const firstFrame = Date.now();
+      const clearColor = CanvasKit.WHITE;
+
+      function drawFrame(canvas) {
+        const seek = ((Date.now() - firstFrame) / duration) % 1.0;
+        const damage = animation.seek(seek);
+
+        if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+          canvas.clear(clearColor);
+          animation.render(canvas, bounds);
+        }
+        surface.requestAnimationFrame(drawFrame);
+      }
+      surface.requestAnimationFrame(drawFrame);
+    }
+
+    const legosAnimating = Promise.all([loadKit, loadLegoJSON]).then((values) => {
+      SkottieDemo(values, 'legos', 800, 800);
+    });
+    const partyAnimating = Promise.all([loadKit, loadPartyJSON]).then((values) => {
+      SkottieDemo(values, 'party', 800, 800);
+    });
+    const drinksAnimating = Promise.all([loadKit, loadDrinksJSON]).then((values) => {
+      SkottieDemo(values, 'drinks', 800, 800);
+    });
+    const onboardingAnimating = Promise.all([loadKit, loadOnboardingJSON]).then((values) => {
+      SkottieDemo(values, 'onboarding', 800, 800);
+    });
+
+    Promise.all([legosAnimating, partyAnimating, drinksAnimating, onboardingAnimating]).then(() => {
+      const frames = new Float64Array(100);
+      let idx = 0;
+      let now = performance.now();
+      function benchFrame() {
+        frames[idx] = performance.now() - now;
+        idx++;
+        if (idx < frames.length) {
+          now = performance.now();
+          window.requestAnimationFrame(benchFrame);
+        } else {
+          let out = '';
+          for (const frameTime of frames) {
+            out += frameTime.toFixed(2);
+            out += '\n';
+          }
+          console.log(out);
+        }
+      }
+      window.requestAnimationFrame(benchFrame);
+    })
+  </script>
+
+  <style>
+    canvas {
+      border: 1px dashed #AAA;
+      width: 400px;
+      height: 400px;
+    }
+  </style>
+
+</head>
+<body>
+  <h1> CanvasKit</h1>
+
+  <canvas id=legos width=800 height=800></canvas>
+  <canvas id=party width=800 height=800></canvas>
+  <canvas id=drinks width=800 height=800></canvas>
+  <canvas id=onboarding width=800 height=800></canvas>
+
+</body>
+</html>

@@ -17,8 +17,8 @@
 #include "include/utils/SkRandom.h"
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #endif
 
 static sk_sp<SkTypeface> chinese_typeface() {
@@ -137,21 +137,21 @@ class ChineseZoomView : public Sample {
 
         if (fAfterFirstFrame) {
 #if SK_SUPPORT_GPU
-            GrContext* grContext = canvas->getGrContext();
-            if (grContext) {
-                sk_sp<SkImage> image = grContext->priv().testingOnly_getFontAtlasImage(
+            auto direct = GrAsDirectContext(canvas->recordingContext());
+            if (direct) {
+                sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
                             GrMaskFormat::kA8_GrMaskFormat, 0);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 10.0f, 512.0f, 512.0), &paint);
-                image = grContext->priv().testingOnly_getFontAtlasImage(
+                image = direct->priv().testingOnly_getFontAtlasImage(
                         GrMaskFormat::kA8_GrMaskFormat, 1);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 10.0f, 512.f, 512.0f), &paint);
-                image = grContext->priv().testingOnly_getFontAtlasImage(
+                image = direct->priv().testingOnly_getFontAtlasImage(
                         GrMaskFormat::kA8_GrMaskFormat, 2);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 522.0f, 512.0f, 512.0f), &paint);
-                image = grContext->priv().testingOnly_getFontAtlasImage(
+                image = direct->priv().testingOnly_getFontAtlasImage(
                         GrMaskFormat::kA8_GrMaskFormat, 3);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 522.0f, 512.0f, 512.0f), &paint);
@@ -191,7 +191,7 @@ class ChineseZoomView : public Sample {
             auto paragraphLength = kParagraphLength;
             SkScalar y = 0;
             while (paragraphLength - 45 > 0) {
-                auto currentLineLength = SkTMin(45, paragraphLength - 45);
+                auto currentLineLength = std::min(45, paragraphLength - 45);
                 this->createRandomLine(glyphs, currentLineLength);
 
                 ToolUtils::add_to_text_blob_w_len(&builder,

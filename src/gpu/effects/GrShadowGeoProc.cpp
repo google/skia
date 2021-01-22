@@ -7,6 +7,7 @@
 
 #include "src/gpu/effects/GrShadowGeoProc.h"
 
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -21,7 +22,6 @@ public:
         const GrRRectShadowGeoProc& rsgp = args.fGP.cast<GrRRectShadowGeoProc>();
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
-        GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // emit attributes
@@ -34,43 +34,35 @@ public:
 
         // Setup position
         this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition().name());
-
-        // emit transforms
-        this->emitTransforms(vertBuilder,
-                             varyingHandler,
-                             uniformHandler,
-                             rsgp.inPosition().asShaderVar(),
-                             args.fFPCoordTransformHandler);
+        // No need for local coordinates, this GP does not combine with fragment processors
 
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
         fragBuilder->codeAppend("float2 uv = float2(shadowParams.z * (1.0 - d), 0.5);");
         fragBuilder->codeAppend("half factor = ");
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kFloat2_GrSLType);
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv");
         fragBuilder->codeAppend(".a;");
         fragBuilder->codeAppendf("%s = half4(factor);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                 const CoordTransformRange& transformRange) override {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
     }
 
 private:
-    typedef GrGLSLGeometryProcessor INHERITED;
+    using INHERITED = GrGLSLGeometryProcessor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrTextureProxy* lut)
+GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView)
         : INHERITED(kGrRRectShadowGeoProc_ClassID) {
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
     fInShadowParams = {"inShadowParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
-    SkASSERT(lut);
-    fLUTTextureSampler.reset(GrSamplerState::ClampBilerp(), lut->backendFormat(),
-                             lut->textureSwizzle());
+    SkASSERT(lutView.proxy());
+    fLUTTextureSampler.reset(GrSamplerState::Filter::kLinear, lutView.proxy()->backendFormat(),
+                             lutView.swizzle());
     this->setTextureSamplerCnt(1);
 }
 
@@ -84,7 +76,8 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    return GrRRectShadowGeoProc::Make(d->allocator(),
-                                      d->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx).get());
+    auto [view, ct, at] = d->randomAlphaOnlyView();
+
+    return GrRRectShadowGeoProc::Make(d->allocator(), view);
 }
 #endif

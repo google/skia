@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
 
-#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 class GrSampleMaskProcessor::Impl : public GrGLSLGeometryProcessor {
@@ -15,8 +15,7 @@ public:
     Impl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
 
 private:
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
@@ -59,7 +58,9 @@ void GrSampleMaskProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fShader->emitSampleMaskCode(args.fFragBuilder);
 }
 
-void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
+void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
+                                  GrResourceProvider* rp) {
+    SkASSERT(subpassIdx == 0);
     fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
     SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
 
@@ -90,28 +91,6 @@ void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     }
 }
 
-void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
-    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
-
-    switch (fPrimitiveType) {
-        case PrimitiveType::kTriangles:
-        case PrimitiveType::kWeightedTriangles: {
-            GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangles);
-            mesh.setNonIndexedNonInstanced(instanceCount * 3);
-            mesh.setVertexData(std::move(instanceBuffer), baseInstance * 3);
-            break;
-        }
-        case PrimitiveType::kQuadratics:
-        case PrimitiveType::kCubics:
-        case PrimitiveType::kConics: {
-            GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangleStrip);
-            mesh.setInstanced(std::move(instanceBuffer), instanceCount, baseInstance, 4);
-            break;
-        }
-    }
-}
-
 GrPrimitiveType GrSampleMaskProcessor::primType() const {
     SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
 
@@ -125,6 +104,44 @@ GrPrimitiveType GrSampleMaskProcessor::primType() const {
             return GrPrimitiveType::kTriangleStrip;
         default:
             return GrPrimitiveType::kTriangleStrip;
+    }
+}
+
+void GrSampleMaskProcessor::bindBuffers(GrOpsRenderPass* renderPass,
+                                        sk_sp<const GrBuffer> instanceBuffer) const {
+    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
+
+    switch (fPrimitiveType) {
+        case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles: {
+            renderPass->bindBuffers(nullptr, nullptr, std::move(instanceBuffer));
+            break;
+        }
+        case PrimitiveType::kQuadratics:
+        case PrimitiveType::kCubics:
+        case PrimitiveType::kConics: {
+            renderPass->bindBuffers(nullptr, std::move(instanceBuffer), nullptr);
+            break;
+        }
+    }
+}
+
+void GrSampleMaskProcessor::drawInstances(GrOpsRenderPass* renderPass, int instanceCount,
+                                          int baseInstance) const {
+    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
+
+    switch (fPrimitiveType) {
+        case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles: {
+            renderPass->draw(instanceCount * 3, baseInstance * 3);
+            break;
+        }
+        case PrimitiveType::kQuadratics:
+        case PrimitiveType::kCubics:
+        case PrimitiveType::kConics: {
+            renderPass->drawInstanced(instanceCount, baseInstance, 4, 0);
+            break;
+        }
     }
 }
 

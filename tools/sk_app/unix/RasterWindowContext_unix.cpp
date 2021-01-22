@@ -30,7 +30,7 @@ protected:
     XWindow  fWindow;
     GC       fGC;
 
-    typedef RasterWindowContext INHERITED;
+    using INHERITED = RasterWindowContext;
 };
 
 RasterWindowContext_xlib::RasterWindowContext_xlib(Display* display, XWindow window, int width,

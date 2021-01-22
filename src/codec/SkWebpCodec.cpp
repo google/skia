@@ -16,7 +16,6 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkSampler.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkStreamPriv.h"
 
@@ -78,7 +77,7 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
     const int width = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
     const int height = WebPDemuxGetI(demux, WEBP_FF_CANVAS_HEIGHT);
 
-    // Sanity check for image size that's about to be decoded.
+    // Validate the image size that's about to be decoded.
     {
         const int64_t size = sk_64_mul(width, height);
         // now check that if we are 4-bytes per pixel, we also don't overflow
@@ -144,7 +143,7 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
             // sense to guess kBGRA which is likely closer to the final
             // output.  Otherwise, we might end up converting
             // BGRA->YUVA->BGRA.
-            // Fallthrough:
+            [[fallthrough]];
         case 2:
             // This is the lossless format (BGRA).
             if (hasAlpha) {
@@ -220,12 +219,13 @@ int SkWebpCodec::onGetRepetitionCount() {
         return 0;
     }
 
-    const int repCount = WebPDemuxGetI(fDemux.get(), WEBP_FF_LOOP_COUNT);
-    if (0 == repCount) {
+    int loopCount = WebPDemuxGetI(fDemux.get(), WEBP_FF_LOOP_COUNT);
+    if (0 == loopCount) {
         return kRepetitionCountInfinite;
     }
 
-    return repCount;
+    loopCount--;
+    return loopCount;
 }
 
 int SkWebpCodec::onGetFrameCount() {
@@ -395,8 +395,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             return kSuccess;
         }
 
-        int minXOffset = SkTMin(dstX, subset.x());
-        int minYOffset = SkTMin(dstY, subset.y());
+        int minXOffset = std::min(dstX, subset.x());
+        int minYOffset = std::min(dstY, subset.y());
         dstX -= minXOffset;
         dstY -= minYOffset;
         frameRect.offset(-minXOffset, -minYOffset);

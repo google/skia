@@ -18,6 +18,7 @@ public:
 
     SkISize getDimensions() const override { return fGM->getISize(); }
 
+    void gpuTeardown() override;
     void draw(SkCanvas* canvas) override;
     bool animate(double nanos) override;
 

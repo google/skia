@@ -7,6 +7,7 @@ declare_args() {
   # TODO: build from source all the time for testing?
   skia_use_system_freetype2 =
       (is_official_build || !(is_android || sanitize == "MSAN")) && !is_fuchsia
+  skia_use_freetype_woff2 = false
 }
 
 import("../third_party.gni")
@@ -21,16 +22,26 @@ if (skia_use_system_freetype2) {
     public_defines = [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION=(((FREETYPE_MAJOR) << 24) | ((FREETYPE_MINOR) << 16) | ((FREETYPE_PATCH) << 8))" ]
     public_include_dirs = [ "../externals/freetype/include" ]
 
-    deps = [
-      "//third_party/libpng",
-    ]
+    deps = [ "//third_party/libpng" ]
 
     include_dirs = [ "." ]
-    defines = [
-      "FT2_BUILD_LIBRARY",
-      "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
-      "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
-    ]
+    defines = [ "FT2_BUILD_LIBRARY" ]
+    if (target_cpu == "wasm") {
+      defines += [
+        "FT_CONFIG_MODULES_H=<include/freetype-no-type1/ftmodule.h>",
+        "FT_CONFIG_OPTIONS_H=<include/freetype-no-type1/ftoption.h>",
+      ]
+    } else {
+      defines += [
+        "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
+        "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
+      ]
+    }
+
+    if (skia_use_freetype_woff2) {
+      deps += [ "//third_party/brotli" ]
+      defines += [ "FT_CONFIG_OPTION_USE_BROTLI" ]
+    }
 
     sources = [
       "../externals/freetype/src/autofit/autofit.c",

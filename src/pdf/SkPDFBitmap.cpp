@@ -45,10 +45,10 @@ static SkColor get_neighbor_avg_color(const SkPixmap& bm, int xOrig, int yOrig) 
     SkASSERT(kBGRA_8888_SkColorType == bm.colorType());
     unsigned r = 0, g = 0, b = 0, n = 0;
     // Clamp the range to the edge of the bitmap.
-    int ymin = SkTMax(0, yOrig - 1);
-    int ymax = SkTMin(yOrig + 1, bm.height() - 1);
-    int xmin = SkTMax(0, xOrig - 1);
-    int xmax = SkTMin(xOrig + 1, bm.width() - 1);
+    int ymin = std::max(0, yOrig - 1);
+    int ymax = std::min(yOrig + 1, bm.height() - 1);
+    int xmin = std::max(0, xOrig - 1);
+    int xmax = std::min(xOrig + 1, bm.width() - 1);
     for (int y = ymin; y <= ymax; ++y) {
         const SkColor* scanline = bm.addr32(0, y);
         for (int x = xmin; x <= xmax; ++x) {
@@ -204,7 +204,7 @@ static bool do_jpeg(sk_sp<SkData> data, SkPDFDocument* doc, SkISize size,
     }
     bool yuv = jpegColorType == SkEncodedInfo::kYUV_Color;
     bool goodColorType = yuv || jpegColorType == SkEncodedInfo::kGray_Color;
-    if (jpegSize != size  // Sanity check.
+    if (jpegSize != size  // Safety check.
             || !goodColorType
             || kTopLeft_SkEncodedOrigin != exifOrientation) {
         return false;
@@ -239,7 +239,8 @@ static SkBitmap to_pixels(const SkImage* image) {
             bm.allocPixels(SkImageInfo::Make(w, h, kBGRA_8888_SkColorType, at));
         }
     }
-    if (!image->readPixels(bm.pixmap(), 0, 0)) {
+    // TODO: support GPU images in PDFs
+    if (!image->readPixels(nullptr, bm.pixmap(), 0, 0)) {
         bm.eraseColor(SkColorSetARGB(0xFF, 0, 0, 0));
     }
     return bm;
@@ -258,7 +259,7 @@ void serialize_image(const SkImage* img,
         return;
     }
     SkBitmap bm = to_pixels(img);
-    SkPixmap pm = bm.pixmap();
+    const SkPixmap& pm = bm.pixmap();
     bool isOpaque = pm.isOpaque() || pm.computeIsOpaque();
     if (encodingQuality <= 100 && isOpaque) {
         sk_sp<SkData> data = img->encodeToData(SkEncodedImageFormat::kJPEG, encodingQuality);

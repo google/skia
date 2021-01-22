@@ -89,7 +89,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 /* See
@@ -169,7 +169,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 class TeenyStrokesGM : public skiagm::GM {
@@ -188,9 +188,9 @@ class TeenyStrokesGM : public skiagm::GM {
         p.setStyle(SkPaint::kStroke_Style);
         p.setColor(color);
         canvas->translate(50, 0);
-	    canvas->save();
+        canvas->save();
         p.setStrokeWidth(scale * 5);
-	    canvas->scale(1 / scale, 1 / scale);
+        canvas->scale(1 / scale, 1 / scale);
         canvas->drawLine(20 * scale, 20 * scale, 20 * scale, 100 * scale, p);
         canvas->drawLine(20 * scale, 20 * scale, 100 * scale, 100 * scale, p);
         canvas->restore();
@@ -204,7 +204,7 @@ class TeenyStrokesGM : public skiagm::GM {
         line(0.000002f, canvas, SK_ColorBLACK);
     }
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_SIMPLE_GM(CubicStroke, canvas, 384, 384) {
@@ -212,7 +212,7 @@ DEF_SIMPLE_GM(CubicStroke, canvas, 384, 384) {
     p.setAntiAlias(true);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(1.0720f);
-	SkPath path;
+    SkPath path;
     path.moveTo(-6000,-6000);
     path.cubicTo(-3500,5500,-500,5500,2500,-6500);
     canvas->drawPath(path, p);
@@ -331,7 +331,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -436,7 +436,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 class Strokes4GM : public skiagm::GM {
@@ -463,7 +463,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 // Test stroking for curves that produce degenerate tangents when t is 0 or 1 (see bug 4191)
@@ -517,7 +517,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 

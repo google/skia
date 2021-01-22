@@ -63,6 +63,16 @@ void SkPictureRecord::recordSave() {
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onMarkCTM(const char* name) {
+    size_t nameLen = SkWriter32::WriteStringSize(name);
+    size_t size = sizeof(kUInt32Size) + nameLen; // op + name
+    size_t initialOffset = this->addDraw(MARK_CTM, &size);
+    fWriter.writeString(name);
+    this->validate(initialOffset, size);
+
+    this->INHERITED::onMarkCTM(name);
+}
+
 SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLayerRec& rec) {
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
@@ -119,14 +129,6 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
         flatFlags |= SAVELAYERREC_HAS_FLAGS;
         size += sizeof(uint32_t);
     }
-    if (rec.fClipMask) {
-        flatFlags |= SAVELAYERREC_HAS_CLIPMASK;
-        size += sizeof(uint32_t); // clip image index
-    }
-    if (rec.fClipMatrix) {
-        flatFlags |= SAVELAYERREC_HAS_CLIPMATRIX;
-        size += SkMatrixPriv::WriteToMemory(*rec.fClipMatrix, nullptr);
-    }
 
     const size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERREC, &size);
     this->addInt(flatFlags);
@@ -144,12 +146,6 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     }
     if (flatFlags & SAVELAYERREC_HAS_FLAGS) {
         this->addInt(rec.fSaveLayerFlags);
-    }
-    if (flatFlags & SAVELAYERREC_HAS_CLIPMASK) {
-        this->addImage(rec.fClipMask);
-    }
-    if (flatFlags & SAVELAYERREC_HAS_CLIPMATRIX) {
-        this->addMatrix(*rec.fClipMatrix);
     }
     this->validate(initialOffset, size);
 }
@@ -217,6 +213,25 @@ void SkPictureRecord::recordScale(const SkMatrix& m) {
     this->addScalar(m.getScaleX());
     this->addScalar(m.getScaleY());
     this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::didConcat44(const SkM44& m) {
+    this->validate(fWriter.bytesWritten(), 0);
+    // op + matrix
+    size_t size = kUInt32Size + 16 * sizeof(SkScalar);
+    size_t initialOffset = this->addDraw(CONCAT44, &size);
+    fWriter.write(SkMatrixPriv::M44ColMajor(m), 16 * sizeof(SkScalar));
+    this->validate(initialOffset, size);
+
+    this->INHERITED::didConcat44(m);
+}
+
+void SkPictureRecord::didScale(SkScalar x, SkScalar y) {
+    this->didConcat(SkMatrix::Scale(x, y));
+}
+
+void SkPictureRecord::didTranslate(SkScalar x, SkScalar y) {
+    this->didConcat(SkMatrix::Translate(x, y));
 }
 
 void SkPictureRecord::didConcat(const SkMatrix& matrix) {
@@ -393,6 +408,22 @@ size_t SkPictureRecord::recordClipPath(int pathID, SkClipOp op, bool doAA) {
     size_t offset = recordRestoreOffsetPlaceholder(op);
     this->validate(initialOffset, size);
     return offset;
+}
+
+void SkPictureRecord::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
+    // Overkill to store a whole paint, but we don't have an existing structure to just store
+    // shaders. If size becomes an issue in the future, we can optimize this.
+    SkPaint paint;
+    paint.setShader(cs);
+
+    // op + paint index + clipop
+    size_t size = 3 * kUInt32Size;
+    size_t initialOffset = this->addDraw(CLIP_SHADER_IN_PAINT, &size);
+    this->addPaint(paint);
+    this->addInt((int)op);
+    this->validate(initialOffset, size);
+
+    this->INHERITED::onClipShader(std::move(cs), op);
 }
 
 void SkPictureRecord::onClipRegion(const SkRegion& region, SkClipOp op) {
@@ -627,16 +658,14 @@ void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matri
 }
 
 void SkPictureRecord::onDrawVerticesObject(const SkVertices* vertices,
-                                           const SkVertices::Bone bones[], int boneCount,
                                            SkBlendMode mode, const SkPaint& paint) {
-    // op + paint index + vertices index + number of bones + bone matrices + mode
-    size_t size = 5 * kUInt32Size + boneCount * sizeof(SkVertices::Bone);
+    // op + paint index + vertices index + zero_bones + mode
+    size_t size = 5 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_VERTICES_OBJECT, &size);
 
     this->addPaint(paint);
     this->addVertices(vertices);
-    this->addInt(boneCount);
-    fWriter.write(bones, boneCount * sizeof(SkVertices::Bone));
+    this->addInt(0);    // legacy bone count
     this->addInt(static_cast<uint32_t>(mode));
 
     this->validate(initialOffset, size);
@@ -732,8 +761,8 @@ void SkPictureRecord::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec&
 }
 
 void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    size_t keyLen = fWriter.WriteStringSize(key);
-    size_t valueLen = fWriter.WriteDataSize(value);
+    size_t keyLen = SkWriter32::WriteStringSize(key);
+    size_t valueLen = SkWriter32::WriteDataSize(value);
     size_t size = 4 + sizeof(SkRect) + keyLen + valueLen;
 
     size_t initialOffset = this->addDraw(DRAW_ANNOTATION, &size);

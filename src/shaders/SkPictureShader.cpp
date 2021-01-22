@@ -11,16 +11,19 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkResourceCache.h"
+#include "src/core/SkVM.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkImageShader.h"
 #include <atomic>
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFragmentProcessor.h"
@@ -111,7 +114,7 @@ uint32_t next_id() {
 
     uint32_t id;
     do {
-        id = nextID++;
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id == SK_InvalidGenID);
     return id;
 }
@@ -140,22 +143,6 @@ sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, SkTileMode tmx, 
         return SkShaders::Empty();
     }
     return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
-}
-
-SkPicture* SkPictureShader::isAPicture(SkMatrix* matrix,
-                                       SkTileMode tileModes[2],
-                                       SkRect* tile) const {
-    if (matrix) {
-        *matrix = this->getLocalMatrix();
-    }
-    if (tileModes) {
-        tileModes[0] = fTmx;
-        tileModes[1] = fTmy;
-    }
-    if (tile) {
-        *tile = fTile;
-    }
-    return fPicture.get();
 }
 
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
@@ -221,7 +208,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     // Scale down the tile size if larger than maxTextureSize for GPU Path or it should fail on create texture
     if (maxTextureSize) {
         if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
-            SkScalar downScale = maxTextureSize / SkMaxScalar(scaledSize.width(), scaledSize.height());
+            SkScalar downScale = maxTextureSize / std::max(scaledSize.width(), scaledSize.height());
             scaledSize.set(SkScalarFloorToScalar(scaledSize.width() * downScale),
                            SkScalarFloorToScalar(scaledSize.height() * downScale));
         }
@@ -275,7 +262,8 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
 
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->refBitmapShader(rec.fCTM, &lm, rec.fDstColorType, rec.fDstCS);
+    bitmapShader = this->refBitmapShader(rec.fMatrixProvider.localToDevice(), &lm,
+                                         rec.fDstColorType, rec.fDstCS);
 
     if (!bitmapShader) {
         return false;
@@ -285,6 +273,27 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     localRec.fLocalM = lm->isIdentity() ? nullptr : lm.get();
 
     return as_SB(bitmapShader)->appendStages(localRec);
+}
+
+skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
+                                       skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                       const SkMatrixProvider& matrices, const SkMatrix* localM,
+                                       SkFilterQuality quality, const SkColorInfo& dst,
+                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    auto lm = this->totalLocalMatrix(localM);
+
+    // Keep bitmapShader alive by using alloc instead of stack memory
+    auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
+    bitmapShader = this->refBitmapShader(matrices.localToDevice(), &lm,
+                                         dst.colorType(), dst.colorSpace());
+    if (!bitmapShader) {
+        return {};
+    }
+
+    return as_SB(bitmapShader)->program(p, device,local, paint,
+                                        matrices,lm,
+                                        quality,dst,
+                                        uniforms,alloc);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -334,8 +343,6 @@ void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor ds
 }
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
 
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {
@@ -344,20 +351,20 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         maxTextureSize = args.fContext->priv().caps()->maxTextureSize();
     }
 
-    auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
+    auto lm = this->totalLocalMatrix(args.fPreLocalMatrix);
     SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorInfo->colorType());
     if (dstColorType == kUnknown_SkColorType) {
         dstColorType = kRGBA_8888_SkColorType;
     }
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm, dstColorType,
-                                                       args.fDstColorInfo->colorSpace(),
-                                                       maxTextureSize));
+    sk_sp<SkShader> bitmapShader(
+            this->refBitmapShader(args.fMatrixProvider.localToDevice(), &lm, dstColorType,
+                                  args.fDstColorInfo->colorSpace(), maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }
 
     // We want to *reset* args.fPreLocalMatrix, not compose it.
-    GrFPArgs newArgs(args.fContext, args.fViewMatrix, args.fFilterQuality, args.fDstColorInfo);
+    GrFPArgs newArgs(args.fContext, args.fMatrixProvider, args.fFilterQuality, args.fDstColorInfo);
     newArgs.fPreLocalMatrix = lm.get();
 
     return as_SB(bitmapShader)->asFragmentProcessor(newArgs);

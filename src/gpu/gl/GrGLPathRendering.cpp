@@ -5,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLPathRendering.h"
-#include "src/gpu/gl/GrGLUtil.h"
-
-#include "src/gpu/GrRenderTargetProxy.h"
-#include "src/gpu/gl/GrGLPath.h"
-#include "src/gpu/gl/GrGLPathRendering.h"
-
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLPath.h"
+#include "src/gpu/gl/GrGLPathRendering.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->gpu()->glInterface(), RET, X)
@@ -23,12 +22,12 @@
 // implementation. The call has a result value, and thus waiting for the call completion is needed.
 static const GrGLsizei kPathIDPreallocationAmount = 65536;
 
-GR_STATIC_ASSERT(0 == GrPathRendering::kNone_PathTransformType);
-GR_STATIC_ASSERT(1 == GrPathRendering::kTranslateX_PathTransformType);
-GR_STATIC_ASSERT(2 == GrPathRendering::kTranslateY_PathTransformType);
-GR_STATIC_ASSERT(3 == GrPathRendering::kTranslate_PathTransformType);
-GR_STATIC_ASSERT(4 == GrPathRendering::kAffine_PathTransformType);
-GR_STATIC_ASSERT(GrPathRendering::kAffine_PathTransformType == GrPathRendering::kLast_PathTransformType);
+static_assert(0 == GrPathRendering::kNone_PathTransformType);
+static_assert(1 == GrPathRendering::kTranslateX_PathTransformType);
+static_assert(2 == GrPathRendering::kTranslateY_PathTransformType);
+static_assert(3 == GrPathRendering::kTranslate_PathTransformType);
+static_assert(4 == GrPathRendering::kAffine_PathTransformType);
+static_assert(GrPathRendering::kAffine_PathTransformType == GrPathRendering::kLast_PathTransformType);
 
 #ifdef SK_DEBUG
 
@@ -90,8 +89,8 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(args.fProxy->peekRenderTarget());
     SkISize dimensions = rt->dimensions();
-    this->setProjectionMatrix(*args.fViewMatrix, dimensions, args.fProxy->origin());
-    gpu->flushScissor(*args.fScissor, rt->width(), rt->height(), args.fProxy->origin());
+    this->setProjectionMatrix(*args.fViewMatrix, dimensions, args.fOrigin);
+    gpu->flushScissor(*args.fScissor, rt->width(), rt->height(), args.fOrigin);
     gpu->flushHWAAState(rt, args.fUseHWAA);
     gpu->flushRenderTarget(rt);
 
@@ -111,14 +110,8 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     }
 }
 
-void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
-                                   const GrProgramInfo& programInfo,
-                                   const GrStencilSettings& stencilPassSettings,
+void GrGLPathRendering::onDrawPath(const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
-    if (!this->gpu()->flushGLState(renderTarget, programInfo)) {
-        return;
-    }
-
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
     this->flushPathStencilSettings(stencilPassSettings);
@@ -173,7 +166,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
 
     if (renderTargetOrigin == fHWProjectionMatrixState.fRenderTargetOrigin &&
         renderTargetSize == fHWProjectionMatrixState.fRenderTargetSize &&
-        matrix.cheapEqualTo(fHWProjectionMatrixState.fViewMatrix)) {
+        SkMatrixPriv::CheapEqual(matrix, fHWProjectionMatrixState.fViewMatrix)) {
         return;
     }
 
@@ -182,7 +175,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
     fHWProjectionMatrixState.fRenderTargetOrigin = renderTargetOrigin;
 
     float glMatrix[4 * 4];
-    fHWProjectionMatrixState.getRTAdjustedGLMatrix<4>(glMatrix);
+    fHWProjectionMatrixState.getRTAdjustedGLMatrix(glMatrix);
     SkDEBUGCODE(verify_floats(glMatrix, SK_ARRAY_COUNT(glMatrix)));
     GL_CALL(MatrixLoadf(GR_GL_PATH_PROJECTION, glMatrix));
 }

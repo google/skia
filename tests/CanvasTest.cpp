@@ -37,8 +37,10 @@
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
+#include "src/core/SkBigPicture.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkRecord.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/utils/SkCanvasStack.h"
 #include "tests/Test.h"
@@ -52,6 +54,42 @@
 #include <utility>
 
 class SkReadBuffer;
+
+struct ClipRectVisitor {
+    skiatest::Reporter* r;
+
+    template <typename T>
+    SkRect operator()(const T&) {
+        REPORTER_ASSERT(r, false, "unexpected record");
+        return {1,1,0,0};
+    }
+
+    SkRect operator()(const SkRecords::ClipRect& op) {
+        return op.rect;
+    }
+};
+
+DEF_TEST(canvas_unsorted_clip, r) {
+    // Test that sorted and unsorted clip rects are forwarded
+    // to picture subclasses and/or devices sorted.
+    //
+    // We can't just test this with an SkCanvas on stack and
+    // SkCanvas::getLocalClipBounds(), as that only tests the raster device,
+    // which sorts these rects itself.
+    for (SkRect clip : {SkRect{0,0,5,5}, SkRect{5,5,0,0}}) {
+        SkPictureRecorder rec;
+        rec.beginRecording({0,0,10,10})
+            ->clipRect(clip);
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+
+        auto bp = (const SkBigPicture*)pic.get();
+        const SkRecord* record = bp->record();
+
+        REPORTER_ASSERT(r, record->count() == 1);
+        REPORTER_ASSERT(r, record->visit(0, ClipRectVisitor{r})
+                                .isSorted());
+    }
+}
 
 DEF_TEST(canvas_clipbounds, reporter) {
     SkCanvas canvas(10, 10);
@@ -182,6 +220,10 @@ DEF_TEST(CanvasNewRasterTest, reporter) {
         addr = (const SkPMColor*)((const char*)addr + pmap.rowBytes());
     }
 
+    // unaligned rowBytes
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr,
+                                                                    minRowBytes + 1));
+
     // now try a deliberately bad info
     info = info.makeWH(-1, info.height());
     REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes));
@@ -241,10 +283,10 @@ static CanvasTest kCanvasTests[] = {
         c->skew(SkIntToScalar(1), SkIntToScalar(2));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-        c->concat(SkMatrix::MakeScale(2, 3));
+        c->concat(SkMatrix::Scale(2, 3));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-        c->setMatrix(SkMatrix::MakeScale(2, 3));
+        c->setMatrix(SkMatrix::Scale(2, 3));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         c->clipRect(kRect);
@@ -253,7 +295,7 @@ static CanvasTest kCanvasTests[] = {
         c->clipPath(make_path_from_rect(SkRect{0, 0, 2, 1}));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}), kReplace_SkClipOp);
+        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         c->clear(kColor);
@@ -311,8 +353,8 @@ static CanvasTest kCanvasTests[] = {
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         SkPictureRecorder recorder;
-        SkCanvas* testCanvas = recorder.beginRecording(
-                SkIntToScalar(kWidth), SkIntToScalar(kHeight), nullptr, 0);
+        SkCanvas* testCanvas = recorder.beginRecording(SkIntToScalar(kWidth),
+                                                       SkIntToScalar(kHeight));
         testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
         testCanvas->clipRect(kRect);
         testCanvas->drawRect(kRect, SkPaint());
@@ -445,7 +487,7 @@ protected:
     bool onFilter(SkPaint&) const override { return true; }
 
 private:
-    typedef SkPaintFilterCanvas INHERITED;
+    using INHERITED = SkPaintFilterCanvas;
 };
 
 } // anonymous namespace
@@ -478,12 +520,12 @@ public:
     LifeLineCanvas(int w, int h, bool* lifeline) : SkCanvas(w, h), fLifeLine(lifeline) {
         *fLifeLine = true;
     }
-    ~LifeLineCanvas() {
+    ~LifeLineCanvas() override {
         *fLifeLine = false;
     }
 };
 
-}
+}  // namespace
 
 // Check that NWayCanvas does NOT try to manage the lifetime of its sub-canvases
 DEF_TEST(NWayCanvas, r) {
@@ -613,7 +655,7 @@ private:
 
     ZeroBoundsImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 sk_sp<SkFlattenable> ZeroBoundsImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -639,7 +681,7 @@ DEF_TEST(Canvas_degenerate_dimension, reporter) {
     // Need a paint that will sneak us past the quickReject in SkCanvas, so we can test the
     // raster code further downstream.
     SkPaint paint;
-    paint.setImageFilter(SkImageFilters::Paint(SkPaint(), nullptr));
+    paint.setImageFilter(SkImageFilters::Shader(SkShaders::Color(SK_ColorBLACK), nullptr));
     REPORTER_ASSERT(reporter, !paint.canComputeFastBounds());
 
     const int big = 100 * 1024; // big enough to definitely trigger tiling
@@ -676,3 +718,52 @@ DEF_TEST(Canvas_ClippedOutImageFilter, reporter) {
     REPORTER_ASSERT(reporter, preCTM == postCTM);
 }
 
+DEF_TEST(canvas_markctm, reporter) {
+    SkCanvas canvas(10, 10);
+
+    SkM44    m;
+    const char* id_a = "a";
+    const char* id_b = "b";
+
+    REPORTER_ASSERT(reporter, !canvas.findMarkedCTM(id_a, nullptr));
+    REPORTER_ASSERT(reporter, !canvas.findMarkedCTM(id_b, nullptr));
+
+    // remember the starting state
+    SkM44 b = canvas.getLocalToDevice();
+    canvas.markCTM(id_b);
+
+    // test add
+    canvas.concat(SkM44::Scale(2, 4, 6));
+    SkM44 a = canvas.getLocalToDevice();
+    canvas.markCTM(id_a);
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a);
+
+    // test replace
+    canvas.translate(1, 2);
+    SkM44 a1 = canvas.getLocalToDevice();
+    SkASSERT(a != a1);
+    canvas.markCTM(id_a);
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
+
+    // test nested
+    canvas.save();
+    // no change
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_b, &m) && m == b);
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
+    canvas.translate(2, 3);
+    SkM44 a2 = canvas.getLocalToDevice();
+    SkASSERT(a2 != a1);
+    canvas.markCTM(id_a);
+    // found the new one
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a2);
+    canvas.restore();
+    // found the previous one
+    REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
+}
+
+DEF_TEST(Canvas_quickreject_empty, reporter) {
+    SkCanvas canvas(10, 10);
+
+    REPORTER_ASSERT(reporter, canvas.quickReject({0,0,0,0}));
+    REPORTER_ASSERT(reporter, canvas.quickReject(SkPath()));
+}

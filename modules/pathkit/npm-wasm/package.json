@@ -1,11 +1,15 @@
 {
   "name": "pathkit-wasm",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A WASM version of Skia's PathOps toolkit",
   "main": "bin/pathkit.js",
   "homepage": "https://github.com/google/skia/tree/master/modules/pathkit",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bugs": {
+    "url": "https://bugs.chromium.org/p/skia/issues/entry"
+  },
+  "permsRepo": "skia-dev/.github",
+  "publishConfig": {
+    "registry":"https://wombat-dressing-room.appspot.com"
   },
   "license": "BSD-3-Clause"
 }

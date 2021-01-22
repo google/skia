@@ -91,8 +91,8 @@ def RunSteps(api):
 
 def GenTests(api):
   yield (
-      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+      api.test('Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit') +
+      api.properties(buildername=('Test-Debian10-EMCC-GCE-CPU-AVX2'
                                   '-wasm-Debug-All-PathKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
@@ -101,8 +101,8 @@ def GenTests(api):
   )
 
   yield (
-      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Debug-All-PathKit') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+      api.test('Test-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Debug-All-PathKit') +
+      api.properties(buildername=('Test-Debian10-EMCC-GCE-CPU-AVX2'
                                   '-asmjs-Debug-All-PathKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
@@ -111,8 +111,8 @@ def GenTests(api):
   )
 
   yield (
-      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+      api.test('Test-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit') +
+      api.properties(buildername=('Test-Debian10-EMCC-GCE-CPU-AVX2'
                                   '-asmjs-Release-All-PathKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
@@ -122,7 +122,7 @@ def GenTests(api):
 
   yield (
       api.test('pathkit_trybot') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+      api.properties(buildername=('Test-Debian10-EMCC-GCE-CPU-AVX2'
                                   '-wasm-Debug-All-PathKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',

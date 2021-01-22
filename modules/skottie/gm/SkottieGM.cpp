@@ -12,7 +12,6 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
-#include "src/core/SkMakeUnique.h"
 #include "tools/Resources.h"
 
 #include <cmath>
@@ -23,17 +22,18 @@ namespace {
 static constexpr char kWebFontResource[] = "fonts/Roboto-Regular.ttf";
 static constexpr char kSkottieResource[] = "skottie/skottie_sample_webfont.json";
 
-// Dummy web font loader which serves a single local font (checked in under resources/).
+// Mock web font loader which serves a single local font (checked in under resources/).
 class FakeWebFontProvider final : public skresources::ResourceProvider {
 public:
-    FakeWebFontProvider() : fFontData(GetResourceAsData(kWebFontResource)) {}
+    FakeWebFontProvider()
+        : fTypeface(SkTypeface::MakeFromData(GetResourceAsData(kWebFontResource))) {}
 
-    sk_sp<SkData> loadFont(const char[], const char[]) const override {
-        return fFontData;
+    sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override {
+        return fTypeface;
     }
 
 private:
-    sk_sp<SkData> fFontData;
+    sk_sp<SkTypeface> fTypeface;
 
     using INHERITED = skresources::ResourceProvider;
 };
@@ -102,7 +102,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream("skottie/skottie_sample_search.json")) {
-            fPropManager = skstd::make_unique<skottie_utils::CustomPropertyManager>();
+            fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
             fAnimation   = skottie::Animation::Builder()
                               .setPropertyObserver(fPropManager->getPropertyObserver())
                               .make(stream.get());
@@ -180,6 +180,7 @@ protected:
             fAnimation = skottie::Animation::Builder()
                             .setResourceProvider(sk_make_sp<MultiFrameResourceProvider>())
                             .make(stream.get());
+            fAnimation->seek(0);
         }
     }
 

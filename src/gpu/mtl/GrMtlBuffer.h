@@ -25,7 +25,6 @@ public:
 
     id<MTLBuffer> mtlBuffer() const { return fMtlBuffer; }
     size_t offset() const { return fOffset; }
-    void bind(); // for initial binding of XferGpuToCpu buffers
 
 protected:
     GrMtlBuffer(GrMtlGpu*, size_t size, GrGpuBufferType intendedType, GrAccessPattern);
@@ -52,7 +51,7 @@ private:
     size_t        fOffset;       // offset into shared buffer for dynamic buffers
     id<MTLBuffer> fMappedBuffer; // buffer used by static buffers for uploads
 
-    typedef GrGpuBuffer INHERITED;
+    using INHERITED = GrGpuBuffer;
 };
 
 #endif

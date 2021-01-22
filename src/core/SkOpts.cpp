@@ -16,6 +16,8 @@
     #else
         #define SK_OPTS_NS neon
     #endif
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    #define SK_OPTS_NS skx
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #define SK_OPTS_NS avx2
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
@@ -36,6 +38,7 @@
     #define SK_OPTS_NS portable
 #endif
 
+#include "src/core/SkCubicSolver.h"
 #include "src/opts/SkBitmapProcState_opts.h"
 #include "src/opts/SkBlitMask_opts.h"
 #include "src/opts/SkBlitRow_opts.h"
@@ -43,9 +46,8 @@
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 #include "src/opts/SkUtils_opts.h"
+#include "src/opts/SkVM_opts.h"
 #include "src/opts/SkXfermode_opts.h"
-
-#include "src/core/SkCubicSolver.h"
 
 namespace SkOpts {
     // Define default function pointer values here...
@@ -85,6 +87,8 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
     DEFINE_DEFAULT(S32_alpha_D32_filter_DXDY);
+
+    DEFINE_DEFAULT(interpret_skvm);
 #undef DEFINE_DEFAULT
 
 #define M(st) (StageFn)SK_OPTS_NS::st,
@@ -103,10 +107,10 @@ namespace SkOpts {
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
-    void Init_sse41();
     void Init_sse42();
     void Init_avx();
     void Init_hsw();
+    void Init_skx();
     void Init_crc32();
 
     static void init() {
@@ -116,10 +120,6 @@ namespace SkOpts {
             if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
         #endif
 
-        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE41
-            if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
-        #endif
-
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE42
             if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }
         #endif
@@ -127,6 +127,10 @@ namespace SkOpts {
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX
             if (SkCpu::Supports(SkCpu::AVX)) { Init_avx();   }
             if (SkCpu::Supports(SkCpu::HSW)) { Init_hsw();   }
+        #endif
+
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SKX
+            if (SkCpu::Supports(SkCpu::SKX)) { Init_skx(); }
         #endif
 
     #elif defined(SK_CPU_ARM64)

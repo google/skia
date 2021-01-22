@@ -8,10 +8,11 @@
 #include "gm/gm.h"
 
 #include "include/core/SkPath.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
@@ -58,7 +59,7 @@ private:
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
-    DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* rContext, GrRenderTargetContext* rtc, SkCanvas* canvas,
                       SkString* errorMsg) override {
         using CoverageType = GrCCAtlas::CoverageType;
 
@@ -67,7 +68,7 @@ private:
             return DrawResult::kSkip;
         }
 
-        auto* ccpr = ctx->priv().drawingManager()->getCoverageCountingPathRenderer();
+        auto* ccpr = rContext->priv().drawingManager()->getCoverageCountingPathRenderer();
         if (!ccpr) {
             errorMsg->set("ccpr only");
             return DrawResult::kSkip;
@@ -80,20 +81,26 @@ private:
             return DrawResult::kFail;
         }
 
+        auto dContext = GrAsDirectContext(rContext);
+        if (!dContext) {
+            *errorMsg = "Requires a direct context.";
+            return skiagm::DrawResult::kSkip;
+        }
+
         auto starRect = SkRect::MakeWH(fStarSize, fStarSize);
         SkPath star7_winding = ToolUtils::make_star(starRect, 7);
         star7_winding.setFillType(SkPathFillType::kWinding);
 
         SkPath star7_evenOdd = star7_winding;
-        star7_evenOdd.transform(SkMatrix::MakeTrans(0, fStarSize));
+        star7_evenOdd.transform(SkMatrix::Translate(0, fStarSize));
         star7_evenOdd.setFillType(SkPathFillType::kEvenOdd);
 
         SkPath star5_winding = ToolUtils::make_star(starRect, 5);
-        star5_winding.transform(SkMatrix::MakeTrans(fStarSize, 0));
+        star5_winding.transform(SkMatrix::Translate(fStarSize, 0));
         star5_winding.setFillType(SkPathFillType::kWinding);
 
         SkPath star5_evenOdd = star5_winding;
-        star5_evenOdd.transform(SkMatrix::MakeTrans(0, fStarSize));
+        star5_evenOdd.transform(SkMatrix::Translate(0, fStarSize));
         star5_evenOdd.setFillType(SkPathFillType::kEvenOdd);
 
         SkPaint paint;
@@ -106,7 +113,7 @@ private:
             canvas->drawPath(star7_evenOdd, paint);
             canvas->drawPath(star5_winding, paint);
             canvas->drawPath(star5_evenOdd, paint);
-            rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+            rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
 
             // Ensure the path cache is behaving in such a way that we are actually testing what we
             // think we are.
@@ -135,8 +142,11 @@ private:
                 }
                 ++numCachedPaths;
             }
-            // Verify all 4 paths are tracked by the path cache.
-            ERR_MSG_ASSERT(4 == numCachedPaths);
+
+            if (dContext) {
+                // Verify all 4 paths are tracked by the path cache.
+                ERR_MSG_ASSERT(4 == numCachedPaths);
+            }
         }
 
         return DrawResult::kOk;
@@ -150,4 +160,4 @@ private:
 DEF_GM( return new PreserveFillRuleGM(true); )
 DEF_GM( return new PreserveFillRuleGM(false); )
 
-}
+}  // namespace skiagm

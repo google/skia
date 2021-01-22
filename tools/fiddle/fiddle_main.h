@@ -13,7 +13,7 @@
     #include "include/core/SkPictureRecorder.h"
     #include "include/core/SkStream.h"
     #include "include/core/SkSurface.h"
-    #include "include/gpu/GrContext.h"
+    #include "include/gpu/GrDirectContext.h"
     #include "include/gpu/gl/GrGLAssembleInterface.h"
     #include "include/gpu/gl/GrGLInterface.h"
 #else
@@ -33,16 +33,16 @@ extern double frame;    // A value in [0, 1] of where we are in the animation.
 
 namespace sk_gpu_test {
 class GLTestContext;
-}
+}  // namespace sk_gpu_test
 
 struct DrawOptions {
     DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16,
                 bool textOnly, const char* s,
-                GrMipMapped mipMapping,
+                GrMipmapped mipMapping,
                 int offScreenWidth,
                 int offScreenHeight,
                 int offScreenSampleCount,
-                GrMipMapped offScreenMipMapping)
+                GrMipmapped offScreenMipMapping)
         : size(SkISize::Make(w, h))
         , raster(r)
         , gpu(g)
@@ -74,7 +74,7 @@ struct DrawOptions {
     // In this case the resource is created with extra room to accomodate mipmaps.
     // TODO: The SkImage::makeTextureImage API would need to be widened to allow this to be true
     // for the non-backend gpu SkImages.
-    GrMipMapped fMipMapping;
+    GrMipmapped fMipMapping;
 
     // Parameters for an GPU offscreen resource exposed as a GrBackendRenderTarget
     int         fOffScreenWidth;
@@ -82,16 +82,16 @@ struct DrawOptions {
     int         fOffScreenSampleCount;
     // TODO: should we also expose stencilBits here? How about the config?
 
-    GrMipMapped fOffScreenMipMapping; // only applicable if the offscreen is also textureable
+    GrMipmapped fOffScreenMipMapping; // only applicable if the offscreen is also textureable
 };
 
 extern DrawOptions GetDrawOptions();
 extern void SkDebugf(const char * format, ...);
 extern void draw(SkCanvas*);
 
-// There are different implementations of create_grcontext() for EGL, Mesa,
+// There are different implementations of create_direct_context() for EGL, Mesa,
 // and a fallback to a null context.
-extern sk_sp<GrContext> create_grcontext(std::ostringstream& driverinfo,
-                                         std::unique_ptr<sk_gpu_test::GLTestContext>* glContext);
+extern sk_sp<GrDirectContext> create_direct_context(std::ostringstream& driverinfo,
+                                                    std::unique_ptr<sk_gpu_test::GLTestContext>*);
 
 #endif  // fiddle_main_DEFINED

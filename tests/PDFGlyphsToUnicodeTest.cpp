@@ -13,7 +13,6 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
-#include "src/utils/SkBitSet.h"
 
 static constexpr SkGlyphID kMaximumGlyphIndex = UINT16_MAX;
 
@@ -82,7 +81,7 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
         subset.set(v);
     }
     SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 0,
-                            SkTMin<SkGlyphID>(0xFFFF,  lastGlyphID));
+                            std::min<SkGlyphID>(0xFFFF,  lastGlyphID));
 
     char expectedResult[] =
 "4 beginbfchar\n\
@@ -105,7 +104,7 @@ endbfrange\n";
     buffer.reset();
 
     SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 8,
-                            SkTMin<SkGlyphID>(0x00FF, lastGlyphID));
+                            std::min<SkGlyphID>(0x00FF, lastGlyphID));
 
     char expectedResultChop1[] =
 "2 beginbfchar\n\
@@ -124,7 +123,7 @@ endbfrange\n";
     buffer.reset();
 
     SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 0x00D,
-                            SkTMin<SkGlyphID>(0x00FE, lastGlyphID));
+                            std::min<SkGlyphID>(0x00FE, lastGlyphID));
 
     char expectedResultChop2[] =
 "2 beginbfchar\n\
@@ -138,7 +137,7 @@ endbfchar\n";
     buffer.reset();
 
     SkPDFAppendCmapSections(&glyphToUnicode[0], nullptr, &buffer, false, 0xFC,
-                            SkTMin<SkGlyphID>(0x110, lastGlyphID));
+                            std::min<SkGlyphID>(0x110, lastGlyphID));
 
     char expectedResultSingleBytes[] =
 "2 beginbfchar\n\
@@ -178,7 +177,7 @@ endbfrange\n";
         subset2.set(v);
     }
     SkPDFAppendCmapSections(&glyphToUnicode[0], &subset2, &buffer2, true, 0,
-                            SkTMin<SkGlyphID>(0xFFFF, lastGlyphID));
+                            std::min<SkGlyphID>(0xFFFF, lastGlyphID));
 
     char expectedResult2[] =
 "4 beginbfchar\n\

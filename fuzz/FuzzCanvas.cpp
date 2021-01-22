@@ -23,6 +23,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkTo.h"
+#include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkNullCanvas.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPicturePriv.h"
@@ -32,7 +33,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/Sk2DPathEffect.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
@@ -49,9 +49,10 @@
 #include "src/utils/SkUTF.h"
 #include "tools/flags/CommandLineFlags.h"
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLFunctions.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -525,7 +526,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         return nullptr;
     }
     uint8_t imageFilterType;
-    fuzz->nextRange(&imageFilterType, 0, 23);
+    fuzz->nextRange(&imageFilterType, 0, 24);
     switch (imageFilterType) {
         case 0:
             return nullptr;
@@ -784,8 +785,18 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             }
             sk_sp<SkImageFilter> bg = make_fuzz_imageFilter(fuzz, depth - 1);
             sk_sp<SkImageFilter> fg = make_fuzz_imageFilter(fuzz, depth - 1);
-            return SkImageFilters::Xfermode(blendMode, std::move(bg), std::move(fg),
-                                            useCropRect ? &cropRect : nullptr);
+            return SkImageFilters::Blend(blendMode, std::move(bg), std::move(fg),
+                                         useCropRect ? &cropRect : nullptr);
+        }
+        case 24: {
+            sk_sp<SkShader> shader = make_fuzz_shader(fuzz, depth - 1);
+            bool useCropRect;
+            fuzz->next(&useCropRect);
+            SkIRect cropRect;
+            if (useCropRect) {
+                fuzz->next(&cropRect);
+            }
+            return SkImageFilters::Shader(std::move(shader), useCropRect ? &cropRect : nullptr);
         }
         default:
             SkASSERT(false);
@@ -958,6 +969,16 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
     return array;
 }
 
+static std::string make_fuzz_string(Fuzz* fuzz) {
+    int len;
+    fuzz->nextRange(&len, 0, kMaxGlyphCount);
+    std::string str(len, 0);
+    for (int i = 0; i < len; i++) {
+        fuzz->next(&str[i]);
+    }
+    return str;
+}
+
 static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
     SkTextBlobBuilder textBlobBuilder;
     int8_t runCount;
@@ -1017,7 +1038,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
         SkPaint paint;
         SkFont font;
         unsigned drawCommand;
-        fuzz->nextRange(&drawCommand, 0, 53);
+        fuzz->nextRange(&drawCommand, 0, 62);
         switch (drawCommand) {
             case 0:
                 canvas->flush();
@@ -1376,46 +1397,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             }
             case 42: {
-                SkBitmap img = make_fuzz_bitmap(fuzz);
-                SkIRect center;
-                SkRect dst;
-                bool usePaint;
-                fuzz->next(&usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                if (make_fuzz_t<bool>(fuzz)) {
-                    fuzz->next(&center);
-                } else {  // Make valid center, see SkLatticeIter::Valid().
-                    if (img.width() == 0 || img.height() == 0) {
-                        // bitmap may not have had its pixels initialized.
-                        break;
-                    }
-                    fuzz->nextRange(&center.fLeft, 0, img.width() - 1);
-                    fuzz->nextRange(&center.fTop, 0, img.height() - 1);
-                    fuzz->nextRange(&center.fRight, center.fLeft + 1, img.width());
-                    fuzz->nextRange(&center.fBottom, center.fTop + 1, img.height());
-                }
-                fuzz->next(&dst);
-                canvas->drawBitmapNine(img, center, dst, usePaint ? &paint : nullptr);
                 break;
             }
             case 43: {
-                SkBitmap img = make_fuzz_bitmap(fuzz);
-                bool usePaint;
-                SkRect dst;
-                fuzz->next(&usePaint, &dst);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                constexpr int kMax = 6;
-                int xDivs[kMax], yDivs[kMax];
-                SkCanvas::Lattice lattice{xDivs, yDivs, nullptr, 0, 0, nullptr, nullptr};
-                fuzz->nextRange(&lattice.fXCount, 2, kMax);
-                fuzz->nextRange(&lattice.fYCount, 2, kMax);
-                fuzz->nextN(xDivs, lattice.fXCount);
-                fuzz->nextN(yDivs, lattice.fYCount);
-                canvas->drawBitmapLattice(img, lattice, dst, usePaint ? &paint : nullptr);
                 break;
             }
             case 44: {
@@ -1524,6 +1508,93 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                                                           useColors ? colors : nullptr,
                                                           indexCount, indices),
                                      blendMode, paint);
+                break;
+            }
+            case 54: {
+                SkColor color;
+                SkBlendMode blendMode;
+                fuzz->nextRange(&blendMode, 0, SkBlendMode::kSrcOver);
+                fuzz->next(&color);
+                canvas->drawColor(color, blendMode);
+                break;
+            }
+            case 55: {
+                SkColor4f color;
+                SkBlendMode blendMode;
+                float R, G, B, Alpha;
+                fuzz->nextRange(&blendMode, 0, SkBlendMode::kSrcOver);
+                fuzz->nextRange(&R, -1, 2);
+                fuzz->nextRange(&G, -1, 2);
+                fuzz->nextRange(&B, -1, 2);
+                fuzz->nextRange(&Alpha, 0, 1);
+                color = {R, G, B, Alpha};
+                canvas->drawColor(color, blendMode);
+                break;
+            }
+            case 56: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkPoint p0, p1;
+                fuzz->next(&p0, &p1);
+                canvas->drawLine(p0, p1, paint);
+                break;
+            }
+            case 57: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkIRect r;
+                fuzz->next(&r);
+                canvas->drawIRect(r, paint);
+                break;
+            }
+            case 58: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkScalar radius;
+                SkPoint center;
+                fuzz->next(&radius, &center);
+                canvas->drawCircle(center, radius, paint);
+                break;
+            }
+            case 59: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkRect oval;
+                SkScalar startAngle, sweepAngle;
+                bool useCenter;
+                fuzz->next(&oval, &startAngle, &sweepAngle, &useCenter);
+                canvas->drawArc(oval, startAngle, sweepAngle, useCenter, paint);
+                break;
+            }
+            case 60: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkRect rect;
+                SkScalar rx, ry;
+                fuzz->next(&rect, &rx, &ry);
+                canvas->drawRoundRect(rect, rx, ry, paint);
+                break;
+            }
+            case 61: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                font = fuzz_font(fuzz);
+                std::string str = make_fuzz_string(fuzz);
+                SkScalar x, y;
+                fuzz->next(&x, &y);
+                canvas->drawString(str.c_str(), x, y, font, paint);
+                break;
+            }
+            case 62: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkPoint cubics[12];
+                SkColor colors[4];
+                SkPoint texCoords[4];
+                bool useTexCoords;
+                fuzz->nextN(cubics, 12);
+                fuzz->nextN(colors, 4);
+                fuzz->next(&useTexCoords);
+                if (useTexCoords) {
+                    fuzz->nextN(texCoords, 4);
+                }
+                SkBlendMode mode;
+                fuzz->nextEnum(&mode, SkBlendMode::kLastMode);
+                canvas->drawPatch(cubics, colors, useTexCoords ? texCoords : nullptr
+                    , mode, paint);
                 break;
             }
             default:
@@ -1645,9 +1716,9 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
     canvas.restore();
 }
 
-#if SK_SUPPORT_GPU
+#ifdef SK_GL
 
-static void dump_GPU_info(GrContext* context) {
+static void dump_GPU_info(GrDirectContext* context) {
     const GrGLInterface* gl = static_cast<GrGLGpu*>(context->priv().getGpu())
                                     ->glInterface();
     const GrGLubyte* output;
@@ -1661,7 +1732,7 @@ static void dump_GPU_info(GrContext* context) {
     SkDebugf("GL_VERSION %s\n", (const char*) output);
 }
 
-static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
+static void fuzz_ganesh(Fuzz* fuzz, GrDirectContext* context) {
     SkASSERT(context);
     auto surface = SkSurface::MakeRenderTarget(
             context,
@@ -1673,7 +1744,7 @@ static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
 
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
-    GrContext* context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
+    auto context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
     if (!context) {
         context = f.get(sk_gpu_test::GrContextFactory::kGLES_ContextType);
     }
@@ -1705,9 +1776,16 @@ DEF_FUZZ(_DumpCanvas, fuzz) {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
     writer.beginObject(); // root
-    debugCanvas.toJSON(writer, dataManager, debugCanvas.getSize(), nullCanvas.get());
+    debugCanvas.toJSON(writer, dataManager, nullCanvas.get());
     writer.endObject(); // root
     writer.flush();
     sk_sp<SkData> json = stream.detachAsData();
     fwrite(json->data(), json->size(), 1, stdout);
+}
+
+DEF_FUZZ(SVGCanvas, fuzz) {
+    SkNullWStream stream;
+    SkRect bounds = SkRect::MakeIWH(150, 150);
+    std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, &stream);
+    fuzz_canvas(fuzz, canvas.get());
 }

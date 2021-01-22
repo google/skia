@@ -12,6 +12,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkUtils.h"
+#include "src/core/SkVM.h"
 #include "src/shaders/SkColorShader.h"
 
 SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
@@ -90,49 +91,40 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-static bool common_program(SkColor4f color, SkColorSpace* cs,
-                           skvm::Builder* p,
-                           SkColorSpace* dstCS,
-                           skvm::Uniforms* uniforms,
-                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) {
-    SkColorSpaceXformSteps(   cs, kUnpremul_SkAlphaType,
-                           dstCS,   kPremul_SkAlphaType).apply(color.vec());
-
-    *r = p->uniformF(uniforms->pushF(color.fR));
-    *g = p->uniformF(uniforms->pushF(color.fG));
-    *b = p->uniformF(uniforms->pushF(color.fB));
-    *a = p->uniformF(uniforms->pushF(color.fA));
-    return true;
+skvm::Color SkColorShader::onProgram(skvm::Builder* p,
+                                     skvm::Coord /*device*/, skvm::Coord /*local*/,
+                                     skvm::Color /*paint*/,
+                                     const SkMatrixProvider&, const SkMatrix* /*localM*/,
+                                     SkFilterQuality /*quality*/, const SkColorInfo& dst,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+    SkColor4f color = SkColor4f::FromColor(fColor);
+    SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                              dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
+    return p->uniformColor(color, uniforms);
 }
-
-bool SkColorShader::onProgram(skvm::Builder* p,
-                              SkColorSpace* dstCS,
-                              skvm::Uniforms* uniforms,
-                              skvm::F32 /*x*/, skvm::F32 /*y*/,
-                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
-    return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
-                          p, dstCS, uniforms, r,g,b,a);
-}
-bool SkColor4Shader::onProgram(skvm::Builder* p,
-                               SkColorSpace* dstCS,
-                               skvm::Uniforms* uniforms,
-                               skvm::F32 /*x*/, skvm::F32 /*y*/,
-                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
-    return common_program(fColor, fColorSpace.get(),
-                          p, dstCS, uniforms, r,g,b,a);
+skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
+                                      skvm::Coord /*device*/, skvm::Coord /*local*/,
+                                      skvm::Color /*paint*/,
+                                      const SkMatrixProvider&, const SkMatrix* /*localM*/,
+                                      SkFilterQuality /*quality*/, const SkColorInfo& dst,
+                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+    SkColor4f color = fColor;
+    SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
+                            dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
+    return p->uniformColor(color, uniforms);
 }
 
 #if SK_SUPPORT_GPU
 
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    SkPMColor4f color = SkColorToPMColor4f(fColor, *args.fDstColorInfo);
-    return GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kModulateA);
+    return GrFragmentProcessor::ModulateAlpha(/*child=*/nullptr,
+                                              SkColorToPMColor4f(fColor, *args.fDstColorInfo));
 }
 
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
@@ -141,8 +133,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
                                   args.fDstColorInfo->colorSpace(), kUnpremul_SkAlphaType };
     SkColor4f color = fColor;
     steps.apply(color.vec());
-    return GrConstColorProcessor::Make(color.premul(),
-                                       GrConstColorProcessor::InputMode::kModulateA);
+    return GrFragmentProcessor::ModulateAlpha(/*child=*/nullptr, color.premul());
 }
 
 #endif

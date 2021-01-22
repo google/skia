@@ -9,9 +9,9 @@
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
-#include "include/gpu/GrTexture.h"
 #include "include/private/GrGLTypesPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
 class GrGLGpu;
@@ -23,13 +23,12 @@ public:
         GrGLenum fTarget                    = 0;
         GrGLuint fID                        = 0;
         GrGLFormat fFormat                  = GrGLFormat::kUnknown;
-        GrPixelConfig fConfig               = kUnknown_GrPixelConfig;
         GrBackendObjectOwnership fOwnership = GrBackendObjectOwnership::kOwned;
     };
 
     static GrTextureType TextureTypeFromTarget(GrGLenum textureTarget);
 
-    GrGLTexture(GrGLGpu*, SkBudgeted, const Desc&, GrMipMapsStatus);
+    GrGLTexture(GrGLGpu*, SkBudgeted, const Desc&, GrMipmapStatus);
 
     ~GrGLTexture() override {}
 
@@ -52,7 +51,7 @@ public:
     void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
 
     static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*,
-                                          GrMipMapsStatus,
+                                          GrMipmapStatus,
                                           const Desc&,
                                           sk_sp<GrGLTextureParameters>,
                                           GrWrapCacheable, GrIOType);
@@ -61,12 +60,12 @@ public:
 
 protected:
     // Constructor for subclasses.
-    GrGLTexture(GrGLGpu*, const Desc&, sk_sp<GrGLTextureParameters>, GrMipMapsStatus);
+    GrGLTexture(GrGLGpu*, const Desc&, sk_sp<GrGLTextureParameters>, GrMipmapStatus);
 
     // Constructor for instances wrapping backend objects.
     GrGLTexture(GrGLGpu*,
                 const Desc&,
-                GrMipMapsStatus,
+                GrMipmapStatus,
                 sk_sp<GrGLTextureParameters>,
                 GrWrapCacheable,
                 GrIOType);
@@ -85,7 +84,7 @@ private:
     GrBackendObjectOwnership fTextureIDOwnership;
     bool fBaseLevelHasBeenBoundToFBO = false;
 
-    typedef GrTexture INHERITED;
+    using INHERITED = GrTexture;
 };
 
 #endif

@@ -12,14 +12,10 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace SkSL {
-
-// std::max isn't constexpr in some compilers
-static constexpr size_t Max(size_t a, size_t b) {
-    return a > b ? a : b;
-}
 
 /**
  * Represents a node in the abstract syntax tree (AST). The AST is based directly on the parse tree;
@@ -107,6 +103,8 @@ struct ASTNode {
         kPrefix,
         // children: value
         kReturn,
+        // data: field(StringFragment), children: base
+        kScope,
         // ...
         kSection,
         // children: value, statement 1, statement 2...
@@ -265,18 +263,18 @@ struct ASTNode {
     };
 
     struct NodeData {
-        char fBytes[Max(sizeof(Token),
-                    Max(sizeof(StringFragment),
-                    Max(sizeof(bool),
-                    Max(sizeof(SKSL_INT),
-                    Max(sizeof(SKSL_FLOAT),
-                    Max(sizeof(Modifiers),
-                    Max(sizeof(TypeData),
-                    Max(sizeof(FunctionData),
-                    Max(sizeof(ParameterData),
-                    Max(sizeof(VarData),
-                    Max(sizeof(InterfaceBlockData),
-                        sizeof(SectionData))))))))))))];
+        char fBytes[std::max({sizeof(Token),
+                              sizeof(StringFragment),
+                              sizeof(bool),
+                              sizeof(SKSL_INT),
+                              sizeof(SKSL_FLOAT),
+                              sizeof(Modifiers),
+                              sizeof(TypeData),
+                              sizeof(FunctionData),
+                              sizeof(ParameterData),
+                              sizeof(VarData),
+                              sizeof(InterfaceBlockData),
+                              sizeof(SectionData)})];
 
         enum class Kind {
             kToken,
@@ -382,6 +380,7 @@ struct ASTNode {
             case Kind::kExtension:
             case Kind::kField:
             case Kind::kIdentifier:
+            case Kind::kScope:
                 fData.fKind = NodeData::Kind::kStringFragment;
                 break;
 
@@ -613,7 +612,9 @@ struct ASTNode {
         return iterator(fNodes, ID(-1));
     }
 
+#ifdef SK_DEBUG
     String description() const;
+#endif
 
     std::vector<ASTNode>* fNodes;
 
@@ -630,6 +631,6 @@ struct ASTNode {
     ID fNext;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

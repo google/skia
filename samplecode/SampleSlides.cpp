@@ -7,7 +7,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
@@ -429,7 +428,7 @@ public:
             gProc[i](&canvas);
             canvas.restore();
             SkString str;
-            str.printf("/skimages/slide_" SK_SIZE_T_SPECIFIER ".png", i);
+            str.printf("/skimages/slide_%zu.png", i);
             ToolUtils::EncodeImageToFile(str.c_str(), bm, SkEncodedImageFormat::kPNG, 100);
         }
         this->setBGColor(BG_COLOR);
@@ -450,7 +449,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

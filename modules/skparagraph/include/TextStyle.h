@@ -18,6 +18,21 @@
 namespace skia {
 namespace textlayout {
 
+static inline bool nearlyZero(SkScalar x, SkScalar tolerance = SK_ScalarNearlyZero) {
+    if (SkScalarIsFinite(x)) {
+        return SkScalarNearlyZero(x, tolerance);
+    }
+    return false;
+}
+
+static inline bool nearlyEqual(SkScalar x, SkScalar y, SkScalar tolerance = SK_ScalarNearlyZero) {
+    if (SkScalarIsFinite(x) && SkScalarIsFinite(x)) {
+        return SkScalarNearlyEqual(x, y, tolerance);
+    }
+    // Inf == Inf, anything else is false
+    return x == y;
+}
+
 // Multiple decorations can be applied at once. Ex: Underline and overline is
 // (0x1 | 0x2)
 enum TextDecoration {
@@ -35,7 +50,10 @@ constexpr TextDecoration AllTextDecorations[] = {
 
 enum TextDecorationStyle { kSolid, kDouble, kDotted, kDashed, kWavy };
 
+enum TextDecorationMode { kGaps, kThrough };
+
 enum StyleType {
+    kNone,
     kAllAttributes,
     kFont,
     kForeground,
@@ -48,12 +66,14 @@ enum StyleType {
 
 struct Decoration {
     TextDecoration fType;
+    TextDecorationMode fMode;
     SkColor fColor;
     TextDecorationStyle fStyle;
     SkScalar fThicknessMultiplier;
 
     bool operator==(const Decoration& other) const {
         return this->fType == other.fType &&
+               this->fMode == other.fMode &&
                this->fColor == other.fColor &&
                this->fStyle == other.fStyle &&
                this->fThicknessMultiplier == other.fThicknessMultiplier;
@@ -89,8 +109,17 @@ enum class PlaceholderAlignment {
   kMiddle,
 };
 
+struct FontFeature {
+    FontFeature(const SkString name, int value) : fName(name), fValue(value) {}
+    bool operator==(const FontFeature& that) const {
+        return fName == that.fName && fValue == that.fValue;
+    }
+    SkString fName;
+    int fValue;
+};
+
 struct PlaceholderStyle {
-    PlaceholderStyle() { }
+    PlaceholderStyle() = default;
     PlaceholderStyle(SkScalar width, SkScalar height, PlaceholderAlignment alignment,
                      TextBaseline baseline, SkScalar offset)
             : fWidth(width)
@@ -99,13 +128,12 @@ struct PlaceholderStyle {
             , fBaseline(baseline)
             , fBaselineOffset(offset) {}
 
+    bool equals(const PlaceholderStyle&) const;
+
     SkScalar fWidth = 0;
     SkScalar fHeight = 0;
-
-    PlaceholderAlignment fAlignment;
-
-    TextBaseline fBaseline;
-
+    PlaceholderAlignment fAlignment = PlaceholderAlignment::kBaseline;
+    TextBaseline fBaseline = TextBaseline::kAlphabetic;
     // Distance from the top edge of the rect to the baseline position. This
     // baseline will be aligned against the alphabetic baseline of the surrounding
     // text.
@@ -119,11 +147,11 @@ struct PlaceholderStyle {
 
 class TextStyle {
 public:
-    TextStyle();
+    TextStyle() = default;
     TextStyle(const TextStyle& other, bool placeholder);
-    ~TextStyle() = default;
 
     bool equals(const TextStyle& other) const;
+    bool equalsByFonts(const TextStyle& that) const;
     bool matchOneAttribute(StyleType styleType, const TextStyle& other) const;
     bool operator==(const TextStyle& rhs) const { return this->equals(rhs); }
 
@@ -150,12 +178,14 @@ public:
     // Decorations
     Decoration getDecoration() const { return fDecoration; }
     TextDecoration getDecorationType() const { return fDecoration.fType; }
+    TextDecorationMode getDecorationMode() const { return fDecoration.fMode; }
     SkColor getDecorationColor() const { return fDecoration.fColor; }
     TextDecorationStyle getDecorationStyle() const { return fDecoration.fStyle; }
     SkScalar getDecorationThicknessMultiplier() const {
         return fDecoration.fThicknessMultiplier;
     }
     void setDecoration(TextDecoration decoration) { fDecoration.fType = decoration; }
+    void setDecorationMode(TextDecorationMode mode) { fDecoration.fMode = mode; }
     void setDecorationStyle(TextDecorationStyle style) { fDecoration.fStyle = style; }
     void setDecorationColor(SkColor color) { fDecoration.fColor = color; }
     void setDecorationThicknessMultiplier(SkScalar m) { fDecoration.fThicknessMultiplier = m; }
@@ -169,6 +199,13 @@ public:
     std::vector<TextShadow> getShadows() const { return fTextShadows; }
     void addShadow(TextShadow shadow) { fTextShadows.emplace_back(shadow); }
     void resetShadows() { fTextShadows.clear(); }
+
+    // Font features
+    size_t getFontFeatureNumber() const { return fFontFeatures.size(); }
+    std::vector<FontFeature> getFontFeatures() const { return fFontFeatures; }
+    void addFontFeature(const SkString& fontFeature, int value)
+        { fFontFeatures.emplace_back(fontFeature, value); }
+    void resetFontFeatures() { fFontFeatures.clear(); }
 
     SkScalar getFontSize() const { return fFontSize; }
     void setFontSize(SkScalar size) { fFontSize = size; }
@@ -206,53 +243,57 @@ public:
     void setPlaceholder() { fIsPlaceholder = true; }
 
 private:
-
-    Decoration fDecoration;
+    Decoration fDecoration = {
+            TextDecoration::kNoDecoration,
+            // TODO: switch back to kGaps when (if) switching flutter to skparagraph
+            TextDecorationMode::kThrough,
+            // It does not make sense to draw a transparent object, so we use this as a default
+            // value to indicate no decoration color was set.
+            SK_ColorTRANSPARENT, TextDecorationStyle::kSolid,
+            // Thickness is applied as a multiplier to the default thickness of the font.
+            1.0f};
 
     SkFontStyle fFontStyle;
 
-    std::vector<SkString> fFontFamilies;
-    SkScalar fFontSize;
-    SkScalar fHeight;
-    bool fHeightOverride;
-    SkString fLocale;
-    SkScalar fLetterSpacing;
-    SkScalar fWordSpacing;
+    std::vector<SkString> fFontFamilies = { SkString(DEFAULT_FONT_FAMILY) };
+    SkScalar fFontSize = 14.0;
+    SkScalar fHeight = 1.0;
+    bool fHeightOverride = false;
+    SkString fLocale = {};
+    SkScalar fLetterSpacing = 0.0;
+    SkScalar fWordSpacing = 0.0;
 
-    TextBaseline fTextBaseline;
+    TextBaseline fTextBaseline = TextBaseline::kAlphabetic;
 
-    SkColor fColor;
-    bool fHasBackground;
+    SkColor fColor = SK_ColorWHITE;
+    bool fHasBackground = false;
     SkPaint fBackground;
-    bool fHasForeground;
+    bool fHasForeground = false;
     SkPaint fForeground;
 
     std::vector<TextShadow> fTextShadows;
 
     sk_sp<SkTypeface> fTypeface;
-    bool fIsPlaceholder;
+    bool fIsPlaceholder = false;
+
+    std::vector<FontFeature> fFontFeatures;
 };
 
 typedef size_t TextIndex;
 typedef SkRange<size_t> TextRange;
 const SkRange<size_t> EMPTY_TEXT = EMPTY_RANGE;
 
-
 struct Block {
-    Block() : fRange(EMPTY_RANGE), fStyle() { }
+    Block() = default;
     Block(size_t start, size_t end, const TextStyle& style) : fRange(start, end), fStyle(style) {}
     Block(TextRange textRange, const TextStyle& style) : fRange(textRange), fStyle(style) {}
-
-    Block(const Block& other) {
-        fRange = other.fRange;
-        fStyle = other.fStyle;
-    }
 
     void add(TextRange tail) {
         SkASSERT(fRange.end == tail.start);
         fRange = TextRange(fRange.start, fRange.start + fRange.width() + tail.width());
     }
-    TextRange fRange;
+
+    TextRange fRange = EMPTY_RANGE;
     TextStyle fStyle;
 };
 
@@ -263,8 +304,7 @@ const size_t EMPTY_BLOCK = EMPTY_INDEX;
 const SkRange<size_t> EMPTY_BLOCKS = EMPTY_RANGE;
 
 struct Placeholder {
-    Placeholder() : fRange(EMPTY_RANGE), fStyle() {}
-
+    Placeholder() = default;
     Placeholder(size_t start, size_t end, const PlaceholderStyle& style, const TextStyle& textStyle,
                 BlockRange blocksBefore, TextRange textBefore)
             : fRange(start, end)
@@ -273,15 +313,7 @@ struct Placeholder {
             , fBlocksBefore(blocksBefore)
             , fTextBefore(textBefore) {}
 
-    Placeholder(const Placeholder& other) {
-        fRange = other.fRange;
-        fStyle = other.fStyle;
-        fTextStyle = other.fTextStyle;
-        fBlocksBefore = other.fBlocksBefore;
-        fTextBefore = other.fTextBefore;
-    }
-
-    TextRange fRange;
+    TextRange fRange = EMPTY_RANGE;
     PlaceholderStyle fStyle;
     TextStyle fTextStyle;
     BlockRange fBlocksBefore;

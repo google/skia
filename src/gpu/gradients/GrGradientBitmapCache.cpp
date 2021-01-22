@@ -150,7 +150,7 @@ void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScal
         // Historically, stops have been mapped to [0, 256], with 256 then nudged to the next
         // smaller value, then truncate for the texture index. This seems to produce the best
         // results for some common distributions, so we preserve the behavior.
-        int nextIndex = SkTMin(positions[i] * fResolution,
+        int nextIndex = std::min(positions[i] * fResolution,
                                SkIntToScalar(fResolution - 1));
 
         if (nextIndex > prevIndex) {

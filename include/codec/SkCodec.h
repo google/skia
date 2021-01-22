@@ -17,7 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkYUVASizeInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
@@ -33,7 +33,7 @@ class SkSampler;
 namespace DM {
 class CodecSrc;
 class ColorCodecSrc;
-}
+} // namespace DM
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -190,12 +190,22 @@ public:
 
     /**
      *  Return a reasonable SkImageInfo to decode into.
+     *
+     *  If the image has an ICC profile that does not map to an SkColorSpace,
+     *  the returned SkImageInfo will use SRGB.
      */
     SkImageInfo getInfo() const { return fEncodedInfo.makeImageInfo(); }
 
     SkISize dimensions() const { return {fEncodedInfo.width(), fEncodedInfo.height()}; }
     SkIRect bounds() const {
         return SkIRect::MakeWH(fEncodedInfo.width(), fEncodedInfo.height());
+    }
+
+    /**
+     * Return the ICC profile of the encoded data.
+     */
+    const skcms_ICCProfile* getICCProfile() const {
+        return this->getEncodedInfo().profile();
     }
 
     /**
@@ -344,9 +354,13 @@ public:
      *
      *         If the info contains a non-null SkColorSpace, the codec
      *         will perform the appropriate color space transformation.
-     *         If the caller passes in the same color space that was
-     *         reported by the codec, the color space transformation is
-     *         a no-op.
+     *
+     *         If the caller passes in the SkColorSpace that maps to the
+     *         ICC profile reported by getICCProfile(), the color space
+     *         transformation is a no-op.
+     *
+     *         If the caller passes a null SkColorSpace, no color space
+     *         transformation will be done.
      *
      *  If a scanline decode is in progress, scanline mode will end, requiring the client to call
      *  startScanlineDecode() in order to return to decoding scanlines.
@@ -367,56 +381,28 @@ public:
     }
 
     /**
-     *  If decoding to YUV is supported, this returns true.  Otherwise, this
-     *  returns false and does not modify any of the parameters.
+     *  If decoding to YUV is supported, this returns true. Otherwise, this
+     *  returns false and the caller will ignore output parameter yuvaPixmapInfo.
      *
-     *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, V, and A planes. Given current codec
-     *                    limitations the size of the A plane will always be 0 and the Y, U, V
-     *                    channels will always be planar.
-     *  @param colorSpace Output parameter.  If non-NULL this is set to kJPEG,
-     *                    otherwise this is ignored.
+     * @param  supportedDataTypes Indicates the data type/planar config combinations that are
+     *                            supported by the caller. If the generator supports decoding to
+     *                            YUV(A), but not as a type in supportedDataTypes, this method
+     *                            returns false.
+     *  @param yuvaPixmapInfo Output parameter that specifies the planar configuration, subsampling,
+     *                        orientation, chroma siting, plane color types, and row bytes.
      */
-    bool queryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
-        if (nullptr == sizeInfo) {
-            return false;
-        }
-
-        bool result = this->onQueryYUV8(sizeInfo, colorSpace);
-        if (result) {
-            for (int i = 0; i <= 2; ++i) {
-                SkASSERT(sizeInfo->fSizes[i].fWidth > 0 && sizeInfo->fSizes[i].fHeight > 0 &&
-                         sizeInfo->fWidthBytes[i] > 0);
-            }
-            SkASSERT(!sizeInfo->fSizes[3].fWidth &&
-                     !sizeInfo->fSizes[3].fHeight &&
-                     !sizeInfo->fWidthBytes[3]);
-        }
-        return result;
-    }
+    bool queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
+                       SkYUVAPixmapInfo* yuvaPixmapInfo) const;
 
     /**
      *  Returns kSuccess, or another value explaining the type of failure.
-     *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUV8().
+     *  This always attempts to perform a full decode. To get the planar
+     *  configuration without decoding use queryYUVAInfo().
      *
-     *  @param sizeInfo   Needs to exactly match the values returned by the
-     *                    query, except the WidthBytes may be larger than the
-     *                    recommendation (but not smaller).
-     *  @param planes     Memory for each of the Y, U, and V planes.
+     *  @param yuvaPixmaps  Contains preallocated pixmaps configured according to a successful call
+     *                      to queryYUVAInfo().
      */
-    Result getYUV8Planes(const SkYUVASizeInfo& sizeInfo, void* planes[SkYUVASizeInfo::kMaxCount]) {
-        if (!planes || !planes[0] || !planes[1] || !planes[2]) {
-            return kInvalidInput;
-        }
-        SkASSERT(!planes[3]); // TODO: is this a fair assumption?
-
-        if (!this->rewindIfNeeded()) {
-            return kCouldNotRewind;
-        }
-
-        return this->onGetYUV8Planes(sizeInfo, planes);
-    }
+    Result getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps);
 
     /**
      *  Prepare for an incremental decode with the specified options.
@@ -753,14 +739,10 @@ protected:
                                void* pixels, size_t rowBytes, const Options&,
                                int* rowsDecoded) = 0;
 
-    virtual bool onQueryYUV8(SkYUVASizeInfo*, SkYUVColorSpace*) const {
-        return false;
-    }
+    virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
+                                 SkYUVAPixmapInfo*) const { return false; }
 
-    virtual Result onGetYUV8Planes(const SkYUVASizeInfo&,
-                                   void*[SkYUVASizeInfo::kMaxCount] /*planes*/) {
-        return kUnimplemented;
-    }
+    virtual Result onGetYUVAPlanes(const SkYUVAPixmaps&) { return kUnimplemented; }
 
     virtual bool onGetValidSubset(SkIRect* /*desiredSubset*/) const {
         // By default, subsets are not supported.

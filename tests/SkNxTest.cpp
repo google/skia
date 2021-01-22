@@ -84,15 +84,24 @@ void test_Ni(skiatest::Reporter* r) {
         v.store(vals);
 
         switch (N) {
-          case 8: REPORTER_ASSERT(r, vals[4] == e && vals[5] == f && vals[6] == g && vals[7] == h);
-          case 4: REPORTER_ASSERT(r, vals[2] == c && vals[3] == d);
-          case 2: REPORTER_ASSERT(r, vals[0] == a && vals[1] == b);
+            case 8:
+                REPORTER_ASSERT(r, vals[4] == e && vals[5] == f && vals[6] == g && vals[7] == h);
+                [[fallthrough]];
+            case 4:
+                REPORTER_ASSERT(r, vals[2] == c && vals[3] == d);
+                [[fallthrough]];
+            case 2:
+                REPORTER_ASSERT(r, vals[0] == a && vals[1] == b);
         }
         switch (N) {
-          case 8: REPORTER_ASSERT(r, v[4] == e && v[5] == f &&
-                                     v[6] == g && v[7] == h);
-          case 4: REPORTER_ASSERT(r, v[2] == c && v[3] == d);
-          case 2: REPORTER_ASSERT(r, v[0] == a && v[1] == b);
+            case 8:
+                REPORTER_ASSERT(r, v[4] == e && v[5] == f && v[6] == g && v[7] == h);
+                [[fallthrough]];
+            case 4:
+                REPORTER_ASSERT(r, v[2] == c && v[3] == d);
+                [[fallthrough]];
+            case 2:
+                REPORTER_ASSERT(r, v[0] == a && v[1] == b);
         }
     };
 
@@ -133,7 +142,7 @@ DEF_TEST(SkNi_min_lt, r) {
     for (int a = 0; a < (1<<8); a++) {
     for (int b = 0; b < (1<<8); b++) {
         Sk16b aw(a), bw(b);
-        REPORTER_ASSERT(r, Sk16b::Min(aw, bw)[0] == SkTMin(a, b));
+        REPORTER_ASSERT(r, Sk16b::Min(aw, bw)[0] == std::min(a, b));
         REPORTER_ASSERT(r, !(aw < bw)[0] == !(a < b));
     }}
 
@@ -143,12 +152,12 @@ DEF_TEST(SkNi_min_lt, r) {
     for (int i = 0; i < (1<<16); i++) {
         uint16_t a = rand.nextU() >> 16,
                  b = rand.nextU() >> 16;
-        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b))[0] == SkTMin(a, b));
+        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b))[0] == std::min(a, b));
     }
 #else
     for (int a = 0; a < (1<<16); a++) {
     for (int b = 0; b < (1<<16); b++) {
-        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b))[0] == SkTMin(a, b));
+        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b))[0] == std::min(a, b));
     }}
 #endif
 }
@@ -230,8 +239,8 @@ DEF_TEST(Sk4i_minmax, r) {
     auto min = Sk4i::Min(a, b);
     auto max = Sk4i::Max(a, b);
     for(int i = 0; i < 4; ++i) {
-        REPORTER_ASSERT(r, min[i] == SkTMin(a[i], b[i]));
-        REPORTER_ASSERT(r, max[i] == SkTMax(a[i], b[i]));
+        REPORTER_ASSERT(r, min[i] == std::min(a[i], b[i]));
+        REPORTER_ASSERT(r, max[i] == std::max(a[i], b[i]));
     }
 }
 

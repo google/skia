@@ -12,6 +12,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -121,7 +122,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM( return new DrawAtlasGM; )
 
@@ -140,8 +141,8 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
 
     // Compute a conservative bounds so we can cull the draw
     const SkRect fontb = SkFontPriv::GetFontBounds(font);
-    const SkScalar max = SkTMax(SkTMax(SkScalarAbs(fontb.fLeft), SkScalarAbs(fontb.fRight)),
-                                SkTMax(SkScalarAbs(fontb.fTop), SkScalarAbs(fontb.fBottom)));
+    const SkScalar max = std::max(std::max(SkScalarAbs(fontb.fLeft), SkScalarAbs(fontb.fRight)),
+                                std::max(SkScalarAbs(fontb.fTop), SkScalarAbs(fontb.fBottom)));
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
     SkAutoTArray<SkGlyphID> glyphs(count);
@@ -259,6 +260,44 @@ DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
 }
 
+// Exercise xform blob and its tight bounds
+DEF_SIMPLE_GM(blob_rsxform_distortable, canvas, 500, 100) {
+    sk_sp<SkTypeface> typeface;
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (distortable) {
+        sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+        const SkFontArguments::VariationPosition::Coordinate position[] = {
+            { SkSetFourByteTag('w','g','h','t'), 1.618033988749895f }
+        };
+        SkFontArguments params;
+        params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+        typeface = fm->makeFromStream(std::move(distortable), params);
+    }
+
+    SkFont font(typeface, 50);
+
+    const char text[] = "abcabcabc";
+    constexpr size_t len = sizeof(text) - 1;
+
+    SkRSXform xforms[len];
+    SkScalar scale = 1;
+    SkScalar x = 0, y = 0;
+    for (size_t i = 0; i < len; ++i) {
+        scale = SkScalarSin(i * SK_ScalarPI / (len-1)) * 0.75f + 0.5f;
+        xforms[i] = SkRSXform::Make(scale, 0, x, y);
+        x += 50 * scale;
+    }
+
+    auto blob = SkTextBlob::MakeFromRSXform(text, len, xforms, font);
+
+    SkPoint offset = { 20, 70 };
+    SkPaint paint;
+    paint.setColor(0xFFCCCCCC);
+    canvas->drawRect(blob->bounds().makeOffset(offset.fX, offset.fY), paint);
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
+}
+
 static sk_sp<SkVertices> make_vertices(sk_sp<SkImage> image, const SkRect& r,
                                        SkColor color) {
     SkPoint pos[4];
@@ -301,7 +340,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
         for (float alpha : { 1.0f, 0.5f }) {
             paint.setAlphaf(alpha);
             canvas->save();
-            for (auto cf : filters) {
+            for (const sk_sp<SkColorFilter>& cf : filters) {
                 paint.setColorFilter(cf);
                 canvas->drawAtlas(image, &xform, &tex, &color, 1,
                                   mode, &tex, &paint);

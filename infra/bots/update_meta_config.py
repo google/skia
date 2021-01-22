@@ -56,7 +56,7 @@ def main():
         addChromiumBuckets(f)
 
       # Adding all Skia jobs.
-      f.write('[bucket "skia.primary"]\n')
+      f.write('[bucket "luci.skia.skia.primary"]\n')
       for job in tryjobs:
         f.write('\tbuilder = ' + job + '\n')
 

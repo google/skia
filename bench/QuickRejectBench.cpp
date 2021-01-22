@@ -53,7 +53,7 @@ class ConcatBench : public Benchmark {
 
     void onDraw(int loops, SkCanvas* canvas) override {
         while (loops --> 0) {
-            canvas->setMatrix(SkMatrix::MakeScale(3.0f));
+            canvas->setMatrix(SkMatrix::Scale(3, 3));
             canvas->concat(fMatrix);
         }
     }

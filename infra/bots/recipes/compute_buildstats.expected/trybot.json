@@ -82,6 +82,9 @@
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"branch\": \"master\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"owner\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"John Doe\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revisions\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"184ebe53805e102605d11f6b143486d15c23a09c\": {@@@",
       "@@@STEP_LOG_LINE@json.output@        \"_number\": \"12\", @@@",
@@ -118,7 +121,14 @@
       "skia@abc123"
     ],
     "cwd": "[START_DIR]/cache/work",
+    "env": {
+      "GIT_HTTP_LOW_SPEED_LIMIT": "102400",
+      "GIT_HTTP_LOW_SPEED_TIME": "300"
+    },
     "env_suffixes": {
+      "DEPOT_TOOLS_UPDATE": [
+        "0"
+      ],
       "PATH": [
         "RECIPE_REPO[depot_tools]"
       ]
@@ -135,13 +145,13 @@
       "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"skia\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"repository\": \"https://fake.org/skia.git\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"abc123\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"patch_failure\": false, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"patch_root\": \"skia\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"properties\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"abc123\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#164710}\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"root\": \"skia\", @@@",
@@ -150,7 +160,7 @@
       "@@@STEP_LOG_LINE@json.output@      \"skia\": {@@@",
       "@@@STEP_LOG_LINE@json.output@        \"git_checkout\": {@@@",
       "@@@STEP_LOG_LINE@json.output@          \"repo_url\": \"https://fake.org/skia.git\", @@@",
-      "@@@STEP_LOG_LINE@json.output@          \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@STEP_LOG_LINE@json.output@          \"revision\": \"abc123\"@@@",
       "@@@STEP_LOG_LINE@json.output@        }@@@",
       "@@@STEP_LOG_LINE@json.output@      }@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
@@ -159,7 +169,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"step_text\": \"Some step text\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"abc123\"@@@",
       "@@@SET_BUILD_PROPERTY@got_revision_cp@\"refs/heads/master@{#164710}\"@@@"
     ]
   },
@@ -232,7 +242,7 @@
       "[START_DIR]/cache/work/skia/infra/bots/buildstats/buildstats_wasm.py",
       "[START_DIR]/build/pathkit.wasm",
       "[START_DIR]/[SWARM_OUT_DIR]",
-      "compiler EMCC configuration Release extra_config PathKit os Debian9 target_arch wasm",
+      "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
       "[START_DIR]/bloaty/bloaty"
     ],
@@ -287,7 +297,7 @@
       "[START_DIR]/cache/work/skia/infra/bots/buildstats/buildstats_web.py",
       "[START_DIR]/build/pathkit.js",
       "[START_DIR]/[SWARM_OUT_DIR]",
-      "compiler EMCC configuration Release extra_config PathKit os Debian9 target_arch wasm",
+      "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
@@ -323,7 +333,7 @@
       "[START_DIR]/cache/work/skia/infra/bots/buildstats/buildstats_web.py",
       "[START_DIR]/build/pathkit.js.mem",
       "[START_DIR]/[SWARM_OUT_DIR]",
-      "compiler EMCC configuration Release extra_config PathKit os Debian9 target_arch wasm",
+      "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
@@ -359,7 +369,7 @@
       "[START_DIR]/cache/work/skia/infra/bots/buildstats/buildstats_flutter.py",
       "[START_DIR]/build/libflutter_stripped.so",
       "[START_DIR]/[SWARM_OUT_DIR]",
-      "compiler EMCC configuration Release extra_config PathKit os Debian9 target_arch wasm",
+      "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
       "[START_DIR]/bloaty/bloaty",
       "[START_DIR]/build/libflutter.so"
@@ -425,7 +435,7 @@
       "[START_DIR]/cache/work/skia/infra/bots/buildstats/buildstats_cpp.py",
       "[START_DIR]/build/libskia.so",
       "[START_DIR]/[SWARM_OUT_DIR]",
-      "compiler EMCC configuration Release extra_config PathKit os Debian9 target_arch wasm",
+      "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
       "[START_DIR]/bloaty/bloaty"
     ],
@@ -469,7 +479,42 @@
       "DOCKER_CONFIG": "/home/chrome-bot/.docker",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Make code size treemap"
+    "name": "Make code size treemap [START_DIR]/build/skottie_tool"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/build",
+      "dm"
+    ],
+    "cwd": "[START_DIR]/build",
+    "infra_step": true,
+    "name": "find dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/build/dm@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/work/skia/infra/bots/buildstats/make_treemap.py",
+      "[START_DIR]/build/dm",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Make code size treemap [START_DIR]/build/dm"
   },
   {
     "name": "$result"

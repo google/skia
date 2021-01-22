@@ -8,7 +8,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "src/codec/SkStreamBuffer.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/utils/SkOSPath.h"
 
 #include "tests/FakeStreams.h"
@@ -91,18 +90,20 @@ DEF_TEST(StreamBuffer, r) {
         writer.write(gText, size);
     }
 
-    struct {
+    struct Factory {
         std::function<std::unique_ptr<SkStream>()>  createStream;
         bool                                        skipIfNoTmpDir;
-    } factories[] = {
-        { [&data]() { return skstd::make_unique<SkMemoryStream>(data); },       false  },
-        { [&data]() { return skstd::make_unique<NotAssetMemStream>(data); },    false  },
-        { [&path]() { return path.isEmpty()
-                             ? nullptr
-                             : skstd::make_unique<SkFILEStream>(path.c_str()); }, true },
     };
 
-    for (auto f : factories) {
+    Factory factories[] = {
+        { [&data]() { return std::make_unique<SkMemoryStream>(data); },       false  },
+        { [&data]() { return std::make_unique<NotAssetMemStream>(data); },    false  },
+        { [&path]() { return path.isEmpty()
+                             ? nullptr
+                             : std::make_unique<SkFILEStream>(path.c_str()); }, true },
+    };
+
+    for (const Factory& f : factories) {
         if (tmpDir.isEmpty() && f.skipIfNoTmpDir) {
             continue;
         }
@@ -112,7 +113,7 @@ DEF_TEST(StreamBuffer, r) {
     }
 
     // Stream that will receive more data. Will be owned by the SkStreamBuffer.
-    auto halting = skstd::make_unique<HaltingStream>(data, 6);
+    auto halting = std::make_unique<HaltingStream>(data, 6);
     HaltingStream* peekHalting = halting.get();
     SkStreamBuffer buffer(std::move(halting));
 

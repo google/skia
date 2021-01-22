@@ -1,0 +1,167 @@
+<!-- This benchmark aims to accurately measure the time it takes for Skottie to load the JSON and
+turn it into an animation, as well as the times for the first hundred frames (and, as a subcomponent
+of that, the seek times of the first hundred frames). This is set to mimic how a real-world user
+would display the animation (e.g. using clock time to determine where to seek, not frame numbers).
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Skottie-WASM Perf</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/static/benchmark.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <button id="start_bench">Start Benchmark</button>
+    <br>
+    <canvas id=anim width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    const WIDTH  = 1000;
+    const HEIGHT = 1000;
+    const WARM_UP_FRAMES = 0; // No warmup, so that the jank of initial frames gets's measured.
+    // We sample MAX_FRAMES or until MAX_SAMPLE_SECONDS has elapsed.
+    const MAX_FRAMES = 600; // ~10s at 60fps
+    const MAX_SAMPLE_MS = 30 * 1000; // in case something takes a while, stop after 30 seconds.
+    const LOTTIE_JSON_PATH = '/static/lottie.json';
+    const ASSETS_PATH = '/static/assets/';
+    (function() {
+
+      const loadKit = CanvasKitInit({
+        locateFile: (file) => '/static/' + file,
+      });
+
+      const loadLottie = fetch(LOTTIE_JSON_PATH).then((resp) => {
+        return resp.text();
+      });
+
+      const loadFontsAndAssets = loadLottie.then((jsonStr) => {
+        const lottie = JSON.parse(jsonStr);
+        const promises = [];
+        promises.push(...loadFonts(lottie.fonts));
+        promises.push(...loadAssets(lottie.assets));
+        return Promise.all(promises);
+      });
+
+      Promise.all([loadKit, loadLottie, loadFontsAndAssets]).then((values) => {
+        const [CanvasKit, json, externalAssets] = values;
+        console.log(externalAssets);
+        const assets = {};
+        for (const asset of externalAssets) {
+          if (asset) {
+            assets[asset.name] = asset.bytes;
+          }
+        }
+        const loadStart = performance.now();
+        const animation = CanvasKit.MakeManagedAnimation(json, assets);
+        const loadTime = performance.now() - loadStart;
+
+        window._perfData = {
+          json_load_ms: loadTime,
+        };
+
+        const duration = animation.duration() * 1000;
+        const bounds = CanvasKit.LTRBRect(0, 0, WIDTH, HEIGHT);
+
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        let glversion = 2;
+        if (urlSearchParams.has('webgl1')) {
+          glversion = 1;
+        }
+
+        const surface = getSurface(CanvasKit, glversion);
+        if (!surface) {
+          console.error('Could not make surface', window._error);
+          return;
+        }
+        const canvas = surface.getCanvas();
+
+        document.getElementById('start_bench').addEventListener('click', async () => {
+          const clearColor = CanvasKit.WHITE;
+          let idx = 0;
+          const startTime = Date.now();
+          const damageRect = Float32Array.of(0, 0, 0, 0);
+
+          function draw() {
+            const seek = ((Date.now() - startTime) / duration) % 1.0;
+            const damage = animation.seek(seek, damageRect);
+
+            if (damage[2] > damage[0] && damage[3] > damage[1]) {
+              canvas.clear(clearColor);
+              animation.render(canvas, bounds);
+            }
+          }
+
+          const results = await startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES, MAX_SAMPLE_MS);
+          Object.assign(window._perfData, results);
+          window._perfDone = true;
+        });
+        console.log('Perf is ready');
+        window._perfReady = true;
+      });
+    })();
+
+  function loadFonts(fonts) {
+    const promises = [];
+    if (!fonts || !fonts.list) {
+      return promises;
+    }
+    for (const font of fonts.list) {
+      if (font.fName) {
+        promises.push(fetch(`${ASSETS_PATH}/${font.fName}.ttf`).then((resp) => {
+            // fetch does not reject on 404
+            if (!resp.ok) {
+              console.error(`Could not load ${font.fName}.ttf: status ${resp.status}`);
+              return null;
+            }
+            return resp.arrayBuffer().then((buffer) => {
+              return {
+                'name': font.fName,
+                'bytes': buffer
+              };
+            });
+          })
+        );
+      }
+    }
+    return promises;
+  }
+
+  function loadAssets(assets) {
+    const promises = [];
+    for (const asset of assets) {
+      // asset.p is the filename, if it's an image.
+      // Don't try to load inline/dataURI images.
+      const should_load = asset.p && asset.p.startsWith && !asset.p.startsWith('data:');
+      if (should_load) {
+        promises.push(fetch(`${ASSETS_PATH}/${asset.p}`)
+          .then((resp) => {
+            // fetch does not reject on 404
+            if (!resp.ok) {
+              console.error(`Could not load ${asset.p}: status ${resp.status}`);
+              return null;
+            }
+            return resp.arrayBuffer().then((buffer) => {
+              return {
+                'name': asset.p,
+                'bytes': buffer
+              };
+            });
+          })
+        );
+      }
+    }
+    return promises;
+  }
+  </script>
+</body>
+</html>

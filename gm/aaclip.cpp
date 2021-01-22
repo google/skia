@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -159,17 +159,9 @@ DEF_SIMPLE_GM(aaclip, canvas, 240, 120) {
 #ifdef SK_BUILD_FOR_MAC
 
 #include "include/utils/mac/SkCGUtils.h"
-#include "src/core/SkMakeUnique.h"
 
 static std::unique_ptr<SkCanvas> make_canvas(const SkBitmap& bm) {
-    const SkImageInfo& info = bm.info();
-    if (info.bytesPerPixel() == 4) {
-        return SkCanvas::MakeRasterDirectN32(info.width(), info.height(),
-                                             (SkPMColor*)bm.getPixels(),
-                                             bm.rowBytes());
-    } else {
-        return skstd::make_unique<SkCanvas>(bm);
-    }
+    return SkCanvas::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes());
 }
 
 static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
@@ -233,12 +225,13 @@ class ClipCubicGM : public skiagm::GM {
     SkPath fVPath, fHPath;
 public:
     ClipCubicGM() {
-        fVPath.moveTo(W, 0);
-        fVPath.cubicTo(W, H-10, 0, 10, 0, H);
+        fVPath = SkPathBuilder().moveTo(W, 0)
+                                .cubicTo(W, H-10, 0, 10, 0, H)
+                                .detach();
 
         SkMatrix pivot;
         pivot.setRotate(90, W/2, H/2);
-        fVPath.transform(pivot, &fHPath);
+        fHPath = fVPath.makeTransform(pivot);
     }
 
 protected:
@@ -287,6 +280,6 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM(return new ClipCubicGM;)

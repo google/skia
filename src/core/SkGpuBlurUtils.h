@@ -8,55 +8,85 @@
 #ifndef SkGpuBlurUtils_DEFINED
 #define SkGpuBlurUtils_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/effects/GrTextureDomain.h"
 
-class GrContext;
+class GrRecordingContext;
 class GrTexture;
 
 struct SkRect;
 
 namespace SkGpuBlurUtils {
-  /**
-    * Applies a 2D Gaussian blur to a given texture. The blurred result is returned
-    * as a renderTargetContext in case the caller wishes to draw into the result.
-    *
-    * The 'proxyOffset' is kept separate form 'srcBounds' because they exist in different
-    * coordinate spaces. 'srcBounds' exists in the content space of the special image, and
-    * 'proxyOffset' maps from the content space to the proxy's space.
-    *
-    * Note: one of sigmaX and sigmaY should be non-zero!
-    * @param context         The GPU context
-    * @param srcProxy        The source to be blurred.
-    * @param srcColorType    The colorType of srcProxy
-    * @param srcAlphaType    The alphaType of srcProxy
-    * @param proxyOffset     The offset from the top-left corner to valid texels in 'srcProxy',
-                             which should come from the subset of the owning SkSpecialImage.
-    * @param colorSpace      Color space of the source (used for the renderTargetContext result,
-    *                        too).
-    * @param dstBounds       The destination bounds, relative to the source texture.
-    * @param srcBounds       The source bounds, relative to the source texture's offset. No pixels
-    *                        will be sampled outside of this rectangle.
-    * @param sigmaX          The blur's standard deviation in X.
-    * @param sigmaY          The blur's standard deviation in Y.
-    * @param mode            The mode to handle samples outside bounds.
-    * @param fit             backing fit for the returned render target context
-    * @return                The renderTargetContext containing the blurred result.
-    */
+
+/**
+ * Applies a 2D Gaussian blur to a given texture. The blurred result is returned
+ * as a renderTargetContext in case the caller wishes to draw into the result.
+ * The GrSurfaceOrigin of the result will watch the GrSurfaceOrigin of srcView. The output
+ * color type, color space, and alpha type will be the same as the src.
+ *
+ * Note: one of sigmaX and sigmaY should be non-zero!
+ * @param context         The GPU context
+ * @param srcView         The source to be blurred.
+ * @param srcColorType    The colorType of srcProxy
+ * @param srcAlphaType    The alphaType of srcProxy
+ * @param colorSpace      Color space of the source.
+ * @param dstBounds       The destination bounds, relative to the source texture.
+ * @param srcBounds       The source bounds, relative to the source texture's offset. No pixels
+ *                        will be sampled outside of this rectangle.
+ * @param sigmaX          The blur's standard deviation in X.
+ * @param sigmaY          The blur's standard deviation in Y.
+ * @param tileMode        The mode to handle samples outside bounds.
+ * @param fit             backing fit for the returned render target context
+ * @return                The renderTargetContext containing the blurred result.
+ */
 std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
-                                                    sk_sp<GrTextureProxy> srcProxy,
+                                                    GrSurfaceProxyView srcView,
                                                     GrColorType srcColorType,
                                                     SkAlphaType srcAlphaType,
-                                                    const SkIPoint& proxyOffset,
                                                     sk_sp<SkColorSpace> colorSpace,
-                                                    const SkIRect& dstBounds,
-                                                    const SkIRect& srcBounds,
+                                                    SkIRect dstBounds,
+                                                    SkIRect srcBounds,
                                                     float sigmaX,
                                                     float sigmaY,
-                                                    GrTextureDomain::Mode mode,
+                                                    SkTileMode mode,
                                                     SkBackingFit fit = SkBackingFit::kApprox);
-};
+
+static const int kBlurRRectMaxDivisions = 6;
+
+// This method computes all the parameters for drawing a partially occluded nine-patched
+// blurred rrect mask:
+//   rrectToDraw - the integerized rrect to draw in the mask
+//   widthHeight - how large to make the mask (rrectToDraw will be centered in this coord sys)
+//   rectXs, rectYs - the x & y coordinates of the covering geometry lattice
+//   texXs, texYs - the texture coordinate at each point in rectXs & rectYs
+// It returns true if 'devRRect' is nine-patchable
+bool ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
+                                SkScalar sigma, SkScalar xformedSigma,
+                                SkRRect* rrectToDraw,
+                                SkISize* widthHeight,
+                                SkScalar rectXs[kBlurRRectMaxDivisions],
+                                SkScalar rectYs[kBlurRRectMaxDivisions],
+                                SkScalar texXs[kBlurRRectMaxDivisions],
+                                SkScalar texYs[kBlurRRectMaxDivisions]);
+
+int CreateIntegralTable(float sixSigma, SkBitmap* table);
+
+void Compute1DGaussianKernel(float* kernel, float sigma, int radius);
+
+// Any sigmas smaller than this are effectively an identity blur so can skip convolution at a higher
+// level. The value was chosen because it corresponds roughly to a radius of 1/10px, and is slightly
+// greater than sqrt(1/2*sigma^2) for SK_ScalarNearlyZero.
+inline bool IsEffectivelyZeroSigma(float sigma) { return sigma <= 0.03f; }
+
+inline int SigmaRadius(float sigma) {
+    return IsEffectivelyZeroSigma(sigma) ? 0 : static_cast<int>(ceilf(sigma * 3.0f));
+}
+
+inline int KernelWidth(int radius) { return 2 * radius + 1; }
+
+}  // namespace SkGpuBlurUtils
 
 #endif
 #endif

@@ -88,7 +88,7 @@ namespace skiagm {
             return SkString("hairmodes");
         }
 
-        virtual SkISize onISize() override { return SkISize::Make(640, 480); }
+        SkISize onISize() override { return SkISize::Make(640, 480); }
 
         void onOnceBeforeDraw() override {
             fBGPaint.setShader(make_bg_shader());
@@ -126,10 +126,10 @@ namespace skiagm {
         }
 
     private:
-        typedef GM INHERITED;
+        using INHERITED = GM;
     };
 
     //////////////////////////////////////////////////////////////////////////////
 
     DEF_GM( return new HairModesGM; )
-}
+}  // namespace skiagm

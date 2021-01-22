@@ -39,9 +39,9 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
     char labelBuffer[256];
     const char* invertStr =
         (config.fInvertStyle == InvertStyle::kInvertBrightness ?
-             "InvBrightness" :
+             "InvBright" :
             (config.fInvertStyle == InvertStyle::kInvertLightness ?
-                 "InvLightness" : "NoInvert"));
+                 "InvLight" : "NoInvert"));
 
     snprintf(labelBuffer, sizeof(labelBuffer), "%s%s contrast=%.1f",
              config.fGrayscale ? "Gray " : "",
@@ -50,8 +50,8 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
 
     SkFont font;
     font.setTypeface(ToolUtils::create_portable_typeface());
-    font.setSize(0.05f);
-    font.setEdging(SkFont::Edging::kAlias);
+    font.setSize(0.075f);
+    font.setEdging(SkFont::Edging::kAntiAlias);
 
     size_t len = strlen(labelBuffer);
 
@@ -104,8 +104,8 @@ static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {
 }
 
 class HighContrastFilterGM : public skiagm::GM {
-public:
-    HighContrastFilterGM() {
+protected:
+    void onOnceBeforeDraw() override {
         SkColor  g1Colors[] = { kColor1, SkColorSetA(kColor1, 0x20) };
         SkColor  g2Colors[] = { kColor2, SkColorSetA(kColor2, 0x20) };
         SkPoint  g1Points[] = { { 0, 0 }, { 0,     100 } };
@@ -122,14 +122,12 @@ public:
             SkTileMode::kClamp);
     }
 
-protected:
-
     SkString onShortName() override {
         return SkString("highcontrastfilter");
     }
 
     SkISize onISize() override {
-        return SkISize::Make(600, 420);
+        return SkISize::Make(800, 420);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -160,7 +158,7 @@ private:
     sk_sp<SkColorFilter>    fFilter;
     sk_sp<SkShader>         fGr1, fGr2;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new HighContrastFilterGM;)

@@ -7,9 +7,9 @@
 
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 
-#include "include/gpu/GrTexture.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/effects/GrAtlasedShaderHelpers.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -20,7 +20,10 @@
 
 class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
 public:
-    GrGLBitmapTextGeoProc() : fColor(SK_PMColor4fILLEGAL), fAtlasDimensions{0,0} {}
+    GrGLBitmapTextGeoProc()
+            : fColor(SK_PMColor4fILLEGAL)
+            , fAtlasDimensions{0,0}
+            , fLocalMatrix(SkMatrix::InvalidMatrix()) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrBitmapTextGeoProc& btgp = args.fGP.cast<GrBitmapTextGeoProc>();
@@ -33,14 +36,12 @@ public:
         varyingHandler->emitAttributes(btgp);
 
         const char* atlasDimensionsInvName;
-        fAtlasDimensionsInvUniform = uniformHandler->addUniform(
-                kVertex_GrShaderFlag, kFloat2_GrSLType, "AtlasSizeInv", &atlasDimensionsInvName);
+        fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                kFloat2_GrSLType, "AtlasSizeInv", &atlasDimensionsInvName);
 
-        GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
-        GrGLSLVarying texIdx(texIdxType);
-        append_index_uv_varyings(args, btgp.inTextureCoords().name(), atlasDimensionsInvName, &uv,
-                                 &texIdx, nullptr);
+        GrGLSLVarying uv, texIdx;
+        append_index_uv_varyings(args, btgp.numTextureSamplers(), btgp.inTextureCoords().name(),
+                                 atlasDimensionsInvName, &uv, &texIdx, nullptr);
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
@@ -53,14 +54,8 @@ public:
 
         // Setup position
         gpArgs->fPositionVar = btgp.inPosition().asShaderVar();
-
-        // emit transforms
-        this->emitTransforms(vertBuilder,
-                             varyingHandler,
-                             uniformHandler,
-                             btgp.inPosition().asShaderVar(),
-                             btgp.localMatrix(),
-                             args.fFPCoordTransformHandler);
+        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, btgp.inPosition().asShaderVar(),
+                              btgp.localMatrix(), &fLocalMatrixUniform);
 
         fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, btgp.numTextureSamplers(),
@@ -75,8 +70,7 @@ public:
         }
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                 const CoordTransformRange& transformRange) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
         const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
             pdman.set4fv(fColorUniform, 1, btgp.color().vec());
@@ -92,7 +86,8 @@ public:
                         1.0f / atlasDimensions.fHeight);
             fAtlasDimensions = atlasDimensions;
         }
-        this->setTransformDataHelper(btgp.localMatrix(), pdman, transformRange);
+
+        this->setTransform(pdman, fLocalMatrixUniform, btgp.localMatrix(), &fLocalMatrix);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
@@ -102,6 +97,7 @@ public:
         uint32_t key = 0;
         key |= btgp.usesW() ? 0x1 : 0x0;
         key |= btgp.maskFormat() << 1;
+        key |= ComputeMatrixKey(btgp.localMatrix()) << 2;
         b->add32(key);
         b->add32(btgp.numTextureSamplers());
     }
@@ -113,7 +109,10 @@ private:
     SkISize       fAtlasDimensions;
     UniformHandle fAtlasDimensionsInvUniform;
 
-    typedef GrGLSLGeometryProcessor INHERITED;
+    SkMatrix      fLocalMatrix;
+    UniformHandle fLocalMatrixUniform;
+
+    using INHERITED = GrGLSLGeometryProcessor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,16 +120,18 @@ private:
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
                                          const SkPMColor4f& color,
                                          bool wideColor,
-                                         const sk_sp<GrTextureProxy>* proxies,
-                                         int numActiveProxies,
-                                         const GrSamplerState& params, GrMaskFormat format,
-                                         const SkMatrix& localMatrix, bool usesW)
+                                         const GrSurfaceProxyView* views,
+                                         int numActiveViews,
+                                         GrSamplerState params,
+                                         GrMaskFormat format,
+                                         const SkMatrix& localMatrix,
+                                         bool usesW)
         : INHERITED(kGrBitmapTextGeoProc_ClassID)
         , fColor(color)
         , fLocalMatrix(localMatrix)
         , fUsesW(usesW)
         , fMaskFormat(format) {
-    SkASSERT(numActiveProxies <= kMaxTextures);
+    SkASSERT(numActiveViews <= kMaxTextures);
 
     if (usesW) {
         fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
@@ -148,39 +149,39 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
                         caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
-    if (numActiveProxies) {
-        fAtlasDimensions = proxies[0]->dimensions();
+    if (numActiveViews) {
+        fAtlasDimensions = views[0].proxy()->dimensions();
     }
-    for (int i = 0; i < numActiveProxies; ++i) {
-        SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->dimensions() == fAtlasDimensions);
-        fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
-                                  proxies[i]->textureSwizzle());
+    for (int i = 0; i < numActiveViews; ++i) {
+        const GrSurfaceProxy* proxy = views[i].proxy();
+        SkASSERT(proxy);
+        SkASSERT(proxy->dimensions() == fAtlasDimensions);
+        fTextureSamplers[i].reset(params, proxy->backendFormat(), views[i].swizzle());
     }
-    this->setTextureSamplerCnt(numActiveProxies);
+    this->setTextureSamplerCnt(numActiveViews);
 }
 
-void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
-                                        int numActiveProxies,
-                                        const GrSamplerState& params) {
-    SkASSERT(numActiveProxies <= kMaxTextures);
+void GrBitmapTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
+                                      int numActiveViews,
+                                      GrSamplerState params) {
+    SkASSERT(numActiveViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
-    numActiveProxies = SkTMin(numActiveProxies, kMaxTextures);
+    numActiveViews = std::min(numActiveViews, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasDimensions = proxies[0]->dimensions();
+        fAtlasDimensions = views[0].proxy()->dimensions();
     }
 
-    for (int i = 0; i < numActiveProxies; ++i) {
-        SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->dimensions() == fAtlasDimensions);
+    for (int i = 0; i < numActiveViews; ++i) {
+        const GrSurfaceProxy* proxy = views[i].proxy();
+        SkASSERT(proxy);
+        SkASSERT(proxy->dimensions() == fAtlasDimensions);
 
         if (!fTextureSamplers[i].isInitialized()) {
-            fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
-                                      proxies[i]->textureSwizzle());
+            fTextureSamplers[i].reset(params, proxy->backendFormat(), views[i].swizzle());
         }
     }
-    this->setTextureSamplerCnt(numActiveProxies);
+    this->setTextureSamplerCnt(numActiveViews);
 }
 
 void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -199,30 +200,24 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 #if GR_TEST_UTILS
 
 GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxies[kMaxTextures] = {
-        d->textureProxy(texIdx),
-        nullptr,
-        nullptr,
-        nullptr
-    };
+    auto [view, ct, at] = d->randomView();
 
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(d->fRandom, wrapModes);
     GrSamplerState samplerState(wrapModes, d->fRandom->nextBool()
-                                                   ? GrSamplerState::Filter::kBilerp
+                                                   ? GrSamplerState::Filter::kLinear
                                                    : GrSamplerState::Filter::kNearest);
 
-    GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
-    switch (d->fRandom->nextULessThan(3)) {
-        case 0:
+    GrMaskFormat format;
+    switch (ct) {
+        case GrColorType::kAlpha_8:
             format = kA8_GrMaskFormat;
             break;
-        case 1:
+        case GrColorType::kBGR_565:
             format = kA565_GrMaskFormat;
             break;
-        case 2:
+        case GrColorType::kRGBA_8888:
+        default:  // It doesn't really matter that color type and mask format agree.
             format = kARGB_GrMaskFormat;
             break;
     }
@@ -230,7 +225,7 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     return GrBitmapTextGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(),
                                      SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                      d->fRandom->nextBool(),
-                                     proxies, 1, samplerState, format,
+                                     &view, 1, samplerState, format,
                                      GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
 }
 #endif

@@ -9,8 +9,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   libgl1-mesa-dev \
   libglu1-mesa-dev
 
-ADD https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libGLESv2.so /usr/local/lib/libGLESv2.so
-ADD https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
+ADD https://storage.googleapis.com/skia-swiftshader/libGLESv2.so /usr/local/lib/libGLESv2.so
+ADD https://storage.googleapis.com/skia-swiftshader/libEGL.so /usr/local/lib/libEGL.so
 RUN cd /tmp \
   && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
   && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader

@@ -21,8 +21,8 @@ IMAGES = {
 
 
 class DockerFlavor(default.DefaultFlavor):
-  def __init__(self, m):
-    super(DockerFlavor, self).__init__(m)
+  def __init__(self, m, app_name):
+    super(DockerFlavor, self).__init__(m, app_name)
 
   def _map_host_path_to_docker(self, path):
     """Returns the path in the Docker container mapped to the given path.
@@ -39,8 +39,7 @@ class DockerFlavor(default.DefaultFlavor):
     return None
 
   def step(self, name, cmd, **unused_kwargs):
-    extra_tokens = self.m.vars.extra_tokens
-    extra_tokens.remove('Docker')
+    extra_tokens = [t for t in self.m.vars.extra_tokens if t != 'Docker']
     os = self.m.vars.builder_cfg.get('os', '')
     model = self.m.vars.builder_cfg.get('model', '')
     cpu_or_gpu = self.m.vars.builder_cfg.get('cpu_or_gpu', '')

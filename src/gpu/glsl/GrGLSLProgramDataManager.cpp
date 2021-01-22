@@ -7,8 +7,9 @@
 
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkMatrix44.h"
+#include "src/core/SkMatrixPriv.h"
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     float mt[] = {
@@ -25,8 +26,6 @@ void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matr
     this->setMatrix3f(u, mt);
 }
 
-void GrGLSLProgramDataManager::setSkMatrix44(UniformHandle u, const SkMatrix44& matrix) const {
-    float mt[16];
-    matrix.asColMajorf(mt);
-    this->setMatrix4f(u, mt);
+void GrGLSLProgramDataManager::setSkM44(UniformHandle u, const SkM44& matrix) const {
+    this->setMatrix4f(u, SkMatrixPriv::M44ColMajor(matrix));
 }

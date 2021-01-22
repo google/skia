@@ -91,11 +91,11 @@ protected:
 
 private:
     SkTArray<SkPath> fPaths;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new StLouisArchGM; )
 
-}
+}  // namespace skiagm

@@ -8,10 +8,9 @@
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 
 #include "include/pathops/SkPathOps.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrClip.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/ccpr/GrCCClipProcessor.h"
 #include "src/gpu/ccpr/GrCCDrawPathsOp.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
@@ -22,9 +21,8 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     GrBackendFormat defaultA8Format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                    GrRenderable::kYes);
-    if (caps.driverBlacklistCCPR() || !shaderCaps.integerSupport() ||
-        !caps.instanceAttribSupport() || !shaderCaps.floatIs32Bits() ||
-        GrCaps::kNone_MapFlags == caps.mapBufferFlags() ||
+    if (caps.driverDisableCCPR() || !shaderCaps.integerSupport() ||
+        !caps.drawInstancedSupport() || !shaderCaps.floatIs32Bits() ||
         !defaultA8Format.isValid() || // This checks both texturable and renderable
         !caps.halfFloatVertexAttributeSupport()) {
         return false;
@@ -40,7 +38,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         return true;
     }
 
-    if (!caps.driverBlacklistMSAACCPR() &&
+    if (!caps.driverDisableMSAACCPR() &&
         caps.internalMultisampleCount(defaultA8Format) > 1 &&
         caps.sampleLocationsSupport() &&
         shaderCaps.sampleMaskSupport()) {
@@ -67,7 +65,7 @@ GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(
         CoverageType coverageType, AllowCaching allowCaching, uint32_t contextUniqueID)
         : fCoverageType(coverageType) {
     if (AllowCaching::kYes == allowCaching) {
-        fPathCache = skstd::make_unique<GrCCPathCache>(contextUniqueID);
+        fPathCache = std::make_unique<GrCCPathCache>(contextUniqueID);
     }
 }
 
@@ -82,7 +80,7 @@ GrCCPerOpsTaskPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t
 
 GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
-    const GrShape& shape = *args.fShape;
+    const GrStyledShape& shape = *args.fShape;
     // We use "kCoverage", or analytic AA, no mater what the coverage type of our atlas: Even if the
     // atlas is multisampled, that resolves into analytic coverage before we draw the path to the
     // main canvas.
@@ -138,7 +136,7 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
                 // defined relative to device space.
                 return CanDrawPath::kNo;
             }
-            // fallthru
+            [[fallthrough]];
         case SkStrokeRec::kHairline_Style: {
             if (CoverageType::kFP16_CoverageCount != fCoverageType) {
                 // Stroking is not yet supported in MSAA atlas mode.
@@ -169,31 +167,27 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!fFlushing);
 
-    SkIRect clipIBounds;
-    GrRenderTargetContext* rtc = args.fRenderTargetContext;
-    args.fClip->getConservativeBounds(rtc->width(), rtc->height(), &clipIBounds, nullptr);
-
-    auto op = GrCCDrawPathsOp::Make(args.fContext, clipIBounds, *args.fViewMatrix, *args.fShape,
-                                    std::move(args.fPaint));
+    auto op = GrCCDrawPathsOp::Make(args.fContext, *args.fClipConservativeBounds, *args.fViewMatrix,
+                                    *args.fShape, std::move(args.fPaint));
     this->recordOp(std::move(op), args);
     return true;
 }
 
-void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> op,
+void GrCoverageCountingPathRenderer::recordOp(GrOp::Owner op,
                                               const DrawPathArgs& args) {
     if (op) {
         auto addToOwningPerOpsTaskPaths = [this](GrOp* op, uint32_t opsTaskID) {
             op->cast<GrCCDrawPathsOp>()->addToOwningPerOpsTaskPaths(
                     sk_ref_sp(this->lookupPendingPaths(opsTaskID)));
         };
-        args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op),
+        args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op),
                                              addToOwningPerOpsTaskPaths);
     }
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
-        uint32_t opsTaskID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
-        const GrCaps& caps) {
+        std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
+        const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps) {
     SkASSERT(!fFlushing);
 
     uint32_t key = deviceSpacePath.getGenerationID();
@@ -207,7 +201,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
     if (!clipPath.isInitialized()) {
         // This ClipPath was just created during lookup. Initialize it.
         const SkRect& pathDevBounds = deviceSpacePath.getBounds();
-        if (SkTMax(pathDevBounds.height(), pathDevBounds.width()) > kPathCropThreshold) {
+        if (std::max(pathDevBounds.height(), pathDevBounds.width()) > kPathCropThreshold) {
             // The path is too large. Crop it or analytic AA can run out of fp32 precision.
             SkPath croppedPath;
             int maxRTSize = caps.maxRenderTargetSize();
@@ -224,11 +218,12 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
             CoverageType::kFP16_CoverageCount == fCoverageType);
     auto mustCheckBounds = GrCCClipProcessor::MustCheckBounds(
             !clipPath.pathDevIBounds().contains(accessRect));
-    return skstd::make_unique<GrCCClipProcessor>(&clipPath, isCoverageCount, mustCheckBounds);
+    return std::make_unique<GrCCClipProcessor>(
+                std::move(inputFP), caps, &clipPath, isCoverageCount, mustCheckBounds);
 }
 
 void GrCoverageCountingPathRenderer::preFlush(
-        GrOnFlushResourceProvider* onFlushRP, const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
+        GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t> taskIDs) {
     using DoCopiesToA8Coverage = GrCCDrawPathsOp::DoCopiesToA8Coverage;
     SkASSERT(!fFlushing);
     SkASSERT(fFlushingPaths.empty());
@@ -244,16 +239,16 @@ void GrCoverageCountingPathRenderer::preFlush(
 
     GrCCPerFlushResourceSpecs specs;
     int maxPreferredRTSize = onFlushRP->caps()->maxPreferredRenderTargetSize();
-    specs.fCopyAtlasSpecs.fMaxPreferredTextureSize = SkTMin(2048, maxPreferredRTSize);
+    specs.fCopyAtlasSpecs.fMaxPreferredTextureSize = std::min(2048, maxPreferredRTSize);
     SkASSERT(0 == specs.fCopyAtlasSpecs.fMinTextureSize);
     specs.fRenderedAtlasSpecs.fMaxPreferredTextureSize = maxPreferredRTSize;
-    specs.fRenderedAtlasSpecs.fMinTextureSize = SkTMin(512, maxPreferredRTSize);
+    specs.fRenderedAtlasSpecs.fMinTextureSize = std::min(512, maxPreferredRTSize);
 
     // Move the per-opsTask paths that are about to be flushed from fPendingPaths to fFlushingPaths,
     // and count them up so we can preallocate buffers.
-    fFlushingPaths.reserve(numOpsTaskIDs);
-    for (int i = 0; i < numOpsTaskIDs; ++i) {
-        auto iter = fPendingPaths.find(opsTaskIDs[i]);
+    fFlushingPaths.reserve_back(taskIDs.count());
+    for (uint32_t taskID : taskIDs) {
+        auto iter = fPendingPaths.find(taskID);
         if (fPendingPaths.end() == iter) {
             continue;  // No paths on this opsTask.
         }
@@ -277,7 +272,7 @@ void GrCoverageCountingPathRenderer::preFlush(
     // copy them to cached atlas(es).
     int numCopies = specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kFillIdx] +
                     specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kStrokeIdx];
-    auto doCopies = DoCopiesToA8Coverage(numCopies > 100 ||
+    auto doCopies = DoCopiesToA8Coverage(numCopies > kDoCopiesThreshold ||
                                          specs.fCopyAtlasSpecs.fApproxNumPixels > 256 * 256);
     if (numCopies && DoCopiesToA8Coverage::kNo == doCopies) {
         specs.cancelCopies();
@@ -316,8 +311,8 @@ void GrCoverageCountingPathRenderer::preFlush(
     }
 }
 
-void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opsTaskIDs,
-                                               int numOpsTaskIDs) {
+void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken,
+                                               SkSpan<const uint32_t> /* taskIDs */) {
     SkASSERT(fFlushing);
 
     if (!fFlushingPaths.empty()) {
@@ -368,7 +363,7 @@ float GrCoverageCountingPathRenderer::GetStrokeDevWidth(const SkMatrix& m,
         // Inflate for a minimum stroke width of 1. In some cases when the stroke is less than 1px
         // wide, we may inflate it to 1px and instead reduce the opacity.
         *inflationRadius = SkStrokeRec::GetInflationRadius(
-                stroke.getJoin(), stroke.getMiter(), stroke.getCap(), SkTMax(strokeDevWidth, 1.f));
+                stroke.getJoin(), stroke.getMiter(), stroke.getCap(), std::max(strokeDevWidth, 1.f));
     }
     return strokeDevWidth;
 }

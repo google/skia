@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+in fragmentProcessor? inputFP;
 layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float radius;
@@ -16,18 +17,22 @@ float prevRadius = -1;
 uniform float4 circle;
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
-                                                     float radius) {
+    static GrFPResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                           GrClipEdgeType edgeType, SkPoint center, float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
         // inverted. We could handle this case by making the processor code more complicated.
         if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
-            return nullptr;
+            return GrFPFailure(std::move(inputFP));
         }
-        return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
+        return GrFPSuccess(std::unique_ptr<GrFragmentProcessor>(
+                    new GrCircleEffect(std::move(inputFP), edgeType, center, radius)));
     }
 }
 
-@optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
+@optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag
+}
 
 @setData(pdman) {
     if (radius != prevRadius || center != prevCenter) {
@@ -35,7 +40,7 @@ uniform float4 circle;
         if (GrProcessorEdgeTypeIsInverseFill((GrClipEdgeType) edgeType)) {
             effectiveRadius -= 0.5f;
             // When the radius is 0.5 effectiveRadius is 0 which causes an inf * 0 in the shader.
-            effectiveRadius = SkTMax(0.001f, effectiveRadius);
+            effectiveRadius = std::max(0.001f, effectiveRadius);
         } else {
             effectiveRadius += 0.5f;
         }
@@ -46,7 +51,7 @@ uniform float4 circle;
     }
 }
 
-void main() {
+half4 main() {
     // TODO: Right now the distance to circle calculation is performed in a space normalized to the
     // radius and then denormalized. This is to mitigate overflow on devices that don't have full
     // float.
@@ -57,12 +62,12 @@ void main() {
     } else {
         d = half((1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z);
     }
+    half4 inputColor = sample(inputFP);
     @if (edgeType == GrClipEdgeType::kFillAA ||
-         edgeType == GrClipEdgeType::kInverseFillAA ||
-         edgeType == GrClipEdgeType::kHairlineAA) {
-        sk_OutColor = sk_InColor * saturate(d);
+         edgeType == GrClipEdgeType::kInverseFillAA) {
+        return inputColor * saturate(d);
     } else {
-        sk_OutColor = d > 0.5 ? sk_InColor : half4(0);
+        return d > 0.5 ? inputColor : half4(0);
     }
 }
 
@@ -71,9 +76,11 @@ void main() {
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar radius = testData->fRandom->nextRangeF(1.f, 1000.f);
-    GrClipEdgeType et;
+    bool success;
+    std::unique_ptr<GrFragmentProcessor> fp = testData->inputFP();
     do {
-        et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-    } while (GrClipEdgeType::kHairlineAA == et);
-    return GrCircleEffect::Make(et, center, radius);
+        GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
+        std::tie(success, fp) = GrCircleEffect::Make(std::move(fp), et, center, radius);
+    } while (!success);
+    return fp;
 }

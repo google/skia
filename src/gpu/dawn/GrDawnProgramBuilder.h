@@ -8,9 +8,9 @@
 #ifndef GrDawnProgramBuilder_DEFINED
 #define GrDawnProgramBuilder_DEFINED
 
+#include "src/gpu/GrSPIRVUniformHandler.h"
+#include "src/gpu/GrSPIRVVaryingHandler.h"
 #include "src/gpu/dawn/GrDawnProgramDataManager.h"
-#include "src/gpu/dawn/GrDawnUniformHandler.h"
-#include "src/gpu/dawn/GrDawnVaryingHandler.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "dawn/webgpu_cpp.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -49,15 +49,14 @@ struct GrDawnProgram : public SkRefCnt {
         }
     };
     typedef GrGLSLBuiltinUniformHandles BuiltinUniformHandles;
-    GrDawnProgram(const GrDawnUniformHandler::UniformInfoArray& uniforms,
+    GrDawnProgram(const GrSPIRVUniformHandler::UniformInfoArray& uniforms,
                   uint32_t uniformBufferSize)
       : fDataManager(uniforms, uniformBufferSize) {
     }
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
-    int fFragmentProcessorCnt;
-    wgpu::BindGroupLayout fBindGroupLayouts[2];
+    std::vector<wgpu::BindGroupLayout> fBindGroupLayouts;
     wgpu::RenderPipeline fRenderPipeline;
     GrDawnProgramDataManager fDataManager;
     RenderTargetState fRenderTargetState;
@@ -66,7 +65,8 @@ struct GrDawnProgram : public SkRefCnt {
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
     wgpu::BindGroup setUniformData(GrDawnGpu*, const GrRenderTarget*, const GrProgramInfo&);
     wgpu::BindGroup setTextures(GrDawnGpu* gpu,
-                                const GrProgramInfo& programInfo,
+                                const GrPrimitiveProcessor& primProc,
+                                const GrPipeline& pipeline,
                                 const GrSurfaceProxy* const primProcTextures[]);
 };
 
@@ -94,9 +94,9 @@ private:
     wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
                                           bool flipY, SkSL::Program::Inputs* inputs);
     GrDawnGpu*             fGpu;
-    GrDawnVaryingHandler   fVaryingHandler;
-    GrDawnUniformHandler   fUniformHandler;
+    GrSPIRVVaryingHandler   fVaryingHandler;
+    GrSPIRVUniformHandler   fUniformHandler;
 
-    typedef GrGLSLProgramBuilder INHERITED;
+    using INHERITED = GrGLSLProgramBuilder;
 };
 #endif

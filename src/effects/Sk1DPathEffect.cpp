@@ -127,7 +127,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
                 srcP[2] = srcP[1];
                 srcP[1].set(SkScalarAve(srcP[0].fX, srcP[2].fX),
                             SkScalarAve(srcP[0].fY, srcP[2].fY));
-                // fall through to quad
+                [[fallthrough]];
             case SkPath::kQuad_Verb:
                 if (morphpoints(dstP, &srcP[1], 2, meas, dist)) {
                     dst->quadTo(dstP[0], dstP[1]);
@@ -175,7 +175,7 @@ void SkPath1DPathEffect::flatten(SkWriteBuffer& buffer) const {
 
 SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
                                   SkPathMeasure& meas) const {
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_FUZZER)
     if (dst->countPoints() > 100000) {
         return fAdvance;
     }

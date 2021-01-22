@@ -12,7 +12,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint3.h"
@@ -58,7 +58,9 @@ const char* colortype_name(SkColorType ct) {
         case kRGB_888x_SkColorType:           return "RGB_888x";
         case kBGRA_8888_SkColorType:          return "BGRA_8888";
         case kRGBA_1010102_SkColorType:       return "RGBA_1010102";
+        case kBGRA_1010102_SkColorType:       return "BGRA_1010102";
         case kRGB_101010x_SkColorType:        return "RGB_101010x";
+        case kBGR_101010x_SkColorType:        return "BGR_101010x";
         case kGray_8_SkColorType:             return "Gray_8";
         case kRGBA_F16Norm_SkColorType:       return "RGBA_F16Norm";
         case kRGBA_F16_SkColorType:           return "RGBA_F16";
@@ -84,7 +86,9 @@ const char* colortype_depth(SkColorType ct) {
         case kRGB_888x_SkColorType:           return "888";
         case kBGRA_8888_SkColorType:          return "8888";
         case kRGBA_1010102_SkColorType:       return "1010102";
+        case kBGRA_1010102_SkColorType:       return "1010102";
         case kRGB_101010x_SkColorType:        return "101010";
+        case kBGR_101010x_SkColorType:        return "101010";
         case kGray_8_SkColorType:             return "G8";
         case kRGBA_F16Norm_SkColorType:       return "F16Norm";  // TODO: "F16"?
         case kRGBA_F16_SkColorType:           return "F16";
@@ -231,16 +235,17 @@ void get_text_path(const SkFont&  font,
 
 SkPath make_star(const SkRect& bounds, int numPts, int step) {
     SkASSERT(numPts != step);
-    SkPath path;
-    path.setFillType(SkPathFillType::kEvenOdd);
-    path.moveTo(0, -1);
+    SkPathBuilder builder;
+    builder.setFillType(SkPathFillType::kEvenOdd);
+    builder.moveTo(0, -1);
     for (int i = 1; i < numPts; ++i) {
         int      idx   = i * step % numPts;
         SkScalar theta = idx * 2 * SK_ScalarPI / numPts + SK_ScalarPI / 2;
         SkScalar x     = SkScalarCos(theta);
         SkScalar y     = -SkScalarSin(theta);
-        path.lineTo(x, y);
+        builder.lineTo(x, y);
     }
+    SkPath path = builder.detach();
     path.transform(SkMatrix::MakeRectToRect(path.getBounds(), bounds, SkMatrix::kFill_ScaleToFit));
     return path;
 }
@@ -358,8 +363,10 @@ void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst) {
 // We don't really care to wait that long for this function.
 #pragma optimize("", off)
 #endif
-void make_big_path(SkPath& path) {
+SkPath make_big_path() {
+    SkPathBuilder path;
 #include "BigPathBench.inc"  // IWYU pragma: keep
+    return path.detach();
 }
 
 bool copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
@@ -432,11 +439,9 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
     for (int y = 0; y < a.height(); ++y) {
         const char* aptr = (const char*)a.addr(0, y);
         const char* bptr = (const char*)b.addr(0, y);
-        if (memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
+        if (0 != memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
             return false;
         }
-        aptr += a.rowBytes();
-        bptr += b.rowBytes();
     }
     return true;
 }

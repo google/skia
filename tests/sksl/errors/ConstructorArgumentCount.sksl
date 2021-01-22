@@ -1,0 +1,2 @@
+void construct_float3_from_float_float()             { float3 x = float3(1.0, 2.0); }
+void construct_float3_from_float_float_float_float() { float3 x = float3(1.0, 2.0, 3.0, 4.0); }

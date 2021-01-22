@@ -25,8 +25,8 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkLeanWindows.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskGamma.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/core/SkUtils.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
@@ -231,7 +231,6 @@ private:
     HFONT fFont;
     HFONT fSavefont;
 };
-#define SkAutoHDC(...) SK_REQUIRE_LOCAL_VAR(SkAutoHDC)
 
 class LogFontTypeface : public SkTypeface {
 public:
@@ -286,6 +285,7 @@ protected:
     void getPostScriptGlyphNames(SkString*) const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
+    bool onGetPostScriptName(SkString*) const override { return false; }
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
@@ -328,7 +328,7 @@ private:
 
     HANDLE fFontMemResource;
 
-    typedef LogFontTypeface INHERITED;
+    using INHERITED = LogFontTypeface;
 };
 
 static const LOGFONT& get_default_font() {
@@ -344,7 +344,7 @@ static bool FindByLogFont(SkTypeface* face, void* ctx) {
 }
 
 /**
- *  This guy is public. It first searches the cache, and if a match is not found,
+ *  This is public. It first searches the cache, and if a match is not found,
  *  it creates a new face.
  */
 SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
@@ -369,7 +369,7 @@ sk_sp<SkTypeface> SkCreateFontMemResourceTypefaceFromLOGFONT(const LOGFONT& orig
 }
 
 /**
- *  This guy is public
+ *  This is public
  */
 void SkLOGFONTFromTypeface(const SkTypeface* face, LOGFONT* lf) {
     if (nullptr == face) {
@@ -497,8 +497,8 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     }
     fIsBW = isBW;
 
-    fWidth = SkMax32(fWidth, glyph.width());
-    fHeight = SkMax32(fHeight, glyph.height());
+    fWidth = std::max(fWidth, glyph.width());
+    fHeight = std::max(fHeight, glyph.height());
 
     int biWidth = isBW ? alignTo32(fWidth) : fWidth;
 
@@ -608,11 +608,11 @@ private:
     TEXTMETRIC fTM;
 };
 
-static FIXED float2FIXED(float x) {
+static FIXED SkFloatToFIXED(float x) {
     return SkFixedToFIXED(SkFloatToFixed(x));
 }
 
-static inline float FIXED2float(FIXED x) {
+static inline float SkFIXEDToFloat(FIXED x) {
     return SkFixedToFloat(SkFIXEDToFixed(x));
 }
 
@@ -729,10 +729,10 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
         xform.eDy = 0;
 
         // MAT2 is row major, right handed (y up).
-        fMat22.eM11 = float2FIXED(xform.eM11);
-        fMat22.eM12 = float2FIXED(-xform.eM12);
-        fMat22.eM21 = float2FIXED(-xform.eM21);
-        fMat22.eM22 = float2FIXED(xform.eM22);
+        fMat22.eM11 = SkFloatToFIXED(xform.eM11);
+        fMat22.eM12 = SkFloatToFIXED(-xform.eM12);
+        fMat22.eM21 = SkFloatToFIXED(-xform.eM21);
+        fMat22.eM22 = SkFloatToFIXED(xform.eM22);
 
         if (needToRenderWithSkia(fRec)) {
             this->forceGenerateImageFromPath();
@@ -750,10 +750,10 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
                 SkScalar upem = SkIntToScalar(otm.otmEMSquare);
 
                 SkScalar gdiTextSizeToEMScale = upem / gdiTextSize;
-                fHighResMat22.eM11 = float2FIXED(gdiTextSizeToEMScale);
-                fHighResMat22.eM12 = float2FIXED(0);
-                fHighResMat22.eM21 = float2FIXED(0);
-                fHighResMat22.eM22 = float2FIXED(gdiTextSizeToEMScale);
+                fHighResMat22.eM11 = SkScalarToFIXED(gdiTextSizeToEMScale);
+                fHighResMat22.eM12 = SkScalarToFIXED(0);
+                fHighResMat22.eM21 = SkScalarToFIXED(0);
+                fHighResMat22.eM22 = SkScalarToFIXED(gdiTextSizeToEMScale);
 
                 SkScalar removeEMScale = SkScalarInvert(upem);
                 fHiResMatrix = A;
@@ -852,8 +852,8 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
         }
 
         // Apply matrix to advance.
-        glyph->fAdvanceY = -FIXED2float(fMat22.eM12) * glyph->fAdvanceX;
-        glyph->fAdvanceX *= FIXED2float(fMat22.eM11);
+        glyph->fAdvanceY = -SkFIXEDToFloat(fMat22.eM12) * glyph->fAdvanceX;
+        glyph->fAdvanceX *= SkFIXEDToFloat(fMat22.eM11);
 
         return;
     }
@@ -1059,7 +1059,7 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-    r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
+    r = std::max(r, 10); g = std::max(g, 10); b = std::max(b, 10);
 #endif
     return SkPack888ToRGB16(r, g, b);
 }
@@ -1075,7 +1075,7 @@ void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-            dst[i] = SkMax32(dst[i], 10);
+            dst[i] = std::max(dst[i], 10);
 #endif
         }
         src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
@@ -1180,6 +1180,8 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         }
     }
 }
+
+namespace {
 
 class GDIGlyphbufferPointIter {
 public:
@@ -1323,7 +1325,37 @@ private:
     GDIPolygonCurvePointIter fPointIter;
 };
 
-static void sk_path_from_gdi_path(SkPath* path, const uint8_t* glyphbuf, DWORD total_size) {
+class SkGDIGeometrySink {
+    SkPath* fPath;
+    bool fStarted = false;
+    POINTFX fCurrent;
+
+    void goingTo(const POINTFX pt) {
+        if (!fStarted) {
+            fStarted = true;
+            fPath->moveTo( SkFIXEDToScalar(fCurrent.x),
+                          -SkFIXEDToScalar(fCurrent.y));
+        }
+        fCurrent = pt;
+    }
+
+    bool currentIsNot(const POINTFX pt) {
+        return fCurrent.x.value != pt.x.value || fCurrent.x.fract != pt.x.fract ||
+               fCurrent.y.value != pt.y.value || fCurrent.y.fract != pt.y.fract;
+    }
+
+public:
+    SkGDIGeometrySink(SkPath* path) : fPath(path) {}
+    void process(const uint8_t* glyphbuf, DWORD total_size);
+
+    /** It is possible for the hinted and unhinted versions of the same path to have
+     *  a different number of points due to GDI's handling of flipped points.
+     *  If this is detected, this will return false.
+     */
+    bool process(const uint8_t* glyphbuf, DWORD total_size, GDIGlyphbufferPointIter hintedYs);
+};
+
+void SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size) {
     const uint8_t* cur_glyph = glyphbuf;
     const uint8_t* end_glyph = glyphbuf + total_size;
 
@@ -1333,42 +1365,55 @@ static void sk_path_from_gdi_path(SkPath* path, const uint8_t* glyphbuf, DWORD t
         const uint8_t* end_poly = cur_glyph + th->cb;
         const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
 
-        path->moveTo(SkFixedToScalar( SkFIXEDToFixed(th->pfxStart.x)),
-                     SkFixedToScalar(-SkFIXEDToFixed(th->pfxStart.y)));
+        fStarted = false;
+        fCurrent = th->pfxStart;
 
         while (cur_poly < end_poly) {
             const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
+            const POINTFX* apfx = pc->apfx;
+            const WORD cpfx = pc->cpfx;
 
             if (pc->wType == TT_PRIM_LINE) {
-                for (uint16_t i = 0; i < pc->cpfx; i++) {
-                    path->lineTo(SkFixedToScalar( SkFIXEDToFixed(pc->apfx[i].x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pc->apfx[i].y)));
+                for (uint16_t i = 0; i < cpfx; i++) {
+                    POINTFX pnt_b = apfx[i];
+                    if (this->currentIsNot(pnt_b)) {
+                        this->goingTo(pnt_b);
+                        fPath->lineTo( SkFIXEDToScalar(pnt_b.x),
+                                      -SkFIXEDToScalar(pnt_b.y));
+                    }
                 }
             }
 
             if (pc->wType == TT_PRIM_QSPLINE) {
-                for (uint16_t u = 0; u < pc->cpfx - 1; u++) { // Walk through points in spline
-                    POINTFX pnt_b = pc->apfx[u];    // B is always the current point
-                    POINTFX pnt_c = pc->apfx[u+1];
+                for (uint16_t u = 0; u < cpfx - 1; u++) { // Walk through points in spline
+                    POINTFX pnt_b = apfx[u];    // B is always the current point
+                    POINTFX pnt_c = apfx[u+1];
 
-                    if (u < pc->cpfx - 2) {          // If not on last spline, compute C
+                    if (u < cpfx - 2) {          // If not on last spline, compute C
                         pnt_c.x = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.x),
                                                             SkFIXEDToFixed(pnt_c.x)));
                         pnt_c.y = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.y),
                                                             SkFIXEDToFixed(pnt_c.y)));
                     }
 
-                    path->quadTo(SkFixedToScalar( SkFIXEDToFixed(pnt_b.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_b.y)),
-                                 SkFixedToScalar( SkFIXEDToFixed(pnt_c.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_c.y)));
+
+                    if (this->currentIsNot(pnt_b) || this->currentIsNot(pnt_c)) {
+                        this->goingTo(pnt_c);
+                        fPath->quadTo( SkFIXEDToScalar(pnt_b.x),
+                                      -SkFIXEDToScalar(pnt_b.y),
+                                       SkFIXEDToScalar(pnt_c.x),
+                                      -SkFIXEDToScalar(pnt_c.y));
+                    }
                 }
             }
+
             // Advance past this TTPOLYCURVE.
-            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * pc->cpfx;
+            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * cpfx;
         }
         cur_glyph += th->cb;
-        path->close();
+        if (this->fStarted) {
+            fPath->close();
+        }
     }
 }
 
@@ -1377,11 +1422,8 @@ static void sk_path_from_gdi_path(SkPath* path, const uint8_t* glyphbuf, DWORD t
     if (nullptr == pElem) return false; \
 } while(0)
 
-// It is possible for the hinted and unhinted versions of the same path to have
-// a different number of points due to GDI's handling of flipped points.
-// If this is detected, this will return false.
-static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD total_size,
-                                   GDIGlyphbufferPointIter hintedYs) {
+bool SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size,
+                                GDIGlyphbufferPointIter hintedYs) {
     const uint8_t* cur_glyph = glyphbuf;
     const uint8_t* end_glyph = glyphbuf + total_size;
 
@@ -1394,30 +1436,36 @@ static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
         const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
 
         move_next_expected_hinted_point(hintedYs, hintedPoint);
-        path->moveTo(SkFixedToScalar( SkFIXEDToFixed(th->pfxStart.x)),
-                     SkFixedToScalar(-SkFIXEDToFixed(hintedPoint->y)));
+        fStarted = false;
+        fCurrent = {th->pfxStart.x, hintedPoint->y};
 
         while (cur_poly < end_poly) {
             const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
+            const POINTFX* apfx = pc->apfx;
+            const WORD cpfx = pc->cpfx;
 
             if (pc->wType == TT_PRIM_LINE) {
-                for (uint16_t i = 0; i < pc->cpfx; i++) {
+                for (uint16_t i = 0; i < cpfx; i++) {
                     move_next_expected_hinted_point(hintedYs, hintedPoint);
-                    path->lineTo(SkFixedToScalar( SkFIXEDToFixed(pc->apfx[i].x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(hintedPoint->y)));
+                    POINTFX pnt_b = {apfx[i].x, hintedPoint->y};
+                    if (this->currentIsNot(pnt_b)) {
+                        this->goingTo(pnt_b);
+                        fPath->lineTo( SkFIXEDToScalar(pnt_b.x),
+                                      -SkFIXEDToScalar(pnt_b.y));
+                    }
                 }
             }
 
             if (pc->wType == TT_PRIM_QSPLINE) {
-                POINTFX currentPoint = pc->apfx[0];
+                POINTFX currentPoint = apfx[0];
                 move_next_expected_hinted_point(hintedYs, hintedPoint);
                 // only take the hinted y if it wasn't flipped
                 if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
                     currentPoint.y = hintedPoint->y;
                 }
-                for (uint16_t u = 0; u < pc->cpfx - 1; u++) { // Walk through points in spline
+                for (uint16_t u = 0; u < cpfx - 1; u++) { // Walk through points in spline
                     POINTFX pnt_b = currentPoint;//pc->apfx[u]; // B is always the current point
-                    POINTFX pnt_c = pc->apfx[u+1];
+                    POINTFX pnt_c = apfx[u+1];
                     move_next_expected_hinted_point(hintedYs, hintedPoint);
                     // only take the hinted y if it wasn't flipped
                     if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
@@ -1426,27 +1474,34 @@ static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
                     currentPoint.x = pnt_c.x;
                     currentPoint.y = pnt_c.y;
 
-                    if (u < pc->cpfx - 2) {          // If not on last spline, compute C
+                    if (u < cpfx - 2) {          // If not on last spline, compute C
                         pnt_c.x = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.x),
                                                             SkFIXEDToFixed(pnt_c.x)));
                         pnt_c.y = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.y),
                                                             SkFIXEDToFixed(pnt_c.y)));
                     }
 
-                    path->quadTo(SkFixedToScalar( SkFIXEDToFixed(pnt_b.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_b.y)),
-                                 SkFixedToScalar( SkFIXEDToFixed(pnt_c.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_c.y)));
+                    if (this->currentIsNot(pnt_b) || this->currentIsNot(pnt_c)) {
+                        this->goingTo(pnt_c);
+                        fPath->quadTo( SkFIXEDToScalar(pnt_b.x),
+                                      -SkFIXEDToScalar(pnt_b.y),
+                                       SkFIXEDToScalar(pnt_c.x),
+                                      -SkFIXEDToScalar(pnt_c.y));
+                    }
                 }
             }
+
             // Advance past this TTPOLYCURVE.
-            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * pc->cpfx;
+            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * cpfx;
         }
         cur_glyph += th->cb;
-        path->close();
+        if (this->fStarted) {
+            fPath->close();
+        }
     }
     return true;
 }
+} // namespace
 
 DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
                                            SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
@@ -1512,7 +1567,8 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     }
 
     if (fRec.getHinting() != SkFontHinting::kSlight) {
-        sk_path_from_gdi_path(path, glyphbuf, total_size);
+        SkGDIGeometrySink sink(path);
+        sink.process(glyphbuf, total_size);
     } else {
         //GDI only uses hinted outlines when axis aligned.
         UINT format = GGO_NATIVE | GGO_GLYPH_INDEX;
@@ -1523,11 +1579,14 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
             return false;
         }
 
-        if (!sk_path_from_gdi_paths(path, glyphbuf, total_size,
-                                    GDIGlyphbufferPointIter(hintedGlyphbuf, hinted_total_size)))
+        SkGDIGeometrySink sinkXBufYIter(path);
+        if (!sinkXBufYIter.process(glyphbuf, total_size,
+                                   GDIGlyphbufferPointIter(hintedGlyphbuf, hinted_total_size)))
         {
+            // Both path and sinkXBufYIter are in the state they were in at the time of failure.
             path->reset();
-            sk_path_from_gdi_path(path, glyphbuf, total_size);
+            SkGDIGeometrySink sink(path);
+            sink.process(glyphbuf, total_size);
         }
     }
     return true;
@@ -1915,7 +1974,7 @@ void LogFontTypeface::onCharsToGlyphs(const SkUnichar* uni, int glyphCount,
     const uint32_t* utf32 = reinterpret_cast<const uint32_t*>(uni);
     while (glyphIndex < glyphCount) {
         // Try a run of bmp.
-        int glyphsLeft = SkTMin(glyphCount - glyphIndex, scratchCount);
+        int glyphsLeft = std::min(glyphCount - glyphIndex, scratchCount);
         int runLength = 0;
         while (runLength < glyphsLeft && utf32[glyphIndex + runLength] <= 0xFFFF) {
             scratch[runLength] = static_cast<WCHAR>(utf32[glyphIndex + runLength]);
@@ -2026,10 +2085,17 @@ sk_sp<SkData> LogFontTypeface::onCopyTableData(SkFontTableTag tag) const {
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                         const SkDescriptor* desc) const {
-    auto ctx = skstd::make_unique<SkScalerContext_GDI>(
+    auto ctx = std::make_unique<SkScalerContext_GDI>(
             sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
     if (!ctx->isValid()) {
-        return nullptr;
+        ctx.reset();
+        SkStrikeCache::PurgeAll();
+        ctx = std::make_unique<SkScalerContext_GDI>(
+            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+        if (!ctx->isValid()) {
+            return SkScalerContext::MakeEmptyContext(
+                    sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+        }
     }
     return ctx.release();
 }
@@ -2226,6 +2292,11 @@ protected:
             return nullptr;
         }
         return create_from_stream(std::move(stream));
+    }
+
+    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                           const SkFontArguments& args) const override {
+        return this->makeFromStream(std::move(stream), args.getCollectionIndex());
     }
 
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {

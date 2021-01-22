@@ -21,10 +21,10 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
+#include "include/effects/SkDashPathEffect.h"
 #include "include/private/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParse.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/shaders/SkImageShader.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
@@ -39,9 +39,9 @@
 
 static std::unique_ptr<SkCanvas> MakeDOMCanvas(SkDOM* dom, uint32_t flags = 0) {
     auto svgDevice = SkSVGDevice::Make(SkISize::Make(100, 100),
-                                       skstd::make_unique<SkXMLParserWriter>(dom->beginParsing()),
+                                       std::make_unique<SkXMLParserWriter>(dom->beginParsing()),
                                        flags);
-    return svgDevice ? skstd::make_unique<SkCanvas>(svgDevice)
+    return svgDevice ? std::make_unique<SkCanvas>(svgDevice)
                      : nullptr;
 }
 
@@ -387,29 +387,30 @@ DEF_TEST(SVGDevice_textpath, reporter) {
     SkFont font(ToolUtils::create_portable_typeface());
     SkPaint paint;
 
+    auto check_text = [&](uint32_t flags, bool expect_path) {
+        // By default, we emit <text> nodes.
+        {
+            auto svgCanvas = MakeDOMCanvas(&dom, flags);
+            svgCanvas->drawString("foo", 100, 100, font, paint);
+        }
+        const auto* rootElement = dom.finishParsing();
+        REPORTER_ASSERT(reporter, rootElement, "root element not found");
+        const auto* textElement = dom.getFirstChild(rootElement, "text");
+        REPORTER_ASSERT(reporter, !!textElement == !expect_path, "unexpected text element");
+        const auto* pathElement = dom.getFirstChild(rootElement, "path");
+        REPORTER_ASSERT(reporter, !!pathElement == expect_path, "unexpected path element");
+    };
+
     // By default, we emit <text> nodes.
-    {
-        auto svgCanvas = MakeDOMCanvas(&dom);
-        svgCanvas->drawString("foo", 100, 100, font, paint);
-    }
-    const auto* rootElement = dom.finishParsing();
-    REPORTER_ASSERT(reporter, rootElement, "root element not found");
-    const auto* textElement = dom.getFirstChild(rootElement, "text");
-    REPORTER_ASSERT(reporter, textElement, "text element not found");
-    const auto* pathElement = dom.getFirstChild(rootElement, "path");
-    REPORTER_ASSERT(reporter, !pathElement, "path element found");
+    check_text(0, /*expect_path=*/false);
 
     // With kConvertTextToPaths_Flag, we emit <path> nodes.
-    {
-        auto svgCanvas = MakeDOMCanvas(&dom, SkSVGCanvas::kConvertTextToPaths_Flag);
-        svgCanvas->drawString("foo", 100, 100, font, paint);
-    }
-    rootElement = dom.finishParsing();
-    REPORTER_ASSERT(reporter, rootElement, "root element not found");
-    textElement = dom.getFirstChild(rootElement, "text");
-    REPORTER_ASSERT(reporter, !textElement, "text element found");
-    pathElement = dom.getFirstChild(rootElement, "path");
-    REPORTER_ASSERT(reporter, pathElement, "path element not found");
+    check_text(SkSVGCanvas::kConvertTextToPaths_Flag, /*expect_path=*/true);
+
+    // We also use paths in the presence of path effects.
+    SkScalar intervals[] = {10, 5};
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+    check_text(0, /*expect_path=*/true);
 }
 
 DEF_TEST(SVGDevice_fill_stroke, reporter) {
@@ -451,5 +452,120 @@ DEF_TEST(SVGDevice_fill_stroke, reporter) {
         }
     }
 }
+
+DEF_TEST(SVGDevice_fill_rect_hex, reporter) {
+    SkDOM dom;
+    SkPaint paint;
+    paint.setColor(SK_ColorBLUE);
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
+        svgCanvas->drawRect(bounds, paint);
+    }
+    const SkDOM::Node* rootElement = dom.finishParsing();
+    ABORT_TEST(reporter, !rootElement, "root element not found");
+
+    const SkDOM::Node* rectElement = dom.getFirstChild(rootElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "blue") == 0);
+}
+
+DEF_TEST(SVGDevice_fill_rect_custom_hex, reporter) {
+    SkDOM dom;
+    {
+        SkPaint paint;
+        paint.setColor(0xFFAABCDE);
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
+        svgCanvas->drawRect(bounds, paint);
+        paint.setColor(0xFFAABBCC);
+        svgCanvas->drawRect(bounds, paint);
+        paint.setColor(0xFFAA1123);
+        svgCanvas->drawRect(bounds, paint);
+    }
+    const SkDOM::Node* rootElement = dom.finishParsing();
+    ABORT_TEST(reporter, !rootElement, "root element not found");
+
+    // Test 0xAABCDE filled rect.
+    const SkDOM::Node* rectElement = dom.getFirstChild(rootElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "#AABCDE") == 0);
+
+    // Test 0xAABBCC filled rect.
+    rectElement = dom.getNextSibling(rectElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "#ABC") == 0);
+
+    // Test 0xFFAA1123 filled rect. Make sure it does not turn into #A123.
+    rectElement = dom.getNextSibling(rectElement, "rect");
+    ABORT_TEST(reporter, !rectElement, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectElement, "fill"), "#AA1123") == 0);
+}
+
+DEF_TEST(SVGDevice_fill_stroke_rect_hex, reporter) {
+    SkDOM dom;
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
+
+        SkPaint paint;
+        paint.setColor(0xFF00BBAC);
+        svgCanvas->drawRect(bounds, paint);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(0xFF123456);
+        paint.setStrokeWidth(1);
+        svgCanvas->drawRect(bounds, paint);
+    }
+    const SkDOM::Node* rootElement = dom.finishParsing();
+    ABORT_TEST(reporter, !rootElement, "root element not found");
+
+    const SkDOM::Node* rectNode = dom.getFirstChild(rootElement, "rect");
+    ABORT_TEST(reporter, !rectNode, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "fill"), "#00BBAC") == 0);
+
+    rectNode = dom.getNextSibling(rectNode, "rect");
+    ABORT_TEST(reporter, !rectNode, "rect element not found");
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "stroke"), "#123456") == 0);
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "stroke-width"), "1") == 0);
+}
+
+DEF_TEST(SVGDevice_path_effect, reporter) {
+    SkDOM dom;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(10);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+
+    // Produces a line of three red dots.
+    SkScalar intervals[] = {0, 20};
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    paint.setPathEffect(pathEffect);
+    SkPoint points[] = {{50, 15}, {100, 15}, {150, 15} };
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        svgCanvas->drawPoints(SkCanvas::kLines_PointMode, 3, points, paint);
+    }
+    const auto* rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    const auto* pathElement = dom.getFirstChild(rootElement, "path");
+    REPORTER_ASSERT(reporter, pathElement, "path element not found");
+
+    // The SVG path to draw the three dots is a complex list of instructions.
+    // To avoid test brittleness, we don't attempt to match the entire path.
+    // Instead, we simply confirm there are three (M)ove instructions, one per
+    // dot.  If path effects were not being honored, we would expect only one
+    // Move instruction, to the starting position, before drawing a continuous
+    // straight line.
+    const auto* d = dom.findAttr(pathElement, "d");
+    int mCount = 0;
+    const char* pos;
+    for (pos = d; *pos != '\0'; pos++) {
+      mCount += (*pos == 'M') ? 1 : 0;
+    }
+    REPORTER_ASSERT(reporter, mCount == 3);
+}
+
 
 #endif

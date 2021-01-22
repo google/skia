@@ -16,6 +16,7 @@
 
 class SkFactorySet;
 class SkImage;
+class SkM44;
 class SkPath;
 class SkRefCntSet;
 
@@ -28,8 +29,13 @@ public:
 
     virtual void writeByteArray(const void* data, size_t size) = 0;
     void writeDataAsByteArray(SkData* data) {
-        this->writeByteArray(data->data(), data->size());
+        if (!data) {
+            this->write32(0);
+        } else {
+            this->writeByteArray(data->data(), data->size());
+        }
     }
+
     virtual void writeBool(bool value) = 0;
     virtual void writeScalar(SkScalar value) = 0;
     virtual void writeScalarArray(const SkScalar* value, uint32_t count) = 0;
@@ -49,6 +55,7 @@ public:
     virtual void writePoint(const SkPoint& point) = 0;
     virtual void writePointArray(const SkPoint* point, uint32_t count) = 0;
     virtual void writePoint3(const SkPoint3& point) = 0;
+    virtual void write(const SkM44&) = 0;
     virtual void writeMatrix(const SkMatrix& matrix) = 0;
     virtual void writeIRect(const SkIRect& rect) = 0;
     virtual void writeRect(const SkRect& rect) = 0;
@@ -110,6 +117,7 @@ public:
     void writePoint(const SkPoint& point) override;
     void writePointArray(const SkPoint* point, uint32_t count) override;
     void writePoint3(const SkPoint3& point) override;
+    void write(const SkM44&) override;
     void writeMatrix(const SkMatrix& matrix) override;
     void writeIRect(const SkIRect& rect) override;
     void writeRect(const SkRect& rect) override;
@@ -122,6 +130,7 @@ public:
 
     bool writeToStream(SkWStream*) const;
     void writeToMemory(void* dst) const { fWriter.flatten(dst); }
+    sk_sp<SkData> snapshotAsData() const { return fWriter.snapshotAsData(); }
 
     void setFactoryRecorder(sk_sp<SkFactorySet>);
     void setTypefaceRecorder(sk_sp<SkRefCntSet>);
@@ -133,7 +142,16 @@ private:
     SkWriter32 fWriter;
 
     // Only used if we do not have an fFactorySet
-    SkTHashMap<SkFlattenable::Factory, uint32_t> fFlattenableDict;
+    SkTHashMap<const char*, uint32_t> fFlattenableDict;
 };
+
+enum SkWriteBufferImageFlags {
+    kVersion_bits   = 8,
+    kCurrVersion    = 0,
+
+    kHasSubsetRect  = 1 << 8,
+    kHasMipmap      = 1 << 9,
+};
+
 
 #endif // SkWriteBuffer_DEFINED

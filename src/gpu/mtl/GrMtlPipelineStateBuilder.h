@@ -21,6 +21,7 @@ class GrProgramInfo;
 class GrMtlCaps;
 class GrMtlGpu;
 class GrMtlPipelineState;
+class SkReadBuffer;
 
 class GrMtlPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
@@ -28,19 +29,19 @@ public:
      *
      * The GrMtlPipelineState implements what is specified in the GrPipeline and
      * GrPrimitiveProcessor as input. After successful generation, the builder result objects are
-     * available to be used. This function may modify the program key by setting the surface origin
-     * key to 0 (unspecified) if it turns out the program does not care about the surface origin.
-     * @return true if generation was successful.
+     * available to be used.
+     * @return the created pipeline if generation was successful; nullptr otherwise
      */
     static GrMtlPipelineState* CreatePipelineState(GrMtlGpu*,
                                                    GrRenderTarget*,
-                                                   const GrProgramInfo&,
-                                                   GrProgramDesc*);
+                                                   const GrProgramDesc&,
+                                                   const GrProgramInfo&);
 
 private:
-    GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
+    GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*,
+                              const GrProgramDesc&, const GrProgramInfo&);
 
-    GrMtlPipelineState* finalize(GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
+    GrMtlPipelineState* finalize(GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
 
     const GrCaps* caps() const override;
 
@@ -48,10 +49,16 @@ private:
 
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
-    id<MTLLibrary> createMtlShaderLibrary(const GrGLSLShaderBuilder& builder,
-                                          SkSL::Program::Kind kind,
-                                          const SkSL::Program::Settings& settings,
-                                          GrProgramDesc* desc);
+    id<MTLLibrary> generateMtlShaderLibrary(const SkSL::String& sksl,
+                                            SkSL::Program::Kind kind,
+                                            const SkSL::Program::Settings& settings,
+                                            SkSL::String* msl,
+                                            SkSL::Program::Inputs* inputs);
+    id<MTLLibrary> compileMtlShaderLibrary(const SkSL::String& shader,
+                                           SkSL::Program::Inputs inputs);
+    void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
+                             bool isSkSL);
+    bool loadShadersFromCache(SkReadBuffer* cached, __strong id<MTLLibrary> outLibraries[]);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
@@ -61,6 +68,6 @@ private:
     GrMtlUniformHandler fUniformHandler;
     GrMtlVaryingHandler fVaryingHandler;
 
-    typedef GrGLSLProgramBuilder INHERITED;
+    using INHERITED = GrGLSLProgramBuilder;
 };
 #endif

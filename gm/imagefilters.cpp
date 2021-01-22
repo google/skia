@@ -14,6 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
@@ -23,7 +24,11 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkShaderMaskFilter.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -130,7 +135,7 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
         canvas->save();
         SkRRect rr = SkRRect::MakeRectXY(r.makeOffset(dx, dy), 20, 20);
         canvas->clipRRect(rr, true);
-        canvas->saveLayer({ &rr.getBounds(), nullptr, filters[i].get(), nullptr, nullptr, 0 });
+        canvas->saveLayer(SkCanvas::SaveLayerRec(&rr.getBounds(), nullptr, filters[i].get(), 0));
         canvas->drawColor(0x40FFFFFF);
         canvas->restore();
         canvas->restore();
@@ -189,3 +194,90 @@ protected:
 };
 
 DEF_GM(return new SaveLayerWithBackdropGM();)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Test that color filters and mask filters are applied before the image filter, even if it would
+// normally be a sprite draw that could avoid an auto-saveLayer.
+DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
+    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_256.png"));
+    auto direct = GrAsDirectContext(canvas->recordingContext());
+    if (direct) {
+        if (sk_sp<SkImage> gpuImage = image->makeTextureImage(direct)) {
+            image = std::move(gpuImage);
+        }
+    }
+
+    SkISize kernelSize = SkISize::Make(3, 3);
+    SkIPoint kernelOffset = SkIPoint::Make(1, 1);
+    // A Laplacian edge detector, ie https://en.wikipedia.org/wiki/Kernel_(image_processing)
+    SkScalar kernel[9] = {-1.f, -1.f, -1.f,
+                          -1.f,  8.f, -1.f,
+                          -1.f, -1.f, -1.f};
+    auto edgeDetector = SkImageFilters::MatrixConvolution(
+            kernelSize, kernel, 1.f, 0.f, kernelOffset, SkTileMode::kClamp, false, nullptr);
+    // This uses the high contrast filter because it resembles a pre-processing step you may perform
+    // prior to edge detection. The specifics of the high contrast algorithm don't matter for the GM
+    auto edgeAmplify = SkHighContrastFilter::Make(
+            {false, SkHighContrastConfig::InvertStyle::kNoInvert, 0.5f});
+
+    SkPaint testCFPaint;
+    testCFPaint.setColorFilter(edgeAmplify);
+    testCFPaint.setImageFilter(edgeDetector);
+
+    // The expected result is color filter then image filter, so represent this explicitly in the
+    // image filter graph.
+    SkPaint expectedCFPaint;
+    expectedCFPaint.setImageFilter(SkImageFilters::Compose(edgeDetector,
+            SkImageFilters::ColorFilter(edgeAmplify, nullptr)));
+
+    // Draw the image twice (expected on the left, test on the right that should match)
+    SkRect crop = SkRect::Make(image->bounds());
+    canvas->save();
+    canvas->clipRect(crop);
+    canvas->drawImage(image, 0, 0, &expectedCFPaint); // Filter applied by draw's SkPaint
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(image->width(), 0);
+    canvas->clipRect(crop);
+    canvas->drawImage(image, 0, 0, &testCFPaint);
+    canvas->restore();
+
+    // Now test mask filters. These should be run before the image filter, and thus have the same
+    // effect as multiplying by an alpha mask.
+
+    // This mask filter pokes a hole in the center of the image
+    static constexpr SkColor kAlphas[] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
+    static constexpr SkScalar kPos[] = { 0.4f, 0.9f };
+    sk_sp<SkShader> alphaMaskShader = SkGradientShader::MakeRadial(
+            {128.f, 128.f}, 128.f, kAlphas, kPos, 2, SkTileMode::kClamp);
+    sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(alphaMaskShader);
+
+    // If edge detector sees the mask filter, it'll have alpha and then blend with the original
+    // image; otherwise the mask filter will apply late (incorrectly) and none of the original
+    // image will be visible.
+    sk_sp<SkImageFilter> edgeBlend = SkImageFilters::Blend(SkBlendMode::kSrcOver,
+            SkImageFilters::Image(image), edgeDetector);
+
+    SkPaint testMaskPaint;
+    testMaskPaint.setMaskFilter(maskFilter);
+    testMaskPaint.setImageFilter(edgeBlend);
+
+    SkPaint expectedMaskPaint;
+    expectedMaskPaint.setImageFilter(SkImageFilters::Compose(edgeBlend,
+            SkImageFilters::Blend(SkBlendMode::kSrcIn,
+                                  SkImageFilters::Shader(alphaMaskShader))));
+
+    canvas->save();
+    canvas->translate(0, image->height());
+    canvas->clipRect(crop);
+    canvas->drawImage(image, 0, 0, &expectedMaskPaint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->translate(image->width(), image->height());
+    canvas->clipRect(crop);
+    canvas->drawImage(image, 0, 0, &testMaskPaint);
+    canvas->restore();
+}

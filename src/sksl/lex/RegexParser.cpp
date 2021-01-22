@@ -63,8 +63,8 @@ void RegexParser::sequence() {
     this->quantifiedTerm();
     for (;;) {
         switch (this->peek()) {
-            case END: // fall through
-            case '|': // fall through
+            case END: [[fallthrough]];
+            case '|': [[fallthrough]];
             case ')': return;
             default:
                 this->sequence();

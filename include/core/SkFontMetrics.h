@@ -15,6 +15,25 @@
     The metric values are consistent with the Skia y-down coordinate system.
  */
 struct SK_API SkFontMetrics {
+    bool operator==(const SkFontMetrics& that) {
+        return
+        this->fFlags == that.fFlags &&
+        this->fTop == that.fTop &&
+        this->fAscent == that.fAscent &&
+        this->fDescent == that.fDescent &&
+        this->fBottom == that.fBottom &&
+        this->fLeading == that.fLeading &&
+        this->fAvgCharWidth == that.fAvgCharWidth &&
+        this->fMaxCharWidth == that.fMaxCharWidth &&
+        this->fXMin == that.fXMin &&
+        this->fXMax == that.fXMax &&
+        this->fXHeight == that.fXHeight &&
+        this->fCapHeight == that.fCapHeight &&
+        this->fUnderlineThickness == that.fUnderlineThickness &&
+        this->fUnderlinePosition == that.fUnderlinePosition &&
+        this->fStrikeoutThickness == that.fStrikeoutThickness &&
+        this->fStrikeoutPosition == that.fStrikeoutPosition;
+    }
 
     /** \enum FontMetricsFlags
      FontMetricsFlags indicate when certain metrics are valid;
@@ -26,6 +45,7 @@ struct SK_API SkFontMetrics {
         kUnderlinePositionIsValid_Flag  = 1 << 1, //!< set if fUnderlinePosition is valid
         kStrikeoutThicknessIsValid_Flag = 1 << 2, //!< set if fStrikeoutThickness is valid
         kStrikeoutPositionIsValid_Flag  = 1 << 3, //!< set if fStrikeoutPosition is valid
+        kBoundsInvalid_Flag             = 1 << 4, //!< set if fTop, fBottom, fXMin, fXMax invalid
     };
 
     uint32_t fFlags;              //!< FontMetricsFlags indicating which metrics are valid
@@ -105,6 +125,14 @@ struct SK_API SkFontMetrics {
         return false;
     }
 
+    /** Returns true if SkFontMetrics has a valid fTop, fBottom, fXMin, and fXMax.
+     If the bounds are not valid, return false.
+
+     @return        true if font specifies maximum glyph bounds
+     */
+    bool hasBounds() const {
+        return !SkToBool(fFlags & kBoundsInvalid_Flag);
+    }
 };
 
 #endif

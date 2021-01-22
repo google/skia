@@ -186,7 +186,7 @@ class DistanceLessThan {
 public:
     DistanceLessThan(double* distances) : fDistances(distances) { }
     double* fDistances;
-    bool operator()(const int one, const int two) {
+    bool operator()(const int one, const int two) const {
         return fDistances[one] < fDistances[two];
     }
 };
@@ -199,9 +199,6 @@ public:
         reassemble contour pieces into new path
     */
 void SkPathWriter::assemble() {
-#if DEBUG_SHOW_TEST_NAME
-    SkDebugf("</div>\n");
-#endif
     if (!this->someAssemblyRequired()) {
         return;
     }
@@ -293,7 +290,7 @@ void SkPathWriter::assemble() {
         rRow += endCount;
     }
     SkASSERT(dIndex == entries);
-    SkTQSort<int>(sortedDist.begin(), sortedDist.end() - 1, DistanceLessThan(distances.begin()));
+    SkTQSort<int>(sortedDist.begin(), sortedDist.end(), DistanceLessThan(distances.begin()));
     int remaining = linkCount;  // number of start/end pairs
     for (rIndex = 0; rIndex < entries; ++rIndex) {
         int pair = sortedDist[rIndex];

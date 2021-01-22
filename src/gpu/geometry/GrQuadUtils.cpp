@@ -10,6 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkVx.h"
+#include "src/core/SkPathPriv.h"
 #include "src/gpu/geometry/GrQuad.h"
 
 using V4f = skvx::Vec<4, float>;
@@ -17,7 +18,12 @@ using M4f = skvx::Vec<4, int32_t>;
 
 #define AI SK_ALWAYS_INLINE
 
-static constexpr float kTolerance = 1e-2f;
+// General tolerance used for denominators, checking div-by-0
+static constexpr float kTolerance = 1e-9f;
+// Increased slop when comparing signed distances / lengths
+static constexpr float kDistTolerance = 1e-2f;
+static constexpr float kDist2Tolerance = kDistTolerance * kDistTolerance;
+static constexpr float kInvDistTolerance = 1.f / kDistTolerance;
 
 // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
 // order.
@@ -29,15 +35,20 @@ static AI V4f next_ccw(const V4f& v) {
     return skvx::shuffle<1, 3, 0, 2>(v);
 }
 
+static AI V4f next_diag(const V4f& v) {
+    // Same as next_ccw(next_ccw(v)), or next_cw(next_cw(v)), e.g. two rotations either direction.
+    return skvx::shuffle<3, 2, 1, 0>(v);
+}
+
 // Replaces zero-length 'bad' edge vectors with the reversed opposite edge vector.
 // e3 may be null if only 2D edges need to be corrected for.
 static AI void correct_bad_edges(const M4f& bad, V4f* e1, V4f* e2, V4f* e3) {
     if (any(bad)) {
         // Want opposite edges, L B T R -> R T B L but with flipped sign to preserve winding
-        *e1 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e1), *e1);
-        *e2 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e2), *e2);
+        *e1 = if_then_else(bad, -next_diag(*e1), *e1);
+        *e2 = if_then_else(bad, -next_diag(*e2), *e2);
         if (e3) {
-            *e3 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e3), *e3);
+            *e3 = if_then_else(bad, -next_diag(*e3), *e3);
         }
     }
 }
@@ -227,6 +238,31 @@ static bool is_simple_rect(const GrQuad& quad) {
 static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2, float y2,
                                const V4f& testX, const V4f& testY,
                                V4f* u, V4f* v, V4f* w) {
+    // The 32-bit calculations can have catastrophic cancellation if the device-space coordinates
+    // are really big, and this code needs to handle that because we evaluate barycentric coords
+    // pre-cropping to the render target bounds. This preserves some precision by shrinking the
+    // coordinate space if the bounds are large.
+    static constexpr float kCoordLimit = 1e7f; // Big but somewhat arbitrary, fixes crbug:10141204
+    float scaleX = std::max(std::max(x0, x1), x2) - std::min(std::min(x0, x1), x2);
+    float scaleY = std::max(std::max(y0, y1), y2) - std::min(std::min(y0, y1), y2);
+    if (scaleX > kCoordLimit) {
+        scaleX = kCoordLimit / scaleX;
+        x0 *= scaleX;
+        x1 *= scaleX;
+        x2 *= scaleX;
+    } else {
+        // Don't scale anything
+        scaleX = 1.f;
+    }
+    if (scaleY > kCoordLimit) {
+        scaleY = kCoordLimit / scaleY;
+        y0 *= scaleY;
+        y1 *= scaleY;
+        y2 *= scaleY;
+    } else {
+        scaleY = 1.f;
+    }
+
     // Modeled after SkPathOpsQuad::pointInTriangle() but uses float instead of double, is
     // vectorized and outputs normalized barycentric coordinates instead of inside/outside test
     float v0x = x2 - x0;
@@ -257,12 +293,13 @@ static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2,
         invDenom = sk_ieee_float_divide(1.f, invDenom);
     }
 
-    V4f v2x = testX - x0;
-    V4f v2y = testY - y0;
+    V4f v2x = (scaleX * testX) - x0;
+    V4f v2y = (scaleY * testY) - y0;
 
     V4f dot02 = v0x * v2x + v0y * v2y;
     V4f dot12 = v1x * v2x + v1y * v2y;
 
+    // These are relative to the vertices, so there's no need to undo the scale factor
     *u = (dot11 * dot02 - dot01 * dot12) * invDenom;
     *v = (dot00 * dot12 - dot01 * dot02) * invDenom;
     *w = 1.f - *u - *v;
@@ -273,6 +310,47 @@ static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2,
 static M4f inside_triangle(const V4f& u, const V4f& v, const V4f& w) {
     return ((u >= 0.f) & (u <= 1.f)) & ((v >= 0.f) & (v <= 1.f)) & ((w >= 0.f) & (w <= 1.f));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkRect GrQuad::projectedBounds() const {
+    V4f xs = this->x4f();
+    V4f ys = this->y4f();
+    V4f ws = this->w4f();
+    M4f clipW = ws < SkPathPriv::kW0PlaneDistance;
+    if (any(clipW)) {
+        V4f x2d = xs / ws;
+        V4f y2d = ys / ws;
+        // Bounds of just the projected points in front of w = epsilon
+        SkRect frontBounds = {
+            min(if_then_else(clipW, V4f(SK_ScalarInfinity), x2d)),
+            min(if_then_else(clipW, V4f(SK_ScalarInfinity), y2d)),
+            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), x2d)),
+            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), y2d))
+        };
+        // Calculate clipped coordinates by following CCW edges, only keeping points where the w
+        // actually changes sign between the vertices.
+        V4f t = (SkPathPriv::kW0PlaneDistance - ws) / (next_ccw(ws) - ws);
+        x2d = (t * next_ccw(xs) + (1.f - t) * xs) / SkPathPriv::kW0PlaneDistance;
+        y2d = (t * next_ccw(ys) + (1.f - t) * ys) / SkPathPriv::kW0PlaneDistance;
+        // True if (w < e) xor (ccw(w) < e), i.e. crosses the w = epsilon plane
+        clipW = clipW ^ (next_ccw(ws) < SkPathPriv::kW0PlaneDistance);
+        return {
+            min(if_then_else(clipW, x2d, V4f(frontBounds.fLeft))),
+            min(if_then_else(clipW, y2d, V4f(frontBounds.fTop))),
+            max(if_then_else(clipW, x2d, V4f(frontBounds.fRight))),
+            max(if_then_else(clipW, y2d, V4f(frontBounds.fBottom)))
+        };
+    } else {
+        // Nothing is behind the viewer, so the projection is straight forward and valid
+        ws = 1.f / ws;
+        V4f x2d = xs * ws;
+        V4f y2d = ys * ws;
+        return {min(x2d), min(y2d), max(x2d), max(y2d)};
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace GrQuadUtils {
 
@@ -308,28 +386,177 @@ void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags, c
     }
 }
 
-bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
-                GrQuad* local) {
-    SkASSERT(quad->isFinite());
+int ClipToW0(DrawQuad* quad, DrawQuad* extraVertices) {
+    using Vertices = TessellationHelper::Vertices;
 
-    if (quad->quadType() == GrQuad::Type::kAxisAligned) {
+    SkASSERT(quad && extraVertices);
+
+    if (quad->fDevice.quadType() < GrQuad::Type::kPerspective) {
+        // W implicitly 1s for each vertex, so nothing to do but draw unmodified 'quad'
+        return 1;
+    }
+
+    M4f validW = quad->fDevice.w4f() >= SkPathPriv::kW0PlaneDistance;
+    if (all(validW)) {
+        // Nothing to clip, can proceed normally drawing just 'quad'
+        return 1;
+    } else if (!any(validW)) {
+        // Everything is clipped, so draw nothing
+        return 0;
+    }
+
+    // The clipped local coordinates will most likely not remain rectilinear
+    GrQuad::Type localType = quad->fLocal.quadType();
+    if (localType < GrQuad::Type::kGeneral) {
+        localType = GrQuad::Type::kGeneral;
+    }
+
+    // If we got here, there are 1, 2, or 3 points behind the w = 0 plane. If 2 or 3 points are
+    // clipped we can define a new quad that covers the clipped shape directly. If there's 1 clipped
+    // out, the new geometry is a pentagon.
+    Vertices v;
+    v.reset(quad->fDevice, &quad->fLocal);
+
+    int clipCount = (validW[0] ? 0 : 1) + (validW[1] ? 0 : 1) +
+                    (validW[2] ? 0 : 1) + (validW[3] ? 0 : 1);
+    SkASSERT(clipCount >= 1 && clipCount <= 3);
+
+    // FIXME de-duplicate from the projectedBounds() calculations.
+    V4f t = (SkPathPriv::kW0PlaneDistance - v.fW) / (next_ccw(v.fW) - v.fW);
+
+    Vertices clip;
+    clip.fX = (t * next_ccw(v.fX) + (1.f - t) * v.fX);
+    clip.fY = (t * next_ccw(v.fY) + (1.f - t) * v.fY);
+    clip.fW = SkPathPriv::kW0PlaneDistance;
+
+    clip.fU = (t * next_ccw(v.fU) + (1.f - t) * v.fU);
+    clip.fV = (t * next_ccw(v.fV) + (1.f - t) * v.fV);
+    clip.fR = (t * next_ccw(v.fR) + (1.f - t) * v.fR);
+
+    M4f ccwValid = next_ccw(v.fW) >= SkPathPriv::kW0PlaneDistance;
+    M4f cwValid  = next_cw(v.fW)  >= SkPathPriv::kW0PlaneDistance;
+
+    if (clipCount != 1) {
+        // Simplest case, replace behind-w0 points with their clipped points by following CCW edge
+        // or CW edge, depending on if the edge crosses from neg. to pos. w or pos. to neg.
+        SkASSERT(clipCount == 2 || clipCount == 3);
+
+        // NOTE: when 3 vertices are clipped, this results in a degenerate quad where one vertex
+        // is replicated. This is preferably to inserting a 3rd vertex on the w = 0 intersection
+        // line because two parallel edges make inset/outset math unstable for large quads.
+        v.fX = if_then_else(validW, v.fX,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fX),
+                               if_then_else(ccwValid, clip.fX, /* cwValid */ next_cw(clip.fX))));
+        v.fY = if_then_else(validW, v.fY,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fY),
+                               if_then_else(ccwValid, clip.fY, /* cwValid */ next_cw(clip.fY))));
+        v.fW = if_then_else(validW, v.fW, clip.fW);
+
+        v.fU = if_then_else(validW, v.fU,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fU),
+                               if_then_else(ccwValid, clip.fU, /* cwValid */ next_cw(clip.fU))));
+        v.fV = if_then_else(validW, v.fV,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fV),
+                               if_then_else(ccwValid, clip.fV, /* cwValid */ next_cw(clip.fV))));
+        v.fR = if_then_else(validW, v.fR,
+                       if_then_else((!ccwValid) & (!cwValid), next_ccw(clip.fR),
+                               if_then_else(ccwValid, clip.fR, /* cwValid */ next_cw(clip.fR))));
+
+        // For 2 or 3 clipped vertices, the resulting shape is a quad or a triangle, so it can be
+        // entirely represented in 'quad'.
+        v.asGrQuads(&quad->fDevice, GrQuad::Type::kPerspective,
+                    &quad->fLocal, localType);
+        return 1;
+    } else {
+        // The clipped geometry is a pentagon, so it will be represented as two quads connected by
+        // a new non-AA edge. Use the midpoint along one of the unclipped edges as a split vertex.
+        Vertices mid;
+        mid.fX = 0.5f * (v.fX + next_ccw(v.fX));
+        mid.fY = 0.5f * (v.fY + next_ccw(v.fY));
+        mid.fW = 0.5f * (v.fW + next_ccw(v.fW));
+
+        mid.fU = 0.5f * (v.fU + next_ccw(v.fU));
+        mid.fV = 0.5f * (v.fV + next_ccw(v.fV));
+        mid.fR = 0.5f * (v.fR + next_ccw(v.fR));
+
+        // Make a quad formed by the 2 clipped points, the inserted mid point, and the good vertex
+        // that is CCW rotated from the clipped vertex.
+        Vertices v2;
+        v2.fUVRCount = v.fUVRCount;
+        v2.fX = if_then_else((!validW) | (!ccwValid), clip.fX,
+                        if_then_else(cwValid, next_cw(mid.fX), v.fX));
+        v2.fY = if_then_else((!validW) | (!ccwValid), clip.fY,
+                        if_then_else(cwValid, next_cw(mid.fY), v.fY));
+        v2.fW = if_then_else((!validW) | (!ccwValid), clip.fW,
+                        if_then_else(cwValid, next_cw(mid.fW), v.fW));
+
+        v2.fU = if_then_else((!validW) | (!ccwValid), clip.fU,
+                        if_then_else(cwValid, next_cw(mid.fU), v.fU));
+        v2.fV = if_then_else((!validW) | (!ccwValid), clip.fV,
+                        if_then_else(cwValid, next_cw(mid.fV), v.fV));
+        v2.fR = if_then_else((!validW) | (!ccwValid), clip.fR,
+                        if_then_else(cwValid, next_cw(mid.fR), v.fR));
+        // The non-AA edge for this quad is the opposite of the clipped vertex's edge
+        GrQuadAAFlags v2EdgeFlag = (!validW[0] ? GrQuadAAFlags::kRight  : // left clipped -> right
+                                   (!validW[1] ? GrQuadAAFlags::kTop    : // bottom clipped -> top
+                                   (!validW[2] ? GrQuadAAFlags::kBottom : // top clipped -> bottom
+                                                 GrQuadAAFlags::kLeft))); // right clipped -> left
+        extraVertices->fEdgeFlags = quad->fEdgeFlags & ~v2EdgeFlag;
+
+        // Make a quad formed by the remaining two good vertices, one clipped point, and the
+        // inserted mid point.
+        v.fX = if_then_else(!validW, next_cw(clip.fX),
+                       if_then_else(!cwValid, mid.fX, v.fX));
+        v.fY = if_then_else(!validW, next_cw(clip.fY),
+                       if_then_else(!cwValid, mid.fY, v.fY));
+        v.fW = if_then_else(!validW, clip.fW,
+                       if_then_else(!cwValid, mid.fW, v.fW));
+
+        v.fU = if_then_else(!validW, next_cw(clip.fU),
+                       if_then_else(!cwValid, mid.fU, v.fU));
+        v.fV = if_then_else(!validW, next_cw(clip.fV),
+                       if_then_else(!cwValid, mid.fV, v.fV));
+        v.fR = if_then_else(!validW, next_cw(clip.fR),
+                       if_then_else(!cwValid, mid.fR, v.fR));
+        // The non-AA edge for this quad is the clipped vertex's edge
+        GrQuadAAFlags v1EdgeFlag = (!validW[0] ? GrQuadAAFlags::kLeft   :
+                                   (!validW[1] ? GrQuadAAFlags::kBottom :
+                                   (!validW[2] ? GrQuadAAFlags::kTop    :
+                                                 GrQuadAAFlags::kRight)));
+
+        v.asGrQuads(&quad->fDevice, GrQuad::Type::kPerspective,
+                    &quad->fLocal, localType);
+        quad->fEdgeFlags &= ~v1EdgeFlag;
+
+        v2.asGrQuads(&extraVertices->fDevice, GrQuad::Type::kPerspective,
+                     &extraVertices->fLocal, localType);
+        // Caller must draw both 'quad' and 'extraVertices' to cover the clipped geometry
+        return 2;
+    }
+}
+
+bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool computeLocal) {
+    SkASSERT(quad->fDevice.isFinite());
+
+    if (quad->fDevice.quadType() == GrQuad::Type::kAxisAligned) {
         // crop_rect and crop_rect_simple keep the rectangles as rectangles, so the intersection
         // of the crop and quad can be calculated exactly. Some care must be taken if the quad
         // is axis-aligned but does not satisfy asRect() due to flips, etc.
         GrQuadAAFlags clippedEdges;
-        if (local) {
-            if (is_simple_rect(*quad) && is_simple_rect(*local)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(),
-                                                local->xs(), local->ys());
+        if (computeLocal) {
+            if (is_simple_rect(quad->fDevice) && is_simple_rect(quad->fLocal)) {
+                clippedEdges = crop_simple_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                                quad->fLocal.xs(), quad->fLocal.ys());
             } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
-                                         local->xs(), local->ys(), local->ws());
+                clippedEdges = crop_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                         quad->fLocal.xs(), quad->fLocal.ys(), quad->fLocal.ws());
             }
         } else {
-            if (is_simple_rect(*quad)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(), nullptr, nullptr);
+            if (is_simple_rect(quad->fDevice)) {
+                clippedEdges = crop_simple_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                                nullptr, nullptr);
             } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
+                clippedEdges = crop_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
                                          nullptr, nullptr, nullptr);
             }
         }
@@ -337,26 +564,31 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
         // Apply the clipped edge updates to the original edge flags
         if (cropAA == GrAA::kYes) {
             // Turn on all edges that were clipped
-            *edgeFlags |= clippedEdges;
+            quad->fEdgeFlags |= clippedEdges;
         } else {
             // Turn off all edges that were clipped
-            *edgeFlags &= ~clippedEdges;
+            quad->fEdgeFlags &= ~clippedEdges;
         }
         return true;
     }
 
-    if (local) {
+    if (computeLocal) {
         // FIXME (michaelludwig) Calculate cropped local coordinates when not kAxisAligned
         return false;
     }
 
-    V4f devX = quad->x4f();
-    V4f devY = quad->y4f();
-    V4f devIW = quad->iw4f();
+    V4f devX = quad->fDevice.x4f();
+    V4f devY = quad->fDevice.y4f();
     // Project the 3D coordinates to 2D
-    if (quad->quadType() == GrQuad::Type::kPerspective) {
-        devX *= devIW;
-        devY *= devIW;
+    if (quad->fDevice.quadType() == GrQuad::Type::kPerspective) {
+        V4f devW = quad->fDevice.w4f();
+        if (any(devW < SkPathPriv::kW0PlaneDistance)) {
+            // The rest of this function assumes the quad is in front of w = 0
+            return false;
+        }
+        devW = 1.f / devW;
+        devX *= devW;
+        devY *= devW;
     }
 
     V4f clipX = {cropRect.fLeft, cropRect.fLeft, cropRect.fRight, cropRect.fRight};
@@ -387,21 +619,17 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
         // FIXME (michaelludwig) - once we have local coordinates handled, it may be desirable to
         // keep the draw as perspective so that the hardware does perspective interpolation instead
         // of pushing it into a local coord w and having the shader do an extra divide.
-        clipX.store(quad->xs());
-        clipY.store(quad->ys());
-        quad->ws()[0] = 1.f;
-        quad->ws()[1] = 1.f;
-        quad->ws()[2] = 1.f;
-        quad->ws()[3] = 1.f;
-        quad->setQuadType(GrQuad::Type::kAxisAligned);
+        clipX.store(quad->fDevice.xs());
+        clipY.store(quad->fDevice.ys());
+        quad->fDevice.setQuadType(GrQuad::Type::kAxisAligned);
 
         // Update the edge flags to match the clip setting since all 4 edges have been clipped
-        *edgeFlags = cropAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+        quad->fEdgeFlags = cropAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
         return true;
     }
 
-    // FIXME (michaelludwig) - use the GrQuadPerEdgeAA tessellation inset/outset math to move
+    // FIXME (michaelludwig) - use TessellationHelper's inset/outset math to move
     // edges to the closest clip corner they are outside of
 
     return false;
@@ -419,7 +647,7 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
                                             GrQuad::Type quadType) {
     // Calculate all projected edge vector values for this quad.
     if (quadType == GrQuad::Type::kPerspective) {
-        V4f iw = 1.0 / ws;
+        V4f iw = 1.f / ws;
         fX2D = xs * iw;
         fY2D = ys * iw;
     } else {
@@ -429,7 +657,7 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
 
     fDX = next_ccw(fX2D) - fX2D;
     fDY = next_ccw(fY2D) - fY2D;
-    fInvLengths = rsqrt(mad(fDX, fDX, fDY * fDY));
+    fInvLengths = 1.f / sqrt(fDX*fDX + fDY*fDY);
 
     // Normalize edge vectors
     fDX *= fInvLengths;
@@ -440,10 +668,10 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
         fCosTheta = 0.f;
         fInvSinTheta = 1.f;
     } else {
-        fCosTheta = mad(fDX, next_cw(fDX), fDY * next_cw(fDY));
+        fCosTheta = fDX*next_cw(fDX) + fDY*next_cw(fDY);
         // NOTE: if cosTheta is close to 1, inset/outset math will avoid the fast paths that rely
         // on thefInvSinTheta since it will approach infinity.
-        fInvSinTheta = rsqrt(1.f - fCosTheta * fCosTheta);
+        fInvSinTheta = 1.f / sqrt(1.f - fCosTheta * fCosTheta);
     }
 }
 
@@ -453,12 +681,12 @@ void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
     V4f dx = edgeVectors.fDX;
     V4f dy = edgeVectors.fDY;
     // Correct for bad edges by copying adjacent edge information into the bad component
-    correct_bad_edges(edgeVectors.fInvLengths >= 1.f / kTolerance, &dx, &dy, nullptr);
+    correct_bad_edges(edgeVectors.fInvLengths >= kInvDistTolerance, &dx, &dy, nullptr);
 
-    V4f c = mad(dx, edgeVectors.fY2D, -dy * edgeVectors.fX2D);
+    V4f c = dx*edgeVectors.fY2D - dy*edgeVectors.fX2D;
     // Make sure normals point into the shape
-    V4f test = mad(dy, next_cw(edgeVectors.fX2D), mad(-dx, next_cw(edgeVectors.fY2D), c));
-    if (any(test < -kTolerance)) {
+    V4f test = dy * next_cw(edgeVectors.fX2D) + (-dx * next_cw(edgeVectors.fY2D) + c);
+    if (any(test < -kDistTolerance)) {
         fA = -dy;
         fB = dx;
         fC = -c;
@@ -471,10 +699,10 @@ void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
 
 V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4f& y2d) const {
     // Calculate distance of the 4 inset points (px, py) to the 4 edges
-    V4f d0 = mad(fA[0], x2d, mad(fB[0], y2d, fC[0]));
-    V4f d1 = mad(fA[1], x2d, mad(fB[1], y2d, fC[1]));
-    V4f d2 = mad(fA[2], x2d, mad(fB[2], y2d, fC[2]));
-    V4f d3 = mad(fA[3], x2d, mad(fB[3], y2d, fC[3]));
+    V4f d0 = fA[0]*x2d + (fB[0]*y2d + fC[0]);
+    V4f d1 = fA[1]*x2d + (fB[1]*y2d + fC[1]);
+    V4f d2 = fA[2]*x2d + (fB[2]*y2d + fC[2]);
+    V4f d3 = fA[3]*x2d + (fB[3]*y2d + fC[3]);
 
     // For each point, pretend that there's a rectangle that touches e0 and e3 on the horizontal
     // axis, so its width is "approximately" d0 + d3, and it touches e1 and e2 on the vertical axis
@@ -517,8 +745,8 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
     // wrong side of 1 edge, one edge has crossed over another and we use a line to represent it.
     // Otherwise, use a triangle that replaces the bad points with the intersections of
     // (e1, e2) or (e0, e3) as needed.
-    M4f d1v0 = dists1 < kTolerance;
-    M4f d2v0 = dists2 < kTolerance;
+    M4f d1v0 = dists1 < kDistTolerance;
+    M4f d2v0 = dists2 < kDistTolerance;
     M4f d1And2 = d1v0 & d2v0;
     M4f d1Or2 = d1v0 | d2v0;
 
@@ -540,7 +768,7 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
     } else if (all(d1Or2)) {
         // Degenerates to a line. Compare p[2] and p[3] to edge 0. If they are on the wrong side,
         // that means edge 0 and 3 crossed, and otherwise edge 1 and 2 crossed.
-        if (dists1[2] < kTolerance && dists1[3] < kTolerance) {
+        if (dists1[2] < kDistTolerance && dists1[3] < kDistTolerance) {
             // Edges 0 and 3 have crossed over, so make the line from average of (p0,p2) and (p1,p3)
             *x2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(px) + skvx::shuffle<2, 3, 2, 3>(px));
             *y2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(py) + skvx::shuffle<2, 3, 2, 3>(py));
@@ -596,7 +824,7 @@ void TessellationHelper::OutsetRequest::reset(const EdgeVectors& edgeVectors, Gr
         fInsetDegenerate =
                 (widthChange > 0.f  && edgeVectors.fInvLengths[1] > 1.f / widthChange) ||
                 (heightChange > 0.f && edgeVectors.fInvLengths[0] > 1.f / heightChange);
-    } else if (any(edgeVectors.fInvLengths >= 1.f / kTolerance)) {
+    } else if (any(edgeVectors.fInvLengths >= kInvDistTolerance)) {
         // Have an edge that is effectively length 0, so we're dealing with a triangle, which
         // must always go through the degenerate code path.
         fOutsetDegenerate = true;
@@ -672,7 +900,10 @@ void TessellationHelper::Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type dev
 void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
                                              const V4f& signedEdgeDistances) {
     // This shouldn't be called if fInvSinTheta is close to infinity (cosTheta close to 1).
-    SkASSERT(all(abs(edgeVectors.fCosTheta) < 0.9f));
+    // FIXME (michaelludwig) - Temporarily allow NaNs on debug builds here, for crbug:224618's GM
+    // Once W clipping is implemented, shouldn't see NaNs unless it's actually time to fail.
+    SkASSERT(all(abs(edgeVectors.fCosTheta) < 0.9f) ||
+             any(edgeVectors.fCosTheta != edgeVectors.fCosTheta));
 
     // When the projected device quad is not degenerate, the vertex corners can move
     // cornerOutsetLen along their edge and their cw-rotated edge. The vertex's edge points
@@ -683,19 +914,19 @@ void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
     V4f signedOutsetsCW = edgeVectors.fInvSinTheta * signedEdgeDistances;
 
     // x = x + outset * mask * next_cw(xdiff) - outset * next_cw(mask) * xdiff
-    fX += mad(signedOutsetsCW, next_cw(edgeVectors.fDX), signedOutsets * edgeVectors.fDX);
-    fY += mad(signedOutsetsCW, next_cw(edgeVectors.fDY), signedOutsets * edgeVectors.fDY);
+    fX += signedOutsetsCW * next_cw(edgeVectors.fDX) + signedOutsets * edgeVectors.fDX;
+    fY += signedOutsetsCW * next_cw(edgeVectors.fDY) + signedOutsets * edgeVectors.fDY;
     if (fUVRCount > 0) {
         // We want to extend the texture coords by the same proportion as the positions.
         signedOutsets *= edgeVectors.fInvLengths;
         signedOutsetsCW *= next_cw(edgeVectors.fInvLengths);
         V4f du = next_ccw(fU) - fU;
         V4f dv = next_ccw(fV) - fV;
-        fU += mad(signedOutsetsCW, next_cw(du), signedOutsets * du);
-        fV += mad(signedOutsetsCW, next_cw(dv), signedOutsets * dv);
+        fU += signedOutsetsCW * next_cw(du) + signedOutsets * du;
+        fV += signedOutsetsCW * next_cw(dv) + signedOutsets * dv;
         if (fUVRCount == 3) {
             V4f dr = next_ccw(fR) - fR;
-            fR += mad(signedOutsetsCW, next_cw(dr), signedOutsets * dr);
+            fR += signedOutsetsCW * next_cw(dr) + signedOutsets * dr;
         }
     }
 }
@@ -705,13 +936,15 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     V4f e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
     V4f e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
     V4f e1w = skvx::shuffle<2, 3, 2, 3>(fW) - skvx::shuffle<0, 1, 0, 1>(fW);
-    correct_bad_edges(mad(e1x, e1x, e1y * e1y) < kTolerance * kTolerance, &e1x, &e1y, &e1w);
+    M4f e1Bad = e1x*e1x + e1y*e1y < kDist2Tolerance;
+    correct_bad_edges(e1Bad, &e1x, &e1y, &e1w);
 
     // // Top to bottom, in device space, for each point
     V4f e2x = skvx::shuffle<1, 1, 3, 3>(fX) - skvx::shuffle<0, 0, 2, 2>(fX);
     V4f e2y = skvx::shuffle<1, 1, 3, 3>(fY) - skvx::shuffle<0, 0, 2, 2>(fY);
     V4f e2w = skvx::shuffle<1, 1, 3, 3>(fW) - skvx::shuffle<0, 0, 2, 2>(fW);
-    correct_bad_edges(mad(e2x, e2x, e2y * e2y) < kTolerance * kTolerance, &e2x, &e2y, &e2w);
+    M4f e2Bad = e2x*e2x + e2y*e2y < kDist2Tolerance;
+    correct_bad_edges(e2Bad, &e2x, &e2y, &e2w);
 
     // Can only move along e1 and e2 to reach the new 2D point, so we have
     // x2d = (x + a*e1x + b*e2x) / (w + a*e1w + b*e2w) and
@@ -764,22 +997,22 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
                     V4f(0.f)) / denom;                            /* !B      */
     }
 
-    V4f newW = fW + a * e1w + b * e2w;
-    // If newW < 0, scale a and b such that the point reaches the infinity plane instead of crossing
-    // This breaks orthogonality of inset/outsets, but GPUs don't handle negative Ws well so this
-    // is far less visually disturbing (likely not noticeable since it's at extreme perspective).
-    // The alternative correction (multiply xyw by -1) has the disadvantage of changing how local
-    // coordinates would be interpolated.
-    static const float kMinW = 1e-6f;
-    if (any(newW < 0.f)) {
-        V4f scale = if_then_else(newW < kMinW, (kMinW - fW) / (newW - fW), V4f(1.f));
-        a *= scale;
-        b *= scale;
-    }
-
     fX += a * e1x + b * e2x;
     fY += a * e1y + b * e2y;
     fW += a * e1w + b * e2w;
+
+    // If fW has gone negative, flip the point to the other side of w=0. This only happens if the
+    // edge was approaching a vanishing point and it was physically impossible to outset 1/2px in
+    // screen space w/o going behind the viewer and being mirrored. Scaling by -1 preserves the
+    // computed screen space position but moves the 3D point off of the original quad. So far, this
+    // seems to be a reasonable compromise.
+    if (any(fW < 0.f)) {
+        V4f scale = if_then_else(fW < 0.f, V4f(-1.f), V4f(1.f));
+        fX *= scale;
+        fY *= scale;
+        fW *= scale;
+    }
+
     correct_bad_coords(abs(denom) < kTolerance, &fX, &fY, &fW);
 
     if (fUVRCount > 0) {
@@ -787,12 +1020,12 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
         V4f e1u = skvx::shuffle<2, 3, 2, 3>(fU) - skvx::shuffle<0, 1, 0, 1>(fU);
         V4f e1v = skvx::shuffle<2, 3, 2, 3>(fV) - skvx::shuffle<0, 1, 0, 1>(fV);
         V4f e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
-        correct_bad_edges(mad(e1u, e1u, e1v * e1v) < kTolerance * kTolerance, &e1u, &e1v, &e1r);
+        correct_bad_edges(e1Bad, &e1u, &e1v, &e1r);
 
         V4f e2u = skvx::shuffle<1, 1, 3, 3>(fU) - skvx::shuffle<0, 0, 2, 2>(fU);
         V4f e2v = skvx::shuffle<1, 1, 3, 3>(fV) - skvx::shuffle<0, 0, 2, 2>(fV);
         V4f e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
-        correct_bad_edges(mad(e2u, e2u, e2v * e2v) < kTolerance * kTolerance, &e2u, &e2v, &e2r);
+        correct_bad_edges(e2Bad, &e2u, &e2v, &e2r);
 
         fU += a * e1u + b * e2u;
         fV += a * e1v + b * e2v;
@@ -861,6 +1094,22 @@ void TessellationHelper::outset(const skvx::Vec<4, float>& edgeDistances,
     }
 
     outset.asGrQuads(deviceOutset, fDeviceType, localOutset, fLocalType);
+}
+
+void TessellationHelper::getEdgeEquations(skvx::Vec<4, float>* a,
+                                          skvx::Vec<4, float>* b,
+                                          skvx::Vec<4, float>* c) {
+    SkASSERT(a && b && c);
+    SkASSERT(fVerticesValid);
+    const EdgeEquations& eq = this->getEdgeEquations();
+    *a = eq.fA;
+    *b = eq.fB;
+    *c = eq.fC;
+}
+
+skvx::Vec<4, float> TessellationHelper::getEdgeLengths() {
+    SkASSERT(fVerticesValid);
+    return 1.f / fEdgeVectors.fInvLengths;
 }
 
 const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(

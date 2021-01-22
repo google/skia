@@ -22,6 +22,8 @@
          emulate_abs_int_function)                      \
   GPU_OP(FLUSH_ON_FRAMEBUFFER_CHANGE,                   \
          flush_on_framebuffer_change)                   \
+  GPU_OP(FORCE_UPDATE_SCISSOR_STATE_WHEN_BINDING_FBO0,  \
+         force_update_scissor_state_when_binding_fbo0)  \
   GPU_OP(GL_CLEAR_BROKEN,                               \
          gl_clear_broken)                               \
   GPU_OP(MAX_FRAGMENT_UNIFORM_VECTORS_32,               \
@@ -34,8 +36,6 @@
          pack_parameters_workaround_with_pack_buffer)   \
   GPU_OP(REMOVE_POW_WITH_CONSTANT_EXPONENT,             \
          remove_pow_with_constant_exponent)             \
-  GPU_OP(RESTORE_SCISSOR_ON_FBO_CHANGE,                 \
-         restore_scissor_on_fbo_change)                 \
   GPU_OP(REWRITE_DO_WHILE_LOOPS,                        \
          rewrite_do_while_loops)                        \
   GPU_OP(UNBIND_ATTACHMENTS_ON_BOUND_RENDER_FBO_DELETE, \

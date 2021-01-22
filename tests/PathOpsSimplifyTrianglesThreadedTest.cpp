@@ -54,13 +54,11 @@ static void testSimplifyTrianglesMain(PathOpsThreadState* data) {
                     pathStr.appendf("    path.close();\n");
                     state.outputProgress(pathStr.c_str(), SkPathFillType::kWinding);
                 }
-                ShowTestName(&state, d, e, f, 0);
                 testSimplify(path, false, out, state, pathStr.c_str());
                 path.setFillType(SkPathFillType::kEvenOdd);
                 if (state.fReporter->verbose()) {
                     state.outputProgress(pathStr.c_str(), SkPathFillType::kEvenOdd);
                 }
-                ShowTestName(&state, d, e, f, 1);
                 testSimplify(path, true, out, state, pathStr.c_str());
             }
         }

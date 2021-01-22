@@ -5,13 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsTask.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/ops/GrOp.h"
 #include "tests/Test.h"
+#include <iterator>
 
 // We create Ops that write a value into a range of a buffer. We create ranges from
 // kNumOpPositions starting positions x kRanges canonical ranges. We repeat each range kNumRepeats
@@ -94,10 +97,9 @@ class TestOp : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<TestOp> Make(GrContext* context, int value, const Range& range,
-                                        int result[], const Combinable* combinable) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
-        return pool->allocate<TestOp>(value, range, result, combinable);
+    static GrOp::Owner Make(GrRecordingContext* context, int value, const Range& range,
+                            int result[], const Combinable* combinable) {
+        return GrOp::Make<TestOp>(context, value, range, result, combinable);
     }
 
     const char* name() const override { return "TestOp"; }
@@ -113,7 +115,7 @@ public:
     }
 
 private:
-    friend class ::GrOpMemoryPool;  // for ctor
+    friend class ::GrOp;  // for ctor
 
     TestOp(int value, const Range& range, int result[], const Combinable* combinable)
             : INHERITED(ClassID()), fResult(result), fCombinable(combinable) {
@@ -121,6 +123,12 @@ private:
         this->setBounds(SkRect::MakeXYWH(range.fOffset, 0, range.fOffset + range.fLength, 1),
                         HasAABloat::kNo, IsHairline::kNo);
     }
+
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* writeView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
 
     void onPrepare(GrOpFlushState*) override {}
 
@@ -130,7 +138,10 @@ private:
         }
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc* arenas, const GrCaps&) override {
+        // This op doesn't use the arenas, but make sure the GrOpsTask is sending it
+        SkASSERT(arenas);
+        (void) arenas;
         auto that = t->cast<TestOp>();
         int v0 = fValueRanges[0].fValue;
         int v1 = that->fValueRanges[0].fValue;
@@ -150,7 +161,7 @@ private:
     int* fResult;
     const Combinable* fCombinable;
 
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 }  // namespace
 
@@ -160,26 +171,22 @@ private:
  * painter's order.
  */
 DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
-    auto context = GrContext::MakeMock(nullptr);
-    SkASSERT(context);
-    GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fWidth = kNumOps + 1;
-    desc.fHeight = 1;
+    sk_sp<GrDirectContext> dContext = GrDirectContext::MakeMock(nullptr);
+    SkASSERT(dContext);
+    const GrCaps* caps = dContext->priv().caps();
+    static constexpr SkISize kDims = {kNumOps + 1, 1};
 
-    const GrBackendFormat format =
-        context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
-                                                        GrRenderable::kYes);
+    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                 GrRenderable::kYes);
 
     static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
-    auto proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, GrRenderable::kYes, 1, kOrigin, GrMipMapped::kNo,
-            SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+    auto proxy = dContext->priv().proxyProvider()->createProxy(
+            format, kDims, GrRenderable::kYes, 1, GrMipmapped::kNo, SkBackingFit::kExact,
+            SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
-    proxy->instantiate(context->priv().resourceProvider());
+    proxy->instantiate(dContext->priv().resourceProvider());
 
-    GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format,
-                                                                    GrColorType::kRGBA_8888);
+    GrSwizzle writeSwizzle = caps->getWriteSwizzle(format, GrColorType::kRGBA_8888);
 
     int result[result_width()];
     int validResult[result_width()];
@@ -196,6 +203,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     SkRandom random;
     bool repeat = false;
     Combinable combinable;
+    GrDrawingManager* drawingMgr = dContext->priv().drawingManager();
     for (int p = 0; p < kNumPermutations; ++p) {
         for (int i = 0; i < kNumOps - 2 && !repeat; ++i) {
             // The current implementation of nextULessThan() is biased. :(
@@ -207,12 +215,13 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
             for (int c = 0; c < kNumCombinabilitiesPerGrouping; ++c) {
                 init_combinable(g, &combinable, &random);
                 GrTokenTracker tracker;
-                GrOpFlushState flushState(context->priv().getGpu(),
-                                          context->priv().resourceProvider(),
+                GrOpFlushState flushState(dContext->priv().getGpu(),
+                                          dContext->priv().resourceProvider(),
                                           &tracker);
-                GrOpsTask opsTask(context->priv().refOpMemoryPool(),
-                                  GrSurfaceProxyView(proxy, kOrigin, outSwizzle),
-                                  context->priv().auditTrail());
+                GrOpsTask opsTask(drawingMgr,
+                                  dContext->priv().arenas(),
+                                  GrSurfaceProxyView(proxy, kOrigin, writeSwizzle),
+                                  dContext->priv().auditTrail());
                 // This assumes the particular values of kRanges.
                 std::fill_n(result, result_width(), -1);
                 std::fill_n(validResult, result_width(), -1);
@@ -224,16 +233,18 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                     int pos = j % kNumOpPositions;
                     Range range = kRanges[j / kNumOpPositions];
                     range.fOffset += pos;
-                    auto op = TestOp::Make(context.get(), value, range, result, &combinable);
-                    op->writeResult(validResult);
-                    opsTask.addOp(std::move(op),
-                                  GrTextureResolveManager(context->priv().drawingManager()),
-                                  *context->priv().caps());
+                    auto op = TestOp::Make(dContext.get(), value, range, result, &combinable);
+                    TestOp* testOp = (TestOp*)op.get();
+                    testOp->writeResult(validResult);
+                    opsTask.addOp(drawingMgr, std::move(op),
+                                  GrTextureResolveManager(dContext->priv().drawingManager()),
+                                  *caps);
                 }
-                opsTask.makeClosed(*context->priv().caps());
+                opsTask.makeClosed(*caps);
                 opsTask.prepare(&flushState);
                 opsTask.execute(&flushState);
-                opsTask.endFlush();
+                opsTask.endFlush(drawingMgr);
+                opsTask.disown(drawingMgr);
 #if 0  // Useful to repeat a random configuration that fails the test while debugger attached.
                 if (!std::equal(result, result + result_width(), validResult)) {
                     repeat = true;

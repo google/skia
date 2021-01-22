@@ -17,10 +17,12 @@ extern "C" {
 
     const char* __lsan_default_suppressions();
     const char* __lsan_default_suppressions() {
-        return "leak:libfontconfig\n"       // FontConfig looks like it leaks, but it doesn't.
-               "leak:libGLX_nvidia.so\n"    // For NVidia driver.
-               "leak:libnvidia-glcore.so\n" // For NVidia driver.
-               "leak:libnvidia-tls.so\n"    // For NVidia driver.
+        return "leak:libfontconfig\n"           // FontConfig looks like it leaks, but it doesn't.
+               "leak:libfreetype\n"             // Unsure, appeared upgrading Debian 9->10.
+               "leak:libGLX_nvidia.so\n"        // For NVidia driver.
+               "leak:libnvidia-glcore.so\n"     // For NVidia driver.
+               "leak:libnvidia-tls.so\n"        // For NVidia driver.
+               "leak:terminator_CreateDevice\n" // Intel Vulkan drivers.
                ;
     }
 

@@ -15,9 +15,10 @@ class GrDawnGpu;
 
 class GrDawnRenderTarget: public GrRenderTarget {
 public:
-    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
-                                                 GrPixelConfig config, int sampleCnt,
-                                                 const GrDawnImageInfo&);
+    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*,
+                                                 SkISize dimensions,
+                                                 int sampleCnt,
+                                                 const GrDawnRenderTargetInfo&);
 
     ~GrDawnRenderTarget() override;
 
@@ -27,14 +28,13 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
-    wgpu::Texture texture() const { return fInfo.fTexture; }
+    wgpu::TextureView textureView() const { return fInfo.fTextureView; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
-                       const SkISize& dimensions,
-                       GrPixelConfig config,
+                       SkISize dimensions,
                        int sampleCnt,
-                       const GrDawnImageInfo& info);
+                       const GrDawnRenderTargetInfo& info);
 
     void onAbandon() override;
     void onRelease() override;
@@ -43,12 +43,9 @@ protected:
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;
 
-    static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
-                                      const GrDawnImageInfo&);
-
     bool completeStencilAttachment() override;
-    GrDawnImageInfo fInfo;
-    typedef GrRenderTarget INHERITED;
+    GrDawnRenderTargetInfo fInfo;
+    using INHERITED = GrRenderTarget;
 };
 
 #endif

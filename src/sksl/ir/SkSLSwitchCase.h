@@ -16,43 +16,63 @@ namespace SkSL {
 /**
  * A single case of a 'switch' statement.
  */
-struct SwitchCase : public Statement {
-    SwitchCase(int offset, std::unique_ptr<Expression> value,
-               std::vector<std::unique_ptr<Statement>> statements)
-    : INHERITED(offset, kSwitch_Kind)
-    , fValue(std::move(value))
-    , fStatements(std::move(statements)) {}
+class SwitchCase final : public Statement {
+public:
+    static constexpr Kind kStatementKind = Kind::kSwitchCase;
+
+    // null value implies "default" case
+    SwitchCase(int offset, std::unique_ptr<Expression> value, StatementArray statements)
+        : INHERITED(offset, kStatementKind)
+        , fValue(std::move(value))
+        , fStatements(std::move(statements)) {}
+
+    std::unique_ptr<Expression>& value() {
+        return fValue;
+    }
+
+    const std::unique_ptr<Expression>& value() const {
+        return fValue;
+    }
+
+    StatementArray& statements() {
+        return fStatements;
+    }
+
+    const StatementArray& statements() const {
+        return fStatements;
+    }
 
     std::unique_ptr<Statement> clone() const override {
-        std::vector<std::unique_ptr<Statement>> cloned;
-        for (const auto& s : fStatements) {
+        StatementArray cloned;
+        cloned.reserve_back(this->statements().size());
+        for (const auto& s : this->statements()) {
             cloned.push_back(s->clone());
         }
-        return std::unique_ptr<Statement>(new SwitchCase(fOffset,
-                                                         fValue ? fValue->clone() : nullptr,
-                                                         std::move(cloned)));
+        return std::make_unique<SwitchCase>(fOffset,
+                                            this->value() ? this->value()->clone() : nullptr,
+                                            std::move(cloned));
     }
 
     String description() const override {
         String result;
-        if (fValue) {
-            result.appendf("case %s:\n", fValue->description().c_str());
+        if (this->value()) {
+            result.appendf("case %s:\n", this->value()->description().c_str());
         } else {
             result += "default:\n";
         }
-        for (const auto& s : fStatements) {
+        for (const auto& s : this->statements()) {
             result += s->description() + "\n";
         }
         return result;
     }
 
-    // null value implies "default" case
+private:
     std::unique_ptr<Expression> fValue;
-    std::vector<std::unique_ptr<Statement>> fStatements;
+    StatementArray fStatements;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

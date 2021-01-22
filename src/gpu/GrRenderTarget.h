@@ -9,11 +9,10 @@
 #define GrRenderTarget_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/gpu/GrSurface.h"
+#include "src/gpu/GrSurface.h"
 
 class GrCaps;
-class GrRenderTargetPriv;
-class GrStencilAttachment;
+class GrAttachment;
 class GrBackendRenderTarget;
 
 /**
@@ -42,16 +41,29 @@ public:
 
     virtual GrBackendRenderTarget getBackendRenderTarget() const = 0;
 
+    GrAttachment* getStencilAttachment() const { return fStencilAttachment.get(); }
     // Checked when this object is asked to attach a stencil buffer.
     virtual bool canAttemptStencilAttachment() const = 0;
 
-    // Provides access to functions that aren't part of the public API.
-    GrRenderTargetPriv renderTargetPriv();
-    const GrRenderTargetPriv renderTargetPriv() const;
+    void attachStencilAttachment(sk_sp<GrAttachment> stencil);
+
+    int numStencilBits() const;
+
+    /**
+     * Returns a unique key that identifies this render target's sample pattern. (Must be
+     * multisampled.)
+     */
+    int getSamplePatternKey();
+
+    /**
+     * Retrieves the per-pixel HW sample locations for this render target, and, as a by-product, the
+     * actual number of samples in use. (This may differ from fSampleCnt.) Sample locations are
+     * returned as 0..1 offsets relative to the top-left corner of the pixel.
+     */
+    const SkTArray<SkPoint>& getSampleLocations();
 
 protected:
-    GrRenderTarget(GrGpu*, const SkISize&, GrPixelConfig, int sampleCount, GrProtected,
-                   GrStencilAttachment* = nullptr);
+    GrRenderTarget(GrGpu*, const SkISize&, int sampleCount, GrProtected, GrAttachment* = nullptr);
     ~GrRenderTarget() override;
 
     // override of GrResource
@@ -60,18 +72,16 @@ protected:
 
 private:
     // Allows the backends to perform any additional work that is required for attaching a
-    // GrStencilAttachment. When this is called, the GrStencilAttachment has already been put onto
+    // GrAttachment. When this is called, the GrAttachment has already been put onto
     // the GrRenderTarget. This function must return false if any failures occur when completing the
     // stencil attachment.
     virtual bool completeStencilAttachment() = 0;
 
-    friend class GrRenderTargetPriv;
-
+    sk_sp<GrAttachment> fStencilAttachment;
     int fSampleCnt;
     int fSamplePatternKey;
-    sk_sp<GrStencilAttachment> fStencilAttachment;
 
-    typedef GrSurface INHERITED;
+    using INHERITED = GrSurface;
 };
 
 #endif

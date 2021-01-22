@@ -9,7 +9,7 @@
 #define SkRasterClipStack_DEFINED
 
 #include "include/core/SkClipOp.h"
-#include "include/core/SkDeque.h"
+#include "include/private/SkDeque.h"
 #include "src/core/SkRasterClip.h"
 #include <new>
 
@@ -117,10 +117,19 @@ public:
         this->validate();
     }
 
+    void clipShader(sk_sp<SkShader> sh) {
+        this->writable_rc().op(std::move(sh));
+        this->validate();
+    }
+
     void clipRegion(const SkRegion& rgn, SkClipOp op) {
         this->writable_rc().op(rgn, (SkRegion::Op)op);
         this->trimIfExpanding(op);
         this->validate();
+    }
+
+    void replaceClip(const SkIRect& rect) {
+        this->writable_rc().setRect(rect);
     }
 
     void setDeviceClipRestriction(SkIRect* mutableClipRestriction) {

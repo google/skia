@@ -53,7 +53,7 @@ ImGuiLayer::ImGuiLayer() {
     io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
     SkImageInfo info = SkImageInfo::MakeA8(w, h);
     SkPixmap pmap(info, pixels, info.minRowBytes());
-    SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
+    SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
     auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
     auto fontShader = fontImage->makeShader(&localMatrix);
     fFontPaint.setShader(fontShader);
@@ -66,8 +66,27 @@ ImGuiLayer::~ImGuiLayer() {
     ImGui::DestroyContext();
 }
 
+#if defined(SK_BUILD_FOR_UNIX)
+static const char* get_clipboard_text(void* user_data) {
+    Window* w = (Window*)user_data;
+    return w->getClipboardText();
+}
+
+static void set_clipboard_text(void* user_data, const char* text) {
+    Window* w = (Window*)user_data;
+    w->setClipboardText(text);
+}
+#endif
+
 void ImGuiLayer::onAttach(Window* window) {
     fWindow = window;
+
+#if defined(SK_BUILD_FOR_UNIX)
+    ImGuiIO& io = ImGui::GetIO();
+    io.ClipboardUserData = fWindow;
+    io.GetClipboardTextFn = get_clipboard_text;
+    io.SetClipboardTextFn = set_clipboard_text;
+#endif
 }
 
 bool ImGuiLayer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {
@@ -106,9 +125,10 @@ void ImGuiLayer::onPrePaint() {
     io.DisplaySize.x = static_cast<float>(fWindow->width());
     io.DisplaySize.y = static_cast<float>(fWindow->height());
 
-    io.KeyAlt = io.KeysDown[static_cast<int>(skui::Key::kOption)];
-    io.KeyCtrl = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
+    io.KeyAlt   = io.KeysDown[static_cast<int>(skui::Key::kOption)];
+    io.KeyCtrl  = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
     io.KeyShift = io.KeysDown[static_cast<int>(skui::Key::kShift)];
+    io.KeySuper = io.KeysDown[static_cast<int>(skui::Key::kSuper)];
 
     ImGui::NewFrame();
 }

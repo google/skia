@@ -10,7 +10,7 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrPipeline;
 class GrPrimitiveProcessor;
@@ -22,7 +22,7 @@ class GrVkGpu;
 class GrVkRenderPass;
 struct SkIRect;
 
-class GrVkPipeline : public GrVkResource {
+class GrVkPipeline : public GrVkManagedResource {
 public:
     static GrVkPipeline* Create(GrVkGpu*,
                                 const GrProgramInfo&,
@@ -38,27 +38,28 @@ public:
     static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
                                            GrSurfaceOrigin, const SkIRect& scissorRect);
     static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
-    static void SetDynamicBlendConstantState(GrVkGpu*, GrVkCommandBuffer*,
-                                             const GrSwizzle& outputSwizzle,
+    static void SetDynamicBlendConstantState(GrVkGpu*,
+                                             GrVkCommandBuffer*,
+                                             const GrSwizzle& writeSwizzle,
                                              const GrXferProcessor&);
 
-#ifdef SK_TRACE_VK_RESOURCES
+#ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkPipeline: %d (%d refs)\n", fPipeline, this->getRefCnt());
     }
 #endif
 
 protected:
-    GrVkPipeline(VkPipeline pipeline, VkPipelineLayout layout)
-            : INHERITED(), fPipeline(pipeline), fPipelineLayout(layout) {}
+    GrVkPipeline(const GrVkGpu* gpu, VkPipeline pipeline, VkPipelineLayout layout)
+            : INHERITED(gpu), fPipeline(pipeline), fPipelineLayout(layout) {}
 
     VkPipeline  fPipeline;
     VkPipelineLayout  fPipelineLayout;
 
 private:
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData() const override;
 
-    typedef GrVkResource INHERITED;
+    using INHERITED = GrVkManagedResource;
 };
 
 #endif

@@ -162,6 +162,11 @@ sk_sp<SkTypeface> SkFontMgr_Indirect::onMakeFromStreamIndex(std::unique_ptr<SkSt
     return fImpl->makeFromStream(std::move(stream), ttcIndex);
 }
 
+sk_sp<SkTypeface> SkFontMgr_Indirect::onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                                           const SkFontArguments& args) const {
+    return fImpl->makeFromStream(std::move(stream), args);
+}
+
 sk_sp<SkTypeface> SkFontMgr_Indirect::onMakeFromFile(const char path[], int ttcIndex) const {
     return fImpl->makeFromFile(path, ttcIndex);
 }

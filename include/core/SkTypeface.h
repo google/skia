@@ -136,11 +136,6 @@ public:
      */
     static sk_sp<SkTypeface> MakeFromData(sk_sp<SkData>, int index = 0);
 
-    /** Return a new typeface given font data and configuration. If the data
-        is not valid font data, returns nullptr.
-    */
-    static sk_sp<SkTypeface> MakeFromFontData(std::unique_ptr<SkFontData>);
-
     /** Return a new typeface based on this typeface but parameterized as specified in the
         SkFontArguments. If the SkFontArguments does not supply an argument for a parameter
         in the font then the value from this typeface will be used as the value for that
@@ -308,6 +303,13 @@ public:
     void getFamilyName(SkString* name) const;
 
     /**
+     *  Return the PostScript name for this typeface.
+     *  Value may change based on variation parameters.
+     *  Returns false if no PostScript name is available.
+     */
+    bool getPostScriptName(SkString* name) const;
+
+    /**
      *  Return a stream for the contents of the font data, or NULL on failure.
      *  If ttcIndex is not null, it is set to the TrueTypeCollection index
      *  of this typeface within the stream, or 0 if the stream is not a
@@ -317,18 +319,11 @@ public:
     std::unique_ptr<SkStreamAsset> openStream(int* ttcIndex) const;
 
     /**
-     *  Return the font data, or nullptr on failure.
-     */
-    std::unique_ptr<SkFontData> makeFontData() const;
-
-    /**
-     *  Return a scalercontext for the given descriptor. If this fails, then
-     *  if allowFailure is true, this returns NULL, else it returns a
-     *  dummy scalercontext that will not crash, but will draw nothing.
+     *  Return a scalercontext for the given descriptor. It may return a
+     *  stub scalercontext that will not crash, but will draw nothing.
      */
     std::unique_ptr<SkScalerContext> createScalerContext(const SkScalerContextEffects&,
-                                                         const SkDescriptor*,
-                                                         bool allowFailure = false) const;
+                                                         const SkDescriptor*) const;
 
     /**
      *  Return a rectangle (scaled to 1-pt) that represents the union of the bounds of all
@@ -351,10 +346,8 @@ public:
     }
 
 protected:
-    /** uniqueID must be unique and non-zero
-    */
-    SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
-    virtual ~SkTypeface();
+    explicit SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
+    ~SkTypeface() override;
 
     virtual sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const = 0;
 
@@ -363,6 +356,7 @@ protected:
     /** Sets the font style. If used, must be called in the constructor. */
     void setFontStyle(SkFontStyle style) { fStyle = style; }
 
+    // Must return a valid scaler context. It can not return nullptr.
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
@@ -381,8 +375,6 @@ protected:
     virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const = 0;
 
     virtual std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const = 0;
-    // TODO: make pure virtual.
-    virtual std::unique_ptr<SkFontData> onMakeFontData() const;
 
     virtual int onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[],
@@ -404,6 +396,7 @@ protected:
      *  This name may or may not be produced by the family name iterator.
      */
     virtual void onGetFamilyName(SkString* familyName) const = 0;
+    virtual bool onGetPostScriptName(SkString*) const = 0;
 
     /** Returns an iterator over the family names in the font. */
     virtual LocalizedStrings* onCreateFamilyNameIterator() const = 0;
@@ -446,6 +439,6 @@ private:
     mutable SkOnce      fBoundsOnce;
     bool                fIsFixedPitch;
 
-    typedef SkWeakRefCnt INHERITED;
+    using INHERITED = SkWeakRefCnt;
 };
 #endif

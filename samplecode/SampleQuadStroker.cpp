@@ -28,6 +28,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkStroke.h"
 #include "tools/ToolUtils.h"
@@ -42,18 +43,14 @@ static bool hittest(const SkPoint& target, SkScalar x, SkScalar y) {
 }
 
 static int getOnCurvePoints(const SkPath& path, SkPoint storage[]) {
-    SkPath::RawIter iter(path);
-    SkPoint pts[4];
-    SkPath::Verb verb;
-
     int count = 0;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPath::kMove_Verb:
-            case SkPath::kLine_Verb:
-            case SkPath::kQuad_Verb:
-            case SkPath::kConic_Verb:
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kMove:
+            case SkPathVerb::kLine:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
+            case SkPathVerb::kCubic:
                 storage[count++] = pts[0];
                 break;
             default:
@@ -64,25 +61,21 @@ static int getOnCurvePoints(const SkPath& path, SkPoint storage[]) {
 }
 
 static void getContourCounts(const SkPath& path, SkTArray<int>* contourCounts) {
-    SkPath::RawIter iter(path);
-    SkPoint pts[4];
-    SkPath::Verb verb;
-
     int count = 0;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPath::kMove_Verb:
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kMove:
+            case SkPathVerb::kLine:
                 count += 1;
                 break;
-            case SkPath::kQuad_Verb:
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
                 count += 2;
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 count += 3;
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 contourCounts->push_back(count);
                 count = 0;
                 break;
@@ -218,7 +211,7 @@ protected:
                     fText = "";
                     break;
                 case '-':
-                    fTextSize = SkTMax(1.0f, fTextSize - 1);
+                    fTextSize = std::max(1.0f, fTextSize - 1);
                     break;
                 case '+':
                 case '=':
@@ -356,14 +349,14 @@ protected:
         for (SkScalar dist = 0; dist <= total; dist += delta) {
             ++ribs;
         }
-        SkPath::RawIter iter(path);
-        SkPoint pts[4];
-        if (SkPath::kMove_Verb != iter.next(pts)) {
+        const uint8_t* verbs = SkPathPriv::VerbData(path);
+        if (path.countVerbs() < 2 || SkPath::kMove_Verb != verbs[0]) {
             SkASSERT(0);
             return;
         }
-        SkPath::Verb verb = iter.next(pts);
+        auto verb = static_cast<SkPath::Verb>(verbs[1]);
         SkASSERT(SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb);
+        const SkPoint* pts = SkPathPriv::PointData(path);
         SkPoint pos, tan;
         for (int index = 0; index < ribs; ++index) {
             SkScalar t = (SkScalar) index / ribs;
@@ -379,7 +372,7 @@ protected:
                     tan = SkEvalQuadTangentAt(pts, t);
                     break;
                 case SkPath::kConic_Verb: {
-                    SkConic conic(pts, iter.conicWeight());
+                    SkConic conic(pts, SkPathPriv::ConicWeightData(path)[0]);
                     pos = conic.evalAt(t);
                     tan = conic.evalTangentAt(t);
                     } break;
@@ -478,7 +471,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(width);
         SkPath path;
-        SkScalar maxSide = SkTMax(rect.width(), rect.height()) / 2;
+        SkScalar maxSide = std::max(rect.width(), rect.height()) / 2;
         SkPoint center = { rect.fLeft + maxSide, rect.fTop + maxSide };
         path.addCircle(center.fX, center.fY, maxSide);
         canvas->drawPath(path, paint);
@@ -721,8 +714,7 @@ protected:
         MyClick(int index) : fIndex(index) {}
     };
 
-    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              skui::ModifierKey modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
                 return new MyClick((int)i);
@@ -793,13 +785,13 @@ protected:
         }
 #ifdef SK_DEBUG
         else if (index == (int) SK_ARRAY_COUNT(fPts) + 3) {
-            gDebugStrokerError = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
+            gDebugStrokerError = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
                     fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
             gDebugStrokerErrorSet = true;
         }
 #endif
         else if (index == (int) SK_ARRAY_COUNT(fPts) + 4) {
-            fWidth = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
+            fWidth = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
                     kWidthMin, kWidthMax));
             fAnimate = fWidth <= kWidthMin;
         }
@@ -807,7 +799,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

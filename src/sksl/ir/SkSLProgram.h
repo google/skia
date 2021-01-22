@@ -11,6 +11,8 @@
 #include <vector>
 #include <memory>
 
+#include "include/private/SkTHash.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -32,6 +34,28 @@
 namespace SkSL {
 
 class Context;
+class Pool;
+
+/**
+ * Side-car class holding mutable information about a Program's IR
+ */
+class ProgramUsage {
+public:
+    struct VariableCounts { int fRead = 0; int fWrite = 0; };
+    VariableCounts get(const Variable&) const;
+    bool isDead(const Variable&) const;
+
+    int get(const FunctionDeclaration&) const;
+
+    void replace(const Expression* oldExpr, const Expression* newExpr);
+    void add(const Statement* stmt);
+    void remove(const Expression* expr);
+    void remove(const Statement* stmt);
+    void remove(const ProgramElement& element);
+
+    SkTHashMap<const Variable*, VariableCounts> fVariableCounts;
+    SkTHashMap<const FunctionDeclaration*, int> fCallCounts;
+};
 
 /**
  * Represents a fully-digested program, ready for code generation.
@@ -53,7 +77,7 @@ struct Program {
 
             Value(float f)
             : fKind(kFloat_Kind)
-            , fValue(f) {}
+            , fValueF(f) {}
 
             std::unique_ptr<Expression> literal(const Context& context, int offset) const {
                 switch (fKind) {
@@ -67,8 +91,8 @@ struct Program {
                                                                           fValue));
                     case Program::Settings::Value::kFloat_Kind:
                         return std::unique_ptr<Expression>(new FloatLiteral(context,
-                                                                          offset,
-                                                                          fValue));
+                                                                            offset,
+                                                                            fValueF));
                     default:
                         SkASSERT(false);
                         return nullptr;
@@ -81,20 +105,18 @@ struct Program {
                 kFloat_Kind,
             } fKind;
 
-            int fValue;
+            union {
+                int   fValue;  // for kBool_Kind and kInt_Kind
+                float fValueF; // for kFloat_Kind
+            };
         };
 
-#if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
-        const StandaloneShaderCaps* fCaps = &standaloneCaps;
-#else
-        const GrShaderCaps* fCaps = nullptr;
-#ifdef SK_VULKAN
-        const GrVkCaps* fVkCaps = nullptr;
-#endif
-#endif
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
         bool fFlipY = false;
+        // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the w coordinate
+        // must be inversed.
+        bool fInverseW = false;
         // If true the destination fragment color is read sk_FragColor. It must be declared inout.
         bool fFragColorIsInOut = false;
         // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
@@ -107,7 +129,24 @@ struct Program {
         // if the program needs to create an RTHeight uniform, this is its offset in the uniform
         // buffer
         int fRTHeightOffset = -1;
-        std::unordered_map<String, Value> fArgs;
+        // if the program needs to create an RTHeight uniform and is creating spriv, this is the
+        // binding and set number of the uniform buffer.
+        int fRTHeightBinding = -1;
+        int fRTHeightSet = -1;
+        // If true, remove any uncalled functions other than main(). Note that a function which
+        // starts out being used may end up being uncalled after optimization.
+        bool fRemoveDeadFunctions = true;
+        // Functions larger than this (measured in IR nodes) will not be inlined. The default value
+        // is arbitrary. A value of zero will disable the inliner entirely.
+        int fInlineThreshold = 49;
+        // true to enable optimization passes
+        bool fOptimize = true;
+        // If true, implicit conversions to lower precision numeric types are allowed
+        // (eg, float to half)
+        bool fAllowNarrowingConversions = false;
+        // If true, then Debug code will run SPIR-V output through the validator to ensure its
+        // correctness
+        bool fValidateSPIRV = true;
     };
 
     struct Inputs {
@@ -132,92 +171,6 @@ struct Program {
         }
     };
 
-    class iterator {
-    public:
-        ProgramElement& operator*() {
-            if (fIter1 != fEnd1) {
-                return **fIter1;
-            }
-            return **fIter2;
-        }
-
-        iterator& operator++() {
-            if (fIter1 != fEnd1) {
-                ++fIter1;
-                return *this;
-            }
-            ++fIter2;
-            return *this;
-        }
-
-        bool operator==(const iterator& other) const {
-            return fIter1 == other.fIter1 && fIter2 == other.fIter2;
-        }
-
-        bool operator!=(const iterator& other) const {
-            return !(*this == other);
-        }
-
-    private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::iterator;
-
-        iterator(inner begin1, inner end1, inner begin2, inner end2)
-        : fIter1(begin1)
-        , fEnd1(end1)
-        , fIter2(begin2)
-        , fEnd2(end2) {}
-
-        inner fIter1;
-        inner fEnd1;
-        inner fIter2;
-        inner fEnd2;
-
-        friend struct Program;
-    };
-
-    class const_iterator {
-    public:
-        const ProgramElement& operator*() {
-            if (fIter1 != fEnd1) {
-                return **fIter1;
-            }
-            return **fIter2;
-        }
-
-        const_iterator& operator++() {
-            if (fIter1 != fEnd1) {
-                ++fIter1;
-                return *this;
-            }
-            ++fIter2;
-            return *this;
-        }
-
-        bool operator==(const const_iterator& other) const {
-            return fIter1 == other.fIter1 && fIter2 == other.fIter2;
-        }
-
-        bool operator!=(const const_iterator& other) const {
-            return !(*this == other);
-        }
-
-    private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::const_iterator;
-
-        const_iterator(inner begin1, inner end1, inner begin2, inner end2)
-        : fIter1(begin1)
-        , fEnd1(end1)
-        , fIter2(begin2)
-        , fEnd2(end2) {}
-
-        inner fIter1;
-        inner fEnd1;
-        inner fIter2;
-        inner fEnd2;
-
-        friend struct Program;
-    };
-
     enum Kind {
         kFragment_Kind,
         kVertex_Kind,
@@ -230,69 +183,61 @@ struct Program {
     Program(Kind kind,
             std::unique_ptr<String> source,
             Settings settings,
+            const ShaderCapsClass* caps,
             std::shared_ptr<Context> context,
-            std::vector<std::unique_ptr<ProgramElement>>* inheritedElements,
             std::vector<std::unique_ptr<ProgramElement>> elements,
+            std::unique_ptr<ModifiersPool> modifiers,
             std::shared_ptr<SymbolTable> symbols,
+            std::unique_ptr<Pool> pool,
             Inputs inputs)
     : fKind(kind)
     , fSource(std::move(source))
     , fSettings(settings)
+    , fCaps(caps)
     , fContext(context)
     , fSymbols(symbols)
+    , fPool(std::move(pool))
     , fInputs(inputs)
-    , fInheritedElements(inheritedElements)
-    , fElements(std::move(elements)) {}
-
-    iterator begin() {
-        if (fInheritedElements) {
-            return iterator(fInheritedElements->begin(), fInheritedElements->end(),
-                            fElements.begin(), fElements.end());
-        }
-        return iterator(fElements.begin(), fElements.end(), fElements.end(), fElements.end());
+    , fElements(std::move(elements))
+    , fModifiers(std::move(modifiers)) {
+        fUsage = Analysis::GetUsage(*this);
     }
 
-    iterator end() {
-        if (fInheritedElements) {
-            return iterator(fInheritedElements->end(), fInheritedElements->end(),
-                            fElements.end(), fElements.end());
-        }
-        return iterator(fElements.end(), fElements.end(), fElements.end(), fElements.end());
+    ~Program() {
+        // Some or all of the program elements are in the pool. To free them safely, we must attach
+        // the pool before destroying any program elements. (Otherwise, we may accidentally call
+        // delete on a pooled node.)
+        fPool->attachToThread();
+        fElements.clear();
+        fContext.reset();
+        fSymbols.reset();
+        fModifiers.reset();
+        fPool->detachFromThread();
     }
 
-    const_iterator begin() const {
-        if (fInheritedElements) {
-            return const_iterator(fInheritedElements->begin(), fInheritedElements->end(),
-                                  fElements.begin(), fElements.end());
-        }
-        return const_iterator(fElements.begin(), fElements.end(), fElements.end(), fElements.end());
-    }
-
-    const_iterator end() const {
-        if (fInheritedElements) {
-            return const_iterator(fInheritedElements->end(), fInheritedElements->end(),
-                                  fElements.end(), fElements.end());
-        }
-        return const_iterator(fElements.end(), fElements.end(), fElements.end(), fElements.end());
-    }
+    const std::vector<std::unique_ptr<ProgramElement>>& elements() const { return fElements; }
 
     Kind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
+    const ShaderCapsClass* fCaps;
     std::shared_ptr<Context> fContext;
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;
+    std::unique_ptr<Pool> fPool;
     Inputs fInputs;
-    bool fIsOptimized = false;
 
 private:
-    std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
+    std::unique_ptr<ModifiersPool> fModifiers;
+    std::unique_ptr<ProgramUsage> fUsage;
 
     friend class Compiler;
+    friend class Inliner;             // fUsage
+    friend class SPIRVCodeGenerator;  // fModifiers
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

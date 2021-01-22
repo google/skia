@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
@@ -16,8 +17,8 @@
 #include "src/utils/SkUTF.h"
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #endif
 
 SkRandom gRand;
@@ -67,9 +68,9 @@ class AnimatedTextView : public Sample {
         canvas->save();
 
 #if SK_SUPPORT_GPU
-        GrContext* grContext = canvas->getGrContext();
-        if (grContext) {
-            sk_sp<SkImage> image = grContext->priv().testingOnly_getFontAtlasImage(
+        auto direct = GrAsDirectContext(canvas->recordingContext());
+        if (direct) {
+            sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
                                                                 GrMaskFormat::kA8_GrMaskFormat);
             canvas->drawImageRect(image,
                                   SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f), &paint);

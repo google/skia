@@ -8,8 +8,10 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkColorFilterShader.h"
 
@@ -21,7 +23,7 @@ SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader,
                                          float alpha,
                                          sk_sp<SkColorFilter> filter)
     : fShader(std::move(shader))
-    , fFilter(std::move(filter))
+    , fFilter(as_CFB_sp(std::move(filter)))
     , fAlpha (alpha)
 {
     SkASSERT(fShader);
@@ -38,9 +40,7 @@ sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
 }
 
 bool SkColorFilterShader::isOpaque() const {
-    return fShader->isOpaque()
-        && fAlpha == 1.0f
-        && (fFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag) != 0;
+    return fShader->isOpaque() && fAlpha == 1.0f && as_CFB(fFilter)->isAlphaUnchanged();
 }
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
@@ -56,59 +56,57 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     if (fAlpha != 1.0f) {
         rec.fPipeline->append(SkRasterPipeline::scale_1_float, rec.fAlloc->make<float>(fAlpha));
     }
-    fFilter->appendStages(rec, fShader->isOpaque());
+    if (!fFilter->appendStages(rec, fShader->isOpaque())) {
+        return false;
+    }
     return true;
 }
 
-bool SkColorFilterShader::onProgram(skvm::Builder* p,
-                                    SkColorSpace* dstCS,
-                                    skvm::Uniforms* uniforms,
-                                    skvm::F32 x, skvm::F32 y,
-                                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
+                                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                           const SkMatrixProvider& matrices, const SkMatrix* localM,
+                                           SkFilterQuality quality, const SkColorInfo& dst,
+                                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     // Run the shader.
-    if (!as_SB(fShader)->program(p, dstCS, uniforms, x,y, r,g,b,a)) {
-        return false;
+    skvm::Color c = as_SB(fShader)->program(p, device,local, paint,
+                                            matrices,localM,
+                                            quality,dst,
+                                            uniforms,alloc);
+    if (!c) {
+        return {};
     }
-
     // Scale that by alpha.
     if (fAlpha != 1.0f) {
         skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
-        *r = p->mul(*r, A);
-        *g = p->mul(*g, A);
-        *b = p->mul(*b, A);
-        *a = p->mul(*a, A);
+        c.r *= A;
+        c.g *= A;
+        c.b *= A;
+        c.a *= A;
     }
 
     // Finally run that through the color filter.
-    if (!fFilter->program(p, dstCS, uniforms, r,g,b,a)) {
-        return false;
-    }
-
-    return true;
+    return fFilter->program(p,c, dst.colorSpace(), uniforms,alloc);
 }
 
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
-#include "include/gpu/GrContext.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    auto fp1 = as_SB(fShader)->asFragmentProcessor(args);
-    if (!fp1) {
+    auto shaderFP = as_SB(fShader)->asFragmentProcessor(args);
+    if (!shaderFP) {
         return nullptr;
     }
 
     // TODO I guess, but it shouldn't come up as used today.
     SkASSERT(fAlpha == 1.0f);
 
-    auto fp2 = fFilter->asFragmentProcessor(args.fContext, *args.fDstColorInfo);
-    if (!fp2) {
-        return fp1;
-    }
-
-    std::unique_ptr<GrFragmentProcessor> fpSeries[] = { std::move(fp1), std::move(fp2) };
-    return GrFragmentProcessor::RunInSeries(fpSeries, 2);
+    auto [success, fp] = fFilter->asFragmentProcessor(std::move(shaderFP), args.fContext,
+                                                      *args.fDstColorInfo);
+    // If the filter FP could not be created, we still want to return the shader FP, so checking
+    // success can be omitted here.
+    return std::move(fp);
 }
 #endif
 

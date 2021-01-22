@@ -1,0 +1,387 @@
+<!-- This runs the GMs and unit tests which have been compiled to WASM. When this completes,
+either window._error will be set or window._testsDone will be true and window._results will be an
+array of the test names and what they drew.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WASM Runner of GMs and Unit Tests</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/wasm_gm_tests.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    #status_text {
+      min-width: 900px;
+      min-height: 500px;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <button id=start_tests>Start Tests</button>
+  <br>
+  <pre id=status_text></pre>
+
+  <canvas id=gm_canvas></canvas>
+</main>
+<script type="text/javascript" charset="utf-8">
+  const loadTestsPromise = InitWasmGMTests({
+    locateFile: (file) => '/static/'+file,
+  });
+
+  const loadKnownHashesPromise = fetch('/static/hashes.txt').then((resp) => resp.text());
+
+  const resourceNames = [];
+  const loadResourceListing = fetch('/static/resource_listing.json').then((resp) => resp.json())
+    .then((json) => {
+    console.debug('should fetch resources', json);
+    const loadingPromises = [];
+    for (const resource of json) {
+      resourceNames.push(resource);
+      const url = `/static/resources/${resource}`;
+      loadingPromises.push(fetch(url).then((resp) => resp.arrayBuffer()));
+    }
+    return Promise.all(loadingPromises).catch((e) => {
+      console.error(e);
+      window._error = `Failed getting resources: ${JSON.stringify(e)}`;
+    });
+  });
+
+  let attemptedPOSTs = 0;
+  let successfulPOSTs = 0;
+  Promise.all([loadTestsPromise, loadKnownHashesPromise, loadResourceListing]).then(([GM, hashes, resourceBuffers]) => {
+    GM.Init();
+    LoadResources(GM, resourceNames, resourceBuffers);
+    LoadKnownHashes(GM, hashes);
+    document.getElementById('start_tests').addEventListener('click', async () => {
+      window._testsProgress = 0;
+      window._log = 'Starting\n';
+      window._failed = [];
+      await RunTests(GM);
+      if (window._error) {
+        return;
+      }
+      await RunGMs(GM);
+      if (attemptedPOSTs !== successfulPOSTs) {
+        window._error = `Failed to POST all the PNG files (expected ${attemptedPOSTs}, finished ${successfulPOSTs})`;
+      } else {
+        window._testsDone = true;
+      }
+    });
+    window._testsReady = true;
+  });
+
+  const statusElement = document.getElementById('status_text');
+  function log(line) {
+    line += '\n';
+    statusElement.innerText += line;
+    window._log += line;
+  }
+
+  function LoadResources(GM, resourceNames, resourceBuffers) {
+    for (let i = 0; i < resourceNames.length; i++) {
+      const name = resourceNames[i];
+      const buffer = resourceBuffers[i];
+      if (name.includes('mandril')) {
+        console.log(name, new Uint8Array(buffer).slice(0, 20));
+      }
+      GM.LoadResource(name, buffer);
+    }
+  }
+
+  // There's a global set of known hashes that we preload with the md5 hashes that are already
+  // uploaded to Gold. This saves us some time to encode them and write them to disk.
+  function LoadKnownHashes(GM, hashes) {
+    log(`Loading ${hashes.length} hashes`);
+    console.time('load_hashes');
+    for (const hash of hashes.split('\n')) {
+      if (hash.length < 5) { // be sure not to add empty lines
+        continue;
+      }
+      GM.LoadKnownDigest(hash);
+    }
+    console.timeEnd('load_hashes');
+    log('hashes loaded');
+  }
+
+  const gmSkipList = new Set([
+    // gm names can be added here to skip, if failing.
+  ]);
+
+  async function RunGMs(GM) {
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = GM.GetWebGLContext(canvas, 2);
+    const grcontext = GM.MakeGrContext(ctx);
+    window._results = [];
+
+    const names = GM.ListGMs();
+    names.sort();
+    for (const name of names) {
+      if (gmSkipList.has(name)) {
+        continue;
+      }
+      log(`Starting GM ${name}`);
+      const pngAndMetadata = GM.RunGM(grcontext, name);
+      if (!pngAndMetadata || !pngAndMetadata.hash) {
+        console.debug('No output for ', name);
+        continue; // Was skipped
+      }
+      log(`    drew ${pngAndMetadata.hash}`);
+      window._results.push({
+        name: name,
+        digest: pngAndMetadata.hash,
+      });
+      if (pngAndMetadata.png) {
+        await postPNG(pngAndMetadata.hash, pngAndMetadata.png);
+      }
+      window._testsProgress++;
+    }
+    grcontext.delete();
+  }
+
+  async function postPNG(hash, data) {
+    attemptedPOSTs += 1;
+    await fetch('/write_png', {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Content-type': 'image/png',
+        'X-MD5-Hash': hash, // this will be used server side to create the name of the png.
+      }
+    }).then((resp) => {
+      if (resp.ok) {
+        successfulPOSTs += 1;
+      } else {
+        console.error('not ok response', resp);
+      }
+    }).catch((e) => {
+      console.error('Could not post PNG', e);
+    });
+  }
+
+  const testSkipList = new Set([
+    // These tests all crash https://bugs.chromium.org/p/skia/issues/detail?id=10869
+    'AsyncReadPixelsContextShutdown',
+    'BulkFillRectTest',
+    'BulkTextureRectTest',
+    'CharacterizationFBO0nessTest',
+    'ClearOp',
+    'CompressedBackendAllocationTest',
+    'CopySurface',
+    'DDLCompatibilityTest',
+    'DDLCreateCharacterizationFailures',
+    'DDLInvalidRecorder',
+    'DDLMakeRenderTargetTest',
+    'DDLMultipleDDLs',
+    'DDLNonTextureabilityTest',
+    'DDLOperatorEqTest',
+    'DDLSkSurfaceFlush',
+    'DDLSurfaceCharacterizationTest',
+    'DDLTextureFlagsTest',
+    'DDLWrapBackendTest',
+    'Data',
+    'DeferredProxyTest',
+    'DefferredProxyConversionTest',
+    'ES2BlendWithNoTexture',
+    'ExtendedSkColorTypeTests_gpu',
+    'FlushFinishedProcTest',
+    'FlushSubmittedProcTest',
+    'FullScreenClearWithLayers',
+    'GLTextureParameters',
+    'GPUMemorySize',
+    'GrClipStack_SWMask',
+    'GrContextDump',
+    'GrContextFactory_abandon',
+    'GrContextFactory_executorAndTaskGroup',
+    'GrContextFactory_sharedContexts',
+    'GrContext_abandonContext',
+    'GrContext_colorTypeSupportedAsSurface',
+    'GrContext_maxSurfaceSamplesForColorType',
+    'GrContext_oomed',
+    'GrDDLImage_MakeSubset',
+    'GrDefaultPathRendererTest',
+    'GrDrawCollapsedPath',
+    'GrMeshTest',
+    'GrPathKeys',
+    'GrPipelineDynamicStateTest',
+    'GrStyledShape',
+    'GrSurface',
+    'GrSurfaceRenderability',
+    'GrTestingBackendTextureUploadTest',
+    'GrTextBlobMoveAround',
+    'GrTextBlobScaleAnimation',
+    'GrUploadPixelsTests',
+    'HalfFloatAlphaTextureTest',
+    'HalfFloatRGBATextureTest',
+    'ImageAsyncReadPixels',
+    'ImageFilterBlurLargeImage_Gpu',
+    'ImageFilterCache_GPUBacked',
+    'ImageFilterCache_ImageBackedGPU',
+    'ImageFilterHugeBlur_Gpu',
+    'ImageIsOpaqueTest_Gpu',
+    'ImageNewShader_GPU',
+    'InitialTextureClear',
+    'MatrixColorFilter_TransparentBlack',
+    'OnFlushCallbackTest',
+    'OverbudgetFlush',
+    'OverdrawSurface_Gpu',
+    'PinnedImageTest',
+    'PreinstantiatedProxyConversionTest',
+    'PremulAlphaRoundTrip_Gpu',
+    'ProcessorCloneTest',
+    'ProcessorOptimizationValidationTest',
+    'ProcessorRefTest',
+    'Programs',
+    'PromiseImageNullFulfill',
+    'PromiseImageTest',
+    'PromiseImageTextureFullCache',
+    'PromiseImageTextureShutdown',
+    'ProxyRefTest',
+    'RGB565TextureTest',
+    'RGBA4444TextureTest',
+    'ReadOnlyTexture',
+    'ReadPixels_Texture',
+    'ReadWriteAlpha',
+    'RectangleTexture',
+    'RefCnt',
+    'RenderTargetContextTest',
+    'ReplaceSurfaceBackendTexture',
+    'ResourceAllocatorCurOpsTaskIndexTest',
+    'ResourceAllocatorOverBudgetTest',
+    'ResourceAllocatorStressTest',
+    'ResourceAllocatorTest',
+    'ResourceCacheCache',
+    'ResourceCacheStencilBuffers',
+    'ResourceMessagesAfterAbandon',
+    'SRGBReadWritePixels',
+    'SkRemoteGlyphCache_CacheMissReporting',
+    'SkRemoteGlyphCache_DrawTextAsDFT',
+    'SkRemoteGlyphCache_DrawTextAsPath',
+    'SkRemoteGlyphCache_DrawTextXY',
+    'SkRemoteGlyphCache_StrikeSerialization',
+    'SkRemoteGlyphCache_TypefaceWithNoPaths',
+    'SkRuntimeEffectThreaded',
+    'SkSLCross',
+    'SkScalerCacheMultiThread',
+    'SkTraceMemoryDump_ownedGLBuffer',
+    'SkTraceMemoryDump_ownedGLTexture',
+    'SkTraceMemoryDump_unownedGLRenderTarget',
+    'SkTraceMemoryDump_unownedGLTexture',
+    'SmallBoxBlurBug',
+    'SpecialImage_GPUDevice',
+    'SpecialImage_Gpu',
+    'SpecialSurface_Gpu1',
+    'SrcSrcOverBatchTest',
+    'Stream',
+    'StreamBuffer',
+    'StreamPeek',
+    'String_Threaded',
+    'SurfaceAttachStencil_Gpu',
+    'SurfaceBackendHandleAccessIDs_Gpu',
+    'SurfaceBackendSurfaceAccessCopyOnWrite_Gpu',
+    'SurfaceBudget',
+    'SurfaceCRBug263329_Gpu',
+    'SurfaceCanvasPeek_Gpu',
+    'SurfaceCopyOnWrite_Gpu',
+    'SurfaceNoCanvas_Gpu',
+    'SurfacePartialDraw_Gpu',
+    'SurfacepeekTexture_Gpu',
+    'SurfaceWrappedWithRelease_Gpu',
+    'SurfaceWriteableAfterSnapshotRelease_Gpu',
+    'TextBlobJaggedGlyph',
+    'TextBlobSmoothScroll',
+    'TextBlobStressAbnormal',
+    'TextBlobStressCache',
+    'TextureIdleProcCacheManipulationTest',
+    'TextureIdleProcFlushTest',
+    'TextureIdleProcRerefTest',
+    'TextureIdleProcTest',
+    'TextureIdleStateTest',
+    'TextureProxyTest',
+    'TextureStripAtlasManagerColorFilterTest',
+    'TextureStripAtlasManagerGradientTest',
+    'TriangulatingPathRendererTests',
+    'VertexAttributeCount',
+    'WrappedProxyTest',
+    'WritePixelsNonTextureMSAA_Gpu',
+    'WritePixelsNonTexture_Gpu',
+    'WritePixelsPendingIO',
+    'XfermodeImageFilterCroppedInput_Gpu',
+    'ZeroSizedProxyTest',
+    'skbug5221_GPU',
+
+    // These tests are failing
+    'ApplyGamma',
+    'BlurMaskBiggerThanDest',
+    'Codec_GifPreMap',
+    'Codec_AnimatedTransparentGif',
+    'FILEStreamWithOffset',
+    'Gif',
+    'RepeatedClippedBlurTest',
+    'SkTraceMemoryDump_ownedGLRenderTarget',
+    'SurfaceClear_Gpu',
+    'SurfaceSnapshotAlphaType_Gpu',
+    'TestGpuAllContexts',
+    'TestGpuRenderingContexts',
+    'TestMockContext',
+    'TextBlobAbnormal',
+    'TextBlobCache'
+  ]);
+
+  async function RunTests(GM) {
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = GM.GetWebGLContext(canvas, 2);
+    // This sets up the GL context for all tests.
+    const grcontext = GM.MakeGrContext(ctx);
+    if (!grcontext) {
+      window._error = 'Could not make GrContext for tests';
+      return;
+    }
+    // We run these tests in batchs so as not to lock up the main thread, which makes it easier
+    // to read the progress as well as making the page more responsive when debugging.
+    await new Promise((resolve, reject) => {
+      const names = GM.ListTests();
+      names.sort();
+      console.log(names);
+      let testIdx = -1;
+      const nextBatch = () => {
+        for (let i = 0; i < 10 && testIdx < names.length; i++) {
+          testIdx++;
+          const name = names[testIdx];
+          if (!name) {
+            testIdx = names.length;
+            break;
+          }
+          if (testSkipList.has(name)) {
+            continue;
+          }
+          log(`Running test ${name}`);
+          try {
+            const result = GM.RunTest(name);
+            log('    ' + result.result, result.msg || '');
+            if (result.result !== 'passed' && result.result !== 'skipped') {
+              window._failed.push(name);
+            }
+          } catch (e) {
+            log(`${name} crashed with ${e.toString()} ${e.stack}`);
+            window._error = e.toString();
+            reject();
+            return;
+          }
+          window._testsProgress++;
+        }
+        if (testIdx >= names.length) {
+          resolve();
+          return;
+        }
+        setTimeout(nextBatch);
+      };
+      setTimeout(nextBatch);
+    });
+
+    grcontext.delete();
+  }
+</script>
+</body>
+</html>

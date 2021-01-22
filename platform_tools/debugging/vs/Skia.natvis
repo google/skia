@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    This .natvis file allows natively viewing Skia types in any debugger that supports NatVis,
+    although the installation or usage instructions vary:
+
+    <<< Visual Studio >>>
+        https://docs.microsoft.com/en-us/visualstudio/debugger/create-custom-views-of-native-objects?view=vs-2019
+
+        Visualizer files can be placed in the project, but your best bet is to copy this file to
+        your 'Documents\Visual Studio YYYY\Visualizers' folder (where YYYY is 2017 or 2019).
+
+        If you use Visual Studio, there are graphical visualizers for SkBitmap and SkPixmap:
+        - Install the "Image Watch" extension to Visual Studio (created by Microsoft).
+        - Copy this file to the directory indicated above. (Visualizers can normally be placed in
+          the project, but the Image Watch extension requires them to be global.)
+        - While debugging, go to View -> Other Windows -> Image Watch
+          - SkBitmap and SkPixmap objects will be visible directly in the debugger.
+            Note that due to limitations, it does not visualize some more exotic color types
+            (565, 4444, 1010102, 888x).
+        - Documentation for the extension is available:
+          https://imagewatch.azurewebsites.net/ImageWatchHelp/ImageWatchHelp.htm
+
+    <<< Visual Studio Code >>>
+        https://code.visualstudio.com/docs/cpp/natvis
+
+        Visualizer files can be placed in a global directory, but the exact directory name depends
+        on the version of VS Code you're running, and the version of the CPP tools:
+        ~/.vscode(-insiders)/extensions/ms-vscode.cpptools-x.y.z/debugAdapters/vsdbg/bin/Visualizers
+
+        Instead, you can simply edit your launch.json debugger configuration file, and set the
+        "visualizerFile" property of any Skia launch targets to point at this file. For example:
+
+        {
+            "name": "DM",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/Debug/dm.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "visualizerFile": "${workspaceFolder}/platform_tools/debugging/vs/Skia.natvis"
+        },
+
+-->
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <UIVisualizer ServiceId="{A452AFEA-3DF6-46BB-9177-C0B08F318025}" Id="1"
+                MenuName="Add to Image Watch"/>
+
+  <!-- sk_sp -->
+  <Type Name="sk_sp&lt;*&gt;">
+    <DisplayString>{fPtr}</DisplayString>
+    <Expand>
+      <ExpandedItem>fPtr</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <!-- unique_ptr -->
+  <Type Name="std::unique_ptr&lt;*&gt;">
+    <DisplayString>{_Mypair._Myval2}</DisplayString>
+    <Expand>
+      <ExpandedItem>_Mypair._Myval2</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <!-- shared_ptr -->
+  <Type Name="std::shared_ptr&lt;*&gt;">
+    <DisplayString>{_Ptr}</DisplayString>
+    <Expand>
+      <ExpandedItem>_Ptr</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <!-- SkString -->
+  <Type Name="SkString">
+    <DisplayString>{&amp;fRec.fPtr->fBeginningOfData}</DisplayString>
+  </Type>
+
+  <!-- SkSL::StringFragment -->
+  <Type Name="SkSL::StringFragment">
+    <DisplayString>{fChars,[fLength]}</DisplayString>
+  </Type>
+
+  <!-- SkSL::SymbolTable::SymbolKey -->
+  <Type Name="SkSL::SymbolTable::SymbolKey">
+    <DisplayString>{fName}</DisplayString>
+  </Type>
+
+  <!-- SkAutoTArray -->
+  <Type Name="SkAutoTArray&lt;*&gt;">
+    <DisplayString>{{size = {fCount}}}</DisplayString>
+    <Expand>
+      <Item Name="[size]">fCount</Item>
+      <ArrayItems>
+        <Size>fCount</Size>
+        <ValuePointer>fArray._Mypair._Myval2</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <!-- SkTArray -->
+  <Type Name="SkTArray&lt;*&gt;">
+    <DisplayString>{{size = {fCount}}}</DisplayString>
+    <Expand>
+      <Item Name="[size]">fCount</Item>
+      <ArrayItems>
+        <Size>fCount</Size>
+        <ValuePointer>fItemArray</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <!-- SkTHashTable::Slot -->
+  <Type Name="SkTHashTable&lt;*,*,*&gt;::Slot">
+    <DisplayString Condition="hash">{val}</DisplayString>
+    <DisplayString Condition="!hash">Empty</DisplayString>
+    <Expand>
+      <ExpandedItem>val</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <!-- SkTHashMap -->
+  <Type Name="SkTHashMap&lt;*,*,*&gt;">
+    <DisplayString>{{size = {fTable.fCount}}}</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="iSlot" InitialValue="0"/>
+        <Size>fTable.fCount</Size>
+        <Loop>
+          <If Condition="fTable.fSlots.fArray._Mypair._Myval2[iSlot].hash != 0">
+            <Item Name="{fTable.fSlots.fArray._Mypair._Myval2[iSlot].val.key}">
+              fTable.fSlots.fArray._Mypair._Myval2[iSlot].val
+            </Item>
+          </If>
+          <Exec>iSlot++</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+
+  <!-- SkImageInfo -->
+  <Type Name="SkImageInfo">
+    <DisplayString>[{fDimensions.fWidth} x {fDimensions.fHeight}] {fColorInfo.fColorType,en} {fColorInfo.fAlphaType,en} {fColorInfo.fColorSpace,na}</DisplayString>
+  </Type>
+
+  <!-- SkBitmap -->
+  <Type Name="SkBitmap">
+    <UIVisualizer ServiceId="{A452AFEA-3DF6-46BB-9177-C0B08F318025}" Id="1" />
+  </Type>
+
+  <Type Name="SkBitmap">
+    <DisplayString>{fPixmap.fInfo}</DisplayString>
+    <Expand>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kAlpha_8_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_8888_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kBGRA_8888_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kGray_8_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_F16_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_F16Norm_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_F32_SkColorType">
+        <DisplayString>FLOAT32</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR8G8_unorm_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kA16_float_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16_float_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kA16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16B16A16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
+
+      <Item Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kAlpha_8_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_8888_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kBGRA_8888_SkColorType">
+        <DisplayString>BGRA</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kGray_8_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_F16_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_F16Norm_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kRGBA_F32_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR8G8_unorm_SkColorType">
+        <DisplayString>RG</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kA16_float_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16_float_SkColorType">
+        <DisplayString>RG</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kA16_unorm_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16_unorm_SkColorType">
+        <DisplayString>RG</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16B16A16_unorm_SkColorType">
+        <DisplayString>BGRA</DisplayString>
+      </Synthetic>
+
+      <Item Name="[width]">fPixmap.fInfo.fDimensions.fWidth</Item>
+      <Item Name="[height]">fPixmap.fInfo.fDimensions.fHeight</Item>
+      <Item Name="[data]">fPixmap.fPixels</Item>
+      <Item Name="[stride]">fPixmap.fRowBytes</Item>
+    </Expand>
+  </Type>
+
+  <!-- SkPixmap -->
+  <Type Name="SkPixmap">
+    <UIVisualizer ServiceId="{A452AFEA-3DF6-46BB-9177-C0B08F318025}" Id="1" />
+  </Type>
+
+  <Type Name="SkPixmap">
+    <DisplayString>{fInfo}</DisplayString>
+    <Expand>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kAlpha_8_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kRGBA_8888_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kBGRA_8888_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kGray_8_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kRGBA_F16_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kRGBA_F16Norm_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kRGBA_F32_SkColorType">
+        <DisplayString>FLOAT32</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kR8G8_unorm_SkColorType">
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kA16_float_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kR16G16_float_SkColorType">
+        <DisplayString>FLOAT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kA16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kR16G16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kR16G16B16A16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
+
+      <Item Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kAlpha_8_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kRGBA_8888_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kBGRA_8888_SkColorType">
+        <DisplayString>BGRA</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kGray_8_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kRGBA_F16_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kRGBA_F16Norm_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kRGBA_F32_SkColorType">
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR8G8_unorm_SkColorType">
+        <DisplayString>RG</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kA16_float_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR16G16_float_SkColorType">
+        <DisplayString>RG</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kA16_unorm_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR16G16_unorm_SkColorType">
+        <DisplayString>RG</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR16G16B16A16_unorm_SkColorType">
+        <DisplayString>BGRA</DisplayString>
+      </Synthetic>
+
+      <Item Name="[width]">fInfo.fDimensions.fWidth</Item>
+      <Item Name="[height]">fInfo.fDimensions.fHeight</Item>
+      <Item Name="[data]">fPixels</Item>
+      <Item Name="[stride]">fRowBytes</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

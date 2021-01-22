@@ -33,15 +33,14 @@ class RectsGM : public GM {
     enum {
         kLooperColorSentinel = 0x01020304
     };
-public:
-    RectsGM() {
+
+protected:
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFF000000);
         this->makePaints();
         this->makeMatrices();
         this->makeRects();
     }
-
-protected:
 
     SkString onShortName() override {
         return SkString("rects");
@@ -247,7 +246,7 @@ protected:
     }
 
     // position the current test on the canvas
-    static void position(SkCanvas* canvas, int testCount) {
+    static void Position(SkCanvas* canvas, int testCount) {
         canvas->translate(SK_Scalar1 * 100 * (testCount % 10) + SK_Scalar1 / 4,
                           SK_Scalar1 * 100 * (testCount / 10) + 3 * SK_Scalar1 / 4);
     }
@@ -260,7 +259,7 @@ protected:
         for (int i = 0; i < fPaints.count(); ++i) {
             for (int j = 0; j < fRects.count(); ++j, ++testCount) {
                 canvas->save();
-                this->position(canvas, testCount);
+                Position(canvas, testCount);
                 SkPaint p = fPaints[i];
                 if (p.getColor() == kLooperColorSentinel) {
                     p.setColor(SK_ColorWHITE);
@@ -282,7 +281,7 @@ protected:
         for (int i = 0; i < fMatrices.count(); ++i) {
             for (int j = 0; j < fRects.count(); ++j, ++testCount) {
                 canvas->save();
-                this->position(canvas, testCount);
+                Position(canvas, testCount);
                 canvas->concat(fMatrices[i]);
                 canvas->drawRect(fRects[j], paint);
                 canvas->restore();
@@ -295,11 +294,11 @@ private:
     SkTArray<SkMatrix> fMatrices;
     SkTArray<SkRect>   fRects;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new RectsGM; )
 
-}
+}  // namespace skiagm

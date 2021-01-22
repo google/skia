@@ -71,7 +71,10 @@ def main(basedir, cmd):
       if os.path.exists(path):
         if not addr or not addr.startswith('0x'):
           addr = addr2
-        sym = subprocess.check_output(['addr2line', '-Cfpe', path, addr])
+        try:
+          sym = subprocess.check_output(['addr2line', '-Cfpe', path, addr])
+        except subprocess.CalledProcessError:
+          sym = ''
         sym = sym.strip()
         # If addr2line doesn't return anything useful, we don't replace the
         # original address, so the human can see it.

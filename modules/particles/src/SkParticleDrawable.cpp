@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/private/SkTPin.h"
 #include "modules/particles/include/SkParticleData.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkAutoMalloc.h"
@@ -78,7 +79,7 @@ public:
 
     void draw(SkCanvas* canvas, const SkParticles& particles, int count,
               const SkPaint& paint) override {
-        int r = SkTMax(fRadius, 1);
+        int r = std::max(fRadius, 1);
         SkPoint center = { SkIntToScalar(r), SkIntToScalar(r) };
         DrawAtlasArrays arrays(particles, count, center);
         for (int i = 0; i < count; ++i) {
@@ -89,7 +90,7 @@ public:
     }
 
     void prepare(const skresources::ResourceProvider*) override {
-        int r = SkTMax(fRadius, 1);
+        int r = std::max(fRadius, 1);
         if (!fImage || fImage->width() != 2 * r) {
             fImage = make_circle_image(r);
         }
@@ -119,8 +120,8 @@ public:
 
     void draw(SkCanvas* canvas, const SkParticles& particles, int count,
               const SkPaint& paint) override {
-        int cols = SkTMax(fCols, 1),
-            rows = SkTMax(fRows, 1);
+        int cols = std::max(fCols, 1),
+            rows = std::max(fRows, 1);
         SkRect baseRect = SkRect::MakeWH(static_cast<float>(fImage->width()) / cols,
                                          static_cast<float>(fImage->height()) / rows);
         SkPoint center = { baseRect.width() * 0.5f, baseRect.height() * 0.5f };

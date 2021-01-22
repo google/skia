@@ -89,26 +89,20 @@ protected:
      *  path on the stack to hold the representation of the oval.
      */
     void drawPath(const SkPath&, const SkPaint&, bool pathIsMutable) override;
-    void drawSprite(const SkBitmap&, int x, int y, const SkPaint&) override;
 
-    /**
-     *  The default impl. will create a bitmap-shader from the bitmap,
-     *  and call drawRect with it.
-     */
-    void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&,
-                        const SkPaint&, SkCanvas::SrcRectConstraint) override;
+    void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
+                       const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
-    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
-                      const SkPaint& paint) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
                    SkBlendMode, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                     SkImage*, const SkMatrix&) override;
+    void drawDevice(SkBaseDevice*, const SkPaint&) override;
+    void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkPaint&) override;
+
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
@@ -126,19 +120,22 @@ protected:
     void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
     void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
     void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
+    void onClipShader(sk_sp<SkShader>) override;
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
+    void onReplaceClip(const SkIRect& rect) override;
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     bool onClipIsAA() const override;
+    bool onClipIsWideOpen() const override;
     void onAsRgnClip(SkRegion*) const override;
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
+    SkIRect onDevClipBounds() const override;
 
-    virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
-                            const SkPaint&);
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                    const SkPaint&);
 
 private:
     friend class SkCanvas;
-    friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDrawTiler;
@@ -164,7 +161,7 @@ private:
     SkGlyphRunListPainter fGlyphPainter;
 
 
-    typedef SkBaseDevice INHERITED;
+    using INHERITED = SkBaseDevice;
 };
 
 class SkBitmapDeviceFilteredSurfaceProps {

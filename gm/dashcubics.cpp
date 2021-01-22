@@ -31,7 +31,7 @@ static void flower(SkCanvas* canvas, const SkPath& path, SkScalar intervals[2],
                    SkPaint::Join join) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeJoin(join);
     paint.setStrokeWidth(42);
     canvas->drawPath(path, paint);
@@ -74,7 +74,9 @@ DEF_SIMPLE_GM(dashcubics, canvas, 865, 750) {
 
 class TrimGM : public skiagm::GM {
 public:
-    TrimGM() {
+    TrimGM() {}
+
+    void onOnceBeforeDraw() override {
         SkAssertResult(SkParsePath::FromSVGString(
             "M   0,100 C  10, 50 190, 50 200,100"
             "M 200,100 C 210,150 390,150 400,100"
@@ -119,7 +121,7 @@ protected:
 
         SkPaint hairlinePaint;
         hairlinePaint.setAntiAlias(true);
-        hairlinePaint.setStyle(SkPaint::kStroke_Style);
+        hairlinePaint.setStroke(true);
         hairlinePaint.setStrokeCap(SkPaint::kRound_Cap);
         hairlinePaint.setStrokeWidth(2);
         SkPaint normalPaint = hairlinePaint;
@@ -171,7 +173,7 @@ private:
     SkTArray<SkPath> fPaths;
     SkScalar         fOffset = 0;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM(return new TrimGM;)
 

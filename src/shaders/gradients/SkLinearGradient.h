@@ -29,6 +29,8 @@ protected:
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const final;
 
+    skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
+                         skvm::Coord coord, skvm::I32* mask) const final;
 
 private:
     SK_FLATTENABLE_HOOKS(SkLinearGradient)
@@ -36,7 +38,7 @@ private:
     class LinearGradient4fContext;
 
     friend class SkGradientShader;
-    typedef SkGradientShaderBase INHERITED;
+    using INHERITED = SkGradientShaderBase;
     const SkPoint fStart;
     const SkPoint fEnd;
 };

@@ -28,14 +28,18 @@ public:
     MemoryCache(const MemoryCache&) = delete;
     MemoryCache& operator=(const MemoryCache&) = delete;
     void reset() {
-        fCacheMissCnt = 0;
+        this->resetCacheStats();
         fMap.clear();
     }
 
     sk_sp<SkData> load(const SkData& key) override;
     void store(const SkData& key, const SkData& data) override;
     int numCacheMisses() const { return fCacheMissCnt; }
-    void resetNumCacheMisses() { fCacheMissCnt = 0; }
+    int numCacheStores() const { return fCacheStoreCnt; }
+    void resetCacheStats() {
+        fCacheMissCnt = 0;
+        fCacheStoreCnt = 0;
+    }
 
     void writeShadersToDisk(const char* path, GrBackendApi backend);
 
@@ -80,6 +84,7 @@ private:
     };
 
     int fCacheMissCnt = 0;
+    int fCacheStoreCnt = 0;
     std::unordered_map<Key, Value, Hash> fMap;
 };
 

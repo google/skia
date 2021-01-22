@@ -24,7 +24,7 @@ sk_sp<GrVkTransferBuffer> GrVkTransferBuffer::Make(GrVkGpu* gpu, size_t size,
 
     GrVkTransferBuffer* buffer = new GrVkTransferBuffer(gpu, desc, bufferResource);
     if (!buffer) {
-        bufferResource->unref(gpu);
+        bufferResource->unref();
     }
     return sk_sp<GrVkTransferBuffer>(buffer);
 }
@@ -43,12 +43,13 @@ void GrVkTransferBuffer::onRelease() {
     if (!this->wasDestroyed()) {
         this->vkRelease(this->getVkGpu());
     }
-
     INHERITED::onRelease();
 }
 
 void GrVkTransferBuffer::onAbandon() {
-    this->vkAbandon();
+    if (!this->wasDestroyed()) {
+        this->vkRelease(this->getVkGpu());
+    }
     INHERITED::onAbandon();
 }
 

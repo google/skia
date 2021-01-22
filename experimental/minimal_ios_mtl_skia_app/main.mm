@@ -6,7 +6,7 @@
 
 // Much of this code is copied from the default application created by XCode.
 
-#include "experimental/skottie_ios/SkMetalViewBridge.h"
+#include "tools/skottie_ios_app/SkMetalViewBridge.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
@@ -14,8 +14,7 @@
 #include "include/core/SkTime.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 
 #import <Metal/Metal.h>
@@ -43,7 +42,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 ////////////////////////////////////////////////////////////////////////////////
 
 @interface AppViewDelegate : NSObject <MTKViewDelegate>
-@property (assign, nonatomic) GrContext* grContext;  // non-owning pointer.
+@property (assign, nonatomic) GrDirectContext* grContext;  // non-owning pointer.
 @property (assign, nonatomic) id<MTLCommandQueue> metalQueue;
 @end
 
@@ -69,7 +68,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     draw_example(surface.get(), fPaint, rotation);
 
     // Must flush *and* present for this to work!
-    surface->flush();
+    surface->flushAndSubmit();
     surface = nullptr;
 
     id<MTLCommandBuffer> commandBuffer = [[self metalQueue] commandBuffer];
@@ -90,7 +89,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 @end
 
 @implementation AppViewController {
-    sk_sp<GrContext> fGrContext;
+    GrContextHolder fGrContext;
 }
 
 - (void)loadView {
@@ -102,8 +101,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     if (!fGrContext) {
         [self setMetalDevice:MTLCreateSystemDefaultDevice()];
         [self setMetalQueue:[[self metalDevice] newCommandQueue]];
-        GrContextOptions grContextOptions;  // set different options here.
-        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue], grContextOptions);
+        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue]);
     }
     if (![self view] || ![self metalDevice]) {
         NSLog(@"Metal is not supported on this device");

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
 #include "src/pathops/SkReduceOrder.h"
 
@@ -17,13 +19,15 @@ void SkOpEdgeBuilder::init() {
 }
 
 // very tiny points cause numerical instability : don't allow them
-static void force_small_to_zero(SkPoint* pt) {
-    if (SkScalarAbs(pt->fX) < FLT_EPSILON_ORDERABLE_ERR) {
-        pt->fX = 0;
+static SkPoint force_small_to_zero(const SkPoint& pt) {
+    SkPoint ret = pt;
+    if (SkScalarAbs(ret.fX) < FLT_EPSILON_ORDERABLE_ERR) {
+        ret.fX = 0;
     }
-    if (SkScalarAbs(pt->fY) < FLT_EPSILON_ORDERABLE_ERR) {
-        pt->fY = 0;
+    if (SkScalarAbs(ret.fY) < FLT_EPSILON_ORDERABLE_ERR) {
+        ret.fY = 0;
     }
+    return ret;
 }
 
 static bool can_add_curve(SkPath::Verb verb, SkPoint* curve) {
@@ -31,7 +35,7 @@ static bool can_add_curve(SkPath::Verb verb, SkPoint* curve) {
         return false;
     }
     for (int index = 0; index <= SkPathOpsVerbToPoints(verb); ++index) {
-        force_small_to_zero(&curve[index]);
+        curve[index] = force_small_to_zero(curve[index]);
     }
     return SkPath::kLine_Verb != verb || !SkDPoint::ApproximatelyEqual(curve[0], curve[1]);
 }
@@ -81,65 +85,55 @@ int SkOpEdgeBuilder::preFetch() {
         fUnparseable = true;
         return 0;
     }
-    SkPath::RawIter iter(*fPath);
     SkPoint curveStart;
     SkPoint curve[4];
-    SkPoint pts[4];
-    SkPath::Verb verb;
     bool lastCurve = false;
-    do {
-        verb = iter.next(pts);
+    for (auto [pathVerb, pts, w] : SkPathPriv::Iterate(*fPath)) {
+        auto verb = static_cast<SkPath::Verb>(pathVerb);
         switch (verb) {
             case SkPath::kMove_Verb:
                 if (!fAllowOpenContours && lastCurve) {
                     closeContour(curve[0], curveStart);
                 }
                 *fPathVerbs.append() = verb;
-                force_small_to_zero(&pts[0]);
-                *fPathPts.append() = pts[0];
-                curveStart = curve[0] = pts[0];
+                curve[0] = force_small_to_zero(pts[0]);
+                *fPathPts.append() = curve[0];
+                curveStart = curve[0];
                 lastCurve = false;
                 continue;
             case SkPath::kLine_Verb:
-                force_small_to_zero(&pts[1]);
-                if (SkDPoint::ApproximatelyEqual(curve[0], pts[1])) {
+                curve[1] = force_small_to_zero(pts[1]);
+                if (SkDPoint::ApproximatelyEqual(curve[0], curve[1])) {
                     uint8_t lastVerb = fPathVerbs.top();
                     if (lastVerb != SkPath::kLine_Verb && lastVerb != SkPath::kMove_Verb) {
-                        fPathPts.top() = curve[0] = pts[1];
+                        fPathPts.top() = curve[0] = curve[1];
                     }
                     continue;  // skip degenerate points
                 }
                 break;
             case SkPath::kQuad_Verb:
-                force_small_to_zero(&pts[1]);
-                force_small_to_zero(&pts[2]);
-                curve[1] = pts[1];
-                curve[2] = pts[2];
-                verb = SkReduceOrder::Quad(curve, pts);
+                curve[1] = force_small_to_zero(pts[1]);
+                curve[2] = force_small_to_zero(pts[2]);
+                verb = SkReduceOrder::Quad(curve, curve);
                 if (verb == SkPath::kMove_Verb) {
                     continue;  // skip degenerate points
                 }
                 break;
             case SkPath::kConic_Verb:
-                force_small_to_zero(&pts[1]);
-                force_small_to_zero(&pts[2]);
-                curve[1] = pts[1];
-                curve[2] = pts[2];
-                verb = SkReduceOrder::Quad(curve, pts);
-                if (SkPath::kQuad_Verb == verb && 1 != iter.conicWeight()) {
+                curve[1] = force_small_to_zero(pts[1]);
+                curve[2] = force_small_to_zero(pts[2]);
+                verb = SkReduceOrder::Quad(curve, curve);
+                if (SkPath::kQuad_Verb == verb && 1 != *w) {
                   verb = SkPath::kConic_Verb;
                 } else if (verb == SkPath::kMove_Verb) {
                     continue;  // skip degenerate points
                 }
                 break;
             case SkPath::kCubic_Verb:
-                force_small_to_zero(&pts[1]);
-                force_small_to_zero(&pts[2]);
-                force_small_to_zero(&pts[3]);
-                curve[1] = pts[1];
-                curve[2] = pts[2];
-                curve[3] = pts[3];
-                verb = SkReduceOrder::Cubic(curve, pts);
+                curve[1] = force_small_to_zero(pts[1]);
+                curve[2] = force_small_to_zero(pts[2]);
+                curve[3] = force_small_to_zero(pts[3]);
+                verb = SkReduceOrder::Cubic(curve, curve);
                 if (verb == SkPath::kMove_Verb) {
                     continue;  // skip degenerate points
                 }
@@ -153,13 +147,13 @@ int SkOpEdgeBuilder::preFetch() {
         }
         *fPathVerbs.append() = verb;
         int ptCount = SkPathOpsVerbToPoints(verb);
-        fPathPts.append(ptCount, &pts[1]);
+        fPathPts.append(ptCount, &curve[1]);
         if (verb == SkPath::kConic_Verb) {
-            *fWeights.append() = iter.conicWeight();
+            *fWeights.append() = *w;
         }
-        curve[0] = pts[ptCount];
+        curve[0] = curve[ptCount];
         lastCurve = true;
-    } while (verb != SkPath::kDone_Verb);
+    }
     if (!fAllowOpenContours && lastCurve) {
         closeContour(curve[0], curveStart);
     }
@@ -218,7 +212,7 @@ bool SkOpEdgeBuilder::walk() {
                             return false;
                         }
                         for (unsigned index = 0; index < SK_ARRAY_COUNT(pair); ++index) {
-                            force_small_to_zero(&pair[index]);
+                            pair[index] = force_small_to_zero(pair[index]);
                         }
                         SkPoint cStorage[2][2];
                         SkPath::Verb v1 = SkReduceOrder::Quad(&pair[0], cStorage[0]);
@@ -284,7 +278,7 @@ bool SkOpEdgeBuilder::walk() {
                         bool fCanAdd;
                     } splits[4];
                     SkASSERT(SK_ARRAY_COUNT(splits) == SK_ARRAY_COUNT(splitT) + 1);
-                    SkTQSort(splitT, &splitT[breaks - 1]);
+                    SkTQSort(splitT, splitT + breaks);
                     for (int index = 0; index <= breaks; ++index) {
                         Splitsville* split = &splits[index];
                         split->fT[0] = index ? splitT[index - 1] : 0;
@@ -294,7 +288,7 @@ bool SkOpEdgeBuilder::walk() {
                             return false;
                         }
                         split->fVerb = SkReduceOrder::Cubic(split->fPts, split->fReduced);
-                        SkPoint* curve = SkPath::kCubic_Verb == verb
+                        SkPoint* curve = SkPath::kCubic_Verb == split->fVerb
                                 ? split->fPts : split->fReduced;
                         split->fCanAdd = can_add_curve(split->fVerb, curve);
                     }
@@ -312,7 +306,7 @@ bool SkOpEdgeBuilder::walk() {
                             split->fPts[0] = splits[prior].fPts[0];
                         }
                         int next = index;
-                        int breakLimit = SkTMin(breaks, (int) SK_ARRAY_COUNT(splits) - 1);
+                        int breakLimit = std::min(breaks, (int) SK_ARRAY_COUNT(splits) - 1);
                         while (next < breakLimit && !splits[next + 1].fCanAdd) {
                             ++next;
                         }

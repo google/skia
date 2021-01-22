@@ -7,9 +7,11 @@
 
 #include "src/sksl/SkSLOutputStream.h"
 
+#include <memory>
+
 namespace SkSL {
 
-void OutputStream::writeString(String s) {
+void OutputStream::writeString(const String& s) {
     this->write(s.c_str(), s.size());
 }
 
@@ -22,9 +24,17 @@ void OutputStream::printf(const char format[], ...) {
 
 void OutputStream::appendVAList(const char format[], va_list args) {
     char buffer[kBufferSize];
+    va_list copy;
+    va_copy(copy, args);
     int length = vsnprintf(buffer, kBufferSize, format, args);
-    SkASSERT(length >= 0 && length < (int) kBufferSize);
-    this->write(buffer, length);
+    if (length > (int) kBufferSize) {
+        std::unique_ptr<char[]> bigBuffer(new char[length + 1]);
+        vsnprintf(bigBuffer.get(), length + 1, format, copy);
+        this->write(bigBuffer.get(), length);
+    } else {
+        this->write(buffer, length);
+    }
+    va_end(copy);
 }
 
-}
+}  // namespace SkSL

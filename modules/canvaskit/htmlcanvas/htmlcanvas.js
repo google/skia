@@ -10,7 +10,7 @@ function HTMLCanvas(skSurface) {
   this._surface = skSurface;
   this._context = new CanvasRenderingContext2D(skSurface.getCanvas());
   this._toCleanup = [];
-  this._fontmgr = CanvasKit.SkFontMgr.RefDefault();
+  this._fontmgr = CanvasKit.FontMgr.RefDefault();
 
   // Data is either an ArrayBuffer, a TypedArray, or a Node Buffer
   this.decodeImage = function(data) {
@@ -25,7 +25,7 @@ function HTMLCanvas(skSurface) {
   this.loadFont = function(buffer, descriptors) {
     var newFont = this._fontmgr.MakeTypefaceFromData(buffer);
     if (!newFont) {
-      SkDebug('font could not be processed', descriptors);
+      Debug('font could not be processed', descriptors);
       return null;
     }
     this._toCleanup.push(newFont);
@@ -53,7 +53,7 @@ function HTMLCanvas(skSurface) {
 
     var img = this._surface.makeImageSnapshot();
     if (!img) {
-      SkDebug('no snapshot');
+      Debug('no snapshot');
       return;
     }
     var codec = codec || 'image/png';
@@ -64,10 +64,10 @@ function HTMLCanvas(skSurface) {
     var quality = quality || 0.92;
     var skimg = img.encodeToData(format, quality);
     if (!skimg) {
-      SkDebug('encoding failure');
+      Debug('encoding failure');
       return
     }
-    var imgBytes = CanvasKit.getSkDataBytes(skimg);
+    var imgBytes = CanvasKit.getDataBytes(skimg);
     return 'data:' + codec + ';base64,' + toBase64String(imgBytes);
   }
 

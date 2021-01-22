@@ -210,12 +210,12 @@ static bool update_edge(SkEdge* edge, int last_y) {
 }
 
 // Unexpected conditions for which we need to return
-#define ASSERT_RETURN(cond)     \
-    do {                        \
-        if (!(cond)) {          \
-            SkASSERT(false);    \
-            return;             \
-        }                       \
+#define ASSERT_RETURN(cond)                    \
+    do {                                       \
+        if (!(cond)) {                         \
+            SkDEBUGFAILF("assert(%s)", #cond); \
+            return;                            \
+        }                                      \
     } while (0)
 
 // Needs Y to only change once (looser than convex in X)
@@ -228,15 +228,15 @@ static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y,
 
     // our edge choppers for curves can result in the initial edges
     // not lining up, so we take the max.
-    int local_top = SkMax32(leftE->fFirstY, riteE->fFirstY);
+    int local_top = std::max(leftE->fFirstY, riteE->fFirstY);
     ASSERT_RETURN(local_top >= start_y);
 
     while (local_top < stop_y) {
         SkASSERT(leftE->fFirstY <= stop_y);
         SkASSERT(riteE->fFirstY <= stop_y);
 
-        int local_bot = SkMin32(leftE->fLastY, riteE->fLastY);
-        local_bot = SkMin32(local_bot, stop_y - 1);
+        int local_bot = std::min(leftE->fLastY, riteE->fLastY);
+        local_bot = std::min(local_bot, stop_y - 1);
         ASSERT_RETURN(local_top <= local_bot);
 
         SkFixed left = leftE->fX;
@@ -301,7 +301,7 @@ static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// this guy overrides blitH, and will call its proxy blitter with the inverse
+// this overrides blitH, and will call its proxy blitter with the inverse
 // of the spans it is given (clipped to the left/right of the cliprect)
 //
 // used to implement inverse filltypes on paths
@@ -379,7 +379,7 @@ static bool operator<(const SkEdge& a, const SkEdge& b) {
 }
 
 static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
-    SkTQSort(list, list + count - 1);
+    SkTQSort(list, list + count);
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; i++) {
@@ -470,7 +470,7 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     if (path.isConvex() && (nullptr == proc) && count >= 2) {
         walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
-        walk_edges(&headEdge, path.getNewFillType(), blitter, start_y, stop_y, proc,
+        walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
                    shiftedClip.right());
     }
 }

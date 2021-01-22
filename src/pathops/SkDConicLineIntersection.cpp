@@ -60,7 +60,7 @@ public:
 
 #ifdef SK_DEBUG
     static bool close_to(double a, double b, const double c[3]) {
-        double max = SkTMax(-SkTMin(SkTMin(c[0], c[1]), c[2]), SkTMax(SkTMax(c[0], c[1]), c[2]));
+        double max = std::max(-std::min(std::min(c[0], c[1]), c[2]), std::max(std::max(c[0], c[1]), c[2]));
         return approximately_zero_when_compared_to(a - b, max);
     }
 #endif

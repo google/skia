@@ -70,4 +70,4 @@ DEF_SIMPLE_GM(stroke_rect_shader, canvas, 690, 300) {
     }
 }
 
-}
+}  // namespace skiagm

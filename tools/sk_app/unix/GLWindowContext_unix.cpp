@@ -45,7 +45,7 @@ private:
     XVisualInfo* fVisualInfo;
     GLXContext   fGLContext;
 
-    typedef GLWindowContext INHERITED;
+    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const DisplayParams& params)
@@ -145,7 +145,7 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
 
     glXGetConfig(fDisplay, fVisualInfo, GLX_STENCIL_SIZE, &fStencilBits);
     glXGetConfig(fDisplay, fVisualInfo, GLX_SAMPLES_ARB, &fSampleCount);
-    fSampleCount = SkTMax(fSampleCount, 1);
+    fSampleCount = std::max(fSampleCount, 1);
 
     XWindow root;
     int x, y;

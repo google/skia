@@ -42,7 +42,7 @@ namespace SkPDFGraphicState {
                                                 bool invert,
                                                 SkPDFSMaskMode sMaskMode,
                                                 SkPDFDocument* doc);
-}
+}  // namespace SkPDFGraphicState
 
 SK_BEGIN_REQUIRE_DENSE
 struct SkPDFStrokeGraphicState {
