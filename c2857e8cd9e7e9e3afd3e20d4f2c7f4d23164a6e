@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bff6aed8_71e15a68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-22T18:49:43Z",
+      "side": 1,
+      "message": "Done.\nI would factor out more but the GPU needs to do a readback from the surface, and with CPU it\u0027s just automatically there.",
+      "parentUuid": "86106cf0_45846ccd",
+      "revId": "c2857e8cd9e7e9e3afd3e20d4f2c7f4d23164a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa3b8b08_8fe9bcb8",
