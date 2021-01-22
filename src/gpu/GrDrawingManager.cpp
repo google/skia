@@ -813,23 +813,24 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
 bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
                                          SkIRect srcRect,
                                          sk_sp<GrSurfaceProxy> dst,
-                                         SkIPoint dstPoint) {
+                                         SkIPoint dstPoint,
+                                         GrSurfaceOrigin origin) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     this->closeActiveOpsTask();
-    const GrCaps& caps = *fContext->priv().caps();
 
     GrRenderTask* task = this->appendTask(GrCopyRenderTask::Make(this,
                                                                  src,
                                                                  srcRect,
                                                                  std::move(dst),
                                                                  dstPoint,
-                                                                 &caps));
+                                                                 origin));
     if (!task) {
         return false;
     }
 
+    const GrCaps& caps = *fContext->priv().caps();
     // We always say GrMipmapped::kNo here since we are always just copying from the base layer to
     // another base layer. We don't need to make sure the whole mip map chain is valid.
     task->addDependency(this, src.get(), GrMipmapped::kNo, GrTextureResolveManager(this), caps);
