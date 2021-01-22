@@ -1,36 +1,165 @@
-void test_half() {
-    sk_FragColor = half4(half2(1), half2(2, 3)) + 5;
-    sk_FragColor = half4(8, half3(10)) - 1;
-    sk_FragColor = half4(half2(8), half2(9)) + 1;
-    sk_FragColor.xyz = half3(2) * 3;
-    sk_FragColor.xy = half2(12) / 4;
-    sk_FragColor.x = (half4(12) / 2).y;
-    sk_FragColor = 5 + half4(half2(1), half2(2, 3));
-    sk_FragColor = 1 - half4(8, half3(10));
-    sk_FragColor = 1 + half4(half2(8), half2(9));
-    sk_FragColor.xyz = 3 * half3(2);
-    sk_FragColor.xy = 4 / half2(0.5);
-    sk_FragColor = 20 / half4(10, 20, 40, 80);
+bool test_half() {
+    bool ok = true;
+
+    // Vector op scalar
+    half4 x = half4(half2(1), half2(2, 3)) + 5;
+    ok = ok && (x == half4(6, 6, 7, 8));
+    x = half4(8, half3(10)) - 1;
+    ok = ok && (x == half4(7, 9, 9, 9));
+    x = half4(half2(8), half2(9)) + 1;
+    ok = ok && (x == half4(9, 9, 10, 10));
+    x.xyz = half3(2) * 3;
+    ok = ok && (x == half4(6, 6, 6, 10));
+    x.xy = half2(12) / 4;
+    ok = ok && (x == half4(3, 3, 6, 10));
+
+    // (Vector op scalar).swizzle
+    x = (half4(12) / 2).yxwz;
+    ok = ok && (x == half4(6));
+
+    // Scalar op vector
+    x = 5 + half4(half2(1), half2(2, 3));
+    ok = ok && (x == half4(6, 6, 7, 8));
+    x = 1 - half4(8, half3(10));
+    ok = ok && (x == half4(-7, -9, -9, -9));
+    x = 1 + half4(half2(8), half2(9));
+    ok = ok && (x == half4(9, 9, 10, 10));
+    x.xyz = 3 * half3(2);
+    ok = ok && (x == half4(6, 6, 6, 10));
+    x.xy = 4 / half2(0.5);
+    ok = ok && (x == half4(8, 8, 6, 10));
+    x = 20 / half4(10, 20, 40, 80);
+    ok = ok && (x == half4(2, 1, 0.5, 0.25));
+
+    // (Scalar op vector).swizzle
+    x = (12 / half4(2)).yxwz;
+    ok = ok && (x == half4(6));
+
+    // Vector op unknown scalar
+    half  unknown = half(sqrt(2));
+    x = half4(0) + unknown;
+    ok = ok && (x == half4(unknown));
+    x = half4(0) * unknown;
+    ok = ok && (x == half4(0));
+    x = half4(0) / unknown;
+    ok = ok && (x == half4(0));
+    x = half4(1) * unknown;
+    ok = ok && (x == half4(unknown));
+
+    // Unknown scalar op vector
+    x = unknown * half4(1);
+    ok = ok && (x == half4(unknown));
+    x = unknown + half4(0);
+    ok = ok && (x == half4(unknown));
+    x = unknown - half4(0);
+    ok = ok && (x == half4(unknown));
+    x = unknown / half4(1);
+    ok = ok && (x == half4(unknown));
+
+    // Scalar op unknown vector
+    x = 0 + half4(unknown);
+    ok = ok && (x == half4(unknown));
+    x = 0 * half4(unknown);
+    ok = ok && (x == half4(0));
+    x = 0 / half4(unknown);
+    ok = ok && (x == half4(0));
+    x = 1 * half4(unknown);
+    ok = ok && (x == half4(unknown));
+
+    // Unknown vector op scalar
+    x = half4(unknown) + 0;
+    ok = ok && (x == half4(unknown));
+    x = half4(unknown) * 0;
+    ok = ok && (x == half4(0));
+    x = half4(unknown) * 1;
+    ok = ok && (x == half4(0));
+    x = half4(unknown) - 0;
+    ok = ok && (x == half4(unknown));
+
+    return ok;
 }
 
-void test_int() {
-    int4 result;
-    result = int4(int2(1), int2(2, 3)) + 5;
-    result = int4(8, int3(10)) - 1;
-    result = int4(int2(8), int2(9)) + 1;
-    result.xyz = int3(2) * 3;
-    result.xy = int2(12) / 4;
-    result.x = (int4(12) / 2).y;
-    result = 5 + int4(int2(1), int2(2, 3));
-    result = 1 - int4(8, int3(10));
-    result = 1 + int4(int2(8), int2(9));
-    result.xyz = 3 * int3(2);
-    result.xy = 4 / int2(4);
-    result.xyz = 20 / int3(10, 20, 40);
-    sk_FragColor = half4(result);
+bool test_int() {
+    bool ok = true;
+
+    // Vector op scalar
+    int4 x = int4(int2(1), int2(2, 3)) + 5;
+    ok = ok && (x == int4(6, 6, 7, 8));
+    x = int4(8, int3(10)) - 1;
+    ok = ok && (x == int4(7, 9, 9, 9));
+    x = int4(int2(8), int2(9)) + 1;
+    ok = ok && (x == int4(9, 9, 10, 10));
+    x.xyz = int3(2) * 3;
+    ok = ok && (x == int4(6, 6, 6, 10));
+    x.xy = int2(12) / 4;
+    ok = ok && (x == int4(3, 3, 6, 10));
+
+    // (Vector op scalar).swizzle
+    x = (int4(12) / 2).yxwz;
+    ok = ok && (x == int4(6));
+
+    // Scalar op vector
+    x = 5 + int4(int2(1), int2(2, 3));
+    ok = ok && (x == int4(6, 6, 7, 8));
+    x = 1 - int4(8, int3(10));
+    ok = ok && (x == int4(-7, -9, -9, -9));
+    x = 1 + int4(int2(8), int2(9));
+    ok = ok && (x == int4(9, 9, 10, 10));
+    x.xyz = 3 * int3(2);
+    ok = ok && (x == int4(6, 6, 6, 10));
+    x.xy = 16 / int2(2);
+    ok = ok && (x == int4(8, 8, 6, 10));
+    x = 2000 / int4(10, 20, 40, 80);
+    ok = ok && (x == int4(200, 100, 50, 25));
+
+    // (Scalar op vector).swizzle
+    x = (12 / int4(2)).yxwz;
+    ok = ok && (x == int4(6));
+
+    // Vector op unknown scalar
+    int  unknown = int(sqrt(2));
+    x = int4(0) + unknown;
+    ok = ok && (x == int4(unknown));
+    x = int4(0) * unknown;
+    ok = ok && (x == int4(0));
+    x = int4(0) / unknown;
+    ok = ok && (x == int4(0));
+    x = int4(1) * unknown;
+    ok = ok && (x == int4(unknown));
+
+    // Unknown scalar op vector
+    x = unknown * int4(1);
+    ok = ok && (x == int4(unknown));
+    x = unknown + int4(0);
+    ok = ok && (x == int4(unknown));
+    x = unknown - int4(0);
+    ok = ok && (x == int4(unknown));
+    x = unknown / int4(1);
+    ok = ok && (x == int4(unknown));
+
+    // Scalar op unknown vector
+    x = 0 + int4(unknown);
+    ok = ok && (x == int4(unknown));
+    x = 0 * int4(unknown);
+    ok = ok && (x == int4(0));
+    x = 0 / int4(unknown);
+    ok = ok && (x == int4(0));
+    x = 1 * int4(unknown);
+    ok = ok && (x == int4(unknown));
+
+    // Unknown vector op scalar
+    x = int4(unknown) + 0;
+    ok = ok && (x == int4(unknown));
+    x = int4(unknown) * 0;
+    ok = ok && (x == int4(0));
+    x = int4(unknown) * 1;
+    ok = ok && (x == int4(0));
+    x = int4(unknown) - 0;
+    ok = ok && (x == int4(unknown));
+
+    return ok;
 }
 
-void main() {
-    test_half();
-    test_int();
+half4 main() {
+    return test_half() && test_int() ? half4(0,1,0,1) : half4(1,0,0,1);
 }
