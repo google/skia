@@ -14,7 +14,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
 
-#include "include/effects/SkArithmeticImageFilter.h"
+#include "src/effects/imagefilters/SkArithmeticImageFilter.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
 

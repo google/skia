@@ -17,7 +17,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkMorphologyImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkGlyphRun.h"
@@ -453,7 +453,7 @@ DEF_TEST(fuzz875632f0, reporter) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
 
     SkPaint layerPaint({0, 0, 0, 0});
-    layerPaint.setImageFilter(SkDilateImageFilter::Make(536870912, 0, nullptr, nullptr));
+    layerPaint.setImageFilter(SkImageFilters::Dilate(536870912, 0, nullptr, nullptr));
     layerPaint.setBlendMode(SkBlendMode::kClear);
 
     canvas->saveLayer(nullptr, &layerPaint);

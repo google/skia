@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkDisplacementMapEffect.h"
+#include "src/effects/imagefilters/SkDisplacementMapEffect.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkUnPreMultiply.h"

@@ -6,7 +6,7 @@
  */
 
 @header {
-    #include "include/effects/SkArithmeticImageFilter.h"
+    #include "src/effects/imagefilters/SkArithmeticImageFilter.h"
 }
 
 in fragmentProcessor srcFP;

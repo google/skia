@@ -9,30 +9,24 @@
 
 #include "include/core/SkPaint.h"
 
-// TODO (michaelludwig) - Right now there is a bit of a weird dependency where the implementations
-// of the new, preferred filter factories depends on the per-filter headers in include/effects,
-// which have themselves been marked as deprecated. But, once clients are updated to use the
-// new factories implemented in this file, the per-filter headers can go into
-// src/effects/imagefilters and will no longer be "deprecated" since they've been made fully
-// internal at that point.
-#include "include/effects/SkAlphaThresholdFilter.h"
-#include "include/effects/SkArithmeticImageFilter.h"
-#include "include/effects/SkBlurImageFilter.h"
-#include "include/effects/SkColorFilterImageFilter.h"
-#include "include/effects/SkComposeImageFilter.h"
-#include "include/effects/SkDisplacementMapEffect.h"
-#include "include/effects/SkDropShadowImageFilter.h"
-#include "include/effects/SkImageSource.h"
-#include "include/effects/SkLightingImageFilter.h"
-#include "include/effects/SkMagnifierImageFilter.h"
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
-#include "include/effects/SkMergeImageFilter.h"
-#include "include/effects/SkMorphologyImageFilter.h"
-#include "include/effects/SkOffsetImageFilter.h"
-#include "include/effects/SkPaintImageFilter.h"
-#include "include/effects/SkPictureImageFilter.h"
-#include "include/effects/SkTileImageFilter.h"
-#include "include/effects/SkXfermodeImageFilter.h"
+#include "src/effects/imagefilters/SkAlphaThresholdFilter.h"
+#include "src/effects/imagefilters/SkArithmeticImageFilter.h"
+#include "src/effects/imagefilters/SkBlurImageFilter.h"
+#include "src/effects/imagefilters/SkColorFilterImageFilter.h"
+#include "src/effects/imagefilters/SkComposeImageFilter.h"
+#include "src/effects/imagefilters/SkDisplacementMapEffect.h"
+#include "src/effects/imagefilters/SkDropShadowImageFilter.h"
+#include "src/effects/imagefilters/SkImageSource.h"
+#include "src/effects/imagefilters/SkLightingImageFilter.h"
+#include "src/effects/imagefilters/SkMagnifierImageFilter.h"
+#include "src/effects/imagefilters/SkMatrixConvolutionImageFilter.h"
+#include "src/effects/imagefilters/SkMergeImageFilter.h"
+#include "src/effects/imagefilters/SkMorphologyImageFilter.h"
+#include "src/effects/imagefilters/SkOffsetImageFilter.h"
+#include "src/effects/imagefilters/SkPaintImageFilter.h"
+#include "src/effects/imagefilters/SkPictureImageFilter.h"
+#include "src/effects/imagefilters/SkTileImageFilter.h"
+#include "src/effects/imagefilters/SkXfermodeImageFilter.h"
 
 // TODO (michaelludwig) - Once SkCanvas can draw the results of a filter with any transform, this
 // filter can be moved out of core

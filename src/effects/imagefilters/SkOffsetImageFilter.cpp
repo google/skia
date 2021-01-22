@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkOffsetImageFilter.h"
+#include "src/effects/imagefilters/SkOffsetImageFilter.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"

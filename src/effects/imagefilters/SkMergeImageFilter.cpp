@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkMergeImageFilter.h"
+#include "src/effects/imagefilters/SkMergeImageFilter.h"
 
 #include "include/core/SkCanvas.h"
 #include "src/core/SkImageFilter_Base.h"

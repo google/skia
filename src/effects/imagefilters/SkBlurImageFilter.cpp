@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkBlurImageFilter.h"
+#include "src/effects/imagefilters/SkBlurImageFilter.h"
 
 #include <algorithm>
 

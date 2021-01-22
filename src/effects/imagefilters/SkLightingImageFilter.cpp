@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkLightingImageFilter.h"
+#include "src/effects/imagefilters/SkLightingImageFilter.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPoint3.h"
