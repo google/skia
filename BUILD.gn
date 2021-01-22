@@ -716,13 +716,19 @@ if (skia_compile_sksl_tests) {
         invoker.settings,
       ]
 
-      foreach(src, invoker.sources) {
-        dir = get_path_info(src, "dir")
-        name = get_path_info(src, "name")
-        ext = get_path_info(src, "extension")
+      testsDir = get_path_info("tests", "abspath")
+      resourcesDir = get_path_info("resources", "abspath")
+
+      foreach(partialPath, invoker.sources) {
+        dst = testsDir + partialPath
+        src = resourcesDir + partialPath
+
+        dir = get_path_info(dst, "dir")
+        name = get_path_info(dst, "name")
+        ext = get_path_info(dst, "extension")
         args += rebase_path([
                               src,
-                              dir + "/golden/",
+                              dir,
                             ])
         sources += [ src ]
 
@@ -733,9 +739,9 @@ if (skia_compile_sksl_tests) {
           } else if (outExtension == ".asm.frag" && ext == "geom") {
             outExtension = ".asm.geom"
           }
-          outputs += [ target_out_dir + "/" +
-                       rebase_path(dir + "/golden/" + name + outExtension,
-                                   target_out_dir) ]
+          outputs +=
+              [ target_out_dir + "/" +
+                rebase_path(dir + "/" + name + outExtension, target_out_dir) ]
         }
       }
     }
