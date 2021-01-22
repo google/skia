@@ -322,6 +322,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/InterfaceBlockAnonymous.sksl",
   "$_tests/sksl/shared/InterfaceBlockArray.sksl",
   "$_tests/sksl/shared/InterfaceBlockNamed.sksl",
+  "$_tests/sksl/shared/InterfaceBlockPushConstant.sksl",
   "$_tests/sksl/shared/MatricesFloat.sksl",
   "$_tests/sksl/shared/MatricesHalf.sksl",
   "$_tests/sksl/shared/MixedTypeCommaOperator.sksl",
