@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     canvas->save();
     canvas->clipRRect(rr, true);
 
-    sk_sp<SkImageFilter> filter = SkBlurImageFilter::Make(10, 10, nullptr);
+    sk_sp<SkImageFilter> filter = SkImageFilters::Blur(10, 10, nullptr);
     SkPaint p;
     p.setImageFilter(std::move(filter));
 

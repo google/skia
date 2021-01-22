@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 90
 ------------
 
+  * Remove deprecated SkImageFilter factory functions and supporting types. All default-provided
+    SkImageFilters are now only constructed via 'include/effects/SkImageFilters.h'
+    https://review.skia.org/357285
+
   * Added SkRuntimeEffect::makeImage() to capture the output of an SkRuntimeEffect in an SkImage.
     https://review.skia.org/357284
 
