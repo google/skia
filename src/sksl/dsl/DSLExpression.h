@@ -83,6 +83,7 @@ private:
 
     std::unique_ptr<SkSL::Expression> fExpression;
 
+    friend class DSLCore;
     friend class DSLVar;
     friend class DSLWriter;
 };
