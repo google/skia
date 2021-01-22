@@ -189,6 +189,8 @@ sksl_metal_tests = [
   "/sksl/metal/OpaqueTypeInStruct.sksl",
   "/sksl/metal/OutParams.sksl",
   "/sksl/metal/OutVarsRequireLocation.sksl",
+  "/sksl/metal/ReturnBadTypeFromMain.sksl",
+  "/sksl/metal/ReturnColorFromMain.sksl",
   "/sksl/metal/SamplerGlobals.sksl",
   "/sksl/metal/SwizzleHelper.sksl",
 ]

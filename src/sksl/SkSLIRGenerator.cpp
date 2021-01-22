@@ -1121,7 +1121,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 break;
             default:
                 if (parameters.size()) {
-                    this->errorReporter().error(f.fOffset, "shader 'main' must have zero parameters");
+                    this->errorReporter().error(f.fOffset,
+                                                "shader 'main' must have zero parameters");
                 }
                 break;
         }

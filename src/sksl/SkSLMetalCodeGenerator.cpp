@@ -1904,7 +1904,14 @@ void MetalCodeGenerator::writeReturnStatementFromMain() {
 void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     if (fCurrentFunction && fCurrentFunction->name() == "main") {
         if (r.expression()) {
-            fErrors.error(r.fOffset, "Metal does not support returning values from main()");
+            if (r.expression()->type() == *fContext.fTypes.fHalf4) {
+                this->write("_out.sk_FragColor = ");
+                this->writeExpression(*r.expression(), kTopLevel_Precedence);
+                this->writeLine(";");
+            } else {
+                fErrors.error(r.fOffset, "Metal does not support returning '" +
+                                         r.expression()->type().description() + "' from main()");
+            }
         }
         this->writeReturnStatementFromMain();
         return;
