@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "src/effects/imagefilters/SkMatrixConvolutionImageFilter.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"

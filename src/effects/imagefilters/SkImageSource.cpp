@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkImageSource.h"
+#include "src/effects/imagefilters/SkImageSource.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"

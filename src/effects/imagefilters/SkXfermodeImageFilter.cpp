@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkXfermodeImageFilter.h"
+#include "src/effects/imagefilters/SkXfermodeImageFilter.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/private/SkColorData.h"
