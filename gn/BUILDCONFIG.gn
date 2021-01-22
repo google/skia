@@ -40,8 +40,6 @@ declare_args() {
   ncli_gcc_version = "9.2.0"
   ncli_gcc_version_short = "9.2"
   ncli_llvm_version = "10"
-
-  werror = false
 }
 declare_args() {
   is_debug = !is_official_build

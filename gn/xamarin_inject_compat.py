@@ -23,12 +23,12 @@ for f in files:
     if not os.path.isfile(af):
         continue
     # read the file
-    with file(af, 'r') as original:
+    with open(af, 'r') as original:
         data = original.read()
     # create the include
     slashes = "../" * f.count('/')
     inc = '#include "' + slashes + 'include/xamarin/WinRTCompat.h"'
     # write it to the file
     if not data.startswith(inc):
-        with file(af, 'w') as modified:
+        with open(af, 'w') as modified:
             modified.write(inc + '\n' + data)
