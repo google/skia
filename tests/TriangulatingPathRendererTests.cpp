@@ -12,9 +12,9 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
+#include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
@@ -790,8 +790,8 @@ public:
     SkAutoTMalloc<SkPoint> fPoints;
 };
 
-class BreadcrumbCollector
-        : public GrTriangulator::BreadcrumbTriangleCollector, public SkTArray<SkPoint> {
+class SimpleBreadcrumbCollector
+        : public GrInnerFanTriangulator::BreadcrumbTriangleCollector, public SkTArray<SkPoint> {
     void onPush(SkPoint p0, SkPoint p1, SkPoint p2, int winding) override {
         SkASSERT(winding > 0);
         for (int i = 0; i < winding; ++i) {
@@ -869,16 +869,15 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
                                          SkPath path) {
     for (auto fillType : {SkPathFillType::kWinding}) {
         path.setFillType(fillType);
-        SimpleVertexAllocator vertexAlloc;
-        BreadcrumbCollector breadcrumbs;
+        SimpleVertexAllocator alloc;
+        SimpleBreadcrumbCollector breadcrumbs;
         bool isLinear;
-        int vertexCount = GrTriangulator::TriangulateInnerPolygons(path, &vertexAlloc, &breadcrumbs,
-                                                                   &isLinear);
+        int count = GrInnerFanTriangulator(path, &breadcrumbs).pathToTriangles(&alloc, &isLinear);
 
         // Count up all the triangulated edges.
         EdgeMap trianglePlusBreadcrumbEdges;
-        for (int i = 0; i < vertexCount; i += 3) {
-            add_tri_edges(r, trianglePlusBreadcrumbEdges, vertexAlloc.fPoints.data() + i);
+        for (int i = 0; i < count; i += 3) {
+            add_tri_edges(r, trianglePlusBreadcrumbEdges, alloc.fPoints.data() + i);
         }
         // Count up all the breadcrumb edges.
         for (int i = 0; i < breadcrumbs.count(); i += 3) {
@@ -888,13 +887,13 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
         trianglePlusBreadcrumbEdges = simplify(trianglePlusBreadcrumbEdges, path.getFillType());
 
         // Build the inner polygon edges.
-        EdgeMap innerPolygonEdges;
+        EdgeMap innerFanEdges;
         SkPoint startPoint{}, lastPoint{};
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
                 case SkPathVerb::kMove:
                     if (lastPoint != startPoint) {
-                        add_edge(innerPolygonEdges, lastPoint, startPoint);
+                        add_edge(innerFanEdges, lastPoint, startPoint);
                     }
                     lastPoint = startPoint = pts[0];
                     continue;
@@ -913,17 +912,17 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
                     break;
             }
             if (pts[0] != lastPoint) {
-                add_edge(innerPolygonEdges, pts[0], lastPoint);
+                add_edge(innerFanEdges, pts[0], lastPoint);
             }
         }
         if (lastPoint != startPoint) {
-            add_edge(innerPolygonEdges, lastPoint, startPoint);
+            add_edge(innerFanEdges, lastPoint, startPoint);
         }
-        innerPolygonEdges = simplify(innerPolygonEdges, path.getFillType());
+        innerFanEdges = simplify(innerFanEdges, path.getFillType());
 
         // The triangulated + breadcrumb edges should cancel out to the inner polygon edges. First
         // verify that every inner polygon edge can be found in the triangulation.
-        for (auto [edge, count] : innerPolygonEdges) {
+        for (auto [edge, count] : innerFanEdges) {
             auto it = trianglePlusBreadcrumbEdges.find(edge);
             if (it != trianglePlusBreadcrumbEdges.end()) {
                 it->second -= count;
@@ -970,7 +969,7 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
     }
 }
 
-DEF_TEST(GrTriangulator_kSimpleInnerPolygons, r) {
+DEF_TEST(GrInnerFanTriangulator, r) {
     verify_simple_inner_polygons(r, "simple triangle", SkPath().lineTo(1,0).lineTo(0,1));
     verify_simple_inner_polygons(r, "simple square", SkPath().lineTo(1,0).lineTo(1,1).lineTo(0,1));
     verify_simple_inner_polygons(r,  "concave polygon", SkPath()
