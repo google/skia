@@ -15,7 +15,8 @@ class GrAATriangulator : private GrTriangulator {
 public:
     static int PathToAATriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                  GrEagerVertexAllocator* vertexAllocator) {
-        GrAATriangulator aaTriangulator(path);
+        SkArenaAlloc alloc(kArenaDefaultChunkSize);
+        GrAATriangulator aaTriangulator(path, &alloc);
         aaTriangulator.fRoundVerticesToQuarterPixel = true;
         aaTriangulator.fEmitCoverage = true;
         bool isLinear;
@@ -45,7 +46,7 @@ public:
     };
 
 private:
-    GrAATriangulator(const SkPath& path) : GrTriangulator(path) {}
+    GrAATriangulator(const SkPath& path, SkArenaAlloc* alloc) : GrTriangulator(path, alloc) {}
 
     // For screenspace antialiasing, the algorithm is modified as follows:
     //

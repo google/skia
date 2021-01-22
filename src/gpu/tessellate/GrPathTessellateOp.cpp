@@ -144,7 +144,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
     SkASSERT(fTriangleVertexCount == 0);
     SkASSERT(!fStencilTrianglesProgram);
     SkASSERT(!fFillTrianglesProgram);
-    fInnerFanTriangulator = args.fArena->make<GrInnerFanTriangulator>(fPath, nullptr);
+    fInnerFanTriangulator = args.fArena->make<GrInnerFanTriangulator>(fPath, args.fArena, nullptr);
     fInnerFanPolys = fInnerFanTriangulator->pathToPolys(isLinear);
     if (!fInnerFanPolys) {
         // pathToPolys will fail if the inner polygon(s) are not simple.

@@ -25,9 +25,12 @@ struct SkRect;
  */
 class GrTriangulator {
 public:
+    constexpr static int kArenaDefaultChunkSize = 16 * 1024;
+
     static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
-        GrTriangulator triangulator(path);
+        SkArenaAlloc alloc(kArenaDefaultChunkSize);
+        GrTriangulator triangulator(path, &alloc);
         Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, isLinear);
         int count = triangulator.polysToTriangles(polys, vertexAllocator);
         return count;
@@ -63,7 +66,7 @@ public:
     struct Comparator;
 
 protected:
-    GrTriangulator(const SkPath& path) : fPath(path) {}
+    GrTriangulator(const SkPath& path, SkArenaAlloc* alloc) : fPath(path), fAlloc(alloc) {}
     virtual ~GrTriangulator() {}
 
     // There are six stages to the basic algorithm:
@@ -179,9 +182,8 @@ protected:
     static int64_t CountPoints(Poly* polys, SkPathFillType overrideFillType);
     int polysToTriangles(Poly*, GrEagerVertexAllocator*);
 
-    constexpr static int kArenaChunkSize = 16 * 1024;
-    SkArenaAlloc fAlloc{kArenaChunkSize};
     const SkPath fPath;
+    SkArenaAlloc* const fAlloc;
 
     // Internal control knobs.
     bool fRoundVerticesToQuarterPixel = false;
@@ -463,7 +465,7 @@ struct GrTriangulator::Poly {
         TESS_LOG("*** created Poly %d\n", fID);
 #endif
     }
-    Poly* addEdge(Edge* e, Side side, SkArenaAlloc& alloc);
+    Poly* addEdge(Edge* e, Side side, SkArenaAlloc* alloc);
     void* emit(bool emitCoverage, void *data);
     Vertex* lastVertex() const { return fTail ? fTail->fLastEdge->fBottom : fFirstVertex; }
     Vertex* fFirstVertex;
