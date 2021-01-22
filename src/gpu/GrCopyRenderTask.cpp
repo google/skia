@@ -16,20 +16,25 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
                                            SkIRect srcRect,
                                            sk_sp<GrSurfaceProxy> dst,
                                            SkIPoint dstPoint,
-                                           const GrCaps* caps) {
+                                           GrSurfaceOrigin origin) {
     SkASSERT(src);
     SkASSERT(dst);
 
-    // Make sure our caller's values are inside the backing surfaces' bounds.
-    SkASSERT(SkIRect::MakeSize(src->backingStoreDimensions()).contains(srcRect));
-    SkASSERT(SkIRect::MakeSize(dst->backingStoreDimensions()).contains(
-             SkIRect::MakePtSize(dstPoint, srcRect.size())));
+    if (!GrClipSrcRectAndDstPoint(dst->dimensions(),
+                                  src->dimensions(),
+                                  srcRect,
+                                  dstPoint,
+                                  &srcRect,
+                                  &dstPoint)) {
+        return nullptr;
+    }
 
     sk_sp<GrCopyRenderTask> task(new GrCopyRenderTask(drawingMgr,
                                                       std::move(src),
                                                       srcRect,
                                                       std::move(dst),
-                                                      dstPoint));
+                                                      dstPoint,
+                                                      origin));
     return std::move(task);
 }
 
@@ -37,8 +42,9 @@ GrCopyRenderTask::GrCopyRenderTask(GrDrawingManager* drawingMgr,
                                    sk_sp<GrSurfaceProxy> src,
                                    SkIRect srcRect,
                                    sk_sp<GrSurfaceProxy> dst,
-                                   SkIPoint dstPoint)
-        : GrRenderTask(), fSrc(std::move(src)), fSrcRect(srcRect), fDstPoint(dstPoint) {
+                                   SkIPoint dstPoint,
+                                   GrSurfaceOrigin origin)
+        : fSrc(std::move(src)), fSrcRect(srcRect), fDstPoint(dstPoint), fOrigin(origin) {
     this->addTarget(drawingMgr, std::move(dst));
 }
 
@@ -53,6 +59,15 @@ void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     alloc->incOps();
 }
 
+GrRenderTask::ExpectedOutcome GrCopyRenderTask::onMakeClosed(const GrCaps&,
+                                                             SkIRect* targetUpdateBounds) {
+    *targetUpdateBounds = GrNativeRect::MakeIRectRelativeTo(
+            fOrigin,
+            this->target(0)->height(),
+            SkIRect::MakePtSize(fDstPoint, fSrcRect.size()));
+    return ExpectedOutcome::kTargetDirty;
+}
+
 bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
     GrSurfaceProxy* dstProxy = this->target(0);
     if (!fSrc->isInstantiated() || !dstProxy->isInstantiated()) {
@@ -60,6 +75,11 @@ bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
     }
     GrSurface* srcSurface = fSrc->peekSurface();
     GrSurface* dstSurface = dstProxy->peekSurface();
-    return flushState->gpu()->copySurface(dstSurface, srcSurface, fSrcRect, fDstPoint);
+    SkIRect srcRect = GrNativeRect::MakeIRectRelativeTo(fOrigin, srcSurface->height(), fSrcRect);
+    SkIPoint dstPoint = fDstPoint;
+    if (fOrigin == kBottomLeft_GrSurfaceOrigin) {
+        dstPoint.fY = dstSurface->height() - dstPoint.fY - srcRect.height();
+    }
+    return flushState->gpu()->copySurface(dstSurface, srcSurface, srcRect, dstPoint);
 }
 

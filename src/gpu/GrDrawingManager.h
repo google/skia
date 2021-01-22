@@ -80,7 +80,8 @@ public:
     bool newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
                            SkIRect srcRect,
                            sk_sp<GrSurfaceProxy> dst,
-                           SkIPoint dstPoint);
+                           SkIPoint dstPoint,
+                           GrSurfaceOrigin);
 
     GrRecordingContext* getContext() { return fContext; }
 
