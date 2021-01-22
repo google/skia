@@ -22,6 +22,30 @@
       },
       "revId": "e89d8ea20b6202a65a7059f6549d644d89ec44f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6913dbf_c1342bcf",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T13:59:31Z",
+      "side": 1,
+      "message": "Yeah, I knew we\u0027d be using the interpreter, at least initially. When I did the earlier work converting the interpreter unit tests to SkVM, I had a decision about how to handle functions that took multiple/vector parameters:\n\n  void main(inout half4 color) {}\n\nCould be four float args, or one float4 arg. I was tempted to do the latter, because (most) SkSL types bottom out at 1-4 32-bit values. Matrices are an exception, but the one that stopped me was float3 -- I guess I can still use a stride of 24, but there\u0027s no load96, obviously. I guess I\u0027d just use a pair of load64 and load32 for any 3-float component?\n\nEven if I tried to go this route, it wouldn\u0027t reduce the pointer count enough (eg, only unpacking the Particle and Effect structs to their constituent vectors) - I\u0027d have to just group fields into 128-bit chunks (which is totally doable).",
+      "parentUuid": "7411b182_013e9c37",
+      "range": {
+        "startLine": 279,
+        "startChar": 10,
+        "endLine": 279,
+        "endChar": 14
+      },
+      "revId": "e89d8ea20b6202a65a7059f6549d644d89ec44f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
