@@ -68,7 +68,8 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
         return;
     }
 
-    fStencilAtlasFlags = OpFlags::kStencilOnly | OpFlags::kDisableHWTessellation;
+    fStencilAtlasFlags = OpFlags::kStencilOnly | OpFlags::kDisableHWTessellation |
+                         OpFlags::kDisableInnerFanTriangulation;
     fMaxAtlasPathWidth = fAtlas.maxAtlasSize() / 2;
 
     // The atlas usually does better with hardware tessellation. If hardware tessellation is
