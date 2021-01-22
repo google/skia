@@ -3193,45 +3193,70 @@ namespace skvm {
             const int immA = inst.immA,
                       immB = inst.immB;
 
-            // alloc_tmp() returns a temporary register, freed manually with free_tmp().
-            auto alloc_tmp = [&]() -> Reg {
-                // Find an available register, or spill an occupied one if nothing's available.
-                auto avail = std::find_if(regs.begin(), regs.end(), [](Val v) { return v == NA; });
-                if (avail == regs.end()) {
-                    auto score_spills = [&](Val v) -> int {
-                        // We cannot spill REServed registers,
-                        // nor any registers we need for this instruction.
+            // alloc_tmp() returns the first of N adjacent temporary registers,
+            // each freed manually with free_tmp().
+            auto alloc_tmp = [&](int N=1) -> Reg {
+                auto needs_spill = [&](Val v) -> bool {
+                    SkASSERT(v >= 0);   // {NA,TMP,RES} need to be handled before calling this.
+                    return stack_slot[v] == NA               // We haven't spilled it already?
+                        && instructions[v].op != Op::splat;  // No need to spill constants.
+                };
+
+                // We want to find a block of N adjacent registers requiring the fewest spills.
+                int best_block = -1,
+                    min_spills = 0x7fff'ffff;
+                for (int block = 0; block+N <= (int)regs.size(); block++) {
+                    int spills = 0;
+                    for (int r = block; r < block+N; r++) {
+                        Val v = regs[r];
+                        // Registers holding NA (nothing) are ideal, nothing to spill.
+                        if (v == NA) {
+                            continue;
+                        }
+                        // We can't spill anything REServed or that we'll need this instruction.
                         if (v == RES ||
                             v == TMP || v == id || v == x || v == y || v == z || v == w) {
-                            return 0x7fff'ffff;
+                            spills = 0x7fff'ffff;
+                            block  = r;   // (optimization) continue outer loop at next register.
+                            break;
                         }
-                        // At this point spilling is arbitrary, so we're in the realm of heuristics.
-                        // Here, spill the oldest value.  This is nice because,
-                        //    A) it's very predictable, even in assembly, and
-                        //    B) it's as cheap as you can get.
-                        return v;
-                    };
-                    avail = std::min_element(regs.begin(), regs.end(), [&](Val a, Val b) {
-                        return score_spills(a) < score_spills(b);
-                    });
-                }
-                SkASSERT(avail != regs.end());
-
-                Reg r = (Reg)std::distance(regs.begin(), avail);
-                Val& v = regs[r];
-                *registers_used |= (1<<r);
-
-                SkASSERT(v == NA || v >= 0);
-                if (v >= 0) {
-                    if (stack_slot[v] == NA && instructions[v].op != Op::splat) {
-                        store_to_stack(r, v);
+                        // Usually here we've got a value v that we'd have to spill to the stack
+                        // before reusing its register, but sometimes even now we get a freebie.
+                        spills += needs_spill(v) ? 1 : 0;
                     }
-                    v = NA;
-                }
-                SkASSERT(v == NA);
 
-                v = TMP;
-                return r;
+                    // TODO: non-arbitrary tie-breaking?
+                    if (min_spills > spills) {
+                        min_spills = spills;
+                        best_block = block;
+                    }
+                    if (min_spills == 0) {
+                        break;  // (optimization) stop early if we find an unbeatable block.
+                    }
+                }
+
+                // TODO: our search's success isn't obviously guaranteed... it depends on N
+                // and the number and relative position in regs of any unspillable values.
+                // I think we should be able to get away with N≤2 on x86-64 and N≤4 on arm64;
+                // we'll need to revisit this logic should this assert fire.
+                SkASSERT(min_spills <= N);
+
+                // Spill what needs spilling, and mark the block all as TMP.
+                for (int r = best_block; r < best_block+N; r++) {
+                    Val& v = regs[r];
+                    *registers_used |= (1<<r);
+
+                    SkASSERT(v == NA || v >= 0);
+                    if (v >= 0 && needs_spill(v)) {
+                        store_to_stack((Reg)r, v);
+                        SkASSERT(!needs_spill(v));
+                        min_spills--;
+                    }
+
+                    v = TMP;
+                }
+                SkASSERT(min_spills == 0);
+                return (Reg)best_block;
             };
 
             auto free_tmp = [&](Reg r) {
@@ -3744,16 +3769,13 @@ namespace skvm {
                                   } else if (r(y) == r(x)+1) {
                                       a->st24s(r(x), arg[immA]);
                                   } else {
-                                      // TODO: always use st2.4s?
-                                      // r(x) = {a,b,c,d}
-                                      // r(y) = {e,f,g,h}
-                                      // We want to write a,e, b,f, c,g, d,h
-                                      A::V tmp = alloc_tmp();
-                                      a->zip14s(tmp, r(x), r(y));   // a,e,b,f
-                                      a->strq(tmp, arg[immA], 0);
-                                      a->zip24s(tmp, r(x), r(y));   // c,g,d,h
-                                      a->strq(tmp, arg[immA], 1);
-                                      free_tmp(tmp);
+                                      Reg tmp0 = alloc_tmp(2),
+                                          tmp1 = (Reg)(tmp0+1);
+                                      a->orr16b(tmp0, r(x), r(x));
+                                      a->orr16b(tmp1, r(y), r(y));
+                                      a-> st24s(tmp0, arg[immA]);
+                                      free_tmp(tmp0);
+                                      free_tmp(tmp1);
                                   } break;
 
                 case Op::store128:
@@ -3767,18 +3789,19 @@ namespace skvm {
                                r(w) == r(x)+3) {
                         a->st44s(r(x), arg[immA]);
                     } else {
-                        // TODO: always use st4.4s?
-                        for (int i = 0; i < active_lanes; i++) {
-                            a->movs(GP0, r(x), i);
-                            a->movs(GP1, r(y), i);
-                            a->strs(GP0, arg[immA], i*4 + 0);
-                            a->strs(GP1, arg[immA], i*4 + 1);
-
-                            a->movs(GP0, r(z), i);
-                            a->movs(GP1, r(w), i);
-                            a->strs(GP0, arg[immA], i*4 + 2);
-                            a->strs(GP1, arg[immA], i*4 + 3);
-                        }
+                        Reg tmp0 = alloc_tmp(4),
+                            tmp1 = (Reg)(tmp0+1),
+                            tmp2 = (Reg)(tmp0+2),
+                            tmp3 = (Reg)(tmp0+3);
+                        a->orr16b(tmp0, r(x), r(x));
+                        a->orr16b(tmp1, r(y), r(y));
+                        a->orr16b(tmp2, r(z), r(z));
+                        a->orr16b(tmp3, r(w), r(w));
+                        a-> st44s(tmp0, arg[immA]);
+                        free_tmp(tmp0);
+                        free_tmp(tmp1);
+                        free_tmp(tmp2);
+                        free_tmp(tmp3);
                     } break;
 
 
