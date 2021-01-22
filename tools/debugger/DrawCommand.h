@@ -321,8 +321,9 @@ public:
     DrawImageRectLayerCommand(DebugLayerManager*          layerManager,
                               const int                   nodeId,
                               const int                   frame,
-                              const SkRect*               src,
+                              const SkRect&               src,
                               const SkRect&               dst,
+                              const SkSamplingOptions&    sampling,
                               const SkPaint*              paint,
                               SkCanvas::SrcRectConstraint constraint);
     void execute(SkCanvas* canvas) const override;
@@ -333,8 +334,9 @@ private:
     DebugLayerManager*          fLayerManager;
     int                         fNodeId;
     int                         fFrame;
-    SkTLazy<SkRect>             fSrc;
+    SkRect                      fSrc;
     SkRect                      fDst;
+    SkSamplingOptions           fSampling;
     SkTLazy<SkPaint>            fPaint;
     SkCanvas::SrcRectConstraint fConstraint;
 

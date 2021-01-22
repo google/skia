@@ -25,7 +25,7 @@
 
 static void draw(SkCanvas* canvas, const SkImage* image, SkColor4f paintColor) {
     SkPaint paint(paintColor);
-    canvas->drawImage(image, 0, 0, &paint);
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
 }
 
 static SkBitmap to_bitmap(const SkImage* image) {

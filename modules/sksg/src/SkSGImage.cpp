@@ -44,7 +44,7 @@ void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
         local_ctx->modulatePaint(canvas->getTotalMatrix(), &paint);
     }
 
-    canvas->drawImage(fImage, 0, 0, &paint);
+    canvas->drawImage(fImage, 0, 0, SkSamplingOptions(), &paint);
 }
 
 const RenderNode* Image::onNodeAt(const SkPoint& p) const {

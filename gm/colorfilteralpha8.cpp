@@ -46,7 +46,7 @@ protected:
         };
         paint.setColorFilter(SkColorFilters::Matrix(opaqueGrayMatrix));
 
-        canvas->drawImage(bitmap.asImage(), 100.0f, 100.0f, &paint);
+        canvas->drawImage(bitmap.asImage(), 100.0f, 100.0f, SkSamplingOptions(), &paint);
     }
 
 private:

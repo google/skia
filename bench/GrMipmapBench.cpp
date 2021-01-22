@@ -57,7 +57,7 @@ protected:
             // Draw reduced version of surface to original canvas, to trigger mip generation
             canvas->save();
             canvas->scale(0.1f, 0.1f);
-            canvas->drawImage(fSurface->makeImageSnapshot(), 0, 0, &paint);
+            canvas->drawImage(fSurface->makeImageSnapshot(), 0, 0, SkSamplingOptions(), &paint);
             canvas->restore();
         }
     }

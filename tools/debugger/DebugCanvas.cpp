@@ -434,7 +434,8 @@ void DebugCanvas::onDrawImageRect2(const SkImage*           image,
         // Instead of adding a DrawImageRectCommand, we need a deferred command, that when
         // executed, will call drawImageRect(fLayerManager->getLayerAsImage())
         this->addDrawCommand(new DrawImageRectLayerCommand(
-            fLayerManager, fnextDrawImageRectLayerId, fFrame, &src, dst, paint, constraint));
+            fLayerManager, fnextDrawImageRectLayerId, fFrame, src, dst, sampling,
+                                                           paint, constraint));
     } else {
         this->addDrawCommand(new DrawImageRectCommand(image, src, dst, sampling, paint, constraint));
     }
