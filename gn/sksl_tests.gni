@@ -388,8 +388,10 @@ sksl_shared_tests = [
 sksl_folding_tests = [
   "$_tests/sksl/folding/BoolFolding.sksl",
   "$_tests/sksl/folding/FloatFolding.sksl",
-  "$_tests/sksl/folding/IntFolding.sksl",
-  "$_tests/sksl/folding/MatrixFolding.sksl",
+  "$_tests/sksl/folding/IntFoldingES2.sksl",
+  "$_tests/sksl/folding/IntFoldingES3.sksl",
+  "$_tests/sksl/folding/MatrixFoldingES2.sksl",
+  "$_tests/sksl/folding/MatrixFoldingES3.sksl",
   "$_tests/sksl/folding/ShortCircuitBoolFolding.sksl",
   "$_tests/sksl/folding/VectorScalarFolding.sksl",
   "$_tests/sksl/folding/VectorVectorFolding.sksl",

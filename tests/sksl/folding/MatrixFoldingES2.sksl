@@ -1,0 +1,27 @@
+bool test() {
+    bool ok = true;
+    ok = ok &&  (float2x2(float2(1.0, 0.0), float2(0.0, 1.0)) ==
+                 float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+    ok = ok && !(float2x2(float2(1.0, 0.0), float2(1.0, 1.0)) ==
+                 float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+
+    ok = ok &&  (float2x2(1) == float2x2(1));
+    ok = ok && !(float2x2(1) == float2x2(0));
+
+    ok = ok &&  (float2x2(1) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+    ok = ok && !(float2x2(2) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+
+    ok = ok && !(float2x2(1) != float2x2(1));
+    ok = ok &&  (float2x2(1) != float2x2(0));
+    ok = ok &&  (float3x3(float3(1.0, 0.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, 0.0)) ==
+                 float3x3(float2x2(1.0)));
+    ok = ok &&  (float2x2(float3x3(1.0)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float4(1.0, 0.0, 0.0, 1.0)) == float2x2(1.0));
+    ok = ok &&  (float2x2(1.0, 0.0, float2(0.0, 1.0)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float2(1.0, 0.0), 0.0, 1.0) == float2x2(1.0));
+    return ok;
+}
+
+half4 main() {
+    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+}

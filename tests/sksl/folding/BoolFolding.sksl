@@ -16,3 +16,4 @@ bool test() {
 half4 main() {
     return test() ? half4(0,1,0,1) : half4(1,0,0,1);
 }
+

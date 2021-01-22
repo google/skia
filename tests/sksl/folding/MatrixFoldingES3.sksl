@@ -1,0 +1,9 @@
+bool test() {
+    bool ok = true;
+    ok = ok &&  (float3x2(2) == float3x2(float2(2.0, 0.0), float2(0.0, 2.0), float2(0.0)));
+    return ok;
+}
+
+half4 main() {
+    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+}
