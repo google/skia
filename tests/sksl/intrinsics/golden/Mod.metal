@@ -16,6 +16,7 @@ struct Outputs {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     float _skTemp0;
     float _skTemp1;
     float4 _skTemp2;

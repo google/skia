@@ -48,7 +48,9 @@ float4x4 float4x4_inverse(float4x4 m) {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{{}};
+    (void)_globals;
     Outputs _out;
+    (void)_out;
     _out.sk_FragColor = float4x4_inverse(_globals.a)[0];
     return _out;
 }

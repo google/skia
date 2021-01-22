@@ -27,7 +27,9 @@ matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b)
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{{}, {}, {}, {}};
+    (void)_globals;
     Outputs _out;
+    (void)_out;
     _out.sk_FragColor.xyz = matrixCompMult(_globals.a, _globals.b)[0];
     _out.sk_FragColor = matrixCompMult(_globals.c, _globals.d)[0];
     return _out;

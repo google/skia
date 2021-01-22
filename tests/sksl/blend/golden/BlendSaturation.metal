@@ -15,6 +15,7 @@ float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     float _1_alpha = _in.dst.w * _in.src.w;
     float3 _2_sda = _in.src.xyz * _in.dst.w;
     float3 _3_dsa = _in.dst.xyz * _in.src.w;

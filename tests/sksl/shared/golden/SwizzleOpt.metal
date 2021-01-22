@@ -20,6 +20,7 @@ float fn(float v) {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     float v = sqrt(1.0);
     _out.sk_FragColor = float4(v);
     _out.sk_FragColor = float4(0.0, float3(v));

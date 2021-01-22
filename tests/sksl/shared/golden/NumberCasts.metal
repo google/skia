@@ -28,7 +28,9 @@ struct Globals {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{true, true, true, 1.2300000190734863, 1.0, 1.0, 1, 1, 1};
+    (void)_globals;
     Outputs _out;
+    (void)_out;
     _out.sk_FragColor.x = float(_globals.BF);
     _out.sk_FragColor.x = float(_globals.BI);
     _out.sk_FragColor.x = float(_globals.BB);

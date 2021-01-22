@@ -15,6 +15,7 @@ float2x2 float2x2_from_float4(float4 x0) {
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     float3x4 z = float2x4(1.0) * float3x2(float2(1.0, 0.0), float2(0.0, 1.0), float2(2.0, 2.0));
     float3 v1 = float3x3(1.0) * float3(2.0);
     float3 v2 = float3(2.0) * float3x3(1.0);

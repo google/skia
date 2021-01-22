@@ -43,7 +43,9 @@ float4 MatrixEffect_Stage1_c0_c0(thread Globals& _globals, float4 _input, float2
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTextureSampler_0_Stage1[[texture(0)]], sampler uTextureSampler_0_Stage1Smplr[[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{&_anonInterface0, uTextureSampler_0_Stage1, uTextureSampler_0_Stage1Smplr};
+    (void)_globals;
     Outputs _out;
+    (void)_out;
     float4 output_Stage1;
     float4 _8_output;
     _8_output = float4(0.0, 0.0, 0.0, 0.0);

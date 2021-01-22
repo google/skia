@@ -8,6 +8,7 @@ struct Outputs {
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
+    (void)_out;
     float4 v = float4(sqrt(1.0));
     _out.sk_FragColor = float4(v.x, 1.0, 1.0, 1.0);
     _out.sk_FragColor = float4(v.xy, 1.0, 1.0);

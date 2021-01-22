@@ -18,7 +18,9 @@ struct Globals {
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{1.0, 1, 1u, true};
+    (void)_globals;
     Outputs _out;
+    (void)_out;
     float f1 = _globals.f;
     float f2 = float(_globals.i);
     float f3 = float(_globals.u);

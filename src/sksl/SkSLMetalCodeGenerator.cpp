@@ -1592,6 +1592,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     if (f.declaration().name() == "main") {
         this->writeGlobalInit();
         this->writeLine("    Outputs _out;");
+        this->writeLine("    (void)_out;");
     }
 
     fFunctionHeader = "";
@@ -2182,6 +2183,7 @@ void MetalCodeGenerator::writeGlobalInit() {
         void finish() {
             if (!fFirst) {
                 fCodeGen->writeLine("};");
+                fCodeGen->writeLine("    (void)_globals;");
             }
         }
         MetalCodeGenerator* fCodeGen = nullptr;
