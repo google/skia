@@ -343,9 +343,7 @@ void SkAnimatedImage::onDraw(SkCanvas* canvas) {
     {
         SkAutoCanvasRestore acr(canvas, fPostProcess != nullptr);
         canvas->concat(fMatrix);
-        SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
-        canvas->drawImage(image, 0, 0, &paint);
+        canvas->drawImage(image, 0, 0, SkSamplingOptions(SkFilterMode::kLinear), nullptr);
     }
     if (fPostProcess) {
         canvas->drawPicture(fPostProcess);

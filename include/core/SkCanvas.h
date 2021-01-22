@@ -1659,6 +1659,10 @@ public:
 
     void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkSamplingOptions&,
                    const SkPaint* = nullptr);
+    void drawImage(const sk_sp<SkImage> image, SkScalar x, SkScalar y,
+                   const SkSamplingOptions& sampling, const SkPaint* paint = nullptr) {
+        this->drawImage(image.get(), x, y, sampling, paint);
+    }
     void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint*, SrcRectConstraint);
     void drawImageRect(const SkImage*, const SkRect& dst, const SkSamplingOptions&,
