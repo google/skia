@@ -8,9 +8,9 @@
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
+#include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/tessellate/GrFillPathShader.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
@@ -35,29 +35,6 @@ GrPathTessellateOp::FixedFunctionFlags GrPathTessellateOp::fixedFunctionFlags() 
     return flags;
 }
 
-namespace {
-
-class CpuTriangleAllocator : public GrEagerVertexAllocator {
-public:
-    CpuTriangleAllocator(SkArenaAlloc* arena, const SkPoint** data) : fArena(arena), fData(data) {}
-
-    void* lock(size_t stride, int eagerCount) override {
-        SkASSERT(!*fData);
-        SkASSERT(stride == sizeof(SkPoint));
-        SkPoint* data = fArena->makeArray<SkPoint>(eagerCount);
-        *fData = data;
-        return data;
-    }
-
-    void unlock(int actualCount) override { SkASSERT(*fData); }
-
-private:
-    SkArenaAlloc* const fArena;
-    const SkPoint** fData;
-};
-
-}
-
 void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
                                       const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
                                       const GrXferProcessor::DstProxyView& dstProxyView,
@@ -66,10 +43,8 @@ void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
     SkArenaAlloc* recordTimeAllocator = context->priv().recordTimeAllocator();
     GrAppliedHardClip hardClip = GrAppliedHardClip(
             (clip) ? clip->hardClip() : GrAppliedHardClip::Disabled());
-    CpuTriangleAllocator cpuTriangleAllocator(recordTimeAllocator, &fOffThreadInnerTriangulation);
     PrePrepareArgs args{recordTimeAllocator, writeView, &hardClip, clip, &dstProxyView,
-                        renderPassXferBarriers, colorLoadOp, context->priv().caps(),
-                        &cpuTriangleAllocator};
+                        renderPassXferBarriers, colorLoadOp, context->priv().caps()};
 
     this->prePreparePrograms(args);
 
@@ -168,11 +143,10 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
     SkASSERT(fTriangleVertexCount == 0);
     SkASSERT(!fStencilTrianglesProgram);
     SkASSERT(!fFillTrianglesProgram);
-    fTriangleVertexCount = GrTriangulator::TriangulateSimpleInnerPolygons(
-            fPath, args.fInnerTriangleAllocator, isLinear);
-    if (fTriangleVertexCount == 0) {
-        // Mode::kSimpleInnerPolygons causes PathToTriangles to fail if the inner polygon(s) are not
-        // simple.
+    fInnerFanTriangulator = args.fArena->make<GrInnerFanTriangulator>(fPath, nullptr);
+    fInnerFanPolys = fInnerFanTriangulator->pathToPolys(isLinear);
+    if (!fInnerFanPolys) {
+        // pathToPolys will fail if the inner polygon(s) are not simple.
         return false;
     }
     if ((fOpFlags & (OpFlags::kStencilOnly | OpFlags::kWireframe)) ||
@@ -397,27 +371,21 @@ void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
 
     if (!fPipelineForStencils && !fPipelineForFills) {
         // Nothing has been prePrepared yet. Do it now.
-        GrEagerDynamicVertexAllocator innerTriangleAllocator(flushState, &fTriangleBuffer,
-                                                             &fBaseTriangleVertex);
         GrAppliedHardClip hardClip = GrAppliedHardClip(flushState->appliedHardClip());
         GrAppliedClip clip = flushState->detachAppliedClip();
         PrePrepareArgs args{flushState->allocator(), flushState->writeView(), &hardClip,
                             &clip, &flushState->dstProxyView(),
                             flushState->renderPassBarriers(), flushState->colorLoadOp(),
-                            &flushState->caps(), &innerTriangleAllocator};
+                            &flushState->caps()};
         this->prePreparePrograms(args);
     }
 
-    if (fTriangleVertexCount != 0) {
+    if (fInnerFanPolys) {
         // prePreparePrograms was able to generate an inner polygon triangulation. It will exist in
         // either fOffThreadInnerTriangulation or fTriangleBuffer exclusively.
-        SkASSERT(SkToBool(fOffThreadInnerTriangulation) != SkToBool(fTriangleBuffer));
-        if (fOffThreadInnerTriangulation) {
-            // DDL generated the triangle buffer data off thread. Copy it to GPU.
-            void* data = flushState->makeVertexSpace(sizeof(SkPoint), fTriangleVertexCount,
-                                                     &fTriangleBuffer, &fBaseTriangleVertex);
-            memcpy(data, fOffThreadInnerTriangulation, fTriangleVertexCount * sizeof(SkPoint));
-        }
+        SkASSERT(fInnerFanTriangulator);
+        GrEagerDynamicVertexAllocator alloc(flushState, &fTriangleBuffer, &fBaseTriangleVertex);
+        fTriangleVertexCount = fInnerFanTriangulator->polysToTriangles(fInnerFanPolys, &alloc);
     } else if (fStencilTrianglesProgram) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.
@@ -458,14 +426,16 @@ void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
 void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
     if (fFillTrianglesProgram) {
         SkASSERT(fTriangleBuffer);
-        SkASSERT(fTriangleVertexCount > 0);
 
         // We have a triangulation of the path's inner polygon. This is the fast path. Fill those
         // triangles directly to the screen.
-        flushState->bindPipelineAndScissorClip(*fFillTrianglesProgram, this->bounds());
-        flushState->bindTextures(fFillTrianglesProgram->primProc(), nullptr, *fPipelineForFills);
-        flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
-        flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
+        if (fTriangleVertexCount > 0) {
+            flushState->bindPipelineAndScissorClip(*fFillTrianglesProgram, this->bounds());
+            flushState->bindTextures(fFillTrianglesProgram->primProc(), nullptr,
+                                     *fPipelineForFills);
+            flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
+            flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
+        }
 
         if (fTessellator) {
             // At this point, every pixel is filled in except the ones touched by curves.
