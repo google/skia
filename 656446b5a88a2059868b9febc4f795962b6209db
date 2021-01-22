@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fea1441_8152176f",
+        "filename": "modules/svg/include/SkSVGFilterContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-22T17:21:56Z",
+      "side": 1,
+      "message": "Instead of making optional/lazy-initialized, could we always initialize with SourceGraphic {nullptr, \u003cfilter_effects_region\u003e, SRGB}  and run with it?",
+      "revId": "656446b5a88a2059868b9febc4f795962b6209db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
