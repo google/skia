@@ -1682,7 +1682,7 @@ DEF_TEST(Codec_ossfuzz6274, r) {
     bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bm);
-    canvas.drawImage(image, 0, 0, nullptr);
+    canvas.drawImage(image, 0, 0);
 
     for (int i = 0; i < image->width();  ++i)
     for (int j = 0; j < image->height(); ++j) {
@@ -1772,7 +1772,7 @@ DEF_TEST(Codec_crbug807324, r) {
     bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bm);
-    canvas.drawImage(image, 0, 0, nullptr);
+    canvas.drawImage(image, 0, 0);
 
     for (int i = 0; i < kWidth;  ++i)
     for (int j = 0; j < kHeight; ++j) {

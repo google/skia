@@ -91,7 +91,7 @@ sk_sp<SkImage> SkAnimCodecPlayer::getFrameAt(int index) {
             SkAssertResult(originMatrix.invert(&inverse));
             canvas->concat(inverse);
         }
-        canvas->drawImage(requiredImage, 0, 0, &paint);
+        canvas->drawImage(requiredImage, 0, 0, SkSamplingOptions(), &paint);
         opts.fPriorFrame = requiredFrame;
     }
 
@@ -107,7 +107,7 @@ sk_sp<SkImage> SkAnimCodecPlayer::getFrameAt(int index) {
         data = SkData::MakeUninitialized(size);
         auto canvas = SkCanvas::MakeRasterDirect(imageInfo, data->writable_data(), rb);
         canvas->concat(originMatrix);
-        canvas->drawImage(image, 0, 0, &paint);
+        canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
         image = SkImage::MakeRasterData(imageInfo, std::move(data), rb);
     }
     return fImages[index] = image;

@@ -1282,18 +1282,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 if (usePaint) {
                     fuzz_paint(fuzz, &paint, depth - 1);
                 }
-                canvas->drawImage(img.get(), left, top, usePaint ? &paint : nullptr);
-                break;
-            }
-            case 34: {
-                auto img = make_fuzz_image(fuzz);
-                SkRect src, dst;
-                bool usePaint;
-                fuzz->next(&src, &dst, &usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                canvas->drawImageRect(img, src, dst, usePaint ? &paint : nullptr);
+                canvas->drawImage(img.get(), left, top, SkSamplingOptions(),
+                                  usePaint ? &paint : nullptr);
                 break;
             }
             case 35: {
@@ -1308,18 +1298,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 SkCanvas::SrcRectConstraint constraint =
                         make_fuzz_t<bool>(fuzz) ? SkCanvas::kStrict_SrcRectConstraint
                                                 : SkCanvas::kFast_SrcRectConstraint;
-                canvas->drawImageRect(img, src, dst, usePaint ? &paint : nullptr, constraint);
-                break;
-            }
-            case 36: {
-                bool usePaint;
-                auto img = make_fuzz_image(fuzz);
-                SkRect dst;
-                fuzz->next(&dst, &usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                canvas->drawImageRect(img, dst, usePaint ? &paint : nullptr);
+                canvas->drawImageRect(img.get(), SkRect::Make(src), dst, SkSamplingOptions(),
+                                      usePaint ? &paint : nullptr, constraint);
                 break;
             }
             case 37: {

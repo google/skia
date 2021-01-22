@@ -1852,6 +1852,7 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->onDrawPath(path, paint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     this->drawImage(image, x, y, paint_to_sampling(paint, this->recordingContext()), paint);
 }
@@ -1880,6 +1881,7 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPa
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         kFast_SrcRectConstraint);
 }
+#endif
 
 static SkPaint clean_paint_for_lattice(const SkPaint* paint) {
     SkPaint cleaned;
@@ -2362,11 +2364,10 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst,
-                             const SkSamplingOptions& sampling, const SkPaint* paint,
-                             SrcRectConstraint constraint) {
+                             const SkSamplingOptions& sampling, const SkPaint* paint) {
     RETURN_ON_NULL(image);
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, sampling,
-                        paint, constraint);
+                        paint, kFast_SrcRectConstraint);
 }
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,

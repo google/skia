@@ -1666,7 +1666,16 @@ public:
     void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint*, SrcRectConstraint);
     void drawImageRect(const SkImage*, const SkRect& dst, const SkSamplingOptions&,
-                       const SkPaint*, SrcRectConstraint);
+                       const SkPaint* = nullptr);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+                       const SkSamplingOptions& sampling, const SkPaint* paint,
+                       SrcRectConstraint constraint) {
+        this->drawImageRect(image.get(), src, dst, sampling, paint, constraint);
+    }
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst,
+                       const SkSamplingOptions& sampling, const SkPaint* paint = nullptr) {
+        this->drawImageRect(image.get(), dst, sampling, paint);
+    }
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
         SkIRect center divides the image into nine sections: four sides, four corners, and
