@@ -16,6 +16,24 @@
       "message": "Maybe worth a unit test?",
       "revId": "28673b8143b8cd49197c52275280d7cbabb62001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd06b51f_593a1545",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-22T19:05:16Z",
+      "side": 1,
+      "message": "When in doubt, the answer here is always \"yes\" :)",
+      "parentUuid": "79028b1f_36cbdac1",
+      "revId": "28673b8143b8cd49197c52275280d7cbabb62001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
