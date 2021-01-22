@@ -19,13 +19,21 @@ class ErrorReporter {
 public:
     virtual ~ErrorReporter() {}
 
+    /** Reports an error message at the given character offset of the source text. */
+    virtual void error(int offset, String msg) = 0;
+
     void error(int offset, const char* msg) {
         this->error(offset, String(msg));
     }
 
-    virtual void error(int offset, String msg) = 0;
-
+    /** Returns the number of errors that have been reported. */
     virtual int errorCount() = 0;
+
+    /**
+     * Truncates the error list to the first `numErrors` reports. This allows us to backtrack and
+     * try another approach if a problem is encountered while speculatively parsing code.
+     */
+    virtual void setErrorCount(int numErrors) = 0;
 };
 
 /**
@@ -35,6 +43,7 @@ class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
     void error(int offset, String msg) override { ABORT("%s", msg.c_str()); }
     int errorCount() override { return 0; }
+    void setErrorCount(int) override {}
 };
 
 }  // namespace SkSL
