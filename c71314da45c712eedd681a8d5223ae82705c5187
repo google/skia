@@ -34,6 +34,24 @@
       "parentUuid": "01cc368b_81f6081e",
       "revId": "c71314da45c712eedd681a8d5223ae82705c5187",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52103721_d6de5ce7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2021-01-22T17:42:06Z",
+      "side": 1,
+      "message": "if not hard maybe we should.. to be specific about where the GPL comes in. we have some clients sensitive to this type of license",
+      "parentUuid": "aa797694_7ce0d653",
+      "revId": "c71314da45c712eedd681a8d5223ae82705c5187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
