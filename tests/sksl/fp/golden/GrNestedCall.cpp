@@ -42,7 +42,7 @@ R"SkSL(return %s();
 , func1_name.c_str());
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
 };
 GrGLSLFragmentProcessor* GrNestedCall::onCreateGLSLInstance() const {

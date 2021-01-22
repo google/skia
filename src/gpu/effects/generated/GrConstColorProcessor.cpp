@@ -36,7 +36,8 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrConstColorProcessor& _outer = _proc.cast<GrConstColorProcessor>();
         {
             const SkPMColor4f& colorValue = _outer.color;

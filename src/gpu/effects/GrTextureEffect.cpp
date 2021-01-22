@@ -117,7 +117,8 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         return r;
     };
 
-    SkISize dim = proxy.isFullyLazy() ? SkISize{-1, -1} : proxy.backingStoreDimensions();
+    SkISize dim = proxy.isFullyLazy() || proxy.isDDLTarget() ? SkISize{-1, -1}
+                                                             : proxy.backingStoreDimensions();
 
     Span subsetX{subset.fLeft, subset.fRight};
     auto domainX = domain ? Span{domain->fLeft, domain->fRight}
@@ -155,7 +156,7 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
     SkMatrix combined = preMatrix;
     bool canNormalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
     if (canNormalize) {
-        if (view.proxy()->isFullyLazy()) {
+        if (view.proxy()->isFullyLazy() || view.proxy()->isDDLTarget()) {
             *outLazyProxyNormalization = true;
         } else {
             SkMatrixPriv::PostIDiv(&combined, view.proxy()->backingStoreDimensions().fWidth,
@@ -325,8 +326,8 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
     auto& te = args.fFp.cast<GrTextureEffect>();
     auto* fb = args.fFragBuilder;
 
-    if (te.fShaderModes[0] == ShaderMode::kNone &&
-        te.fShaderModes[1] == ShaderMode::kNone) {
+    if ((te.fShaderModes[0] == ShaderMode::kNone &&
+        te.fShaderModes[1] == ShaderMode::kNone)) { // || te.fLazyProxyNormalization) {
         fb->codeAppendf("return ");
         if (te.fLazyProxyNormalization) {
             const char* norm = nullptr;
@@ -361,6 +362,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         fb->codeAppendf("float2 inCoord = %s;", args.fSampleCoord);
 
         const auto& m = te.fShaderModes;
+
         GrTextureType textureType = te.view().proxy()->backendFormat().textureType();
         bool canNormalize = textureType != GrTextureType::kRectangle;
 
@@ -416,6 +418,11 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
           }
           SkUNREACHABLE;
         };
+
+        GrTextureType textureType1 = te.view().proxy()->backendFormat().textureType();
+        bool normCoords = (textureType1 != GrTextureType::kRectangle) &&
+                          (modeRequiresUnormCoords(m[0]) || modeRequiresUnormCoords(m[1]));
+//        normCoords |= te.fLazyProxyNormalization;
 
         bool useSubset[2] = {modeUsesSubset(m[0]), modeUsesSubset(m[1])};
         bool useClamp [2] = {modeUsesClamp (m[0]), modeUsesClamp (m[1])};
@@ -714,19 +721,28 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 }
 
 void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
-                                      const GrFragmentProcessor& fp) {
+                                      const GrFragmentProcessor& fp,
+                                      SkIPoint viewportOffset) {
     const auto& te = fp.cast<GrTextureEffect>();
 
     const float w = te.texture()->width();
     const float h = te.texture()->height();
-    const auto& s = te.fSubset;
-    const auto& c = te.fClamp;
+    auto s = te.fSubset;
+    auto c = te.fClamp;
+
+    if (te.fView.asTextureProxy()->isDDLTarget()) {
+//        s.offset(viewportOffset.fX, viewportOffset.fY);
+//        c.offset(viewportOffset.fX, viewportOffset.fY);
+        int i = 0;
+    }
 
     auto type = te.texture()->textureType();
 
     float norm[4] = {w, h, 1.f/w, 1.f/h};
 
     if (fNormUni.isValid()) {
+        SkDebugf("^^^^^^^^^^^^^^^^^^^^^^ norming to %.2f %.2f %.2f %.2f\n", norm[0], norm[1], norm[2], norm[3]);
+
         pdm.set4fv(fNormUni, 1, norm);
         SkASSERT(type != GrTextureType::kRectangle);
     }
@@ -743,6 +759,7 @@ void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
             rect[1] *= norm[3];
             rect[3] *= norm[3];
         }
+        SkDebugf("+++++++++++++++++++++++ pushing %.2f %.2f %.2f %.2f\n", rect[0], rect[1], rect[2], rect[3]);
         pdm.set4fv(uni, 1, rect);
     };
 

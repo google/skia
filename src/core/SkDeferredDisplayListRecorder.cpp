@@ -175,12 +175,11 @@ bool SkDeferredDisplayListRecorder::init() {
             surfaceFlags,
             optionalTextureInfo,
             GrMipmapStatus::kNotAllocated,
-            SkBackingFit::kExact,
+            SkBackingFit::kApprox,
             SkBudgeted::kYes,
             fCharacterization.isProtected(),
             fCharacterization.vulkanSecondaryCBCompatible(),
             GrSurfaceProxy::UseAllocator::kYes);
-
     if (!fTargetProxy) {
         return false;
     }
@@ -191,11 +190,14 @@ bool SkDeferredDisplayListRecorder::init() {
     GrSurfaceProxyView readView(fTargetProxy, fCharacterization.origin(), readSwizzle);
     GrSurfaceProxyView writeView(fTargetProxy, fCharacterization.origin(), writeSwizzle);
 
-    auto rtc = std::make_unique<GrSurfaceDrawContext>(fContext.get(), std::move(readView),
-                                                      std::move(writeView), grColorType,
+    auto sdc = std::make_unique<GrSurfaceDrawContext>(fContext.get(),
+                                                      std::move(readView),
+                                                      std::move(writeView),
+                                                      grColorType,
                                                       fCharacterization.refColorSpace(),
                                                       &fCharacterization.surfaceProps());
-    fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(rtc));
+
+    fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(sdc));
     return SkToBool(fSurface.get());
 }
 

@@ -103,7 +103,8 @@ void GrGLProgram::abandon() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
-                                 const GrProgramInfo& programInfo) {
+                                 const GrProgramInfo& programInfo,
+                                 SkIPoint viewportOffset) {
     this->setRenderTargetState(renderTarget, programInfo.origin(), programInfo.primProc());
 
     // we set the uniforms for installed processors in a generic way, but subclasses of GLProgram
@@ -112,13 +113,13 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     // We must bind to texture units in the same order in which we set the uniforms in
     // GrGLProgramDataManager. That is, we bind textures for processors in this order:
     // primProc, fragProcs, XP.
-    fPrimitiveProcessor->setData(fProgramDataManager, programInfo.primProc());
+    fPrimitiveProcessor->setData(fProgramDataManager, programInfo.primProc(), viewportOffset);
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& pipelineFP = programInfo.pipeline().getFragmentProcessor(i);
         auto& baseGLSLFP = *fFragmentProcessors[i];
         for (auto [fp, glslFP] : GrGLSLFragmentProcessor::ParallelRange(pipelineFP, baseGLSLFP)) {
-            glslFP.setData(fProgramDataManager, fp);
+            glslFP.setData(fProgramDataManager, fp, viewportOffset);
         }
     }
 

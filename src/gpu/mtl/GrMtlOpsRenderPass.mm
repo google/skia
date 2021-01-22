@@ -113,6 +113,10 @@ void GrMtlOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
                                                    fOrigin, scissor);
 }
 
+void GrMtlOpsRenderPass::onSetViewport(const SkIRect& viewport) {
+
+}
+
 bool GrMtlOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                         const GrSurfaceProxy* const primProcTextures[],
                                         const GrPipeline& pipeline) {

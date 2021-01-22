@@ -44,7 +44,9 @@ public:
         fragBuilder->codeAppendf("%s = half4(factor);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& proc,
+                 SkIPoint viewportOffset) override {
     }
 
 private:

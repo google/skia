@@ -28,7 +28,7 @@ R"SkSL(return %s;
 , args.fUniformHandler->getUniformCStr(colorVar));
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
         const GrInUniform& _outer = _proc.cast<GrInUniform>();
         {
         pdman.set4fv(colorVar, 1, reinterpret_cast<const float*>(&(_outer.color)));

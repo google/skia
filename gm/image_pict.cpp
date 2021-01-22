@@ -313,11 +313,13 @@ protected:
             return;
         }
 
+        SkISize dims = view.proxy()->backingStoreDimensions();
+
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
                                                 image->uniqueID(), std::move(view),
                                                 image->colorType(), image->alphaType(),
-                                                image->refColorSpace()));
+                                                image->refColorSpace(), dims));
         canvas->drawImage(texImage.get(), x, y);
     }
 

@@ -116,7 +116,7 @@ public:
      *
      * It is the caller's responsibility to ensure the program is bound before calling.
      */
-    void updateUniforms(const GrRenderTarget*, const GrProgramInfo&);
+    void updateUniforms(const GrRenderTarget*, const GrProgramInfo&, SkIPoint viewportOffset);
 
     /**
      * Binds all primitive processor and fragment processor textures.

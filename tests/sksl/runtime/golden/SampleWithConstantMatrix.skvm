@@ -19,9 +19,9 @@ loop:
 16	    r9 = div_f32 r4 r9
 17	    r10 = mul_f32 r10 r9
 18	    r9 = mul_f32 r11 r9
-19	    r10 = trunc r10
-20	    r9 = trunc r9
-21	    r9 = mul_i32 r9 r1
+19	    r9 = trunc r9
+20	    r9 = mul_i32 r9 r1
+21	    r10 = trunc r10
 22	    r9 = add_i32 r10 r9
 23	    r9 = shl_i32 r9 2
 24	    r10 = gather32 ptr0 4 r9
