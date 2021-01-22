@@ -57,7 +57,6 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setFilterQuality(kNone_SkFilterQuality);
         paint.setAntiAlias(true);
         static constexpr SkScalar kPad = 2;
         // To avoid tripping up bounds tracking we position the draws such that all the
@@ -71,7 +70,8 @@ protected:
                     SkScalar imageYOffset = i * rowsPerImage * (kImageSize.fHeight + kPad);
                     SkScalar rowYOffset = (r / imagesPerRow) * (kImageSize.fHeight + kPad);
                     SkScalar x = (r % imagesPerRow) * (kImageSize.fWidth + kPad);
-                    canvas->drawImage(fImages[i].get(), x, imageYOffset + rowYOffset, &paint);
+                    canvas->drawImage(fImages[i].get(), x, imageYOffset + rowYOffset,
+                                      SkSamplingOptions(), &paint);
                 }
             }
             // Prevent any batching between "frames".

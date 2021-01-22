@@ -116,7 +116,7 @@ private:
         p.setColorFilter(fColorFilter);
 
         for (int i = 0; i < loops; ++i) {
-            canvas->drawImage(fImage, 0, 0, &p);
+            canvas->drawImage(fImage, 0, 0, SkSamplingOptions(), &p);
         }
     }
 

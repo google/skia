@@ -278,7 +278,7 @@ static void fuzz_drawImage(Fuzz* fuzz) {
     SkScalar a, b;
     fuzz->next(&a, &b);
     if (bl) {
-        surface->getCanvas()->drawImage(image, a, b, &p);
+        surface->getCanvas()->drawImage(image, a, b, SkSamplingOptions(), &p);
     }
     else {
         SkRect dst = SkRect::MakeWH(a, b);
@@ -287,7 +287,7 @@ static void fuzz_drawImage(Fuzz* fuzz) {
         uint8_t x;
         fuzz->nextRange(&x, 0, 1);
         SkCanvas::SrcRectConstraint cst = (SkCanvas::SrcRectConstraint)x;
-        surface->getCanvas()->drawImageRect(image, src, dst, &p, cst);
+        surface->getCanvas()->drawImageRect(image.get(), src, dst, SkSamplingOptions(), &p, cst);
     }
 }
 
