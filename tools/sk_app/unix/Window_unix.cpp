@@ -368,8 +368,11 @@ bool Window_unix::handleEvent(const XEvent& event) {
 
 void Window_unix::setTitle(const char* title) {
     XTextProperty textproperty;
-    XStringListToTextProperty(const_cast<char**>(&title), 1, &textproperty);
+    if (!XStringListToTextProperty(const_cast<char**>(&title), 1, &textproperty)) {
+        return;
+    }
     XSetWMName(fDisplay, fWindow, &textproperty);
+    XFree(textproperty.value);
 }
 
 void Window_unix::show() {
