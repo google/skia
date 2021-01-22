@@ -33,64 +33,6 @@ public:
         return count;
     }
 
-    // The breadcrumb triangles serve as a glue that erases T-junctions between a path's outer
-    // curves and its inner polygon triangulation. Drawing a path's outer curves, breadcrumb
-    // triangles, and inner polygon triangulation all together into the stencil buffer has the same
-    // identical rasterized effect as stenciling a classic Redbook fan.
-    //
-    // The breadcrumb triangles track all the edge splits that led from the original inner polygon
-    // edges to the final triangulation. Every time an edge splits, we emit a razor-thin breadcrumb
-    // triangle consisting of the edge's original endpoints and the split point. (We also add
-    // supplemental breadcrumb triangles to areas where abs(winding) > 1.)
-    //
-    //                a
-    //               /
-    //              /
-    //             /
-    //            x  <- Edge splits at x. New breadcrumb triangle is: [a, b, x].
-    //           /
-    //          /
-    //         b
-    //
-    // The opposite-direction shared edges between the triangulation and breadcrumb triangles should
-    // all cancel out, leaving just the set of edges from the original polygon.
-    class BreadcrumbTriangleCollector { public:
-        void push(SkPoint a, SkPoint b, SkPoint c, int winding) {
-            if (a != b && a != c && b != c) {
-                if (winding > 0) {
-                    this->onPush(a, b, c, winding);
-                } else if (winding < 0) {
-                    this->onPush(b, a, c, -winding);
-                }
-            }
-        }
-        virtual ~BreadcrumbTriangleCollector() {}
-    private:
-        virtual void onPush(SkPoint a, SkPoint b, SkPoint c, int winding) = 0;
-    };
-
-    static int TriangulateInnerPolygons(const SkPath& path, GrEagerVertexAllocator* vertexAllocator,
-                                        BreadcrumbTriangleCollector* breadcrumbTriangles, bool
-                                        *isLinear) {
-        GrTriangulator triangulator(path);
-        triangulator.fCullCollinearVertices = false;
-        triangulator.fBreadcrumbTriangles = breadcrumbTriangles;
-        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty(), isLinear);
-        int count = triangulator.polysToTriangles(polys, vertexAllocator);
-        return count;
-    }
-
-    static int TriangulateSimpleInnerPolygons(const SkPath& path,
-                                              GrEagerVertexAllocator* vertexAllocator,
-                                              bool *isLinear) {
-        GrTriangulator triangulator(path);
-        triangulator.fCullCollinearVertices = false;
-        triangulator.fDisallowSelfIntersection = true;
-        Poly* polys = triangulator.pathToPolys(0, SkRect::MakeEmpty(), isLinear);
-        int count = triangulator.polysToTriangles(polys, vertexAllocator);
-        return count;
-    }
-
     struct WindingVertex {
         SkPoint fPos;
         int fWinding;
@@ -246,6 +188,44 @@ protected:
     bool fEmitCoverage = false;
     bool fCullCollinearVertices = true;
     bool fDisallowSelfIntersection = false;
+
+    // The breadcrumb triangles serve as a glue that erases T-junctions between a path's outer
+    // curves and its inner polygon triangulation. Drawing a path's outer curves, breadcrumb
+    // triangles, and inner polygon triangulation all together into the stencil buffer has the same
+    // identical rasterized effect as stenciling a classic Redbook fan.
+    //
+    // The breadcrumb triangles track all the edge splits that led from the original inner polygon
+    // edges to the final triangulation. Every time an edge splits, we emit a razor-thin breadcrumb
+    // triangle consisting of the edge's original endpoints and the split point. (We also add
+    // supplemental breadcrumb triangles to areas where abs(winding) > 1.)
+    //
+    //                a
+    //               /
+    //              /
+    //             /
+    //            x  <- Edge splits at x. New breadcrumb triangle is: [a, b, x].
+    //           /
+    //          /
+    //         b
+    //
+    // The opposite-direction shared edges between the triangulation and breadcrumb triangles should
+    // all cancel out, leaving just the set of edges from the original polygon.
+    class BreadcrumbTriangleCollector {
+    public:
+        void push(SkPoint a, SkPoint b, SkPoint c, int winding) {
+            if (a != b && a != c && b != c) {
+                if (winding > 0) {
+                    this->onPush(a, b, c, winding);
+                } else if (winding < 0) {
+                    this->onPush(b, a, c, -winding);
+                }
+            }
+        }
+        virtual ~BreadcrumbTriangleCollector() {}
+    private:
+        virtual void onPush(SkPoint, SkPoint, SkPoint, int winding) = 0;
+    };
+
     BreadcrumbTriangleCollector* fBreadcrumbTriangles = nullptr;
 };
 
