@@ -382,6 +382,8 @@ private:
 
     void writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out);
 
+    MemoryLayout memoryLayoutForVariable(const Variable&) const;
+
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
 
