@@ -70,6 +70,30 @@
       },
       "revId": "c77bc7d2ba2d724fcfe0a928074bf5f2c46dd2c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ee6e9c6_0f6bebf3",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T14:36:47Z",
+      "side": 0,
+      "message": "Looks like 32k uncompressed, and ~9.5k after brotli:\n\nhttps://docs.google.com/spreadsheets/d/13DJvymL3zNBYzLlxwz0i6lJc-kspWEBNQG3qSUsPd84/edit?usp\u003dsharing",
+      "parentUuid": "1741cd99_2e47fd39",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 25
+      },
+      "revId": "c77bc7d2ba2d724fcfe0a928074bf5f2c46dd2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
