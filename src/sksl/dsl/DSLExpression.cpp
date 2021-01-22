@@ -58,7 +58,7 @@ DSLExpression::DSLExpression(const DSLVar& var)
 
 DSLExpression::~DSLExpression() {
     SkASSERTF(fExpression == nullptr,
-              "Expression destroyed without being incorporated into output tree");
+              "Expression destroyed without being incorporated into program");
 }
 
 std::unique_ptr<SkSL::Expression> DSLExpression::release() {
