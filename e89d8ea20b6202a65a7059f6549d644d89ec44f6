@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7411b182_013e9c37",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-22T02:06:49Z",
+      "side": 1,
+      "message": "These two args arrays are both actually quite large aren\u0027t they?  I think, 18 and 21 pointers?  I think that means everything you\u0027ve been measuring has been against the interpreter.\n\nIf we can work out how to decrease the number of pointers here (e.g. grouping in fours and using load128 and store128), or if I get the JIT to support this larger number of pointers, or we meet those two ideas in the middle... then we can see how this all runs on the JIT too!",
+      "range": {
+        "startLine": 279,
+        "startChar": 10,
+        "endLine": 279,
+        "endChar": 14
+      },
+      "revId": "e89d8ea20b6202a65a7059f6549d644d89ec44f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
