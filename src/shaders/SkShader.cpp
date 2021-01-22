@@ -284,3 +284,31 @@ skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, s
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
     return SkShaders::Empty();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "include/core/SkCanvas.h"
+
+sk_sp<SkImage> SkShader::makeImage(GrRecordingContext* ctx, const SkImageInfo& info,
+                                   bool mips) const {
+    if (info.alphaType() == kUnpremul_SkAlphaType) {
+        // We don't have a good way of supporting this right now. In this case the runtime effect
+        // will produce a unpremul value. The shader generated from it is assumed to produce
+        // premul and RGB get pinned to A. Moreover, after the blend in premul the new dst is
+        // unpremul'ed, producing a double unpremul result.
+        return nullptr;
+    }
+
+    auto surf = ctx ? SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, info, 0, nullptr)
+                    : SkSurface::MakeRaster(info);
+    if (!surf) {
+        return nullptr;
+    }
+
+    SkPaint paint;
+    paint.setShader(sk_ref_sp(const_cast<SkShader*>(this)));
+    paint.setBlendMode(SkBlendMode::kSrc);
+    surf->getCanvas()->drawPaint(paint);
+    // TODO: Specify snapshot should have mip levels if mipmapped is true.
+    return surf->makeImageSnapshot();
+}
