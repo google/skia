@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9b4cc26_d3e90e2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-22T22:29:43Z",
+      "side": 1,
+      "message": "confirmed that this works on Android!",
+      "revId": "1443e081c4da4cc1918bd769e40899391b16912e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e776589d_293cdabf",
