@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e776589d_293cdabf",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-22T22:15:46Z",
+      "side": 1,
+      "message": "Perhaps from here down, it just calls shader-\u003emakeImage(info, bool)\n\nwhich I will sketch out now :)",
+      "range": {
+        "startLine": 771,
+        "startChar": 3,
+        "endLine": 771,
+        "endChar": 5
+      },
+      "revId": "1443e081c4da4cc1918bd769e40899391b16912e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
