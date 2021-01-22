@@ -189,6 +189,8 @@ public:
         return fErrorCount;
     }
 
+    void setErrorCount(int c) override;
+
     Context& context() {
         return *fContext;
     }
@@ -303,6 +305,7 @@ private:
     const String* fSource;
     int fErrorCount;
     String fErrorText;
+    std::vector<size_t> fErrorTextLength;
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;

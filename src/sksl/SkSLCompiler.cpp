@@ -2126,7 +2126,16 @@ Position Compiler::position(int offset) {
 void Compiler::error(int offset, String msg) {
     fErrorCount++;
     Position pos = this->position(offset);
+    fErrorTextLength.push_back(fErrorText.length());
     fErrorText += "error: " + (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
+}
+
+void Compiler::setErrorCount(int c) {
+    if (c < fErrorCount) {
+        fErrorText.resize(fErrorTextLength[c]);
+        fErrorTextLength.resize(c);
+        fErrorCount = c;
+    }
 }
 
 String Compiler::errorText(bool showCount) {
