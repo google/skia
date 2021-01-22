@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01cc368b_81f6081e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-22T15:52:45Z",
+      "side": 1,
+      "message": "Heather was trying to confirm why they had GPL in the list.",
+      "revId": "c71314da45c712eedd681a8d5223ae82705c5187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
