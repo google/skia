@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "eee7e208_c551d777",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-22T22:53:27Z",
+      "side": 1,
+      "message": "\u0027lost\u0027 in this context makes sense one way \"lost in translation\" but not in other ways \"was lost to knowledge\". Plenty of type designers and graphic designers were aware of optical sizing issues and were still doing it manually. This is more an issue of automatic layout not considering the optical size issue. Maybe \"overlooked while automating\"?\n\nAlso, I wanted to hint at there being other parts of the manual process which may not have made it into the automation.\n\nI re-worded this.",
+      "parentUuid": "a56f9c27_0c8e68d6",
+      "range": {
+        "startLine": 108,
+        "startChar": 57,
+        "endLine": 111,
+        "endChar": 23
+      },
+      "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ae49981e_e6762c9b",
         "filename": "site/dev/design/raster_tragedy/index.md",
         "patchSetId": 2
@@ -54,6 +78,30 @@
       "writtenOn": "2021-01-22T21:52:47Z",
       "side": 1,
       "message": "An alternate way the designer could provide optical sized fonts is using multiple font files...",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 35
+      },
+      "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "997cf542_06c433b8",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-22T22:53:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae49981e_e6762c9b",
       "range": {
         "startLine": 134,
         "startChar": 0,
@@ -77,6 +125,30 @@
       "writtenOn": "2021-01-22T21:52:47Z",
       "side": 1,
       "message": "drawn",
+      "range": {
+        "startLine": 191,
+        "startChar": 69,
+        "endLine": 191,
+        "endChar": 73
+      },
+      "revId": "8674ecafc96688c85b859733f30ba4fbaa615107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "10ae78de_54cde473",
+        "filename": "site/dev/design/raster_tragedy/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-22T22:53:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5da6feb_0ff00773",
       "range": {
         "startLine": 191,
         "startChar": 69,
