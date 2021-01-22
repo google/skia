@@ -4,7 +4,7 @@
  *
  *   User-selectable configuration macros (specification only).
  *
- * Copyright (C) 1996-2020 by
+ * Copyright (C) 1996-2021 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -292,6 +292,22 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * Brotli support.
+   *
+   *   FreeType uses the Brotli library to provide support for decompressing
+   *   WOFF2 streams.
+   *
+   *   Define this macro if you want to enable this 'feature'.
+   *
+   *   If you use a build system like cmake or the `configure` script,
+   *   options set by those programs have precedence, overwriting the value
+   *   here with the configured one.
+   */
+/* #define FT_CONFIG_OPTION_USE_BROTLI */
+
+
+  /**************************************************************************
+   *
    * Glyph Postscript Names handling
    *
    *   By default, FreeType 2 is compiled with the 'psnames' module.  This
@@ -413,6 +429,23 @@ FT_BEGIN_HEADER
    */
 /* #define FT_DEBUG_LEVEL_ERROR */
 /* #define FT_DEBUG_LEVEL_TRACE */
+
+
+  /**************************************************************************
+   *
+   * Logging
+   *
+   *   Compiling FreeType in debug or trace mode makes FreeType write error
+   *   and trace log messages to `stderr`.  Enabling this macro
+   *   automatically forces the `FT_DEBUG_LEVEL_ERROR` and
+   *   `FT_DEBUG_LEVEL_TRACE` macros and allows FreeType to write error and
+   *   trace log messages to a file instead of `stderr`.  For writing logs
+   *   to a file, FreeType uses an the external `dlg` library (the source
+   *   code is in `src/dlg`).
+   *
+   *   This option needs a C99 compiler.
+   */
+/* #define FT_DEBUG_LOGGING */
 
 
   /**************************************************************************
@@ -869,9 +902,11 @@ FT_BEGIN_HEADER
    *
    * Compile 'autofit' module with fallback Indic script support, covering
    * some scripts that the 'latin' submodule of the 'autofit' module doesn't
-   * (yet) handle.
+   * (yet) handle.  Currently, this needs option `AF_CONFIG_OPTION_CJK`.
    */
+#ifdef AF_CONFIG_OPTION_CJK
 #define AF_CONFIG_OPTION_INDIC
+#endif
 
 
   /**************************************************************************
@@ -940,6 +975,21 @@ FT_BEGIN_HEADER
 #define  TT_SUPPORT_SUBPIXEL_HINTING_MINIMAL
 #endif
 #endif
+#endif
+
+
+  /*
+   * The TT_SUPPORT_COLRV1 macro is defined to indicate to clients that this
+   * version of FreeType has support for 'COLR' v1 API.  This definition is
+   * useful to FreeType clients that want to build in support for 'COLR' v1
+   * depending on a tip-of-tree checkout before it is officially released in
+   * FreeType, and while the feature cannot yet be tested against using
+   * version macros.  Don't change this macro.  This may be removed once the
+   * feature is in a FreeType release version and version macros can be used
+   * to test for availability.
+   */
+#ifdef TT_CONFIG_OPTION_COLOR_LAYERS
+#define  TT_SUPPORT_COLRV1
 #endif
 
 
