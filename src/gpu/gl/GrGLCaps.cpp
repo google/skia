@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDontSetBaseOrMaxLevelForExternalTextures = false;
     fNeverDisableColorWrites = false;
     fMustSetAnyTexParameterToEnableMipmapping = false;
+    fAllowBGRA8CopyTexSubImage = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3278,8 +3279,10 @@ bool GrGLCaps::canCopyTexSubImage(GrGLFormat dstFormat, bool dstHasMSAARenderBuf
     if (GR_IS_GR_GL_ES(fStandard)) {
         // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
         // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it.
-        // Perhaps many drivers would allow it to work, but ANGLE does not.
-        if (dstFormat == GrGLFormat::kBGRA8 || srcFormat == GrGLFormat::kBGRA8) {
+        // ANGLE, for one, does not allow it. However, we've found it works on some drivers and
+        // avoids bugs with using glBlitFramebuffer.
+        if ((dstFormat == GrGLFormat::kBGRA8 || srcFormat == GrGLFormat::kBGRA8) &&
+            !fAllowBGRA8CopyTexSubImage) {
             return false;
         }
 
@@ -3540,6 +3543,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kQualcomm_GrGLDriver == ctxInfo.driver() &&
         ctxInfo.driverVersion() < GR_GL_DRIVER_VER(127, 0, 0)) {
         shaderCaps->fGeometryShaderSupport = false;
+    }
+
+    // glBlitFramebuffer seems to produce incorrect results on QC, Mali400, and Tegra3 but
+    // glCopyTexSubImage2D works (even though there is no extension that specifically allows it).
+    if (ctxInfo.vendor() == kQualcomm_GrGLVendor ||
+        ctxInfo.renderer() == kMali4xx_GrGLRenderer ||
+        ctxInfo.renderer() == kTegra_PreK1_GrGLRenderer) {
+        fAllowBGRA8CopyTexSubImage = true;
     }
 
 #if defined(__has_feature)

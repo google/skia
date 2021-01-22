@@ -783,7 +783,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		"async_rescale_and_read_dog_up",
 		"async_rescale_and_read_dog_down",
 		"async_rescale_and_read_rose",
-		"async_rescale_and_read_no_bleed"} {
+		"async_rescale_and_read_no_bleed",
+		"async_rescale_and_read_alpha_type",} {
 		skip("pic-8888", "gm", "_", test)
 		skip("serialize-8888", "gm", "_", test)
 

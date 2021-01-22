@@ -161,17 +161,17 @@ public:
      * different size than srcRect. Though, it could be relaxed to allow non-scaling color
      * conversions.
      */
-    std::unique_ptr<GrSurfaceDrawContext> rescale(const GrImageInfo& info,
+    std::unique_ptr<GrSurfaceFillContext> rescale(const GrImageInfo& info,
                                                   GrSurfaceOrigin,
                                                   SkIRect srcRect,
                                                   SkImage::RescaleGamma,
                                                   SkImage::RescaleMode);
 
     /**
-     * Like the above but allows the caller ot specify a destination draw context and
+     * Like the above but allows the caller ot specify a destination fill context and
      * rect within that context. The dst rect must be contained by the dst or this will fail.
      */
-    bool rescaleInto(GrSurfaceDrawContext* dst,
+    bool rescaleInto(GrSurfaceFillContext* dst,
                      SkIRect dstRect,
                      SkIRect srcRect,
                      SkImage::RescaleGamma,

@@ -353,10 +353,8 @@ static void draw_texture(GrSurfaceDrawContext* rtc,
     if (GrColorTypeIsAlphaOnly(srcColorInfo.colorType())) {
         view.concatSwizzle(GrSwizzle("aaaa"));
     }
-    const GrColorInfo& dstInfo(rtc->colorInfo());
-    auto textureXform =
-        GrColorSpaceXform::Make(srcColorInfo.colorSpace(), srcColorInfo.alphaType(),
-                                dstInfo.colorSpace(), kPremul_SkAlphaType);
+    const GrColorInfo& dstInfo = rtc->colorInfo();
+    auto textureXform = GrColorSpaceXform::Make(srcColorInfo, rtc->colorInfo());
     GrSurfaceProxy* proxy = view.proxy();
     // Must specify the strict constraint when the proxy is not functionally exact and the src
     // rect would access pixels outside the proxy's content area without the constraint.
@@ -856,9 +854,8 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
     int base = 0, n = 0, p = 0;
     auto draw = [&](int nextBase) {
         if (n > 0) {
-            auto textureXform = GrColorSpaceXform::Make(
-                    set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
-                    fSurfaceDrawContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
+            auto textureXform = GrColorSpaceXform::Make(set[base].fImage->imageInfo().colorInfo(),
+                                                        fSurfaceDrawContext->colorInfo());
             fSurfaceDrawContext->drawTextureSet(this->clip(),
                                                 textures.get() + base,
                                                 n,

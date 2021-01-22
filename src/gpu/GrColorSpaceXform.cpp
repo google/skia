@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrColorSpaceXform.h"
+
 #include "include/core/SkColorSpace.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -17,6 +19,12 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkAlphaType 
     SkColorSpaceXformSteps steps(src, srcAT, dst, dstAT);
     return steps.flags.mask() == 0 ? nullptr  /* Noop transform */
                                    : sk_make_sp<GrColorSpaceXform>(steps);
+}
+
+sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(const GrColorInfo& srcInfo,
+                                                 const GrColorInfo& dstInfo) {
+    return Make(srcInfo.colorSpace(), srcInfo.alphaType(),
+                dstInfo.colorSpace(), dstInfo.alphaType());
 }
 
 bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b) {
@@ -135,6 +143,13 @@ std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
         SkColorSpace* src, SkAlphaType srcAT,
         SkColorSpace* dst, SkAlphaType dstAT) {
     return Make(std::move(child), GrColorSpaceXform::Make(src, srcAT, dst, dstAT));
+}
+
+std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> child,
+        const GrColorInfo& srcInfo,
+        const GrColorInfo& dstInfo) {
+    return Make(std::move(child), GrColorSpaceXform::Make(srcInfo, dstInfo));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
