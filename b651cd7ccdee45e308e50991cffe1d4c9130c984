@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "459f2365_a922416f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-22T14:38:55Z",
+      "side": 1,
+      "message": "Beautiful! Much happier with this approach :-)",
+      "revId": "b651cd7ccdee45e308e50991cffe1d4c9130c984",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30ea073e_5069eb62",
+        "filename": "src/sksl/SkSLErrorReporter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-22T14:38:55Z",
+      "side": 1,
+      "message": "I feel like this deserves a comment - the other methods are self-explanatory, but if I were to happen upon this cold I would have no idea why this method even exists.",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 30,
+        "endChar": 50
+      },
+      "revId": "b651cd7ccdee45e308e50991cffe1d4c9130c984",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
