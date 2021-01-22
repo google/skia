@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c89635f3_07a2fe1e",
+        "filename": "src/gpu/GrCopyRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-22T22:00:11Z",
+      "side": 1,
+      "message": "I\u0027m assuming you\u0027ll need to do some additional adjustment here?",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 85
+      },
+      "revId": "711b86cf965a8e7be09e80d7a21b84ff3fa13d0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
