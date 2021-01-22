@@ -23,8 +23,7 @@ bool FuzzImageDecode(sk_sp<SkData> bytes) {
         return false;
     }
 
-    SkPaint p;
-    s->getCanvas()->drawImage(img, 0, 0, &p);
+    s->getCanvas()->drawImage(img, 0, 0);
     return true;
 }
 

@@ -40,9 +40,10 @@ struct TimingSample : public Sample {
         for (int y = 0; y < H; y++)
         for (int x = 0; x < W; x++) {
             auto start = std::chrono::steady_clock::now();
-            canvas->drawImageRect(fImg, SkRect::MakeXYWH(x,y,1,1)
-                                      , SkRect::MakeXYWH(x,y,1,1)
-                                      , /*paint=*/nullptr);
+            canvas->drawImageRect(fImg.get(),
+                                  SkRect::MakeXYWH(x,y,1,1), SkRect::MakeXYWH(x,y,1,1),
+                                  SkSamplingOptions(), /*paint=*/nullptr,
+                                  SkCanvas::kStrict_SrcRectConstraint);
             auto elapsed = std::chrono::steady_clock::now() - start;
 
             cost[y][x] = elapsed.count();

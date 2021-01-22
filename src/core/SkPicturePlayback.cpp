@@ -417,7 +417,13 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->legacy_drawImageRect(image, src, dst, paint, constraint);
+            auto sampling = SkSamplingOptions(paint ? paint->getFilterQuality()
+                                                    : kNone_SkFilterQuality);
+            if (src) {
+                canvas->drawImageRect(image, *src, dst, sampling, paint, constraint);
+            } else {
+                canvas->drawImageRect(image, dst, sampling, paint, constraint);
+            }
         } break;
         case DRAW_IMAGE_RECT2: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);

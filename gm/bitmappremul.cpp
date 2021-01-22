@@ -53,7 +53,7 @@ static sk_sp<SkImage> make_argb4444_gradient() {
     // Using draw rather than readPixels to suppress dither
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    SkCanvas{ bitmap }.drawImage(make_argb8888_gradient(), 0, 0, &paint);
+    SkCanvas{ bitmap }.drawImage(make_argb8888_gradient(), 0, 0, SkSamplingOptions(), &paint);
     return bitmap.asImage();
 }
 
@@ -82,7 +82,7 @@ static sk_sp<SkImage> make_argb4444_stripes() {
     // Using draw rather than readPixels to suppress dither
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    SkCanvas{ bitmap }.drawImage(make_argb8888_stripes(), 0, 0, &paint);
+    SkCanvas{ bitmap }.drawImage(make_argb8888_stripes(), 0, 0, SkSamplingOptions(), &paint);
     return bitmap.asImage();
 }
 

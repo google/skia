@@ -107,22 +107,9 @@ DRAW(ClipShader, clipShader(r.shader, r.op));
 
 DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
-DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.paint));
-DRAW(DrawImage2, drawImage(r.image.get(), r.left, r.top, r.sampling, r.paint));
+DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.sampling, r.paint));
 
 template <> void Draw::draw(const DrawImageLattice& r) {
-    SkCanvas::Lattice lattice;
-    lattice.fXCount = r.xCount;
-    lattice.fXDivs = r.xDivs;
-    lattice.fYCount = r.yCount;
-    lattice.fYDivs = r.yDivs;
-    lattice.fRectTypes = (0 == r.flagCount) ? nullptr : r.flags;
-    lattice.fColors = (0 == r.flagCount) ? nullptr : r.colors;
-    lattice.fBounds = &r.src;
-    fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
-}
-
-template <> void Draw::draw(const DrawImageLattice2& r) {
     SkCanvas::Lattice lattice;
     lattice.fXCount = r.xCount;
     lattice.fXDivs = r.xDivs;
@@ -134,8 +121,7 @@ template <> void Draw::draw(const DrawImageLattice2& r) {
     fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.filter, r.paint);
 }
 
-DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
-DRAW(DrawImageRect2, drawImageRect(r.image.get(), r.src, r.dst, r.sampling, r.paint, r.constraint));
+DRAW(DrawImageRect, drawImageRect(r.image.get(), r.src, r.dst, r.sampling, r.paint, r.constraint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
@@ -146,10 +132,8 @@ DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawRegion, drawRegion(r.region, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
-DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
-                          r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
-DRAW(DrawAtlas2, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
-                           r.cull, r.paint));
+DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
+                          r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint));
 DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec));
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
@@ -157,8 +141,6 @@ DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 DRAW(DrawEdgeAAQuad, experimental_DrawEdgeAAQuad(
         r.rect, r.clip, r.aa, r.color, r.mode));
 DRAW(DrawEdgeAAImageSet, experimental_DrawEdgeAAImageSet(
-        r.set.get(), r.count, r.dstClips, r.preViewMatrices, r.paint, r.constraint));
-DRAW(DrawEdgeAAImageSet2, experimental_DrawEdgeAAImageSet(
         r.set.get(), r.count, r.dstClips, r.preViewMatrices, r.sampling, r.paint, r.constraint));
 
 #undef DRAW
@@ -417,22 +399,10 @@ private:
 
         return this->adjustAndMap(rect, op.paint);
     }
-    Bounds bounds(const DrawImage2& op) const {
-        const SkImage* image = op.image.get();
-        SkRect rect = SkRect::MakeXYWH(op.left, op.top, image->width(), image->height());
-
-        return this->adjustAndMap(rect, op.paint);
-    }
     Bounds bounds(const DrawImageLattice& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
-    Bounds bounds(const DrawImageLattice2& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
     Bounds bounds(const DrawImageRect& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawImageRect2& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawPath& op) const {
@@ -459,16 +429,6 @@ private:
     }
 
     Bounds bounds(const DrawAtlas& op) const {
-        if (op.cull) {
-            // TODO: <reed> can we pass nullptr for the paint? Isn't cull already "correct"
-            // for the paint (by the caller)?
-            return this->adjustAndMap(*op.cull, op.paint);
-        } else {
-            return fCullRect;
-        }
-    }
-
-    Bounds bounds(const DrawAtlas2& op) const {
         if (op.cull) {
             // TODO: <reed> can we pass nullptr for the paint? Isn't cull already "correct"
             // for the paint (by the caller)?
@@ -511,22 +471,6 @@ private:
         return this->adjustAndMap(bounds, nullptr);
     }
     Bounds bounds(const DrawEdgeAAImageSet& op) const {
-        SkRect rect = SkRect::MakeEmpty();
-        int clipIndex = 0;
-        for (int i = 0; i < op.count; ++i) {
-            SkRect entryBounds = op.set[i].fDstRect;
-            if (op.set[i].fHasClip) {
-                entryBounds.setBounds(op.dstClips + clipIndex, 4);
-                clipIndex += 4;
-            }
-            if (op.set[i].fMatrixIndex >= 0) {
-                op.preViewMatrices[op.set[i].fMatrixIndex].mapRect(&entryBounds);
-            }
-            rect.join(this->adjustAndMap(entryBounds, nullptr));
-        }
-        return rect;
-    }
-    Bounds bounds(const DrawEdgeAAImageSet2& op) const {
         SkRect rect = SkRect::MakeEmpty();
         int clipIndex = 0;
         for (int i = 0; i < op.count; ++i) {

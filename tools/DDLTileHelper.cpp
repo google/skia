@@ -127,7 +127,9 @@ void DDLTileHelper::createComposeDDL() {
 
         SkASSERT(promiseImage->bounds().contains(srcRect));
 
-        recordingCanvas->drawImageRect(promiseImage.get(), srcRect, dstRect, nullptr);
+        recordingCanvas->drawImageRect(promiseImage.get(), SkRect::Make(srcRect), dstRect,
+                                       SkSamplingOptions(), nullptr,
+                                       SkCanvas::kStrict_SrcRectConstraint);
     }
 
     fComposeDDL = recorder.detach();

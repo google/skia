@@ -1659,6 +1659,10 @@ public:
 
     void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkSamplingOptions&,
                    const SkPaint* = nullptr);
+    void drawImage(const sk_sp<SkImage>& image, SkScalar x, SkScalar y,
+                   const SkSamplingOptions& sampling, const SkPaint* paint = nullptr) {
+        this->drawImage(image.get(), x, y, sampling, paint);
+    }
     void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint*, SrcRectConstraint);
     void drawImageRect(const SkImage*, const SkRect& dst, const SkSamplingOptions&,
@@ -2479,11 +2483,6 @@ public:
     SkIRect topLayerBounds() const;
     GrBackendRenderTarget topLayerBackendRenderTarget() const;
 #endif
-
-    // TEMP helpers until we switch virtual over to const& for src-rect
-    void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                              const SkPaint* paint,
-                              SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
     /**
      *  Returns the global clip as a region. If the clip contains AA, then only the bounds

@@ -65,6 +65,7 @@ protected:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
+        auto sampling = SkSamplingOptions();
 
         auto image = make_image();
 
@@ -75,12 +76,13 @@ protected:
             SkRect srcR;
             srcR.set(src[i]);
 
-            canvas->drawImage(image, 0, 0, &paint);
+            canvas->drawImage(image, 0, 0, sampling, &paint);
             if (!fUseIRect) {
-                canvas->drawImageRect(image, srcR, dstR, &paint,
+                canvas->drawImageRect(image.get(), srcR, dstR, sampling, &paint,
                                       SkCanvas::kStrict_SrcRectConstraint);
             } else {
-                canvas->drawImageRect(image, src[i], dstR, &paint);
+                canvas->drawImageRect(image.get(), SkRect::Make(src[i]), dstR, sampling, &paint,
+                                      SkCanvas::kStrict_SrcRectConstraint);
             }
 
             canvas->drawRect(dstR, paint);
