@@ -539,8 +539,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
     SkASSERT(n.fKind == ASTNode::Kind::kIf);
     auto iter = n.begin();
-    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
-                                                    *fContext.fTypes.fBool);
+    std::unique_ptr<Expression> test = this->convertExpression(*(iter++));
     if (!test) {
         return nullptr;
     }
@@ -564,7 +563,10 @@ std::unique_ptr<Statement> IRGenerator::convertIf(int offset, bool isStatic,
                                                   std::unique_ptr<Expression> test,
                                                   std::unique_ptr<Statement> ifTrue,
                                                   std::unique_ptr<Statement> ifFalse) {
-    SkASSERT(test->type().isBoolean());
+    test = this->coerce(std::move(test), *fContext.fTypes.fBool);
+    if (!test) {
+        return nullptr;
+    }
     if (test->is<BoolLiteral>()) {
         // Static Boolean values can fold down to a single branch.
         if (test->as<BoolLiteral>().value()) {

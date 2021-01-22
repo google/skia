@@ -33,6 +33,8 @@
 namespace SkSL {
 
 namespace dsl {
+    class DSLCore;
+    class DSLVar;
     class DSLWriter;
 }
 
@@ -153,7 +155,7 @@ private:
     std::unique_ptr<ModifiersPool> releaseModifiers();
 
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
-    void checkVarDeclaration(int offset, const Modifiers& modifiers,const Type* baseType,
+    void checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
                              Variable::Storage storage);
     std::unique_ptr<Statement> convertVarDeclaration(int offset, const Modifiers& modifiers,
                                                      const Type* baseType, StringFragment name,
@@ -299,6 +301,8 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class dsl::DSLCore;
+    friend class dsl::DSLVar;
     friend class dsl::DSLWriter;
 };
 

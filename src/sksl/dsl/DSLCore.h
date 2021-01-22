@@ -8,7 +8,9 @@
 #ifndef SKSL_DSL_CORE
 #define SKSL_DSL_CORE
 
+#include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 
@@ -28,7 +30,6 @@ public:
     virtual void handleError(const char* msg) = 0;
 };
 
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 /**
  * Starts DSL output on the current thread using the specified compiler. This must be called
  * prior to any other DSL functions.
@@ -41,7 +42,36 @@ void Start(SkSL::Compiler* compiler);
  */
 void End();
 
-#endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
+/**
+ * Creates a variable declaration statement with an initial value.
+ */
+DSLStatement Declare(DSLVar& var, DSLExpression initialValue = DSLExpression());
+
+/**
+ * do stmt; while (test);
+ */
+DSLStatement Do(DSLStatement stmt, DSLExpression test);
+
+/**
+ * for (initializer; test; next) stmt;
+ */
+DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
+                 DSLStatement stmt);
+
+/**
+ * if (test) ifTrue; [else ifFalse;]
+ */
+DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement());
+
+/**
+ * test ? ifTrue : ifFalse
+ */
+DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse);
+
+/**
+ * while (test) stmt;
+ */
+DSLStatement While(DSLExpression test, DSLStatement stmt);
 
 /**
  * Installs an ErrorHandler which will be notified of any errors that occur during DSL calls. If

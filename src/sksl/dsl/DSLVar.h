@@ -59,18 +59,19 @@ private:
      */
     DSLVar(const char* name);
 
-    const SkSL::Variable* var() const;
+    const SkSL::Variable* var() const {
+        return fVar;
+    }
 
     const char* name() const {
         return fName;
     }
 
-    // this object owns the var until it is added to a symboltable
-    std::unique_ptr<SkSL::Variable> fOwnedVar;
-    // mutable to allow us to cache lookups of system vars
-    mutable const SkSL::Variable* fVar = nullptr;
+    std::unique_ptr<SkSL::Statement> fDeclaration;
+    const SkSL::Variable* fVar = nullptr;
     const char* fName;
 
+    friend class DSLCore;
     friend class DSLExpression;
     friend class DSLWriter;
 };
