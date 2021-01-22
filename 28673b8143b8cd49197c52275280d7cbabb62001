@@ -34,6 +34,24 @@
       "parentUuid": "79028b1f_36cbdac1",
       "revId": "28673b8143b8cd49197c52275280d7cbabb62001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec953f30_ec7cfabe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-22T19:07:42Z",
+      "side": 1,
+      "message": "Yeah, definitely. I\u0027ve whipped up some asserts that verify that we don\u0027t get it wrong elsewhere, going to roll that into this, along with a unit test that fails (eg triggers the assert) before this...",
+      "parentUuid": "bd06b51f_593a1545",
+      "revId": "28673b8143b8cd49197c52275280d7cbabb62001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
