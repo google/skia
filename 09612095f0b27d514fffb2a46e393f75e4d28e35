@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04af8df8_7de8809e",
+        "filename": "include/gpu/vk/GrVkMemoryAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-22T15:38:55Z",
+      "side": 1,
+      "message": "Gpu ?",
+      "range": {
+        "startLine": 42,
+        "startChar": 21,
+        "endLine": 42,
+        "endChar": 24
+      },
+      "revId": "09612095f0b27d514fffb2a46e393f75e4d28e35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
