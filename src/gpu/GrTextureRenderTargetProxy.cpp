@@ -152,7 +152,7 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 GrSurfaceProxy::LazySurfaceDesc GrTextureRenderTargetProxy::callbackDesc() const {
     SkISize dims;
     SkBackingFit fit;
-    if (this->isFullyLazy()) {
+    if (this->isFullyLazy() || this->isDDLTarget()) {
         fit = SkBackingFit::kApprox;
         dims = {-1, -1};
     } else {

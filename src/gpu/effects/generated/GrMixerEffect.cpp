@@ -45,7 +45,8 @@ return mix(%s, %s, %s);
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrMixerEffect& _outer = _proc.cast<GrMixerEffect>();
         { pdman.set1f(weightVar, (_outer.weight)); }
     }

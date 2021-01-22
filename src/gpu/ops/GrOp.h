@@ -234,8 +234,8 @@ public:
 #if GR_TEST_UTILS
     virtual SkString dumpInfo() const final {
         return SkStringPrintf("%s\nOpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
-                              this->onDumpInfo().c_str(), fBounds.fLeft, fBounds.fTop,
-                              fBounds.fRight, fBounds.fBottom);
+                              this->onDumpInfo().c_str(),
+                              fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
     }
 #endif
 

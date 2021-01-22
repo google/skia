@@ -628,9 +628,13 @@ bool GrDefaultPathRenderer::internalDrawPath(GrSurfaceDrawContext* surfaceDrawCo
     SkScalar tol = GrPathUtils::kDefaultTolerance;
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, path.getBounds());
 
+    SkISize dims= surfaceDrawContext->asRenderTargetProxy()->dimensions();
+    if (!surfaceDrawContext->asRenderTargetProxy()->isDDLTarget()) {
+        dims = surfaceDrawContext->asRenderTargetProxy()->backingStoreDimensions();
+    }
+
     SkRect devBounds;
-    GetPathDevBounds(path, surfaceDrawContext->asRenderTargetProxy()->backingStoreDimensions(),
-                     viewMatrix, &devBounds);
+    GetPathDevBounds(path, dims, viewMatrix, &devBounds);
 
     for (int p = 0; p < passCount; ++p) {
         if (lastPassIsBounds && (p == passCount-1)) {

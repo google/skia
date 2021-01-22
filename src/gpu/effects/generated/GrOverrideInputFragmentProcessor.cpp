@@ -50,7 +50,8 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrOverrideInputFragmentProcessor& _outer =
                 _proc.cast<GrOverrideInputFragmentProcessor>();
         {

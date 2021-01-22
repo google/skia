@@ -316,9 +316,14 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
 static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, GrSurfaceProxyView view,
                                           SkColorType colorType, SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace) {
+    SkISize dims = view.proxy()->dimensions();
+    if (!view.proxy()->isDDLTarget()) {
+        dims = view.proxy()->backingStoreDimensions();
+    }
+
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
                                    kNeedNewImageUniqueID, std::move(view), colorType, alphaType,
-                                   std::move(colorSpace));
+                                   std::move(colorSpace), dims);
 }
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
@@ -355,7 +360,8 @@ public:
         sk_sp<SkImage> img =
                 sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
                                                this->uniqueID(), fView, this->colorType(),
-                                               fAlphaType, fColorSpace));
+                                               fAlphaType, fColorSpace,
+                                               fView.proxy()->backingStoreDimensions()));
 
         canvas->drawImageRect(img, this->subset(),
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
@@ -460,7 +466,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
     if (!context || context->abandoned() || !view.asTextureProxy()) {
         return nullptr;
     }
-    SkASSERT_RELEASE(rect_fits(subset, view.proxy()->width(), view.proxy()->height()));
+    // Sigh - subset can include the viewport offset which isn't in the proxy
+    //SkASSERT_RELEASE(rect_fits(subset, view.proxy()->width(), view.proxy()->height()));
     return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(view), colorType,
                                           at, std::move(colorSpace), props);
 }

@@ -155,7 +155,9 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&,
+                   const GrFragmentProcessor&,
+                   SkIPoint viewportOffset) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
@@ -309,11 +311,13 @@ void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderC
 }
 
 void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                      const GrFragmentProcessor& processor) {
+                                      const GrFragmentProcessor& processor,
+                                      SkIPoint viewportOffset) {
     const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
     const SkRRect& rrect = crre.getRRect();
     if (rrect != fPrevRRect) {
         SkRect rect = rrect.getBounds();
+        rect.offset(viewportOffset.fX, viewportOffset.fY);
         SkScalar radius = 0;
         switch (crre.getCircularCornerFlags()) {
             case CircularRRectEffect::kAll_CornerFlags:
@@ -523,7 +527,9 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&,
+                   const GrFragmentProcessor&,
+                   SkIPoint viewportOffset) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
@@ -636,7 +642,8 @@ void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCa
 }
 
 void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                        const GrFragmentProcessor& effect) {
+                                        const GrFragmentProcessor& effect,
+                                        SkIPoint viewportOffset) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
     const SkRRect& rrect = erre.getRRect();
     // If we're using a scale factor to work around precision issues, choose the largest radius
@@ -689,6 +696,8 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
         default:
             SK_ABORT("RRect should always be simple or nine-patch.");
         }
+
+        rect.offset(viewportOffset.fX, viewportOffset.fY);
         pdman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
         fPrevRRect = rrect;
     }
