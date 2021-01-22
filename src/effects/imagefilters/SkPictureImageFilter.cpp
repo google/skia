@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkPictureImageFilter.h"
+#include "src/effects/imagefilters/SkPictureImageFilter.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPicture.h"
-#include "include/effects/SkImageSource.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"

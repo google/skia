@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkMagnifierImageFilter.h"
+#include "src/effects/imagefilters/SkMagnifierImageFilter.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/private/SkColorData.h"

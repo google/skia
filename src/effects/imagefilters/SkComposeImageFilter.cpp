@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkComposeImageFilter.h"
+#include "src/effects/imagefilters/SkComposeImageFilter.h"
 
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"

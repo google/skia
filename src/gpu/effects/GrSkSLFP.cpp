@@ -236,7 +236,6 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
 #if GR_TEST_UTILS
 
-#include "include/effects/SkArithmeticImageFilter.h"
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
