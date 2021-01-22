@@ -27,7 +27,7 @@ R"SkSL(return half4(%f, %f, %f, %f);
 , _outer.color.left(), _outer.color.top(), _outer.color.right(), _outer.color.bottom());
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
 };
 GrGLSLFragmentProcessor* GrKeyIn::onCreateGLSLInstance() const {

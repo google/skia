@@ -24,7 +24,7 @@ class SkBitmap;
 class SkImage_Gpu : public SkImage_GpuBase {
 public:
     SkImage_Gpu(sk_sp<GrImageContext>, uint32_t uniqueID, GrSurfaceProxyView, SkColorType,
-                SkAlphaType, sk_sp<SkColorSpace>);
+                SkAlphaType, sk_sp<SkColorSpace>, SkISize magicSize);
     ~SkImage_Gpu() override;
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
