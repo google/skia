@@ -496,6 +496,15 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
     String key = type.name();
     if (type.isStruct() || type.isArray()) {
         key += to_string((int)layout.fStd);
+#ifdef SK_DEBUG
+        SkASSERT(layout.fStd == MemoryLayout::Standard::k140_Standard ||
+                 layout.fStd == MemoryLayout::Standard::k430_Standard);
+        MemoryLayout::Standard otherStd = layout.fStd == MemoryLayout::Standard::k140_Standard
+                                                  ? MemoryLayout::Standard::k430_Standard
+                                                  : MemoryLayout::Standard::k140_Standard;
+        String otherKey = type.name() + to_string((int)otherStd);
+        SkASSERT(fTypeMap.find(otherKey) == fTypeMap.end());
+#endif
     }
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
@@ -1865,7 +1874,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 typeId = this->getType(*Type::MakeArrayType("sk_in", var.type().componentType(),
                                                             fSkInCount));
             } else {
-                typeId = this->getType(type);
+                typeId = this->getType(type, this->memoryLayoutForVariable(var));
             }
             auto entry = fVariableMap.find(&var);
             SkASSERT(entry != fVariableMap.end());
@@ -2756,6 +2765,12 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
     }
 }
 
+MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) const {
+    bool isBuffer     = ((v.modifiers().fFlags & Modifiers::kBuffer_Flag) != 0);
+    bool pushConstant = ((v.modifiers().fLayout.fFlags & Layout::kPushConstant_Flag) != 0);
+    return (pushConstant || isBuffer) ? MemoryLayout(MemoryLayout::k430_Standard) : fDefaultLayout;
+}
+
 static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
     switch (m.fLayout.fPrimitive) {
         case Layout::kPoints_Primitive:
@@ -2779,12 +2794,7 @@ static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight) {
-    bool isBuffer = ((intf.variable().modifiers().fFlags & Modifiers::kBuffer_Flag) != 0);
-    bool pushConstant = ((intf.variable().modifiers().fLayout.fFlags &
-                          Layout::kPushConstant_Flag) != 0);
-    MemoryLayout memoryLayout = (pushConstant || isBuffer) ?
-                                MemoryLayout(MemoryLayout::k430_Standard) :
-                                fDefaultLayout;
+    MemoryLayout memoryLayout = this->memoryLayoutForVariable(intf.variable());
     SpvId result = this->nextId();
     std::unique_ptr<Type> rtHeightStructType;
     const Type* type = &intf.variable().type();
