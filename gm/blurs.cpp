@@ -127,7 +127,7 @@ DEF_SIMPLE_GM(BlurDrawImage, canvas, 256, 256) {
     canvas->clear(0xFF88FF88);
     if (auto image = GetResourceAsImage("images/mandrill_512_q075.jpg")) {
         canvas->scale(0.25, 0.25);
-        canvas->drawImage(image, 256, 256, &paint);
+        canvas->drawImage(image, 256, 256, SkSamplingOptions(), &paint);
     }
 }
 

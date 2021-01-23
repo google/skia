@@ -176,7 +176,7 @@ protected:
             SkAutoCanvasRestore acr(inputCanvas, true);
             // since we prepended this matrix already, we blit using identity
             inputCanvas->resetMatrix();
-            inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
+            inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0);
         }
     }
 

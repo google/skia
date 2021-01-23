@@ -89,13 +89,12 @@ protected:
         fPath.close();
     }
 
-    void drawRow(SkCanvas* canvas, SkFilterQuality filterQ) {
+    void drawRow(SkCanvas* canvas, const SkSamplingOptions& sampling) {
         SkPaint filterPaint;
-        filterPaint.setFilterQuality(filterQ);
         filterPaint.setAntiAlias(fDoAA);
 
         SkPaint pathPaint;
-        pathPaint.setShader(fBitmap.makeShader(SkSamplingOptions(filterQ)));
+        pathPaint.setShader(fBitmap.makeShader(sampling));
         pathPaint.setAntiAlias(fDoAA);
 
         SkPaint gradPaint1;
@@ -117,7 +116,7 @@ protected:
         canvas->translate(SkIntToScalar(kCellSize), 0);
         canvas->save();
         canvas->concat(fPerspMatrix);
-        canvas->drawImage(fImage.get(), 0, 0, &filterPaint);
+        canvas->drawImage(fImage.get(), 0, 0, sampling, &filterPaint);
         canvas->restore();
 
         canvas->translate(SkIntToScalar(kCellSize), 0);
@@ -152,13 +151,14 @@ protected:
             fImage = make_image(canvas, kCellSize, kCellSize);
         }
 
-        this->drawRow(canvas, kNone_SkFilterQuality);
+        this->drawRow(canvas, SkSamplingOptions(SkFilterMode::kNearest));
         canvas->translate(0, SkIntToScalar(kCellSize));
-        this->drawRow(canvas, kLow_SkFilterQuality);
+        this->drawRow(canvas, SkSamplingOptions(SkFilterMode::kLinear));
         canvas->translate(0, SkIntToScalar(kCellSize));
-        this->drawRow(canvas, kMedium_SkFilterQuality);
+        this->drawRow(canvas, SkSamplingOptions(SkFilterMode::kLinear,
+                                                SkMipmapMode::kLinear));
         canvas->translate(0, SkIntToScalar(kCellSize));
-        this->drawRow(canvas, kHigh_SkFilterQuality);
+        this->drawRow(canvas, SkSamplingOptions({1.0f/3, 1.0f/3}));
         canvas->translate(0, SkIntToScalar(kCellSize));
     }
 private:
