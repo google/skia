@@ -639,8 +639,12 @@ SkSamplingOptions::SkSamplingOptions(SkFilterQuality fq, MediumBehavior behavior
             break;
         case SkFilterQuality::kMedium_SkFilterQuality:
             *this = SkSamplingOptions(SkFilterMode::kLinear,
+#ifdef SK_SUPPORT_LEGACY_MEDIUM_ENUM
                                       behavior == kMedium_asMipmapNearest ? SkMipmapMode::kNearest
                                                                           : SkMipmapMode::kLinear);
+#else
+            SkMipmapMode::kLinear);
+#endif
             break;
         case SkFilterQuality::kLow_SkFilterQuality:
             *this = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
