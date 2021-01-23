@@ -139,12 +139,17 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
     // Subtract off the integer component of the translation (will be applied in offset, below).
     dstRect.offset(-SkIntToScalar(dstIRect.fLeft), -SkIntToScalar(dstIRect.fTop));
     paint.setBlendMode(SkBlendMode::kSrc);
+
+    // TODO: take sampling explicitly, rather than filter-quality
+    SkSamplingOptions sampling(fFilterQuality, canvas->recordingContext() ?
+                               SkSamplingOptions::kMedium_asMipmapLinear :
+                               SkSamplingOptions::kMedium_asMipmapNearest);
     // FIXME: this probably shouldn't be necessary, but drawImageRect asserts
     // None filtering when it's translate-only
-    paint.setFilterQuality(
-        fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
-               kNone_SkFilterQuality : fFilterQuality);
-    canvas->drawImageRect(fImage.get(), fSrcRect, dstRect, &paint,
+    if (fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height()) {
+        sampling = SkSamplingOptions();
+    }
+    canvas->drawImageRect(fImage.get(), fSrcRect, dstRect, sampling, &paint,
                           SkCanvas::kStrict_SrcRectConstraint);
 
     offset->fX = dstIRect.fLeft;
