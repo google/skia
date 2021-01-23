@@ -134,7 +134,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilterImpl::onFilterImage(const Context&
         input->draw(canvas,
                     SkIntToScalar(inputOffset.fX - bounds.fLeft),
                     SkIntToScalar(inputOffset.fY - bounds.fTop),
-                    &paint);
+                    SkSamplingOptions(), &paint);
     }
 
     offset->fX = bounds.fLeft;

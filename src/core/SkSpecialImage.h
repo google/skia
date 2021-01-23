@@ -64,7 +64,10 @@ public:
     /**
      *  Draw this SpecialImage into the canvas, automatically taking into account the image's subset
      */
-    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
+    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkSamplingOptions&, const SkPaint*) const;
+    void draw(SkCanvas* canvas, SkScalar x, SkScalar y) const {
+        this->draw(canvas, x, y, SkSamplingOptions(), nullptr);
+    }
 
     static sk_sp<SkSpecialImage> MakeFromImage(GrRecordingContext*,
                                                const SkIRect& subset,

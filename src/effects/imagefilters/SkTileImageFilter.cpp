@@ -143,7 +143,7 @@ sk_sp<SkSpecialImage> SkTileImageFilterImpl::onFilterImage(const Context& ctx,
 
         input->draw(canvas,
                     SkIntToScalar(inputOffset.x()), SkIntToScalar(inputOffset.y()),
-                    &paint);
+                    SkSamplingOptions(), &paint);
 
         subset = surf->makeImageSnapshot();
     }
