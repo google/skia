@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73ece2cd_018327b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2021-01-23T20:33:46Z",
+      "side": 1,
+      "message": "Post-submit driveby",
+      "revId": "5b9b0db5b894da98b744e3d3dec1b363c0aea0c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95072095_280edf50",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1405,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2021-01-23T20:33:46Z",
+      "side": 1,
+      "message": "We introduced this std::move(value) here...",
+      "revId": "5b9b0db5b894da98b744e3d3dec1b363c0aea0c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0987b432_572a17ea",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2021-01-23T20:33:46Z",
+      "side": 1,
+      "message": "...but still have this std::move(value) after it, with no resetting of \u0027value\u0027 in between.",
+      "revId": "5b9b0db5b894da98b744e3d3dec1b363c0aea0c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
