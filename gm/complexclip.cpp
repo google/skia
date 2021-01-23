@@ -217,7 +217,7 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     SkPaint p;
 
     canvas->translate(10, 10);
-    canvas->drawImage(img, 0, 0, nullptr);
+    canvas->drawImage(img, 0, 0);
 
     canvas->save();
     canvas->translate(img->width() + 10, 0);
@@ -240,7 +240,7 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     SkMatrix lm = SkMatrix::Scale(1.0f/5, 1.0f/5);
     canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
                                        SkSamplingOptions(), lm));
-    canvas->drawImage(img, 0, 0, nullptr);
+    canvas->drawImage(img, 0, 0);
 
     canvas->restore();
     canvas->restore();

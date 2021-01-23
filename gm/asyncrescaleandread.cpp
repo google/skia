@@ -209,7 +209,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         }
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
-        surface->getCanvas()->drawImage(image, 0, 0, &paint);
+        surface->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
         return do_rescale_grid(canvas, surface.get(), dContext, srcRect, newSize,
                                doYUV420, errorMsg);
     } else if (dContext) {

@@ -93,7 +93,7 @@ public:
                     canvas->drawPicture(pic);
                 } else {
                     auto image = animatedImage->getCurrentFrame();
-                    canvas->drawImage(image, 0, 0, nullptr);
+                    canvas->drawImage(image, 0, 0);
                 }
             };
             for (float scale : { 1.25f, 1.0f, .75f, .5f }) {

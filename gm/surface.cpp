@@ -148,7 +148,7 @@ protected:
         drawInto(surf->getCanvas());
 
         sk_sp<SkImage> image(surf->makeImageSnapshot());
-        canvas->drawImage(image, 10, 10, nullptr);
+        canvas->drawImage(image, 10, 10);
 
         auto surf2(surf->makeSurface(info));
         drawInto(surf2->getCanvas());
@@ -157,7 +157,7 @@ protected:
         SkASSERT(equal(surf->props(), surf2->props()));
 
         sk_sp<SkImage> image2(surf2->makeImageSnapshot());
-        canvas->drawImage(image2.get(), 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);
+        canvas->drawImage(image2.get(), 10 + SkIntToScalar(image->width()) + 10, 10);
     }
 
 private:
@@ -182,7 +182,7 @@ DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
     surf->getCanvas()->clear(SK_ColorBLUE);
 
     // expect to see two rects: blue | red
-    canvas->drawImage(surf->makeImageSnapshot(), 0, 0, nullptr);
+    canvas->drawImage(surf->makeImageSnapshot(), 0, 0);
 }
 
 DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
@@ -203,7 +203,7 @@ DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
     surf->getCanvas()->restore();
 
     // expect to see two rects: blue blended on red
-    canvas->drawImage(surf->makeImageSnapshot(), 0, 0, nullptr);
+    canvas->drawImage(surf->makeImageSnapshot(), 0, 0);
 }
 
 DEF_SIMPLE_GM(surface_underdraw, canvas, 256, 256) {
@@ -258,7 +258,7 @@ DEF_SIMPLE_GM(surface_underdraw, canvas, 256, 256) {
         paint.setBlendMode(SkBlendMode::kDstOver);
         surf->getCanvas()->drawImage(saveImg,
                                      SkIntToScalar(subset.left()), SkIntToScalar(subset.top()),
-                                     &paint);
+                                     SkSamplingOptions(), &paint);
     }
 
     // show it on screen

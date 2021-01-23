@@ -52,7 +52,7 @@ DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
     // Draw overdraw colors to the canvas.  The color filter will convert counts to colors.
     SkPaint paint;
     paint.setColorFilter(SkOverdrawColorFilter::MakeWithSkColors(kOverdrawColors));
-    canvas->drawImage(counts.get(), 0.0f, 0.0f, &paint);
+    canvas->drawImage(counts.get(), 0.0f, 0.0f, SkSamplingOptions(), &paint);
     canvas->drawString("This is some text:", 180, 300, SkFont(), SkPaint());
 }
 

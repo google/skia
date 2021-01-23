@@ -155,14 +155,14 @@ DEF_SIMPLE_GM(imageblurrepeatunclipped, canvas, 256, 128) {
 
     // Draw the blurred image once
     canvas->translate(0, 50);
-    canvas->drawImage(img, 0, 0, &paint);
+    canvas->drawImage(img, 0, 0, SkSamplingOptions(), &paint);
 
     // Draw the blurred image with a clip positioned such that the draw would be excluded except
     // that the image filter causes it to intersect with the clip. Ideally should look like the
     // left image, but clipped to the debug-black rectangle (Narrator: it does not look like that).
     canvas->translate(110, 0);
     canvas->clipRect(SkRect::MakeXYWH(0, -30, 100, 10));
-    canvas->drawImage(img, 0, 0, &paint);
+    canvas->drawImage(img, 0, 0, SkSamplingOptions(), &paint);
 
     // Visualize the clip
     SkPaint line;

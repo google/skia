@@ -125,7 +125,7 @@ protected:
             { 200, 200, },
         };
 
-        canvas->drawImage(image, 10, 10, nullptr);
+        canvas->drawImage(image, 10, 10);
 
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(100);
@@ -299,7 +299,7 @@ public:
 
         sk_sp<SkImage> image = makeImage(canvas, padLeft, padTop, padRight, padBottom);
 
-        canvas->drawImage(image, 10, 10, nullptr);
+        canvas->drawImage(image, 10, 10);
 
         SkCanvas::Lattice lattice;
         lattice.fXCount = 2;
