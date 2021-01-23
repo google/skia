@@ -39,20 +39,25 @@ static sk_sp<SkImage> make_image() {
 DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
     sk_sp<SkImage> img(make_image());//SkImage::NewFromEncoded(data));
 
-    SkPaint paint;
     const SkRect dst = SkRect::MakeWH(177, 15);
 
     SkString str;
     str.printf("scale %g %g", dst.width() / img->width(), dst.height() / img->height());
 //    canvas->drawString(str, 300, 100, SkFont(nullptr, 30), paint);
 
+    const SkSamplingOptions samplings[] = {
+        SkSamplingOptions(SkFilterMode::kNearest),
+        SkSamplingOptions(SkFilterMode::kLinear),
+        SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+        SkSamplingOptions({1.0f/3, 1.0f/3}),
+    };
+
     canvas->translate(20, 20);
-    for (int i = 0; i < 4; ++i) {
-        paint.setFilterQuality(SkFilterQuality(i));
-        canvas->drawImageRect(img.get(), dst, &paint);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(samplings); ++i) {
+        canvas->drawImageRect(img.get(), dst, samplings[i], nullptr);
         canvas->translate(0, 20);
     }
-    canvas->drawImage(img.get(), 20, 20, nullptr);
+    canvas->drawImage(img.get(), 20, 20);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,13 +79,13 @@ static sk_sp<SkImage> make(sk_sp<SkColorSpace> cs) {
 }
 
 static void show_mips(SkCanvas* canvas, SkImage* img) {
-    SkPaint paint;
-    paint.setFilterQuality(kMedium_SkFilterQuality);
+    SkSamplingOptions sampling(SkFilterMode::kLinear,
+                               SkMipmapMode::kLinear);
 
     // Want to ensure we never draw fractional pixels, so we use an IRect
     SkIRect dst = SkIRect::MakeWH(img->width(), img->height());
     while (dst.width() > 5) {
-        canvas->drawImageRect(img, SkRect::Make(dst), &paint);
+        canvas->drawImageRect(img, SkRect::Make(dst), sampling, nullptr);
         dst.offset(dst.width() + 10, 0);
         dst.fRight = dst.fLeft + dst.width()/2;
         dst.fBottom = dst.fTop + dst.height()/2;
@@ -123,13 +128,13 @@ static sk_sp<SkImage> make_g8_gradient(sk_sp<SkColorSpace> cs) {
 }
 
 static void show_mips_only(SkCanvas* canvas, SkImage* img) {
-    SkPaint paint;
-    paint.setFilterQuality(kMedium_SkFilterQuality);
+    SkSamplingOptions sampling(SkFilterMode::kLinear,
+                               SkMipmapMode::kLinear);
 
     // Want to ensure we never draw fractional pixels, so we use an IRect
     SkIRect dst = SkIRect::MakeWH(img->width() / 2, img->height() / 2);
     while (dst.width() > 5) {
-        canvas->drawImageRect(img, SkRect::Make(dst), &paint);
+        canvas->drawImageRect(img, SkRect::Make(dst), sampling, nullptr);
         dst.offset(dst.width() + 10, 0);
         dst.fRight = dst.fLeft + dst.width() / 2;
         dst.fBottom = dst.fTop + dst.height() / 2;

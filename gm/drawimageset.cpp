@@ -337,7 +337,8 @@ private:
                 SkPaint entryPaint = paint;
                 entryPaint.setAlphaf(fSet[i].fAlpha * paint.getAlphaf());
                 canvas->drawImageRect(fSet[i].fImage.get(), fSet[i].fSrcRect, fSet[i].fDstRect,
-                                      &entryPaint, SkCanvas::kFast_SrcRectConstraint);
+                                      SkSamplingOptions(), &entryPaint,
+                                      SkCanvas::kFast_SrcRectConstraint);
             }
         }
     }

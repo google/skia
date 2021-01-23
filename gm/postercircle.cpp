@@ -131,8 +131,8 @@ protected:
                     SkPaint fillPaint;
                     fillPaint.setAntiAlias(true);
                     fillPaint.setAlphaf(0.7f);
-                    fillPaint.setFilterQuality(kLow_SkFilterQuality);
-                    canvas->drawImageRect(fPosterImages[i], poster, &fillPaint);
+                    canvas->drawImageRect(fPosterImages[i], poster,
+                                          SkSamplingOptions(SkFilterMode::kLinear), &fillPaint);
 
                     canvas->restore();
                 }

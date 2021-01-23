@@ -25,18 +25,19 @@ DEF_SIMPLE_GM(srgb_colorfilter, canvas, 512, 256*3) {
     auto cf1 = SkColorFilters::LinearToSRGBGamma();
     auto cf2 = SkColorFilters::SRGBToLinearGamma();
 
+    SkSamplingOptions sampling;
     SkPaint p;
     p.setColorFilter(cf0);
-    canvas->drawImage(img, 0, 0, nullptr);
-    canvas->drawImage(img, 256, 0, &p);
+    canvas->drawImage(img, 0, 0);
+    canvas->drawImage(img, 256, 0, sampling, &p);
 
     p.setColorFilter(cf1);
-    canvas->drawImage(img, 0, 256, &p);
+    canvas->drawImage(img, 0, 256, sampling, &p);
     p.setColorFilter(cf1->makeComposed(cf0));
-    canvas->drawImage(img, 256, 256, &p);
+    canvas->drawImage(img, 256, 256, sampling, &p);
 
     p.setColorFilter(cf2);
-    canvas->drawImage(img, 0, 512, &p);
+    canvas->drawImage(img, 0, 512, sampling, &p);
     p.setColorFilter(cf2->makeComposed(cf0));
-    canvas->drawImage(img, 256, 512, &p);
+    canvas->drawImage(img, 256, 512, sampling, &p);
 }

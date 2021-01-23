@@ -78,10 +78,12 @@ protected:
             for (const auto& m : matrices) {
                 for (auto aa : {false, true}) {
                     paint.setAntiAlias(aa);
-                    for (auto filter : {kNone_SkFilterQuality, kLow_SkFilterQuality,
-                                        kMedium_SkFilterQuality, kHigh_SkFilterQuality}) {
+                    for (auto sampling : {
+                        SkSamplingOptions(SkFilterMode::kNearest),
+                        SkSamplingOptions(SkFilterMode::kLinear),
+                        SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+                        SkSamplingOptions({1.0f/3, 1.0f/3})}) {
                         for (const auto& img : fImages) {
-                            paint.setFilterQuality(filter);
                             canvas->save();
                             canvas->concat(m);
                             SkRect src = {img->width() / 4.f, img->height() / 4.f,
@@ -90,14 +92,14 @@ protected:
                                           3.f / 4.f * img->width(), 3.f / 4.f * img->height()};
                             switch (type) {
                                 case DrawType::kDrawImage:
-                                    canvas->drawImage(img, 0, 0, &paint);
+                                    canvas->drawImage(img, 0, 0, sampling, &paint);
                                     break;
                                 case DrawType::kDrawImageRectStrict:
-                                    canvas->drawImageRect(img, src, dst, &paint,
+                                    canvas->drawImageRect(img, src, dst, sampling, &paint,
                                                           SkCanvas::kStrict_SrcRectConstraint);
                                     break;
                                 case DrawType::kDrawImageRectFast:
-                                    canvas->drawImageRect(img, src, dst, &paint,
+                                    canvas->drawImageRect(img, src, dst, sampling, &paint,
                                                           SkCanvas::kFast_SrcRectConstraint);
                                     break;
                             }

@@ -149,7 +149,7 @@ private:
     static void DrawClippedImage(SkCanvas* canvas, const SkImage* image, const SkPaint& paint) {
         canvas->save();
         canvas->clipRect(SkRect::MakeIWH(image->width(), image->height()));
-        canvas->drawImage(image, 0, 0, &paint);
+        canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
         canvas->restore();
     }
 
