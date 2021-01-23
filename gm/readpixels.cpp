@@ -124,7 +124,7 @@ static void draw_image(GrDirectContext* dContext, SkCanvas* canvas, SkImage* ima
     // Now that we have called readPixels(), dump the raw pixels into an srgb image.
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
     sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorSpace(srgb), data, rowBytes);
-    canvas->drawImage(raw.get(), 0.0f, 0.0f, nullptr);
+    canvas->drawImage(raw.get(), 0.0f, 0.0f);
 }
 
 class ReadPixelsGM : public skiagm::GM {

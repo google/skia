@@ -1852,16 +1852,16 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->onDrawPath(path, paint);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
-void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    this->drawImage(image, x, y, paint_to_sampling(paint, this->recordingContext()), paint);
-}
-
 // Returns true if the rect can be "filled" : non-empty and finite
 static bool fillable(const SkRect& r) {
     SkScalar w = r.width();
     SkScalar h = r.height();
     return SkScalarIsFinite(w) && w > 0 && SkScalarIsFinite(h) && h > 0;
+}
+
+#ifdef SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
+void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
+    this->drawImage(image, x, y, paint_to_sampling(paint, this->recordingContext()), paint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,

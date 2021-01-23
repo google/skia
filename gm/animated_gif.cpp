@@ -213,7 +213,7 @@ private:
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(0.25f, 0.25f);
         for (auto& p : fPlayers) {
-            canvas->drawImage(p->getFrame(), 0, 0, nullptr);
+            canvas->drawImage(p->getFrame(), 0, 0);
             canvas->translate(p->dimensions().width(), 0);
         }
     }
@@ -285,7 +285,7 @@ class AnimCodecPlayerExifGM : public skiagm::GM {
 
 
             auto image = fPlayer->getFrame();
-            canvas->drawImage(image, 0, 0, nullptr);
+            canvas->drawImage(image, 0, 0);
             duration += fFrameInfos[frame].fDuration;
             fPlayer->seek(duration);
         }

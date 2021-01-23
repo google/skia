@@ -109,7 +109,7 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256 * 2) {
         SkPaint p;
         sk_sp<SkColorFilter> input = nullptr;
         p.setColorFilter(effect->makeColorFilter(nullptr, &input, 1));
-        canvas->drawImage(img, 0, 0, &p);
+        canvas->drawImage(img, 0, 0, SkSamplingOptions(), &p);
         canvas->translate(256, 0);
     };
 

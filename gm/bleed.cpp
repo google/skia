@@ -34,7 +34,7 @@
 /** Creates an image with two one-pixel wide borders around a checkerboard. The checkerboard is 2x2
     checks where each check has as many pixels as is necessary to fill the interior. It returns
     the image and a src rect that bounds the checkerboard portion. */
-std::tuple<sk_sp<SkImage>, SkIRect> make_ringed_image(int width, int height) {
+std::tuple<sk_sp<SkImage>, SkRect> make_ringed_image(int width, int height) {
 
     // These are kRGBA_8888_SkColorType values.
     static constexpr uint32_t kOuterRingColor = 0xFFFF0000,
@@ -102,7 +102,7 @@ std::tuple<sk_sp<SkImage>, SkIRect> make_ringed_image(int width, int height) {
         scanline[x] = kOuterRingColor;
     }
     bitmap.setImmutable();
-    return {bitmap.asImage(), {2, 2, width - 2, height - 2}};
+    return {bitmap.asImage(), SkRect::Make({2, 2, width - 2, height - 2})};
 }
 
 /**
@@ -121,95 +121,95 @@ protected:
     SkString onShortName() override { return fShortName; }
     SkISize onISize() override { return SkISize::Make(800, 1000); }
 
-    void drawImage(SkCanvas* canvas, sk_sp<SkImage> image,
-                   SkIRect srcRect, SkRect dstRect, SkPaint* paint) {
+    void drawImage(SkCanvas* canvas, sk_sp<SkImage> image, SkRect srcRect, SkRect dstRect,
+                   const SkSamplingOptions& sampling, SkPaint* paint) {
         if (fBatch) {
             SkCanvas::ImageSetEntry imageSetEntry[1];
             imageSetEntry[0].fImage = image;
-            imageSetEntry[0].fSrcRect = SkRect::Make(srcRect);
+            imageSetEntry[0].fSrcRect = srcRect;
             imageSetEntry[0].fDstRect = dstRect;
             imageSetEntry[0].fAAFlags = paint->isAntiAlias() ? SkCanvas::kAll_QuadAAFlags
                                                              : SkCanvas::kNone_QuadAAFlags;
             canvas->experimental_DrawEdgeAAImageSet(imageSetEntry, SK_ARRAY_COUNT(imageSetEntry),
                                                     /*dstClips=*/nullptr,
                                                     /*preViewMatrices=*/nullptr,
-                                                    paint, fConstraint);
+                                                    sampling, paint, fConstraint);
         } else {
-            canvas->drawImageRect(image.get(), srcRect, dstRect, paint, fConstraint);
+            canvas->drawImageRect(image.get(), srcRect, dstRect, sampling, paint, fConstraint);
         }
     }
 
     // Draw the area of interest of the small image
-    void drawCase1(SkCanvas* canvas, int transX, int transY, bool aa, SkFilterQuality filter) {
+    void drawCase1(SkCanvas* canvas, int transX, int transY, bool aa,
+                   const SkSamplingOptions& sampling) {
         SkRect dst = SkRect::MakeXYWH(SkIntToScalar(transX), SkIntToScalar(transY),
                                       SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterQuality(filter);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, &paint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
     }
 
     // Draw the area of interest of the large image
-    void drawCase2(SkCanvas* canvas, int transX, int transY, bool aa, SkFilterQuality filter) {
+    void drawCase2(SkCanvas* canvas, int transX, int transY, bool aa,
+                   const SkSamplingOptions& sampling) {
         SkRect dst = SkRect::MakeXYWH(SkIntToScalar(transX), SkIntToScalar(transY),
                                       SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterQuality(filter);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        drawImage(canvas, fBigImage, fBigSrcRect, dst, &paint);
+        drawImage(canvas, fBigImage, fBigSrcRect, dst, sampling, &paint);
     }
 
     // Draw upper-left 1/4 of the area of interest of the large image
-    void drawCase3(SkCanvas* canvas, int transX, int transY, bool aa, SkFilterQuality filter) {
-        SkIRect src = SkIRect::MakeXYWH(fBigSrcRect.fLeft,
-                                        fBigSrcRect.fTop,
-                                        fBigSrcRect.width()/2,
-                                        fBigSrcRect.height()/2);
+    void drawCase3(SkCanvas* canvas, int transX, int transY, bool aa,
+                   const SkSamplingOptions& sampling) {
+        SkRect src = SkRect::MakeXYWH(fBigSrcRect.fLeft,
+                                      fBigSrcRect.fTop,
+                                      fBigSrcRect.width()/2,
+                                      fBigSrcRect.height()/2);
         SkRect dst = SkRect::MakeXYWH(SkIntToScalar(transX), SkIntToScalar(transY),
                                       SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterQuality(filter);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        drawImage(canvas, fBigImage, src, dst, &paint);
+        drawImage(canvas, fBigImage, src, dst, sampling, &paint);
     }
 
     // Draw the area of interest of the small image with a normal blur
-    void drawCase4(SkCanvas* canvas, int transX, int transY, bool aa, SkFilterQuality filter) {
+    void drawCase4(SkCanvas* canvas, int transX, int transY, bool aa,
+                   const SkSamplingOptions& sampling) {
         SkRect dst = SkRect::MakeXYWH(SkIntToScalar(transX), SkIntToScalar(transY),
                                       SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterQuality(filter);
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                    SkBlurMask::ConvertRadiusToSigma(3)));
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, &paint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
     }
 
     // Draw the area of interest of the small image with a outer blur
-    void drawCase5(SkCanvas* canvas, int transX, int transY, bool aa, SkFilterQuality filter) {
+    void drawCase5(SkCanvas* canvas, int transX, int transY, bool aa,
+                   const SkSamplingOptions& sampling) {
         SkRect dst = SkRect::MakeXYWH(SkIntToScalar(transX), SkIntToScalar(transY),
                                       SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterQuality(filter);
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kOuter_SkBlurStyle,
                                                    SkBlurMask::ConvertRadiusToSigma(7)));
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(aa);
 
-        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, &paint);
+        drawImage(canvas, fSmallImage, fSmallSrcRect, dst, sampling, &paint);
     }
 
     void onOnceBeforeDraw() override {
@@ -240,6 +240,10 @@ protected:
         m.preScale(0.2f, 0.2f);
         matrices.push_back(m);
 
+        const SkSamplingOptions none(SkFilterMode::kNearest);
+        const SkSamplingOptions  low(SkFilterMode::kLinear);
+        const SkSamplingOptions high({1.0f/3, 1.0f/3});
+
         SkScalar maxX = 0;
         for (bool antiAlias : {false, true}) {
             canvas->save();
@@ -249,18 +253,18 @@ protected:
                 canvas->concat(matrix);
 
                 // First draw a column with no filtering
-                this->drawCase1(canvas, kCol0X, kRow0Y, antiAlias, kNone_SkFilterQuality);
-                this->drawCase2(canvas, kCol0X, kRow1Y, antiAlias, kNone_SkFilterQuality);
-                this->drawCase3(canvas, kCol0X, kRow2Y, antiAlias, kNone_SkFilterQuality);
-                this->drawCase4(canvas, kCol0X, kRow3Y, antiAlias, kNone_SkFilterQuality);
-                this->drawCase5(canvas, kCol0X, kRow4Y, antiAlias, kNone_SkFilterQuality);
+                this->drawCase1(canvas, kCol0X, kRow0Y, antiAlias, none);
+                this->drawCase2(canvas, kCol0X, kRow1Y, antiAlias, none);
+                this->drawCase3(canvas, kCol0X, kRow2Y, antiAlias, none);
+                this->drawCase4(canvas, kCol0X, kRow3Y, antiAlias, none);
+                this->drawCase5(canvas, kCol0X, kRow4Y, antiAlias, none);
 
                 // Then draw a column with low filtering
-                this->drawCase1(canvas, kCol1X, kRow0Y, antiAlias, kLow_SkFilterQuality);
-                this->drawCase2(canvas, kCol1X, kRow1Y, antiAlias, kLow_SkFilterQuality);
-                this->drawCase3(canvas, kCol1X, kRow2Y, antiAlias, kLow_SkFilterQuality);
-                this->drawCase4(canvas, kCol1X, kRow3Y, antiAlias, kLow_SkFilterQuality);
-                this->drawCase5(canvas, kCol1X, kRow4Y, antiAlias, kLow_SkFilterQuality);
+                this->drawCase1(canvas, kCol1X, kRow0Y, antiAlias, low);
+                this->drawCase2(canvas, kCol1X, kRow1Y, antiAlias, low);
+                this->drawCase3(canvas, kCol1X, kRow2Y, antiAlias, low);
+                this->drawCase4(canvas, kCol1X, kRow3Y, antiAlias, low);
+                this->drawCase5(canvas, kCol1X, kRow4Y, antiAlias, low);
 
                 // Then draw a column with high filtering. Skip it if in kStrict mode and MIP
                 // mapping will be used. On GPU we allow bleeding at non-base levels because
@@ -268,11 +272,11 @@ protected:
                 SkScalar scales[2];
                 SkAssertResult(matrix.getMinMaxScales(scales));
                 if (fConstraint != SkCanvas::kStrict_SrcRectConstraint || scales[0] >= 1.f) {
-                    this->drawCase1(canvas, kCol2X, kRow0Y, antiAlias, kHigh_SkFilterQuality);
-                    this->drawCase2(canvas, kCol2X, kRow1Y, antiAlias, kHigh_SkFilterQuality);
-                    this->drawCase3(canvas, kCol2X, kRow2Y, antiAlias, kHigh_SkFilterQuality);
-                    this->drawCase4(canvas, kCol2X, kRow3Y, antiAlias, kHigh_SkFilterQuality);
-                    this->drawCase5(canvas, kCol2X, kRow4Y, antiAlias, kHigh_SkFilterQuality);
+                    this->drawCase1(canvas, kCol2X, kRow0Y, antiAlias, high);
+                    this->drawCase2(canvas, kCol2X, kRow1Y, antiAlias, high);
+                    this->drawCase3(canvas, kCol2X, kRow2Y, antiAlias, high);
+                    this->drawCase4(canvas, kCol2X, kRow3Y, antiAlias, high);
+                    this->drawCase5(canvas, kCol2X, kRow4Y, antiAlias, high);
                 }
 
                 SkPoint innerCorners[] = {{0, 0}, {0, kBottom}, {kWidth, kBottom}, {kWidth, 0}};
@@ -311,8 +315,8 @@ private:
     SkString fShortName;
     sk_sp<SkImage> fBigImage;
     sk_sp<SkImage> fSmallImage;
-    SkIRect fBigSrcRect;
-    SkIRect fSmallSrcRect;
+    SkRect fBigSrcRect;
+    SkRect fSmallSrcRect;
     SkCanvas::SrcRectConstraint fConstraint;
     bool fBatch = false;
     using INHERITED = GM;
