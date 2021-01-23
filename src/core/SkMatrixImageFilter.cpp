@@ -85,9 +85,14 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(const Context& ctx,
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setFilterQuality(fFilterQuality);
 
-    input->draw(canvas, srcRect.x(), srcRect.y(), &paint);
+    // TODO: change MatrixImageFilter to take sampling explicitly, not filter-quality
+    SkSamplingOptions sampling(fFilterQuality,
+                               canvas->recordingContext()
+                                  ? SkSamplingOptions::kMedium_asMipmapLinear
+                                  : SkSamplingOptions::kMedium_asMipmapNearest);
+
+    input->draw(canvas, srcRect.x(), srcRect.y(), sampling, &paint);
 
     offset->fX = dstBounds.fLeft;
     offset->fY = dstBounds.fTop;

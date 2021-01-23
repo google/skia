@@ -242,7 +242,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(const Context& ct
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         background->draw(canvas, SkIntToScalar(backgroundOffset.fX),
-                         SkIntToScalar(backgroundOffset.fY), &paint);
+                         SkIntToScalar(backgroundOffset.fY), SkSamplingOptions(), &paint);
     }
 
     this->drawForeground(canvas, foreground.get(), foregroundBounds);

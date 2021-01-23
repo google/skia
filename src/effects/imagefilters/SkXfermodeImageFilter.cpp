@@ -159,7 +159,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::onFilterImage(const Context& ct
         paint.setBlendMode(SkBlendMode::kSrc);
         background->draw(canvas,
                          SkIntToScalar(backgroundOffset.fX), SkIntToScalar(backgroundOffset.fY),
-                         &paint);
+                         SkSamplingOptions(), &paint);
     }
 
     this->drawForeground(canvas, foreground.get(), foregroundBounds);
@@ -217,7 +217,8 @@ void SkXfermodeImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
     SkPaint paint;
     paint.setBlendMode(fMode);
     if (img) {
-        img->draw(canvas, SkIntToScalar(fgBounds.fLeft), SkIntToScalar(fgBounds.fTop), &paint);
+        img->draw(canvas, SkIntToScalar(fgBounds.fLeft), SkIntToScalar(fgBounds.fTop),
+                  SkSamplingOptions(), &paint);
     }
 
     SkAutoCanvasRestore acr(canvas, true);
