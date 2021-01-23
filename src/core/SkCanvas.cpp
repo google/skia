@@ -1955,12 +1955,14 @@ static sk_sp<SkImage> bitmap_as_image(const SkBitmap& bitmap) {
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
-    this->drawImage(bitmap_as_image(bitmap), dx, dy, paint);
+    this->drawImage(bitmap_as_image(bitmap), dx, dy,
+                    paint_to_sampling(paint, this->recordingContext()), paint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
                               const SkPaint* paint, SrcRectConstraint constraint) {
-    this->drawImageRect(bitmap_as_image(bitmap), src, dst, paint, constraint);
+    this->drawImageRect(bitmap_as_image(bitmap), src, dst,
+                        paint_to_sampling(paint, this->recordingContext()), paint, constraint);
 }
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,

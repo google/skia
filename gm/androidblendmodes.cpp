@@ -71,9 +71,9 @@ protected:
         canvas->saveLayer(nullptr, nullptr);
 
         SkPaint p;
-        canvas->drawImage(fCompositeDst.asImage(), 0, 0, &p);
+        canvas->drawImage(fCompositeDst.asImage(), 0, 0, SkSamplingOptions(), &p);
         p.setBlendMode(mode);
-        canvas->drawImage(fCompositeSrc.asImage(), 0, 0, &p);
+        canvas->drawImage(fCompositeSrc.asImage(), 0, 0, SkSamplingOptions(), &p);
     }
 
     void onDraw(SkCanvas* canvas) override {

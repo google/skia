@@ -123,7 +123,8 @@ protected:
                         // rect stays rect
                         break;
                 }
-                canvas->drawImageRect(fImage.get(), srcRect, dstRect, &paint,
+                canvas->drawImageRect(fImage.get(), SkRect::Make(srcRect), dstRect,
+                                      SkSamplingOptions(), &paint,
                                       SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
 

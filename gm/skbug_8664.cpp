@@ -25,9 +25,10 @@ DEF_SIMPLE_GM(skbug_8664, canvas, 830, 550) {
         { 0.125f, 0.125f, 530, 420 },
     };
 
-    SkPaint imagePaint;
     // Must be at least medium to require mipmaps when we downscale the image
-    imagePaint.setFilterQuality(kMedium_SkFilterQuality);
+    SkSamplingOptions sampling(SkFilterMode::kLinear,
+                               SkMipmapMode::kLinear);
+
     sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_512.png"));
 
     SkPaint overlayPaint;
@@ -44,7 +45,7 @@ DEF_SIMPLE_GM(skbug_8664, canvas, 830, 550) {
 
         // Draw an image, possibly down sampled, which forces us to generate mipmaps inline
         // on the second iteration.
-        canvas->drawImage(image, 0, 0, &imagePaint);
+        canvas->drawImage(image, 0, 0, sampling, nullptr);
 
         // Draw an overlay that requires the scissor test for its clipping, so that the mipmap
         // generation + scissor interference bug is highlighted in Adreno 330 devices.

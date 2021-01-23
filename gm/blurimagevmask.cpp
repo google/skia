@@ -77,8 +77,8 @@ DEF_SIMPLE_GM_CAN_FAIL(blur_image, canvas, errorMsg, 500, 500) {
     // both of these should draw with the blur, but (formerally) we had a bug where the unscaled
     // version (taking the spriteblitter code path) ignore the maskfilter.
 
-    canvas->drawImage(image, 10, 10, &paint);
+    canvas->drawImage(image, 10, 10, SkSamplingOptions(), &paint);
     canvas->scale(1.01f, 1.01f);
-    canvas->drawImage(image, 10 + image->width() + 10.f, 10, &paint);
+    canvas->drawImage(image, 10 + image->width() + 10.f, 10, SkSamplingOptions(), &paint);
     return skiagm::DrawResult::kOk;
 }

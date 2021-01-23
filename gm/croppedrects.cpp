@@ -74,14 +74,14 @@ private:
         {
             // GrSurfaceDrawContext::fillRectToRect.
             SkAutoCanvasRestore acr(canvas, true);
-            SkPaint paint;
             SkRect drawRect = SkRect::MakeXYWH(350, 100, 100, 300);
             canvas->clipRect(drawRect);
             canvas->drawImageRect(fSrcImage.get(),
                                   kSrcImageClip.makeOutset(0.5f * kSrcImageClip.width(),
                                                            kSrcImageClip.height()),
                                   drawRect.makeOutset(0.5f * drawRect.width(), drawRect.height()),
-                                  &paint);
+                                  SkSamplingOptions(), nullptr,
+                                  SkCanvas::kStrict_SrcRectConstraint);
         }
 
         {

@@ -85,7 +85,7 @@ protected:
             { fixed * 4,     fixed * 4 }
         };
 
-        canvas->drawImage(fImage, 10, 10, nullptr);
+        canvas->drawImage(fImage, 10, 10);
 
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(100);

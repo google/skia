@@ -107,11 +107,11 @@ private:
     void drawSets(SkCanvas* canvas) const {
         SkAutoCanvasRestore acr(canvas, true);
 
-        const SkFilterQuality filters[] = {
-            kNone_SkFilterQuality,
-            kLow_SkFilterQuality,
-            kMedium_SkFilterQuality,
-            kHigh_SkFilterQuality
+        const SkSamplingOptions samplings[] = {
+            SkSamplingOptions(SkFilterMode::kNearest),
+            SkSamplingOptions(SkFilterMode::kLinear),
+            SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+            SkSamplingOptions({1.0f/3, 1.0f/3}),
         };
         const bool AAs[] = { false, true };
 
@@ -121,19 +121,19 @@ private:
             SkPoint lastPt;
             for (size_t j = 0; j < SK_ARRAY_COUNT(AAs); ++j) {
                 paint.setAntiAlias(AAs[j]);
-                for (size_t k = 0; k < SK_ARRAY_COUNT(filters); ++k) {
-                    paint.setFilterQuality(filters[k]);
-                    lastPt = drawSet(canvas, set, paint);
+                for (size_t k = 0; k < SK_ARRAY_COUNT(samplings); ++k) {
+                    lastPt = drawSet(canvas, set, samplings[k], paint);
                     canvas->translate((kSegLen + 4) * set.fVector.y(),
                                       (kSegLen + 4) * set.fVector.x());
                 }
             }
             canvas->translate(lastPt.x() + kSegLen,
-                - SkIntToScalar(kSegLen + 4) * SK_ARRAY_COUNT(filters) * SK_ARRAY_COUNT(AAs));
+                - SkIntToScalar(kSegLen + 4) * SK_ARRAY_COUNT(samplings) * SK_ARRAY_COUNT(AAs));
         }
     }
 
-    SkPoint drawSet(SkCanvas* canvas, const ImageSet& set, const SkPaint& paint) const {
+    SkPoint drawSet(SkCanvas* canvas, const ImageSet& set, const SkSamplingOptions& sampling,
+                    const SkPaint& paint) const {
         SkASSERT(set.fImages.count() == set.fScales.count());
 
         SkPoint pt = SkPoint::Make(0, 0);
@@ -144,7 +144,7 @@ private:
                     img->width() * (1 + (set.fScales[i] - 1) * set.fVector.x()),
                     img->height() * (1 + (set.fScales[i] - 1) * set.fVector.y()));
 
-            canvas->drawImageRect(img.get(), dst, &paint);
+            canvas->drawImageRect(img.get(), dst, sampling, &paint);
             pt.offset(dst.width() * set.fVector.x(), dst.height() * set.fVector.y());
         }
 

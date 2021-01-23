@@ -78,7 +78,7 @@ DEF_SIMPLE_GM(alpha_image_alpha_tint, canvas, 152, 80) {
     paint.setColor4f({ 0, 1, 0, 0.5f });
 
     canvas->translate(8, 8);
-    canvas->drawImage(image.get(), 0, 0, &paint);
+    canvas->drawImage(image.get(), 0, 0, SkSamplingOptions(), &paint);
 
     canvas->translate(72, 0);
     paint.setShader(image->makeShader(SkSamplingOptions()));

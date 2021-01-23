@@ -58,7 +58,7 @@ protected:
         SkBitmap legacyBMCanvas;
         legacyBMCanvas.allocPixels(linearInfo);
         SkCanvas legacyCanvas(legacyBMCanvas);
-        legacyCanvas.drawImage(image, 0.0f, 0.0f, nullptr);
+        legacyCanvas.drawImage(image, 0.0f, 0.0f);
         legacyCanvas.translate(SkScalar(kSize), 0.0f);
         legacyCanvas.drawBitmap(bitmap, 0.0f, 0.0f, nullptr);
         canvas->drawBitmap(legacyBMCanvas, 0.0f, 0.0f, nullptr);
@@ -69,7 +69,7 @@ protected:
         SkBitmap srgbBMCanvas;
         srgbBMCanvas.allocPixels(srgbInfo);
         SkCanvas srgbCanvas(srgbBMCanvas);
-        srgbCanvas.drawImage(image, 0.0f, 0.0f, nullptr);
+        srgbCanvas.drawImage(image, 0.0f, 0.0f);
         srgbCanvas.translate(SkScalar(kSize), 0.0f);
         srgbCanvas.drawBitmap(bitmap, 0.0f, 0.0f, nullptr);
         canvas->drawBitmap(srgbBMCanvas, 0.0f, 0.0f, nullptr);

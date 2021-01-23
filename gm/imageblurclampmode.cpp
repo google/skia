@@ -48,7 +48,7 @@ static void draw_image(SkCanvas* canvas, const sk_sp<SkImage> image, sk_sp<SkIma
 
     canvas->translate(SkIntToScalar(30), 0);
     canvas->clipRect(SkRect::MakeIWH(image->width(),image->height()));
-    canvas->drawImage(image, 0, 0, &paint);
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
 }
 
 namespace skiagm {

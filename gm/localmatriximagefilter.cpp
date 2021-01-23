@@ -42,7 +42,7 @@ static void show_image(SkCanvas* canvas, SkImage* image, sk_sp<SkImageFilter> fi
 
     paint.setStyle(SkPaint::kFill_Style);
     paint.setImageFilter(filter);
-    canvas->drawImage(image, 0, 0, &paint);
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
 }
 
 typedef sk_sp<SkImageFilter> (*ImageFilterFactory)();
