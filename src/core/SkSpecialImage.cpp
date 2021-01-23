@@ -39,7 +39,8 @@ public:
     }
     ~SkSpecialImage_Base() override { }
 
-    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
+    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkSamplingOptions&,
+                        const SkPaint*) const = 0;
 
     virtual bool onGetROPixels(SkBitmap*) const = 0;
 
@@ -84,8 +85,9 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID) {
 }
 
-void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
-    return as_SIB(this)->onDraw(canvas, x, y, paint);
+void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
+                          const SkSamplingOptions& sampling, const SkPaint* paint) const {
+    return as_SIB(this)->onDraw(canvas, x, y, sampling, paint);
 }
 
 bool SkSpecialImage::getROPixels(SkBitmap* bm) const {
@@ -191,12 +193,13 @@ public:
 
     size_t getSize() const override { return fBitmap.computeByteSize(); }
 
-    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
+    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions& sampling,
+                const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
-        canvas->drawImageRect(fBitmap.asImage(), this->subset(), dst, paint,
-                              SkCanvas::kStrict_SrcRectConstraint);
+        canvas->drawImageRect(fBitmap.asImage(), SkRect::Make(this->subset()), dst,
+                              sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
     bool onGetROPixels(SkBitmap* bm) const override {
@@ -342,7 +345,8 @@ public:
         return fView.proxy()->gpuMemorySize();
     }
 
-    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
+    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions& sampling,
+                const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
@@ -357,8 +361,8 @@ public:
                                                this->uniqueID(), fView, this->colorType(),
                                                fAlphaType, fColorSpace));
 
-        canvas->drawImageRect(img, this->subset(),
-                              dst, paint, SkCanvas::kStrict_SrcRectConstraint);
+        canvas->drawImageRect(img, SkRect::Make(this->subset()), dst,
+                              sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
     GrRecordingContext* onGetContext() const override { return fContext; }

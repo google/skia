@@ -93,7 +93,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     SkCanvas* canvas = surf->getCanvas();
 
     canvas->clear(SK_ColorBLUE);
-    img->draw(canvas, SkIntToScalar(kPad), SkIntToScalar(kPad), nullptr);
+    img->draw(canvas, SkIntToScalar(kPad), SkIntToScalar(kPad));
 
     SkBitmap bm;
     bm.allocN32Pixels(kFullSize, kFullSize, false);

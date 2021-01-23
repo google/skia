@@ -138,10 +138,10 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(const Context& 
 
     canvas->translate(SkIntToScalar(inputOffset.fX) - SkIntToScalar(bounds.fLeft),
                       SkIntToScalar(inputOffset.fY) - SkIntToScalar(bounds.fTop));
-    input->draw(canvas, offsetVec.fX, offsetVec.fY, &paint);
+    input->draw(canvas, offsetVec.fX, offsetVec.fY, SkSamplingOptions(), &paint);
 
     if (!fShadowOnly) {
-        input->draw(canvas, 0, 0, nullptr);
+        input->draw(canvas, 0, 0);
     }
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
