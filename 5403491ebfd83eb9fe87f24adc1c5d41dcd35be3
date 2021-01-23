@@ -22,6 +22,30 @@
       },
       "revId": "5403491ebfd83eb9fe87f24adc1c5d41dcd35be3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "baf7a5d2_0d0a4d84",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-23T00:15:53Z",
+      "side": 1,
+      "message": "Correct. I can put it in a named variable or right in the if() if that looks better",
+      "parentUuid": "bdbed2d0_af95083f",
+      "range": {
+        "startLine": 246,
+        "startChar": 40,
+        "endLine": 246,
+        "endChar": 45
+      },
+      "revId": "5403491ebfd83eb9fe87f24adc1c5d41dcd35be3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
