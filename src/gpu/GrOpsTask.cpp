@@ -677,12 +677,12 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     }
 }
 
-int GrOpsTask::mergeFromLList() {
+int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     GrOpsTask* last = this;
     int addlProxyCount = 0;
     int addlOpChainCount = 0;
     int mergedCount = 0;
-    for (GrRenderTask* task = fNext; task; task = task->fNext) {
+    for (const sk_sp<GrRenderTask>& task : tasks) {
         auto opsTask = task->asOpsTask();
         if (!opsTask || opsTask->target(0) != this->target(0)) {
             break;
@@ -705,8 +705,8 @@ int GrOpsTask::mergeFromLList() {
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
     fClipAllocators.reserve_back(mergedCount);
-    for (auto task = fNext; task != last->fNext; task = task->fNext) {
-        auto opsTask = reinterpret_cast<GrOpsTask*>(task);
+    for (const sk_sp<GrRenderTask>& task : tasks.first(mergedCount)) {
+        auto opsTask = reinterpret_cast<GrOpsTask*>(task.get());
         fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
                                     opsTask->fSampledProxies.data());
         fOpChains.move_back_n(opsTask->fOpChains.count(),

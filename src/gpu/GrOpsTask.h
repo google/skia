@@ -17,6 +17,7 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkClipStack.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrAppliedClip.h"
@@ -89,9 +90,9 @@ public:
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
 
-    // Merge opsTasks after 'this' starting from 'fNext' into 'this'. They should all be
+    // Merge as many opsTasks as possible from the head of 'tasks'. They should all be
     // renderPass compatible. Return the number of tasks merged into 'this'.
-    int mergeFromLList();
+    int mergeFrom(SkSpan<const sk_sp<GrRenderTask>>);
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
