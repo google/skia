@@ -69,7 +69,7 @@ private:
             }
         }
 
-        canvas->drawBitmap(bm, 0, 0);
+        canvas->drawImage(bm.asImage(), 0, 0);
     }
 
 public:

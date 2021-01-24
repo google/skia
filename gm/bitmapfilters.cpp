@@ -153,11 +153,14 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setColor(SK_ColorRED);
 
-        canvas->drawBitmap(fBitmap, 10, 10, &paint);    // should stay blue (ignore paint's color)
-        canvas->drawBitmap(fAlpha, 120, 10, &paint);    // should draw red
+        SkSamplingOptions sampling(SkFilterMode::kLinear);
+
+        // should stay blue (ignore paint's color)
+        canvas->drawImage(fBitmap.asImage(), 10, 10, sampling, &paint);
+        // should draw red
+        canvas->drawImage(fAlpha.asImage(), 120, 10, sampling, &paint);
     }
 
 private:

@@ -36,7 +36,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap = ToolUtils::create_string_bitmap(80, 80, 0xFF884422, 15, 55, 96, "g");
+        fImage = ToolUtils::create_string_image(80, 80, 0xFF884422, 15, 55, 96, "g");
 
         SkColor c1 = ToolUtils::color_to_565(0xFF244484);
         SkColor c2 = ToolUtils::color_to_565(0xFF804020);
@@ -55,8 +55,8 @@ protected:
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) const {
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-        canvas->clipRect(SkRect::MakeWH(SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
-        canvas->drawBitmap(fBitmap, 0, 0, &paint);
+        canvas->clipIRect(fImage->bounds());
+        canvas->drawImage(fImage, 0, 0, SkSamplingOptions(), &paint);
         canvas->restore();
     }
 
@@ -161,7 +161,7 @@ protected:
     }
 
 private:
-    SkBitmap fBitmap;
+    sk_sp<SkImage> fImage;
     sk_sp<SkImage> fCheckerboard, fSmall, fLarge, fLargeW, fLargeH;
 
     using INHERITED = GM;

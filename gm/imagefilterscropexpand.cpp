@@ -28,10 +28,9 @@
 
 namespace {
 
-void make_checkerboard(SkBitmap* bitmap);
+sk_sp<SkImage> make_checkerboard();
 sk_sp<SkImage> make_gradient_circle(int width, int height);
-void draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkIRect& rect,
-                 sk_sp<SkImageFilter> filter);
+void draw(SkCanvas*, sk_sp<SkImage>, const SkIRect&, sk_sp<SkImageFilter>);
 
 }  // namespace
 
@@ -41,8 +40,7 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
     SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
 
     sk_sp<SkImage> gradientCircle(make_gradient_circle(64, 64));
-    SkBitmap checkerboard;
-    make_checkerboard(&checkerboard);
+    auto checkerboard = make_checkerboard();
 
     sk_sp<SkImageFilter> gradientCircleSource(SkImageFilters::Image(std::move(gradientCircle)));
     sk_sp<SkImageFilter> noopCropped(SkImageFilters::Offset(0, 0, nullptr, &cropRect));
@@ -106,25 +104,26 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
 }
 
 namespace {
-    void make_checkerboard(SkBitmap* bitmap) {
-        bitmap->allocN32Pixels(64, 64);
-        SkCanvas canvas(*bitmap);
-        canvas.clear(0xFFFF0000);
+    sk_sp<SkImage> make_checkerboard() {
+        auto surf = SkSurface::MakeRasterN32Premul(64, 64);
+        auto canvas = surf->getCanvas();
+        canvas->clear(0xFFFF0000);
         SkPaint darkPaint;
         darkPaint.setColor(0xFF404040);
         SkPaint lightPaint;
         lightPaint.setColor(0xFFA0A0A0);
         for (int y = 8; y < 48; y += 16) {
             for (int x = 8; x < 48; x += 16) {
-                canvas.save();
-                canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-                canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
-                canvas.restore();
+                canvas->save();
+                canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+                canvas->drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
+                canvas->restore();
             }
         }
+        return surf->makeImageSnapshot();
     }
 
     sk_sp<SkImage> make_gradient_circle(int width, int height) {
@@ -145,7 +144,7 @@ namespace {
         return surface->makeImageSnapshot();
     }
 
-    void draw(SkCanvas* canvas, const SkBitmap& bitmap, const SkIRect& layerRect,
+    void draw(SkCanvas* canvas, sk_sp<SkImage> image, const SkIRect& layerRect,
                      sk_sp<SkImageFilter> filter) {
         // Convert SkIRect to SkRect since that's what saveLayer and drawRect need
         SkRect rect = SkRect::Make(layerRect);
@@ -153,7 +152,7 @@ namespace {
         SkPaint paint;
         paint.setImageFilter(std::move(filter));
         canvas->saveLayer(&rect, &paint);
-        canvas->drawBitmap(bitmap, 0, 0);
+        canvas->drawImage(image, 0, 0);
         canvas->restore();
 
         SkPaint strokePaint;
