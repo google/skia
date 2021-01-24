@@ -52,18 +52,18 @@ DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
         canvas->save();
         rowCnt = 0;
     };
+    SkSamplingOptions sampling(SkFilterMode::kLinear,
+                               SkMipmapMode::kNearest);
     ToolUtils::draw_checkerboard(
             canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, (kDstRect.height() + kPad)/5);
     for (auto& fg : duckyFG) {
         for (int bm = static_cast<int>(SkBlendMode::kLastCoeffMode) + 1;
              bm < static_cast<int>(SkBlendMode::kLastMode);
              ++bm) {
-            auto mode = static_cast<SkBlendMode>(bm);
+            canvas->drawImageRect(duckyBG, kDstRect, sampling, nullptr);
             SkPaint paint;
-            paint.setFilterQuality(kMedium_SkFilterQuality);
-            canvas->drawImageRect(duckyBG, kDstRect, &paint);
-            paint.setBlendMode(mode);
-            canvas->drawImageRect(fg, kDstRect, &paint);
+            paint.setBlendMode(static_cast<SkBlendMode>(bm));
+            canvas->drawImageRect(fg, kDstRect, sampling, &paint);
             canvas->translate(kDstRect.width() + kPad, 0);
             if (++rowCnt == kNumPerRow) {
                 newRow();

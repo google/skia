@@ -115,7 +115,7 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
         for (SkScalar outset = 0; outset <= 1; ++outset) {
             canvas->save();
             canvas->clipRect(r.makeOutset(outset, outset));
-            canvas->drawImage(image, 0, 0, &paint);
+            canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
             canvas->restore();
             canvas->translate(0, r.height() + 20);
         }
@@ -177,8 +177,8 @@ protected:
             { 0.125f, 0.125f, 530, 420 },
         };
 
-        SkPaint paint;
-        paint.setFilterQuality(kMedium_SkFilterQuality);
+        SkSamplingOptions sampling(SkFilterMode::kLinear,
+                                   SkMipmapMode::kLinear);
         sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_512.png"));
 
         canvas->translate(20, 20);
@@ -186,7 +186,7 @@ protected:
             canvas->save();
             canvas->translate(xform.fTx, xform.fTy);
             canvas->scale(xform.fSx, xform.fSy);
-            canvas->drawImage(image, 0, 0, &paint);
+            canvas->drawImage(image, 0, 0, sampling, nullptr);
             draw_set(canvas, filters, SK_ARRAY_COUNT(filters));
             canvas->restore();
         }
@@ -235,13 +235,13 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     SkRect crop = SkRect::Make(image->bounds());
     canvas->save();
     canvas->clipRect(crop);
-    canvas->drawImage(image, 0, 0, &expectedCFPaint); // Filter applied by draw's SkPaint
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &expectedCFPaint); // Filter applied by draw's SkPaint
     canvas->restore();
 
     canvas->save();
     canvas->translate(image->width(), 0);
     canvas->clipRect(crop);
-    canvas->drawImage(image, 0, 0, &testCFPaint);
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &testCFPaint);
     canvas->restore();
 
     // Now test mask filters. These should be run before the image filter, and thus have the same
@@ -272,12 +272,12 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     canvas->save();
     canvas->translate(0, image->height());
     canvas->clipRect(crop);
-    canvas->drawImage(image, 0, 0, &expectedMaskPaint);
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &expectedMaskPaint);
     canvas->restore();
 
     canvas->save();
     canvas->translate(image->width(), image->height());
     canvas->clipRect(crop);
-    canvas->drawImage(image, 0, 0, &testMaskPaint);
+    canvas->drawImage(image, 0, 0, SkSamplingOptions(), &testMaskPaint);
     canvas->restore();
 }

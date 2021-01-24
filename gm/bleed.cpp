@@ -370,17 +370,20 @@ DEF_SIMPLE_GM(bleed_downscale, canvas, 360, 240) {
     const SkCanvas::SrcRectConstraint constraints[] = {
         SkCanvas::kStrict_SrcRectConstraint, SkCanvas::kFast_SrcRectConstraint
     };
-    const SkFilterQuality qualities[] = {
-        kNone_SkFilterQuality, kLow_SkFilterQuality, kMedium_SkFilterQuality
+    const SkSamplingOptions samplings[] = {
+        SkSamplingOptions(SkFilterMode::kNearest),
+        SkSamplingOptions(SkFilterMode::kLinear),
+        SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
     };
     for (auto constraint : constraints) {
         canvas->save();
-        for (auto quality : qualities) {
-            paint.setFilterQuality(quality);
+        for (auto sampling : samplings) {
             auto surf = ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(1, 1));
-            surf->getCanvas()->drawImageRect(img, src, SkRect::MakeWH(1, 1), &paint, constraint);
+            surf->getCanvas()->drawImageRect(img, src, SkRect::MakeWH(1, 1), sampling,
+                                             nullptr, constraint);
             // now blow up the 1 pixel result
-            canvas->drawImageRect(surf->makeImageSnapshot(), SkRect::MakeWH(100, 100), nullptr);
+            canvas->drawImageRect(surf->makeImageSnapshot(), SkRect::MakeWH(100, 100),
+                                  SkSamplingOptions());
             canvas->translate(120, 0);
         }
         canvas->restore();

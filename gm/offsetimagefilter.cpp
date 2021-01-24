@@ -79,7 +79,7 @@ private:
         canvas->save();
         canvas->clipRect(clipRect);
         canvas->scale(scale, scale);
-        canvas->drawImage(image, 0, 0, &paint);
+        canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
         canvas->restore();
 
         // Draw a boundary rect around the intersection of the clip rect and crop rect.

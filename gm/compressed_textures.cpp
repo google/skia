@@ -270,8 +270,7 @@ private:
         int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions.width(),
                                                        levelDimensions.height()) + 1;
 
-        SkPaint imagePaint;
-        imagePaint.setFilterQuality(kHigh_SkFilterQuality); // to force mipmapping
+        SkSamplingOptions sampling({1.0f/3, 1.0f/3});
 
         bool isCompressed = false;
         if (image->isTextureBacked()) {
@@ -289,7 +288,7 @@ private:
             SkRect r = SkRect::MakeXYWH(offset.fX, offset.fY,
                                         levelDimensions.width(), levelDimensions.height());
 
-            canvas->drawImageRect(image, r, &imagePaint);
+            canvas->drawImageRect(image, r, sampling);
             if (!isCompressed) {
                 // Make it obvious which drawImages used decompressed images
                 canvas->drawRect(r, redStrokePaint);
