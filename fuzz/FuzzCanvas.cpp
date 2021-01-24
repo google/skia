@@ -82,8 +82,6 @@ inline T make_fuzz_t(Fuzz* fuzz) {
 
 static sk_sp<SkImage> make_fuzz_image(Fuzz*);
 
-static SkBitmap make_fuzz_bitmap(Fuzz*);
-
 static sk_sp<SkPicture> make_fuzz_picture(Fuzz*, int depth);
 
 static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
@@ -202,15 +200,6 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
                 FuzzNiceMatrix(fuzz, &matrix);
             }
             return img->makeShader(tmX, tmY, SkSamplingOptions(), useMatrix ? &matrix : nullptr);
-        case 4:
-            bitmap = make_fuzz_bitmap(fuzz);
-            fuzz->nextEnum(&tmX, SkTileMode::kLastTileMode);
-            fuzz->nextEnum(&tmY, SkTileMode::kLastTileMode);
-            fuzz->next(&useMatrix);
-            if (useMatrix) {
-                FuzzNiceMatrix(fuzz, &matrix);
-            }
-            return bitmap.makeShader(tmX, tmY, SkSamplingOptions(), useMatrix ? &matrix : nullptr);
         case 5:
             shader1 = make_fuzz_shader(fuzz, depth - 1);  // limit recursion.
             FuzzNiceMatrix(fuzz, &matrix);
@@ -822,25 +811,6 @@ static sk_sp<SkImage> make_fuzz_image(Fuzz* fuzz) {
                                    nullptr);
 }
 
-static SkBitmap make_fuzz_bitmap(Fuzz* fuzz) {
-    SkBitmap bitmap;
-    int w, h;
-    fuzz->nextRange(&w, 1, 1024);
-    fuzz->nextRange(&h, 1, 1024);
-    if (!bitmap.tryAllocN32Pixels(w, h)) {
-        SkDEBUGF("Could not allocate pixels %d x %d", w, h);
-        return bitmap;
-    }
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            SkColor c;
-            fuzz->next(&c);
-            *bitmap.getAddr32(x, y) = SkPreMultiplyColor(c);
-        }
-    }
-    return bitmap;
-}
-
 template <typename T>
 static T make_fuzz_enum_range(Fuzz* fuzz, T maxv) {
     T value;
@@ -1321,66 +1291,6 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 }
                 fuzz->next(&dst);
                 canvas->drawImageNine(img, center, dst, usePaint ? &paint : nullptr);
-                break;
-            }
-            case 38: {
-                SkBitmap bitmap = make_fuzz_bitmap(fuzz);
-                SkScalar left, top;
-                bool usePaint;
-                fuzz->next(&left, &top, &usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                canvas->drawBitmap(bitmap, left, top, usePaint ? &paint : nullptr);
-                break;
-            }
-            case 39: {
-                SkBitmap bitmap = make_fuzz_bitmap(fuzz);
-                SkRect src, dst;
-                bool usePaint;
-                fuzz->next(&src, &dst, &usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                SkCanvas::SrcRectConstraint constraint =
-                        make_fuzz_t<bool>(fuzz) ? SkCanvas::kStrict_SrcRectConstraint
-                                                : SkCanvas::kFast_SrcRectConstraint;
-                canvas->drawBitmapRect(bitmap, src, dst, usePaint ? &paint : nullptr, constraint);
-                break;
-            }
-            case 40: {
-                SkBitmap img = make_fuzz_bitmap(fuzz);
-                SkIRect src;
-                SkRect dst;
-                bool usePaint;
-                fuzz->next(&src, &dst, &usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                SkCanvas::SrcRectConstraint constraint =
-                        make_fuzz_t<bool>(fuzz) ? SkCanvas::kStrict_SrcRectConstraint
-                                                : SkCanvas::kFast_SrcRectConstraint;
-                canvas->drawBitmapRect(img, src, dst, usePaint ? &paint : nullptr, constraint);
-                break;
-            }
-            case 41: {
-                SkBitmap img = make_fuzz_bitmap(fuzz);
-                SkRect dst;
-                bool usePaint;
-                fuzz->next(&dst, &usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                SkCanvas::SrcRectConstraint constraint =
-                        make_fuzz_t<bool>(fuzz) ? SkCanvas::kStrict_SrcRectConstraint
-                                                : SkCanvas::kFast_SrcRectConstraint;
-                canvas->drawBitmapRect(img, dst, usePaint ? &paint : nullptr, constraint);
-                break;
-            }
-            case 42: {
-                break;
-            }
-            case 43: {
                 break;
             }
             case 44: {
