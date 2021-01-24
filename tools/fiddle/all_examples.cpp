@@ -120,8 +120,6 @@
 #include "../../docs/examples/Canvas_drawArc_b.cpp"
 #include "../../docs/examples/Canvas_drawAtlas.cpp"
 #include "../../docs/examples/Canvas_drawAtlas_2.cpp"
-#include "../../docs/examples/Canvas_drawAtlas_3.cpp"
-#include "../../docs/examples/Canvas_drawAtlas_4.cpp"
 #include "../../docs/examples/Canvas_drawBitmap.cpp"
 #include "../../docs/examples/Canvas_drawBitmapRect.cpp"
 #include "../../docs/examples/Canvas_drawBitmapRect_2.cpp"
