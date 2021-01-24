@@ -37,13 +37,13 @@ protected:
         SkBitmap colorBmp;
         colorBmp.allocN32Pixels(20, 20, true);
         colorBmp.eraseColor(0xFFFF0000);
-        canvas.drawBitmap(colorBmp, 0, 0);
+        canvas.drawImage(colorBmp.asImage(), 0, 0);
         colorBmp.eraseColor(ToolUtils::color_to_565(0xFF008200));
-        canvas.drawBitmap(colorBmp, 20, 0);
+        canvas.drawImage(colorBmp.asImage(), 20, 0);
         colorBmp.eraseColor(ToolUtils::color_to_565(0xFFFF9000));
-        canvas.drawBitmap(colorBmp, 0, 20);
+        canvas.drawImage(colorBmp.asImage(), 0, 20);
         colorBmp.eraseColor(ToolUtils::color_to_565(0xFF2000FF));
-        canvas.drawBitmap(colorBmp, 20, 20);
+        canvas.drawImage(colorBmp.asImage(), 20, 20);
     }
 
     SkString onShortName() override { return SkString("bmp_filter_quality_repeat"); }

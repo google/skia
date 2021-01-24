@@ -132,7 +132,7 @@ class BitmapCopyGM : public skiagm::GM {
             // Draw destination bitmap
             canvas->translate(0, vertOffset);
             x = (width - 40) / SkScalar(2);
-            canvas->drawBitmap(fDst[i], x, 0, &paint);
+            canvas->drawImage(fDst[i].asImage(), x, 0, SkSamplingOptions(), &paint);
             canvas->restore();
 
             canvas->translate(horizOffset, 0);

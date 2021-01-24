@@ -28,22 +28,20 @@ static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {
 }
 
 static void draw_cell(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, SkScalar dx,
-                      SkFilterQuality lvl) {
-    SkPaint paint;
-    paint.setFilterQuality(lvl);
-
+                      const SkSamplingOptions& sampling) {
     SkAutoCanvasRestore acr(canvas, true);
 
     canvas->translate(dx, 0);
     canvas->concat(mat);
-    canvas->drawBitmap(bm, 0, 0, &paint);
+    canvas->drawImage(bm.asImage(), 0, 0, sampling);
 }
 
 static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, SkScalar dx) {
-    draw_cell(canvas, bm, mat, 0 * dx, kNone_SkFilterQuality);
-    draw_cell(canvas, bm, mat, 1 * dx, kLow_SkFilterQuality);
-    draw_cell(canvas, bm, mat, 2 * dx, kMedium_SkFilterQuality);
-    draw_cell(canvas, bm, mat, 3 * dx, kHigh_SkFilterQuality);
+    draw_cell(canvas, bm, mat, 0 * dx, SkSamplingOptions());
+    draw_cell(canvas, bm, mat, 1 * dx, SkSamplingOptions(SkFilterMode::kLinear));
+    draw_cell(canvas, bm, mat, 2 * dx, SkSamplingOptions(SkFilterMode::kLinear,
+                                                         SkMipmapMode::kLinear));
+    draw_cell(canvas, bm, mat, 3 * dx, SkSamplingOptions({1.0f/3, 1.0f/3}));
 }
 
 class FilterIndiaBoxGM : public skiagm::GM {

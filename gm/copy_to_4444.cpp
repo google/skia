@@ -33,11 +33,11 @@ class CopyTo4444GM : public skiagm::GM {
             *errorMsg = "Could not decode the file. Did you forget to set the resourcePath?";
             return DrawResult::kFail;
         }
-        canvas->drawBitmap(bm, 0, 0);
+        canvas->drawImage(bm.asImage(), 0, 0);
 
         // This should dither or we will see artifacts in the background of the image.
         SkAssertResult(ToolUtils::copy_to(&bm4444, kARGB_4444_SkColorType, bm));
-        canvas->drawBitmap(bm4444, SkIntToScalar(bm.width()), 0);
+        canvas->drawImage(bm4444.asImage(), SkIntToScalar(bm.width()), 0);
         return DrawResult::kOk;
     }
 };
