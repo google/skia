@@ -46,7 +46,7 @@ bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize) {
         return false;
     }
 
-    surface->getCanvas()->drawBitmap(bm, 0, 0);
+    surface->getCanvas()->drawImage(bm.asImage(), 0, 0);
     return true;
 }
 

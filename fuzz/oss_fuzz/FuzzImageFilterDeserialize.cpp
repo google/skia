@@ -9,6 +9,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
 #include "src/core/SkFontMgrPriv.h"
@@ -28,12 +29,11 @@ void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
         SkPaint paint;
         paint.setImageFilter(flattenable);
         canvas.save();
-        canvas.clipRect(SkRect::MakeXYWH(
-            0, 0, SkIntToScalar(BitmapSize), SkIntToScalar(BitmapSize)));
+        canvas.clipIRect(bitmap.bounds());
 
         // This call shouldn't crash or cause ASAN to flag any memory issues
         // If nothing bad happens within this call, everything is fine
-        canvas.drawBitmap(bitmap, 0, 0, &paint);
+        canvas.drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);
 
         canvas.restore();
     }

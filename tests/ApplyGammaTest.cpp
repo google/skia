@@ -109,6 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
 
     SkBitmap bm;
     bm.installPixels(ii, srcPixels.get(), kRowBytes);
+    auto img = bm.asImage();
 
     SkAutoTMalloc<uint32_t> read(kBaseSize.area());
 
@@ -133,7 +134,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         gammaPaint.setColorFilter(toSRGB ? SkColorFilters::LinearToSRGBGamma()
                                          : SkColorFilters::SRGBToLinearGamma());
 
-        dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
+        dstCanvas->drawImage(img, 0, 0, SkSamplingOptions(), &gammaPaint);
         dst->flushAndSubmit();
 
         sk_memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);

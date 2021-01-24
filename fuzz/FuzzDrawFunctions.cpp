@@ -250,19 +250,6 @@ static void fuzz_drawPath(Fuzz* fuzz) {
     cnv->clipPath(path, kIntersect_SkClipOp, bl);
 }
 
-static void fuzz_drawBitmap(Fuzz* fuzz) {
-    SkPaint p;
-    init_paint(fuzz, &p);
-    sk_sp<SkSurface> surface;
-    init_surface(fuzz, &surface);
-    SkBitmap bmp;
-    init_bitmap(fuzz, &bmp);
-
-    SkScalar a, b;
-    fuzz->next(&a, &b);
-    surface->getCanvas()->drawBitmap(bmp, a, b, &p);
-}
-
 static void fuzz_drawImage(Fuzz* fuzz) {
     SkPaint p;
     init_paint(fuzz, &p);
@@ -336,10 +323,6 @@ DEF_FUZZ(DrawFunctions, fuzz) {
             fuzz_drawImage(fuzz);
             return;
         case 6:
-            SkDEBUGF("Fuzz DrawBitmap\n");
-            fuzz_drawBitmap(fuzz);
-            return;
-        case 7:
             SkDEBUGF("Fuzz DrawPaint\n");
             fuzz_drawPaint(fuzz);
             return;

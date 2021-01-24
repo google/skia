@@ -1315,7 +1315,7 @@ static void test_huge_blur(SkCanvas* canvas, skiatest::Reporter* reporter) {
     // Check that a blur with a very large radius does not crash or assert.
     SkPaint paint;
     paint.setImageFilter(SkImageFilters::Blur(SkIntToScalar(1<<30), SkIntToScalar(1<<30), nullptr));
-    canvas->drawBitmap(bitmap, 0, 0, &paint);
+    canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);
 }
 
 DEF_TEST(HugeBlurImageFilter, reporter) {
