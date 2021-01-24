@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -21,7 +22,7 @@ static void draw(SkCanvas* canvas, const SkRect& rect, const SkBitmap& bitmap,
         SkPaint paint;
         paint.setImageFilter(SkImageFilter::MakeMatrixFilter(matrix, filter, nullptr));
         canvas->saveLayer(&rect, &paint);
-        canvas->drawBitmap(bitmap, 0, 0);
+        canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(filter));
         canvas->restore();
 }
 
