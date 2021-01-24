@@ -916,6 +916,10 @@ public:
         this->clipRect(rect, SkClipOp::kIntersect, doAntiAlias);
     }
 
+    void clipIRect(const SkIRect& irect, SkClipOp op = SkClipOp::kIntersect) {
+        this->clipRect(SkRect::Make(irect), op, false);
+    }
+
     /** Sets the maximum clip rectangle, which can be set by clipRect(), clipRRect() and
         clipPath() and intersect the current clip with the specified rect.
         The maximum clip affects only future clipping operations; it is not retroactive.

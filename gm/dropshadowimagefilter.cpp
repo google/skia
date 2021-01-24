@@ -67,16 +67,13 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
     SkIRect bounds;
     r.roundOut(&bounds);
 
-    SkBitmap bm;
-    bm.allocN32Pixels(bounds.width(), bounds.height());
-    bm.eraseColor(SK_ColorTRANSPARENT);
-    SkCanvas c(bm);
-    draw_path(&c, r, nullptr);
+    auto surf = SkSurface::MakeRasterN32Premul(bounds.width(), bounds.height());
+    draw_path(surf->getCanvas(), r, nullptr);
 
     paint.setImageFilter(std::move(imf));
     canvas->save();
     canvas->clipRect(r);
-    canvas->drawBitmap(bm, 0, 0, &paint);
+    surf->draw(canvas, 0, 0, SkSamplingOptions(), &paint);
     canvas->restore();
 }
 

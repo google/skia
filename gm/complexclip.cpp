@@ -418,7 +418,7 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
         }
 
         // Actual draw and clip boundary are the same for all configs
-        canvas->clipRect(SkRect::MakeIWH(img->width(), img->height()));
+        canvas->clipIRect(img->bounds());
         canvas->clear(SK_ColorBLACK);
         canvas->drawImage(img, 0, 0);
 

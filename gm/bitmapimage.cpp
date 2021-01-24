@@ -60,8 +60,8 @@ protected:
         SkCanvas legacyCanvas(legacyBMCanvas);
         legacyCanvas.drawImage(image, 0.0f, 0.0f);
         legacyCanvas.translate(SkScalar(kSize), 0.0f);
-        legacyCanvas.drawBitmap(bitmap, 0.0f, 0.0f, nullptr);
-        canvas->drawBitmap(legacyBMCanvas, 0.0f, 0.0f, nullptr);
+        legacyCanvas.drawImage(bitmap.asImage(), 0.0f, 0.0f);
+        canvas->drawImage(legacyBMCanvas.asImage(), 0.0f, 0.0f);
         canvas->translate(0.0f, SkScalar(kSize));
 
         // The bottom two squares show an sRGB image, then bitmap, drawn to a srgb canvas.
@@ -71,8 +71,8 @@ protected:
         SkCanvas srgbCanvas(srgbBMCanvas);
         srgbCanvas.drawImage(image, 0.0f, 0.0f);
         srgbCanvas.translate(SkScalar(kSize), 0.0f);
-        srgbCanvas.drawBitmap(bitmap, 0.0f, 0.0f, nullptr);
-        canvas->drawBitmap(srgbBMCanvas, 0.0f, 0.0f, nullptr);
+        srgbCanvas.drawImage(bitmap.asImage(), 0.0f, 0.0f);
+        canvas->drawImage(srgbBMCanvas.asImage(), 0.0f, 0.0f);
         return DrawResult::kOk;
     }
 

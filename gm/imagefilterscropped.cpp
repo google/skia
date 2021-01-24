@@ -62,14 +62,11 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
     SkIRect bounds;
     r.roundOut(&bounds);
 
-    SkBitmap bm;
-    bm.allocN32Pixels(bounds.width(), bounds.height());
-    bm.eraseColor(SK_ColorTRANSPARENT);
-    SkCanvas c(bm);
-    draw_path(&c, r, nullptr);
+    auto surf = SkSurface::MakeRasterN32Premul(bounds.width(), bounds.height());
+    draw_path(surf->getCanvas(), r, nullptr);
 
     paint.setImageFilter(std::move(imf));
-    canvas->drawBitmap(bm, 0, 0, &paint);
+    surf->draw(canvas, 0, 0, SkSamplingOptions(), &paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,24 +83,24 @@ protected:
     SkISize onISize() override { return SkISize::Make(400, 960); }
 
     void make_checkerboard() {
-        fCheckerboard.allocN32Pixels(80, 80);
-        SkCanvas canvas(fCheckerboard);
-        canvas.clear(SK_ColorTRANSPARENT);
+        auto surf = SkSurface::MakeRasterN32Premul(80, 80);
+        auto canvas = surf->getCanvas();
         SkPaint darkPaint;
         darkPaint.setColor(0xFF404040);
         SkPaint lightPaint;
         lightPaint.setColor(0xFFA0A0A0);
         for (int y = 0; y < 80; y += 16) {
             for (int x = 0; x < 80; x += 16) {
-                canvas.save();
-                canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-                canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
-                canvas.restore();
+                canvas->save();
+                canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+                canvas->drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
+                canvas->restore();
             }
         }
+        fCheckerboard = surf->makeImageSnapshot();
     }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
@@ -161,7 +158,7 @@ protected:
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
                 SkPaint paint;
-                canvas->drawBitmap(fCheckerboard, 0, 0);
+                canvas->drawImage(fCheckerboard, 0, 0);
                 drawProc[j](canvas, r, filters[i]);
                 canvas->translate(0, DY);
             }
@@ -171,7 +168,7 @@ protected:
     }
 
 private:
-    SkBitmap fCheckerboard;
+    sk_sp<SkImage> fCheckerboard;
     using INHERITED = GM;
 };
 

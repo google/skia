@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
 
 // This GM should draw two yellow boxes; the bug drew one in cyan.
 
@@ -24,8 +25,8 @@ DEF_SIMPLE_GM(skbug_9819, c, 256, 256) {
 
     c->save();
         c->scale(128,128);
-        c->drawBitmap(rgba, 0,0);
-        c->drawBitmap(bgra, 0,1);
+        c->drawImage(rgba.asImage(), 0,0);
+        c->drawImage(bgra.asImage(), 0,1);
     c->restore();
 
     auto grade = [&](int x, int y){
