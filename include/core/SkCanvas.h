@@ -40,6 +40,10 @@
 
 #define SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
 
+#ifndef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
+#define SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
+#endif
+
 class GrBackendRenderTarget;
 class GrRecordingContext;
 class GrSurfaceDrawContext;
@@ -1707,15 +1711,15 @@ public:
     void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                        SkFilterMode filter, const SkPaint* paint = nullptr);
 
-    // DEPRECATED -- pass filtermode explicitly
+#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
     void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr);
 
-    // DEPRECATED -- pass filtermode explicitly
     void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr) {
         this->drawImageNine(image.get(), center, dst, paint);
     }
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_DRAWBITMAP
 public:
@@ -1884,10 +1888,13 @@ public:
     */
     void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                           SkFilterMode filter, const SkPaint* paint = nullptr);
+    void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst) {
+        this->drawImageLattice(image, lattice, dst, SkFilterMode::kNearest, nullptr);
+    }
 
-    // DEPRECATED -- pass filtermode explicitly
-    void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
-                          const SkPaint* paint = nullptr);
+#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
+    void drawImageLattice(const SkImage*, const Lattice&, const SkRect& dst, const SkPaint*);
+#endif
 
     /**
      * Experimental. Controls anti-aliasing of each edge of images in an image-set.
@@ -1982,11 +1989,13 @@ public:
                                          const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                          const SkSamplingOptions&, const SkPaint* paint = nullptr,
                                          SrcRectConstraint constraint = kStrict_SrcRectConstraint);
-    // DEPRECATED -- pass sampling directly
+
+#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
     void experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
                                          const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                          const SkPaint* paint = nullptr,
                                          SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+#endif
 
     /** Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
@@ -2310,78 +2319,28 @@ public:
                    const SkColor colors[], int count, SkBlendMode mode,
                    const SkSamplingOptions& sampling, const SkRect* cullRect, const SkPaint* paint);
 
-    // DEPRECATED -- pass sampling
+#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
     void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                    const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
                    const SkPaint* paint);
 
-    /** Draws a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-        paint uses anti-alias, alpha, SkColorFilter, SkImageFilter, and SkBlendMode
-        to draw, if present. For each entry in the array, SkRect tex locates sprite in
-        atlas, and SkRSXform xform transforms it into destination space.
-
-        xform, text, and colors if present, must contain count entries.
-        Optional colors is applied for each sprite using SkBlendMode.
-        Optional cullRect is a conservative bounds of all transformed sprites.
-        If cullRect is outside of clip, canvas can skip drawing.
-
-        @param atlas     SkImage containing sprites
-        @param xform     SkRSXform mappings for sprites in atlas
-        @param tex       SkRect locations of sprites in atlas
-        @param colors    one per sprite, blended with sprite using SkBlendMode; may be nullptr
-        @param count     number of sprites to draw
-        @param mode      SkBlendMode combining colors and sprites
-        @param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr
-        @param paint     SkColorFilter, SkImageFilter, SkBlendMode, and so on; may be nullptr
-    */
     void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
                    const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
                    const SkPaint* paint) {
         this->drawAtlas(atlas.get(), xform, tex, colors, count, mode, cullRect, paint);
     }
 
-    /** Draws a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-        paint uses anti-alias, alpha, SkColorFilter, SkImageFilter, and SkBlendMode
-        to draw, if present. For each entry in the array, SkRect tex locates sprite in
-        atlas, and SkRSXform xform transforms it into destination space.
-
-        xform and text must contain count entries.
-        Optional cullRect is a conservative bounds of all transformed sprites.
-        If cullRect is outside of clip, canvas can skip drawing.
-
-        @param atlas     SkImage containing sprites
-        @param xform     SkRSXform mappings for sprites in atlas
-        @param tex       SkRect locations of sprites in atlas
-        @param count     number of sprites to draw
-        @param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr
-        @param paint     SkColorFilter, SkImageFilter, SkBlendMode, and so on; may be nullptr
-    */
     void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
                    const SkRect* cullRect, const SkPaint* paint) {
         this->drawAtlas(atlas, xform, tex, nullptr, count, SkBlendMode::kDst, cullRect, paint);
     }
 
-    /** Draws a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-        paint uses anti-alias, alpha, SkColorFilter, SkImageFilter, and SkBlendMode
-        to draw, if present. For each entry in the array, SkRect tex locates sprite in
-        atlas, and SkRSXform xform transforms it into destination space.
-
-        xform and text must contain count entries.
-        Optional cullRect is a conservative bounds of all transformed sprites.
-        If cullRect is outside of clip, canvas can skip drawing.
-
-        @param atlas     SkImage containing sprites
-        @param xform     SkRSXform mappings for sprites in atlas
-        @param tex       SkRect locations of sprites in atlas
-        @param count     number of sprites to draw
-        @param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr
-        @param paint     SkColorFilter, SkImageFilter, SkBlendMode, and so on; may be nullptr
-    */
     void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
                    int count, const SkRect* cullRect, const SkPaint* paint) {
         this->drawAtlas(atlas.get(), xform, tex, nullptr, count, SkBlendMode::kDst,
                         cullRect, paint);
     }
+#endif
 
     /** Draws SkDrawable drawable using clip and SkMatrix, concatenated with
         optional matrix.

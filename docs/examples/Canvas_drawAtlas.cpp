@@ -9,6 +9,8 @@ void draw(SkCanvas* canvas) {
   SkRect tex[] = { { 0, 0, 250, 250 }, { 0, 0, 250, 250 } };
   SkColor colors[] = { 0x7f55aa00, 0x7f3333bf };
   const SkImage* imagePtr = image.get();
-  canvas->drawAtlas(imagePtr, xforms, tex, colors, 2, SkBlendMode::kSrcOver, nullptr, nullptr);
+  SkSamplingOptions sampling;
+  canvas->drawAtlas(imagePtr, xforms, tex, colors, 2, SkBlendMode::kSrcOver,
+                    sampling, nullptr, nullptr);
 }
 }  // END FIDDLE
