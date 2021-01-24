@@ -1290,7 +1290,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                     fuzz->nextRange(&center.fBottom, center.fTop + 1, img->height());
                 }
                 fuzz->next(&dst);
-                canvas->drawImageNine(img, center, dst, usePaint ? &paint : nullptr);
+                canvas->drawImageNine(img.get(), center, dst, SkFilterMode::kNearest,
+                                      usePaint ? &paint : nullptr);
                 break;
             }
             case 44: {
@@ -1308,7 +1309,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz->nextRange(&lattice.fYCount, 2, kMax);
                 fuzz->nextN(xDivs, lattice.fXCount);
                 fuzz->nextN(yDivs, lattice.fYCount);
-                canvas->drawImageLattice(img.get(), lattice, dst, usePaint ? &paint : nullptr);
+                canvas->drawImageLattice(img.get(), lattice, dst, SkFilterMode::kLinear,
+                                         usePaint ? &paint : nullptr);
                 break;
             }
             case 45: {
