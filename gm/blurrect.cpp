@@ -306,7 +306,7 @@ protected:
                                 break;
                         }
                         auto pad = PadForSigma(sigma);
-                        canvas->drawImage(img, -pad, -pad, &paint);
+                        canvas->drawImage(img, -pad, -pad, SkSamplingOptions(), &paint);
 #if 0  // Uncomment to hairline stroke around blurred rect in red on top of the blur result.
        // The rect is defined at integer coords. We inset by 1/2 pixel so our stroke lies on top
        // of the edge pixels.
@@ -470,9 +470,9 @@ private:
                     SkPaint paint;
                     paint.setBlendMode(SkBlendMode::kSrc);
                     paint.setColorFilter(std::move(greenifyCF));
-                    surf->getCanvas()->drawImage(a, 0, 0, &paint);
+                    surf->getCanvas()->drawImage(a, 0, 0, SkSamplingOptions(), &paint);
                     paint.setBlendMode(SkBlendMode::kDifference);
-                    surf->getCanvas()->drawImage(r, 0, 0, &paint);
+                    surf->getCanvas()->drawImage(r, 0, 0, SkSamplingOptions(), &paint);
                     d = surf->makeImageSnapshot();
                 }
             }
