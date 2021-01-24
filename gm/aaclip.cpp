@@ -120,13 +120,13 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLUE);
     make_canvas(bm)->drawCircle(50, 50, 49, paint);
-    canvas->drawBitmap(bm, 10, 10);
+    canvas->drawImage(bm.asImage(), 10, 10);
 
     CGImageRef image = SkCreateCGImageRefWithColorspace(bm, nullptr);
 
     SkBitmap bm2;
     SkCreateBitmapFromCGImage(&bm2, image);
-    canvas->drawBitmap(bm2, 10, 120);
+    canvas->drawImage(bm2.asImage(), 10, 120);
     canvas->drawImage(SkMakeImageFromCGImage(image), 10, 120 + bm2.height() + 10);
 
     CGImageRelease(image);
