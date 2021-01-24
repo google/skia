@@ -195,30 +195,29 @@ protected:
     }
 
     void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
-        auto draw_image = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
+        auto draw_image = [canvas](SkImage* image, const SkSamplingOptions& sampling) -> SkSize {
             if (!image) {
                 return {0, 0};
             }
-            SkPaint paint;
-            paint.setFilterQuality(fq);
-            canvas->drawImage(image, 0, 0, &paint);
+            canvas->drawImage(image, 0, 0, sampling, nullptr);
             return {SkIntToScalar(image->width()), SkIntToScalar(image->height())};
         };
 
-        auto draw_image_rect = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
+        auto draw_image_rect = [canvas](SkImage* image,
+                                        const SkSamplingOptions& sampling) -> SkSize {
             if (!image) {
                 return {0, 0};
             }
-            SkPaint paint;
-            paint.setFilterQuality(fq);
             auto subset = SkRect::Make(image->dimensions());
             subset.inset(subset.width() * .05f, subset.height() * .1f);
             auto dst = SkRect::MakeWH(subset.width(), subset.height());
-            canvas->drawImageRect(image, subset, dst, &paint);
+            canvas->drawImageRect(image, subset, dst, sampling, nullptr,
+                                  SkCanvas::kStrict_SrcRectConstraint);
             return {dst.width(), dst.height()};
         };
 
-        auto draw_image_shader = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
+        auto draw_image_shader = [canvas](SkImage* image,
+                                          const SkSamplingOptions& sampling) -> SkSize {
             if (!image) {
                 return {0, 0};
             }
@@ -226,7 +225,7 @@ protected:
             m.setRotate(45, image->width()/2.f, image->height()/2.f);
             SkPaint paint;
             paint.setShader(image->makeShader(SkTileMode::kMirror, SkTileMode::kDecal,
-                                              SkSamplingOptions(fq), m));
+                                              sampling, m));
             auto rect = SkRect::MakeWH(image->width() * 1.3f, image->height());
             canvas->drawRect(rect, paint);
             return {rect.width(), rect.height()};
@@ -234,22 +233,26 @@ protected:
 
         canvas->translate(kPad, kPad);
         int imageIndex = 0;
-        using DrawSig = SkSize(SkImage* image, SkFilterQuality fq);
+        using DrawSig = SkSize(SkImage* image, const SkSamplingOptions&);
         using DF = std::function<DrawSig>;
         for (const auto& draw : {DF(draw_image), DF(draw_image_rect), DF(draw_image_shader)}) {
             for (auto scale : {1.f, 4.f, 0.75f}) {
                 SkScalar h = 0;
                 canvas->save();
-                for (auto fq : {kNone_SkFilterQuality, kLow_SkFilterQuality,
-                                kMedium_SkFilterQuality, kHigh_SkFilterQuality}) {
+                for (const auto& sampling : {
+                    SkSamplingOptions(SkFilterMode::kNearest),
+                    SkSamplingOptions(SkFilterMode::kLinear),
+                    SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest),
+                    SkSamplingOptions({1.0f/3, 1.0f/3})})
+                {
                     canvas->save();
                         canvas->scale(scale, scale);
-                        auto s1 = draw(this->getYUVAImage(imageIndex++), fq);
+                        auto s1 = draw(this->getYUVAImage(imageIndex++), sampling);
                     canvas->restore();
                     canvas->translate(kPad + SkScalarCeilToScalar(scale*s1.width()), 0);
                     canvas->save();
                         canvas->scale(scale, scale);
-                        auto s2 = draw(fReferenceImage.get(), fq);
+                        auto s2 = draw(fReferenceImage.get(), sampling);
                     canvas->restore();
                     canvas->translate(kPad + SkScalarCeilToScalar(scale*s2.width()), 0);
                     h = std::max({h, s1.height(), s2.height()});

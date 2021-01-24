@@ -200,7 +200,8 @@ private:
                 canvas->drawImageRect(image, kSubsets[matIndex],
                                       drawScaled ? SkRect::MakeWH(kImageSize, kImageSize)
                                                  : kSubsets[matIndex],
-                                      nullptr, SkCanvas::kFast_SrcRectConstraint);
+                                      SkSamplingOptions(), nullptr,
+                                      SkCanvas::kFast_SrcRectConstraint);
             } else {
                 canvas->drawImage(image, 0, 0);
             }
