@@ -490,9 +490,8 @@ SkPath SkSVGTextFragment::onAsPath(const SkSVGRenderContext&) const {
 }
 
 void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
-    // Only allow text nodes.
+    // Only allow text content child nodes.
     switch (child->tag()) {
-    case SkSVGTag::kText:
     case SkSVGTag::kTextLiteral:
     case SkSVGTag::kTextPath:
     case SkSVGTag::kTSpan:
@@ -506,10 +505,7 @@ void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
 
 void SkSVGTextContainer::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
                                       SkSVGXmlSpace) const {
-    if (!tctx) {
-        // No text context => missing top-level <text> node.
-        return;
-    }
+    SkASSERT(tctx);
 
     const SkSVGTextContext::ScopedPosResolver resolver(*this, ctx.lengthContext(), tctx);
 
@@ -542,10 +538,6 @@ bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* valu
            this->setXmlSpace(SkSVGAttributeParser::parse<SkSVGXmlSpace>("xml:space", name, value));
 }
 
-void SkSVGTextContainer::onRender(const SkSVGRenderContext& ctx) const {
-    this->onRenderText(ctx, nullptr, this->getXmlSpace());
-}
-
 void SkSVGTextLiteral::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
                                     SkSVGXmlSpace xs) const {
     SkASSERT(tctx);
@@ -553,17 +545,16 @@ void SkSVGTextLiteral::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextCont
     tctx->appendFragment(this->getText(), ctx, xs);
 }
 
-void SkSVGText::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext*,
-                             SkSVGXmlSpace xs) const {
-    // Root text nodes establish a new text layout context.
+void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
+    // Root <text> nodes establish a text layout context.
     SkSVGTextContext tctx(ctx);
 
-    this->INHERITED::onRenderText(ctx, &tctx, xs);
+    this->onRenderText(ctx, &tctx, this->getXmlSpace());
 }
 
 void SkSVGTextPath::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext*,
                                  SkSVGXmlSpace xs) const {
-    // Root text nodes establish a new text layout context.
+    // textPath nodes establish a new text layout context.
     SkSVGTextContext tctx(ctx, this);
 
     this->INHERITED::onRenderText(ctx, &tctx, xs);
