@@ -20,6 +20,7 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 #include "modules/svg/src/SkSVGTextPriv.h"
+#include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
 namespace {
@@ -557,6 +558,43 @@ void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
     SkSVGTextContext tctx(ctx, &renderer);
 
     this->onShapeText(ctx, &tctx, this->getXmlSpace());
+}
+
+SkRect SkSVGText::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+    class BlobBounder final : public SkSVGTextContext::BlobHandler {
+    public:
+        void operator()(const SkSVGRenderContext& ctx, const sk_sp<SkTextBlob>& blob,
+                        const SkPaint* fill, const SkPaint* stroke) override {
+            if (!blob) {
+                return;
+            }
+
+            SkAutoSTArray<16, SkRect> glyphBounds;
+
+            SkTextBlobRunIterator it(blob.get());
+
+            for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+                glyphBounds.reset(SkToInt(it.glyphCount()));
+                it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
+
+                SkASSERT(it.positioning() == SkTextBlobRunIterator::kRSXform_Positioning);
+                SkMatrix m;
+                for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+                    m.setRSXform(it.xforms()[i]);
+                    bounds.join(m.mapRect(glyphBounds[i]));
+                }
+            }
+        }
+
+        SkRect bounds = SkRect::MakeEmpty();
+    };
+
+    BlobBounder bounder;
+    SkSVGTextContext tctx(ctx, &bounder);
+
+    this->onShapeText(ctx, &tctx, this->getXmlSpace());
+
+    return bounder.bounds;
 }
 
 void SkSVGTextPath::onShapeText(const SkSVGRenderContext& ctx, SkSVGTextContext* parent_tctx,
