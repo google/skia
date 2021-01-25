@@ -120,8 +120,8 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setAntiAlias(true);
+        SkSamplingOptions sampling(SkFilterMode::kLinear);
 
         canvas->save();
         canvas->concat(this->getTransform());
@@ -145,8 +145,8 @@ protected:
                             fClampMode == ClampingMode::kAlwaysFast
                                     ? SkCanvas::kFast_SrcRectConstraint
                                     : SkCanvas::kStrict_SrcRectConstraint;
-                    canvas->experimental_DrawEdgeAAImageSet(set.get(), i, nullptr, nullptr, &paint,
-                                                            constraint);
+                    canvas->experimental_DrawEdgeAAImageSet(set.get(), i, nullptr, nullptr,
+                                                            sampling, &paint, constraint);
                 } else if (fClampMode == ClampingMode::kChromeTiling_RowMajor) {
                     // Same tile order, but break batching between fast and strict sections, and
                     // adjust bottom and right tiles to encode content area distinct from src rect.
@@ -158,14 +158,14 @@ protected:
                         }
                         // Flush "fast" horizontal row
                         canvas->experimental_DrawEdgeAAImageSet(set.get() + rowStart,
-                                fTileGridSize.fWidth - 1, nullptr, nullptr, &paint,
+                                fTileGridSize.fWidth - 1, nullptr, nullptr, sampling, &paint,
                                 SkCanvas::kFast_SrcRectConstraint);
                         // Then flush a single adjusted entry for the right edge
                         SkPoint dstQuad[4];
                         set[i++] = this->getAdjustedEntry(fTileGridSize.fWidth - 1, y, l, dstQuad);
                         canvas->experimental_DrawEdgeAAImageSet(
-                                set.get() + fTileGridSize.fWidth - 1, 1, dstQuad, nullptr, &paint,
-                                SkCanvas::kStrict_SrcRectConstraint);
+                                set.get() + fTileGridSize.fWidth - 1, 1, dstQuad, nullptr, sampling,
+                                &paint, SkCanvas::kStrict_SrcRectConstraint);
                     }
                     // For last row, accumulate it as a single strict batch
                     int rowStart = i;
@@ -178,7 +178,7 @@ protected:
                     set[i++] = this->getEntry(
                             fTileGridSize.fWidth - 1, fTileGridSize.fHeight - 1, l);
                     canvas->experimental_DrawEdgeAAImageSet(set.get() + rowStart,
-                            fTileGridSize.fWidth, dstQuads.get(), nullptr, &paint,
+                            fTileGridSize.fWidth, dstQuads.get(), nullptr, sampling, &paint,
                             SkCanvas::kStrict_SrcRectConstraint);
                 } else {
                     SkASSERT(fClampMode == ClampingMode::kChromeTiling_Optimal);
@@ -189,7 +189,8 @@ protected:
                             set[i++] = this->getEntry(x, y, l);
                         }
                     }
-                    canvas->experimental_DrawEdgeAAImageSet(set.get(), i, nullptr, nullptr, &paint,
+                    canvas->experimental_DrawEdgeAAImageSet(set.get(), i, nullptr, nullptr,
+                                                            sampling, &paint,
                                                             SkCanvas::kFast_SrcRectConstraint);
 
                     // Right edge
@@ -201,7 +202,7 @@ protected:
                                                           dstQuads.get() + y * 4);
                     }
                     canvas->experimental_DrawEdgeAAImageSet(set.get() + strictStart,
-                            i - strictStart, dstQuads.get(), nullptr, &paint,
+                            i - strictStart, dstQuads.get(), nullptr, sampling, &paint,
                             SkCanvas::kStrict_SrcRectConstraint);
                     int quadStart = 4 * (fTileGridSize.fHeight - 1);
                     strictStart = i;
@@ -212,7 +213,7 @@ protected:
                     set[i++] = this->getEntry(
                             fTileGridSize.fWidth - 1, fTileGridSize.fHeight - 1, l);
                     canvas->experimental_DrawEdgeAAImageSet(set.get() + strictStart,
-                            i - strictStart, dstQuads.get() + quadStart, nullptr, &paint,
+                            i - strictStart, dstQuads.get() + quadStart, nullptr, sampling, &paint,
                             SkCanvas::kStrict_SrcRectConstraint);
                 }
             }

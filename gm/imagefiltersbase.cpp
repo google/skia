@@ -189,10 +189,10 @@ static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRect& r,
 
     SkPaint paint;
     paint.setImageFilter(std::move(imf));
-    paint.setFilterQuality(kHigh_SkFilterQuality);
     paint.setAntiAlias(true);
+    SkSamplingOptions sampling({1.0f/3, 1.0f/3});
     canvas->drawAtlas(atlas, &xform, &r, /*colors=*/nullptr, /*count=*/1, SkBlendMode::kSrc,
-                      /*cullRect=*/nullptr, &paint);
+                      sampling, /*cullRect=*/nullptr, &paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

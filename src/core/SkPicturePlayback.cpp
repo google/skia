@@ -215,13 +215,12 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
             BREAK_ON_READ_ERROR(reader);
 
+            SkSamplingOptions sampling;
             if (flags & DRAW_ATLAS_HAS_SAMPLING) {
-                auto sampling = reader->readSampling();
+                sampling = reader->readSampling();
                 BREAK_ON_READ_ERROR(reader);
-                canvas->drawAtlas(atlas, xform, tex, colors, count, mode, sampling, cull, paint);
-            } else {
-                canvas->drawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
             }
+            canvas->drawAtlas(atlas, xform, tex, colors, count, mode, sampling, cull, paint);
         } break;
         case DRAW_CLEAR: {
             auto c = reader->readInt();
@@ -380,7 +379,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkRect* dst = reader->skipT<SkRect>();
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->drawImageLattice(image, lattice, *dst, paint);
+            SkFilterMode filter = SkFilterMode::kNearest;
+            if (paint && paint->getFilterQuality() != kNone_SkFilterQuality) {
+                filter = SkFilterMode::kLinear;
+            }
+            canvas->drawImageLattice(image, lattice, *dst, filter, paint);
         } break;
         case DRAW_IMAGE_LATTICE2: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);
@@ -402,7 +405,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readRect(&dst);
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->drawImageNine(image, center, dst, paint);
+            SkFilterMode filter = SkFilterMode::kNearest;
+            if (paint && paint->getFilterQuality() != kNone_SkFilterQuality) {
+                filter = SkFilterMode::kLinear;
+            }
+            canvas->drawImageNine(image, center, dst, filter, paint);
         } break;
         case DRAW_IMAGE_RECT: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);

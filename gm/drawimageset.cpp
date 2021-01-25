@@ -140,10 +140,10 @@ private:
         dst[2] = {1.f / 3.f * kM * kTileW, 1 / 2.f * kN * kTileH - 0.1f * kTileH};
         SkAssertResult(matrices[3].setPolyToPoly(src, dst, 4));
         matrices[3].postTranslate(100.f, d);
-        for (auto fm : {kNone_SkFilterQuality, kLow_SkFilterQuality}) {
+        for (auto fm : {SkFilterMode::kNearest, SkFilterMode::kLinear}) {
             SkPaint setPaint;
-            setPaint.setFilterQuality(fm);
             setPaint.setBlendMode(SkBlendMode::kSrcOver);
+            SkSamplingOptions sampling(fm);
 
             for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
                 // Draw grid of red lines at interior tile boundaries.
@@ -169,7 +169,8 @@ private:
                 }
                 canvas->save();
                 canvas->concat(matrices[m]);
-                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &setPaint,
+                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, sampling,
+                                                        &setPaint,
                                                         SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
             }
@@ -185,13 +186,13 @@ private:
             canvas->rotate(3.f);
 
             setPaint.setBlendMode(SkBlendMode::kExclusion);
-            canvas->experimental_DrawEdgeAAImageSet(&entry, 1, nullptr, nullptr, &setPaint,
-                                                    SkCanvas::kFast_SrcRectConstraint);
+            canvas->experimental_DrawEdgeAAImageSet(&entry, 1, nullptr, nullptr, sampling,
+                                                    &setPaint, SkCanvas::kFast_SrcRectConstraint);
             canvas->translate(entry.fDstRect.width() + 8.f, 0);
             SkPaint cfPaint = setPaint;
             cfPaint.setColorFilter(SkColorFilters::LinearToSRGBGamma());
-            canvas->experimental_DrawEdgeAAImageSet(&entry, 1, nullptr, nullptr, &cfPaint,
-                                                    SkCanvas::kFast_SrcRectConstraint);
+            canvas->experimental_DrawEdgeAAImageSet(&entry, 1, nullptr, nullptr, sampling,
+                                                    &cfPaint, SkCanvas::kFast_SrcRectConstraint);
             canvas->restore();
             canvas->translate(2 * d, 0);
         }
@@ -236,7 +237,6 @@ private:
         matrices[4].postScale(2.f, 0.5f);
 
         SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setBlendMode(SkBlendMode::kSrcOver);
 
         static constexpr SkScalar kTranslate = std::max(kW, kH) * 2.f + 10.f;
@@ -248,8 +248,9 @@ private:
             for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
                 canvas->save();
                 canvas->concat(matrices[m]);
-                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &paint,
-                                                        SkCanvas::kFast_SrcRectConstraint);
+                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr,
+                                                        SkSamplingOptions(SkFilterMode::kLinear),
+                                                        &paint, SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
                 canvas->translate(kTranslate, 0);
             }
@@ -272,6 +273,7 @@ private:
                 canvas->save();
                 canvas->concat(matrices[m]);
                 canvas->experimental_DrawEdgeAAImageSet(scaledSet, kM * kN, nullptr, nullptr,
+                                                        SkSamplingOptions(SkFilterMode::kLinear),
                                                         &paint, SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
                 canvas->translate(kTranslate, 0);
@@ -320,12 +322,12 @@ private:
         ToolUtils::draw_checkerboard(canvas, SK_ColorGRAY, SK_ColorDKGRAY, 25);
 
         SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setBlendMode(SkBlendMode::kSrcOver);
         paint.setColor4f({0.2f, 0.8f, 0.4f, 1.f}); // colorizes even rows, no effect on odd rows
 
         // Top rows use experimental edge set API
-        canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &paint,
+        canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr,
+                                                SkSamplingOptions(SkFilterMode::kLinear), &paint,
                                                 SkCanvas::kFast_SrcRectConstraint);
 
         canvas->translate(0.f, kN * kTileH);
