@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f6c4de8_b26ab569",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-25T15:26:27Z",
+      "side": 1,
+      "message": "Looks like no major diffs, and I believe this is what the spec intends.",
+      "revId": "d923d20da73c9ef891041e70c30a7d1e85c2021d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
