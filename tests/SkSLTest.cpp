@@ -22,73 +22,36 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-sk_sp<SkShader> make_shader(skiatest::Reporter* r, const char* testFile) {
+static const SkRect kRect = SkRect::MakeWH(1, 1);
+
+static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
     SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
     sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
     if (!shaderData) {
         ERRORF(r, "%s: Unable to load file", testFile);
-        return nullptr;
+        return;
     }
 
     SkString shaderString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
     auto [effect, error] = SkRuntimeEffect::Make(shaderString);
     if (!effect) {
         ERRORF(r, "%s: %s", testFile, error.c_str());
-        return nullptr;
+        return;
     }
 
     SkRuntimeShaderBuilder builder(effect);
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
         ERRORF(r, "%s: Unable to build shader", testFile);
-        return nullptr;
-    }
-
-    return shader;
-}
-
-static void test_cpu(skiatest::Reporter* r, const char* testFile) {
-    sk_sp<SkShader> shader = make_shader(r, testFile);
-    if (!shader) {
         return;
     }
 
-    static const SkRect kRect = SkRect::MakeWH(1, 1);
-
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(kRect.width(), kRect.height());
-
-    SkCanvas canvas(bitmap);
-    canvas.clear(0x00000000);
-
     SkPaint paintShader;
     paintShader.setShader(shader);
-    canvas.drawRect(kRect, paintShader);
-
-    SkColor color = bitmap.getColor(0, 0);
-    REPORTER_ASSERT(r, color == SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00),
-                    "Expected: solid green. Actual: A=%02X R=%02X G=%02X B=%02X.",
-                    SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
-}
-
-static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
-    sk_sp<SkShader> shader = make_shader(r, testFile);
-    if (!shader) {
-        return;
-    }
-
-    static const SkRect kRect = SkRect::MakeWH(1, 1);
-    SkImageInfo info = SkImageInfo::Make(kRect.width(), kRect.height(),
-                                         kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
-    SkCanvas* canvas = surface->getCanvas();
-
-    SkPaint paintShader;
-    paintShader.setShader(shader);
-    canvas->drawRect(kRect, paintShader);
+    surface->getCanvas()->drawRect(kRect, paintShader);
 
     SkBitmap bitmap;
-    bitmap.allocPixels(info);
+    REPORTER_ASSERT(r, bitmap.tryAllocPixels(surface->imageInfo()));
     REPORTER_ASSERT(r, surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(),
                                            /*srcX=*/0, /*srcY=*/0));
 
@@ -98,11 +61,25 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
                     SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
 }
 
+static void test_cpu(skiatest::Reporter* r, const char* testFile) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
+    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
+
+    test(r, surface.get(), testFile);
+}
+
+static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+
+    test(r, surface.get(), testFile);
+}
+
 #define SKSL_TEST(name, path)                                       \
-    DEF_TEST(name ## CPU, r) {                                      \
+    DEF_TEST(name ## _CPU, r) {                                     \
         test_cpu(r, path);                                          \
     }                                                               \
-    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## GPU, r, ctxInfo) {   \
+    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
         test_gpu(r, ctxInfo.directContext(), path);                 \
     }
 
@@ -117,6 +94,6 @@ SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 /*
 TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 
-DEF_TEST(SkSLIntFoldingES3, r)           { test(r, "folding/IntFoldingES3.sksl"); }
-DEF_TEST(SkSLMatrixFoldingES3, r)        { test(r, "folding/MatrixFoldingES3.sksl"); }
+SKSL_TEST(SkSLIntFoldingES3,           "folding/IntFoldingES3.sksl")
+SKSL_TEST(SkSLMatrixFoldingES3,        "folding/MatrixFoldingES3.sksl")
 */
