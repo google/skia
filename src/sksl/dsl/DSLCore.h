@@ -73,6 +73,30 @@ DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression if
  */
 DSLStatement While(DSLExpression test, DSLStatement stmt);
 
+
+enum SwizzleComponent : int8_t {
+    R,
+    G,
+    B,
+    A,
+    X,
+    Y,
+    Z,
+    W,
+    ZERO,
+    ONE
+};
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a);
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b);
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                      SwizzleComponent c);
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                      SwizzleComponent c, SwizzleComponent d);
+
 /**
  * Installs an ErrorHandler which will be notified of any errors that occur during DSL calls. If
  * no ErrorHandler is installed, any errors will be fatal.

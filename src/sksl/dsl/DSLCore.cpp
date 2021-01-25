@@ -31,6 +31,34 @@ void End() {
 void SetErrorHandler(ErrorHandler* errorHandler) {
     DSLWriter::SetErrorHandler(errorHandler);
 }
+
+static SkSL::String swizzle_component(SwizzleComponent c) {
+    switch (c) {
+        case R:
+            return "r";
+        case G:
+            return "g";
+        case B:
+            return "b";
+        case A:
+            return "a";
+        case X:
+            return "x";
+        case Y:
+            return "y";
+        case Z:
+            return "z";
+        case W:
+            return "w";
+        case ZERO:
+            return "0";
+        case ONE:
+            return "1";
+        default:
+            SkUNREACHABLE;
+    }
+}
+
 class DSLCore {
 public:
     static DSLStatement Declare(DSLVar& var, DSLExpression initialValue) {
@@ -69,6 +97,30 @@ public:
     static DSLStatement While(DSLExpression test, DSLStatement stmt) {
         return DSLWriter::IRGenerator().convertWhile(/*offset=*/-1, test.release(), stmt.release());
     }
+
+    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a) {
+        return DSLWriter::IRGenerator().convertSwizzle(base.release(), swizzle_component(a));
+    }
+
+    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b) {
+        return DSLWriter::IRGenerator().convertSwizzle(base.release(), swizzle_component(a) +
+                                                                       swizzle_component(b));
+    }
+
+    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                                 SwizzleComponent c) {
+        return DSLWriter::IRGenerator().convertSwizzle(base.release(), swizzle_component(a) +
+                                                                       swizzle_component(b) +
+                                                                       swizzle_component(c));
+    }
+
+    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                                 SwizzleComponent c, SwizzleComponent d) {
+        return DSLWriter::IRGenerator().convertSwizzle(base.release(), swizzle_component(a) +
+                                                                       swizzle_component(b) +
+                                                                       swizzle_component(c) +
+                                                                       swizzle_component(d));
+    }
 };
 
 DSLStatement Declare(DSLVar& var, DSLExpression initialValue) {
@@ -94,6 +146,24 @@ DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression if
 
 DSLStatement While(DSLExpression test, DSLStatement stmt) {
     return DSLCore::While(std::move(test), std::move(stmt));
+}
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a) {
+    return DSLCore::Swizzle(std::move(base), a);
+}
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b) {
+    return DSLCore::Swizzle(std::move(base), a, b);
+}
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                      SwizzleComponent c) {
+    return DSLCore::Swizzle(std::move(base), a, b, c);
+}
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                      SwizzleComponent c, SwizzleComponent d) {
+    return DSLCore::Swizzle(std::move(base), a, b, c, d);
 }
 
 } // namespace dsl
