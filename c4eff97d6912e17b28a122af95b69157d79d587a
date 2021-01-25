@@ -16,6 +16,46 @@
       "message": "@Florin ping (when you get a chance)",
       "revId": "c4eff97d6912e17b28a122af95b69157d79d587a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db4cd147_69df62cf",
+        "filename": "modules/svg/include/SkSVGFeDisplacementMap.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T17:15:09Z",
+      "side": 1,
+      "message": "nit: using ChannelSelector \u003d SkColorChannel?",
+      "range": {
+        "startLine": 16,
+        "startChar": 15,
+        "endLine": 16,
+        "endChar": 30
+      },
+      "revId": "c4eff97d6912e17b28a122af95b69157d79d587a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15308402_81aa6049",
+        "filename": "modules/svg/src/SkSVGFeDisplacementMap.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T17:15:09Z",
+      "side": 1,
+      "message": "Should this follow the new length context kOther formula? Maybe just use SkSVGLengthContext::resolve() to avoid duplication?",
+      "revId": "c4eff97d6912e17b28a122af95b69157d79d587a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
