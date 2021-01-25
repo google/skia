@@ -23,13 +23,12 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     dst.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(dst);
-    SkPaint  paint;
 
     // we are initially transparent
     REPORTER_ASSERT(reporter, 0 == *dst.getAddr32(5, 5));
 
     // we see the bitmap drawn
-    canvas.drawBitmap(src, 0, 0, &paint);
+    canvas.drawImage(src.asImage(), 0, 0);
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == *dst.getAddr32(5, 5));
 
     // reverify we are clear again
@@ -37,7 +36,7 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == *dst.getAddr32(5, 5));
 
     // if the bitmap is clipped out, we don't draw it
-    canvas.drawBitmap(src, SkIntToScalar(-10), 0, &paint);
+    canvas.drawImage(src.asImage(), SkIntToScalar(-10), 0);
     REPORTER_ASSERT(reporter, 0 == *dst.getAddr32(5, 5));
 }
 

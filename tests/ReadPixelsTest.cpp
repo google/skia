@@ -91,7 +91,7 @@ static SkPMColor convert_to_pmcolor(SkColorType ct, SkAlphaType at, const uint32
     return SkPackARGB32(a, r, g, b);
 }
 
-static SkBitmap make_src_bitmap() {
+static sk_sp<SkImage> make_src_image() {
     static SkBitmap bmp;
     if (bmp.isNull()) {
         bmp.allocN32Pixels(DEV_W, DEV_H);
@@ -102,8 +102,9 @@ static SkBitmap make_src_bitmap() {
                 *pixel = get_src_color(x, y);
             }
         }
+        bmp.setImmutable();
     }
-    return bmp;
+    return bmp.asImage();
 }
 
 static void fill_src_canvas(SkCanvas* canvas) {
@@ -112,7 +113,7 @@ static void fill_src_canvas(SkCanvas* canvas) {
     canvas->clipRect(DEV_RECT_S, SkClipOp::kIntersect);
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    canvas->drawBitmap(make_src_bitmap(), 0, 0, &paint);
+    canvas->drawImage(make_src_image(), 0, 0, SkSamplingOptions(), &paint);
     canvas->restore();
 }
 
