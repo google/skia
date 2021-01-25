@@ -9,7 +9,12 @@
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
-#include "src/utils/mac/SkCTFontSmoothBehavior.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkOnce.h"
+#include "src/sfnt/SkOTTable_OS_2.h"
+#include "src/sfnt/SkSFNTHeader.h"
+#include "src/utils/mac/SkCTFont.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #ifdef SK_BUILD_FOR_MAC
@@ -22,6 +27,8 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreFoundation/CoreFoundation.h>
 #endif
+
+#include <dlfcn.h>
 
 static constexpr CGBitmapInfo kBitmapInfoRGB = ((CGBitmapInfo)kCGImageAlphaNoneSkipFirst |
                                                 kCGBitmapByteOrder32Host);
@@ -266,6 +273,141 @@ SkCTFontSmoothBehavior SkCTFontGetSmoothBehavior() {
         return smoothBehavior;
     }();
     return gSmoothBehavior;
+}
+
+SkCTFontWeightMapping& SkCTFontGetNSFontWeightMapping() {
+    // In the event something goes wrong finding the real values, use this mapping.
+    static constexpr CGFloat defaultNSFontWeights[] =
+        { -1.00, -0.80, -0.60, -0.40, 0.00, 0.23, 0.30, 0.40, 0.56, 0.62, 1.00 };
+
+    // Declarations in <AppKit/AppKit.h> on macOS, <UIKit/UIKit.h> on iOS
+#ifdef SK_BUILD_FOR_MAC
+#  define SK_KIT_FONT_WEIGHT_PREFIX "NS"
+#endif
+#ifdef SK_BUILD_FOR_IOS
+#  define SK_KIT_FONT_WEIGHT_PREFIX "UI"
+#endif
+    static constexpr const char* nsFontWeightNames[] = {
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightUltraLight",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightThin",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightLight",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightRegular",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightMedium",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightSemibold",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightBold",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightHeavy",
+        SK_KIT_FONT_WEIGHT_PREFIX "FontWeightBlack",
+    };
+    static_assert(SK_ARRAY_COUNT(nsFontWeightNames) == 9, "");
+
+    static CGFloat nsFontWeights[11];
+    static const CGFloat (*selectedNSFontWeights)[11] = &defaultNSFontWeights;
+    static SkOnce once;
+    once([&] {
+        size_t i = 0;
+        nsFontWeights[i++] = -1.00;
+        for (const char* nsFontWeightName : nsFontWeightNames) {
+            void* nsFontWeightValuePtr = dlsym(RTLD_DEFAULT, nsFontWeightName);
+            if (nsFontWeightValuePtr) {
+                nsFontWeights[i++] = *(static_cast<CGFloat*>(nsFontWeightValuePtr));
+            } else {
+                return;
+            }
+        }
+        nsFontWeights[i++] = 1.00;
+        selectedNSFontWeights = &nsFontWeights;
+    });
+    return *selectedNSFontWeights;
+}
+
+SkCTFontWeightMapping& SkCTFontGetDataFontWeightMapping() {
+    // In the event something goes wrong finding the real values, use this mapping.
+    // These were the values from macOS 10.13 to 10.15.
+    static constexpr CGFloat defaultDataFontWeights[] =
+        { -1.00, -0.70, -0.50, -0.23, 0.00, 0.20, 0.30, 0.40, 0.60, 0.80, 1.00 };
+
+    static const CGFloat (*selectedDataFontWeights)[11] = &defaultDataFontWeights;
+    static CGFloat dataFontWeights[11];
+    static SkOnce once;
+    once([&] {
+        constexpr size_t dataSize = SK_ARRAY_COUNT(kSpiderSymbol_ttf);
+        sk_sp<SkData> data = SkData::MakeWithCopy(kSpiderSymbol_ttf, dataSize);
+        const SkSFNTHeader* sfntHeader = reinterpret_cast<const SkSFNTHeader*>(data->data());
+        const SkSFNTHeader::TableDirectoryEntry* tableEntry =
+            SkTAfter<const SkSFNTHeader::TableDirectoryEntry>(sfntHeader);
+        const SkSFNTHeader::TableDirectoryEntry* os2TableEntry = nullptr;
+        int numTables = SkEndian_SwapBE16(sfntHeader->numTables);
+        for (int tableEntryIndex = 0; tableEntryIndex < numTables; ++tableEntryIndex) {
+            if (SkOTTableOS2::TAG == tableEntry[tableEntryIndex].tag) {
+                os2TableEntry = tableEntry + tableEntryIndex;
+                break;
+            }
+        }
+        if (!os2TableEntry) {
+            return;
+        }
+        size_t os2TableOffset = SkEndian_SwapBE32(os2TableEntry->offset);
+        SkOTTableOS2_V0* os2Table = SkTAddOffset<SkOTTableOS2_V0>(data->writable_data(),
+                                                                  os2TableOffset);
+
+        for (int i = 0; i < 11; ++i) {
+            os2Table->usWeightClass.value = SkEndian_SwapBE16(i * 100);
+
+            // On macOS 10.14 and earlier it appears that the CFDataGetBytePtr is used somehow in
+            // font caching. Creating a slightly modified font with data at the same address seems
+            // to in some ways act like a font previously created at that address. As a result,
+            // always make a copy of the data.
+            SkUniqueCFRef<CFDataRef> cfData(
+                    CFDataCreate(kCFAllocatorDefault, (const UInt8 *)data->data(), data->size()));
+            if (!cfData) {
+                return;
+            }
+            SkUniqueCFRef<CTFontDescriptorRef> desc(
+                    CTFontManagerCreateFontDescriptorFromData(cfData.get()));
+            if (!desc) {
+                return;
+            }
+
+            // On macOS 10.14 and earlier, the CTFontDescriptorRef returned from
+            // CTFontManagerCreateFontDescriptorFromData is incomplete and does not have the
+            // correct traits. It is necessary to create the CTFont and then get the descriptor
+            // off of it.
+            SkUniqueCFRef<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc.get(), 9, nullptr));
+            if (!ctFont) {
+                return;
+            }
+            SkUniqueCFRef<CTFontDescriptorRef> desc2(CTFontCopyFontDescriptor(ctFont.get()));
+            if (!desc2) {
+                return;
+            }
+
+            SkUniqueCFRef<CFTypeRef> traitsRef(
+                    CTFontDescriptorCopyAttribute(desc2.get(), kCTFontTraitsAttribute));
+            if (!traitsRef || CFGetTypeID(traitsRef.get()) != CFDictionaryGetTypeID()) {
+                return;
+            }
+            CFDictionaryRef fontTraitsDict = static_cast<CFDictionaryRef>(traitsRef.get());
+
+            CFTypeRef weightRef;
+            if (!CFDictionaryGetValueIfPresent(fontTraitsDict, kCTFontWeightTrait, &weightRef) ||
+                !weightRef ||
+                CFGetTypeID(weightRef) != CFNumberGetTypeID())
+            {
+                return;
+            }
+            CGFloat weight;
+            CFNumberRef weightNumber = static_cast<CFNumberRef>(weightRef);
+            if (!CFNumberIsFloatType(weightNumber) ||
+                !CFNumberGetValue(weightNumber, kCFNumberCGFloatType, &weight))
+            {
+                return;
+            }
+
+            dataFontWeights[i] = weight;
+        }
+        selectedDataFontWeights = &dataFontWeights;
+    });
+    return *selectedDataFontWeights;
 }
 
 #endif
