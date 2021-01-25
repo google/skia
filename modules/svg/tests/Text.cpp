@@ -144,6 +144,11 @@ DEF_TEST(Svg_Text_PosProvider, r) {
         },
     };
 
+    class MockBlobHandler final : public SkSVGTextContext::BlobHandler {
+        void operator()(const SkSVGRenderContext&, const sk_sp<SkTextBlob>&,
+                        const SkPaint*, const SkPaint*) override {}
+    };
+
     auto test = [&](const PosTestDesc& tst) {
         auto a = SkSVGText::Make();
         auto b = SkSVGTSpan::Make();
@@ -161,7 +166,8 @@ DEF_TEST(Svg_Text_PosProvider, r) {
         sk_sp<SkFontMgr> fmgr;
         const SkSVGRenderContext ctx(&canvas, fmgr, mapper, lctx, pctx, nullptr);
 
-        SkSVGTextContext tctx(ctx);
+        MockBlobHandler handler;
+        SkSVGTextContext tctx(ctx, &handler);
         SkSVGTextContext::ScopedPosResolver pa(*a, lctx, &tctx, tst.offseta);
         SkSVGTextContext::ScopedPosResolver pb(*b, lctx, &tctx, tst.offsetb);
 
