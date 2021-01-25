@@ -16,6 +16,23 @@
       "message": "Note on changes since PS5: Previously if a texture was of type GL_TEXTURE_EXTERNAL we would fail when we called GrGpu::writePixels(). Now we post a task, so the failure gets delayed to task execution and GrSurfaceContext::writePixels would returning true. This was the source of the failure on PS 5 (expected writePixels to fail). Now I made GrTexture and GrTextureProxy mark a texture as \"read only\" (we never want to or can really write to EXTERNAL textures) so now writePixels fails earlier do to GrCaps::surfaceSupportsWritePixels() and the test passes.\n\nI should also mentioned the changes to GrResourceCache are no-ops. I noticed we were passing caps and storing the prefersVRAMUseOverFlushes value but never actually using it in the class.",
       "revId": "bad3845a46b704d61a51038ca166706f070e81de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b53baca_418e080b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-25T18:30:58Z",
+      "side": 1,
+      "message": "ping",
+      "revId": "bad3845a46b704d61a51038ca166706f070e81de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
