@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 in vec2 x;
 vec4 main() {
     vec2 _3_reusedName = x + vec2(1.0, 2.0);

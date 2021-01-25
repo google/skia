@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 vec4 main() {
     bool _1_ok = true;
     float _2_x = 34.0;

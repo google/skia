@@ -796,14 +796,14 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
                 return nullptr;
             }
         }
-        return std::unique_ptr<Statement>(new ReturnStatement(std::move(result)));
+        return std::make_unique<ReturnStatement>(std::move(result));
     } else {
         if (fCurrentFunction->returnType() != *fContext.fTypes.fVoid) {
             this->errorReporter().error(r.fOffset,
                                         "expected function to return '" +
                                                 fCurrentFunction->returnType().displayName() + "'");
         }
-        return std::unique_ptr<Statement>(new ReturnStatement(r.fOffset));
+        return std::make_unique<ReturnStatement>(r.fOffset);
     }
 }
 
@@ -1086,6 +1086,9 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 
     if (funcData.fName == "main") {
         switch (fKind) {
+            case Program::kFragment_Kind: {
+                break;
+            }
             case Program::kRuntimeEffect_Kind: {
                 // (half4|float4) main()  -or-  (half4|float4) main(float2)
                 if (*returnType != *fContext.fTypes.fHalf4 &&
@@ -2873,6 +2876,17 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
             }
         }
 
+        bool visitProgramElement(const ProgramElement& pe) override {
+            if (pe.is<FunctionDefinition>()) {
+                const FunctionDefinition& funcDef = pe.as<FunctionDefinition>();
+                if (funcDef.declaration().name() == "main" &&
+                    funcDef.declaration().returnType() != *fGenerator->fContext.fTypes.fVoid) {
+                    fPreserveFragColor = true;
+                }
+            }
+            return INHERITED::visitProgramElement(pe);
+        }
+
         bool visitExpression(const Expression& e) override {
             if (e.is<VariableReference>() && e.as<VariableReference>().variable()->isBuiltin()) {
                 this->addDeclaringElement(e.as<VariableReference>().variable()->name());
@@ -2882,6 +2896,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
 
         IRGenerator* fGenerator;
         std::vector<const ProgramElement*> fNewElements;
+        bool fPreserveFragColor = false;
 
         using INHERITED = ProgramVisitor;
         using INHERITED::visitProgramElement;
@@ -2892,11 +2907,17 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
         scanner.visitProgramElement(*e);
     }
 
-    // Vulkan requires certain builtin variables be present, even if they're unused. At one time,
-    // validation errors would result if they were missing. Now, it's just (Adreno) driver bugs
-    // that drop or corrupt draws if they're missing.
+    if (scanner.fPreserveFragColor) {
+        // We synthesize writes to sk_FragColor if main() returns a color, even if it's otherwise
+        // unreferenced. Make sure we don't dead-strip it.
+        scanner.addDeclaringElement("sk_FragColor");
+    }
+
     switch (fKind) {
         case Program::kFragment_Kind:
+            // Vulkan requires certain builtin variables be present, even if they're unused. At one
+            // time, validation errors would result if sk_Clockwise was missing. Now, it's just
+            // (Adreno) driver bugs that drop or corrupt draws if they're missing.
             scanner.addDeclaringElement("sk_Clockwise");
             break;
         default:
