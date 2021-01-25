@@ -54,7 +54,7 @@ public:
     void onPrePrepare(GrRecordingContext*) override;
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
-     * of onExecute() indicates whether any commands were actually issued to the GPU.
+     * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
@@ -88,10 +88,6 @@ public:
 
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
-
-    // Merge opsTasks after 'this' starting from 'fNext' into 'this'. They should all be
-    // renderPass compatible. Return the number of tasks merged into 'this'.
-    int mergeFromLList();
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
@@ -274,8 +270,7 @@ private:
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
-    // TODO: Move the clips onto the recordTimeAllocator after CCPR is removed.
-    SkSTArray<1, SkArenaAlloc> fClipAllocators = { SkArenaAlloc(4096) };
+    SkArenaAllocWithReset fClipAllocator{4096};
     SkDEBUGCODE(int fNumClips;)
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
