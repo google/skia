@@ -531,24 +531,38 @@ ASTNode::ID Parser::declaration() {
     }
 }
 
+/* (varDeclarations | expressionStatement) */
+ASTNode::ID Parser::varDeclarationsOrExpressionStatement() {
+    if (this->isType(this->text(this->peek()))) {
+        // Statements that begin with a typename are most often variable declarations, but
+        // occasionally the type is part of a constructor, and these are actually expression-
+        // statements in disguise. First, attempt the common case: parse it as a vardecl.
+        Checkpoint checkpoint(this);
+        ASTNode::ID node = this->varDeclarations();
+        if (node) {
+            return node;
+        }
+
+        // If this statement wasn't actually a vardecl after all, rewind and try parsing it as an
+        // expression-statement instead.
+        checkpoint.rewind();
+    }
+
+    return this->expressionStatement();
+}
+
 /* modifiers type IDENTIFIER varDeclarationEnd */
 ASTNode::ID Parser::varDeclarations() {
-    // We identify statements that begin with a type name as variable declarations, but some of
-    // these are actually expression-statements in disguise. So if we get a parse failure here, we
-    // rewind and retry the parse as an expression-statement.
     Checkpoint checkpoint(this);
     Modifiers modifiers = this->modifiers();
     ASTNode::ID type = this->type();
     if (!type) {
-        checkpoint.rewind();
-        return this->expressionStatement();
+        return ASTNode::ID::Invalid();
     }
     Token name;
     if (!this->expectIdentifier(&name)) {
-        checkpoint.rewind();
-        return this->expressionStatement();
+        return ASTNode::ID::Invalid();
     }
-    // At this point we're fully committed to parsing the statement as a vardecl.
     return this->varDeclarationEnd(modifiers, type, this->text(name));
 }
 
@@ -1119,10 +1133,7 @@ ASTNode::ID Parser::statement() {
         case Token::Kind::TK_CONST:
             return this->varDeclarations();
         case Token::Kind::TK_IDENTIFIER:
-            if (this->isType(this->text(start))) {
-                return this->varDeclarations();
-            }
-            [[fallthrough]];
+            return this->varDeclarationsOrExpressionStatement();
         default:
             return this->expressionStatement();
     }

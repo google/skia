@@ -172,6 +172,8 @@ private:
 
     ASTNode::ID declaration();
 
+    ASTNode::ID varDeclarationsOrExpressionStatement();
+
     ASTNode::ID varDeclarations();
 
     ASTNode::ID structDeclaration();
