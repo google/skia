@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ba48e67_9372e75b",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-25T21:52:49Z",
+      "side": 1,
+      "message": "tiny nit: sorry for micro-optimizing, but I feel like `swizzle_component` should return a char and then the string can be assembled via `push_back`. String+string concatenation is way heavier than pushing back chars.",
+      "range": {
+        "startLine": 119,
+        "startChar": 71,
+        "endLine": 122,
+        "endChar": 91
+      },
+      "revId": "a28b33e2e6d0771c0b2430392acb96cd9897f641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e92ed5c6_914eb08f",
+        "filename": "src/sksl/dsl/DSLCore.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-25T21:52:49Z",
+      "side": 1,
+      "message": "nit: a trip through SkSL turns .r to .x anyway, right? Do we benefit from having separate enumerants here? That is, can\u0027t we have R/G/B/A overlap X/Y/Z/W in the enum?\n\n    X \u003d 0, Y, Z, W,\n    R \u003d 0, G, B, A\n\n?",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 7
+      },
+      "revId": "a28b33e2e6d0771c0b2430392acb96cd9897f641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "372764d2_cdbddc0c",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-25T21:52:49Z",
+      "side": 1,
+      "message": "Let\u0027s get coverage for:\n- ZERO constant\n- Repeating a component\n- Components out of order",
+      "range": {
+        "startLine": 986,
+        "startChar": 61,
+        "endLine": 998,
+        "endChar": 84
+      },
+      "revId": "a28b33e2e6d0771c0b2430392acb96cd9897f641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
