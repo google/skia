@@ -934,7 +934,8 @@ protected:
 
                 draw_col_label(canvas, dstRect.fLeft + cellWidth / 2, cs, opaque);
 
-                canvas->drawBitmapRect(fOriginalBMs[opaque], srcRect, dstRect, nullptr, constraint);
+                canvas->drawImageRect(fOriginalBMs[opaque].asImage(), srcRect, dstRect,
+                                      SkSamplingOptions(), nullptr, constraint);
                 dstRect.offset(0.f, cellHeight + kPad);
 
                 for (int format = kP016_YUVFormat; format <= kLast_YUVFormat; ++format) {
@@ -1126,7 +1127,7 @@ protected:
                     SkBitmap readBack;
                     readBack.allocPixels(yuv->imageInfo());
                     SkAssertResult(yuv->readPixels(dContext, readBack.pixmap(), 0, 0));
-                    canvas->drawBitmap(readBack, x, y);
+                    canvas->drawImage(readBack.asImage(), x, y);
                 }
                 x += kTileWidthHeight + kPad;
             }

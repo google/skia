@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     bitmap.allocPixels(SkImageInfo::MakeN32(1, 1, kPremul_SkAlphaType));
     bitmap.eraseARGB(0x7f, 0xff, 0x7f, 0x3f);
     canvas->scale(50, 50);
-    canvas->drawBitmap(bitmap, 0, 0);
-    canvas->drawBitmap(bitmap, .5f, .5f);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
+    canvas->drawImage(bitmap.asImage(), .5f, .5f);
 }
 }  // END FIDDLE

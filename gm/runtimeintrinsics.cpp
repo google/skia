@@ -73,7 +73,7 @@ static SkBitmap draw_shader(SkCanvas* canvas, sk_sp<SkShader> shader) {
     bitmap.allocPixels(info);
     surface->readPixels(bitmap, 0, 0);
 
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     return bitmap;
 }
 

@@ -296,7 +296,7 @@ protected:
                                SkScalar x, SkScalar y) {
         SkBitmap bitmap;
         if (as_IB(image)->getROPixels(dContext, &bitmap)) {
-            canvas->drawBitmap(bitmap, x, y);
+            canvas->drawImage(bitmap.asImage(), x, y);
         } else {
             draw_placeholder(canvas, x, y, image->width(), image->height());
         }
