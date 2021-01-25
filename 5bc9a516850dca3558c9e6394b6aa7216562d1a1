@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f617503f_5b0f409e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T00:05:29Z",
+      "side": 1,
+      "message": "Not super important, and apparently not covered by tests - but it does simplify some follow up CLs.",
+      "revId": "5bc9a516850dca3558c9e6394b6aa7216562d1a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
