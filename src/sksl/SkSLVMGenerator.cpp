@@ -205,13 +205,6 @@ private:
      */
     Slot getSlot(const Variable& v);
 
-    /**
-     * As above, but computes the Slot of an expression involving indexing & field access.
-     * The expression doesn't have separate storage - this returns the Slot of the underlying
-     * Variable, with some offset applied to account for the indexing and field access.
-     */
-    Slot getSlot(const Expression& e);
-
     skvm::F32 f32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
     skvm::I32 i32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
 
@@ -522,24 +515,6 @@ SkVMGenerator::Slot SkVMGenerator::getSlot(const Variable& v) {
     fSlots.resize(slot + nslots, fBuilder->splat(0.0f).id);
     fVariableMap[&v] = slot;
     return slot;
-}
-
-SkVMGenerator::Slot SkVMGenerator::getSlot(const Expression& e) {
-    switch (e.kind()) {
-        case Expression::Kind::kFieldAccess: {
-            const FieldAccess& f = e.as<FieldAccess>();
-            return this->getSlot(*f.base()) + this->fieldSlotOffset(f);
-        }
-        case Expression::Kind::kIndex: {
-            const IndexExpression& i = e.as<IndexExpression>();
-            return this->getSlot(*i.base()) + this->indexSlotOffset(i);
-        }
-        case Expression::Kind::kVariableReference:
-            return this->getSlot(*e.as<VariableReference>().variable());
-        default:
-            SkDEBUGFAIL("Invalid expression type");
-            return ~static_cast<Slot>(0);
-    }
 }
 
 Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
@@ -1459,22 +1434,67 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
 }
 
 Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
-    SkASSERT(lhs.is<FieldAccess>() || lhs.is<IndexExpression>() || lhs.is<Swizzle>() ||
-             lhs.is<VariableReference>());
     SkASSERT(rhs.slots() == slot_count(lhs.type()));
 
+    // We need to figure out the collection of slots that we're storing into. The l-value (lhs)
+    // is always a VariableReference, possibly wrapped by one or more Swizzle, FieldAccess, or
+    // IndexExpressions. The underlying VariableReference has a range of Slots for its storage,
+    // and each expression wrapped around that selects a sub-set of those Slots (Field/Index),
+    // or rearranges them (Swizzle).
+    SkSTArray<4, Slot, true> slots;
+    slots.resize(rhs.slots());
+
+    // Start with the identity slot map - this basically says that the values from rhs belong in
+    // slots [0, 1, 2 ... N] of the lhs.
+    for (size_t i = 0; i < slots.size(); ++i) {
+        slots[i] = i;
+    }
+
+    // Now, as we peel off each outer expression, adjust 'slots' to be the locations relative to
+    // the next (inner) expression:
+    const Expression* expr = &lhs;
+    while (!expr->is<VariableReference>()) {
+        switch (expr->kind()) {
+            case Expression::Kind::kFieldAccess: {
+                const FieldAccess& fld = expr->as<FieldAccess>();
+                size_t offset = this->fieldSlotOffset(fld);
+                for (Slot& s : slots) {
+                    s += offset;
+                }
+                expr = fld.base().get();
+            } break;
+            case Expression::Kind::kIndex: {
+                const IndexExpression& idx = expr->as<IndexExpression>();
+                size_t offset = this->indexSlotOffset(idx);
+                for (Slot& s : slots) {
+                    s += offset;
+                }
+                expr = idx.base().get();
+            } break;
+            case Expression::Kind::kSwizzle: {
+                const Swizzle& swz = expr->as<Swizzle>();
+                for (Slot& s : slots) {
+                    s = swz.components()[s];
+                }
+                expr = swz.base().get();
+            } break;
+            default:
+                // No other kinds of expressions are valid in lvalues. (see Analysis::IsAssignable)
+                SkDEBUGFAIL("Invalid expression type");
+                return {};
+        }
+    }
+
+    // When we get here, 'slots' are all relative to the first slot holding 'var's storage
+    const Variable& var = *expr->as<VariableReference>().variable();
+    Slot varSlot = this->getSlot(var);
+    SkDEBUGCODE(size_t varSlotCount = slot_count(var.type());)
     skvm::I32 mask = this->mask();
     for (size_t i = rhs.slots(); i --> 0;) {
-        const Expression* expr = &lhs;
-        int component = i;
-        while (expr->is<Swizzle>()) {
-            component = expr->as<Swizzle>().components()[component];
-            expr = expr->as<Swizzle>().base().get();
-        }
-        Slot slot = this->getSlot(*expr);
-        skvm::F32 curr = f32(fSlots[slot + component]),
+        SkASSERT(slots[i] < varSlotCount);
+        skvm::F32 curr = f32(fSlots[varSlot + slots[i]]),
                   next = f32(rhs[i]);
-        fSlots[slot + component] = select(mask, next, curr).id;
+        fSlots[varSlot + slots[i]] = select(mask, next, curr).id;
     }
     return rhs;
 }
