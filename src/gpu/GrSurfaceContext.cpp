@@ -172,6 +172,11 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
     if (!fContext->priv().matches(dContext)) {
         return false;
     }
+
+    if (dst.colorType() == GrColorType::kUnknown) {
+        return false;
+    }
+
     dst = dst.clip(this->dimensions(), &pt);
     if (!dst.hasPixels()) {
         return false;
@@ -355,6 +360,10 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
     }
 
     if (this->asSurfaceProxy()->readOnly()) {
+        return false;
+    }
+
+    if (src.colorType() == GrColorType::kUnknown) {
         return false;
     }
 
