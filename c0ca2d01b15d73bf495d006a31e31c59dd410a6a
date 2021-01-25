@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70b59125_2d754bf3",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T19:15:15Z",
+      "side": 1,
+      "message": "Mildly useful, but trivial to only add when needed I guess... dropped.",
+      "parentUuid": "b0c3fc47_8976a666",
+      "revId": "c0ca2d01b15d73bf495d006a31e31c59dd410a6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8366585_458afa19",
