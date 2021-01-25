@@ -68,6 +68,24 @@
       "parentUuid": "0987b432_572a17ea",
       "revId": "5b9b0db5b894da98b744e3d3dec1b363c0aea0c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3e6af69_7881a0f2",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-25T14:16:09Z",
+      "side": 1,
+      "message": "Good catch! It\u0027s fortunately harmless, but I\u0027ll fix it in a followup CL ASAP.",
+      "parentUuid": "0987b432_572a17ea",
+      "revId": "5b9b0db5b894da98b744e3d3dec1b363c0aea0c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
