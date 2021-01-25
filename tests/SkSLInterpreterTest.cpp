@@ -754,17 +754,26 @@ DEF_TEST(SkSLInterpreterOutParams, r) {
 }
 
 DEF_TEST(SkSLInterpreterSwizzleSingleLvalue, r) {
-    // Add in your SkSL here.
     test(r,
          "void main(inout half4 color) { color.xywz = half4(1,2,3,4); }",
          0, 0, 0, 0, 1, 2, 4, 3);
 }
 
 DEF_TEST(SkSLInterpreterSwizzleDoubleLvalue, r) {
-    // Add in your SkSL here.
     test(r,
          "void main(inout half4 color) { color.xywz.yxzw = half4(1,2,3,4); }",
          0, 0, 0, 0, 2, 1, 4, 3);
+}
+
+DEF_TEST(SkSLInterpreterSwizzleIndexLvalue, r) {
+    const char* src = R"(
+        void main(inout half4 color) {
+            for (int i = 0; i < 4; i++) {
+                color.wzyx[i] += half(i);
+            }
+        }
+    )";
+    test(r, src, 0, 0, 0, 0, 3, 2, 1, 0);
 }
 
 DEF_TEST(SkSLInterpreterMathFunctions, r) {

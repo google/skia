@@ -177,15 +177,13 @@ private:
         kSample,
     };
 
-    using Slot = size_t;
-
     /**
      * In SkSL, a Variable represents a named, typed value (along with qualifiers, etc).
-     * Every Variable is mapped to one (or several, contiguous) Slots -- indices into our vector of
+     * Every Variable is mapped to one (or several, contiguous) indices into our vector of
      * skvm::Val. Those skvm::Val entries hold the current actual value of that variable.
      *
      * NOTE: Conceptually, each Variable is just mapped to a Value. We could implement it that way,
-     * (and eliminate the Slot indirection), but it would add overhead for each Variable,
+     * (and eliminate the indirection), but it would add overhead for each Variable,
      * and add additional (different) bookkeeping for things like lvalue-swizzles.
      *
      * Any time a variable appears in an expression, that's a VariableReference, which is a kind of
@@ -193,24 +191,17 @@ private:
      * which is a set of skvm::Val. (This allows an Expression to produce a vector or matrix, in
      * addition to a scalar).
      *
-     * For a VariableReference, producing a Value is straightforward - we get the Slot of the
-     * Variable, use that to look up the current skvm::Vals holding the variable's contents, and
-     * construct a Value with those ids.
+     * For a VariableReference, producing a Value is straightforward - we get the slot of the
+     * Variable (from fVariableMap), use that to look up the current skvm::Vals holding the
+     * variable's contents, and construct a Value with those ids.
      */
 
     /**
-     * Returns the Slot holding v's Val(s). Allocates storage if this is first time 'v' is
+     * Returns the slot holding v's Val(s). Allocates storage if this is first time 'v' is
      * referenced. Compound variables (e.g. vectors) will consume more than one slot, with
      * getSlot returning the start of the contiguous chunk of slots.
      */
-    Slot getSlot(const Variable& v);
-
-    /**
-     * As above, but computes the Slot of an expression involving indexing & field access.
-     * The expression doesn't have separate storage - this returns the Slot of the underlying
-     * Variable, with some offset applied to account for the indexing and field access.
-     */
-    Slot getSlot(const Expression& e);
+    size_t getSlot(const Variable& v);
 
     skvm::F32 f32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
     skvm::I32 i32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
@@ -278,7 +269,7 @@ private:
     const std::unordered_map<String, Intrinsic> fIntrinsics;
 
     // [Variable, first slot in fSlots]
-    std::unordered_map<const Variable*, Slot> fVariableMap;
+    std::unordered_map<const Variable*, size_t> fVariableMap;
     std::vector<skvm::Val> fSlots;
 
     // Conditional execution mask (managed by ScopedCondition, and tied to control-flow scopes)
@@ -479,8 +470,8 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     // For all parameters, copy incoming argument IDs to our vector of (all) variable IDs
     size_t argIdx = 0;
     for (const Variable* p : decl.parameters()) {
-        Slot paramSlot = this->getSlot(*p);
-        size_t nslots = slot_count(p->type());
+        size_t paramSlot = this->getSlot(*p),
+               nslots    = slot_count(p->type());
 
         for (size_t i = 0; i < nslots; ++i) {
             fSlots[paramSlot + i] = arguments[argIdx + i];
@@ -497,7 +488,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
         size_t nslots = slot_count(p->type());
 
         if (p->modifiers().fFlags & Modifiers::kOut_Flag) {
-            Slot paramSlot = this->getSlot(*p);
+            size_t paramSlot = this->getSlot(*p);
             for (size_t i = 0; i < nslots; ++i) {
                 arguments[argIdx + i] = fSlots[paramSlot + i];
             }
@@ -509,7 +500,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     fFunctionStack.pop_back();
 }
 
-SkVMGenerator::Slot SkVMGenerator::getSlot(const Variable& v) {
+size_t SkVMGenerator::getSlot(const Variable& v) {
     auto entry = fVariableMap.find(&v);
     if (entry != fVariableMap.end()) {
         return entry->second;
@@ -522,24 +513,6 @@ SkVMGenerator::Slot SkVMGenerator::getSlot(const Variable& v) {
     fSlots.resize(slot + nslots, fBuilder->splat(0.0f).id);
     fVariableMap[&v] = slot;
     return slot;
-}
-
-SkVMGenerator::Slot SkVMGenerator::getSlot(const Expression& e) {
-    switch (e.kind()) {
-        case Expression::Kind::kFieldAccess: {
-            const FieldAccess& f = e.as<FieldAccess>();
-            return this->getSlot(*f.base()) + this->fieldSlotOffset(f);
-        }
-        case Expression::Kind::kIndex: {
-            const IndexExpression& i = e.as<IndexExpression>();
-            return this->getSlot(*i.base()) + this->indexSlotOffset(i);
-        }
-        case Expression::Kind::kVariableReference:
-            return this->getSlot(*e.as<VariableReference>().variable());
-        default:
-            SkDEBUGFAIL("Invalid expression type");
-            return ~static_cast<Slot>(0);
-    }
 }
 
 Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
@@ -836,7 +809,7 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
 }
 
 size_t SkVMGenerator::fieldSlotOffset(const FieldAccess& expr) {
-    Slot offset = 0;
+    size_t offset = 0;
     for (int i = 0; i < expr.fieldIndex(); ++i) {
         offset += slot_count(*expr.base()->type().fields()[i].fType);
     }
@@ -878,7 +851,7 @@ Value SkVMGenerator::writeIndexExpression(const IndexExpression& expr) {
 }
 
 Value SkVMGenerator::writeVariableExpression(const VariableReference& expr) {
-    Slot slot = this->getSlot(*expr.variable());
+    size_t slot = this->getSlot(*expr.variable());
     Value val(slot_count(expr.type()));
     for (size_t i = 0; i < val.slots(); ++i) {
         val[i] = fSlots[slot + i];
@@ -1459,22 +1432,66 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
 }
 
 Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
-    SkASSERT(lhs.is<FieldAccess>() || lhs.is<IndexExpression>() || lhs.is<Swizzle>() ||
-             lhs.is<VariableReference>());
     SkASSERT(rhs.slots() == slot_count(lhs.type()));
 
+    // We need to figure out the collection of slots that we're storing into. The l-value (lhs)
+    // is always a VariableReference, possibly wrapped by one or more Swizzle, FieldAccess, or
+    // IndexExpressions. The underlying VariableReference has a range of slots for its storage,
+    // and each expression wrapped around that selects a sub-set of those slots (Field/Index),
+    // or rearranges them (Swizzle).
+    SkSTArray<4, size_t, true> slots;
+    slots.resize(rhs.slots());
+
+    // Start with the identity slot map - this basically says that the values from rhs belong in
+    // slots [0, 1, 2 ... N] of the lhs.
+    for (size_t i = 0; i < slots.size(); ++i) {
+        slots[i] = i;
+    }
+
+    // Now, as we peel off each outer expression, adjust 'slots' to be the locations relative to
+    // the next (inner) expression:
+    const Expression* expr = &lhs;
+    while (!expr->is<VariableReference>()) {
+        switch (expr->kind()) {
+            case Expression::Kind::kFieldAccess: {
+                const FieldAccess& fld = expr->as<FieldAccess>();
+                size_t offset = this->fieldSlotOffset(fld);
+                for (size_t& s : slots) {
+                    s += offset;
+                }
+                expr = fld.base().get();
+            } break;
+            case Expression::Kind::kIndex: {
+                const IndexExpression& idx = expr->as<IndexExpression>();
+                size_t offset = this->indexSlotOffset(idx);
+                for (size_t& s : slots) {
+                    s += offset;
+                }
+                expr = idx.base().get();
+            } break;
+            case Expression::Kind::kSwizzle: {
+                const Swizzle& swz = expr->as<Swizzle>();
+                for (size_t& s : slots) {
+                    s = swz.components()[s];
+                }
+                expr = swz.base().get();
+            } break;
+            default:
+                // No other kinds of expressions are valid in lvalues. (see Analysis::IsAssignable)
+                SkDEBUGFAIL("Invalid expression type");
+                return {};
+        }
+    }
+
+    // When we get here, 'slots' are all relative to the first slot holding 'var's storage
+    const Variable& var = *expr->as<VariableReference>().variable();
+    size_t varSlot = this->getSlot(var);
     skvm::I32 mask = this->mask();
     for (size_t i = rhs.slots(); i --> 0;) {
-        const Expression* expr = &lhs;
-        int component = i;
-        while (expr->is<Swizzle>()) {
-            component = expr->as<Swizzle>().components()[component];
-            expr = expr->as<Swizzle>().base().get();
-        }
-        Slot slot = this->getSlot(*expr);
-        skvm::F32 curr = f32(fSlots[slot + component]),
+        SkASSERT(slots[i] < slot_count(var.type()));
+        skvm::F32 curr = f32(fSlots[varSlot + slots[i]]),
                   next = f32(rhs[i]);
-        fSlots[slot + component] = select(mask, next, curr).id;
+        fSlots[varSlot + slots[i]] = select(mask, next, curr).id;
     }
     return rhs;
 }
@@ -1504,16 +1521,16 @@ void SkVMGenerator::writeForStatement(const ForStatement& f) {
     SkAssertResult(Analysis::ForLoopIsValidForES2(f, &loop, /*errors=*/nullptr));
     SkASSERT(slot_count(loop.fIndex->type()) == 1);
 
-    Slot index = this->getSlot(*loop.fIndex);
+    size_t indexSlot = this->getSlot(*loop.fIndex);
     double val = loop.fStart;
 
     skvm::I32 oldLoopMask     = fLoopMask,
               oldContinueMask = fContinueMask;
 
     for (int i = 0; i < loop.fCount; ++i) {
-        fSlots[index] = loop.fIndex->type().isInteger()
-                                ? fBuilder->splat(static_cast<int>(val)).id
-                                : fBuilder->splat(static_cast<float>(val)).id;
+        fSlots[indexSlot] = loop.fIndex->type().isInteger()
+                                    ? fBuilder->splat(static_cast<int>(val)).id
+                                    : fBuilder->splat(static_cast<float>(val)).id;
 
         fContinueMask = fBuilder->splat(0);
         this->writeStatement(*f.statement());
@@ -1555,8 +1572,8 @@ void SkVMGenerator::writeReturnStatement(const ReturnStatement& r) {
 }
 
 void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
-    Slot slot = this->getSlot(decl.var());
-    size_t nslots = slot_count(decl.var().type());
+    size_t slot   = this->getSlot(decl.var()),
+           nslots = slot_count(decl.var().type());
 
     Value val = decl.value() ? this->writeExpression(*decl.value()) : Value{};
     for (size_t i = 0; i < nslots; ++i) {
