@@ -31,6 +31,14 @@ struct SkRSXform;
 // [1] https://www.w3.org/TR/SVG11/text.html#TextLayoutIntroduction
 class SkSVGTextContext final : SkShaper::RunHandler {
 public:
+    // Shaped text handler/callback.
+    class BlobHandler {
+    public:
+        virtual ~BlobHandler() = default;
+
+        virtual void operator()(const SkSVGRenderContext&, const sk_sp<SkTextBlob>&,
+                                const SkPaint* fill, const SkPaint* stroke) const = 0;
+    };
 
     // Helper for encoding optional positional attributes.
     class PosAttrs {
@@ -100,14 +108,16 @@ public:
 
     };
 
-    SkSVGTextContext(const SkSVGRenderContext&, const SkSVGTextPath* = nullptr);
+    SkSVGTextContext(const SkSVGRenderContext&, const BlobHandler&, const SkSVGTextPath* = nullptr);
     ~SkSVGTextContext() override;
 
-    // Queues codepoints for rendering.
-    void appendFragment(const SkString&, const SkSVGRenderContext&, SkSVGXmlSpace);
+    // Shape and queue codepoints for final alignment.
+    void shapeFragment(const SkString&, const SkSVGRenderContext&, SkSVGXmlSpace);
 
-    // Perform actual rendering for queued codepoints.
+    // Perform final adjustments and push to the blob handler.
     void flushChunk(const SkSVGRenderContext& ctx);
+
+    const BlobHandler& handler() const { return fBlobHandler; }
 
 private:
     struct PositionAdjustment {
@@ -173,6 +183,7 @@ private:
 
     // http://www.w3.org/TR/SVG11/text.html#TextLayout
     const SkSVGRenderContext&       fRenderContext; // original render context
+    const BlobHandler&              fBlobHandler;
     const std::unique_ptr<SkShaper> fShaper;
     std::vector<RunRec>             fRuns;
     const ScopedPosResolver*        fPosResolver  = nullptr;
