@@ -479,11 +479,6 @@ void SkSVGTextFragment::renderText(const SkSVGRenderContext& ctx, SkSVGTextConte
     }
 }
 
-SkPath SkSVGTextFragment::onAsPath(const SkSVGRenderContext&) const {
-    // TODO
-    return SkPath();
-}
-
 void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
     // Only allow text content child nodes.
     switch (child->tag()) {
@@ -603,6 +598,43 @@ SkRect SkSVGText::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     }
 
     return bounds;
+}
+
+SkPath SkSVGText::onAsPath(const SkSVGRenderContext& ctx) const {
+    SkPath text_path, glyph_path;
+
+    const SkSVGTextContext::ShapedTextCallback to_path =
+        [&text_path, &glyph_path](const SkSVGRenderContext& ctx, const sk_sp<SkTextBlob>& blob,
+                                  const SkPaint*, const SkPaint*) {
+            if (!blob) {
+                return;
+            }
+
+            SkTextBlobRunIterator it(blob.get());
+
+            for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+                SkASSERT(it.positioning() == SkTextBlobRunIterator::kRSXform_Positioning);
+                SkMatrix m;
+                for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+                    if (!it.font().getPath(it.glyphs()[i], &glyph_path)) {
+                        continue;
+                    }
+
+                    m.setRSXform(it.xforms()[i]);
+                    glyph_path.transform(m);
+                    text_path.addPath(glyph_path);
+                }
+            }
+        };
+
+    {
+        SkSVGTextContext tctx(ctx, to_path);
+        this->onShapeText(ctx, &tctx, this->getXmlSpace());
+    }
+
+    this->mapToParent(&text_path);
+
+    return text_path;
 }
 
 void SkSVGTextPath::onShapeText(const SkSVGRenderContext& ctx, SkSVGTextContext* parent_tctx,
