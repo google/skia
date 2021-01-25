@@ -16,6 +16,24 @@
       "message": "These can\u0027t be right, can they?  They\u0027ll just copy the fields without nulling out the moved-from SkArenaAlloc\u0026\u0026?",
       "revId": "85d5c26f25cbd88366263029c65a39c77d3e7a13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7993b083_efd4bd8e",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-01-25T15:01:59Z",
+      "side": 1,
+      "message": "I agree. The fDtorCursor, fCursor, and fEnd need to be nullptrs.",
+      "parentUuid": "d2d1f332_fc839297",
+      "revId": "85d5c26f25cbd88366263029c65a39c77d3e7a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
