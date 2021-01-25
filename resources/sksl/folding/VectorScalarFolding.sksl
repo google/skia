@@ -72,7 +72,7 @@ bool test_half() {
     x = half4(unknown) * 0;
     ok = ok && (x == half4(0));
     x = half4(unknown) * 1;
-    ok = ok && (x == half4(0));
+    ok = ok && (x == half4(unknown));
     x = half4(unknown) - 0;
     ok = ok && (x == half4(unknown));
 
@@ -153,7 +153,7 @@ bool test_int() {
     x = int4(unknown) * 0;
     ok = ok && (x == int4(0));
     x = int4(unknown) * 1;
-    ok = ok && (x == int4(0));
+    ok = ok && (x == int4(unknown));
     x = int4(unknown) - 0;
     ok = ok && (x == int4(unknown));
 
