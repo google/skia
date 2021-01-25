@@ -21,7 +21,8 @@ public:
         return node->tag() == SkSVGTag::kFeTurbulence || node->tag() == SkSVGTag::kFeColorMatrix ||
                node->tag() == SkSVGTag::kFeComposite || node->tag() == SkSVGTag::kFeFlood ||
                node->tag() == SkSVGTag::kFeGaussianBlur || node->tag() == SkSVGTag::kFeOffset ||
-               node->tag() == SkSVGTag::kFeBlend || node->tag() == SkSVGTag::kFeMorphology;
+               node->tag() == SkSVGTag::kFeBlend || node->tag() == SkSVGTag::kFeMorphology ||
+               node->tag() == SkSVGTag::kFeDisplacementMap;
     }
 
     sk_sp<SkImageFilter> makeImageFilter(const SkSVGRenderContext& ctx,
