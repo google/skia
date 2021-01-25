@@ -1408,7 +1408,6 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                                                             /*arraySize=*/0, std::move(value));
         var->setDeclaration(declaration.get());
         fSymbolTable->add(std::move(var));
-        fSymbolTable->takeOwnershipOfIRNode(std::move(value));
         fSymbolTable->takeOwnershipOfIRNode(std::move(declaration));
     }
     // Now we orphanize the Enum's symbol table, so that future lookups in it are strict
