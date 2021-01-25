@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c93df2a8_05ea5017",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T18:47:33Z",
+      "side": 1,
+      "message": "Unfortunately this doesn\u0027t seem to be covered by Gold tests.  But it does progress a bunch of client samples locally.",
+      "revId": "c0ca2d01b15d73bf495d006a31e31c59dd410a6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8366585_458afa19",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T18:47:33Z",
+      "side": 1,
+      "message": "It\u0027s kinda yucky to package the shaping result as a blob only to unpack here.  I\u0027ll circle back separately and see if there\u0027s a cleaner way to pass raw shaping data to callbacks instead of blobs.",
+      "range": {
+        "startLine": 577,
+        "startChar": 74,
+        "endLine": 577,
+        "endChar": 78
+      },
+      "revId": "c0ca2d01b15d73bf495d006a31e31c59dd410a6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
