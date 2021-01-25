@@ -22,6 +22,30 @@
       },
       "revId": "4c229687204075c2142cc95c71ef80d9aad04009",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "974379c6_b503fc00",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-25T18:25:59Z",
+      "side": 1,
+      "message": "Ah yeah - factored out into \"indexSlotOffset\", that computes the # of slots from the start of the array to the value being accessed. For getSlot(), that needs to be added to the slot of the base, and for writeIndexExpression, that\u0027s just used to index into the Value that holds the entire base expression.",
+      "parentUuid": "89475168_ac78e9d3",
+      "range": {
+        "startLine": 518,
+        "startChar": 30,
+        "endLine": 518,
+        "endChar": 54
+      },
+      "revId": "4c229687204075c2142cc95c71ef80d9aad04009",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
