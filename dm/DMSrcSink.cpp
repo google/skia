@@ -1041,23 +1041,18 @@ Result ColorCodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
         info = canvasInfo.makeDimensions(info.dimensions());
     }
 
-    SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(info)) {
-        return Result::Fatal("Image(%s) is too large (%d x %d)",
-                             fPath.c_str(), info.width(), info.height());
-    }
-
-    switch (auto r = codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes())) {
+    auto [image, result] = codec->getImage(info);
+    switch (result) {
         case SkCodec::kSuccess:
         case SkCodec::kErrorInInput:
         case SkCodec::kIncompleteInput:
-            canvas->drawBitmap(bitmap, 0,0);
+            canvas->drawImage(image, 0,0);
             return Result::Ok();
         case SkCodec::kInvalidConversion:
             // TODO(mtklein): why are there formats we can't decode to?
             return Result::Skip("SkCodec can't decode to this format.");
         default:
-            return Result::Fatal("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
+            return Result::Fatal("Couldn't getPixels %s. Error code %d", fPath.c_str(), result);
     }
 }
 
