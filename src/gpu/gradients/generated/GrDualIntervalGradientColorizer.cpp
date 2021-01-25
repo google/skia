@@ -68,7 +68,8 @@ return half4(float(t) * scale + bias);
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrDualIntervalGradientColorizer& _outer =
                 _proc.cast<GrDualIntervalGradientColorizer>();
         {

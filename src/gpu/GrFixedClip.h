@@ -20,7 +20,7 @@ public:
     explicit GrFixedClip(const SkISize& rtDims) : fScissorState(rtDims) {}
     GrFixedClip(const SkISize& rtDims, const SkIRect& scissorRect)
             : GrFixedClip(rtDims) {
-        SkAssertResult(fScissorState.set(scissorRect));
+        SkAssertResult(fScissorState.set1(scissorRect));
     }
 
     const GrScissorState& scissorState() const { return fScissorState; }
@@ -31,7 +31,7 @@ public:
     void disableScissor() { fScissorState.setDisabled(); }
 
     bool SK_WARN_UNUSED_RESULT setScissor(const SkIRect& irect) {
-        return fScissorState.set(irect);
+        return fScissorState.set1(irect);
     }
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& irect) {
         return fScissorState.intersect(irect);

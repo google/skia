@@ -81,7 +81,8 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& fp) override {
+                   const GrFragmentProcessor& fp,
+                   SkIPoint viewportOffset) override {
         const GrColorSpaceXformEffect& proc = fp.cast<GrColorSpaceXformEffect>();
         fColorSpaceHelper.setData(pdman, proc.colorXform());
     }

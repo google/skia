@@ -62,7 +62,7 @@ R"SkSL(return %s(%s(%s(%s)));
 , flip_name.c_str(), flip_name.c_str(), flip_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar));
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
     UniformHandle colorVar;
 };

@@ -25,7 +25,7 @@ R"SkSL(return half4(half(1 %% int(sqrt(2.0))));
 );
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
 };
 GrGLSLFragmentProcessor* GrModuloOp::onCreateGLSLInstance() const {
