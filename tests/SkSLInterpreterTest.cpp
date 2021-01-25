@@ -444,27 +444,6 @@ DEF_TEST(SkSLInterpreterGeneric, r) {
     test(r, "float2 main(float x, float y) { return float2(x * x, y * y); }", value2, expected2);
 }
 
-DEF_TEST(SkSLInterpreterFieldAccessComplex, r) {
-    const char* src = R"(
-        struct P { float x; float y; };
-        P make_point() { P p; p.x = 7; p.y = 3; return p; }
-        float main() { return make_point().y; }
-    )";
-
-    float expected = 3.0f;
-    test(r, src, /*in=*/nullptr, &expected);
-}
-
-DEF_TEST(SkSLInterpreterIndexComplex, r) {
-    const char* src = R"(
-        float2x2 make_mtx() { return float2x2(1, 2, 3, 4); }
-        float main() { return make_mtx()[1][0]; }
-    )";
-
-    float expected = 3.0f;
-    test(r, src, /*in=*/nullptr, &expected);
-}
-
 DEF_TEST(SkSLInterpreterCompound, r) {
     struct RectAndColor { SkIRect fRect; SkColor4f fColor; };
     struct ManyRects { int fNumRects; RectAndColor fRects[4]; };
