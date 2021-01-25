@@ -366,6 +366,9 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
         , fTargetSwizzle(view.swizzle())
         , fTargetOrigin(view.origin())
           SkDEBUGCODE(, fNumClips(0)) {
+    // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
+    // Gather statistics to determine the correct size.
+    fClipAllocators.emplace_back(4096);
     this->addTarget(drawingMgr, view.detachProxy());
 }
 
