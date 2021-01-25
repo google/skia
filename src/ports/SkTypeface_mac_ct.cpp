@@ -411,7 +411,7 @@ static int ct_weight_to_fontstyle(CGFloat cgWeight, bool fromDataProvider) {
 
     /** This mapping for CGDataProvider created fonts is determined by creating font data with every
      *  weight, creating a CTFont, and asking the CTFont for its weight. See the TypefaceStyle test
-     *  in tests/TypefaceTest.cpp for the code used to determine these values.
+     *  in tests/TypefaceTest.cpp for the code used to drive SkCTFontDescriptorGetSkFontStyle to determine these values.
      */
     static constexpr Interpolator::Mapping dataProviderWeightMappings[] = {
         { -1.00,    0 },
@@ -490,6 +490,16 @@ SkFontStyle SkCTFontDescriptorGetSkFontStyle(CTFontDescriptorRef desc, bool from
     if (!find_dict_CGFloat(fontTraitsDict, kCTFontSlantTrait, &slant)) {
         slant = 0;
     }
+
+#if 0
+    SkUniqueCFRef<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc, 0, nullptr));
+    SkUniqueCFRef<CFDataRef> data(CTFontCopyTable(ctFont.get(),
+                                                  (CTFontTableTag) SkTEndian_SwapBE32(SkOTTableOS2::TAG),
+                                                  kCTFontTableOptionNoOptions));
+    const SkOTTableOS2_V0* os2 = reinterpret_cast<const SkOTTableOS2_V0*>(CFDataGetBytePtr(data.get()));
+    int os2Weight = SkEndian_SwapBE16(os2->usWeightClass.value);
+    SkDebugf("%f, %d\n", weight, os2Weight);
+#endif
 
     return SkFontStyle(ct_weight_to_fontstyle(weight, fromDataProvider),
                        ct_width_to_fontstyle(width),
