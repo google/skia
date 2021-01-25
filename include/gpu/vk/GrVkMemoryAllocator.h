@@ -30,6 +30,8 @@ public:
         kPersistentlyMapped  = 0x4,
         // Allocation can only be accessed by the device using a protected context.
         kProtected  = 0x8,
+        // Allocation should use coherent memory for all host visible memory
+        kMustUseCoherentHostVisible = 0x10,
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AllocationPropertyFlags);
