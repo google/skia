@@ -160,6 +160,10 @@ public:
         return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
     }
 
+    // For host visible allocations, this returns true if we require that they are coherent. This
+    // is used to work around bugs for devices that don't handle non-coherent memory correctly.
+    bool mustUseCoherentHostVisibleMemory() const { return fMustUseCoherentHostVisibleMemory; }
+
     // The max draw count that can be passed into indirect draw calls.
     uint32_t  maxDrawIndirectDrawCount() const { return fMaxDrawIndirectDrawCount; }
 
@@ -357,6 +361,8 @@ private:
 
     bool fPreferPrimaryOverSecondaryCommandBuffers = true;
     bool fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = false;
+
+    bool fMustUseCoherentHostVisibleMemory = false;
 
     // We default this to 100 since we already cap the max render tasks at 100 before doing a
     // submission in the GrDrawingManager, so we shouldn't be going over 100 secondary command
