@@ -13,6 +13,7 @@
 #include "modules/svg/include/SkSVGText.h"
 #include "src/core/SkTLazy.h"
 
+#include <functional>
 #include <tuple>
 
 class SkContourMeasure;
@@ -31,6 +32,10 @@ struct SkRSXform;
 // [1] https://www.w3.org/TR/SVG11/text.html#TextLayoutIntroduction
 class SkSVGTextContext final : SkShaper::RunHandler {
 public:
+    using ShapedTextCallback = std::function<void(const SkSVGRenderContext&,
+                                                  const sk_sp<SkTextBlob>&,
+                                                  const SkPaint*,
+                                                  const SkPaint*)>;
 
     // Helper for encoding optional positional attributes.
     class PosAttrs {
@@ -100,14 +105,18 @@ public:
 
     };
 
-    SkSVGTextContext(const SkSVGRenderContext&, const SkSVGTextPath* = nullptr);
+    SkSVGTextContext(const SkSVGRenderContext&,
+                     const ShapedTextCallback&,
+                     const SkSVGTextPath* = nullptr);
     ~SkSVGTextContext() override;
 
-    // Queues codepoints for rendering.
-    void appendFragment(const SkString&, const SkSVGRenderContext&, SkSVGXmlSpace);
+    // Shape and queue codepoints for final alignment.
+    void shapeFragment(const SkString&, const SkSVGRenderContext&, SkSVGXmlSpace);
 
-    // Perform actual rendering for queued codepoints.
+    // Perform final adjustments and push shaped blobs to the callback.
     void flushChunk(const SkSVGRenderContext& ctx);
+
+    const ShapedTextCallback& getCallback() const { return fCallback; }
 
 private:
     struct PositionAdjustment {
@@ -173,6 +182,7 @@ private:
 
     // http://www.w3.org/TR/SVG11/text.html#TextLayout
     const SkSVGRenderContext&       fRenderContext; // original render context
+    const ShapedTextCallback&       fCallback;
     const std::unique_ptr<SkShaper> fShaper;
     std::vector<RunRec>             fRuns;
     const ScopedPosResolver*        fPosResolver  = nullptr;
