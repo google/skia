@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad85aa8c_5df143b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-25T14:56:23Z",
+      "side": 1,
+      "message": "lgtm.\n\nI guess we will see if any third parties have ignored my warning about not depending on this link elsewhere. ",
+      "revId": "8dd5d64aff33fba10fa385a08d1cc0024e970250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
