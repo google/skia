@@ -52,6 +52,24 @@
       "parentUuid": "6b1fa03f_9ed6e9ef",
       "revId": "c5b16a8a242cde9e2ca4bff94c0a8ce7a079aef7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4eb08950_9e465e9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-25T16:24:18Z",
+      "side": 1,
+      "message": "Updated. Take a look and tell me if we still delete all.",
+      "parentUuid": "c6a116f0_3c718fcc",
+      "revId": "c5b16a8a242cde9e2ca4bff94c0a8ce7a079aef7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
