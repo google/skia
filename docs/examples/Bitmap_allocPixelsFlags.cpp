@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     SkFont font;
     offscreen.drawString("!@#$%", 0, 12, font, paint);
     canvas->scale(6, 6);
-    canvas->drawBitmap(bitmap, 0, 0);
-    canvas->drawBitmap(bitmap, 8, 8);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
+    canvas->drawImage(bitmap.asImage(), 8, 8);
 }
 }  // END FIDDLE

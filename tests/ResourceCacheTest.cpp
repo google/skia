@@ -59,7 +59,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     readback.allocN32Pixels(size.width(), size.height());
 
     for (int i = 0; i < 100; ++i) {
-        canvas->drawBitmap(src, 0, 0);
+        canvas->drawImage(src.asImage(), 0, 0);
         surface->readPixels(readback, 0, 0);
 
         // "modify" the src texture

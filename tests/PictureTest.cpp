@@ -633,8 +633,8 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     canvas->drawColor(0);
 
     canvas->saveLayer(nullptr, &semiTransparent);
-    canvas->drawBitmap(blueBM, 25, 25);
-    canvas->drawBitmap(redBM, 50, 50);
+    canvas->drawImage(blueBM.asImage(), 25, 25);
+    canvas->drawImage(redBM.asImage(), 50, 50);
     canvas->restore();
 
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
@@ -716,8 +716,8 @@ DEF_TEST(Picture_BitmapLeak, r) {
         // place it inside local braces.
         SkPictureRecorder rec;
         SkCanvas* canvas = rec.beginRecording(1920, 1200);
-            canvas->drawBitmap(mut, 0, 0);
-            canvas->drawBitmap(immut, 800, 600);
+            canvas->drawImage(mut.asImage(), 0, 0);
+            canvas->drawImage(immut.asImage(), 800, 600);
         pic = rec.finishRecordingAsPicture();
     }
 

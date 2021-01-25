@@ -18,20 +18,18 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkBlurMask.h"
 #include "src/effects/SkEmbossMaskFilter.h"
 
-static SkBitmap make_bm() {
-    SkBitmap bm;
-    bm.allocN32Pixels(100, 100);
+static sk_sp<SkImage> make_bm() {
+    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
 
-    SkCanvas canvas(bm);
-    canvas.clear(0);
     SkPaint paint;
     paint.setAntiAlias(true);
-    canvas.drawCircle(50, 50, 50, paint);
-    return bm;
+    surf->getCanvas()->drawCircle(50, 50, 50, paint);
+    return surf->makeImageSnapshot();
 }
 
 class EmbossGM : public skiagm::GM {
@@ -50,21 +48,21 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        SkBitmap bm = make_bm();
-        canvas->drawBitmap(bm, 10, 10, &paint);
-        canvas->translate(bm.width() + SkIntToScalar(10), 0);
+        auto img = make_bm();
+        canvas->drawImage(img, 10, 10, &paint);
+        canvas->translate(img->width() + SkIntToScalar(10), 0);
 
         paint.setMaskFilter(SkEmbossMaskFilter::Make(
             SkBlurMask::ConvertRadiusToSigma(3),
             { { SK_Scalar1, SK_Scalar1, SK_Scalar1 }, 0, 128, 16*2 }));
-        canvas->drawBitmap(bm, 10, 10, &paint);
-        canvas->translate(bm.width() + SkIntToScalar(10), 0);
+        canvas->drawImage(img, 10, 10, &paint);
+        canvas->translate(img->width() + SkIntToScalar(10), 0);
 
         // this combination of emboss+colorfilter used to crash -- so we exercise it to
         // confirm that we have a fix.
         paint.setColorFilter(SkColorFilters::Blend(0xFFFF0000, SkBlendMode::kSrcATop));
-        canvas->drawBitmap(bm, 10, 10, &paint);
-        canvas->translate(bm.width() + SkIntToScalar(10), 0);
+        canvas->drawImage(img, 10, 10, &paint);
+        canvas->translate(img->width() + SkIntToScalar(10), 0);
 
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

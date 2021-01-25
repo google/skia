@@ -65,8 +65,7 @@ static void test_bug_6653(GrDirectContext* dContext,
 
         auto s3 = make_surface(dContext);
         s3->getCanvas()->clear(SK_ColorBLUE);
-        SkBitmap b3 = read_pixels(s3, SK_ColorBLACK);
-        s0->getCanvas()->drawBitmap(b3, 0, 0);
+        s0->getCanvas()->drawImage(read_pixels(s3, SK_ColorBLACK).asImage(), 0, 0);
         s3 = nullptr;
 
         auto s4 = make_surface(dContext);

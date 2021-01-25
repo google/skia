@@ -294,7 +294,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
         SkPaint paint;
         paint.setImageFilter(deserializedFilter);
         canvas.clipRect(SkRect::MakeXYWH(0, 0, SkIntToScalar(24), SkIntToScalar(24)));
-        canvas.drawBitmap(bitmap, 0, 0, &paint);
+        canvas.drawImage(bitmap.asImage(), 0, 0, &paint);
     }
 }
 
@@ -475,7 +475,8 @@ static void setup_bitmap_for_canvas(SkBitmap* bitmap) {
     bitmap->allocN32Pixels(kBitmapSize, kBitmapSize);
 }
 
-static void make_checkerboard_bitmap(SkBitmap& bitmap) {
+static sk_sp<SkImage> make_checkerboard_image() {
+    SkBitmap bitmap;
     setup_bitmap_for_canvas(&bitmap);
 
     SkCanvas canvas(bitmap);
@@ -497,20 +498,17 @@ static void make_checkerboard_bitmap(SkBitmap& bitmap) {
             canvas.restore();
         }
     }
+    return bitmap.asImage();
 }
 
 static void draw_something(SkCanvas* canvas) {
-    SkPaint paint;
-    SkBitmap bitmap;
-    make_checkerboard_bitmap(bitmap);
-
     canvas->save();
     canvas->scale(0.5f, 0.5f);
-    canvas->drawBitmap(bitmap, 0, 0, nullptr);
+    canvas->drawImage(make_checkerboard_image(), 0, 0);
     canvas->restore();
 
+    SkPaint paint;
     paint.setAntiAlias(true);
-
     paint.setColor(SK_ColorRED);
     canvas->drawCircle(SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/3), paint);
     paint.setColor(SK_ColorBLACK);

@@ -96,7 +96,7 @@ static void draw_save_layer_draw_bitmap_restore_sequence(SkCanvas* canvas, SkCol
     canvas->saveLayer(&targetRect, &layerPaint);
         SkPaint drawPaint;
         installDetector(&drawPaint);
-        canvas->drawBitmap(bitmap, SkIntToScalar(0), SkIntToScalar(0), &drawPaint);
+        canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &drawPaint);
     canvas->restore();
 }
 
