@@ -16,6 +16,24 @@
       "message": "Dangit, what about the subclasses? I think I want to delete their move ops because the WithReset variant always points to the same first block, and the S variants inherit from std::array and moving that is yucky.\n\nWhat do?",
       "revId": "c5b16a8a242cde9e2ca4bff94c0a8ce7a079aef7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b1fa03f_9ed6e9ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-01-25T16:14:14Z",
+      "side": 1,
+      "message": "I think that is right. Move should be delete, otherwise they would share the first block of memory.",
+      "parentUuid": "17188b9c_40c1b711",
+      "revId": "c5b16a8a242cde9e2ca4bff94c0a8ce7a079aef7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
