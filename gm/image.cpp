@@ -183,7 +183,7 @@ DEF_GM( return new ImageGM; )
 static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pmap) {
     SkBitmap bitmap;
     bitmap.installPixels(pmap);
-    canvas->drawBitmap(bitmap, 0, 0, nullptr);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
 }
 
 static void show_scaled_pixels(SkCanvas* canvas, SkImage* image) {

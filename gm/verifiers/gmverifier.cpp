@@ -76,7 +76,7 @@ SkBitmap GMVerifier::RenderGoldBmp(skiagm::GM* gm, const SkColorInfo& colorInfo)
     SkBitmap goldVerifierBmp;
     goldVerifierBmp.allocPixels(SkImageInfo::Make(size, VerifierColorInfo()));
     SkCanvas verifierCanvas(goldVerifierBmp);
-    verifierCanvas.drawBitmap(goldBmp, 0, 0);
+    verifierCanvas.drawImage(goldBmp.asImage(), 0, 0);
 
     return goldVerifierBmp;
 }

@@ -138,9 +138,9 @@ DEF_GM(return new ImageBlurRepeatModeGM;)
 //     draw and then clipping)).
 DEF_SIMPLE_GM(imageblurrepeatunclipped, canvas, 256, 128) {
     // To show translucency
-    SkBitmap checkerboard = ToolUtils::create_checkerboard_bitmap(256, 128, SK_ColorLTGRAY,
-                                                                  SK_ColorGRAY, 8);
-    canvas->drawBitmap(checkerboard, 0, 0);
+    auto checkerboard = ToolUtils::create_checkerboard_image(256, 128, SK_ColorLTGRAY,
+                                                             SK_ColorGRAY, 8);
+    canvas->drawImage(checkerboard, 0, 0);
 
     // Make an image with one red and one blue band
     SkBitmap bmp;

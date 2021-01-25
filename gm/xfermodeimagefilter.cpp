@@ -199,7 +199,7 @@ private:
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         canvas->clipIRect(bitmap.bounds());
-        canvas->drawBitmap(bitmap, 0, 0, &paint);
+        canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);
         canvas->restore();
     }
 

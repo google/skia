@@ -232,7 +232,7 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
                     canvas->save();
                     canvas->translate((SkScalar)cur_x, (SkScalar)cur_y);
                     canvas->translate(-(bm.width() - r.width())/2, -(bm.height()-r.height())/2);
-                    canvas->drawBitmap(bm, 0.f, 0.f, nullptr);
+                    canvas->drawImage(bm.asImage(), 0.f, 0.f);
                     canvas->restore();
 
                     cur_x += bm.width() + fPadding;

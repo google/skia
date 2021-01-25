@@ -395,7 +395,7 @@ static void extract_planes(const SkBitmap& origBM,
     SkMatrix matrix = SkEncodedOriginToMatrix(origin, origBM.width(), origBM.height());
     SkAssertResult(matrix.invert(&matrix));
     canvas.concat(matrix);
-    canvas.drawBitmap(origBM, 0, 0);
+    canvas.drawImage(origBM.asImage(), 0, 0);
 
     if (yuvColorSpace == kIdentity_SkYUVColorSpace) {
         // To test the identity color space we use JPEG YUV planes

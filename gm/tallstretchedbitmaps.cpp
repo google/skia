@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -93,9 +93,9 @@ protected:
             SkIRect subRect = SkIRect::MakeLTRB(0, startItem * itemHeight,
                                                bmp.width(), bmp.height());
             SkRect dstRect = SkRect::MakeWH(SkIntToScalar(bmp.width()), 10.f * itemHeight);
-            SkPaint paint;
-            paint.setFilterQuality(kLow_SkFilterQuality);
-            canvas->drawBitmapRect(bmp, subRect, dstRect, &paint);
+            canvas->drawImageRect(bmp.asImage(), SkRect::Make(subRect), dstRect,
+                                  SkSamplingOptions(SkFilterMode::kLinear), nullptr,
+                                  SkCanvas::kStrict_SrcRectConstraint);
             canvas->translate(SkIntToScalar(bmp.width() + 10), 0);
         }
     }

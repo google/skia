@@ -10,16 +10,14 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
@@ -145,7 +143,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
         paint.setColor4f({1,0,0,1}, p3.get());
         SkCanvas{bm}.drawPaint(paint);
 
-        canvas->drawBitmap(bm, 10,10);
+        canvas->drawImage(bm.asImage(), 10,10);
         compare_pixel("drawBitmap P3 red, from drawPaint",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());
@@ -163,7 +161,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
         SkAssertResult(bm.peekPixels(&pm));
         SkAssertResult(pm.erase({1,0,0,1}, p3.get()));
 
-        canvas->drawBitmap(bm, 10,10);
+        canvas->drawImage(bm.asImage(), 10,10);
         compare_pixel("drawBitmap P3 red, from SkPixmap::erase",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());
@@ -339,18 +337,19 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
         for (int i = 0; i < 256; i++) {
             mask[i] = 255-i;
         }
+
         SkBitmap bm;
         bm.installPixels(SkImageInfo::MakeA8(16,16), mask, 16);
 
         SkPaint as_bitmap;
         as_bitmap.setColor4f({1,0,0,1}, p3.get());
-        as_bitmap.setFilterQuality(kLow_SkFilterQuality);
+        SkSamplingOptions sampling(SkFilterMode::kLinear);
 
         SkPaint as_shader;
         as_shader.setColor4f({1,0,0,1}, p3.get());
-        as_shader.setShader(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear)));
+        as_shader.setShader(bm.makeShader(sampling));
 
-        canvas->drawBitmap(bm, 10,10, &as_bitmap);
+        canvas->drawImage(bm.asImage(), 10,10, sampling, &as_bitmap);
         compare_pixel("A8 sprite bitmap P3 red",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());
@@ -367,7 +366,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
 
         canvas->translate(0,80);
 
-        canvas->drawBitmapRect(bm, {10,10,70,70}, &as_bitmap);
+        canvas->drawImageRect(bm.asImage(), {10,10,70,70}, sampling, &as_bitmap);
         compare_pixel("A8 scaled bitmap P3 red",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());

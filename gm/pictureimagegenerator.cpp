@@ -194,7 +194,7 @@ protected:
             canvas->drawRect(SkRect::MakeXYWH(x, y,
                                               SkIntToScalar(bm.width()),
                                               SkIntToScalar(bm.height())), p);
-            canvas->drawBitmap(bm, x, y);
+            canvas->drawImage(bm.asImage(), x, y);
         }
     }
 

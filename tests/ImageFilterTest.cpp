@@ -1384,7 +1384,7 @@ static void test_xfermode_cropped_input(SkSurface* surf, skiatest::Reporter* rep
 
     SkPaint paint;
     paint.setImageFilter(std::move(xfermodeNoFg));
-    canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
+    canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);   // drawSprite
 
     uint32_t pixel;
     SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
@@ -1392,12 +1392,12 @@ static void test_xfermode_cropped_input(SkSurface* surf, skiatest::Reporter* rep
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
     paint.setImageFilter(std::move(xfermodeNoBg));
-    canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
+    canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);   // drawSprite
     surf->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
     paint.setImageFilter(std::move(xfermodeNoFgNoBg));
-    canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
+    canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);   // drawSprite
     surf->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 }
@@ -1445,7 +1445,7 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     canvas.clear(0x0);
     temp.readPixels(info, &pixel, 4, 25, 25);
     canvas.saveLayer(&bounds1, nullptr);
-    canvas.drawBitmap(bitmap, 20, 20, &filterPaint);    // drawSprite
+    canvas.drawImage(bitmap.asImage(), 20, 20, SkSamplingOptions(), &filterPaint); // drawSprite
     canvas.restore();
 
     temp.readPixels(info, &pixel, 4, 25, 25);

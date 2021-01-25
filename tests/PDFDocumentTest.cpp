@@ -252,7 +252,7 @@ DEF_TEST(SkPDF_abort_jobs, rep) {
     metadata.fExecutor = executor.get();
     SkNullWStream dst;
     auto doc = SkPDF::MakeDocument(&dst, metadata);
-    doc->beginPage(612, 792)->drawBitmap(b, 0, 0);
+    doc->beginPage(612, 792)->drawImage(b.asImage(), 0, 0);
     doc->abort();
 }
 
