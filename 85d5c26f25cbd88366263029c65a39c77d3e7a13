@@ -52,6 +52,24 @@
       "parentUuid": "7993b083_efd4bd8e",
       "revId": "85d5c26f25cbd88366263029c65a39c77d3e7a13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acc79f97_8ef486b6",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-25T15:36:34Z",
+      "side": 1,
+      "message": "We would break moving the arenas when merging ops tasks. See if the new implementation is good.",
+      "parentUuid": "2c5d9a9e_ab6d65ba",
+      "revId": "85d5c26f25cbd88366263029c65a39c77d3e7a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
