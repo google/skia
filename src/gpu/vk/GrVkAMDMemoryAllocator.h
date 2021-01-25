@@ -63,7 +63,8 @@ public:
     uint64_t totalAllocatedMemory() const override;
 
 private:
-    GrVkAMDMemoryAllocator(VmaAllocator allocator, sk_sp<const GrVkInterface> interface);
+    GrVkAMDMemoryAllocator(VmaAllocator allocator, sk_sp<const GrVkInterface> interface,
+                           bool mustUseCoherentHostVisibleMemory);
 
     VmaAllocator fAllocator;
 
@@ -71,6 +72,11 @@ private:
     // memory, then we won't need to save the GrVkInterface here since we won't need to make direct
     // vulkan calls.
     sk_sp<const GrVkInterface> fInterface;
+
+    // For host visible allocations do we require they are coherent or not. All devices are required
+    // to support a host visible and coherent memory type. This is used to work around bugs for
+    // devices that don't handle non coherent memory correctly.
+    bool fMustUseCoherentHostVisibleMemory;
 
     using INHERITED = GrVkMemoryAllocator;
 };

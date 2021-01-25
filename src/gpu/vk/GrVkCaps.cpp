@@ -538,6 +538,20 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMustLoadFullImageWithDiscardableMSAA = true;
     }
 
+#ifdef SK_BUILD_FOR_UNIX
+    if (kIntel_VkVendor == properties.vendorID) {
+        // At least on our linux Debug Intel HD405 bot we are seeing issues doing read pixels with
+        // non-conherent memory. It seems like the device is not properly honoring the
+        // vkInvalidateMappedMemoryRanges calls correctly. Other linux intel devices seem to work
+        // okay. However, since I'm not sure how to target a specific intel devices or driver
+        // version I am going to stop all intel linux from using non-coherent memory. Currently we
+        // are not shipping anything on these platforms and the only real thing that will regress is
+        // read backs. If we find later we do care about this performance we can come back to figure
+        // out how to do a more narrow workaround.
+        fMustUseCoherentHostVisibleMemory = true;
+    }
+#endif
+
     ////////////////////////////////////////////////////////////////////////////
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
