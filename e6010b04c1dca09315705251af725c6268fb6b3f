@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c67a5c4_c5caa17a",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-25T15:09:22Z",
+      "side": 1,
+      "message": "We never came up with a good solution for unpremul having two names, depending on type, did we?",
+      "range": {
+        "startLine": 285,
+        "startChar": 26,
+        "endLine": 285,
+        "endChar": 34
+      },
+      "revId": "e6010b04c1dca09315705251af725c6268fb6b3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
