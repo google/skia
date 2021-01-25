@@ -2212,8 +2212,9 @@ DEF_TEST(SkVM_64bit, r) {
             skvm::Ptr wide = b.varying<uint64_t>(),
                         lo = b.varying<int>(),
                         hi = b.varying<int>();
-            b.store32(lo, b.load64(wide, 0));
-            b.store32(hi, b.load64(wide, 1));
+            skvm::I64 w = b.load64(wide);
+            b.store32(lo, b.part(w, 0));
+            b.store32(hi, b.part(w, 1));
         }
         test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
             uint32_t l[65], h[65];
