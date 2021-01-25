@@ -1804,11 +1804,21 @@ DEF_TEST(SkVM_Assembler, r) {
         a.ld44s(A::v0, A::x8);
         a.st24s(A::v0, A::x8);
         a.st44s(A::v0, A::x8);  // echo 'st4.4s {v0,v1,v2,v3}, [x8]' | llvm-mc --show-encoding
+
+        a.ld24s(A::v0, A::x8, 0);  //echo 'ld2 {v0.s,v1.s}[0], [x8]' | llvm-mc --show-encoding
+        a.ld24s(A::v0, A::x8, 1);
+        a.ld24s(A::v0, A::x8, 2);
+        a.ld24s(A::v0, A::x8, 3);
     },{
         0x00,0x89,0x40,0x4c,
         0x00,0x09,0x40,0x4c,
         0x00,0x89,0x00,0x4c,
         0x00,0x09,0x00,0x4c,
+
+        0x00,0x81,0x60,0x0d,
+        0x00,0x91,0x60,0x0d,
+        0x00,0x81,0x60,0x4d,
+        0x00,0x91,0x60,0x4d,
     });
 
     test_asm(r, [&](A& a) {
@@ -2192,8 +2202,9 @@ DEF_TEST(SkVM_64bit, r) {
             skvm::Ptr wide = b.varying<uint64_t>(),
                         lo = b.varying<int>(),
                         hi = b.varying<int>();
-            b.store32(lo, b.load64(wide, 0));
-            b.store32(hi, b.load64(wide, 1));
+            skvm::I64 w = b.load64(wide);
+            b.store32(lo, b.part(w, 0));
+            b.store32(hi, b.part(w, 1));
         }
         test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
             uint32_t l[65], h[65];

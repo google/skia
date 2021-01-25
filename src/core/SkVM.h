@@ -377,6 +377,8 @@ namespace skvm {
         void ld1r8h (V dst, X src);  // Each 16-bit lane = *src
         void ld1r16b(V dst, X src);  // Each  8-bit lane = *src
 
+        void ld24s(V dst, X src, int lane);
+
         void ld24s(V dst, X src);  // deinterleave(dst,dst+1)             = 256-bit *src
         void ld44s(V dst, X src);  // deinterleave(dst,dst+1,dst+2,dst+3) = 512-bit *src
         void st24s(V src, X dst);  // 256-bit *dst = interleave_32bit_lanes(src,src+1)
@@ -437,6 +439,7 @@ namespace skvm {
         M(gather8)  M(gather16)  M(gather32)                         \
                                  M(uniform32)                        \
         M(splat)                                                     \
+        M(part)                                                      \
         M(add_f32) M(add_i32)                                        \
         M(sub_f32) M(sub_i32)                                        \
         M(mul_f32) M(mul_i32)                                        \
@@ -477,6 +480,13 @@ namespace skvm {
     struct Ptr { int ix; };
 
     struct I32 {
+        Builder* builder = nullptr;
+        Val      id      = NA;
+        explicit operator bool() const { return id != NA; }
+        Builder* operator->()    const { return builder; }
+    };
+
+    struct I64 {
         Builder* builder = nullptr;
         Val      id      = NA;
         explicit operator bool() const { return id != NA; }
@@ -620,8 +630,10 @@ namespace skvm {
         I32 load16 (Ptr ptr);
         I32 load32 (Ptr ptr);
         F32 loadF  (Ptr ptr) { return pun_to_F32(load32(ptr)); }
-        I32 load64 (Ptr ptr, int lane);  // Load 32-bit lane 0-1 of  64-bit value.
+        I64 load64 (Ptr ptr);
         I32 load128(Ptr ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
+
+        I32 part(I64, int lane);
 
         // Load i32/f32 uniform with byte-count offset.
         I32 uniform32(Ptr ptr, int offset);
