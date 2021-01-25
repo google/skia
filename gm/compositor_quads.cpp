@@ -813,7 +813,6 @@ private:
 
     void configureTilePaint(const SkRect& rect, SkPaint* paint) const {
         paint->setAntiAlias(true);
-        paint->setFilterQuality(kLow_SkFilterQuality);
         paint->setBlendMode(SkBlendMode::kSrcOver);
 
         // Send non-white RGB, that should be ignored
@@ -872,7 +871,8 @@ private:
 
         canvas->experimental_DrawEdgeAAImageSet(
                 fSetEntries.begin(), fSetEntries.count(), fDstClips.begin(),
-                fPreViewMatrices.begin(), &paint, SkCanvas::kFast_SrcRectConstraint);
+                fPreViewMatrices.begin(), SkSamplingOptions(SkFilterMode::kLinear),
+                &paint, SkCanvas::kFast_SrcRectConstraint);
 
         // Reset for next tile
         fDstClips.reset();
@@ -973,7 +973,8 @@ private:
         paint.setBlendMode(SkBlendMode::kSrcOver);
 
         canvas->experimental_DrawEdgeAAImageSet(
-                fSetEntries.begin(), fSetEntries.count(), fDstClips.begin(), nullptr, &paint,
+                fSetEntries.begin(), fSetEntries.count(), fDstClips.begin(), nullptr,
+                SkSamplingOptions(SkFilterMode::kLinear), &paint,
                 SkCanvas::kFast_SrcRectConstraint);
 
         // Reset for next tile
