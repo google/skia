@@ -110,6 +110,11 @@ public:
     explicit SkArenaAlloc(size_t firstHeapAllocation)
         : SkArenaAlloc(nullptr, 0, firstHeapAllocation) {}
 
+    SkArenaAlloc(const SkArenaAlloc&) = delete;
+    SkArenaAlloc& operator=(const SkArenaAlloc&) = delete;
+    SkArenaAlloc(SkArenaAlloc&&);
+    SkArenaAlloc& operator=(SkArenaAlloc&&);
+
     ~SkArenaAlloc();
 
     template <typename Ctor>
@@ -288,6 +293,9 @@ public:
     explicit SkArenaAllocWithReset(size_t firstHeapAllocation)
             : SkArenaAllocWithReset(nullptr, 0, firstHeapAllocation) {}
 
+    SkArenaAllocWithReset(SkArenaAllocWithReset&&) = delete;
+    SkArenaAllocWithReset& operator=(SkArenaAllocWithReset&&) = delete;
+
     // Destroy all allocated objects, free any heap allocations.
     void reset();
 
@@ -307,6 +315,9 @@ class SkSTArenaAlloc : private std::array<char, InlineStorageSize>, public SkAre
 public:
     explicit SkSTArenaAlloc(size_t firstHeapAllocation = InlineStorageSize)
         : SkArenaAlloc{this->data(), this->size(), firstHeapAllocation} {}
+
+    SkSTArenaAlloc(SkSTArenaAlloc&&) = delete;
+    SkSTArenaAlloc& operator=(SkSTArenaAlloc&&) = delete;
 };
 
 template <size_t InlineStorageSize>
@@ -315,6 +326,9 @@ class SkSTArenaAllocWithReset
 public:
     explicit SkSTArenaAllocWithReset(size_t firstHeapAllocation = InlineStorageSize)
             : SkArenaAllocWithReset{this->data(), this->size(), firstHeapAllocation} {}
+
+    SkSTArenaAllocWithReset(SkSTArenaAllocWithReset&&) = delete;
+    SkSTArenaAllocWithReset& operator=(SkSTArenaAllocWithReset&&) = delete;
 };
 
 #endif  // SkArenaAlloc_DEFINED
