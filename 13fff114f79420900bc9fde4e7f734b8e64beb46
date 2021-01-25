@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "869788cb_42c82ce7",
+        "filename": "modules/svg/src/SkSVGTextPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T15:41:53Z",
+      "side": 1,
+      "message": "I developed a slight aversion to std::function (bloated object code when used pervasively in Skottie).  But you\u0027re right, it produces much cleaner code here and we\u0027re not so sensitive to size (yet, at least for one-ofs).\n\nDone.",
+      "parentUuid": "5c205814_092ca50f",
+      "revId": "13fff114f79420900bc9fde4e7f734b8e64beb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5af9c0e4_2fe08510",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-01-25T15:02:45Z",
       "side": 1,
       "message": "nit: something like \"push shaped blobs to the handler\" might make it clearer that this produces the final shaped output.",
+      "revId": "13fff114f79420900bc9fde4e7f734b8e64beb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bfba68c_41a2fc7b",
+        "filename": "modules/svg/src/SkSVGTextPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-25T15:41:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5af9c0e4_2fe08510",
       "revId": "13fff114f79420900bc9fde4e7f734b8e64beb46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
