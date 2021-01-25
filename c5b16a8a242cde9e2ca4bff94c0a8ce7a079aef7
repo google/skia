@@ -34,6 +34,24 @@
       "parentUuid": "17188b9c_40c1b711",
       "revId": "c5b16a8a242cde9e2ca4bff94c0a8ce7a079aef7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6a116f0_3c718fcc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-25T16:21:00Z",
+      "side": 1,
+      "message": "This sort of thing is why I\u0027d prefer we \u003ddelete everything.  There can never be any question about whether we\u0027ve thought \u003ddelete through correctly.",
+      "parentUuid": "6b1fa03f_9ed6e9ef",
+      "revId": "c5b16a8a242cde9e2ca4bff94c0a8ce7a079aef7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
