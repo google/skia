@@ -440,6 +440,7 @@ namespace skvm {
         M(gather8)  M(gather16)  M(gather32)                         \
                                  M(uniform32)                        \
         M(splat)                                                     \
+        M(part)                                                      \
         M(add_f32) M(add_i32)                                        \
         M(sub_f32) M(sub_i32)                                        \
         M(mul_f32) M(mul_i32)                                        \
@@ -480,6 +481,20 @@ namespace skvm {
     struct Ptr { int ix; };
 
     struct I32 {
+        Builder* builder = nullptr;
+        Val      id      = NA;
+        explicit operator bool() const { return id != NA; }
+        Builder* operator->()    const { return builder; }
+    };
+
+    struct I64 {
+        Builder* builder = nullptr;
+        Val      id      = NA;
+        explicit operator bool() const { return id != NA; }
+        Builder* operator->()    const { return builder; }
+    };
+
+    struct I128 {
         Builder* builder = nullptr;
         Val      id      = NA;
         explicit operator bool() const { return id != NA; }
@@ -619,12 +634,15 @@ namespace skvm {
         I32 index();
 
         // Load {8,16,32,64,128}-bit varying.
-        I32 load8  (Ptr ptr);
-        I32 load16 (Ptr ptr);
-        I32 load32 (Ptr ptr);
-        F32 loadF  (Ptr ptr) { return pun_to_F32(load32(ptr)); }
-        I32 load64 (Ptr ptr, int lane);  // Load 32-bit lane 0-1 of  64-bit value.
-        I32 load128(Ptr ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
+        I32  load8  (Ptr ptr);
+        I32  load16 (Ptr ptr);
+        I32  load32 (Ptr ptr);
+        F32  loadF  (Ptr ptr) { return pun_to_F32(load32(ptr)); }
+        I64  load64 (Ptr ptr);
+        I128 load128(Ptr ptr);
+
+        I32 part(I64 , int lane);
+        I32 part(I128, int lane);
 
         // Load i32/f32 uniform with byte-count offset.
         I32 uniform32(Ptr ptr, int offset);
