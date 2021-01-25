@@ -110,6 +110,11 @@ public:
     explicit SkArenaAlloc(size_t firstHeapAllocation)
         : SkArenaAlloc(nullptr, 0, firstHeapAllocation) {}
 
+    SkArenaAlloc(const SkArenaAlloc&) = delete;
+    SkArenaAlloc& operator=(const SkArenaAlloc&) = delete;
+    SkArenaAlloc(SkArenaAlloc&&);
+    SkArenaAlloc& operator=(SkArenaAlloc&&);
+
     ~SkArenaAlloc();
 
     template <typename Ctor>
