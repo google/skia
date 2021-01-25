@@ -307,3 +307,16 @@ DEF_TEST(pathbuilder_shrinkToFit, reporter) {
     }
     REPORTER_ASSERT(reporter, any_smaller);
 }
+
+DEF_TEST(pathbuilder_addPath, reporter) {
+    const auto p = SkPath()
+        .moveTo(10, 10)
+        .lineTo(100, 10)
+        .quadTo(200, 100, 100, 200)
+        .close()
+        .moveTo(200, 200)
+        .cubicTo(210, 200, 210, 300, 200, 300)
+        .conicTo(150, 250, 100, 200, 1.4f);
+
+    REPORTER_ASSERT(reporter, p == SkPathBuilder().addPath(p).detach());
+}

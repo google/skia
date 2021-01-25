@@ -202,6 +202,8 @@ public:
         return this->addPolygon(list.begin(), SkToInt(list.size()), isClosed);
     }
 
+    SkPathBuilder& addPath(const SkPath&);
+
     // Performance hint, to reserve extra storage for subsequent calls to lineTo, quadTo, etc.
 
     void incReserve(int extraPtCount, int extraVerbCount);
