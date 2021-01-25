@@ -1,0 +1,3 @@
+struct Test {
+    l();
+    void m();
