@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b625ea21_aca14f4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-25T21:20:00Z",
+      "side": 1,
+      "message": "Curious if the comments are helpful? The logic here is subtle, but ultimately I think this version is more straightforward (and correct) than what existed before.",
+      "revId": "8ad731cbeb746e0993ed7aace42e33ad7899d1b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
