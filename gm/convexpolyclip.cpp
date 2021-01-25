@@ -29,11 +29,10 @@
 #include "src/core/SkTLList.h"
 #include "tools/ToolUtils.h"
 
-static SkBitmap make_bmp(int w, int h) {
-    SkBitmap bmp;
-    bmp.allocN32Pixels(w, h, true);
+static sk_sp<SkImage> make_img(int w, int h) {
+    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32(w, h, kOpaque_SkAlphaType));
+    auto canvas = surf->getCanvas();
 
-    SkCanvas canvas(bmp);
     SkScalar wScalar = SkIntToScalar(w);
     SkScalar hScalar = SkIntToScalar(h);
 
@@ -67,7 +66,7 @@ static SkBitmap make_bmp(int w, int h) {
                         SK_ARRAY_COUNT(colors),
                         SkTileMode::kRepeat,
                         0, &mat));
-        canvas.drawRect(rect, paint);
+        canvas->drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);
         mat.postScale(SK_Scalar1 / 3, SK_Scalar1 / 3);
@@ -79,14 +78,14 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setColor(SK_ColorLTGRAY);
     constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + font.getSize() / 2.5f };
-    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
-                          texPos.fX, texPos.fY, font, paint);
+    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
+                           texPos.fX, texPos.fY, font, paint);
     paint.setColor(SK_ColorBLACK);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1);
-    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
-                          texPos.fX, texPos.fY, font, paint);
-    return bmp;
+    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
+                           texPos.fX, texPos.fY, font, paint);
+    return surf->makeImageSnapshot();
 }
 
 namespace skiagm {
@@ -147,7 +146,7 @@ protected:
         rotM.setRotate(23.f, rect.centerX(), rect.centerY());
         fClips.addToTail()->setPath(SkPath::Rect(rect).makeTransform(rotM));
 
-        fBmp = make_bmp(100, 100);
+        fImg = make_img(100, 100);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -157,7 +156,8 @@ protected:
         SkPaint bgPaint;
         bgPaint.setAlpha(0x15);
         SkISize size = canvas->getBaseLayerSize();
-        canvas->drawBitmapRect(fBmp, SkRect::MakeIWH(size.fWidth, size.fHeight), &bgPaint);
+        canvas->drawImageRect(fImg, SkRect::MakeIWH(size.fWidth, size.fHeight),
+                              SkSamplingOptions(), &bgPaint);
 
         constexpr char kTxt[] = "Clip Me!";
         SkFont         font(ToolUtils::create_portable_typeface(), 23);
@@ -185,9 +185,9 @@ protected:
                     }
                     canvas->translate(x, y);
                     clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
-                    canvas->drawBitmap(fBmp, 0, 0);
+                    canvas->drawImage(fImg, 0, 0);
                     canvas->restore();
-                    x += fBmp.width() + kMargin;
+                    x += fImg->width() + kMargin;
                 }
                 for (int aa = 0; aa < 2; ++aa) {
 
@@ -216,10 +216,10 @@ protected:
                     canvas->restore();
                     x += textW + 2 * kMargin;
                 }
-                y += fBmp.height() + kMargin;
+                y += fImg->height() + kMargin;
             }
             y = 0;
-            startX += 2 * fBmp.width() + SkScalarCeilToInt(2 * textW) + 6 * kMargin;
+            startX += 2 * fImg->width() + SkScalarCeilToInt(2 * textW) + 6 * kMargin;
         }
     }
 
@@ -299,7 +299,7 @@ private:
 
     typedef SkTLList<Clip, 1> ClipList;
     ClipList         fClips;
-    SkBitmap         fBmp;
+    sk_sp<SkImage>   fImg;;
 
     using INHERITED = GM;
 };

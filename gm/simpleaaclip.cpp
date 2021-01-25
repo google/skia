@@ -43,10 +43,11 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
 
     ToolUtils::copy_to(&bm2, bm.colorType(), bm);
 
-    canvas->drawBitmap(bm2,
-                       SK_Scalar1 * mask.fBounds.fLeft,
-                       SK_Scalar1 * mask.fBounds.fTop,
-                       &paint);
+    canvas->drawImage(bm2.asImage(),
+                      SK_Scalar1 * mask.fBounds.fLeft,
+                      SK_Scalar1 * mask.fBounds.fTop,
+                      SkSamplingOptions(),
+                      &paint);
 }
 
 //////////////////////////////////////////////////////////////////////////////

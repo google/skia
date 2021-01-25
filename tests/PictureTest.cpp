@@ -574,13 +574,14 @@ DEF_TEST(Picture, reporter) {
 }
 
 static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
-    const SkPaint paint;
     const SkRect rect = { 5.0f, 5.0f, 8.0f, 8.0f };
+    auto img = bitmap.asImage();
 
     // Don't care what these record, as long as they're legal.
-    canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
-    canvas->drawBitmapRect(bitmap, rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
-    canvas->drawBitmap(bitmap, 1, 1);   // drawSprite
+    canvas->drawImage(img, 0.0f, 0.0f);
+    canvas->drawImageRect(img, rect, rect, SkSamplingOptions(), nullptr,
+                          SkCanvas::kStrict_SrcRectConstraint);
+    canvas->drawImage(img, 1, 1);   // drawSprite
 }
 
 static void test_draw_bitmaps(SkCanvas* canvas) {
