@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4653bd0_fe45885e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-25T22:57:29Z",
+      "side": 1,
+      "message": "Found the reference within GrGLSLShaderBuilder::appendColorGamutXform:\n\n        if (colorXformHelper-\u003eapplyUnpremul()) {\n            body.appendf(\"color \u003d unpremul%s(color);\", useFloat ? \"_float\" : \"\");\n        }\n\n",
+      "revId": "3419dda0588db62db0800914054ffff00de87f2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
