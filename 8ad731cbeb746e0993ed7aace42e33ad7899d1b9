@@ -16,6 +16,70 @@
       "message": "Curious if the comments are helpful? The logic here is subtle, but ultimately I think this version is more straightforward (and correct) than what existed before.",
       "revId": "8ad731cbeb746e0993ed7aace42e33ad7899d1b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44e257c9_0a9c642e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-25T21:54:20Z",
+      "side": 1,
+      "message": "Yes, these comments were extremely helpful.",
+      "parentUuid": "b625ea21_aca14f4c",
+      "revId": "8ad731cbeb746e0993ed7aace42e33ad7899d1b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c750610_c34d98b1",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-25T21:54:20Z",
+      "side": 1,
+      "message": "Starting to wonder... do you think the Slot\u003dsize_t typedef helps clarify anything?  Had this been\n\n   SkSTArray\u003c4,size_t,true\u003e slots;\n\nI think I would have followed just as easily, maybe a bit more easily?",
+      "range": {
+        "startLine": 1380,
+        "startChar": 17,
+        "endLine": 1380,
+        "endChar": 21
+      },
+      "revId": "8ad731cbeb746e0993ed7aace42e33ad7899d1b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "475662ca_798409dc",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-25T21:54:20Z",
+      "side": 1,
+      "message": "Maybe just \n\n   SkASSERT(slots[i] \u003c slot_count(var.type()));\n\n?  Even marked as SkDEBUGCODE(), it might be nice to not have that varSlotCount line clouding the mainline flow.",
+      "range": {
+        "startLine": 1430,
+        "startChar": 28,
+        "endLine": 1430,
+        "endChar": 40
+      },
+      "revId": "8ad731cbeb746e0993ed7aace42e33ad7899d1b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
