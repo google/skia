@@ -16,6 +16,52 @@
       "message": "This should fix the one failing bot on status",
       "revId": "4741463e4b1ec3f3ad8a611a0f7a4039d91d0f68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "846a1cae_30196158",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-25T18:54:09Z",
+      "side": 1,
+      "message": "tab left ?",
+      "range": {
+        "startLine": 541,
+        "startChar": 4,
+        "endLine": 541,
+        "endChar": 28
+      },
+      "revId": "4741463e4b1ec3f3ad8a611a0f7a4039d91d0f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6eff524d_d30d63da",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-25T18:54:09Z",
+      "side": 1,
+      "message": "Maybe file a bug ?",
+      "range": {
+        "startLine": 543,
+        "startChar": 0,
+        "endLine": 550,
+        "endChar": 50
+      },
+      "revId": "4741463e4b1ec3f3ad8a611a0f7a4039d91d0f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
