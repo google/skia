@@ -1,0 +1,3 @@
+void main() {
+    for (;;) float s = sqrt(1);
+}

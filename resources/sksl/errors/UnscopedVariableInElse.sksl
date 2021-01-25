@@ -1,0 +1,3 @@
+void main() {
+    if (true) ; else int2 unused;
+}

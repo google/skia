@@ -1,0 +1,3 @@
+void main() {
+    do int var = 1; while (false);
+}
