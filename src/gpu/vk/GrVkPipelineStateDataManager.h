@@ -13,6 +13,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 
+class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkUniformBuffer;
 
@@ -20,14 +21,21 @@ class GrVkPipelineStateDataManager : public GrUniformDataManager {
 public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize);
+    GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize,
+                                 GrVkUniformHandler::Layout layout);
 
     // Returns true if either the geometry or fragment buffers needed to generate a new underlying
     // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
     // that they will need to update the descriptor set that is using these buffers.
     bool uploadUniformBuffers(GrVkGpu* gpu, GrVkUniformBuffer* buffer) const;
 
+    void uploadPushConstants(const GrVkGpu*, VkPipelineLayout, GrVkCommandBuffer*);
+
+    void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const override;
+
 private:
+    GrVkUniformHandler::Layout fLayout;
+
     using INHERITED = GrUniformDataManager;
 };
 

@@ -169,7 +169,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
-    VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
                                                          VK_NULL_HANDLE,
                                                          VK_NULL_HANDLE };
@@ -197,15 +196,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     layoutCreateInfo.flags = 0;
     layoutCreateInfo.setLayoutCount = layoutCount;
     layoutCreateInfo.pSetLayouts = dsLayout;
-    layoutCreateInfo.pushConstantRangeCount = 0;
-    layoutCreateInfo.pPushConstantRanges = nullptr;
-
-    VkResult result;
-    GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
-                                                         &pipelineLayout));
-    if (result != VK_SUCCESS) {
-        return nullptr;
-    }
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
     // from our glsl shaders.
@@ -216,14 +206,16 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
 
     this->finalizeShaders();
 
+    bool usePushConstants = fUniformHandler.usePushConstants();
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
     settings.fRTHeightBinding = this->gpu()->vkCaps().getFragmentUniformBinding();
     settings.fRTHeightSet = this->gpu()->vkCaps().getFragmentUniformSet();
-    settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = fUniformHandler.getFlipY();
     settings.fSharpenTextures =
                         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     settings.fRTHeightOffset = fUniformHandler.getRTHeightOffset();
+    settings.fUsePushConstants = usePushConstants;
     SkASSERT(!this->fragColorIsInOut());
 
     sk_sp<SkData> cached;
@@ -304,8 +296,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                                         shaderModules[i], nullptr));
                 }
             }
-            GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), pipelineLayout,
-                                                                  nullptr));
             return nullptr;
         }
 
@@ -320,6 +310,29 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
             }
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
+    }
+
+    // finish up layout creation (we don't know final push constant size until shaders are created)
+    VkPushConstantRange pushConstantRange = {};
+    if (usePushConstants) {
+        pushConstantRange.stageFlags = GrPushConstantStageFlags(fGpu);
+        pushConstantRange.offset = 0;
+        // size must be a multiple of 4
+        SkASSERT(!SkToBool(fUniformHandler.currentOffset() & 0x3));
+        pushConstantRange.size = fUniformHandler.currentOffset();
+        layoutCreateInfo.pushConstantRangeCount = 1;
+        layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    } else {
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+    }
+
+    VkPipelineLayout pipelineLayout;
+    VkResult result;
+    GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
+                                                         &pipelineLayout));
+    if (result != VK_SUCCESS) {
+        return nullptr;
     }
 
     // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
@@ -356,7 +369,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                  samplerDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
-                                 fUniformHandler.fCurrentUBOOffset,
+                                 fUniformHandler.currentOffset(),
+                                 fUniformHandler.layout(),
                                  fUniformHandler.fSamplers,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
