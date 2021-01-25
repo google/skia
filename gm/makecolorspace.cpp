@@ -28,11 +28,7 @@ sk_sp<SkImage> make_raster_image(const char* path) {
     sk_sp<SkData> resourceData = GetResourceAsData(path);
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(resourceData);
 
-    SkBitmap bitmap;
-    bitmap.allocPixels(codec->getInfo());
-
-    codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes());
-    return bitmap.asImage();
+    return std::get<0>(codec->getImage());
 }
 
 sk_sp<SkImage> make_color_space(

@@ -28,6 +28,7 @@ class SkAndroidCodec;
 class SkColorSpace;
 class SkData;
 class SkFrameHolder;
+class SkImage;
 class SkPngChunkReader;
 class SkSampler;
 
@@ -380,6 +381,13 @@ public:
     Result getPixels(const SkPixmap& pm, const Options* opts = nullptr) {
         return this->getPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), opts);
     }
+
+    /**
+     *  Return an image containing the pixels.
+     */
+    std::tuple<sk_sp<SkImage>, SkCodec::Result> getImage(const SkImageInfo& info,
+                                                         const Options* opts = nullptr);
+    std::tuple<sk_sp<SkImage>, SkCodec::Result> getImage();
 
     /**
      *  If decoding to YUV is supported, this returns true. Otherwise, this
