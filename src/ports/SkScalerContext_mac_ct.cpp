@@ -46,7 +46,7 @@
 #include "src/sfnt/SkOTTable_OS_2.h"
 #include "src/utils/mac/SkCGBase.h"
 #include "src/utils/mac/SkCGGeometry.h"
-#include "src/utils/mac/SkCTFontSmoothBehavior.h"
+#include "src/utils/mac/SkCTFont.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #include <algorithm>
