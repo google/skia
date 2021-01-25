@@ -85,15 +85,11 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
 
 SKSL_TEST(SkSLBoolFolding,             "folding/BoolFolding.sksl")
 SKSL_TEST(SkSLIntFoldingES2,           "folding/IntFoldingES2.sksl")
+SKSL_TEST(SkSLFloatFolding,            "folding/FloatFolding.sksl")
 SKSL_TEST(SkSLMatrixFoldingES2,        "folding/MatrixFoldingES2.sksl")
 SKSL_TEST(SkSLShortCircuitBoolFolding, "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,     "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
-
-/*
-TODO(johnstiles): Investigate failures on certain Android Vulkan devices, then re-enable this test.
-SKSL_TEST(SkSLFloatFolding,            "folding/FloatFolding.sksl")
-*/
 
 /*
 TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
