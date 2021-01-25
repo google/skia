@@ -87,13 +87,15 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
     vmaCreateAllocator(&info, &allocator);
 
     return sk_sp<GrVkAMDMemoryAllocator>(new GrVkAMDMemoryAllocator(
-            allocator, std::move(interface)));
+            allocator, std::move(interface), caps->mustUseCoherentHostVisibleMemory()));
 }
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VmaAllocator allocator,
-                                               sk_sp<const GrVkInterface> interface)
+                                               sk_sp<const GrVkInterface> interface,
+                                               bool mustUseCoherentHostVisibleMemory)
         : fAllocator(allocator)
-        , fInterface(std::move(interface)) {}
+        , fInterface(std::move(interface))
+        , fMustUseCoherentHostVisibleMemory(mustUseCoherentHostVisibleMemory) {}
 
 GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
     vmaDestroyAllocator(fAllocator);
@@ -174,6 +176,11 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsa
             info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
             info.preferredFlags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
             break;
+    }
+
+    if (fMustUseCoherentHostVisibleMemory &&
+        (info.requiredFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) {
+        info.requiredFlags |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     }
 
     if (AllocationPropertyFlags::kDedicatedAllocation & flags) {
