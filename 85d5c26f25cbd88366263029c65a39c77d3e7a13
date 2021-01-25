@@ -70,6 +70,24 @@
       "parentUuid": "2c5d9a9e_ab6d65ba",
       "revId": "85d5c26f25cbd88366263029c65a39c77d3e7a13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1829f45a_3523a2e7",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-25T15:40:38Z",
+      "side": 1,
+      "message": "Oh, my point is, with the implementations we\u0027re using at head, you moving arenas while merging ops tasks is already broken.  It just looks like it\u0027s working today, which is worse than noisily broken.\n\nCan we do what you\u0027re trying to do without moving arenas?  E.g. use std::unique_ptr\u003cSkArenaAlloc\u003e?  Because right now we\u0027re trying to hot fix something that\u0027s broken, and I don\u0027t trust we\u0027re going to do it right.  I\u0027d rather revert anything that can be, make dangerous things impossible, then try again.",
+      "parentUuid": "acc79f97_8ef486b6",
+      "revId": "85d5c26f25cbd88366263029c65a39c77d3e7a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
