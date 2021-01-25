@@ -44,9 +44,11 @@ namespace SK_OPTS_NS {
         using U32 = skvx::Vec<K, uint32_t>;
         using U16 = skvx::Vec<K, uint16_t>;
         using  U8 = skvx::Vec<K, uint8_t>;
+
         union Slot {
             F32   f32;
             I32   i32;
+            U64   u64;
             U32   u32;
             I16   i16;
             U16   u16;
@@ -118,15 +120,12 @@ namespace SK_OPTS_NS {
                     STRIDE_1(Op::load8 ): r[d].i32 = 0; memcpy(&r[d].i32, args[immA], 1); break;
                     STRIDE_1(Op::load16): r[d].i32 = 0; memcpy(&r[d].i32, args[immA], 2); break;
                     STRIDE_1(Op::load32): r[d].i32 = 0; memcpy(&r[d].i32, args[immA], 4); break;
-                    STRIDE_1(Op::load64):
-                        r[d].i32 = 0; memcpy(&r[d].i32, (char*)args[immA] + 4*immB, 4); break;
+                    STRIDE_1(Op::load64): r[d].u64 = 0; memcpy(&r[d].u64, args[immA], 8); break;
 
                     STRIDE_K(Op::load8 ): r[d].i32= skvx::cast<int>(U8 ::Load(args[immA])); break;
                     STRIDE_K(Op::load16): r[d].i32= skvx::cast<int>(U16::Load(args[immA])); break;
                     STRIDE_K(Op::load32): r[d].i32=                 I32::Load(args[immA]) ; break;
-                    STRIDE_K(Op::load64):
-                        // Low 32 bits if immB=0, or high 32 bits if immB=1.
-                        r[d].i32 = skvx::cast<int>(U64::Load(args[immA]) >> (32*immB)); break;
+                    STRIDE_K(Op::load64): r[d].u64=                 U64::Load(args[immA]) ; break;
 
                     // The pointer we base our gather on is loaded indirectly from a uniform:
                     //     - args[immA] is the uniform holding our gather base pointer somewhere;
@@ -217,6 +216,8 @@ namespace SK_OPTS_NS {
                         break;
 
                     CASE(Op::splat): r[d].i32 = immA; break;
+
+                    CASE(Op::part64): r[d].u32 = skvx::cast<uint32_t>(r[x].u64 >> 32*immA); break;
 
                     CASE(Op::add_f32): r[d].f32 = r[x].f32 + r[y].f32; break;
                     CASE(Op::sub_f32): r[d].f32 = r[x].f32 - r[y].f32; break;
