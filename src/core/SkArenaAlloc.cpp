@@ -26,6 +26,23 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     }
 }
 
+SkArenaAlloc::SkArenaAlloc(SkArenaAlloc&& other)
+    : fDtorCursor(other.fDtorCursor)
+    , fCursor(other.fCursor)
+    , fEnd(other.fEnd)
+    , fFibonacciProgression(other.fFibonacciProgression)
+{
+    new (&other) SkArenaAlloc(nullptr, 0, 0);
+}
+
+SkArenaAlloc& SkArenaAlloc::operator=(SkArenaAlloc&& other) {
+    if (this != &other) {
+        this->~SkArenaAlloc();
+        new (this) SkArenaAlloc(std::move(other));
+    }
+    return *this;
+}
+
 SkArenaAlloc::~SkArenaAlloc() {
     RunDtorsOnBlock(fDtorCursor);
 }
