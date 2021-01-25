@@ -422,8 +422,8 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
     EXPECT_COPY_ON_WRITE(drawRect(testRect, testPaint))
     EXPECT_COPY_ON_WRITE(drawRRect(testRRect, testPaint))
     EXPECT_COPY_ON_WRITE(drawPath(testPath, testPaint))
-    EXPECT_COPY_ON_WRITE(drawBitmap(testBitmap, 0, 0))
-    EXPECT_COPY_ON_WRITE(drawBitmapRect(testBitmap, testRect, nullptr))
+    EXPECT_COPY_ON_WRITE(drawImage(testBitmap.asImage(), 0, 0))
+    EXPECT_COPY_ON_WRITE(drawImageRect(testBitmap.asImage(), testRect, SkSamplingOptions()))
     EXPECT_COPY_ON_WRITE(drawString(testText, 0, 1, SkFont(), testPaint))
 }
 DEF_TEST(SurfaceCopyOnWrite, reporter) {

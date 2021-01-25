@@ -406,7 +406,7 @@ static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixe
     SkBitmap bitmap;
     bitmap.installPixels(info, pixels, rowBytes);
     swap_rb_if_necessary(bitmap, dstColorType);
-    canvas->drawBitmap(bitmap, left, top);
+    canvas->drawImage(bitmap.asImage(), left, top);
 }
 
 // For codec srcs, we want the "draw" step to be a memcpy.  Any interesting color space or
@@ -2201,7 +2201,7 @@ Result ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkS
     canvas.concat(upright);
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    canvas.drawBitmap(*bitmap, 0, 0, &paint);
+    canvas.drawImage(bitmap->asImage(), 0, 0, SkSamplingOptions(), &paint);
 
     *bitmap = uprighted;
     return Result::Ok();

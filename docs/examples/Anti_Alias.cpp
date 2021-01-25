@@ -18,7 +18,7 @@ void draw(SkCanvas* canvas) {
         canvas->drawLine(5, 5, 15, 30, paint);
         canvas->save();
         canvas->scale(10, 10);
-        canvas->drawBitmap(bitmap, antialias ? 12 : 0, 0);
+        canvas->drawImage(bitmap.asImage(), antialias ? 12 : 0, 0);
         canvas->restore();
         canvas->translate(15, 0);
     }

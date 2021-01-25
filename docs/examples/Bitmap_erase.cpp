@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     bitmap.erase(0x7f3fff7f, SkIRect::MakeXYWH(1, 0, 1, 1));
     bitmap.erase(0x7f1fbf5f, SkIRect::MakeXYWH(1, 1, 1, 1));
     canvas->scale(25, 25);
-    canvas->drawBitmap(bitmap, 0, 0);
-    canvas->drawBitmap(bitmap, .5f, .5f);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
+    canvas->drawImage(bitmap.asImage(), .5f, .5f);
 }
 }  // END FIDDLE
