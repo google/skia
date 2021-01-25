@@ -40,14 +40,10 @@ static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
         return nullptr;
     }
 
-    SkBitmap bitmap;
     SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)
                                        .makeColorType(colorType)
                                        .makeAlphaType(kPremul_SkAlphaType);
-    bitmap.allocPixels(info);
-    codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
-    bitmap.setImmutable();
-    return bitmap.asImage();
+    return std::get<0>(codec->getImage(info));
 }
 
 static sk_sp<SkImage> make_codec_image() {
