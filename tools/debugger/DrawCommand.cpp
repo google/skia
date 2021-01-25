@@ -1259,15 +1259,17 @@ void DrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
 DrawImageLatticeCommand::DrawImageLatticeCommand(const SkImage*           image,
                                                  const SkCanvas::Lattice& lattice,
                                                  const SkRect&            dst,
+                                                 SkFilterMode             filter,
                                                  const SkPaint*           paint)
         : INHERITED(kDrawImageLattice_OpType)
         , fImage(SkRef(image))
         , fLattice(lattice)
         , fDst(dst)
+        , fFilter(filter)
         , fPaint(paint) {}
 
 void DrawImageLatticeCommand::execute(SkCanvas* canvas) const {
-    canvas->drawImageLattice(fImage.get(), fLattice, fDst, fPaint.getMaybeNull());
+    canvas->drawImageLattice(fImage.get(), fLattice, fDst, fFilter, fPaint.getMaybeNull());
 }
 
 bool DrawImageLatticeCommand::render(SkCanvas* canvas) const {
@@ -1982,6 +1984,7 @@ DrawAtlasCommand::DrawAtlasCommand(const SkImage*  image,
                                    const SkColor   colors[],
                                    int             count,
                                    SkBlendMode     bmode,
+                                   const SkSamplingOptions& sampling,
                                    const SkRect*   cull,
                                    const SkPaint*  paint)
         : INHERITED(kDrawAtlas_OpType)
@@ -1990,6 +1993,7 @@ DrawAtlasCommand::DrawAtlasCommand(const SkImage*  image,
         , fTex(tex, count)
         , fColors(colors, colors ? count : 0)
         , fBlendMode(bmode)
+        , fSampling(sampling)
         , fCull(cull)
         , fPaint(paint) {}
 
@@ -2000,6 +2004,7 @@ void DrawAtlasCommand::execute(SkCanvas* canvas) const {
                       fColors.isEmpty() ? nullptr : fColors.begin(),
                       fXform.count(),
                       fBlendMode,
+                      fSampling,
                       fCull.getMaybeNull(),
                       fPaint.getMaybeNull());
 }

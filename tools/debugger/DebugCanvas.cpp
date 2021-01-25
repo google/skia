@@ -415,7 +415,7 @@ void DebugCanvas::onDrawImageLattice2(const SkImage* image,
                                       const SkRect&  dst,
                                       SkFilterMode filter,   // todo
                                       const SkPaint* paint) {
-    this->addDrawCommand(new DrawImageLatticeCommand(image, lattice, dst, paint));
+    this->addDrawCommand(new DrawImageLatticeCommand(image, lattice, dst, filter, paint));
 }
 
 void DebugCanvas::onDrawImageRect2(const SkImage*           image,
@@ -539,7 +539,7 @@ void DebugCanvas::onDrawAtlas2(const SkImage*           image,
                                const SkRect*            cull,
                                const SkPaint*           paint) {
     this->addDrawCommand(
-            new DrawAtlasCommand(image, xform, tex, colors, count, bmode, cull, paint));
+            new DrawAtlasCommand(image, xform, tex, colors, count, bmode, sampling, cull, paint));
 }
 
 void DebugCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {

@@ -6,6 +6,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 6, false));
     canvas->clear(0xFFFF4444);
-    canvas->drawImageNine(image.get(), {16, 16, 48, 48}, {8, 8, 248, 248}, &paint);
+    canvas->drawImageNine(image.get(), {16, 16, 48, 48}, {8, 8, 248, 248},
+                          SkFilterMode::kNearest, &paint);
 }
 }  // END FIDDLE

@@ -103,9 +103,9 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setFilterQuality(kLow_SkFilterQuality);
 
-        canvas->experimental_DrawEdgeAAImageSet(batch, kRectCount, nullptr, nullptr, &paint,
+        canvas->experimental_DrawEdgeAAImageSet(batch, kRectCount, nullptr, nullptr,
+                                                SkSamplingOptions(SkFilterMode::kLinear), &paint,
                                                 SkCanvas::kFast_SrcRectConstraint);
     }
 

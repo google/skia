@@ -7,8 +7,11 @@ void draw(SkCanvas* canvas) {
     SkRSXform xforms[] = { { .5f, 0, 0, 0 }, {0, .5f, 125, 128 } };
     SkRect tex[] = { { 0, 0, 250, 250 }, { 0, 0, 250, 250 } };
     SkColor colors[] = { 0x7f55aa00, 0x7f3333bf };
-    canvas->drawAtlas(image.get(), xforms, tex, colors, 2, SkBlendMode::kSrc, nullptr, nullptr);
+    SkSamplingOptions sampling;
+    canvas->drawAtlas(image.get(), xforms, tex, colors, 2, SkBlendMode::kSrc,
+                      sampling, nullptr, nullptr);
     canvas->translate(128, 0);
-    canvas->drawAtlas(image.get(), xforms, tex, colors, 2, SkBlendMode::kDst, nullptr, nullptr);
+    canvas->drawAtlas(image.get(), xforms, tex, colors, 2, SkBlendMode::kDst,
+                      sampling, nullptr, nullptr);
 }
 }  // END FIDDLE

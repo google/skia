@@ -884,7 +884,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
             if (cptr) {
                 colors = reinterpret_cast<const SkColor*>(cptr);
             }
-            self.drawAtlas(atlas, dstXforms, srcRects, colors, count, mode, nullptr, paint);
+            // TODO: take sampling as an explicit parameter from the caller
+            SkSamplingOptions sampling(SkFilterMode::kLinear);
+            self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
+                           nullptr, paint);
         }), allow_raw_pointers())
         .function("drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
         .function("_drawColor", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr) {
