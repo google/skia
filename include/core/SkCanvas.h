@@ -40,10 +40,6 @@
 
 #define SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
 
-#ifndef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
-#define SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
-#endif
-
 class GrBackendRenderTarget;
 class GrRecordingContext;
 class GrSurfaceDrawContext;
