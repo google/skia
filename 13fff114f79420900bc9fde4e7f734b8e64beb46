@@ -16,6 +16,40 @@
       "message": "No functional changes.",
       "revId": "13fff114f79420900bc9fde4e7f734b8e64beb46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c205814_092ca50f",
+        "filename": "modules/svg/src/SkSVGTextPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-25T15:02:45Z",
+      "side": 1,
+      "message": "Is something like ShapedTextBlobCallback a better name than BlobHandler?\n\nAlso, looks like this is an object type so that subclasses can maintain state. Would it be better to instead have callsites use lambdas with captures? So in your obj bounding box CL you would define \u0027SkRect bounds;\u0027 in the parent scope, and capture it in the callback (instead of making it a field of the subclass). I don\u0027t have strong feelings one way or another, but I\u0027m curious of your thoughts on the two designs.",
+      "revId": "13fff114f79420900bc9fde4e7f734b8e64beb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5af9c0e4_2fe08510",
+        "filename": "modules/svg/src/SkSVGTextPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-25T15:02:45Z",
+      "side": 1,
+      "message": "nit: something like \"push shaped blobs to the handler\" might make it clearer that this produces the final shaped output.",
+      "revId": "13fff114f79420900bc9fde4e7f734b8e64beb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
