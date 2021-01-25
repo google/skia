@@ -222,7 +222,7 @@ Result BRDSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
             }
             alpha8_to_gray8(&bitmap);
 
-            canvas->drawBitmap(bitmap, 0, 0);
+            canvas->drawImage(bitmap.asImage(), 0, 0);
             return Result::Ok();
         }
         case kDivisor_Mode: {
@@ -278,7 +278,7 @@ Result BRDSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
                     }
 
                     alpha8_to_gray8(&bitmap);
-                    canvas->drawBitmapRect(bitmap,
+                    canvas->drawImageRect(bitmap.asImage().get(),
                             SkRect::MakeXYWH((SkScalar) scaledBorder, (SkScalar) scaledBorder,
                                     (SkScalar) (subsetWidth / fSampleSize),
                                     (SkScalar) (subsetHeight / fSampleSize)),
@@ -286,7 +286,8 @@ Result BRDSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
                                     (SkScalar) (top / fSampleSize),
                                     (SkScalar) (subsetWidth / fSampleSize),
                                     (SkScalar) (subsetHeight / fSampleSize)),
-                            nullptr);
+                            SkSamplingOptions(), nullptr,
+                            SkCanvas::kStrict_SrcRectConstraint);
                 }
             }
             return Result::Ok();

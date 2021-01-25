@@ -167,14 +167,16 @@ protected:
             // Draw the first element of the first line
             x = 0;
             SkPaint paint;
-            canvas->drawBitmap(bm, x, y, &paint);
+            SkSamplingOptions sampling;
+
+            canvas->drawImage(bm.asImage(), x, y);
 
             // Draws the rest of the first line for this bitmap
             // each draw being at xOffset of the previous one
             for (unsigned i = 1; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
                 x += xOffset;
                 paint.setColorFilter(gColorFilterMakers[i]());
-                canvas->drawBitmap(bm, x, y, &paint);
+                canvas->drawImage(bm.asImage(), x, y, sampling, &paint);
             }
 
             paint.setColorFilter(nullptr);
@@ -193,7 +195,7 @@ protected:
                     sk_sp<SkImageFilter> imageFilter2(SkImageFilters::ColorFilter(
                             std::move(colorFilter2), imageFilter1, nullptr));
                     paint.setImageFilter(std::move(imageFilter2));
-                    canvas->drawBitmap(bm, x, y, &paint);
+                    canvas->drawImage(bm.asImage(), x, y, sampling, &paint);
                     x += xOffset;
                 }
             }

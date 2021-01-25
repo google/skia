@@ -50,13 +50,17 @@ static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* context,
     for (int i = 0; i < 10; ++i) {
         float offset = i * 0.1f;
         if (vertical) {
-            canvas->drawBitmapRect(bmp, SkRect::MakeXYWH(0.0f, (kTileSize - 50) + offset,
-                                                         32.0f, 1124.0f),
-                                   SkRect::MakeXYWH(37.0f * i, 0.0f, 32.0f, 1124.0f), nullptr);
+            canvas->drawImageRect(bmp.asImage(),
+                                  SkRect::MakeXYWH(0, (kTileSize - 50) + offset, 32, 1124.0f),
+                                  SkRect::MakeXYWH(37.0f * i, 0.0f, 32.0f, 1124.0f),
+                                  SkSamplingOptions(), nullptr,
+                                  SkCanvas::kStrict_SrcRectConstraint);
         } else {
-            canvas->drawBitmapRect(bmp, SkRect::MakeXYWH((kTileSize - 50) + offset, 0.0f,
-                                                         1124.0f, 32.0f),
-                                   SkRect::MakeXYWH(0.0f, 37.0f * i, 1124.0f, 32.0f), nullptr);
+            canvas->drawImageRect(bmp.asImage(),
+                                  SkRect::MakeXYWH((kTileSize - 50) + offset, 0, 1124, 32),
+                                  SkRect::MakeXYWH(0.0f, 37.0f * i, 1124.0f, 32.0f),
+                                  SkSamplingOptions(), nullptr,
+                                  SkCanvas::kStrict_SrcRectConstraint);
         }
     }
 }

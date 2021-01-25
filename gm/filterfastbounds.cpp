@@ -87,7 +87,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     SkCanvas temp(bm);
     temp.clear(SK_ColorMAGENTA);
 
-    canvas->drawBitmapRect(bm, r, &p);
+    canvas->drawImageRect(bm.asImage(), r, SkSamplingOptions(), &p);
 }
 
 constexpr drawMth gDrawMthds[] = {

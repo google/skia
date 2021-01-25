@@ -133,11 +133,12 @@ class XfermodesGM : public skiagm::GM {
      */
     void draw_mode(SkCanvas* canvas, SkBlendMode mode, SrcType srcType, SkScalar x, SkScalar y) {
         SkPaint p;
+        SkSamplingOptions sampling;
         SkMatrix m;
         bool restoreNeeded = false;
         m.setTranslate(x, y);
 
-        canvas->drawBitmap(fSrcB, x, y, &p);
+        canvas->drawImage(fSrcB.asImage(), x, y, sampling, &p);
         p.setBlendMode(mode);
         switch (srcType) {
             case kSmallTransparentImage_SrcType: {
@@ -145,7 +146,7 @@ class XfermodesGM : public skiagm::GM {
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->concat(m);
-                canvas->drawBitmap(fTransparent, 0, 0, &p);
+                canvas->drawImage(fTransparent.asImage(), 0, 0, sampling, &p);
                 break;
             }
             case kQuarterClearInLayer_SrcType: {
@@ -195,7 +196,7 @@ class XfermodesGM : public skiagm::GM {
             case kRectangleImage_SrcType: {
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->concat(m);
-                canvas->drawBitmap(fDstB, 0, 0, &p);
+                canvas->drawImage(fDstB.asImage(), 0, 0, sampling, &p);
                 break;
             }
             default:
