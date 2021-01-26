@@ -47,7 +47,8 @@ GrPathIndirectTessellator::GrPathIndirectTessellator(const SkMatrix& viewMatrix,
 }
 
 void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& viewMatrix,
-                                        const SkPath& path) {
+                                        const SkPath& path,
+                                        const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(fTotalInstanceCount == 0);
     SkASSERT(fIndirectDrawCount == 0);
     SkASSERT(target->caps().drawInstancedSupport());
@@ -57,6 +58,9 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
         // No initial moveTo, plus an implicit close at the end; n-2 triangles fill an n-gon.
         int maxInnerTriangles = path.countVerbs() - 1;
         instanceLockCount += maxInnerTriangles;
+    }
+    if (breadcrumbTriangleList) {
+        instanceLockCount += breadcrumbTriangleList->count();
     }
     if (instanceLockCount == 0) {
         return;
@@ -74,7 +78,26 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
     int numTrianglesAtBeginningOfData = 0;
     if (fDrawInnerFan) {
         numTrianglesAtBeginningOfData = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
-                instanceData, 4/*perTriangleVertexAdvance*/, path);
+                instanceData + numTrianglesAtBeginningOfData * 4, 4/*stride*/, path);
+    }
+    if (breadcrumbTriangleList) {
+        SkDEBUGCODE(int count = 0;)
+        for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
+            SkDEBUGCODE(++count;)
+            const SkPoint* p = tri->fPts;
+            if ((p[0].fX == p[1].fX && p[1].fX == p[2].fX) ||
+                (p[0].fY == p[1].fY && p[1].fY == p[2].fY)) {
+                // Completely degenerate triangles have undefined winding. And T-junctions shouldn't
+                // happen on axis-aligned edges.
+                continue;
+            }
+            SkPoint* breadcrumbData = instanceData + numTrianglesAtBeginningOfData * 4;
+            memcpy(breadcrumbData, p, sizeof(SkPoint) * 3);
+            // Duplicate the final point since it will also be used by the convex hull shader.
+            breadcrumbData[3] = p[2];
+            ++numTrianglesAtBeginningOfData;
+        }
+        SkASSERT(count == breadcrumbTriangleList->count());
     }
 
     fIndirectIndexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
@@ -209,8 +232,10 @@ void GrPathIndirectTessellator::drawHullInstances(GrOpFlushState* flushState) co
 }
 
 void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& matrix,
-                                          const SkPath& path) {
+                                          const SkPath& path,
+                                          const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(target->caps().shaderCaps()->tessellationSupport());
+    SkASSERT(!breadcrumbTriangleList);
     SkASSERT(!fPatchBuffer);
     SkASSERT(fPatchVertexCount == 0);
 
@@ -245,8 +270,10 @@ void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
 }
 
 void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& matrix,
-                                     const SkPath& path) {
+                                     const SkPath& path,
+                                     const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(target->caps().shaderCaps()->tessellationSupport());
+    SkASSERT(!breadcrumbTriangleList);
     SkASSERT(!fPatchBuffer);
     SkASSERT(fPatchVertexCount == 0);
 
