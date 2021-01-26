@@ -16,6 +16,46 @@
       "message": "Now that ByteCode is gone (which was relying on some of these to be poly-filled in SkSL), implementing everything in the VM generator is much simpler.",
       "revId": "e2edb28b8d917dfcc2a7ae6afbbb667edab25ca8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c4a311d_fea2d46a",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-26T14:51:34Z",
+      "side": 1,
+      "message": "Might help to give some of these args[?] Values local names to show the correspondence to the declarations?   It was hard for me to keep N and Nref straight here, and to keep I and N straight in the other functions, particularly because we write dNI \u003d dot(I,N).\n\nI guess maybe names for the values becomes confusing when you also want to name the individual lanes as lambda parameters?",
+      "revId": "e2edb28b8d917dfcc2a7ae6afbbb667edab25ca8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a52ee63_42383745",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-26T14:51:34Z",
+      "side": 1,
+      "message": "Since we can close over anything we want here, wonder if it reads better to push some or all of the hoistable work back down inside the lambda? \n\n  return binary([\u0026](skvm::F32 I, skvm::F32 N) {\n      skvm::F32 dNI \u003d dot(args[0], args[1]),\n                eta \u003d f32(args[2]),\n                k   \u003d 1 - eta*eta*(1 - dNI*dNI);\n      return select(k\u003c0, 0.0f, ...);\n  });\n\nMaybe just some of it?  negK does stand out as being kind of an awkwardly long way to write k\u003c0\n\n  skvm::F32 dNI \u003d dot(args[0], args[1]),\n            eta \u003d f32(args[2]),\n            k   \u003d 1 - eta*eta*(1 - dNI*dNI);\n  return binary([\u0026](skvm::F32 I, skvm::F32 N) {\n      return select(k\u003c0, 0.0f, ...);\n  });",
+      "range": {
+        "startLine": 1127,
+        "startChar": 27,
+        "endLine": 1127,
+        "endChar": 28
+      },
+      "revId": "e2edb28b8d917dfcc2a7ae6afbbb667edab25ca8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
