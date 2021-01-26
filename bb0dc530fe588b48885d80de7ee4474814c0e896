@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "376d86fd_842ba0fb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-26T22:56:24Z",
+      "side": 1,
+      "message": "This is the only Change-ID that matters. You\u0027ll probably want to delete the one above and make sure that the \u0027Bug:\u0027 line is in the same \"paragraph\". (These \"Something: value\" things are called trailers, see https://git-scm.com/docs/git-interpret-trailers ).",
+      "revId": "bb0dc530fe588b48885d80de7ee4474814c0e896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
