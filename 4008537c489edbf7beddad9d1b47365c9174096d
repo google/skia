@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "65f972a2_f42f488e",
+        "filename": "modules/svg/include/SkSVGFeLightSource.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-26T19:36:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "837fc0fd_f68b59fe",
+      "range": {
+        "startLine": 27,
+        "startChar": 26,
+        "endLine": 27,
+        "endChar": 27
+      },
+      "revId": "4008537c489edbf7beddad9d1b47365c9174096d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "828513c8_8a33ac6f",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-01-26T19:32:35Z",
       "side": 1,
       "message": "nit: just \u00270\u0027 should work for SkSVGNumberType.",
+      "range": {
+        "startLine": 33,
+        "startChar": 41,
+        "endLine": 33,
+        "endChar": 59
+      },
+      "revId": "4008537c489edbf7beddad9d1b47365c9174096d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61993383_19c03ad4",
+        "filename": "modules/svg/include/SkSVGFeLightSource.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-26T19:36:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "828513c8_8a33ac6f",
       "range": {
         "startLine": 33,
         "startChar": 41,
