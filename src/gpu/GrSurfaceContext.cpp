@@ -494,12 +494,15 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
     bool convert = premul || unpremul || needColorConversion || makeTight ||
                    (src.colorType() != allowedColorType) || flip;
 
-    if (convert || !src.ownsPixels()) {
+    std::unique_ptr<char[]> tmpPixels;
+    if (convert) {
         GrImageInfo tmpInfo(allowedColorType,
                             this->colorInfo().alphaType(),
                             this->colorInfo().refColorSpace(),
                             src.dimensions());
-        GrPixmap tmp = GrPixmap::Allocate(tmpInfo);
+        auto tmpRB = tmpInfo.minRowBytes();
+        tmpPixels.reset(new char[tmpRB * tmpInfo.height()]);
+        GrPixmap tmp(tmpInfo, tmpPixels.get(), tmpRB);
 
         SkAssertResult(GrConvertPixels(tmp, src, flip));
 
@@ -507,17 +510,16 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         pt.fY = flip ? dstSurface->height() - pt.fY - tmpInfo.height() : pt.fY;
     }
 
-    GrMipLevel level;
-    level.fPixels = src.addr();
-    level.fRowBytes = src.rowBytes();
-    return dContext->priv().drawingManager()->newWritePixelsTask(
-            this->asSurfaceProxyRef(),
-            SkIRect::MakePtSize(pt, src.dimensions()),
-            src.colorType(),
-            dstColorType,
-            &level,
-            1,
-            src.pixelStorage());
+    // On platforms that prefer flushes over VRAM use (i.e., ANGLE) we're better off forcing a
+    // complete flush here. On platforms that prefer VRAM use over flushes we're better off
+    // giving the drawing manager the chance of skipping the flush (i.e., by passing in the
+    // destination proxy)
+    // TODO: should this policy decision just be moved into the drawing manager?
+    dContext->priv().flushSurface(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
+
+    return dContext->priv().getGpu()->writePixels(dstSurface, pt.fX, pt.fY, src.width(),
+                                                  src.height(), this->colorInfo().colorType(),
+                                                  src.colorType(), src.addr(), src.rowBytes());
 }
 
 void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
@@ -632,13 +634,18 @@ public:
     AsyncReadResult(uint32_t inboxID) : fInboxID(inboxID) {}
     ~AsyncReadResult() override {
         for (int i = 0; i < fPlanes.count(); ++i) {
-            fPlanes[i].releaseMappedBuffer(fInboxID);
+            if (!fPlanes[i].fMappedBuffer) {
+                delete[] static_cast<const char*>(fPlanes[i].fData);
+            } else {
+                GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
+                        {std::move(fPlanes[i].fMappedBuffer), fInboxID});
+            }
         }
     }
 
     int count() const override { return fPlanes.count(); }
-    const void* data(int i) const override { return fPlanes[i].data(); }
-    size_t rowBytes(int i) const override { return fPlanes[i].rowBytes(); }
+    const void* data(int i) const override { return fPlanes[i].fData; }
+    size_t rowBytes(int i) const override { return fPlanes[i].fRowBytes; }
 
     bool addTransferResult(const PixelTransferResult& result,
                            SkISize dimensions,
@@ -650,10 +657,9 @@ public:
             return false;
         }
         if (result.fPixelConverter) {
-            size_t size = rowBytes*dimensions.height();
-            sk_sp<SkData> data = SkData::MakeUninitialized(size);
-            result.fPixelConverter(data->writable_data(), mappedData);
-            this->addCpuPlane(std::move(data), rowBytes);
+            std::unique_ptr<char[]> convertedData(new char[rowBytes * dimensions.height()]);
+            result.fPixelConverter(convertedData.get(), mappedData);
+            this->addCpuPlane(std::move(convertedData), rowBytes);
             result.fTransferBuffer->unmap();
         } else {
             manager->insert(result.fTransferBuffer);
@@ -662,10 +668,10 @@ public:
         return true;
     }
 
-    void addCpuPlane(sk_sp<SkData> data, size_t rowBytes) {
+    void addCpuPlane(std::unique_ptr<const char[]> data, size_t rowBytes) {
         SkASSERT(data);
         SkASSERT(rowBytes > 0);
-        fPlanes.emplace_back(std::move(data), rowBytes);
+        fPlanes.emplace_back(data.release(), rowBytes, nullptr);
     }
 
 private:
@@ -674,41 +680,16 @@ private:
         SkASSERT(rowBytes > 0);
         SkASSERT(mappedBuffer);
         SkASSERT(mappedBuffer->isMapped());
-        fPlanes.emplace_back(std::move(mappedBuffer), rowBytes);
+        fPlanes.emplace_back(data, rowBytes, std::move(mappedBuffer));
     }
 
-    class Plane {
-    public:
-        Plane(sk_sp<GrGpuBuffer> buffer, size_t rowBytes)
-                : fMappedBuffer(std::move(buffer)), fRowBytes(rowBytes) {}
-
-        Plane(sk_sp<SkData> data, size_t rowBytes) : fData(std::move(data)), fRowBytes(rowBytes) {}
-
-        ~Plane() { SkASSERT(!fMappedBuffer); }
-
-        void releaseMappedBuffer(uint32_t inboxID) {
-            if (fMappedBuffer) {
-                GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
-                        {std::move(fMappedBuffer), inboxID});
-            }
-        }
-
-        const void* data() const {
-            if (fMappedBuffer) {
-                SkASSERT(!fData);
-                SkASSERT(fMappedBuffer->isMapped());
-                return fMappedBuffer->map();
-            }
-            SkASSERT(fData);
-            return fData->data();
-        }
-
-        size_t rowBytes() const { return fRowBytes; }
-
-    private:
-        sk_sp<SkData> fData;
-        sk_sp<GrGpuBuffer> fMappedBuffer;
+    struct Plane {
+        Plane(const void* data, size_t rowBytes, sk_sp<GrGpuBuffer> buffer)
+                : fData(data), fRowBytes(rowBytes), fMappedBuffer(std::move(buffer)) {}
+        const void* fData;
         size_t fRowBytes;
+        // If this is null then fData is heap alloc and must be delete[]ed as const char[].
+        sk_sp<GrGpuBuffer> fMappedBuffer;
     };
     SkSTArray<3, Plane> fPlanes;
     uint32_t fInboxID;
@@ -735,8 +716,9 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
         auto ii = SkImageInfo::Make(rect.size(), colorType, this->colorInfo().alphaType(),
                                     this->colorInfo().refColorSpace());
         auto result = std::make_unique<AsyncReadResult>(0);
-        GrPixmap pm = GrPixmap::Allocate(ii);
-        result->addCpuPlane(pm.pixelStorage(), pm.rowBytes());
+        std::unique_ptr<char[]> data(new char[ii.computeMinByteSize()]);
+        SkPixmap pm(ii, data.get(), ii.minRowBytes());
+        result->addCpuPlane(std::move(data), pm.rowBytes());
 
         SkIPoint pt{rect.fLeft, rect.fTop};
         if (!this->readPixels(dContext, pm, pt)) {
@@ -975,9 +957,9 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
     }
 
     if (doSynchronousRead) {
-        GrPixmap yPmp = GrPixmap::Allocate(yInfo);
-        GrPixmap uPmp = GrPixmap::Allocate(uvInfo);
-        GrPixmap vPmp = GrPixmap::Allocate(uvInfo);
+        auto [yPmp, yStorage] = GrPixmap::Allocate(yInfo);
+        auto [uPmp, uStorage] = GrPixmap::Allocate(uvInfo);
+        auto [vPmp, vStorage] = GrPixmap::Allocate(uvInfo);
         if (!yFC->readPixels(dContext, yPmp, {0, 0}) ||
             !uFC->readPixels(dContext, uPmp, {0, 0}) ||
             !vFC->readPixels(dContext, vPmp, {0, 0})) {
@@ -985,9 +967,9 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
             return;
         }
         auto result = std::make_unique<AsyncReadResult>(dContext->priv().contextID());
-        result->addCpuPlane(yPmp.pixelStorage(), yPmp.rowBytes());
-        result->addCpuPlane(uPmp.pixelStorage(), uPmp.rowBytes());
-        result->addCpuPlane(vPmp.pixelStorage(), vPmp.rowBytes());
+        result->addCpuPlane(std::move(yStorage), yPmp.rowBytes());
+        result->addCpuPlane(std::move(uStorage), uPmp.rowBytes());
+        result->addCpuPlane(std::move(vStorage), vPmp.rowBytes());
         callback(callbackContext, std::move(result));
         return;
     }
