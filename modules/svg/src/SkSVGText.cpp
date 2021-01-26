@@ -14,6 +14,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkString.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -592,6 +593,52 @@ SkRect SkSVGText::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     }
 
     return bounds;
+}
+
+SkPath SkSVGText::onAsPath(const SkSVGRenderContext& ctx) const {
+    SkPathBuilder builder;
+
+    const SkSVGTextContext::ShapedTextCallback as_path =
+        [&builder](const SkSVGRenderContext& ctx, const sk_sp<SkTextBlob>& blob, const SkPaint*,
+                   const SkPaint*) {
+            if (!blob) {
+                return;
+            }
+
+            SkTextBlobRunIterator it(blob.get());
+            for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+                struct GetPathsCtx {
+                    SkPathBuilder&   builder;
+                    const SkRSXform* xform;
+                } get_paths_ctx {builder, it.xforms()};
+
+                it.font().getPaths(it.glyphs(), it.glyphCount(), [](const SkPath* path,
+                                                                    const SkMatrix& matrix,
+                                                                    void* raw_ctx) {
+                    if (!path) {
+                        return;
+                    }
+
+                    auto* get_paths_ctx = static_cast<GetPathsCtx*>(raw_ctx);
+
+                    SkMatrix glyph_matrix;
+                    glyph_matrix.setRSXform(*get_paths_ctx->xform++);
+                    glyph_matrix.preConcat(matrix);
+
+                    get_paths_ctx->builder.addPath(path->makeTransform(glyph_matrix));
+                }, &get_paths_ctx);
+            }
+        };
+
+    {
+        SkSVGTextContext tctx(ctx, as_path);
+        this->onShapeText(ctx, &tctx, this->getXmlSpace());
+    }
+
+    auto path = builder.detach();
+    this->mapToParent(&path);
+
+    return path;
 }
 
 void SkSVGTextPath::onShapeText(const SkSVGRenderContext& ctx, SkSVGTextContext* parent_tctx,
