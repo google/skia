@@ -108,13 +108,11 @@ inline bool GrResourceCache::TextureAwaitingUnref::finished() { return !fNumUnre
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrResourceCache::GrResourceCache(const GrCaps* caps, GrSingleOwner* singleOwner,
-                                 uint32_t contextUniqueID)
+GrResourceCache::GrResourceCache(GrSingleOwner* singleOwner, uint32_t contextUniqueID)
         : fInvalidUniqueKeyInbox(contextUniqueID)
         , fFreedTextureInbox(contextUniqueID)
         , fContextUniqueID(contextUniqueID)
-        , fSingleOwner(singleOwner)
-        , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
+        , fSingleOwner(singleOwner) {
     SkASSERT(contextUniqueID != SK_InvalidUniqueID);
 }
 
