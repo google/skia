@@ -447,6 +447,22 @@ void GrDrawingManager::reorderTasks() {
     // TODO: Handle case where proposed order would blow our memory budget.
     // Such cases are currently pathological, so we could just return here and keep current order.
     reorder_array_by_llist(llist, &fDAG);
+
+    int newCount = 0;
+    for (int i = 0; i < fDAG.count(); i++) {
+        sk_sp<GrRenderTask>& task = fDAG[i];
+        if (auto opsTask = task->asOpsTask()) {
+            size_t remaining = fDAG.size() - i - 1;
+            SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
+            int removeCount = opsTask->mergeFrom(nextTasks);
+            for (const auto& removed : nextTasks.first(removeCount)) {
+                removed->disown(this);
+            }
+            i += removeCount;
+        }
+        fDAG[newCount++] = std::move(task);
+    }
+    fDAG.resize_back(newCount);
 }
 
 void GrDrawingManager::closeAllTasks() {

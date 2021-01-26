@@ -366,6 +366,7 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
         , fTargetSwizzle(view.swizzle())
         , fTargetOrigin(view.origin())
           SkDEBUGCODE(, fNumClips(0)) {
+    fClipAllocators.push_back(std::make_unique<SkArenaAlloc>(4096));
     this->addTarget(drawingMgr, view.detachProxy());
 }
 
@@ -429,7 +430,7 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
     fLastClipStackGenID = SK_InvalidUniqueID;
     this->deleteOps();
-    fClipAllocator.reset();
+    fClipAllocators.reset();
 
     fDeferredProxies.reset();
     fSampledProxies.reset();
@@ -677,6 +678,50 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     }
 }
 
+int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
+    GrOpsTask* last = this;
+    int addlProxyCount = 0;
+    int addlOpChainCount = 0;
+    int mergedCount = 0;
+    for (const sk_sp<GrRenderTask>& task : tasks) {
+        auto opsTask = task->asOpsTask();
+        if (!opsTask || opsTask->target(0) != this->target(0)) {
+            break;
+        }
+        SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
+        SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
+        mergedCount += 1;
+        addlProxyCount += opsTask->fSampledProxies.count();
+        addlOpChainCount += opsTask->fOpChains.count();
+        fClippedContentBounds.join(opsTask->fClippedContentBounds);
+        fTotalBounds.join(opsTask->fTotalBounds);
+        fRenderPassXferBarriers |= opsTask->fRenderPassXferBarriers;
+        SkDEBUGCODE(fNumClips += opsTask->fNumClips);
+        last = opsTask;
+    }
+    if (last == this) {
+        return 0;
+    }
+    fLastClipStackGenID = SK_InvalidUniqueID;
+    fSampledProxies.reserve_back(addlProxyCount);
+    fOpChains.reserve_back(addlOpChainCount);
+    fClipAllocators.reserve_back(mergedCount);
+    for (const sk_sp<GrRenderTask>& task : tasks.first(mergedCount)) {
+        auto opsTask = reinterpret_cast<GrOpsTask*>(task.get());
+        fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
+                                    opsTask->fSampledProxies.data());
+        fOpChains.move_back_n(opsTask->fOpChains.count(),
+                              opsTask->fOpChains.data());
+        SkASSERT(1 == opsTask->fClipAllocators.count());
+        fClipAllocators.push_back(std::move(opsTask->fClipAllocators[0]));
+        opsTask->fClipAllocators.reset();
+        opsTask->fSampledProxies.reset();
+        opsTask->fOpChains.reset();
+    }
+    fMustPreserveStencil = last->fMustPreserveStencil;
+    return mergedCount;
+}
+
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
     if (CanDiscardPreviousOps::kYes == canDiscardPreviousOps || this->isEmpty()) {
         this->deleteOps();
@@ -918,7 +963,7 @@ void GrOpsTask::recordOp(
         GrOP_INFO("\t\tBackward: FirstOp\n");
     }
     if (clip) {
-        clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
+        clip = fClipAllocators[0]->make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
     fOpChains.emplace_back(std::move(op), processorAnalysis, clip, dstProxyView);
