@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 vec4 main() {
     int _1_unknown = int(sqrt(1.0));
     bool _2_ok = true;
