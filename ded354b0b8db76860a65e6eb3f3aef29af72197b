@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c716915_4dfd2eda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-26T00:58:43Z",
+      "side": 1,
+      "message": "I took a stab at replacing the IR nodes with just emitting raw SPIR-V directly, but in the end I think I was happiest working in IR-node space.",
+      "revId": "ded354b0b8db76860a65e6eb3f3aef29af72197b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
