@@ -60,6 +60,11 @@ public:
      * after every successful lock call.
      */
     virtual void unlock() = 0;
+
+protected:
+    SkDiscardableMemory() = default;
+    SkDiscardableMemory(const SkDiscardableMemory&) = delete;
+    SkDiscardableMemory& operator=(const SkDiscardableMemory&) = delete;
 };
 
 #endif

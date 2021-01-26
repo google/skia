@@ -45,6 +45,9 @@ public:
     }
 
 private:
+    SkATrace(const SkATrace&) = delete;
+    SkATrace& operator=(const SkATrace&) = delete;
+
     void (*fBeginSection)(const char*);
     void (*fEndSection)(void);
     bool (*fIsEnabled)(void);

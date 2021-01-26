@@ -499,8 +499,8 @@ config("warnings") {
       "-Wdeprecated-attributes",
       "-Wdeprecated-comma-subscript",
       "-Wdeprecated-copy",
+      "-Wdeprecated-copy-dtor",
 
-      #"-Wdeprecated-copy-dtor",
       #"-Wdeprecated-declarations",
       "-Wdeprecated-dynamic-exception-spec",
       "-Wdeprecated-enum-compare",

@@ -122,6 +122,9 @@ public:
                                           PromiseImageTextureContext textureContexts[]);
 
 private:
+    SkDeferredDisplayListRecorder(const SkDeferredDisplayListRecorder&) = delete;
+    SkDeferredDisplayListRecorder& operator=(const SkDeferredDisplayListRecorder&) = delete;
+
     bool init();
 
     const SkSurfaceCharacterization             fCharacterization;
