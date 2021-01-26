@@ -3603,6 +3603,8 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
 bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                      sk_sp<GrRefCntedCallback> finishedCallback,
                                      const BackendTextureData* data) {
+    this->handleDirtyContext();
+
     GrGLTextureInfo info;
     SkAssertResult(backendTexture.getGLTextureInfo(&info));
 
