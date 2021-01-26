@@ -302,6 +302,7 @@ sksl_shared_tests = [
   "/sksl/shared/DependentInitializers.sksl",
   "/sksl/shared/DerivativesUnused.sksl",
   "/sksl/shared/Discard.sksl",
+  "/sksl/shared/DoWhileControlFlow.sksl",
   "/sksl/shared/Enum.sksl",
   "/sksl/shared/FragCoordsFlipY.sksl",
   "/sksl/shared/FragCoordsNew.sksl",
