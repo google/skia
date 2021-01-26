@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "092f7156_a1e5dc64",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-26T20:15:20Z",
+      "side": 1,
+      "message": "I believe filters-light-03 will pass now except for our lack of arrowheads.",
+      "revId": "f5f132e5b15499797a3709ad2f6996e34f745314",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "628d5600_38f48f99",
+        "filename": "modules/svg/include/SkSVGFeLighting.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-26T20:15:20Z",
+      "side": 1,
+      "message": "It\u0027s unclear to me whether Skia supports this attribute, so we could remove it.",
+      "revId": "f5f132e5b15499797a3709ad2f6996e34f745314",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25d83d4b_f5dfc370",
+        "filename": "modules/svg/include/SkSVGFeLighting.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-26T20:15:20Z",
+      "side": 1,
+      "message": "LMK if you\u0027d rather have the subclass(es) in a different .h/.cpp file.",
+      "revId": "f5f132e5b15499797a3709ad2f6996e34f745314",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
