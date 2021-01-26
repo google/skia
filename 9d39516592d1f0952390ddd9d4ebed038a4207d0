@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3732c5d3_a0e72d22",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-26T15:36:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08ed43e0_d28c4edf",
+      "range": {
+        "startLine": 150,
+        "startChar": 39,
+        "endLine": 150,
+        "endChar": 44
+      },
+      "revId": "9d39516592d1f0952390ddd9d4ebed038a4207d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b03b3caf_7c76fa53",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-26T14:53:58Z",
       "side": 1,
       "message": "nit: What\u0027s this?",
+      "range": {
+        "startLine": 85,
+        "startChar": 11,
+        "endLine": 86,
+        "endChar": 18
+      },
+      "revId": "9d39516592d1f0952390ddd9d4ebed038a4207d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e31fb26_c04cce03",
+        "filename": "src/sksl/dsl/DSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-26T15:36:48Z",
+      "side": 1,
+      "message": "Inadvertently snuck in from the original giant CL. I actually had noticed this and had removed it in my next CL, but you beat me to it, so I\u0027ll go ahead and remove it while we\u0027re here and talking about it :-).",
+      "parentUuid": "b03b3caf_7c76fa53",
       "range": {
         "startLine": 85,
         "startChar": 11,
