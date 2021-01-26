@@ -24,6 +24,14 @@
 
 static const SkRect kRect = SkRect::MakeWH(1, 1);
 
+template <typename T>
+static void set_uniform(SkRuntimeShaderBuilder* builder, const char* name, const T& value) {
+    SkRuntimeShaderBuilder::BuilderUniform uniform = builder->uniform(name);
+    if (uniform.fVar) {
+        uniform = value;
+    }
+}
+
 static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
     SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
     sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
@@ -40,6 +48,13 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
     }
 
     SkRuntimeShaderBuilder builder(effect);
+    set_uniform(&builder, "colorBlack",   SkV4{0, 0, 0, 1});
+    set_uniform(&builder, "colorRed",     SkV4{1, 0, 0, 1});
+    set_uniform(&builder, "colorGreen",   SkV4{0, 1, 0, 1});
+    set_uniform(&builder, "colorBlue",    SkV4{0, 0, 1, 1});
+    set_uniform(&builder, "colorWhite",   SkV4{1, 1, 1, 1});
+    set_uniform(&builder, "unknownInput", 1.0f);
+
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
         ERRORF(r, "%s: Unable to build shader", testFile);
