@@ -35,7 +35,7 @@ class SkMatrix;
  */
 class SK_API SkRasterHandleAllocator {
 public:
-    virtual ~SkRasterHandleAllocator() {}
+    virtual ~SkRasterHandleAllocator() = default;
 
     // The value that is returned to clients of the canvas that has this allocator installed.
     typedef void* Handle;
@@ -77,6 +77,11 @@ public:
      */
     static std::unique_ptr<SkCanvas> MakeCanvas(std::unique_ptr<SkRasterHandleAllocator>,
                                                 const SkImageInfo&, const Rec* rec = nullptr);
+
+protected:
+    SkRasterHandleAllocator() = default;
+    SkRasterHandleAllocator(const SkRasterHandleAllocator&) = delete;
+    SkRasterHandleAllocator& operator=(const SkRasterHandleAllocator&) = delete;
 
 private:
     friend class SkBitmapDevice;

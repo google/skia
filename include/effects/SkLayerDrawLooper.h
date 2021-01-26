@@ -115,6 +115,7 @@ public:
     class SK_API Builder {
     public:
         Builder();
+
         ~Builder();
 
         /**
@@ -144,6 +145,9 @@ public:
         sk_sp<SkDrawLooper> detach();
 
     private:
+        Builder(const Builder&) = delete;
+        Builder& operator=(const Builder&) = delete;
+
         Rec* fRecs;
         Rec* fTopRec;
         int  fCount;

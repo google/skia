@@ -31,6 +31,11 @@ public:
 
     // If it makes sense for this executor, use this thread to execute work for a little while.
     virtual void borrow() {}
+
+protected:
+    SkExecutor() = default;
+    SkExecutor(const SkExecutor&) = delete;
+    SkExecutor& operator=(const SkExecutor&) = delete;
 };
 
 #endif//SkExecutor_DEFINED
