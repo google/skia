@@ -24,8 +24,10 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %one RelaxedPrecision
 OpDecorate %one Binding 0
+OpDecorate %one DescriptorSet 0
 OpDecorate %two RelaxedPrecision
 OpDecorate %two Binding 1
+OpDecorate %two DescriptorSet 0
 OpDecorate %24 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision

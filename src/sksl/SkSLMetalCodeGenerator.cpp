@@ -1940,17 +1940,19 @@ void MetalCodeGenerator::writeUniformStruct() {
             const Variable& var = decls.declaration()->as<VarDeclaration>().var();
             if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
                 var.type().typeKind() != Type::TypeKind::kSampler) {
+                // If the uniform has the `layout(set=N)` attribute, honor that. If not, use the
+                // default uniform-set value from settings.
+                int uniformSet = var.modifiers().fLayout.fSet;
+                if (uniformSet == -1) {
+                    uniformSet = fProgram.fSettings.fDefaultUniformSet;
+                }
+                // Make sure that the program's uniform-set value is consistent throughout.
                 if (-1 == fUniformBuffer) {
                     this->write("struct Uniforms {\n");
-                    fUniformBuffer = var.modifiers().fLayout.fSet;
-                    if (-1 == fUniformBuffer) {
-                        fErrors.error(decls.fOffset, "Metal uniforms must have 'layout(set=...)'");
-                    }
-                } else if (var.modifiers().fLayout.fSet != fUniformBuffer) {
-                    if (-1 == fUniformBuffer) {
-                        fErrors.error(decls.fOffset, "Metal backend requires all uniforms to have "
-                                    "the same 'layout(set=...)'");
-                    }
+                    fUniformBuffer = uniformSet;
+                } else if (uniformSet != fUniformBuffer) {
+                    fErrors.error(decls.fOffset, "Metal backend requires all uniforms to have "
+                                                 "the same 'layout(set=...)'");
                 }
                 this->write("    ");
                 this->writeBaseType(var.type());

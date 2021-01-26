@@ -2898,6 +2898,7 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
     }
     const Type& type = var.type();
     SpvStorageClass_ storageClass;
+    Layout layout = var.modifiers().fLayout;
     if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
         storageClass = SpvStorageClassInput;
     } else if (var.modifiers().fFlags & Modifiers::kOut_Flag) {
@@ -2909,6 +2910,9 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
             storageClass = SpvStorageClassUniformConstant;
         } else {
             storageClass = SpvStorageClassUniform;
+        }
+        if (layout.fSet < 0) {
+            layout.fSet = fProgram.fSettings.fDefaultUniformSet;
         }
     } else {
         storageClass = SpvStorageClassPrivate;
@@ -2933,7 +2937,7 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
         this->writeInstruction(SpvOpStore, id, value, fGlobalInitializersBuffer);
         fCurrentBlock = 0;
     }
-    this->writeLayout(var.modifiers().fLayout, id);
+    this->writeLayout(layout, id);
     if (var.modifiers().fFlags & Modifiers::kFlat_Flag) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationFlat, fDecorationBuffer);
     }
