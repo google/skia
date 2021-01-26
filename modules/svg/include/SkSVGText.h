@@ -29,7 +29,7 @@ protected:
     void onRender(const SkSVGRenderContext&) const override {}
 
 private:
-    SkPath onAsPath(const SkSVGRenderContext&) const final;
+    SkPath onAsPath(const SkSVGRenderContext&) const override;
 
     using INHERITED = SkSVGTransformableNode;
 };
@@ -70,6 +70,7 @@ private:
     void onRender(const SkSVGRenderContext&) const override;
 
     SkRect onObjectBoundingBox(const SkSVGRenderContext&) const override;
+    SkPath onAsPath(const SkSVGRenderContext&) const override;
 
     using INHERITED = SkSVGTextContainer;
 };
