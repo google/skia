@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8583646f_c7d1ae78",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3859,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-26T23:26:04Z",
+      "side": 1,
+      "message": "Hmm, this is more general than prev heuristic... isn\u0027t it unsafe to assume something like this stays convex when rotated?\n\n\n  *--------*--------*\n  |                 |\n  |.                |\n  *-----------------*",
+      "range": {
+        "startLine": 3855,
+        "startChar": 0,
+        "endLine": 3859,
+        "endChar": 5
+      },
+      "revId": "57b3e12e46bfcd5600db139da15ff068b0e2a710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
