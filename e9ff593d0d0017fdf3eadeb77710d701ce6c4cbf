@@ -16,6 +16,46 @@
       "message": "Yeah, the conflict with naming/using things outside and inside the lambda led to some of the ugliness. What do you think of this? (I\u0027ve named everything externally, and then explicitly used \u0027_x\u0027 for the component-wise elements within the lambdas, which helps to clarify which parts of the expression are done that way, too. I also separated the naming of args vs. the calculation of intermediates, and gave the dot-product intermediates better (?) names.",
       "revId": "e9ff593d0d0017fdf3eadeb77710d701ce6c4cbf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "729c7299_a5366b5b",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1120,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-26T16:51:44Z",
+      "side": 1,
+      "message": "Reading this has got me thinking it might be clearer now to make binary() and ternary() pass their arguments explicitly rather than implicitily args[0..2], like we\u0027ve done for unary().",
+      "range": {
+        "startLine": 1120,
+        "startChar": 19,
+        "endLine": 1120,
+        "endChar": 26
+      },
+      "revId": "e9ff593d0d0017fdf3eadeb77710d701ce6c4cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03849509_865d177c",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-26T16:51:44Z",
+      "side": 1,
+      "message": "What do you think of,\n\n        case Intrinsic::kFaceforward: {\n            const Value \u0026N    \u003d args[0],\n                        \u0026I    \u003d args[1],\n                        \u0026Nref \u003d args[2];\n            return unary(N, [\u0026](skvm::F32 n) {\n                return select(dot(Nref,I)\u003c0, n, -n);\n            });\n        }\n\n        case Intrinsic::kReflect: {\n            const Value \u0026I \u003d args[0],\n                        \u0026N \u003d args[1];\n            return binary([\u0026](skvm::F32 i, skvm::F32 n) {\n                return i - 2*dot(N,I)*n;\n            });\n        }\n\n        case Intrinsic::kRefract: {\n            const Value \u0026I  \u003d args[0],\n                        \u0026N  \u003d args[1];\n            skvm::F32   eta \u003d f32(args[2]);\n\n            skvm::F32 dotNI \u003d dot(N,I),\n                      k     \u003d 1 - eta*eta*(1 - dotNI*dotNI);\n            return binary([\u0026](skvm::F32 i, skvm::F32 n) {\n                return select(k\u003c0, 0.0f, eta*i - (eta*dotNI + sqrt(k))*n);\n            });\n        }\n\nkeeping scalars lowercase and (possible) vectors uppercase, and then inlining a few things?",
+      "revId": "e9ff593d0d0017fdf3eadeb77710d701ce6c4cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
