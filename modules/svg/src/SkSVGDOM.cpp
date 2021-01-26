@@ -22,6 +22,7 @@
 #include "modules/svg/include/SkSVGFeDisplacementMap.h"
 #include "modules/svg/include/SkSVGFeFlood.h"
 #include "modules/svg/include/SkSVGFeGaussianBlur.h"
+#include "modules/svg/include/SkSVGFeLightSource.h"
 #include "modules/svg/include/SkSVGFeMorphology.h"
 #include "modules/svg/include/SkSVGFeOffset.h"
 #include "modules/svg/include/SkSVGFeTurbulence.h"
@@ -266,11 +267,14 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "feBlend"          , []() -> sk_sp<SkSVGNode> { return SkSVGFeBlend::Make();           }},
     { "feColorMatrix"    , []() -> sk_sp<SkSVGNode> { return SkSVGFeColorMatrix::Make();     }},
     { "feComposite"      , []() -> sk_sp<SkSVGNode> { return SkSVGFeComposite::Make();       }},
+    { "feDistantLight"   , []() -> sk_sp<SkSVGNode> { return SkSVGFeDistantLight::Make();    }},
     { "feDisplacementMap", []() -> sk_sp<SkSVGNode> { return SkSVGFeDisplacementMap::Make(); }},
     { "feFlood"          , []() -> sk_sp<SkSVGNode> { return SkSVGFeFlood::Make();           }},
     { "feGaussianBlur"   , []() -> sk_sp<SkSVGNode> { return SkSVGFeGaussianBlur::Make();    }},
     { "feMorphology"     , []() -> sk_sp<SkSVGNode> { return SkSVGFeMorphology::Make();      }},
     { "feOffset"         , []() -> sk_sp<SkSVGNode> { return SkSVGFeOffset::Make();          }},
+    { "fePointLight"     , []() -> sk_sp<SkSVGNode> { return SkSVGFePointLight::Make();      }},
+    { "feSpotLight"      , []() -> sk_sp<SkSVGNode> { return SkSVGFeSpotLight::Make();       }},
     { "feTurbulence"     , []() -> sk_sp<SkSVGNode> { return SkSVGFeTurbulence::Make();      }},
     { "filter"           , []() -> sk_sp<SkSVGNode> { return SkSVGFilter::Make();            }},
     { "g"                , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();                 }},
