@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3130e41f_ff8b1b2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-26T16:37:35Z",
+      "side": 1,
+      "message": "Yeah, the conflict with naming/using things outside and inside the lambda led to some of the ugliness. What do you think of this? (I\u0027ve named everything externally, and then explicitly used \u0027_x\u0027 for the component-wise elements within the lambdas, which helps to clarify which parts of the expression are done that way, too. I also separated the naming of args vs. the calculation of intermediates, and gave the dot-product intermediates better (?) names.",
+      "revId": "e9ff593d0d0017fdf3eadeb77710d701ce6c4cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
