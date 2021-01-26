@@ -1476,7 +1476,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 if (var.var().type().typeKind() == Type::TypeKind::kSampler) {
                     if (var.var().modifiers().fLayout.fBinding < 0) {
                         fErrors.error(decls.fOffset,
-                                        "Metal samplers must have 'layout(binding=...)'");
+                                      "Metal samplers must have 'layout(binding=...)'");
                         return false;
                     }
                     if (var.var().type().dimensions() != SpvDim2D) {
@@ -1947,7 +1947,7 @@ void MetalCodeGenerator::writeUniformStruct() {
                 } else if (var.modifiers().fLayout.fSet != fUniformBuffer) {
                     if (-1 == fUniformBuffer) {
                         fErrors.error(decls.fOffset, "Metal backend requires all uniforms to have "
-                                    "the same 'layout(set=...)'");
+                                                     "the same 'layout(set=...)'");
                     }
                 }
                 this->write("    ");

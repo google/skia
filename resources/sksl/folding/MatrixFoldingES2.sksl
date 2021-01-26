@@ -1,3 +1,5 @@
+uniform half4 colorRed, colorGreen;
+
 bool test() {
     bool ok = true;
     ok = ok &&  (float2x2(float2(1.0, 0.0), float2(0.0, 1.0)) ==
@@ -23,5 +25,5 @@ bool test() {
 }
 
 half4 main() {
-    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+    return test() ? colorGreen : colorRed;
 }

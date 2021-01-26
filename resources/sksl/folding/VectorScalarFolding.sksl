@@ -1,3 +1,6 @@
+uniform half4 colorRed, colorGreen;
+uniform half  unknownInput;
+
 bool test_half() {
     bool ok = true;
 
@@ -36,7 +39,7 @@ bool test_half() {
     ok = ok && (x == half4(6));
 
     // Vector op unknown scalar
-    half  unknown = half(sqrt(2));
+    half  unknown = unknownInput;
     x = half4(0) + unknown;
     ok = ok && (x == half4(unknown));
     x = half4(0) * unknown;
@@ -117,7 +120,7 @@ bool test_int() {
     ok = ok && (x == int4(6));
 
     // Vector op unknown scalar
-    int  unknown = int(sqrt(2));
+    int  unknown = int(unknownInput);
     x = int4(0) + unknown;
     ok = ok && (x == int4(unknown));
     x = int4(0) * unknown;
@@ -161,5 +164,5 @@ bool test_int() {
 }
 
 half4 main() {
-    return test_half() && test_int() ? half4(0,1,0,1) : half4(1,0,0,1);
+    return test_half() && test_int() ? colorGreen : colorRed;
 }
