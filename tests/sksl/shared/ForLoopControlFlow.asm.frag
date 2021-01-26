@@ -17,7 +17,7 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %22 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
-OpDecorate %30 RelaxedPrecision
+OpDecorate %31 RelaxedPrecision
 OpDecorate %36 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
 OpDecorate %44 RelaxedPrecision
@@ -38,9 +38,9 @@ OpDecorate %58 RelaxedPrecision
 %_ptr_Function_float = OpTypePointer Function %float
 %float_n5 = OpConstant %float -5
 %float_5 = OpConstant %float 5
+%float_0 = OpConstant %float 0
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
-%float_0 = OpConstant %float 0
 %int_2 = OpConstant %int 2
 %int_1 = OpConstant %int 1
 %main = OpFunction %v4float None %8
@@ -60,12 +60,12 @@ OpBranch %18
 OpBranchConditional %24 %19 %21
 %19 = OpLabel
 %26 = OpLoad %float %r
-%25 = OpExtInst %float %1 FAbs %26
-%27 = OpAccessChain %_ptr_Function_float %x %int_0
-OpStore %27 %25
-%30 = OpLoad %v4float %x
-%31 = OpCompositeExtract %float %30 0
-%33 = OpFOrdEqual %bool %31 %float_0
+%25 = OpExtInst %float %1 FClamp %26 %float_0 %float_1
+%28 = OpAccessChain %_ptr_Function_float %x %int_0
+OpStore %28 %25
+%31 = OpLoad %v4float %x
+%32 = OpCompositeExtract %float %31 0
+%33 = OpFOrdEqual %bool %32 %float_0
 OpSelectionMerge %35 None
 OpBranchConditional %33 %34 %35
 %34 = OpLabel

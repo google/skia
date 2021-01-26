@@ -11,7 +11,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     (void)_out;
     float4 x = float4(1.0, 1.0, 1.0, 1.0);
     for (float r = -5.0;r < 5.0; r += 1.0) {
-        x.x = abs(r);
+        x.x = saturate(r);
         if (x.x == 0.0) break;
     }
     for (float b = 5.0;b >= 0.0; b -= 1.0) {
