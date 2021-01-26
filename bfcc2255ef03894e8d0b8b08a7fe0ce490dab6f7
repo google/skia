@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f78605fb_d9ae4f0d",
+        "filename": "src/sksl/dsl/DSLExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-26T14:43:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dc6e4b06_bb5edc26",
+      "range": {
+        "startLine": 73,
+        "startChar": 42,
+        "endLine": 73,
+        "endChar": 44
+      },
+      "revId": "bfcc2255ef03894e8d0b8b08a7fe0ce490dab6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "325e01be_0067abfc",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-13T18:13:46Z",
       "side": 1,
       "message": "I think we can use SymbolTable::addArrayDimension here.",
+      "range": {
+        "startLine": 151,
+        "startChar": 4,
+        "endLine": 153,
+        "endChar": 100
+      },
+      "revId": "bfcc2255ef03894e8d0b8b08a7fe0ce490dab6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d75b83a2_fe913200",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-26T14:43:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "325e01be_0067abfc",
       "range": {
         "startLine": 151,
         "startChar": 4,
