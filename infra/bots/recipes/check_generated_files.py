@@ -50,7 +50,7 @@ def RunSteps(api):
         program="""import os
 import subprocess
 
-for r, d, files in os.walk('%s'):
+for r, d, files in os.walk(os.path.join('%s', 'src')):
   for f in files:
     if f.endswith('.fp'):
       path = os.path.join(r, f)

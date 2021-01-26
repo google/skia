@@ -173,7 +173,7 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nimport subprocess\n\nfor r, d, files in os.walk('[START_DIR]/cache/work/skia'):\n  for f in files:\n    if f.endswith('.fp'):\n      path = os.path.join(r, f)\n      print 'touch %s' % path\n      subprocess.check_call(['touch', path])\n"
+      "import os\nimport subprocess\n\nfor r, d, files in os.walk(os.path.join('[START_DIR]/cache/work/skia', 'src')):\n  for f in files:\n    if f.endswith('.fp'):\n      path = os.path.join(r, f)\n      print 'touch %s' % path\n      subprocess.check_call(['touch', path])\n"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -185,7 +185,7 @@
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@for r, d, files in os.walk('[START_DIR]/cache/work/skia'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@for r, d, files in os.walk(os.path.join('[START_DIR]/cache/work/skia', 'src')):@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in files:@@@",
       "@@@STEP_LOG_LINE@python.inline@    if f.endswith('.fp'):@@@",
       "@@@STEP_LOG_LINE@python.inline@      path = os.path.join(r, f)@@@",
