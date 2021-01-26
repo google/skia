@@ -11,7 +11,9 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
+#include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGDOM.h"
+#include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_string2(input , i, nullptr, "Input SVG file.");
@@ -39,9 +41,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    auto rp = skresources::DataURIResourceProviderProxy::Make(
+                  skresources::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0]),
+                                                          /*predecode=*/true),
+                  /*predecode=*/true);
 
     auto svg_dom = SkSVGDOM::Builder()
                         .setFontManager(SkFontMgr::RefDefault())
+                        .setResourceProvider(std::move(rp))
                         .make(in);
     if (!svg_dom) {
         std::cerr << "Could not parse " << FLAGS_input[0] << "\n";

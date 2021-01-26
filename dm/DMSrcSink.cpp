@@ -1313,13 +1313,17 @@ SVGSrc::SVGSrc(Path path)
     : fName(SkOSPath::Basename(path.c_str()))
     , fScale(1) {
 
-    sk_sp<SkData> data(SkData::MakeFromFileName(path.c_str()));
-    if (!data) {
+    auto stream = SkStream::MakeFromFile(path.c_str());
+    if (!stream) {
         return;
     }
 
-    SkMemoryStream stream(std::move(data));
-    fDom = SkSVGDOM::MakeFromStream(stream);
+    auto rp = skresources::DataURIResourceProviderProxy::Make(
+                  skresources::FileResourceProvider::Make(SkOSPath::Dirname(path.c_str()),
+                                                          /*predecode=*/true),
+                  /*predecode=*/true);
+    fDom = SkSVGDOM::Builder().setResourceProvider(std::move(rp))
+                              .make(*stream);
     if (!fDom) {
         return;
     }
