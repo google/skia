@@ -1,0 +1,3 @@
+void main() {
+    for (;;) float s = sin(0), c = cos(0);
+}
