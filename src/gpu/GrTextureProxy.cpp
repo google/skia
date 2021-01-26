@@ -34,6 +34,9 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
+    if (this->textureType() == GrTextureType::kExternal) {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
+    }
 }
 
 // Lazy-callback version
@@ -57,6 +60,9 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
+    if (this->textureType() == GrTextureType::kExternal) {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
+    }
 }
 
 // Wrapped version
@@ -73,6 +79,9 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
     if (fTarget->getUniqueKey().isValid()) {
         fProxyProvider = fTarget->asTexture()->getContext()->priv().proxyProvider();
         fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget.get());
+    }
+    if (this->textureType() == GrTextureType::kExternal) {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
     }
 }
 
