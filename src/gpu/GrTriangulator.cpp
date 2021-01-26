@@ -258,11 +258,12 @@ void* GrTriangulator::emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int
         // triangulated as a simple fan (a la red book).
         std::swap(prev, next);
     }
-    if (fBreadcrumbTriangles && abs(winding) > 1 &&
+    if (fBreadcrumbTriangleList && abs(winding) > 1 &&
         fPath.getFillType() == SkPathFillType::kWinding) {
         // The first winding count will come from the actual triangle we emit. The remaining counts
         // come from the breadcrumb triangle.
-        fBreadcrumbTriangles->push(prev->fPoint, curr->fPoint, next->fPoint, abs(winding) - 1);
+        fBreadcrumbTriangleList->prepend(fAlloc, prev->fPoint, curr->fPoint, next->fPoint,
+                                         abs(winding) - 1);
     }
     return emit_triangle(prev, curr, next, fEmitCoverage, data);
 }
@@ -651,9 +652,9 @@ static void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** curr
 void GrTriangulator::setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
                             const Comparator& c) {
     remove_edge_below(edge);
-    if (fBreadcrumbTriangles) {
-        fBreadcrumbTriangles->push(edge->fTop->fPoint, edge->fBottom->fPoint, v->fPoint,
-                                   edge->fWinding);
+    if (fBreadcrumbTriangleList) {
+        fBreadcrumbTriangleList->prepend(fAlloc, edge->fTop->fPoint, edge->fBottom->fPoint,
+                                         v->fPoint, edge->fWinding);
     }
     edge->fTop = v;
     edge->recompute();
@@ -665,9 +666,9 @@ void GrTriangulator::setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex
 void GrTriangulator::setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
                                const Comparator& c) {
     remove_edge_above(edge);
-    if (fBreadcrumbTriangles) {
-        fBreadcrumbTriangles->push(edge->fTop->fPoint, edge->fBottom->fPoint, v->fPoint,
-                                   edge->fWinding);
+    if (fBreadcrumbTriangleList) {
+        fBreadcrumbTriangleList->prepend(fAlloc, edge->fTop->fPoint, edge->fBottom->fPoint,
+                                         v->fPoint, edge->fWinding);
     }
     edge->fBottom = v;
     edge->recompute();
@@ -1178,9 +1179,6 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const 
                             leftEnclosingEdge, edge, &activeEdges, &v, mesh, c) ||
                         this->checkForIntersection(
                             edge, rightEnclosingEdge, &activeEdges, &v, mesh, c)) {
-                        if (fDisallowSelfIntersection) {
-                            return SimplifyResult::kAbort;
-                        }
                         result = SimplifyResult::kFoundSelfIntersection;
                         restartChecks = true;
                         break;
@@ -1189,9 +1187,6 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const 
             } else {
                 if (this->checkForIntersection(leftEnclosingEdge, rightEnclosingEdge, &activeEdges,
                                                &v, mesh, c)) {
-                    if (fDisallowSelfIntersection) {
-                        return SimplifyResult::kAbort;
-                    }
                     result = SimplifyResult::kFoundSelfIntersection;
                     restartChecks = true;
                 }
@@ -1218,10 +1213,6 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh, const 
 
 Poly* GrTriangulator::tessellate(const VertexList& vertices, const Comparator&) {
     TESS_LOG("\ntessellating simple polygons\n");
-    int maxWindMagnitude = std::numeric_limits<int>::max();
-    if (fDisallowSelfIntersection && !SkPathFillType_IsEvenOdd(fPath.getFillType())) {
-        maxWindMagnitude = 1;
-    }
     EdgeList activeEdges;
     Poly* polys = nullptr;
     for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
@@ -1314,9 +1305,6 @@ Poly* GrTriangulator::tessellate(const VertexList& vertices, const Comparator&) 
                 int winding = leftEdge->fLeftPoly ? leftEdge->fLeftPoly->fWinding : 0;
                 winding += leftEdge->fWinding;
                 if (winding != 0) {
-                    if (abs(winding) > maxWindMagnitude) {
-                        return nullptr;  // We can't have weighted wind in kSimpleInnerPolygons mode
-                    }
                     Poly* poly = this->makePoly(&polys, v, winding);
                     leftEdge->fRightPoly = rightEdge->fLeftPoly = poly;
                 }
