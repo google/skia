@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e176cd9_0af82b26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-26T14:31:44Z",
+      "side": 1,
+      "message": "Now that ByteCode is gone (which was relying on some of these to be poly-filled in SkSL), implementing everything in the VM generator is much simpler.",
+      "revId": "e2edb28b8d917dfcc2a7ae6afbbb667edab25ca8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
