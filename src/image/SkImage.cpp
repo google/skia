@@ -611,9 +611,7 @@ SkPixmap SkMipmapBuilder::level(int index) const {
     return pm;
 }
 
-bool SkImage::hasMipmaps() const {
-    return as_IB(this)->onPeekMips() != nullptr;
-}
+bool SkImage::hasMipmaps() const { return as_IB(this)->onHasMipmaps(); }
 
 sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
     if (mips == nullptr || mips->validForRootLevel(this->imageInfo())) {

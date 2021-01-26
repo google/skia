@@ -48,6 +48,8 @@ public:
                               int srcY,
                               CachingHint) const = 0;
 
+    virtual bool onHasMipmaps() const = 0;
+
     virtual SkMipmap* onPeekMips() const { return nullptr; }
 
     sk_sp<SkMipmap> refMips() const {

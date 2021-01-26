@@ -134,6 +134,13 @@ GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrDirectContext* dContext, const 
                                           info);
 }
 
+bool SkImage_GpuYUVA::onHasMipmaps() const {
+    if (fRGBView) {
+        return fRGBView.asTextureProxy()->mipmapped() == GrMipmapped::kYes;
+    }
+    return fYUVAProxies.mipmapped() == GrMipmapped::kYes;
+}
+
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
 
 void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {

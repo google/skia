@@ -42,7 +42,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
         return;
     }
 
-    for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
+    for (auto mipmapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             // createBackendTexture currently doesn't support uploading data to mip maps
             // so we don't send any. However, we pretend there is data for the checks below which is
@@ -52,7 +52,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                                          kSize,
                                                                          kRGBA_8888_SkColorType,
                                                                          SkColors::kTransparent,
-                                                                         mipMapped,
+                                                                         mipmapped,
                                                                          renderable,
                                                                          GrProtected::kNo);
             if (!mbet) {
@@ -62,7 +62,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
 
             sk_sp<GrTextureProxy> proxy;
             sk_sp<SkImage> image;
-            if (GrRenderable::kYes == renderable) {
+            if (renderable == GrRenderable::kYes) {
                 sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(
                         dContext,
                         mbet->texture(),
@@ -85,6 +85,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                  /* color space */ nullptr,
                                                  sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                                                  mbet->releaseContext());
+                REPORTER_ASSERT(reporter, (mipmapped == GrMipmapped::kYes) == image->hasMipmaps());
                 const GrSurfaceProxyView* view = as_IB(image)->view(dContext);
                 REPORTER_ASSERT(reporter, view);
                 if (!view) {
@@ -105,7 +106,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                 continue;
             }
 
-            if (GrMipmapped::kYes == mipMapped) {
+            if (mipmapped == GrMipmapped::kYes) {
                 REPORTER_ASSERT(reporter, GrMipmapped::kYes == texture->mipmapped());
                 if (GrRenderable::kYes == renderable) {
                     REPORTER_ASSERT(reporter, texture->mipmapsAreDirty());
@@ -127,12 +128,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
         return;
     }
 
-    for (auto betMipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
-        for (auto requestMipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
+    for (auto betMipmapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
+        for (auto requestMipmapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
             auto ii =
                     SkImageInfo::Make({kSize, kSize}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
             sk_sp<SkImage> image = sk_gpu_test::MakeBackendTextureImage(
-                    dContext, ii, SkColors::kTransparent, betMipMapped);
+                    dContext, ii, SkColors::kTransparent, betMipmapped);
+            REPORTER_ASSERT(reporter, (betMipmapped == GrMipmapped::kYes) == image->hasMipmaps());
 
             GrTextureProxy* proxy = as_IB(image)->peekProxy();
             REPORTER_ASSERT(reporter, proxy);
@@ -160,7 +162,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
             GrSurfaceProxyView genView = imageGen->generateTexture(
-                    dContext, imageInfo, origin, requestMipMapped, GrImageTexGenPolicy::kDraw);
+                    dContext, imageInfo, origin, requestMipmapped, GrImageTexGenPolicy::kDraw);
             GrSurfaceProxy* genProxy = genView.proxy();
 
             REPORTER_ASSERT(reporter, genProxy);
@@ -193,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 GrGLTextureInfo origTexInfo;
                 if (genBackendTex.getGLTextureInfo(&genTexInfo) &&
                     backendTex.getGLTextureInfo(&origTexInfo)) {
-                    if (requestMipMapped == GrMipmapped::kYes && betMipMapped == GrMipmapped::kNo) {
+                    if (requestMipmapped == GrMipmapped::kYes && betMipmapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origTexInfo.fID != genTexInfo.fID);
                     } else {
@@ -208,7 +210,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 GrVkImageInfo origImageInfo;
                 if (genBackendTex.getVkImageInfo(&genImageInfo) &&
                     backendTex.getVkImageInfo(&origImageInfo)) {
-                    if (requestMipMapped == GrMipmapped::kYes && betMipMapped == GrMipmapped::kNo) {
+                    if (requestMipmapped == GrMipmapped::kYes && betMipmapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fImage != genImageInfo.fImage);
                     } else {
@@ -224,7 +226,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 GrMtlTextureInfo origImageInfo;
                 if (genBackendTex.getMtlTextureInfo(&genImageInfo) &&
                     backendTex.getMtlTextureInfo(&origImageInfo)) {
-                    if (requestMipMapped == GrMipmapped::kYes && betMipMapped == GrMipmapped::kNo) {
+                    if (requestMipmapped == GrMipmapped::kYes && betMipmapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fTexture != genImageInfo.fTexture);
                     } else {
@@ -240,7 +242,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 GrDawnTextureInfo origImageInfo;
                 if (genBackendTex.getDawnTextureInfo(&genImageInfo) &&
                     backendTex.getDawnTextureInfo(&origImageInfo)) {
-                    if (requestMipMapped == GrMipmapped::kYes && betMipMapped == GrMipmapped::kNo) {
+                    if (requestMipmapped == GrMipmapped::kYes && betMipmapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter,
                             origImageInfo.fTexture.Get() != genImageInfo.fTexture.Get());
@@ -271,7 +273,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
     for (auto willUseMips : {false, true}) {
         for (auto isWrapped : {false, true}) {
-            GrMipmapped mipMapped = willUseMips ? GrMipmapped::kYes : GrMipmapped::kNo;
+            GrMipmapped mipmapped = willUseMips ? GrMipmapped::kYes : GrMipmapped::kNo;
             sk_sp<SkSurface> surface;
             SkImageInfo info =
                     SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -280,7 +282,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
                                                                  info,
                                                                  kTopLeft_GrSurfaceOrigin,
                                                                  /* sample count */ 1,
-                                                                 mipMapped);
+                                                                 mipmapped);
             } else {
                 surface = SkSurface::MakeRenderTarget(dContext,
                                                       SkBudgeted::kYes,
@@ -293,20 +295,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             REPORTER_ASSERT(reporter, surface);
             SkGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
             GrTextureProxy* texProxy = device->surfaceDrawContext()->asTextureProxy();
-            REPORTER_ASSERT(reporter, mipMapped == texProxy->mipmapped());
+            REPORTER_ASSERT(reporter, mipmapped == texProxy->mipmapped());
 
             texProxy->instantiate(resourceProvider);
             GrTexture* texture = texProxy->peekTexture();
-            REPORTER_ASSERT(reporter, mipMapped == texture->mipmapped());
+            REPORTER_ASSERT(reporter, mipmapped == texture->mipmapped());
 
             sk_sp<SkImage> image = surface->makeImageSnapshot();
+            REPORTER_ASSERT(reporter, willUseMips == image->hasMipmaps());
             REPORTER_ASSERT(reporter, image);
             texProxy = as_IB(image)->peekProxy();
-            REPORTER_ASSERT(reporter, mipMapped == texProxy->mipmapped());
+            REPORTER_ASSERT(reporter, mipmapped == texProxy->mipmapped());
 
             texProxy->instantiate(resourceProvider);
             texture = texProxy->peekTexture();
-            REPORTER_ASSERT(reporter, mipMapped == texture->mipmapped());
+            REPORTER_ASSERT(reporter, mipmapped == texture->mipmapped());
         }
     }
 }

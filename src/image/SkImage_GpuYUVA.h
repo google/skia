@@ -30,6 +30,8 @@ public:
                     GrYUVATextureProxies proxies,
                     sk_sp<SkColorSpace>);
 
+    bool onHasMipmaps() const override;
+
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
     // This returns the single backing proxy if the YUV channels have already been flattened but
