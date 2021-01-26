@@ -16,6 +16,24 @@
       "message": "load-bearing assert",
       "revId": "da36b961badab8024ecfe94f20ccf541e6a52ea9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "670717ba_e8b10e40",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-26T19:27:53Z",
+      "side": 1,
+      "message": "Hmm, this scares me at first blush, but I guess if someone comes along and removes them, we\u0027d find out from the broken bot?  Maybe add a note\n\n// These redundant asserts work around what we think is a codegen bug in GCC 8.x for 32-bit x86 Debug builds.",
+      "parentUuid": "02b1d264_f1fc7caf",
+      "revId": "da36b961badab8024ecfe94f20ccf541e6a52ea9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
