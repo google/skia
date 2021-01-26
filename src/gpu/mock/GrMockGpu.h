@@ -50,8 +50,6 @@ public:
 private:
     GrMockGpu(GrDirectContext*, const GrMockOptions&, const GrContextOptions&);
 
-    void onResetContext(uint32_t resetBits) override {}
-
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
