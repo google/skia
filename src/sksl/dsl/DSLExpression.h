@@ -68,6 +68,11 @@ public:
     DSLExpression operator=(DSLExpression other);
 
     /**
+     * Creates an SkSL array index expression.
+     */
+    DSLExpression operator[](DSLExpression index);
+
+    /**
      * Invalidates this object and returns the SkSL expression it represents.
      */
     std::unique_ptr<SkSL::Expression> release();

@@ -69,6 +69,10 @@ DSLExpression DSLExpression::operator=(DSLExpression right) {
     return DSLWriter::ConvertBinary(this->release(), SkSL::Token::Kind::TK_EQ, right.release());
 }
 
+DSLExpression DSLExpression::operator[](DSLExpression right) {
+    return DSLWriter::ConvertIndex(this->release(), right.release());
+}
+
 #define OP(op, token)                                                                              \
 DSLExpression operator op(DSLExpression left, DSLExpression right) {                               \
     return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());    \
