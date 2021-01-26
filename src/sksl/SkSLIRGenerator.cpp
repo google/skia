@@ -681,7 +681,6 @@ std::unique_ptr<Statement> IRGenerator::convertDo(std::unique_ptr<Statement> stm
         return nullptr;
     }
 
-    AutoLoopLevel level(this);
     test = this->coerce(std::move(test), *fContext.fTypes.fBool);
     if (!test) {
         return nullptr;
@@ -691,6 +690,8 @@ std::unique_ptr<Statement> IRGenerator::convertDo(std::unique_ptr<Statement> stm
 
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDo);
+    AutoLoopLevel level(this);
+
     auto iter = d.begin();
     std::unique_ptr<Statement> statement = this->convertStatement(*(iter++));
     if (!statement) {
