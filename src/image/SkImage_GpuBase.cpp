@@ -189,7 +189,6 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
 GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
                                             GrMipmapped mipMapped) const {
     if (!context || !fContext->priv().matches(context)) {
-        SkASSERT(0);
         return {};
     }
 
@@ -230,28 +229,6 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
         return texture->getBackendTexture();
     }
     return GrBackendTexture();  // invalid
-}
-
-GrTexture* SkImage_GpuBase::getTexture() const {
-    GrTextureProxy* proxy = this->peekProxy();
-    if (proxy && proxy->isInstantiated()) {
-        return proxy->peekTexture();
-    }
-
-    auto direct = fContext->asDirectContext();
-    if (!direct) {
-        // This image was created with a DDL context and cannot be instantiated.
-        return nullptr;
-    }
-
-    const GrSurfaceProxyView* view = this->view(direct);
-    SkASSERT(view && *view && !view->proxy()->isInstantiated());
-
-    if (!view->proxy()->instantiate(direct->priv().resourceProvider())) {
-        return nullptr;
-    }
-
-    return view->proxy()->peekTexture();
 }
 
 bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
