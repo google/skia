@@ -598,7 +598,7 @@ static void run_test(GrDirectContext* dContext, const char* testName,
         return;
     }
 
-    auto [resultPM, resultStorage] = GrPixmap::Allocate(gold.info());
+    GrPixmap resultPM = GrPixmap::Allocate(gold.info());
     rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
     rtc->addDrawOp(GrMeshTestOp::Make(dContext, prepareFn, executeFn));
 

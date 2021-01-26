@@ -494,15 +494,12 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
     bool convert = premul || unpremul || needColorConversion || makeTight ||
                    (src.colorType() != allowedColorType) || flip;
 
-    std::unique_ptr<char[]> tmpPixels;
-    if (convert) {
+    if (convert || !src.ownsPixels()) {
         GrImageInfo tmpInfo(allowedColorType,
                             this->colorInfo().alphaType(),
                             this->colorInfo().refColorSpace(),
                             src.dimensions());
-        auto tmpRB = tmpInfo.minRowBytes();
-        tmpPixels.reset(new char[tmpRB * tmpInfo.height()]);
-        GrPixmap tmp(tmpInfo, tmpPixels.get(), tmpRB);
+        GrPixmap tmp = GrPixmap::Allocate(tmpInfo);
 
         SkAssertResult(GrConvertPixels(tmp, src, flip));
 
@@ -510,16 +507,17 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         pt.fY = flip ? dstSurface->height() - pt.fY - tmpInfo.height() : pt.fY;
     }
 
-    // On platforms that prefer flushes over VRAM use (i.e., ANGLE) we're better off forcing a
-    // complete flush here. On platforms that prefer VRAM use over flushes we're better off
-    // giving the drawing manager the chance of skipping the flush (i.e., by passing in the
-    // destination proxy)
-    // TODO: should this policy decision just be moved into the drawing manager?
-    dContext->priv().flushSurface(caps->preferVRAMUseOverFlushes() ? dstProxy : nullptr);
-
-    return dContext->priv().getGpu()->writePixels(dstSurface, pt.fX, pt.fY, src.width(),
-                                                  src.height(), this->colorInfo().colorType(),
-                                                  src.colorType(), src.addr(), src.rowBytes());
+    GrMipLevel level;
+    level.fPixels = src.addr();
+    level.fRowBytes = src.rowBytes();
+    return dContext->priv().drawingManager()->newWritePixelsTask(
+            this->asSurfaceProxyRef(),
+            SkIRect::MakePtSize(pt, src.dimensions()),
+            src.colorType(),
+            dstColorType,
+            &level,
+            1,
+            src.pixelStorage());
 }
 
 void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
@@ -634,18 +632,13 @@ public:
     AsyncReadResult(uint32_t inboxID) : fInboxID(inboxID) {}
     ~AsyncReadResult() override {
         for (int i = 0; i < fPlanes.count(); ++i) {
-            if (!fPlanes[i].fMappedBuffer) {
-                delete[] static_cast<const char*>(fPlanes[i].fData);
-            } else {
-                GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
-                        {std::move(fPlanes[i].fMappedBuffer), fInboxID});
-            }
+            fPlanes[i].releaseMappedBuffer(fInboxID);
         }
     }
 
     int count() const override { return fPlanes.count(); }
-    const void* data(int i) const override { return fPlanes[i].fData; }
-    size_t rowBytes(int i) const override { return fPlanes[i].fRowBytes; }
+    const void* data(int i) const override { return fPlanes[i].data(); }
+    size_t rowBytes(int i) const override { return fPlanes[i].rowBytes(); }
 
     bool addTransferResult(const PixelTransferResult& result,
                            SkISize dimensions,
@@ -657,9 +650,10 @@ public:
             return false;
         }
         if (result.fPixelConverter) {
-            std::unique_ptr<char[]> convertedData(new char[rowBytes * dimensions.height()]);
-            result.fPixelConverter(convertedData.get(), mappedData);
-            this->addCpuPlane(std::move(convertedData), rowBytes);
+            size_t size = rowBytes*dimensions.height();
+            sk_sp<SkData> data = SkData::MakeUninitialized(size);
+            result.fPixelConverter(data->writable_data(), mappedData);
+            this->addCpuPlane(std::move(data), rowBytes);
             result.fTransferBuffer->unmap();
         } else {
             manager->insert(result.fTransferBuffer);
@@ -668,10 +662,10 @@ public:
         return true;
     }
 
-    void addCpuPlane(std::unique_ptr<const char[]> data, size_t rowBytes) {
+    void addCpuPlane(sk_sp<SkData> data, size_t rowBytes) {
         SkASSERT(data);
         SkASSERT(rowBytes > 0);
-        fPlanes.emplace_back(data.release(), rowBytes, nullptr);
+        fPlanes.emplace_back(std::move(data), rowBytes);
     }
 
 private:
@@ -680,16 +674,46 @@ private:
         SkASSERT(rowBytes > 0);
         SkASSERT(mappedBuffer);
         SkASSERT(mappedBuffer->isMapped());
-        fPlanes.emplace_back(data, rowBytes, std::move(mappedBuffer));
+        fPlanes.emplace_back(std::move(mappedBuffer), rowBytes);
     }
 
-    struct Plane {
-        Plane(const void* data, size_t rowBytes, sk_sp<GrGpuBuffer> buffer)
-                : fData(data), fRowBytes(rowBytes), fMappedBuffer(std::move(buffer)) {}
-        const void* fData;
-        size_t fRowBytes;
-        // If this is null then fData is heap alloc and must be delete[]ed as const char[].
+    class Plane {
+    public:
+        Plane(sk_sp<GrGpuBuffer> buffer, size_t rowBytes)
+                : fMappedBuffer(std::move(buffer)), fRowBytes(rowBytes) {}
+        Plane(sk_sp<SkData> data, size_t rowBytes) : fData(std::move(data)), fRowBytes(rowBytes) {}
+
+        Plane(const Plane&) = delete;
+        Plane(Plane&&) = default;
+
+        ~Plane() { SkASSERT(!fMappedBuffer); }
+
+        Plane& operator=(const Plane&) = delete;
+        Plane& operator=(Plane&&) = default;
+
+        void releaseMappedBuffer(uint32_t inboxID) {
+            if (fMappedBuffer) {
+                GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
+                        {std::move(fMappedBuffer), inboxID});
+            }
+        }
+
+        const void* data() const {
+            if (fMappedBuffer) {
+                SkASSERT(!fData);
+                SkASSERT(fMappedBuffer->isMapped());
+                return fMappedBuffer->map();
+            }
+            SkASSERT(fData);
+            return fData->data();
+        }
+
+        size_t rowBytes() const { return fRowBytes; }
+
+    private:
+        sk_sp<SkData> fData;
         sk_sp<GrGpuBuffer> fMappedBuffer;
+        size_t fRowBytes;
     };
     SkSTArray<3, Plane> fPlanes;
     uint32_t fInboxID;
@@ -716,9 +740,8 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
         auto ii = SkImageInfo::Make(rect.size(), colorType, this->colorInfo().alphaType(),
                                     this->colorInfo().refColorSpace());
         auto result = std::make_unique<AsyncReadResult>(0);
-        std::unique_ptr<char[]> data(new char[ii.computeMinByteSize()]);
-        SkPixmap pm(ii, data.get(), ii.minRowBytes());
-        result->addCpuPlane(std::move(data), pm.rowBytes());
+        GrPixmap pm = GrPixmap::Allocate(ii);
+        result->addCpuPlane(pm.pixelStorage(), pm.rowBytes());
 
         SkIPoint pt{rect.fLeft, rect.fTop};
         if (!this->readPixels(dContext, pm, pt)) {
@@ -957,9 +980,9 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
     }
 
     if (doSynchronousRead) {
-        auto [yPmp, yStorage] = GrPixmap::Allocate(yInfo);
-        auto [uPmp, uStorage] = GrPixmap::Allocate(uvInfo);
-        auto [vPmp, vStorage] = GrPixmap::Allocate(uvInfo);
+        GrPixmap yPmp = GrPixmap::Allocate(yInfo);
+        GrPixmap uPmp = GrPixmap::Allocate(uvInfo);
+        GrPixmap vPmp = GrPixmap::Allocate(uvInfo);
         if (!yFC->readPixels(dContext, yPmp, {0, 0}) ||
             !uFC->readPixels(dContext, uPmp, {0, 0}) ||
             !vFC->readPixels(dContext, vPmp, {0, 0})) {
@@ -967,9 +990,9 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
             return;
         }
         auto result = std::make_unique<AsyncReadResult>(dContext->priv().contextID());
-        result->addCpuPlane(std::move(yStorage), yPmp.rowBytes());
-        result->addCpuPlane(std::move(uStorage), uPmp.rowBytes());
-        result->addCpuPlane(std::move(vStorage), vPmp.rowBytes());
+        result->addCpuPlane(yPmp.pixelStorage(), yPmp.rowBytes());
+        result->addCpuPlane(uPmp.pixelStorage(), uPmp.rowBytes());
+        result->addCpuPlane(vPmp.pixelStorage(), vPmp.rowBytes());
         callback(callbackContext, std::move(result));
         return;
     }

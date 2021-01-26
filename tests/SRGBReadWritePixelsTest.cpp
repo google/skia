@@ -127,7 +127,7 @@ void read_and_check_pixels(skiatest::Reporter* reporter,
                            const SkImageInfo& dstInfo, CheckFn checker, float error,
                            const char* subtestName) {
     auto [w, h] = dstInfo.dimensions();
-    auto [readPM, readStorage] = GrPixmap::Allocate(dstInfo);
+    GrPixmap readPM = GrPixmap::Allocate(dstInfo);
     memset(readPM.addr(), 0, sizeof(uint32_t)*w*h);
 
     if (!sContext->readPixels(dContext, readPM, {0, 0})) {
