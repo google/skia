@@ -90,16 +90,9 @@ public:
     */
     class SK_API AbortCallback {
     public:
-
-        /** Has no effect.
-
-            @return  abstract class cannot be instantiated
-        */
-        AbortCallback() {}
-
         /** Has no effect.
         */
-        virtual ~AbortCallback() {}
+        virtual ~AbortCallback() = default;
 
         /** Stops SkPicture playback when some condition is met. A subclass of
             AbortCallback provides an override for abort() that can stop SkPicture::playback.
@@ -116,6 +109,11 @@ public:
         example: https://fiddle.skia.org/c/@Picture_AbortCallback_abort
         */
         virtual bool abort() = 0;
+
+    protected:
+        AbortCallback() = default;
+        AbortCallback(const AbortCallback&) = delete;
+        AbortCallback& operator=(const AbortCallback&) = delete;
     };
 
     /** Replays the drawing commands on the specified canvas. In the case that the
