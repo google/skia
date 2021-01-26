@@ -130,8 +130,6 @@ private:
 
     void destroyResources();
 
-    void onResetContext(uint32_t resetBits) override {}
-
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,
                                      GrRenderable,
