@@ -145,11 +145,13 @@ SkSVGPresentationContext::SkSVGPresentationContext()
 
 SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
                                        const sk_sp<SkFontMgr>& fmgr,
+                                       const sk_sp<skresources::ResourceProvider>& rp,
                                        const SkSVGIDMapper& mapper,
                                        const SkSVGLengthContext& lctx,
                                        const SkSVGPresentationContext& pctx,
                                        const SkSVGNode* node)
     : fFontMgr(fmgr)
+    , fResourceProvider(rp)
     , fIDMapper(mapper)
     , fLengthContext(lctx)
     , fPresentationContext(pctx)
@@ -160,6 +162,7 @@ SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
     : SkSVGRenderContext(other.fCanvas,
                          other.fFontMgr,
+                         other.fResourceProvider,
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
@@ -168,6 +171,7 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas* canvas)
     : SkSVGRenderContext(canvas,
                          other.fFontMgr,
+                         other.fResourceProvider,
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
@@ -176,6 +180,7 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, const SkSVGNode* node)
     : SkSVGRenderContext(other.fCanvas,
                          other.fFontMgr,
+                         other.fResourceProvider,
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
@@ -394,6 +399,7 @@ SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selecto
         SkSVGPresentationContext pctx;
         SkSVGRenderContext local_ctx(fCanvas,
                                      fFontMgr,
+                                     fResourceProvider,
                                      fIDMapper,
                                      *fLengthContext,
                                      pctx,
