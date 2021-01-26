@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71d78069_8a7169aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-26T16:19:16Z",
+      "side": 1,
+      "message": "Oh no, Mac headers have a Fract.\n\n ../../../../../../skia/tests/SkSLDSLTest.cpp:1009:24: error: reference to \u0027Fract\u0027 is ambiguous\n     REPORTER_ASSERT(r, Fract(a).release()-\u003edescription()               \u003d\u003d \"fract(a)\");\n                        ^\n /opt/s/w/ir/cache/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include/MacTypes.h:195:41: note: candidate found by name lookup is \u0027Fract\u0027\n typedef SInt32                          Fract;\n                                         ^\n ../../../../../../skia/src/sksl/dsl/DSLCore.h:161:15: note: candidate found by name lookup is \u0027SkSL::dsl::Fract\u0027\n DSLExpression Fract(DSLExpression x);\n",
+      "revId": "e6010b04c1dca09315705251af725c6268fb6b3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c67a5c4_c5caa17a",
