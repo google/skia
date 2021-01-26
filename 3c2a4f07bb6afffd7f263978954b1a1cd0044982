@@ -34,6 +34,52 @@
       "parentUuid": "68cd54a3_adf325be",
       "revId": "3c2a4f07bb6afffd7f263978954b1a1cd0044982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "471ec868_bb8ddb4a",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-26T17:05:37Z",
+      "side": 1,
+      "message": "This part is strictly true.",
+      "range": {
+        "startLine": 1,
+        "startChar": 2,
+        "endLine": 2,
+        "endChar": 30
+      },
+      "revId": "3c2a4f07bb6afffd7f263978954b1a1cd0044982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "934169be_e9c66376",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-26T17:05:37Z",
+      "side": 1,
+      "message": "This is where I suspect Mike might disagree.",
+      "range": {
+        "startLine": 3,
+        "startChar": 36,
+        "endLine": 4,
+        "endChar": 29
+      },
+      "revId": "3c2a4f07bb6afffd7f263978954b1a1cd0044982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
