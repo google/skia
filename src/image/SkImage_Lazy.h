@@ -35,6 +35,12 @@ public:
 
     SkImage_Lazy(Validator* validator);
 
+    bool onHasMipmaps() const override {
+        // TODO: Should we defer to the generator? The generator interface currently doesn't have
+        // a way to provide content for levels other than via SkImageGenerator::generateTexture().
+        return false;
+    }
+
     bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
