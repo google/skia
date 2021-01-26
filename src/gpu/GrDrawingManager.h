@@ -83,6 +83,18 @@ public:
                            SkIPoint dstPoint,
                            GrSurfaceOrigin);
 
+    // Adds a task that writes the data from the passed GrMipLevels to dst. The lifetime of the
+    // pixel data in the levels should be tied to the passed SkData. srcColorType is the color
+    // type of the GrMipLevels. dstColorType is the color type being used with dst and must
+    // be compatible with dst's format according to GrCaps::areColorTypeAndFormatCompatible().
+    bool newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
+                            SkIRect rect,
+                            GrColorType srcColorType,
+                            GrColorType dstColorType,
+                            const GrMipLevel[],
+                            int levelCount,
+                            sk_sp<SkData> storage);
+
     GrRecordingContext* getContext() { return fContext; }
 
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,

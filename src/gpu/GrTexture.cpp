@@ -50,6 +50,9 @@ GrTexture::GrTexture(GrGpu* gpu,
     } else {
         fMaxMipmapLevel = SkMipmap::ComputeLevelCount(this->width(), this->height());
     }
+    if (textureType == GrTextureType::kExternal) {
+        this->setReadOnly();
+    }
 }
 
 bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
