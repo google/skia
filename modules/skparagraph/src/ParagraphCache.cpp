@@ -228,10 +228,6 @@ void ParagraphCache::printStatistics() {
 }
 
 void ParagraphCache::abandon() {
-    SkAutoMutexExclusive lock(fParagraphMutex);
-    fLRUCacheMap.foreach([](ParagraphCacheKey*, std::unique_ptr<Entry>* e) {
-    });
-
     this->reset();
 }
 
