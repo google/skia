@@ -1658,6 +1658,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
 bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                      sk_sp<GrRefCntedCallback> finishedCallback,
                                      const BackendTextureData* data) {
+    this->handleDirtyContext();
+
     GrVkImageInfo info;
     SkAssertResult(backendTexture.getVkImageInfo(&info));
 

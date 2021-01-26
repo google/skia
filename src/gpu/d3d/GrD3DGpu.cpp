@@ -1082,6 +1082,8 @@ static bool copy_color_data(const GrD3DCaps& caps, char* mapPtr,
 bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                       sk_sp<GrRefCntedCallback> finishedCallback,
                                       const BackendTextureData* data) {
+    this->handleDirtyContext();
+
     GrD3DTextureResourceInfo info;
     SkAssertResult(backendTexture.getD3DTextureResourceInfo(&info));
 
