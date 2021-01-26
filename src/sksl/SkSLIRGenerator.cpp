@@ -150,6 +150,38 @@ void IRGenerator::popSymbolTable() {
     fSymbolTable = fSymbolTable->fParent;
 }
 
+bool IRGenerator::detectVarDeclarationWithoutScope(const Statement& stmt) {
+    // Parsing an AST node containing a single variable declaration creates a lone VarDeclaration
+    // statement. An AST with multiple variable declarations creates an unscoped Block containing
+    // multiple VarDeclaration statements. We need to detect either case.
+    const Variable* var;
+    if (stmt.is<VarDeclaration>()) {
+        // The single-variable case. No blocks at all.
+        var = &stmt.as<VarDeclaration>().var();
+    } else if (stmt.is<Block>()) {
+        // The multiple-variable case: an unscoped, non-empty block...
+        const Block& block = stmt.as<Block>();
+        if (block.isScope() || block.children().empty()) {
+            return false;
+        }
+        // ... holding a variable declaration.
+        const Statement& innerStmt = *block.children().front();
+        if (!innerStmt.is<VarDeclaration>()) {
+            return false;
+        }
+        var = &innerStmt.as<VarDeclaration>().var();
+    } else {
+        // This statement wasn't a variable declaration. No problem.
+        return false;
+    }
+
+    // Report an error.
+    SkASSERT(var);
+    this->errorReporter().error(stmt.fOffset,
+                                "variable '" + var->name() + "' must be created in a scope");
+    return true;
+}
+
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
@@ -567,6 +599,12 @@ std::unique_ptr<Statement> IRGenerator::convertIf(int offset, bool isStatic,
     if (!test) {
         return nullptr;
     }
+    if (this->detectVarDeclarationWithoutScope(*ifTrue)) {
+        return nullptr;
+    }
+    if (ifFalse && this->detectVarDeclarationWithoutScope(*ifFalse)) {
+        return nullptr;
+    }
     if (test->is<BoolLiteral>()) {
         // Static Boolean values can fold down to a single branch.
         if (test->as<BoolLiteral>().value()) {
@@ -655,6 +693,10 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr
     if (!test) {
         return nullptr;
     }
+    if (this->detectVarDeclarationWithoutScope(*statement)) {
+        return nullptr;
+    }
+
     return std::make_unique<ForStatement>(offset, /*initializer=*/nullptr, std::move(test),
                                           /*next=*/nullptr, std::move(statement), fSymbolTable);
 }
@@ -683,6 +725,9 @@ std::unique_ptr<Statement> IRGenerator::convertDo(std::unique_ptr<Statement> stm
 
     test = this->coerce(std::move(test), *fContext.fTypes.fBool);
     if (!test) {
+        return nullptr;
+    }
+    if (this->detectVarDeclarationWithoutScope(*stmt)) {
         return nullptr;
     }
     return std::make_unique<DoStatement>(stmt->fOffset, std::move(stmt), std::move(test));
