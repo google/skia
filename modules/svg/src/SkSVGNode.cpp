@@ -20,6 +20,7 @@ SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) {
     fPresentationAttributes.fStopOpacity.set(SkSVGNumberType(1.0f));
     fPresentationAttributes.fFloodColor.set(SkSVGColor(SK_ColorBLACK));
     fPresentationAttributes.fFloodOpacity.set(SkSVGNumberType(1.0f));
+    fPresentationAttributes.fLightingColor.set(SkSVGColor(SK_ColorWHITE));
 }
 
 SkSVGNode::~SkSVGNode() { }
@@ -103,6 +104,7 @@ bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
            || PARSE_AND_SET("font-size"                  , FontSize)
            || PARSE_AND_SET("font-style"                 , FontStyle)
            || PARSE_AND_SET("font-weight"                , FontWeight)
+           || PARSE_AND_SET("lighting-color"             , LightingColor)
            || PARSE_AND_SET("mask"                       , Mask)
            || PARSE_AND_SET("opacity"                    , Opacity)
            || PARSE_AND_SET("stop-color"                 , StopColor)

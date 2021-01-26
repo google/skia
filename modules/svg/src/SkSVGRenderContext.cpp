@@ -254,6 +254,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     // - stop-opacity
     // - flood-color
     // - flood-opacity
+    // - lighting-color
 }
 
 void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags, bool hasFilter) {
