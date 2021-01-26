@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b4a9bf9_851f328c",
+        "filename": "src/sksl/dsl/DSLModifiers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-26T20:51:04Z",
+      "side": 1,
+      "message": "Let\u0027s provide a kInOut_Modifier \u003d (1 \u003c\u003c 1) | (1 \u003c\u003c 2)",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 17
+      },
+      "revId": "65146df99cbcb8010276f261ec23c62a02e37bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3106fbc_9966bbff",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-26T20:51:04Z",
+      "side": 1,
+      "message": "Mark this as a TODO so we remember to fix it up later.",
+      "range": {
+        "startLine": 1078,
+        "startChar": 66,
+        "endLine": 1078,
+        "endChar": 68
+      },
+      "revId": "65146df99cbcb8010276f261ec23c62a02e37bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
