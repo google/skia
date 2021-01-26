@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 bool test_int() {
     bool ok = true;
     ivec4 x = ivec4(6, 6, 7, 8);
