@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a12fec2_e526c353",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-26T20:48:54Z",
+      "side": 1,
+      "message": "Brian and Jim- This CL was the end goal after all the work that\u0027s been done on GrTriangulator. Once this lands, the tessellator will be within 10% of cached triangulations. I think with a bit more creativity we can probably catch up and maybe even surpass it.",
+      "revId": "de6ba029ada23820cd48fd3af2585ef08c861301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c00792ce_937e7c99",
+        "filename": "src/gpu/tessellate/GrPathInnerTriangulateOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-26T20:48:54Z",
+      "side": 1,
+      "message": "Should I leave this as 2019? Or bump to 2021?",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "de6ba029ada23820cd48fd3af2585ef08c861301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
