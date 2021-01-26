@@ -38,6 +38,10 @@ public:
 
     ~SkImage_Gpu() override;
 
+    bool onHasMipmaps() const override {
+        return fView.asTextureProxy()->mipmapped() == GrMipmapped::kYes;
+    }
+
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
     GrTextureProxy* peekProxy() const override {
