@@ -16,6 +16,24 @@
       "message": "I\u0027m pretty sure this is okay, but just want to be very careful: Are there other statement types that make more sense, but that also introduce symbols (without a new table?).\n\n  if (test)\n    for (int i \u003d 0; ... ) { }\n\nThat does introduce new symbols, the For always creates a new table, so everything is retained properly, AFAICT. Are there any other statement types that could be a problem? (Looking at the list, I don\u0027t think so).",
       "revId": "c833a0068abcf0dbefec3391df65922dc22e4463",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f6c3a78_bd4dda32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-26T15:07:12Z",
+      "side": 1,
+      "message": "Here are all the callers of convertStatement:\n\n- convertBlock (makes symtab)\n- convertIf\n- convertFor (makes symtab)\n- convertWhile\n- convertDo\n- convertSwitch (makes symtab)\n\nActually, I think we can remove the restriction from convertFor. Things will work OK in a for loop, since we always make a symtab to hold the init-stmt var.",
+      "parentUuid": "5f55a3ba_8a71e624",
+      "revId": "c833a0068abcf0dbefec3391df65922dc22e4463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
