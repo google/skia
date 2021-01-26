@@ -317,10 +317,7 @@ public:
         return gPtsInVerb[verb];
     }
 
-    static bool IsAxisAligned(const SkPath& path) {
-        SkRect tmp;
-        return (path.fPathRef->fIsRRect | path.fPathRef->fIsOval) || path.isRect(&tmp);
-    }
+    static bool IsAxisAligned(const SkPath& path);
 
     static bool AllPointsEq(const SkPoint pts[], int count) {
         for (int i = 1; i < count; ++i) {
