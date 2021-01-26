@@ -985,3 +985,27 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
         While(7, Block()).release();
     }
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Var a(Array(kInt, 5), "a"), b(kInt, "b");
+    Expression e1 = a[0];
+    REPORTER_ASSERT(r, e1.release()->description() == "a[0]");
+    Expression e2 = a[b];
+    REPORTER_ASSERT(r, e2.release()->description() == "a[b]");
+
+    {
+        ExpectError error(r, "error: expected 'int', but found 'bool'\n");
+        a[true].release();
+    }
+
+    {
+        ExpectError error(r, "error: expected array, but found 'int'\n");
+        b[0].release();
+    }
+
+    {
+        ExpectError error(r, "error: index -1 out of range for 'int[5]'\n");
+        a[-1].release();
+    }
+}

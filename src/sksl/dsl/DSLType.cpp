@@ -147,6 +147,10 @@ TYPE(Short)
 
 #undef TYPE
 
+DSLType Array(const DSLType& base, int count) {
+    return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
+}
+
 } // namespace dsl
 
 } // namespace SkSL
