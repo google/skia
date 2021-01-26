@@ -33,6 +33,7 @@ GrVkPipelineState::GrVkPipelineState(
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
         uint32_t uniformSize,
+        GrVkUniformHandler::Layout layout,
         const UniformInfoArray& samplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -43,8 +44,11 @@ GrVkPipelineState::GrVkPipelineState(
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
-        , fDataManager(uniforms, uniformSize) {
-    fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
+        , fDataManager(uniforms, uniformSize, layout) {
+    // Only set up uniform buffer if we're using std140
+    if (layout == GrVkUniformHandler::kStd140Layout) {
+        fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
+    }
 
     fNumSamplers = samplers.count();
     for (const auto& sampler : samplers.items()) {
@@ -91,14 +95,16 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                 dstTexture, offset);
     }
 
-    // Get new descriptor set
     if (fUniformBuffer) {
+        // Get new descriptor set
         fDataManager.uploadUniformBuffers(gpu, fUniformBuffer.get());
         static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
         commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kUniformDSIdx, /*setCount=*/1,
                                           fUniformBuffer->descriptorSet(), /*dynamicOffsetCount=*/0,
                                           /*dynamicOffsets=*/nullptr);
         commandBuffer->addRecycledResource(fUniformBuffer->resource());
+    } else {
+        fDataManager.uploadPushConstants(gpu, fPipeline->layout(), commandBuffer);
     }
     return true;
 }
