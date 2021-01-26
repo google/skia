@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2f199f1_729ebd05",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-26T13:52:20Z",
+      "side": 1,
+      "message": "No Gold coverage again, but this fixes another couple of client samples locally.",
+      "revId": "6275df9a8be0ddec3d3cc22344a15f76a7b2eecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
