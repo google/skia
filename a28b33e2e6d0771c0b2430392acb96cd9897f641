@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ac27cfe_0b666690",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-26T14:20:20Z",
+      "side": 1,
+      "message": "This is even better, I think :-)",
+      "parentUuid": "2ba48e67_9372e75b",
+      "range": {
+        "startLine": 119,
+        "startChar": 71,
+        "endLine": 122,
+        "endChar": 91
+      },
+      "revId": "a28b33e2e6d0771c0b2430392acb96cd9897f641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e92ed5c6_914eb08f",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1de2c03e_4fee3f2c",
+        "filename": "src/sksl/dsl/DSLCore.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-26T14:20:20Z",
+      "side": 1,
+      "message": "Can\u0027t write it exactly like that due to warnings, but yes you are right that we can overlap them.",
+      "parentUuid": "e92ed5c6_914eb08f",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 7
+      },
+      "revId": "a28b33e2e6d0771c0b2430392acb96cd9897f641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "372764d2_cdbddc0c",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-01-25T21:52:49Z",
       "side": 1,
       "message": "Let\u0027s get coverage for:\n- ZERO constant\n- Repeating a component\n- Components out of order",
+      "range": {
+        "startLine": 986,
+        "startChar": 61,
+        "endLine": 998,
+        "endChar": 84
+      },
+      "revId": "a28b33e2e6d0771c0b2430392acb96cd9897f641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7831cb90_f471fb5e",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-26T14:20:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "372764d2_cdbddc0c",
       "range": {
         "startLine": 986,
         "startChar": 61,
