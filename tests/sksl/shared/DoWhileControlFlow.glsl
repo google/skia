@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 vec4 main() {
     vec4 x = vec4(1.0, 1.0, 1.0, 1.0);
     do {
