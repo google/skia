@@ -384,6 +384,7 @@ sksl_shared_tests = [
   "/sksl/shared/VectorConstructors.sksl",
   "/sksl/shared/VertexEarlyReturn.vert",
   "/sksl/shared/VertexID.vert",
+  "/sksl/shared/WhileLoopControlFlow.sksl",
   "/sksl/shared/Width.sksl",
 ]
 
