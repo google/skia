@@ -1,0 +1,19 @@
+half4 main() {
+    half4 x = half4(1, 1, 1, 1);
+
+    // Verify that break is allowed in a while loop.
+    while (x.a == 1) {
+        x.r -= 0.25;
+        if (x.r <= 0) break;
+    }
+
+    // Verify that continue is allowed in a while loop.
+    while (x.b > 0) {
+        x.b -= 0.25;
+        if (x.a == 1) continue; // should always happen
+        x.g = 0;
+    }
+
+    // x contains green.
+    return x;
+}
