@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a9f25c9_acfd7864",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-26T19:03:10Z",
+      "side": 1,
+      "message": "Just laying some ground work for the lighting filters. Everything added here is currently unused.",
+      "revId": "4008537c489edbf7beddad9d1b47365c9174096d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
