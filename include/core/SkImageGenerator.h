@@ -172,6 +172,7 @@ protected:
 
     virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
     struct Options {};
+    virtual bool onHasMipmaps() const { return false; }
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrRecordingContext*) const { return true; }
     virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
