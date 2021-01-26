@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c189341_f230a8e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-26T22:46:41Z",
+      "side": 1,
+      "message": "I\u0027m not sure we even need this image-\u003etexture API anymore. Chrome still calls it but I think that may only be used in non-OOP-R GPU raster, which doesn\u0027t ship anywhere anymore. However, there are likely still unit tests that use it. I may try just making it always fail in another CL and see if we can get away with that.",
+      "revId": "85b32cea1fc0405c03730c4f9b653695344c0b44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ead0ebfb_f7228eca",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-26T22:46:41Z",
+      "side": 1,
+      "message": "This does the stuff that the old code does: checks if direct is compatible context, makes a texture if the image is not already texture backed. We don\u0027t really need a SkImage_Gpu.",
+      "range": {
+        "startLine": 577,
+        "startChar": 4,
+        "endLine": 577,
+        "endChar": 78
+      },
+      "revId": "85b32cea1fc0405c03730c4f9b653695344c0b44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
