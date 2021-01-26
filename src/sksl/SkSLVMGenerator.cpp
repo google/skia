@@ -72,8 +72,14 @@ struct Value {
         skvm::Val& fVal;
     };
 
-    ValRef    operator[](int i)       { return fVals[i]; }
-    skvm::Val operator[](int i) const { return fVals[i]; }
+    ValRef    operator[](size_t i) {
+        SkASSERT(i < fVals.size());
+        return fVals[i];
+    }
+    skvm::Val operator[](size_t i) const {
+        SkASSERT(i < fVals.size());
+        return fVals[i];
+    }
 
     SkSpan<skvm::Val> asSpan() { return fVals; }
 
