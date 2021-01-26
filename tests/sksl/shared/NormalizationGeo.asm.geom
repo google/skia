@@ -23,6 +23,7 @@ OpMemberDecorate %sk_PerVertex 0 BuiltIn Position
 OpMemberDecorate %sk_PerVertex 1 BuiltIn PointSize
 OpDecorate %_arr_sk_PerVertex_int_1 ArrayStride 32
 OpDecorate %sk_InvocationID BuiltIn InvocationId
+OpDecorate %sk_RTAdjust DescriptorSet 0
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %sk_PerVertex = OpTypeStruct %v4float %float

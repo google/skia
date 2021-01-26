@@ -21,6 +21,7 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %tex RelaxedPrecision
 OpDecorate %tex Binding 0
+OpDecorate %tex DescriptorSet 0
 OpDecorate %20 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
 %float = OpTypeFloat 32
