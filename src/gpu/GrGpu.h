@@ -787,7 +787,7 @@ private:
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
-    virtual void onResetContext(uint32_t resetBits) = 0;
+    virtual void onResetContext(uint32_t resetBits) {}
 
     // Implementation of resetTextureBindings.
     virtual void onResetTextureBindings() {}

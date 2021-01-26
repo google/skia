@@ -198,8 +198,6 @@ private:
             sk_sp<const GrVkInterface>, uint32_t instanceVersion, uint32_t physicalDeviceVersion,
             sk_sp<GrVkMemoryAllocator>);
 
-    void onResetContext(uint32_t resetBits) override {}
-
     void destroyResources();
 
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
