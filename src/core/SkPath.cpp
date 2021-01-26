@@ -3842,3 +3842,19 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
 int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
     return path.fPathRef->genIDChangeListenerCount();
 }
+
+bool SkPathPriv::IsAxisAligned(const SkPath& path) {
+    // Conservative (quick) test to see if all segments are axis-aligned.
+    // Multiple contours might give a false-negative, but for speed, we ingore that
+    // and just look at the raw points.
+
+    const SkPoint* pts = path.fPathRef->points();
+    const int count = path.fPathRef->countPoints();
+
+    for (int i = 1; i < count; ++i) {
+        if (pts[i-1].fX != pts[i].fX && pts[i-1].fY != pts[i].fY) {
+            return false;
+        }
+    }
+    return true;
+}
