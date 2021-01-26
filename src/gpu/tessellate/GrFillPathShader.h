@@ -25,6 +25,47 @@ public:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
+    static const GrPipeline* MakeFillPassPipeline(const GrPathShader::ProgramArgs& args,
+                                                  GrAAType aaType, GrAppliedClip&& appliedClip,
+                                                  GrProcessorSet&& processors) {
+        auto pipelineFlags = GrPipeline::InputFlags::kNone;
+        if (aaType != GrAAType::kNone) {
+            if (args.fWriteView.asRenderTargetProxy()->numSamples() == 1) {
+                // We are mixed sampled. We need to either enable conservative raster (preferred) or
+                // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
+                // the cover geometry, the stencil test is still multisampled and will still produce
+                // smooth results.)
+                SkASSERT(aaType == GrAAType::kCoverage);
+                if (args.fCaps->conservativeRasterSupport()) {
+                    pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+                    pipelineFlags |= GrPipeline::InputFlags::kConservativeRaster;
+                }
+            } else {
+                // We are standard MSAA. Leave MSAA enabled for the cover geometry.
+                pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+            }
+        }
+        return GrSimpleMeshDrawOpHelper::CreatePipeline(
+                args.fCaps, args.fArena, args.fWriteView.swizzle(), std::move(appliedClip),
+                *args.fDstProxyView, std::move(processors), pipelineFlags);
+    }
+
+    // Allows non-zero stencil values to pass and write a color, and resets the stencil value back
+    // to zero; discards immediately on stencil values of zero.
+    static const GrUserStencilSettings* TestAndResetStencilSettings() {
+        constexpr static GrUserStencilSettings kTestAndResetStencil(
+            GrUserStencilSettings::StaticInit<
+                0x0000,
+                // No need to check the clip because the previous stencil pass will have only
+                // written to samples already inside the clip.
+                GrUserStencilTest::kNotEqual,
+                0xffff,
+                GrUserStencilOp::kZero,
+                GrUserStencilOp::kKeep,
+                0xffff>());
+        return &kTestAndResetStencil;
+    }
+
 protected:
     class Impl;
 

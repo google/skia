@@ -20,6 +20,67 @@ public:
             : GrPathShader(classID, viewMatrix, primitiveType, tessellationPatchVertexCount) {
     }
 
+    // Creates a pipeline that can be used for normal Redbook stencil draws.
+    static const GrPipeline* MakeStencilPassPipeline(const GrPathShader::ProgramArgs& args,
+                                                     GrAAType aaType,
+                                                     GrTessellationPathRenderer::OpFlags opFlags,
+                                                     const GrAppliedHardClip& hardClip) {
+        using OpFlags = GrTessellationPathRenderer::OpFlags;
+        GrPipeline::InitArgs pipelineArgs;
+        if (aaType != GrAAType::kNone) {
+            pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
+        }
+        if (args.fCaps->wireframeSupport() && (opFlags & OpFlags::kWireframe)) {
+            pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kWireframe;
+        }
+        pipelineArgs.fCaps = args.fCaps;
+        return args.fArena->make<GrPipeline>(pipelineArgs,
+                                             GrDisableColorXPFactory::MakeXferProcessor(),
+                                             hardClip);
+    }
+
+    // Returns the stencil settings to use for a standard Redbook stencil draw.
+    static const GrUserStencilSettings* StencilPassSettings(SkPathFillType fillType) {
+        // Increments clockwise triangles and decrements counterclockwise. Used for "winding" fill.
+        constexpr static GrUserStencilSettings kIncrDecrStencil(
+            GrUserStencilSettings::StaticInitSeparate<
+                0x0000,                                0x0000,
+                GrUserStencilTest::kAlwaysIfInClip,    GrUserStencilTest::kAlwaysIfInClip,
+                0xffff,                                0xffff,
+                GrUserStencilOp::kIncWrap,             GrUserStencilOp::kDecWrap,
+                GrUserStencilOp::kKeep,                GrUserStencilOp::kKeep,
+                0xffff,                                0xffff>());
+
+        // Inverts the bottom stencil bit. Used for "even/odd" fill.
+        constexpr static GrUserStencilSettings kInvertStencil(
+            GrUserStencilSettings::StaticInit<
+                0x0000,
+                GrUserStencilTest::kAlwaysIfInClip,
+                0xffff,
+                GrUserStencilOp::kInvert,
+                GrUserStencilOp::kKeep,
+                0x0001>());
+
+        SkASSERT(fillType == SkPathFillType::kWinding || fillType == SkPathFillType::kEvenOdd);
+        return (fillType == SkPathFillType::kWinding) ? &kIncrDecrStencil : &kInvertStencil;
+    }
+
+    template<typename ShaderType>
+    static GrProgramInfo* MakeStencilProgram(const ProgramArgs& args, const SkMatrix& viewMatrix,
+                                             const GrPipeline* pipeline,
+                                             const GrUserStencilSettings* stencil) {
+        const auto* shader = args.fArena->make<ShaderType>(viewMatrix);
+        return GrPathShader::MakeProgram(args, shader, pipeline, stencil);
+    }
+
+    template<typename ShaderType>
+    static GrProgramInfo* MakeStencilProgram(const ProgramArgs& args, const SkMatrix& viewMatrix,
+                                             const GrPipeline* pipeline,
+                                             const SkPathFillType fillType) {
+        return MakeStencilProgram<ShaderType>(args, viewMatrix, pipeline,
+                                              StencilPassSettings(fillType));
+    }
+
 protected:
     constexpr static Attribute kSinglePointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                   kFloat2_GrSLType};
