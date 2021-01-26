@@ -1800,7 +1800,9 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
 }
 
 void MetalCodeGenerator::writeBlock(const Block& b) {
-    bool isScope = b.isScope();
+    // Write scope markers if this block is a scope, or if the block is empty (since we need to emit
+    // something here to make the code valid).
+    bool isScope = b.isScope() || b.isEmpty();
     if (isScope) {
         this->writeLine("{");
         fIndentation++;
