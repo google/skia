@@ -1009,3 +1009,61 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
         a[-1].release();
     }
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    // There is a Fract type on Mac which can conflict with our Fract builtin
+    using SkSL::dsl::Fract;
+    Var a(kHalf4, "a"), b(kHalf4, "b"), c(kHalf4, "c");
+    Var h3(kHalf3, "h3");
+    Var b4(kBool4, "b4");
+    REPORTER_ASSERT(r, Abs(a).release()->description()                 == "abs(a)");
+    REPORTER_ASSERT(r, All(b4).release()->description()                == "all(b4)");
+    REPORTER_ASSERT(r, Any(b4).release()->description()                == "any(b4)");
+    REPORTER_ASSERT(r, Ceil(a).release()->description()                == "ceil(a)");
+    REPORTER_ASSERT(r, Clamp(a, 0, 1).release()->description()         == "clamp(a, 0.0, 1.0)");
+    REPORTER_ASSERT(r, Cos(a).release()->description()                 == "cos(a)");
+    REPORTER_ASSERT(r, Cross(h3, h3).release()->description()          == "cross(h3, h3)");
+    REPORTER_ASSERT(r, Degrees(a).release()->description()             == "degrees(a)");
+    REPORTER_ASSERT(r, Distance(a, b).release()->description()         == "distance(a, b)");
+    REPORTER_ASSERT(r, Dot(a, b).release()->description()              == "dot(a, b)");
+    REPORTER_ASSERT(r, Equal(a, b).release()->description()            == "equal(a, b)");
+    REPORTER_ASSERT(r, Exp(a).release()->description()                 == "exp(a)");
+    REPORTER_ASSERT(r, Exp2(a).release()->description()                == "exp2(a)");
+    REPORTER_ASSERT(r, Faceforward(a, b, c).release()->description()   == "faceforward(a, b, c)");
+    REPORTER_ASSERT(r, Floor(a).release()->description()               == "floor(a)");
+    REPORTER_ASSERT(r, Fract(a).release()->description()               == "fract(a)");
+    REPORTER_ASSERT(r, GreaterThan(a, b).release()->description()      == "greaterThan(a, b)");
+    REPORTER_ASSERT(r, GreaterThanEqual(a, b).release()->description() == "greaterThanEqual(a, b)");
+    REPORTER_ASSERT(r, Inversesqrt(a).release()->description()         == "inversesqrt(a)");
+    REPORTER_ASSERT(r, LessThan(a, b).release()->description()         == "lessThan(a, b)");
+    REPORTER_ASSERT(r, LessThanEqual(a, b).release()->description()    == "lessThanEqual(a, b)");
+    REPORTER_ASSERT(r, Length(a).release()->description()              == "length(a)");
+    REPORTER_ASSERT(r, Log(a).release()->description()                 == "log(a)");
+    REPORTER_ASSERT(r, Log2(a).release()->description()                == "log2(a)");
+    REPORTER_ASSERT(r, Max(a, b).release()->description()              == "max(a, b)");
+    REPORTER_ASSERT(r, Min(a, b).release()->description()              == "min(a, b)");
+    REPORTER_ASSERT(r, Mix(a, b, c).release()->description()           == "mix(a, b, c)");
+    REPORTER_ASSERT(r, Mod(a, b).release()->description()              == "mod(a, b)");
+    REPORTER_ASSERT(r, Normalize(a).release()->description()           == "normalize(a)");
+    REPORTER_ASSERT(r, NotEqual(a, b).release()->description()         == "notEqual(a, b)");
+    REPORTER_ASSERT(r, Pow(a, b).release()->description()              == "pow(a, b)");
+    REPORTER_ASSERT(r, Radians(a).release()->description()             == "radians(a)");
+    REPORTER_ASSERT(r, Reflect(a, b).release()->description()          == "reflect(a, b)");
+    REPORTER_ASSERT(r, Refract(a, b, 1).release()->description()       == "refract(a, b, 1.0)");
+    REPORTER_ASSERT(r, Saturate(a).release()->description()            == "saturate(a)");
+    REPORTER_ASSERT(r, Sign(a).release()->description()                == "sign(a)");
+    REPORTER_ASSERT(r, Sin(a).release()->description()                 == "sin(a)");
+    REPORTER_ASSERT(r, Smoothstep(a, b, c).release()->description()    == "smoothstep(a, b, c)");
+    REPORTER_ASSERT(r, Sqrt(a).release()->description()                == "sqrt(a)");
+    REPORTER_ASSERT(r, Step(a, b).release()->description()             == "step(a, b)");
+    REPORTER_ASSERT(r, Tan(a).release()->description()                 == "tan(a)");
+    REPORTER_ASSERT(r, Unpremul(a).release()->description()            == "unpremul(a)");
+
+    // these calls all go through the normal channels, so it ought to be sufficient to prove that
+    // one of them reports errors correctly
+    {
+        ExpectError error(r, "error: no match for ceil(bool)\n");
+        Ceil(a == b).release();
+    }
+}
