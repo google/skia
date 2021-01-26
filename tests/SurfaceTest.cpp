@@ -486,13 +486,13 @@ static void test_crbug263329(skiatest::Reporter* reporter,
     SkImage_GpuBase* gpuImage3 = static_cast<SkImage_GpuBase*>(as_IB(image3));
     SkImage_GpuBase* gpuImage4 = static_cast<SkImage_GpuBase*>(as_IB(image4));
 
-    REPORTER_ASSERT(reporter, gpuImage4->getTexture() != gpuImage3->getTexture());
+    REPORTER_ASSERT(reporter, gpuImage4->peekProxy() != gpuImage3->peekProxy());
     // The following assertion checks crbug.com/263329
-    REPORTER_ASSERT(reporter, gpuImage4->getTexture() != gpuImage2->getTexture());
-    REPORTER_ASSERT(reporter, gpuImage4->getTexture() != gpuImage1->getTexture());
-    REPORTER_ASSERT(reporter, gpuImage3->getTexture() != gpuImage2->getTexture());
-    REPORTER_ASSERT(reporter, gpuImage3->getTexture() != gpuImage1->getTexture());
-    REPORTER_ASSERT(reporter, gpuImage2->getTexture() != gpuImage1->getTexture());
+    REPORTER_ASSERT(reporter, gpuImage4->peekProxy() != gpuImage2->peekProxy());
+    REPORTER_ASSERT(reporter, gpuImage4->peekProxy() != gpuImage1->peekProxy());
+    REPORTER_ASSERT(reporter, gpuImage3->peekProxy() != gpuImage2->peekProxy());
+    REPORTER_ASSERT(reporter, gpuImage3->peekProxy() != gpuImage1->peekProxy());
+    REPORTER_ASSERT(reporter, gpuImage2->peekProxy() != gpuImage1->peekProxy());
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
