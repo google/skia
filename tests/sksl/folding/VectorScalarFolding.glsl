@@ -1,4 +1,7 @@
 
+uniform vec4 colorRed;
+uniform vec4 colorGreen;
+uniform float unknownInput;
 bool test_int() {
     bool ok = true;
     ivec4 x = ivec4(6, 6, 7, 8);
@@ -27,7 +30,7 @@ bool test_int() {
     ok = ok;
     x = ivec4(6, 6, 6, 6);
     ok = ok;
-    int unknown = int(sqrt(2.0));
+    int unknown = int(unknownInput);
     x = ivec4(unknown);
     ok = ok && x == ivec4(unknown);
     x = ivec4(0);
@@ -90,7 +93,7 @@ vec4 main() {
     _1_ok = _1_ok;
     _2_x = vec4(6.0, 6.0, 6.0, 6.0);
     _1_ok = _1_ok;
-    float _3_unknown = sqrt(2.0);
+    float _3_unknown = unknownInput;
     _2_x = vec4(_3_unknown);
     _1_ok = _1_ok && _2_x == vec4(_3_unknown);
     _2_x = vec4(0.0);
@@ -123,6 +126,6 @@ vec4 main() {
     _1_ok = _1_ok && _2_x == vec4(_3_unknown);
     _2_x = vec4(_3_unknown);
     _1_ok = _1_ok && _2_x == vec4(_3_unknown);
-    return _1_ok && test_int() ? vec4(0.0, 1.0, 0.0, 1.0) : vec4(1.0, 0.0, 0.0, 1.0);
+    return _1_ok && test_int() ? colorGreen : colorRed;
 
 }

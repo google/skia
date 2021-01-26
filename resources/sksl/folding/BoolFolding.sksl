@@ -1,3 +1,5 @@
+uniform half4 colorRed, colorGreen;
+
 bool test() {
     bool a = 1 == 1 || 2 == 8;
     bool b = 1 > 1  || 2 == 8;
@@ -14,6 +16,6 @@ bool test() {
 }
 
 half4 main() {
-    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+    return test() ? colorGreen : colorRed;
 }
 

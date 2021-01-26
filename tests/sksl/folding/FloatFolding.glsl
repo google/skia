@@ -1,4 +1,6 @@
 
+uniform vec4 colorRed;
+uniform vec4 colorGreen;
 vec4 main() {
     bool _1_ok = true;
     float _2_x = 34.0;
@@ -66,6 +68,6 @@ vec4 main() {
     _1_ok = _1_ok && _2_x == -2.0;
     _2_x /= 2.0;
     _1_ok = _1_ok && _2_x == -1.0;
-    return _1_ok ? vec4(0.0, 1.0, 0.0, 1.0) : vec4(1.0, 0.0, 0.0, 1.0);
+    return _1_ok ? colorGreen : colorRed;
 
 }

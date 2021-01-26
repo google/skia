@@ -1,6 +1,9 @@
 
+uniform float unknownInput;
+uniform vec4 colorRed;
+uniform vec4 colorGreen;
 bool test_int() {
-    int unknown = int(sqrt(1.0));
+    int unknown = int(unknownInput);
     bool ok = true;
     ok = true;
     ok = true;
@@ -47,7 +50,7 @@ bool test_int() {
     return ok;
 }
 vec4 main() {
-    float _1_unknown = sqrt(1.0);
+    float _1_unknown = unknownInput;
     bool _2_ok = true;
     _2_ok = true;
     _2_ok = true;
@@ -91,6 +94,6 @@ vec4 main() {
     _3_val *= vec4(2.0);
     _3_val /= vec4(2.0);
     _2_ok = _2_ok && _3_val == vec4(_1_unknown);
-    return _2_ok && test_int() ? vec4(0.0, 1.0, 0.0, 1.0) : vec4(1.0, 0.0, 0.0, 1.0);
+    return _2_ok && test_int() ? colorGreen : colorRed;
 
 }

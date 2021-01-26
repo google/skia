@@ -1,5 +1,7 @@
+uniform half4 colorWhite;
+
 half4 main() {
-    half4 x = half4(1, 1, 1, 1);
+    half4 x = colorWhite;
 
     // Verify that break is allowed in a for loop.
     for (half r = -5; r < 5; r += 1) {

@@ -1,5 +1,8 @@
+uniform half4 colorRed, colorGreen;
+uniform half  unknownInput;
+
 bool test() {
-    bool expr = sqrt(1) > 0;
+    bool expr = unknownInput > 0;
 
     int ok = 0, bad = 0;
 
@@ -40,5 +43,5 @@ bool test() {
 }
 
 half4 main() {
-    return test() ? half4(0,1,0,1) : half4(1,0,0,1);
+    return test() ? colorGreen : colorRed;
 }

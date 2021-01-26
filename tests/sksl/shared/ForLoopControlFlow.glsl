@@ -1,6 +1,7 @@
 
+uniform vec4 colorWhite;
 vec4 main() {
-    vec4 x = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 x = colorWhite;
     for (float r = -5.0;r < 5.0; r += 1.0) {
         x.x = abs(r);
         if (x.x == 0.0) break;

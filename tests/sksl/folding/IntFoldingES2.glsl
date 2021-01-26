@@ -1,6 +1,9 @@
 
+uniform vec4 colorRed;
+uniform vec4 colorGreen;
+uniform float unknownInput;
 vec4 main() {
-    int _1_unknown = int(sqrt(1.0));
+    int _1_unknown = int(unknownInput);
     bool _2_ok = true;
     int _3_x = 34;
     _2_ok = true;
@@ -64,6 +67,6 @@ vec4 main() {
     _2_ok = _2_ok && _3_x == -2;
     _3_x /= 2;
     _2_ok = _2_ok && _3_x == -1;
-    return _2_ok ? vec4(0.0, 1.0, 0.0, 1.0) : vec4(1.0, 0.0, 0.0, 1.0);
+    return _2_ok ? colorGreen : colorRed;
 
 }

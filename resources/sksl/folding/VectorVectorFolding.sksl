@@ -1,5 +1,8 @@
+uniform half  unknownInput;
+uniform half4 colorRed, colorGreen;
+
 bool test_half() {
-    half unknown = half(sqrt(1));
+    half unknown = unknownInput;
 
     bool ok = true;
     ok = ok &&  (half4(half2(1), half2(2, 3)) + half4(5, 6, 7, 8)) == half4(6, 7, 9, 11);
@@ -54,7 +57,7 @@ bool test_half() {
 }
 
 bool test_int() {
-    int unknown = int(sqrt(1));
+    int unknown = int(unknownInput);
 
     bool ok = true;
     ok = ok &&  (int4(int2(1), int2(2, 3)) + int4(5, 6, 7, 8)) == int4(6, 7, 9, 11);
@@ -109,5 +112,5 @@ bool test_int() {
 }
 
 half4 main() {
-    return test_half() && test_int() ? half4(0,1,0,1) : half4(1,0,0,1);
+    return test_half() && test_int() ? colorGreen : colorRed;
 }
