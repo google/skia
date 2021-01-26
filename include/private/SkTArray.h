@@ -385,6 +385,16 @@ public:
         return fItemArray[i];
     }
 
+    T& operator[] (size_t i) {
+        SkASSERT(i < this->size());
+        return fItemArray[i];
+    }
+
+    const T& operator[] (size_t i) const {
+        SkASSERT(i < this->size());
+        return fItemArray[i];
+    }
+
     T& at(int i) { return (*this)[i]; }
     const T& at(int i) const { return (*this)[i]; }
 
