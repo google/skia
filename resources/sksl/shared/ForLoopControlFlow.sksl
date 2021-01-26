@@ -1,0 +1,19 @@
+half4 main() {
+    half4 x = half4(1, 1, 1, 1);
+
+    // Verify that break is allowed in a for loop.
+    for (half r = -5; r < 5; r += 1) {
+        x.r = abs(r);
+        if (x.r == 0) break;
+    }
+
+    // Verify that continue is allowed in a for loop.
+    for (half b = 5; b >= 0; b -= 1) {
+        x.b = b;
+        if (x.a == 1) continue; // should always happen
+        x.g = 0;
+    }
+
+    // x contains green.
+    return x;
+}
