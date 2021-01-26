@@ -954,6 +954,50 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Var a(kFloat4, "a");
+
+    Expression e1 = a.x();
+    REPORTER_ASSERT(r, e1.release()->description() == "a.x");
+
+    Expression e2 = a.y();
+    REPORTER_ASSERT(r, e2.release()->description() == "a.y");
+
+    Expression e3 = a.z();
+    REPORTER_ASSERT(r, e3.release()->description() == "a.z");
+
+    Expression e4 = a.w();
+    REPORTER_ASSERT(r, e4.release()->description() == "a.w");
+
+    Expression e5 = a.r();
+    REPORTER_ASSERT(r, e5.release()->description() == "a.x");
+
+    Expression e6 = a.g();
+    REPORTER_ASSERT(r, e6.release()->description() == "a.y");
+
+    Expression e7 = a.b();
+    REPORTER_ASSERT(r, e7.release()->description() == "a.z");
+
+    Expression e8 = a.a();
+    REPORTER_ASSERT(r, e8.release()->description() == "a.w");
+
+    Expression e9 = Swizzle(a, R);
+    REPORTER_ASSERT(r, e9.release()->description() == "a.x");
+
+    Expression e10 = Swizzle(a, ZERO, G);
+    REPORTER_ASSERT(r, e10.release()->description() == "float2(a.y, float(0)).yx");
+
+    Expression e11 = Swizzle(a, B, G, G);
+    REPORTER_ASSERT(r, e11.release()->description() == "a.zyy");
+
+    Expression e12 = Swizzle(a, R, G, B, ONE);
+    REPORTER_ASSERT(r, e12.release()->description() == "float4(a.xyz, float(1))");
+
+    Expression e13 = Swizzle(a, R, G, B, ONE).r();
+    REPORTER_ASSERT(r, e13.release()->description() == "float4(a.xyz, float(1)).x");
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLTernary, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a");

@@ -79,6 +79,24 @@ DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression if
  */
 DSLStatement While(DSLExpression test, DSLStatement stmt);
 
+
+enum SwizzleComponent : int8_t {
+    X = 0, Y = 1, Z = 2, W = 3,
+    R = 0, G = 1, B = 2, A = 3,
+    ZERO,
+    ONE
+};
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a);
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b);
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                      SwizzleComponent c);
+
+DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
+                      SwizzleComponent c, SwizzleComponent d);
+
 /**
  * Returns the absolute value of x. If x is a vector, operates componentwise.
  */

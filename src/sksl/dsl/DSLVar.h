@@ -30,6 +30,38 @@ public:
 
     DSLVar(DSLVar&&) = delete;
 
+    DSLExpression x() {
+        return DSLExpression(*this).x();
+    }
+
+    DSLExpression y() {
+        return DSLExpression(*this).y();
+    }
+
+    DSLExpression z() {
+        return DSLExpression(*this).z();
+    }
+
+    DSLExpression w() {
+        return DSLExpression(*this).w();
+    }
+
+    DSLExpression r() {
+        return DSLExpression(*this).r();
+    }
+
+    DSLExpression g() {
+        return DSLExpression(*this).g();
+    }
+
+    DSLExpression b() {
+        return DSLExpression(*this).b();
+    }
+
+    DSLExpression a() {
+        return DSLExpression(*this).a();
+    }
+
     DSLExpression operator=(const DSLVar& var) {
         return this->operator=(DSLExpression(var));
     }
