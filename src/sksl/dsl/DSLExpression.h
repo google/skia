@@ -67,6 +67,22 @@ public:
      */
     DSLExpression operator=(DSLExpression other);
 
+    DSLExpression x();
+
+    DSLExpression y();
+
+    DSLExpression z();
+
+    DSLExpression w();
+
+    DSLExpression r();
+
+    DSLExpression g();
+
+    DSLExpression b();
+
+    DSLExpression a();
+
     /**
      * Invalidates this object and returns the SkSL expression it represents.
      */
