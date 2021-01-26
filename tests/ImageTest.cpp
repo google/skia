@@ -395,7 +395,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 otherContextInfo.directContext()->flushAndSubmit();
                 return otherContextImage;
             }};
-    for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
+    for (auto mipmapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
         for (const auto& factory : imageFactories) {
             sk_sp<SkImage> image(factory());
             if (!image) {
@@ -403,12 +403,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 continue;
             }
             GrTextureProxy* origProxy = nullptr;
+            bool origIsMippedTexture = false;
+
             if (auto sp = as_IB(image)->peekProxy()) {
                 origProxy = sp->asTextureProxy();
                 SkASSERT(origProxy);
+                REPORTER_ASSERT(reporter, (origProxy->mipmapped() == GrMipmapped::kYes) ==
+                                          image->hasMipmaps());
+                origIsMippedTexture = image->hasMipmaps();
             }
             for (auto budgeted : {SkBudgeted::kNo, SkBudgeted::kYes}) {
-                auto texImage = image->makeTextureImage(dContext, mipMapped, budgeted);
+                auto texImage = image->makeTextureImage(dContext, mipmapped, budgeted);
                 if (!texImage) {
                     auto imageContext = as_IB(image)->context();
                     // We expect to fail if image comes from a different context
@@ -423,14 +428,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 }
                 GrTextureProxy* copyProxy = as_IB(texImage)->peekProxy()->asTextureProxy();
                 SkASSERT(copyProxy);
-                bool shouldBeMipped =
-                        mipMapped == GrMipmapped::kYes && dContext->priv().caps()->mipmapSupport();
-                if (shouldBeMipped && copyProxy->mipmapped() == GrMipmapped::kNo) {
-                    ERRORF(reporter, "makeTextureImage returned non-mipmapped texture.");
-                    continue;
-                }
-                bool origIsMipped = origProxy && origProxy->mipmapped() == GrMipmapped::kYes;
-                if (image->isTextureBacked() && (!shouldBeMipped || origIsMipped)) {
+                // Did we ask for MIPs on a context that supports them?
+                bool validRequestForMips = (mipmapped == GrMipmapped::kYes &&
+                                            dContext->priv().caps()->mipmapSupport());
+                // Do we expect the "copy" to have MIPs?
+                bool shouldBeMipped = origIsMippedTexture || validRequestForMips;
+                REPORTER_ASSERT(reporter, shouldBeMipped == texImage->hasMipmaps());
+                REPORTER_ASSERT(reporter,
+                                shouldBeMipped == (copyProxy->mipmapped() == GrMipmapped::kYes));
+
+                // We should only make a copy of an already texture-backed image if it didn't
+                // already have MIPs but we asked for MIPs and the context supports it.
+                if (image->isTextureBacked() && (!validRequestForMips || origIsMippedTexture)) {
                     if (origProxy->underlyingUniqueID() != copyProxy->underlyingUniqueID()) {
                         ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
                     }
