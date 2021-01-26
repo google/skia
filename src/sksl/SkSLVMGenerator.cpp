@@ -219,11 +219,16 @@ private:
         return fConditionMask & fLoopMask & ~currentFunction().fReturned;
     }
 
+    size_t fieldSlotOffset(const FieldAccess& expr);
+    size_t indexSlotOffset(const IndexExpression& expr);
+
     Value writeExpression(const Expression& expr);
     Value writeBinaryExpression(const BinaryExpression& b);
     Value writeConstructor(const Constructor& c);
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
+//    Value writeFieldAccess(const FieldAccess& expr);
+    Value writeIndexExpression(const IndexExpression& expr);
     Value writeIntrinsicCall(const FunctionCall& c);
     Value writePostfixExpression(const PostfixExpression& p);
     Value writePrefixExpression(const PrefixExpression& p);
@@ -501,27 +506,11 @@ SkVMGenerator::Slot SkVMGenerator::getSlot(const Expression& e) {
     switch (e.kind()) {
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = e.as<FieldAccess>();
-            Slot slot = this->getSlot(*f.base());
-            for (int i = 0; i < f.fieldIndex(); ++i) {
-                slot += slot_count(*f.base()->type().fields()[i].fType);
+            return this->getSlot(*f.base()) + this->fieldSlotOffset(f);
             }
-            return slot;
-        }
         case Expression::Kind::kIndex: {
             const IndexExpression& i = e.as<IndexExpression>();
-            Slot baseSlot = this->getSlot(*i.base());
-
-            Value index = this->writeExpression(*i.index());
-            int indexValue = -1;
-            SkAssertResult(fBuilder->allImm(index[0], &indexValue));
-
-            // When indexing by a literal, the front-end guarantees that we don't go out of bounds.
-            // But when indexing by a loop variable, it's possible to generate out-of-bounds access.
-            // The GLSL spec leaves that behavior undefined - we'll just clamp everything here.
-            indexValue = SkTPin(indexValue, 0, i.base()->type().columns() - 1);
-
-            size_t stride = slot_count(i.type());
-            return baseSlot + indexValue * stride;
+            return this->getSlot(*i.base()) + this->indexSlotOffset(i);
         }
         case Expression::Kind::kVariableReference:
             return this->getSlot(*e.as<VariableReference>().variable());
@@ -822,6 +811,50 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
 
     SkDEBUGFAIL("Invalid constructor");
     return {};
+}
+
+size_t SkVMGenerator::fieldSlotOffset(const FieldAccess& expr) {
+    Slot offset = 0;
+    for (int i = 0; i < expr.fieldIndex(); ++i) {
+        offset += slot_count(*expr.base()->type().fields()[i].fType);
+    }
+    return offset;
+}
+
+/*
+Value SkVMGenerator::writeFieldAccess(const FieldAccess& expr) {
+    Value base = this->writeExpression(*expr.base());
+    Value field(slot_count(expr.type()));
+    size_t offset = this->fieldSlotOffset(expr);
+    for (size_t i = 0; i < field.slots(); ++i) {
+        field[i] = base[offset + i];
+    }
+    return field;
+}
+*/
+
+size_t SkVMGenerator::indexSlotOffset(const IndexExpression& expr) {
+    Value index = this->writeExpression(*expr.index());
+    int indexValue = -1;
+    SkAssertResult(fBuilder->allImm(index[0], &indexValue));
+
+    // When indexing by a literal, the front-end guarantees that we don't go out of bounds.
+    // But when indexing by a loop variable, it's possible to generate out-of-bounds access.
+    // The GLSL spec leaves that behavior undefined - we'll just clamp everything here.
+    indexValue = SkTPin(indexValue, 0, expr.base()->type().columns() - 1);
+
+    size_t stride = slot_count(expr.type());
+    return indexValue * stride;
+}
+
+Value SkVMGenerator::writeIndexExpression(const IndexExpression& expr) {
+    Value base = this->writeExpression(*expr.base());
+    Value element(slot_count(expr.type()));
+    size_t offset = this->indexSlotOffset(expr);
+    for (size_t i = 0; i < element.slots(); ++i) {
+        element[i] = base[offset + i];
+    }
+    return element;
 }
 
 Value SkVMGenerator::writeVariableExpression(const Expression& e) {
@@ -1334,8 +1367,9 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return fBuilder->splat(e.as<BoolLiteral>().value() ? ~0 : 0);
         case Expression::Kind::kConstructor:
             return this->writeConstructor(e.as<Constructor>());
-        case Expression::Kind::kFieldAccess:
         case Expression::Kind::kIndex:
+            return this->writeIndexExpression(e.as<IndexExpression>());
+        case Expression::Kind::kFieldAccess:
         case Expression::Kind::kVariableReference:
             return this->writeVariableExpression(e);
         case Expression::Kind::kFloatLiteral:
