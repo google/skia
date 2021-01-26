@@ -122,6 +122,8 @@ public:
     void onUnpinAsTexture(GrRecordingContext*) const override;
 #endif
 
+    bool onHasMipmaps() const override { return SkToBool(fBitmap.fMips); }
+
     SkMipmap* onPeekMips() const override { return fBitmap.fMips.get(); }
 
     sk_sp<SkImage> onMakeWithMipmaps(sk_sp<SkMipmap> mips) const override {
