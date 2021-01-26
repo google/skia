@@ -72,8 +72,18 @@ struct Value {
         skvm::Val& fVal;
     };
 
-    ValRef    operator[](int i)       { return fVals[i]; }
-    skvm::Val operator[](int i) const { return fVals[i]; }
+    ValRef    operator[](size_t i) {
+        // These redundant asserts work around what we think is a codegen bug in GCC 8.x for
+        // 32-bit x86 Debug builds.
+        SkASSERT(i < fVals.size());
+        return fVals[i];
+    }
+    skvm::Val operator[](size_t i) const {
+        // These redundant asserts work around what we think is a codegen bug in GCC 8.x for
+        // 32-bit x86 Debug builds.
+        SkASSERT(i < fVals.size());
+        return fVals[i];
+    }
 
     SkSpan<skvm::Val> asSpan() { return fVals; }
 
