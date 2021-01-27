@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36f2a71a_4e35c471",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-01-27T14:54:35Z",
+      "side": 1,
+      "message": "LGTM assuming the tryjob looks good.",
+      "revId": "5d46f03a1c2fe89893ab14527c0ce501e7c58fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
