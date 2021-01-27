@@ -109,6 +109,11 @@ SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 
 /*
+TODO(skia:10939): enable this test when Runtime Effects supports structs in function signatures
+SKSL_TEST(SkSLStructsInFunctions,      "shared/StructsInFunctions.sksl")
+*/
+
+/*
 TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 
 SKSL_TEST(SkSLIntFoldingES3,           "folding/IntFoldingES3.sksl")
