@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 vec4 main() {
     vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
     for (int counter = 0;counter < 10; ++counter) ;

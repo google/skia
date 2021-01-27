@@ -10,6 +10,7 @@
 #include "src/sksl/GLSL.std.450.h"
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -3231,22 +3232,86 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
                            invocations, out);
 }
 
+SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter(
+        const FunctionDeclaration& main) {
+    // Our goal is to synthesize a tiny helper function which looks like this:
+    //     void _entrypoint() { sk_FragColor = main(); }
+
+    // Fish a symbol table out of main().
+    std::shared_ptr<SymbolTable> symbolTable =
+            main.definition()->body()->as<Block>().symbolTable()->fParent;
+
+    // Get `sk_FragColor` as a writable reference.
+    const Symbol* skFragColorSymbol = (*symbolTable)["sk_FragColor"];
+    SkASSERT(skFragColorSymbol);
+    const Variable& skFragColorVar = skFragColorSymbol->as<Variable>();
+    auto skFragColorRef = std::make_unique<VariableReference>(/*offset=*/-1, &skFragColorVar,
+                                                              VariableReference::RefKind::kWrite);
+    // Synthesize a call to the `main()` function.
+    if (main.returnType() != skFragColorRef->type()) {
+        fErrors.error(main.fOffset, "SPIR-V does not support returning '" +
+                                    main.returnType().description() + "' from main()");
+        return {};
+    }
+    auto callMainFn = std::make_unique<FunctionCall>(/*offset=*/-1, &main.returnType(), &main,
+                                                     /*arguments=*/ExpressionArray{});
+
+    // Synthesize `skFragColor = main()` as a BinaryExpression.
+    auto assignmentStmt = std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
+            /*offset=*/-1,
+            std::move(skFragColorRef),
+            Token::Kind::TK_EQ,
+            std::move(callMainFn),
+            &main.returnType()));
+
+    // Function bodies are always wrapped in a Block.
+    StatementArray entrypointStmts;
+    entrypointStmts.push_back(std::move(assignmentStmt));
+    auto entrypointBlock = std::make_unique<Block>(/*offset=*/-1, std::move(entrypointStmts),
+                                                   symbolTable, /*isScope=*/true);
+    // Declare an entrypoint function.
+    EntrypointAdapter adapter;
+    adapter.fLayout = {};
+    adapter.fModifiers = Modifiers{adapter.fLayout, Modifiers::kHasSideEffects_Flag};
+    adapter.entrypointDecl =
+            std::make_unique<FunctionDeclaration>(/*offset=*/-1,
+                                                  &adapter.fModifiers,
+                                                  "_entrypoint",
+                                                  /*parameters=*/std::vector<const Variable*>{},
+                                                  /*returnType=*/fContext.fTypes.fVoid.get(),
+                                                  /*builtin=*/false);
+    // Define it.
+    adapter.entrypointDef =
+            std::make_unique<FunctionDefinition>(/*offset=*/-1, adapter.entrypointDecl.get(),
+                                                 /*builtin=*/false,
+                                                 /*body=*/std::move(entrypointBlock));
+
+    adapter.entrypointDecl->setDefinition(adapter.entrypointDef.get());
+    return adapter;
+}
+
 void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream& out) {
     fGLSLExtendedInstructions = this->nextId();
     StringStream body;
-    std::set<SpvId> interfaceVars;
-    // assign IDs to functions
+    // Assign SpvIds to functions.
+    const FunctionDeclaration* main = nullptr;
     for (const ProgramElement* e : program.elements()) {
-        switch (e->kind()) {
-            case ProgramElement::Kind::kFunction: {
-                const FunctionDefinition& f = e->as<FunctionDefinition>();
-                fFunctionMap[&f.declaration()] = this->nextId();
-                break;
+        if (e->is<FunctionDefinition>()) {
+            const FunctionDefinition& funcDef = e->as<FunctionDefinition>();
+            const FunctionDeclaration& funcDecl = funcDef.declaration();
+            fFunctionMap[&funcDecl] = this->nextId();
+            if (funcDecl.name() == "main") {
+                main = &funcDecl;
             }
-            default:
-                break;
         }
     }
+    // Make sure we have a main() function.
+    if (!main) {
+        fErrors.error(/*offset=*/0, "program does not contain a main() function");
+        return;
+    }
+    // Emit interface blocks.
+    std::set<SpvId> interfaceVars;
     for (const ProgramElement* e : program.elements()) {
         if (e->is<InterfaceBlock>()) {
             const InterfaceBlock& intf = e->as<InterfaceBlock>();
@@ -3254,13 +3319,14 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
 
             const Modifiers& modifiers = intf.variable().modifiers();
             if (((modifiers.fFlags & Modifiers::kIn_Flag) ||
-                (modifiers.fFlags & Modifiers::kOut_Flag)) &&
+                 (modifiers.fFlags & Modifiers::kOut_Flag)) &&
                 modifiers.fLayout.fBuiltin == -1 &&
                 !is_dead(intf.variable(), fProgram.fUsage.get())) {
                 interfaceVars.insert(id);
             }
         }
     }
+    // Emit global variable declarations.
     for (const ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             this->writeGlobalVar(program.fKind,
@@ -3268,21 +3334,24 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                                  body);
         }
     }
+    // If main() returns a half4, synthesize a tiny entrypoint function which invokes the real
+    // main() and stores the result into sk_FragColor.
+    EntrypointAdapter adapter;
+    if (main->returnType() == *fContext.fTypes.fHalf4) {
+        adapter = this->writeEntrypointAdapter(*main);
+        if (adapter.entrypointDecl) {
+            fFunctionMap[adapter.entrypointDecl.get()] = this->nextId();
+            this->writeFunction(*adapter.entrypointDef, body);
+            main = adapter.entrypointDecl.get();
+        }
+    }
+    // Emit all the functions.
     for (const ProgramElement* e : program.elements()) {
         if (e->is<FunctionDefinition>()) {
             this->writeFunction(e->as<FunctionDefinition>(), body);
         }
     }
-    const FunctionDeclaration* main = nullptr;
-    for (auto entry : fFunctionMap) {
-        if (entry.first->name() == "main") {
-            main = entry.first;
-        }
-    }
-    if (!main) {
-        fErrors.error(0, "program does not contain a main() function");
-        return;
-    }
+    // Add global in/out variables to the list of interface variables.
     for (auto entry : fVariableMap) {
         const Variable* var = entry.first;
         if (var->storage() == Variable::Storage::kGlobal &&
