@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "964374b5_8d2ab0b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-27T16:53:00Z",
+      "side": 1,
+      "message": "Just so I understand -- the only time we create a transfer buffer with dynamic access pattern is for staging buffers, correct?",
+      "revId": "e9e66863bf19ef1a55caa098f72ef1d3a510c2d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
