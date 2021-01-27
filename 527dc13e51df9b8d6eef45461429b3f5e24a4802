@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "051e212e_7a88f456",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-27T20:59:44Z",
+      "side": 1,
+      "message": "This is primarily just a move + rename refactor. All of the old image filter factory functions and types exist, they are just now in src/ instead of include/ so I can work on deleting them on a per filter basis.  Once this CL lands, I can also work on hiding the SkImageFilter::CropRect, since it is no longer used by any public factory.\n\nRegarding the red canary bots:\n1. flutter was a flake\n2. Android is failing due to infra issues, but on an earlier PS, I confirmed they don\u0027t reference any of these headers\n3. g3 looks to be succeeding any minute now\n4. chrome should also succeed, or fail for unrelated reasons. An earlier dry-run confirmed everything built (except an infra failure on a fuchsia bot)\n\nLong story short, I think these red canaries will be green when this lands :) ",
+      "revId": "527dc13e51df9b8d6eef45461429b3f5e24a4802",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
