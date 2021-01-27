@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "adb59468_41ae9b1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-27T18:33:17Z",
+      "side": 1,
+      "message": "Ah, ok. I didn\u0027t realize it was almost entirely new.",
+      "parentUuid": "8ad46c4b_0d47b2b9",
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e0120db_361653af",
@@ -167,6 +185,30 @@
       "side": 1,
       "message": "It will always be part of the calculation for GrInnerFanTriangulator after this CL. My rationale for getting it this way was because with an accessor, you might accidentally access it before calling polysToTriangles, which would be incorrect. (Also, I did this :-\\)\n\nBut from a higher level, I actually don\u0027t like having the breadcrumbList as a class member at all. I really want pathToTriangles() and polysToTriangles() to not have internal side effects. What do you think of this new approach? If we like it I can go through and mark pathToTriangles and polysToTriangles const after this CL lands.",
       "parentUuid": "1323daf9_279ee12e",
+      "range": {
+        "startLine": 37,
+        "startChar": 25,
+        "endLine": 37,
+        "endChar": 78
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "884510ad_553c8b9a",
+        "filename": "src/gpu/GrInnerFanTriangulator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-27T18:33:17Z",
+      "side": 1,
+      "message": "Could it just be a return value (and perhaps an input bool on GrTriangulator about whether the caller needs it to be computed, either on the member methods or constructor)?",
+      "parentUuid": "a959a98c_17129823",
       "range": {
         "startLine": 37,
         "startChar": 25,
