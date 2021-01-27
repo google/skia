@@ -351,7 +351,7 @@ void SkSVGTextContext::shapeFragment(const SkString& txt, const SkSVGRenderConte
 
 SkSVGTextContext::PathData::PathData(const SkSVGRenderContext& ctx, const SkSVGTextPath& tpath)
 {
-    const auto ref = ctx.findNodeById(tpath.getHref().fIRI);
+    const auto ref = ctx.findNodeById(tpath.getHref());
     if (!ref) {
         return;
     }

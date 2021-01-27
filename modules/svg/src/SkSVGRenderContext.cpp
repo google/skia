@@ -185,8 +185,12 @@ SkSVGRenderContext::~SkSVGRenderContext() {
     fCanvas->restoreToCount(fCanvasSaveCount);
 }
 
-SkSVGRenderContext::BorrowedNode SkSVGRenderContext::findNodeById(const SkString& id) const {
-    return BorrowedNode(fIDMapper.find(id));
+SkSVGRenderContext::BorrowedNode SkSVGRenderContext::findNodeById(const SkSVGIRI& iri) const {
+    if (iri.type() != SkSVGIRI::Type::kLocal) {
+        SkDebugf("non-local iri references not currently supported");
+        return BorrowedNode(nullptr);
+    }
+    return BorrowedNode(fIDMapper.find(iri.iri()));
 }
 
 void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttributes& attrs,

@@ -30,12 +30,13 @@ void SkSVGPattern::setHeight(const SkSVGLength& h) {
     fAttributes.fHeight.set(h);
 }
 
-void SkSVGPattern::setHref(const SkSVGStringType& href) {
-    fHref = std::move(href);
-}
-
 void SkSVGPattern::setPatternTransform(const SkSVGTransformType& patternTransform) {
     fAttributes.fPatternTransform.set(patternTransform);
+}
+
+bool SkSVGPattern::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setHref(SkSVGAttributeParser::parse<SkSVGIRI>("xlink:href", name, value));
 }
 
 void SkSVGPattern::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -60,11 +61,6 @@ void SkSVGPattern::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setHeight(*h);
         }
         break;
-    case SkSVGAttribute::kHref:
-        if (const auto* href = v.as<SkSVGStringValue>()) {
-            this->setHref(*href);
-        }
-        break;
     case SkSVGAttribute::kPatternTransform:
         if (const auto* t = v.as<SkSVGTransformValue>()) {
             this->setPatternTransform(*t);
@@ -76,7 +72,7 @@ void SkSVGPattern::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 const SkSVGPattern* SkSVGPattern::hrefTarget(const SkSVGRenderContext& ctx) const {
-    if (fHref.isEmpty()) {
+    if (fHref.iri().isEmpty()) {
         return nullptr;
     }
 

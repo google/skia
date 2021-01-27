@@ -110,7 +110,7 @@ public:
 
     // Note: the id->node association is cleared for the lifetime of the returned value
     // (effectively breaks reference cycles, assuming appropriate return value scoping).
-    BorrowedNode findNodeById(const SkString&) const;
+    BorrowedNode findNodeById(const SkSVGIRI&) const;
 
     SkTLazy<SkPaint> fillPaint() const;
     SkTLazy<SkPaint> strokePaint() const;

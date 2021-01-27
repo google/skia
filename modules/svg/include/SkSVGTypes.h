@@ -133,7 +133,28 @@ private:
     Unit     fUnit;
 };
 
-struct SkSVGIRI {
+// https://www.w3.org/TR/SVG11/linking.html#IRIReference
+class SkSVGIRI {
+public:
+    enum class Type {
+        kLocal,
+        kNonlocal,
+        kDataURI,
+    };
+
+    SkSVGIRI() : fType(Type::kLocal) {}
+    SkSVGIRI(Type t, const SkSVGStringType& iri) : fType(t), fIRI(iri) {}
+
+    Type type() const { return fType; }
+    const SkSVGStringType& iri() const { return fIRI; }
+
+    bool operator==(const SkSVGIRI& other) const {
+        return fType == other.fType && fIRI == other.fIRI;
+    }
+    bool operator!=(const SkSVGIRI& other) const { return !(*this == other); }
+
+private:
+    Type fType;
     SkSVGStringType fIRI;
 };
 
@@ -173,7 +194,7 @@ public:
     SkSVGPaint() : fType(Type::kNone), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(const SkSVGColor& c) : fType(Type::kColor), fColor(c) {}
-    explicit SkSVGPaint(const SkString& iri)
+    explicit SkSVGPaint(const SkSVGIRI& iri)
         : fType(Type::kIRI), fColor(SK_ColorBLACK), fIRI(iri) {}
 
     SkSVGPaint(const SkSVGPaint&)            = default;
@@ -186,14 +207,14 @@ public:
 
     Type type() const { return fType; }
     const SkSVGColor& color() const { SkASSERT(fType == Type::kColor); return fColor; }
-    const SkString& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
+    const SkSVGIRI& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
 
 private:
     Type fType;
 
     // Logical union.
     SkSVGColor fColor;
-    SkString   fIRI;
+    SkSVGIRI   fIRI;
 };
 
 // <funciri> | none (used for clip/mask/filter properties)
@@ -206,7 +227,7 @@ public:
 
     SkSVGFuncIRI() : fType(Type::kNone) {}
     explicit SkSVGFuncIRI(Type t) : fType(t) {}
-    explicit SkSVGFuncIRI(SkString&& iri) : fType(Type::kIRI), fIRI(std::move(iri)) {}
+    explicit SkSVGFuncIRI(SkSVGIRI&& iri) : fType(Type::kIRI), fIRI(std::move(iri)) {}
 
     bool operator==(const SkSVGFuncIRI& other) const {
         return fType == other.fType && fIRI == other.fIRI;
@@ -214,11 +235,11 @@ public:
     bool operator!=(const SkSVGFuncIRI& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
-    const SkString& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
+    const SkSVGIRI& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
 
 private:
     Type           fType;
-    SkString       fIRI;
+    SkSVGIRI       fIRI;
 };
 
 enum class SkSVGLineCap {
