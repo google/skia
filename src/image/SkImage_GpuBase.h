@@ -46,8 +46,6 @@ public:
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
 
-    GrTexture* getTexture() const;
-
     bool onIsValid(GrRecordingContext*) const final;
 
 #if GR_TEST_UTILS
