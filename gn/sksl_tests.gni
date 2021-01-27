@@ -195,8 +195,6 @@ sksl_metal_tests = [
   "/sksl/metal/OpaqueTypeInStruct.sksl",
   "/sksl/metal/OutParams.sksl",
   "/sksl/metal/OutVarsRequireLocation.sksl",
-  "/sksl/metal/ReturnBadTypeFromMain.sksl",
-  "/sksl/metal/ReturnColorFromMain.sksl",
   "/sksl/metal/SamplerGlobals.sksl",
   "/sksl/metal/SwizzleHelper.sksl",
 ]
@@ -354,6 +352,8 @@ sksl_shared_tests = [
   "/sksl/shared/OutParamsTricky.sksl",
   "/sksl/shared/RectangleTexture.sksl",
   "/sksl/shared/ResizeMatrix.sksl",
+  "/sksl/shared/ReturnBadTypeFromMain.sksl",
+  "/sksl/shared/ReturnColorFromMain.sksl",
   "/sksl/shared/SampleLocations.vert",
   "/sksl/shared/SampleMask.sksl",
   "/sksl/shared/ScalarConversionConstructors.sksl",

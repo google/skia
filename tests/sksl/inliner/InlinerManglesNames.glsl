@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 uniform vec4 color;
 vec4 main() {
     float _9_a = color.x * color.y;

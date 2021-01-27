@@ -1,4 +1,5 @@
 
+out vec4 sk_FragColor;
 uniform vec4 colorWhite;
 vec4 main() {
     vec4 x = colorWhite;

@@ -30,6 +30,7 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -383,6 +384,15 @@ private:
     void writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out);
 
     MemoryLayout memoryLayoutForVariable(const Variable&) const;
+
+    struct EntrypointAdapter {
+        std::unique_ptr<FunctionDefinition> entrypointDef;
+        std::unique_ptr<FunctionDeclaration> entrypointDecl;
+        Layout fLayout;
+        Modifiers fModifiers;
+    };
+
+    EntrypointAdapter writeEntrypointAdapter(const FunctionDeclaration& main);
 
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
