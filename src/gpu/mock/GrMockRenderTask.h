@@ -17,8 +17,9 @@ public:
         this->setFlag(kDisowned_Flag);
     }
 
-    void addTarget(GrSurfaceProxyView view) { fTargets.push_back(view.detachProxy()); }
+    void addTarget(sk_sp<GrSurfaceProxy> proxy) { fTargets.push_back(std::move(proxy)); }
     void addDependency(GrRenderTask* dep) { fDependencies.push_back(dep); }
+    void addUsed(sk_sp<GrSurfaceProxy> proxy) { fUsed.push_back(std::move(proxy)); }
 
     // Overrides.
 #ifdef SK_DEBUG
@@ -27,12 +28,22 @@ public:
     void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override {}
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override { SkUNREACHABLE; }
-    bool onIsUsed(GrSurfaceProxy*) const override { return false; }
+    bool onIsUsed(GrSurfaceProxy* proxy) const override {
+        for (const auto& entry : fUsed) {
+            if (entry.get() == proxy) {
+                return true;
+            }
+        }
+        return false;
+    }
     bool onExecute(GrOpFlushState*) override { return true; }
 
 #if GR_TEST_UTILS
     const char* name() const final { return "Mock"; }
 #endif
+
+private:
+    SkTArray<sk_sp<GrSurfaceProxy>> fUsed;
 };
 
 #endif
