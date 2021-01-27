@@ -195,7 +195,10 @@ private:
 
     SpvId writeFunction(const FunctionDefinition& f, OutputStream& out);
 
-    void writeGlobalVar(Program::Kind kind, const VarDeclaration& v, OutputStream& out);
+    void writeGlobalVar(Program::Kind kind, const VarDeclaration& v);
+
+    void writeGlobalOrUniform(Program::Kind kind, const VarDeclaration& varDecl,
+                              SpvStorageClass_ storageClass);
 
     void writeVarDeclaration(const VarDeclaration& var, OutputStream& out);
 
@@ -394,6 +397,16 @@ private:
 
     EntrypointAdapter writeEntrypointAdapter(const FunctionDeclaration& main);
 
+    struct UniformBuffer {
+        std::unique_ptr<InterfaceBlock> fInterfaceBlock;
+        std::unique_ptr<Variable> fVariable;
+        std::unique_ptr<Type> fStruct;
+        Layout fLayout;
+        Modifiers fModifiers;
+    };
+
+    UniformBuffer writeUniformBuffer(std::shared_ptr<SymbolTable> topLevelSymbolTable);
+
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
 
@@ -431,6 +444,9 @@ private:
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
     int fSkInCount = 1;
+    // Holds a list of uniforms that were declared as globals at the top-level instead of in an
+    // interface block.
+    std::vector<const VarDeclaration*> fTopLevelUniforms;
 
     friend class PointerLValue;
     friend class SwizzleLValue;
