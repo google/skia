@@ -50,6 +50,7 @@ namespace dsl {
 }
 
 class ExternalFunction;
+class FunctionDeclaration;
 class IRGenerator;
 class IRIntrinsicMap;
 struct PipelineStageArgs;
@@ -126,13 +127,8 @@ public:
     };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    /**
-     * Represents the arguments to GrGLSLShaderBuilder::emitFunction.
-     */
     struct GLSLFunction {
-        GrSLType fReturnType;
-        SkString fName;
-        std::vector<GrShaderVar> fParameters;
+        const FunctionDeclaration* fDecl;
         String fBody;
         std::vector<Compiler::FormatArg> fFormatArgs;
     };

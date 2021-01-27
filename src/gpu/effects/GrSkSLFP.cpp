@@ -13,6 +13,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrTexture.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -79,6 +80,12 @@ public:
 
     void emitCode(EmitArgs& args) override {
         const GrSkSLFP& fp = args.fFp.cast<GrSkSLFP>();
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        for (const SkSL::ProgramElement* e : fp.fEffect->fBaseProgram->elements()) {
+            if (e->is<SkSL::StructDefinition>()) {
+                fragBuilder->definitions().appendf("%s", e->description().c_str());
+            }
+        }
         for (const auto& v : fp.fEffect->uniforms()) {
             auto handle = args.fUniformHandler->addUniformArray(&fp,
                                                                 kFragment_GrShaderFlag,
@@ -87,7 +94,6 @@ public:
                                                                 v.isArray() ? v.fCount : 0);
             fUniformHandles.push_back(handle);
         }
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         std::vector<SkString> childNames;
         // We need to ensure that we emit each child's helper function at least once.
         // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
@@ -97,15 +103,15 @@ public:
             }
         }
         for (const auto& f : fArgs.fFunctions) {
-            fFunctionNames.push_back(fragBuilder->getMangledFunctionName(f.fName.c_str()));
+            fFunctionNames.push_back(
+                    fragBuilder->getMangledFunctionName(SkString(f.fDecl->name()).c_str()));
             auto fmtArgIter = f.fFormatArgs.cbegin();
             // Helper functions can't refer to sample-coords directly (they're a parameter to main)
             SkSL::String body =
                     this->expandFormatArgs(f.fBody, args, /*sampleCoords=*/nullptr, fmtArgIter);
             SkASSERT(fmtArgIter == f.fFormatArgs.cend());
-            fragBuilder->emitFunction(f.fReturnType,
+            fragBuilder->emitFunction(f.fDecl,
                                       fFunctionNames.back().c_str(),
-                                      {f.fParameters.data(), f.fParameters.size()},
                                       body.c_str());
         }
         SkString coordsVarName = fragBuilder->newTmpVarName("coords");

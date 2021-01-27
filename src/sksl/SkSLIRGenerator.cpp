@@ -1064,16 +1064,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (returnType == nullptr) {
         return;
     }
-    auto typeIsAllowed = [&](const Type* t) {
-#if defined(SKSL_STANDALONE)
-        return true;
-#else
-        GrSLType unusedSLType;
-        return fKind != Program::kRuntimeEffect_Kind ||
-               type_to_grsltype(fContext, *t, &unusedSLType);
-#endif
-    };
-    if (returnType->isArray() || !typeIsAllowed(returnType)) {
+    if (returnType->isArray()) {
         this->errorReporter().error(
                 f.fOffset, "functions may not return type '" + returnType->displayName() + "'");
         return;
@@ -1110,8 +1101,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters.
         // (You can pass other opaque types to functions safely; this restriction is
         // fragment-processor specific.)
-        if ((*type == *fContext.fTypes.fFragmentProcessor && !fIsBuiltinCode) ||
-            !typeIsAllowed(type)) {
+        if (*type == *fContext.fTypes.fFragmentProcessor && !fIsBuiltinCode) {
             this->errorReporter().error(
                     param.fOffset, "parameters of type '" + type->displayName() + "' not allowed");
             return;
