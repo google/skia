@@ -15,7 +15,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     float4 x = _uniforms.colorWhite;
     for (float r = -5.0;r < 5.0; r += 1.0) {
-        x.x = abs(r);
+        x.x = saturate(r);
         if (x.x == 0.0) break;
     }
     for (float b = 5.0;b >= 0.0; b -= 1.0) {
