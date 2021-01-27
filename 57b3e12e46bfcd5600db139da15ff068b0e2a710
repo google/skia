@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d2492ff_a562e981",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-27T02:15:42Z",
+      "side": 1,
+      "message": "Tiny diffs in gm -- some paths are incorrectly tagged as concave, but they are actually convex. The new code does not examine concave paths (for better speed), so we don\u0027t bother to mark them as \"unknown\", which could result in them later being identify as convex.\n",
+      "revId": "57b3e12e46bfcd5600db139da15ff068b0e2a710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8583646f_c7d1ae78",
