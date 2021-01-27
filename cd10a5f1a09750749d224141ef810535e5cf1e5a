@@ -95,6 +95,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e910a662_234c553d",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-27T19:23:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d405df32_d6931f50",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "674013d9_a09acbcc",
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "Doesn\u0027t work, because it\u0027s specifically wanting std::unique_ptr\u003cStatement\u003e.\n\nI initially get an error because DSLStatement has an implicit conversion from std::unique_ptr\u003cStatement\u003e but not \u003cReturnStatement\u003e.\n\nAdding an explicit DSLStatement(...) doesn\u0027t help because the constructor invocation is ambiguous.\n\nI considered attempting to disambiguate things, but it didn\u0027t seem worth the effort.",
       "parentUuid": "674013d9_a09acbcc",
+      "range": {
+        "startLine": 112,
+        "startChar": 19,
+        "endLine": 114,
+        "endChar": 71
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c54c3701_9e8f5e8b",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-27T19:23:35Z",
+      "side": 1,
+      "message": "OK, no problem",
+      "parentUuid": "07ccd6da_a6cb97ca",
       "range": {
         "startLine": 112,
         "startChar": 19,
@@ -330,6 +378,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b674355_85113cb1",
+        "filename": "src/sksl/dsl/DSLFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-27T19:23:35Z",
+      "side": 1,
+      "message": "Because the field is locked in at construction time, it prevents assignment (the field can\u0027t be assigned-into after initial construction) and move (the field can\u0027t be moved-from).\n\nPTAL https://stackoverflow.com/a/12387615/291737",
+      "parentUuid": "6e696e1d_fbdc2a8b",
+      "range": {
+        "startLine": 55,
+        "startChar": 20,
+        "endLine": 55,
+        "endChar": 21
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "faed6f5e_d42f6ef2",
@@ -461,6 +533,30 @@
       "side": 1,
       "message": "Not yet - they\u0027ll currently fail with an incorrect error about in/out not being allowed here.",
       "parentUuid": "8d6dd078_8ee5bbea",
+      "range": {
+        "startLine": 1194,
+        "startChar": 7,
+        "endLine": 1194,
+        "endChar": 35
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "523bc2c1_f2d21cd2",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-27T19:23:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "989d7828_3e003866",
       "range": {
         "startLine": 1194,
         "startChar": 7,
