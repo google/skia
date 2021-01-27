@@ -2875,18 +2875,20 @@ bool is_dead(const Variable& var, const ProgramUsage* usage) {
     return var.modifiers().fLayout.fBuiltin == SK_SAMPLEMASK_BUILTIN;
 }
 
-#define BUILTIN_IGNORE 9999
 void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration& varDecl,
                                         OutputStream& out) {
     const Variable& var = varDecl.var();
     // These haven't been implemented in our SPIR-V generator yet and we only currently use them
     // in the OpenGL backend.
     SkASSERT(!(var.modifiers().fFlags & (Modifiers::kReadOnly_Flag |
-                                          Modifiers::kWriteOnly_Flag |
-                                          Modifiers::kCoherent_Flag |
-                                          Modifiers::kVolatile_Flag |
-                                          Modifiers::kRestrict_Flag)));
-    if (var.modifiers().fLayout.fBuiltin == BUILTIN_IGNORE) {
+                                         Modifiers::kWriteOnly_Flag |
+                                         Modifiers::kCoherent_Flag |
+                                         Modifiers::kVolatile_Flag |
+                                         Modifiers::kRestrict_Flag)));
+    // 9999 is a sentinel value used in our built-in modules that causes us to ignore these
+    // declarations, beyond adding them to the symbol table.
+    constexpr int kBuiltinIgnore = 9999;
+    if (var.modifiers().fLayout.fBuiltin == kBuiltinIgnore) {
         return;
     }
     if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&

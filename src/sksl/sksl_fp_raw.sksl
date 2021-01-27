@@ -6,10 +6,8 @@
 layout(builtin=15) in float4 sk_FragCoord;
 layout(builtin=20) out int sk_SampleMask[1];
 
-// 9999 is a temporary value that causes us to ignore these declarations beyond
-// adding them to the symbol table. This works fine in GLSL (where they do not
-// require any further handling) but will fail in SPIR-V. We'll have a better
-// solution for this soon.
+// 9999 is a sentinel value that causes us to ignore these declarations, beyond adding them to the
+// symbol table.
 layout(builtin=9999) float4 gl_LastFragData[1];
 layout(builtin=9999) half4 gl_LastFragColor;
 layout(builtin=9999) half4 gl_LastFragColorARM;
