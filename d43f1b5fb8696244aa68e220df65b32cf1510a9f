@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "697b1623_2ffed5cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-01-27T22:30:33Z",
+      "side": 1,
+      "message": "The vulkan rots test was already red before this, and I\u0027ll fix it ASAP.",
+      "revId": "d43f1b5fb8696244aa68e220df65b32cf1510a9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
