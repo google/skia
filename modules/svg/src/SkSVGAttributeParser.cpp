@@ -277,16 +277,16 @@ bool SkSVGAttributeParser::parse(SkSVGIRI* iri) {
     if (start == fCurPos) {
         return false;
     }
-    *iri = {SkString(start, fCurPos - start)};
+    *iri = SkSVGIRI(SkSVGIRI::Type::kLocal, SkString(start, fCurPos - start));
     return true;
 }
 
 // https://www.w3.org/TR/SVG11/types.html#DataTypeFuncIRI
-bool SkSVGAttributeParser::parseFuncIRI(SkSVGStringType* iri) {
-    return this->parseParenthesized("url", [this](SkSVGStringType* iriString) -> bool {
+bool SkSVGAttributeParser::parseFuncIRI(SkSVGFuncIRI* iri) {
+    return this->parseParenthesized("url", [this](SkSVGFuncIRI* iriResult) -> bool {
         SkSVGIRI iri;
         if (this->parse(&iri)) {
-            *iriString = iri.fIRI;
+            *iriResult = SkSVGFuncIRI(std::move(iri));
             return true;
         }
         return false;
@@ -523,7 +523,7 @@ bool SkSVGAttributeParser::parse(SkSVGTransformType* t) {
 template <>
 bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
     SkSVGColor c;
-    SkSVGStringType iri;
+    SkSVGFuncIRI iri;
     bool parsedValue = false;
     if (this->parse(&c)) {
         *paint = SkSVGPaint(c);
@@ -532,7 +532,7 @@ bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kNone);
         parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
-        *paint = SkSVGPaint(iri);
+        *paint = SkSVGPaint(iri.iri());
         parsedValue = true;
     }
     return parsedValue && this->parseEOSToken();
@@ -549,8 +549,7 @@ bool SkSVGAttributeParser::parse(SkSVGFuncIRI* firi) {
     if (this->parseExpectedStringToken("none")) {
         *firi = SkSVGFuncIRI();
         parsedValue = true;
-    } else if (this->parseFuncIRI(&iri)) {
-        *firi = SkSVGFuncIRI(std::move(iri));
+    } else if (this->parseFuncIRI(firi)) {
         parsedValue = true;
     }
 

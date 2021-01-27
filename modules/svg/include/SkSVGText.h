@@ -107,7 +107,7 @@ class SkSVGTextPath final : public SkSVGTextContainer {
 public:
     static sk_sp<SkSVGTextPath> Make() { return sk_sp<SkSVGTextPath>(new SkSVGTextPath()); }
 
-    SVG_ATTR(Href       , SkSVGIRI   , {SkString()}  )
+    SVG_ATTR(Href       , SkSVGIRI   , {}  )
     SVG_ATTR(StartOffset, SkSVGLength, SkSVGLength(0))
 
 private:

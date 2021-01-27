@@ -25,7 +25,7 @@ bool SkSVGUse::parseAndSetAttribute(const char* n, const char* v) {
 }
 
 bool SkSVGUse::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    if (fHref.fIRI.isEmpty() || !INHERITED::onPrepareToRender(ctx)) {
+    if (fHref.iri().isEmpty() || !INHERITED::onPrepareToRender(ctx)) {
         return false;
     }
 
@@ -41,7 +41,7 @@ bool SkSVGUse::onPrepareToRender(SkSVGRenderContext* ctx) const {
 }
 
 void SkSVGUse::onRender(const SkSVGRenderContext& ctx) const {
-    const auto ref = ctx.findNodeById(fHref.fIRI);
+    const auto ref = ctx.findNodeById(fHref);
     if (!ref) {
         return;
     }
@@ -50,7 +50,7 @@ void SkSVGUse::onRender(const SkSVGRenderContext& ctx) const {
 }
 
 SkPath SkSVGUse::onAsPath(const SkSVGRenderContext& ctx) const {
-    const auto ref = ctx.findNodeById(fHref.fIRI);
+    const auto ref = ctx.findNodeById(fHref);
     if (!ref) {
         return SkPath();
     }
@@ -59,7 +59,7 @@ SkPath SkSVGUse::onAsPath(const SkSVGRenderContext& ctx) const {
 }
 
 SkRect SkSVGUse::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
-    const auto ref = ctx.findNodeById(fHref.fIRI);
+    const auto ref = ctx.findNodeById(fHref);
     if (!ref) {
         return SkRect::MakeEmpty();
     }

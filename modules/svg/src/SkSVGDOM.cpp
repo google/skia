@@ -57,7 +57,7 @@ bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
         return false;
     }
 
-    node->setAttribute(attr, SkSVGStringValue(parseResult->fIRI));
+    node->setAttribute(attr, SkSVGStringValue(parseResult->iri()));
     return true;
 }
 

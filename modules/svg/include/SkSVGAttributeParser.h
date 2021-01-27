@@ -95,7 +95,7 @@ private:
     bool parseHexColorToken(SkColor*);
     bool parseColorComponentToken(int32_t*);
     bool parseRGBColorToken(SkColor*);
-    bool parseFuncIRI(SkSVGStringType*);
+    bool parseFuncIRI(SkSVGFuncIRI*);
 
     // Transform helpers
     bool parseMatrixToken(SkMatrix*);

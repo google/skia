@@ -19,15 +19,19 @@ public:
         return sk_sp<SkSVGPattern>(new SkSVGPattern());
     }
 
+    SVG_ATTR(Href, SkSVGIRI, SkSVGIRI())
+
+    // TODO: change rest of attributes to SVG_OPTIONAL_ATTR
     void setX(const SkSVGLength&);
     void setY(const SkSVGLength&);
     void setWidth(const SkSVGLength&);
     void setHeight(const SkSVGLength&);
-    void setHref(const SkSVGStringType&);
     void setPatternTransform(const SkSVGTransformType&);
 
 protected:
     SkSVGPattern();
+
+    bool parseAndSetAttribute(const char*, const char*) override;
 
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
@@ -41,8 +45,6 @@ private:
                                     fHeight;
         SkTLazy<SkSVGTransformType> fPatternTransform;
     } fAttributes;
-
-    SkSVGStringType    fHref;
 
     const SkSVGPattern* resolveHref(const SkSVGRenderContext&, PatternAttributes*) const;
     const SkSVGPattern* hrefTarget(const SkSVGRenderContext&) const;
