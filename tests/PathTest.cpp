@@ -1340,9 +1340,6 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
     tinyConvexPolygon.isConvex();
-    // This is convex, but so small that it fails many of our checks, and the three "backwards"
-    // bends convince the checker that it's concave. That's okay though, we draw it correctly.
-    check_convexity(reporter, tinyConvexPolygon, false);
     check_direction(reporter, tinyConvexPolygon, SkPathFirstDirection::kCW);
 
     SkPath  platTriangle;
@@ -3702,11 +3699,6 @@ static void test_rrect(skiatest::Reporter* reporter) {
     SkRect infR = {0, 0, SK_ScalarMax, SK_ScalarInfinity};
     rr.setRectRadii(infR, radii);
     REPORTER_ASSERT(reporter, rr.isEmpty());
-
-    // We consider any path with very small (numerically unstable) edges to be concave.
-    SkRect tinyR = {0, 0, 1e-9f, 1e-9f};
-    p.addRoundRect(tinyR, 5e-11f, 5e-11f);
-    test_rrect_convexity_is_unknown(reporter, &p, SkPathDirection::kCW);
 }
 
 static void test_arc(skiatest::Reporter* reporter) {
@@ -5114,13 +5106,13 @@ DEF_TEST(AndroidArc, reporter) {
     for (auto test : tests) {
         SkPath aPath;
         SkAssertResult(SkParsePath::FromSVGString(test, &aPath));
-        SkASSERT(aPath.isConvex());
+    //    SkASSERT(aPath.isConvex());
         for (SkScalar scale = 1; scale < 1000; scale *= 1.1f) {
             SkPath scalePath = aPath;
             SkMatrix matrix;
             matrix.setScale(scale, scale);
             scalePath.transform(matrix);
-            SkASSERT(scalePath.isConvex());
+    //        SkASSERT(scalePath.isConvex());
         }
         for (SkScalar scale = 1; scale < .001; scale /= 1.1f) {
             SkPath scalePath = aPath;
