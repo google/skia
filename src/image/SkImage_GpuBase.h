@@ -43,9 +43,6 @@ public:
         return *this->view(context);
     }
 
-    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
-                                         GrSurfaceOrigin* origin) const final;
-
     GrTexture* getTexture() const;
 
     bool onIsValid(GrRecordingContext*) const final;

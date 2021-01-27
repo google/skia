@@ -82,6 +82,37 @@ GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFl
                                          info);
 }
 
+GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
+                                                  GrSurfaceOrigin* origin) const {
+    auto direct = fContext->asDirectContext();
+    if (!direct) {
+        // This image was created with a DDL context and cannot be instantiated.
+        return GrBackendTexture();  // invalid
+    }
+
+    GrSurfaceProxy* proxy = fView.proxy();
+
+    if (!proxy->isInstantiated()) {
+        auto resourceProvider = direct->priv().resourceProvider();
+
+        if (!proxy->instantiate(resourceProvider)) {
+            return GrBackendTexture();  // invalid
+        }
+    }
+
+    GrTexture* texture = proxy->peekTexture();
+    if (texture) {
+        if (flushPendingGrContextIO) {
+            direct->priv().flushSurface(proxy);
+        }
+        if (origin) {
+            *origin = fView.origin();
+        }
+        return texture->getBackendTexture();
+    }
+    return GrBackendTexture();  // invalid
+}
+
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS,
                                                          GrDirectContext* direct) const {
