@@ -6,15 +6,18 @@
 # found in the LICENSE file.
 
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
 
+batchCompile = True
+
 skslc = sys.argv[1]
 lang = sys.argv[2]
 settings = sys.argv[3]
-inputs = sys.argv[4:]
-batchCompile = True
+with open(sys.argv[4], 'r') as reader:
+    inputs = shlex.split(reader.read())
 
 def pairwise(iterable):
     # Iterate over an array pairwise (two elements at a time).
