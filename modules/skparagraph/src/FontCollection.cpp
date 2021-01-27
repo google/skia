@@ -3,6 +3,7 @@
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skshaper/include/SkShaper.h"
 
 namespace skia {
 namespace textlayout {
@@ -150,6 +151,7 @@ void FontCollection::enableFontFallback() { fEnableFontFallback = true; }
 void FontCollection::clearCaches() {
     fParagraphCache.reset();
     fTypefaces.reset();
+    SkShaper::PurgeCaches();
 }
 
 }  // namespace textlayout

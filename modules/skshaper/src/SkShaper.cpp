@@ -36,6 +36,12 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
     return SkShaper::MakePrimitive();
 }
 
+void SkShaper::PurgeCaches() {
+#ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+    PurgeHarfBuzzCache();
+#endif
+}
+
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
 #ifdef SK_UNICODE_AVAILABLE
