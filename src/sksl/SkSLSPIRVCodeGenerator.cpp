@@ -1687,21 +1687,28 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
     }
 }
 
-SpvStorageClass_ get_storage_class(const Modifiers& modifiers) {
+SpvStorageClass_ get_storage_class(const Variable& var, SpvStorageClass_ fallbackStorageClass) {
+    const Modifiers& modifiers = var.modifiers();
     if (modifiers.fFlags & Modifiers::kIn_Flag) {
         SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
         return SpvStorageClassInput;
-    } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+    }
+    if (modifiers.fFlags & Modifiers::kOut_Flag) {
         SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
         return SpvStorageClassOutput;
-    } else if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+    }
+    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
         if (modifiers.fLayout.fFlags & Layout::kPushConstant_Flag) {
             return SpvStorageClassPushConstant;
         }
+        if (var.type().typeKind() == Type::TypeKind::kSampler ||
+            var.type().typeKind() == Type::TypeKind::kSeparateSampler ||
+            var.type().typeKind() == Type::TypeKind::kTexture) {
+            return SpvStorageClassUniformConstant;
+        }
         return SpvStorageClassUniform;
-    } else {
-        return SpvStorageClassFunction;
     }
+    return fallbackStorageClass;
 }
 
 SpvStorageClass_ get_storage_class(const Expression& expr) {
@@ -1711,11 +1718,7 @@ SpvStorageClass_ get_storage_class(const Expression& expr) {
             if (var.storage() != Variable::Storage::kGlobal) {
                 return SpvStorageClassFunction;
             }
-            SpvStorageClass_ result = get_storage_class(var.modifiers());
-            if (result == SpvStorageClassFunction) {
-                result = SpvStorageClassPrivate;
-            }
-            return result;
+            return get_storage_class(var, SpvStorageClassPrivate);
         }
         case Expression::Kind::kFieldAccess:
             return get_storage_class(*expr.as<FieldAccess>().base());
@@ -2803,8 +2806,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fErrors.error(type->fOffset, "type '" + type->name() + "' is not permitted here");
         return this->nextId();
     }
-    Modifiers intfModifiers = intf.variable().modifiers();
-    SpvStorageClass_ storageClass = get_storage_class(intfModifiers);
+    SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
     if (fProgram.fInputs.fRTHeight && appendRTHeight) {
         SkASSERT(fRTHeightStructId == (SpvId) -1);
         SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
@@ -2818,6 +2820,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         type = rtHeightStructType.get();
     }
     SpvId typeId;
+    const Modifiers& intfModifiers = intf.variable().modifiers();
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
         for (const ProgramElement* e : fProgram.elements()) {
             if (e->is<ModifiersDeclaration>()) {
@@ -2898,25 +2901,11 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
         return;
     }
     const Type& type = var.type();
-    SpvStorageClass_ storageClass;
+    SpvStorageClass_ storageClass = get_storage_class(var, SpvStorageClassPrivate);
     Layout layout = var.modifiers().fLayout;
-    if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
-        storageClass = SpvStorageClassInput;
-    } else if (var.modifiers().fFlags & Modifiers::kOut_Flag) {
-        storageClass = SpvStorageClassOutput;
-    } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
-        if (type.typeKind() == Type::TypeKind::kSampler ||
-            type.typeKind() == Type::TypeKind::kSeparateSampler ||
-            type.typeKind() == Type::TypeKind::kTexture) {
-            storageClass = SpvStorageClassUniformConstant;
-        } else {
-            storageClass = SpvStorageClassUniform;
-        }
-        if (layout.fSet < 0) {
-            layout.fSet = fProgram.fSettings.fDefaultUniformSet;
-        }
-    } else {
-        storageClass = SpvStorageClassPrivate;
+    if (layout.fSet < 0 && (storageClass == SpvStorageClassUniform ||
+                            storageClass == SpvStorageClassUniformConstant)) {
+        layout.fSet = fProgram.fSettings.fDefaultUniformSet;
     }
     SpvId id = this->nextId();
     fVariableMap[&var] = id;
