@@ -1,9 +1,7 @@
 ### Compilation failed:
 
-error: SPIR-V validation error: Uniform OpVariable <id> '15[%sk_RTAdjust]' has illegal type.
-From Vulkan spec, section 14.5.2:
-Variables identified with the Uniform storage class are used to access transparent buffer backed resources. Such variables must be typed as OpTypeStruct, or an array of this type
-  %sk_RTAdjust = OpVariable %_ptr_Uniform_v4float Uniform
+error: SPIR-V validation error: ID 123456[%123456] has not been defined
+  %37 = OpLoad %v4float %123456
 
 OpCapability Geometry
 %1 = OpExtInstImport "GLSL.std.450"
@@ -17,13 +15,17 @@ OpName %sk_PerVertex "sk_PerVertex"
 OpMemberName %sk_PerVertex 0 "sk_Position"
 OpMemberName %sk_PerVertex 1 "sk_PointSize"
 OpName %sk_InvocationID "sk_InvocationID"
-OpName %sk_RTAdjust "sk_RTAdjust"
+OpName %_UniformBuffer "_UniformBuffer"
+OpMemberName %_UniformBuffer 0 "sk_RTAdjust"
 OpName %main "main"
 OpMemberDecorate %sk_PerVertex 0 BuiltIn Position
 OpMemberDecorate %sk_PerVertex 1 BuiltIn PointSize
 OpDecorate %_arr_sk_PerVertex_int_1 ArrayStride 32
 OpDecorate %sk_InvocationID BuiltIn InvocationId
-OpDecorate %sk_RTAdjust DescriptorSet 0
+OpMemberDecorate %_UniformBuffer 0 Offset 0
+OpDecorate %_UniformBuffer Block
+OpDecorate %15 Binding 0
+OpDecorate %15 DescriptorSet 0
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %sk_PerVertex = OpTypeStruct %v4float %float
@@ -36,10 +38,11 @@ OpDecorate %sk_RTAdjust DescriptorSet 0
 %8 = OpVariable %_ptr_Input__arr_sk_PerVertex_int_1 Input
 %_ptr_Input_int = OpTypePointer Input %int
 %sk_InvocationID = OpVariable %_ptr_Input_int Input
-%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
-%sk_RTAdjust = OpVariable %_ptr_Uniform_v4float Uniform
+%_UniformBuffer = OpTypeStruct %v4float
+%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
+%15 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
-%18 = OpTypeFunction %void
+%19 = OpTypeFunction %void
 %int_0 = OpConstant %int 0
 %_ptr_Input_v4float = OpTypePointer Input %v4float
 %float_n0_5 = OpConstant %float -0.5
@@ -47,67 +50,67 @@ OpDecorate %sk_RTAdjust DescriptorSet 0
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %v2float = OpTypeVector %float 2
 %float_0_5 = OpConstant %float 0.5
-%main = OpFunction %void None %18
-%19 = OpLabel
-%21 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
-%23 = OpLoad %v4float %21
-%26 = OpLoad %int %sk_InvocationID
-%27 = OpConvertSToF %float %26
-%28 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %27
-%29 = OpFAdd %v4float %23 %28
-%30 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-OpStore %30 %29
-%32 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-%33 = OpLoad %v4float %32
-%34 = OpVectorShuffle %v2float %33 %33 0 1
-%36 = OpLoad %v4float %sk_RTAdjust
-%37 = OpVectorShuffle %v2float %36 %36 0 2
-%38 = OpFMul %v2float %34 %37
-%39 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-%40 = OpLoad %v4float %39
-%41 = OpVectorShuffle %v2float %40 %40 3 3
-%42 = OpLoad %v4float %sk_RTAdjust
-%43 = OpVectorShuffle %v2float %42 %42 1 3
-%44 = OpFMul %v2float %41 %43
-%45 = OpFAdd %v2float %38 %44
-%46 = OpCompositeExtract %float %45 0
-%47 = OpCompositeExtract %float %45 1
-%48 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-%49 = OpLoad %v4float %48
-%50 = OpCompositeExtract %float %49 3
-%51 = OpCompositeConstruct %v4float %46 %47 %float_0 %50
-%52 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-OpStore %52 %51
+%main = OpFunction %void None %19
+%20 = OpLabel
+%22 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
+%24 = OpLoad %v4float %22
+%27 = OpLoad %int %sk_InvocationID
+%28 = OpConvertSToF %float %27
+%29 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %28
+%30 = OpFAdd %v4float %24 %29
+%31 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+OpStore %31 %30
+%33 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+%34 = OpLoad %v4float %33
+%35 = OpVectorShuffle %v2float %34 %34 0 1
+%37 = OpLoad %v4float %123456
+%38 = OpVectorShuffle %v2float %37 %37 0 2
+%39 = OpFMul %v2float %35 %38
+%40 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+%41 = OpLoad %v4float %40
+%42 = OpVectorShuffle %v2float %41 %41 3 3
+%43 = OpLoad %v4float %123456
+%44 = OpVectorShuffle %v2float %43 %43 1 3
+%45 = OpFMul %v2float %42 %44
+%46 = OpFAdd %v2float %39 %45
+%47 = OpCompositeExtract %float %46 0
+%48 = OpCompositeExtract %float %46 1
+%49 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+%50 = OpLoad %v4float %49
+%51 = OpCompositeExtract %float %50 3
+%52 = OpCompositeConstruct %v4float %47 %48 %float_0 %51
+%53 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+OpStore %53 %52
 OpEmitVertex
-%54 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
-%55 = OpLoad %v4float %54
-%57 = OpLoad %int %sk_InvocationID
-%58 = OpConvertSToF %float %57
-%59 = OpCompositeConstruct %v4float %float_0_5 %float_0 %float_0 %58
-%60 = OpFAdd %v4float %55 %59
-%61 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-OpStore %61 %60
+%55 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
+%56 = OpLoad %v4float %55
+%58 = OpLoad %int %sk_InvocationID
+%59 = OpConvertSToF %float %58
+%60 = OpCompositeConstruct %v4float %float_0_5 %float_0 %float_0 %59
+%61 = OpFAdd %v4float %56 %60
 %62 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-%63 = OpLoad %v4float %62
-%64 = OpVectorShuffle %v2float %63 %63 0 1
-%65 = OpLoad %v4float %sk_RTAdjust
-%66 = OpVectorShuffle %v2float %65 %65 0 2
-%67 = OpFMul %v2float %64 %66
-%68 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-%69 = OpLoad %v4float %68
-%70 = OpVectorShuffle %v2float %69 %69 3 3
-%71 = OpLoad %v4float %sk_RTAdjust
-%72 = OpVectorShuffle %v2float %71 %71 1 3
-%73 = OpFMul %v2float %70 %72
-%74 = OpFAdd %v2float %67 %73
-%75 = OpCompositeExtract %float %74 0
-%76 = OpCompositeExtract %float %74 1
-%77 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-%78 = OpLoad %v4float %77
-%79 = OpCompositeExtract %float %78 3
-%80 = OpCompositeConstruct %v4float %75 %76 %float_0 %79
-%81 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-OpStore %81 %80
+OpStore %62 %61
+%63 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+%64 = OpLoad %v4float %63
+%65 = OpVectorShuffle %v2float %64 %64 0 1
+%66 = OpLoad %v4float %123456
+%67 = OpVectorShuffle %v2float %66 %66 0 2
+%68 = OpFMul %v2float %65 %67
+%69 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+%70 = OpLoad %v4float %69
+%71 = OpVectorShuffle %v2float %70 %70 3 3
+%72 = OpLoad %v4float %123456
+%73 = OpVectorShuffle %v2float %72 %72 1 3
+%74 = OpFMul %v2float %71 %73
+%75 = OpFAdd %v2float %68 %74
+%76 = OpCompositeExtract %float %75 0
+%77 = OpCompositeExtract %float %75 1
+%78 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+%79 = OpLoad %v4float %78
+%80 = OpCompositeExtract %float %79 3
+%81 = OpCompositeConstruct %v4float %76 %77 %float_0 %80
+%82 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+OpStore %82 %81
 OpEmitVertex
 OpEndPrimitive
 OpReturn

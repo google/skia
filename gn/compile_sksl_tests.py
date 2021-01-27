@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tempfile
 
-batchCompile = True
+batchCompile = False
 
 skslc = sys.argv[1]
 lang = sys.argv[2]
