@@ -217,6 +217,30 @@
       },
       "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63ef96eb_b9e20818",
+        "filename": "src/gpu/GrInnerFanTriangulator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-27T19:19:31Z",
+      "side": 1,
+      "message": "A return value from which method? pathToTriangles and pathToPolys both modify the breadcrumb list (for now), so if it\u0027s a return value it would need to persist as a class member somewhere. I don\u0027t like having it as a persistent class member because then if you try to triangulate more than one path with the same triangulator (which seems pretty reasonable from the API), the breadcrumb list would be wrong the second time. Also, something like this could go very wrong:\n\n polys1 \u003d t-\u003epathToPolys();\n polys2 \u003d t-\u003epathToPolys();\n t-\u003epolysToTriangles(polys1);\n t-\u003epolysToTriangles(polys2);",
+      "parentUuid": "884510ad_553c8b9a",
+      "range": {
+        "startLine": 37,
+        "startChar": 25,
+        "endLine": 37,
+        "endChar": 78
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
