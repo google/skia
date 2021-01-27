@@ -1,0 +1,6 @@
+uniform half myHalf;
+uniform half4 myHalf4;
+
+half4 main() {
+    return myHalf4 * myHalf;
+}
