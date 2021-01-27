@@ -39,6 +39,52 @@
       },
       "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9362b70_ae6b77c7",
+        "filename": "samplecode/SampleTessellatedWedge.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-27T16:20:08Z",
+      "side": 1,
+      "message": "Why PathStencilFill in this case?",
+      "range": {
+        "startLine": 97,
+        "startChar": 30,
+        "endLine": 97,
+        "endChar": 49
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1323daf9_279ee12e",
+        "filename": "src/gpu/GrInnerFanTriangulator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-27T16:20:08Z",
+      "side": 1,
+      "message": "Getting the breadcrumblist like this feels a little weird. It\u0027s not really part of the calculation and you don\u0027t always use it. I feel like it\u0027d be better to get it via an accessor when you want it.",
+      "range": {
+        "startLine": 37,
+        "startChar": 25,
+        "endLine": 37,
+        "endChar": 78
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

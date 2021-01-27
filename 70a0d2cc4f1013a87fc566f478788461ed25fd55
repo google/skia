@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c86d23c0_196ce14d",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-27T16:20:08Z",
+      "side": 0,
+      "message": "Why remove this? What was its purpose before?",
+      "range": {
+        "startLine": 1181,
+        "startChar": 28,
+        "endLine": 1181,
+        "endChar": 53
+      },
+      "revId": "70a0d2cc4f1013a87fc566f478788461ed25fd55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
