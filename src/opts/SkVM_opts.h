@@ -37,17 +37,19 @@ namespace SK_OPTS_NS {
     #else
         constexpr int K = 8;   // 256-bit: 2 xmm, 2 v-registers, etc.
     #endif
-        using I32 = skvx::Vec<K, int>;
-        using I16 = skvx::Vec<K, int16_t>;
-        using F32 = skvx::Vec<K, float>;
-        using U64 = skvx::Vec<K, uint64_t>;
-        using U32 = skvx::Vec<K, uint32_t>;
-        using U16 = skvx::Vec<K, uint16_t>;
-        using  U8 = skvx::Vec<K, uint8_t>;
+        using I32  = skvx::Vec<K, int>;
+        using I16  = skvx::Vec<K, int16_t>;
+        using F32  = skvx::Vec<K, float>;
+        using U128 = skvx::Vec<K, unsigned __int128>;
+        using U64  = skvx::Vec<K, uint64_t>;
+        using U32  = skvx::Vec<K, uint32_t>;
+        using U16  = skvx::Vec<K, uint16_t>;
+        using U8   = skvx::Vec<K, uint8_t>;
 
         union Slot {
             F32   f32;
             I32   i32;
+            U128  u128;
             U64   u64;
             U32   u32;
             I16   i16;
@@ -104,18 +106,35 @@ namespace SK_OPTS_NS {
 
                 #define STRIDE_1(op) case 2*(int)op
                 #define STRIDE_K(op) case 2*(int)op + 1
-                    STRIDE_1(Op::store8 ): memcpy(args[immA], &r[x].i32, 1); break;
-                    STRIDE_1(Op::store16): memcpy(args[immA], &r[x].i32, 2); break;
-                    STRIDE_1(Op::store32): memcpy(args[immA], &r[x].i32, 4); break;
-                    STRIDE_1(Op::store64): memcpy((char*)args[immA]+0, &r[x].i32, 4);
-                                           memcpy((char*)args[immA]+4, &r[y].i32, 4); break;
+                    STRIDE_1(Op::store8 ):  memcpy(args[immA], &r[x].i32, 1); break;
+                    STRIDE_1(Op::store16):  memcpy(args[immA], &r[x].i32, 2); break;
+                    STRIDE_1(Op::store32):  memcpy(args[immA], &r[x].i32, 4); break;
+
+                    STRIDE_1(Op::store64):  memcpy((char*)args[immA]+ 0, &r[x].i32, 4);
+                                            memcpy((char*)args[immA]+ 4, &r[y].i32, 4);
+                                            break;
+
+                    STRIDE_1(Op::store128): memcpy((char*)args[immA]+ 0, &r[x].i32, 4);
+                                            memcpy((char*)args[immA]+ 4, &r[y].i32, 4);
+                                            memcpy((char*)args[immA]+ 8, &r[z].i32, 4);
+                                            memcpy((char*)args[immA]+12, &r[w].i32, 4);
+                                            break;
 
                     STRIDE_K(Op::store8 ): skvx::cast<uint8_t> (r[x].i32).store(args[immA]); break;
                     STRIDE_K(Op::store16): skvx::cast<uint16_t>(r[x].i32).store(args[immA]); break;
                     STRIDE_K(Op::store32):                     (r[x].i32).store(args[immA]); break;
-                    STRIDE_K(Op::store64): (skvx::cast<uint64_t>(r[x].u32) << 0 |
-                                            skvx::cast<uint64_t>(r[y].u32) << 32).store(args[immA]);
-                                           break;
+
+                    STRIDE_K(Op::store64):
+                        ( skvx::cast<uint64_t>(r[x].u32) << 0
+                        | skvx::cast<uint64_t>(r[y].u32) << 32).store(args[immA]);
+                        break;
+
+                    STRIDE_K(Op::store128):
+                        ( skvx::cast<unsigned __int128>(r[x].u32) << 0
+                        | skvx::cast<unsigned __int128>(r[y].u32) << 32
+                        | skvx::cast<unsigned __int128>(r[z].u32) << 64
+                        | skvx::cast<unsigned __int128>(r[w].u32) << 96).store(args[immA]);
+                        break;
 
                     STRIDE_1(Op::load8 ): r[d].i32 = 0; memcpy(&r[d].i32, args[immA], 1); break;
                     STRIDE_1(Op::load16): r[d].i32 = 0; memcpy(&r[d].i32, args[immA], 2); break;
@@ -170,18 +189,6 @@ namespace SK_OPTS_NS {
 
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
-
-                    // These 128-bit ops are implemented serially for simplicity.
-                    CASE(Op::store128): {
-                        U64 lo = (skvx::cast<uint64_t>(r[x].u32) << 0 |
-                                  skvx::cast<uint64_t>(r[y].u32) << 32),
-                            hi = (skvx::cast<uint64_t>(r[z].u32) << 0 |
-                                  skvx::cast<uint64_t>(r[w].u32) << 32);
-                        for (int i = 0; i < stride; i++) {
-                            memcpy((char*)args[immA] + 16*i + 0, &lo[i], 8);
-                            memcpy((char*)args[immA] + 16*i + 8, &hi[i], 8);
-                        }
-                    } break;
 
                     CASE(Op::load128):
                         r[d].i32 = 0;
