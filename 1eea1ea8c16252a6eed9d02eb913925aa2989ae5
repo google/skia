@@ -16,6 +16,24 @@
       "message": "?????",
       "revId": "1eea1ea8c16252a6eed9d02eb913925aa2989ae5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ceaff2a_f7803e2c",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-27T17:08:53Z",
+      "side": 0,
+      "message": "Hmm I don\u0027t recall here why this is like it is. Maybe we wanted this ideally to be:\n\"SkASSERT(context \u0026\u0026 fContext-\u003epriv().matches(context));\" and then drop the if statement? Regardless I think the if is doing the right thing when they don\u0027t match so leaving as is seems fine assuming calls can handle the invalid view correctly.",
+      "parentUuid": "1ee7056c_12535402",
+      "revId": "1eea1ea8c16252a6eed9d02eb913925aa2989ae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
