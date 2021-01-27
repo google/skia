@@ -35,6 +35,7 @@ enum class SkSVGTag {
     kFeMorphology,
     kFeOffset,
     kFePointLight,
+    kFeSpecularLighting,
     kFeSpotLight,
     kFeTurbulence,
     kFilter,
