@@ -16,14 +16,15 @@ class GrVkGpu;
 
 class GrVkTransferBuffer : public GrGpuBuffer, public GrVkBuffer {
 public:
-    static sk_sp<GrVkTransferBuffer> Make(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type);
+    static sk_sp<GrVkTransferBuffer> Make(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type,
+                                          GrAccessPattern access);
 
 protected:
     void onAbandon() override;
     void onRelease() override;
 
 private:
-    GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
+    GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc, GrAccessPattern access,
                        const GrVkBuffer::Resource* resource);
     void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                           const SkString& dumpName) const override;
