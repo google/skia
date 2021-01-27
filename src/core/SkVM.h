@@ -382,6 +382,9 @@ namespace skvm {
         void st24s(V src, X dst);  // 256-bit *dst = interleave_32bit_lanes(src,src+1)
         void st44s(V src, X dst);  // 512-bit *dst = interleave_32bit_lanes(src,src+1,src+2,src+3)
 
+        void ld24s(V dst, X src, int lane);  // Load 2 32-bit values into given lane of dst..dst+1
+        void ld44s(V dst, X src, int lane);  // Load 4 32-bit values into given lane of dst..dst+3
+
     private:
         uint8_t* fCode;
         size_t   fSize;

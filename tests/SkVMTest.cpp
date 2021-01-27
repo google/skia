@@ -1804,11 +1804,31 @@ DEF_TEST(SkVM_Assembler, r) {
         a.ld44s(A::v0, A::x8);
         a.st24s(A::v0, A::x8);
         a.st44s(A::v0, A::x8);  // echo 'st4.4s {v0,v1,v2,v3}, [x8]' | llvm-mc --show-encoding
+
+        a.ld24s(A::v0, A::x8, 0);  //echo 'ld2 {v0.s,v1.s}[0], [x8]' | llvm-mc --show-encoding
+        a.ld24s(A::v0, A::x8, 1);
+        a.ld24s(A::v0, A::x8, 2);
+        a.ld24s(A::v0, A::x8, 3);
+
+        a.ld44s(A::v0, A::x8, 0);  // ld4 {v0.s,v1.s,v2.s,v3.s}[0], [x8]
+        a.ld44s(A::v0, A::x8, 1);
+        a.ld44s(A::v0, A::x8, 2);
+        a.ld44s(A::v0, A::x8, 3);
     },{
         0x00,0x89,0x40,0x4c,
         0x00,0x09,0x40,0x4c,
         0x00,0x89,0x00,0x4c,
         0x00,0x09,0x00,0x4c,
+
+        0x00,0x81,0x60,0x0d,
+        0x00,0x91,0x60,0x0d,
+        0x00,0x81,0x60,0x4d,
+        0x00,0x91,0x60,0x4d,
+
+        0x00,0xa1,0x60,0x0d,
+        0x00,0xb1,0x60,0x0d,
+        0x00,0xa1,0x60,0x4d,
+        0x00,0xb1,0x60,0x4d,
     });
 
     test_asm(r, [&](A& a) {
