@@ -28,8 +28,8 @@ OpDecorate %colorWhite DescriptorSet 0
 OpDecorate %21 RelaxedPrecision
 OpDecorate %30 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %44 RelaxedPrecision
+OpDecorate %40 RelaxedPrecision
+OpDecorate %45 RelaxedPrecision
 OpDecorate %46 RelaxedPrecision
 OpDecorate %53 RelaxedPrecision
 OpDecorate %55 RelaxedPrecision
@@ -53,10 +53,10 @@ OpDecorate %67 RelaxedPrecision
 %_ptr_Function_float = OpTypePointer Function %float
 %float_n5 = OpConstant %float -5
 %float_5 = OpConstant %float 5
-%int = OpTypeInt 32 1
-%int_0 = OpConstant %int 0
 %float_0 = OpConstant %float 0
 %float_1 = OpConstant %float 1
+%int = OpTypeInt 32 1
+%int_0 = OpConstant %int 0
 %int_2 = OpConstant %int 2
 %int_1 = OpConstant %int 1
 %_entrypoint = OpFunction %void None %14
@@ -83,21 +83,21 @@ OpBranch %26
 OpBranchConditional %32 %27 %29
 %27 = OpLabel
 %34 = OpLoad %float %r
-%33 = OpExtInst %float %1 FAbs %34
-%35 = OpAccessChain %_ptr_Function_float %x %int_0
-OpStore %35 %33
-%38 = OpLoad %v4float %x
-%39 = OpCompositeExtract %float %38 0
-%41 = OpFOrdEqual %bool %39 %float_0
-OpSelectionMerge %43 None
-OpBranchConditional %41 %42 %43
-%42 = OpLabel
-OpBranch %29
+%33 = OpExtInst %float %1 FClamp %34 %float_0 %float_1
+%37 = OpAccessChain %_ptr_Function_float %x %int_0
+OpStore %37 %33
+%40 = OpLoad %v4float %x
+%41 = OpCompositeExtract %float %40 0
+%42 = OpFOrdEqual %bool %41 %float_0
+OpSelectionMerge %44 None
+OpBranchConditional %42 %43 %44
 %43 = OpLabel
+OpBranch %29
+%44 = OpLabel
 OpBranch %28
 %28 = OpLabel
-%44 = OpLoad %float %r
-%46 = OpFAdd %float %44 %float_1
+%45 = OpLoad %float %r
+%46 = OpFAdd %float %45 %float_1
 OpStore %r %46
 OpBranch %25
 %29 = OpLabel

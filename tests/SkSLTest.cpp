@@ -106,9 +106,14 @@ SKSL_TEST(SkSLShortCircuitBoolFolding, "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,     "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 
+SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
+
 /*
 TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 
 SKSL_TEST(SkSLIntFoldingES3,           "folding/IntFoldingES3.sksl")
 SKSL_TEST(SkSLMatrixFoldingES3,        "folding/MatrixFoldingES3.sksl")
+
+SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")
+SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")
 */

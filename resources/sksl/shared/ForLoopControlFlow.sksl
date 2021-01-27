@@ -5,7 +5,7 @@ half4 main() {
 
     // Verify that break is allowed in a for loop.
     for (half r = -5; r < 5; r += 1) {
-        x.r = abs(r);
+        x.r = saturate(r);
         if (x.r == 0) break;
     }
 
