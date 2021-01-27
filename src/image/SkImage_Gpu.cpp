@@ -574,28 +574,19 @@ bool SkImage::MakeBackendTextureFromSkImage(GrDirectContext* direct,
         return false;
     }
 
-    // Ensure we have a texture backed image.
-    if (!image->isTextureBacked()) {
-        image = image->makeTextureImage(direct);
-        if (!image) {
-            return false;
-        }
-    }
-    SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
-    GrTexture* texture = gpuImage->getTexture();
-    if (!texture) {
-        // In context-loss cases, we may not have a texture.
-        return false;
-    }
+    GrSurfaceProxyView view = as_IB(image)->refView(direct, GrMipmapped::kNo);
 
-    // If the image's context doesn't match the provided context, fail.
-    if (texture->getContext() != direct) {
+    if (!view) {
         return false;
     }
 
     // Flush any pending IO on the texture.
-    direct->priv().flushSurface(as_IB(image)->peekProxy());
+    direct->priv().flushSurface(view.proxy());
 
+    GrTexture* texture = view.asTextureProxy()->peekTexture();
+    if (!texture) {
+        return false;
+    }
     // We must make a copy of the image if the image is not unique, if the GrTexture owned by the
     // image is not unique, or if the texture wraps an external object.
     if (!image->unique() || !texture->unique() ||
@@ -605,14 +596,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrDirectContext* direct,
         if (!image) {
             return false;
         }
-
-        texture = gpuImage->getTexture();
-        if (!texture) {
-            return false;
-        }
-
-        // Flush to ensure that the copy is completed before we return the texture.
-        direct->priv().flushSurface(as_IB(image)->peekProxy());
+        return MakeBackendTextureFromSkImage(direct, std::move(image), backendTexture, releaseProc);
     }
 
     SkASSERT(!texture->resourcePriv().refsWrappedObjects());
@@ -620,8 +604,10 @@ bool SkImage::MakeBackendTextureFromSkImage(GrDirectContext* direct,
     SkASSERT(image->unique());
 
     // Take a reference to the GrTexture and release the image.
-    sk_sp<GrTexture> textureRef(SkSafeRef(texture));
+    sk_sp<GrTexture> textureRef = sk_ref_sp(texture);
+    view.reset();
     image = nullptr;
+    SkASSERT(textureRef->unique());
 
     // Steal the backend texture from the GrTexture, releasing the GrTexture in the process.
     return GrTexture::StealBackendTexture(std::move(textureRef), backendTexture, releaseProc);
