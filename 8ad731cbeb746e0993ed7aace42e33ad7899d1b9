@@ -59,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "35ef624c_aa518e16",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-27T15:06:45Z",
+      "side": 1,
+      "message": "Yeah, I think it\u0027s just clouding things now.",
+      "parentUuid": "5c750610_c34d98b1",
+      "range": {
+        "startLine": 1380,
+        "startChar": 17,
+        "endLine": 1380,
+        "endChar": 21
+      },
+      "revId": "8ad731cbeb746e0993ed7aace42e33ad7899d1b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "475662ca_798409dc",
@@ -72,6 +96,30 @@
       "writtenOn": "2021-01-25T21:54:20Z",
       "side": 1,
       "message": "Maybe just \n\n   SkASSERT(slots[i] \u003c slot_count(var.type()));\n\n?  Even marked as SkDEBUGCODE(), it might be nice to not have that varSlotCount line clouding the mainline flow.",
+      "range": {
+        "startLine": 1430,
+        "startChar": 28,
+        "endLine": 1430,
+        "endChar": 40
+      },
+      "revId": "8ad731cbeb746e0993ed7aace42e33ad7899d1b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d368d21f_870a089c",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-27T15:06:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "475662ca_798409dc",
       "range": {
         "startLine": 1430,
         "startChar": 28,
