@@ -20,7 +20,6 @@ if (skia_enable_svg) {
     configs += [ "../../:skia_private" ]
     deps = [
       "../..:skia",
-      "../skresources",
       "../skshaper",
     ]
   }

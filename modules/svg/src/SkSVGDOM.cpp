@@ -412,11 +412,6 @@ SkSVGDOM::Builder& SkSVGDOM::Builder::setFontManager(sk_sp<SkFontMgr> fmgr) {
     return *this;
 }
 
-SkSVGDOM::Builder& SkSVGDOM::Builder::setResourceProvider(sk_sp<skresources::ResourceProvider> rp) {
-    fResourceProvider = std::move(rp);
-    return *this;
-}
-
 sk_sp<SkSVGDOM> SkSVGDOM::Builder::make(SkStream& str) const {
     SkDOM xmlDom;
     if (!xmlDom.build(str)) {
@@ -431,35 +426,22 @@ sk_sp<SkSVGDOM> SkSVGDOM::Builder::make(SkStream& str) const {
         return nullptr;
     }
 
-    class NullResourceProvider final : public skresources::ResourceProvider {
-        sk_sp<SkData> load(const char[], const char[]) const override { return nullptr; }
-    };
-
-    auto resource_provider = fResourceProvider ? fResourceProvider
-                                               : sk_make_sp<NullResourceProvider>();
-
     return sk_sp<SkSVGDOM>(new SkSVGDOM(sk_sp<SkSVGSVG>(static_cast<SkSVGSVG*>(root.release())),
-                                        std::move(fFontMgr), std::move(resource_provider),
-                                        std::move(mapper)));
+                                        std::move(fFontMgr), std::move(mapper)));
 }
 
-SkSVGDOM::SkSVGDOM(sk_sp<SkSVGSVG> root, sk_sp<SkFontMgr> fmgr,
-                   sk_sp<skresources::ResourceProvider> rp, SkSVGIDMapper&& mapper)
+SkSVGDOM::SkSVGDOM(sk_sp<SkSVGSVG> root, sk_sp<SkFontMgr> fmgr, SkSVGIDMapper&& mapper)
     : fRoot(std::move(root))
     , fFontMgr(std::move(fmgr))
-    , fResourceProvider(std::move(rp))
     , fIDMapper(std::move(mapper))
     , fContainerSize(fRoot->intrinsicSize(SkSVGLengthContext(SkSize::Make(0, 0))))
-{
-    SkASSERT(fResourceProvider);
-}
+{}
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
         SkSVGLengthContext       lctx(fContainerSize);
         SkSVGPresentationContext pctx;
-        fRoot->render(SkSVGRenderContext(canvas, fFontMgr, fResourceProvider, fIDMapper, lctx, pctx,
-                                         nullptr));
+        fRoot->render(SkSVGRenderContext(canvas, fFontMgr, fIDMapper, lctx, pctx, nullptr));
     }
 }
 
