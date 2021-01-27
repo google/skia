@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed2eb4a8_f3268a2f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-27T20:21:10Z",
+      "side": 1,
+      "message": "I was able to duplicate the near-zero blur shift with a simple example in Skia. I believe this will address it, though I\u0027m not sure if there are other cases to be considered.",
+      "revId": "5d360bd205c1c6fd9634be996a65ad60bcf8cc0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
