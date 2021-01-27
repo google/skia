@@ -1449,6 +1449,16 @@ void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaratio
     }
 }
 
+int MetalCodeGenerator::getUniformBinding(const Modifiers& m) {
+    return (m.fLayout.fBinding >= 0) ? m.fLayout.fBinding
+                                     : fProgram.fSettings.fDefaultUniformBinding;
+}
+
+int MetalCodeGenerator::getUniformSet(const Modifiers& m) {
+    return (m.fLayout.fSet >= 0) ? m.fLayout.fSet
+                                 : fProgram.fSettings.fDefaultUniformSet;
+}
+
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals._anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
@@ -1501,17 +1511,12 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 if (intf.typeName() == "sk_PerVertex") {
                     continue;
                 }
-                if (intf.variable().modifiers().fLayout.fBinding < 0) {
-                    fErrors.error(intf.fOffset,
-                                  "Metal interface blocks must have 'layout(binding=...)'");
-                    return false;
-                }
                 this->write(", constant ");
                 this->writeBaseType(intf.variable().type());
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
-                this->write(to_string(intf.variable().modifiers().fLayout.fBinding));
+                this->write(to_string(this->getUniformBinding(intf.variable().modifiers())));
                 this->write(")]]");
             }
         }
@@ -1940,12 +1945,7 @@ void MetalCodeGenerator::writeUniformStruct() {
             const Variable& var = decls.declaration()->as<VarDeclaration>().var();
             if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
                 var.type().typeKind() != Type::TypeKind::kSampler) {
-                // If the uniform has the `layout(set=N)` attribute, honor that. If not, use the
-                // default uniform-set value from settings.
-                int uniformSet = var.modifiers().fLayout.fSet;
-                if (uniformSet == -1) {
-                    uniformSet = fProgram.fSettings.fDefaultUniformSet;
-                }
+                int uniformSet = this->getUniformSet(var.modifiers());
                 // Make sure that the program's uniform-set value is consistent throughout.
                 if (-1 == fUniformBuffer) {
                     this->write("struct Uniforms {\n");
