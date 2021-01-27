@@ -423,12 +423,12 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
         case GrGpuBufferType::kXferCpuToGpu:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStream_GrAccessPattern == accessPattern);
-            buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyRead_Type);
+            buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyRead_Type, accessPattern);
             break;
         case GrGpuBufferType::kXferGpuToCpu:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStream_GrAccessPattern == accessPattern);
-            buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyWrite_Type);
+            buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyWrite_Type, accessPattern);
             break;
         default:
             SK_ABORT("Unknown buffer type.");

@@ -10,7 +10,8 @@
 #include "src/gpu/vk/GrVkTransferBuffer.h"
 
 sk_sp<GrVkTransferBuffer> GrVkTransferBuffer::Make(GrVkGpu* gpu, size_t size,
-                                                   GrVkBuffer::Type type) {
+                                                   GrVkBuffer::Type type,
+                                                   GrAccessPattern access) {
     GrVkBuffer::Desc desc;
     desc.fDynamic = true;
     SkASSERT(GrVkBuffer::kCopyRead_Type == type || GrVkBuffer::kCopyWrite_Type == type);
@@ -22,19 +23,21 @@ sk_sp<GrVkTransferBuffer> GrVkTransferBuffer::Make(GrVkGpu* gpu, size_t size,
         return nullptr;
     }
 
-    GrVkTransferBuffer* buffer = new GrVkTransferBuffer(gpu, desc, bufferResource);
+    GrVkTransferBuffer* buffer = new GrVkTransferBuffer(gpu, desc, access, bufferResource);
     if (!buffer) {
         bufferResource->unref();
     }
     return sk_sp<GrVkTransferBuffer>(buffer);
 }
 
-GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
+GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu,
+                                       const GrVkBuffer::Desc& desc,
+                                       GrAccessPattern access,
                                        const GrVkBuffer::Resource* bufferResource)
         : INHERITED(gpu, desc.fSizeInBytes,
                     kCopyRead_Type == desc.fType ? GrGpuBufferType::kXferCpuToGpu
                                                  : GrGpuBufferType::kXferGpuToCpu,
-                    kStream_GrAccessPattern)
+                    access)
         , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache(SkBudgeted::kYes);
 }

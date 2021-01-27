@@ -197,7 +197,8 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(GrVkGpu* gpu, const void* src, size_t si
         gpu->updateBuffer(this, src, this->offset(), size);
     } else {
         sk_sp<GrVkTransferBuffer> transferBuffer =
-                GrVkTransferBuffer::Make(gpu, size, GrVkBuffer::kCopyRead_Type);
+                GrVkTransferBuffer::Make(gpu, size, GrVkBuffer::kCopyRead_Type,
+                                         kStream_GrAccessPattern);
         if (!transferBuffer) {
             return;
         }
