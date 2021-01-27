@@ -41,12 +41,6 @@ class SkFont;
 class SkFontMgr;
 class SkUnicode;
 
-/**
-   Shapes text using HarfBuzz and places the shaped text into a
-   client-managed buffer.
-
-   If compiled without HarfBuzz, fall back on SkPaint::textToGlyphs.
- */
 class SKSHAPER_API SkShaper {
 public:
     static std::unique_ptr<SkShaper> MakePrimitive();
@@ -54,12 +48,14 @@ public:
     static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper(sk_sp<SkFontMgr> = nullptr);
     static std::unique_ptr<SkShaper> MakeShapeThenWrap(sk_sp<SkFontMgr> = nullptr);
     static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> = nullptr);
+    static void PurgeHarfBuzzCache();
     #endif
     #ifdef SK_SHAPER_CORETEXT_AVAILABLE
     static std::unique_ptr<SkShaper> MakeCoreText();
     #endif
 
     static std::unique_ptr<SkShaper> Make(sk_sp<SkFontMgr> = nullptr);
+    static void PurgeCaches();
 
     SkShaper();
     virtual ~SkShaper();

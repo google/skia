@@ -56,6 +56,7 @@ protected:
         paint.setColor(fg);
 
         for (int i = 9; i < 24; i += 2) {
+            SkShaper::PurgeCaches();
             SkTextBlobBuilderRunHandler builder(gText, { margin, margin });
             SkFont srcFont(nullptr, SkIntToScalar(i));
             srcFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
