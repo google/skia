@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "479ff25b_842551cc",
+        "filename": "tests/sksl/shared/StructsInFunctions.asm.frag",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-27T18:58:01Z",
+      "side": 1,
+      "message": "This error (and the others like it) are going to be fixed by an upcoming SPIR-V change, right?",
+      "range": {
+        "startLine": 3,
+        "startChar": 76,
+        "endLine": 3,
+        "endChar": 88
+      },
+      "revId": "31c01c827c1241eb0d2040a739ee4834528226e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
