@@ -30,6 +30,18 @@ using namespace emscripten;
 #if SK_INCLUDE_MANAGED_SKOTTIE
 namespace {
 
+class WebTrack final : public skresources::ExternalTrackAsset {
+public:
+    explicit WebTrack(emscripten::val player) : fPlayer(std::move(player)) {}
+
+private:
+    void seek(float t) override {
+        fPlayer.call<void>("seek", val(t));
+    }
+
+    const emscripten::val fPlayer;
+};
+
 class SkottieAssetProvider : public skottie::ResourceProvider {
 public:
     ~SkottieAssetProvider() override = default;
@@ -40,12 +52,12 @@ public:
     // confusing enscripten.
     using AssetVec = std::vector<std::pair<SkString, sk_sp<SkData>>>;
 
-    static sk_sp<SkottieAssetProvider> Make(AssetVec assets) {
-        if (assets.empty()) {
+    static sk_sp<SkottieAssetProvider> Make(AssetVec assets, emscripten::val soundMap) {
+        if (assets.empty() && soundMap.call<bool>("isEmpty")) {
             return nullptr;
         }
 
-        return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider(std::move(assets)));
+        return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider(std::move(assets), soundMap));
     }
 
     sk_sp<skottie::ImageAsset> loadImageAsset(const char[] /* path */,
@@ -59,6 +71,13 @@ public:
         return nullptr;
     }
 
+    sk_sp<skresources::ExternalTrackAsset> loadAudioAsset(const char[] /* path */,
+                                                          const char name[],
+                                                          const char[] /*id*/) override {
+        emscripten::val player = this->findSoundAsset(name);
+        return sk_make_sp<WebTrack>(std::move(player));
+    }
+
     sk_sp<SkData> loadFont(const char name[], const char[] /* url */) const override {
         // Same as images paths, we ignore font URLs.
         return this->findAsset(name);
@@ -70,7 +89,9 @@ public:
     }
 
 private:
-    explicit SkottieAssetProvider(AssetVec assets) : fAssets(std::move(assets)) {}
+    explicit SkottieAssetProvider(AssetVec assets, emscripten::val soundMap)
+    : fAssets(std::move(assets))
+    , fSoundMap(std::move(soundMap)) {}
 
     sk_sp<SkData> findAsset(const char name[]) const {
         for (const auto& asset : fAssets) {
@@ -83,7 +104,12 @@ private:
         return nullptr;
     }
 
+    emscripten::val findSoundAsset(const char name[]) const {
+        return fSoundMap.call<emscripten::val>("getHowl", val(name));
+    }
+
     const AssetVec fAssets;
+    const emscripten::val fSoundMap;
 };
 
 class ManagedAnimation final : public SkRefCnt {
@@ -255,6 +281,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
                                                            uintptr_t /* char**     */ nptr,
                                                            uintptr_t /* uint8_t**  */ dptr,
                                                            uintptr_t /* size_t*    */ sptr,
+                                                           emscripten::val soundMap,
                                                            std::string prop_prefix)
                                                         ->sk_sp<ManagedAnimation> {
         // See the comment in canvaskit_bindings.cpp about the use of uintptr_t
@@ -273,7 +300,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
 
         return ManagedAnimation::Make(json,
                                       skresources::DataURIResourceProviderProxy::Make(
-                                          SkottieAssetProvider::Make(std::move(assets))),
+                                          SkottieAssetProvider::Make(std::move(assets), std::move(soundMap))),
                                       prop_prefix);
     }));
     constant("managed_skottie", true);
