@@ -19,7 +19,7 @@ void draw(SkCanvas* canvas) {
     canvas->scale(4, 4);
     for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {
         paint.setColor(color);
-        canvas->drawBitmap(bitmap, 0, 0, &paint);
+        canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);
         canvas->translate(12, 0);
     }
 }

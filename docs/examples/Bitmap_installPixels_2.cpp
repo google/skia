@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
    SkImageInfo info = SkImageInfo::MakeN32(width, height, kUnpremul_SkAlphaType);
    if (bitmap.installPixels(info, pixels, info.minRowBytes())) {
        canvas->scale(32, 32);
-       canvas->drawBitmap(bitmap, 0, 0);
+       canvas->drawImage(bitmap.asImage(), 0, 0);
    }
 }
 }  // END FIDDLE

@@ -5,7 +5,7 @@
 REG_FIDDLE(Bitmap_readyToDraw, 256, 160, false, 5) {
 void draw(SkCanvas* canvas) {
     if (source.readyToDraw()) {
-        canvas->drawBitmap(source, 10, 10);
+        canvas->drawImage(source.asImage(), 10, 10);
     }
 }
 }  // END FIDDLE

@@ -20,6 +20,6 @@ void draw(SkCanvas* canvas) {
         }
     }
     canvas->scale(8, 8);
-    canvas->drawBitmap(bm16, 0, 0);
+    canvas->drawImage(bm16.asImage(), 0, 0);
 }
 }  // END FIDDLE

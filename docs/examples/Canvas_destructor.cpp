@@ -16,6 +16,6 @@ void draw(SkCanvas* canvas) {
         offscreen.clear(SK_ColorWHITE);
         offscreen.drawString("DEF", 20, 160, font, paint);
     }
-    canvas->drawBitmap(bitmap, 0, 0, nullptr);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
 }
 }  // END FIDDLE

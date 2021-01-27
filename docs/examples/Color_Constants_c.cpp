@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
     pixmap.erase(SK_ColorBLACK, { 48, 48, 168, 168 } );
     SkBitmap bitmap;
     bitmap.installPixels(pixmap);
-    canvas->drawBitmap(bitmap, 0, 0);
-    canvas->drawBitmap(bitmap, 48, 48);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
+    canvas->drawImage(bitmap.asImage(), 48, 48);
 }
 }  // END FIDDLE

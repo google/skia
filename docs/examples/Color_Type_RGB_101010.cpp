@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     bitmap.allocPixels(imageInfo);
     SkCanvas offscreen(bitmap);
     offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     auto pack101010x = [](unsigned r, unsigned g, unsigned b) -> uint32_t {
         return (r << 0) | (g << 10) | (b << 20);
     };
@@ -19,11 +19,11 @@ void draw(SkCanvas* canvas) {
     uint32_t blueBits[] = { pack101010x(0x000, 0x000, 0x3FF), pack101010x(0x000, 0x000, 0x2ff),
     pack101010x(0x000, 0x000, 0x1ff), pack101010x(0x000, 0x000, 0x0ff) };
     if (bitmap.installPixels(imageInfo, (void*) redBits, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 2, 2);
+        canvas->drawImage(bitmap.asImage(), 2, 2);
     }
     SkPixmap bluePixmap(imageInfo, &blueBits, imageInfo.minRowBytes());
     if (bitmap.installPixels(imageInfo, (void*) blueBits, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 4, 4);
+        canvas->drawImage(bitmap.asImage(), 4, 4);
     }
 }
 }  // END FIDDLE

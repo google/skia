@@ -13,16 +13,15 @@ void draw(SkCanvas* canvas) {
     checkRed.writePixels(
             SkImageInfo::MakeN32Premul(2, 2), (void*) checkers, sizeof(checkers[0]), 1, 1);
     canvas->scale(16, 16);
-    canvas->drawBitmap(redBorder, 0, 0, nullptr);
+    canvas->drawImage(redBorder.asImage(), 0, 0);
     canvas->resetMatrix();
     sk_sp<SkImage> image = redBorder.asImage();
-    SkPaint lowPaint;
-    lowPaint.setFilterQuality(kLow_SkFilterQuality);
     for (auto constraint : { SkCanvas::kStrict_SrcRectConstraint,
                              SkCanvas::kFast_SrcRectConstraint } ) {
         canvas->translate(80, 0);
         canvas->drawImageRect(image.get(), SkRect::MakeLTRB(1, 1, 3, 3),
-                SkRect::MakeLTRB(16, 16, 48, 48), &lowPaint, constraint);
+                SkRect::MakeLTRB(16, 16, 48, 48),
+                SkSamplingOptions(SkFilterMode::kLinear), nullptr, constraint);
     }
 }
 }  // END FIDDLE
