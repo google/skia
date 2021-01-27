@@ -55,6 +55,9 @@ public:
         return &fView;
     }
 
+    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
+                                         GrSurfaceOrigin* origin) const final;
+
     bool onIsTextureBacked() const override {
         SkASSERT(fView.proxy());
         return true;

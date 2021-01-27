@@ -198,39 +198,6 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
     return adjuster.view(mipMapped);
 }
 
-GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,
-                                                      GrSurfaceOrigin* origin) const {
-    auto direct = fContext->asDirectContext();
-    if (!direct) {
-        // This image was created with a DDL context and cannot be instantiated.
-        return GrBackendTexture();  // invalid
-    }
-
-    const GrSurfaceProxyView* view = this->view(direct);
-    SkASSERT(view && *view);
-    GrSurfaceProxy* proxy = view->proxy();
-
-    if (!proxy->isInstantiated()) {
-        auto resourceProvider = direct->priv().resourceProvider();
-
-        if (!proxy->instantiate(resourceProvider)) {
-            return GrBackendTexture();  // invalid
-        }
-    }
-
-    GrTexture* texture = proxy->peekTexture();
-    if (texture) {
-        if (flushPendingGrContextIO) {
-            direct->priv().flushSurface(proxy);
-        }
-        if (origin) {
-            *origin = view->origin();
-        }
-        return texture->getBackendTexture();
-    }
-    return GrBackendTexture();  // invalid
-}
-
 bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
     // The base class has already checked that 'context' isn't abandoned (if it's not nullptr)
     if (fContext->priv().abandoned()) {
