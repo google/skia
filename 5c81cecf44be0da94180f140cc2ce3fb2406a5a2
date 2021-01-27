@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6d17a8a_a4617d66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-27T19:17:50Z",
+      "side": 1,
+      "message": "This is prep for \u003cimage\u003e support so that we can handle both data and non-local URIs.",
+      "revId": "5c81cecf44be0da94180f140cc2ce3fb2406a5a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
