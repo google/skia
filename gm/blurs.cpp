@@ -139,11 +139,23 @@ DEF_SIMPLE_GM(BlurBigSigma, canvas, 1024, 1024) {
     canvas->drawRect(SkRect::MakeWH(700, 800), p);
 }
 
-DEF_SIMPLE_GM(BlurSmallSigma, canvas, 256, 256) {
-    // Normal sigma on x-axis, a small but non-zero sigma on y-axis that should
-    // be treated as identity.
+DEF_SIMPLE_GM(BlurSmallSigma, canvas, 512, 256) {
+    {
+        // Normal sigma on x-axis, a small but non-zero sigma on y-axis that should
+        // be treated as identity.
+        SkPaint paint;
+        paint.setImageFilter(SkImageFilters::Blur(16.f, 1e-5f, nullptr));
+        canvas->drawRect(SkRect::MakeLTRB(64, 64, 192, 192), paint);
+    }
 
-    SkPaint paint;
-    paint.setImageFilter(SkImageFilters::Blur(16.f, 1e-5f, nullptr));
-    canvas->drawRect(SkRect::MakeLTRB(64, 64, 192, 192), paint);
+    {
+        // Small sigma on both axes, should be treated as identity and no red should show
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        SkRect rect = SkRect::MakeLTRB(320, 64, 448, 192);
+        canvas->drawRect(rect, paint);
+        paint.setColor(SK_ColorBLACK);
+        paint.setImageFilter(SkImageFilters::Blur(1e-5f, 1e-5f, nullptr));
+        canvas->drawRect(rect, paint);
+    }
 }
