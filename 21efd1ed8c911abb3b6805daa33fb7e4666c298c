@@ -16,6 +16,41 @@
       "message": "Skottie resolves image assets at load time.  We could try the same for SVG - but it limits the attribute/setter usability (if we don\u0027t allow updating href).\n\nSo for now this is set up to resolve image assets at render time, assuming the common use case is to render the scene only once.",
       "revId": "21efd1ed8c911abb3b6805daa33fb7e4666c298c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ab765cf_0070eb26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-27T14:01:46Z",
+      "side": 1,
+      "message": "Thanks for plumbing this through!",
+      "revId": "21efd1ed8c911abb3b6805daa33fb7e4666c298c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13cd944c_14b52416",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-27T14:01:46Z",
+      "side": 1,
+      "message": "SGTM. Could a client add a skresources::CachingResourceProvider wrapper on top to partially handle the case of rendering a document multiple times? I\u0027m not familiar with the skresources module, so I\u0027m purely going on the name.",
+      "parentUuid": "65f5a87b_2d49f171",
+      "revId": "21efd1ed8c911abb3b6805daa33fb7e4666c298c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
