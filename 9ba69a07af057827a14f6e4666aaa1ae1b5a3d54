@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bd785f2_f36079c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-27T01:38:12Z",
+      "side": 1,
+      "message": "Note that this doesn\u0027t immediately fix anything, this is just what has to happen for SkShaper to expose something which can be called.\n\nIt doesn\u0027t seem possible for SkGraphics to call into a module. Users could call this API directly if needed. Or Paragraph could add an API call or modify something in ParagraphCache to call this.",
+      "revId": "9ba69a07af057827a14f6e4666aaa1ae1b5a3d54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
