@@ -16,6 +16,7 @@ namespace dsl {
 
 using Block = DSLBlock;
 using Expression = DSLExpression;
+using Modifiers = DSLModifiers;
 using Statement = DSLStatement;
 using Var = DSLVar;
 

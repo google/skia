@@ -112,6 +112,10 @@ void DSLWriter::ReportError(const char* msg) {
     }
 }
 
+const SkSL::Variable& DSLWriter::Var(const DSLVar& var) {
+    return *var.var();
+}
+
 #if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
 
 DSLWriter& DSLWriter::Instance() {

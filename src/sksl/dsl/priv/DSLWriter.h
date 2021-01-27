@@ -70,6 +70,11 @@ public:
     static const SkSL::Modifiers* Modifiers(SkSL::Modifiers modifiers);
 
     /**
+     * Returns the SkSL variable corresponding to a DSLVar.
+     */
+    static const SkSL::Variable& Var(const DSLVar& var);
+
+    /**
      * Returns the (possibly mangled) final name that should be used for an entity with the given
      * raw name.
      */

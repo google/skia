@@ -9,6 +9,7 @@
 #define SKSL_DSL_VAR
 
 #include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLModifiers.h"
 
 namespace SkSL {
 
@@ -27,6 +28,8 @@ public:
      * parameter is optional.
      */
     DSLVar(DSLType type, const char* name = "var");
+
+    DSLVar(DSLModifiers modifiers, DSLType type, const char* name = "var");
 
     DSLVar(DSLVar&&) = delete;
 
