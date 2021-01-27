@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebc0fa8a_50cb575f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-27T16:15:32Z",
+      "side": 1,
+      "message": "Is it possible to put up a patchset without the file rename in order to see the diffs from the old to new op?",
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e0120db_361653af",
+        "filename": "gm/largeclippedpath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-27T16:15:32Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 14,
+        "startChar": 69,
+        "endLine": 14,
+        "endChar": 73
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
