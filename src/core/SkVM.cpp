@@ -2323,6 +2323,18 @@ namespace skvm {
     void Assembler::st24s(V src, X dst) { this->op(0b0'1'0011000'0'000000'1000'10, dst, src); }
     void Assembler::st44s(V src, X dst) { this->op(0b0'1'0011000'0'000000'0000'10, dst, src); }
 
+    void Assembler::ld24s(V dst, X src, int lane) {
+        int Q = (lane & 2)>>1,
+            S = (lane & 1);
+                 /*  Q                       S */
+        this->op(0b0'0'0011010'1'1'00000'100'0'00, src, dst, (Q<<30)|(S<<12));
+    }
+    void Assembler::ld44s(V dst, X src, int lane) {
+        int Q = (lane & 2)>>1,
+            S = (lane & 1);
+        this->op(0b0'0'0011010'1'1'00000'101'0'00, src, dst, (Q<<30)|(S<<12));
+    }
+
     void Assembler::label(Label* l) {
         if (fCode) {
             // The instructions all currently point to l->offset.
