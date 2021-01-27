@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9946d781_f0929c76",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-01-27T13:40:17Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 441,
+        "startChar": 54,
+        "endLine": 441,
+        "endChar": 56
+      },
+      "revId": "f5ffddf9f2307e8776a1a146a192ec7b4138e9f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
