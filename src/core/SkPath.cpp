@@ -1656,11 +1656,20 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
         // If we can land a robust convex scan-converter, we may be able to relax/remove this
         // check, and keep convex paths marked as such after a general transform...
         //
+#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
         if (matrix.isScaleTranslate() && SkPathPriv::IsAxisAligned(*this)) {
             dst->setConvexity(convexity);
         } else {
             dst->setConvexity(SkPathConvexity::kUnknown);
         }
+#else
+        if (convexity == SkPathConvexity::kConvex &&
+            (!matrix.isScaleTranslate() || !SkPathPriv::IsAxisAligned(*this))) {
+            // Not safe to still assume we're convex...
+            convexity = SkPathConvexity::kUnknown;
+        }
+        dst->setConvexity(convexity);
+#endif
 
         if (this->getFirstDirection() == SkPathFirstDirection::kUnknown) {
             dst->setFirstDirection(SkPathFirstDirection::kUnknown);
@@ -3841,4 +3850,25 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
 
 int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
     return path.fPathRef->genIDChangeListenerCount();
+}
+
+bool SkPathPriv::IsAxisAligned(const SkPath& path) {
+#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
+    SkRect tmp;
+    return (path.fPathRef->fIsRRect | path.fPathRef->fIsOval) || path.isRect(&tmp);
+#else
+    // Conservative (quick) test to see if all segments are axis-aligned.
+    // Multiple contours might give a false-negative, but for speed, we ignore that
+    // and just look at the raw points.
+
+    const SkPoint* pts = path.fPathRef->points();
+    const int count = path.fPathRef->countPoints();
+
+    for (int i = 1; i < count; ++i) {
+        if (pts[i-1].fX != pts[i].fX && pts[i-1].fY != pts[i].fY) {
+            return false;
+        }
+    }
+    return true;
+#endif
 }
