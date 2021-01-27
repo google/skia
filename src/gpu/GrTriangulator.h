@@ -189,7 +189,6 @@ protected:
     bool fRoundVerticesToQuarterPixel = false;
     bool fEmitCoverage = false;
     bool fCullCollinearVertices = true;
-    bool fDisallowSelfIntersection = false;
 
     // The breadcrumb triangles serve as a glue that erases T-junctions between a path's outer
     // curves and its inner polygon triangulation. Drawing a path's outer curves, breadcrumb
@@ -212,23 +211,51 @@ protected:
     //
     // The opposite-direction shared edges between the triangulation and breadcrumb triangles should
     // all cancel out, leaving just the set of edges from the original polygon.
-    class BreadcrumbTriangleCollector {
+    class BreadcrumbTriangleList {
     public:
-        void push(SkPoint a, SkPoint b, SkPoint c, int winding) {
-            if (a != b && a != c && b != c) {
-                if (winding > 0) {
-                    this->onPush(a, b, c, winding);
-                } else if (winding < 0) {
-                    this->onPush(b, a, c, -winding);
-                }
+        void prepend(SkArenaAlloc* alloc, SkPoint a, SkPoint b, SkPoint c, int winding) {
+            if (a == b || a == c || b == c || winding == 0) {
+                return;
             }
+            if (winding < 0) {
+                std::swap(a, b);
+                winding = -winding;
+            }
+            for (int i = 0; i < winding; ++i) {
+                fHead = alloc->make<Node>(a, b, c, fHead);
+            }
+            fCount += winding;
         }
-        virtual ~BreadcrumbTriangleCollector() {}
+
+        struct Node {
+            Node(SkPoint a, SkPoint b, SkPoint c, const Node* next) : fPts{a, b, c}, fNext(next) {}
+            SkPoint fPts[3];
+            const Node* fNext;
+        };
+
+        const Node* head() const { return fHead; }
+        int count() const { return fCount; }
+
     private:
-        virtual void onPush(SkPoint, SkPoint, SkPoint, int winding) = 0;
+        const Node* fHead = nullptr;
+        int fCount = 0;
     };
 
-    BreadcrumbTriangleCollector* fBreadcrumbTriangles = nullptr;
+    class AutoResetBreadcrumbList {
+    public:
+        AutoResetBreadcrumbList(GrTriangulator* owner, BreadcrumbTriangleList* list)
+                : fOwner(owner) {
+            fOwner->fBreadcrumbTriangleList = list;
+        }
+        ~AutoResetBreadcrumbList() {
+            fOwner->fBreadcrumbTriangleList = nullptr;
+        }
+    private:
+        GrTriangulator* fOwner;
+    };
+
+private:
+    BreadcrumbTriangleList* fBreadcrumbTriangleList = nullptr;
 };
 
 /**

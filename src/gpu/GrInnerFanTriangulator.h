@@ -15,25 +15,27 @@
 // path. If a breadcrumbCollector is not provided, pathToPolys fails upon self intersection.
 class GrInnerFanTriangulator : private GrTriangulator {
 public:
-    using GrTriangulator::BreadcrumbTriangleCollector;
+    using GrTriangulator::BreadcrumbTriangleList;
 
-    GrInnerFanTriangulator(const SkPath& path, SkArenaAlloc* alloc,
-                           BreadcrumbTriangleCollector* breadcrumbCollector)
+    GrInnerFanTriangulator(const SkPath& path, SkArenaAlloc* alloc)
             : GrTriangulator(path, alloc) {
         fCullCollinearVertices = false;
-        fDisallowSelfIntersection = !breadcrumbCollector;
-        fBreadcrumbTriangles = breadcrumbCollector;
     }
 
-    int pathToTriangles(GrEagerVertexAllocator* vertexAlloc, bool* isLinear) {
-        return this->polysToTriangles(this->pathToPolys(isLinear), vertexAlloc);
+    int pathToTriangles(GrEagerVertexAllocator* vertexAlloc, BreadcrumbTriangleList* breadcrumbList,
+                        bool* isLinear) {
+        Poly* polys = this->pathToPolys(breadcrumbList, isLinear);
+        return this->polysToTriangles(polys, vertexAlloc, breadcrumbList);
     }
 
-    Poly* pathToPolys(bool* isLinear) {
+    Poly* pathToPolys(BreadcrumbTriangleList* breadcrumbList, bool* isLinear) {
+        AutoResetBreadcrumbList arb(this, breadcrumbList);
         return this->GrTriangulator::pathToPolys(0, SkRect::MakeEmpty(), isLinear);
     }
 
-    int polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertexAlloc) {
+    int polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertexAlloc,
+                         BreadcrumbTriangleList* breadcrumbList) {
+        AutoResetBreadcrumbList arb(this, breadcrumbList);
         return this->GrTriangulator::polysToTriangles(polys, vertexAlloc);
     }
 };
