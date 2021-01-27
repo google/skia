@@ -719,6 +719,9 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
                                           bool mipmapped) {
     if (recordingContext) {
 #if SK_SUPPORT_GPU
+        if (!recordingContext->priv().caps()->mipmapSupport()) {
+            mipmapped = false;
+        }
         auto fillContext = GrSurfaceFillContext::Make(recordingContext,
                                                       resultInfo,
                                                       SkBackingFit::kExact,
