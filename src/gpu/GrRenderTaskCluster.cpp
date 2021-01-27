@@ -106,11 +106,21 @@ static bool task_cluster_visit(GrRenderTask* task, SkTInternalLList<GrRenderTask
         clusterHead = clusterHead->fPrev;
     }
 
-    // We can't reorder if any moved task depends on anything in the cluster.
+    // We can't reorder if any moved task depends on anything in the cluster or if any moved
+    // task writes to any proxy used in the cluster.
     // Time complexity here is high, but making a hash set is a lot worse.
     for (GrRenderTask* moved = movedHead; moved; moved = moved->fNext) {
-        for (GrRenderTask* dep : moved->dependencies()) {
-            for (GrRenderTask* t = clusterHead; t != movedHead; t = t->fNext) {
+        for (GrRenderTask* t = clusterHead; t != movedHead; t = t->fNext) {
+            for (int i = 0; i < moved->numTargets(); i++) {
+                if (t->isUsed(moved->target(i))) {
+                    CLUSTER_DEBUGF("Cluster: Bail, %s can't write before %s reads from %s.\n",
+                                   describe_task(moved).c_str(),
+                                   describe_task(t).c_str(),
+                                   moved->target(i)->getDebugName().c_str());
+                    return false;
+                }
+            }
+            for (GrRenderTask* dep : moved->dependencies()) {
                 if (t == dep) {
                     CLUSTER_DEBUGF("Cluster: Bail, %s depends on %s.\n",
                                    describe_task(moved).c_str(),
