@@ -710,10 +710,12 @@ if (skia_compile_sksl_tests) {
       ]
       sources = []
       outputs = []
+      response_file_contents = []
       args = [
         rebase_path(skslc_path),
         invoker.lang,
         invoker.settings,
+        "{{response_file_name}}",
       ]
 
       testsDir = get_path_info("tests", "abspath")
@@ -726,10 +728,10 @@ if (skia_compile_sksl_tests) {
         dir = get_path_info(dst, "dir")
         name = get_path_info(dst, "name")
         ext = get_path_info(dst, "extension")
-        args += rebase_path([
-                              src,
-                              dir,
-                            ])
+        response_file_contents += rebase_path([
+                                                src,
+                                                dir,
+                                              ])
         sources += [ src ]
 
         foreach(outExtension, invoker.outExtensions) {
