@@ -939,6 +939,66 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_ALL_CONTEXTS(DSLFunction, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    DSLWriter::ProgramElements().clear();
+    Var coords(kHalf2, "coords");
+    DSLFunction(kVoid, "main", coords).define(
+        sk_FragColor() = Half4(coords, 0, 1)
+    );
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements()[0]->description() ==
+R"(void main(half2 coords) {
+(sk_FragColor = half4(coords, 0.0, 1.0));
+}
+)");
+
+    DSLWriter::ProgramElements().clear();
+    Var x(kFloat, "x");
+    DSLFunction(kFloat, "sqr", x).define(
+        Return(x * x)
+    );
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements()[0]->description() ==
+R"(float sqr(float x) {
+return (x * x);
+}
+)");
+
+    {
+        ExpectError error(r, "error: expected 'float', but found 'bool'\n");
+        DSLWriter::ProgramElements().clear();
+        DSLFunction(kFloat, "broken").define(
+            Return(true)
+        );
+    }
+
+    {
+        ExpectError error(r, "error: expected function to return 'float'\n");
+        DSLWriter::ProgramElements().clear();
+        DSLFunction(kFloat, "broken").define(
+            Return()
+        );
+    }
+
+    {
+        ExpectError error(r, "error: may not return a value from a void function\n");
+        DSLWriter::ProgramElements().clear();
+        DSLFunction(kVoid, "broken").define(
+            Return(0)
+        );
+    }
+
+/* TODO: detect this case
+    {
+        ExpectError error(r, "error: expected function to return 'float'\n");
+        DSLWriter::ProgramElements().clear();
+        DSLFunction(kFloat, "broken").define(
+        );
+    }
+*/
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
@@ -952,6 +1012,16 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
         ExpectError error(r, "error: expected 'bool', but found 'float'\n");
         If(a + b, a -= b).release();
     }
+}
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+
+    Statement x = Return();
+    REPORTER_ASSERT(r, x.release()->description() == "return;");
+
+    Statement y = Return(true);
+    REPORTER_ASSERT(r, y.release()->description() == "return true;");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
