@@ -371,6 +371,7 @@ sksl_shared_tests = [
   "/sksl/shared/StaticSwitchWithStaticConditionalBreak.sksl",
   "/sksl/shared/StaticSwitchWithStaticConditionalBreakInsideBlock.sksl",
   "/sksl/shared/Structs.sksl",
+  "/sksl/shared/StructsInFunctions.sksl",
   "/sksl/shared/StructMaxDepth.sksl",
   "/sksl/shared/Switch.sksl",
   "/sksl/shared/SwitchContainingDeadCode.sksl",
