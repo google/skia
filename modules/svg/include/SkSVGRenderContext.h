@@ -14,7 +14,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
-#include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGIDMapper.h"
 #include "src/core/SkTLazy.h"
@@ -56,8 +55,7 @@ struct SkSVGPresentationContext {
 
 class SkSVGRenderContext {
 public:
-    SkSVGRenderContext(SkCanvas*, const sk_sp<SkFontMgr>&,
-                       const sk_sp<skresources::ResourceProvider>&, const SkSVGIDMapper&,
+    SkSVGRenderContext(SkCanvas*, const sk_sp<SkFontMgr>&, const SkSVGIDMapper&,
                        const SkSVGLengthContext&, const SkSVGPresentationContext&,
                        const SkSVGNode*);
     SkSVGRenderContext(const SkSVGRenderContext&);
@@ -147,7 +145,6 @@ private:
     SkTLazy<SkPaint> commonPaint(const SkSVGPaint&, float opacity) const;
 
     const sk_sp<SkFontMgr>&                       fFontMgr;
-    const sk_sp<skresources::ResourceProvider>&   fResourceProvider;
     const SkSVGIDMapper&                          fIDMapper;
     SkTCopyOnFirstWrite<SkSVGLengthContext>       fLengthContext;
     SkTCopyOnFirstWrite<SkSVGPresentationContext> fPresentationContext;

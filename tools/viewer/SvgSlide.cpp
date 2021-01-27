@@ -11,31 +11,27 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
-#include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGDOM.h"
-#include "src/utils/SkOSPath.h"
 
 SvgSlide::SvgSlide(const SkString& name, const SkString& path)
-    : fPath(path)
-{
+        : SvgSlide(name, SkStream::MakeFromFile(path.c_str())) {
+}
+
+SvgSlide::SvgSlide(const SkString& name, std::unique_ptr<SkStream> stream)
+        : fStream(std::move(stream)) {
     fName = name;
 }
 
 void SvgSlide::load(SkScalar w, SkScalar h) {
-    auto stream = SkStream::MakeFromFile(fPath.c_str());
-
-    if (!stream) {
-        SkDebugf("Could not open %s.\n", fPath.c_str());
+    if (!fStream) {
+        SkDebugf("No svg stream for slide %s.\n", fName.c_str());
         return;
     }
 
     fWinSize = SkSize::Make(w, h);
 
-    auto rp = skresources::DataURIResourceProviderProxy::Make(
-                  skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
-                                                          /*predecode=*/true),
-                  /*predecode=*/true);
-    fDom = SkSVGDOM::Builder().setResourceProvider(std::move(rp)).make(*stream);
+    fStream->rewind();
+    fDom = SkSVGDOM::MakeFromStream(*fStream);
     if (fDom) {
         fDom->setContainerSize(fWinSize);
     }
