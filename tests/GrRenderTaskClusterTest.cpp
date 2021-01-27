@@ -13,11 +13,11 @@
 typedef void (*CreateGraphPF)(SkTArray<sk_sp<GrMockRenderTask>>* graph,
                               SkTArray<sk_sp<GrMockRenderTask>>* expected);
 
-static void make_proxies(int count, SkTArray<GrSurfaceProxyView>* views) {
-    views->reset(count);
+static void make_proxies(int count, SkTArray<sk_sp<GrSurfaceProxy>>* proxies) {
+    proxies->reset(count);
     for (int i = 0; i < count; i++) {
         auto name = SkStringPrintf("%c", 'A' + i);
-        views->at(i) = GrSurfaceProxyView(sk_make_sp<GrMockSurfaceProxy>(std::move(name)));
+        proxies->at(i) = sk_make_sp<GrMockSurfaceProxy>(std::move(name));
     }
 }
 
@@ -34,7 +34,7 @@ static void make_tasks(int count, SkTArray<sk_sp<GrMockRenderTask>>* tasks) {
  */
 static void create_graph0(SkTArray<sk_sp<GrMockRenderTask>>* graph,
                           SkTArray<sk_sp<GrMockRenderTask>>* expected) {
-    SkTArray<GrSurfaceProxyView> proxies;
+    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
     make_proxies(2, &proxies);
     make_tasks(3, graph);
 
@@ -54,7 +54,7 @@ static void create_graph0(SkTArray<sk_sp<GrMockRenderTask>>* graph,
  */
 static void create_graph1(SkTArray<sk_sp<GrMockRenderTask>>* graph,
                           SkTArray<sk_sp<GrMockRenderTask>>* expected) {
-    SkTArray<GrSurfaceProxyView> proxies;
+    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
     make_proxies(3, &proxies);
     make_tasks(5, graph);
 
@@ -78,7 +78,7 @@ static void create_graph1(SkTArray<sk_sp<GrMockRenderTask>>* graph,
  */
 static void create_graph2(SkTArray<sk_sp<GrMockRenderTask>>* graph,
                           SkTArray<sk_sp<GrMockRenderTask>>* expected) {
-    SkTArray<GrSurfaceProxyView> proxies;
+    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
     make_proxies(2, &proxies);
     make_tasks(3, graph);
 
