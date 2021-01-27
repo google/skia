@@ -72,7 +72,9 @@ static bool task_cluster_visit(GrRenderTask* task, SkTInternalLList<GrRenderTask
         // Tasks with 0 or multiple targets are treated as full barriers
         // for all their targets.
         for (int j = 0; j < task->numTargets(); j++) {
-            lastTaskMap->remove(task->target(0));
+            if (lastTaskMap->find(task->target(0))) {
+                lastTaskMap->remove(task->target(0));
+            }
         }
         return false;
     }
