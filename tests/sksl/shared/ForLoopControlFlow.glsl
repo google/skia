@@ -1,6 +1,8 @@
 
 out vec4 sk_FragColor;
 uniform vec4 colorWhite;
+uniform vec4 colorRed;
+uniform vec4 colorGreen;
 vec4 main() {
     vec4 x = colorWhite;
     for (float r = -5.0;r < 5.0; r += 1.0) {
@@ -12,5 +14,5 @@ vec4 main() {
         if (x.w == 1.0) continue;
         x.y = 0.0;
     }
-    return x;
+    return x == colorGreen ? x : colorRed;
 }

@@ -1,4 +1,4 @@
-uniform half4 colorWhite;
+uniform half4 colorWhite, colorRed, colorGreen;
 
 half4 main() {
     half4 x = colorWhite;
@@ -17,5 +17,5 @@ half4 main() {
     }
 
     // x contains green.
-    return x;
+    return (x == colorGreen)? x : colorRed;
 }

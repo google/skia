@@ -1954,14 +1954,38 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
     }
 }
 
-SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeGlobalUniformReference(const VariableReference& ref,
+                                                      OutputStream& out) {
+    // FIXME: this is not even slightly correct
+    const Variable* variable = ref.variable();
+    SkASSERT(variable->storage() == Variable::Storage::kGlobal);
+    SkASSERT(variable->modifiers().fFlags & Modifiers::kUniform_Flag);
+    SkASSERT(variable->type().typeKind() != Type::TypeKind::kSampler);
+
+    // Yup, load %123456. SGTM.
     SpvId result = this->nextId();
-    auto entry = fVariableMap.find(ref.variable());
+    this->writeInstruction(SpvOpLoad, this->getType(variable->type()), result, 123456, out);
+    return result;
+}
+
+SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
+    // Is this variable is actually a uniform at global scope?
+    const Variable* variable = ref.variable();
+    if (variable->storage() == Variable::Storage::kGlobal &&
+        variable->modifiers().fFlags & Modifiers::kUniform_Flag &&
+        variable->type().typeKind() != Type::TypeKind::kSampler) {
+        // SPIR-V doesn't support uniforms at global scope, so we've stashed it in an interface
+        // block. We need to fetch it from there.
+        return this->writeGlobalUniformReference(ref, out);
+    }
+
+    SpvId result = this->nextId();
+    auto entry = fVariableMap.find(variable);
     SkASSERT(entry != fVariableMap.end());
     SpvId var = entry->second;
-    this->writeInstruction(SpvOpLoad, this->getType(ref.variable()->type()), result, var, out);
-    this->writePrecisionModifier(ref.variable()->type(), result);
-    if (ref.variable()->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
+    this->writeInstruction(SpvOpLoad, this->getType(variable->type()), result, var, out);
+    this->writePrecisionModifier(variable->type(), result);
+    if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
         fProgram.fSettings.fFlipY) {
         // The x component never changes, so just grab it
         SpvId xId = this->nextId();
@@ -1983,11 +2007,14 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                     fErrors.error(ref.fOffset, "RTHeightOffset is negative");
                 }
                 fields.emplace_back(
-                        Modifiers(Layout(0, -1, fProgram.fSettings.fRTHeightOffset, -1, -1, -1, -1,
-                                         -1, Layout::Format::kUnspecified,
-                                         Layout::kUnspecified_Primitive, 1, -1, "", "",
+                        Modifiers(Layout(/*flags=*/0, /*location=*/-1,
+                                         fProgram.fSettings.fRTHeightOffset,
+                                         /*binding=*/-1, /*index=*/-1, /*set=*/-1, /*builtin=*/-1,
+                                         /*inputAttachmentIndex=*/-1, Layout::Format::kUnspecified,
+                                         Layout::kUnspecified_Primitive, /*maxVertices=*/1,
+                                         /*invocations=*/-1, /*marker=*/"", /*when=*/"",
                                          Layout::kNo_Key, Layout::CType::kDefault),
-                                    0),
+                                  /*flags=*/0),
                         SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
                 StringFragment name("sksl_synthetic_uniforms");
                 std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
@@ -2000,10 +2027,13 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 if (set == -1) {
                     fErrors.error(ref.fOffset, "layout(set=...) is required in SPIR-V");
                 }
-                Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
-                                Layout::kUnspecified_Primitive, -1, -1, "", "", Layout::kNo_Key,
-                                Layout::CType::kDefault);
-                Modifiers modifiers(layout, Modifiers::kUniform_Flag);
+                Modifiers modifiers(
+                        Layout(/*flags=*/0, /*location=*/-1, /*offset=*/-1, binding, /*index=*/-1,
+                               set, /*builtin=*/-1, /*inputAttachmentIndex=*/-1,
+                               Layout::Format::kUnspecified, Layout::kUnspecified_Primitive,
+                               /*maxVertices=*/-1, /*invocations=*/-1, /*marker=*/"", /*when=*/"",
+                               Layout::kNo_Key, Layout::CType::kDefault),
+                        Modifiers::kUniform_Flag);
                 const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
                         std::make_unique<Variable>(/*offset=*/-1,
                                                    fProgram.fModifiers->addToPool(modifiers),
@@ -2064,7 +2094,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
         return adjusted;
     }
-    if (ref.variable()->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
+    if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
         !fProgram.fSettings.fFlipY) {
         // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia, we use
         // the default convention of "counter-clockwise face is front".
@@ -2879,8 +2909,7 @@ static bool is_dead(const Variable& var, const ProgramUsage* usage) {
     return var.modifiers().fLayout.fBuiltin == SK_SAMPLEMASK_BUILTIN;
 }
 
-void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration& varDecl,
-                                        OutputStream& out) {
+void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration& varDecl) {
     const Variable& var = varDecl.var();
     // These haven't been implemented in our SPIR-V generator yet and we only currently use them
     // in the OpenGL backend.
@@ -2903,11 +2932,20 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
     if (is_dead(var, fProgram.fUsage.get())) {
         return;
     }
-    const Type& type = var.type();
     SpvStorageClass_ storageClass = get_storage_class(var, SpvStorageClassPrivate);
+    if (storageClass == SpvStorageClassUniform) {
+        fTopLevelUniforms.push_back(&varDecl);
+        return;
+    }
+    this->writeGlobalOrUniform(kind, varDecl, storageClass);
+}
+
+void SPIRVCodeGenerator::writeGlobalOrUniform(Program::Kind kind, const VarDeclaration& varDecl,
+                                              SpvStorageClass_ storageClass) {
+    const Variable& var = varDecl.var();
+    const Type& type = var.type();
     Layout layout = var.modifiers().fLayout;
-    if (layout.fSet < 0 && (storageClass == SpvStorageClassUniform ||
-                            storageClass == SpvStorageClassUniformConstant)) {
+    if (layout.fSet < 0 && storageClass == SpvStorageClassUniformConstant) {
         layout.fSet = fProgram.fSettings.fDefaultUniformSet;
     }
     SpvId id = this->nextId();
@@ -3224,14 +3262,18 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
                            invocations, out);
 }
 
+// Given any function, returns the top-level symbol table (OUTSIDE of the function's scope).
+static std::shared_ptr<SymbolTable> get_top_level_symbol_table(const FunctionDeclaration& anyFunc) {
+    return anyFunc.definition()->body()->as<Block>().symbolTable()->fParent;
+}
+
 SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter(
         const FunctionDeclaration& main) {
     // Our goal is to synthesize a tiny helper function which looks like this:
     //     void _entrypoint() { sk_FragColor = main(); }
 
     // Fish a symbol table out of main().
-    std::shared_ptr<SymbolTable> symbolTable =
-            main.definition()->body()->as<Block>().symbolTable()->fParent;
+    std::shared_ptr<SymbolTable> symbolTable = get_top_level_symbol_table(main);
 
     // Get `sk_FragColor` as a writable reference.
     const Symbol* skFragColorSymbol = (*symbolTable)["sk_FragColor"];
@@ -3282,6 +3324,60 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     return adapter;
 }
 
+SPIRVCodeGenerator::UniformBuffer SPIRVCodeGenerator::writeUniformBuffer(
+        std::shared_ptr<SymbolTable> topLevelSymbolTable) {
+    SkASSERT(!fTopLevelUniforms.empty());
+    static constexpr char kUniformBufferName[] = "_UniformBuffer";
+
+    SPIRVCodeGenerator::UniformBuffer uniformBuffer;
+
+    // Convert the list of top-level uniforms into a matching struct named _UniformBuffer.
+    std::vector<Type::Field> fields;
+    fields.reserve(fTopLevelUniforms.size());
+    for (const VarDeclaration* topLevelUniform : fTopLevelUniforms) {
+        fields.emplace_back(topLevelUniform->var().modifiers(),
+                            topLevelUniform->var().name(),
+                            &topLevelUniform->var().type());
+    }
+    uniformBuffer.fStruct = Type::MakeStructType(/*offset=*/-1, kUniformBufferName,
+                                                 std::move(fields));
+
+    // Create a global variable to contain this struct.
+    uniformBuffer.fLayout.fBinding = fProgram.fSettings.fDefaultUniformBinding;
+    uniformBuffer.fLayout.fSet     = fProgram.fSettings.fDefaultUniformSet;
+    uniformBuffer.fModifiers       = Modifiers{uniformBuffer.fLayout, Modifiers::kUniform_Flag};
+    uniformBuffer.fInnerVariable   = std::make_unique<Variable>(
+            /*offset=*/-1, &uniformBuffer.fModifiers, "_UniformBuffer", uniformBuffer.fStruct.get(),
+            /*builtin=*/false, Variable::Storage::kGlobal);
+
+    // Create an interface block object for this global variable.
+    uniformBuffer.fInterfaceBlock = std::make_unique<InterfaceBlock>(
+            /*offset=*/-1, uniformBuffer.fInnerVariable.get(), kUniformBufferName,
+            kUniformBufferName, /*arraySize=*/0, topLevelSymbolTable);
+
+    // Emit the new interface block.
+    uniformBuffer.fUniformBufferId = this->writeInterfaceBlock(*uniformBuffer.fInterfaceBlock);
+/*
+    // For each of the top-level uniforms, create a global which points to the variable in the
+    // uniform buffer.
+    // FIXME totally not done, pointing part WIP
+    for (const VarDeclaration* varDecl : fTopLevelUniforms) {
+        const Variable& var = varDecl->var();
+        const Type& type = var.type();
+        Layout layout = var.modifiers().fLayout;
+        SpvId variableId = this->nextId();
+        fVariableMap[&var] = variableId;
+        SpvId typeId = this->getPointerType(type, SpvStorageClassPrivate);
+        this->writeInstruction(SpvOpVariable, typeId, variableId, SpvStorageClassPrivate,
+                               fConstantBuffer);
+        this->writeInstruction(SpvOpName, variableId, var.name(), fNameBuffer);
+        this->writePrecisionModifier(type, variableId);
+        this->writeLayout(layout, variableId);
+    }
+*/
+    return uniformBuffer;
+}
+
 void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream& out) {
     fGLSLExtendedInstructions = this->nextId();
     StringStream body;
@@ -3322,9 +3418,13 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (const ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             this->writeGlobalVar(program.fKind,
-                                 e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>(),
-                                 body);
+                                 e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>());
         }
+    }
+    // Emit top-level uniforms into a dedicated uniform buffer.
+    UniformBuffer uniformBuffer;
+    if (!fTopLevelUniforms.empty()) {
+        uniformBuffer = this->writeUniformBuffer(get_top_level_symbol_table(*main));
     }
     // If main() returns a half4, synthesize a tiny entrypoint function which invokes the real
     // main() and stores the result into sk_FragColor.
