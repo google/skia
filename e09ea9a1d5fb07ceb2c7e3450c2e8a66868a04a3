@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c37861ec_592b2bdf",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2188,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-27T17:29:06Z",
+      "side": 1,
+      "message": "leftover",
+      "range": {
+        "startLine": 2188,
+        "startChar": 51,
+        "endLine": 2188,
+        "endChar": 59
+      },
+      "revId": "e09ea9a1d5fb07ceb2c7e3450c2e8a66868a04a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
