@@ -1,0 +1,9 @@
+uniform half4 minus1234;
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    return (abs(minus1234.x)    == 1              &&
+            abs(minus1234.xy)   == half2(1, 2)    &&
+            abs(minus1234.xyz)  == half3(1, 2, 3) &&
+            abs(minus1234.xyzw) == half4(1, 2, 3, 4)) ? colorGreen : colorRed;
+}
