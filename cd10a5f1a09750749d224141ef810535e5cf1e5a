@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aaea5c84_1e628bd3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99688406_c964d7f3",
+      "range": {
+        "startLine": 861,
+        "startChar": 45,
+        "endLine": 861,
+        "endChar": 46
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d3331509_b36febf3",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-27T16:42:11Z",
       "side": 1,
       "message": "Are these intended to be part of this CL?",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d405df32_d6931f50",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "The existing test was using sk_FragColor, and I figured it was reasonable to just roll these few extra lines into this CL to simplify things, but I can land them separately if you prefer.",
+      "parentUuid": "d3331509_b36febf3",
       "range": {
         "startLine": 57,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07ccd6da_a6cb97ca",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Doesn\u0027t work, because it\u0027s specifically wanting std::unique_ptr\u003cStatement\u003e.\n\nI initially get an error because DSLStatement has an implicit conversion from std::unique_ptr\u003cStatement\u003e but not \u003cReturnStatement\u003e.\n\nAdding an explicit DSLStatement(...) doesn\u0027t help because the constructor invocation is ambiguous.\n\nI considered attempting to disambiguate things, but it didn\u0027t seem worth the effort.",
+      "parentUuid": "674013d9_a09acbcc",
+      "range": {
+        "startLine": 112,
+        "startChar": 19,
+        "endLine": 114,
+        "endChar": 71
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42af8ee0_2b51771f",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-01-27T17:14:50Z",
       "side": 1,
       "message": "Comment says expr, code says value",
+      "range": {
+        "startLine": 80,
+        "startChar": 34,
+        "endLine": 80,
+        "endChar": 39
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11414609_5351d41d",
+        "filename": "src/sksl/dsl/DSLCore.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "42af8ee0_2b51771f",
       "range": {
         "startLine": 80,
         "startChar": 34,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "157bd51d_2731fa57",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e4320d6_e41510a5",
+      "range": {
+        "startLine": 28,
+        "startChar": 43,
+        "endLine": 28,
+        "endChar": 48
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be3d6f30_1cbec262",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-01-27T17:14:50Z",
       "side": 1,
       "message": "The Return code has a comment but doesn\u0027t actually explain WHY we need to do this:\n\n        // note that we do not check for errors, or coerce the value to the correct type, until the\n        // return statement is actually added to a function\n\nWhy can\u0027t we check for errors or coerce the value when the return is encountered?",
+      "range": {
+        "startLine": 44,
+        "startChar": 6,
+        "endLine": 46,
+        "endChar": 44
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cccffd25_1223066c",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Comment clarified.",
+      "parentUuid": "be3d6f30_1cbec262",
       "range": {
         "startLine": 44,
         "startChar": 6,
@@ -162,6 +306,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e696e1d_fbdc2a8b",
+        "filename": "src/sksl/dsl/DSLFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Done, but for my edification - what sort of quirks?",
+      "parentUuid": "69462b21_5fee45e8",
+      "range": {
+        "startLine": 55,
+        "startChar": 20,
+        "endLine": 55,
+        "endChar": 21
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "faed6f5e_d42f6ef2",
@@ -175,6 +343,30 @@
       "writtenOn": "2021-01-27T17:14:50Z",
       "side": 1,
       "message": "whitespace_insensitive_compare?",
+      "range": {
+        "startLine": 950,
+        "startChar": 23,
+        "endLine": 950,
+        "endChar": 54
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ba13f48_eeb629c9",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "faed6f5e_d42f6ef2",
       "range": {
         "startLine": 950,
         "startChar": 23,
@@ -208,6 +400,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "67341f6a_f29e7d80",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99e75350_f4e61779",
+      "range": {
+        "startLine": 1021,
+        "startChar": 23,
+        "endLine": 1021,
+        "endChar": 49
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d6dd078_8ee5bbea",
@@ -221,6 +437,30 @@
       "writtenOn": "2021-01-27T16:40:40Z",
       "side": 1,
       "message": "Can we test in/out modifiers on functions params?",
+      "range": {
+        "startLine": 1194,
+        "startChar": 7,
+        "endLine": 1194,
+        "endChar": 35
+      },
+      "revId": "cd10a5f1a09750749d224141ef810535e5cf1e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "989d7828_3e003866",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-27T18:48:25Z",
+      "side": 1,
+      "message": "Not yet - they\u0027ll currently fail with an incorrect error about in/out not being allowed here.",
+      "parentUuid": "8d6dd078_8ee5bbea",
       "range": {
         "startLine": 1194,
         "startChar": 7,
