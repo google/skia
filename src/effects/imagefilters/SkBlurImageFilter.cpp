@@ -627,7 +627,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(const Context& ctx,
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
         const Context& ctx, SkVector sigma, const sk_sp<SkSpecialImage> &input, SkIRect inputBounds,
         SkIRect dstBounds, SkIPoint inputOffset, SkIPoint* offset) const {
-    if (0 == sigma.x() && 0 == sigma.y()) {
+    if (SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma.x()) &&
+        SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma.y())) {
         offset->fX = inputBounds.x() + inputOffset.fX;
         offset->fY = inputBounds.y() + inputOffset.fY;
         return input->makeSubset(inputBounds);
