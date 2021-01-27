@@ -17,7 +17,7 @@ void draw(SkCanvas* canvas) {
     offscreen.flush();
     bitmap.extractAlpha(&alpha);
     paint.setColor(SK_ColorRED);
-    canvas->drawBitmap(bitmap, 0, 0, &paint);
-    canvas->drawBitmap(alpha, 100, 0, &paint);
+    canvas->drawImage(bitmap.asImage(), 0, 0, &paint);
+    canvas->drawImage(alpha.asImage(), 100, 0, &paint);
 }
 }  // END FIDDLE

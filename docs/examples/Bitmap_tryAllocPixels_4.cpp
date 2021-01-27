@@ -39,7 +39,7 @@ void draw(SkCanvas* canvas) {
    bitmap.setInfo(SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType));
    if (bitmap.tryAllocPixels(&largeAllocator)) {
        bitmap.eraseColor(0xff55aa33);
-       canvas->drawBitmap(bitmap, 0, 0);
+       canvas->drawImage(bitmap.asImage(), 0, 0);
    }
 }
 }  // END FIDDLE

@@ -16,14 +16,14 @@ void draw(SkCanvas* canvas) {
     bitmap.allocPixels(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
     SkCanvas offScreen(bitmap);
     offScreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     bitmap.allocPixels(SkImageInfo::MakeS32(width, height, kPremul_SkAlphaType));
     SkCanvas sRGBOffscreen(bitmap);
     sRGBOffscreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
-    canvas->drawBitmap(bitmap, 0, 48);
+    canvas->drawImage(bitmap.asImage(), 0, 48);
     SkBitmap noColorSpaceBitmap;
     noColorSpaceBitmap.setInfo(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
     noColorSpaceBitmap.setPixels(bitmap.getAddr(0, 0));
-    canvas->drawBitmap(noColorSpaceBitmap, 0, 96);
+    canvas->drawImage(noColorSpaceBitmap.asImage(), 0, 96);
 }
 }  // END FIDDLE

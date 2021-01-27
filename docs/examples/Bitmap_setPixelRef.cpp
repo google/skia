@@ -8,6 +8,6 @@ void draw(SkCanvas* canvas) {
     bitmap.setInfo(SkImageInfo::Make(source.width() - 5, source.height() - 5,
                    kGray_8_SkColorType, kOpaque_SkAlphaType), source.rowBytes());
     bitmap.setPixelRef(sk_ref_sp(source.pixelRef()), 5, 5);
-    canvas->drawBitmap(bitmap, 10, 10);
+    canvas->drawImage(bitmap.asImage(), 10, 10);
 }
 }  // END FIDDLE

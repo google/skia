@@ -8,6 +8,6 @@ void draw(SkCanvas* canvas) {
     bitmap.allocPixels(SkImageInfo::MakeN32(1, 1, kOpaque_SkAlphaType));
     bitmap.eraseColor(SK_ColorRED);
     canvas->scale(16, 16);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
 }
 }  // END FIDDLE

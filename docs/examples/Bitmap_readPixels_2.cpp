@@ -18,6 +18,6 @@ void draw(SkCanvas* canvas) {
     SkBitmap bitmap;
     bitmap.installPixels(SkImageInfo::MakeN32Premul(source.width(), source.height()),
                              &srcPixels.front(), source.rowBytes());
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
 }
 }  // END FIDDLE

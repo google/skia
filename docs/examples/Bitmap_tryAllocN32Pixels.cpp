@@ -10,9 +10,9 @@ void draw(SkCanvas* canvas) {
         bitmap.erase(0x7f3f7fff, SkIRect::MakeWH(50, 30));
         bitmap.erase(0x3f7fff3f, SkIRect::MakeXYWH(20, 10, 50, 30));
         bitmap.erase(0x5fff3f7f, SkIRect::MakeXYWH(40, 20, 50, 30));
-        canvas->drawBitmap(bitmap, 0, 0);
+        canvas->drawImage(bitmap.asImage(), 0, 0);
         for (int x : { 0, 30, 60, 90 } ) {
-            canvas->drawBitmap(bitmap, x, 70);
+            canvas->drawImage(bitmap.asImage(), x, 70);
         }
     }
 }

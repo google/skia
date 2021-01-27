@@ -15,12 +15,13 @@ void draw(SkCanvas* canvas) {
                      points, colors, nullptr, SK_ARRAY_COUNT(colors),
                      SkTileMode::kClamp));
     paint.setDither(true);
+    auto img = bm32.asImage();
     c32.drawPaint(paint);
     canvas->scale(12, 12);
-    canvas->drawBitmap(bm32, 0, 0);
+    canvas->drawImage(img, 0, 0);
     paint.setBlendMode(SkBlendMode::kPlus);
-    canvas->drawBitmap(bm32, 0, 11, &paint);
-    canvas->drawBitmap(bm32, 0, 11, &paint);
-    canvas->drawBitmap(bm32, 0, 11, &paint);
+    canvas->drawImage(img, 0, 11, &paint);
+    canvas->drawImage(img, 0, 11, &paint);
+    canvas->drawImage(img, 0, 11, &paint);
 }
 }  // END FIDDLE

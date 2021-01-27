@@ -11,6 +11,6 @@ void draw(SkCanvas* canvas) {
     paint.setColor(SK_ColorGRAY);
     canvas->scale(.25f, .25f);
     canvas->drawRect(bounds, paint);
-    canvas->drawBitmap(source, 40, 40);
+    canvas->drawImage(source.asImage(), 40, 40);
 }
 }  // END FIDDLE

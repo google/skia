@@ -11,6 +11,6 @@ void draw(SkCanvas* canvas) {
     SkPixmap src(SkImageInfo::MakeN32Premul(1, 1), &color, 4);
     bitmap.writePixels(src);
     canvas->scale(40, 40);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
 }
 }  // END FIDDLE

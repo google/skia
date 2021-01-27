@@ -12,11 +12,11 @@ void draw(SkCanvas* canvas) {
     offscreen.clear(SK_ColorGREEN);
     SkPaint orangePaint;
     orangePaint.setARGB(0xFF, 0xFF, 0xA5, 0x00);
-    canvas->drawBitmap(bitmap, 0, 0, &orangePaint);
+    canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &orangePaint);
     uint8_t alpha8[] = { 0xFF, 0xBB, 0x77, 0x33 };
     SkPixmap alphaPixmap(imageInfo, &alpha8, imageInfo.minRowBytes());
     if (bitmap.writePixels(alphaPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2, &orangePaint);
+        canvas->drawImage(bitmap.asImage(), 2, 2, SkSamplingOptions(), &orangePaint);
     }
 }
 }  // END FIDDLE

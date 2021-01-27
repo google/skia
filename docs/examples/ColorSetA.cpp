@@ -4,7 +4,7 @@
 // HASH=18f6f376f771f5ffa56d5e5b2ebd20fb
 REG_FIDDLE(ColorSetA, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
-    canvas->drawBitmap(source, 0, 0);
+    canvas->drawImage(source.asImage(), 0, 0);
     for (int y = 0; y < 256; y += 16) {
        for (int x = 0; x < 256; x += 16) {
          SkColor color = source.getColor(x + 8, y + 8);

@@ -4,7 +4,7 @@
 // HASH=311a59931ac340b90f202cd6ac399a0a
 REG_FIDDLE(HSVToColor, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
-    canvas->drawBitmap(source, 0, 0);
+    canvas->drawImage(source.asImage(), 0, 0);
     for (int y = 0; y < 256; ++y) {
        for (int x = 0; x < 256; ++x) {
          SkColor color = source.getColor(x, y);

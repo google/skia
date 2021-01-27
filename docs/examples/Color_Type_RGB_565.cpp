@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     bitmap.allocPixels(imageInfo);
     SkCanvas offscreen(bitmap);
     offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     auto pack565 = [](unsigned r, unsigned g, unsigned b) -> uint16_t {
         return (b << 0) | (g << 5) | (r << 11);
     };
@@ -20,11 +20,11 @@ void draw(SkCanvas* canvas) {
                            pack565(0x00, 0x00, 0x0F), pack565(0x00, 0x00, 0x07) };
     SkPixmap redPixmap(imageInfo, &red565, imageInfo.minRowBytes());
     if (bitmap.writePixels(redPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2);
+        canvas->drawImage(bitmap.asImage(), 2, 2);
     }
     SkPixmap bluePixmap(imageInfo, &blue565, imageInfo.minRowBytes());
     if (bitmap.writePixels(bluePixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 4, 4);
+        canvas->drawImage(bitmap.asImage(), 4, 4);
     }
 }
 }  // END FIDDLE

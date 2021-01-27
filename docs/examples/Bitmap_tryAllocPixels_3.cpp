@@ -8,12 +8,12 @@ void draw(SkCanvas* canvas) {
     SkBitmap bitmap;
     bitmap.installPixels(SkImageInfo::Make(5, 1, kGray_8_SkColorType, kOpaque_SkAlphaType), set1, 5);
     canvas->scale(10, 50);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     if (bitmap.tryAllocPixels()) {
         bitmap.eraseColor(SK_ColorBLACK);
-        canvas->drawBitmap(bitmap, 8, 0);
+        canvas->drawImage(bitmap.asImage(), 8, 0);
         bitmap.setPixels(set1);
-        canvas->drawBitmap(bitmap, 16, 0);
+        canvas->drawImage(bitmap.asImage(), 16, 0);
     }
 }
 }  // END FIDDLE

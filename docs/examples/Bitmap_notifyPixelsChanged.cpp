@@ -9,11 +9,11 @@ void draw(SkCanvas* canvas) {
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorRED);
     canvas->scale(16, 16);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     *(SkPMColor*) bitmap.getPixels() = SkPreMultiplyColor(SK_ColorBLUE);
-    canvas->drawBitmap(bitmap, 2, 0);
+    canvas->drawImage(bitmap.asImage(), 2, 0);
     bitmap.notifyPixelsChanged();
     *(SkPMColor*) bitmap.getPixels() = SkPreMultiplyColor(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 4, 0);
+    canvas->drawImage(bitmap.asImage(), 4, 0);
 }
 }  // END FIDDLE

@@ -9,8 +9,8 @@ void draw(SkCanvas* canvas) {
         SkCanvas offscreen(bitmap);
         offscreen.scale(.25f, .5f);
         for (int y : { 0, 64, 128, 192 } ) {
-            offscreen.drawBitmap(source, -y, -y);
-            canvas->drawBitmap(bitmap, y, y);
+            offscreen.drawImage(source.asImage(), -y, -y);
+            canvas->drawImage(bitmap.asImage(), y, y);
         }
     }
 }
