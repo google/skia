@@ -100,7 +100,7 @@ def compile_fn(api, checkout_root, out_dir):
     # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
     # Use lowercase letters.
     # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode
-    XCODE_BUILD_VERSION = '12c33'
+    XCODE_BUILD_VERSION = '11e503a'
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.workdir.join(
