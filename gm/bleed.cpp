@@ -213,7 +213,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        std::tie(fBigImage, fBigSrcRect) = make_ringed_image(2*kMaxTileSize, 2*kMaxTileSize);
+        std::tie(fBigImage, fBigSrcRect) = make_ringed_image(2*kMaxTextureSize, 2*kMaxTextureSize);
         std::tie(fSmallImage, fSmallSrcRect) = make_ringed_image(kSmallSize, kSmallSize);
     }
 
@@ -291,7 +291,7 @@ protected:
     }
 
     void modifyGrContextOptions(GrContextOptions* options) override {
-        options->fMaxTileSizeOverride = kMaxTileSize;
+        options->fMaxTextureSizeOverride = kMaxTextureSize;
     }
 
 private:
@@ -310,7 +310,7 @@ private:
     static constexpr int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
 
     static constexpr int kSmallSize = 6;
-    static constexpr int kMaxTileSize = 32;
+    static constexpr int kMaxTextureSize = 32;
 
     SkString fShortName;
     sk_sp<SkImage> fBigImage;
