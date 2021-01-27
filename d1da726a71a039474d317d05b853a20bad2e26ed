@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a995b3a_56490957",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-27T14:54:41Z",
+      "side": 1,
+      "message": "I\u0027m trying to consolidate the number of ways we query views from SkImage. By moving this to SkImage_Gpu I can just directly use the view it stores. I also doubt anyone wants the result of calling this on SkImage_GpuYUVA.",
+      "revId": "d1da726a71a039474d317d05b853a20bad2e26ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
