@@ -2179,18 +2179,23 @@ private:
         if (!SkScalarIsFinite(cross)) {
                 return kUnknown_DirChange;
         }
+#if 0
         SkScalar smallest = std::min(fCurrPt.fX, std::min(fCurrPt.fY, std::min(fLastPt.fX, fLastPt.fY)));
         SkScalar largest = std::max(fCurrPt.fX, std::max(fCurrPt.fY, std::max(fLastPt.fX, fLastPt.fY)));
         largest = std::max(largest, -smallest);
 
-        if (almost_equal(largest, largest + cross)) {
+        if (almost_equal(largest, largest + cross) && false) {
             constexpr SkScalar nearlyZeroSqd = SK_ScalarNearlyZero * SK_ScalarNearlyZero;
             if (SkScalarNearlyZero(SkPointPriv::LengthSqd(fLastVec), nearlyZeroSqd) ||
                 SkScalarNearlyZero(SkPointPriv::LengthSqd(curVec), nearlyZeroSqd)) {
                 return kUnknown_DirChange;
             }
+        }
+#else
+        if (cross == 0) {
             return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
         }
+#endif
         return 1 == SkScalarSignAsInt(cross) ? kRight_DirChange : kLeft_DirChange;
     }
 
