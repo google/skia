@@ -1,8 +1,8 @@
 layout(binding=789) uniform testBlock {
     half x;
     half y[2];
-    layout(binding=12) half3x2 z;
-    bool w;
+    layout(binding=12) half3x3 z;
+    int w;
 };
 
 void main() {
