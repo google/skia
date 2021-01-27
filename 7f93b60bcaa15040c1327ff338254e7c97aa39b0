@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd947d86_92d74c38",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-27T14:57:23Z",
+      "side": 1,
+      "message": "Whoops. This was from when I started trying to actually make image-gen have MM query. But then I gave up when I realized all the depth of that change. Removed.",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 55
+      },
+      "revId": "7f93b60bcaa15040c1327ff338254e7c97aa39b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
