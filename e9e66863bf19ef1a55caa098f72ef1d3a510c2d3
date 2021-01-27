@@ -16,6 +16,24 @@
       "message": "Just so I understand -- the only time we create a transfer buffer with dynamic access pattern is for staging buffers, correct?",
       "revId": "e9e66863bf19ef1a55caa098f72ef1d3a510c2d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a14daa1_52df3dc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-27T16:55:51Z",
+      "side": 1,
+      "message": "Yeah staging buffers and there is one unit test that uses the same buffer repeatedly to test read pixel calls. But with core Ganesh I believe it is just for staging buffers from what I could tell.",
+      "parentUuid": "964374b5_8d2ab0b1",
+      "revId": "e9e66863bf19ef1a55caa098f72ef1d3a510c2d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
