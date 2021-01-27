@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ad46c4b_0d47b2b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-27T17:36:57Z",
+      "side": 1,
+      "message": "I don\u0027t think it would be very helpful... This is a total rewrite. I\u0027m sorry for the amount of new code, but I hope it\u0027s a big reduction in complexity over what we used to have. I tried to make GrPathInnerTriangulateOp short and easy to follow. I think the only things from the old op that would be helpful to reference would be the stencil settings for pass 2.",
+      "parentUuid": "ebc0fa8a_50cb575f",
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e0120db_361653af",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-01-27T16:15:32Z",
       "side": 1,
       "message": "rm?",
+      "range": {
+        "startLine": 14,
+        "startChar": 69,
+        "endLine": 14,
+        "endChar": 73
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bdb02b6_3067dcb2",
+        "filename": "gm/largeclippedpath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-27T17:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e0120db_361653af",
       "range": {
         "startLine": 14,
         "startChar": 69,
@@ -66,6 +108,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "161932c5_3ec662c4",
+        "filename": "samplecode/SampleTessellatedWedge.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-27T17:36:57Z",
+      "side": 1,
+      "message": "GrPathTessellateOp just got deleted, and GrPathStencilFillOp uses all 3 types of GrPathTessellators whereas GrPathInnerTriangulateOp only uses indirect for now.\n\nShould we rename these to convey the fact that they use tessellation?\n\nGrTessellatingStencilFillOp?\n\nGrTessellatingInnerTriangulateOp?",
+      "parentUuid": "b9362b70_ae6b77c7",
+      "range": {
+        "startLine": 97,
+        "startChar": 30,
+        "endLine": 97,
+        "endChar": 49
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1323daf9_279ee12e",
         "filename": "src/gpu/GrInnerFanTriangulator.h",
         "patchSetId": 6
@@ -77,6 +143,30 @@
       "writtenOn": "2021-01-27T16:20:08Z",
       "side": 1,
       "message": "Getting the breadcrumblist like this feels a little weird. It\u0027s not really part of the calculation and you don\u0027t always use it. I feel like it\u0027d be better to get it via an accessor when you want it.",
+      "range": {
+        "startLine": 37,
+        "startChar": 25,
+        "endLine": 37,
+        "endChar": 78
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a959a98c_17129823",
+        "filename": "src/gpu/GrInnerFanTriangulator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-27T17:36:57Z",
+      "side": 1,
+      "message": "It will always be part of the calculation for GrInnerFanTriangulator after this CL. My rationale for getting it this way was because with an accessor, you might accidentally access it before calling polysToTriangles, which would be incorrect. (Also, I did this :-\\)\n\nBut from a higher level, I actually don\u0027t like having the breadcrumbList as a class member at all. I really want pathToTriangles() and polysToTriangles() to not have internal side effects. What do you think of this new approach? If we like it I can go through and mark pathToTriangles and polysToTriangles const after this CL lands.",
+      "parentUuid": "1323daf9_279ee12e",
       "range": {
         "startLine": 37,
         "startChar": 25,
