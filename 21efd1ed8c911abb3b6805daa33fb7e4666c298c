@@ -51,6 +51,24 @@
       "parentUuid": "65f5a87b_2d49f171",
       "revId": "21efd1ed8c911abb3b6805daa33fb7e4666c298c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e56a1736_6a33ac69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-01-27T14:09:54Z",
+      "side": 1,
+      "message": "Indeed, we already use that pattern for e.g. dataURI decoding - could do the same for caching.",
+      "parentUuid": "13cd944c_14b52416",
+      "revId": "21efd1ed8c911abb3b6805daa33fb7e4666c298c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
