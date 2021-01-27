@@ -22,6 +22,30 @@
       },
       "revId": "31c01c827c1241eb0d2040a739ee4834528226e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2c252d5_6e2ed5e4",
+        "filename": "tests/sksl/shared/StructsInFunctions.asm.frag",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-27T19:11:31Z",
+      "side": 1,
+      "message": "Yup. The root cause here is skia:11225. It only affects the skslc output; actually running the code as a Runtime Effect will (as you know) do the right thing.\n\nTo avoid the warning while skia:11225 remains active, you can avoid using uniforms in the test files and hard-code your colors. I hope to fix it soon, but it\u0027s very fiddly; worst case, I could imagine giving up on it and just saying that tests just won\u0027t use uniforms after all.",
+      "parentUuid": "479ff25b_842551cc",
+      "range": {
+        "startLine": 3,
+        "startChar": 76,
+        "endLine": 3,
+        "endChar": 88
+      },
+      "revId": "31c01c827c1241eb0d2040a739ee4834528226e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
