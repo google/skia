@@ -1296,6 +1296,8 @@ std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const AST
                                     "expected a struct here, found '" + type->name() + "'");
         return nullptr;
     }
+    SkDEBUGCODE(auto [iter, wasInserted] =) fDefinedStructs.insert(type);
+    SkASSERT(wasInserted);
     return std::make_unique<StructDefinition>(node.fOffset, *type);
 }
 
@@ -1406,6 +1408,14 @@ bool IRGenerator::getConstantInt(const Expression& value, SKSL_INT* out) {
 void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
     StatementArray decls = this->convertVarDeclarations(decl, Variable::Storage::kGlobal);
     for (std::unique_ptr<Statement>& stmt : decls) {
+        const Type* type = &stmt->as<VarDeclaration>().baseType();
+        if (type->isStruct()) {
+            auto [iter, wasInserted] = fDefinedStructs.insert(type);
+            if (wasInserted) {
+                fProgramElements->push_back(
+                        std::make_unique<StructDefinition>(decl.fOffset, *type));
+            }
+        }
         fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(decl.fOffset,
                                                                            std::move(stmt)));
     }
@@ -2997,6 +3007,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     fInvocations = -1;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
+    fDefinedStructs.clear();
 
     AutoSymbolTable table(this);
 

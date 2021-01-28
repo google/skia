@@ -3,7 +3,8 @@ out vec4 sk_FragColor;
 struct A {
     int x;
     int y;
-} a1;
+};
+A a1;
 struct B {
     float x;
     float[2] y;
