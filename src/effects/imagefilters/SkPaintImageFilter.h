@@ -25,7 +25,7 @@ public:
      *                instead.
      */
     static sk_sp<SkImageFilter> Make(const SkPaint& paint,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static void RegisterFlattenables();
 

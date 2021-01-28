@@ -63,11 +63,8 @@ sk_sp<SkImageFilter> SkTileImageFilter::Make(const SkRect& srcRect, const SkRect
         if (!ir.intersect(srcRect)) {
             return input;
         }
-        SkImageFilter::CropRect cropRect(ir);
-        return SkOffsetImageFilter::Make(dstRect.x() - srcRect.x(),
-                                         dstRect.y() - srcRect.y(),
-                                         std::move(input),
-                                         &cropRect);
+        return SkOffsetImageFilter::Make(dstRect.x() - srcRect.x(),  dstRect.y() - srcRect.y(),
+                                         std::move(input), &ir);
     }
     return sk_sp<SkImageFilter>(new SkTileImageFilterImpl(srcRect, dstRect, std::move(input)));
 }

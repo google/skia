@@ -15,7 +15,7 @@ class SK_API SkOffsetImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static void RegisterFlattenables();
 

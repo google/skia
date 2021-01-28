@@ -19,7 +19,7 @@ namespace {
 
 class SkPaintImageFilterImpl final : public SkImageFilter_Base {
 public:
-    SkPaintImageFilterImpl(const SkPaint& paint, const CropRect* rect)
+    SkPaintImageFilterImpl(const SkPaint& paint, const SkRect* rect)
             : INHERITED(nullptr, 0, rect)
             , fPaint(paint) {}
 
@@ -41,7 +41,7 @@ private:
 } // end namespace
 
 sk_sp<SkImageFilter> SkPaintImageFilter::Make(const SkPaint& paint,
-                                              const SkImageFilter::CropRect* cropRect) {
+                                              const SkRect* cropRect) {
     return sk_sp<SkImageFilter>(new SkPaintImageFilterImpl(paint, cropRect));
 }
 
@@ -57,7 +57,7 @@ sk_sp<SkFlattenable> SkPaintImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     SkPaint paint;
     buffer.readPaint(&paint, nullptr);
-    return SkPaintImageFilter::Make(paint, &common.cropRect());
+    return SkPaintImageFilter::Make(paint, common.cropRect());
 }
 
 void SkPaintImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
