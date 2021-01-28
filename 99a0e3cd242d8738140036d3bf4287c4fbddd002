@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd418a96_794eecdc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-01-28T17:19:50Z",
+      "side": 1,
+      "message": "This seemed like the simplest way to set this up -- better suggestions are welcome.",
+      "revId": "99a0e3cd242d8738140036d3bf4287c4fbddd002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
