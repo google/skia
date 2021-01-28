@@ -906,7 +906,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      uintptr_t /* float* */ innerPtr, const SkPaint& paint) {
             self.drawDRRect(ptrToSkRRect(outerPtr), ptrToSkRRect(innerPtr), paint);
         }))
-        .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
+        .function("drawImage", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
+                                                    SkScalar x, SkScalar y, const SkPaint* paint) {
+            // TODO: get sampling from the caller
+            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
+                                             : kNone_SkFilterQuality);
+            self.drawImage(image.get(), left, top, sampling, paint);
+        }), allow_raw_pointers())
         .function("drawImageCubic",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
                                                           SkScalar left, SkScalar top,
                                                           float B, float C, // See SkSamplingOptions.h for docs.
