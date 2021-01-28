@@ -16,6 +16,23 @@
       "message": "Starts skpbench jobs running newly uploaded version 5 of mskp collection which includes render engine captures",
       "revId": "6cdb238ac512c88218e70840ee9a509bff5b7e44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efe0e131_c6f7bd93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-01-28T20:39:28Z",
+      "side": 1,
+      "message": "Do we need a separate change to run the benchmarks on the S20s?",
+      "revId": "6cdb238ac512c88218e70840ee9a509bff5b7e44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
