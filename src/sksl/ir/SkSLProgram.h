@@ -147,6 +147,8 @@ struct Program {
         // If true, then Debug code will run SPIR-V output through the validator to ensure its
         // correctness
         bool fValidateSPIRV = true;
+        // If true, any synthetic uniforms must use push constant syntax
+        bool fUsePushConstants = false;
     };
 
     struct Inputs {
