@@ -16,6 +16,29 @@
       "message": "Tested this on both a retina and non-retina Mac. With these modifications a default open viewer looks more or less the same but much sharper. At Patchset 2 this has not been applied to the GUI, so those bits are still quite small, but otherwise handled correctly.",
       "revId": "be5eac70e10059eaf0646a9d85c4fdaf872c0012",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "382375aa_a8c020f8",
+        "filename": "tools/sk_app/mac/GLWindowContext_mac.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T21:03:11Z",
+      "side": 1,
+      "message": "Is there anywhere that we can extract \u0026 reuse this sequence (it appears an awful lot in this CL)",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 45
+      },
+      "revId": "be5eac70e10059eaf0646a9d85c4fdaf872c0012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
