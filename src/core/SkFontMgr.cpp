@@ -118,6 +118,11 @@ SkTypeface* SkFontMgr::matchFamilyStyleCharacter(const char familyName[], const 
     return this->onMatchFamilyStyleCharacter(familyName, style, bcp47, bcp47Count, character);
 }
 
+SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face,
+                                      const SkFontStyle& fs) const {
+    return this->onMatchFaceStyle(face, fs);
+}
+
 sk_sp<SkTypeface> SkFontMgr::makeFromData(sk_sp<SkData> data, int ttcIndex) const {
     if (nullptr == data) {
         return nullptr;
