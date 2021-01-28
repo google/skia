@@ -46,6 +46,30 @@
       },
       "revId": "31c01c827c1241eb0d2040a739ee4834528226e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "263ef546_2b7ed451",
+        "filename": "tests/sksl/shared/StructsInFunctions.asm.frag",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T16:48:56Z",
+      "side": 1,
+      "message": "Sounds good. I\u0027ve got a follow-up CL that will fix+enable the runtime-effect test in this CL, but I\u0027d like to land this test as a standalone, first. It does exercise several things in the GLSL and Metal backends that I think are worth testing on their own.",
+      "parentUuid": "c2c252d5_6e2ed5e4",
+      "range": {
+        "startLine": 3,
+        "startChar": 76,
+        "endLine": 3,
+        "endChar": 88
+      },
+      "revId": "31c01c827c1241eb0d2040a739ee4834528226e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
