@@ -212,8 +212,17 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
-
-    if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
+/*
+      SkDebugf("Runs:\n");
+      for (auto& r : fRuns) {
+          SkDebugf("%d [%d:%d) ", r.size(), r.fTextRange.start, r.fTextRange.end);
+          for (size_t i = 0; i < r.size(); ++i) {
+              SkDebugf("%d ", r.globalClusterIndex(i));
+          }
+          SkDebugf("\n");
+      }
+*/
+     if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
         // Paint the text without recording it
         this->paintLines(canvas, x, y);
         return;
@@ -293,7 +302,14 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     for (auto pos : graphemes) {
         fCodeUnitProperties[pos] |= CodeUnitFlags::kGraphemeStart;
     }
-
+/*
+    SkDebugf("Text: '%s'\n", fText.c_str());
+    SkDebugf("Graphemes: ");
+    for (auto pos : graphemes) {
+        SkDebugf("%d ", pos);
+    }
+    SkDebugf("\n");
+*/
     return true;
 }
 

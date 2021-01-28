@@ -143,6 +143,7 @@ public:
     void iterateThroughClusters(const ClusterVisitor& visitor);
 
     std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange text) const;
+    std::tuple<bool, TextIndex, TextIndex> findLimitingGraphemes(TextRange text) const;
     SkSpan<const SkGlyphID> glyphs() const {
         return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
     }
