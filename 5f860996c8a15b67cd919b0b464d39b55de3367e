@@ -117,6 +117,30 @@
       },
       "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dff74b76_b4a27512",
+        "filename": "tests/sksl/shared/InterfaceBlockNamedArray.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T16:30:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "258d2cf4_50a778b7",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 1
+      },
+      "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
