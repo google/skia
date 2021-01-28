@@ -258,7 +258,7 @@ static void surface_draw_test_helper(skiatest::Reporter* reporter,
         return;
     }
 
-    surface->getCanvas()->drawBitmap(srcBitmap, 0, 0);
+    surface->getCanvas()->drawImage(srcBitmap.asImage(), 0, 0);
 
     SkBitmap readbackBitmap;
     readbackBitmap.allocN32Pixels(DEV_W, DEV_H);
