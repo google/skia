@@ -22,6 +22,20 @@
 
 using namespace sk_app;
 
+static void build_ImFontAtlas(ImFontAtlas& atlas, SkPaint& fontPaint) {
+    int w, h;
+    unsigned char* pixels;
+    atlas.GetTexDataAsAlpha8(&pixels, &w, &h);
+    SkImageInfo info = SkImageInfo::MakeA8(w, h);
+    SkPixmap pmap(info, pixels, info.minRowBytes());
+    SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
+    auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
+    auto fontShader = fontImage->makeShader(SkSamplingOptions(kLow_SkFilterQuality), localMatrix);
+    fontPaint.setShader(fontShader);
+    fontPaint.setColor(SK_ColorWHITE);
+    atlas.TexID = &fontPaint;
+}
+
 ImGuiLayer::ImGuiLayer() {
     // ImGui initialization:
     ImGui::CreateContext();
@@ -48,21 +62,22 @@ ImGuiLayer::ImGuiLayer() {
     io.KeyMap[ImGuiKey_Y]          = (int)skui::Key::kY;
     io.KeyMap[ImGuiKey_Z]          = (int)skui::Key::kZ;
 
-    int w, h;
-    unsigned char* pixels;
-    io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
-    SkImageInfo info = SkImageInfo::MakeA8(w, h);
-    SkPixmap pmap(info, pixels, info.minRowBytes());
-    SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
-    auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-    auto fontShader = fontImage->makeShader(SkSamplingOptions(kLow_SkFilterQuality), localMatrix);
-    fFontPaint.setShader(fontShader);
-    fFontPaint.setColor(SK_ColorWHITE);
-    io.Fonts->TexID = &fFontPaint;
+    build_ImFontAtlas(*io.Fonts, fFontPaint);
 }
 
 ImGuiLayer::~ImGuiLayer() {
     ImGui::DestroyContext();
+}
+
+void ImGuiLayer::setScaleFactor(float scaleFactor) {
+    ImGui::GetStyle().ScaleAllSizes(scaleFactor);
+
+    ImFontAtlas& atlas = *ImGui::GetIO().Fonts;
+    atlas.Clear();
+    ImFontConfig cfg;
+    cfg.SizePixels = 13 * scaleFactor;
+    atlas.AddFontDefault(&cfg)->DisplayOffset.y = scaleFactor;
+    build_ImFontAtlas(atlas, fFontPaint);
 }
 
 #if defined(SK_BUILD_FOR_UNIX)

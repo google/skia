@@ -33,6 +33,8 @@ public:
 
     void onInval() override {}
 
+    float scaleFactor() const override;
+
     static void PaintWindows();
 
     static const NSInteger& GetKey(const Window_mac& w) {

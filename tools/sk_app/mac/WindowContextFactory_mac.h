@@ -19,6 +19,16 @@ namespace sk_app {
 
 struct DisplayParams;
 
+static inline CGFloat GetBackingScaleFactor(NSView* view) {
+    #ifdef SK_BUILD_FOR_IOS
+    UIScreen* screen = view.window.screen ?: [UIScreen mainScreen];
+    return screen.nativeScale;
+    #else
+    NSScreen* screen = view.window.screen ?: [NSScreen mainScreen];
+    return screen.backingScaleFactor;
+    #endif
+}
+
 namespace window_context_factory {
 
 struct MacWindowInfo {
