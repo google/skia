@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd0a0aa7_c3f94af4",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1979,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T19:12:25Z",
+      "side": 1,
+      "message": "The more I think about it, why are these special cases here? Shouldn\u0027t they be in getLValue too? If someone does a Swizzle on sk_FragCoord (e.g. sk_FragCoord.yx), AFAICS this fixup would fail to execute.",
+      "range": {
+        "startLine": 1976,
+        "startChar": 0,
+        "endLine": 1979,
+        "endChar": 36
+      },
+      "revId": "379c9ae2eacc7943b70f8389c5643d1514506967",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
