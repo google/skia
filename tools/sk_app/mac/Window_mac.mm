@@ -154,6 +154,12 @@ bool Window_mac::attach(BackendType attachType) {
     return SkToBool(fWindowContext);
 }
 
+float Window_mac::scaleFactor() const {
+    NSView* view = fWindow.contentView;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(view);
+    return backingScaleFactor;
+}
+
 void Window_mac::PaintWindows() {
     gWindowMap.foreach([&](Window_mac* window) {
         if (window->fIsContentInvalidated) {
@@ -177,9 +183,13 @@ void Window_mac::PaintWindows() {
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
-    const NSRect mainRect = [fWindow->window().contentView bounds];
+    NSView* view = fWindow->window().contentView;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(view);
+    CGSize backingSize = view.bounds.size;
+    backingSize.width *= backingScaleFactor;
+    backingSize.height *= backingScaleFactor;
 
-    fWindow->onResize(mainRect.size.width, mainRect.size.height);
+    fWindow->onResize(backingSize.width, backingSize.height);
     fWindow->inval();
 }
 
@@ -399,19 +409,27 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)mouseDown:(NSEvent *)event {
+    NSView* view = fWindow->window().contentView;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(view);
+
     skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kDown, modifiers);
+    fWindow->onMouse(pos.x * backingScaleFactor, (rect.size.height - pos.y) * backingScaleFactor,
+                     skui::InputState::kDown, modifiers);
 }
 
 - (void)mouseUp:(NSEvent *)event {
+    NSView* view = fWindow->window().contentView;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(view);
+
     skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kUp, modifiers);
+    fWindow->onMouse(pos.x * backingScaleFactor, (rect.size.height - pos.y) * backingScaleFactor,
+                     skui::InputState::kUp, modifiers);
 }
 
 - (void)mouseDragged:(NSEvent *)event {
@@ -420,11 +438,15 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)mouseMoved:(NSEvent *)event {
+    NSView* view = fWindow->window().contentView;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(view);
+
     skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kMove, modifiers);
+    fWindow->onMouse(pos.x * backingScaleFactor, (rect.size.height - pos.y) * backingScaleFactor,
+                     skui::InputState::kMove, modifiers);
 }
 
 - (void)scrollWheel:(NSEvent *)event {
