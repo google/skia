@@ -94,7 +94,7 @@ GrGLenum GrGLTexture::target() const {
 
 void GrGLTexture::onRelease() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-
+    ATRACE_ANDROID_FRAMEWORK_ALWAYS("Texture release(%u)", this->uniqueID().asUInt());
     if (fID) {
         if (GrBackendObjectOwnership::kBorrowed != fTextureIDOwnership) {
             GL_CALL(DeleteTextures(1, &fID));
