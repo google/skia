@@ -62,6 +62,32 @@ static void validate(SkSpan<const sk_sp<GrRenderTask>> input,
 
 #endif  // SK_DEBUG
 
+// Returns whether `dependee` is a formal dependent or if it uses a surface `depender` targets.
+static bool depends_on(GrRenderTask* depender, GrRenderTask* dependee) {
+    // Check if depender writes to something dependee reads.
+    // TODO: Establish real DAG dependencies for this during recording? E.g. when a task adds a
+    // target, search backward for the last task that uses the target and add a dep.
+    for (int i = 0; i < depender->numTargets(); i++) {
+        if (dependee->isUsed(depender->target(i))) {
+            CLUSTER_DEBUGF("Cluster: Bail, %s can't write before %s reads from %s.\n",
+                           describe_task(depender).c_str(),
+                           describe_task(dependee).c_str(),
+                           depender->target(i)->getDebugName().c_str());
+            return true;
+        }
+    }
+    // Check for a formal dependency.
+    for (GrRenderTask* t : depender->dependencies()) {
+        if (dependee == t) {
+            CLUSTER_DEBUGF("Cluster: Bail, %s depends on %s.\n",
+                           describe_task(depender).c_str(),
+                           describe_task(dependee).c_str());
+            return true;
+        }
+    }
+    return false;
+}
+
 // Returns whether reordering occurred.
 static bool task_cluster_visit(GrRenderTask* task, SkTInternalLList<GrRenderTask>* llist,
                                SkTHashMap<GrSurfaceProxy*, GrRenderTask*>* lastTaskMap) {
@@ -107,16 +133,11 @@ static bool task_cluster_visit(GrRenderTask* task, SkTInternalLList<GrRenderTask
     }
 
     // We can't reorder if any moved task depends on anything in the cluster.
-    // Time complexity here is high, but making a hash set is a lot worse.
+    // Time complexity here is high, but making a hash set is worse in profiling.
     for (GrRenderTask* moved = movedHead; moved; moved = moved->fNext) {
-        for (GrRenderTask* dep : moved->dependencies()) {
-            for (GrRenderTask* t = clusterHead; t != movedHead; t = t->fNext) {
-                if (t == dep) {
-                    CLUSTER_DEBUGF("Cluster: Bail, %s depends on %s.\n",
-                                   describe_task(moved).c_str(),
-                                   describe_task(dep).c_str());
-                    return false;
-                }
+        for (GrRenderTask* passed = clusterHead; passed != movedHead; passed = passed->fNext) {
+            if (depends_on(moved, passed)) {
+                return false;
             }
         }
     }
