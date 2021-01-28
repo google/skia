@@ -68,6 +68,7 @@ SK_C_API bool sk_path_is_oval(sk_path_t* cpath, sk_rect_t* bounds);
 SK_C_API bool sk_path_is_rrect(sk_path_t* cpath, sk_rrect_t* bounds);
 SK_C_API bool sk_path_is_line(sk_path_t* cpath, sk_point_t line [2]);
 SK_C_API bool sk_path_is_rect(sk_path_t* cpath, sk_rect_t* rect, bool* isClosed, sk_path_direction_t* direction);
+SK_C_API bool sk_path_is_convex(const sk_path_t* cpath);
 
 /* Iterators */
 SK_C_API sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose);

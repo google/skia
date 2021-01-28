@@ -244,6 +244,10 @@ bool sk_path_get_last_point (const sk_path_t* cpath, sk_point_t* point) {
     return AsPath(cpath)->getLastPt(AsPoint(point));
 }
 
+bool sk_path_is_convex(const sk_path_t* cpath) {
+    return AsPath(cpath)->isConvex();
+}
+
 bool sk_pathop_op(const sk_path_t* one, const sk_path_t* two, sk_pathop_t op, sk_path_t* result) {
     return Op(*AsPath(one), *AsPath(two), (SkPathOp)op, AsPath(result));
 }
