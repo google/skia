@@ -212,8 +212,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
-
-    if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
+     if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
         // Paint the text without recording it
         this->paintLines(canvas, x, y);
         return;
@@ -293,7 +292,6 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     for (auto pos : graphemes) {
         fCodeUnitProperties[pos] |= CodeUnitFlags::kGraphemeStart;
     }
-
     return true;
 }
 
