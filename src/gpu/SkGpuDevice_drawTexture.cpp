@@ -733,8 +733,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         return;
     }
 
-    if (GrSurfaceProxyView view = as_IB(image)->refView(this->recordingContext(),
-                                                        GrMipmapped(mm != SkMipmapMode::kNone))) {
+    if (GrSurfaceProxyView view = as_IB(image)->asView(this->recordingContext(),
+                                                       GrMipmapped(mm != SkMipmapMode::kNone))) {
         // This adjuster shouldn't do anything since we already asked for mip maps if necessary.
         // TODO: Pull YUVA out of draw_texture_producer and make it work directly from a view.
         GrTextureAdjuster adjuster(fContext.get(),
@@ -859,7 +859,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         // Extract view from image, but skip YUV images so they get processed through
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
-            view = image->refView(this->recordingContext(), GrMipmapped::kNo);
+            view = image->asView(this->recordingContext(), GrMipmapped::kNo);
             if (image->isAlphaOnly()) {
                 GrSwizzle swizzle = GrSwizzle::Concat(view.swizzle(), GrSwizzle("aaaa"));
                 view = {view.detachProxy(), view.origin(), swizzle};

@@ -160,7 +160,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* rContext
 
 #if SK_SUPPORT_GPU
     if (rContext) {
-        GrSurfaceProxyView view = as_IB(image)->refView(rContext, GrMipmapped::kNo);
+        GrSurfaceProxyView view = as_IB(image)->asView(rContext, GrMipmapped::kNo);
         return MakeDeferredFromGpu(rContext, subset, image->uniqueID(), view,
                                    SkColorTypeToGrColorType(image->colorType()),
                                    image->refColorSpace(), props);
