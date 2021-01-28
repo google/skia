@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0fbfcc0_ab9e3442",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-28T21:12:48Z",
+      "side": 1,
+      "message": "A longer road to get here than I wanted, but at least it\u0027s getting there! :-)",
+      "parentUuid": "9c66a44a_7c34b9a1",
+      "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86c33d7f_9c1b02ee",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0c3128e_31ebef27",
+        "filename": "gm/dsl_processor_tests.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-28T21:12:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86c33d7f_9c1b02ee",
+      "range": {
+        "startLine": 34,
+        "startChar": 16,
+        "endLine": 34,
+        "endChar": 22
+      },
+      "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6ff0bc61_18f7f0bc",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-01-28T20:43:25Z",
       "side": 1,
       "message": "Hopefully this is temporary? Performance issues aside, I am a bit worried that `description()` isn\u0027t entirely production-grade. We do various clever things in GLSLCodeGen that description() doesn\u0027t do, right?",
+      "range": {
+        "startLine": 89,
+        "startChar": 35,
+        "endLine": 89,
+        "endChar": 46
+      },
+      "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19b957e4_8b332e6c",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-28T21:12:48Z",
+      "side": 1,
+      "message": "For right now we have to coexist with code being generated as strings, and this seems like the most reasonable way to handle that. But eventually when it\u0027s *all* nodes, we will be able to do it the easy way and just keep it as nodes without this ugly nodes -\u003e string -\u003e nodes again path. Because this is the real world and nothing ever goes according to plan, realistically I think we\u0027ll have to keep this fallback around, but I expect it will become a rare path over time.\n\nNothing that happens in GLSLCodeGen should be relevant, since we\u0027re producing SkSL here and not GLSL. It still goes through the normal compilation process after this.",
+      "parentUuid": "6ff0bc61_18f7f0bc",
       "range": {
         "startLine": 89,
         "startChar": 35,
