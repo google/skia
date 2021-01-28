@@ -130,9 +130,10 @@ struct Program {
         // binding and set number of the uniform buffer.
         int fRTHeightBinding = -1;
         int fRTHeightSet = -1;
-        // If layout(binding=N) is not specified for a uniform, this value will be used. At present,
-        // zero is always used by our backends.
+        // If layout(set=S, binding=B) is not specified for a uniform, these values will be used.
+        // At present, zero is always used by our backends.
         int fDefaultUniformSet = 0;
+        int fDefaultUniformBinding = 0;
         // If true, remove any uncalled functions other than main(). Note that a function which
         // starts out being used may end up being uncalled after optimization.
         bool fRemoveDeadFunctions = true;
