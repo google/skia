@@ -51,6 +51,24 @@
       "parentUuid": "4cfa2f57_0d9b0738",
       "revId": "a982c77a0af64a57c36cfcd8b941aeff4cea3886",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e58df94_a280027c",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T15:25:43Z",
+      "side": 0,
+      "message": "Yesh, L480 is checking for \u0027struct\u0027, but that\u0027s the only way to generate a TypeData with fIsStructDeclaration (eg, an actual declaration of a new struct type, rather than just a reference to an existing struct type).\n\nBasically: the code at 480 handles the case where we create a new struct type (possibly then followed by a variable declaration, which is all done inside structVarDeclaration).\n\nIn the general case, type() (on line 487) makes sure that the identifier it consumes is a valid type name (including a previously declared struct), and would then return a TypeData with fIsStructDeclaration\u003dfalse, regardless.\n\nSo I think this check was redundant with the logic in structVarDeclaration that also called expect(TK_SEMICOLON).\n\nIndeed, adding a test case (which I\u0027ll do with this CL) makes:\n\n  struct A { ... };\n  A;\n\n... fail just like any other type-name-followed-by-semicolon, with \"expected an identifier, but found \u0027;\u0027\"",
+      "parentUuid": "cc224c94_3dd494d5",
+      "revId": "a982c77a0af64a57c36cfcd8b941aeff4cea3886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
