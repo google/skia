@@ -818,7 +818,7 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
 
     sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorWHITE, SkBlendMode::kSrc));
     sk_sp<SkImageFilter> cfif(SkImageFilters::ColorFilter(std::move(cf), nullptr));
-    sk_sp<SkImageFilter> imageFilter(SkImageFilter::MakeMatrixFilter(matrix,
+    sk_sp<SkImageFilter> imageFilter(SkImageFilters::MatrixTransform(matrix,
                                                                      kNone_SkFilterQuality,
                                                                      std::move(cfif)));
 
@@ -1416,7 +1416,7 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     matrix.setScale(SkIntToScalar(2), SkIntToScalar(2));
     matrix.postTranslate(SkIntToScalar(-20), SkIntToScalar(-20));
     sk_sp<SkImageFilter> matrixFilter(
-            SkImageFilter::MakeMatrixFilter(matrix, kLow_SkFilterQuality, nullptr));
+            SkImageFilters::MatrixTransform(matrix, kLow_SkFilterQuality, nullptr));
 
     // Test that saveLayer() with a filter nested inside another saveLayer() applies the
     // correct offset to the filter matrix.
