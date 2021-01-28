@@ -24,26 +24,40 @@ SVG_GS_BUCKET = 'gs://skia-svgs'
 def create_asset(target_dir):
   """Create the asset."""
   target_dir = os.path.realpath(target_dir)
+  target_svg_dir = os.path.join(target_dir, 'svg')
+  target_image_dir = os.path.join(target_dir, 'images')
 
-  if not os.path.exists(target_dir):
-    os.makedirs(target_dir)
+  if not os.path.exists(target_svg_dir):
+    os.makedirs(target_svg_dir)
+
+  if not os.path.exists(target_image_dir):
+    os.makedirs(target_image_dir)
 
   # Download the SVGs specified in tools/svg/svgs.txt
   download_svgs_cmd = [
     'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
-    '--output_dir', target_dir,
-    '--svgs_file', os.path.join(SVG_TOOLS, 'svgs.txt'),
+    '--output_dir', target_svg_dir,
+    '--input_file', os.path.join(SVG_TOOLS, 'svgs.txt'),
   ]
   subprocess.check_call(download_svgs_cmd)
 
   # Download the SVGs specified in tools/svg/svgs_parse_only.txt with a prefix.
   download_svgs_parse_only_cmd = [
     'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
-    '--output_dir', target_dir,
-    '--svgs_file', os.path.join(SVG_TOOLS, 'svgs_parse_only.txt'),
+    '--output_dir', target_svg_dir,
+    '--input_file', os.path.join(SVG_TOOLS, 'svgs_parse_only.txt'),
     '--prefix', 'svgparse_',
   ]
   subprocess.check_call(download_svgs_parse_only_cmd)
+
+  # Download the image resources specified in tools/svg/svg_images.txt
+  download_images_cmd = [
+    'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
+    '--output_dir', target_image_dir,
+    '--input_file', os.path.join(SVG_TOOLS, 'svg_images.txt'),
+    '--keep_common_prefix',
+  ]
+  subprocess.check_call(download_images_cmd)
 
   # Download SVGs from Google storage.
   # The Google storage bucket will either contain private SVGs or SVGs which we
@@ -51,7 +65,7 @@ def create_asset(target_dir):
   for skbug in ['skbug4713', 'skbug6918']:
     subprocess.check_call([
         'gsutil', '-m', 'cp', os.path.join(SVG_GS_BUCKET, skbug, '*'),
-        target_dir
+        target_svg_dir
     ])
 
 
