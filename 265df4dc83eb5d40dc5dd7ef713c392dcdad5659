@@ -22,6 +22,30 @@
       },
       "revId": "265df4dc83eb5d40dc5dd7ef713c392dcdad5659",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cfded54_f783bf78",
+        "filename": "tools/svg/svg_downloader.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-28T18:58:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ad517b4_eb7b4f5c",
+      "range": {
+        "startLine": 69,
+        "startChar": 2,
+        "endLine": 69,
+        "endChar": 5
+      },
+      "revId": "265df4dc83eb5d40dc5dd7ef713c392dcdad5659",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
