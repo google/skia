@@ -34,7 +34,7 @@ namespace {
 class SkBlurImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkBlurImageFilterImpl(SkScalar sigmaX, SkScalar sigmaY,  SkTileMode tileMode,
-                          sk_sp<SkImageFilter> input, const CropRect* cropRect)
+                          sk_sp<SkImageFilter> input, const SkRect* cropRect)
             : INHERITED(&input, 1, cropRect)
             , fSigma{sigmaX, sigmaY}
             , fTileMode(tileMode) {}
@@ -81,14 +81,14 @@ static SkTileMode to_sktilemode(SkBlurImageFilter::TileMode tileMode) {
 
 sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY,
                                              sk_sp<SkImageFilter> input,
-                                             const SkImageFilter::CropRect* cropRect,
+                                             const SkRect* cropRect,
                                              TileMode tileMode) {
     return Make(sigmaX, sigmaY, to_sktilemode(tileMode), std::move(input), cropRect);
 }
 
 sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode,
                                              sk_sp<SkImageFilter> input,
-                                             const SkImageFilter::CropRect* cropRect) {
+                                             const SkRect* cropRect) {
     if (sigmaX < SK_ScalarNearlyZero && sigmaY < SK_ScalarNearlyZero && !cropRect) {
         return input;
     }
@@ -109,7 +109,7 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     static_assert(SkBlurImageFilter::kLast_TileMode == 2, "CreateProc");
 
     return SkBlurImageFilter::Make(
-          sigmaX, sigmaY, tileMode, common.getInput(0), &common.cropRect());
+          sigmaX, sigmaY, tileMode, common.getInput(0), common.cropRect());
 }
 
 void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

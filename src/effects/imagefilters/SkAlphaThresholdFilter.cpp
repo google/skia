@@ -32,7 +32,7 @@ class SkAlphaThresholdFilterImpl final : public SkImageFilter_Base {
 public:
     SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,
-                               const CropRect* cropRect = nullptr)
+                               const SkRect* cropRect = nullptr)
             : INHERITED(&input, 1, cropRect)
             , fRegion(region)
             , fInnerThreshold(innerThreshold)
@@ -65,7 +65,7 @@ private:
 sk_sp<SkImageFilter> SkAlphaThresholdFilter::Make(const SkRegion& region, SkScalar innerThreshold,
                                                   SkScalar outerThreshold,
                                                   sk_sp<SkImageFilter> input,
-                                                  const SkImageFilter::CropRect* cropRect) {
+                                                  const SkRect* cropRect) {
     innerThreshold = SkTPin(innerThreshold, 0.f, 1.f);
     outerThreshold = SkTPin(outerThreshold, 0.f, 1.f);
     if (!SkScalarIsFinite(innerThreshold) || !SkScalarIsFinite(outerThreshold)) {
@@ -88,7 +88,7 @@ sk_sp<SkFlattenable> SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer
     SkRegion rgn;
     buffer.readRegion(&rgn);
     return SkAlphaThresholdFilter::Make(rgn, inner, outer, common.getInput(0),
-                                        &common.cropRect());
+                                        common.cropRect());
 }
 
 void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {

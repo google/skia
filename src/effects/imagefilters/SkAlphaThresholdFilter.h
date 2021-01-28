@@ -24,7 +24,7 @@ public:
      */
     static sk_sp<SkImageFilter> Make(const SkRegion& region, SkScalar innerMin,
                                      SkScalar outerMax, sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
 
     static void RegisterFlattenables();

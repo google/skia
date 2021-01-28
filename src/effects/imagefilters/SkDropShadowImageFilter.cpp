@@ -21,7 +21,7 @@ class SkDropShadowImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkDropShadowImageFilterImpl(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY,
                                 SkColor color, bool shadowOnly, sk_sp<SkImageFilter> input,
-                                const CropRect* cropRect)
+                                const SkRect* cropRect)
             : INHERITED(&input, 1, cropRect)
             , fDx(dx)
             , fDy(dy)
@@ -55,7 +55,7 @@ sk_sp<SkImageFilter> SkDropShadowImageFilter::Make(SkScalar dx, SkScalar dy,
                                                    SkScalar sigmaX, SkScalar sigmaY,
                                                    SkColor color, ShadowMode shadowMode,
                                                    sk_sp<SkImageFilter> input,
-                                                   const SkImageFilter::CropRect* cropRect) {
+                                                   const SkRect* cropRect) {
     bool shadowOnly = shadowMode == SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode;
     return sk_sp<SkImageFilter>(new SkDropShadowImageFilterImpl(
             dx, dy, sigmaX, sigmaY, color, shadowOnly, std::move(input), cropRect));
@@ -84,7 +84,7 @@ sk_sp<SkFlattenable> SkDropShadowImageFilterImpl::CreateProc(SkReadBuffer& buffe
     // TODO (michaelludwig) - TODO: Call factory function once SkDropShadowImageFilter::Make no
     // longer takes the old enum as its argument
     return sk_sp<SkImageFilter>(new SkDropShadowImageFilterImpl(
-            dx, dy, sigmaX, sigmaY, color, shadowOnly, common.getInput(0), &common.cropRect()));
+            dx, dy, sigmaX, sigmaY, color, shadowOnly, common.getInput(0), common.cropRect()));
 }
 
 void SkDropShadowImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

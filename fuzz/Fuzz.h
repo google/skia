@@ -75,7 +75,6 @@ public:
 
     // Specialized versions for when true random doesn't quite make sense
     void next(bool* b);
-    void next(SkImageFilter::CropRect* cropRect);
     void next(SkRegion* region);
 
     void nextRange(float* f, float min, float max);

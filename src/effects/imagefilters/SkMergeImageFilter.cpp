@@ -20,7 +20,7 @@ namespace {
 class SkMergeImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkMergeImageFilterImpl(sk_sp<SkImageFilter>* const filters, int count,
-                           const CropRect* cropRect)
+                           const SkRect* cropRect)
             : INHERITED(filters, count, cropRect) {
         SkASSERT(count >= 0);
     }
@@ -39,7 +39,7 @@ private:
 } // end namespace
 
 sk_sp<SkImageFilter> SkMergeImageFilter::Make(sk_sp<SkImageFilter>* const filters, int count,
-                                               const SkImageFilter::CropRect* cropRect) {
+                                               const SkRect* cropRect) {
     return sk_sp<SkImageFilter>(new SkMergeImageFilterImpl(filters, count, cropRect));
 }
 
@@ -56,7 +56,7 @@ sk_sp<SkFlattenable> SkMergeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     if (!common.unflatten(buffer, -1) || !buffer.isValid()) {
         return nullptr;
     }
-    return SkMergeImageFilter::Make(common.inputs(), common.inputCount(), &common.cropRect());
+    return SkMergeImageFilter::Make(common.inputs(), common.inputCount(), common.cropRect());
 }
 
 sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(const Context& ctx,

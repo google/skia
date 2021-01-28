@@ -21,7 +21,7 @@ namespace {
 class SkColorFilterImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkColorFilterImageFilterImpl(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input,
-                                 const CropRect* cropRect)
+                                 const SkRect* cropRect)
             : INHERITED(&input, 1, cropRect)
             , fColorFilter(std::move(cf)) {}
 
@@ -45,7 +45,7 @@ private:
 
 sk_sp<SkImageFilter> SkColorFilterImageFilter::Make(sk_sp<SkColorFilter> cf,
                                                     sk_sp<SkImageFilter> input,
-                                                    const SkImageFilter::CropRect* cropRect) {
+                                                    const SkRect* cropRect) {
     if (!cf) {
         return nullptr;
     }
@@ -76,7 +76,7 @@ void SkColorFilterImageFilter::RegisterFlattenables() {
 sk_sp<SkFlattenable> SkColorFilterImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     sk_sp<SkColorFilter> cf(buffer.readColorFilter());
-    return SkColorFilterImageFilter::Make(std::move(cf), common.getInput(0), &common.cropRect());
+    return SkColorFilterImageFilter::Make(std::move(cf), common.getInput(0), common.cropRect());
 }
 
 void SkColorFilterImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

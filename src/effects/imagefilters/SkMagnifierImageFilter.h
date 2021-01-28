@@ -17,7 +17,7 @@ class SK_API SkMagnifierImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(const SkRect& srcRect, SkScalar inset,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static void RegisterFlattenables();
 

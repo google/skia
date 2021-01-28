@@ -32,7 +32,7 @@ public:
     SkMatrixConvolutionImageFilterImpl(const SkISize& kernelSize, const SkScalar* kernel,
                                        SkScalar gain, SkScalar bias, const SkIPoint& kernelOffset,
                                        SkTileMode tileMode, bool convolveAlpha,
-                                       sk_sp<SkImageFilter> input, const CropRect* cropRect)
+                                       sk_sp<SkImageFilter> input, const SkRect* cropRect)
             : INHERITED(&input, 1, cropRect)
             , fKernelSize(kernelSize)
             , fGain(gain)
@@ -164,7 +164,7 @@ sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelS
                                                           TileMode tileMode,
                                                           bool convolveAlpha,
                                                           sk_sp<SkImageFilter> input,
-                                                          const SkImageFilter::CropRect* cropRect) {
+                                                          const SkRect* cropRect) {
     return Make(kernelSize, kernel, gain, bias, kernelOffset, to_sktilemode(tileMode),
                 convolveAlpha, std::move(input), cropRect);
 }
@@ -177,7 +177,7 @@ sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelS
                                                           SkTileMode tileMode,
                                                           bool convolveAlpha,
                                                           sk_sp<SkImageFilter> input,
-                                                          const SkImageFilter::CropRect* cropRect) {
+                                                          const SkRect* cropRect) {
     // We need to be able to read at most SK_MaxS32 bytes, so divide that
     // by the size of a scalar to know how many scalars we can read.
     static constexpr int32_t kMaxKernelSize = SK_MaxS32 / sizeof(SkScalar);
@@ -242,7 +242,7 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilterImpl::CreateProc(SkReadBuffer
     }
     return SkMatrixConvolutionImageFilter::Make(
                 kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
-                convolveAlpha, common.getInput(0), &common.cropRect());
+                convolveAlpha, common.getInput(0), common.cropRect());
 }
 
 void SkMatrixConvolutionImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

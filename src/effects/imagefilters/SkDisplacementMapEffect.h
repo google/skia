@@ -32,13 +32,13 @@ public:
                                      SkScalar scale,
                                      sk_sp<SkImageFilter> displacement,
                                      sk_sp<SkImageFilter> color,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
     static sk_sp<SkImageFilter> Make(SkColorChannel xChannelSelector,
                                      SkColorChannel yChannelSelector,
                                      SkScalar scale,
                                      sk_sp<SkImageFilter> displacement,
                                      sk_sp<SkImageFilter> color,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static void RegisterFlattenables();
 

@@ -14,10 +14,10 @@
 class SK_API SkMergeImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter>* const filters, int count,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> first, sk_sp<SkImageFilter> second,
-                                     const SkImageFilter::CropRect* cropRect = nullptr) {
+                                     const SkRect* cropRect = nullptr) {
         sk_sp<SkImageFilter> array[] = {
             std::move(first),
             std::move(second),

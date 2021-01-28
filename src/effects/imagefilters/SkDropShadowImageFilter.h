@@ -27,7 +27,7 @@ public:
     static sk_sp<SkImageFilter> Make(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY,
                                      SkColor color, ShadowMode shadowMode,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static void RegisterFlattenables();
 

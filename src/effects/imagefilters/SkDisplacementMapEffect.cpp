@@ -35,7 +35,7 @@ class SkDisplacementMapEffectImpl final : public SkImageFilter_Base {
 public:
     SkDisplacementMapEffectImpl(SkColorChannel xChannelSelector, SkColorChannel yChannelSelector,
                                 SkScalar scale, sk_sp<SkImageFilter> inputs[2],
-                                const CropRect* cropRect)
+                                const SkRect* cropRect)
             : INHERITED(inputs, 2, cropRect)
             , fXChannelSelector(xChannelSelector)
             , fYChannelSelector(yChannelSelector)
@@ -128,7 +128,7 @@ sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(ChannelSelectorType xChannelS
                                                    SkScalar scale,
                                                    sk_sp<SkImageFilter> displacement,
                                                    sk_sp<SkImageFilter> color,
-                                                   const SkImageFilter::CropRect* cropRect) {
+                                                   const SkRect* cropRect) {
     return Make(convert_channel_type(xChannelSelector), convert_channel_type(yChannelSelector),
                 scale, std::move(displacement), std::move(color), cropRect);
 }
@@ -138,7 +138,7 @@ sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(SkColorChannel xChannelSelect
                                                    SkScalar scale,
                                                    sk_sp<SkImageFilter> displacement,
                                                    sk_sp<SkImageFilter> color,
-                                                   const SkImageFilter::CropRect* cropRect) {
+                                                   const SkRect* cropRect) {
     if (!channel_selector_type_is_valid(xChannelSelector) ||
         !channel_selector_type_is_valid(yChannelSelector)) {
         return nullptr;
@@ -165,7 +165,7 @@ sk_sp<SkFlattenable> SkDisplacementMapEffectImpl::CreateProc(SkReadBuffer& buffe
     SkScalar      scale = buffer.readScalar();
 
     return SkDisplacementMapEffect::Make(xsel, ysel, scale, common.getInput(0), common.getInput(1),
-                                         &common.cropRect());
+                                         common.cropRect());
 }
 
 void SkDisplacementMapEffectImpl::flatten(SkWriteBuffer& buffer) const {

@@ -20,7 +20,7 @@ class SK_API SkXfermodeImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(SkBlendMode, sk_sp<SkImageFilter> background,
                                      sk_sp<SkImageFilter> foreground,
-                                     const SkImageFilter::CropRect* cropRect);
+                                     const SkRect* cropRect);
     static sk_sp<SkImageFilter> Make(SkBlendMode mode, sk_sp<SkImageFilter> background) {
         return Make(mode, std::move(background), nullptr, nullptr);
     }

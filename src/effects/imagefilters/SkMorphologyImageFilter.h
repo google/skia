@@ -16,7 +16,7 @@ class SK_API SkDilateImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(SkScalar radiusX, SkScalar radiusY,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     // Registers all morphology filter implementations
     static void RegisterFlattenables();
@@ -31,7 +31,7 @@ class SK_API SkErodeImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(SkScalar radiusX, SkScalar radiusY,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
 private:
     SkErodeImageFilter() = delete;
