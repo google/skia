@@ -24,8 +24,6 @@ SK_C_API void sk_bitmap_reset(sk_bitmap_t* cbitmap);
 SK_C_API bool sk_bitmap_is_null(sk_bitmap_t* cbitmap);
 SK_C_API bool sk_bitmap_is_immutable(sk_bitmap_t* cbitmap);
 SK_C_API void sk_bitmap_set_immutable(sk_bitmap_t* cbitmap);
-SK_C_API bool sk_bitmap_is_volatile(sk_bitmap_t* cbitmap);
-SK_C_API void sk_bitmap_set_volatile(sk_bitmap_t* cbitmap, bool value);
 SK_C_API void sk_bitmap_erase(sk_bitmap_t* cbitmap, sk_color_t color);
 SK_C_API void sk_bitmap_erase_rect(sk_bitmap_t* cbitmap, sk_color_t color, sk_irect_t* rect);
 SK_C_API uint8_t* sk_bitmap_get_addr_8(sk_bitmap_t* cbitmap, int x, int y);

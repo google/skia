@@ -15,29 +15,29 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 
-// GrContext
+// GrDirectContext
 
-SK_C_API gr_context_t* gr_context_make_gl(const gr_glinterface_t* glInterface);
-SK_C_API gr_context_t* gr_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext);
+SK_C_API gr_direct_context_t* gr_direct_context_make_gl(const gr_glinterface_t* glInterface);
+SK_C_API gr_direct_context_t* gr_direct_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext);
 
 // TODO: the overloads with GrContextOptions
 // TODO: the Metal context
 
-SK_C_API void gr_context_unref(gr_context_t* context);
-SK_C_API void gr_context_abandon_context(gr_context_t* context);
-SK_C_API void gr_context_release_resources_and_abandon_context(gr_context_t* context);
-SK_C_API size_t gr_context_get_resource_cache_limit(gr_context_t* context);
-SK_C_API void gr_context_set_resource_cache_limit(gr_context_t* context, size_t maxResourceBytes);
-SK_C_API void gr_context_get_resource_cache_usage(gr_context_t* context, int* maxResources, size_t* maxResourceBytes);
-SK_C_API int gr_context_get_max_surface_sample_count_for_color_type(gr_context_t* context, sk_colortype_t colorType);
-SK_C_API void gr_context_flush(gr_context_t* context);
-SK_C_API void gr_context_reset_context(gr_context_t* context, uint32_t state);
-SK_C_API gr_backend_t gr_context_get_backend(gr_context_t* context);
-SK_C_API void gr_context_dump_memory_statistics(const gr_context_t* context, sk_tracememorydump_t* dump);
-SK_C_API void gr_context_free_gpu_resources(gr_context_t* context);
-SK_C_API void gr_context_perform_deferred_cleanup(gr_context_t* context, long long ms);
-SK_C_API void gr_context_purge_unlocked_resources_bytes(gr_context_t* context, size_t bytesToPurge, bool preferScratchResources);
-SK_C_API void gr_context_purge_unlocked_resources(gr_context_t* context, bool scratchResourcesOnly);
+SK_C_API void gr_direct_context_unref(gr_direct_context_t* context);
+SK_C_API void gr_direct_context_abandon_context(gr_direct_context_t* context);
+SK_C_API void gr_direct_context_release_resources_and_abandon_context(gr_direct_context_t* context);
+SK_C_API size_t gr_direct_context_get_resource_cache_limit(gr_direct_context_t* context);
+SK_C_API void gr_direct_context_set_resource_cache_limit(gr_direct_context_t* context, size_t maxResourceBytes);
+SK_C_API void gr_direct_context_get_resource_cache_usage(gr_direct_context_t* context, int* maxResources, size_t* maxResourceBytes);
+SK_C_API int gr_direct_context_get_max_surface_sample_count_for_color_type(gr_direct_context_t* context, sk_colortype_t colorType);
+SK_C_API void gr_direct_context_flush(gr_direct_context_t* context);
+SK_C_API void gr_direct_context_reset_context(gr_direct_context_t* context, uint32_t state);
+SK_C_API gr_backend_t gr_direct_context_get_backend(gr_direct_context_t* context);
+SK_C_API void gr_direct_context_dump_memory_statistics(const gr_direct_context_t* context, sk_tracememorydump_t* dump);
+SK_C_API void gr_direct_context_free_gpu_resources(gr_direct_context_t* context);
+SK_C_API void gr_direct_context_perform_deferred_cleanup(gr_direct_context_t* context, long long ms);
+SK_C_API void gr_direct_context_purge_unlocked_resources_bytes(gr_direct_context_t* context, size_t bytesToPurge, bool preferScratchResources);
+SK_C_API void gr_direct_context_purge_unlocked_resources(gr_direct_context_t* context, bool scratchResourcesOnly);
 
 
 // GrGLInterface

@@ -53,7 +53,7 @@ SK_C_API bool sk_colorspace_primaries_to_xyzd50(const sk_colorspace_primaries_t*
 
 SK_C_API void sk_colorspace_xyz_named_srgb(sk_colorspace_xyz_t* xyz);
 SK_C_API void sk_colorspace_xyz_named_adobe_rgb(sk_colorspace_xyz_t* xyz);
-SK_C_API void sk_colorspace_xyz_named_dcip3(sk_colorspace_xyz_t* xyz);
+SK_C_API void sk_colorspace_xyz_named_display_p3(sk_colorspace_xyz_t* xyz);
 SK_C_API void sk_colorspace_xyz_named_rec2020(sk_colorspace_xyz_t* xyz);
 SK_C_API void sk_colorspace_xyz_named_xyz(sk_colorspace_xyz_t* xyz);
 SK_C_API bool sk_colorspace_xyz_invert(const sk_colorspace_xyz_t* src, sk_colorspace_xyz_t* dst);

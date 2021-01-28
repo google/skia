@@ -129,8 +129,8 @@ void sk_colorspace_xyz_named_adobe_rgb(sk_colorspace_xyz_t* xyz) {
     *xyz = ToColorSpaceXyz(SkNamedGamut::kAdobeRGB);
 }
 
-void sk_colorspace_xyz_named_dcip3(sk_colorspace_xyz_t* xyz) {
-    *xyz = ToColorSpaceXyz(SkNamedGamut::kDCIP3);
+void sk_colorspace_xyz_named_display_p3(sk_colorspace_xyz_t* xyz) {
+    *xyz = ToColorSpaceXyz(SkNamedGamut::kDisplayP3);
 }
 
 void sk_colorspace_xyz_named_rec2020(sk_colorspace_xyz_t* xyz) {

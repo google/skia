@@ -23,7 +23,7 @@
 #define SK_FIRST_ARG(...) SK_FIRST_ARG_((__VA_ARGS__, ))
 
 #if SK_SUPPORT_GPU
-#    include "include/gpu/GrContext.h"
+#    include "include/gpu/GrDirectContext.h"
 #    include "include/gpu/GrBackendSurface.h"
 #    include "include/gpu/gl/GrGLInterface.h"
 #    include "include/gpu/gl/GrGLAssembleInterface.h"
@@ -143,7 +143,7 @@ DEF_CLASS_MAP(SkWStream, sk_wstream_t, WStream)
 DEF_CLASS_MAP(SkXMLStreamWriter, sk_xmlstreamwriter_t, XMLStreamWriter)
 DEF_CLASS_MAP(SkXMLWriter, sk_xmlwriter_t, XMLWriter)
 
-DEF_CLASS_MAP(GrContext, gr_context_t, GrContext)
+DEF_CLASS_MAP(GrDirectContext, gr_direct_context_t, GrDirectContext)
 DEF_CLASS_MAP(GrBackendTexture, gr_backendtexture_t, GrBackendTexture)
 DEF_CLASS_MAP(GrBackendRenderTarget, gr_backendrendertarget_t, GrBackendRenderTarget)
 

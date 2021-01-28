@@ -142,7 +142,9 @@ static_assert ((int)SkColorType::kRGBA_8888_SkColorType            == (int)RGBA_
 static_assert ((int)SkColorType::kBGRA_8888_SkColorType            == (int)BGRA_8888_SK_COLORTYPE,            ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kRGB_888x_SkColorType             == (int)RGB_888X_SK_COLORTYPE,             ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kRGBA_1010102_SkColorType         == (int)RGBA_1010102_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kBGRA_1010102_SkColorType         == (int)BGRA_1010102_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kRGB_101010x_SkColorType          == (int)RGB_101010X_SK_COLORTYPE,          ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kBGR_101010x_SkColorType          == (int)BGR_101010X_SK_COLORTYPE,          ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kGray_8_SkColorType               == (int)GRAY_8_SK_COLORTYPE,               ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kRGBA_F16Norm_SkColorType         == (int)RGBA_F16_NORM_SK_COLORTYPE,        ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kRGBA_F16_SkColorType             == (int)RGBA_F16_SK_COLORTYPE,             ASSERT_MSG(SkColorType, sk_colortype_t));
@@ -290,11 +292,6 @@ static_assert ((int)SkPathOp::kUnion_SkPathOp               == (int)UNION_SK_PAT
 static_assert ((int)SkPathOp::kXOR_SkPathOp                 == (int)XOR_SK_PATHOP,                  ASSERT_MSG(SkPathOp, sk_pathop_t));
 static_assert ((int)SkPathOp::kReverseDifference_SkPathOp   == (int)REVERSE_DIFFERENCE_SK_PATHOP,   ASSERT_MSG(SkPathOp, sk_pathop_t));
 
-// sk_path_convexity_t
-static_assert ((int)SkPathConvexityType::kUnknown   == (int)UNKNOWN_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPathConvexityType, sk_path_convexity_t));
-static_assert ((int)SkPathConvexityType::kConvex    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPathConvexityType, sk_path_convexity_t));
-static_assert ((int)SkPathConvexityType::kConcave   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPathConvexityType, sk_path_convexity_t));
-
 // sk_lattice_flags_t
 static_assert ((int)SkCanvas::Lattice::RectType::kDefault       == (int)DEFAULT_SK_LATTICE_RECT_TYPE,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_recttype_t));
 static_assert ((int)SkCanvas::Lattice::RectType::kTransparent   == (int)TRANSPARENT_SK_LATTICE_RECT_TYPE,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_recttype_t));
@@ -380,10 +377,11 @@ static_assert ((int)GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin      == (int)TOP_L
 static_assert ((int)GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin   == (int)BOTTOM_LEFT_GR_SURFACE_ORIGIN,   ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
 
 // gr_backend_t
-static_assert ((int)GrBackend::kMetal    == (int)METAL_GR_BACKEND,    ASSERT_MSG(GrBackend, gr_backend_t));
-static_assert ((int)GrBackend::kDawn     == (int)DAWN_GR_BACKEND,     ASSERT_MSG(GrBackend, gr_backend_t));
-static_assert ((int)GrBackend::kOpenGL   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
-static_assert ((int)GrBackend::kVulkan   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
+static_assert ((int)GrBackendApi::kMetal      == (int)METAL_GR_BACKEND,      ASSERT_MSG(GrBackendApi, gr_backend_t));
+static_assert ((int)GrBackendApi::kDawn       == (int)DAWN_GR_BACKEND,       ASSERT_MSG(GrBackendApi, gr_backend_t));
+static_assert ((int)GrBackendApi::kOpenGL     == (int)OPENGL_GR_BACKEND,     ASSERT_MSG(GrBackendApi, gr_backend_t));
+static_assert ((int)GrBackendApi::kVulkan     == (int)VULKAN_GR_BACKEND,     ASSERT_MSG(GrBackendApi, gr_backend_t));
+static_assert ((int)GrBackendApi::kDirect3D   == (int)DIRECT3D_GR_BACKEND,   ASSERT_MSG(GrBackendApi, gr_backend_t));
 
 #endif
 

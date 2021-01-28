@@ -232,14 +232,6 @@ bool sk_path_contains (const sk_path_t* cpath, float x, float y) {
     return AsPath(cpath)->contains(x, y);
 }
 
-sk_path_convexity_t sk_path_get_convexity (const sk_path_t* cpath) {
-    return (sk_path_convexity_t)AsPath(cpath)->getConvexityType();
-}
-
-void sk_path_set_convexity (sk_path_t* cpath, sk_path_convexity_t convexity) {
-    AsPath(cpath)->setConvexityType((SkPathConvexityType)convexity);
-}
-
 bool sk_path_parse_svg_string (sk_path_t* cpath, const char* str) {
     return SkParsePath::FromSVGString(str, AsPath(cpath));
 }

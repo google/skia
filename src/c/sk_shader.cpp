@@ -50,25 +50,12 @@ sk_shader_t* sk_shader_new_color4f(const sk_color4f_t* color, const sk_colorspac
     return ToShader(SkShaders::Color(*AsColor4f(color), sk_ref_sp(AsColorSpace(colorspace))).release());
 }
 
-sk_shader_t* sk_shader_new_blend(sk_blendmode_t mode, const sk_shader_t* dst, const sk_shader_t* src, const sk_matrix_t* localMatrix) {
-    SkMatrix m;
-    if (localMatrix)
-        m = AsMatrix(localMatrix);
-    return ToShader(SkShaders::Blend((SkBlendMode)mode, sk_ref_sp(AsShader(dst)), sk_ref_sp(AsShader(src)), localMatrix ? &m : nullptr).release());
+sk_shader_t* sk_shader_new_blend(sk_blendmode_t mode, const sk_shader_t* dst, const sk_shader_t* src) {
+    return ToShader(SkShaders::Blend((SkBlendMode)mode, sk_ref_sp(AsShader(dst)), sk_ref_sp(AsShader(src))).release());
 }
 
-sk_shader_t* sk_shader_new_lerp(float t, const sk_shader_t* dst, const sk_shader_t* src, const sk_matrix_t* localMatrix) {
-    SkMatrix m;
-    if (localMatrix)
-        m = AsMatrix(localMatrix);
-    return ToShader(SkShaders::Lerp(t, sk_ref_sp(AsShader(dst)), sk_ref_sp(AsShader(src)), localMatrix ? &m : nullptr).release());
-}
-
-sk_shader_t* sk_shader_new_lerp_red(const sk_shader_t* red, const sk_shader_t* dst, const sk_shader_t* src, const sk_matrix_t* localMatrix) {
-    SkMatrix m;
-    if (localMatrix)
-        m = AsMatrix(localMatrix);
-    return ToShader(SkShaders::Lerp(sk_ref_sp(AsShader(red)), sk_ref_sp(AsShader(dst)), sk_ref_sp(AsShader(src)), localMatrix ? &m : nullptr).release());
+sk_shader_t* sk_shader_new_lerp(float t, const sk_shader_t* dst, const sk_shader_t* src) {
+    return ToShader(SkShaders::Lerp(t, sk_ref_sp(AsShader(dst)), sk_ref_sp(AsShader(src))).release());
 }
 
 // SkGradientShader

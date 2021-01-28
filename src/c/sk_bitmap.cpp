@@ -61,14 +61,6 @@ void sk_bitmap_set_immutable(sk_bitmap_t* cbitmap) {
     AsBitmap(cbitmap)->setImmutable();
 }
 
-bool sk_bitmap_is_volatile(sk_bitmap_t* cbitmap) {
-    return AsBitmap(cbitmap)->isVolatile();
-}
-
-void sk_bitmap_set_volatile(sk_bitmap_t* cbitmap, bool value) {
-    AsBitmap(cbitmap)->setIsVolatile(value);
-}
-
 void sk_bitmap_erase(sk_bitmap_t* cbitmap, sk_color_t color) {
     AsBitmap(cbitmap)->eraseColor(color);
 }

@@ -158,10 +158,6 @@ sk_typeface_t* sk_fontmgr_match_family_style_character(sk_fontmgr_t* fontmgr, co
     return ToTypeface(AsFontMgr(fontmgr)->matchFamilyStyleCharacter(familyName, *AsFontStyle(style), bcp47, bcp47Count, character));
 }
 
-sk_typeface_t* sk_fontmgr_match_face_style(sk_fontmgr_t* fontmgr, const sk_typeface_t* face, sk_fontstyle_t* style) {
-    return ToTypeface(AsFontMgr(fontmgr)->matchFaceStyle(AsTypeface(face), *AsFontStyle(style)));
-}
-
 sk_typeface_t* sk_fontmgr_create_from_data(sk_fontmgr_t* fontmgr, sk_data_t* data, int index) {
     return ToTypeface(AsFontMgr(fontmgr)->makeFromData(sk_ref_sp(AsData(data)), index).release());
 }

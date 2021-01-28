@@ -66,7 +66,7 @@
 #endif
 
 #ifndef SK_C_INCREMENT
-#define SK_C_INCREMENT 3
+#define SK_C_INCREMENT 0
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,9 @@ typedef enum {
     RGB_888X_SK_COLORTYPE,
     BGRA_8888_SK_COLORTYPE,
     RGBA_1010102_SK_COLORTYPE,
+    BGRA_1010102_SK_COLORTYPE,
     RGB_101010X_SK_COLORTYPE,
+    BGR_101010X_SK_COLORTYPE,
     GRAY_8_SK_COLORTYPE,
     RGBA_F16_NORM_SK_COLORTYPE,
     RGBA_F16_SK_COLORTYPE,
@@ -636,13 +638,14 @@ typedef intptr_t gr_backendobject_t;
 typedef struct gr_backendrendertarget_t gr_backendrendertarget_t;
 typedef struct gr_backendtexture_t gr_backendtexture_t;
 
-typedef struct gr_context_t gr_context_t;
+typedef struct gr_direct_context_t gr_direct_context_t;
 
 typedef enum {
-    METAL_GR_BACKEND,
-    DAWN_GR_BACKEND,
     OPENGL_GR_BACKEND,
     VULKAN_GR_BACKEND,
+    METAL_GR_BACKEND,
+    DIRECT3D_GR_BACKEND,
+    DAWN_GR_BACKEND,
 } gr_backend_t;
 
 typedef intptr_t gr_backendcontext_t;
@@ -727,10 +730,13 @@ typedef struct {
     uint32_t                        fImageTiling;
     uint32_t                        fImageLayout;
     uint32_t                        fFormat;
+    uint32_t                        fImageUsageFlags;
+    uint32_t                        fSampleCount;
     uint32_t                        fLevelCount;
     uint32_t                        fCurrentQueueFamily;
     bool                            fProtected;
     gr_vk_ycbcrconversioninfo_t     fYcbcrConversionInfo;
+    uint32_t                        fSharingMode;
 } gr_vk_imageinfo_t;
 
 typedef struct vk_instance_t vk_instance_t;
@@ -747,12 +753,6 @@ typedef enum {
 } sk_pathop_t;
 
 typedef struct sk_opbuilder_t sk_opbuilder_t;
-
-typedef enum {
-    UNKNOWN_SK_PATH_CONVEXITY,
-    CONVEX_SK_PATH_CONVEXITY,
-    CONCAVE_SK_PATH_CONVEXITY,
-} sk_path_convexity_t;
 
 typedef enum {
     DEFAULT_SK_LATTICE_RECT_TYPE,

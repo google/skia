@@ -11,74 +11,74 @@
 
 #include "src/c/sk_types_priv.h"
 
-// GrContext
+// GrDirectContext
 
-gr_context_t* gr_context_make_gl(const gr_glinterface_t* glInterface) {
-    return SK_ONLY_GPU(ToGrContext(GrContext::MakeGL(sk_ref_sp(AsGrGLInterface(glInterface))).release()), nullptr);
+gr_direct_context_t* gr_direct_context_make_gl(const gr_glinterface_t* glInterface) {
+    return SK_ONLY_GPU(ToGrDirectContext(GrDirectContext::MakeGL(sk_ref_sp(AsGrGLInterface(glInterface))).release()), nullptr);
 }
 
-gr_context_t* gr_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext) {
-    return SK_ONLY_VULKAN(ToGrContext(GrContext::MakeVulkan(AsGrVkBackendContext(&vkBackendContext)).release()), nullptr);
+gr_direct_context_t* gr_direct_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext) {
+    return SK_ONLY_VULKAN(ToGrDirectContext(GrDirectContext::MakeVulkan(AsGrVkBackendContext(&vkBackendContext)).release()), nullptr);
 }
 
-void gr_context_unref(gr_context_t* context) {
-    SK_ONLY_GPU(SkSafeUnref(AsGrContext(context)));
+void gr_direct_context_unref(gr_direct_context_t* context) {
+    SK_ONLY_GPU(SkSafeUnref(AsGrDirectContext(context)));
 }
 
-void gr_context_abandon_context(gr_context_t* context) {
-    SK_ONLY_GPU(AsGrContext(context)->abandonContext());
+void gr_direct_context_abandon_context(gr_direct_context_t* context) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->abandonContext());
 }
 
-void gr_context_release_resources_and_abandon_context(gr_context_t* context) {
-    SK_ONLY_GPU(AsGrContext(context)->releaseResourcesAndAbandonContext());
+void gr_direct_context_release_resources_and_abandon_context(gr_direct_context_t* context) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->releaseResourcesAndAbandonContext());
 }
 
-size_t gr_context_get_resource_cache_limit(gr_context_t* context) {
-    return SK_ONLY_GPU(AsGrContext(context)->getResourceCacheLimit(), 0);
+size_t gr_direct_context_get_resource_cache_limit(gr_direct_context_t* context) {
+    return SK_ONLY_GPU(AsGrDirectContext(context)->getResourceCacheLimit(), 0);
 }
 
-void gr_context_set_resource_cache_limit(gr_context_t* context, size_t maxResourceBytes) {
-    SK_ONLY_GPU(AsGrContext(context)->setResourceCacheLimit(maxResourceBytes));
+void gr_direct_context_set_resource_cache_limit(gr_direct_context_t* context, size_t maxResourceBytes) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->setResourceCacheLimit(maxResourceBytes));
 }
 
-void gr_context_get_resource_cache_usage(gr_context_t* context, int* maxResources, size_t* maxResourceBytes) {
-    SK_ONLY_GPU(AsGrContext(context)->getResourceCacheUsage(maxResources, maxResourceBytes));
+void gr_direct_context_get_resource_cache_usage(gr_direct_context_t* context, int* maxResources, size_t* maxResourceBytes) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->getResourceCacheUsage(maxResources, maxResourceBytes));
 }
 
-int gr_context_get_max_surface_sample_count_for_color_type(gr_context_t* context, sk_colortype_t colorType) {
-    return SK_ONLY_GPU(AsGrContext(context)->maxSurfaceSampleCountForColorType((SkColorType)colorType), 0);
+int gr_direct_context_get_max_surface_sample_count_for_color_type(gr_direct_context_t* context, sk_colortype_t colorType) {
+    return SK_ONLY_GPU(AsGrDirectContext(context)->maxSurfaceSampleCountForColorType((SkColorType)colorType), 0);
 }
 
-void gr_context_flush(gr_context_t* context) {
-    SK_ONLY_GPU(AsGrContext(context)->flush());
+void gr_direct_context_flush(gr_direct_context_t* context) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->flush());
 }
 
-void gr_context_reset_context(gr_context_t* context, uint32_t state) {
-    SK_ONLY_GPU(AsGrContext(context)->resetContext(state));
+void gr_direct_context_reset_context(gr_direct_context_t* context, uint32_t state) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->resetContext(state));
 }
 
-gr_backend_t gr_context_get_backend(gr_context_t* context) {
-    return SK_ONLY_GPU((gr_backend_t)AsGrContext(context)->backend(), (gr_backend_t)0);
+gr_backend_t gr_direct_context_get_backend(gr_direct_context_t* context) {
+    return SK_ONLY_GPU((gr_backend_t)AsGrDirectContext(context)->backend(), (gr_backend_t)0);
 }
 
-void gr_context_dump_memory_statistics(const gr_context_t* context, sk_tracememorydump_t* dump) {
-    SK_ONLY_GPU(AsGrContext(context)->dumpMemoryStatistics(AsTraceMemoryDump(dump)));
+void gr_direct_context_dump_memory_statistics(const gr_direct_context_t* context, sk_tracememorydump_t* dump) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->dumpMemoryStatistics(AsTraceMemoryDump(dump)));
 }
 
-void gr_context_free_gpu_resources(gr_context_t* context) {
-    SK_ONLY_GPU(AsGrContext(context)->freeGpuResources());
+void gr_direct_context_free_gpu_resources(gr_direct_context_t* context) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->freeGpuResources());
 }
 
-void gr_context_perform_deferred_cleanup(gr_context_t* context, long long ms) {
-    SK_ONLY_GPU(AsGrContext(context)->performDeferredCleanup(std::chrono::milliseconds(ms)));
+void gr_direct_context_perform_deferred_cleanup(gr_direct_context_t* context, long long ms) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->performDeferredCleanup(std::chrono::milliseconds(ms)));
 }
 
-void gr_context_purge_unlocked_resources_bytes(gr_context_t* context, size_t bytesToPurge, bool preferScratchResources) {
-    SK_ONLY_GPU(AsGrContext(context)->purgeUnlockedResources(bytesToPurge, preferScratchResources));
+void gr_direct_context_purge_unlocked_resources_bytes(gr_direct_context_t* context, size_t bytesToPurge, bool preferScratchResources) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->purgeUnlockedResources(bytesToPurge, preferScratchResources));
 }
 
-void gr_context_purge_unlocked_resources(gr_context_t* context, bool scratchResourcesOnly) {
-    SK_ONLY_GPU(AsGrContext(context)->purgeUnlockedResources(scratchResourcesOnly));
+void gr_direct_context_purge_unlocked_resources(gr_direct_context_t* context, bool scratchResourcesOnly) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->purgeUnlockedResources(scratchResourcesOnly));
 }
 
 

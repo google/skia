@@ -163,7 +163,7 @@ bool sk_matrix44_equals(sk_matrix44_t* matrix, const sk_matrix44_t* other) {
 }
 
 void sk_matrix44_to_matrix(sk_matrix44_t* matrix, sk_matrix_t* dst) {
-    SkMatrix m = AsMatrix44(*matrix);
+    SkMatrix m = (SkMatrix)AsMatrix44(*matrix);
     *dst = ToMatrix(&m);
 }
 
