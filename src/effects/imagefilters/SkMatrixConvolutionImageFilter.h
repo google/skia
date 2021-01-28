@@ -46,7 +46,7 @@ public:
                                      TileMode tileMode,
                                      bool convolveAlpha,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     /** Construct a matrix convolution image filter.
         @param kernelSize     The kernel size in pixels, in each dimension (N by M).
@@ -77,7 +77,7 @@ public:
                                      SkTileMode tileMode,
                                      bool convolveAlpha,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static void RegisterFlattenables();
 

@@ -46,6 +46,8 @@ public:
         CropRect(const SkRect* optionalCrop) : fCropRect(optionalCrop ? *optionalCrop
                                                                       : kNoCropRect) {}
 
+        operator const SkRect*() const { return fCropRect == kNoCropRect ? nullptr : &fCropRect; }
+
         SkRect fCropRect;
     };
 
