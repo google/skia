@@ -48,7 +48,7 @@ protected:
 
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face face, SkPath* path);
-    bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path);
+    bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path, bool load_unscaled = false);
 private:
     using INHERITED = SkScalerContext;
 };
