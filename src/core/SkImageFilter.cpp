@@ -128,12 +128,6 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     return true;
 }
 
-sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,
-                                                     SkFilterQuality filterQuality,
-                                                     sk_sp<SkImageFilter> input) {
-    return SkMatrixImageFilter::Make(matrix, filterQuality, std::move(input));
-}
-
 sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) const {
     return SkLocalMatrixImageFilter::Make(matrix, this->refMe());
 }
