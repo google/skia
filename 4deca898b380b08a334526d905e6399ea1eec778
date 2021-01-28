@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb121cb9_8c2a3ddf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-28T15:09:33Z",
+      "side": 1,
+      "message": "Can you add some tests for this? skottie.spec.js is the place.",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86159f38_dc899ff7",
