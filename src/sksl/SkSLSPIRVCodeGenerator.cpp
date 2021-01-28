@@ -2000,9 +2000,11 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 if (set == -1) {
                     fErrors.error(ref.fOffset, "layout(set=...) is required in SPIR-V");
                 }
-                Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
-                                Layout::kUnspecified_Primitive, -1, -1, "", "", Layout::kNo_Key,
-                                Layout::CType::kDefault);
+                bool usePushConstants = fProgram.fSettings.fUsePushConstants;
+                int layoutFlags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
+                Layout layout(layoutFlags, -1, -1, binding, -1, set, -1, -1,
+                              Layout::Format::kUnspecified, Layout::kUnspecified_Primitive, -1, -1,
+                              "", "", Layout::kNo_Key, Layout::CType::kDefault);
                 Modifiers modifiers(layout, Modifiers::kUniform_Flag);
                 const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
                         std::make_unique<Variable>(/*offset=*/-1,
@@ -2017,7 +2019,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
                 fRTHeightStructId = this->writeInterfaceBlock(intf, false);
                 fRTHeightFieldIndex = 0;
-                fRTHeightStorageClass = SpvStorageClassUniform;
+                fRTHeightStorageClass = usePushConstants ? SpvStorageClassPushConstant
+                                                         : SpvStorageClassUniform;
             }
             SkASSERT(fRTHeightFieldIndex != (SpvId)-1);
 
