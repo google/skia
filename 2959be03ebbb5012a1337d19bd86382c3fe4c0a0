@@ -128,6 +128,30 @@
       },
       "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "494a1604_02d1043e",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T21:17:02Z",
+      "side": 1,
+      "message": "I didn\u0027t mean GLSL-specific things, I meant (for example) things like this:\nhttp://review.skia.org/359562\n\nThere are lots of subtle bits that description() doesn\u0027t really fuss with, but the real code generators do properly.",
+      "parentUuid": "19b957e4_8b332e6c",
+      "range": {
+        "startLine": 89,
+        "startChar": 35,
+        "endLine": 89,
+        "endChar": 46
+      },
+      "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
