@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
 
 namespace SkSL {
 
@@ -53,6 +54,14 @@ static char swizzle_component(SwizzleComponent c) {
 
 class DSLCore {
 public:
+    static DSLVar sk_FragColor() {
+        return DSLVar("sk_FragColor");
+    }
+
+    static DSLVar sk_FragCoord() {
+        return DSLVar("sk_FragCoord");
+    }
+
     template <typename... Args>
     static DSLExpression Call(const char* name, Args... args) {
         SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
@@ -95,6 +104,19 @@ public:
                                                   ifTrue.release(), ifFalse.release());
     }
 
+    static DSLStatement Return(DSLExpression value) {
+        // note that because Return is called before the function in which it resides exists, at
+        // this point we do not know the function's return type. We therefore do not check for
+        // errors, or coerce the value to the correct type, until the return statement is actually
+        // added to a function
+        std::unique_ptr<SkSL::Expression> expr = value.release();
+        if (expr) {
+            return std::unique_ptr<SkSL::Statement>(new ReturnStatement(std::move(expr)));
+        } else {
+            return std::unique_ptr<SkSL::Statement>(new ReturnStatement(/*offset=*/-1));
+        }
+    }
+
     static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a) {
         char mask[] = { swizzle_component(a), 0 };
         return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
@@ -131,6 +153,14 @@ private:
     static void ignore(std::unique_ptr<SkSL::Expression>&) {}
 };
 
+DSLVar sk_FragColor() {
+    return DSLCore::sk_FragColor();
+}
+
+DSLVar sk_FragCoord() {
+    return DSLCore::sk_FragCoord();
+}
+
 DSLStatement Declare(DSLVar& var, DSLExpression initialValue) {
     return DSLCore::Declare(var, std::move(initialValue));
 }
@@ -146,6 +176,10 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse) {
     return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse));
+}
+
+DSLStatement Return(DSLExpression expr) {
+    return DSLCore::Return(std::move(expr));
 }
 
 DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse) {
