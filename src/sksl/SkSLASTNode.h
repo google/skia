@@ -113,7 +113,7 @@ struct ASTNode {
         kSwitch,
         // children: test, ifTrue, ifFalse
         kTernary,
-        // data: TypeData, children: sizes
+        // data: name(StringFragment), children: sizes
         kType,
         // data: VarData, children: arraySize1, arraySize2, ..., value?
         kVarDeclaration,
@@ -179,17 +179,6 @@ struct ASTNode {
         ID fID;
 
         friend struct ASTNode;
-    };
-
-    struct TypeData {
-        TypeData() {}
-
-        TypeData(StringFragment name, bool isStructDeclaration)
-            : fName(name)
-            , fIsStructDeclaration(isStructDeclaration) {}
-
-        StringFragment fName;
-        bool fIsStructDeclaration;
     };
 
     struct ParameterData {
@@ -267,7 +256,6 @@ struct ASTNode {
                               sizeof(SKSL_INT),
                               sizeof(SKSL_FLOAT),
                               sizeof(Modifiers),
-                              sizeof(TypeData),
                               sizeof(FunctionData),
                               sizeof(ParameterData),
                               sizeof(VarData),
@@ -281,7 +269,6 @@ struct ASTNode {
             kInt,
             kFloat,
             kModifiers,
-            kTypeData,
             kFunctionData,
             kParameterData,
             kVarData,
@@ -318,11 +305,6 @@ struct ASTNode {
 
         NodeData(Modifiers data)
             : fKind(Kind::kModifiers) {
-            memcpy(fBytes, &data, sizeof(data));
-        }
-
-        NodeData(TypeData data)
-            : fKind(Kind::kTypeData) {
             memcpy(fBytes, &data, sizeof(data));
         }
 
@@ -379,6 +361,7 @@ struct ASTNode {
             case Kind::kField:
             case Kind::kIdentifier:
             case Kind::kScope:
+            case Kind::kType:
                 fData.fKind = NodeData::Kind::kStringFragment;
                 break;
 
@@ -408,10 +391,6 @@ struct ASTNode {
 
             case Kind::kVarDeclaration:
                 fData.fKind = NodeData::Kind::kVarData;
-                break;
-
-            case Kind::kType:
-                fData.fKind = NodeData::Kind::kTypeData;
                 break;
 
             default:
@@ -458,12 +437,6 @@ struct ASTNode {
     ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, Modifiers m)
         : fNodes(nodes)
         , fData(m)
-        , fOffset(offset)
-        , fKind(kind) {}
-
-    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, TypeData td)
-        : fNodes(nodes)
-        , fData(td)
         , fOffset(offset)
         , fKind(kind) {}
 
@@ -521,18 +494,6 @@ struct ASTNode {
 
     void setModifiers(const Modifiers& m) {
         memcpy(fData.fBytes, &m, sizeof(m));
-    }
-
-    TypeData getTypeData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kTypeData);
-        TypeData result;
-        memcpy(&result, fData.fBytes, sizeof(result));
-        return result;
-    }
-
-    void setTypeData(const ASTNode::TypeData& td) {
-        SkASSERT(fData.fKind == NodeData::Kind::kTypeData);
-        memcpy(fData.fBytes, &td, sizeof(td));
     }
 
     ParameterData getParameterData() const {
