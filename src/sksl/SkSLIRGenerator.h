@@ -289,6 +289,7 @@ private:
     int fLoopLevel = 0;
     int fSwitchLevel = 0;
     int fInvocations;
+    std::unordered_set<const Type*> fDefinedStructs;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
     std::vector<const ProgramElement*>*           fSharedElements = nullptr;
     const Variable* fRTAdjust = nullptr;

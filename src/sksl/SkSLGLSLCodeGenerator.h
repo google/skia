@@ -98,7 +98,7 @@ protected:
 
     virtual String getTypeName(const Type& type);
 
-    bool writeStructDefinition(const Type& type);
+    void writeStructDefinition(const StructDefinition& s);
 
     void writeType(const Type& type);
 
@@ -204,10 +204,6 @@ protected:
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;
-    // Keeps track of which struct types we have written. Given that we are unlikely to ever write
-    // more than one or two structs per shader, a simple linear search will be faster than anything
-    // fancier.
-    std::vector<const Type*> fWrittenStructs;
     std::set<String> fWrittenIntrinsics;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;

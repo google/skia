@@ -132,20 +132,13 @@ String MetalCodeGenerator::typeName(const Type& type) {
     }
 }
 
-bool MetalCodeGenerator::writeStructDefinition(const Type& type) {
-    for (const Type* search : fWrittenStructs) {
-        if (*search == type) {
-            // already written
-            return false;
-        }
-    }
-    fWrittenStructs.push_back(&type);
+void MetalCodeGenerator::writeStructDefinition(const StructDefinition& s) {
+    const Type& type = s.type();
     this->writeLine("struct " + type.name() + " {");
     fIndentation++;
     this->writeFields(type.fields(), type.fOffset);
     fIndentation--;
-    this->write("}");
-    return true;
+    this->writeLine("};");
 }
 
 // Flags an error if an array type is found. Meant to be used in places where an array type might
@@ -160,11 +153,6 @@ void MetalCodeGenerator::disallowArrayTypes(const Type& type, int offset) {
 // Call `writeArrayDimensions` to write the type's accompanying array sizes.
 void MetalCodeGenerator::writeBaseType(const Type& type) {
     switch (type.typeKind()) {
-        case Type::TypeKind::kStruct:
-            if (!this->writeStructDefinition(type)) {
-                this->write(type.name());
-            }
-            break;
         case Type::TypeKind::kArray:
             this->writeBaseType(type.componentType());
             break;
@@ -1646,7 +1634,6 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if (structType->isArray()) {
         structType = &structType->componentType();
     }
-    fWrittenStructs.push_back(structType);
     fIndentation++;
     this->writeFields(structType->fields(), structType->fOffset, &intf);
     if (fProgram.fInputs.fRTHeight) {
@@ -2058,19 +2045,7 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
 void MetalCodeGenerator::writeStructDefinitions() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<StructDefinition>()) {
-            if (this->writeStructDefinition(e->as<StructDefinition>().type())) {
-                this->writeLine(";");
-            }
-        } else if (e->is<GlobalVarDeclaration>()) {
-            // If a global var declaration introduces a struct type, we need to write that type
-            // here, since globals are all embedded in a sub-struct.
-            const Type* type = &e->as<GlobalVarDeclaration>().declaration()
-                                 ->as<VarDeclaration>().baseType();
-            if (type->isStruct()) {
-                if (this->writeStructDefinition(*type)) {
-                    this->writeLine(";");
-                }
-            }
+            this->writeStructDefinition(e->as<StructDefinition>());
         }
     }
 }

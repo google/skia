@@ -156,14 +156,8 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
     }
 }
 
-bool GLSLCodeGenerator::writeStructDefinition(const Type& type) {
-    for (const Type* search : fWrittenStructs) {
-        if (*search == type) {
-            // already written
-            return false;
-        }
-    }
-    fWrittenStructs.push_back(&type);
+void GLSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
+    const Type& type = s.type();
     this->write("struct ");
     this->write(type.name());
     this->writeLine(" {");
@@ -178,18 +172,11 @@ bool GLSLCodeGenerator::writeStructDefinition(const Type& type) {
         this->writeLine(";");
     }
     fIndentation--;
-    this->write("}");
-    return true;
+    this->writeLine("};");
 }
 
 void GLSLCodeGenerator::writeType(const Type& type) {
-    if (type.isStruct()) {
-        if (!this->writeStructDefinition(type)) {
-            this->write(type.name());
-        }
-    } else {
-        this->write(this->getTypeName(type));
-    }
+    this->write(this->getTypeName(type));
 }
 
 void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence parentPrecedence) {
@@ -1542,9 +1529,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kEnum:
             break;
         case ProgramElement::Kind::kStructDefinition:
-            if (this->writeStructDefinition(e.as<StructDefinition>().type())) {
-                this->writeLine(";");
-            }
+            this->writeStructDefinition(e.as<StructDefinition>());
             break;
         default:
             SkDEBUGFAILF("unsupported program element %s\n", e.description().c_str());
