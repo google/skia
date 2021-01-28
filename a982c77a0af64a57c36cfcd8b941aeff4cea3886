@@ -33,6 +33,24 @@
       "message": "1) This is the lynchpin. It\u0027s impossible for fIsStructDeclaration to be true here, because we already handled structs specially back on line 480 (type()) can never return a struct declaration node...",
       "revId": "a982c77a0af64a57c36cfcd8b941aeff4cea3886",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc224c94_3dd494d5",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T15:09:19Z",
+      "side": 0,
+      "message": "I think L480 is checking literally for the word \"struct.\"\n\nThis check is, AFAICS, checking to see if we have a struct name immediately followed by a semicolon. Like, assuming struct Foo {} exists, then a declaration that\u0027s just `Foo;`\n\nWhich, I don\u0027t know why this is a thing we check for? But there isn\u0027t a unit test for it either...?? Could you add a test like this and see what happens?",
+      "parentUuid": "4cfa2f57_0d9b0738",
+      "revId": "a982c77a0af64a57c36cfcd8b941aeff4cea3886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
