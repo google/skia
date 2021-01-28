@@ -159,7 +159,8 @@ public:
 
         SkRect dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
         SkIRect srcRect = SkIRect::MakeWH(td->fWidth/4, td->fHeight);
-        canvas->drawImageRect(surf->makeImageSnapshot(), srcRect, dstRect, &paint);
+        canvas->drawImageRect(surf->makeImageSnapshot(), srcRect, dstRect, SkSamplingOptions(),
+                              &paint, SkCanvas::kStrict_SrcRectConstraint);
 
         td->fDrawContext->flush();
     }
