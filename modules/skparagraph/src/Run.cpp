@@ -127,6 +127,14 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
     return std::make_tuple(startIndex != fClusterRange.end && endIndex != fClusterRange.end, startIndex, endIndex);
 }
 
+// Adjust the text to grapheme edges so the first grapheme start is in the text and the last grapheme start is in the text
+// It actually means that the first grapheme is entirely in the text and the last grapheme does not have to be
+std::tuple<bool, TextIndex, TextIndex> Run::findLimitingGraphemes(TextRange text) const {
+    TextIndex start = fOwner->findNextGraphemeBoundary(text.start);
+    TextIndex end = fOwner->findNextGraphemeBoundary(text.end);
+    return std::make_tuple(true, start, end);
+}
+
 void Run::iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor) {
     // Can't figure out how to do it with one code for both cases without 100 ifs
     // Can't go through clusters because there are no cluster table yet

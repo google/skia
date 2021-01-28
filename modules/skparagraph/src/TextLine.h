@@ -105,7 +105,7 @@ public:
                                         SkScalar runOffsetInLine,
                                         SkScalar textOffsetInRunInLine,
                                         bool includeGhostSpaces,
-                                        bool limitToClusters) const;
+                                        bool limitToGraphemes) const;
 
     LineMetrics getMetrics() const;
 
