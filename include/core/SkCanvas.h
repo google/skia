@@ -38,8 +38,6 @@
 
 #define SK_SUPPORT_LEGACY_DRAWBITMAP
 
-#define SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
-
 class GrBackendRenderTarget;
 class GrRecordingContext;
 class GrSurfaceDrawContext;
