@@ -23,6 +23,7 @@
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLProgram.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
+#include "src/sksl/dsl/priv/DSLFPs.h"
 
 #include <memory>
 #include "src/gpu/gl/builders/GrGLShaderStringBuilder.h"
@@ -67,7 +68,10 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
         // doing necessary setup in addition to generating the SkSL code. Currently we are only able
         // to skip the SkSL->GLSL step on a cache hit.
     }
-    if (!builder.emitAndInstallProcs()) {
+    SkSL::dsl::Start(gpu->shaderCompiler());
+    bool result = builder.emitAndInstallProcs();
+    SkSL::dsl::End();
+    if (!result) {
         return nullptr;
     }
     return builder.finalize(precompiledProgram);

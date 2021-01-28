@@ -20,6 +20,7 @@
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
+#include "src/sksl/dsl/priv/DSLFPs.h"
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
@@ -38,7 +39,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
     // uniforms, varyings, textures, etc
     GrVkPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
 
-    if (!builder.emitAndInstallProcs()) {
+    SkSL::dsl::Start(gpu->shaderCompiler());
+    bool result = builder.emitAndInstallProcs();
+    SkSL::dsl::End();
+    if (!result) {
         return nullptr;
     }
 
