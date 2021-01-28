@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b086cfc_5c461d7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-28T15:57:44Z",
+      "side": 1,
+      "message": "This is part of an effort to bottleneck getting views for images.",
+      "revId": "eb5d2253fe06f4ad5d27e96bafe097345104a886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
