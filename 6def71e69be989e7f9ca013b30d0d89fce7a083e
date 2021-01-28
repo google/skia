@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de30e1df_e2ebfd21",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-28T21:41:09Z",
+      "side": 1,
+      "message": "releasing",
+      "range": {
+        "startLine": 100,
+        "startChar": 80,
+        "endLine": 100,
+        "endChar": 87
+      },
+      "revId": "6def71e69be989e7f9ca013b30d0d89fce7a083e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b644574_aa53118c",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-28T21:41:09Z",
+      "side": 1,
+      "message": "I hope this never adds more work 😕",
+      "range": {
+        "startLine": 407,
+        "startChar": 14,
+        "endLine": 407,
+        "endChar": 38
+      },
+      "revId": "6def71e69be989e7f9ca013b30d0d89fce7a083e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
