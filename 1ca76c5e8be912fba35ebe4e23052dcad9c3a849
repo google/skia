@@ -16,6 +16,24 @@
       "message": "I guess my thinking now, is that if we *do* make this API, then we don\u0027t really need Brian\u0027s new SkRuntimeEffect API?",
       "revId": "1ca76c5e8be912fba35ebe4e23052dcad9c3a849",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4ca1c59_a750fbf7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-28T19:16:31Z",
+      "side": 1,
+      "message": "Part of my motivation for that API was to be able to make a unpremul result. We\u0027d have to workout how shaders can be told to produce an unpremul color.",
+      "parentUuid": "1c87b181_b2fe5ce8",
+      "revId": "1ca76c5e8be912fba35ebe4e23052dcad9c3a849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
