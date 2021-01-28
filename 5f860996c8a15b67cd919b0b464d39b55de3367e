@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c26ad682_7258f9ce",
+        "filename": "resources/sksl/shared/UniformBuffers.sksl",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T16:24:12Z",
+      "side": 1,
+      "message": "I\u0027m not sure if it is valid; it\u0027s definitely not representative of real SkSL code that we emit from Skia. I\u0027d be happy to update this test to be more representative of real code if you want.",
+      "parentUuid": "07233a6b_1ea498de",
+      "range": {
+        "startLine": 4,
+        "startChar": 11,
+        "endLine": 4,
+        "endChar": 21
+      },
+      "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "85d4520f_8549166c",
         "filename": "tests/sksl/shared/InterfaceBlockNamedArray.metal",
         "patchSetId": 5
