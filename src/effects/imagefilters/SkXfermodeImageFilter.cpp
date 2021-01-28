@@ -32,7 +32,7 @@ namespace {
 class SkXfermodeImageFilterImpl : public SkImageFilter_Base {
 public:
     SkXfermodeImageFilterImpl(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
-                              const CropRect* cropRect)
+                              const SkRect* cropRect)
           : INHERITED(inputs, 2, cropRect)
           , fMode(mode) {}
 
@@ -69,7 +69,7 @@ private:
 sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(SkBlendMode mode,
                                                  sk_sp<SkImageFilter> background,
                                                  sk_sp<SkImageFilter> foreground,
-                                                 const SkImageFilter::CropRect* cropRect) {
+                                                 const SkRect* cropRect) {
     sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
     return sk_sp<SkImageFilter>(new SkXfermodeImageFilterImpl(mode, inputs, cropRect));
 }
@@ -95,7 +95,7 @@ sk_sp<SkFlattenable> SkXfermodeImageFilterImpl::CreateProc(SkReadBuffer& buffer)
         return nullptr;
     }
     return SkXfermodeImageFilter::Make((SkBlendMode)mode, common.getInput(0),
-                                       common.getInput(1), &common.cropRect());
+                                       common.getInput(1), common.cropRect());
 }
 
 void SkXfermodeImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

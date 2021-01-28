@@ -33,7 +33,7 @@ public:
     static sk_sp<SkImageFilter> Make(float k1, float k2, float k3, float k4, bool enforcePMColor,
                                      sk_sp<SkImageFilter> background,
                                      sk_sp<SkImageFilter> foreground,
-                                     const SkImageFilter::CropRect* cropRect);
+                                     const SkRect* cropRect);
 
     static void RegisterFlattenables();
 

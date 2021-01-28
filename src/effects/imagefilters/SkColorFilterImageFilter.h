@@ -16,7 +16,7 @@ class SK_API SkColorFilterImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkColorFilter> cf,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr);
+                                     const SkRect* cropRect = nullptr);
 
     static void RegisterFlattenables();
 
