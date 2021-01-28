@@ -1197,9 +1197,6 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(
                             leftEnclosingEdge, edge, &activeEdges, &v, mesh, c, breadcrumbList) ||
                         this->checkForIntersection(
                             edge, rightEnclosingEdge, &activeEdges, &v, mesh, c, breadcrumbList)) {
-                        if (fDisallowSelfIntersection) {
-                            return SimplifyResult::kAbort;
-                        }
                         result = SimplifyResult::kFoundSelfIntersection;
                         restartChecks = true;
                         break;
@@ -1208,9 +1205,6 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(
             } else {
                 if (this->checkForIntersection(leftEnclosingEdge, rightEnclosingEdge, &activeEdges,
                                                &v, mesh, c, breadcrumbList)) {
-                    if (fDisallowSelfIntersection) {
-                        return SimplifyResult::kAbort;
-                    }
                     result = SimplifyResult::kFoundSelfIntersection;
                     restartChecks = true;
                 }
@@ -1237,10 +1231,6 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(
 
 Poly* GrTriangulator::tessellate(const VertexList& vertices, const Comparator&) const {
     TESS_LOG("\ntessellating simple polygons\n");
-    int maxWindMagnitude = std::numeric_limits<int>::max();
-    if (fDisallowSelfIntersection && !SkPathFillType_IsEvenOdd(fPath.getFillType())) {
-        maxWindMagnitude = 1;
-    }
     EdgeList activeEdges;
     Poly* polys = nullptr;
     for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
@@ -1333,9 +1323,6 @@ Poly* GrTriangulator::tessellate(const VertexList& vertices, const Comparator&) 
                 int winding = leftEdge->fLeftPoly ? leftEdge->fLeftPoly->fWinding : 0;
                 winding += leftEdge->fWinding;
                 if (winding != 0) {
-                    if (abs(winding) > maxWindMagnitude) {
-                        return nullptr;  // We can't have weighted wind in kSimpleInnerPolygons mode
-                    }
                     Poly* poly = this->makePoly(&polys, v, winding);
                     leftEdge->fRightPoly = rightEdge->fLeftPoly = poly;
                 }
@@ -1403,9 +1390,7 @@ Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt,
     this->contoursToMesh(contours, contourCnt, &mesh, c, breadcrumbList);
     SortMesh(&mesh, c);
     this->mergeCoincidentVertices(&mesh, c, breadcrumbList);
-    if (SimplifyResult::kAbort == this->simplify(&mesh, c, breadcrumbList)) {
-        return nullptr;
-    }
+    this->simplify(&mesh, c, breadcrumbList);
     TESS_LOG("\nsimplified mesh:\n");
     DUMP_MESH(mesh);
     return this->tessellate(mesh, c);
