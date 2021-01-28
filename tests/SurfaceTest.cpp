@@ -756,7 +756,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         sk_sp<SkImage> i(surface->makeImageSnapshot());
         SkImage_Gpu* gpuImage = (SkImage_Gpu*)as_IB(i);
         return GrSurfaceContext::Make(dContext,
-                                      *gpuImage->view(dContext),
+                                      gpuImage->asView(dContext, GrMipmapped::kNo),
                                       i->imageInfo().colorInfo());
     };
 

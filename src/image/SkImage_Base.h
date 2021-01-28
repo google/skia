@@ -17,6 +17,7 @@
 #include "include/private/SkTDArray.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SkGr.h"
 
 class GrTexture;
 #endif
@@ -92,13 +93,11 @@ public:
     // that single backing proxy will be returned.
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
 
-    // If it exists, this returns a pointer to the GrSurfaceProxyView of image. The caller does not
-    // own the returned view and must copy it if they want to gain a ref to the internal proxy.
-    // If the returned view is not null, then it is guaranteed to have a valid proxy. Additionally
-    // this call will flatten a SkImage_GpuYUV to a single texture.
-    virtual const GrSurfaceProxyView* view(GrRecordingContext*) const { return nullptr; }
+    static constexpr auto kDefaultTexGenPolicy = GrImageTexGenPolicy::kDraw;
+    virtual GrSurfaceProxyView asView(GrRecordingContext*,
+                                      GrMipmapped,
+                                      GrImageTexGenPolicy policy = kDefaultTexGenPolicy) const = 0;
 
-    virtual GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const = 0;
     virtual bool isYUVA() const { return false; }
 #endif
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
