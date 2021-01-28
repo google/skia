@@ -220,7 +220,8 @@ static void fill_in_mips(SkMipmapBuilder* builder, sk_sp<SkImage> img) {
     for (int i = 0; i < count; ++i) {
         SkPixmap pm = builder->level(i);
         auto surf = SkSurface::MakeRasterDirect(pm);
-        surf->getCanvas()->drawImageRect(img, SkRect::MakeIWH(pm.width(), pm.height()), nullptr);
+        surf->getCanvas()->drawImageRect(img, SkRect::MakeIWH(pm.width(), pm.height()),
+                                         SkSamplingOptions());
     }
 }
 

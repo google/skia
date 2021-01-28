@@ -294,7 +294,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
         SkPaint paint;
         paint.setImageFilter(deserializedFilter);
         canvas.clipRect(SkRect::MakeXYWH(0, 0, SkIntToScalar(24), SkIntToScalar(24)));
-        canvas.drawImage(bitmap.asImage(), 0, 0, &paint);
+        canvas.drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);
     }
 }
 

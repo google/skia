@@ -248,10 +248,11 @@ DEF_TEST(DrawBitmapRect, reporter) {
 
     SkCanvas canvas(dst);
 
-    SkIRect srcR = { gWidth, 0, gWidth + 16, 16 };
-    SkRect  dstR = { 0, 0, SkIntToScalar(16), SkIntToScalar(16) };
+    SkRect srcR = { gWidth, 0, gWidth + 16, 16 };
+    SkRect dstR = { 0, 0, 16, 16 };
 
-    canvas.drawImageRect(src.asImage(), srcR, dstR, nullptr);
+    canvas.drawImageRect(src.asImage(), srcR, dstR, SkSamplingOptions(), nullptr,
+                         SkCanvas::kStrict_SrcRectConstraint);
 
     // ensure that we draw nothing if srcR does not intersect the bitmap
     REPORTER_ASSERT(reporter, check_for_all_zeros(dst));

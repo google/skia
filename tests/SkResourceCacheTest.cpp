@@ -153,14 +153,11 @@ static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& t
 
         sk_sp<SkImage> image(buildImage());
 
-        // always use high quality to ensure caching when scaled
-        SkPaint paint;
-        paint.setFilterQuality(kHigh_SkFilterQuality);
-
         // draw the image (with a transform, to tickle different code paths) to ensure
         // any associated resources get cached
         canvas->concat(transform);
-        canvas->drawImage(image, 0, 0, &paint);
+        // always use high quality to ensure caching when scaled
+        canvas->drawImage(image, 0, 0, SkSamplingOptions({1.0f/3, 1.0f/3}));
 
         const auto desc = SkBitmapCacheDesc::Make(image.get());
 

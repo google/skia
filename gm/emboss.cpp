@@ -49,19 +49,19 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         auto img = make_bm();
-        canvas->drawImage(img, 10, 10, &paint);
+        canvas->drawImage(img, 10, 10);
         canvas->translate(img->width() + SkIntToScalar(10), 0);
 
         paint.setMaskFilter(SkEmbossMaskFilter::Make(
             SkBlurMask::ConvertRadiusToSigma(3),
             { { SK_Scalar1, SK_Scalar1, SK_Scalar1 }, 0, 128, 16*2 }));
-        canvas->drawImage(img, 10, 10, &paint);
+        canvas->drawImage(img, 10, 10, SkSamplingOptions(), &paint);
         canvas->translate(img->width() + SkIntToScalar(10), 0);
 
         // this combination of emboss+colorfilter used to crash -- so we exercise it to
         // confirm that we have a fix.
         paint.setColorFilter(SkColorFilters::Blend(0xFFFF0000, SkBlendMode::kSrcATop));
-        canvas->drawImage(img, 10, 10, &paint);
+        canvas->drawImage(img, 10, 10, SkSamplingOptions(), &paint);
         canvas->translate(img->width() + SkIntToScalar(10), 0);
 
         paint.setAntiAlias(true);

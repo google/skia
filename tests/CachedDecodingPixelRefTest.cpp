@@ -114,7 +114,7 @@ DEF_TEST(Image_NewFromGenerator, r) {
             SkCanvas canvas(bitmap);
             const SkColor kDefaultColor = 0xffabcdef;
             canvas.clear(kDefaultColor);
-            canvas.drawImage(image, 0, 0, nullptr);
+            canvas.drawImage(image, 0, 0);
             if (TestImageGenerator::kSucceedGetPixels_TestType == test) {
                 REPORTER_ASSERT(
                     r, TestImageGenerator::Color() == bitmap.getColor(0, 0));
