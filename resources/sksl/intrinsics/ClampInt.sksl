@@ -1,0 +1,23 @@
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    int4 expectedA = int4(-100,    0,   75, 100);
+
+    int4 intValues = int4(testInputs * 100);
+    //                   (-125,    0,   75, 225)
+
+    int4 clampLow  = int4(-100, -200, -200, 100);
+    int4 expectedB = int4(-100,    0,   50, 225);
+    int4 clampHigh = int4( 100,  200,   50, 300);
+
+    return (clamp(intValues.x,    -100, 100)                     == expectedA.x     &&
+            clamp(intValues.xy,   -100, 100)                     == expectedA.xy    &&
+            clamp(intValues.xyz,  -100, 100)                     == expectedA.xyz   &&
+            clamp(intValues.xyzw, -100, 100)                     == expectedA.xyzw  &&
+            clamp(intValues.x,    clampLow.x,    clampHigh.x   ) == expectedB.x     &&
+            clamp(intValues.xy,   clampLow.xy,   clampHigh.xy  ) == expectedB.xy    &&
+            clamp(intValues.xyz,  clampLow.xyz,  clampHigh.xyz ) == expectedB.xyz   &&
+            clamp(intValues.xyzw, clampLow.xyzw, clampHigh.xyzw) == expectedB.xyzw) ? colorGreen
+                                                                                    : colorRed;
+}
