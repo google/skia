@@ -1218,6 +1218,12 @@ public:
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
 
+#ifdef SK_IMAGE_MAKE_WITH_FILTER_LEGACY_API
+    sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+                                  const SkIRect& clipBounds, SkIRect* outSubset,
+                                  SkIPoint* offset) const;
+#endif
+
     /** Defines a callback function, taking one parameter of type GrBackendTexture with
         no return value. Function is called when back-end texture is to be released.
     */
