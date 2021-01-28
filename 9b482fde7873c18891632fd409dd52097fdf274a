@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d5fa374_a8f6dbfb",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-01-28T14:18:05Z",
+      "side": 1,
+      "message": "This seems like it should be part of the \"compiler\" section of the job name (\"Clang\"), right?",
+      "range": {
+        "startLine": 83,
+        "startChar": 41,
+        "endLine": 83,
+        "endChar": 50
+      },
+      "revId": "9b482fde7873c18891632fd409dd52097fdf274a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
