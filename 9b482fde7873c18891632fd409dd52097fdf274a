@@ -46,6 +46,30 @@
       },
       "revId": "9b482fde7873c18891632fd409dd52097fdf274a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64511d27_1460efff",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-01-28T14:27:38Z",
+      "side": 1,
+      "message": "We\u0027d have to ask how important \"Clang\" is to the name.  I suspect it\u0027s implied by Xcode, but I\u0027m not sure.  I do suspect that we probably have a bunch of `if compiler \u003d\u003d \"clang\"` throughout the recipes/gen_tasks, so it wouldn\u0027t be a simple change.",
+      "parentUuid": "64dad614_fddbe1d0",
+      "range": {
+        "startLine": 83,
+        "startChar": 41,
+        "endLine": 83,
+        "endChar": 50
+      },
+      "revId": "9b482fde7873c18891632fd409dd52097fdf274a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
