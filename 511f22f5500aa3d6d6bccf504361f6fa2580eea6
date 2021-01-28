@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05a4deba_8710e2de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-28T19:32:06Z",
+      "side": 1,
+      "message": "Reported gold diffs are from https://skia-review.googlesource.com/c/skia/+/359565, not this CL.",
+      "revId": "511f22f5500aa3d6d6bccf504361f6fa2580eea6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
