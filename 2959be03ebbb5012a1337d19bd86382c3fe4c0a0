@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c66a44a_7c34b9a1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T20:43:25Z",
+      "side": 1,
+      "message": "It\u0027s awesome to see this taking shape! ",
+      "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86c33d7f_9c1b02ee",
+        "filename": "gm/dsl_processor_tests.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T20:43:25Z",
+      "side": 1,
+      "message": "nit/bikeshed: I feel like the name could be clearer.\n- Let\u0027s spell out FragmentProcessor. \n- We use Start/End for other DSL things; can we use that here too? Push/Pop makes it clear that nesting is allowed but I think Start/End more clearly conveys the intended usage. (That is, these calls denote the start and end of your DSL code.)",
+      "range": {
+        "startLine": 34,
+        "startChar": 16,
+        "endLine": 34,
+        "endChar": 22
+      },
+      "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ff0bc61_18f7f0bc",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T20:43:25Z",
+      "side": 1,
+      "message": "Hopefully this is temporary? Performance issues aside, I am a bit worried that `description()` isn\u0027t entirely production-grade. We do various clever things in GLSLCodeGen that description() doesn\u0027t do, right?",
+      "range": {
+        "startLine": 89,
+        "startChar": 35,
+        "endLine": 89,
+        "endChar": 46
+      },
+      "revId": "2959be03ebbb5012a1337d19bd86382c3fe4c0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
