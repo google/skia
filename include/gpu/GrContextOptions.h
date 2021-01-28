@@ -246,12 +246,6 @@ struct SK_API GrContextOptions {
      */
 
     /**
-     * If non-zero, overrides the maximum size of a tile for sw-backed images and bitmaps rendered
-     * by SkGpuDevice.
-     */
-    int  fMaxTileSizeOverride = 0;
-
-    /**
      * Prevents use of dual source blending, to test that all xfer modes work correctly without it.
      */
     bool fSuppressDualSourceBlending = false;
