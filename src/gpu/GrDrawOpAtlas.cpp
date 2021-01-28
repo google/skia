@@ -221,7 +221,8 @@ GrDrawOpAtlas::GrDrawOpAtlas(
         , fGenerationCounter(generationCounter)
         , fAtlasGeneration(fGenerationCounter->next())
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
-        , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
+        , fMaxPages(1)
+        //, fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
         , fNumActivePages(0) {
     int numPlotsX = width/plotWidth;
     int numPlotsY = height/plotHeight;
@@ -649,12 +650,16 @@ GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes) {
         {2048, 1024}, // 2^23 <= maxBytes
     };
 
+    maxTextureSize = 256;
+
     // Index 0 corresponds to maxBytes of 2^18, so start by dividing it by that
     maxBytes >>= 18;
     // Take the floor of the log to get the index
     int index = maxBytes > 0
         ? SkTPin<int>(SkPrevLog2(maxBytes), 0, SK_ARRAY_COUNT(kARGBDimensions) - 1)
         : 0;
+
+    index = 0;
 
     SkASSERT(kARGBDimensions[index].width() <= kMaxAtlasDim);
     SkASSERT(kARGBDimensions[index].height() <= kMaxAtlasDim);

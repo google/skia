@@ -433,6 +433,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             if (totalGlyphsRegened != subRunEnd) {
                 // Flush if not all glyphs drawn because either the quad buffer is full or the
                 // atlas is out of space.
+                printf("Atlas Full\n");
                 this->createDrawForGeneratedGlyphs(target, &flushInfo);
                 if (totalGlyphsRegened == quadBufferEnd) {
                     // Quad buffer is full. Get more buffer.
