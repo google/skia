@@ -8,38 +8,59 @@
 
 import optparse
 import os
-import sys
 import urllib
 
 
 PARENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def downloadSVGs(svgs_file, output_dir, prefix):
-  with open(svgs_file, 'r') as f:
-    for url in f.xreadlines():
-      svg_url = url.strip()
-      dest_file = os.path.join(output_dir, prefix + os.path.basename(svg_url))
-      print 'Downloading %s' % svg_url
-      urllib.urlretrieve(svg_url, dest_file)
+def download_files(input_file, output_dir, prefix, keep_common_prefix):
+  with open(input_file, 'r') as f:
+    lines = f.readlines()
+
+    if keep_common_prefix:
+      common_prefix = os.path.commonprefix(lines)
+
+    for url in lines:
+      file_url = url.strip()
+
+      if keep_common_prefix:
+        rel_file = file_url.replace(common_prefix, '')
+        dest_dir = os.path.join(output_dir, os.path.dirname(rel_file))
+      else:
+        dest_dir = output_dir
+
+      dest_file = os.path.join(dest_dir, prefix + os.path.basename(file_url))
+      if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+
+      print 'Downloading %s to %s' % (file_url, dest_file)
+      urllib.urlretrieve(file_url, dest_file)
 
 
 if '__main__' == __name__:
   option_parser = optparse.OptionParser()
   option_parser.add_option(
-      '-s', '--svgs_file',
-      help='Path to the text file containing SVGs. Each line should contain a '
+      '-i', '--input_file',
+      help='Path to the text file containing URLs. Each line should contain a '
            'single URL.',
       default=os.path.join(PARENT_DIR, 'svgs.txt'))
   option_parser.add_option(
       '-o', '--output_dir',
-      help='The output dir where downloaded SVGs will be stored in.')
+      help='The output dir where downloaded SVGs and images will be stored in.')
   option_parser.add_option(
       '-p', '--prefix',
-      help='The prefix which downloaded SVG file will begin with.',
+      help='The prefix which downloaded files will begin with.',
       default='')
+  option_parser.add_option(
+      '-k', '--keep_common_prefix',
+      help='Preserve everything in the URL after the common prefix as directory '
+           'hierarchy.',
+      action='store_true', default=False)
   options, unused_args = option_parser.parse_args()
 
   if not options.output_dir:
     raise Exception('Must specify --output_dir')
-  sys.exit(downloadSVGs(options.svgs_file, options.output_dir, options.prefix))
+
+  download_files(options.input_file, options.output_dir,
+                 options.prefix, options.keep_common_prefix)
