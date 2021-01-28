@@ -39,6 +39,30 @@
       },
       "revId": "9d4f07061c8efff2e8152f6089ea564c616667e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b1404d1_f4ee12d0",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T18:15:14Z",
+      "side": 1,
+      "message": "Done (and also added an assert to the standalone case earlier)",
+      "parentUuid": "0998f61d_c3012e6e",
+      "range": {
+        "startLine": 1411,
+        "startChar": 32,
+        "endLine": 1411,
+        "endChar": 83
+      },
+      "revId": "9d4f07061c8efff2e8152f6089ea564c616667e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
