@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: SPIR-V validation error: Uniform OpVariable <id> '8[%zoom]' has illegal type.
-From Vulkan spec, section 14.5.2:
-Variables identified with the Uniform storage class are used to access transparent buffer backed resources. Such variables must be typed as OpTypeStruct, or an array of this type
-  %zoom = OpVariable %_ptr_Uniform_float Uniform
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -12,47 +5,54 @@ OpEntryPoint Vertex %main "main" %3
 OpName %sk_PerVertex "sk_PerVertex"
 OpMemberName %sk_PerVertex 0 "sk_Position"
 OpMemberName %sk_PerVertex 1 "sk_PointSize"
-OpName %zoom "zoom"
+OpName %_UniformBuffer "_UniformBuffer"
+OpMemberName %_UniformBuffer 0 "zoom"
 OpName %main "main"
 OpMemberDecorate %sk_PerVertex 0 BuiltIn Position
 OpMemberDecorate %sk_PerVertex 1 BuiltIn PointSize
 OpDecorate %sk_PerVertex Block
-OpDecorate %zoom RelaxedPrecision
-OpDecorate %zoom DescriptorSet 0
-OpDecorate %19 RelaxedPrecision
-OpDecorate %26 RelaxedPrecision
+OpMemberDecorate %_UniformBuffer 0 DescriptorSet 0
+OpMemberDecorate %_UniformBuffer 0 Offset 0
+OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
+OpDecorate %_UniformBuffer Block
+OpDecorate %8 Binding 0
+OpDecorate %8 DescriptorSet 0
+OpDecorate %22 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %sk_PerVertex = OpTypeStruct %v4float %float
 %_ptr_Output_sk_PerVertex = OpTypePointer Output %sk_PerVertex
 %3 = OpVariable %_ptr_Output_sk_PerVertex Output
-%_ptr_Uniform_float = OpTypePointer Uniform %float
-%zoom = OpVariable %_ptr_Uniform_float Uniform
+%_UniformBuffer = OpTypeStruct %float
+%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
+%8 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
-%11 = OpTypeFunction %void
+%12 = OpTypeFunction %void
 %float_1 = OpConstant %float 1
-%14 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%15 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Uniform_float = OpTypePointer Uniform %float
 %bool = OpTypeBool
-%main = OpFunction %void None %11
-%12 = OpLabel
-%17 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-OpStore %17 %14
-%19 = OpLoad %float %zoom
-%20 = OpFOrdEqual %bool %19 %float_1
-OpSelectionMerge %23 None
-OpBranchConditional %20 %22 %23
-%22 = OpLabel
+%main = OpFunction %void None %12
+%13 = OpLabel
+%18 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+OpStore %18 %15
+%20 = OpAccessChain %_ptr_Uniform_float %8 %int_0
+%22 = OpLoad %float %20
+%23 = OpFOrdEqual %bool %22 %float_1
+OpSelectionMerge %26 None
+OpBranchConditional %23 %25 %26
+%25 = OpLabel
 OpReturn
-%23 = OpLabel
-%24 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-%25 = OpLoad %v4float %24
-%26 = OpLoad %float %zoom
-%27 = OpVectorTimesScalar %v4float %25 %26
-OpStore %24 %27
+%26 = OpLabel
+%27 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+%28 = OpLoad %v4float %27
+%29 = OpAccessChain %_ptr_Uniform_float %8 %int_0
+%30 = OpLoad %float %29
+%31 = OpVectorTimesScalar %v4float %28 %30
+OpStore %27 %31
 OpReturn
 OpFunctionEnd
-
-1 error
