@@ -8,6 +8,6 @@ void draw(SkCanvas* canvas) {
     SkScalar buffer[9] = {4, 0, 3,    0, 5, 4,     0, 0, 1};
     m.set9(buffer);
     canvas->concat(m);
-    canvas->drawBitmap(source, 0, 0);
+    canvas->drawImage(image, 0, 0);
 }
 }  // END FIDDLE

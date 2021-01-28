@@ -10,6 +10,6 @@ void draw(SkCanvas* canvas) {
     matrix.setPolyToPoly(bitmapBounds, perspect, 4);
     matrix.postConcat(matrix);
     canvas->concat(matrix);
-    canvas->drawBitmap(source, 0, 0);
+    canvas->drawImage(image, 0, 0);
 }
 }  // END FIDDLE

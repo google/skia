@@ -14,6 +14,6 @@ void draw(SkCanvas* canvas) {
     bitmap.eraseColor(SK_ColorRED);
     canvas->scale(50, 50);
     canvas->rotate(8);
-    canvas->drawBitmap(bitmap, 2, 0);
+    canvas->drawImage(bitmap.asImage(), 2, 0);
 }
 }  // END FIDDLE

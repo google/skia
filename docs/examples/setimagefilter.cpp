@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
     offscreen.drawString("e", 20, 70, font, paint);
     paint.setImageFilter(SkImageFilters::PointLitDiffuse(
             SkPoint3::Make(80, 100, 10), SK_ColorWHITE, 1, 2, nullptr, nullptr));
-    canvas->drawBitmap(bitmap, 0, 0, &paint);
+    canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);
 }
 
 }  // END FIDDLE

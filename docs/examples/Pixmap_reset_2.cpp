@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
                 image->alphaType()), (const void*) &pixels.front(), image->width() * 4);
         SkBitmap bitmap;
         bitmap.installPixels(pixmap);
-        canvas->drawBitmap(bitmap, x, 0);
+        canvas->drawImage(bitmap.asImage(), x, 0);
         x += 128;
     }
 }

@@ -12,12 +12,12 @@ void draw(SkCanvas* canvas) {
     if (big->peekPixels(&pixmap)) {
         SkBitmap bigBits;
         bigBits.installPixels(pixmap);
-        canvas->drawBitmap(bigBits, 0, 0);
+        canvas->drawImage(bigBits.asImage(), 0, 0);
     }
     if (lil->peekPixels(&pixmap)) {
         SkBitmap lilBits;
         lilBits.installPixels(pixmap);
-        canvas->drawBitmap(lilBits, 64, 64);
+        canvas->drawImage(lilBits.asImage(), 64, 64);
     }
 }
 }  // END FIDDLE

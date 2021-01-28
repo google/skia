@@ -13,6 +13,6 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(0xFF00FF00);
     canvas->clear(0xFF000000);
-    canvas->drawBitmap(bitmap, 0, 0, &paint);
+    canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);
 }
 }  // END FIDDLE

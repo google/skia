@@ -14,12 +14,12 @@ void draw(SkCanvas* canvas) {
     SkBitmap bitmap;
     canvas->scale(20, 20);
     bitmap.installPixels(pixmap);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     uint16_t* pixel2 = pixmap.writable_addrF16(0, 1);
     for (int i = 0; i < 4; ++i) {
         pixel2[i] = storage[0][i];
     }
     bitmap.installPixels(pixmap);
-    canvas->drawBitmap(bitmap, 4, 0);
+    canvas->drawImage(bitmap.asImage(), 4, 0);
 }
 }  // END FIDDLE

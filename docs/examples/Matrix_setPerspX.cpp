@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
         matrix.setPerspX(perspX);
         canvas->save();
         canvas->concat(matrix);
-        canvas->drawBitmap(source, 0, 0);
+        canvas->drawImage(image, 0, 0);
         canvas->restore();
         canvas->translate(64, 64);
     }

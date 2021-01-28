@@ -21,7 +21,7 @@ void draw(SkCanvas* canvas) {
             int y = shuffle[(N * i) + j] / N;
             SkBitmap subset;
             source.extractSubset(&subset, SkIRect::MakeXYWH(w * x, h * y, w, h));
-            canvas->drawBitmap(subset, w * i, h * j);
+            canvas->drawImage(subset.asImage(), w * i, h * j);
         }
     }
 }

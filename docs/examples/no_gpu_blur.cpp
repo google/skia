@@ -18,7 +18,7 @@ void draw(SkCanvas* canvas) {
     SkIPoint offset;
     bitmap.extractAlpha(&alpha, &paint, nullptr, &offset);
     paint.setColor(SK_ColorRED);
-    canvas->drawBitmap(bitmap, 0, -offset.fY, &paint);
-    canvas->drawBitmap(alpha, 100 + offset.fX, 0, &paint);
+    canvas->drawImage(bitmap.asImage(), 0, -offset.fY, SkSamplingOptions(), &paint);
+    canvas->drawImage(alpha.asImage(), 100 + offset.fX, 0, SkSamplingOptions(), &paint);
 }
 }  // END FIDDLE
