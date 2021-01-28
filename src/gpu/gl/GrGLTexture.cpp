@@ -93,6 +93,8 @@ GrGLenum GrGLTexture::target() const { return target_from_texture_type(this->tex
 
 void GrGLTexture::onRelease() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    ATRACE_ANDROID_FRAMEWORK_ALWAYS("Unload texture - %u", this->uniqueID().asUInt());
+    printf("unload texture - %u\n", this->uniqueID().asUInt());
 
     if (fID) {
         if (GrBackendObjectOwnership::kBorrowed != fTextureIDOwnership) {
