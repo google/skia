@@ -53,11 +53,11 @@ static void draw_basic(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
     paint.setColor(SK_ColorGREEN);
     canvas->drawPath(path, paint);
 
-    canvas->drawImage(image, 128-seed, 128, &paint);
+    canvas->drawImage(image, 128-seed, 128, SkSamplingOptions(), &paint);
 
     if (seed % 2 == 0) {
         SkRect rect2 = SkRect::MakeXYWH(0, 0, 40, 60);
-        canvas->drawImageRect(image, rect2, &paint);
+        canvas->drawImageRect(image, rect2, SkSamplingOptions(), &paint);
     }
 
     SkPaint paint2;

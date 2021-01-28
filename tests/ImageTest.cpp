@@ -1357,7 +1357,6 @@ static sk_sp<SkImage> any_image_will_do() {
 DEF_TEST(Image_nonfinite_dst, reporter) {
     auto surf = SkSurface::MakeRasterN32Premul(10, 10);
     auto img = any_image_will_do();
-    SkPaint paint;
 
     for (SkScalar bad : { SK_ScalarInfinity, SK_ScalarNaN}) {
         for (int bits = 1; bits <= 15; ++bits) {
@@ -1367,7 +1366,7 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
             if (bits & 4) dst.fRight = bad;
             if (bits & 8) dst.fBottom = bad;
 
-            surf->getCanvas()->drawImageRect(img, dst, &paint);
+            surf->getCanvas()->drawImageRect(img, dst, SkSamplingOptions());
 
             // we should draw nothing
             ToolUtils::PixelIter iter(surf.get());

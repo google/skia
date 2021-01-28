@@ -36,7 +36,7 @@ static void draw_image(SkCanvas* canvas, SkImage* img) {
     // optmizations
     SkPaint paint;
     paint.setAlpha(0x10);
-    canvas->drawImage(img, 0, 0, &paint);
+    canvas->drawImage(img, 0, 0, SkSamplingOptions(), &paint);
 }
 
 void set_cache_budget(SkCanvas* canvas, int approxImagesInBudget) {

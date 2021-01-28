@@ -49,10 +49,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
         // Painting with downscale and medium filter quality should result in mipmap creation
         // Flush the context rather than the canvas as flushing the canvas triggers MIP level
         // generation.
-        SkPaint paint;
-        paint.setFilterQuality(kMedium_SkFilterQuality);
+        SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kLinear);
+
         surf2->getCanvas()->scale(0.2f, 0.2f);
-        surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(), 0, 0, &paint);
+        surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(), 0, 0, sampling);
         context->flushAndSubmit();
         REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
         REPORTER_ASSERT(reporter, !allocateMips || !mipsAreDirty(surf1.get()));
@@ -100,9 +100,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, 
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
     surf = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes, singlePixelInfo, 1,
                                        kTopLeft_GrSurfaceOrigin, nullptr);
-    SkPaint paint;
-    paint.setFilterQuality(kMedium_SkFilterQuality);
-    surf->getCanvas()->drawImageRect(img, SkRect::MakeWH(1, 1), &paint);
+
+    surf->getCanvas()->drawImageRect(img, SkRect::MakeWH(1, 1),
+                                     SkSamplingOptions(SkFilterMode::kLinear,
+                                                       SkMipmapMode::kLinear));
     uint32_t pixel;
     surf->readPixels(singlePixelInfo, &pixel, sizeof(uint32_t), 0, 0);
     REPORTER_ASSERT(reporter, pixel == SkPreMultiplyColor(SK_ColorDKGRAY));
