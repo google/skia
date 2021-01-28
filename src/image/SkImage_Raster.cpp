@@ -116,8 +116,6 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView refPinnedView(GrRecordingContext* context,
-                                     uint32_t* uniqueID) const override;
     bool onPinAsTexture(GrRecordingContext*) const override;
     void onUnpinAsTexture(GrRecordingContext*) const override;
 #endif
@@ -192,32 +190,21 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
 
 #if SK_SUPPORT_GPU
 GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
-                                           GrMipmapped mipMapped) const {
+                                           GrMipmapped mipmapped) const {
     if (!context) {
         return {};
     }
 
-    uint32_t uniqueID;
-    if (GrSurfaceProxyView view = this->refPinnedView(context, &uniqueID)) {
-        GrTextureAdjuster adjuster(context, std::move(view), fBitmap.info().colorInfo(),
-                                   fPinnedUniqueID);
-        return adjuster.view(mipMapped);
-    }
-
-    return GrRefCachedBitmapView(context, fBitmap, mipMapped);
-}
-#endif
-
-#if SK_SUPPORT_GPU
-
-GrSurfaceProxyView SkImage_Raster::refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
     if (fPinnedView) {
-        SkASSERT(fPinnedCount > 0);
-        SkASSERT(fPinnedUniqueID != 0);
-        *uniqueID = fPinnedUniqueID;
-        return fPinnedView;
+        GrColorType ct = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
+                                                           this->colorType(),
+                                                           fPinnedView.proxy()->backendFormat());
+        GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
+        GrTextureAdjuster adjuster(context, fPinnedView, colorInfo, fPinnedUniqueID);
+        return adjuster.view(mipmapped);
     }
-    return {};
+
+    return GrRefCachedBitmapView(context, fBitmap, mipmapped);
 }
 
 bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
