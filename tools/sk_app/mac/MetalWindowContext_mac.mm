@@ -55,9 +55,8 @@ bool MetalWindowContext_mac::onInitializeContext() {
     fMetalLayer.device = fDevice;
     fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 
-    NSRect frameRect = [fMainView frame];
-    fMetalLayer.drawableSize = frameRect.size;
-    fMetalLayer.frame = frameRect;
+    // resize ignores the passed values and uses the fMainView directly.
+    this->resize(0, 0);
 
     BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
     fMetalLayer.displaySyncEnabled = useVsync;  // TODO: need solution for 10.12 or lower
@@ -71,9 +70,6 @@ bool MetalWindowContext_mac::onInitializeContext() {
     fMainView.layer = fMetalLayer;
     fMainView.wantsLayer = YES;
 
-    fWidth = frameRect.size.width;
-    fHeight = frameRect.size.height;
-
     return true;
 }
 
@@ -83,10 +79,16 @@ void MetalWindowContext_mac::onDestroyContext() {
 }
 
 void MetalWindowContext_mac::resize(int w, int h) {
-    fMetalLayer.drawableSize = fMainView.frame.size;
-    fMetalLayer.frame = fMainView.frame;
-    fWidth = w;
-    fHeight = h;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(fMainView);
+    CGSize backingSize = fMainView.bounds.size;
+    backingSize.width *= backingScaleFactor;
+    backingSize.height *= backingScaleFactor;
+
+    fMetalLayer.drawableSize = backingSize;
+    fMetalLayer.contentsScale = backingScaleFactor;
+
+    fWidth = backingSize.width;
+    fHeight = backingSize.height;
 }
 
 }  // anonymous namespace
