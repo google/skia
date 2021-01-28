@@ -264,7 +264,10 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                  wgpu::TextureFormat depthStencilFormat,
                                                  GrProgramDesc* desc) {
     GrDawnProgramBuilder builder(gpu, renderTarget, programInfo, desc);
-    if (!builder.emitAndInstallProcs()) {
+    SkSL::dsl::Start(gpu->shaderCompiler());
+    bool emitResult = builder.emitAndInstallProcs();
+    SkSL::dsl::End();
+    if (!emitResult) {
         return nullptr;
     }
 
