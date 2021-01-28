@@ -362,6 +362,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
+    fZoomLevel = 1.0f / fWindow->scaleFactor();
 
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;

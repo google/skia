@@ -111,8 +111,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
             return nullptr;
         }
 
-        // TODO: support Retina displays
-        [fMainView setWantsBestResolutionOpenGLSurface:NO];
+        [fMainView setWantsBestResolutionOpenGLSurface:YES];
         [fGLContext setView:fMainView];
     }
 
@@ -135,9 +134,13 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     fSampleCount = sampleCount;
     fSampleCount = std::max(fSampleCount, 1);
 
-    const NSRect viewportRect = [fMainView frame];
-    fWidth = viewportRect.size.width;
-    fHeight = viewportRect.size.height;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(fMainView);
+    CGSize backingSize = fMainView.bounds.size;
+    backingSize.width *= backingScaleFactor;
+    backingSize.height *= backingScaleFactor;
+
+    fWidth = backingSize.width;
+    fHeight = backingSize.height;
 
     glViewport(0, 0, fWidth, fHeight);
 
@@ -157,7 +160,12 @@ void GLWindowContext_mac::onSwapBuffers() {
 
 void GLWindowContext_mac::resize(int w, int h) {
     [fGLContext update];
-    INHERITED::resize(w, h);
+
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(fMainView);
+    CGSize backingSize = fMainView.bounds.size;
+    backingSize.width *= backingScaleFactor;
+    backingSize.height *= backingScaleFactor;
+    INHERITED::resize(backingSize.width, backingSize.height);
 }
 
 
