@@ -97,7 +97,7 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext* ctx,
                                                               const SkImageInfo& info,
                                                               const SkIPoint& origin,
-                                                              GrMipmapped mipMapped,
+                                                              GrMipmapped mipmapped,
                                                               GrImageTexGenPolicy texGenPolicy) {
     SkASSERT(ctx);
 
@@ -108,7 +108,7 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
                                   : SkBudgeted::kYes;
     auto surface = SkSurface::MakeRenderTarget(ctx, budgeted, info, 0,
                                                kTopLeft_GrSurfaceOrigin, &props,
-                                               mipMapped == GrMipmapped::kYes);
+                                               mipmapped == GrMipmapped::kYes);
     if (!surface) {
         return {};
     }
@@ -121,10 +121,10 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
     if (!image) {
         return {};
     }
-    const GrSurfaceProxyView* view = as_IB(image)->view(ctx);
+    GrSurfaceProxyView view = as_IB(image)->refView(ctx, mipmapped);
     SkASSERT(view);
-    SkASSERT(mipMapped == GrMipmapped::kNo ||
-             view->asTextureProxy()->mipmapped() == GrMipmapped::kYes);
-    return *view;
+    SkASSERT(mipmapped == GrMipmapped::kNo ||
+             view.asTextureProxy()->mipmapped() == GrMipmapped::kYes);
+    return view;
 }
 #endif

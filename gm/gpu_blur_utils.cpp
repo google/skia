@@ -66,9 +66,7 @@ static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc, bool su
         surf->getCanvas()->drawLine({7.f*w/8.f, 0.f}, {7.f*h/8.f, h}, paint);
 
         auto img = surf->makeImageSnapshot();
-        if (auto v = as_IB(img)->view(rContext)) {
-            src = *v;
-        }
+        src = as_IB(img)->refView(rContext, GrMipmapped::kNo);
     }
     if (!src) {
         return;

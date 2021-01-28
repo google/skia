@@ -183,10 +183,17 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     fYUVAProxies = {};
 }
 
-GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
-    // if invalid or already has miplevels
+GrSurfaceProxyView SkImage_GpuYUVA::refView(GrRecordingContext* context,
+                                            GrMipmapped mipmapped) const {
+    if (!context->priv().caps()->mipmapSupport()) {
+        mipmapped = GrMipmapped::kNo;
+    }
     this->flattenToRGB(context);
-    if (!fRGBView || fRGBView.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
+    // If flatten failed, we don't need MIPs, or the flattened texture already has MIPS then we're
+    // done.
+    if (!fRGBView ||
+        mipmapped == GrMipmapped::kNo ||
+        fRGBView.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
         return fRGBView;
     }
 
@@ -198,14 +205,6 @@ GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) c
 
     fRGBView = std::move(mippedView);
     return fRGBView;
-}
-
-const GrSurfaceProxyView* SkImage_GpuYUVA::view(GrRecordingContext* context) const {
-    this->flattenToRGB(context);
-    if (!fRGBView.proxy()) {
-        return nullptr;
-    }
-    return &fRGBView;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
