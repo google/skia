@@ -25,7 +25,7 @@ void draw(SkCanvas* canvas) {
         canvas->drawLine(10, 10, 60, 60, paint);
         canvas->drawRect({80, 10, 130, 60}, paint);
         canvas->drawRegion(region, paint);
-        canvas->drawImage(bitmap.asImage(), 200, 10, &paint);
+        canvas->drawImage(bitmap.asImage(), 200, 10, SkSamplingOptions(), &paint);
         canvas->translate(0, 80);
     }
 }

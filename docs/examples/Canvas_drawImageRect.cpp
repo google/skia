@@ -13,14 +13,14 @@ void draw(SkCanvas* canvas) {
     redBorder.installPixels(SkImageInfo::MakeN32Premul(4, 4),
             (void*) pixels, sizeof(pixels[0]));
     sk_sp<SkImage> image = redBorder.asImage();
-    SkPaint lowPaint;
+    SkSamplingOptions sampling;
     for (auto constraint : {
             SkCanvas::kFast_SrcRectConstraint,
             SkCanvas::kStrict_SrcRectConstraint,
             SkCanvas::kFast_SrcRectConstraint } ) {
         canvas->drawImageRect(image.get(), SkRect::MakeLTRB(1, 1, 3, 3),
-                SkRect::MakeLTRB(16, 16, 48, 48), &lowPaint, constraint);
-        lowPaint.setFilterQuality(kLow_SkFilterQuality);
+                SkRect::MakeLTRB(16, 16, 48, 48), sampling, nullptr, constraint);
+        sampling = SkSamplingOptions(SkFilterMode::kLinear);
         canvas->translate(80, 0);
     }
 }

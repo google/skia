@@ -31,6 +31,6 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 2.0f, 0));
     paint.setColor(0xFF008000);
-    canvas->drawImage(a8img, 8, 8, &paint);
+    canvas->drawImage(a8img, 8, 8, SkSamplingOptions(), &paint);
 }
 }  // END FIDDLE

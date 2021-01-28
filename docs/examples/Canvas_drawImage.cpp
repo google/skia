@@ -8,8 +8,8 @@ void draw(SkCanvas* canvas) {
    SkImage* imagePtr = image.get();
    canvas->drawImage(imagePtr, 0, 0);
    SkPaint paint;
-   canvas->drawImage(imagePtr, 80, 0, &paint);
+   canvas->drawImage(imagePtr, 80, 0, SkSamplingOptions(), &paint);
    paint.setAlpha(0x80);
-   canvas->drawImage(imagePtr, 160, 0, &paint);
+   canvas->drawImage(imagePtr, 160, 0, SkSamplingOptions(), &paint);
 }
 }  // END FIDDLE

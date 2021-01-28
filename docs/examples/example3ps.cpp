@@ -63,47 +63,46 @@ void draw(SkCanvas* canvas) {
             SkImageInfo::Make(3, 2, SkColorType::kGray_8_SkColorType, kOpaque_SkAlphaType);
     sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, 3);
 
-    SkPaint bp;
     canvas->save();
     m = setpsmatrix(1, 0, 0, 1, -1, -24, 2);
     //  m.setAll(1, 0, -1, 0, 1, -24, 0, 0, 1);
     canvas->concat(m);
-    canvas->drawImage(image, 0, 0, &bp);
+    canvas->drawImage(image, 0, 0);
     canvas->restore();
 
     canvas->save();
     m = setpsmatrix(0, 1, 1, 0, -24, -5, 2);
     //  m.setAll(0, -1, 5, -1, 0, -22, 0, 0, 1);
     canvas->concat(m);
-    canvas->drawImage(image, 0, 0, &bp);
+    canvas->drawImage(image, 0, 0);
     canvas->restore();
 
     canvas->save();
     m = setpsmatrix(0, 1, -1, 0, 27, -8, 2);
     //  m.setAll(0, -1, 8, 1, 0, -25, 0, 0, 1);
     canvas->concat(m);
-    canvas->drawImage(image, 0, 0, &bp);
+    canvas->drawImage(image, 0, 0);
     canvas->restore();
 
     canvas->save();
     m = setpsmatrix(0, -1, -1, 0, -24, 13, 2);
     //  m.setAll(0, 1, 9, -1, 0, -22, 0, 0, 1);
     canvas->concat(m);
-    canvas->drawImage(image, 0, 0, &bp);
+    canvas->drawImage(image, 0, 0);
     canvas->restore();
 
     canvas->save();
     m = setpsmatrix(-1, 0, 0, -1, 17, 26, 2);
     //  m.setAll(-1, 0, 15, 0, -1, -22, 0, 0, 1);
     canvas->concat(m);
-    canvas->drawImage(image, 0, 0, &bp);
+    canvas->drawImage(image, 0, 0);
     canvas->restore();
 
     canvas->save();
     m = setpsmatrix(-1, 0, 0, 1, 21, -24, 2);
     //  m.setAll(-1, 0, 19, 0, 1, -24, 0, 0, 1);
     canvas->concat(m);
-    canvas->drawImage(image, 0, 0, &bp);
+    canvas->drawImage(image, 0, 0);
     canvas->restore();
 }
 }  // END FIDDLE

@@ -1513,13 +1513,14 @@ void Viewer::drawSlide(SkSurface* surface) {
         SkCanvas* canvas = surface->getCanvas();
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
+        SkSamplingOptions sampling;
         int prePerspectiveCount = canvas->save();
         if (kPerspective_Fake == fPerspectiveMode) {
-            paint.setFilterQuality(kHigh_SkFilterQuality);
+            sampling = SkSamplingOptions({1.0f/3, 1.0f/3});
             canvas->clear(SK_ColorWHITE);
             canvas->concat(this->computePerspectiveMatrix());
         }
-        canvas->drawImage(fLastImage, 0, 0, &paint);
+        canvas->drawImage(fLastImage, 0, 0, sampling, &paint);
         canvas->restoreToCount(prePerspectiveCount);
     }
 

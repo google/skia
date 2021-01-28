@@ -26,6 +26,6 @@ void draw(SkCanvas* canvas) {
     p.setColorFilter(color_filter());
     auto i = alpha_image();
     canvas->scale(2, 2);
-    canvas->drawImage(i.get(), 32, 32, &p);
+    canvas->drawImage(i.get(), 32, 32, SkSamplingOptions(), &p);
 }
 }  // END FIDDLE

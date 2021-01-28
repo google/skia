@@ -6,7 +6,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 20.0f, false));
     canvas->clear(0xFF88FF88);
-    canvas->drawImageRect(image, SkRect{16, 16, 48, 48}, {64, 64, 192, 192}, &paint,
-                          SkCanvas::kFast_SrcRectConstraint);
+    canvas->drawImageRect(image, SkRect{16, 16, 48, 48}, {64, 64, 192, 192}, SkSamplingOptions(),
+                          &paint, SkCanvas::kFast_SrcRectConstraint);
 }
 }  // END FIDDLE

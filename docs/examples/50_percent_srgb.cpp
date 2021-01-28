@@ -8,7 +8,8 @@ static sk_sp<SkShader> make() {
     surf->getCanvas()->drawRect({0, 0, 1, 1}, SkPaint());
     surf->getCanvas()->drawRect({1, 1, 2, 2}, SkPaint());
     return surf->makeImageSnapshot()->makeShader(SkTileMode::kRepeat,
-                                                 SkTileMode::kRepeat);
+                                                 SkTileMode::kRepeat,
+                                                 SkSamplingOptions(SkFilterMode::kLinear));
 }
 
 void draw(SkCanvas* canvas) {
@@ -17,7 +18,6 @@ void draw(SkCanvas* canvas) {
     const SkRect r = { 0, 0, 100, 100 };
     SkPaint p;
     p.setShader(make());
-    p.setFilterQuality(kLow_SkFilterQuality);
     // this is a dither
     canvas->drawRect({0, 0, 50, 50}, p);
 
