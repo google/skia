@@ -143,69 +143,103 @@ bool SkImage_GpuYUVA::onHasMipmaps() const {
 
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
 
-void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
-    if (fRGBView.proxy()) {
-        return;
-    }
-
-    if (!context || !fContext->priv().matches(context)) {
-        return;
-    }
-
-    // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    GrImageInfo info(GrColorType::kRGBA_8888,
-                     kPremul_SkAlphaType,
-                     this->refColorSpace(),
-                     this->dimensions());
+static GrSurfaceProxyView render_to_rgb(GrRecordingContext* context,
+                                        const SkColorInfo& colorInfo,
+                                        const GrYUVATextureProxies& proxies,
+                                        SkColorSpace* fromColorSpace,
+                                        GrMipmapped mipmapped,
+                                        SkBudgeted budgeted) {
+    GrImageInfo ii(colorInfo, proxies.yuvaInfo().dimensions());
     auto surfaceFillContext = GrSurfaceFillContext::Make(context,
-                                                         info,
+                                                         std::move(ii),
                                                          SkBackingFit::kExact,
                                                          /*sample count*/ 1,
-                                                         GrMipmapped::kNo,
-                                                         GrProtected::kNo);
+                                                         mipmapped,
+                                                         GrProtected::kNo,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         budgeted);
     if (!surfaceFillContext) {
-        return;
+        return {};
     }
 
     const GrCaps& caps = *context->priv().caps();
 
-    auto fp = GrYUVtoRGBEffect::Make(fYUVAProxies, GrSamplerState::Filter::kNearest, caps);
-    if (fFromColorSpace) {
+    auto fp = GrYUVtoRGBEffect::Make(proxies, GrSamplerState::Filter::kNearest, caps);
+    if (fromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                           fFromColorSpace.get(), this->alphaType(),
-                                           this->colorSpace(),    this->alphaType());
+                                           fromColorSpace,         colorInfo.alphaType(),
+                                           colorInfo.colorSpace(), colorInfo.alphaType());
     }
 
     surfaceFillContext->fillWithFP(std::move(fp));
 
-    fRGBView = surfaceFillContext->readSurfaceView();
-    SkASSERT(fRGBView.swizzle() == GrSwizzle());
-    fYUVAProxies = {};
+    return surfaceFillContext->readSurfaceView();
 }
 
-GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
-    // if invalid or already has miplevels
-    this->flattenToRGB(context);
-    if (!fRGBView || fRGBView.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
-        return fRGBView;
+bool SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context, GrMipmapped mipmapped) const {
+    if (fRGBView.proxy()) {
+        if (mipmapped                                       == GrMipmapped::kYes &&
+            fRGBView.proxy()->asTextureProxy()->mipmapped() == GrMipmapped::kNo) {
+            GrSurfaceProxyView mippedView = GrCopyBaseMipMapToView(context, fRGBView);
+            if (!mippedView) {
+                return false;
+            }
+            fRGBView = std::move(mippedView);
+            return true;
+        }
+        return true;
     }
 
-    // need to generate mips for the proxy
-    auto mippedView = GrCopyBaseMipMapToView(context, fRGBView);
-    if (!mippedView) {
+    if (!context || !fContext->priv().matches(context)) {
+        return false;
+    }
+
+    GrSurfaceProxyView rgbView = render_to_rgb(context,
+                                               this->imageInfo().colorInfo(),
+                                               fYUVAProxies,
+                                               fFromColorSpace.get(),
+                                               mipmapped,
+                                               SkBudgeted::kYes);
+    if (!rgbView) {
+        return false;
+    }
+    fRGBView = std::move(rgbView);
+    return true;
+}
+
+GrSurfaceProxyView SkImage_GpuYUVA::refView(GrRecordingContext* context,
+                                            GrMipmapped mipmapped,
+                                            GrImageTexGenPolicy policy) const {
+    if (!context || !fContext->priv().matches(context)) {
         return {};
     }
-
-    fRGBView = std::move(mippedView);
-    return fRGBView;
-}
-
-const GrSurfaceProxyView* SkImage_GpuYUVA::view(GrRecordingContext* context) const {
-    this->flattenToRGB(context);
-    if (!fRGBView.proxy()) {
-        return nullptr;
+    if (!context->priv().caps()->mipmapSupport()) {
+        mipmapped = GrMipmapped::kNo;
     }
-    return &fRGBView;
+    if (policy != GrImageTexGenPolicy::kDraw) {
+        SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
+                                      ? SkBudgeted::kYes
+                                      : SkBudgeted::kNo;
+        if (fRGBView) {
+            auto copy = GrSurfaceProxy::Copy(context,
+                                             fRGBView.refProxy(),
+                                             fRGBView.origin(),
+                                             mipmapped,
+                                             SkBackingFit::kExact,
+                                             budgeted);
+            return {std::move(copy), fRGBView.origin(), fRGBView.swizzle()};
+        }
+        return render_to_rgb(context,
+                             this->imageInfo().colorInfo(),
+                             fYUVAProxies,
+                             fFromColorSpace.get(),
+                             mipmapped,
+                             budgeted);
+    }
+    if (!this->flattenToRGB(context, mipmapped)) {
+        return {};
+    }
+    return fRGBView;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

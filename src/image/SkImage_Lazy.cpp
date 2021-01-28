@@ -32,7 +32,6 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrYUVATextureProxies.h"
-#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #endif
 
@@ -196,13 +195,18 @@ bool SkImage_Lazy::onIsValid(GrRecordingContext* context) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipmapped mipMapped) const {
+GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context,
+                                         GrMipmapped mipmapped,
+                                         GrImageTexGenPolicy policy) const {
     if (!context) {
         return {};
     }
+    if (!context->priv().caps()->mipmapSupport()) {
+        mipmapped = GrMipmapped::kNo;
+    }
 
-    GrImageTextureMaker textureMaker(context, this, GrImageTexGenPolicy::kDraw);
-    return textureMaker.view(mipMapped);
+    GrImageTextureMaker textureMaker(context, this, policy);
+    return textureMaker.view(mipmapped);
 }
 #endif
 
