@@ -1,6 +1,0 @@
-in half a;
-in int b;
-void main() {
-    sk_FragColor.x = abs(a);
-    sk_FragColor.x = half(abs(b));
-}
