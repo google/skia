@@ -1787,7 +1787,11 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                            SkTaskGroup* gpuTaskGroup,
                            sk_gpu_test::TestContext* gpuTestCtx,
                            GrDirectContext* gpuThreadCtx) const {
-
+    // This is the minimum ES2 spec conformant value. If it's less than 2048 then presumably the
+    // src has lowered it via GrContextOptions to test something.
+    if (gpuThreadCtx->priv().caps()->maxTextureSize() < 2048) {
+        return Result::Skip("Max texture size too small for DDL testing.");
+    }
     // We have to do this here bc characterization can hit the SkGpuDevice's thread guard (i.e.,
     // leaving it until the DDLTileHelper ctor will result in multiple threads trying to use the
     // same context (this thread and the gpuThread - which will be uploading textures)).
