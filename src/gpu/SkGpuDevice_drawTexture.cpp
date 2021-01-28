@@ -620,9 +620,6 @@ void draw_tiled_bitmap(GrRecordingContext* context,
                 // We should have already handled bitmaps larger than the max texture size.
                 SkASSERT(tmpB.width() <= context->priv().caps()->maxTextureSize() &&
                          tmpB.height() <= context->priv().caps()->maxTextureSize());
-                // We should be respecting the max tile size by the time we get here.
-                SkASSERT(tmpB.width() <= context->priv().caps()->maxTileSize() &&
-                         tmpB.height() <= context->priv().caps()->maxTileSize());
 
                 GrBitmapTextureMaker tileProducer(context, tmpB, GrImageTexGenPolicy::kDraw);
 
@@ -772,7 +769,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         } else {
             tileFilterPad = 1;
         }
-        int maxTileSize = fContext->priv().caps()->maxTileSize() - 2 * tileFilterPad;
+        int maxTileSize = fContext->priv().caps()->maxTextureSize() - 2*tileFilterPad;
         int tileSize;
         SkIRect clippedSubset;
         if (should_tile_image_id(fContext.get(), fSurfaceDrawContext->dimensions(), clip,
