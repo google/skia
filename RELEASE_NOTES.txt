@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 90
 ------------
 
+  * Remove SkImageFilter::CropRect from the public API as it's no longer usable. All factories
+    work with 'SkRect', 'SkIRect', or nullable pointers to 'Sk[I]Rect'.
+    https://review.skia.org/361496
+
   * Remove deprecated SkImageFilter factory functions and supporting types. All default-provided
     SkImageFilters are now only constructed via 'include/effects/SkImageFilters.h'
     https://review.skia.org/357285
