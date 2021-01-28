@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrPathStencilFillOp.h"
+#include "src/gpu/tessellate/GrTessellatingStencilFillOp.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -18,7 +18,7 @@
 
 using OpFlags = GrTessellationPathRenderer::OpFlags;
 
-void GrPathStencilFillOp::visitProxies(const VisitProxyFunc& fn) const {
+void GrTessellatingStencilFillOp::visitProxies(const VisitProxyFunc& fn) const {
     if (fFillBBoxProgram) {
         fFillBBoxProgram->pipeline().visitProxies(fn);
     } else {
@@ -26,7 +26,7 @@ void GrPathStencilFillOp::visitProxies(const VisitProxyFunc& fn) const {
     }
 }
 
-GrDrawOp::FixedFunctionFlags GrPathStencilFillOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags GrTessellatingStencilFillOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kUsesStencil;
     if (fAAType != GrAAType::kNone) {
         flags |= FixedFunctionFlags::kUsesHWAA;
@@ -34,16 +34,16 @@ GrDrawOp::FixedFunctionFlags GrPathStencilFillOp::fixedFunctionFlags() const {
     return flags;
 }
 
-GrProcessorSet::Analysis GrPathStencilFillOp::finalize(const GrCaps& caps,
-                                                       const GrAppliedClip* clip,
-                                                       bool hasMixedSampledCoverage,
-                                                       GrClampType clampType) {
+GrProcessorSet::Analysis GrTessellatingStencilFillOp::finalize(const GrCaps& caps,
+                                                               const GrAppliedClip* clip,
+                                                               bool hasMixedSampledCoverage,
+                                                               GrClampType clampType) {
     return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr,
                                 hasMixedSampledCoverage, caps, clampType, &fColor);
 }
 
-void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& args,
-                                             GrAppliedClip&& appliedClip) {
+void GrTessellatingStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& args,
+                                                     GrAppliedClip&& appliedClip) {
     using DrawInnerFan = GrPathIndirectTessellator::DrawInnerFan;
     SkASSERT(!fStencilFanProgram);
     SkASSERT(!fStencilPathProgram);
@@ -109,11 +109,12 @@ void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& ar
     }
 }
 
-void GrPathStencilFillOp::onPrePrepare(GrRecordingContext* context,
-                                       const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
-                                       const GrXferProcessor::DstProxyView& dstProxyView,
-                                       GrXferBarrierFlags renderPassXferBarriers,
-                                       GrLoadOp colorLoadOp) {
+void GrTessellatingStencilFillOp::onPrePrepare(GrRecordingContext* context,
+                                               const GrSurfaceProxyView& writeView,
+                                               GrAppliedClip* clip,
+                                               const GrXferProcessor::DstProxyView& dstProxyView,
+                                               GrXferBarrierFlags renderPassXferBarriers,
+                                               GrLoadOp colorLoadOp) {
     this->prePreparePrograms({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
                              renderPassXferBarriers, colorLoadOp, context->priv().caps()},
                              (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
@@ -128,7 +129,7 @@ void GrPathStencilFillOp::onPrePrepare(GrRecordingContext* context,
     }
 }
 
-void GrPathStencilFillOp::onPrepare(GrOpFlushState* flushState) {
+void GrTessellatingStencilFillOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
                                   &flushState->dstProxyView(), flushState->renderPassBarriers(),
@@ -154,7 +155,7 @@ void GrPathStencilFillOp::onPrepare(GrOpFlushState* flushState) {
     fTessellator->prepare(flushState, fViewMatrix, fPath);
 }
 
-void GrPathStencilFillOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void GrTessellatingStencilFillOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fTessellator) {
         return;
     }
