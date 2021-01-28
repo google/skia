@@ -35,6 +35,8 @@ public:
     GrColorType colorType() const { return fColorType; }
     SkAlphaType alphaType() const { return fAlphaType; }
 
+    bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fColorType); }
+
     bool isValid() const {
         return fColorType != GrColorType::kUnknown && fAlphaType != kUnknown_SkAlphaType;
     }

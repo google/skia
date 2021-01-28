@@ -809,13 +809,18 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
                         sampling, paint, constraint);
 }
 
-void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
-                                      std::unique_ptr<SkLatticeIter> iter, const SkRect& dst,
-                                      SkFilterMode filter, const SkPaint& origPaint) {
+void SkGpuDevice::drawViewLattice(GrSurfaceProxyView view,
+                                  const GrColorInfo& info,
+                                  std::unique_ptr<SkLatticeIter> iter,
+                                  const SkRect& dst,
+                                  SkFilterMode filter,
+                                  const SkPaint& origPaint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
+    SkASSERT(view);
+
     SkTCopyOnFirstWrite<SkPaint> paint(&origPaint);
 
-    if (!producer->isAlphaOnly() && (paint->getColor() & 0x00FFFFFF) != 0x00FFFFFF) {
+    if (!info.isAlphaOnly() && (paint->getColor() & 0x00FFFFFF) != 0x00FFFFFF) {
         paint.writable()->setColor(SkColorSetARGB(origPaint.getAlpha(), 0xFF, 0xFF, 0xFF));
     }
     GrPaint grPaint;
@@ -825,19 +830,15 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
         return;
     }
 
-    auto dstColorSpace = fSurfaceDrawContext->colorInfo().colorSpace();
-    auto view = producer->view(GrMipmapped::kNo);
-    if (!view) {
-        return;
-    }
-    if (producer->isAlphaOnly()) {
+    if (info.isAlphaOnly()) {
+        // If we were doing this with an FP graph we'd use a kDstIn blend between the texture and
+        // the paint color.
         view.concatSwizzle(GrSwizzle("aaaa"));
     }
-    auto csxf = GrColorSpaceXform::Make(producer->colorSpace(), producer->alphaType(),
-                                        dstColorSpace,          kPremul_SkAlphaType);
+    auto csxf = GrColorSpaceXform::Make(info, fSurfaceDrawContext->colorInfo());
 
     fSurfaceDrawContext->drawImageLattice(this->clip(), std::move(grPaint), this->localToDevice(),
-                                          std::move(view), producer->alphaType(), std::move(csxf),
+                                          std::move(view), info.alphaType(), std::move(csxf),
                                           filter, std::move(iter), dst);
 }
 
@@ -845,22 +846,15 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
                                    SkFilterMode filter, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    uint32_t pinnedUniqueID;
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
-    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->recordingContext(),
-                                                              &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->recordingContext(), std::move(view),
-                                   image->imageInfo().colorInfo(), pinnedUniqueID);
-        this->drawProducerLattice(&adjuster, std::move(iter), dst, filter, paint);
-    } else {
-        SkBitmap bm;
-        if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, filter, paint);
-        } else if (as_IB(image)->getROPixels(nullptr, &bm)) {
-            GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, filter, paint);
-        }
+    if (GrSurfaceProxyView view = as_IB(image)->refView(this->recordingContext(),
+                                                        GrMipmapped::kNo)) {
+        this->drawViewLattice(std::move(view),
+                              image->imageInfo().colorInfo(),
+                              std::move(iter),
+                              dst,
+                              filter,
+                              paint);
     }
 }
 
