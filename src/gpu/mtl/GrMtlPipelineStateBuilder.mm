@@ -15,6 +15,7 @@
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderUtils.h"
+#include "src/sksl/dsl/priv/DSLFPs.h"
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
@@ -34,7 +35,10 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
     GrAutoLocaleSetter als("C");
     GrMtlPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
 
-    if (!builder.emitAndInstallProcs()) {
+    SkSL::dsl::Start(gpu->shaderCompiler());
+    bool result = builder.emitAndInstallProcs();
+    SkSL::dsl::End();
+    if (!result) {
         return nullptr;
     }
     return builder.finalize(renderTarget, desc, programInfo);
