@@ -38,7 +38,10 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
     // uniforms, varyings, textures, etc
     GrD3DPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
 
-    if (!builder.emitAndInstallProcs()) {
+    SkSL::dsl::Start(gpu->shaderCompiler());
+    bool result = builder.emitAndInstallProcs();
+    SkSL::dsl::End();
+    if (!result) {
         return nullptr;
     }
 
