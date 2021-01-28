@@ -60,6 +60,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4796db77_fe04bcf1",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-28T15:09:05Z",
+      "side": 1,
+      "message": "maybe add a static initializer to WebTrack to return nullptr if the given val is null,undefined, or does not have the function \"seek\"?",
+      "parentUuid": "0f18c7bd_5c0c215c",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "45f92c3c_b5954c6a",
         "filename": "modules/canvaskit/skottie_bindings.cpp",
         "patchSetId": 1
@@ -71,6 +89,24 @@
       "writtenOn": "2021-01-28T15:01:35Z",
       "side": 1,
       "message": "Is there a way to validate that fSoundMap has a getHowl method?  What happens if the client doesn\u0027t pass one (or passes garbage/wrong type)?",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65168ee7_c5afcd1c",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-28T15:09:05Z",
+      "side": 1,
+      "message": "hasOwnProperty is probably what we want: https://emscripten.org/docs/api_reference/val.h.html",
+      "parentUuid": "45f92c3c_b5954c6a",
       "revId": "4deca898b380b08a334526d905e6399ea1eec778",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
