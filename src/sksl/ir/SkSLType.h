@@ -243,7 +243,8 @@ public:
 
     /**
      * For matrices and vectors, returns the type of individual cells (e.g. mat2 has a component
-     * type of Float). For all other types, returns the type itself.
+     * type of Float). For arrays, returns the base type. For all other types, returns the type
+     * itself.
      */
     const Type& componentType() const {
         if (fComponentType) {
