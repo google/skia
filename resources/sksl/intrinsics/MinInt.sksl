@@ -1,0 +1,18 @@
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    int4 intValues = int4(testInputs * 100);
+    int4 intGreen  = int4(colorGreen * 100);
+
+    int4 expectedA = int4(-125, 0, 50, 50);
+    int4 expectedB = int4(-125, 0, 0, 100);
+    return (min(intValues.x,    50)            == expectedA.x     &&
+            min(intValues.xy,   50)            == expectedA.xy    &&
+            min(intValues.xyz,  50)            == expectedA.xyz   &&
+            min(intValues.xyzw, 50)            == expectedA.xyzw  &&
+            min(intValues.x,    intGreen.x)    == expectedB.x     &&
+            min(intValues.xy,   intGreen.xy)   == expectedB.xy    &&
+            min(intValues.xyz,  intGreen.xyz)  == expectedB.xyz   &&
+            min(intValues.xyzw, intGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
+}
