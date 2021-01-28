@@ -16,6 +16,29 @@
       "message": "I\u0027ll also say that existing test cases caught things that I did wrong along the way here (like forgetting to add explicitly defined structs to fDefinedStructs, which caused struct definitions to be emitted twice in two cases).",
       "revId": "9d4f07061c8efff2e8152f6089ea564c616667e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0998f61d_c3012e6e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T17:02:59Z",
+      "side": 1,
+      "message": "micro-nit: you can do less work here by only probing the set once.\n\n    auto [iter, wasInserted] \u003d fDefinedStructs.insert(type);\n    if (wasInserted) { \n        fProgramElements-\u003epush_back(...);\n    }",
+      "range": {
+        "startLine": 1411,
+        "startChar": 32,
+        "endLine": 1411,
+        "endChar": 83
+      },
+      "revId": "9d4f07061c8efff2e8152f6089ea564c616667e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
