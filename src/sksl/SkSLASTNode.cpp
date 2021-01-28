@@ -204,7 +204,7 @@ String ASTNode::description() const {
             return "(" + this->begin()->description() + " ? " + (this->begin() + 1)->description() +
                    " : " + (this->begin() + 2)->description() + ")";
         case Kind::kType:
-            return String(getTypeData().fName);
+            return getString();
         case Kind::kVarDeclaration: {
             VarData vd = getVarData();
             String result = vd.fName;

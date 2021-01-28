@@ -1420,8 +1420,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
     SKSL_INT currentValue = 0;
     Layout layout;
-    ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType,
-                     ASTNode::TypeData(e.getString(), /*isStructDeclaration=*/false));
+    ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType, e.getString());
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
@@ -1480,10 +1479,10 @@ bool IRGenerator::typeContainsPrivateFields(const Type& type) {
 }
 
 const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
-    ASTNode::TypeData td = type.getTypeData();
-    const Symbol* symbol = (*fSymbolTable)[td.fName];
+    StringFragment name = type.getString();
+    const Symbol* symbol = (*fSymbolTable)[name];
     if (!symbol || !symbol->is<Type>()) {
-        this->errorReporter().error(type.fOffset, "unknown type '" + td.fName + "'");
+        this->errorReporter().error(type.fOffset, "unknown type '" + name + "'");
         return nullptr;
     }
     const Type* result = &symbol->as<Type>();
@@ -1491,22 +1490,22 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     if (*result == *fContext.fTypes.fVoid) {
         if (!allowVoid) {
             this->errorReporter().error(type.fOffset,
-                                        "type '" + td.fName + "' not allowed in this context");
+                                        "type '" + name + "' not allowed in this context");
             return nullptr;
         }
         if (isArray) {
             this->errorReporter().error(type.fOffset,
-                                        "type '" + td.fName + "' may not be used in an array");
+                                        "type '" + name + "' may not be used in an array");
             return nullptr;
         }
     }
     if (!fIsBuiltinCode && this->typeContainsPrivateFields(*result)) {
-        this->errorReporter().error(type.fOffset, "type '" + td.fName + "' is private");
+        this->errorReporter().error(type.fOffset, "type '" + name + "' is private");
         return nullptr;
     }
     if (isArray && result->isOpaque()) {
         this->errorReporter().error(type.fOffset,
-                                    "opaque type '" + td.fName + "' may not be used in an array");
+                                    "opaque type '" + name + "' may not be used in an array");
         return nullptr;
     }
     if (isArray) {
