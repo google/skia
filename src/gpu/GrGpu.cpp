@@ -419,6 +419,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
                         const GrMipLevel texels[], int mipLevelCount, bool prepForTexSampling) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     ATRACE_ANDROID_FRAMEWORK_ALWAYS("Upload %ix%i Texture", width, height);
+    printf("upload texture: %d x %d\n", width, height);
     SkASSERT(surface);
     SkASSERT(!surface->framebufferOnly());
 

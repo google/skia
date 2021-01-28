@@ -411,6 +411,9 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
                         skGlyph, grGlyph, srcPadding, target->resourceProvider(),
                         uploadTarget, bilerpPadding);
                 if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                    if (code == GrDrawOpAtlas::ErrorCode::kTryAgain) {
+                        printf("Atlas Full - try again\n");
+                    }
                     success = code != GrDrawOpAtlas::ErrorCode::kError;
                     break;
                 }

@@ -215,7 +215,8 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendForm
         , fAtlasGeneration(fGenerationCounter->next())
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
         , fFlushesSinceLastUse(0)
-        , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
+        , fMaxPages(1)
+        //AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
         , fNumActivePages(0) {
     int numPlotsX = width/plotWidth;
     int numPlotsY = height/plotHeight;
@@ -651,6 +652,8 @@ GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes) {
         {1024, 1024}, // 2^22 <= maxBytes < 2^23
         {2048, 1024}, // 2^23 <= maxBytes
     };
+
+    maxTextureSize = 256;
 
     // Index 0 corresponds to maxBytes of 2^18, so start by dividing it by that
     maxBytes >>= 18;

@@ -150,6 +150,7 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(
     return analysis;
 }
 
+static int allGlyphs = 0;
 void GrAtlasTextOp::onPrepareDraws(Target* target) {
     auto resourceProvider = target->resourceProvider();
 
@@ -257,10 +258,15 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             quadCursor += glyphsRegenerated;
             allGlyphsCursor += glyphsRegenerated;
             flushInfo.fGlyphsToFlush += glyphsRegenerated;
+            allGlyphs += glyphsRegenerated;
+            printf("d: %d glyphs: %d\n", glyphsRegenerated, allGlyphs);
 
             if (quadCursor == quadEnd || subRunCursor < subRunEnd) {
                 // Flush if not all the glyphs are drawn because either the quad buffer is full or
                 // the atlas is out of space.
+                if (subRunCursor < subRunEnd) {
+                    printf("Atlas Full - sending draw\n");
+                }
                 this->createDrawForGeneratedGlyphs(target, &flushInfo);
                 if (quadCursor == quadEnd && allGlyphsCursor < allGlyphsEnd) {
                     // If the vertex buffer is full and there are still glyphs to draw then
