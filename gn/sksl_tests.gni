@@ -208,7 +208,8 @@ sksl_spirv_tests = [
 ]
 
 sksl_shared_tests = [
-  "/sksl/intrinsics/Abs.sksl",
+  "/sksl/intrinsics/AbsES2.sksl",
+  "/sksl/intrinsics/AbsES3.sksl",
   "/sksl/intrinsics/Acos.sksl",
   "/sksl/intrinsics/Acosh.sksl",
   "/sksl/intrinsics/All.sksl",
