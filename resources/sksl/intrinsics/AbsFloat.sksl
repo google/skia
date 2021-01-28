@@ -1,0 +1,10 @@
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    half4 expected = half4(1.25, 0, 0.75, 2.25);
+    return (abs(testInputs.x)    == expected.x     &&
+            abs(testInputs.xy)   == expected.xy    &&
+            abs(testInputs.xyz)  == expected.xyz   &&
+            abs(testInputs.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}
