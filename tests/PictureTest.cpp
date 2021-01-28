@@ -349,23 +349,22 @@ static void test_peephole() {
     }
 }
 
-#ifndef SK_DEBUG
-// Only test this is in release mode. We deliberately crash in debug mode, since a valid caller
-// should never do this.
-static void test_bad_bitmap() {
-    // This bitmap has a width and height but no pixels. As a result, attempting to record it will
-    // fail.
+static void test_bad_bitmap(skiatest::Reporter* reporter) {
+    // missing pixels should return null for image
     SkBitmap bm;
     bm.setInfo(SkImageInfo::MakeN32Premul(100, 100));
+    auto img = bm.asImage();
+    REPORTER_ASSERT(reporter, !img);
+
+    // make sure we don't crash on a null image
     SkPictureRecorder recorder;
     SkCanvas* recordingCanvas = recorder.beginRecording(100, 100);
-    recordingCanvas->drawBitmap(bm, 0, 0);
+    recordingCanvas->drawImage(nullptr, 0, 0);
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
     SkCanvas canvas;
     canvas.drawPicture(picture);
 }
-#endif
 
 static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     // Test for crbug.com/229011
@@ -562,9 +561,8 @@ DEF_TEST(Picture, reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_picture();
     test_serializing_empty_picture();
-#else
-    test_bad_bitmap();
 #endif
+    test_bad_bitmap(reporter);
     test_unbalanced_save_restores(reporter);
     test_peephole();
     test_clip_bound_opt(reporter);
