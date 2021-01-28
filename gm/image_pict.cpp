@@ -174,10 +174,7 @@ public:
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            const GrSurfaceProxyView* view = as_IB(image)->view(rContext);
-            if (view) {
-                fView = *view;
-            }
+            fView = as_IB(image)->refView(rContext, GrMipmapped::kNo);
         }
     }
 protected:

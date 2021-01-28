@@ -46,16 +46,8 @@ GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrRecordingContext* context, co
     SkASSERT(as_IB(client)->isYUVA());
 }
 
-GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(GrMipmapped mipMapped) {
-    if (mipMapped == GrMipmapped::kYes) {
-        return fImage->refMippedView(this->context());
-    } else {
-        if (const GrSurfaceProxyView* view = fImage->view(this->context())) {
-            return *view;
-        } else {
-            return {};
-        }
-    }
+GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(GrMipmapped mipmapped) {
+    return fImage->refView(this->context(), mipmapped);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProcessor(
