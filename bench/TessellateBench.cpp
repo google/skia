@@ -12,7 +12,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/GrPathTessellateOp.h"
+#include "src/gpu/tessellate/GrPathTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
@@ -96,17 +96,17 @@ protected:
 
 DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(), SkMatrix::I()) {
     GrPathIndirectTessellator tess(fMatrix, fPath, GrPathIndirectTessellator::DrawInnerFan::kNo);
-    tess.prepare(fTarget.get(), fMatrix, fPath);
+    tess.prepare(fTarget.get(), fMatrix, fPath, nullptr);
 }
 
 DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(), SkMatrix::I()) {
     GrPathOuterCurveTessellator tess;
-    tess.prepare(fTarget.get(), fMatrix, fPath);
+    tess.prepare(fTarget.get(), fMatrix, fPath, nullptr);
 }
 
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(), SkMatrix::I()) {
     GrPathWedgeTessellator tess;
-    tess.prepare(fTarget.get(), fMatrix, fPath);
+    tess.prepare(fTarget.get(), fMatrix, fPath, nullptr);
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {

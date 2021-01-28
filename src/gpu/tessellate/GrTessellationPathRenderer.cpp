@@ -17,7 +17,7 @@
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
-#include "src/gpu/tessellate/GrPathTessellateOp.h"
+#include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
 #include "src/gpu/tessellate/GrStrokeIndirectOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrTessellatingStencilFillOp.h"
@@ -247,8 +247,8 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
             constexpr static float kCpuWeight = 512;
             constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
             if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
-                return GrOp::Make<GrPathTessellateOp>(rContext, viewMatrix, path, std::move(paint),
-                                                      aaType, opFlags);
+                return GrOp::Make<GrPathInnerTriangulateOp>(rContext, viewMatrix, path,
+                                                            std::move(paint), aaType, opFlags);
             }
         }
         return GrOp::Make<GrTessellatingStencilFillOp>(rContext, viewMatrix, path, std::move(paint),

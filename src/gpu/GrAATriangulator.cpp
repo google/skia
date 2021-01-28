@@ -617,10 +617,8 @@ Poly* GrAATriangulator::tessellate(const VertexList& mesh, const Comparator& c) 
     this->mergeCoincidentVertices(&innerMesh, c, nullptr);
     bool was_complex = this->mergeCoincidentVertices(&fOuterMesh, c, nullptr);
     auto result = this->simplify(&innerMesh, c, nullptr);
-    SkASSERT(SimplifyResult::kAbort != result);
     was_complex = (SimplifyResult::kFoundSelfIntersection == result) || was_complex;
     result = this->simplify(&fOuterMesh, c, nullptr);
-    SkASSERT(SimplifyResult::kAbort != result);
     was_complex = (SimplifyResult::kFoundSelfIntersection == result) || was_complex;
     TESS_LOG("\ninner mesh before:\n");
     DUMP_MESH(innerMesh);
@@ -642,7 +640,6 @@ Poly* GrAATriangulator::tessellate(const VertexList& mesh, const Comparator& c) 
         SortedMerge(&innerMesh, &fOuterMesh, &aaMesh, c);
         this->mergeCoincidentVertices(&aaMesh, c, nullptr);
         result = this->simplify(&aaMesh, c, nullptr);
-        SkASSERT(SimplifyResult::kAbort != result);
         TESS_LOG("combined and simplified mesh:\n");
         DUMP_MESH(aaMesh);
         fOuterMesh.fHead = fOuterMesh.fTail = nullptr;
