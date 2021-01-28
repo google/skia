@@ -293,6 +293,10 @@ protected:
 
     Requirements requirements(const Statement* s);
 
+    int getUniformBinding(const Modifiers& m);
+
+    int getUniformSet(const Modifiers& m);
+
     std::unordered_map<String, IntrinsicKind> fIntrinsicMap;
     std::unordered_set<String> fReservedWords;
     std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;

@@ -1,0 +1,10 @@
+layout(binding=0) uniform testBlock {
+    layout(offset=0)  half x;
+    layout(offset=4)  int w;
+    layout(offset=16) half y[2];
+    layout(offset=48) half3x3 z;
+};
+
+void main() {
+    sk_FragColor = half4(x, y[0], y[1], 0);
+}
