@@ -31,7 +31,8 @@
 SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(std::move(device)) {
-    SkASSERT(fDevice->surfaceDrawContext()->asSurfaceProxy()->priv().isExact());
+    SkASSERT(fDevice->surfaceDrawContext()->asSurfaceProxy()->priv().isExact() ||
+             fDevice->surfaceDrawContext()->asSurfaceProxy()->isDDLTarget());
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
@@ -127,10 +128,12 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
     if (srcView.asTextureProxy()) {
         // The surfaceDrawContext coming out of SkGpuDevice should always be exact and the
         // above copy creates a kExact surfaceContext.
+        SkISize dims = srcView.proxy()->backingStoreDimensions();
+
         SkASSERT(srcView.proxy()->priv().isExact());
         image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID,
                                         std::move(srcView), info.colorType(), info.alphaType(),
-                                        info.refColorSpace());
+                                        info.refColorSpace(), dims);
     }
     return image;
 }
@@ -293,10 +296,11 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
         // of drawing a texture proxy.
         const SkImageInfo info = fDevice->imageInfo();
         GrSurfaceProxyView view(std::move(srcProxy), sdc->origin(), sdc->readSwizzle());
+        SkISize dims = view.proxy()->backingStoreDimensions();
         sk_sp<SkImage> image;
         image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(canvasContext), kNeedNewImageUniqueID,
                                         std::move(view), info.colorType(), info.alphaType(),
-                                        info.refColorSpace());
+                                        info.refColorSpace(), dims);
         canvas->drawImage(image.get(), x, y, sampling, paint);
         return true;
     };
@@ -364,7 +368,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == sdc->origin() &&
            characterization.backendFormat() == sdc->asSurfaceProxy()->backendFormat() &&
-           characterization.width() == sdc->width() && characterization.height() == sdc->height() &&
+//           characterization.width() == sdc->width() && characterization.height() == sdc->height() &&
            characterization.colorType() == rtcColorType &&
            characterization.sampleCount() == sdc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(), sdc->colorInfo().colorSpace()) &&

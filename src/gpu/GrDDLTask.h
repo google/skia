@@ -36,6 +36,8 @@ public:
 
     void disown(GrDrawingManager*) override;
 
+    GrSurface* floob() override;
+
 private:
     bool onIsUsed(GrSurfaceProxy*) const override;
 

@@ -27,9 +27,20 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& proc) override {
+                   const GrFragmentProcessor& proc,
+                   SkIPoint viewportOffset) override {
         const GrMatrixEffect& mtx = proc.cast<GrMatrixEffect>();
-        pdman.setSkMatrix(fMatrixVar, mtx.matrix());
+
+//        SkDebugf("GrGLSLMatrixEffect::onSetData\n");
+//        SkDebugf("%.2f %.2f %.2f\n", mtx.matrix()[0], mtx.matrix()[1], mtx.matrix()[2]);
+//        SkDebugf("%.2f %.2f %.2f\n", mtx.matrix()[3], mtx.matrix()[4], mtx.matrix()[5]);
+//        SkDebugf("%.2f %.2f %.2f\n", mtx.matrix()[6], mtx.matrix()[7], mtx.matrix()[8]);
+
+//        if (mtx.matrix()[0] == 1) {
+//            pdman.setSkMatrix(fMatrixVar, SkMatrix::I()); //mtx.matrix());
+//        } else {
+            pdman.setSkMatrix(fMatrixVar, mtx.matrix());
+//        }
     }
 
     UniformHandle fMatrixVar;

@@ -28,7 +28,7 @@ R"SkSL(return %s * %s;
 , _sample0.c_str(), _sample1.c_str());
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
 };
 GrGLSLFragmentProcessor* GrChildProcessorSampleMatrixConstantAndCoords::onCreateGLSLInstance() const {

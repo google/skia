@@ -49,6 +49,7 @@
 DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->drawImage(GetResourceAsImage("images/mandrill_256.png"), 0, 0);
 
+#if 1
     SkCanvas::SaveLayerRec rec;
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kPlus);
@@ -58,6 +59,7 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     paint.setBlendMode(SkBlendMode::kClear);
     canvas->drawCircle(128, 128, 96, paint);
     canvas->restore();
+#endif
 };
 
 DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {

@@ -154,7 +154,7 @@ public:
     const char* name() const override { return "RectBlurEffect"; }
     SkRect rect;
     bool applyInvVM;
-    SkMatrix invVM;
+    SkMatrix invVM1;
     bool isFast;
 
 private:
@@ -170,7 +170,7 @@ private:
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
             , applyInvVM(applyInvVM)
-            , invVM(invVM)
+            , invVM1(invVM)
             , isFast(isFast) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         this->registerChild(std::move(integral), SkSL::SampleUsage::Explicit());

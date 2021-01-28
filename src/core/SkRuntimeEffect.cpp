@@ -764,7 +764,8 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
         return sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(recordingContext),
                                               kNeedNewImageUniqueID,
                                               fillContext->readSurfaceView(),
-                                              resultInfo.colorInfo()));
+                                              resultInfo.colorInfo(),
+                                              {0,0}));
 #else
         return nullptr;
 #endif

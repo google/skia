@@ -171,8 +171,9 @@ sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat f
 
     SkColorType colorType = GrColorTypeToSkColorType(GrMaskFormatToColorType(format));
     SkASSERT(views[index].proxy()->priv().isExact());
+    SkISize dims = views[index].proxy()->backingStoreDimensions();
     sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
-                                         views[index], colorType, kPremul_SkAlphaType, nullptr));
+                                         views[index], colorType, kPremul_SkAlphaType, nullptr, dims));
     return image;
 }
 

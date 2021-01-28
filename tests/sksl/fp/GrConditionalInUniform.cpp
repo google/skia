@@ -36,7 +36,7 @@ R"SkSL(if (%s) {
 , (_outer.test ? "true" : "false"), colorVar.isValid() ? args.fUniformHandler->getUniformCStr(colorVar) : "half4(0)");
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
         const GrConditionalInUniform& _outer = _proc.cast<GrConditionalInUniform>();
         {
         if (colorVar.isValid()) {
