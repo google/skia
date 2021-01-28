@@ -42,7 +42,7 @@ enum class MorphDirection { kX, kY };
 class SkMorphologyImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkMorphologyImageFilterImpl(MorphType type, SkScalar radiusX, SkScalar radiusY,
-                                sk_sp<SkImageFilter> input, const CropRect* cropRect)
+                                sk_sp<SkImageFilter> input, const SkRect* cropRect)
             : INHERITED(&input, 1, cropRect)
             , fType(type)
             , fRadius(SkSize::Make(radiusX, radiusY)) {}
@@ -87,7 +87,7 @@ private:
 
 sk_sp<SkImageFilter> SkDilateImageFilter::Make(SkScalar radiusX, SkScalar radiusY,
                                                sk_sp<SkImageFilter> input,
-                                               const SkImageFilter::CropRect* cropRect) {
+                                               const SkRect* cropRect) {
     if (radiusX < 0 || radiusY < 0) {
         return nullptr;
     }
@@ -97,7 +97,7 @@ sk_sp<SkImageFilter> SkDilateImageFilter::Make(SkScalar radiusX, SkScalar radius
 
 sk_sp<SkImageFilter> SkErodeImageFilter::Make(SkScalar radiusX, SkScalar radiusY,
                                               sk_sp<SkImageFilter> input,
-                                              const SkImageFilter::CropRect* cropRect) {
+                                              const SkRect* cropRect) {
     if (radiusX < 0 || radiusY < 0) {
         return nullptr;
     }
@@ -126,9 +126,9 @@ sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProc(SkReadBuffer& buffe
     MorphType filterType = buffer.read32LE(MorphType::kLastType);
 
     if (filterType == MorphType::kDilate) {
-        return SkDilateImageFilter::Make(width, height, common.getInput(0), &common.cropRect());
+        return SkDilateImageFilter::Make(width, height, common.getInput(0), common.cropRect());
     } else if (filterType == MorphType::kErode) {
-        return SkErodeImageFilter::Make(width, height, common.getInput(0), &common.cropRect());
+        return SkErodeImageFilter::Make(width, height, common.getInput(0), common.cropRect());
     } else {
         return nullptr;
     }

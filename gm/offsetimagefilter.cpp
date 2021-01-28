@@ -114,7 +114,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(640, 200); }
 
     void doDraw(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imgf,
-                const SkRect* clipR = nullptr) {
+                const SkIRect* cropR = nullptr, const SkRect* clipR = nullptr) {
         SkPaint p;
 
         if (clipR) {
@@ -125,12 +125,12 @@ protected:
         }
 
         // Visualize the crop rect for debugging
-        if (imgf && as_IFB(imgf)->cropRectIsSet()) {
-            SkImageFilter::CropRect cr = as_IFB(imgf)->getCropRect();
-
+        if (imgf && cropR) {
             p.setColor(0x66FF00FF);
             p.setStyle(SkPaint::kStroke_Style);
-            canvas->drawRect(cr.rect().makeInset(SK_ScalarHalf, SK_ScalarHalf), p);
+
+            SkRect cr = SkRect::Make(*cropR).makeInset(SK_ScalarHalf, SK_ScalarHalf);
+            canvas->drawRect(cr, p);
             p.setStyle(SkPaint::kFill_Style);
         }
 
@@ -168,17 +168,17 @@ protected:
         this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr));
 
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr, &cr0));
+        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr, &cr0), &cr0);
 
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr), &r);
+        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr), /* cropR */ nullptr, &r);
 
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr, &cr1));
+        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr, &cr1), &cr1);
 
         SkRect clipR = SkRect::MakeXYWH(40, 40, 40, 40);
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr, nullptr), &clipR);
+        this->doDraw(canvas, r, SkImageFilters::Offset(20, 20, nullptr), /* cropR */ nullptr, &clipR);
         canvas->restore();
 
         // 2nd row
@@ -189,19 +189,19 @@ protected:
          */
 
         // crop==clip==src
-        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr0), &r);
+        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr0), &cr0, &r);
 
         // crop==src, clip==dst
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr0), &r2);
+        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr0), &cr0, &r2);
 
         // crop==dst, clip==src
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr2), &r);
+        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr2), &cr2, &r);
 
         // crop==clip==dst
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr2), &r2);
+        this->doDraw(canvas, r, SkImageFilters::Offset(40, 0, nullptr, &cr2), &cr2, &r2);
     }
 
 private:

@@ -32,7 +32,7 @@ namespace {
 class SkMagnifierImageFilterImpl final : public SkImageFilter_Base {
 public:
     SkMagnifierImageFilterImpl(const SkRect& srcRect, SkScalar inset, sk_sp<SkImageFilter> input,
-                               const CropRect* cropRect)
+                               const SkRect* cropRect)
             : INHERITED(&input, 1, cropRect)
             , fSrcRect(srcRect)
             , fInset(inset) {
@@ -58,7 +58,7 @@ private:
 
 sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScalar inset,
                                                   sk_sp<SkImageFilter> input,
-                                                  const SkImageFilter::CropRect* cropRect) {
+                                                  const SkRect* cropRect) {
     if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
         return nullptr;
     }
@@ -86,7 +86,7 @@ sk_sp<SkFlattenable> SkMagnifierImageFilterImpl::CreateProc(SkReadBuffer& buffer
     SkRect src;
     buffer.readRect(&src);
     return SkMagnifierImageFilter::Make(src, buffer.readScalar(), common.getInput(0),
-                                        &common.cropRect());
+                                        common.cropRect());
 }
 
 void SkMagnifierImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
