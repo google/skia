@@ -14,9 +14,9 @@ void draw(SkCanvas* canvas) {
     SkBitmap bitmap;
     bitmap.installPixels(pixmap);
     canvas->scale(10, 10);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     *pixmap.writable_addr16(2, 2) = 0x000F;
     bitmap.installPixels(pixmap);
-    canvas->drawBitmap(bitmap, 10, 0);
+    canvas->drawImage(bitmap.asImage(), 10, 0);
 }
 }  // END FIDDLE

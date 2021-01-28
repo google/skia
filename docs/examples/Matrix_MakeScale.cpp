@@ -5,6 +5,6 @@
 REG_FIDDLE(Matrix_MakeScale, 256, 256, false, 4) {
 void draw(SkCanvas* canvas) {
     canvas->concat(SkMatrix::Scale(4, 3));
-    canvas->drawBitmap(source, 0, 0);
+    canvas->drawImage(image, 0, 0);
 }
 }  // END FIDDLE

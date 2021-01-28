@@ -6,7 +6,7 @@ REG_FIDDLE(Matrix_MakeTrans, 256, 256, false, 4) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix = SkMatrix::Translate(64, 48);
     for (int i = 0; i < 4; ++i) {
-        canvas->drawBitmap(source, 0, 0);
+        canvas->drawImage(image, 0, 0);
         canvas->concat(matrix);
     }
 }

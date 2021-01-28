@@ -16,7 +16,7 @@ void draw(SkCanvas* canvas) {
                 SkPixmap dstPixmap(info, &dstPixels.front(), width * 4);
                 SkBitmap bitmap;
                 bitmap.installPixels(dstPixmap);
-                canvas->drawBitmap(bitmap, 0, 0);
+                canvas->drawImage(bitmap.asImage(), 0, 0);
             }
             canvas->translate(48, 0);
         }
