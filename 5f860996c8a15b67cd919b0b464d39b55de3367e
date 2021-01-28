@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "28eacc58_74a53e6c",
+        "filename": "resources/sksl/shared/UniformBuffers.sksl",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T16:27:54Z",
+      "side": 1,
+      "message": "Yeah, I\u0027d prefer to test the kind of code we\u0027re usually parsing (and also - later - add yet more tests/checks to cut down on the number of places that we allow superfluous layout and modifiers stuff to show up).",
+      "parentUuid": "c26ad682_7258f9ce",
+      "range": {
+        "startLine": 4,
+        "startChar": 11,
+        "endLine": 4,
+        "endChar": 21
+      },
+      "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "85d4520f_8549166c",
         "filename": "tests/sksl/shared/InterfaceBlockNamedArray.metal",
         "patchSetId": 5
