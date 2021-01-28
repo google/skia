@@ -1113,7 +1113,7 @@ void SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
     SkScalar ratio = fTextSizeRender / glyphData.pixelsPerEm;
     canvas.scale(ratio, ratio);
     canvas.translate(-glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
-    canvas.drawImage(image, 0, 0, nullptr);
+    canvas.drawImage(image, 0, 0);
 }
 
 void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
