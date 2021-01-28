@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16fada15_9f1b3a7f",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T14:51:12Z",
+      "side": 0,
+      "message": "2) ... with that piece of code gone, nothing else ever refers to fIsStructDeclaration. So we can get rid of it, which means we can switch to just using kStringFragment storage for kType nodes. All the other changes are just fallout from doing that.",
+      "revId": "a982c77a0af64a57c36cfcd8b941aeff4cea3886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cfa2f57_0d9b0738",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T14:51:12Z",
+      "side": 0,
+      "message": "1) This is the lynchpin. It\u0027s impossible for fIsStructDeclaration to be true here, because we already handled structs specially back on line 480 (type()) can never return a struct declaration node...",
+      "revId": "a982c77a0af64a57c36cfcd8b941aeff4cea3886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
