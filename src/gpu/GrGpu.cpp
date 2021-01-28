@@ -492,7 +492,8 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
                         GrColorType surfaceColorType, GrColorType srcColorType,
                         const GrMipLevel texels[], int mipLevelCount, bool prepForTexSampling) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    ATRACE_ANDROID_FRAMEWORK_ALWAYS("texture_upload");
+    ATRACE_ANDROID_FRAMEWORK_ALWAYS("Texture upload(%u) %ix%i",
+                                    surface->uniqueID().asUInt(), width, height);
     SkASSERT(surface);
     SkASSERT(!surface->framebufferOnly());
     SkASSERT(this->caps()->isFormatTexturableAndUploadable(surfaceColorType,

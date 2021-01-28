@@ -30,7 +30,7 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 static constexpr size_t kMaxAtlasTextureBytes = 2048 * 2048;
-static constexpr size_t kPlotWidth = 512;
+static constexpr size_t kPlotWidth = 256;
 static constexpr size_t kPlotHeight = 256;
 
 #ifdef DF_PATH_TRACKING
