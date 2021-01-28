@@ -820,18 +820,14 @@ std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(const ASTNode
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(e)));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
-    SkASSERT(r.fKind == ASTNode::Kind::kReturn);
+std::unique_ptr<Statement> IRGenerator::convertReturn(int offset,
+                                                      std::unique_ptr<Expression> result) {
     SkASSERT(fCurrentFunction);
     // early returns from a vertex main function will bypass the sk_Position normalization, so
     // SkASSERT that we aren't doing that. It is of course possible to fix this by adding a
     // normalization before each return, but it will probably never actually be necessary.
     SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->name());
-    if (r.begin() != r.end()) {
-        std::unique_ptr<Expression> result = this->convertExpression(*r.begin());
-        if (!result) {
-            return nullptr;
-        }
+    if (result) {
         if (fCurrentFunction->returnType() == *fContext.fTypes.fVoid) {
             this->errorReporter().error(result->fOffset,
                                         "may not return a value from a void function");
@@ -845,11 +841,24 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
         return std::make_unique<ReturnStatement>(std::move(result));
     } else {
         if (fCurrentFunction->returnType() != *fContext.fTypes.fVoid) {
-            this->errorReporter().error(r.fOffset,
-                                        "expected function to return '" +
+            this->errorReporter().error(offset, "expected function to return '" +
                                                 fCurrentFunction->returnType().displayName() + "'");
+            return nullptr;
         }
-        return std::make_unique<ReturnStatement>(r.fOffset);
+        return std::make_unique<ReturnStatement>(offset);
+    }
+}
+
+std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
+    SkASSERT(r.fKind == ASTNode::Kind::kReturn);
+    if (r.begin() != r.end()) {
+        std::unique_ptr<Expression> value = this->convertExpression(*r.begin());
+        if (!value) {
+            return nullptr;
+        }
+        return this->convertReturn(r.fOffset, std::move(value));
+    } else {
+        return this->convertReturn(r.fOffset, /*result=*/nullptr);
     }
 }
 

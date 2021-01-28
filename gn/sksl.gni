@@ -61,6 +61,7 @@ skia_sksl_sources = [
   "$_src/sksl/dsl/DSLBlock.cpp",
   "$_src/sksl/dsl/DSLCore.cpp",
   "$_src/sksl/dsl/DSLExpression.cpp",
+  "$_src/sksl/dsl/DSLFunction.cpp",
   "$_src/sksl/dsl/DSLStatement.cpp",
   "$_src/sksl/dsl/DSLType.cpp",
   "$_src/sksl/dsl/DSLVar.cpp",

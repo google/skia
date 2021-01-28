@@ -10,6 +10,7 @@
 
 #include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
@@ -48,6 +49,10 @@ void End();
  */
 void SetErrorHandler(ErrorHandler* errorHandler);
 
+DSLVar sk_FragColor();
+
+DSLVar sk_FragCoord();
+
 /**
  * Creates a variable declaration statement with an initial value.
  */
@@ -68,6 +73,11 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
  * if (test) ifTrue; [else ifFalse;]
  */
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement());
+
+/**
+ * return [value];
+ */
+DSLStatement Return(DSLExpression value = DSLExpression());
 
 /**
  * test ? ifTrue : ifFalse

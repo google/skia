@@ -35,6 +35,10 @@ public:
         return fExpression;
     }
 
+    void setExpression(std::unique_ptr<Expression> expr) {
+        fExpression = std::move(expr);
+    }
+
     std::unique_ptr<Statement> clone() const override {
         if (this->expression()) {
             return std::unique_ptr<Statement>(new ReturnStatement(this->expression()->clone()));

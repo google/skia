@@ -57,6 +57,14 @@ const char* DSLWriter::Name(const char* name) {
     return name;
 }
 
+const SkSL::FunctionDeclaration* DSLWriter::CurrentFunction() {
+    return IRGenerator().fCurrentFunction;
+}
+
+void DSLWriter::SetCurrentFunction(const SkSL::FunctionDeclaration* fn) {
+    IRGenerator().fCurrentFunction = fn;
+}
+
 std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
     if (expr == nullptr) {
         if (DSLWriter::Compiler().errorCount()) {
