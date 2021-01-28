@@ -20,8 +20,9 @@ void draw(SkCanvas* canvas) {
     canvas->scale(12, 12);
     canvas->drawImage(img, 0, 0);
     paint.setBlendMode(SkBlendMode::kPlus);
-    canvas->drawImage(img, 0, 11, &paint);
-    canvas->drawImage(img, 0, 11, &paint);
-    canvas->drawImage(img, 0, 11, &paint);
+    SkSamplingOptions sampling;
+    canvas->drawImage(img, 0, 11, sampling, &paint);
+    canvas->drawImage(img, 0, 11, sampling, &paint);
+    canvas->drawImage(img, 0, 11, sampling, &paint);
 }
 }  // END FIDDLE

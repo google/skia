@@ -5,7 +5,7 @@ REG_FIDDLE(skpaint_matrix_color_filter, 256, 128, false, 3) {
 void f(SkCanvas* c, SkScalar x, SkScalar y, SkScalar colorMatrix[20]) {
     SkPaint paint;
     paint.setColorFilter(SkColorFilters::Matrix(colorMatrix));
-    c->drawImage(image, x, y, &paint);
+    c->drawImage(image, x, y, SkSamplingOptions(), &paint);
 }
 void draw(SkCanvas* c) {
     c->scale(0.25, 0.25);

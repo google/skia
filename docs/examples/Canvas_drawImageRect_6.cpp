@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
     canvas->scale(4, 4);
     for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {
         paint.setColorFilter(SkColorFilters::Blend(color, SkBlendMode::kPlus));
-        canvas->drawImageRect(image, SkRect::MakeWH(8, 8), &paint);
+        canvas->drawImageRect(image, SkRect::MakeWH(8, 8), SkSamplingOptions(), &paint);
         canvas->translate(8, 0);
     }
 }

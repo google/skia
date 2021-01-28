@@ -14,7 +14,8 @@ void draw(SkCanvas* canvas) {
     canvas->scale(4, 4);
     for (auto alpha : { 50, 100, 150, 255 } ) {
         paint.setAlpha(alpha);
-        canvas->drawImageRect(image, SkRect::MakeWH(2, 2), SkRect::MakeWH(8, 8), &paint);
+        canvas->drawImageRect(image, SkRect::MakeWH(2, 2), SkRect::MakeWH(8, 8),
+                              SkSamplingOptions(), &paint, SkCanvas::kStrict_SrcRectConstraint);
         canvas->translate(8, 0);
     }
 }

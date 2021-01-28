@@ -19,7 +19,7 @@ void draw(SkCanvas* canvas) {
     SkPaint p;
     p.setShader(linear_gradient());
     auto i = alpha_image();
-    canvas->drawImage(i.get(), 128, 0, &p);
+    canvas->drawImage(i.get(), 128, 0, SkSamplingOptions(), &p);
     canvas->drawRect({0, 128, 128, 256}, p);
 }
 }  // END FIDDLE

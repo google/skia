@@ -31,10 +31,10 @@ void draw(SkCanvas* canvas) {
     paint.setColor(SK_ColorGREEN);
     canvas->drawPath(path, paint);
 
-    canvas->drawImage(image, 128, 128, &paint);
+    canvas->drawImage(image, 128, 128, SkSamplingOptions(), &paint);
 
     SkRect rect2 = SkRect::MakeXYWH(0, 0, 40, 60);
-    canvas->drawImageRect(image, rect2, &paint);
+    canvas->drawImageRect(image, rect2, SkSamplingOptions(), &paint);
 
     SkPaint paint2;
     auto text = SkTextBlob::MakeFromString("Hello, Skia!", SkFont(nullptr, 18));

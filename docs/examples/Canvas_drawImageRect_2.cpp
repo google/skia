@@ -6,8 +6,9 @@ REG_FIDDLE(Canvas_drawImageRect_2, 256, 256, false, 4) {
 void draw(SkCanvas* canvas) {
     // sk_sp<SkImage> image;
     for (auto i : { 1, 2, 4, 8 } ) {
-        canvas->drawImageRect(image.get(), SkIRect::MakeLTRB(0, 0, 100, 100),
-                SkRect::MakeXYWH(i * 20, i * 20, i * 20, i * 20), nullptr);
+        canvas->drawImageRect(image.get(), SkRect::MakeLTRB(0, 0, 100, 100),
+                SkRect::MakeXYWH(i * 20, i * 20, i * 20, i * 20), SkSamplingOptions(),
+                nullptr, SkCanvas::kStrict_SrcRectConstraint);
     }
 }
 }  // END FIDDLE

@@ -12,10 +12,15 @@ void draw(SkCanvas* canvas) {
     SkPixmap pixmap(SkImageInfo::MakeN32Premul(quarterWidth, quarterHeight),
                     &srcPixels.front(), rowBytes);
     canvas->scale(4, 4);
-    SkFilterQuality qualities[] = { kNone_SkFilterQuality, kLow_SkFilterQuality,
-                     kMedium_SkFilterQuality, kHigh_SkFilterQuality };
-    for (unsigned index = 0; index < SK_ARRAY_COUNT(qualities); ++index) {
-        image->scalePixels(pixmap, SkSamplingOptions(qualities[index]));
+
+    const SkSamplingOptions samplings[] = {
+        SkSamplingOptions(),
+        SkSamplingOptions(SkFilterMode::kLinear),
+        SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+        SkSamplingOptions({1.0f/3, 1.0f/3}),
+    };
+    for (unsigned index = 0; index < SK_ARRAY_COUNT(samplings); ++index) {
+        image->scalePixels(pixmap, samplings[index]);
         sk_sp<SkImage> filtered = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
         canvas->drawImage(filtered, 16 * index, 0);
     }
