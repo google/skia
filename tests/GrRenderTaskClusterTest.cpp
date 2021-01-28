@@ -92,11 +92,39 @@ static void create_graph2(SkTArray<sk_sp<GrMockRenderTask>>* graph,
     // expected is empty. Can't reorder.
 }
 
+/*
+ * Write-after-read case.
+ * In:   A1 B1 A2 B2
+ * Srcs: A1->B1, A2->B2
+ * Used: B1(A), B2(A)
+ * Out:  Can't reorder.
+ */
+static void create_graph3(SkTArray<sk_sp<GrMockRenderTask>>* graph,
+                          SkTArray<sk_sp<GrMockRenderTask>>* expected) {
+    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
+    make_proxies(2, &proxies);
+    make_tasks(4, graph);
+
+    graph->at(0)->addTarget(proxies[0]);
+    graph->at(1)->addTarget(proxies[1]);
+    graph->at(2)->addTarget(proxies[0]);
+    graph->at(3)->addTarget(proxies[1]);
+
+    graph->at(1)->addDependency(graph->at(0).get());
+    graph->at(3)->addDependency(graph->at(2).get());
+
+    graph->at(1)->addUsed(proxies[0]);
+    graph->at(3)->addUsed(proxies[0]);
+
+    // expected is empty. Can't reorder.
+}
+
 DEF_TEST(GrRenderTaskCluster, reporter) {
     CreateGraphPF tests[] = {
         create_graph0,
         create_graph1,
-        create_graph2
+        create_graph2,
+        create_graph3
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(tests); ++i) {
