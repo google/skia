@@ -66,7 +66,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest, repo
     auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
-    canvas->drawImage(std::move(img), 0, 0, &p);
+    canvas->drawImage(std::move(img), 0, 0, SkSamplingOptions(), &p);
 
     context->abandonContext();
 }

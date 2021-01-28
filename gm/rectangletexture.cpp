@@ -153,11 +153,11 @@ private:
 
         static constexpr SkScalar kPad = 5.f;
 
-        constexpr SkFilterQuality kQualities[] = {
-                kNone_SkFilterQuality,
-                kLow_SkFilterQuality,
-                kMedium_SkFilterQuality,
-                kHigh_SkFilterQuality,
+        const SkSamplingOptions kSamplings[] = {
+            SkSamplingOptions(SkFilterMode::kNearest),
+            SkSamplingOptions(SkFilterMode::kLinear),
+            SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+            SkSamplingOptions({1.0f/3, 1.0f/3}),
         };
 
         constexpr SkScalar kScales[] = {1.0f, 1.2f, 0.75f};
@@ -170,16 +170,14 @@ private:
             for (auto s : kScales) {
                 canvas->save();
                 canvas->scale(s, s);
-                for (auto q : kQualities) {
+                for (auto s : kSamplings) {
                     // drawImage
-                    SkPaint plainPaint;
-                    plainPaint.setFilterQuality(q);
-                    canvas->drawImage(img, 0, 0, &plainPaint);
+                    canvas->drawImage(img, 0, 0, s);
                     canvas->translate(w + kPad, 0);
 
                     // clamp/clamp shader
                     SkPaint clampPaint;
-                    clampPaint.setShader(fGradImgs[i]->makeShader(SkSamplingOptions(q)));
+                    clampPaint.setShader(fGradImgs[i]->makeShader(s));
                     canvas->drawRect(SkRect::MakeWH(1.5f*w, 1.5f*h), clampPaint);
                     canvas->translate(1.5f*w + kPad, 0);
 
@@ -187,14 +185,14 @@ private:
                     SkPaint repeatPaint;
                     repeatPaint.setShader(fGradImgs[i]->makeShader(SkTileMode::kRepeat,
                                                                    SkTileMode::kMirror,
-                                                                   SkSamplingOptions(q)));
+                                                                   s));
                     canvas->drawRect(SkRect::MakeWH(1.5f*w, 1.5f*h), repeatPaint);
                     canvas->translate(1.5f*w + kPad, 0);
 
                     // drawImageRect with kStrict
                     auto srcRect = SkRect::MakeXYWH(.25f*w, .25f*h, .50f*w, .50f*h);
                     auto dstRect = SkRect::MakeXYWH(      0,     0, .50f*w, .50f*h);
-                    canvas->drawImageRect(fGradImgs[i], srcRect, dstRect, &plainPaint,
+                    canvas->drawImageRect(fGradImgs[i], srcRect, dstRect, s, nullptr,
                                           SkCanvas::kStrict_SrcRectConstraint);
                     canvas->translate(.5f*w + kPad, 0);
                 }

@@ -337,16 +337,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest, reporter, ctxInfo)
     // Make sure we scale so we don't optimize out the use of mips.
     surface->getCanvas()->scale(0.5f, 0.5f);
 
-    SkPaint paint;
     // This should upload the image to a non mipped GrTextureProxy.
-    surface->getCanvas()->drawImage(bmpImage, 0, 0, &paint);
+    surface->getCanvas()->drawImage(bmpImage, 0, 0);
     surface->flushAndSubmit();
 
     // Now set the filter quality to high so we use mip maps. We should find the non mipped texture
     // in the cache for the SkImage. Since the texture is 1x1 we should just use that texture
     // instead of trying to do a copy to a mipped texture.
-    paint.setFilterQuality(kHigh_SkFilterQuality);
-    surface->getCanvas()->drawImage(bmpImage, 0, 0, &paint);
+    surface->getCanvas()->drawImage(bmpImage, 0, 0, SkSamplingOptions({1.0f/3, 1.0f/3}));
     surface->flushAndSubmit();
 }
 
