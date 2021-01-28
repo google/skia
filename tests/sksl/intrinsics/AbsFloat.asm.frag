@@ -49,17 +49,17 @@ OpDecorate %78 RelaxedPrecision
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
-%float_n1 = OpConstant %float -1
+%float_1_25 = OpConstant %float 1.25
 %v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
-%38 = OpConstantComposite %v2float %float_n1 %float_0
+%38 = OpConstantComposite %v2float %float_1_25 %float_0
 %v2bool = OpTypeVector %bool 2
 %v3float = OpTypeVector %float 3
-%float_1 = OpConstant %float 1
-%51 = OpConstantComposite %v3float %float_n1 %float_0 %float_1
+%float_0_75 = OpConstant %float 0.75
+%51 = OpConstantComposite %v3float %float_1_25 %float_0 %float_0_75
 %v3bool = OpTypeVector %bool 3
-%float_3 = OpConstant %float 3
-%62 = OpConstantComposite %v4float %float_n1 %float_0 %float_1 %float_3
+%float_2_25 = OpConstant %float 2.25
+%62 = OpConstantComposite %v4float %float_1_25 %float_0 %float_0_75 %float_2_25
 %v4bool = OpTypeVector %bool 4
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %int_1 = OpConstant %int 1
@@ -76,15 +76,15 @@ OpFunctionEnd
 %22 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %26 = OpLoad %v4float %22
 %27 = OpCompositeExtract %float %26 0
-%21 = OpExtInst %float %1 Ceil %27
-%29 = OpFOrdEqual %bool %21 %float_n1
+%21 = OpExtInst %float %1 FAbs %27
+%29 = OpFOrdEqual %bool %21 %float_1_25
 OpSelectionMerge %31 None
 OpBranchConditional %29 %30 %31
 %30 = OpLabel
 %33 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %34 = OpLoad %v4float %33
 %35 = OpVectorShuffle %v2float %34 %34 0 1
-%32 = OpExtInst %v2float %1 Ceil %35
+%32 = OpExtInst %v2float %1 FAbs %35
 %39 = OpFOrdEqual %v2bool %32 %38
 %41 = OpAll %bool %39
 OpBranch %31
@@ -96,7 +96,7 @@ OpBranchConditional %42 %43 %44
 %46 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %47 = OpLoad %v4float %46
 %48 = OpVectorShuffle %v3float %47 %47 0 1 2
-%45 = OpExtInst %v3float %1 Ceil %48
+%45 = OpExtInst %v3float %1 FAbs %48
 %52 = OpFOrdEqual %v3bool %45 %51
 %54 = OpAll %bool %52
 OpBranch %44
@@ -107,7 +107,7 @@ OpBranchConditional %55 %56 %57
 %56 = OpLabel
 %59 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %60 = OpLoad %v4float %59
-%58 = OpExtInst %v4float %1 Ceil %60
+%58 = OpExtInst %v4float %1 FAbs %60
 %63 = OpFOrdEqual %v4bool %58 %62
 %65 = OpAll %bool %63
 OpBranch %57
