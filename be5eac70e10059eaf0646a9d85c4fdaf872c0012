@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c46060c_2afa18dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-28T20:53:52Z",
+      "side": 1,
+      "message": "Tested this on both a retina and non-retina Mac. With these modifications a default open viewer looks more or less the same but much sharper. At Patchset 2 this has not been applied to the GUI, so those bits are still quite small, but otherwise handled correctly.",
+      "revId": "be5eac70e10059eaf0646a9d85c4fdaf872c0012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
