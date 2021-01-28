@@ -1796,8 +1796,8 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
     auto sampleChild = [&](int i, skvm::Coord coord) {
         skvm::PixelFormat pixelFormat;
         SkColorType_to_PixelFormat(kRGBA_F32_SkColorType, &pixelFormat);
-        skvm::I32 index = trunc(coord.x) +
-                          trunc(coord.y) * children[i].rowBytesAsPixels;
+        skvm::I32 index  = trunc(coord.x);
+                  index += trunc(coord.y) * children[i].rowBytesAsPixels;
         return gather(pixelFormat, children[i].addr, index);
     };
 
