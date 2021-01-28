@@ -97,15 +97,15 @@ public:
             }
         }
         for (const auto& f : fArgs.fFunctions) {
-            fFunctionNames.push_back(fragBuilder->getMangledFunctionName(f.fName.c_str()));
+            fFunctionNames.push_back(
+                    fragBuilder->getMangledFunctionName(SkString(f.fDecl->name()).c_str()));
             auto fmtArgIter = f.fFormatArgs.cbegin();
             // Helper functions can't refer to sample-coords directly (they're a parameter to main)
             SkSL::String body =
                     this->expandFormatArgs(f.fBody, args, /*sampleCoords=*/nullptr, fmtArgIter);
             SkASSERT(fmtArgIter == f.fFormatArgs.cend());
-            fragBuilder->emitFunction(f.fReturnType,
+            fragBuilder->emitFunction(f.fDecl,
                                       fFunctionNames.back().c_str(),
-                                      {f.fParameters.data(), f.fParameters.size()},
                                       body.c_str());
         }
         SkString coordsVarName = fragBuilder->newTmpVarName("coords");

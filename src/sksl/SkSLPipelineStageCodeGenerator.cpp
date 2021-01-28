@@ -204,31 +204,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     } else {
         {
             AutoOutputStream streamToBuffer(this, &buffer);
-            const FunctionDeclaration& decl = f.declaration();
-            if (!type_to_grsltype(fContext, decl.returnType(), &result.fReturnType)) {
-                fErrors.error(f.fOffset, "unsupported return type");
-                return;
-            }
-            result.fName = decl.name();
-            for (const Variable* v : decl.parameters()) {
-                GrSLType paramSLType;
-                if (!type_to_grsltype(fContext, v->type(), &paramSLType)) {
-                    fErrors.error(v->fOffset, "unsupported parameter type");
-                    return;
-                }
-                GrShaderVar::TypeModifier typeModifier = GrShaderVar::TypeModifier::None;
-                switch (v->modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) {
-                    case Modifiers::kOut_Flag:
-                        typeModifier = GrShaderVar::TypeModifier::Out;
-                        break;
-                    case Modifiers::kIn_Flag | Modifiers::kOut_Flag:
-                        typeModifier = GrShaderVar::TypeModifier::InOut;
-                        break;
-                    default:
-                        break;
-                }
-                result.fParameters.emplace_back(v->name(), paramSLType, typeModifier);
-            }
+            result.fDecl = &f.declaration();
             for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
                 this->writeStatement(*stmt);
                 this->writeLine();
