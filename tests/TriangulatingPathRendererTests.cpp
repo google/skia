@@ -790,18 +790,6 @@ public:
     SkAutoTMalloc<SkPoint> fPoints;
 };
 
-class SimpleBreadcrumbCollector
-        : public GrInnerFanTriangulator::BreadcrumbTriangleCollector, public SkTArray<SkPoint> {
-    void onPush(SkPoint p0, SkPoint p1, SkPoint p2, int winding) override {
-        SkASSERT(winding > 0);
-        for (int i = 0; i < winding; ++i) {
-            this->push_back(p0);
-            this->push_back(p1);
-            this->push_back(p2);
-        }
-    }
-};
-
 }  // namespace
 
 struct Edge {
@@ -869,14 +857,14 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
                                          SkPath path) {
     for (auto fillType : {SkPathFillType::kWinding}) {
         path.setFillType(fillType);
-        SimpleBreadcrumbCollector breadcrumbs;
+        SkArenaAlloc arena(GrTriangulator::kArenaDefaultChunkSize);
+        GrInnerFanTriangulator::BreadcrumbTriangleList breadcrumbs;
         SimpleVertexAllocator vertexAlloc;
         int vertexCount;
         {
             bool isLinear;
-            SkArenaAlloc arena(GrTriangulator::kArenaDefaultChunkSize);
-            GrInnerFanTriangulator triangulator(path, &arena, &breadcrumbs);
-            vertexCount = triangulator.pathToTriangles(&vertexAlloc, &isLinear);
+            GrInnerFanTriangulator triangulator(path, &arena);
+            vertexCount = triangulator.pathToTriangles(&vertexAlloc, &breadcrumbs, &isLinear);
         }
 
         // Count up all the triangulated edges.
@@ -885,9 +873,12 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
             add_tri_edges(r, trianglePlusBreadcrumbEdges, vertexAlloc.fPoints.data() + i);
         }
         // Count up all the breadcrumb edges.
-        for (int i = 0; i < breadcrumbs.count(); i += 3) {
-            add_tri_edges(r, trianglePlusBreadcrumbEdges, breadcrumbs.data() + i);
+        int breadcrumbCount = 0;
+        for (const auto* node = breadcrumbs.head(); node; node = node->fNext) {
+            add_tri_edges(r, trianglePlusBreadcrumbEdges, node->fPts);
+            ++breadcrumbCount;
         }
+        REPORTER_ASSERT(r, breadcrumbCount == breadcrumbs.count());
         // The triangulated + breadcrumb edges should cancel out to the inner polygon edges.
         trianglePlusBreadcrumbEdges = simplify(trianglePlusBreadcrumbEdges, path.getFillType());
 
