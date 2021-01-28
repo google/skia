@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ad517b4_eb7b4f5c",
+        "filename": "tools/svg/svg_downloader.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-28T18:30:22Z",
+      "side": 1,
+      "message": "I would guess we don\u0027t need this (or import sys). If we do need it, we should document why it is needed.",
+      "range": {
+        "startLine": 69,
+        "startChar": 2,
+        "endLine": 69,
+        "endChar": 5
+      },
+      "revId": "265df4dc83eb5d40dc5dd7ef713c392dcdad5659",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
