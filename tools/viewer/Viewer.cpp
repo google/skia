@@ -376,6 +376,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fDisplay = fWindow->getRequestedDisplayParams();
     fRefresh = FLAGS_redraw;
 
+    // computePreTouchMatrix uses exp(fZoomLevel) to compute the scale.
+    float scaleFactor = fWindow->scaleFactor();
+    fZoomLevel = log(scaleFactor);
+    fImGuiLayer.setScaleFactor(scaleFactor);
+
     // Configure timers
     fStatsLayer.setActive(FLAGS_stats);
     fAnimateTimer = fStatsLayer.addTimer("Animate", SK_ColorMAGENTA, 0xffff66ff);
