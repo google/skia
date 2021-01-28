@@ -1357,3 +1357,7 @@ GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
 bool GrD3DGpu::waitFence(GrFence fence) {
     return (fFence->GetCompletedValue() >= fence);
 }
+
+void GrD3DGpu::finishOutstandingGpuWork() {
+    this->waitForQueueCompletion();
+}

@@ -811,6 +811,8 @@ protected:
     GrDirectContext* asDirectContext() override { return this; }
 
 private:
+    void syncAllOutstandingGpuWork();
+
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
