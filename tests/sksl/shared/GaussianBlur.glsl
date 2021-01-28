@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
 layout (binding = 0) uniform sampler2D uTextureSampler_0_Stage1;
-layout (binding = 0) uniform uniformBuffer {
+layout (binding = 0) uniform UUUUuniformBuffer {
     layout (offset = 0) vec4 sk_RTAdjust;
     layout (offset = 16) vec2 uIncrement_Stage1_c0;
     layout (offset = 32) vec4[7] uKernel_Stage1_c0;

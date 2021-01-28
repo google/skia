@@ -1,5 +1,5 @@
 layout(binding=0) uniform sampler2D uTextureSampler_0_Stage1;
-layout (binding=0) uniform uniformBuffer
+layout (binding=0) uniform UUUUuniformBuffer
 {
 	layout(offset=0) float4 sk_RTAdjust;
 	layout(offset=16) half2 uIncrement_Stage1_c0;

@@ -7,7 +7,7 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-struct uniformBuffer {
+struct UUUUuniformBuffer {
     float4 sk_RTAdjust;
     float2 uIncrement_Stage1_c0;
     char pad0[8];
@@ -18,7 +18,7 @@ struct uniformBuffer {
     float4 unorm_Stage1_c0_c0_c0;
 };
 struct Globals {
-    constant uniformBuffer* _anonInterface0;
+    constant UUUUuniformBuffer* _anonInterface0;
     texture2d<float> uTextureSampler_0_Stage1;
     sampler uTextureSampler_0_Stage1Smplr;
 };
@@ -41,7 +41,7 @@ float4 MatrixEffect_Stage1_c0_c0(thread Globals& _globals, float4 _input, float2
     return _5_textureColor;
 
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTextureSampler_0_Stage1[[texture(0)]], sampler uTextureSampler_0_Stage1Smplr[[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTextureSampler_0_Stage1[[texture(0)]], sampler uTextureSampler_0_Stage1Smplr[[sampler(0)]], constant UUUUuniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{&_anonInterface0, uTextureSampler_0_Stage1, uTextureSampler_0_Stage1Smplr};
     (void)_globals;
     Outputs _out;

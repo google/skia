@@ -3,14 +3,14 @@ OpCapability Shader
 OpMemoryModel Logical GLSL450
 OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise %vLocalCoord_Stage0
 OpExecutionMode %main OriginUpperLeft
-OpName %uniformBuffer "uniformBuffer"
-OpMemberName %uniformBuffer 0 "sk_RTAdjust"
-OpMemberName %uniformBuffer 1 "uIncrement_Stage1_c0"
-OpMemberName %uniformBuffer 2 "uKernel_Stage1_c0"
-OpMemberName %uniformBuffer 3 "umatrix_Stage1_c0_c0"
-OpMemberName %uniformBuffer 4 "uborder_Stage1_c0_c0_c0"
-OpMemberName %uniformBuffer 5 "usubset_Stage1_c0_c0_c0"
-OpMemberName %uniformBuffer 6 "unorm_Stage1_c0_c0_c0"
+OpName %UUUUuniformBuffer "UUUUuniformBuffer"
+OpMemberName %UUUUuniformBuffer 0 "sk_RTAdjust"
+OpMemberName %UUUUuniformBuffer 1 "uIncrement_Stage1_c0"
+OpMemberName %UUUUuniformBuffer 2 "uKernel_Stage1_c0"
+OpMemberName %UUUUuniformBuffer 3 "umatrix_Stage1_c0_c0"
+OpMemberName %UUUUuniformBuffer 4 "uborder_Stage1_c0_c0_c0"
+OpMemberName %UUUUuniformBuffer 5 "usubset_Stage1_c0_c0_c0"
+OpMemberName %UUUUuniformBuffer 6 "unorm_Stage1_c0_c0_c0"
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %uTextureSampler_0_Stage1 "uTextureSampler_0_Stage1"
@@ -28,19 +28,19 @@ OpName %_8_output "_8_output"
 OpName %_9_coord "_9_coord"
 OpName %_10_coordSampled "_10_coordSampled"
 OpDecorate %_arr_v4float_int_7 ArrayStride 16
-OpMemberDecorate %uniformBuffer 0 Offset 0
-OpMemberDecorate %uniformBuffer 1 Offset 16
-OpMemberDecorate %uniformBuffer 1 RelaxedPrecision
-OpMemberDecorate %uniformBuffer 2 Offset 32
-OpMemberDecorate %uniformBuffer 2 RelaxedPrecision
-OpMemberDecorate %uniformBuffer 3 Offset 144
-OpMemberDecorate %uniformBuffer 3 ColMajor
-OpMemberDecorate %uniformBuffer 3 MatrixStride 16
-OpMemberDecorate %uniformBuffer 4 Offset 192
-OpMemberDecorate %uniformBuffer 4 RelaxedPrecision
-OpMemberDecorate %uniformBuffer 5 Offset 208
-OpMemberDecorate %uniformBuffer 6 Offset 224
-OpDecorate %uniformBuffer Block
+OpMemberDecorate %UUUUuniformBuffer 0 Offset 0
+OpMemberDecorate %UUUUuniformBuffer 1 Offset 16
+OpMemberDecorate %UUUUuniformBuffer 1 RelaxedPrecision
+OpMemberDecorate %UUUUuniformBuffer 2 Offset 32
+OpMemberDecorate %UUUUuniformBuffer 2 RelaxedPrecision
+OpMemberDecorate %UUUUuniformBuffer 3 Offset 144
+OpMemberDecorate %UUUUuniformBuffer 3 ColMajor
+OpMemberDecorate %UUUUuniformBuffer 3 MatrixStride 16
+OpMemberDecorate %UUUUuniformBuffer 4 Offset 192
+OpMemberDecorate %UUUUuniformBuffer 4 RelaxedPrecision
+OpMemberDecorate %UUUUuniformBuffer 5 Offset 208
+OpMemberDecorate %UUUUuniformBuffer 6 Offset 224
+OpDecorate %UUUUuniformBuffer Block
 OpDecorate %4 Binding 0
 OpDecorate %4 DescriptorSet 0
 OpDecorate %sk_FragColor RelaxedPrecision
@@ -166,9 +166,9 @@ OpDecorate %497 RelaxedPrecision
 %_arr_v4float_int_7 = OpTypeArray %v4float %int_7
 %v3float = OpTypeVector %float 3
 %mat3v3float = OpTypeMatrix %v3float 3
-%uniformBuffer = OpTypeStruct %v4float %v2float %_arr_v4float_int_7 %mat3v3float %v4float %v4float %v4float
-%_ptr_Uniform_uniformBuffer = OpTypePointer Uniform %uniformBuffer
-%4 = OpVariable %_ptr_Uniform_uniformBuffer Uniform
+%UUUUuniformBuffer = OpTypeStruct %v4float %v2float %_arr_v4float_int_7 %mat3v3float %v4float %v4float %v4float
+%_ptr_Uniform_UUUUuniformBuffer = OpTypePointer Uniform %UUUUuniformBuffer
+%4 = OpVariable %_ptr_Uniform_UUUUuniformBuffer Uniform
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %bool = OpTypeBool
