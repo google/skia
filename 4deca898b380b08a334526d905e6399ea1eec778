@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86159f38_dc899ff7",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-28T15:01:35Z",
+      "side": 1,
+      "message": "nit: I don\u0027t think it\u0027s super important to return nullptr for no assets/audio (it should work just fine and just fail to find/load any assets).  To reduce the JS API surface, I would drop the isEmpty check.  Feel free to remove the assets.empty check also, for consistency.",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab73c784_0da0ee93",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-28T15:01:35Z",
+      "side": 1,
+      "message": "nit: std::move(soundMap)",
+      "range": {
+        "startLine": 60,
+        "startChar": 87,
+        "endLine": 60,
+        "endChar": 95
+      },
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f18c7bd_5c0c215c",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-28T15:01:35Z",
+      "side": 1,
+      "message": "What if the named track is not found?  We prolly need a way to check that the returned value is a valid Howl (and not \u0027undefined\u0027 or whatever JS feels like returning).",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45f92c3c_b5954c6a",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-28T15:01:35Z",
+      "side": 1,
+      "message": "Is there a way to validate that fSoundMap has a getHowl method?  What happens if the client doesn\u0027t pass one (or passes garbage/wrong type)?",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "481f77c0_2fcc7ced",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-28T15:01:35Z",
+      "side": 1,
+      "message": "If we\u0027re changing the signature here, I think we also need to update the JS factory (CanvasKit.MakeManagedAnimation in skottie.js).\n\nWould be nice to exercise the updated API in some of the CK tests/samples (tests/skottie.spec.js, canvaskit/extra.html), even if just passing in a dummy/placeholder for now.",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
