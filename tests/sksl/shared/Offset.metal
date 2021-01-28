@@ -1,6 +1,11 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+struct Test {
+    int x;
+    int y;
+    int z;
+};
 struct Inputs {
 };
 struct Outputs {
@@ -9,11 +14,7 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    struct Test {
-        int x;
-        int y;
-        int z;
-    } t;
+    Test t;
     t.x = 0;
     _out.sk_FragColor.x = float(t.x);
     return _out;
