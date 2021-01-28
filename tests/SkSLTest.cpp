@@ -110,6 +110,7 @@ SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 SKSL_TEST(SkSLIntrinsicAbsFloat,       "intrinsics/AbsFloat.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,           "intrinsics/Ceil.sksl")
 SKSL_TEST(SkSLIntrinsicFloor,          "intrinsics/Floor.sksl")
+SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
