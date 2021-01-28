@@ -110,6 +110,8 @@ SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 SKSL_TEST(SkSLIntrinsicAbsFloat,       "intrinsics/AbsFloat.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,           "intrinsics/Ceil.sksl")
 SKSL_TEST(SkSLIntrinsicFloor,          "intrinsics/Floor.sksl")
+SKSL_TEST(SkSLIntrinsicMaxFloat,       "intrinsics/MaxFloat.sksl")
+SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
@@ -121,6 +123,8 @@ SKSL_TEST(SkSLIntFoldingES3,           "folding/IntFoldingES3.sksl")
 SKSL_TEST(SkSLMatrixFoldingES3,        "folding/MatrixFoldingES3.sksl")
 
 SKSL_TEST(SkSLIntrinsicAbsInt,         "intrinsics/AbsInt.sksl")
+SKSL_TEST(SkSLIntrinsicMaxInt,         "intrinsics/MaxInt.sksl")
+SKSL_TEST(SkSLIntrinsicMinInt,         "intrinsics/MinInt.sksl")
 SKSL_TEST(SkSLIntrinsicSignInt,        "intrinsics/SignInt.sksl")
 
 SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")

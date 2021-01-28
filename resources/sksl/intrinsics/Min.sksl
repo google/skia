@@ -1,1 +1,0 @@
-in half a, b; void main() { sk_FragColor.x = min(a, b); }
