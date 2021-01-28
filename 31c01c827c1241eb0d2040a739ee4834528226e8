@@ -70,6 +70,30 @@
       },
       "revId": "31c01c827c1241eb0d2040a739ee4834528226e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70748641_c9c00904",
+        "filename": "tests/sksl/shared/StructsInFunctions.asm.frag",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T16:57:11Z",
+      "side": 1,
+      "message": "http://review.skia.org/360776 is on deck now which will just fix skia:11225 either way, so I think we\u0027re good to go.",
+      "parentUuid": "263ef546_2b7ed451",
+      "range": {
+        "startLine": 3,
+        "startChar": 76,
+        "endLine": 3,
+        "endChar": 88
+      },
+      "revId": "31c01c827c1241eb0d2040a739ee4834528226e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
