@@ -148,6 +148,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e66933d3_65000545",
+        "filename": "samplecode/SampleTessellatedWedge.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-28T01:02:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "161932c5_3ec662c4",
+      "range": {
+        "startLine": 97,
+        "startChar": 30,
+        "endLine": 97,
+        "endChar": 49
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1323daf9_279ee12e",
@@ -281,6 +305,30 @@
       "side": 1,
       "message": "I see. Yes, that would work. Are you saying you prefer these methods to return a tuple instead of taking a pointer to the list they will append to?",
       "parentUuid": "505b2692_451867e0",
+      "range": {
+        "startLine": 37,
+        "startChar": 25,
+        "endLine": 37,
+        "endChar": 78
+      },
+      "revId": "f73699ce4228e410172d6cd7714f95dad4801daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "001548d4_12b6695d",
+        "filename": "src/gpu/GrInnerFanTriangulator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-01-28T01:02:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "356ee3f0_562a9ce6",
       "range": {
         "startLine": 37,
         "startChar": 25,
