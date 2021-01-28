@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07233a6b_1ea498de",
+        "filename": "resources/sksl/shared/UniformBuffers.sksl",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T16:21:35Z",
+      "side": 1,
+      "message": "Is this meaningful? (When there\u0027s also a binding on the whole block?) I need to refresh my understanding.",
+      "range": {
+        "startLine": 4,
+        "startChar": 11,
+        "endLine": 4,
+        "endChar": 21
+      },
+      "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85d4520f_8549166c",
+        "filename": "tests/sksl/shared/InterfaceBlockNamedArray.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T16:21:35Z",
+      "side": 1,
+      "message": "This output isn\u0027t valid MSL, right? We\u0027ve got test declared as an array at global scope, plus the declaration in main\u0027s arguments. This is just a symptom of interface blocks not really being handled in Metal, though?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 1
+      },
+      "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
