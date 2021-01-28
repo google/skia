@@ -488,10 +488,6 @@ ASTNode::ID Parser::declaration() {
     if (!type) {
         return ASTNode::ID::Invalid();
     }
-    if (getNode(type).getTypeData().fIsStructDeclaration &&
-        this->checkNext(Token::Kind::TK_SEMICOLON)) {
-        return ASTNode::ID::Invalid();
-    }
     Token name;
     if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
@@ -593,7 +589,7 @@ ASTNode::ID Parser::structDeclaration() {
                         "modifier '" + desc + "' is not permitted on a struct field");
         }
 
-        const Symbol* symbol = fSymbols[(declsNode.begin() + 1)->getTypeData().fName];
+        const Symbol* symbol = fSymbols[(declsNode.begin() + 1)->getString()];
         SkASSERT(symbol);
         const Type* type = &symbol->as<Type>();
         if (type->isOpaque()) {
@@ -636,9 +632,7 @@ ASTNode::ID Parser::structDeclaration() {
         return ASTNode::ID::Invalid();
     }
     fSymbols.add(std::move(newType));
-    return this->createNode(name.fOffset, ASTNode::Kind::kType,
-                            ASTNode::TypeData(this->text(name),
-                                              /*isStructDeclaration=*/true));
+    return this->createNode(name.fOffset, ASTNode::Kind::kType, this->text(name));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -1149,8 +1143,7 @@ ASTNode::ID Parser::type() {
         this->error(type, ("no type named '" + this->text(type) + "'").c_str());
         return ASTNode::ID::Invalid();
     }
-    ASTNode::ID result = this->createNode(type.fOffset, ASTNode::Kind::kType);
-    ASTNode::TypeData td(this->text(type), /*isStructDeclaration=*/false);
+    ASTNode::ID result = this->createNode(type.fOffset, ASTNode::Kind::kType, this->text(type));
     bool isArray = false;
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
         if (isArray) {
@@ -1171,7 +1164,6 @@ ASTNode::ID Parser::type() {
         isArray = true;
         this->expect(Token::Kind::TK_RBRACKET, "']'");
     }
-    getNode(result).setTypeData(td);
     return result;
 }
 
