@@ -143,8 +143,8 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
     SkASSERT(fTriangleVertexCount == 0);
     SkASSERT(!fStencilTrianglesProgram);
     SkASSERT(!fFillTrianglesProgram);
-    fInnerFanTriangulator = args.fArena->make<GrInnerFanTriangulator>(fPath, args.fArena, nullptr);
-    fInnerFanPolys = fInnerFanTriangulator->pathToPolys(isLinear);
+    fInnerFanTriangulator = args.fArena->make<GrInnerFanTriangulator>(fPath, args.fArena, true);
+    fInnerFanPolys = fInnerFanTriangulator->pathToPolys(nullptr, isLinear);
     if (!fInnerFanPolys) {
         // pathToPolys will fail if the inner polygon(s) are not simple.
         return false;
@@ -385,7 +385,8 @@ void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
         // either fOffThreadInnerTriangulation or fTriangleBuffer exclusively.
         SkASSERT(fInnerFanTriangulator);
         GrEagerDynamicVertexAllocator alloc(flushState, &fTriangleBuffer, &fBaseTriangleVertex);
-        fTriangleVertexCount = fInnerFanTriangulator->polysToTriangles(fInnerFanPolys, &alloc);
+        fTriangleVertexCount = fInnerFanTriangulator->polysToTriangles(fInnerFanPolys, &alloc,
+                                                                       nullptr);
     } else if (fStencilTrianglesProgram) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.

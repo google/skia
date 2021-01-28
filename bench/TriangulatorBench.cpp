@@ -23,10 +23,7 @@ extern TigerPath kTigerPaths[];
 extern int kNumTigerPaths;
 constexpr float kTigerTolerance = 0.728769f;
 
-class TriangulatorBenchmark
-        : public Benchmark
-        , public GrEagerVertexAllocator
-        , public GrInnerFanTriangulator::BreadcrumbTriangleCollector {
+class TriangulatorBenchmark : public Benchmark, public GrEagerVertexAllocator {
 public:
     TriangulatorBenchmark(const char* name) {
         fName.printf("triangulator_%s", name);
@@ -85,9 +82,6 @@ protected:
 
     void unlock(int) override {}
 
-    // GrInnerFanTriangulator::BreadcrumbTriangleCollector.
-    void onPush(SkPoint, SkPoint, SkPoint, int) override {}
-
     virtual void doLoop() = 0;
 
     SkString fName;
@@ -119,7 +113,8 @@ public:
     void doLoop() override {
         bool isLinear;
         for (const SkPath& path : fPaths) {
-            GrInnerFanTriangulator(path, &fArena, this).pathToTriangles(this, &isLinear);
+            GrInnerFanTriangulator::BreadcrumbTriangleList breadcrumbList;
+            GrInnerFanTriangulator(path, &fArena).pathToTriangles(this, &breadcrumbList, &isLinear);
         }
         fArena.reset();
     }
