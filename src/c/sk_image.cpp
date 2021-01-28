@@ -155,6 +155,10 @@ sk_image_t* sk_image_make_raster_image(const sk_image_t* cimage) {
     return ToImage(AsImage(cimage)->makeRasterImage().release());
 }
 
+sk_image_t* sk_image_make_with_filter_legacy(const sk_image_t* cimage, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset) {
+    return ToImage(AsImage(cimage)->makeWithFilter(AsImageFilter(filter), *AsIRect(subset), *AsIRect(clipBounds), AsIRect(outSubset), AsIPoint(outOffset)).release());
+}
+
 sk_image_t* sk_image_make_with_filter(const sk_image_t* cimage, gr_direct_context_t* context, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset) {
     return ToImage(AsImage(cimage)->makeWithFilter(AsGrDirectContext(context), AsImageFilter(filter), *AsIRect(subset), *AsIRect(clipBounds), AsIRect(outSubset), AsIPoint(outOffset)).release());
 }

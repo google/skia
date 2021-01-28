@@ -28,6 +28,7 @@ SK_C_API sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_ire
 SK_C_API sk_image_t* sk_image_make_texture_image(const sk_image_t* cimage, gr_direct_context_t* context, bool mipmapped);
 SK_C_API sk_image_t* sk_image_make_non_texture_image(const sk_image_t* cimage);
 SK_C_API sk_image_t* sk_image_make_raster_image(const sk_image_t* cimage);
+SK_C_API sk_image_t* sk_image_make_with_filter_legacy(const sk_image_t* cimage, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset);
 SK_C_API sk_image_t* sk_image_make_with_filter(const sk_image_t* cimage, gr_direct_context_t* context, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset);
 
 SK_C_API void sk_image_ref(const sk_image_t*);
