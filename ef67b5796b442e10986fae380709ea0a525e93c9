@@ -22,6 +22,30 @@
       },
       "revId": "ef67b5796b442e10986fae380709ea0a525e93c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e315e9b1_7c8aa2c7",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-28T18:40:59Z",
+      "side": 1,
+      "message": "Yeah, release build gave me a warning about unused \"variable\": [iter, wasInserted]",
+      "parentUuid": "92db5797_f4b02b59",
+      "range": {
+        "startLine": 1299,
+        "startChar": 4,
+        "endLine": 1299,
+        "endChar": 15
+      },
+      "revId": "ef67b5796b442e10986fae380709ea0a525e93c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
