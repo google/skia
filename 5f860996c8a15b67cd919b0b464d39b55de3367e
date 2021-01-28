@@ -93,6 +93,30 @@
       },
       "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "258d2cf4_50a778b7",
+        "filename": "tests/sksl/shared/InterfaceBlockNamedArray.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-28T16:28:18Z",
+      "side": 1,
+      "message": "Yes, this is skia:11024\n\nI spent some time looking at this earlier and I\u0027m pretty inclined to say it\u0027s a non-issue and we probably don\u0027t need to support or test it. Skia will never generate code like this and Metal doesn\u0027t natively have a concept of an arrayed buffer. (You could possibly fake the array by baking into the buffer, but at that point you\u0027d be way better served to just write the SkSL that way to begin with.)",
+      "parentUuid": "85d4520f_8549166c",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 1
+      },
+      "revId": "5f860996c8a15b67cd919b0b464d39b55de3367e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
