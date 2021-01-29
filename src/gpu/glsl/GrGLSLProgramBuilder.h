@@ -46,6 +46,7 @@ public:
         return fProgramInfo.pipeline().snapVerticesToPixelCenters();
     }
     bool hasPointSize() const { return fProgramInfo.primitiveType() == GrPrimitiveType::kPoints; }
+    virtual SkSL::Compiler* shaderCompiler() const = 0;
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() {

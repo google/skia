@@ -97,6 +97,36 @@ public:
      */
     static void SetCurrentFunction(const SkSL::FunctionDeclaration* fn);
 
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+    /**
+     * Returns the fragment processor for which DSL output is being generated for the current
+     * thread.
+     */
+    static GrGLSLFragmentProcessor* CurrentProcessor() {
+        SkASSERTF(!Instance().fStack.empty(), "This feature requires a FragmentProcessor");
+        return Instance().fStack.top().fProcessor;
+    }
+
+    /**
+     * Returns the EmitArgs for fragment processor output in the current thread.
+     */
+    static GrGLSLFragmentProcessor::EmitArgs* CurrentEmitArgs() {
+        SkASSERTF(!Instance().fStack.empty(), "This feature requires a FragmentProcessor");
+        return Instance().fStack.top().fEmitArgs;
+    }
+
+    /**
+     * Pushes a new processor / emitArgs pair for the current thread.
+     */
+    static void StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
+                                       GrGLSLFragmentProcessor::EmitArgs* emitArgs);
+
+    /**
+     * Pops the processor / emitArgs pair associated with the current thread.
+     */
+    static void EndFragmentProcessor();
+#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+
     /**
      * Reports an error if the argument is null. Returns its argument unmodified.
      */
@@ -149,6 +179,13 @@ private:
     ErrorHandler* fErrorHandler = nullptr;
     bool fMangle = true;
     Mangler fMangler;
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+    struct StackFrame {
+        GrGLSLFragmentProcessor* fProcessor;
+        GrGLSLFragmentProcessor::EmitArgs* fEmitArgs;
+    };
+    std::stack<StackFrame> fStack;
+#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
     friend class DSLCore;
     friend class ::AutoDSLContext;

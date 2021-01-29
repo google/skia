@@ -14,6 +14,7 @@
 #include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/sksl/SkSLString.h"
+#include "src/sksl/dsl/DSL.h"
 
 #include <stdarg.h>
 
@@ -108,6 +109,8 @@ public:
     void codeAppend(const char* str) { this->code().append(str); }
 
     void codeAppend(const char* str, size_t length) { this->code().append(str, length); }
+
+    void codeAppend(SkSL::dsl::Statement stmt);
 
     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;

@@ -56,6 +56,8 @@ public:
 
     GrGLGpu* gpu() const { return fGpu; }
 
+    SkSL::Compiler* shaderCompiler() const override;
+
 private:
     GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
 

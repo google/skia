@@ -10,7 +10,8 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <memory>
 
