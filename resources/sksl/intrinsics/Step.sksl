@@ -1,1 +1,14 @@
-in half a, b; void main() { sk_FragColor.x = step(a, b); }
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed, colorWhite;
+
+half4 main() {
+    half4 expected = half4(0, 0, 0, 1);
+    return (step(1,               testInputs.x)    == expected.x     &&
+            step(1,               testInputs.xy)   == expected.xy    &&
+            step(1,               testInputs.xyz)  == expected.xyz   &&
+            step(1,               testInputs.xyzw) == expected.xyzw  &&
+            step(colorWhite.x,    testInputs.x)    == expected.x     &&
+            step(colorWhite.xy,   testInputs.xy)   == expected.xy    &&
+            step(colorWhite.xyz,  testInputs.xyz)  == expected.xyz   &&
+            step(colorWhite.xyzw, testInputs.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}

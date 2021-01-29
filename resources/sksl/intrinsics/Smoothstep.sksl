@@ -1,1 +1,17 @@
-in half a, b, c; void main() { sk_FragColor.x = smoothstep(a, b, c); }
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed, colorWhite;
+
+half4 main() {
+    half4 expected = half4(0, 0, 81.0/256.0, 1);
+    half4 vector0  = half4(0);
+    half4 vector2  = 2 * colorWhite;
+    return (smoothstep(0, 2,                       testInputs.x)    == expected.x     &&
+            smoothstep(0, 2,                       testInputs.xy)   == expected.xy    &&
+            smoothstep(0, 2,                       testInputs.xyz)  == expected.xyz   &&
+            smoothstep(0, 2,                       testInputs.xyzw) == expected.xyzw  &&
+            smoothstep(vector0.x,    vector2.x,    testInputs.x)    == expected.x     &&
+            smoothstep(vector0.xy,   vector2.xy,   testInputs.xy)   == expected.xy    &&
+            smoothstep(vector0.xyz,  vector2.xyz,  testInputs.xyz)  == expected.xyz   &&
+            smoothstep(vector0.xyzw, vector2.xyzw, testInputs.xyzw) == expected.xyzw) ? colorGreen
+                                                                                      : colorRed;
+}
