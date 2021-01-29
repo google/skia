@@ -234,7 +234,8 @@ function contourMeasureTests(CK: CanvasKit, path?: Path) {
     const iter = new CK.ContourMeasureIter(path, true, 2); // $ExpectType ContourMeasureIter
     const contour = iter.next(); // $ExpectType ContourMeasure | null
     if (!contour) return;
-    const pt = contour.getPosTan(2); // $ExpectType PosTan
+    const pt = contour.getPosTan(2); // $ExpectType Float32Array
+    contour.getPosTan(2, pt);
     const segment = contour.getSegment(0, 20, true); // $ExpectType Path
     const closed = contour.isClosed(); // $ExpectType boolean
     const length = contour.length(); // $ExpectType number
