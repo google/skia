@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5b75400_174d91e9",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-29T15:53:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de30e1df_e2ebfd21",
+      "range": {
+        "startLine": 100,
+        "startChar": 80,
+        "endLine": 100,
+        "endChar": 87
+      },
+      "revId": "6def71e69be989e7f9ca013b30d0d89fce7a083e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b644574_aa53118c",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-28T21:41:09Z",
       "side": 1,
       "message": "I hope this never adds more work 😕",
+      "range": {
+        "startLine": 407,
+        "startChar": 14,
+        "endLine": 407,
+        "endChar": 38
+      },
+      "revId": "6def71e69be989e7f9ca013b30d0d89fce7a083e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "830349f4_0af845aa",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-01-29T15:53:18Z",
+      "side": 1,
+      "message": "So yeah the client could try to add more work during callbacks here. As talked about offline, we are fine if we crash because the client tries to us the GrDirectContext when triggered by the dtor. They shouldn\u0027t be having stray pointers around to use it when it is being destroy. For the abandon case I\u0027ve updated the code so that the client should be able to actually make any new calls because the GrDirectContext will be marked as abandoned and thus calls will all early return.\n\nLet me know what you think this update. Again as talked about offline, in the long term it would be better to store the list of callbacks on the GrDirectContext and have more explicit control over calling them (and could put this finishOutstandingGpuWork and checkAsycnWorkCompletion) in a loop until no new callbacks are added.",
+      "parentUuid": "8b644574_aa53118c",
       "range": {
         "startLine": 407,
         "startChar": 14,
