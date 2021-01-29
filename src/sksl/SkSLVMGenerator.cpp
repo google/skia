@@ -551,6 +551,9 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             skvm::I32 rVal = i32(this->writeExpression(right));
             return lVal | rVal;
         }
+        case Token::Kind::TK_COMMA:
+            SkASSERT(!isAssignment);
+            return this->writeExpression(right);
         default:
             break;
     }
@@ -641,7 +644,6 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
         case Token::Kind::TK_LTEQ:
             return binary([](skvm::F32 x, skvm::F32 y) { return x <= y; },
                           [](skvm::I32 x, skvm::I32 y) { return x <= y; });
-
         case Token::Kind::TK_PLUS:
             return binary([](skvm::F32 x, skvm::F32 y) { return x + y; },
                           [](skvm::I32 x, skvm::I32 y) { return x + y; });
@@ -1432,7 +1434,9 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
 }
 
 Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
-    SkASSERT(rhs.slots() == slot_count(lhs.type()));
+    SkASSERTF(rhs.slots() == slot_count(lhs.type()),
+              "lhs=%s (%s)\nrhs=%d slot",
+              lhs.type().description().c_str(), lhs.description().c_str(), rhs.slots());
 
     // We need to figure out the collection of slots that we're storing into. The l-value (lhs)
     // is always a VariableReference, possibly wrapped by one or more Swizzle, FieldAccess, or
