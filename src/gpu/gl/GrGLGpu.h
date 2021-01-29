@@ -177,6 +177,7 @@ public:
     void waitSemaphore(GrSemaphore* semaphore) override;
 
     void checkFinishProcs() override;
+    void finishOutstandingGpuWork() override;
 
     // Calls glGetError() until no errors are reported. Also looks for OOMs.
     void clearErrorsAndCheckForOOM();

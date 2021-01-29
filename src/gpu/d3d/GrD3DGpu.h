@@ -118,6 +118,7 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     void checkFinishProcs() override { this->checkForFinishedCommandLists(); }
+    void finishOutstandingGpuWork() override;
 
 private:
     enum class SyncQueue {

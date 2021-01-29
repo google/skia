@@ -204,9 +204,7 @@ public:
     // The assumption is that all queues are idle and all command buffers are finished.
     // For resource tracing to work properly, this should be called after unrefing all other
     // resource usages.
-    // If deviceLost is true, then resources will not be checked to see if they've finished
-    // before deleting (see section 4.2.4 of the Vulkan spec).
-    void destroyResources(bool deviceLost);
+    void destroyResources();
 
     void backgroundReset(GrVkCommandPool* pool);
 
