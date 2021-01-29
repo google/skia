@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9f1866e_23dcd848",
+        "filename": "gm/dsl_processor_tests.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-29T16:53:02Z",
+      "side": 1,
+      "message": "nit: 21",
+      "range": {
+        "startLine": 2,
+        "startChar": 15,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "9ab44503f15429caddf9ef8d42450741d65c0a2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dad37eab_7b150c99",
+        "filename": "gm/dsl_processor_tests.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-29T16:53:02Z",
+      "side": 1,
+      "message": "Just so I\u0027m clear - this could have just been sk_FragCoord() here, right? (And no need for \u0027coords\u0027 or the Declare?",
+      "range": {
+        "startLine": 37,
+        "startChar": 67,
+        "endLine": 37,
+        "endChar": 73
+      },
+      "revId": "9ab44503f15429caddf9ef8d42450741d65c0a2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f038b6d7_624b47ce",
+        "filename": "src/gpu/d3d/GrD3DPipelineStateBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-29T16:53:02Z",
+      "side": 1,
+      "message": "If we add:\n\n  virtual const SkSL::Compiler* shaderCompiler() \u003d 0;\n\n... to GrGLSLProgramBuilder, every class derived from that already retains a pointer to the GrGpu, so we each one could implement that as { return fGpu-\u003eshaderCompiler(); }\n\nThat would let us just have one copy of this DSL setup/teardown code, inside emitAndInstallProcs, rather than duplicating it for each backend. Seems like it would be easier to maintain.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 18
+      },
+      "revId": "9ab44503f15429caddf9ef8d42450741d65c0a2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
