@@ -46,6 +46,30 @@
       },
       "revId": "80aacb61a3131e8040ef53d16a52eb8fac4ebbf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37e19e5f_8c98ee0b",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-29T20:01:27Z",
+      "side": 1,
+      "message": "Also... if we want to keep this in the slide (and I think we should), then we\u0027re only testing the vector version? Maybe keep the original as floor(x), and then add the floor(p) case(s)?",
+      "parentUuid": "5e8c42a5_c2b4b812",
+      "range": {
+        "startLine": 226,
+        "startChar": 1,
+        "endLine": 227,
+        "endChar": 31
+      },
+      "revId": "80aacb61a3131e8040ef53d16a52eb8fac4ebbf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
