@@ -29,6 +29,11 @@ Milestone 90
 
 Milestone 89
 ------------
+
+  * Image filters with perspective, for saveLayer and draws, are now drawn correctly. Performance
+    and quality is highest if user bounds are provided to saveLayer.
+    https://review.skia.org/333123
+
   * Removed SkYUVAIndex and SkYUVASizeInfo. These were no longer used in any
     public APIs.
     https://review.skia.org/352497
