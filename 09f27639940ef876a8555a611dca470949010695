@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "638e0bd2_142388a7",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-29T12:25:12Z",
+      "side": 1,
+      "message": "I would add notes to CHANGELOG.md about what is now deprecated and what the replacement is.\n\nWe can then remove these versions in a future release.",
+      "range": {
+        "startLine": 909,
+        "startChar": 17,
+        "endLine": 909,
+        "endChar": 26
+      },
+      "revId": "09f27639940ef876a8555a611dca470949010695",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
