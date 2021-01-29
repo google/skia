@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkottieAnimation.size()` was incorrectly returning an object. It now returns a TypedArray of
    length 2 (w, h).
 
+### Removed
+ - `PathMeasure`, which was deprecated and replaced with `ContourMeasure`.
+
 ## [0.22.0] - 2020-12-17
 
 ### Added
