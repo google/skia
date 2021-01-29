@@ -1,3 +1,10 @@
+### Compilation failed:
+
+error: SPIR-V validation error: Uniform OpVariable <id> '13[%colorRed]' has illegal type.
+From Vulkan spec, section 14.5.2:
+Variables identified with the Uniform storage class are used to access transparent buffer backed resources. Such variables must be typed as OpTypeStruct, or an array of this type
+  %colorRed = OpVariable %_ptr_Uniform_v4float Uniform
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -5,9 +12,8 @@ OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
 OpExecutionMode %_entrypoint OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
-OpName %_UniformBuffer "_UniformBuffer"
-OpMemberName %_UniformBuffer 0 "colorRed"
-OpMemberName %_UniformBuffer 1 "colorGreen"
+OpName %colorRed "colorRed"
+OpName %colorGreen "colorGreen"
 OpName %_entrypoint "_entrypoint"
 OpName %S "S"
 OpMemberName %S 0 "x"
@@ -25,21 +31,18 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpMemberDecorate %_UniformBuffer 0 Offset 0
-OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
-OpMemberDecorate %_UniformBuffer 1 Offset 16
-OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
-OpDecorate %_UniformBuffer Block
-OpDecorate %13 Binding 0
-OpDecorate %13 DescriptorSet 0
+OpDecorate %colorRed RelaxedPrecision
+OpDecorate %colorRed DescriptorSet 0
+OpDecorate %colorGreen RelaxedPrecision
+OpDecorate %colorGreen DescriptorSet 0
 OpMemberDecorate %S 0 Offset 0
 OpMemberDecorate %S 1 Offset 4
 OpDecorate %35 RelaxedPrecision
 OpDecorate %59 RelaxedPrecision
 OpDecorate %83 RelaxedPrecision
+OpDecorate %89 RelaxedPrecision
+OpDecorate %90 RelaxedPrecision
 OpDecorate %91 RelaxedPrecision
-OpDecorate %93 RelaxedPrecision
-OpDecorate %94 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -47,9 +50,9 @@ OpDecorate %94 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%_UniformBuffer = OpTypeStruct %v4float %v4float
-%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
-%13 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%colorRed = OpVariable %_ptr_Uniform_v4float Uniform
+%colorGreen = OpVariable %_ptr_Uniform_v4float Uniform
 %void = OpTypeVoid
 %18 = OpTypeFunction %void
 %int = OpTypeInt 32 1
@@ -71,7 +74,6 @@ OpDecorate %94 RelaxedPrecision
 %float_2 = OpConstant %float 2
 %int_3 = OpConstant %int 3
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %_entrypoint = OpFunction %void None %18
 %19 = OpLabel
 %20 = OpFunctionCall %v4float %main
@@ -151,16 +153,16 @@ OpStore %valid %82
 OpSelectionMerge %88 None
 OpBranchConditional %83 %86 %87
 %86 = OpLabel
-%89 = OpAccessChain %_ptr_Uniform_v4float %13 %int_1
-%91 = OpLoad %v4float %89
-OpStore %84 %91
+%89 = OpLoad %v4float %colorGreen
+OpStore %84 %89
 OpBranch %88
 %87 = OpLabel
-%92 = OpAccessChain %_ptr_Uniform_v4float %13 %int_0
-%93 = OpLoad %v4float %92
-OpStore %84 %93
+%90 = OpLoad %v4float %colorRed
+OpStore %84 %90
 OpBranch %88
 %88 = OpLabel
-%94 = OpLoad %v4float %84
-OpReturnValue %94
+%91 = OpLoad %v4float %84
+OpReturnValue %91
 OpFunctionEnd
+
+1 error

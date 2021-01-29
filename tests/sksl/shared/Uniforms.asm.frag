@@ -1,3 +1,10 @@
+### Compilation failed:
+
+error: SPIR-V validation error: Uniform OpVariable <id> '10[%myHalf]' has illegal type.
+From Vulkan spec, section 14.5.2:
+Variables identified with the Uniform storage class are used to access transparent buffer backed resources. Such variables must be typed as OpTypeStruct, or an array of this type
+  %myHalf = OpVariable %_ptr_Uniform_float Uniform
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -5,9 +12,8 @@ OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
 OpExecutionMode %_entrypoint OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
-OpName %_UniformBuffer "_UniformBuffer"
-OpMemberName %_UniformBuffer 0 "myHalf"
-OpMemberName %_UniformBuffer 1 "myHalf4"
+OpName %myHalf "myHalf"
+OpName %myHalf4 "myHalf4"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
@@ -15,15 +21,12 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpMemberDecorate %_UniformBuffer 0 Offset 0
-OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
-OpMemberDecorate %_UniformBuffer 1 Offset 16
-OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
-OpDecorate %_UniformBuffer Block
-OpDecorate %10 Binding 0
-OpDecorate %10 DescriptorSet 0
-OpDecorate %24 RelaxedPrecision
-OpDecorate %28 RelaxedPrecision
+OpDecorate %myHalf RelaxedPrecision
+OpDecorate %myHalf DescriptorSet 0
+OpDecorate %myHalf4 RelaxedPrecision
+OpDecorate %myHalf4 DescriptorSet 0
+OpDecorate %21 RelaxedPrecision
+OpDecorate %22 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -31,29 +34,25 @@ OpDecorate %28 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%_UniformBuffer = OpTypeStruct %float %v4float
-%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
-%10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
-%void = OpTypeVoid
-%15 = OpTypeFunction %void
-%18 = OpTypeFunction %v4float
-%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
-%int = OpTypeInt 32 1
-%int_1 = OpConstant %int 1
 %_ptr_Uniform_float = OpTypePointer Uniform %float
-%int_0 = OpConstant %int 0
-%_entrypoint = OpFunction %void None %15
-%16 = OpLabel
-%17 = OpFunctionCall %v4float %main
-OpStore %sk_FragColor %17
+%myHalf = OpVariable %_ptr_Uniform_float Uniform
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%myHalf4 = OpVariable %_ptr_Uniform_v4float Uniform
+%void = OpTypeVoid
+%16 = OpTypeFunction %void
+%19 = OpTypeFunction %v4float
+%_entrypoint = OpFunction %void None %16
+%17 = OpLabel
+%18 = OpFunctionCall %v4float %main
+OpStore %sk_FragColor %18
 OpReturn
 OpFunctionEnd
-%main = OpFunction %v4float None %18
-%19 = OpLabel
-%20 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
-%24 = OpLoad %v4float %20
-%25 = OpAccessChain %_ptr_Uniform_float %10 %int_0
-%28 = OpLoad %float %25
-%29 = OpVectorTimesScalar %v4float %24 %28
-OpReturnValue %29
+%main = OpFunction %v4float None %19
+%20 = OpLabel
+%21 = OpLoad %v4float %myHalf4
+%22 = OpLoad %float %myHalf
+%23 = OpVectorTimesScalar %v4float %21 %22
+OpReturnValue %23
 OpFunctionEnd
+
+1 error
