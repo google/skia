@@ -226,6 +226,9 @@ void ParticlesSlide::loadEffects(const char* dirname) {
             fLoaded.push_back(effect);
         }
     }
+    std::sort(fLoaded.begin(), fLoaded.end(), [](const LoadedEffect& a, const LoadedEffect& b) {
+        return strcmp(a.fName.c_str(), b.fName.c_str()) < 0;
+    });
 }
 
 void ParticlesSlide::load(SkScalar winWidth, SkScalar winHeight) {
