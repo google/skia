@@ -1865,6 +1865,7 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
+      "modules/particles",
       "modules/skottie",
       "modules/skottie:gm",
       "modules/skparagraph",
