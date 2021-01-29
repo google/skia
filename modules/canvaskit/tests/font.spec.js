@@ -63,7 +63,7 @@ describe('Font Behavior', () => {
         bounds[0] += textBoxX; // left
         bounds[2] += textBoxX; // right
         bounds[1] += textBoxY; // top
-        bounds[3] += textBoxY // bottom
+        bounds[3] += textBoxY; // bottom
 
         canvas.drawRect(bounds, paint);
         const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
