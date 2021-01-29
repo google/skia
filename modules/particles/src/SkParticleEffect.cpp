@@ -226,28 +226,7 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params)
         , fLastTime(-1.0)
         , fSpawnRemainder(0.0f) {
     fState.fAge = -1.0f;
-    this->resizeStorage();
-}
-
-void SkParticleEffect::resizeStorage() {
-    // Handle user edits to fMaxCount
-    if (fParams->fMaxCount != fCapacity) {
-        this->setCapacity(fParams->fMaxCount);
-    }
-
-    // Ensure our storage block for uniforms are large enough
-    auto resizeWithZero = [](SkTArray<float, true>* uniforms, const SkSL::UniformInfo* info) {
-        if (info) {
-            int newCount = info->fUniformSlotCount;
-            if (newCount > uniforms->count()) {
-                uniforms->push_back_n(newCount - uniforms->count(), 0.0f);
-            } else {
-                uniforms->resize(newCount);
-            }
-        }
-    };
-    resizeWithZero(&fEffectUniforms, this->effectUniformInfo());
-    resizeWithZero(&fParticleUniforms, this->particleUniformInfo());
+    this->setCapacity(fParams->fMaxCount);
 }
 
 void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVector heading,
@@ -344,8 +323,24 @@ void SkParticleEffect::advanceTime(double now) {
     }
     fLastTime = now;
 
-    // Adjust storage based on dynamic changes to parameters
-    this->resizeStorage();
+    // Handle user edits to fMaxCount
+    if (fParams->fMaxCount != fCapacity) {
+        this->setCapacity(fParams->fMaxCount);
+    }
+
+    // Ensure our storage block for uniforms are large enough
+    auto resizeWithZero = [](SkTArray<float, true>* uniforms, const SkSL::UniformInfo* info) {
+        if (info) {
+            int newCount = info->fUniformSlotCount;
+            if (newCount > uniforms->count()) {
+                uniforms->push_back_n(newCount - uniforms->count(), 0.0f);
+            } else {
+                uniforms->resize(newCount);
+            }
+        }
+    };
+    resizeWithZero(&fEffectUniforms, this->effectUniformInfo());
+    resizeWithZero(&fParticleUniforms, this->particleUniformInfo());
 
     // Copy known values into the uniform blocks
     if (fParams->fEffectProgram) {
