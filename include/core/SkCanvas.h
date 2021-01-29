@@ -37,10 +37,6 @@
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 #endif
 
-#ifndef SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
-#define SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
-#endif
-
 class GrBackendRenderTarget;
 class GrRecordingContext;
 class GrSurfaceDrawContext;
