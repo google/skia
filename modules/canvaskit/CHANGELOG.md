@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Constants for the shadow flags. Of note, some of these values can be used on previous releases.
  - `getShadowLocalBounds()` to estimate the bounds of the shadows drawn by `Canvas.drawShadow`.
+ - compile.sh now takes "no_matrix", which will omit the helper JS to deal with 3x3, 4x4 and
+   SkColorMatrix (in case clients have logic to deal with that themselves).
 
 ### Breaking
 - `MakeImprovedNoise` is removed.

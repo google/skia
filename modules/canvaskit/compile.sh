@@ -153,6 +153,12 @@ if [[ $@ == *no_rt_shader* ]] ; then
   RT_SHADER_JS=""
 fi
 
+MATRIX_HELPER_JS="--pre-js $BASE_DIR/matrix.js"
+if [[ $@ == *no_matrix* ]]; then
+  echo "Omitting matrix helper code"
+  MATRIX_HELPER_JS=""
+fi
+
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
 --pre-js $BASE_DIR/htmlcanvas/util.js \
 --pre-js $BASE_DIR/htmlcanvas/color.js \
@@ -165,7 +171,8 @@ HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
 --pre-js $BASE_DIR/htmlcanvas/pattern.js \
 --pre-js $BASE_DIR/htmlcanvas/radialgradient.js \
 --pre-js $BASE_DIR/htmlcanvas/postamble.js "
-if [[ $@ == *no_canvas* ]]; then
+if [[ $@ == *no_canvas* || $@ == *no_matrix* ]]; then
+  # Note: HTML Canvas bindings depend on the matrix helpers.
   echo "Omitting bindings for HTML Canvas API"
   HTML_CANVAS_API=""
 fi
@@ -365,6 +372,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/util.js \
     --pre-js $BASE_DIR/interface.js \
+    $MATRIX_HELPER_JS \
     $PARAGRAPH_JS \
     $SKOTTIE_JS \
     $PARTICLES_JS \
