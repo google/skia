@@ -45,6 +45,8 @@ private:
 
     const GrCaps* caps() const override;
 
+    SkSL::Compiler* shaderCompiler() const override;
+
     void finalizeFragmentOutputColor(GrShaderVar& outputColor) override;
 
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
