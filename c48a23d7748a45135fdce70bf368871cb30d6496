@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8f86ec9_792704fb",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-29T21:48:27Z",
+      "side": 0,
+      "message": "I don\u0027t remember if I ended up needing it for anything else down the road, but you\u0027re right that it\u0027s not needed at the moment. Removed.",
+      "parentUuid": "a192cf8e_38645ca2",
+      "range": {
+        "startLine": 831,
+        "startChar": 12,
+        "endLine": 831,
+        "endChar": 28
+      },
+      "revId": "c48a23d7748a45135fdce70bf368871cb30d6496",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c3b44a8c_0361c61e",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-29T21:28:24Z",
       "side": 0,
       "message": "ditto with fLoopLevel and fSwitchLevel\n\n(which is another nice reason to do this - limits the scope of some of this state)",
+      "range": {
+        "startLine": 867,
+        "startChar": 8,
+        "endLine": 867,
+        "endChar": 18
+      },
+      "revId": "c48a23d7748a45135fdce70bf368871cb30d6496",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4fecef1_7bc68fc9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-29T21:48:27Z",
+      "side": 0,
+      "message": "Crap, forgot. Fixed.",
+      "parentUuid": "c3b44a8c_0361c61e",
       "range": {
         "startLine": 867,
         "startChar": 8,
