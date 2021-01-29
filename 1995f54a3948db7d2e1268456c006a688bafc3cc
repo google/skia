@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd1753b0_d57c3b89",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-29T14:20:03Z",
+      "side": 1,
+      "message": "\u003e Please remove the trailing whitespace.\n\nDone",
+      "parentUuid": "c71758e0_c985a518",
+      "range": {
+        "startLine": 10,
+        "startChar": 94,
+        "endLine": 10,
+        "endChar": 95
+      },
+      "revId": "1995f54a3948db7d2e1268456c006a688bafc3cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
