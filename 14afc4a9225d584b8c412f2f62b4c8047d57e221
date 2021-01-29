@@ -34,6 +34,24 @@
       "parentUuid": "fd09ceec_30cf6d45",
       "revId": "14afc4a9225d584b8c412f2f62b4c8047d57e221",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49b5d0a4_43397166",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-29T15:19:48Z",
+      "side": 1,
+      "message": "Thanks for the explanation.\n\nOff hand, having another type for all those variants is a bit odd -- doubt we would add it if we didn\u0027t already have it. Sure, we can see how complicated it would be to remove it in a separate experiment. (I do find that how complicated something is for our gms/tests is not always a good measure for how it will be to update real clients).",
+      "parentUuid": "afe96f2a_88e1587a",
+      "revId": "14afc4a9225d584b8c412f2f62b4c8047d57e221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
