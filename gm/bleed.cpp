@@ -115,11 +115,7 @@ public:
     SrcRectConstraintGM(const char* shortName, SkCanvas::SrcRectConstraint constraint, bool batch)
         : fShortName(shortName)
         , fConstraint(constraint)
-        , fBatch(batch) {
-        // Make sure GPU SkSurfaces can be created for this GM.
-        SkASSERT(this->onISize().width() <= kMaxTextureSize &&
-                 this->onISize().height() <= kMaxTextureSize);
-    }
+        , fBatch(batch) {}
 
 protected:
     SkString onShortName() override { return fShortName; }
@@ -217,7 +213,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        std::tie(fBigImage, fBigSrcRect) = make_ringed_image(2*kMaxTextureSize, 2*kMaxTextureSize);
+        std::tie(fBigImage, fBigSrcRect) = make_ringed_image(2*kMaxTileSize, 2*kMaxTileSize);
         std::tie(fSmallImage, fSmallSrcRect) = make_ringed_image(kSmallSize, kSmallSize);
     }
 
@@ -295,7 +291,7 @@ protected:
     }
 
     void modifyGrContextOptions(GrContextOptions* options) override {
-        options->fMaxTextureSizeOverride = kMaxTextureSize;
+        options->fMaxTileSizeOverride = kMaxTileSize;
     }
 
 private:
@@ -314,8 +310,7 @@ private:
     static constexpr int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
 
     static constexpr int kSmallSize = 6;
-    // This must be at least as large as the GM width and height so that a surface can be made.
-    static constexpr int kMaxTextureSize = 1000;
+    static constexpr int kMaxTileSize = 32;
 
     SkString fShortName;
     sk_sp<SkImage> fBigImage;
