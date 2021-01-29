@@ -36,7 +36,8 @@
     "cmd": [
       "cmake",
       "-DSWIFTSHADER_BUILD_TESTS=OFF",
-      "-DSWIFTSHADER_WARNINGS_AS_ERRORS=0",
+      "-DSWIFTSHADER_WARNINGS_AS_ERRORS=OFF",
+      "-DREACTOR_ENABLE_MEMORY_SANITIZER_INSTRUMENTATION=OFF",
       "[START_DIR]/cache/work/skia/third_party/externals/swiftshader",
       "-GNinja"
     ],
