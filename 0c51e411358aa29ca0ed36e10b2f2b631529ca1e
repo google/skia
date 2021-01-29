@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3edaefca_c1e99f65",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-01-29T15:52:29Z",
+      "side": 1,
+      "message": "I assume that nanobench and dm have been updated with these new flags?",
+      "range": {
+        "startLine": 127,
+        "startChar": 39,
+        "endLine": 127,
+        "endChar": 50
+      },
+      "revId": "0c51e411358aa29ca0ed36e10b2f2b631529ca1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
