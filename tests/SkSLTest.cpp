@@ -47,6 +47,8 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
         return;
     }
 
+    const float kPi = 3.1415926535;
+
     SkRuntimeShaderBuilder builder(effect);
     set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
     set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
@@ -54,6 +56,7 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
     set_uniform(&builder, "colorBlue",        SkV4{0, 0, 1, 1});
     set_uniform(&builder, "colorWhite",       SkV4{1, 1, 1, 1});
     set_uniform(&builder, "testInputs",       SkV4{-1.25, 0, 0.75, 2.25});
+    set_uniform(&builder, "pi",               SkV4{kPi/2, kPi, kPi*3/2, kPi*2});
     set_uniform(&builder, "unknownInput",     1.0f);
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
@@ -110,12 +113,14 @@ SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 SKSL_TEST(SkSLIntrinsicAbsFloat,       "intrinsics/AbsFloat.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,           "intrinsics/Ceil.sksl")
 SKSL_TEST(SkSLIntrinsicClampFloat,     "intrinsics/ClampFloat.sksl")
+SKSL_TEST(SkSLIntrinsicCos,            "intrinsics/Cos.sksl")
 SKSL_TEST(SkSLIntrinsicFract,          "intrinsics/Fract.sksl")
 SKSL_TEST(SkSLIntrinsicMaxFloat,       "intrinsics/MaxFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMixFloat,       "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMod,            "intrinsics/Mod.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
+SKSL_TEST(SkSLIntrinsicSin,            "intrinsics/Sin.sksl")
 
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 
