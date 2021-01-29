@@ -221,6 +221,8 @@ SkISize GrSurfaceProxy::backingStoreDimensions() const {
         return fTarget->dimensions();
     }
 
+    SkASSERT(!this->isDDLTarget());
+
     if (SkBackingFit::kExact == fFit) {
         return fDimensions;
     }
@@ -228,7 +230,7 @@ SkISize GrSurfaceProxy::backingStoreDimensions() const {
 }
 
 bool GrSurfaceProxy::isFunctionallyExact() const {
-    SkASSERT(!this->isFullyLazy());
+    SkASSERT(!this->isFullyLazy() && !this->isDDLTarget());
     return fFit == SkBackingFit::kExact ||
            fDimensions == GrResourceProvider::MakeApprox(fDimensions);
 }
@@ -344,13 +346,16 @@ SkString GrSurfaceProxy::dump() const {
                 this->uniqueID().asUInt(),
                 this->peekSurface() ? this->peekSurface()->uniqueID().asUInt()
                                     : -1);
+    if (this->isDDLTarget()) {
+        tmp.append(" isDDLTarget");
+    }
+
     return tmp;
 }
 
 #endif
 
 void GrSurfaceProxyPriv::exactify(bool allocatedCaseOnly) {
-    SkASSERT(!fProxy->isFullyLazy());
     if (this->isExact()) {
         return;
     }
@@ -377,6 +382,8 @@ void GrSurfaceProxyPriv::exactify(bool allocatedCaseOnly) {
         return;
     }
 #endif
+
+    SkASSERT(!fProxy->isFullyLazy() && !fProxy->isDDLTarget());
 
     // The kApprox uninstantiated case. Making this proxy be exact should be okay.
     // It could mess things up if prior decisions were based on the approximate size.

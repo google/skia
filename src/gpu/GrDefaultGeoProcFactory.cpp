@@ -157,10 +157,14 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     SkIPoint viewportOffset) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
-            this->setTransform(pdman, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrixPrev);
+            SkMatrix tmp = dgp.viewMatrix();
+//            tmp.postTranslate(viewportOffset.fX, viewportOffset.fY);
+
+            this->setTransform(pdman, fViewMatrixUniform, tmp, &fViewMatrixPrev);
             this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fLocalMatrixPrev);
 
             if (!dgp.hasVertexColor() && dgp.color() != fColor) {

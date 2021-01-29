@@ -787,8 +787,13 @@ void GrSurfaceDrawContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
 void GrSurfaceDrawContext::internalStencilClear(const SkIRect* scissor, bool insideStencilMask) {
     this->setNeedsStencil(/* useMixedSamplesIfNotMSAA = */ false);
 
-    GrScissorState scissorState(this->asSurfaceProxy()->backingStoreDimensions());
-    if (scissor && !scissorState.set(*scissor)) {
+    SkISize dims = this->asSurfaceProxy()->dimensions();
+    if (!this->asSurfaceProxy()->isDDLTarget()) {
+        dims = this->asSurfaceProxy()->backingStoreDimensions();
+    }
+
+    GrScissorState scissorState(dims);
+    if (scissor && !scissorState.set1(*scissor)) {
         // The requested clear region is off screen, so nothing to do.
         return;
     }
@@ -1841,7 +1846,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
-    GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+    GrAppliedClip appliedClip(this->dimensions(),
+                              this->asSurfaceProxy()->isDDLTarget()
+                                                ? SkISize::Make(-1, -1)
+                                                : this->asSurfaceProxy()->backingStoreDimensions());
+
+
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = drawOp->fixedFunctionFlags();
     bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
     bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;

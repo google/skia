@@ -73,12 +73,12 @@ static void write_quad_generic(GrVertexWriter* vb, const GrQuadPerEdgeAA::Vertex
 // Specialized WriteQuadProcs for particular VertexSpecs that show up frequently (determined
 // experimentally through recorded GMs, SKPs, and SVGs, as well as SkiaRenderer's usage patterns):
 
-// 2D (XY), no explicit coverage, vertex color, no locals, no geometry subset, no texture subsetn
+// 2D (XY), no explicit coverage, vertex color, no locals, no geometry subset, no texture subset
 // This represents simple, solid color or shader, non-AA (or AA with cov. as alpha) rects.
 static void write_2d_color(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
                            const GrQuad* deviceQuad, const GrQuad* localQuad,
                            const float coverage[4], const SkPMColor4f& color,
-                           const SkRect& geomSubset, const SkRect& texSubset) {
+                           const SkRect& /* geomSubset */, const SkRect& /* texSubset */) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(!spec.hasLocalCoords());
@@ -105,7 +105,7 @@ static void write_2d_color(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec
 static void write_2d_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
                         const GrQuad* deviceQuad, const GrQuad* localQuad,
                         const float coverage[4], const SkPMColor4f& color,
-                        const SkRect& geomSubset, const SkRect& texSubset) {
+                        const SkRect& /* geomSubset */, const SkRect& /* texSubset */) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
@@ -116,6 +116,8 @@ static void write_2d_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& s
     SkASSERT(localQuad);
 
     for (int i = 0; i < 4; ++i) {
+//        SkDebugf("%d %.2f %.2f %.2f %.2f\n",
+//                 i, deviceQuad->x(i), deviceQuad->y(i), localQuad->x(i), localQuad->y(i));
         vb->write(deviceQuad->x(i), deviceQuad->y(i), localQuad->x(i), localQuad->y(i));
     }
 }
@@ -125,7 +127,7 @@ static void write_2d_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& s
 static void write_2d_color_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
                               const GrQuad* deviceQuad, const GrQuad* localQuad,
                               const float coverage[4], const SkPMColor4f& color,
-                              const SkRect& geomSubset, const SkRect& texSubset) {
+                              const SkRect& /* geomSubset */, const SkRect& /* texSubset */) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
@@ -141,6 +143,8 @@ static void write_2d_color_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexS
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
         SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
                  coverage[i] == 1.f);
+//        SkDebugf("%d %.2f %.2f %.2f %.2f\n",
+//                 i, deviceQuad->x(i), deviceQuad->y(i), localQuad->x(i), localQuad->y(i));
         vb->write(deviceQuad->x(i), deviceQuad->y(i), GrVertexColor(color * coverage[i], wide),
                   localQuad->x(i), localQuad->y(i));
     }
@@ -151,7 +155,7 @@ static void write_2d_color_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexS
 static void write_2d_cov_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
                             const GrQuad* deviceQuad, const GrQuad* localQuad,
                             const float coverage[4], const SkPMColor4f& color,
-                            const SkRect& geomSubset, const SkRect& texSubset) {
+                            const SkRect& /* geomSubset */, const SkRect& /* texSubset */) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
@@ -178,7 +182,7 @@ static void write_2d_cov_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpe
 static void write_2d_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
                                const GrQuad* deviceQuad, const GrQuad* localQuad,
                                const float coverage[4], const SkPMColor4f& color,
-                               const SkRect& geomSubset, const SkRect& texSubset) {
+                               const SkRect& /* geomSubset */, const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
@@ -198,7 +202,7 @@ static void write_2d_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::Vertex
 static void write_2d_color_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
                                      const GrQuad* deviceQuad, const GrQuad* localQuad,
                                      const float coverage[4], const SkPMColor4f& color,
-                                     const SkRect& geomSubset, const SkRect& texSubset) {
+                                     const SkRect& /* geomSubset */, const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
@@ -224,7 +228,7 @@ static void write_2d_color_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::
 static void write_2d_cov_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
                                    const GrQuad* deviceQuad, const GrQuad* localQuad,
                                    const float coverage[4], const SkPMColor4f& color,
-                                   const SkRect& geomSubset, const SkRect& texSubset) {
+                                   const SkRect& /* geomSubset */, const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
@@ -586,7 +590,8 @@ public:
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor& proc) override {
+                         const GrPrimitiveProcessor& proc,
+                         SkIPoint viewportOffset) override {
                 const auto& gp = proc.cast<QuadPerEdgeAAGeometryProcessor>();
                 fTextureColorSpaceXformHelper.setData(pdman, gp.fTextureColorSpaceXform.get());
             }

@@ -69,9 +69,64 @@ GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil
 }
 
 #if GR_TEST_UTILS
+SkString foo(uint16_t flags) {
+    SkString bar;
+    if (flags & kDisabled_StencilFlag) {
+        bar.append("kDisabled");
+        return bar;
+    }
+    if (flags & kTestAlwaysPasses_StencilFlag) {
+        bar.append("kTestAlwaysPasses|");
+    }
+    if (flags & kNoModifyStencil_StencilFlag) {
+        bar.append("kNoModifyStencil|");
+    }
+    if (flags & kNoWrapOps_StencilFlag) {
+        bar.append("kNoWrapOps|");
+    }
+    if (flags & kSingleSided_StencilFlag) {
+        bar.append("kSingleSided|");
+    }
+    return bar;
+}
+
+const char* foo2(GrUserStencilTest test) {
+    switch (test) {
+        case GrUserStencilTest::kAlwaysIfInClip: return "kAlwaysIfInClip";
+        case GrUserStencilTest::kEqualIfInClip: return "kEqualIfInClip";
+        case GrUserStencilTest::kLessIfInClip: return "kLessIfInClip";
+        case GrUserStencilTest::kLEqualIfInClip: return "kLEqualIfInClip";
+        case GrUserStencilTest::kAlways: return "kAlways";
+        case GrUserStencilTest::kNever: return "kNever";
+        case GrUserStencilTest::kGreater: return "kGreater";
+        case GrUserStencilTest::kGEqual: return "kGEqual";
+        case GrUserStencilTest::kLess: return "kLess";
+        case GrUserStencilTest::kLEqual: return "kLEqual";
+        case GrUserStencilTest::kEqual: return "kEqual";
+        case GrUserStencilTest::kNotEqual: return "kNotEqual";
+    }
+    SkUNREACHABLE;
+};
+
 SkString GrSimpleMeshDrawOpHelperWithStencil::dumpInfo() const {
     SkString result = INHERITED::dumpInfo();
     result.appendf("Stencil settings: %s\n", (fStencilSettings ? "yes" : "no"));
+    if (fStencilSettings) {
+        result.appendf("CWFlags %s %s\n",
+                       foo(fStencilSettings->fCWFlags[0]).c_str(),
+                       foo(fStencilSettings->fCWFlags[1]).c_str());
+        result.appendf("CW 0x%x %s 0x%x\n",
+                       fStencilSettings->fCWFace.fRef,
+                       foo2(fStencilSettings->fCWFace.fTest),
+                       fStencilSettings->fCWFace.fTestMask);
+        result.appendf("CCWFlags %s %s\n",
+                       foo(fStencilSettings->fCCWFlags[0]).c_str(),
+                       foo(fStencilSettings->fCCWFlags[1]).c_str());
+        result.appendf("CCW 0x%x %s 0x%x\n",
+                       fStencilSettings->fCCWFace.fRef,
+                       foo2(fStencilSettings->fCCWFace.fTest),
+                       fStencilSettings->fCCWFace.fTestMask);
+    }
     return result;
 }
 #endif

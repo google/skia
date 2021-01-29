@@ -27,7 +27,7 @@ R"SkSL(return half4(((%s[0] * %s[0].x + %s[1] * %s[0].y) + %s[2] * %s[1].x) + %s
 , args.fUniformHandler->getUniformCStr(scalarArrayVar), args.fUniformHandler->getUniformCStr(pointArrayVar), args.fUniformHandler->getUniformCStr(scalarArrayVar), args.fUniformHandler->getUniformCStr(pointArrayVar), args.fUniformHandler->getUniformCStr(scalarArrayVar), args.fUniformHandler->getUniformCStr(pointArrayVar), args.fUniformHandler->getUniformCStr(scalarArrayVar), args.fUniformHandler->getUniformCStr(pointArrayVar));
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
     UniformHandle scalarArrayVar;
     UniformHandle pointArrayVar;

@@ -573,8 +573,9 @@ public:
                      GrPaint&& paint,
                      GrAA doStencilMSAA,
                      const SkMatrix& viewMatrix,
-                     const SkRect& rect,
+                     const SkRect& rect1,
                      const SkMatrix* localMatrix = nullptr) {
+        SkRect rect = rect1; //rect1.makeOutset(100, 100);
         // Since this provides stencil settings to drawFilledQuad, it performs a different AA type
         // resolution compared to regular rect draws, which is the main reason it remains separate.
         DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),

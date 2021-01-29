@@ -28,7 +28,7 @@ R"SkSL(return half4(%s, %s);
 , args.fUniformHandler->getUniformCStr(pointVar), args.fUniformHandler->getUniformCStr(pointVar));
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
         const GrNonInlinedInUniform& _outer = _proc.cast<GrNonInlinedInUniform>();
         {
         const SkPoint& pointValue = _outer.point;

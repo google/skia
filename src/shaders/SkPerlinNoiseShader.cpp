@@ -578,7 +578,9 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&,
+                   const GrFragmentProcessor&,
+                   SkIPoint viewportOffset) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
@@ -923,8 +925,9 @@ void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
 }
 
 void GrGLPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrFragmentProcessor& processor) {
-    INHERITED::onSetData(pdman, processor);
+                                const GrFragmentProcessor& processor,
+                                SkIPoint viewportOffset) {
+    INHERITED::onSetData(pdman, processor, viewportOffset);
 
     const GrPerlinNoise2Effect& turbulence = processor.cast<GrPerlinNoise2Effect>();
 
@@ -939,7 +942,6 @@ void GrGLPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
 }
 
 /////////////////////////////////////////////////////////////////////
-
 std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(
         const GrFPArgs& args) const {
     SkASSERT(args.fContext);

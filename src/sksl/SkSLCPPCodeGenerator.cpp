@@ -1018,7 +1018,8 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const Section* section = fSectionAndParameterHelper.getSection(kSetDataSection);
     const char* pdman = section ? section->argument().c_str() : "pdman";
     this->writef("    void onSetData(const GrGLSLProgramDataManager& %s, "
-                                    "const GrFragmentProcessor& _proc) override {\n",
+                                    "const GrFragmentProcessor& _proc, "
+                                    "SkIPoint viewportOffset) override {\n",
                  pdman);
     bool wroteProcessor = false;
     for (const Variable* u : uniforms) {

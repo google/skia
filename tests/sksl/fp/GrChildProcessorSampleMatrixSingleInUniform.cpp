@@ -29,7 +29,7 @@ R"SkSL(return %s;
 , _sample0.c_str());
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
         const GrChildProcessorSampleMatrixSingleInUniform& _outer = _proc.cast<GrChildProcessorSampleMatrixSingleInUniform>();
         {
         static_assert(1 == 1); pdman.setSkMatrix(matrixVar, (_outer.matrix));

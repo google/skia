@@ -1739,11 +1739,21 @@ void GrGLGpu::flushScissorTest(GrScissorTest scissorTest) {
             fHWScissorSettings.fEnabled = kNo_TriState;
         }
     }
+
+//    GL_CALL(Disable(GR_GL_SCISSOR_TEST));
+
 }
 
 void GrGLGpu::flushScissorRect(const SkIRect& scissor, int rtHeight, GrSurfaceOrigin rtOrigin) {
     SkASSERT(fHWScissorSettings.fEnabled == TriState::kYes_TriState);
     auto nativeScissor = GrNativeRect::MakeRelativeTo(rtOrigin, rtHeight, scissor);
+
+    SkDebugf("%s %d [L %d T %d R %d B %d] -> xy: %d %d wh: %d %d\n",
+            rtOrigin == kBottomLeft_GrSurfaceOrigin ? "BL" : "TL",
+            rtHeight,
+            scissor.fLeft, scissor.fTop, scissor.fRight, scissor.fBottom,
+            nativeScissor.fX, nativeScissor.fY, nativeScissor.fWidth, nativeScissor.fHeight);
+
     if (fHWScissorSettings.fRect != nativeScissor) {
         GL_CALL(Scissor(nativeScissor.fX, nativeScissor.fY, nativeScissor.fWidth,
                         nativeScissor.fHeight));
@@ -1761,7 +1771,9 @@ void GrGLGpu::flushViewport(const SkIRect& viewport, int rtHeight, GrSurfaceOrig
 }
 
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
-                                    const GrGLRenderTarget* rt, GrSurfaceOrigin origin) {
+                                    const GrGLRenderTarget* rt,
+                                    GrSurfaceOrigin origin,
+                                    SkIPoint viewportOffset) {
 #ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     SkASSERT(!windowState.enabled() || rt->renderFBOID()); // Window rects can't be used on-screen.
@@ -1780,7 +1792,8 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     GrNativeRect glwindows[GrWindowRectangles::kMaxWindows];
     const SkIRect* skwindows = windowState.windows().data();
     for (int i = 0; i < numWindows; ++i) {
-        glwindows[i].setRelativeTo(origin, rt->height(), skwindows[i]);
+        SkIRect tmp = skwindows[i].makeOffset(viewportOffset);
+        glwindows[i].setRelativeTo(origin, rt->height(), tmp);
     }
 
     GrGLenum glmode = (Mode::kExclusive == windowState.mode()) ? GR_GL_EXCLUSIVE : GR_GL_INCLUSIVE;
@@ -1800,7 +1813,9 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
+                           const GrProgramInfo& programInfo,
+                           SkIPoint viewportOffset) {
     this->handleDirtyContext();
 
     sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(renderTarget, programInfo);
@@ -1819,7 +1834,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().writeSwizzle());
 
-    fHWProgram->updateUniforms(renderTarget, programInfo);
+    fHWProgram->updateUniforms(renderTarget, programInfo, viewportOffset);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -1832,7 +1847,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
-                                glRT, programInfo.origin());
+                                glRT, programInfo.origin(), viewportOffset);
     this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
     this->flushWireframeState(programInfo.pipeline().isWireframe());
@@ -2304,7 +2319,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
         // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
         // happens inside flushScissor since resolveRect is already in native device coordinates.
         GrScissorState scissor(rt->dimensions());
-        SkAssertResult(scissor.set(resolveRect));
+        SkAssertResult(scissor.set1(resolveRect));
         this->flushScissor(scissor, rt->height(), kTopLeft_GrSurfaceOrigin);
         this->disableWindowRectangles();
         GL_CALL(ResolveMultisampleFramebuffer());

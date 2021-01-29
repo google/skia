@@ -779,6 +779,9 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
         // Since this copied only the requested subset, the special image wrapping the proxy no
         // longer needs the original subset.
         finalSubset = SkIRect::MakeSize(view.dimensions());
+    } else if (sdc->asSurfaceProxy()->isDDLTarget()) {
+        finalSubset.offset(10, 30);
+        //$$
     }
 
     GrColorType ct = SkColorTypeToGrColorType(this->imageInfo().colorType());
