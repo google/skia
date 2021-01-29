@@ -35,6 +35,7 @@ func main() {
 		local     = flag.Bool("local", true, "Running locally (else on the bots)?")
 
 		resources = flag.String("resources", "resources", "Passed to fm -i.")
+		script    = flag.String("script", "", "File (or - for stdin) with one job per line.")
 	)
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
@@ -119,23 +120,26 @@ func main() {
 		return w
 	}
 
-	// TODO: this doesn't have to be hard coded, of course.
-	// TODO: add some .skps or images to demo that.
-	script := `
-	b=cpu tests
-	b=cpu gms
-	b=cpu gms skvm=true
+	// One job can go on the command line, handy for ad hoc local runs.
+	jobs := [][]string{flag.Args()[1:]}
 
-	#b=cpu gms skvm=true gamut=p3
-	#b=cpu gms skvm=true ct=565
-	`
-	jobs := [][]string{}
-	scanner := bufio.NewScanner(strings.NewReader(script))
-	for scanner.Scan() {
-		jobs = append(jobs, strings.Fields(scanner.Text()))
-	}
-	if err := scanner.Err(); err != nil {
-		td.Fatal(ctx, err)
+	// Any number of jobs can come from -script.
+	if *script != "" {
+		file := os.Stdin
+		if *script != "-" {
+			file, err := os.Open(*script)
+			if err != nil {
+				td.Fatal(ctx, err)
+			}
+			defer file.Close()
+		}
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			jobs = append(jobs, strings.Fields(scanner.Text()))
+		}
+		if err := scanner.Err(); err != nil {
+			td.Fatal(ctx, err)
+		}
 	}
 
 	// We'll kick off workers to run FM with `-s <Sources...> <Flags...>` from parsed jobs.
