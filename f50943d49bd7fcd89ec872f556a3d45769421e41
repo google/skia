@@ -52,6 +52,29 @@
       "parentUuid": "e7beb336_a5807194",
       "revId": "f50943d49bd7fcd89ec872f556a3d45769421e41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "996d6592_03a635d8",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-29T16:03:34Z",
+      "side": 1,
+      "message": "These ones (here and perf.py) might be better as --example or --pretend?",
+      "range": {
+        "startLine": 178,
+        "startChar": 25,
+        "endLine": 178,
+        "endChar": 36
+      },
+      "revId": "f50943d49bd7fcd89ec872f556a3d45769421e41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
