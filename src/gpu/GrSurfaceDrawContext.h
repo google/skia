@@ -718,6 +718,7 @@ private:
     // The op should have already had setClippedBounds called on it.
     bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op,
                                                  GrXferProcessor::DstProxyView* result);
+    void willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) override;
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 

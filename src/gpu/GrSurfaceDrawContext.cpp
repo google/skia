@@ -1969,3 +1969,14 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,
     dstProxyView->setDstSampleType(fDstSampleType);
     return true;
 }
+
+void GrSurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {
+    if (prevTask && fNumStencilSamples > 0) {
+        // Store the stencil values in memory upon completion of fOpsTask.
+        prevTask->setMustPreserveStencil();
+        // Reload the stencil buffer content at the beginning of newOpsTask.
+        // FIXME: Could the topo sort insert a task between these two that modifies the stencil
+        // values?
+        nextTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
+    }
+}
