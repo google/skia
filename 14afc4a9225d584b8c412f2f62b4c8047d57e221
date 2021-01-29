@@ -16,6 +16,24 @@
       "message": "Looks fine.. but we still expose croprect in imagefilters?",
       "revId": "14afc4a9225d584b8c412f2f62b4c8047d57e221",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "afe96f2a_88e1587a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-01-29T14:53:21Z",
+      "side": 1,
+      "message": "No, SkImageFilters::CropRect is a different(newer) type than SkImageFilter::CropRect.  \n\nSkImageFilter::CropRect is an SkRect + edge flags that have weird definitions that aren\u0027t used anymore, but that also encode whether or not the crop rect is enabled, but all the old factories (that are hidden now), also encoded crop rect-enabling by using a null pointer. So it is kind of an awkward type I\u0027d like to just move away from.\n\nSkImageFilters::CropRect is meant to be a convenience vehicle for porting.  It lets you pass an SkRect, SkIRect, const SkRect*, const SkIRect*, or nullptr in to the new factory functions without having to declare so many variants.  Most clients only really need const SkRect* or nullptr, but for our GMs and tests, being able to pass SkIRect or SkRect in directly has been convenient.\n\nThe newer SkImageFilters::CropRect should never be directly used, since it\u0027s all meant to use implicit conversions. We can definitely update SkImageFilters.h to only use const SkRect* in another CL, if you don\u0027t like the implicit conversion options.",
+      "parentUuid": "fd09ceec_30cf6d45",
+      "revId": "14afc4a9225d584b8c412f2f62b4c8047d57e221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
