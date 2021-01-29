@@ -209,7 +209,7 @@ DEF_SIMPLE_GM(runtime_intrinsics_exponential,
 DEF_SIMPLE_GM(runtime_intrinsics_common,
               canvas,
               columns_to_width(6),
-              rows_to_height(6)) {
+              rows_to_height(7)) {
     canvas->translate(kPadding, kPadding);
     canvas->save();
 
@@ -217,9 +217,9 @@ DEF_SIMPLE_GM(runtime_intrinsics_common,
     plot(canvas, "sign(x)",  -1.0f,  1.0f, -1.5f, 1.5f);
     next_row(canvas);
 
-    plot(canvas, "floor(x)", -3.0f, 3.0f, -4.0f, 4.0f);
-    plot(canvas, "ceil(x)",  -3.0f, 3.0f, -4.0f, 4.0f);
-    plot(canvas, "fract(x)", -3.0f, 3.0f,  0.0f, 1.0f);
+    plot(canvas, "floor(x)",     -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "ceil(x)",      -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "fract(x)",     -3.0f, 3.0f,  0.0f, 1.0f);
     plot(canvas, "mod(x, 2)",    -4.0f, 4.0f, -2.0f, 2.0f, "mod(scalar)");
     plot(canvas, "mod(p, -2).x", -4.0f, 4.0f, -2.0f, 2.0f, "mod(mixed)" );
     plot(canvas, "mod(p, v2).x", -4.0f, 4.0f, -2.0f, 2.0f, "mod(vector)");
@@ -250,6 +250,12 @@ DEF_SIMPLE_GM(runtime_intrinsics_common,
     plot(canvas, "smoothstep(1, 2, x)",     0.5f, 2.5f, -0.5f, 1.5f, "smooth(scalar)");
     plot(canvas, "smoothstep(1, 2, p).x",   0.5f, 2.5f, -0.5f, 1.5f, "smooth(mixed)" );
     plot(canvas, "smoothstep(v1, v2, p).x", 0.5f, 2.5f, -0.5f, 1.5f, "smooth(vector)");
+    next_row(canvas);
+
+    plot(canvas, "floor(p).x", -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "ceil(p).x",  -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "floor(p).y", -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "ceil(p).y",  -3.0f, 3.0f, -4.0f, 4.0f);
     next_row(canvas);
 }
 
