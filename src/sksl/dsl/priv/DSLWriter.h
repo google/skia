@@ -125,6 +125,8 @@ public:
      * Pops the processor / emitArgs pair associated with the current thread.
      */
     static void EndFragmentProcessor();
+
+    static GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var);
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
     /**
