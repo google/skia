@@ -36,7 +36,7 @@
       "[START_DIR]\\cache\\work\\skia\\bin\\gn",
       "gen",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-arm64-Release-Android\\Release",
-      "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]\\n\" target_cpu=\"arm64\" werror=true"
+      "--args=extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]\\n\" target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {

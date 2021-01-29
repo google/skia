@@ -103,7 +103,7 @@ def compile_fn(api, checkout_root, out_dir):
     # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode
     XCODE_BUILD_VERSION = '12c33'
     extra_cflags.append(
-        '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
+        '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.workdir.join(
         'mac_toolchain', 'mac_toolchain')
     xcode_app_path = api.vars.cache_dir.join('Xcode.app')
@@ -165,7 +165,7 @@ def compile_fn(api, checkout_root, out_dir):
     extra_cflags .append('-B%s/bin' % clang_linux)
     extra_ldflags.append('-B%s/bin' % clang_linux)
     extra_ldflags.append('-fuse-ld=lld')
-    extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
+    extra_cflags.append('-DPLACEHOLDER_clang_linux_version=%s' %
                         api.run.asset_version('clang_linux', skia_dir))
     if 'Static' in extra_tokens:
       extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
@@ -308,7 +308,7 @@ def compile_fn(api, checkout_root, out_dir):
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
   if compiler == 'Clang' and 'Win' in os:
     args['clang_win'] = '"%s"' % api.vars.workdir.join('clang_win')
-    extra_cflags.append('-DDUMMY_clang_win_version=%s' %
+    extra_cflags.append('-DPLACEHOLDER_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
 
   sanitize = ''

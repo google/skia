@@ -1304,7 +1304,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --dummy --flags -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --texttraces /sdcard/revenge_of_the_skiabot/text_blob_traces --svgs /sdcard/revenge_of_the_skiabot/svgs; echo $? >/data/local/tmp/rc",
+      "set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --example --flags -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --texttraces /sdcard/revenge_of_the_skiabot/text_blob_traces --svgs /sdcard/revenge_of_the_skiabot/svgs; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {
@@ -1314,7 +1314,7 @@
     "infra_step": true,
     "name": "write nanobench.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@nanobench.sh@set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --dummy --flags -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --texttraces /sdcard/revenge_of_the_skiabot/text_blob_traces --svgs /sdcard/revenge_of_the_skiabot/svgs; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@nanobench.sh@set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --example --flags -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --texttraces /sdcard/revenge_of_the_skiabot/text_blob_traces --svgs /sdcard/revenge_of_the_skiabot/svgs; echo $? >/data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@nanobench.sh@@@"
     ]
   },

@@ -82,7 +82,7 @@ def compile_fn(api, checkout_root, out_dir):
   # compile tasks. However, we need to force a recompile when the toolchain
   # changes. The simplest way to do that is using a C define that changes
   # anytime the image changes.
-  args['extra_cflags'].append('-DDUMMY_docker_image=%s' % image_hash)
+  args['extra_cflags'].append('-DREBUILD_IF_CHANGED_docker_image=%s' % image_hash)
 
   script = api.build.resource('docker-compile.sh')
   api.docker.run('Run build script in Docker', image_hash,

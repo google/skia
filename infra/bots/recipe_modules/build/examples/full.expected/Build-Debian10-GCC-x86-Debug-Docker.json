@@ -85,7 +85,7 @@
       "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-x86-Debug-Docker/Debug,target=/OUT",
       "gcr.io/skia-public/gcc-debian10-x86@sha256:b1ec55403ac66d9500d033d6ffd7663894d32335711fbbb0fb4c67dfce812203",
       "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-compile.sh",
-      "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\",\"-g1\",\"-DDUMMY_docker_image=gcr.io/skia-public/gcc-debian10-x86@sha256:b1ec55403ac66d9500d033d6ffd7663894d32335711fbbb0fb4c67dfce812203\"] extra_ldflags=[] target_cpu=\"x86\" werror=true"
+      "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\",\"-g1\",\"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/gcc-debian10-x86@sha256:b1ec55403ac66d9500d033d6ffd7663894d32335711fbbb0fb4c67dfce812203\"] extra_ldflags=[] target_cpu=\"x86\" werror=true"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

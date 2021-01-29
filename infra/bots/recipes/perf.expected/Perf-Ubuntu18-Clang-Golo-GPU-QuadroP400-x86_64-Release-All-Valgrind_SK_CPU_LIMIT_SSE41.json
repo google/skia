@@ -86,7 +86,7 @@
       "--num-callers=40",
       "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
       "[START_DIR]/build/nanobench",
-      "--dummy",
+      "--example",
       "--flags",
       "-i",
       "[START_DIR]/skia/resources",

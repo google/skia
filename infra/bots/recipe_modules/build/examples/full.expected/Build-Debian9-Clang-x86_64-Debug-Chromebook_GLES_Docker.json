@@ -103,7 +103,7 @@
       "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker/Debug,target=/OUT",
       "gcr.io/skia-public/debian9@sha256:f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569",
       "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-chromeos-compile.sh",
-      "cc=\"/SRC/clang_linux/bin/clang\" cxx=\"/SRC/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\",\"-I/SRC/chromebook_x86_64_gles/include\",\"-DDUMMY_clang_linux_version=42\",\"-DDUMMY_docker_image=gcr.io/skia-public/debian9@sha256:f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569\"] extra_ldflags=[\"-L/SRC/chromebook_x86_64_gles/lib\",\"-static-libstdc++\",\"-static-libgcc\",\"-fuse-ld=lld\"] skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"x86_64\" werror=true"
+      "cc=\"/SRC/clang_linux/bin/clang\" cxx=\"/SRC/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\",\"-I/SRC/chromebook_x86_64_gles/include\",\"-DREBUILD_IF_CHANGED_clang_linux_version=42\",\"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/debian9@sha256:f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569\"] extra_ldflags=[\"-L/SRC/chromebook_x86_64_gles/lib\",\"-static-libstdc++\",\"-static-libgcc\",\"-fuse-ld=lld\"] skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"x86_64\" werror=true"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
