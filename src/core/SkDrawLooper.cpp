@@ -98,6 +98,10 @@ void SkDrawLooper::apply(SkCanvas* canvas, const SkPaint& paint,
             } else {
                 canvas->translate(info.fTranslate.fX, info.fTranslate.fY);
             }
+            if (info.fClipRect.fEnabled) {
+                canvas->clipRect(info.fClipRect.fRect, info.fClipRect.fOp,
+                                 info.fClipRect.fDoAntiAlias);
+            }
             proc(canvas, p);
             canvas->restore();
         }

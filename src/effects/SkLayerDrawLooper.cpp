@@ -142,6 +142,7 @@ bool SkLayerDrawLooper::LayerDrawLooperContext::next(Info* info, SkPaint* paint)
     if (info) {
         info->fTranslate = fCurrRec->fInfo.fOffset;
         info->fApplyPostCTM = fCurrRec->fInfo.fPostTranslate;
+        info->fClipRect = fCurrRec->fInfo.fClipRect;
     }
     fCurrRec = fCurrRec->fNext;
     return true;
