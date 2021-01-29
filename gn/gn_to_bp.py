@@ -338,10 +338,10 @@ def generate_args(target_os, enable_gpu):
 
     # BUILDCONFIG.gn expects these to be set when building for Windows, but
     # we're just creating Android.bp, so we don't need them. Populate with
-    # some dummy values.
-    d['win_vc'] = '"dummy_version"'
-    d['win_sdk_version'] = '"dummy_version"'
-    d['win_toolchain_version'] = '"dummy_version"'
+    # some placeholder values.
+    d['win_vc'] = '"placeholder_version"'
+    d['win_sdk_version'] = '"placeholder_version"'
+    d['win_toolchain_version'] = '"placeholder_version"'
   return d
 
 gn_args       = generate_args('"android"', True)
