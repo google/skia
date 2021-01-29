@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c13d6c98_5e9f0041",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-29T21:34:37Z",
+      "side": 1,
+      "message": "delete me",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 0
+      },
+      "revId": "ae2324a6376810a16c9679d4bb39ef1023c17d20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b07177d3_a795705a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-29T21:34:37Z",
+      "side": 1,
+      "message": "Idea for a future CL: combining these checks with FindIllegalExpressions in some way, so we can do exactly one sweep of the code and get all these validity checks done simultaneously, instead of in two passes.\n\nMy first thought was to move the FindIllegalExpressions checks into here directly, but that would leave expressions outside of functions unchecked, e.g. global variable initializers. But it\u0027s still doable, just the factoring needs to be a little more clever. Maybe we have a method IRGenerator::addProgramElement() which does these sorts of correctness scans before invoking fProgramElements.push_back, and do program-element insertion that way instead of via a finalizer method that\u0027s just about functions? Open to other ideas too.",
+      "range": {
+        "startLine": 1035,
+        "startChar": 18,
+        "endLine": 1035,
+        "endChar": 34
+      },
+      "revId": "ae2324a6376810a16c9679d4bb39ef1023c17d20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
