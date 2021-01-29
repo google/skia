@@ -10,11 +10,12 @@
 #ifndef SkDrawLooper_DEFINED
 #define SkDrawLooper_DEFINED
 
+#include <functional>  // std::function
 #include "include/core/SkBlurTypes.h"
+#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkPoint.h"
-#include <functional>  // std::function
 
 class  SkArenaAlloc;
 class  SkCanvas;
@@ -38,9 +39,27 @@ public:
         Context() {}
         virtual ~Context() {}
 
+        /**
+         * Optional info for how to clip the canvas while painting the layer.
+         *
+         * Iff fEnabled is true, the remaining fields encode the arguments for a
+         * SkCanvas::clipRect call, such that the canvas is clipped to fRect in the
+         * coordinate space transformed under Info::fTranslate.
+         */
+        struct SK_API ClipRect {
+            bool fEnabled;
+
+            SkRect fRect;
+            SkClipOp fOp;
+            bool fDoAntiAlias;
+
+            ClipRect() {}
+        };
+
         struct Info {
             SkVector fTranslate;
             bool     fApplyPostCTM;
+            ClipRect fClipRect;
 
             void applyToCTM(SkMatrix* ctm) const;
             void applyToCanvas(SkCanvas*) const;
