@@ -609,14 +609,11 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             break;
     }
 
-    // NOTE: If fMustPreserveStencil is set, then we are executing a surfaceDrawContext that split
-    // its opsTask.
-    //
     // FIXME: We don't currently flag render passes that don't use stencil at all. In that case
     // their store op might be "discard", and we currently make the assumption that a discard will
     // not invalidate what's already in main memory. This is probably ok for now, but certainly
     // something we want to address soon.
-    GrStoreOp stencilStoreOp = (caps.discardStencilValuesAfterRenderPass() && !fMustPreserveStencil)
+    GrStoreOp stencilStoreOp = caps.discardStencilValuesAfterRenderPass()
             ? GrStoreOp::kDiscard
             : GrStoreOp::kStore;
 
@@ -718,7 +715,6 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();
     }
-    fMustPreserveStencil = last->fMustPreserveStencil;
     return mergedCount;
 }
 

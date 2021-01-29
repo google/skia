@@ -141,10 +141,6 @@ private:
         fInitialStencilContent = initialContent;
     }
 
-    // If a surfaceDrawContext splits its opsTask, it uses this method to guarantee stencil values
-    // get preserved across its split tasks.
-    void setMustPreserveStencil() { fMustPreserveStencil = true; }
-
     class OpChain {
     public:
         OpChain(GrOp::Owner, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxyView*);
@@ -262,7 +258,6 @@ private:
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     std::array<float, 4> fLoadClearColor = {0, 0, 0, 0};
     StencilContent fInitialStencilContent = StencilContent::kDontCare;
-    bool fMustPreserveStencil = false;
 
     uint32_t fLastClipStackGenID = SK_InvalidUniqueID;
     SkIRect fLastDevClipBounds;
