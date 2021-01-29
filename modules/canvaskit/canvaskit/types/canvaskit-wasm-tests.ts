@@ -555,16 +555,12 @@ function particlesTests(CK: CanvasKit, canvas?: Canvas) {
 
     const par = CK.MakeParticles('some json'); // $ExpectType Particles
     par.draw(canvas);
-    par.effectUniforms()[0] = 1.2;
-    const a = par.getEffectUniform(1); // $ExpectType ParticlesUniform
-    const b = par.getEffectUniformCount(); // $ExpectType number
-    const c = par.getEffectUniformFloatCount(); // $ExpectType number
-    const d = par.getEffectUniformName(3); // $ExpectType string
-    const e = par.getParticleUniform(3); // $ExpectType ParticlesUniform
-    const f = par.getParticleUniformCount(); // $ExpectType number
-    const g = par.getParticleUniformFloatCount(); // $ExpectType number
-    const h = par.getParticleUniformName(3); // $ExpectType string
-    par.particleUniforms()[2] = 4.5;
+    par.uniforms()[0] = 1.2;
+    const a = par.getUniform(1); // $ExpectType ParticlesUniform
+    const b = par.getUniformCount(); // $ExpectType number
+    const c = par.getUniformFloatCount(); // $ExpectType number
+    const d = par.getUniformName(3); // $ExpectType string
+    par.uniforms()[2] = 4.5;
     par.setPosition([3, 5]);
     par.setRate(3);
     par.start(0, true);
