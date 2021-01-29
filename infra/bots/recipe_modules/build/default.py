@@ -29,7 +29,8 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
   """
   swiftshader_opts = [
       '-DSWIFTSHADER_BUILD_TESTS=OFF',
-      '-DSWIFTSHADER_WARNINGS_AS_ERRORS=0',
+      '-DSWIFTSHADER_WARNINGS_AS_ERRORS=OFF',
+      '-DREACTOR_ENABLE_MEMORY_SANITIZER_INSTRUMENTATION=OFF',  # Way too slow.
   ]
   cmake_bin = str(api.vars.workdir.join('cmake_linux', 'bin'))
   env = {
