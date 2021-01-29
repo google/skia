@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0a8c502_0e53166f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-01-29T16:56:29Z",
+      "side": 1,
+      "message": "Code that does things in two different ways is more complex than code that does everything the same way, and the amount of time it takes someone to read and understand some code is proportional to the number of different things it can do, not the number of lines.",
+      "range": {
+        "startLine": 17,
+        "startChar": 50,
+        "endLine": 19,
+        "endChar": 25
+      },
+      "revId": "b74e56b9d502ff3f3717de0a32d8a909055d0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
