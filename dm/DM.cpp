@@ -58,6 +58,8 @@
     #include "src/utils/mac/SkUniqueCFRef.h"
 #endif
 
+#include "zlib.h"
+
 extern bool gSkForceRasterPipelineBlitter;
 extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
@@ -1487,6 +1489,10 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 int main(int argc, char** argv) {
+    // zlib's cpu feature flags are referenced in adler32_z before they're initialized in
+    // cpu_check_features. Force them to be initialized, so TSAN doesn't warn about the data race.
+    adler32(0, NULL, 0);
+
 #if defined(__MSVC_RUNTIME_CHECKS)
     _RTC_SetErrorFunc(RuntimeCheckErrorFunc);
 #endif

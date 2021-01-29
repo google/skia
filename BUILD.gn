@@ -2043,6 +2043,7 @@ if (skia_enable_tools) {
         "modules/skottie",
         "modules/skottie:utils",
         "modules/svg",
+        "//third_party/zlib",
       ]
     }
 
