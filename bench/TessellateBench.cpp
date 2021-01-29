@@ -82,7 +82,7 @@ protected:
     SkString fName;
     std::unique_ptr<GrMockOpTarget> fTarget;
     const SkPath fPath;
-    const SkMatrix& fMatrix;
+    const SkMatrix fMatrix;
 };
 
 #define DEF_PATH_TESS_BENCH(NAME, PATH, MATRIX) \
