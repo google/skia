@@ -16,6 +16,24 @@
       "message": "This isn\u0027t really a placeholder.\n\nIt\u0027s there to make sure that the build is rebuilt fully if we upgrade the NDK.\n\nSimilar with all the other similar defines.",
       "revId": "f50943d49bd7fcd89ec872f556a3d45769421e41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7beb336_a5807194",
+        "filename": "infra/bots/recipe_modules/build/android.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-29T15:57:45Z",
+      "side": 1,
+      "message": "Would you prefer the name TOUCH or FORCE or are you ok as is?",
+      "parentUuid": "2b8c0463_33b3bc43",
+      "revId": "f50943d49bd7fcd89ec872f556a3d45769421e41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
