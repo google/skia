@@ -1971,20 +1971,10 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 }
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
-    // Is this variable is actually a uniform at global scope?
-    const Variable* variable = ref.variable();
-    if (this->findUniformFieldIndex(*variable) >= 0) {
-        // SPIR-V doesn't allow uniforms at global scope, so we've stashed them in an interface
-        // block. We need to fetch it from there. getLValue knows how to do this.
-        return this->getLValue(ref, out)->load(out);
-    }
+    SpvId result = this->getLValue(ref, out)->load(out);
 
-    SpvId result = this->nextId();
-    auto entry = fVariableMap.find(variable);
-    SkASSERT(entry != fVariableMap.end());
-    SpvId var = entry->second;
-    this->writeInstruction(SpvOpLoad, this->getType(variable->type()), result, var, out);
-    this->writePrecisionModifier(variable->type(), result);
+    // Handle the "flipY" setting when reading sk_FragCoord.
+    const Variable* variable = ref.variable();
     if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
         fProgram.fSettings.fFlipY) {
         // The x component never changes, so just grab it
@@ -2097,6 +2087,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
         return adjusted;
     }
+
+    // Handle the "flipY" setting when reading sk_Clockwise.
     if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
         !fProgram.fSettings.fFlipY) {
         // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia, we use
@@ -2106,6 +2098,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                result, out);
         return inverse;
     }
+
     return result;
 }
 
