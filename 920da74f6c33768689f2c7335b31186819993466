@@ -16,6 +16,40 @@
       "message": "Looks like bots are finding the SVGs in the new asset version, see e.g. the output here: https://logs.chromium.org/logs/skia/51674fb6e5102811/+/steps/symbolized_dm/0/stdout (from Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN).",
       "revId": "920da74f6c33768689f2c7335b31186819993466",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18cda304_23d690aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-29T15:06:26Z",
+      "side": 1,
+      "message": "Should expect to see changes in gold?\n\nhttps://gold.skia.org/search?corpus\u003dsvg\u0026crs\u003dgerrit\u0026issue\u003d361560\u0026positive\u003dtrue",
+      "revId": "920da74f6c33768689f2c7335b31186819993466",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04bfbb01_e8edd572",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-01-29T15:06:26Z",
+      "side": 1,
+      "message": "Let\u0027s add a comment here reminding the reader of the layout of the svg CIPD asset",
+      "revId": "920da74f6c33768689f2c7335b31186819993466",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
