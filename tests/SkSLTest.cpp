@@ -109,6 +109,7 @@ SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 
 SKSL_TEST(SkSLIntrinsicAbsFloat,       "intrinsics/AbsFloat.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,           "intrinsics/Ceil.sksl")
+SKSL_TEST(SkSLIntrinsicFloorScalar,    "intrinsics/FloorScalar.sksl")
 SKSL_TEST(SkSLIntrinsicClampFloat,     "intrinsics/ClampFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMaxFloat,       "intrinsics/MaxFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
@@ -118,8 +119,8 @@ SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 
 /*
-TODO(johnstiles): work around failures on ANGLE + Intel6000 + DX9 configuration and reland
-SKSL_TEST(SkSLIntrinsicFloor,          "intrinsics/Floor.sksl")
+TODO(johnstiles): investigate failures on ANGLE + Intel Gen8 + DX9 configuration
+SKSL_TEST(SkSLIntrinsicFloorVector,    "intrinsics/FloorVector.sksl")
 */
 
 /*
