@@ -126,8 +126,7 @@ public:
 private:
     friend class SkParticleEffect;
 
-    std::unique_ptr<SkParticleProgram> fEffectProgram;
-    std::unique_ptr<SkParticleProgram> fParticleProgram;
+    std::unique_ptr<SkParticleProgram> fProgram;
 };
 
 class SkParticleEffect : public SkRefCnt {
@@ -177,11 +176,8 @@ public:
     void setColor   (SkColor4f c) { fState.fColor    = c; }
     void setFrame   (float     f) { fState.fFrame    = f; }
 
-    const SkSL::UniformInfo* effectUniformInfo() const;
-    const SkSL::UniformInfo* particleUniformInfo() const;
-
-    float* effectUniforms() { return fEffectUniforms.data(); }
-    float* particleUniforms() { return fParticleUniforms.data(); }
+    const SkSL::UniformInfo* uniformInfo() const;
+    float* uniformData() { return fUniforms.data(); }
 
     static void RegisterParticleTypes();
 
@@ -232,8 +228,9 @@ private:
 
     // Cached
     int fCapacity;
-    SkTArray<float, true> fEffectUniforms;
-    SkTArray<float, true> fParticleUniforms;
+    SkTArray<float, true> fUniforms;
+
+    friend struct SkParticleProgram;
 };
 
 #endif // SkParticleEffect_DEFINED

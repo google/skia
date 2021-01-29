@@ -807,57 +807,31 @@ export interface Particles extends EmbindObject<Particles> {
      * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
      * floats will change the corresponding uniforms instantly.
      */
-    effectUniforms(): Float32Array;
+    uniforms(): Float32Array;
 
     /**
      * Returns the nth uniform from the effect.
      * @param index
      */
-    getEffectUniform(index: number): ParticlesUniform;
+    getUniform(index: number): ParticlesUniform;
 
     /**
      * Returns the number of uniforms on the effect.
      */
-    getEffectUniformCount(): number;
+    getUniformCount(): number;
 
     /**
-     * Returns the number of float uniforms on the effect.
+     * Returns the total number of floats across all uniforms on the effect. This is the length
+     * of the array returned by `uniforms()`. For example, an effect with a single float3 uniform,
+     * would return 1 from `getUniformCount()`, but 3 from `getUniformFloatCount()`.
      */
-    getEffectUniformFloatCount(): number;
+    getUniformFloatCount(): number;
 
     /**
      * Returns the name of the nth effect uniform.
      * @param index
      */
-    getEffectUniformName(index: number): string;
-
-    /**
-     * Returns the nth uniform on the particles.
-     * @param index
-     */
-    getParticleUniform(index: number): ParticlesUniform;
-
-    /**
-     * Returns the count of uniforms on the particles.
-     */
-    getParticleUniformCount(): number;
-
-    /**
-     * Returns the number of float uniforms on the particles.
-     */
-    getParticleUniformFloatCount(): number;
-
-    /**
-     * Returns the name of the nth particle uniform.
-     * @param index
-     */
-    getParticleUniformName(index: number): string;
-
-    /**
-     * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
-     * floats will change the corresponding uniforms instantly.
-     */
-    particleUniforms(): Float32Array;
+    getUniformName(index: number): string;
 
     /**
      * Sets the base position of the effect.

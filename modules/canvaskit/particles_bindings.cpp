@@ -95,70 +95,37 @@ EMSCRIPTEN_BINDINGS(Particles) {
     class_<SkParticleEffect>("ParticleEffect")
         .smart_ptr<sk_sp<SkParticleEffect>>("sk_sp<SkParticleEffect>")
         .function("draw", &SkParticleEffect::draw, allow_raw_pointers())
-        .function("_effectUniformPtr", optional_override([](SkParticleEffect& self)->uintptr_t {
-            return reinterpret_cast<uintptr_t>(self.effectUniforms());
+        .function("_uniformPtr", optional_override([](SkParticleEffect& self)->uintptr_t {
+            return reinterpret_cast<uintptr_t>(self.uniformData());
         }))
-        .function("_particleUniformPtr", optional_override([](SkParticleEffect& self)->uintptr_t {
-            return reinterpret_cast<uintptr_t>(self.particleUniforms());
-        }))
-        .function("getEffectUniformCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.effectUniformInfo();
-            if (!ec) {
+        .function("getUniformCount", optional_override([](SkParticleEffect& self)->int {
+            auto info = self.uniformInfo();
+            if (!info) {
                 return -1;
             }
-            return ec->fUniforms.size();
+            return info->fUniforms.size();
         }))
-        .function("getEffectUniformFloatCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.effectUniformInfo();
-            if (!ec) {
+        .function("getUniformFloatCount", optional_override([](SkParticleEffect& self)->int {
+            auto info = self.uniformInfo();
+            if (!info) {
                 return -1;
             }
-            return ec->fUniformSlotCount;
+            return info->fUniformSlotCount;
         }))
-        .function("getEffectUniformName", optional_override([](SkParticleEffect& self, int i)->JSString {
-            auto ec = self.effectUniformInfo();
-            if (!ec) {
+        .function("getUniformName", optional_override([](SkParticleEffect& self, int i)->JSString {
+            auto info = self.uniformInfo();
+            if (!info) {
                 return emscripten::val::null();
             }
-            return emscripten::val(ec->fUniforms[i].fName.c_str());
+            return emscripten::val(info->fUniforms[i].fName.c_str());
         }))
-        .function("getEffectUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
+        .function("getUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
             SimpleUniform su;
-            auto ec = self.effectUniformInfo();
-            if (!ec) {
+            auto info = self.uniformInfo();
+            if (!info) {
                 return su;
             }
-            su = fromUniform(ec->fUniforms[i]);
-            return su;
-        }))
-        .function("getParticleUniformCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.particleUniformInfo();
-            if (!ec) {
-                return -1;
-            }
-            return ec->fUniforms.size();
-        }))
-        .function("getParticleUniformFloatCount", optional_override([](SkParticleEffect& self)->int {
-            auto ec = self.particleUniformInfo();
-            if (!ec) {
-                return -1;
-            }
-            return ec->fUniformSlotCount;
-        }))
-        .function("getParticleUniformName", optional_override([](SkParticleEffect& self, int i)->JSString {
-            auto ec = self.particleUniformInfo();
-            if (!ec) {
-                return emscripten::val::null();
-            }
-            return emscripten::val(ec->fUniforms[i].fName.c_str());
-        }))
-        .function("getParticleUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
-            SimpleUniform su;
-            auto ec = self.particleUniformInfo();
-            if (!ec) {
-                return su;
-            }
-            su = fromUniform(ec->fUniforms[i]);
+            su = fromUniform(info->fUniforms[i]);
             return su;
         }))
         .function("setPosition", select_overload<void (SkPoint)>(&SkParticleEffect::setPosition))

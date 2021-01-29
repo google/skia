@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 - `MakeImprovedNoise` is removed.
+- Particles now use a single code string containing both Effect and Particle code. Uniform APIs are
+  now shared between Effect and Particle programs, and are no longer prefixed with `Effect` or
+  `Particle`. For example, instead of `ParticleEffect.getEffectUniform` and
+  `ParticleEffect.getParticleUniform`, there is now just: `ParticleEffect.getUniform`.
 
 ### Fixed
  - Improper error returned when a WebGL context could not be used.
