@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd09ceec_30cf6d45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-01-29T14:33:27Z",
+      "side": 1,
+      "message": "Looks fine.. but we still expose croprect in imagefilters?",
+      "revId": "14afc4a9225d584b8c412f2f62b4c8047d57e221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
