@@ -36,7 +36,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Release-Android_Wuffs/Release",
-      "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" skia_use_wuffs=true target_cpu=\"arm64\" werror=true"
+      "--args=extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" skia_use_wuffs=true target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

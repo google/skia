@@ -17,7 +17,7 @@ export GOBIN="${1}"
 git init
 git remote add origin https://skia.googlesource.com/skia.git
 git add .
-git commit -a -m "dummy commit to make go modules work"
+git commit -a -m "initial commit to make go modules work"
 export GOFLAGS="-mod=readonly"
 go mod download
 go install -v go.skia.org/infra/infra/bots/task_drivers/build_push_docker_image
