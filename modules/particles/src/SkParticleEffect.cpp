@@ -23,13 +23,17 @@
 
 // Cached state for a single program (either all Effect code, or all Particle code)
 struct SkParticleProgram {
-    SkParticleProgram(skvm::Program spawn,
+    SkParticleProgram(skvm::Program effectSpawn,
+                      skvm::Program effectUpdate,
+                      skvm::Program spawn,
                       skvm::Program update,
                       std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions,
                       skvm::Uniforms externalFunctionUniforms,
                       std::unique_ptr<SkArenaAlloc> alloc,
                       std::unique_ptr<SkSL::UniformInfo> uniformInfo)
-            : fSpawn(std::move(spawn))
+            : fEffectSpawn(std::move(effectSpawn))
+            , fEffectUpdate(std::move(effectUpdate))
+            , fSpawn(std::move(spawn))
             , fUpdate(std::move(update))
             , fExternalFunctions(std::move(externalFunctions))
             , fExternalFunctionUniforms(std::move(externalFunctionUniforms))
@@ -37,6 +41,8 @@ struct SkParticleProgram {
             , fUniformInfo(std::move(uniformInfo)) {}
 
     // Programs for each entry point
+    skvm::Program fEffectSpawn;
+    skvm::Program fEffectUpdate;
     skvm::Program fSpawn;
     skvm::Program fUpdate;
 
@@ -70,19 +76,6 @@ struct Effect {
   float  seed;
 };
 
-uniform float dt;
-
-// We use a not-very-random pure-float PRNG. It does have nice properties for our situation:
-// It's fast-ish. Importantly, it only uses types and operations that exist in public SkSL's
-// minimum spec (no bitwise operations on integers).
-float rand(inout float seed) {
-  seed = sin(31*seed) + sin(19*seed + 1);
-  return fract(abs(10*seed));
-}
-)";
-
-static const char* kParticleHeader =
-R"(
 struct Particle {
   float  age;
   float  lifetime;
@@ -96,7 +89,16 @@ struct Particle {
   float  seed;
 };
 
+uniform float dt;
 uniform Effect effect;
+
+// We use a not-very-random pure-float PRNG. It does have nice properties for our situation:
+// It's fast-ish. Importantly, it only uses types and operations that exist in public SkSL's
+// minimum spec (no bitwise operations on integers).
+float rand(inout float seed) {
+  seed = sin(31*seed) + sin(19*seed + 1);
+  return fract(abs(10*seed));
+}
 )";
 
 static const char* kDefaultEffectCode =
@@ -105,10 +107,8 @@ R"(void effectSpawn(inout Effect effect) {
 
 void effectUpdate(inout Effect effect) {
 }
-)";
 
-static const char* kDefaultParticleCode =
-R"(void spawn(inout Particle p) {
+void spawn(inout Particle p) {
 }
 
 void update(inout Particle p) {
@@ -118,8 +118,7 @@ void update(inout Particle p) {
 SkParticleEffectParams::SkParticleEffectParams()
         : fMaxCount(128)
         , fDrawable(nullptr)
-        , fEffectCode(kDefaultEffectCode)
-        , fParticleCode(kDefaultParticleCode) {}
+        , fEffectCode(kDefaultEffectCode) {}
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("MaxCount", fMaxCount);
@@ -127,6 +126,13 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("EffectCode", fEffectCode);
     v->visit("Code", fParticleCode);
     v->visit("Bindings", fBindings);
+
+    // Temporary migration hack: migrate EffectCode to the beginning of Code
+    if (!fEffectCode.isEmpty()) {
+        fParticleCode.prepend("\n");
+        fParticleCode.prepend(fEffectCode);
+        fEffectCode.reset();
+    }
 }
 
 void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resourceProvider) {
@@ -139,9 +145,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
         fDrawable->prepare(resourceProvider);
     }
 
-    auto buildProgram = [this](const SkSL::String& code,
-                               const char* spawn,
-                               const char* update) -> std::unique_ptr<SkParticleProgram> {
+    auto buildProgram = [this](const SkSL::String& code) -> std::unique_ptr<SkParticleProgram> {
         SkSL::ShaderCapsPointer caps = SkSL::ShaderCapsFactory::Standalone();
         SkSL::Compiler compiler(caps.get());
         SkSL::Program::Settings settings;
@@ -194,29 +198,28 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
             return b.done();
         };
 
-        skvm::Program spawnProgram  = buildFunction(spawn),
-                      updateProgram = buildFunction(update);
+        skvm::Program effectSpawn  = buildFunction("effectSpawn"),
+                      effectUpdate = buildFunction("effectUpdate"),
+                      spawn        = buildFunction("spawn"),
+                      update       = buildFunction("update");
 
-        return std::make_unique<SkParticleProgram>(std::move(spawnProgram),
-                                                   std::move(updateProgram),
+        return std::make_unique<SkParticleProgram>(std::move(effectSpawn),
+                                                   std::move(effectUpdate),
+                                                   std::move(spawn),
+                                                   std::move(update),
                                                    std::move(externalFns),
                                                    std::move(efUniforms),
                                                    std::move(alloc),
                                                    std::move(uniformInfo));
     };
 
-    SkSL::String effectCode(kCommonHeader);
-    effectCode.append(fEffectCode.c_str());
+    SkASSERT(fEffectCode.isEmpty());
 
     SkSL::String particleCode(kCommonHeader);
-    particleCode.append(kParticleHeader);
     particleCode.append(fParticleCode.c_str());
 
-    if (auto prog = buildProgram(effectCode, "effectSpawn", "effectUpdate")) {
-        fEffectProgram = std::move(prog);
-    }
-    if (auto prog = buildProgram(particleCode, "spawn", "update")) {
-        fParticleProgram = std::move(prog);
+    if (auto prog = buildProgram(particleCode)) {
+        fProgram = std::move(prog);
     }
 }
 
@@ -266,12 +269,12 @@ static float advance_seed(float x) {
 }
 
 void SkParticleEffect::runEffectScript(EntryPoint entryPoint) {
-    if (!fParams->fEffectProgram) {
+    if (!fParams->fProgram) {
         return;
     }
 
-    const skvm::Program& prog = entryPoint == EntryPoint::kSpawn ? fParams->fEffectProgram->fSpawn
-                                                                 : fParams->fEffectProgram->fUpdate;
+    const skvm::Program& prog = entryPoint == EntryPoint::kSpawn ? fParams->fProgram->fEffectSpawn
+                                                                 : fParams->fProgram->fEffectUpdate;
     if (prog.empty()) {
         return;
     }
@@ -281,23 +284,23 @@ void SkParticleEffect::runEffectScript(EntryPoint entryPoint) {
                + 1    // external function uniforms
                + 1];  // SkSL uniforms
 
-    args[0] = fParams->fEffectProgram->fExternalFunctionUniforms.buf.data();
-    args[1] = fEffectUniforms.data();
+    args[0] = fParams->fProgram->fExternalFunctionUniforms.buf.data();
+    args[1] = fUniforms.data();
     for (size_t i = 0; i < kNumEffectArgs; ++i) {
         args[i + 2] = SkTAddOffset<void>(&fState, i * sizeof(int));
     }
 
+    memcpy(&fUniforms[1], &fState.fAge, sizeof(EffectState));
     prog.eval(1, args);
 }
 
 void SkParticleEffect::runParticleScript(EntryPoint entryPoint, int start, int count) {
-    if (!fParams->fParticleProgram) {
+    if (!fParams->fProgram) {
         return;
     }
 
-    const skvm::Program& prog = entryPoint == EntryPoint::kSpawn
-                                        ? fParams->fParticleProgram->fSpawn
-                                        : fParams->fParticleProgram->fUpdate;
+    const skvm::Program& prog = entryPoint == EntryPoint::kSpawn ? fParams->fProgram->fSpawn
+                                                                 : fParams->fProgram->fUpdate;
     if (prog.empty()) {
         return;
     }
@@ -305,13 +308,13 @@ void SkParticleEffect::runParticleScript(EntryPoint entryPoint, int start, int c
     void* args[SkParticles::kNumChannels
                + 1    // external function uniforms
                + 1];  // SkSL uniforms
-    args[0] = fParams->fParticleProgram->fExternalFunctionUniforms.buf.data();
-    args[1] = fParticleUniforms.data();
+    args[0] = fParams->fProgram->fExternalFunctionUniforms.buf.data();
+    args[1] = fUniforms.data();
     for (int i = 0; i < SkParticles::kNumChannels; ++i) {
         args[i + 2] = fParticles.fData[i].get() + start;
     }
 
-    memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
+    memcpy(&fUniforms[1], &fState.fAge, sizeof(EffectState));
     prog.eval(count, args);
 }
 
@@ -340,15 +343,11 @@ void SkParticleEffect::advanceTime(double now) {
             }
         }
     };
-    resizeWithZero(&fEffectUniforms, this->effectUniformInfo());
-    resizeWithZero(&fParticleUniforms, this->particleUniformInfo());
+    resizeWithZero(&fUniforms, this->uniformInfo());
 
     // Copy known values into the uniform blocks
-    if (fParams->fEffectProgram) {
-        fEffectUniforms[0] = deltaTime;
-    }
-    if (fParams->fParticleProgram) {
-        fParticleUniforms[0] = deltaTime;
+    if (fParams->fProgram) {
+        fUniforms[0] = deltaTime;
     }
 
     // Is this the first update after calling start()?
@@ -490,12 +489,8 @@ void SkParticleEffect::setCapacity(int capacity) {
     fCount = std::min(fCount, fCapacity);
 }
 
-const SkSL::UniformInfo* SkParticleEffect::effectUniformInfo() const {
-    return fParams->fEffectProgram ? fParams->fEffectProgram->fUniformInfo.get() : nullptr;
-}
-
-const SkSL::UniformInfo* SkParticleEffect::particleUniformInfo() const {
-    return fParams->fParticleProgram ? fParams->fParticleProgram->fUniformInfo.get() : nullptr;
+const SkSL::UniformInfo* SkParticleEffect::uniformInfo() const {
+    return fParams->fProgram ? fParams->fProgram->fUniformInfo.get() : nullptr;
 }
 
 void SkParticleEffect::RegisterParticleTypes() {

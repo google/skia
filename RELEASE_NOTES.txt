@@ -7,6 +7,11 @@ This file includes a list of high level updates for each milestone release.
 Milestone 90
 ------------
 
+  * Refactored particle system to use a single code string containing both Effect and Particle code.
+    Uniform APIs are now shared for all program entry points, and no longer prefixed with 'Effect'
+    or 'Particle'. For example, instead of `SkParticleEffect::effectUniformInfo` and
+    `SkParticleEffect::particleUniformInfo`, there is just `SkParticleEffect::uniformInfo`.
+
   * Remove SkImageFilter::CropRect from the public API as it's no longer usable. All factories
     work with 'SkRect', 'SkIRect', or nullable pointers to 'Sk[I]Rect'.
     https://review.skia.org/361496
