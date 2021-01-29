@@ -1,1 +1,11 @@
-in half a; void main() { sk_FragColor.x = cos(a); }
+uniform half4 pi, colorGreen, colorRed;
+
+half4 main() {
+    half4 expected  = half4(0, -1, 0, 1);
+    half4 tolerance = half4(0.001);
+    return    (        (abs(cos(pi.x)    - expected.x   ) < tolerance.x   )) &&
+           all(lessThan(abs(cos(pi.xy)   - expected.xy  ) , tolerance.xy  )) &&
+           all(lessThan(abs(cos(pi.xyz)  - expected.xyz ) , tolerance.xyz )) &&
+           all(lessThan(abs(cos(pi.xyzw) - expected.xyzw) , tolerance.xyzw)) ? colorGreen
+                                                                             : colorRed;
+}
