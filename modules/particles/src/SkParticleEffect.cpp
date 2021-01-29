@@ -8,6 +8,7 @@
 #include "modules/particles/include/SkParticleEffect.h"
 
 #include "include/core/SkPaint.h"
+#include "include/private/SkOnce.h"
 #include "include/private/SkTPin.h"
 #include "modules/particles/include/SkParticleBinding.h"
 #include "modules/particles/include/SkParticleDrawable.h"
@@ -498,7 +499,10 @@ const SkSL::UniformInfo* SkParticleEffect::particleUniformInfo() const {
 }
 
 void SkParticleEffect::RegisterParticleTypes() {
-    REGISTER_REFLECTED(SkReflected);
-    SkParticleBinding::RegisterBindingTypes();
-    SkParticleDrawable::RegisterDrawableTypes();
+    static SkOnce once;
+    once([]{
+        REGISTER_REFLECTED(SkReflected);
+        SkParticleBinding::RegisterBindingTypes();
+        SkParticleDrawable::RegisterDrawableTypes();
+    });
 }
