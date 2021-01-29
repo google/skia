@@ -39,6 +39,30 @@
       },
       "revId": "be5eac70e10059eaf0646a9d85c4fdaf872c0012",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1c5abb5_39a350b6",
+        "filename": "tools/sk_app/mac/GLWindowContext_mac.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-01-29T04:06:27Z",
+      "side": 1,
+      "message": "When using Apple APIs expect verbosity. In any event, I\u0027ve made this a lot shorter and used less often.",
+      "parentUuid": "382375aa_a8c020f8",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 45
+      },
+      "revId": "be5eac70e10059eaf0646a9d85c4fdaf872c0012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
