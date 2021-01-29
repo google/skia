@@ -425,16 +425,31 @@ static void check_mipmaps(GrDirectContext* dContext,
     }
 }
 
-static int make_pixmaps(SkColorType skColorType, GrMipmapped mipMapped,
-                        const SkColor4f colors[6], SkAutoPixmapStorage pixmaps[6]) {
+static int make_pixmaps(SkColorType skColorType,
+                        GrMipmapped mipmapped,
+                        const SkColor4f colors[6],
+                        SkPixmap pixmaps[6],
+                        std::unique_ptr<char[]>* mem) {
     int levelSize = 32;
-    int numMipLevels = mipMapped == GrMipmapped::kYes ? 6 : 1;
+    int numMipLevels = mipmapped == GrMipmapped::kYes ? 6 : 1;
+    size_t size = 0;
+    SkImageInfo ii[6];
+    size_t rowBytes[6];
     for (int level = 0; level < numMipLevels; ++level) {
-        SkImageInfo ii = SkImageInfo::Make(levelSize,
-                                           levelSize,
-                                           skColorType,
-                                           kUnpremul_SkAlphaType);
-        pixmaps[level].alloc(ii);
+        ii[level] = SkImageInfo::Make(levelSize, levelSize, skColorType, kUnpremul_SkAlphaType);
+        rowBytes[level] = ii[level].minRowBytes();
+        // Make sure we test row bytes that aren't tight.
+        if (!(level % 2)) {
+            rowBytes[level] += (level + 1)*SkColorTypeBytesPerPixel(ii[level].colorType());
+        }
+        size += rowBytes[level]*ii[level].height();
+        levelSize /= 2;
+    }
+    mem->reset(new char[size]);
+    char* addr = mem->get();
+    for (int level = 0; level < numMipLevels; ++level) {
+        pixmaps[level].reset(ii[level], addr, rowBytes[level]);
+        addr += rowBytes[level]*ii[level].height();
         pixmaps[level].erase(colors[level]);
         levelSize /= 2;
     }
@@ -451,9 +466,10 @@ static void test_pixmap_init(GrDirectContext* dContext,
                                                                         GrRenderable)> create,
                              SkColorType skColorType,
                              GrSurfaceOrigin origin,
-                             GrMipmapped mipMapped,
+                             GrMipmapped mipmapped,
                              GrRenderable renderable) {
-    SkAutoPixmapStorage pixmapMem[6];
+    SkPixmap pixmaps[6];
+    std::unique_ptr<char[]> memForPixmaps;
     SkColor4f colors[6] = {
         { 1.0f, 0.0f, 0.0f, 1.0f }, // R
         { 0.0f, 1.0f, 0.0f, 0.9f }, // G
@@ -463,14 +479,8 @@ static void test_pixmap_init(GrDirectContext* dContext,
         { 1.0f, 1.0f, 0.0f, 0.2f }, // Y
     };
 
-    int numMipLevels = make_pixmaps(skColorType, mipMapped, colors, pixmapMem);
+    int numMipLevels = make_pixmaps(skColorType, mipmapped, colors, pixmaps, &memForPixmaps);
     SkASSERT(numMipLevels);
-
-    // TODO: this is tedious. Should we pass in an array of SkBitmaps instead?
-    SkPixmap pixmaps[6];
-    for (int i = 0; i < numMipLevels; ++i) {
-        pixmaps[i].reset(pixmapMem[i].info(), pixmapMem[i].addr(), pixmapMem[i].rowBytes());
-    }
 
     sk_sp<ManagedBackendTexture> mbet = create(dContext, pixmaps, numMipLevels, origin, renderable);
     if (!mbet) {
@@ -485,7 +495,7 @@ static void test_pixmap_init(GrDirectContext* dContext,
 
     auto checkBackendTexture = [&](SkColor4f colors[6]) {
         GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
-        if (mipMapped == GrMipmapped::kYes) {
+        if (mipmapped == GrMipmapped::kYes) {
             SkColor4f expectedColors[6] = {
                     get_expected_color(colors[0], grColorType),
                     get_expected_color(colors[1], grColorType),
@@ -514,10 +524,7 @@ static void test_pixmap_init(GrDirectContext* dContext,
         {0.0f, 1.0f, 1.0f, 0.5f},  // C
         {1.0f, 0.0f, 1.0f, 0.3f},  // M
     };
-    make_pixmaps(skColorType, mipMapped, colorsNew, pixmapMem);
-    for (int i = 0; i < numMipLevels; ++i) {
-        pixmaps[i].reset(pixmapMem[i].info(), pixmapMem[i].addr(), pixmapMem[i].rowBytes());
-    }
+    make_pixmaps(skColorType, mipmapped, colorsNew, pixmaps, &memForPixmaps);
 
     // Upload new data and make sure everything still works
     dContext->updateBackendTexture(mbet->texture(),
@@ -560,7 +567,8 @@ void check_vk_layout(const GrBackendTexture& backendTex, VkLayout layout) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctxInfo) {
+void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
+                                        skiatest::Reporter* reporter) {
     auto context = ctxInfo.directContext();
     const GrCaps* caps = context->priv().caps();
 
@@ -714,6 +722,31 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                      renderable);
                 }
             }
+        }
+    }
+}
+
+DEF_GPUTEST(ColorTypeBackendAllocationTest, reporter, options) {
+    for (int t = 0; t < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++t) {
+        auto type = static_cast<sk_gpu_test::GrContextFactory::ContextType>(t);
+        if (!sk_gpu_test::GrContextFactory::IsRenderingContext(type)) {
+            continue;
+        }
+        sk_gpu_test::GrContextFactory factory(options);
+        sk_gpu_test::ContextInfo info = factory.getContextInfo(type);
+        if (!info.directContext()) {
+            continue;
+        }
+        color_type_backend_allocation_test(info, reporter);
+        // The GL backend must support contexts that don't allow GL_UNPACK_ROW_LENGTH. Other
+        // backends are not required to work with this cap disabled.
+        if (info.directContext()->priv().caps()->writePixelsRowBytesSupport() &&
+            info.directContext()->backend() == GrBackendApi::kOpenGL) {
+            GrContextOptions overrideOptions = options;
+            overrideOptions.fDisallowWritePixelRowBytes = true;
+            sk_gpu_test::GrContextFactory overrideFactory(overrideOptions);
+            info = overrideFactory.getContextInfo(type);
+            color_type_backend_allocation_test(info, reporter);
         }
     }
 }
