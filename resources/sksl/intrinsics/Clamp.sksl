@@ -1,6 +1,0 @@
-in half a, b, c;
-in int d, e, f;
-void main() {
-    sk_FragColor.x = clamp(a, b, c);
-    sk_FragColor.x = half(clamp(d, e, f));
-}
