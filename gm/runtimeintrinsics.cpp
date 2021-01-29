@@ -217,12 +217,14 @@ DEF_SIMPLE_GM(runtime_intrinsics_common,
     plot(canvas, "sign(x)",  -1.0f,  1.0f, -1.5f, 1.5f);
     next_row(canvas);
 
-    plot(canvas, "floor(x)", -3.0f, 3.0f, -4.0f, 4.0f);
-    plot(canvas, "ceil(x)",  -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "floor(p).x", -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "ceil(p).x",  -3.0f, 3.0f, -4.0f, 4.0f);
     plot(canvas, "fract(x)", -3.0f, 3.0f,  0.0f, 1.0f);
     plot(canvas, "mod(x, 2)",    -4.0f, 4.0f, -2.0f, 2.0f, "mod(scalar)");
     plot(canvas, "mod(p, -2).x", -4.0f, 4.0f, -2.0f, 2.0f, "mod(mixed)" );
     plot(canvas, "mod(p, v2).x", -4.0f, 4.0f, -2.0f, 2.0f, "mod(vector)");
+    plot(canvas, "floor(p).y", -3.0f, 3.0f, -4.0f, 4.0f);
+    plot(canvas, "ceil(p).y",  -3.0f, 3.0f, -4.0f, 4.0f);
     next_row(canvas);
 
     plot(canvas, "min(x, 1)",    0.0f, 2.0f, 0.0f, 2.0f, "min(scalar)");
