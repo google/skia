@@ -185,6 +185,7 @@ fi
 GLOBIGNORE="gm/cgms.cpp:"\
 "gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
+"gm/particles.cpp:"\
 "gm/xform.cpp:"\
 "gm/video_decoder.cpp:"
 
