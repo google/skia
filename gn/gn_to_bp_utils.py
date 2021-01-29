@@ -75,10 +75,7 @@ def CleanupCFlags(cflags):
 
 def CleanupCCFlags(cflags_cc):
   # Only use the generated flags related to warnings.
-  cflags_cc       = {s for s in cflags_cc      if s.startswith('-W')}
-  # Add the rest of the flags we want.
-  cflags_cc.add("-fexceptions")
-  return cflags_cc
+  return {s for s in cflags_cc      if s.startswith('-W')}
 
 def _get_path_info(path, kind):
   assert path == "../src"
