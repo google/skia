@@ -484,22 +484,17 @@ var CanvasKit = {
   ParticleEffect: {
     // public API (from C++ bindings)
     draw: function() {},
-    getEffectUniform: function() {},
-    getEffectUniformCount: function() {},
-    getEffectUniformFloatCount: function() {},
-    getEffectUniformName: function() {},
-    getParticleUniformCount: function() {},
-    getParticleUniformFloatCount: function() {},
-    getParticleUniformName: function() {},
-    getParticleUniform: function() {},
+    getUniform: function() {},
+    getUniformCount: function() {},
+    getUniformFloatCount: function() {},
+    getUniformName: function() {},
     setPosition: function() {},
     setRate: function() {},
     start: function() {},
     update: function() {},
 
     // private API (from C++ bindings)
-    _effectUniformPtr: function() {},
-    _particleUniformPtr: function() {},
+    _uniformPtr: function() {},
   },
 
   Path: {
@@ -1034,8 +1029,7 @@ CanvasKit.ColorBuilder.prototype.set = function() {};
 CanvasKit.RuntimeEffect.prototype.makeShader = function() {};
 CanvasKit.RuntimeEffect.prototype.makeShaderWithChildren = function() {};
 
-CanvasKit.ParticleEffect.prototype.effectUniforms = function() {};
-CanvasKit.ParticleEffect.prototype.particleUniforms = function() {};
+CanvasKit.ParticleEffect.prototype.uniforms = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};
