@@ -135,9 +135,10 @@ protected:
     static void SortMesh(VertexList* vertices, const Comparator&);
 
     // 4) Simplify the mesh by inserting new vertices at intersecting edges:
-    enum class SimplifyResult : bool {
+    enum class SimplifyResult {
         kAlreadySimple,
-        kFoundSelfIntersection
+        kFoundSelfIntersection,
+        kAbort
     };
 
     SimplifyResult simplify(VertexList* mesh, const Comparator&, BreadcrumbTriangleList*) const;
@@ -248,6 +249,7 @@ protected:
     bool fRoundVerticesToQuarterPixel = false;
     bool fEmitCoverage = false;
     bool fCullCollinearVertices = true;
+    bool fDisallowSelfIntersection = false;
 };
 
 /**

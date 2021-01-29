@@ -17,8 +17,10 @@ class GrInnerFanTriangulator : private GrTriangulator {
 public:
     using GrTriangulator::BreadcrumbTriangleList;
 
-    GrInnerFanTriangulator(const SkPath& path, SkArenaAlloc* alloc)
+    GrInnerFanTriangulator(const SkPath& path, SkArenaAlloc* alloc,
+                           bool disallowSelfIntersection = false)
             : GrTriangulator(path, alloc) {
+        fDisallowSelfIntersection = disallowSelfIntersection;
         fCullCollinearVertices = false;
     }
 

@@ -8,7 +8,6 @@
 #ifndef GrPathTessellator_DEFINED
 #define GrPathTessellator_DEFINED
 
-#include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
@@ -18,13 +17,8 @@ class SkPath;
 // the caller may or may not be required to draw the path's inner fan separately.
 class GrPathTessellator {
 public:
-    using BreadcrumbTriangleList = GrInnerFanTriangulator::BreadcrumbTriangleList;
-
-    // Called before draw(). Prepares GPU buffers containing the geometry to tessellate. If the
-    // given BreadcrumbTriangleList is non-null, then this class will also include the breadcrumb
-    // triangles in its draw.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
-                         const BreadcrumbTriangleList* = nullptr) = 0;
+    // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
+    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&) = 0;
 
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
     // desired pipeline ahead of time.
@@ -50,8 +44,7 @@ public:
     enum class DrawInnerFan : bool { kNo = false, kYes };
     GrPathIndirectTessellator(const SkMatrix&, const SkPath&, DrawInnerFan);
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
-                 const BreadcrumbTriangleList*) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&) override;
     void draw(GrOpFlushState*) const override;
     void drawHullInstances(GrOpFlushState*) const override;
 
@@ -94,8 +87,7 @@ class GrPathOuterCurveTessellator final : public GrPathHardwareTessellator {
 public:
     GrPathOuterCurveTessellator() = default;
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
-                 const BreadcrumbTriangleList*) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&) override;
 };
 
 // Draws an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent, 5-point
@@ -106,8 +98,7 @@ class GrPathWedgeTessellator final : public GrPathHardwareTessellator {
 public:
     GrPathWedgeTessellator() = default;
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
-                 const BreadcrumbTriangleList*) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&) override;
 };
 
 #endif
