@@ -48,13 +48,12 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
     }
 
     SkRuntimeShaderBuilder builder(effect);
-    set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
-    set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
-    set_uniform(&builder, "colorGreen",       SkV4{0, 1, 0, 1});
-    set_uniform(&builder, "colorBlue",        SkV4{0, 0, 1, 1});
-    set_uniform(&builder, "colorWhite",       SkV4{1, 1, 1, 1});
-    set_uniform(&builder, "testInputs",       SkV4{-1.25, 0, 0.75, 2.25});
-    set_uniform(&builder, "unknownInput",     1.0f);
+    set_uniform(&builder, "colorBlack",   SkV4{0, 0, 0, 1});
+    set_uniform(&builder, "colorRed",     SkV4{1, 0, 0, 1});
+    set_uniform(&builder, "colorGreen",   SkV4{0, 1, 0, 1});
+    set_uniform(&builder, "colorBlue",    SkV4{0, 0, 1, 1});
+    set_uniform(&builder, "colorWhite",   SkV4{1, 1, 1, 1});
+    set_uniform(&builder, "unknownInput", 1.0f);
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
@@ -107,11 +106,6 @@ SKSL_TEST(SkSLShortCircuitBoolFolding, "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,     "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
 
-SKSL_TEST(SkSLIntrinsicAbsFloat,       "intrinsics/AbsFloat.sksl")
-SKSL_TEST(SkSLIntrinsicCeil,           "intrinsics/Ceil.sksl")
-SKSL_TEST(SkSLIntrinsicFloor,          "intrinsics/Floor.sksl")
-SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
-
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 
 /*
@@ -124,9 +118,6 @@ TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 
 SKSL_TEST(SkSLIntFoldingES3,           "folding/IntFoldingES3.sksl")
 SKSL_TEST(SkSLMatrixFoldingES3,        "folding/MatrixFoldingES3.sksl")
-
-SKSL_TEST(SkSLIntrinsicAbsInt,         "intrinsics/AbsInt.sksl")
-SKSL_TEST(SkSLIntrinsicSignInt,        "intrinsics/SignInt.sksl")
 
 SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")

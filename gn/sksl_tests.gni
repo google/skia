@@ -209,8 +209,7 @@ sksl_spirv_tests = [
 ]
 
 sksl_shared_tests = [
-  "/sksl/intrinsics/AbsFloat.sksl",
-  "/sksl/intrinsics/AbsInt.sksl",
+  "/sksl/intrinsics/Abs.sksl",
   "/sksl/intrinsics/Acos.sksl",
   "/sksl/intrinsics/Acosh.sksl",
   "/sksl/intrinsics/All.sksl",
@@ -275,8 +274,7 @@ sksl_shared_tests = [
   "/sksl/intrinsics/Round.sksl",
   "/sksl/intrinsics/RoundEven.sksl",
   "/sksl/intrinsics/Saturate.sksl",
-  "/sksl/intrinsics/SignFloat.sksl",
-  "/sksl/intrinsics/SignInt.sksl",
+  "/sksl/intrinsics/Sign.sksl",
   "/sksl/intrinsics/Sin.sksl",
   "/sksl/intrinsics/Sinh.sksl",
   "/sksl/intrinsics/Smoothstep.sksl",
