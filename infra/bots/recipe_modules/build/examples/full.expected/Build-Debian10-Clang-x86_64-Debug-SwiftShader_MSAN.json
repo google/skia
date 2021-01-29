@@ -36,7 +36,8 @@
     "cmd": [
       "cmake",
       "-DSWIFTSHADER_BUILD_TESTS=OFF",
-      "-DSWIFTSHADER_WARNINGS_AS_ERRORS=0",
+      "-DSWIFTSHADER_WARNINGS_AS_ERRORS=OFF",
+      "-DREACTOR_ENABLE_MEMORY_SANITIZER_INSTRUMENTATION=OFF",
       "-DSWIFTSHADER_MSAN=ON",
       "-DCMAKE_C_FLAGS=-fsanitize=memory -stdlib=libc++ -L[START_DIR]/clang_linux/msan/lib -lc++abi -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
       "-DCMAKE_CXX_FLAGS=-fsanitize=memory -stdlib=libc++ -L[START_DIR]/clang_linux/msan/lib -lc++abi -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
