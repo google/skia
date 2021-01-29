@@ -828,23 +828,8 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(int offset,
     // normalization before each return, but it will probably never actually be necessary.
     SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->name());
     if (result) {
-        if (fCurrentFunction->returnType() == *fContext.fTypes.fVoid) {
-            this->errorReporter().error(result->fOffset,
-                                        "may not return a value from a void function");
-            return nullptr;
-        } else {
-            result = this->coerce(std::move(result), fCurrentFunction->returnType());
-            if (!result) {
-                return nullptr;
-            }
-        }
         return std::make_unique<ReturnStatement>(std::move(result));
     } else {
-        if (fCurrentFunction->returnType() != *fContext.fTypes.fVoid) {
-            this->errorReporter().error(offset, "expected function to return '" +
-                                                fCurrentFunction->returnType().displayName() + "'");
-            return nullptr;
-        }
         return std::make_unique<ReturnStatement>(offset);
     }
 }
@@ -864,22 +849,12 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
 
 std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTNode& b) {
     SkASSERT(b.fKind == ASTNode::Kind::kBreak);
-    if (fLoopLevel > 0 || fSwitchLevel > 0) {
-        return std::make_unique<BreakStatement>(b.fOffset);
-    } else {
-        this->errorReporter().error(b.fOffset, "break statement must be inside a loop or switch");
-        return nullptr;
-    }
+    return std::make_unique<BreakStatement>(b.fOffset);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
     SkASSERT(c.fKind == ASTNode::Kind::kContinue);
-    if (fLoopLevel > 0) {
-        return std::make_unique<ContinueStatement>(c.fOffset);
-    } else {
-        this->errorReporter().error(c.fOffset, "continue statement must be inside a loop");
-        return nullptr;
-    }
+    return std::make_unique<ContinueStatement>(c.fOffset);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
@@ -1055,6 +1030,84 @@ void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int per
     CHECK(Modifiers::kVarying_Flag,        "varying")
     CHECK(Modifiers::kInline_Flag,         "inline")
     SkASSERT(flags == 0);
+}
+
+void IRGenerator::finalizeFunction(FunctionDefinition& f) {
+    class Finalizer : public ProgramWriter {
+    public:
+        Finalizer(IRGenerator* irGenerator, FunctionDefinition* function)
+            : fIRGenerator(irGenerator)
+            , fReturnType(&function->declaration().returnType()) {}
+
+        ~Finalizer() override {
+            SkASSERT(!fBreakableLevel);
+            SkASSERT(!fContinuableLevel);
+        }
+
+        bool visitStatement(Statement& stmt) override {
+            switch (stmt.kind()) {
+                case Statement::Kind::kReturn: {
+                    ReturnStatement& r = stmt.as<ReturnStatement>();
+                    std::unique_ptr<Expression> result;
+                    if (r.expression()) {
+                        if (*fReturnType == *fIRGenerator->fContext.fTypes.fVoid) {
+                            fIRGenerator->errorReporter().error(r.fOffset,
+                                                     "may not return a value from a void function");
+                        } else {
+                            result = fIRGenerator->coerce(std::move(r.expression()), *fReturnType);
+                        }
+                    } else if (*fReturnType != *fIRGenerator->fContext.fTypes.fVoid) {
+                        fIRGenerator->errorReporter().error(r.fOffset,
+                                                    "expected function to return '" +
+                                                    fReturnType->displayName() + "'");
+                    }
+                    r.setExpression(std::move(result));
+                    break;
+                }
+                case Statement::Kind::kDo:
+                case Statement::Kind::kFor: {
+                    ++fBreakableLevel;
+                    ++fContinuableLevel;
+                    bool result = INHERITED::visitStatement(stmt);;
+                    --fContinuableLevel;
+                    --fBreakableLevel;
+                    return result;
+                }
+                case Statement::Kind::kSwitch: {
+                    ++fBreakableLevel;
+                    bool result = INHERITED::visitStatement(stmt);;
+                    --fBreakableLevel;
+                    return result;
+                }
+                case Statement::Kind::kBreak:
+                    if (!fBreakableLevel) {
+                        fIRGenerator->errorReporter().error(stmt.fOffset,
+                                                 "break statement must be inside a loop or switch");
+                    }
+                    break;
+                case Statement::Kind::kContinue:
+                    if (!fContinuableLevel) {
+                        fIRGenerator->errorReporter().error(stmt.fOffset,
+                                                        "continue statement must be inside a loop");
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return INHERITED::visitStatement(stmt);
+        }
+
+    private:
+        IRGenerator* fIRGenerator;
+        const Type* fReturnType;
+        // how deeply nested we are in breakable constructs (for, do, switch).
+        int fBreakableLevel = 0;
+        // how deeply nested we are in continuable constructs (for, do).
+        int fContinuableLevel = 0;
+
+        using INHERITED = ProgramWriter;
+    };
+    Finalizer(this, &f).visitStatement(*f.body());
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
@@ -1287,6 +1340,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
         auto result = std::make_unique<FunctionDefinition>(
                 f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(fReferencedIntrinsics));
+        this->finalizeFunction(*result);
         decl->setDefinition(result.get());
         result->setSource(&f);
         fProgramElements->push_back(std::move(result));
