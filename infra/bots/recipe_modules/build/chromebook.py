@@ -91,7 +91,7 @@ def compile_fn(api, checkout_root, out_dir):
       '-fuse-ld=lld',
     ]
 
-  args['extra_cflags'].append('-DDUMMY_clang_linux_version=%s' %
+  args['extra_cflags'].append('-DREBUILD_IF_CHANGED_clang_linux_version=%s' %
                       api.run.asset_version('clang_linux', skia_dir))
 
   if configuration != 'Debug':
@@ -103,7 +103,7 @@ def compile_fn(api, checkout_root, out_dir):
     script = api.build.resource('docker-chromeos-compile.sh')
     image_hash = IMAGES[os_name]
     # Invalidate incremental build cache if image changes.
-    args['extra_cflags'].append('-DDUMMY_docker_image=%s' % image_hash)
+    args['extra_cflags'].append('-DREBUILD_IF_CHANGED_docker_image=%s' % image_hash)
     api.docker.run('Run build script in Docker', image_hash,
                    checkout_root, out_dir, script, args=[util.py_to_gn(args)])
     return

@@ -160,7 +160,7 @@
       "[START_DIR]",
       "catchsegv",
       "[START_DIR]/build/dm",
-      "--dummy",
+      "--example",
       "--flags",
       "--properties",
       "bot",

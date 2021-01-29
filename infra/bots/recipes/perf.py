@@ -124,7 +124,7 @@ def GenTests(api):
   for builder in TEST_BUILDERS:
     props = dict(
       buildername=builder,
-      nanobench_flags='["nanobench","--dummy","--flags"]',
+      nanobench_flags='["nanobench","--example","--flags"]',
       nanobench_properties=('{"key1":"value1","key2":"",'
                             '"bot":"${SWARMING_BOT_ID}",'
                             '"task":"${SWARMING_TASK_ID}"}'),

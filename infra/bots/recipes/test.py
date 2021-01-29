@@ -175,7 +175,7 @@ def GenTests(api):
     props = dict(
       buildername=builder,
       buildbucket_build_id='123454321',
-      dm_flags='["dm","--dummy","--flags"]',
+      dm_flags='["dm","--example","--flags"]',
       dm_properties=('{"key1":"value1","key2":"",'
                      '"bot":"${SWARMING_BOT_ID}",'
                      '"task":"${SWARMING_TASK_ID}"}'),

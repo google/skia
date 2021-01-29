@@ -36,7 +36,7 @@ def compile_fn(api, checkout_root, out_dir):
       'target_cpu': quote(target_arch),
       'werror': 'true',
   }
-  extra_cflags.append('-DDUMMY_ndk_version=%s' %
+  extra_cflags.append('-DREBUILD_IF_CHANGED_ndk_version=%s' %
                       api.run.asset_version(ndk_asset, skia_dir))
 
   if configuration != 'Debug':

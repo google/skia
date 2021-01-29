@@ -148,7 +148,7 @@
       "-File",
       "RECIPE_MODULE[skia::flavor]\\resources\\win_run_and_check_log.ps1",
       "[START_DIR]\\build\\nanobench",
-      "--dummy",
+      "--example",
       "--flags",
       "--properties",
       "bot",
