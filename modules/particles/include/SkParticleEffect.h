@@ -186,6 +186,7 @@ public:
     static void RegisterParticleTypes();
 
 private:
+    void resizeStorage();
     void setCapacity(int capacity);
 
     // Helpers to break down update
@@ -231,7 +232,7 @@ private:
     SkAutoTMalloc<float> fStableRandoms;
 
     // Cached
-    int fCapacity;
+    int fCapacity = 0;
     SkTArray<float, true> fEffectUniforms;
     SkTArray<float, true> fParticleUniforms;
 };
