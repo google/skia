@@ -1,0 +1,10 @@
+uniform half4 minus1234;
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    int4 expected = int4(-1, 0, 0, 1);
+    return (sign(int4(testInputs).x)    == expected.x &&
+            sign(int4(testInputs).xy)   == expected.xy &&
+            sign(int4(testInputs).xyz)  == expected.xyz &&
+            sign(int4(testInputs).xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}
