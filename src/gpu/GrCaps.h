@@ -190,6 +190,13 @@ public:
 
     int maxTextureSize() const { return fMaxTextureSize; }
 
+    /** This is the maximum tile size to use by GPU devices for rendering sw-backed images/bitmaps.
+        It is usually the max texture size, unless we're overriding it for testing. */
+    int maxTileSize() const {
+        SkASSERT(fMaxTileSize <= fMaxTextureSize);
+        return fMaxTileSize;
+    }
+
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
     // Returns whether mixed samples is supported for the given backend render target.
@@ -555,6 +562,7 @@ protected:
     int fMaxPreferredRenderTargetSize;
     int fMaxVertexAttributes;
     int fMaxTextureSize;
+    int fMaxTileSize;
     int fMaxWindowRectangles;
     int fInternalMultisampleCount;
     uint32_t fMaxPushConstantsSize = 0;
