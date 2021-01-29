@@ -1393,7 +1393,8 @@ func (b *jobBuilder) fm() {
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--task_name", b.Name,
-			"build/fm")
+			"build/fm",
+			"b=cpu gms tests") // TODO(mtklein): a file/stdin instead to use with -script?
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
 		b.expiration(15 * time.Minute)
