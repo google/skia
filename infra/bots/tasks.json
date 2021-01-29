@@ -14511,10 +14511,9 @@
         "skia-swarming-bots",
         "--task_id",
         "<(TASK_ID)",
-        "--task_name",
+        "--bot",
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
-        "build/fm",
-        "b=cpu gms tests"
+        "build/fm"
       ],
       "dependencies": [
         "Build-Debian10-Clang-x86_64-Debug",
