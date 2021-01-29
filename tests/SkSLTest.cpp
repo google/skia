@@ -114,6 +114,7 @@ SKSL_TEST(SkSLIntrinsicMaxFloat,       "intrinsics/MaxFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMixFloat,       "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
+SKSL_TEST(SkSLIntrinsicStep,           "intrinsics/Step.sksl")
 
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 
