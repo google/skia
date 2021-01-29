@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc70fd1d_ad60b704",
+        "filename": "gm/dsl_processor_tests.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-29T17:46:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a9f1866e_23dcd848",
+      "range": {
+        "startLine": 2,
+        "startChar": 15,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "9ab44503f15429caddf9ef8d42450741d65c0a2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dad37eab_7b150c99",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "128cbe7b_f6b84785",
+        "filename": "gm/dsl_processor_tests.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-29T17:46:58Z",
+      "side": 1,
+      "message": "Yes. That was how I wrote it originally, but I deliberately made it more involved for a bit more coverage.",
+      "parentUuid": "dad37eab_7b150c99",
+      "range": {
+        "startLine": 37,
+        "startChar": 67,
+        "endLine": 37,
+        "endChar": 73
+      },
+      "revId": "9ab44503f15429caddf9ef8d42450741d65c0a2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f038b6d7_624b47ce",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-01-29T16:53:02Z",
       "side": 1,
       "message": "If we add:\n\n  virtual const SkSL::Compiler* shaderCompiler() \u003d 0;\n\n... to GrGLSLProgramBuilder, every class derived from that already retains a pointer to the GrGpu, so we each one could implement that as { return fGpu-\u003eshaderCompiler(); }\n\nThat would let us just have one copy of this DSL setup/teardown code, inside emitAndInstallProcs, rather than duplicating it for each backend. Seems like it would be easier to maintain.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 18
+      },
+      "revId": "9ab44503f15429caddf9ef8d42450741d65c0a2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed23151a_38a6c633",
+        "filename": "src/gpu/d3d/GrD3DPipelineStateBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-01-29T17:46:58Z",
+      "side": 1,
+      "message": "Great suggestion, done.",
+      "parentUuid": "f038b6d7_624b47ce",
       "range": {
         "startLine": 41,
         "startChar": 0,
