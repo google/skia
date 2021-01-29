@@ -56,6 +56,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fWritePixelsRowBytesSupport = false;
     fReadPixelsRowBytesSupport = false;
     fShouldCollapseSrcOverToSrcWhenAble = false;
+    fMustSyncGpuDuringAbandon = true;
     fDriverDisableCCPR = false;
     fDriverDisableMSAACCPR = false;
     fDisableTessellationPathRenderer = false;

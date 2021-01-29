@@ -46,6 +46,7 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     void checkFinishProcs() override {}
+    void finishOutstandingGpuWork() override {}
 
 private:
     GrMockGpu(GrDirectContext*, const GrMockOptions&, const GrContextOptions&);

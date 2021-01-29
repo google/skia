@@ -3916,7 +3916,7 @@ void GrGLGpu::flush(FlushType flushType) {
 
 bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
     if (syncCpu || (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
-        GL_CALL(Finish());
+        this->finishOutstandingGpuWork();
         fFinishCallbacks.callAll(true);
     } else {
         this->flush();
@@ -4023,6 +4023,10 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
 
 void GrGLGpu::checkFinishProcs() {
     fFinishCallbacks.check();
+}
+
+void GrGLGpu::finishOutstandingGpuWork() {
+    GL_CALL(Finish());
 }
 
 void GrGLGpu::clearErrorsAndCheckForOOM() {

@@ -476,7 +476,7 @@ void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrManagedR
     fAvailableUniformBufferResources.push_back(resource);
 }
 
-void GrVkResourceProvider::destroyResources(bool deviceLost) {
+void GrVkResourceProvider::destroyResources() {
     SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->wait();

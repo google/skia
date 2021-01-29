@@ -392,6 +392,7 @@ public:
     virtual void addFinishedProc(GrGpuFinishedProc finishedProc,
                                  GrGpuFinishedContext finishedContext) = 0;
     virtual void checkFinishProcs() = 0;
+    virtual void finishOutstandingGpuWork() = 0;
 
     virtual void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) {}
 

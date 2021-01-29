@@ -343,6 +343,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSkipErrorChecks = true;
     }
 
+    // When we are abandoning the context we cannot call into GL thus we should skip any sync work.
+    fMustSyncGpuDuringAbandon = false;
+
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/

@@ -811,6 +811,19 @@ protected:
     GrDirectContext* asDirectContext() override { return this; }
 
 private:
+    // This call will make sure out work on the GPU is finished and will execute any outstanding
+    // asynchronous work (e.g. calling finished procs, freeing resources, etc.) related to the
+    // outstanding work on the gpu. The main use currently for this function is when tearing down or
+    // abandoning the context.
+    //
+    // When we finish up work on the GPU it could trigger callbacks to the client. In the case we
+    // are abandoning the context we don't want the client to be able to use the GrDirectContext to
+    // issue more commands during the callback. Thus before calling this function we set the
+    // GrDirectContext's state to be abandoned. However, we need to be able to get by the abaonded
+    // check in the call to know that it is safe to execute this. The shouldExecuteWhileAbandoned
+    // bool is used for this signal.
+    void syncAllOutstandingGpuWork(bool shouldExecuteWhileAbandoned);
+
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being

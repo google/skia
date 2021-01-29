@@ -133,13 +133,11 @@ GrDawnGpu::GrDawnGpu(GrDirectContext* direct, const GrContextOptions& options,
     this->initCapsAndCompiler(sk_make_sp<GrDawnCaps>(options));
 }
 
-GrDawnGpu::~GrDawnGpu() {
-    this->waitOnAllBusyStagingBuffers();
-}
+GrDawnGpu::~GrDawnGpu() { this->finishOutstandingGpuWork(); }
 
 void GrDawnGpu::disconnect(DisconnectType type) {
     if (DisconnectType::kCleanup == type) {
-        this->waitOnAllBusyStagingBuffers();
+        this->finishOutstandingGpuWork();
     }
     fStagingBufferManager.reset();
     fQueue = nullptr;
@@ -846,6 +844,10 @@ void GrDawnGpu::waitSemaphore(GrSemaphore* semaphore) {
 
 void GrDawnGpu::checkFinishProcs() {
     fFinishCallbacks.check();
+}
+
+void GrDawnGpu::finishOutstandingGpuWork() {
+    this->waitOnAllBusyStagingBuffers();
 }
 
 std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
