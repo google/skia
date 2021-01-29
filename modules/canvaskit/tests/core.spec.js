@@ -935,18 +935,28 @@ describe('Core canvas behavior', () => {
             path, zPlaneParams, lightPos, lightRadius, 0);
         expectTypedArraysToEqual(bounds, Float32Array.of(-3.64462, -12.67541, 245.50, 242.59164));
 
+        // Test that the APIs accept Malloc objs and the Malloced typearray
+        const mZPlane = CanvasKit.Malloc(Float32Array, 3);
+        mZPlane.toTypedArray().set(zPlaneParams);
+        const mLight = CanvasKit.Malloc(Float32Array, 3);
+        const lightTA = mLight.toTypedArray();
+        lightTA.set(lightPos);
+
         canvas.translate(250, 250);
-        canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
+        canvas.drawShadow(path, mZPlane, lightTA, lightRadius,
                           CanvasKit.BLACK, CanvasKit.MAGENTA,
                           CanvasKit.ShadowTransparentOccluder | CanvasKit.ShadowGeometricOnly | CanvasKit.ShadowDirectionalLight);
         canvas.drawText('All Flags', 5, 250, textPaint, textFont);
 
         const outBounds = new Float32Array(4);
         CanvasKit.getShadowLocalBounds(CanvasKit.Matrix.rotated(Math.PI / 6),
-            path, zPlaneParams, lightPos, lightRadius,
+            path, mZPlane, mLight, lightRadius,
             CanvasKit.ShadowTransparentOccluder | CanvasKit.ShadowGeometricOnly | CanvasKit.ShadowDirectionalLight,
             outBounds);
         expectTypedArraysToEqual(outBounds, Float32Array.of(1.52207, -6.35035, 264.03445, 261.83294));
+
+        CanvasKit.Free(mZPlane);
+        CanvasKit.Free(mLight);
 
         path.delete();
         textFont.delete();
