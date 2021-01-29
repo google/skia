@@ -448,7 +448,9 @@ static void draw_texture_producer(GrRecordingContext* context,
                      aaFlags,
                      constraint,
                      std::move(view),
-                     producer->colorInfo());
+                     {producer->colorType(),
+                      producer->alphaType(),
+                      sk_ref_sp(producer->colorSpace())});
         return;
     }
 
@@ -733,14 +735,21 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         return;
     }
 
-    if (GrSurfaceProxyView view = as_IB(image)->refView(this->recordingContext(),
-                                                        GrMipmapped(mm != SkMipmapMode::kNone))) {
-        // This adjuster shouldn't do anything since we already asked for mip maps if necessary.
-        // TODO: Pull YUVA out of draw_texture_producer and make it work directly from a view.
-        GrTextureAdjuster adjuster(fContext.get(),
-                                   std::move(view),
-                                   image->imageInfo().colorInfo(),
-                                   image->uniqueID());
+    // Pinned texture proxies can be rendered directly as textures, or with relatively simple
+    // adjustments applied to the image content (scaling, mipmaps, color space, etc.)
+    uint32_t pinnedUniqueID;
+    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->recordingContext(),
+                                                              &pinnedUniqueID)) {
+        GrColorInfo colorInfo;
+        if (fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
+            SkASSERT(image->imageInfo().colorType() == kRGBA_8888_SkColorType);
+            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, image->imageInfo().alphaType(),
+                                    image->imageInfo().refColorSpace());
+        } else {
+            colorInfo = GrColorInfo(image->imageInfo().colorInfo());
+        }
+
+        GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID);
         draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
                               constraint, {wrapMode, fm, mm}, cubic);
@@ -748,33 +757,56 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     }
 
     // Next up, determine if the image must be tiled
-    // If image is explicitly already texture backed then we shouldn't get here.
-    SkASSERT(!image->isTextureBacked());
+    {
+        // If image is explicitly already texture backed then we shouldn't get here.
+        SkASSERT(!image->isTextureBacked());
 
-    int tileFilterPad;
-    if (GrValidCubicResampler(cubic)) {
-        tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-    } else if (GrSamplerState::Filter::kNearest == fm) {
-        tileFilterPad = 0;
-    } else {
-        tileFilterPad = 1;
-    }
-    int maxTileSize = fContext->priv().caps()->maxTextureSize() - 2*tileFilterPad;
-    int tileSize;
-    SkIRect clippedSubset;
-    if (should_tile_image_id(fContext.get(), fSurfaceDrawContext->dimensions(), clip,
-                             image->unique(), image->dimensions(), ctm, srcToDst, &src, maxTileSize,
-                             &tileSize, &clippedSubset)) {
-        // Extract pixels on the CPU, since we have to split into separate textures before
-        // sending to the GPU.
-        SkBitmap bm;
-        if (as_IB(image)->getROPixels(nullptr, &bm)) {
-            // This is the funnel for all paths that draw tiled bitmaps/images.
-            draw_tiled_bitmap(fContext.get(), fSurfaceDrawContext.get(), clip, bm, tileSize,
-                              matrixProvider, srcToDst, src, clippedSubset, paint, aa, constraint,
-                              {wrapMode, fm, mm}, cubic);
+        int tileFilterPad;
+        if (GrValidCubicResampler(cubic)) {
+            tileFilterPad = GrBicubicEffect::kFilterTexelPad;
+        } else if (GrSamplerState::Filter::kNearest == fm) {
+            tileFilterPad = 0;
+        } else {
+            tileFilterPad = 1;
+        }
+        int maxTileSize = fContext->priv().caps()->maxTextureSize() - 2*tileFilterPad;
+        int tileSize;
+        SkIRect clippedSubset;
+        if (should_tile_image_id(fContext.get(), fSurfaceDrawContext->dimensions(), clip,
+                                 image->unique(), image->dimensions(), ctm, srcToDst, &src,
+                                 maxTileSize, &tileSize, &clippedSubset)) {
+            // Extract pixels on the CPU, since we have to split into separate textures before
+            // sending to the GPU.
+            SkBitmap bm;
+            if (as_IB(image)->getROPixels(nullptr, &bm)) {
+                // This is the funnel for all paths that draw tiled bitmaps/images.
+                draw_tiled_bitmap(fContext.get(), fSurfaceDrawContext.get(), clip, bm, tileSize,
+                                  matrixProvider, srcToDst, src, clippedSubset, paint, aa,
+                                  constraint, {wrapMode, fm, mm}, cubic);
+                return;
+            }
         }
     }
+
+    // Lazily generated images must get drawn as a texture producer that handles the final
+    // texture creation.
+    if (image->isLazyGenerated()) {
+        GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
+        draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
+                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+                              {wrapMode, fm, mm}, cubic);
+        return;
+    }
+
+    SkBitmap bm;
+    if (as_IB(image)->getROPixels(nullptr, &bm)) {
+        GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
+        draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
+                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
+                              {wrapMode, fm, mm}, cubic);
+    }
+
+    // Otherwise don't know how to draw it
 }
 
 void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
@@ -859,7 +891,11 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         // Extract view from image, but skip YUV images so they get processed through
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
-            view = image->refView(this->recordingContext(), GrMipmapped::kNo);
+            uint32_t uniqueID;
+            view = image->refPinnedView(this->recordingContext(), &uniqueID);
+            if (!view) {
+                view = image->refView(this->recordingContext(), GrMipmapped::kNo);
+            }
             if (image->isAlphaOnly()) {
                 GrSwizzle swizzle = GrSwizzle::Concat(view.swizzle(), GrSwizzle("aaaa"));
                 view = {view.detachProxy(), view.origin(), swizzle};
