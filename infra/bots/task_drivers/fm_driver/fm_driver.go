@@ -21,23 +21,29 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
-type work struct {
-	Sources []string
-	Flags   []string
+func botJobs(name string) (jobs [][]string) {
+	//parts := strings.Split(name, "-");
+	//os      , toolchain, model,    cpu_or_gpu, details,  arch,     build_mode, sharding :=
+	//parts[1], parts[2],  parts[3], parts[4],   parts[5], parts[6], parts[7],   parts[8]
+
+	jobs = append(jobs, []string{"b=cpu", "gms"})
+	jobs = append(jobs, []string{"b=cpu", "tests"})
+	jobs = append(jobs, []string{"b=cpu", "gms", "skvm=true"})
+	return
 }
 
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
 		taskId    = flag.String("task_id", "", "ID of this task.")
-		taskName  = flag.String("task_name", "", "Name of the task.")
+		bot       = flag.String("bot", "", "Name of the task.")
 		output    = flag.String("o", "", "Dump JSON step data to the given file, or stdout if -.")
 		local     = flag.Bool("local", true, "Running locally (else on the bots)?")
 
 		resources = flag.String("resources", "resources", "Passed to fm -i.")
 		script    = flag.String("script", "", "File (or - for stdin) with one job per line.")
 	)
-	ctx := td.StartRun(projectId, taskId, taskName, output, local)
+	ctx := td.StartRun(projectId, taskId, bot, output, local)
 	defer td.EndRun(ctx)
 
 	actualStderr := os.Stderr
@@ -81,6 +87,11 @@ func main() {
 	tests := query("--listTests")
 
 	// Parse a job like "gms b=cpu ct=8888" into a struct of Sources to run under given Flags.
+	type work struct {
+		Sources []string
+		Flags   []string
+	}
+
 	parse := func(job []string) *work {
 		w := &work{}
 
@@ -140,6 +151,11 @@ func main() {
 		if err := scanner.Err(); err != nil {
 			td.Fatal(ctx, err)
 		}
+	}
+
+	// If we're a bot (or acting as if we are one), add its jobs.
+	if *bot != "" {
+		jobs = botJobs(*bot)
 	}
 
 	// We'll kick off workers to run FM with `-s <Sources...> <Flags...>` from parsed jobs.
