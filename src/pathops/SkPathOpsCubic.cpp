@@ -400,6 +400,7 @@ nextRoot:
 
 int SkDCubic::RootsReal(double A, double B, double C, double D, double s[3]) {
 #ifdef SK_DEBUG
+    #if ONE_OFF_DEBUG && ONE_OFF_DEBUG_MATHEMATICA
     // create a string mathematica understands
     // GDB set print repe 15 # if repeated digits is a bother
     //     set print elements 400 # if line doesn't fit
@@ -408,9 +409,8 @@ int SkDCubic::RootsReal(double A, double B, double C, double D, double s[3]) {
     SK_SNPRINTF(str, sizeof(str), "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]",
             A, B, C, D);
     SkPathOpsDebug::MathematicaIze(str, sizeof(str));
-#if ONE_OFF_DEBUG && ONE_OFF_DEBUG_MATHEMATICA
     SkDebugf("%s\n", str);
-#endif
+    #endif
 #endif
     if (approximately_zero(A)
             && approximately_zero_when_compared_to(A, B)
