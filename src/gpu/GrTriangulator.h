@@ -31,8 +31,8 @@ public:
                                GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
         SkArenaAlloc alloc(kArenaDefaultChunkSize);
         GrTriangulator triangulator(path, &alloc);
-        Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, nullptr, isLinear);
-        int count = triangulator.polysToTriangles(polys, vertexAllocator, nullptr);
+        Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, isLinear);
+        int count = triangulator.polysToTriangles(polys, vertexAllocator);
         return count;
     }
 
@@ -69,56 +69,6 @@ protected:
     GrTriangulator(const SkPath& path, SkArenaAlloc* alloc) : fPath(path), fAlloc(alloc) {}
     virtual ~GrTriangulator() {}
 
-    // The breadcrumb triangles serve as a glue that erases T-junctions between a path's outer
-    // curves and its inner polygon triangulation. Drawing a path's outer curves, breadcrumb
-    // triangles, and inner polygon triangulation all together into the stencil buffer has the same
-    // identical rasterized effect as stenciling a classic Redbook fan.
-    //
-    // The breadcrumb triangles track all the edge splits that led from the original inner polygon
-    // edges to the final triangulation. Every time an edge splits, we emit a razor-thin breadcrumb
-    // triangle consisting of the edge's original endpoints and the split point. (We also add
-    // supplemental breadcrumb triangles to areas where abs(winding) > 1.)
-    //
-    //                a
-    //               /
-    //              /
-    //             /
-    //            x  <- Edge splits at x. New breadcrumb triangle is: [a, b, x].
-    //           /
-    //          /
-    //         b
-    //
-    // The opposite-direction shared edges between the triangulation and breadcrumb triangles should
-    // all cancel out, leaving just the set of edges from the original polygon.
-    class BreadcrumbTriangleList {
-    public:
-        void prepend(SkArenaAlloc* alloc, SkPoint a, SkPoint b, SkPoint c, int winding) {
-            if (a == b || a == c || b == c || winding == 0) {
-                return;
-            }
-            if (winding < 0) {
-                std::swap(a, b);
-                winding = -winding;
-            }
-            for (int i = 0; i < winding; ++i) {
-                fHead = alloc->make<Node>(a, b, c, fHead);
-            }
-            fCount += winding;
-        }
-
-        struct Node {
-            Node(SkPoint a, SkPoint b, SkPoint c, const Node* next) : fPts{a, b, c}, fNext(next) {}
-            SkPoint fPts[3];
-            const Node* fNext;
-        };
-        const Node* head() const { return fHead; }
-        int count() const { return fCount; }
-
-    private:
-        const Node* fHead = nullptr;
-        int fCount = 0;
-    };
-
     // There are six stages to the basic algorithm:
     //
     // 1) Linearize the path contours into piecewise linear segments:
@@ -126,8 +76,8 @@ protected:
                         bool* isLinear) const;
 
     // 2) Build a mesh of edges connecting the vertices:
-    void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&,
-                        BreadcrumbTriangleList*) const;
+    void contoursToMesh(VertexList* contours, int contourCnt, VertexList* mesh,
+                        const Comparator&) const;
 
     // 3) Sort the vertices in Y (and secondarily in X):
     static void SortedMerge(VertexList* front, VertexList* back, VertexList* result,
@@ -140,14 +90,13 @@ protected:
         kFoundSelfIntersection
     };
 
-    SimplifyResult simplify(VertexList* mesh, const Comparator&, BreadcrumbTriangleList*) const;
+    SimplifyResult simplify(VertexList* mesh, const Comparator&) const;
 
     // 5) Tessellate the simplified mesh into monotone polygons:
     virtual Poly* tessellate(const VertexList& vertices, const Comparator&) const;
 
     // 6) Triangulate the monotone polygons directly into a vertex buffer:
-    void* polysToTriangles(Poly* polys, void* data, BreadcrumbTriangleList*,
-                           SkPathFillType overrideFillType) const;
+    void* polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType) const;
 
     // The vertex sorting in step (3) is a merge sort, since it plays well with the linked list
     // of vertices (and the necessity of inserting new vertices on intersection).
@@ -193,10 +142,9 @@ protected:
     // setting rotates 90 degrees counterclockwise, rather that transposing.
 
     // Additional helpers and driver functions.
-    void* emitMonotonePoly(const MonotonePoly*, void* data, BreadcrumbTriangleList*) const;
-    void* emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding, void* data,
-                       BreadcrumbTriangleList*) const;
-    void* emitPoly(const Poly*, void *data, BreadcrumbTriangleList*) const;
+    void* emitMonotonePoly(const MonotonePoly*, void* data) const;
+    void* emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding, void* data) const;
+    void* emitPoly(const Poly*, void *data) const;
     Poly* makePoly(Poly** head, Vertex* v, int winding) const;
     void appendPointToContour(const SkPoint& p, VertexList* contour) const;
     void appendQuadraticToContour(const SkPoint[3], SkScalar toleranceSqd,
@@ -205,40 +153,38 @@ protected:
                              SkScalar tolSqd, VertexList* contour, int pointsLeft) const;
     bool applyFillType(int winding) const;
     Edge* makeEdge(Vertex* prev, Vertex* next, EdgeType type, const Comparator&) const;
-    void setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, const Comparator&,
-                BreadcrumbTriangleList*) const;
+    void setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
+                const Comparator&) const;
     void setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
-                   const Comparator&, BreadcrumbTriangleList*) const;
+                   const Comparator&) const;
     void mergeEdgesAbove(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
-                         const Comparator&, BreadcrumbTriangleList*) const;
+                         const Comparator&) const;
     void mergeEdgesBelow(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
-                         const Comparator&, BreadcrumbTriangleList*) const;
+                         const Comparator&) const;
     Edge* makeConnectingEdge(Vertex* prev, Vertex* next, EdgeType, const Comparator&,
-                             BreadcrumbTriangleList*, int windingScale = 1) const;
-    void mergeVertices(Vertex* src, Vertex* dst, VertexList* mesh, const Comparator&,
-                       BreadcrumbTriangleList*) const;
+                             int windingScale = 1) const;
+    void mergeVertices(Vertex* src, Vertex* dst, VertexList* mesh, const Comparator&) const;
     static void FindEnclosingEdges(Vertex* v, EdgeList* edges, Edge** left, Edge** right);
     void mergeCollinearEdges(Edge* edge, EdgeList* activeEdges, Vertex** current,
-                             const Comparator&, BreadcrumbTriangleList*) const;
+                             const Comparator&) const;
     bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
-                   const Comparator&, BreadcrumbTriangleList*) const;
+                   const Comparator&) const;
     bool intersectEdgePair(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
-                           const Comparator&, BreadcrumbTriangleList*) const;
+                           const Comparator&) const;
     Vertex* makeSortedVertex(const SkPoint&, uint8_t alpha, VertexList* mesh, Vertex* reference,
                              const Comparator&) const;
     void computeBisector(Edge* edge1, Edge* edge2, Vertex*) const;
     bool checkForIntersection(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
-                              VertexList* mesh, const Comparator&, BreadcrumbTriangleList*) const;
+                              VertexList* mesh, const Comparator&) const;
     void sanitizeContours(VertexList* contours, int contourCnt) const;
-    bool mergeCoincidentVertices(VertexList* mesh, const Comparator&,
-                                 BreadcrumbTriangleList*) const;
-    void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh, const Comparator&,
-                    BreadcrumbTriangleList*) const;
-    Poly* contoursToPolys(VertexList* contours, int contourCnt, BreadcrumbTriangleList*) const;
-    Poly* pathToPolys(float tolerance, const SkRect& clipBounds, BreadcrumbTriangleList*,
+    bool mergeCoincidentVertices(VertexList* mesh, const Comparator&) const;
+    void buildEdges(VertexList* contours, int contourCnt, VertexList* mesh,
+                    const Comparator&) const;
+    Poly* contoursToPolys(VertexList* contours, int contourCnt) const;
+    Poly* pathToPolys(float tolerance, const SkRect& clipBounds,
                       bool* isLinear) const;
     static int64_t CountPoints(Poly* polys, SkPathFillType overrideFillType);
-    int polysToTriangles(Poly*, GrEagerVertexAllocator*, BreadcrumbTriangleList*) const;
+    int polysToTriangles(Poly*, GrEagerVertexAllocator*) const;
 
     // FIXME: fPath should be plumbed through function parameters instead.
     const SkPath fPath;
@@ -247,7 +193,75 @@ protected:
     // Internal control knobs.
     bool fRoundVerticesToQuarterPixel = false;
     bool fEmitCoverage = false;
-    bool fCullCollinearVertices = true;
+    bool fPreserveCollinearVertices = false;
+    bool fCollectBreadcrumbTriangles = false;
+
+    // The breadcrumb triangles serve as a glue that erases T-junctions between a path's outer
+    // curves and its inner polygon triangulation. Drawing a path's outer curves, breadcrumb
+    // triangles, and inner polygon triangulation all together into the stencil buffer has the same
+    // identical rasterized effect as stenciling a classic Redbook fan.
+    //
+    // The breadcrumb triangles track all the edge splits that led from the original inner polygon
+    // edges to the final triangulation. Every time an edge splits, we emit a razor-thin breadcrumb
+    // triangle consisting of the edge's original endpoints and the split point. (We also add
+    // supplemental breadcrumb triangles to areas where abs(winding) > 1.)
+    //
+    //                a
+    //               /
+    //              /
+    //             /
+    //            x  <- Edge splits at x. New breadcrumb triangle is: [a, b, x].
+    //           /
+    //          /
+    //         b
+    //
+    // The opposite-direction shared edges between the triangulation and breadcrumb triangles should
+    // all cancel out, leaving just the set of edges from the original polygon.
+    class BreadcrumbTriangleList {
+    public:
+        struct Node {
+            Node(SkPoint a, SkPoint b, SkPoint c) : fPts{a, b, c} {}
+            SkPoint fPts[3];
+            Node* fNext = nullptr;
+        };
+        const Node* head() const { return fHead; }
+        int count() const { return fCount; }
+
+        void append(SkArenaAlloc* alloc, SkPoint a, SkPoint b, SkPoint c, int winding) {
+            if (a == b || a == c || b == c || winding == 0) {
+                return;
+            }
+            if (winding < 0) {
+                std::swap(a, b);
+                winding = -winding;
+            }
+            for (int i = 0; i < winding; ++i) {
+                SkASSERT(fTail && !(*fTail));
+                *fTail = alloc->make<Node>(a, b, c);
+                fTail = &(*fTail)->fNext;
+            }
+            fCount += winding;
+        }
+
+        void concat(BreadcrumbTriangleList&& list) {
+            SkASSERT(fTail && !(*fTail));
+            if (list.fHead) {
+                *fTail = list.fHead;
+                fTail = list.fTail;
+                fCount += list.fCount;
+                list.fHead = nullptr;
+                list.fTail = &list.fHead;
+                list.fCount = 0;
+            }
+        }
+
+    private:
+        Node* fHead = nullptr;
+        Node** fTail = &fHead;
+        int fCount = 0;
+    };
+
+    mutable BreadcrumbTriangleList fBreadcrumbList;
 };
 
 /**
