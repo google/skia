@@ -140,12 +140,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fAllowCoverageCounting = !options.fDisableCoverageCountingPaths;
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
-    fMaxTileSize = fMaxTextureSize;
 #if GR_TEST_UTILS
-    // If the max tile override is zero, it means we should use the max texture size.
-    if (options.fMaxTileSizeOverride && options.fMaxTileSizeOverride < fMaxTextureSize) {
-        fMaxTileSize = options.fMaxTileSizeOverride;
-    }
     if (options.fSuppressDualSourceBlending) {
         // GrShaderCaps::applyOptionsOverrides already handled the rest; here we just need to make
         // sure mixed samples gets disabled if dual source blending is suppressed.
