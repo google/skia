@@ -99,6 +99,9 @@ public:
     virtual const GrSurfaceProxyView* view(GrRecordingContext*) const { return nullptr; }
 
     virtual GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const = 0;
+    virtual GrSurfaceProxyView refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
+        return {};
+    }
     virtual bool isYUVA() const { return false; }
 #endif
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,

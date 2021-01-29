@@ -374,6 +374,44 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
+    // This would all be much nicer with std::variant.
+    static constexpr size_t kSize = std::max({sizeof(GrYUVAImageTextureMaker),
+                                              sizeof(GrTextureAdjuster      ),
+                                              sizeof(GrImageTextureMaker    ),
+                                              sizeof(GrBitmapTextureMaker   )});
+    static constexpr size_t kAlign = std::max({alignof(GrYUVAImageTextureMaker),
+                                               alignof(GrTextureAdjuster      ),
+                                               alignof(GrImageTextureMaker    ),
+                                               alignof(GrBitmapTextureMaker   )});
+    alignas(kAlign) char storage[kSize];
+    GrTextureProducer* producer = nullptr;
+    SkScopeExit destroyProducer([&producer]{ if (producer) { producer->~GrTextureProducer(); } });
+
+    uint32_t pinnedUniqueID;
+    SkBitmap bm;
+    if (as_IB(fImage)->isYUVA()) {
+        producer = new (&storage) GrYUVAImageTextureMaker(args.fContext, fImage.get());
+    } else if (GrSurfaceProxyView view =
+                       as_IB(fImage)->refPinnedView(args.fContext, &pinnedUniqueID)) {
+        GrColorInfo colorInfo;
+        if (args.fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
+            SkASSERT(fImage->colorType() == kRGBA_8888_SkColorType);
+            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, fImage->alphaType(),
+                                    fImage->refColorSpace());
+        } else {
+            colorInfo = fImage->imageInfo().colorInfo();
+        }
+        producer = new (&storage)
+                GrTextureAdjuster(args.fContext, std::move(view), colorInfo, pinnedUniqueID);
+    } else if (fImage->isLazyGenerated()) {
+        producer = new (&storage)
+                GrImageTextureMaker(args.fContext, fImage.get(), GrImageTexGenPolicy::kDraw);
+    } else if (as_IB(fImage)->getROPixels(nullptr, &bm)) {
+        producer =
+                new (&storage) GrBitmapTextureMaker(args.fContext, bm, GrImageTexGenPolicy::kDraw);
+    } else {
+        return nullptr;
+    }
     GrSamplerState::WrapMode wmX = SkTileModeToWrapMode(fTileModeX),
                              wmY = SkTileModeToWrapMode(fTileModeY);
     // Must set wrap and filter on the sampler before requesting a texture. In two places
@@ -383,10 +421,12 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     bool sharpen = args.fContext->priv().options().fSharpenMipmappedTextures;
     GrSamplerState::Filter     fm = GrSamplerState::Filter::kNearest;
     GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
+    bool bicubic = false;
     SkCubicResampler kernel = kInvalidCubicResampler;
 
     if (fUseSamplingOptions) {
-        if (fSampling.useCubic) {
+        bicubic = fSampling.useCubic;
+        if (bicubic) {
             kernel = fSampling.cubic;
         } else {
             switch (fSampling.filter) {
@@ -407,54 +447,19 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                          *lm,
                                          sharpen,
                                          args.fAllowFilterQualityReduction);
+        bicubic = GrValidCubicResampler(kernel);
     }
-
     std::unique_ptr<GrFragmentProcessor> fp;
-    // TODO: Replace this mess with SkImage_Base::asFragmentProcessor() after it's implemented.
-    if (as_IB(fImage)->isYUVA()) {
-        GrYUVAImageTextureMaker maker(args.fContext, fImage.get());
-        if (GrValidCubicResampler(kernel)) {
-            fp = maker.createBicubicFragmentProcessor(lmInverse,
-                                                      nullptr,
-                                                      nullptr,
-                                                      wmX, wmY,
-                                                      kernel);
-        } else {
-            fp = maker.createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
-        }
-        if (!fp) {
-            return nullptr;
-        }
+    if (bicubic) {
+        fp = producer->createBicubicFragmentProcessor(lmInverse, nullptr, nullptr, wmX, wmY, kernel);
     } else {
-        auto mipmapped = !GrValidCubicResampler(kernel) && mm != SkMipmapMode::kNone
-                ? GrMipmapped::kYes
-                : GrMipmapped::kNo;
-        GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, mipmapped);
-        if (!view) {
-            return nullptr;
-        }
-        if (GrValidCubicResampler(kernel)) {
-            fp = GrBicubicEffect::Make(std::move(view),
-                                       fImage->alphaType(),
-                                       lmInverse,
-                                       wmX, wmY,
-                                       kernel,
-                                       GrBicubicEffect::Direction::kXY,
-                                       *args.fContext->priv().caps());
-        } else {
-            fp = GrTextureEffect::Make(std::move(view),
-                                       fImage->alphaType(),
-                                       lmInverse,
-                                       {wmX, wmY, fm, mm},
-                                       *args.fContext->priv().caps());
-        }
+        fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
     }
-    SkASSERT(fp);
-    fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                       fImage->colorSpace(),
-                                       fImage->alphaType(),
-                                       args.fDstColorInfo->colorSpace(),
-                                       kPremul_SkAlphaType);
+    if (!fp) {
+        return nullptr;
+    }
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
+                                       args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
     if (fImage->isAlphaOnly()) {
         return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
     } else if (args.fInputColorIsOpaque) {
