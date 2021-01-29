@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - 4x4 matrices are "downsampled" properly if necessary to 3x3 matrices by removing the third
    column and the third row.
 
+## [0.23.0] - 2021-1-29
+
+### Deprecated
+ - `Canvas.drawImageRect`, `Canvas.drawImage`, `Canvas.drawAtlas`,
+   These rely on the Paint's FilterQuality, which is going away. Pass sampling options explicitly.
+
 ## [0.22.0] - 2020-12-17
 
 ### Added
