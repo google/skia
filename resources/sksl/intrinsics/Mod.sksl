@@ -1,7 +1,15 @@
-in half a, b;
-in half4 c, d;
-void main() {
-    sk_FragColor.x = mod(a, b);
-    sk_FragColor = mod(c, b);
-    sk_FragColor = mod(c, d);
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed, colorWhite;
+
+half4 main() {
+    half4 vector2  = 2 * colorWhite;
+    half4 expected = half4(0.75, 0, 0.75, 0.25);
+    return (mod(testInputs.x,    2)            == expected.x     &&
+            mod(testInputs.xy,   2)            == expected.xy    &&
+            mod(testInputs.xyz,  2)            == expected.xyz   &&
+            mod(testInputs.xyzw, 2)            == expected.xyzw  &&
+            mod(testInputs.x,    vector2.x)    == expected.x     &&
+            mod(testInputs.xy,   vector2.xy)   == expected.xy    &&
+            mod(testInputs.xyz,  vector2.xyz)  == expected.xyz   &&
+            mod(testInputs.xyzw, vector2.xyzw) == expected.xyzw) ? colorGreen : colorRed;
 }
