@@ -1494,7 +1494,14 @@ int main(int argc, char** argv) {
     android::ProcessState::self()->startThreadPool();
 #endif
     CommandLineFlags::Parse(argc, argv);
-
+    FLAGS_match.reset();
+    FLAGS_match.append("bitmaptiled_fractional");
+    FLAGS_match.append("bleed");
+    FLAGS_match.append("constraint");
+    FLAGS_match.append("bitmapshaders");
+    FLAGS_match.append("blend");
+    FLAGS_match.append("blurcircles");
+    FLAGS_match.append("hugebitmap");
     initializeEventTracingForTools();
 
 #if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)

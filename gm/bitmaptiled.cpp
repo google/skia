@@ -16,6 +16,8 @@
 
 class GrSurfaceDrawContext;
 
+int gCnt = 0;
+
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't causes gaps between tiles.
 static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* context,
@@ -45,10 +47,11 @@ static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* context,
     bmp.allocN32Pixels(vertical ? kBitmapShortEdge : kBitmapLongEdge,
                        vertical ? kBitmapLongEdge : kBitmapShortEdge, true);
     bmp.eraseColor(SK_ColorWHITE);
-
+    gCnt = 0;
     // Draw ten strips with varying fractional offset to catch any rasterization issues with tiling
     for (int i = 0; i < 10; ++i) {
         float offset = i * 0.1f;
+        SkDebugf("We're drawing that bitmap (but actually image rect) %d!\n", ++gCnt);
         if (vertical) {
             canvas->drawImageRect(bmp.asImage(),
                                   SkRect::MakeXYWH(0, (kTileSize - 50) + offset, 32, 1124.0f),
