@@ -162,6 +162,7 @@ public:
     void addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable);
 
     void checkFinishProcs() override { fResourceProvider.checkCommandBuffers(); }
+    void finishOutstandingGpuWork() override;
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 

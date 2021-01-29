@@ -63,6 +63,9 @@ GrDirectContext::~GrDirectContext() {
         this->flushAndSubmit();
     }
 
+    // We need to make sure all work is finished on the gpu before we start releasing resources.
+    this->syncAllOutstandingGpuWork(/*shouldExecuteWhileAbandoned=*/false);
+
     this->destroyDrawingManager();
     fMappedBufferManager.reset();
 
@@ -94,6 +97,9 @@ void GrDirectContext::abandonContext() {
     }
 
     INHERITED::abandonContext();
+
+    // We need to make sure all work is finished on the gpu before we start releasing resources.
+    this->syncAllOutstandingGpuWork(this->caps()->mustSyncGpuDuringAbandon());
 
     fStrikeCache->freeAll();
 
@@ -133,6 +139,9 @@ void GrDirectContext::releaseResourcesAndAbandonContext() {
     }
 
     INHERITED::abandonContext();
+
+    // We need to make sure all work is finished on the gpu before we start releasing resources.
+    this->syncAllOutstandingGpuWork(/*shouldExecuteWhileAbandoned=*/true);
 
     fMappedBufferManager.reset();
 
@@ -387,6 +396,13 @@ bool GrDirectContext::submit(bool syncCpu) {
 void GrDirectContext::checkAsyncWorkCompletion() {
     if (fGpu) {
         fGpu->checkFinishProcs();
+    }
+}
+
+void GrDirectContext::syncAllOutstandingGpuWork(bool shouldExecuteWhileAbandoned) {
+    if (fGpu && (!this->abandoned() || shouldExecuteWhileAbandoned)) {
+        fGpu->finishOutstandingGpuWork();
+        this->checkAsyncWorkCompletion();
     }
 }
 

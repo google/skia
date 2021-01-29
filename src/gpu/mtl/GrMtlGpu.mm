@@ -222,12 +222,7 @@ void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
 bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     if (!fCurrentCmdBuffer || !fCurrentCmdBuffer->hasWork()) {
         if (sync == SyncQueue::kForce_SyncQueue) {
-            // wait for the last command buffer we've submitted to finish
-            OutstandingCommandBuffer* back =
-                    (OutstandingCommandBuffer*)fOutstandingCommandBuffers.back();
-            if (back) {
-                (*back)->waitUntilCompleted();
-            }
+            this->finishOutstandingGpuWork();
             this->checkForFinishedCommandBuffers();
         }
         // We need to manually call the finishedCallbacks since we don't add this
@@ -271,6 +266,15 @@ void GrMtlGpu::checkForFinishedCommandBuffers() {
         // Since we used placement new we are responsible for calling the destructor manually.
         front->~OutstandingCommandBuffer();
         front = (OutstandingCommandBuffer*)fOutstandingCommandBuffers.front();
+    }
+}
+
+void GrMtlGpu::finishOutstandingGpuWork() {
+    // wait for the last command buffer we've submitted to finish
+    OutstandingCommandBuffer* back =
+            (OutstandingCommandBuffer*)fOutstandingCommandBuffers.back();
+    if (back) {
+        (*back)->waitUntilCompleted();
     }
 }
 
