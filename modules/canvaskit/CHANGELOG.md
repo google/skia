@@ -13,12 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    SkColorMatrix (in case clients have logic to deal with that themselves).
 
 ### Breaking
-- `MakeImprovedNoise` is removed.
+ - `MakeImprovedNoise` is removed.
+
+### Changed
+ -  `Path.getPoint()` and `SkottieAnimation.size()` now return a TypedArray instead of a normal
+    array. Additionally, they take an optional parameter to allow the result to be copied into
+    that provided TypedArray instead of a new one being allocated.
 
 ### Fixed
  - Improper error returned when a WebGL context could not be used.
  - 4x4 matrices are "downsampled" properly if necessary to 3x3 matrices by removing the third
    column and the third row.
+ - `SkottieAnimation.size()` was incorrectly returning an object. It now returns a TypedArray of
+   length 2 (w, h).
 
 ## [0.22.0] - 2020-12-17
 

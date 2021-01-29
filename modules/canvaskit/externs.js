@@ -95,8 +95,10 @@ var CanvasKit = {
   Animation: {
     prototype: {
       render: function() {},
+      size: function() {},
     },
     _render: function() {},
+    _size: function() {},
   },
 
   GrContext: {
@@ -113,10 +115,12 @@ var CanvasKit = {
       seek: function() {},
       seekFrame: function() {},
       setColor: function() {},
+      size: function() {},
     },
     _render: function() {},
     _seek: function() {},
     _seekFrame: function() {},
+    _size: function() {},
   },
 
   Paragraph: {
@@ -440,7 +444,6 @@ var CanvasKit = {
     /** @return {CanvasKit.Paint} */
     copy: function() {},
     getBlendMode: function() {},
-    getColor: function() {},
     getFilterQuality: function() {},
     getStrokeCap: function() {},
     getStrokeJoin: function() {},
@@ -461,6 +464,8 @@ var CanvasKit = {
     setStyle: function() {},
 
     prototype: {
+      getColor: function() {},
+      getPoint: function() {},
       setColor: function() {},
       setColorComponents: function() {},
       setColorInt: function() {},
@@ -469,6 +474,7 @@ var CanvasKit = {
     // Private API
     delete: function() {},
     _getColor: function() {},
+    _getPoint: function() {},
     _setColor: function() {},
   },
 
@@ -492,14 +498,20 @@ var CanvasKit = {
     getParticleUniformFloatCount: function() {},
     getParticleUniformName: function() {},
     getParticleUniform: function() {},
-    setPosition: function() {},
     setRate: function() {},
     start: function() {},
     update: function() {},
 
+    prototype: {
+      effectUniforms: function() {},
+      particleUniforms: function() {},
+      setPosition: function() {},
+    },
+
     // private API (from C++ bindings)
     _effectUniformPtr: function() {},
     _particleUniformPtr: function() {},
+    _setPosition: function() {},
   },
 
   Path: {
@@ -1033,9 +1045,6 @@ CanvasKit.ColorBuilder.prototype.set = function() {};
 
 CanvasKit.RuntimeEffect.prototype.makeShader = function() {};
 CanvasKit.RuntimeEffect.prototype.makeShaderWithChildren = function() {};
-
-CanvasKit.ParticleEffect.prototype.effectUniforms = function() {};
-CanvasKit.ParticleEffect.prototype.particleUniforms = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};
