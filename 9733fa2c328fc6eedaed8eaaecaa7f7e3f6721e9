@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfa28226_e756c684",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-29T19:10:24Z",
+      "side": 1,
+      "message": "lgtm",
+      "revId": "9733fa2c328fc6eedaed8eaaecaa7f7e3f6721e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a4a1830_6cddc56e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-01-29T19:10:24Z",
+      "side": 1,
+      "message": "Another thing to think about here is: should we call the outstanding callbacks anyway?",
+      "revId": "9733fa2c328fc6eedaed8eaaecaa7f7e3f6721e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
