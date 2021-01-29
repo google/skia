@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fda62c4a_f3f7b711",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-01-29T14:44:13Z",
+      "side": 1,
+      "message": "Looks like bots are finding the SVGs in the new asset version, see e.g. the output here: https://logs.chromium.org/logs/skia/51674fb6e5102811/+/steps/symbolized_dm/0/stdout (from Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN).",
+      "revId": "920da74f6c33768689f2c7335b31186819993466",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
