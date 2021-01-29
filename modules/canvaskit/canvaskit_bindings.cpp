@@ -874,7 +874,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawArc(*oval, startAngle, sweepAngle, useCenter, paint);
         }))
         // _drawAtlas takes an array of SkColor. There is no SkColor4f override.
-        // TODO: take sampling as an explicit parameter from the caller
         .function("_drawAtlas", optional_override([](SkCanvas& self,
                 const sk_sp<SkImage>& atlas, uintptr_t /* SkRSXform* */ xptr,
                 uintptr_t /* SkRect* */ rptr, uintptr_t /* SkColor* */ cptr, int count,
@@ -885,6 +884,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             if (cptr) {
                 colors = reinterpret_cast<const SkColor*>(cptr);
             }
+            // TODO: take sampling as an explicit parameter from the caller
             SkSamplingOptions sampling(SkFilterMode::kLinear);
             self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
                            nullptr, paint);
@@ -906,13 +906,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      uintptr_t /* float* */ innerPtr, const SkPaint& paint) {
             self.drawDRRect(ptrToSkRRect(outerPtr), ptrToSkRRect(innerPtr), paint);
         }))
-        // TODO: deprecate this version, and require sampling
-        .function("drawImage", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
-                                                    SkScalar x, SkScalar y, const SkPaint* paint) {
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImage(image.get(), x, y, sampling, paint);
-        }), allow_raw_pointers())
+        .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageCubic",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
                                                           SkScalar left, SkScalar top,
                                                           float B, float C, // See SkSamplingOptions.h for docs.
@@ -928,9 +922,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawImageAtCurrentFrame", optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage> aImg,
                                                                   SkScalar left, SkScalar top, const SkPaint* paint)->void {
             auto img = aImg->getCurrentFrame();
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImage(img, left, top, sampling, paint);
+            self.drawImage(img, left, top, paint);
         }), allow_raw_pointers())
 
         .function("_drawImageNine", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
@@ -941,15 +933,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
             self.drawImageNine(image.get(), *center, *dst, filter, paint);
         }), allow_raw_pointers())
-        // TODO: deprecate this version, and require sampling
         .function("_drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                          uintptr_t /* float* */ srcPtr, uintptr_t /* float* */ dstPtr,
                                                          const SkPaint* paint, bool fastSample)->void {
             const SkRect* src = reinterpret_cast<const SkRect*>(srcPtr);
             const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImageRect(image, *src, *dst, sampling, paint,
+            self.drawImageRect(image, *src, *dst, paint,
                                fastSample ? SkCanvas::kFast_SrcRectConstraint:
                                             SkCanvas::kStrict_SrcRectConstraint);
         }), allow_raw_pointers())
