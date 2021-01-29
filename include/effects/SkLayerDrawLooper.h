@@ -64,6 +64,7 @@ public:
         SkBlendMode fColorMode;
         SkVector    fOffset;
         bool        fPostTranslate; //!< applies to fOffset
+        SkDrawLooper::Context::ClipRect fClipRect;
 
         /**
          *  Initial the LayerInfo. Defaults to settings that will draw the
