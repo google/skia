@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bc7c8de_2b110430",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 29
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-01-29T16:42:33Z",
+      "side": 1,
+      "message": "I\u0027ll try to summarise what we discussed face to face for how to proceed, the next steps, mostly for me, are:\n\n* Cleanup FreeType side of this change\n* Fix scaling in PaintGlyph to EM box size to fix variations instead of using FT_LOAD_NO_SCALE, or optionally, already to actual scale (possible in later CL as well)  \n* Consider adding SkShowTextBlitCoverage debug flag functionality for rectangles when drawing V1,\n* Add a basic GM based on samples font\n* Remove top level upem passing in start_colr_glyph\n* Look into fixing path_maker and consider making path generators static - which might already fix path_maker closure requirement.\n* generateFacePath is used only for V0, add  a new generateFacePathV1 or similar to retrieve scaled outline for COLRv1.\n\nHope that\u0027s accurate. Ben, please let me know if you have anything to change or add to this list.",
+      "revId": "41dd1a92d37c2dc3c89a4e63fff9d4fe696e0a77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
