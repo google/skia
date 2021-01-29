@@ -22,6 +22,30 @@
       },
       "revId": "80aacb61a3131e8040ef53d16a52eb8fac4ebbf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e8c42a5_c2b4b812",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-01-29T19:59:20Z",
+      "side": 1,
+      "message": "This will add two more columns (there are now 8 calls to plot between calls to next_row), so these will show up in viewer, but get chopped off in DM (need to update the columns_to_width() above). Or you can put them further down, after the last next_row(), and just add one more row?",
+      "parentUuid": "1ce80931_c8045433",
+      "range": {
+        "startLine": 226,
+        "startChar": 1,
+        "endLine": 227,
+        "endChar": 31
+      },
+      "revId": "80aacb61a3131e8040ef53d16a52eb8fac4ebbf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
