@@ -1,1 +1,12 @@
-in half a; void main() { sk_FragColor.x = sin(a); }
+uniform half4 pi, colorGreen, colorRed;
+
+half4 main() {
+    half4 expected  = half4(1, 0, -1, 0);
+    half4 tolerance = half4(0.001);
+    return    (        (abs(sin(pi.x)    - expected.x   ) < tolerance.x   )) &&
+           all(lessThan(abs(sin(pi.xy)   - expected.xy  ) , tolerance.xy  )) &&
+           all(lessThan(abs(sin(pi.xyz)  - expected.xyz ) , tolerance.xyz )) &&
+           all(lessThan(abs(sin(pi.xyzw) - expected.xyzw) , tolerance.xyzw)) ? colorGreen
+                                                                             : colorRed;
+}
+
