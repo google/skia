@@ -944,7 +944,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(DSLFunction, r, ctxInfo) {
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     DSLWriter::ProgramElements().clear();
     Var coords(kHalf2, "coords");
