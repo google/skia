@@ -1340,9 +1340,6 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
     tinyConvexPolygon.isConvex();
-    // This is convex, but so small that it fails many of our checks, and the three "backwards"
-    // bends convince the checker that it's concave. That's okay though, we draw it correctly.
-    check_convexity(reporter, tinyConvexPolygon, false);
     check_direction(reporter, tinyConvexPolygon, SkPathFirstDirection::kCW);
 
     SkPath  platTriangle;
@@ -3702,11 +3699,6 @@ static void test_rrect(skiatest::Reporter* reporter) {
     SkRect infR = {0, 0, SK_ScalarMax, SK_ScalarInfinity};
     rr.setRectRadii(infR, radii);
     REPORTER_ASSERT(reporter, rr.isEmpty());
-
-    // We consider any path with very small (numerically unstable) edges to be concave.
-    SkRect tinyR = {0, 0, 1e-9f, 1e-9f};
-    p.addRoundRect(tinyR, 5e-11f, 5e-11f);
-    test_rrect_convexity_is_unknown(reporter, &p, SkPathDirection::kCW);
 }
 
 static void test_arc(skiatest::Reporter* reporter) {
@@ -5811,4 +5803,17 @@ DEF_TEST(path_addpath_crbug_1153516, r) {
     p1.addRect({143,226,200,241});
     p1.addPath(p1);
     p1.lineTo(262,513); // this should not assert
+}
+
+DEF_TEST(path_convexity_scale_way_down, r) {
+    SkPath path = SkPathBuilder().moveTo(0,0).lineTo(1, 0)
+                                 .lineTo(1,1).lineTo(0,1)
+                                 .detach();
+
+    REPORTER_ASSERT(r, path.isConvex());
+    SkPath path2;
+    const SkScalar scale = 1e-8f;
+    path.transform(SkMatrix::Scale(scale, scale), &path2);
+    SkPathPriv::ForceComputeConvexity(path2);
+    REPORTER_ASSERT(r, path2.isConvex());
 }

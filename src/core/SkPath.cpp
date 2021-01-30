@@ -2093,7 +2093,7 @@ enum DirChange {
     kInvalid_DirChange
 };
 
-
+#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
 static bool almost_equal(SkScalar compA, SkScalar compB) {
     // The error epsilon was empirically derived; worse case round rects
     // with a mid point outset by 2x float epsilon in tests had an error
@@ -2107,6 +2107,7 @@ static bool almost_equal(SkScalar compA, SkScalar compB) {
     int bBits = SkFloatAs2sCompliment(compB);
     return aBits < bBits + epsilon && bBits < aBits + epsilon;
 }
+#endif
 
 // only valid for a single contour
 struct Convexicator {
@@ -2188,6 +2189,7 @@ private:
         if (!SkScalarIsFinite(cross)) {
                 return kUnknown_DirChange;
         }
+#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
         SkScalar smallest = std::min(fCurrPt.fX, std::min(fCurrPt.fY, std::min(fLastPt.fX, fLastPt.fY)));
         SkScalar largest = std::max(fCurrPt.fX, std::max(fCurrPt.fY, std::max(fLastPt.fX, fLastPt.fY)));
         largest = std::max(largest, -smallest);
@@ -2200,6 +2202,11 @@ private:
             }
             return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
         }
+#else
+        if (cross == 0) {
+            return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
+        }
+#endif
         return 1 == SkScalarSignAsInt(cross) ? kRight_DirChange : kLeft_DirChange;
     }
 
