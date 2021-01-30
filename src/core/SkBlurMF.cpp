@@ -591,7 +591,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
     if (SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma)) {
-        surfaceDrawContext->drawShape(clip, std::move(paint), GrAA::kYes, viewMatrix, shape);
+        surfaceDrawContext->drawShape(clip, std::move(paint), GrAA::kYes, viewMatrix,
+                                      GrStyledShape(shape));
         return true;
     }
 

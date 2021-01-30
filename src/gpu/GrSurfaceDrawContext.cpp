@@ -76,6 +76,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+using SimplifyStroke = GrStyledShape::SimplifyStroke;
+
 class AutoCheckFlush {
 public:
     AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) {
@@ -720,7 +722,7 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
     }
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrStyledShape(rect, *style));
+                                     GrStyledShape(rect, *style, SimplifyStroke::kNo));
 }
 
 void GrSurfaceDrawContext::drawQuadSet(const GrClip* clip,
@@ -1014,7 +1016,7 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
 
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrStyledShape(rrect, style));
+                                     GrStyledShape(rrect, style, SimplifyStroke::kNo));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1438,9 +1440,9 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
     }
 
     assert_alive(paint);
-    this->drawShapeUsingPathRenderer(
-            clip, std::move(paint), aa, viewMatrix,
-            GrStyledShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style));
+    GrStyledShape shape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style,
+                        SimplifyStroke::kNo);
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, std::move(shape));
 }
 
 void GrSurfaceDrawContext::drawArc(const GrClip* clip,
@@ -1557,16 +1559,15 @@ void GrSurfaceDrawContext::drawPath(const GrClip* clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "drawPath", fContext);
 
-    GrStyledShape shape(path, style);
-
-    this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
+    GrStyledShape shape(path, style, SimplifyStroke::kNo);
+    this->drawShape(clip, std::move(paint), aa, viewMatrix, std::move(shape));
 }
 
 void GrSurfaceDrawContext::drawShape(const GrClip* clip,
                                      GrPaint&& paint,
                                      GrAA aa,
                                      const SkMatrix& viewMatrix,
-                                     const GrStyledShape& shape) {
+                                     GrStyledShape&& shape) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1582,6 +1583,7 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     if (!shape.style().hasPathEffect()) {
+        shape.simplifyStroke();
         GrAAType aaType = this->chooseAAType(aa);
         SkRRect rrect;
         // We can ignore the starting point and direction since there is no path effect.
@@ -1616,7 +1618,7 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
     }
 
     // If we get here in drawShape(), we definitely need to use path rendering
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape,
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, std::move(shape),
                                      /* attempt fallback */ false);
 }
 
@@ -1708,7 +1710,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                                       GrPaint&& paint,
                                                       GrAA aa,
                                                       const SkMatrix& viewMatrix,
-                                                      const GrStyledShape& originalShape,
+                                                      GrStyledShape&& originalShape,
                                                       bool attemptShapeFallback) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -1718,11 +1720,13 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
         return;
     }
 
+    originalShape.simplifyStroke();
+
     if (attemptShapeFallback && originalShape.simplified()) {
         // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
         // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
         // we ought to try again instead of going right to path rendering.
-        this->drawShape(clip, std::move(paint), aa, viewMatrix, originalShape);
+        this->drawShape(clip, std::move(paint), aa, viewMatrix, std::move(originalShape));
         return;
     }
 
