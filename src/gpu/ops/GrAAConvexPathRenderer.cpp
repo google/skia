@@ -375,7 +375,6 @@ static void create_vertices(const SegmentArray& segments,
     // alias just to make vert/index assignments easier to read.
     int* v = &draw->fVertexCnt;
     int* i = &draw->fIndexCnt;
-    const size_t uvOffset = sizeof(SkPoint) + color.size();
 
     int count = segments.count();
     for (int a = 0; a < count; ++a) {
@@ -454,52 +453,57 @@ static void create_vertices(const SegmentArray& segments,
 
             *v += 5;
         } else {
-            void* quadVertsBegin = verts.fPtr;
-
             SkPoint qpts[] = {sega.endPt(), segb.fPts[0], segb.fPts[1]};
 
             SkScalar c0 = segb.fNorms[0].dot(qpts[0]);
             SkScalar c1 = segb.fNorms[1].dot(qpts[2]);
-            GrVertexWriter::Skip<SkPoint> skipUVs;
 
-            verts.write(fanPt,
-                        color, skipUVs,
+            // We must transform the positions into UV in cpu memory and then copy them to the gpu
+            // buffer. If we write the position first into the gpu buffer then calculate the UVs, it
+            // will cause us to read from the GPU buffer which can be very slow.
+            struct PosAndUV {
+                SkPoint fPos;
+                SkPoint fUV;
+            };
+            PosAndUV posAndUVPoints[6];
+            posAndUVPoints[0].fPos = fanPt;
+            posAndUVPoints[1].fPos = qpts[0];
+            posAndUVPoints[2].fPos = qpts[2];
+            posAndUVPoints[3].fPos = qpts[0] + segb.fNorms[0];
+            posAndUVPoints[4].fPos = qpts[2] + segb.fNorms[1];
+            SkVector midVec = segb.fNorms[0] + segb.fNorms[1];
+            midVec.normalize();
+            posAndUVPoints[5].fPos = qpts[1] + midVec;
+
+            GrPathUtils::QuadUVMatrix toUV(qpts);
+            toUV.apply(posAndUVPoints, 6, sizeof(PosAndUV), sizeof(SkPoint));
+
+            verts.write(posAndUVPoints[0].fPos, color, posAndUVPoints[0].fUV,
                         -segb.fNorms[0].dot(fanPt) + c0,
                         -segb.fNorms[1].dot(fanPt) + c1);
 
-            verts.write(qpts[0],
-                        color, skipUVs,
+            verts.write(posAndUVPoints[1].fPos, color, posAndUVPoints[1].fUV,
                         0.0f,
                         -segb.fNorms[1].dot(qpts[0]) + c1);
 
-            verts.write(qpts[2],
-                        color, skipUVs,
+            verts.write(posAndUVPoints[2].fPos, color, posAndUVPoints[2].fUV,
                         -segb.fNorms[0].dot(qpts[2]) + c0,
                         0.0f);
             // We need a negative value that is very large that it won't effect results if it is
             // interpolated with. However, the value can't be too large of a negative that it
             // effects numerical precision on less powerful GPUs.
             static const SkScalar kStableLargeNegativeValue = -SK_ScalarMax/1000000;
-            verts.write(qpts[0] + segb.fNorms[0],
-                        color, skipUVs,
+            verts.write(posAndUVPoints[3].fPos, color, posAndUVPoints[3].fUV,
                         kStableLargeNegativeValue,
                         kStableLargeNegativeValue);
 
-            verts.write(qpts[2] + segb.fNorms[1],
-                        color, skipUVs,
+            verts.write(posAndUVPoints[4].fPos, color, posAndUVPoints[4].fUV,
                         kStableLargeNegativeValue,
                         kStableLargeNegativeValue);
 
-            SkVector midVec = segb.fNorms[0] + segb.fNorms[1];
-            midVec.normalize();
-
-            verts.write(qpts[1] + midVec,
-                        color, skipUVs,
+            verts.write(posAndUVPoints[5].fPos, color, posAndUVPoints[5].fUV,
                         kStableLargeNegativeValue,
                         kStableLargeNegativeValue);
-
-            GrPathUtils::QuadUVMatrix toUV(qpts);
-            toUV.apply(quadVertsBegin, 6, vertexStride, uvOffset);
 
             idxs[*i + 0] = *v + 3;
             idxs[*i + 1] = *v + 1;
