@@ -20,7 +20,6 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkDrawProcs.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
@@ -602,60 +601,6 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
 #include "include/core/SkMaskFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
-                                  const SkPaint& origPaint) {
-    ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawStrokedLine", fContext.get());
-    // Adding support for round capping would require a
-    // GrSurfaceDrawContext::fillRRectWithLocalMatrix entry point
-    SkASSERT(SkPaint::kRound_Cap != origPaint.getStrokeCap());
-    SkASSERT(SkPaint::kStroke_Style == origPaint.getStyle());
-    SkASSERT(!origPaint.getPathEffect());
-    SkASSERT(!origPaint.getMaskFilter());
-
-    const SkScalar halfWidth = 0.5f * origPaint.getStrokeWidth();
-    if (halfWidth <= 0.f) {
-        // Prevents underflow when stroke width is epsilon > 0 (so technically not a hairline).
-        // The CTM would need to have a scale near 1/epsilon in order for this to have meaningful
-        // coverage (although that would likely overflow elsewhere and cause the draw to drop due
-        // to non-finite bounds). At any other scale, this line is so thin, it's coverage is
-        // negligible, so discarding the draw is visually equivalent.
-        return;
-    }
-
-    SkVector parallel = points[1] - points[0];
-
-    if (!SkPoint::Normalize(&parallel)) {
-        parallel.fX = 1.0f;
-        parallel.fY = 0.0f;
-    }
-    parallel *= halfWidth;
-
-    SkVector ortho = { parallel.fY, -parallel.fX };
-    if (SkPaint::kButt_Cap == origPaint.getStrokeCap()) {
-        // No extra extension for butt caps
-        parallel = {0.f, 0.f};
-    }
-    // Order is TL, TR, BR, BL where arbitrarily "down" is p0 to p1 and "right" is positive
-    SkPoint corners[4] = { points[0] - ortho - parallel,
-                           points[0] + ortho - parallel,
-                           points[1] + ortho + parallel,
-                           points[1] - ortho + parallel };
-
-    SkPaint newPaint(origPaint);
-    newPaint.setStyle(SkPaint::kFill_Style);
-
-    GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), newPaint,
-                          this->asMatrixProvider(), &grPaint)) {
-        return;
-    }
-
-    GrAA aa = newPaint.isAntiAlias() ? GrAA::kYes : GrAA::kNo;
-    GrQuadAAFlags edgeAA = newPaint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    fSurfaceDrawContext->fillQuadWithEdgeAA(this->clip(), std::move(grPaint), aa, edgeAA,
-                                            this->localToDevice(), corners, nullptr);
-}
 
 void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool pathIsMutable) {
 #if GR_TEST_UTILS
@@ -665,27 +610,6 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     }
 #endif
     ASSERT_SINGLE_OWNER
-    if (!origSrcPath.isInverseFillType() && !paint.getPathEffect() && !paint.getMaskFilter() &&
-        SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0.f &&
-        SkPaint::kRound_Cap != paint.getStrokeCap()) {
-        SkPoint points[2];
-        if (origSrcPath.isLine(points)) {
-            // The stroked line is an oriented rectangle, which looks the same or better
-            // (if perspective) compared to path rendering. The exception is subpixel/hairline lines
-            // that are non-AA or MSAA, in which case the default path renderer achieves higher
-            // quality.
-            // FIXME(michaelludwig): If the fill rect op could take an external coverage, or
-            // checks for and outsets thin non-aa rects to 1px, the path renderer could be skipped.
-            SkScalar coverage;
-            if ((paint.isAntiAlias() && fSurfaceDrawContext->numSamples() == 1) ||
-                !SkDrawTreatAAStrokeAsHairline(paint.getStrokeWidth(), this->localToDevice(),
-                                               &coverage)) {
-                this->drawStrokedLine(points, paint);
-                return;
-            }
-        }
-    }
-
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
     if (!paint.getMaskFilter()) {
         GrPaint grPaint;
