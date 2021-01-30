@@ -154,9 +154,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
     }
-    if (options.fDisallowWritePixelRowBytes) {
-        fWritePixelsRowBytesSupport = false;
-    }
 #endif
     if (options.fSuppressMipmapSupport) {
         fMipmapSupport = false;
