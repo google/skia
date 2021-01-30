@@ -34,6 +34,24 @@
       "parentUuid": "a71913d3_0230ff28",
       "revId": "9ea5cf7e52487f9b7c055d533bb9d79377269858",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab1d7880_e68fb4cb",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-30T16:11:56Z",
+      "side": 1,
+      "message": "Done at parent CL http://review.skia.org/363096",
+      "parentUuid": "ca9be232_60d52655",
+      "revId": "9ea5cf7e52487f9b7c055d533bb9d79377269858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
