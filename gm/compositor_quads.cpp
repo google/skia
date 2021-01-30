@@ -969,7 +969,6 @@ private:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setBlendMode(SkBlendMode::kSrcOver);
 
         canvas->experimental_DrawEdgeAAImageSet(

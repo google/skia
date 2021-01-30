@@ -20,29 +20,6 @@
 #include "tests/Test.h"
 #undef ASSERT
 
-// temparary api for bicubic, just be sure we can set/clear it
-DEF_TEST(Paint_filterQuality, reporter) {
-    SkPaint p0, p1;
-
-    REPORTER_ASSERT(reporter, kNone_SkFilterQuality == p0.getFilterQuality());
-
-    static const SkFilterQuality gQualitys[] = {
-        kNone_SkFilterQuality,
-        kLow_SkFilterQuality,
-        kMedium_SkFilterQuality,
-        kHigh_SkFilterQuality
-    };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
-        p0.setFilterQuality(gQualitys[i]);
-        REPORTER_ASSERT(reporter, gQualitys[i] == p0.getFilterQuality());
-        p1 = p0;
-        REPORTER_ASSERT(reporter, gQualitys[i] == p1.getFilterQuality());
-
-        p0.reset();
-        REPORTER_ASSERT(reporter, kNone_SkFilterQuality == p0.getFilterQuality());
-    }
-}
-
 DEF_TEST(Paint_copy, reporter) {
     SkPaint paint;
     // set a few member variables
@@ -104,12 +81,6 @@ DEF_TEST(Paint_regression_cubic, reporter) {
 }
 
 DEF_TEST(Paint_flattening, reporter) {
-    const SkFilterQuality levels[] = {
-        kNone_SkFilterQuality,
-        kLow_SkFilterQuality,
-        kMedium_SkFilterQuality,
-        kHigh_SkFilterQuality,
-    };
     const SkPaint::Cap caps[] = {
         SkPaint::kButt_Cap,
         SkPaint::kRound_Cap,
@@ -135,7 +106,6 @@ DEF_TEST(Paint_flattening, reporter) {
 
     // we don't serialize hinting or encoding -- soon to be removed from paint
 
-    FOR_SETUP(i, levels, setFilterQuality)
     FOR_SETUP(l, caps, setStrokeCap)
     FOR_SETUP(m, joins, setStrokeJoin)
     FOR_SETUP(p, styles, setStyle)
@@ -151,7 +121,7 @@ DEF_TEST(Paint_flattening, reporter) {
     SkPaintPriv::Unflatten(&paint2, reader, nullptr);
     REPORTER_ASSERT(reporter, paint2 == paint);
 
-    }}}}
+    }}}
 #undef FOR_SETUP
 
 }
