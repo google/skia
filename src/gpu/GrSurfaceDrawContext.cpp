@@ -1558,15 +1558,14 @@ void GrSurfaceDrawContext::drawPath(const GrClip* clip,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "drawPath", fContext);
 
     GrStyledShape shape(path, style);
-
-    this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
+    this->drawShape(clip, std::move(paint), aa, viewMatrix, std::move(shape));
 }
 
 void GrSurfaceDrawContext::drawShape(const GrClip* clip,
                                      GrPaint&& paint,
                                      GrAA aa,
                                      const SkMatrix& viewMatrix,
-                                     const GrStyledShape& shape) {
+                                     GrStyledShape&& shape) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1616,7 +1615,7 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
     }
 
     // If we get here in drawShape(), we definitely need to use path rendering
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape,
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, std::move(shape),
                                      /* attempt fallback */ false);
 }
 
@@ -1708,34 +1707,33 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                                       GrPaint&& paint,
                                                       GrAA aa,
                                                       const SkMatrix& viewMatrix,
-                                                      const GrStyledShape& originalShape,
+                                                      GrStyledShape&& shape,
                                                       bool attemptShapeFallback) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "internalDrawPath", fContext);
 
-    if (!viewMatrix.isFinite() || !originalShape.bounds().isFinite()) {
+    if (!viewMatrix.isFinite() || !shape.bounds().isFinite()) {
         return;
     }
 
-    if (attemptShapeFallback && originalShape.simplified()) {
+    if (attemptShapeFallback && shape.simplified()) {
         // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
         // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
         // we ought to try again instead of going right to path rendering.
-        this->drawShape(clip, std::move(paint), aa, viewMatrix, originalShape);
+        this->drawShape(clip, std::move(paint), aa, viewMatrix, std::move(shape));
         return;
     }
 
     SkIRect clipConservativeBounds = get_clip_bounds(this, clip);
 
-    GrStyledShape tempShape;
     GrAAType aaType = this->chooseAAType(aa);
 
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = this->caps();
     canDrawArgs.fProxy = this->asRenderTargetProxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
-    canDrawArgs.fShape = &originalShape;
+    canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = &paint;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
@@ -1743,7 +1741,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
 
     GrPathRenderer* pr;
     static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
-    if (originalShape.isEmpty() && !originalShape.inverseFilled()) {
+    if (shape.isEmpty() && !shape.inverseFilled()) {
         return;
     }
 
@@ -1753,23 +1751,20 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
     SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
 
-    if (!pr && originalShape.style().pathEffect()) {
+    if (!pr && shape.style().pathEffect()) {
         // It didn't work above, so try again with the path effect applied.
-        tempShape = originalShape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
-        if (tempShape.isEmpty()) {
+        shape = shape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
+        if (shape.isEmpty()) {
             return;
         }
-        canDrawArgs.fShape = &tempShape;
         pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
     }
     if (!pr) {
-        if (canDrawArgs.fShape->style().applies()) {
-            tempShape = canDrawArgs.fShape->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
-                                                       styleScale);
-            if (tempShape.isEmpty()) {
+        if (shape.style().applies()) {
+            shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
+            if (shape.isEmpty()) {
                 return;
             }
-            canDrawArgs.fShape = &tempShape;
             // This time, allow SW renderer
             pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
         } else {

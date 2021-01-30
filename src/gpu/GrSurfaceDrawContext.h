@@ -413,7 +413,7 @@ public:
                    GrPaint&&,
                    GrAA,
                    const SkMatrix& viewMatrix,
-                   const GrStyledShape&);
+                   GrStyledShape&&);
 
 
     /**
@@ -709,7 +709,7 @@ private:
     // If 'attemptShapeFallback' is true, and the original shape had been simplfied, this
     // will re-route through drawShape() to see if we can avoid path rendering one more time.
     void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
-                                    const GrStyledShape&, bool attemptShapeFallback = true);
+                                    GrStyledShape&&, bool attemptShapeFallback = true);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
