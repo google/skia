@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
@@ -35,6 +36,7 @@ func main() {
 	ctx := td.StartRun(projectId, taskId, bot, output, local)
 	defer td.EndRun(ctx)
 
+	actualStdout := os.Stdout
 	actualStderr := os.Stderr
 	if *local {
 		// Task Driver echoes every exec.Run() stdout and stderr to the console,
@@ -74,6 +76,31 @@ func main() {
 	}
 	gms := query("--listGMs")
 	tests := query("--listTests")
+
+	// Query Gold for all known hashes when running as a bot.
+	known := map[string]bool{
+		"0832f708a97acc6da385446384647a8f": true, // MD5 of passing unit test.
+	}
+	if *bot != "" {
+		func() {
+			url := "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt"
+			resp, err := http.Get(url)
+			if err != nil {
+				td.Fatal(ctx, err)
+			}
+			defer resp.Body.Close()
+
+			scanner := bufio.NewScanner(resp.Body)
+			for scanner.Scan() {
+				known[scanner.Text()] = true
+			}
+			if err := scanner.Err(); err != nil {
+				td.Fatal(ctx, err)
+			}
+
+			fmt.Fprintf(actualStdout, "Gold knew %v unique hashes.\n", len(known))
+		}()
+	}
 
 	type Work struct {
 		Sources []string // Passed to FM -s: names of gms/tests, paths to image files, .skps, etc.
@@ -185,6 +212,18 @@ func main() {
 			cmd.Args = append(cmd.Args, "-s")
 			cmd.Args = append(cmd.Args, w.Sources...)
 			cmd.Args = append(cmd.Args, w.Flags...)
+			// TODO: when len(w.Sources) == 1, add -w ... to cmd.Args to write a .png for upload.
+
+			// On cmd failure or unknown hash, we'll split the Work batch up into individual reruns.
+			requeue := func() {
+				// Requeuing Work from the workers is what makes sizing the chan buffer tricky:
+				// we don't ever want these `queue <-` to block a worker because of a full buffer.
+				for _, source := range w.Sources {
+					wg.Add(1)
+					queue <- Work{[]string{source}, w.Flags}
+				}
+			}
+
 			if err := exec.Run(ctx, cmd); err != nil {
 				if len(w.Sources) == 1 {
 					// If a source ran alone and failed, that's just a failure.
@@ -206,12 +245,39 @@ func main() {
 							strings.Join(lines, "\n\t"))
 					}
 				} else {
-					// If a batch fails, retry each individually.
-					for _, source := range w.Sources {
-						// Requeuing Work from the workers makes sizing the chan buffer tricky:
-						// we don't ever want this `queue <-` to block a worker on a full buffer.
-						wg.Add(1)
-						queue <- Work{[]string{source}, w.Flags}
+					// If a batch of sources failed, break up the batch to isolate the failures.
+					requeue()
+				}
+			} else {
+				// FM completed successfully.  Scan stdout for any unknown hash.
+				unknown := func() string {
+					if *bot != "" { // The map known[] is only filled when *bot != "".
+						scanner := bufio.NewScanner(stdout)
+						for scanner.Scan() {
+							if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
+								md5 := parts[1]
+								if !known[md5] {
+									return md5
+								}
+							}
+						}
+						if err := scanner.Err(); err != nil {
+							td.Fatal(ctx, err)
+						}
+					}
+					return ""
+				}()
+
+				if unknown != "" {
+					if len(w.Sources) == 1 {
+						// TODO upload .png with goldctl.
+						fmt.Fprintf(actualStdout, "%v %v #%v\n",
+							cmd.Name,
+							strings.Join(cmd.Args, " "),
+							unknown)
+					} else {
+						// Split the batch to run individually and TODO, write .pngs.
+						requeue()
 					}
 				}
 			}
