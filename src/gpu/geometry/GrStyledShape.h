@@ -249,6 +249,10 @@ public:
     bool testingOnly_isPath() const;
     bool testingOnly_isNonVolatilePath() const;
 
+    // As an optional part of the simplification process, some shapes can have stroking trivially
+    // evaluated and form a new geometry with just a fill.
+    void simplifyStroke();
+
 private:
     /** Constructor used by the applyStyle() function */
     GrStyledShape(const GrStyledShape& parentShape, GrStyle::Apply, SkScalar scale);
@@ -262,9 +266,6 @@ private:
     // Similar to GrShape::simplify but also takes into account style and stroking, possibly
     // applying the style explicitly to produce a new analytic shape with a simpler style.
     void simplify();
-    // As part of the simplification process, some shapes can have stroking trivially evaluated
-    // and form a new geometry with just a fill.
-    bool simplifyStroke(bool originallyClosed);
 
     /** Gets the path that gen id listeners should be added to. */
     const SkPath* originalPathForListeners() const;
@@ -272,8 +273,9 @@ private:
     GrShape fShape;
     GrStyle fStyle;
     // Gen ID of the original path (path may be modified or simplified away).
-    int32_t fGenID      = 0;
-    bool    fSimplified = false;
+    int32_t fGenID = 0;
+    bool fIsClosed = false;
+    bool fSimplified = false;
 
     SkTLazy<SkPath>            fInheritedPathForListeners;
     SkAutoSTArray<8, uint32_t> fInheritedKey;
