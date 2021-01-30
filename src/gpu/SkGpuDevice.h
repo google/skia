@@ -215,8 +215,6 @@ private:
     void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>, const SkRect& dst,
                              SkFilterMode, const SkPaint&);
 
-    void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
-
     static std::unique_ptr<GrSurfaceDrawContext> MakeSurfaceDrawContext(GrRecordingContext*,
                                                                         SkBudgeted,
                                                                         const SkImageInfo&,
