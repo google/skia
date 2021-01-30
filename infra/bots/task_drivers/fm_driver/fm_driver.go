@@ -21,31 +21,6 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
-func filter(in []string, test func(string) bool) (out []string) {
-	for _, s := range in {
-		if test(s) {
-			out = append(out, s)
-		}
-	}
-	return
-}
-
-func botJobs(name string, gms []string, tests []string) (jobs [][]string) {
-	parts := strings.Split(name, "-")
-	OS := parts[1]
-
-	// For no reason but as a demo, skip GM aarectmodes and test GoodHash.
-	if OS == "Debian10" {
-		gms = filter(gms, func(s string) bool { return s != "aarectmodes" })
-		tests = filter(tests, func(s string) bool { return s != "GoodHash" })
-	}
-
-	jobs = append(jobs, append([]string{"b=cpu"}, gms...))
-	jobs = append(jobs, append([]string{"b=cpu"}, tests...))
-	jobs = append(jobs, append([]string{"b=cpu", "skvm=true"}, gms...))
-	return
-}
-
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -100,15 +75,14 @@ func main() {
 	gms := query("--listGMs")
 	tests := query("--listTests")
 
-	// Parse a job like "gms b=cpu ct=8888" into a struct of Sources to run under given Flags.
-	type work struct {
-		Sources []string
-		Flags   []string
+	type Work struct {
+		Sources []string // Passed to FM -s: names of gms/tests, paths to image files, .skps, etc.
+		Flags   []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
 	}
+	todo := []Work{}
 
-	parse := func(job []string) *work {
-		w := &work{}
-
+	// Parse a job like "gms b=cpu ct=8888" into Work{Sources=<all GMs>, Flags={-b,cpu,--ct,8888}}.
+	parse := func(job []string) (w Work) {
 		for _, token := range job {
 			// Everything after # is a comment.
 			if strings.HasPrefix(token, "#") {
@@ -141,12 +115,11 @@ func main() {
 			// Anything else must be the name of a source for FM to run.
 			w.Sources = append(w.Sources, token)
 		}
-
-		return w
+		return
 	}
 
-	// One job can go on the command line, handy for ad hoc local runs.
-	jobs := [][]string{flag.Args()[1:]}
+	// Parse one job from the command line, handy for ad hoc local runs.
+	todo = append(todo, parse(flag.Args()[1:]))
 
 	// Any number of jobs can come from -script.
 	if *script != "" {
@@ -160,23 +133,50 @@ func main() {
 		}
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			jobs = append(jobs, strings.Fields(scanner.Text()))
+			todo = append(todo, parse(strings.Fields(scanner.Text())))
 		}
 		if err := scanner.Err(); err != nil {
 			td.Fatal(ctx, err)
 		}
 	}
 
-	// If we're a bot (or acting as if we are one), add its jobs.
+	// If we're a bot (or acting as if we are one), add its work too.
 	if *bot != "" {
-		jobs = append(jobs, botJobs(*bot, gms, tests)...)
+		parts := strings.Split(*bot, "-")
+		OS := parts[1]
+
+		// For no reason but as a demo, skip GM aarectmodes and test GoodHash.
+		filter := func(in []string, test func(string) bool) (out []string) {
+			for _, s := range in {
+				if test(s) {
+					out = append(out, s)
+				}
+			}
+			return
+		}
+		if OS == "Debian10" {
+			gms = filter(gms, func(s string) bool { return s != "aarectmodes" })
+			tests = filter(tests, func(s string) bool { return s != "GoodHash" })
+		}
+
+		// You could use parse() here if you like, but it's just as easy to make Work{} directly.
+		work := func(sources []string, flags string) {
+			todo = append(todo, Work{sources, strings.Fields(flags)})
+		}
+		work(tests, "-b cpu")
+		work(gms, "-b cpu")
+		work(gms, "-b cpu --skvm")
 	}
 
-	// We'll kick off workers to run FM with `-s <Sources...> <Flags...>` from parsed jobs.
+	// We'll try to spread our work roughly evenly over a number of worker goroutines.
+	// We can't combine Work with different Flags, but we can do the opposite,
+	// splitting a single Work into smaller Work units with the same Flags,
+	// even all the way down to a single Source.  So we'll optimistically run
+	// batches of Sources together, but if a batch fails or crashes, we'll
+	// split it up and re-run one at a time to find the precise failures.
 	var failures int32 = 0
 	wg := &sync.WaitGroup{}
-
-	worker := func(queue chan work) {
+	worker := func(queue chan Work) {
 		for w := range queue {
 			stdout := &bytes.Buffer{}
 			stderr := &bytes.Buffer{}
@@ -186,8 +186,6 @@ func main() {
 			cmd.Args = append(cmd.Args, w.Sources...)
 			cmd.Args = append(cmd.Args, w.Flags...)
 			if err := exec.Run(ctx, cmd); err != nil {
-				// We optimistically run batches of Sources, but if a batch fails,
-				// we'll re-run one at a time to find the precise failures.
 				if len(w.Sources) == 1 {
 					// If a source ran alone and failed, that's just a failure.
 					atomic.AddInt32(&failures, 1)
@@ -210,10 +208,10 @@ func main() {
 				} else {
 					// If a batch fails, retry each individually.
 					for _, source := range w.Sources {
-						// Requeuing work from the workers makes sizing the chan buffer tricky:
-						// we don't ever want this `queue <-` to block on a full buffer.
+						// Requeuing Work from the workers makes sizing the chan buffer tricky:
+						// we don't ever want this `queue <-` to block a worker on a full buffer.
 						wg.Add(1)
-						queue <- work{[]string{source}, w.Flags}
+						queue <- Work{[]string{source}, w.Flags}
 					}
 				}
 			}
@@ -222,15 +220,14 @@ func main() {
 	}
 
 	workers := runtime.NumCPU()
-	queue := make(chan work, 1<<20) // Huge buffer to avoid having to be smart about requeuing.
+	queue := make(chan Work, 1<<20) // Huge buffer to avoid having to be smart about requeuing.
 	for i := 0; i < workers; i++ {
 		go worker(queue)
 	}
 
-	for _, job := range jobs {
-		w := parse(job)
+	for _, w := range todo {
 		if len(w.Sources) == 0 {
-			continue // A blank/commented line in the job script.
+			continue // A blank or commented job line from -script or the command line.
 		}
 
 		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
@@ -243,7 +240,7 @@ func main() {
 		batch := (len(w.Sources) + workers - 1) / workers
 		util.ChunkIter(len(w.Sources), batch, func(start, end int) error {
 			wg.Add(1)
-			queue <- work{w.Sources[start:end], w.Flags}
+			queue <- Work{w.Sources[start:end], w.Flags}
 			return nil
 		})
 	}
