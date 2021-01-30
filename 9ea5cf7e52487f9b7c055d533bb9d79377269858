@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a71913d3_0230ff28",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-30T13:35:45Z",
+      "side": 1,
+      "message": "Does this handle things like\n\n   x \u003d (y \u003d 4), 5\n\n?",
+      "revId": "9ea5cf7e52487f9b7c055d533bb9d79377269858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
