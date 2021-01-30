@@ -1,5 +1,8 @@
 
-void main() {
+out vec4 sk_FragColor;
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+vec4 main() {
     float x = 1.0;
     float y = 2.0;
 
@@ -22,4 +25,5 @@ void main() {
     x = float((vec2(sqrt(1.0)) , 6));
     y = ((float(c) * float(d)) * float(e) , 6.0);
     z = int((vec2(sqrt(1.0)) , 6));
+    return (x == 6.0 && y == 6.0) && z == 6 ? colorGreen : colorRed;
 }

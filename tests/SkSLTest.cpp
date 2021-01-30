@@ -117,6 +117,7 @@ SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLCommaSideEffects,        "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
+SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 
 /*
 TODO(johnstiles): work around failures on ANGLE + Intel6000 + DX9 configuration and reland
@@ -143,4 +144,5 @@ SKSL_TEST(SkSLIntrinsicSignInt,        "intrinsics/SignInt.sksl")
 
 SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")
+SKSL_TEST(SkSLOperatorsES3,            "shared/OperatorsES3.sksl")
 */

@@ -1,0 +1,28 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    float x = 1, y = 2;
+    int z = 3;
+    x = x - x + y * x * x * (y - x);
+    y = x / y / x;
+    z = (z / 2 % 3 << 4) >> 2 << 1;
+    bool b = (x > 4) == x < 2 || 2 >= sqrt(2) && y <= x;
+    bool c = sqrt(2) > 2;
+    bool d = b ^^ c;
+    bool e = b && c;
+    bool f = b || c;
+    x += 12;
+    x -= 12;
+    x *= y /= 10;
+    z |= 0;
+    z &= -1;
+    z ^= 0;
+    z >>= 2;
+    z <<= 4;
+    z %= 5;
+    x = (float2(sqrt(1)), 6);
+    y = (float(b) * float(c) * float(d) * float(e) * float(f), 6.0);
+    z = (float2(sqrt(1)), 6);
+
+    return (x == 6 && y == 6 && z == 6) ? colorGreen : colorRed;
+}
