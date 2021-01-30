@@ -16,6 +16,24 @@
       "message": "Does this handle things like\n\n   x \u003d (y \u003d 4), 5\n\n?",
       "revId": "9ea5cf7e52487f9b7c055d533bb9d79377269858",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca9be232_60d52655",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-30T15:43:09Z",
+      "side": 1,
+      "message": "You\u0027re absolutely right; the side effects in the comma\u0027s left-side need to occur. I\u0027ll update the test to make sure we check this, and fix SkVMCodeGen.",
+      "parentUuid": "a71913d3_0230ff28",
+      "revId": "9ea5cf7e52487f9b7c055d533bb9d79377269858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
