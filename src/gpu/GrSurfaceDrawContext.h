@@ -709,11 +709,6 @@ private:
     void drawStrokedLine(const GrClip*, GrPaint&&, GrAA, const SkMatrix&, const SkPoint[2],
                          const SkStrokeRec&);
 
-    // If 'attemptShapeFallback' is true, and the original shape had been simplfied, this
-    // will re-route through drawShape() to see if we can avoid path rendering one more time.
-    void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
-                                    GrStyledShape&&, bool attemptShapeFallback = true);
-
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
@@ -729,6 +724,9 @@ private:
     int fNumStencilSamples = 0;
 
     GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
+
+    // Guards against infinite recursion when applying reductions in drawShape.
+    bool fHasAppliedDrawShapeReduction = false;
 
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
