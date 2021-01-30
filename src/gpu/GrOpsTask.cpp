@@ -451,6 +451,7 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
     if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return;
     }
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);
     for (const auto& chain : fOpChains) {
@@ -478,6 +479,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return;
     }
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     flushState->setSampledProxyArray(&fSampledProxies);
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);
