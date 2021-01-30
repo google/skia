@@ -1889,9 +1889,6 @@ static SkPaint clean_paint_for_lattice(const SkPaint* paint) {
     SkPaint cleaned;
     if (paint) {
         cleaned = *paint;
-        if (paint->getFilterQuality() > kLow_SkFilterQuality) {
-            cleaned.setFilterQuality(kLow_SkFilterQuality);
-        }
         cleaned.setMaskFilter(nullptr);
         cleaned.setAntiAlias(false);
     }
