@@ -86,8 +86,6 @@ public:
 
     GrDawnGpu* gpu() const { return fGpu; }
 
-    SkSL::Compiler* shaderCompiler() const override;
-
 private:
     GrDawnProgramBuilder(GrDawnGpu*,
                          GrRenderTarget*,
