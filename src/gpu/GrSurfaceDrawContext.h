@@ -706,10 +706,13 @@ private:
                           DrawQuad* quad,
                           const SkRect* subset = nullptr);
 
-    // If 'attemptShapeFallback' is true, and the original shape had been simplfied, this
-    // will re-route through drawShape() to see if we can avoid path rendering one more time.
-    void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
-                                    const GrStyledShape&, bool attemptShapeFallback = true);
+    void drawStrokedLine(const GrClip*, GrPaint&&, GrAA, const SkMatrix&, const SkPoint[2],
+                         const SkStrokeRec&);
+
+    // If 'canBypassPathRendering' is true, this might re-route through drawPath or other
+    // entrypoints.
+    void drawShapeInternal(const GrClip*, GrPaint&&, GrAA, const SkMatrix&, const GrStyledShape&,
+                           bool canBypassPathRenderer = false);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return

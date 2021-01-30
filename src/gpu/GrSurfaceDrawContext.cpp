@@ -719,8 +719,7 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
         }
     }
     assert_alive(paint);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrStyledShape(rect, *style));
+    this->drawShapeInternal(clip, std::move(paint), aa, viewMatrix, GrStyledShape(rect, *style));
 }
 
 void GrSurfaceDrawContext::drawQuadSet(const GrClip* clip,
@@ -1013,8 +1012,7 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
     }
 
     assert_alive(paint);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrStyledShape(rrect, style));
+    this->drawShapeInternal(clip, std::move(paint), aa, viewMatrix, GrStyledShape(rrect, style));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1341,7 +1339,7 @@ void GrSurfaceDrawContext::drawDRRect(const GrClip* clip,
     path.addRRect(inner);
     path.addRRect(outer);
     path.setFillType(SkPathFillType::kEvenOdd);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrStyledShape(path));
+    this->drawShapeInternal(clip, std::move(paint), aa, viewMatrix, GrStyledShape(path));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1438,7 +1436,7 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
     }
 
     assert_alive(paint);
-    this->drawShapeUsingPathRenderer(
+    this->drawShapeInternal(
             clip, std::move(paint), aa, viewMatrix,
             GrStyledShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style));
 }
@@ -1477,7 +1475,7 @@ void GrSurfaceDrawContext::drawArc(const GrClip* clip,
         }
         assert_alive(paint);
     }
-    this->drawShapeUsingPathRenderer(
+    this->drawShapeInternal(
             clip, std::move(paint), aa, viewMatrix,
             GrStyledShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
 }
@@ -1572,52 +1570,11 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "drawShape", fContext);
 
-    if (shape.isEmpty()) {
-        if (shape.inverseFilled()) {
-            this->drawPaint(clip, std::move(paint), viewMatrix);
-        }
-        return;
-    }
-
     AutoCheckFlush acf(this->drawingManager());
 
-    if (!shape.style().hasPathEffect()) {
-        GrAAType aaType = this->chooseAAType(aa);
-        SkRRect rrect;
-        // We can ignore the starting point and direction since there is no path effect.
-        bool inverted;
-        if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
-            if (rrect.isRect()) {
-                this->drawRect(clip, std::move(paint), aa, viewMatrix, rrect.rect(),
-                               &shape.style());
-                return;
-            } else if (rrect.isOval()) {
-                this->drawOval(clip, std::move(paint), aa, viewMatrix, rrect.rect(), shape.style());
-                return;
-            }
-            this->drawRRect(clip, std::move(paint), aa, viewMatrix, rrect, shape.style());
-            return;
-        } else if (GrAAType::kCoverage == aaType && shape.style().isSimpleFill() &&
-                   viewMatrix.rectStaysRect()) {
-            // TODO: the rectStaysRect restriction could be lifted if we were willing to apply
-            // the matrix to all the points individually rather than just to the rect
-            SkRect rects[2];
-            if (shape.asNestedRects(rects)) {
-                // Concave AA paths are expensive - try to avoid them for special cases
-                GrOp::Owner op = GrStrokeRectOp::MakeNested(
-                                fContext, std::move(paint), viewMatrix, rects);
-                if (op) {
-                    this->addDrawOp(clip, std::move(op));
-                }
-                // Returning here indicates that there is nothing to draw in this case.
-                return;
-            }
-        }
-    }
-
     // If we get here in drawShape(), we definitely need to use path rendering
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape,
-                                     /* attempt fallback */ false);
+    this->drawShapeInternal(clip, std::move(paint), aa, viewMatrix, shape,
+                            true/*canBypassPathRenderer*/);
 }
 
 static SkIRect get_clip_bounds(const GrSurfaceDrawContext* rtc, const GrClip* clip) {
@@ -1704,25 +1661,68 @@ SkBudgeted GrSurfaceDrawContext::isBudgeted() const {
     return this->asSurfaceProxy()->isBudgeted();
 }
 
-void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
-                                                      GrPaint&& paint,
-                                                      GrAA aa,
-                                                      const SkMatrix& viewMatrix,
-                                                      const GrStyledShape& originalShape,
-                                                      bool attemptShapeFallback) {
+void GrSurfaceDrawContext::drawStrokedLine(const GrClip* clip, GrPaint&& paint,
+                                           GrAA aa, const SkMatrix& viewMatrix,
+                                           const SkPoint points[2], const SkStrokeRec& stroke) {
+    ASSERT_SINGLE_OWNER
+
+    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
+    SkASSERT(stroke.getWidth() > 0);
+    // Adding support for round capping would require a
+    // GrSurfaceDrawContext::fillRRectWithLocalMatrix entry point
+    SkASSERT(SkPaint::kRound_Cap != stroke.getCap());
+
+    const SkScalar halfWidth = 0.5f * stroke.getWidth();
+    if (halfWidth <= 0.f) {
+        // Prevents underflow when stroke width is epsilon > 0 (so technically not a hairline).
+        // The CTM would need to have a scale near 1/epsilon in order for this to have meaningful
+        // coverage (although that would likely overflow elsewhere and cause the draw to drop due
+        // to non-finite bounds). At any other scale, this line is so thin, it's coverage is
+        // negligible, so discarding the draw is visually equivalent.
+        return;
+    }
+
+    SkVector parallel = points[1] - points[0];
+
+    if (!SkPoint::Normalize(&parallel)) {
+        parallel.fX = 1.0f;
+        parallel.fY = 0.0f;
+    }
+    parallel *= halfWidth;
+
+    SkVector ortho = { parallel.fY, -parallel.fX };
+    if (SkPaint::kButt_Cap == stroke.getCap()) {
+        // No extra extension for butt caps
+        parallel = {0.f, 0.f};
+    }
+    // Order is TL, TR, BR, BL where arbitrarily "down" is p0 to p1 and "right" is positive
+    SkPoint corners[4] = { points[0] - ortho - parallel,
+                           points[0] + ortho - parallel,
+                           points[1] + ortho + parallel,
+                           points[1] - ortho + parallel };
+
+    GrQuadAAFlags edgeAA = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+    this->fillQuadWithEdgeAA(clip, std::move(paint), aa, edgeAA, viewMatrix, corners, nullptr);
+}
+
+void GrSurfaceDrawContext::drawShapeInternal(const GrClip* clip,
+                                             GrPaint&& paint,
+                                             GrAA aa,
+                                             const SkMatrix& viewMatrix,
+                                             const GrStyledShape& originalShape,
+                                             bool canBypassPathRenderer) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "internalDrawPath", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "drawShapeInternal", fContext);
 
     if (!viewMatrix.isFinite() || !originalShape.bounds().isFinite()) {
         return;
     }
 
-    if (attemptShapeFallback && originalShape.simplified()) {
-        // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
-        // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
-        // we ought to try again instead of going right to path rendering.
-        this->drawShape(clip, std::move(paint), aa, viewMatrix, originalShape);
+    if (originalShape.isEmpty()) {
+        if (originalShape.inverseFilled()) {
+            this->drawPaint(clip, std::move(paint), viewMatrix);
+        }
         return;
     }
 
@@ -1741,7 +1741,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     canDrawArgs.fHasUserStencilSettings = false;
 
-    GrPathRenderer* pr;
+    GrPathRenderer* pr = nullptr;
     static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
     if (originalShape.isEmpty() && !originalShape.inverseFilled()) {
         return;
@@ -1749,42 +1749,107 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
 
     canDrawArgs.fAAType = aaType;
 
-    // Try a 1st time without applying any of the style to the geometry (and barring sw)
-    pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
-    SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
+    SkScalar styleScale = GrStyle::MatrixToScaleFactor(viewMatrix);
 
-    if (!pr && originalShape.style().pathEffect()) {
-        // It didn't work above, so try again with the path effect applied.
-        tempShape = originalShape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
-        if (tempShape.isEmpty()) {
-            return;
-        }
-        canDrawArgs.fShape = &tempShape;
+    // If the shape is stroked, give the tessellating stroker first priority before any attempt at
+    // simplifying it.
+    if (originalShape.style().applies()) {
         pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
     }
     if (!pr) {
-        if (canDrawArgs.fShape->style().applies()) {
-            tempShape = canDrawArgs.fShape->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
-                                                       styleScale);
+        tempShape = originalShape;
+        tempShape.simplifyStroke();
+        canDrawArgs.fShape = &tempShape;
+        // If we didn't have a path renderer that could draw the effect and/or the stroke directly
+        // (if any), then attempt shape reductions.
+        if (canBypassPathRenderer) {
+            if (tempShape.simplified()) {
+                GrAAType aaType = this->chooseAAType(aa);
+                SkRRect rrect;
+                // We can ignore the starting point and direction since there is no path effect.
+                bool inverted;
+                if (tempShape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
+                    if (rrect.isRect()) {
+                        this->drawRect(clip, std::move(paint), aa, viewMatrix, rrect.rect(),
+                                       &tempShape.style());
+                        return;
+                    } else if (rrect.isOval()) {
+                        this->drawOval(clip, std::move(paint), aa, viewMatrix, rrect.rect(),
+                                       tempShape.style());
+                        return;
+                    }
+                    this->drawRRect(clip, std::move(paint), aa, viewMatrix, rrect,
+                                    tempShape.style());
+                    return;
+                } else if (GrAAType::kCoverage == aaType && tempShape.style().isSimpleFill() &&
+                           viewMatrix.rectStaysRect()) {
+                    // TODO: the rectStaysRect restriction could be lifted if we were willing to
+                    // apply the matrix to all the points individually rather than just to the rect
+                    SkRect rects[2];
+                    if (tempShape.asNestedRects(rects)) {
+                        // Concave AA paths are expensive - try to avoid them for special cases
+                        GrOp::Owner op = GrStrokeRectOp::MakeNested(
+                                        fContext, std::move(paint), viewMatrix, rects);
+                        if (op) {
+                            this->addDrawOp(clip, std::move(op));
+                        }
+                        // Returning here indicates that there is nothing to draw in this case.
+                        return;
+                    }
+                }
+            }
+            const SkStrokeRec& stroke = tempShape.style().strokeRec();
+            if (stroke.getStyle() == SkStrokeRec::kStroke_Style &&
+                stroke.getCap() != SkPaint::kRound_Cap) {
+                SkPoint points[2];
+                SkPath path;
+                tempShape.asPath(&path);
+                if (path.isLine(points)) {
+                    // The stroked line is an oriented rectangle, which looks the same or better (if
+                    // perspective) compared to path rendering. The exception is subpixel/hairline
+                    // lines that are non-AA or MSAA, in which case the default path renderer
+                    // achieves higher quality.
+                    // FIXME(michaelludwig): If the fill rect op could take an external coverage, or
+                    // checks for and outsets thin non-aa rects to 1px, the path renderer could be
+                    // skipped.
+                    this->drawStrokedLine(clip, std::move(paint), aa, viewMatrix, points,
+                                          tempShape.style().strokeRec());
+                    return;
+                }
+            }
+        }
+        if (tempShape.style().pathEffect()) {
+            // It didn't work above, so apply the path effect if any.
+            tempShape = tempShape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
             if (tempShape.isEmpty()) {
                 return;
             }
             canDrawArgs.fShape = &tempShape;
-            // This time, allow SW renderer
-            pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
-        } else {
-            pr = this->drawingManager()->getSoftwarePathRenderer();
-#if GR_PATH_RENDERER_SPEW
-            SkDebugf("falling back to: %s\n", pr->name());
-#endif
+            pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
         }
-    }
-
-    if (!pr) {
-#ifdef SK_DEBUG
-        SkDebugf("Unable to find path renderer compatible with path.\n");
+        if (!pr) {
+            if (canDrawArgs.fShape->style().applies()) {
+                tempShape = canDrawArgs.fShape->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec,
+                                                           styleScale);
+                if (tempShape.isEmpty()) {
+                    return;
+                }
+                canDrawArgs.fShape = &tempShape;
+                // This time, allow SW renderer
+                pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
+            } else {
+                pr = this->drawingManager()->getSoftwarePathRenderer();
+#if GR_PATH_RENDERER_SPEW
+                SkDebugf("falling back to: %s\n", pr->name());
 #endif
-        return;
+            }
+        }
+        if (!pr) {
+#ifdef SK_DEBUG
+            SkDebugf("Unable to find path renderer compatible with path.\n");
+#endif
+            return;
+        }
     }
 
     GrPathRenderer::DrawPathArgs args{this->drawingManager()->getContext(),
