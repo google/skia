@@ -187,7 +187,9 @@ public:
             matrix.postRotate(SkIntToScalar(45), SK_Scalar1, SK_Scalar1);
 
             this->addFilter("matrix",
-                    SkImageFilters::MatrixTransform(matrix, kLow_SkFilterQuality, input));
+                    SkImageFilters::MatrixTransform(matrix,
+                                                    SkSamplingOptions(SkFilterMode::kLinear),
+                                                    input));
         }
         {
             sk_sp<SkImageFilter> blur(SkImageFilters::Blur(kBlurSigma, kBlurSigma, input));
@@ -818,8 +820,8 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
 
     sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorWHITE, SkBlendMode::kSrc));
     sk_sp<SkImageFilter> cfif(SkImageFilters::ColorFilter(std::move(cf), nullptr));
-    sk_sp<SkImageFilter> imageFilter(SkImageFilter::MakeMatrixFilter(matrix,
-                                                                     kNone_SkFilterQuality,
+    sk_sp<SkImageFilter> imageFilter(SkImageFilters::MatrixTransform(matrix,
+                                                                     SkSamplingOptions(),
                                                                      std::move(cfif)));
 
     SkPaint paint;
@@ -1416,7 +1418,7 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     matrix.setScale(SkIntToScalar(2), SkIntToScalar(2));
     matrix.postTranslate(SkIntToScalar(-20), SkIntToScalar(-20));
     sk_sp<SkImageFilter> matrixFilter(
-            SkImageFilter::MakeMatrixFilter(matrix, kLow_SkFilterQuality, nullptr));
+        SkImageFilters::MatrixTransform(matrix, SkSamplingOptions(SkFilterMode::kLinear), nullptr));
 
     // Test that saveLayer() with a filter nested inside another saveLayer() applies the
     // correct offset to the filter matrix.
