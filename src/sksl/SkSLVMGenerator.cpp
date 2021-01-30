@@ -551,6 +551,11 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             skvm::I32 rVal = i32(this->writeExpression(right));
             return lVal | rVal;
         }
+        case Token::Kind::TK_COMMA:
+            // We write the left side of the expression to preserve its side effects, even though we
+            // immediately discard the result.
+            this->writeExpression(left);
+            return this->writeExpression(right);
         default:
             break;
     }
@@ -1432,7 +1437,9 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
 }
 
 Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
-    SkASSERT(rhs.slots() == slot_count(lhs.type()));
+    SkASSERTF(rhs.slots() == slot_count(lhs.type()),
+              "lhs=%s (%s)\nrhs=%d slot",
+              lhs.type().description().c_str(), lhs.description().c_str(), rhs.slots());
 
     // We need to figure out the collection of slots that we're storing into. The l-value (lhs)
     // is always a VariableReference, possibly wrapped by one or more Swizzle, FieldAccess, or

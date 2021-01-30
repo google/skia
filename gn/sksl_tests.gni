@@ -299,6 +299,7 @@ sksl_shared_tests = [
   "/sksl/shared/Caps.sksl",
   "/sksl/shared/CastsRoundTowardZero.sksl",
   "/sksl/shared/Clockwise.sksl",
+  "/sksl/shared/CommaSideEffects.sksl",
   "/sksl/shared/ComplexDelete.sksl",
   "/sksl/shared/ConstArray.sksl",
   "/sksl/shared/ConstVariableComparison.sksl",

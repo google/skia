@@ -1,0 +1,25 @@
+/*#pragma settings NoInline*/
+
+uniform half4 colorRed, colorGreen, colorWhite, colorBlack;
+
+void setToColorBlack(out half4 x) {
+    x = colorBlack;
+}
+
+half4 main() {
+    half4 a, b, c, d;
+
+    (b = colorRed), (c = colorGreen);
+    a = (setToColorBlack(d), colorWhite);
+
+    // These uniforms only contain 1s and 0s so these multiplies should be no-ops.
+    a *= a;
+    b *= b;
+    c *= c;
+    d *= d;
+
+    return (a == colorWhite &&
+            b == colorRed &&
+            c == colorGreen &&
+            d == colorBlack) ? colorGreen : colorRed;
+}
