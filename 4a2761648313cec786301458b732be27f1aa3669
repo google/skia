@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d5aeaa5_9fe6ed73",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-01-30T16:12:03Z",
+      "side": 1,
+      "message": "Too cute to write this as\n\n    return this-\u003ewriteExpression(left),\n           this-\u003ewriteExpression(right);\n\n?  :D",
+      "range": {
+        "startLine": 557,
+        "startChar": 12,
+        "endLine": 558,
+        "endChar": 48
+      },
+      "revId": "4a2761648313cec786301458b732be27f1aa3669",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
