@@ -1708,9 +1708,34 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
         return;
     }
 
-    shape.simplifyStroke();
+    SkIRect clipConservativeBounds = get_clip_bounds(this, clip);
 
-    if (!fHasAppliedDrawShapeReduction) {
+    GrAAType aaType = this->chooseAAType(aa);
+
+    GrPathRenderer::CanDrawPathArgs canDrawArgs;
+    canDrawArgs.fCaps = this->caps();
+    canDrawArgs.fProxy = this->asRenderTargetProxy();
+    canDrawArgs.fViewMatrix = &viewMatrix;
+    canDrawArgs.fShape = &shape;
+    canDrawArgs.fPaint = &paint;
+    canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
+    canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
+    canDrawArgs.fHasUserStencilSettings = false;
+    canDrawArgs.fAAType = aaType;
+
+    GrPathRenderer* pr = nullptr;
+    static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
+
+    if (shape.style().applies()) {
+        // Give path renderers with dedicated stroke handling (e.g., tessellating) a chance to claim
+        // this stroke before we attempt to simplify it.
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+        if (!pr) {
+            shape.simplifyStroke();
+        }
+    }
+
+    if (!pr && !fHasAppliedDrawShapeReduction) {
         class AutoRestoreFlag {
         public:
             AutoRestoreFlag(bool* flag) : fFlag(flag) { *fFlag = true; }
@@ -1783,32 +1808,11 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
         }
     }
 
-    SkIRect clipConservativeBounds = get_clip_bounds(this, clip);
-
-    GrAAType aaType = this->chooseAAType(aa);
-
-    GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = this->caps();
-    canDrawArgs.fProxy = this->asRenderTargetProxy();
-    canDrawArgs.fViewMatrix = &viewMatrix;
-    canDrawArgs.fShape = &shape;
-    canDrawArgs.fPaint = &paint;
-    canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
-    canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
-    canDrawArgs.fHasUserStencilSettings = false;
-
-    GrPathRenderer* pr;
-    static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
-    if (shape.isEmpty() && !shape.inverseFilled()) {
-        return;
-    }
-
-    canDrawArgs.fAAType = aaType;
-
-    // Try a 1st time without applying any of the style to the geometry (and barring sw)
-    pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
     SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
-
+    if (!pr) {
+        // Try a 1st time without applying any of the style to the geometry (and barring sw)
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+    }
     if (!pr && shape.style().pathEffect()) {
         // It didn't work above, so try again with the path effect applied.
         shape = shape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
