@@ -22,6 +22,30 @@
       },
       "revId": "4a2761648313cec786301458b732be27f1aa3669",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f6f2a99_f3de6cd6",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-01-30T16:14:05Z",
+      "side": 1,
+      "message": "Good idea, but unfortunately it\u0027s triggering a warning:\n\n\n../../src/sksl/SkSLVMGenerator.cpp:557:47: warning: possible misuse of comma operator here [-Wcomma]\n            return this-\u003ewriteExpression(left),\n                                              ^\n../../src/sksl/SkSLVMGenerator.cpp:557:20: note: cast expression to void to silence warning\n            return this-\u003ewriteExpression(left),\n                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~\n                   static_cast\u003cvoid\u003e(         )",
+      "parentUuid": "2d5aeaa5_9fe6ed73",
+      "range": {
+        "startLine": 557,
+        "startChar": 12,
+        "endLine": 558,
+        "endChar": 48
+      },
+      "revId": "4a2761648313cec786301458b732be27f1aa3669",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
