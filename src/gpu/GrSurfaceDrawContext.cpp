@@ -17,6 +17,7 @@
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkDrawProcs.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkLatticeIter.h"
@@ -1582,10 +1583,28 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
 
     if (!shape.style().hasPathEffect()) {
         GrAAType aaType = this->chooseAAType(aa);
+        SkPoint linePts[2];
         SkRRect rrect;
         // We can ignore the starting point and direction since there is no path effect.
         bool inverted;
-        if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
+        if (shape.asLine(linePts, &inverted) && !inverted &&
+            shape.style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style &&
+            shape.style().strokeRec().getCap() != SkPaint::kRound_Cap) {
+            // The stroked line is an oriented rectangle, which looks the same or better (if
+            // perspective) compared to path rendering. The exception is subpixel/hairline lines
+            // that are non-AA or MSAA, in which case the default path renderer achieves higher
+            // quality.
+            // FIXME(michaelludwig): If the fill rect op could take an external coverage, or checks
+            // for and outsets thin non-aa rects to 1px, the path renderer could be skipped.
+            SkScalar coverage;
+            if (aaType == GrAAType::kCoverage ||
+                !SkDrawTreatAAStrokeAsHairline(shape.style().strokeRec().getWidth(), viewMatrix,
+                                               &coverage)) {
+                this->drawStrokedLine(clip, std::move(paint), aa, viewMatrix, linePts,
+                                      shape.style().strokeRec());
+                return;
+            }
+        } else if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
             if (rrect.isRect()) {
                 this->drawRect(clip, std::move(paint), aa, viewMatrix, rrect.rect(),
                                &shape.style());
@@ -1701,6 +1720,50 @@ SkBudgeted GrSurfaceDrawContext::isBudgeted() const {
     SkDEBUGCODE(this->validate();)
 
     return this->asSurfaceProxy()->isBudgeted();
+}
+
+void GrSurfaceDrawContext::drawStrokedLine(const GrClip* clip, GrPaint&& paint,
+                                           GrAA aa, const SkMatrix& viewMatrix,
+                                           const SkPoint points[2], const SkStrokeRec& stroke) {
+    ASSERT_SINGLE_OWNER
+
+    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
+    SkASSERT(stroke.getWidth() > 0);
+    // Adding support for round capping would require a
+    // GrSurfaceDrawContext::fillRRectWithLocalMatrix entry point
+    SkASSERT(SkPaint::kRound_Cap != stroke.getCap());
+
+    const SkScalar halfWidth = 0.5f * stroke.getWidth();
+    if (halfWidth <= 0.f) {
+        // Prevents underflow when stroke width is epsilon > 0 (so technically not a hairline).
+        // The CTM would need to have a scale near 1/epsilon in order for this to have meaningful
+        // coverage (although that would likely overflow elsewhere and cause the draw to drop due
+        // to non-finite bounds). At any other scale, this line is so thin, it's coverage is
+        // negligible, so discarding the draw is visually equivalent.
+        return;
+    }
+
+    SkVector parallel = points[1] - points[0];
+
+    if (!SkPoint::Normalize(&parallel)) {
+        parallel.fX = 1.0f;
+        parallel.fY = 0.0f;
+    }
+    parallel *= halfWidth;
+
+    SkVector ortho = { parallel.fY, -parallel.fX };
+    if (SkPaint::kButt_Cap == stroke.getCap()) {
+        // No extra extension for butt caps
+        parallel = {0.f, 0.f};
+    }
+    // Order is TL, TR, BR, BL where arbitrarily "down" is p0 to p1 and "right" is positive
+    SkPoint corners[4] = { points[0] - ortho - parallel,
+                           points[0] + ortho - parallel,
+                           points[1] + ortho + parallel,
+                           points[1] - ortho + parallel };
+
+    GrQuadAAFlags edgeAA = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+    this->fillQuadWithEdgeAA(clip, std::move(paint), aa, edgeAA, viewMatrix, corners, nullptr);
 }
 
 void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,

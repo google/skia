@@ -219,8 +219,6 @@ private:
                          SkFilterMode,
                          const SkPaint&);
 
-    void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
-
     static std::unique_ptr<GrSurfaceDrawContext> MakeSurfaceDrawContext(GrRecordingContext*,
                                                                         SkBudgeted,
                                                                         const SkImageInfo&,
