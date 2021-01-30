@@ -111,7 +111,7 @@ protected:
             SkImageFilters::Dilate(2, 2, checkerboard),
             SkImageFilters::Erode(2, 2, checkerboard),
             SkImageFilters::Offset(SkIntToScalar(-16), SkIntToScalar(32), nullptr),
-            SkImageFilters::MatrixTransform(resizeMatrix, kNone_SkFilterQuality, nullptr),
+            SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
             SkImageFilters::PointLitDiffuse(pointLocation, SK_ColorWHITE, SK_Scalar1,
                                             SkIntToScalar(2), checkerboard),
 
