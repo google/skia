@@ -214,7 +214,7 @@ static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext*
     // maskPaint.
     SkMatrix viewMatrix = origViewMatrix;
     viewMatrix.postTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
-    rtContext->drawShape(&clip, std::move(maskPaint), GrAA::kYes, viewMatrix, shape);
+    rtContext->drawShape(&clip, std::move(maskPaint), GrAA::kYes, viewMatrix, GrStyledShape(shape));
     return rtContext;
 }
 
@@ -572,6 +572,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                     viewMatrix, mf, shape);
     } else {
         GrAA aa = GrAA(paint.isAntiAlias());
-        surfaceDrawContext->drawShape(clip, std::move(grPaint), aa, viewMatrix, shape);
+        surfaceDrawContext->drawShape(clip, std::move(grPaint), aa, viewMatrix,
+                                      GrStyledShape(shape));
     }
 }
