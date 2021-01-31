@@ -3702,6 +3702,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // base level, max level, etc.). Currently we just set the min filter level every time we
         // bind a texture as the workaround.
         fMustSetAnyTexParameterToEnableMipmapping = true;
+        fWritePixelsRowBytesSupport = false;
     }
 #endif
 
