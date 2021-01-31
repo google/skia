@@ -87,7 +87,7 @@ bool GrDrawingManager::flush(
         const GrFlushInfo& info,
         const GrBackendSurfaceMutableState* newState) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
-
+SkDebugf("GrDM::flush\n");
     if (fFlushing || this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -154,7 +154,7 @@ bool GrDrawingManager::flush(
     GrOpFlushState flushState(gpu, resourceProvider, &fTokenTracker, fCpuBufferCache);
 
     GrOnFlushResourceProvider onFlushProvider(this);
-
+    SkDebugf("GrDM::flush start prep\n");
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
         fFlushingRenderTaskIDs.reserve_back(fDAG.count());
@@ -205,7 +205,9 @@ bool GrDrawingManager::flush(
     int startIndex, stopIndex;
     bool flushed = false;
 
+    SkDebugf("GrDM::flush exec\n");
     {
+
         GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, fDAG.count()));
         for (int i = 0; i < fDAG.count(); ++i) {
             if (fDAG[i]) {
@@ -241,6 +243,7 @@ bool GrDrawingManager::flush(
             }
         }
     }
+    SkDebugf("GrDM::flush end exec\n");
 
 #ifdef SK_DEBUG
     for (const auto& task : fDAG) {
@@ -262,6 +265,7 @@ bool GrDrawingManager::flush(
 #endif
 
     gpu->executeFlushInfo(proxies, access, info, newState);
+    SkDebugf("GrDM::flush post executeFlushInfo\n");
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
@@ -273,11 +277,13 @@ bool GrDrawingManager::flush(
         flushed = true;
     }
     if (flushed) {
+        SkDebugf("GrDM::flush purge as needed\n");
         resourceCache->purgeAsNeeded();
     }
     fFlushingRenderTaskIDs.reset();
     fFlushing = false;
 
+    SkDebugf("GrDM::flush done\n");
     return true;
 }
 

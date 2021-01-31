@@ -286,6 +286,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     }
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
     fMaxTextureSize = fMaxRenderTargetSize;
+    SkDebugf("max rt: %d, max pref rt %d, max tex %d\n", fMaxRenderTargetSize, fMaxPreferredRenderTargetSize, fMaxTextureSize);
 
     fMaxPushConstantsSize = 4*1024;
 

@@ -33,6 +33,8 @@
 #include "src/gpu/SkGr.h"
 #include "src/image/SkImage_Base.h"
 
+#include "include/core/SkPixelRef.h"
+
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fImageContext->priv().singleOwner())
 
 GrProxyProvider::GrProxyProvider(GrImageContext* imageContext) : fImageContext(imageContext) {}
@@ -322,6 +324,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [bitmap](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
+                SkDebugf("Fire proxy id:%d\n!", bitmap.pixelRef()->getGenerationID());
                 SkASSERT(desc.fMipmapped == GrMipmapped::kNo);
                 GrMipLevel mipLevel = { bitmap.getPixels(), bitmap.rowBytes() };
                 auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
