@@ -9,16 +9,13 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
 
 	"go.skia.org/infra/go/exec"
-	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_driver/go/td"
 )
 
@@ -195,38 +192,21 @@ func main() {
 		work(gms, "-b cpu --skvm")
 	}
 
-	// We'll try to spread our work roughly evenly over a number of worker goroutines.
-	// We can't combine Work with different Flags, but we can do the opposite,
-	// splitting a single Work into smaller Work units with the same Flags,
-	// even all the way down to a single Source.  So we'll optimistically run
-	// batches of Sources together, but if a batch fails or crashes, we'll
-	// split it up and re-run one at a time to find the precise failures.
 	var failures int32 = 0
 	wg := &sync.WaitGroup{}
-	worker := func(queue chan Work) {
-		for w := range queue {
-			stdout := &bytes.Buffer{}
-			stderr := &bytes.Buffer{}
-			cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
-			cmd.Args = append(cmd.Args, "-i", *resources)
-			cmd.Args = append(cmd.Args, "-s")
-			cmd.Args = append(cmd.Args, w.Sources...)
-			cmd.Args = append(cmd.Args, w.Flags...)
-			// TODO: when len(w.Sources) == 1, add -w ... to cmd.Args to write a .png for upload.
 
-			// On cmd failure or unknown hash, we'll split the Work batch up into individual reruns.
-			requeue := func() {
-				// Requeuing Work from the workers is what makes sizing the chan buffer tricky:
-				// we don't ever want these `queue <-` to block a worker because of a full buffer.
-				for _, source := range w.Sources {
-					wg.Add(1)
-					queue <- Work{[]string{source}, w.Flags}
-				}
-			}
+	for _, w := range todo {
+		wg.Add(len(w.Sources))
+		for _, s := range w.Sources {
+			go func(source string, flags []string) {
+				defer wg.Done()
 
-			if err := exec.Run(ctx, cmd); err != nil {
-				if len(w.Sources) == 1 {
-					// If a source ran alone and failed, that's just a failure.
+				stdout := &bytes.Buffer{}
+				stderr := &bytes.Buffer{}
+				cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
+				cmd.Args = append([]string{"-i", *resources, "-s", source}, flags...)
+
+				if err := exec.Run(ctx, cmd); err != nil {
 					atomic.AddInt32(&failures, 1)
 					td.FailStep(ctx, err)
 					if *local {
@@ -238,77 +218,40 @@ func main() {
 						if err := scanner.Err(); err != nil {
 							td.Fatal(ctx, err)
 						}
-
 						fmt.Fprintf(actualStderr, "%v %v #failed:\n\t%v\n",
 							cmd.Name,
 							strings.Join(cmd.Args, " "),
 							strings.Join(lines, "\n\t"))
 					}
-				} else {
-					// If a batch of sources failed, break up the batch to isolate the failures.
-					requeue()
+					return
 				}
-			} else {
-				// FM completed successfully.  Scan stdout for any unknown hash.
-				unknown := func() string {
-					if *bot != "" { // The map known[] is only filled when *bot != "".
-						scanner := bufio.NewScanner(stdout)
-						for scanner.Scan() {
-							if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
-								md5 := parts[1]
-								if !known[md5] {
-									return md5
-								}
+
+				// FM ran successfully.  See if it produced an unknown hash.
+				unknown := ""
+				if *bot != "" { // The map known[] is only filled when *bot != "".
+					scanner := bufio.NewScanner(stdout)
+					for scanner.Scan() {
+						if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
+							md5 := parts[1]
+							if !known[md5] {
+								unknown = md5
+								break
 							}
 						}
-						if err := scanner.Err(); err != nil {
-							td.Fatal(ctx, err)
-						}
 					}
-					return ""
-				}()
-
-				if unknown != "" {
-					if len(w.Sources) == 1 {
-						// TODO upload .png with goldctl.
-						fmt.Fprintf(actualStdout, "%v %v #%v\n",
-							cmd.Name,
-							strings.Join(cmd.Args, " "),
-							unknown)
-					} else {
-						// Split the batch to run individually and TODO, write .pngs.
-						requeue()
+					if err := scanner.Err(); err != nil {
+						td.Fatal(ctx, err)
 					}
 				}
-			}
-			wg.Done()
+				if unknown != "" {
+					// TODO upload .png with goldctl.
+					fmt.Fprintf(actualStdout, "%v %v #%v\n",
+						cmd.Name,
+						strings.Join(cmd.Args, " "),
+						unknown)
+				}
+			}(s, w.Flags)
 		}
-	}
-
-	workers := runtime.NumCPU()
-	queue := make(chan Work, 1<<20) // Huge buffer to avoid having to be smart about requeuing.
-	for i := 0; i < workers; i++ {
-		go worker(queue)
-	}
-
-	for _, w := range todo {
-		if len(w.Sources) == 0 {
-			continue // A blank or commented job line from -script or the command line.
-		}
-
-		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
-		// (Intentionally not rand.Seed()'d to stay deterministically reproducible.)
-		rand.Shuffle(len(w.Sources), func(i, j int) {
-			w.Sources[i], w.Sources[j] = w.Sources[j], w.Sources[i]
-		})
-
-		// Round batch sizes up so there's at least one source per batch.
-		batch := (len(w.Sources) + workers - 1) / workers
-		util.ChunkIter(len(w.Sources), batch, func(start, end int) error {
-			wg.Add(1)
-			queue <- Work{w.Sources[start:end], w.Flags}
-			return nil
-		})
 	}
 	wg.Wait()
 
