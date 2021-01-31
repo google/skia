@@ -47,7 +47,7 @@ SkM44& SkM44::setConcat(const SkM44& a, const SkM44& b) {
     sk4f c2 = sk4f::Load(a.fMat +  8);
     sk4f c3 = sk4f::Load(a.fMat + 12);
 
-    auto compute = [&](sk4f r) {
+    auto compute = [&](const sk4f& r) {
         return c0*r[0] + (c1*r[1] + (c2*r[2] + c3*r[3]));
     };
 

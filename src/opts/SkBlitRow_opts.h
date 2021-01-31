@@ -226,7 +226,7 @@ inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, Sk
     using U16 = skvx::Vec<4*N, uint16_t>;
     using U8  = skvx::Vec<4*N, uint8_t>;
 
-    auto kernel = [color](U32 src) {
+    auto kernel = [color](const U32& src) {
         unsigned invA = 255 - SkGetPackedA32(color);
         invA += invA >> 7;
         SkASSERT(0 < invA && invA < 256);  // We handle alpha == 0 or alpha == 255 specially.

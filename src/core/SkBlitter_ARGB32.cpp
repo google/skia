@@ -1161,9 +1161,9 @@ using U8x4 = skvx::Vec<16, uint8_t>;
 using U8   = skvx::Vec< 4, uint8_t>;
 
 static void drive(SkPMColor* dst, const SkPMColor* src, const uint8_t* cov, int n,
-                  U8x4 (*kernel)(U8x4,U8x4,U8x4)) {
+                  U8x4 (*kernel)(const U8x4&,const U8x4&,const U8x4&)) {
 
-    auto apply = [kernel](U32 dst, U32 src, U8 cov) -> U32 {
+    auto apply = [kernel](const U32& dst, const U32& src, U8 cov) -> U32 {
         U8x4 cov_splat = skvx::shuffle<0,0,0,0, 1,1,1,1, 2,2,2,2, 3,3,3,3>(cov);
         return skvx::bit_pun<U32>(kernel(skvx::bit_pun<U8x4>(dst),
                                          skvx::bit_pun<U8x4>(src),
@@ -1186,7 +1186,7 @@ static void drive(SkPMColor* dst, const SkPMColor* src, const uint8_t* cov, int 
 
 static void blend_row_A8(SkPMColor* dst, const void* mask, const SkPMColor* src, int n) {
     auto cov = (const uint8_t*)mask;
-    drive(dst, src, cov, n, [](U8x4 d, U8x4 s, U8x4 c) {
+    drive(dst, src, cov, n, [](const U8x4& d, const U8x4& s, const U8x4& c) {
         U8x4 s_aa  = skvx::approx_scale(s, c),
              alpha = skvx::shuffle<3,3,3,3, 7,7,7,7, 11,11,11,11, 15,15,15,15>(s_aa);
         return s_aa + skvx::approx_scale(d, 255 - alpha);
@@ -1195,7 +1195,7 @@ static void blend_row_A8(SkPMColor* dst, const void* mask, const SkPMColor* src,
 
 static void blend_row_A8_opaque(SkPMColor* dst, const void* mask, const SkPMColor* src, int n) {
     auto cov = (const uint8_t*)mask;
-    drive(dst, src, cov, n, [](U8x4 d, U8x4 s, U8x4 c) {
+    drive(dst, src, cov, n, [](const U8x4& d, const U8x4& s, const U8x4& c) {
         return skvx::div255( skvx::cast<uint16_t>(s) * skvx::cast<uint16_t>(  c  )
                            + skvx::cast<uint16_t>(d) * skvx::cast<uint16_t>(255-c));
     });

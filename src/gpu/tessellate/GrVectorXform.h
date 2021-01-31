@@ -48,7 +48,7 @@ public:
         }
         SkUNREACHABLE;
     }
-    float4 operator()(float4 vectors) const {
+    float4 operator()(const float4& vectors) const {
         switch (fType) {
             case Type::kIdentity:
                 return vectors;

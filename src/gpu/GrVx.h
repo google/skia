@@ -48,7 +48,7 @@ static inline float cross(float2 a, float2 b) {
 // Returns f*m + a. The actual implementation may or may not be fused, depending on hardware
 // support. We call this method "fast_madd" to draw attention to the fact that the operation may
 // give different results on different platforms.
-template<int N> vec<N> inline fast_madd(vec<N> f, vec<N> m, vec<N> a) {
+template<int N> vec<N> inline fast_madd(const vec<N>& f, const vec<N>& m, const vec<N>& a) {
 #if FP_FAST_FMAF
     return skvx::fma(f,m,a);
 #else
