@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07fb541a_699d5662",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-01-31T00:46:27Z",
+      "side": 1,
+      "message": "Skottie and (relative-sized) SVG slides now render 2x larger and get clipped out.  I\u0027m guessing it\u0027s because they use the window width/hight passed to load() \u0026 resize() to scale to full window size.\n\nAre slides supposed to compensate for the extra scale or is viewer supposed to scale down w/h before passing to slides?\n\n(ie what units are winWidth/winHeight in?)",
+      "revId": "fa8b5e45028c914cf2b1b6edeff41bb960dbe8b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
