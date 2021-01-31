@@ -3692,7 +3692,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
 #ifndef SK_BUILD_FOR_IOS
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+    if (ctxInfo.renderer() == kPowerVRRogue_GrGLRenderer) {
         // We saw this bug on a TecnoSpark 3 Pro with a PowerVR GE8300.
         // GL_VERSION: "OpenGL ES 3.2 build 1.10@51309121"
         // Possibly this could be more limited by driver version or HW generation.
@@ -3702,6 +3702,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // base level, max level, etc.). Currently we just set the min filter level every time we
         // bind a texture as the workaround.
         fMustSetAnyTexParameterToEnableMipmapping = true;
+        // ColorTypeBackendAllocationTest failed for kAlpha_8 and kGray_8 when using
+        // GL_UNPACK_ROW_LENGTH. Perhaps this could be a more limited workaround by applying
+        // only to single channel 8 bit unorm formats but we only have a monolithic query for this
+        // support at present.
+        fWritePixelsRowBytesSupport = false;
     }
 #endif
 
