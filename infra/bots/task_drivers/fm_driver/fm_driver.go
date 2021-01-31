@@ -106,99 +106,7 @@ func main() {
 		}()
 	}
 
-	type Work struct {
-		Sources []string // Passed to FM -s: names of gms/tests, paths to image files, .skps, etc.
-		Flags   []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
-	}
-
-	// Parse a job like "gms b=cpu ct=8888" into Work{Sources=<all GMs>, Flags={-b,cpu,--ct,8888}}.
-	parse := func(job []string) (w Work) {
-		for _, token := range job {
-			// Everything after # is a comment.
-			if strings.HasPrefix(token, "#") {
-				break
-			}
-
-			// Treat "gm" or "gms" as a shortcut for all known GMs.
-			if token == "gm" || token == "gms" {
-				w.Sources = append(w.Sources, gms...)
-				continue
-			}
-			// Same for tests.
-			if token == "test" || token == "tests" {
-				w.Sources = append(w.Sources, tests...)
-				continue
-			}
-
-			// Is this a flag to pass through to FM?
-			if parts := strings.Split(token, "="); len(parts) == 2 {
-				f := "-"
-				if len(parts[0]) > 1 {
-					f += "-"
-				}
-				f += parts[0]
-
-				w.Flags = append(w.Flags, f, parts[1])
-				continue
-			}
-
-			// Anything else must be the name of a source for FM to run.
-			w.Sources = append(w.Sources, token)
-		}
-		return
-	}
-
-	// Parse one job from the command line, handy for ad hoc local runs.
-	todo := []Work{parse(flag.Args()[1:])}
-
-	// Any number of jobs can come from -script.
-	if *script != "" {
-		file := os.Stdin
-		if *script != "-" {
-			file, err := os.Open(*script)
-			if err != nil {
-				td.Fatal(ctx, err)
-			}
-			defer file.Close()
-		}
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			todo = append(todo, parse(strings.Fields(scanner.Text())))
-		}
-		if err := scanner.Err(); err != nil {
-			td.Fatal(ctx, err)
-		}
-	}
-
-	// If we're a bot (or acting as if we are one), add its work too.
-	if *bot != "" {
-		parts := strings.Split(*bot, "-")
-		OS := parts[1]
-
-		// For no reason but as a demo, skip GM aarectmodes and test GoodHash.
-		filter := func(in []string, test func(string) bool) (out []string) {
-			for _, s := range in {
-				if test(s) {
-					out = append(out, s)
-				}
-			}
-			return
-		}
-		if OS == "Debian10" {
-			gms = filter(gms, func(s string) bool { return s != "aarectmodes" })
-			tests = filter(tests, func(s string) bool { return s != "GoodHash" })
-		}
-
-		// You could use parse() here if you like, but it's just as easy to make Work{} directly.
-		work := func(sources []string, flags string) {
-			todo = append(todo, Work{sources, strings.Fields(flags)})
-		}
-		work(tests, "-b cpu")
-		work(gms, "-b cpu")
-		work(gms, "-b cpu --skvm")
-	}
-
-	// We'll kick off worker goroutines to run batches of Work, and on failure,
+	// We'll kick off worker goroutines to run batches of work, and on failure,
 	// crash, or unknown hash, we'll split that batch into individual reruns to
 	// isolate those unusual results.
 	var failures int32 = 0
@@ -237,11 +145,14 @@ func main() {
 			return ""
 		}()
 
-		// If a batch failed or produced an unknown hash, kick off individual runs to isolate.
+		// If a batch failed or produced an unknown hash, isolate with individual runs.
 		if len(sources) > 1 && (err != nil || unknownHash != "") {
+			wg.Add(len(sources))
 			for i := range sources {
-				wg.Add(1)
-				/*go*/ worker(sources[i:i+1], flags)
+				// We could kick off independent goroutines here for more parallelism,
+				// but the bots are already parallel enough that they'd exhaust their
+				// process limits, and I haven't seen any impact on local runs.
+				worker(sources[i:i+1], flags)
 			}
 			return
 		}
@@ -276,29 +187,114 @@ func main() {
 		}
 	}
 
-	for _, w := range todo {
-		if len(w.Sources) == 0 {
-			continue // A blank or commented job line from -script or the command line.
+	// Start workers that run `FM -s sources... flags...` in small source batches for parallelism.
+	kickoff := func(sources, flags []string) {
+		if len(sources) == 0 {
+			return // A blank or commented job line from -script or the command line.
 		}
 
 		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
 		// (Intentionally not rand.Seed()'d to stay deterministically reproducible.)
-		rand.Shuffle(len(w.Sources), func(i, j int) {
-			w.Sources[i], w.Sources[j] = w.Sources[j], w.Sources[i]
+		rand.Shuffle(len(sources), func(i, j int) {
+			sources[i], sources[j] = sources[j], sources[i]
 		})
 
 		// Round batch sizes up so there's at least one source per batch.
 		// Batch size is arbitrary, but nice to scale with the machine like this.
 		batches := runtime.NumCPU()
-		batch := (len(w.Sources) + batches - 1) / batches
-		util.ChunkIter(len(w.Sources), batch, func(start, end int) error {
+		batch := (len(sources) + batches - 1) / batches
+		util.ChunkIter(len(sources), batch, func(start, end int) error {
 			wg.Add(1)
-			go worker(w.Sources[start:end], w.Flags)
+			go worker(sources[start:end], flags)
 			return nil
 		})
 	}
-	wg.Wait()
 
+	// Parse a job like "gms b=cpu ct=8888" into sources and flags for kickoff().
+	parse := func(job []string) (sources, flags []string) {
+		for _, token := range job {
+			// Everything after # is a comment.
+			if strings.HasPrefix(token, "#") {
+				break
+			}
+
+			// Treat "gm" or "gms" as a shortcut for all known GMs.
+			if token == "gm" || token == "gms" {
+				sources = append(sources, gms...)
+				continue
+			}
+			// Same for tests.
+			if token == "test" || token == "tests" {
+				sources = append(sources, tests...)
+				continue
+			}
+
+			// Is this a flag to pass through to FM?
+			if parts := strings.Split(token, "="); len(parts) == 2 {
+				f := "-"
+				if len(parts[0]) > 1 {
+					f += "-"
+				}
+				f += parts[0]
+
+				flags = append(flags, f, parts[1])
+				continue
+			}
+
+			// Anything else must be the name of a source for FM to run.
+			sources = append(sources, token)
+		}
+		return
+	}
+
+	// Parse one job from the command line, handy for ad hoc local runs.
+	kickoff(parse(flag.Args()[1:]))
+
+	// Any number of jobs can come from -script.
+	if *script != "" {
+		file := os.Stdin
+		if *script != "-" {
+			file, err := os.Open(*script)
+			if err != nil {
+				td.Fatal(ctx, err)
+			}
+			defer file.Close()
+		}
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			kickoff(parse(strings.Fields(scanner.Text())))
+		}
+		if err := scanner.Err(); err != nil {
+			td.Fatal(ctx, err)
+		}
+	}
+
+	// If we're a bot (or acting as if we are one), add its work too.
+	if *bot != "" {
+		parts := strings.Split(*bot, "-")
+		OS := parts[1]
+
+		// For no reason but as a demo, skip GM aarectmodes and test GoodHash.
+		filter := func(in []string, test func(string) bool) (out []string) {
+			for _, s := range in {
+				if test(s) {
+					out = append(out, s)
+				}
+			}
+			return
+		}
+		if OS == "Debian10" {
+			gms = filter(gms, func(s string) bool { return s != "aarectmodes" })
+			tests = filter(tests, func(s string) bool { return s != "GoodHash" })
+		}
+
+		// You could use parse() here if you like, but it's just as easy to kickoff() directly.
+		kickoff(tests, strings.Fields("-b cpu"))
+		kickoff(gms, strings.Fields("-b cpu"))
+		kickoff(gms, strings.Fields("-b cpu --skvm"))
+	}
+
+	wg.Wait()
 	if failures > 0 {
 		if *local {
 			// td.Fatalf() would work fine, but barfs up a panic that we don't need to see.
