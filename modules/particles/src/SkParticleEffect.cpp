@@ -118,7 +118,7 @@ void update(inout Particle p) {
 SkParticleEffectParams::SkParticleEffectParams()
         : fMaxCount(128)
         , fDrawable(nullptr)
-        , fEffectCode(kDefaultEffectCode) {}
+        , fParticleCode(kDefaultEffectCode) {}
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("MaxCount", fMaxCount);

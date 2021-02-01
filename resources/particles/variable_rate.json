@@ -4,13 +4,11 @@
       "Type": "SkCircleDrawable",
       "Radius": 3
    },
-   "EffectCode": [
+   "Code": [
       "void effectUpdate(inout Effect effect) {",
       "  effect.rate = (sin(radians(effect.age * 720)) + 0.7) * 200;",
       "}",
-      ""
-   ],
-   "Code": [
+      "",
       "void spawn(inout Particle p) {",
       "  p.lifetime = 6;",
       "  float a = radians(rand(p.seed) * 360);",
