@@ -69,6 +69,24 @@
       "parentUuid": "d7e3ef60_c020d9cc",
       "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e32cf31_7e50dcb8",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-01T18:46:23Z",
+      "side": 1,
+      "message": "Well with data URIs we wouldn\u0027t want to split, right? Looks like the DataURIResourceProviderProxy checks the \u0027rname\u0027 arg for the \u0027data:\u0027 prefix, and if we split the URI string the prefix would end up in the rpath arg instead.\n\nEither way Ack -- we\u0027ll revisit later as needed.",
+      "parentUuid": "d5df0008_f8d45834",
+      "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
