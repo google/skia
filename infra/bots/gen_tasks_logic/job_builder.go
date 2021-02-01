@@ -5,6 +5,7 @@ package gen_tasks_logic
 
 import (
 	"log"
+	"strings"
 
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
@@ -82,8 +83,9 @@ func (b *jobBuilder) genTasksForJob() {
 		b.bundleRecipes()
 		return
 	}
-	if b.Name == BUILD_TASK_DRIVERS_NAME {
-		b.buildTaskDrivers()
+	if strings.HasPrefix(b.Name, BUILD_TASK_DRIVERS_PREFIX) {
+		parts := strings.Split(b.Name, "_")
+		b.buildTaskDrivers(parts[1], parts[2])
 		return
 	}
 
