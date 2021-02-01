@@ -71,7 +71,7 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
 
         // just need an imagefilter to trigger the code-path (which creates a tmp layer)
         sk_sp<SkImageFilter> imf(SkImageFilters::MatrixTransform(SkMatrix::I(),
-                                                                 kNone_SkFilterQuality,
+                                                                 SkSamplingOptions(),
                                                                  nullptr));
 
         const SkBlendMode modes[] = {

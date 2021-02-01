@@ -103,7 +103,7 @@ protected:
             SkImageFilters::Dilate(1, 1, checkerboard),
             SkImageFilters::Erode(1, 1, checkerboard),
             SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
-            SkImageFilters::MatrixTransform(resizeMatrix, kNone_SkFilterQuality, nullptr),
+            SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
             SkImageFilters::Shader(SkPerlinNoiseShader::MakeFractalNoise(
                     SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
             SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
