@@ -18,6 +18,8 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkRuntimeEffectPriv.h"  // for SkRuntimeEffect_SetInlineThreshold
+#include "src/sksl/ir/SkSLProgram.h"       // for kDefaultInlineThreshold
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -32,18 +34,22 @@ static void set_uniform(SkRuntimeShaderBuilder* builder, const char* name, const
     }
 }
 
-static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
+static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile, bool useInliner) {
+    const char* noInlineHint = useInliner ? "" : " (NoInline)";
+    SkRuntimeEffect_SetInlineThreshold(useInliner ? SkSL::Program::Settings::kDefaultInlineThreshold
+                                                  : 0);
+
     SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
     sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
     if (!shaderData) {
-        ERRORF(r, "%s: Unable to load file", testFile);
+        ERRORF(r, "%s%s: Unable to load file", testFile, noInlineHint);
         return;
     }
 
     SkString shaderString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
     auto [effect, error] = SkRuntimeEffect::Make(shaderString);
     if (!effect) {
-        ERRORF(r, "%s: %s", testFile, error.c_str());
+        ERRORF(r, "%s%s: %s", testFile, noInlineHint, error.c_str());
         return;
     }
 
@@ -58,7 +64,7 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
-        ERRORF(r, "%s: Unable to build shader", testFile);
+        ERRORF(r, "%s%s: Unable to build shader", testFile, noInlineHint);
         return;
     }
 
@@ -72,23 +78,27 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
                                            /*srcX=*/0, /*srcY=*/0));
 
     SkColor color = bitmap.getColor(0, 0);
-    REPORTER_ASSERT(r, color == SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00),
-                    "Expected: solid green. Actual: A=%02X R=%02X G=%02X B=%02X.",
-                    SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
+    REPORTER_ASSERT(
+            r, color == SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00),
+            "%s%s: Test failed.\nExpected: solid green. Actual: A=%02X R=%02X G=%02X B=%02X.",
+            testFile, noInlineHint, SkColorGetA(color), SkColorGetR(color), SkColorGetG(color),
+            SkColorGetB(color));
 }
 
 static void test_cpu(skiatest::Reporter* r, const char* testFile) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
     sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
 
-    test(r, surface.get(), testFile);
+    test(r, surface.get(), testFile, /*useInliner=*/true);
+    test(r, surface.get(), testFile, /*useInliner=*/false);
 }
 
 static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
 
-    test(r, surface.get(), testFile);
+    test(r, surface.get(), testFile, /*useInliner=*/true);
+    test(r, surface.get(), testFile, /*useInliner=*/false);
 }
 
 #define SKSL_TEST(name, path)                                       \
