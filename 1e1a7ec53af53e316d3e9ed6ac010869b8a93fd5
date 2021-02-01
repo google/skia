@@ -16,6 +16,24 @@
       "message": "This is a tentative +1. It lgtm, but I know from past experience that convexity is a house of cards. Hoping that the new (simpler) policy pans out.",
       "revId": "1e1a7ec53af53e316d3e9ed6ac010869b8a93fd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6993c0af_8912dd34",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-01T14:59:25Z",
+      "side": 1,
+      "message": "Completely agree. This is super fragile code. I think the current logic has issues, but I also don\u0027t really know the perfect fix. This change is just a stab in one direction: avoid resolution-dependent decisions (if possible).\n\nI won\u0027t set and forget on this. After this change, I hope to eventually get to the point where we are always self-consistent with our cached-convexity bit ... or decide we can never cache it 😞",
+      "parentUuid": "690a1e98_88c81f15",
+      "revId": "1e1a7ec53af53e316d3e9ed6ac010869b8a93fd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
