@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f7fafdc_93d1261d",
+        "filename": "resources/sksl/intrinsics/Smoothstep.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-01T14:52:18Z",
+      "side": 1,
+      "message": "Are we expecting this to pass everywhere? I imagine that we\u0027re going to start getting precision issues, at least on GPUs with 16-bit (or worse) floats?",
+      "range": {
+        "startLine": 5,
+        "startChar": 33,
+        "endLine": 5,
+        "endChar": 43
+      },
+      "revId": "131b88d9bede5c91b06bfbb6fdbb0a33244c32f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
