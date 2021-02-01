@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a05a14d_081f8dbe",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-01T20:16:28Z",
+      "side": 1,
+      "message": "Can we benchmark this and resolve the TODO? See wangs_formula_cubic_log2 in bench/TessellateBench.cpp for an example on how to add a bench.",
+      "range": {
+        "startLine": 136,
+        "startChar": 21,
+        "endLine": 136,
+        "endChar": 73
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6d97198_96b4c555",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-01T20:16:28Z",
+      "side": 1,
+      "message": "I\u0027m guessing this would be faster just typed out as\n\n  std::max(dot(p0, p0), dot(p1, p1), dot(p2, p2))\n\nBut can you benchmark it?",
+      "range": {
+        "startLine": 150,
+        "startChar": 40,
+        "endLine": 151,
+        "endChar": 45
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
