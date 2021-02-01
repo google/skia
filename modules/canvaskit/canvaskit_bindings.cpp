@@ -1328,7 +1328,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .class_function("_MakeMatrixTransform", optional_override([](uintptr_t /* SkScalar*  */ mPtr, SkFilterQuality fq,
                                                                    sk_sp<SkImageFilter> input)->sk_sp<SkImageFilter> {
             OptionalMatrix matr(mPtr);
-            return SkImageFilters::MatrixTransform(matr, fq, input);
+            // TODO: pass in sampling directly from client
+            auto sampling = SkSamplingOptions(fq, SkSamplingOptions::kMedium_asMipmapLinear);
+            return SkImageFilters::MatrixTransform(matr, sampling, input);
         }));
 
     class_<SkMaskFilter>("MaskFilter")
