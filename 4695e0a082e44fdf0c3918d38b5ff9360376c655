@@ -458,6 +458,30 @@
       },
       "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef8c1a18_1d8e4247",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-01T15:29:52Z",
+      "side": 1,
+      "message": "Ok, to try to answer this question I graphed the error threshold computed in two different ways: num_segments / 2^20, and max_magnitude / 2^20. Here are the results: https://screenshot.googleplex.com/6psczammCnZsCDL.png\n\nThe conclusion from that data: it\u0027s definitely a tighter error bound if we base it on num_segments.",
+      "parentUuid": "1df2d37b_d21e588e",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 33
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
