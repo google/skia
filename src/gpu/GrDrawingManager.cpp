@@ -452,15 +452,13 @@ void GrDrawingManager::reorderTasks() {
     int newCount = 0;
     for (int i = 0; i < fDAG.count(); i++) {
         sk_sp<GrRenderTask>& task = fDAG[i];
-        if (auto opsTask = task->asOpsTask()) {
-            size_t remaining = fDAG.size() - i - 1;
-            SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
-            int removeCount = opsTask->mergeFrom(nextTasks);
-            for (const auto& removed : nextTasks.first(removeCount)) {
-                removed->disown(this);
-            }
-            i += removeCount;
+        size_t remaining = fDAG.size() - i - 1;
+        SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
+        int removeCount = task->merge(nextTasks);
+        for (const auto& removed : nextTasks.first(removeCount)) {
+            removed->disown(this);
         }
+        i += removeCount;
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);

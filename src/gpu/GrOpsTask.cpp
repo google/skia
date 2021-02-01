@@ -674,12 +674,9 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     }
 }
 
-int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
-    GrOpsTask* last = this;
-    int addlProxyCount = 0;
-    int addlOpChainCount = 0;
+int GrOpsTask::onCheckMerge(SkSpan<const sk_sp<GrRenderTask>> candidates) const {
     int mergedCount = 0;
-    for (const sk_sp<GrRenderTask>& task : tasks) {
+    for (const sk_sp<GrRenderTask>& task : candidates) {
         auto opsTask = task->asOpsTask();
         if (!opsTask || opsTask->target(0) != this->target(0)) {
             break;
@@ -687,22 +684,28 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
         SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
         mergedCount += 1;
+    }
+    return mergedCount;
+}
+
+void GrOpsTask::onMerge(SkSpan<const sk_sp<GrRenderTask>> tasks) {
+    fClipAllocators.reserve_back(tasks.count());
+    int addlProxyCount = 0;
+    int addlOpChainCount = 0;
+    for (const sk_sp<GrRenderTask>& task : tasks) {
+        auto opsTask = reinterpret_cast<GrOpsTask*>(task.get());
         addlProxyCount += opsTask->fSampledProxies.count();
         addlOpChainCount += opsTask->fOpChains.count();
         fClippedContentBounds.join(opsTask->fClippedContentBounds);
         fTotalBounds.join(opsTask->fTotalBounds);
         fRenderPassXferBarriers |= opsTask->fRenderPassXferBarriers;
         SkDEBUGCODE(fNumClips += opsTask->fNumClips);
-        last = opsTask;
-    }
-    if (last == this) {
-        return 0;
     }
     fLastClipStackGenID = SK_InvalidUniqueID;
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
-    fClipAllocators.reserve_back(mergedCount);
-    for (const sk_sp<GrRenderTask>& task : tasks.first(mergedCount)) {
+    GrOpsTask* last = this;
+    for (const sk_sp<GrRenderTask>& task : tasks) {
         auto opsTask = reinterpret_cast<GrOpsTask*>(task.get());
         fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
                                     opsTask->fSampledProxies.data());
@@ -713,9 +716,10 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         opsTask->fClipAllocators.reset();
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();
+        last = opsTask;
     }
     fMustPreserveStencil = last->fMustPreserveStencil;
-    return mergedCount;
+    this->GrRenderTask::onMerge(tasks);
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {

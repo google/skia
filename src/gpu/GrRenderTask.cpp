@@ -271,6 +271,23 @@ bool GrRenderTask::isInstantiated() const {
     return true;
 }
 
+void GrRenderTask::onMerge(SkSpan<const sk_sp<GrRenderTask>> tasks) {
+    int numAddlDeferredProxies = 0;
+    for (const sk_sp<GrRenderTask>& t : tasks) {
+        SkASSERT(t->isClosed());
+        SkASSERT(fTargets == t->fTargets);
+        numAddlDeferredProxies += t->fDeferredProxies.count();
+    }
+
+    // TODO: Optimize by combining texture resolve tasks?
+    fDeferredProxies.reserve_back(numAddlDeferredProxies);
+    for (const sk_sp<GrRenderTask>& t : tasks) {
+        fDeferredProxies.move_back_n(t->fDeferredProxies.count(), t->fDeferredProxies.data());
+    }
+
+    // Ignore dependencies. This is called after the topological sort.
+}
+
 void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, sk_sp<GrSurfaceProxy> proxy) {
     SkASSERT(proxy);
     SkASSERT(!this->isClosed());
