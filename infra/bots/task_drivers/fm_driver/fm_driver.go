@@ -123,9 +123,10 @@ func main() {
 		stdout := &bytes.Buffer{}
 		stderr := &bytes.Buffer{}
 		cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr, Verbose: verbosity}
-		cmd.Args = append(cmd.Args, "-i", *resources, "-s")
-		cmd.Args = append(cmd.Args, sources...)
+		cmd.Args = append(cmd.Args, "-i", *resources)
 		cmd.Args = append(cmd.Args, flags...)
+		cmd.Args = append(cmd.Args, "-s")
+		cmd.Args = append(cmd.Args, sources...)
 
 		// Run our FM command.
 		err := exec.Run(ctx, cmd)
@@ -295,7 +296,7 @@ func main() {
 			commonFlags = append(commonFlags, "-b", "cpu")
 
 			run(tests, "")
-			run(gms, "--ct 8888 --legacy")  // Equivalent to DM --config 8888.
+			run(gms, "--ct 8888 --legacy") // Equivalent to DM --config 8888.
 
 			if model == "GCE" {
 				run(gms, "--ct g8 --legacy")                      // --config g8
