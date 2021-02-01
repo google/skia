@@ -503,9 +503,8 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
         }
         return false;
     }
-    SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                    pmap.info(), pmap.addr(), pmap.rowBytes());
-    return true;
+    return SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
+                           pmap.info(), pmap.addr(), pmap.rowBytes());
 }
 
 #include "include/core/SkMaskFilter.h"
