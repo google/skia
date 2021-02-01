@@ -738,6 +738,16 @@
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
+    "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+      "tasks": [
+        "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
+      ]
+    },
+    "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "tasks": [
+        "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+      ]
+    },
     "Fuzz-Debian10-Clang": {
       "tasks": [
         "Fuzz-Debian10-Clang"
@@ -767,9 +777,19 @@
         "Housekeeper-PerCommit"
       ]
     },
-    "Housekeeper-PerCommit-BuildTaskDrivers": {
+    "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64": {
       "tasks": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
+      ]
+    },
+    "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64": {
+      "tasks": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ]
+    },
+    "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64": {
+      "tasks": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"
       ]
     },
     "Housekeeper-PerCommit-BundleRecipes": {
@@ -8318,7 +8338,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "docker_installed:true",
@@ -14348,7 +14368,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -14395,7 +14415,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -14442,7 +14462,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -14487,7 +14507,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -14504,7 +14524,7 @@
     },
     "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "command": [
-        "./fm_driver",
+        "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
         "--resources=skia/resources",
         "--project_id",
@@ -14513,17 +14533,73 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
-        "build/fm"
+        "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
         "Build-Debian10-Clang-x86_64-Debug",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+      "command": [
+        "./fm_driver${EXECUTABLE_SUFFIX}",
+        "--local=false",
+        "--resources=skia/resources",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All",
+        "build/fm${EXECUTABLE_SUFFIX}"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.13.6",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "command": [
+        "./fm_driver${EXECUTABLE_SUFFIX}",
+        "--local=false",
+        "--resources=skia/resources",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
+        "build/fm${EXECUTABLE_SUFFIX}"
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "expiration_ns": 900000000000,
@@ -14573,7 +14649,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "docker_installed:true",
@@ -14763,7 +14839,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -14956,7 +15032,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Housekeeper-PerCommit-BuildTaskDrivers": {
+    "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64": {
       "caches": [
         {
           "name": "git",
@@ -15000,7 +15076,139 @@
       "command": [
         "/bin/bash",
         "skia/infra/bots/build_task_drivers.sh",
-        "${ISOLATED_OUTDIR}"
+        "${ISOLATED_OUTDIR}",
+        "darwin",
+        "amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "go/go/bin"
+        ]
+      },
+      "idempotent": true,
+      "isolate": "task_drivers.isolate"
+    },
+    "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64": {
+      "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "go_cache",
+          "path": "cache/go_cache"
+        },
+        {
+          "name": "gopath",
+          "path": "cache/gopath"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/git/linux-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2.29.2.chromium.6"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "skia/bots/go",
+          "path": "go",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "/bin/bash",
+        "skia/infra/bots/build_task_drivers.sh",
+        "${ISOLATED_OUTDIR}",
+        "linux",
+        "amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "go/go/bin"
+        ]
+      },
+      "idempotent": true,
+      "isolate": "task_drivers.isolate"
+    },
+    "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64": {
+      "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "go_cache",
+          "path": "cache/go_cache"
+        },
+        {
+          "name": "gopath",
+          "path": "cache/gopath"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/git/linux-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2.29.2.chromium.6"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "skia/bots/go",
+          "path": "go",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "/bin/bash",
+        "skia/infra/bots/build_task_drivers.sh",
+        "${ISOLATED_OUTDIR}",
+        "windows",
+        "amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -15248,7 +15456,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -15333,7 +15541,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -15767,7 +15975,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64",
         "Housekeeper-PerCommit-CreateDockerImage_Skia_Release"
       ],
       "dimensions": [
@@ -15847,7 +16055,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64",
         "Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release"
       ],
       "dimensions": [
@@ -15894,7 +16102,7 @@
         "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -20818,7 +21026,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -20891,7 +21099,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -20964,7 +21172,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -22381,7 +22589,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "gpu:10de:1cb3-430.14",
@@ -22451,7 +22659,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "gpu:10de:1cb3-430.14",
@@ -22523,7 +22731,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "gpu:10de:1cb3-430.14",
@@ -22595,7 +22803,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "gpu:10de:1cb3-430.14",
@@ -22667,7 +22875,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "gpu:10de:1cb3-430.14",
@@ -22739,7 +22947,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-CanvasKit",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "gpu:10de:1cb3-430.14",
@@ -42458,7 +42666,7 @@
       ],
       "dependencies": [
         "Build-Debian10-EMCC-wasm-Release-WasmGMTests",
-        "Housekeeper-PerCommit-BuildTaskDrivers"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "gpu:10de:1cb3-430.14",
