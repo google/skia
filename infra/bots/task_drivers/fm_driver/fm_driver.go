@@ -116,7 +116,8 @@ func main() {
 	wg := &sync.WaitGroup{}
 	var failures int32 = 0
 
-	worker := func(sources, flags []string) {
+	var worker func([]string, []string)
+	worker = func(sources, flags []string) {
 		defer wg.Done()
 
 		stdout := &bytes.Buffer{}
@@ -152,7 +153,7 @@ func main() {
 		if len(sources) > 1 && (err != nil || unknownHash != "") {
 			wg.Add(len(sources))
 			for i := range sources {
-				queue <- Work{sources[i : i+1], flags}
+				worker(sources[i:i+1], flags)
 			}
 			return
 		}
