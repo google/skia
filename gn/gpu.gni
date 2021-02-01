@@ -23,14 +23,11 @@ skia_gpu_sources = [
 
   # Private includes
   "$_include/private/GrContext_Base.h",
-  "$_include/private/GrD3DTypesPriv.h",
   "$_include/private/GrGLTypesPriv.h",
   "$_include/private/GrImageContext.h",
   "$_include/private/GrResourceKey.h",
-  "$_include/private/GrSharedEnums.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrTypesPriv.h",
-  "$_include/private/GrVkTypesPriv.h",
   "$_src/gpu/GrAATriangulator.cpp",
   "$_src/gpu/GrAATriangulator.h",
   "$_src/gpu/GrAHardwareBufferImageGenerator.cpp",
