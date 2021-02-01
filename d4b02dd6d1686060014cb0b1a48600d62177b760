@@ -47,6 +47,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c72c33a7_f264f06c",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T16:45:59Z",
+      "side": 1,
+      "message": "Thinking about it some more, this isn\u0027t true for things like matrices. Never mind.",
+      "parentUuid": "d573dc05_a63a5528",
+      "range": {
+        "startLine": 43,
+        "startChar": 12,
+        "endLine": 45,
+        "endChar": 62
+      },
+      "revId": "d4b02dd6d1686060014cb0b1a48600d62177b760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "235057f5_3d87cd01",
