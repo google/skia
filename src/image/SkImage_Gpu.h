@@ -12,7 +12,6 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrSurfaceProxyView.h"
-#include "src/gpu/SkGr.h"
 #include "src/image/SkImage_GpuBase.h"
 
 class GrDirectContext;
@@ -21,7 +20,7 @@ class GrTexture;
 
 class SkBitmap;
 
-class SkImage_Gpu : public SkImage_GpuBase {
+class SkImage_Gpu final : public SkImage_GpuBase {
 public:
     SkImage_Gpu(sk_sp<GrImageContext>, uint32_t uniqueID, GrSurfaceProxyView, SkColorType,
                 SkAlphaType, sk_sp<SkColorSpace>);
@@ -44,16 +43,11 @@ public:
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
-    GrTextureProxy* peekProxy() const override {
-        return fView.asTextureProxy();
-    }
+    GrTextureProxy* peekProxy() const override { return fView.asTextureProxy(); }
 
-    const GrSurfaceProxyView* view(GrRecordingContext* context) const override {
-        if (!fView.proxy()) {
-            return nullptr;
-        }
-        return &fView;
-    }
+    GrSurfaceProxyView asView(GrRecordingContext*,
+                              GrMipmapped,
+                              GrImageTexGenPolicy = kDefaultTexGenPolicy) const override;
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
