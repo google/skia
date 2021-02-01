@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd27c4e3_368d26bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-01T18:56:04Z",
+      "side": 1,
+      "message": "This is clunky, but does work. Wondering if it would be cleaner to just disambiguate simplify_vector into two functions - or figure out a way to share the scalar op-folding code in Simplify, rather than having a repeated copy in simplify_vector?",
+      "revId": "52be4381006d7b66325f38dca9736af2ef59226f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
