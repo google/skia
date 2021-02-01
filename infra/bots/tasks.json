@@ -738,6 +738,16 @@
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
+    "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+      "tasks": [
+        "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
+      ]
+    },
+    "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "tasks": [
+        "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+      ]
+    },
     "Fuzz-Debian10-Clang": {
       "tasks": [
         "Fuzz-Debian10-Clang"
@@ -14524,6 +14534,62 @@
         "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+      "command": [
+        "./fm_driver",
+        "--local=false",
+        "--resources=skia/resources",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All",
+        "build/fm"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BuildTaskDrivers"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.13.6",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "command": [
+        "./fm_driver",
+        "--local=false",
+        "--resources=skia/resources",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
+        "build/fm"
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BuildTaskDrivers"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "expiration_ns": 900000000000,
