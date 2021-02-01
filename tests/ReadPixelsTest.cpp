@@ -508,3 +508,19 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
         }
     }
 }
+
+DEF_TEST(ReadPixels_InvalidRowBytes, reporter) {
+    auto srcII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    auto surf = SkSurface::MakeRaster(srcII);
+    for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
+        auto colorType = static_cast<SkColorType>(ct);
+        size_t bpp = SkColorTypeBytesPerPixel(colorType);
+        if (bpp <= 1) {
+            continue;
+        }
+        auto dstII = srcII.makeColorType(colorType);
+        size_t badRowBytes = (surf->width() + 1)*bpp - 1;
+        auto storage = std::make_unique<char[]>(badRowBytes*surf->height());
+        REPORTER_ASSERT(reporter, !surf->readPixels(dstII, storage.get(), badRowBytes, 0, 0));
+    }
+}

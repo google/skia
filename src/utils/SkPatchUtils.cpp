@@ -223,7 +223,7 @@ static void skcolor_to_float(SkPMColor4f* dst, const SkColor* src, int count, Sk
                                             kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB());
     SkImageInfo dstInfo = SkImageInfo::Make(count, 1, kRGBA_F32_SkColorType,
                                             kPremul_SkAlphaType, sk_ref_sp(dstCS));
-    SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0);
+    SkAssertResult(SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0));
 }
 
 static void float_to_skcolor(SkColor* dst, const SkPMColor4f* src, int count, SkColorSpace* srcCS) {
@@ -231,7 +231,7 @@ static void float_to_skcolor(SkColor* dst, const SkPMColor4f* src, int count, Sk
                                             kPremul_SkAlphaType, sk_ref_sp(srcCS));
     SkImageInfo dstInfo = SkImageInfo::Make(count, 1, kBGRA_8888_SkColorType,
                                             kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB());
-    SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0);
+    SkAssertResult(SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0));
 }
 
 sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkColor srcColors[4],
