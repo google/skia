@@ -429,7 +429,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         auto mipmapped = !GrValidCubicResampler(kernel) && mm != SkMipmapMode::kNone
                 ? GrMipmapped::kYes
                 : GrMipmapped::kNo;
-        GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, mipmapped);
+        GrSurfaceProxyView view = as_IB(fImage)->asView(args.fContext, mipmapped);
         if (!view) {
             return nullptr;
         }

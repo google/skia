@@ -10,7 +10,6 @@
 
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkMutex.h"
-#include "src/gpu/SkGr.h"
 #include "src/image/SkImage_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -44,7 +43,7 @@ public:
     bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const override;
+    GrSurfaceProxyView asView(GrRecordingContext*, GrMipmapped, GrImageTexGenPolicy) const override;
 #endif
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;

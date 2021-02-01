@@ -116,13 +116,15 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
         }
     }
 
-    const GrSurfaceProxyView* view = this->view(dContext);
-    SkASSERT(view);
+    GrSurfaceProxyView view = this->asView(dContext, GrMipmapped::kNo);
+    if (!view) {
+        return false;
+    }
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(
-            fContext->priv().caps(), this->colorType(), view->proxy()->backendFormat());
+            fContext->priv().caps(), this->colorType(), view.proxy()->backendFormat());
 
     auto sContext = GrSurfaceContext::Make(dContext,
-                                           *view,
+                                           std::move(view),
                                            {grColorType, this->alphaType(), this->refColorSpace()});
     if (!sContext) {
         return false;
@@ -145,11 +147,16 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
         return nullptr;
     }
 
-    const GrSurfaceProxyView* view = this->view(direct);
-    SkASSERT(view && view->proxy());
+    GrSurfaceProxyView view = this->asView(direct, GrMipmapped::kNo);
+    SkASSERT(view);
 
-    auto copyView = GrSurfaceProxyView::Copy(direct, *view, GrMipmapped::kNo, subset,
-                                             SkBackingFit::kExact, view->proxy()->isBudgeted());
+    SkBudgeted isBudgeted = view.proxy()->isBudgeted();
+    auto copyView = GrSurfaceProxyView::Copy(direct,
+                                             std::move(view),
+                                             GrMipmapped::kNo,
+                                             subset,
+                                             SkBackingFit::kExact,
+                                             isBudgeted);
 
     if (!copyView) {
         return nullptr;
@@ -172,35 +179,18 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
         return false;
     }
 
-    const GrSurfaceProxyView* view = this->view(dContext);
+    GrSurfaceProxyView view = this->asView(dContext, GrMipmapped::kNo);
     SkASSERT(view);
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(
-            dContext->priv().caps(), this->colorType(), view->proxy()->backendFormat());
+            dContext->priv().caps(), this->colorType(), view.proxy()->backendFormat());
 
     GrColorInfo colorInfo(grColorType, this->alphaType(), this->refColorSpace());
-    auto sContext = GrSurfaceContext::Make(dContext, *view, colorInfo);
+    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), colorInfo);
     if (!sContext) {
         return false;
     }
 
     return sContext->readPixels(dContext, {dstInfo, dstPixels, dstRB}, {srcX, srcY});
-}
-
-GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
-                                            GrMipmapped mipMapped) const {
-    if (!context || !fContext->priv().matches(context)) {
-        return {};
-    }
-    const GrSurfaceProxyView* view = this->view(context);
-    if (!view) {
-        return {};
-    }
-    GrColorType ct = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
-                                                       this->colorType(),
-                                                       view->proxy()->backendFormat());
-    GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    GrTextureAdjuster adjuster(context, *view, colorInfo, this->uniqueID());
-    return adjuster.view(mipMapped);
 }
 
 bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {

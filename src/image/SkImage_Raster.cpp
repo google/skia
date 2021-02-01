@@ -20,6 +20,7 @@
 #include "src/shaders/SkBitmapProcShader.h"
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 #endif
@@ -84,7 +85,7 @@ public:
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const override;
+    GrSurfaceProxyView asView(GrRecordingContext*, GrMipmapped, GrImageTexGenPolicy) const override;
 #endif
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
@@ -191,13 +192,29 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
 }
 
 #if SK_SUPPORT_GPU
-GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
-                                           GrMipmapped mipmapped) const {
+GrSurfaceProxyView SkImage_Raster::asView(GrRecordingContext* context,
+                                          GrMipmapped mipmapped,
+                                          GrImageTexGenPolicy policy) const {
     if (!context) {
         return {};
     }
+    if (!context->priv().caps()->mipmapSupport()) {
+        mipmapped = GrMipmapped::kNo;
+    }
 
     if (fPinnedView) {
+        if (policy != GrImageTexGenPolicy::kDraw) {
+            SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
+                                          ? SkBudgeted::kYes
+                                          : SkBudgeted::kNo;
+            auto copy = GrSurfaceProxy::Copy(context,
+                                             fPinnedView.refProxy(),
+                                             fPinnedView.origin(),
+                                             mipmapped,
+                                             SkBackingFit::kExact,
+                                             budgeted);
+            return {std::move(copy), fPinnedView.origin(), fPinnedView.swizzle()};
+        }
         GrColorType ct = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
                                                            this->colorType(),
                                                            fPinnedView.proxy()->backendFormat());
@@ -206,7 +223,8 @@ GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
         return adjuster.view(mipmapped);
     }
 
-    return GrRefCachedBitmapView(context, fBitmap, mipmapped);
+    GrBitmapTextureMaker maker(context, fBitmap, policy);
+    return maker.view(mipmapped);
 }
 
 bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
