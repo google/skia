@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "866685c3_bf31d8eb",
+        "filename": "resources/sksl/shared/ConstVariableComparison.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T16:03:31Z",
+      "side": 1,
+      "message": "Does this test belong in folding/ ?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 1
+      },
+      "revId": "339b3ca6bc709c874195bde5f00838e87212826e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8366437_1a685bf7",
+        "filename": "resources/sksl/shared/DeadStripFunctions.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T16:03:31Z",
+      "side": 1,
+      "message": "Migrated from @switch to if (CONSTANT) since ES2 doesn\u0027t allow switch. This test isn\u0027t really about the control structure, it\u0027s making sure we eliminate the dead function.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 16
+      },
+      "revId": "339b3ca6bc709c874195bde5f00838e87212826e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "343a8b13_404312b4",
+        "filename": "resources/sksl/shared/DeadStripFunctions.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T16:03:31Z",
+      "side": 1,
+      "message": "The only built-in functions that have bodies in sksl_public were unpremul and unpremul_float, so that\u0027s what we use here.",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 20
+      },
+      "revId": "339b3ca6bc709c874195bde5f00838e87212826e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
