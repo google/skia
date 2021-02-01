@@ -473,7 +473,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
 
 bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                                  GrColorType surfaceColorType, GrColorType bufferColorType,
-                                 GrGpuBuffer* transferBuffer, size_t bufferOffset,
+                                 sk_sp<GrGpuBuffer> transferBuffer, size_t bufferOffset,
                                  size_t rowBytes) {
     if (!this->currentCommandBuffer()) {
         return false;
@@ -499,7 +499,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     // Can't transfer compressed data
     SkASSERT(!GrVkFormatIsCompressed(vkTex->imageFormat()));
 
-    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
+    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer.get());
     if (!vkBuffer) {
         return false;
     }
@@ -541,7 +541,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
 
 bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                    GrColorType surfaceColorType, GrColorType bufferColorType,
-                                   GrGpuBuffer* transferBuffer, size_t offset) {
+                                   sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
     if (!this->currentCommandBuffer()) {
         return false;
     }
@@ -554,7 +554,7 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         return false;
     }
 
-    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
+    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer.get());
 
     GrVkImage* srcImage;
     if (GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(surface->asRenderTarget())) {
