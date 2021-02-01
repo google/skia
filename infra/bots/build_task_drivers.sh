@@ -28,5 +28,5 @@ go install -v go.skia.org/infra/infra/bots/task_drivers/update_go_deps
 # Build task drivers from this repo.
 task_drivers_dir=infra/bots/task_drivers
 for td in $(cd ${task_drivers_dir} && ls); do
-  CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o ${1}/${td} ${task_drivers_dir}/${td}/${td}.go
+  CGO_ENABLED=0 GOARCH=$3 GOOS=$2 go build -o ${1}/${td} ${task_drivers_dir}/${td}/${td}.go
 done
