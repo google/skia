@@ -16,6 +16,29 @@
       "message": "Guess I missed some -- thanks for catching this!",
       "revId": "0a0ad5be0e404299c37c499e4a26dafc52f020fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "944e5a4f_2a8cf4d0",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-02-01T16:07:37Z",
+      "side": 1,
+      "message": "This is breaking the Android framework build. From https://android-build.googleplex.com/builds/pending/P19350972/coral_hwasan-userdebug/latest/view/logs/build_error.log :\n\nexternal/skia/src/gpu/GrOpsTask.cpp:454:5: error: redefinition of \u0027__trace\u0027\n    TRACE_EVENT0(\"skia.gpu\", TRACE_FUNC);\n\nIs it important that this one is after the return, or that the framework instance (on line 445) is before? If not, let\u0027s just pick one of them.",
+      "range": {
+        "startLine": 454,
+        "startChar": 0,
+        "endLine": 454,
+        "endChar": 41
+      },
+      "revId": "0a0ad5be0e404299c37c499e4a26dafc52f020fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
