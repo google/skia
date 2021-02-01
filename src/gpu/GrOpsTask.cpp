@@ -676,6 +676,7 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
 
 int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     GrOpsTask* last = this;
+    int addlDeferredProxyCount = 0;
     int addlProxyCount = 0;
     int addlOpChainCount = 0;
     int mergedCount = 0;
@@ -687,6 +688,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
         SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
         mergedCount += 1;
+        addlDeferredProxyCount += opsTask->fDeferredProxies.count();
         addlProxyCount += opsTask->fSampledProxies.count();
         addlOpChainCount += opsTask->fOpChains.count();
         fClippedContentBounds.join(opsTask->fClippedContentBounds);
@@ -699,11 +701,14 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         return 0;
     }
     fLastClipStackGenID = SK_InvalidUniqueID;
+    fDeferredProxies.reserve_back(addlDeferredProxyCount);
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
     fClipAllocators.reserve_back(mergedCount);
     for (const sk_sp<GrRenderTask>& task : tasks.first(mergedCount)) {
         auto opsTask = reinterpret_cast<GrOpsTask*>(task.get());
+        fDeferredProxies.move_back_n(opsTask->fDeferredProxies.count(),
+                                     opsTask->fDeferredProxies.data());
         fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
                                     opsTask->fSampledProxies.data());
         fOpChains.move_back_n(opsTask->fOpChains.count(),
@@ -711,6 +716,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         SkASSERT(1 == opsTask->fClipAllocators.count());
         fClipAllocators.push_back(std::move(opsTask->fClipAllocators[0]));
         opsTask->fClipAllocators.reset();
+        opsTask->fDeferredProxies.reset();
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();
     }
