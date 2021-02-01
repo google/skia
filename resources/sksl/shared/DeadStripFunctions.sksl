@@ -1,5 +1,7 @@
 /*#pragma settings NoInline*/
 
+uniform half4 colorGreen, colorRed;
+
 half4 dead_fn(half4 a, half4 b) {
     return a * b;
 }
@@ -8,20 +10,25 @@ half4 live_fn(half4 a, half4 b) {
     return a + b;
 }
 
-void main() {
-    @switch (999) {
+half4 main() {
+    bool TRUE = true, FALSE = false;
+    half4 a, b;
+
+    if (FALSE) {
         // Dead stripping a user function.
-        case 0: sk_FragColor = dead_fn(half4(0.5), half4(2)); break;
-
+        half4 unused = dead_fn(half4(0.5), half4(2));
+    } else {
         // A live user function.
-        case 999: sk_FragColor = live_fn(half4(3), half4(-3)); break;
+        a = live_fn(half4(3), half4(-5));
     }
 
-    @switch (777) {
-        // Dead stripping a built-in function.
-        case 0: sk_FragColor = blend_modulate(half4(1), half4(-1)); break;
-
+    if (TRUE) {
         // A live built-in function.
-        case 777: sk_FragColor = blend_dst(half4(7), half4(-7)); break;
+        b = unpremul(half4(1));
+    } else {
+        // Dead stripping a built-in function.
+        float4 unused = unpremul_float(float4(-1));
     }
+
+    return (a != half4(0) && b != half4(0)) ? colorGreen : colorRed;
 }
