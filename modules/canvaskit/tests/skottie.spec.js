@@ -75,4 +75,23 @@ describe('Skottie behavior', () => {
         animation.render(canvas, bounds);
         animation.delete();
     }, washPromise);
+
+    // TODO @jmbetancourt: set up a real lottie with an audio layer to test loadAudio()
+    gm('skottie_audio', (canvas, promises) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+        expect(promises[0]).not.toBe('NOT FOUND');
+        const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
+        canvas.clear(CanvasKit.WHITE);
+
+        var mockSoundMap = {
+            getHowl : function() { }
+        };
+
+        const animation = CanvasKit.MakeManagedAnimation(promises[0], null, mockSoundMap);
+        expect(animation).toBeTruthy();
+            animation.delete();
+}, washPromise);
 });
