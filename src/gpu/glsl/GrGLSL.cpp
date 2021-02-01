@@ -12,6 +12,9 @@ const char* GrGLSLTypeString(GrSLType t) {
     switch (t) {
         case kVoid_GrSLType:                   return "void";
         case kBool_GrSLType:                   return "bool";
+        case kBool2_GrSLType:                  return "bvec2";
+        case kBool3_GrSLType:                  return "bvec3";
+        case kBool4_GrSLType:                  return "bvec4";
         case kByte_GrSLType:                   return "byte";
         case kByte2_GrSLType:                  return "byte2";
         case kByte3_GrSLType:                  return "byte3";
