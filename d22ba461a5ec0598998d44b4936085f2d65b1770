@@ -16,6 +16,23 @@
       "message": "ping @Florin",
       "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "354a374e_ba47ae88",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-01T17:17:33Z",
+      "side": 1,
+      "message": "I wonder if we actually need to discriminate kDataIRI at all: we\u0027re going to be loading images through ResourceProvider::loadImageAsset(), and the DataURIResourceProviderProxy tries to parse the name as dataURI.\n\nSo as far as ResourceProvider is concerned, dataURI and non-local IRIs are handled via the same API.  Do we need to know the difference in SkSVG?",
+      "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
