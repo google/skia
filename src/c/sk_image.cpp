@@ -47,12 +47,12 @@ sk_image_t* sk_image_new_from_encoded(sk_data_t* cdata) {
     return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata))).release());
 }
 
-sk_image_t* sk_image_new_from_texture(gr_direct_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace, sk_image_texture_release_proc releaseProc, void* releaseContext) {
-    return ToImage(SkImage::MakeFromTexture(AsGrDirectContext(context), *AsGrBackendTexture(texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace)), releaseProc, releaseContext).release());
+sk_image_t* sk_image_new_from_texture(gr_recording_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace, sk_image_texture_release_proc releaseProc, void* releaseContext) {
+    return ToImage(SkImage::MakeFromTexture(AsGrRecordingContext(context), *AsGrBackendTexture(texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace)), releaseProc, releaseContext).release());
 }
 
-sk_image_t* sk_image_new_from_adopted_texture(gr_direct_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace) {
-    return ToImage(SkImage::MakeFromAdoptedTexture(AsGrDirectContext(context), *AsGrBackendTexture(texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace))).release());
+sk_image_t* sk_image_new_from_adopted_texture(gr_recording_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace) {
+    return ToImage(SkImage::MakeFromAdoptedTexture(AsGrRecordingContext(context), *AsGrBackendTexture(texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace))).release());
 }
 
 sk_image_t* sk_image_new_from_picture(sk_picture_t* picture, const sk_isize_t* dimensions, const sk_matrix_t* cmatrix, const sk_paint_t* paint) {
@@ -111,8 +111,8 @@ bool sk_image_is_lazy_generated(const sk_image_t* image) {
     return AsImage(image)->isLazyGenerated();
 }
 
-bool sk_image_is_valid(const sk_image_t* image, gr_direct_context_t* context) {
-    return AsImage(image)->isValid(AsGrDirectContext(context));
+bool sk_image_is_valid(const sk_image_t* image, gr_recording_context_t* context) {
+    return AsImage(image)->isValid(AsGrRecordingContext(context));
 }
 
 bool sk_image_read_pixels(const sk_image_t* image, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_image_caching_hint_t cachingHint) {
@@ -159,6 +159,6 @@ sk_image_t* sk_image_make_with_filter_legacy(const sk_image_t* cimage, const sk_
     return ToImage(AsImage(cimage)->makeWithFilter(AsImageFilter(filter), *AsIRect(subset), *AsIRect(clipBounds), AsIRect(outSubset), AsIPoint(outOffset)).release());
 }
 
-sk_image_t* sk_image_make_with_filter(const sk_image_t* cimage, gr_direct_context_t* context, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset) {
-    return ToImage(AsImage(cimage)->makeWithFilter(AsGrDirectContext(context), AsImageFilter(filter), *AsIRect(subset), *AsIRect(clipBounds), AsIRect(outSubset), AsIPoint(outOffset)).release());
+sk_image_t* sk_image_make_with_filter(const sk_image_t* cimage, gr_recording_context_t* context, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset) {
+    return ToImage(AsImage(cimage)->makeWithFilter(AsGrRecordingContext(context), AsImageFilter(filter), *AsIRect(subset), *AsIRect(clipBounds), AsIRect(outSubset), AsIPoint(outOffset)).release());
 }

@@ -639,6 +639,7 @@ typedef struct gr_backendrendertarget_t gr_backendrendertarget_t;
 typedef struct gr_backendtexture_t gr_backendtexture_t;
 
 typedef struct gr_direct_context_t gr_direct_context_t;
+typedef struct gr_recording_context_t gr_recording_context_t;
 
 typedef enum {
     OPENGL_GR_BACKEND,

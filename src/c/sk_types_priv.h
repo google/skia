@@ -144,6 +144,7 @@ DEF_CLASS_MAP(SkXMLStreamWriter, sk_xmlstreamwriter_t, XMLStreamWriter)
 DEF_CLASS_MAP(SkXMLWriter, sk_xmlwriter_t, XMLWriter)
 
 DEF_CLASS_MAP(GrDirectContext, gr_direct_context_t, GrDirectContext)
+DEF_CLASS_MAP(GrRecordingContext, gr_recording_context_t, GrRecordingContext)
 DEF_CLASS_MAP(GrBackendTexture, gr_backendtexture_t, GrBackendTexture)
 DEF_CLASS_MAP(GrBackendRenderTarget, gr_backendrendertarget_t, GrBackendRenderTarget)
 
