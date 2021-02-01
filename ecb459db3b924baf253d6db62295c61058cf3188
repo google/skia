@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6de08ccc_a74540cc",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-01T16:59:21Z",
+      "side": 1,
+      "message": "No, this is oddly named - all uniforms are floats (and are going to stay that way for the forseeable future). This is really returning the total # of floats, given that some uniforms are vectors or matrices. eg:\n\n  uniform vec4 color;\n\n... is one uniforms, but four floats.",
+      "parentUuid": "8371db98_52cdc2c9",
+      "range": {
+        "startLine": 826,
+        "startChar": 4,
+        "endLine": 826,
+        "endChar": 24
+      },
+      "revId": "ecb459db3b924baf253d6db62295c61058cf3188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5732bcc5_4ca9e733",
         "filename": "modules/particles/src/SkParticleEffect.cpp",
         "patchSetId": 2
