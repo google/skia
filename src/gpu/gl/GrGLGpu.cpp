@@ -835,7 +835,8 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
 
 bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                                  GrColorType textureColorType, GrColorType bufferColorType,
-                                 GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) {
+                                 sk_sp<GrGpuBuffer> transferBuffer, size_t offset,
+                                 size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
     // Can't transfer compressed data
@@ -854,7 +855,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
 
     SkASSERT(!transferBuffer->isMapped());
     SkASSERT(!transferBuffer->isCpuBuffer());
-    const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer);
+    const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer.get());
     this->bindBuffer(GrGpuBufferType::kXferCpuToGpu, glBuffer);
 
     SkDEBUGCODE(
@@ -906,8 +907,8 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
 
 bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                    GrColorType surfaceColorType, GrColorType dstColorType,
-                                   GrGpuBuffer* transferBuffer, size_t offset) {
-    auto* glBuffer = static_cast<GrGLBuffer*>(transferBuffer);
+                                   sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
+    auto* glBuffer = static_cast<GrGLBuffer*>(transferBuffer.get());
     this->bindBuffer(GrGpuBufferType::kXferGpuToCpu, glBuffer);
     auto offsetAsPtr = reinterpret_cast<void*>(offset);
     return this->readOrTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
