@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c23ed494_cfa406de",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-01T16:26:59Z",
+      "side": 1,
+      "message": "This chunk of code handles old-format json data, by slurping the \"EffectCode\" string into the \"ParticleCode\" string (which is the only one that\u0027s used internally, now).\n\nAfter this lands (and I confirm that I haven\u0027t broken anything on particles.skia.org, etc...), I\u0027m going to fix all the existing data files in both \u0027resources\u0027, and web storage. (Note that this does work locally - all files still render correctly, and loading+saving in viewer is enough to migrate all the json data).",
+      "revId": "ecb459db3b924baf253d6db62295c61058cf3188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
