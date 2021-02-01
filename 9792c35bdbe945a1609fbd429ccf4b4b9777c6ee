@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea9b4488_64befa74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-01T15:43:23Z",
+      "side": 1,
+      "message": "Did I mention lately how awesome SkSL is?\n\nTest previews:\nhttps://imgur.com/a/n0U60Ag\nhttps://imgur.com/a/sDWO4Gh",
+      "revId": "9792c35bdbe945a1609fbd429ccf4b4b9777c6ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
