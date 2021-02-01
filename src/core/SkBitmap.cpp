@@ -484,7 +484,10 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
 
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
     const SkImageInfo dstInfo = this->info().makeDimensions(rec.fInfo.dimensions());
-    SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes);
+    if (!SkConvertPixels(dstInfo,     dstPixels, this->rowBytes(),
+                         rec.fInfo, rec.fPixels,   rec.fRowBytes)) {
+        return false;
+    }
     this->notifyPixelsChanged();
     return true;
 }
@@ -503,9 +506,8 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
         }
         return false;
     }
-    SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                    pmap.info(), pmap.addr(), pmap.rowBytes());
-    return true;
+    return SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
+                           pmap.info(), pmap.addr(), pmap.rowBytes());
 }
 
 #include "include/core/SkMaskFilter.h"

@@ -177,6 +177,10 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
         return false;
     }
 
+    if (dst.rowBytes() % dst.info().bpp()) {
+        return false;
+    }
+
     dst = dst.clip(this->dimensions(), &pt);
     if (!dst.hasPixels()) {
         return false;

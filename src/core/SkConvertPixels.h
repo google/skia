@@ -13,8 +13,9 @@
 
 class SkColorTable;
 
-void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes);
+bool SK_WARN_UNUSED_RESULT SkConvertPixels(
+        const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRowBytes,
+        const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes);
 
 static inline void SkRectMemcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
                                 size_t trimRowBytes, int rowCount) {
