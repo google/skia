@@ -355,6 +355,7 @@ sksl_shared_tests = [
   "/sksl/shared/Ossfuzz28794.sksl",
   "/sksl/shared/Ossfuzz28904.sksl",
   "/sksl/shared/Ossfuzz29444.sksl",
+  "/sksl/shared/Ossfuzz29494.sksl",
   "/sksl/shared/OutParams.sksl",
   "/sksl/shared/OutParamsTricky.sksl",
   "/sksl/shared/RectangleTexture.sksl",

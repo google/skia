@@ -60,7 +60,11 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
     return eliminate_no_op_boolean(right, op, left);
 }
 
-template <typename T>
+// 'T' is the actual stored type of the literal data (SKSL_FLOAT or SKSL_INT).
+// 'U' is an unsigned version of that, used to perform addition, subtraction, and multiplication,
+// to avoid signed-integer overflow errors. This mimics the use of URESULT vs. RESULT when doing
+// scalar folding in Simplify, later in this file.
+template <typename T, typename U = T>
 static std::unique_ptr<Expression> simplify_vector(const Context& context,
                                                    const Expression& left,
                                                    Token::Kind op,
@@ -92,7 +96,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         ExpressionArray args;
         args.reserve_back(type.columns());
         for (int i = 0; i < type.columns(); i++) {
-            T value = foldFn(left.getVecComponent<T>(i), right.getVecComponent<T>(i));
+            U value = foldFn(left.getVecComponent<T>(i), right.getVecComponent<T>(i));
             args.push_back(std::make_unique<Literal<T>>(left.fOffset, value, &componentType));
         }
         return std::make_unique<Constructor>(left.fOffset, &type, std::move(args));
@@ -108,9 +112,9 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     };
 
     switch (op) {
-        case Token::Kind::TK_PLUS:  return vectorComponentwiseFold([](T a, T b) { return a + b; });
-        case Token::Kind::TK_MINUS: return vectorComponentwiseFold([](T a, T b) { return a - b; });
-        case Token::Kind::TK_STAR:  return vectorComponentwiseFold([](T a, T b) { return a * b; });
+        case Token::Kind::TK_PLUS:  return vectorComponentwiseFold([](U a, U b) { return a + b; });
+        case Token::Kind::TK_MINUS: return vectorComponentwiseFold([](U a, U b) { return a - b; });
+        case Token::Kind::TK_STAR:  return vectorComponentwiseFold([](U a, U b) { return a * b; });
         case Token::Kind::TK_SLASH: {
             if (isVectorDivisionByZero()) {
                 context.fErrors.error(right.fOffset, "division by zero");
@@ -178,11 +182,12 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
     // precision to calculate the results and hope the result makes sense.
     // TODO: detect and handle integer overflow properly.
+    using SKSL_UINT = uint64_t;
     #define RESULT(t, op) std::make_unique<t ## Literal>(context, left.fOffset, \
                                                          leftVal op rightVal)
     #define URESULT(t, op) std::make_unique<t ## Literal>(context, left.fOffset, \
-                                                          (uint64_t) leftVal op   \
-                                                          (uint64_t) rightVal)
+                                                          (SKSL_UINT) leftVal op \
+                                                          (SKSL_UINT) rightVal)
     if (left.is<IntLiteral>() && right.is<IntLiteral>()) {
         SKSL_INT leftVal  = left.as<IntLiteral>().value();
         SKSL_INT rightVal = right.as<IntLiteral>().value();
@@ -271,7 +276,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             return simplify_vector<SKSL_FLOAT>(context, left, op, right);
         }
         if (leftType.componentType().isInteger()) {
-            return simplify_vector<SKSL_INT>(context, left, op, right);
+            return simplify_vector<SKSL_INT, SKSL_UINT>(context, left, op, right);
         }
         return nullptr;
     }
@@ -282,7 +287,8 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             return simplify_vector<SKSL_FLOAT>(context, left, op, splat_scalar(right, left.type()));
         }
         if (rightType.isInteger()) {
-            return simplify_vector<SKSL_INT>(context, left, op, splat_scalar(right, left.type()));
+            return simplify_vector<SKSL_INT, SKSL_UINT>(context, left, op,
+                                                        splat_scalar(right, left.type()));
         }
         return nullptr;
     }
@@ -294,7 +300,8 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                                right);
         }
         if (leftType.isInteger()) {
-            return simplify_vector<SKSL_INT>(context, splat_scalar(left, right.type()), op, right);
+            return simplify_vector<SKSL_INT, SKSL_UINT>(context, splat_scalar(left, right.type()),
+                                                        op, right);
         }
         return nullptr;
     }
