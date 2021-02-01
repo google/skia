@@ -168,6 +168,7 @@ private:
     skcms_TransferFunction fColorSpaceTransferFn;
 
     // transform data
+    bool                   fApplyBackingScale;
     SkScalar               fZoomLevel;
     SkScalar               fRotation;
     SkVector               fOffset;
