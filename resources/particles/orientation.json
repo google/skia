@@ -7,14 +7,12 @@
       "Columns": 1,
       "Rows": 1
    },
-   "EffectCode": [
+   "Code": [
       "void effectSpawn(inout Effect effect) {",
       "  effect.rate = 0.5;",
       "  effect.scale = 0.1;",
       "}",
-      ""
-   ],
-   "Code": [
+      "",
       "void spawn(inout Particle p) {",
       "  p.lifetime = 5;",
       "  float a = radians(mix(-30, -80, rand(p.seed)));",
