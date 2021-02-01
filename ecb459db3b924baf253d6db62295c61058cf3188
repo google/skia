@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "803e76ba_34753cd4",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-01T17:31:55Z",
+      "side": 1,
+      "message": "Sadly, this is what lets us use make_unique (because it\u0027s implemented with (), not {}). C++20 has a change that allows aggregate initialization with parens, but until then you\u0027re stuck.",
+      "parentUuid": "5732bcc5_4ca9e733",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 41,
+        "endChar": 53
+      },
+      "revId": "ecb459db3b924baf253d6db62295c61058cf3188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c23ed494_cfa406de",
         "filename": "modules/particles/src/SkParticleEffect.cpp",
         "patchSetId": 2
