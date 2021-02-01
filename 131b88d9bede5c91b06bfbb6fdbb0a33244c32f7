@@ -22,6 +22,30 @@
       },
       "revId": "131b88d9bede5c91b06bfbb6fdbb0a33244c32f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b2c6e3f_88af0afb",
+        "filename": "resources/sksl/intrinsics/Smoothstep.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T14:55:38Z",
+      "side": 1,
+      "message": "This only has 6 bits in the mantissa, which should be totally fine in half16. But with experience as our guide, yes, I am pretty sure that this will fail somewhere.",
+      "parentUuid": "5f7fafdc_93d1261d",
+      "range": {
+        "startLine": 5,
+        "startChar": 33,
+        "endLine": 5,
+        "endChar": 43
+      },
+      "revId": "131b88d9bede5c91b06bfbb6fdbb0a33244c32f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
