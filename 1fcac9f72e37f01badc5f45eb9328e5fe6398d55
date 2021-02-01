@@ -51,6 +51,24 @@
       "parentUuid": "71cfd6a5_c54e623f",
       "revId": "1fcac9f72e37f01badc5f45eb9328e5fe6398d55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20ad1f7f_ed66986e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-01T22:52:10Z",
+      "side": 1,
+      "message": "The SkottieSlide GUI already has the issue that if you zoom or translate in Viewer the mouse position which brings it up will move with the zoom or translation (since the mouse coordinates have already gone through Viewer\u0027s matrix), but the UI doesn\u0027t. In other words, the SkottieSlide GUI already has issues with scaling which would need to be fixed as well. Probably the best way to fix that is to have a separate set of events for the UI of a slide (as opposed to the content) since these will often be in a different logical space.",
+      "parentUuid": "c4d11546_50491bd7",
+      "revId": "1fcac9f72e37f01badc5f45eb9328e5fe6398d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
