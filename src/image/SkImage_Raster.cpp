@@ -116,10 +116,9 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView refPinnedView(GrRecordingContext* context,
-                                     uint32_t* uniqueID) const override;
     bool onPinAsTexture(GrRecordingContext*) const override;
     void onUnpinAsTexture(GrRecordingContext*) const override;
+    bool isPinnedOnContext(GrRecordingContext*) const override;
 #endif
 
     bool onHasMipmaps() const override { return SkToBool(fBitmap.fMips); }
@@ -142,7 +141,8 @@ private:
 #if SK_SUPPORT_GPU
     mutable GrSurfaceProxyView fPinnedView;
     mutable int32_t fPinnedCount = 0;
-    mutable uint32_t fPinnedUniqueID = 0;
+    mutable uint32_t fPinnedUniqueID = SK_InvalidUniqueID;
+    mutable uint32_t fPinnedContextID = SK_InvalidUniqueID;
 #endif
 
     using INHERITED = SkImage_Base;
@@ -192,38 +192,30 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
 
 #if SK_SUPPORT_GPU
 GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
-                                           GrMipmapped mipMapped) const {
+                                           GrMipmapped mipmapped) const {
     if (!context) {
         return {};
     }
 
-    uint32_t uniqueID;
-    if (GrSurfaceProxyView view = this->refPinnedView(context, &uniqueID)) {
-        GrTextureAdjuster adjuster(context, std::move(view), fBitmap.info().colorInfo(),
-                                   fPinnedUniqueID);
-        return adjuster.view(mipMapped);
-    }
-
-    return GrRefCachedBitmapView(context, fBitmap, mipMapped);
-}
-#endif
-
-#if SK_SUPPORT_GPU
-
-GrSurfaceProxyView SkImage_Raster::refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
     if (fPinnedView) {
-        SkASSERT(fPinnedCount > 0);
-        SkASSERT(fPinnedUniqueID != 0);
-        *uniqueID = fPinnedUniqueID;
-        return fPinnedView;
+        GrColorType ct = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
+                                                           this->colorType(),
+                                                           fPinnedView.proxy()->backendFormat());
+        GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
+        GrTextureAdjuster adjuster(context, fPinnedView, colorInfo, fPinnedUniqueID);
+        return adjuster.view(mipmapped);
     }
-    return {};
+
+    return GrRefCachedBitmapView(context, fBitmap, mipmapped);
 }
 
 bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
+        if (rContext->priv().contextID() != fPinnedContextID) {
+            return false;
+        }
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
@@ -233,22 +225,34 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
         }
         SkASSERT(fPinnedView.asTextureProxy());
         fPinnedUniqueID = fBitmap.getGenerationID();
+        fPinnedContextID = rContext->priv().contextID();
     }
     // Note: we only increment if the texture was successfully pinned
     ++fPinnedCount;
     return true;
 }
 
-void SkImage_Raster::onUnpinAsTexture(GrRecordingContext*) const {
+void SkImage_Raster::onUnpinAsTexture(GrRecordingContext* rContext) const {
     // Note: we always decrement, even if fPinnedTexture is null
     SkASSERT(fPinnedCount > 0);
     SkASSERT(fPinnedUniqueID != 0);
+#if 0 // This would be better but Android currently calls with an already freed context ptr.
+    if (rContext->priv().contextID() != fPinnedContextID) {
+        return;
+    }
+#endif
 
     if (0 == --fPinnedCount) {
         fPinnedView = GrSurfaceProxyView();
-        fPinnedUniqueID = 0;
+        fPinnedUniqueID = SK_InvalidUniqueID;
+        fPinnedContextID = SK_InvalidUniqueID;
     }
 }
+
+bool SkImage_Raster::isPinnedOnContext(GrRecordingContext* rContext) const {
+    return fPinnedContextID == rContext->priv().contextID();
+}
+
 #endif
 
 sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {

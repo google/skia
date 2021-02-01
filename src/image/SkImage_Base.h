@@ -99,11 +99,14 @@ public:
     virtual const GrSurfaceProxyView* view(GrRecordingContext*) const { return nullptr; }
 
     virtual GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const = 0;
-    virtual GrSurfaceProxyView refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
-        return {};
-    }
     virtual bool isYUVA() const { return false; }
+
 #endif
+
+    virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
+    virtual void onUnpinAsTexture(GrRecordingContext*) const {}
+    virtual bool isPinnedOnContext(GrRecordingContext*) const { return false; }
+
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                                  GrSurfaceOrigin* origin) const;
 
@@ -131,9 +134,6 @@ public:
     }
 
     virtual bool onIsValid(GrRecordingContext*) const = 0;
-
-    virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
-    virtual void onUnpinAsTexture(GrRecordingContext*) const {}
 
     virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                         GrDirectContext*) const = 0;
