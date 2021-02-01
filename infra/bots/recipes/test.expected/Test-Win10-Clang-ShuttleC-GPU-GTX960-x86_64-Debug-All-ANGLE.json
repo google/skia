@@ -250,7 +250,7 @@
       "--colorImages",
       "[START_DIR]\\skimage\\colorspace",
       "--svgs",
-      "[START_DIR]\\svg",
+      "[START_DIR]\\svg\\svg",
       "--uninterestingHashesFile",
       "[START_DIR]\\tmp\\uninteresting_hashes.txt",
       "--writePath",
