@@ -32,6 +32,8 @@ sksl_fp_tests = [
   "/sksl/fp/GrChildProcessorsWithInput.fp",
   "/sksl/fp/GrConditionalInUniform.fp",
   "/sksl/fp/GrFunction.fp",
+  "/sksl/fp/GrFunctionArgTypes.fp",
+  "/sksl/fp/GrFunctionReturnTypes.fp",
   "/sksl/fp/GrGrSLTypesAreSupported.fp",
   "/sksl/fp/GrHelloWorld.fp",
   "/sksl/fp/GrInUniform.fp",
