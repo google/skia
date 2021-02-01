@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7d9c392_f7e36971",
+        "filename": "tests/SkSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-01T17:53:49Z",
+      "side": 1,
+      "message": "This API isn\u0027t thread safe - I originally added it just for the fuzzer (which is always single threaded), but DM is going to be running these tests in parallel. Maybe it\u0027s time to add an optional SkRuntimeEffect::Options struct to Make() ?",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 38
+      },
+      "revId": "324c1dbd49879681578d3bcdd302ab1797b087a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
