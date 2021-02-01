@@ -1,8 +1,10 @@
-void main() {
-    int x;
-    if (true) x = 1;
-    if (2 > 1) x = 2; else x = 3;
-    if (1 > 2) x = 4; else x = 5;
-    if (false) x = 6;
-    sk_FragColor.r = half(x);
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    int a = 0, b = 0, c = 0, d = 0;
+    if (true) a = 1;
+    if (2 > 1) b = 2; else b = 3;
+    if (1 > 2) c = 4; else c = 5;
+    if (false) d = 6;
+    return (a == 1 && b == 2 && c == 5 && d == 0) ? colorGreen : colorRed;
 }
