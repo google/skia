@@ -117,6 +117,7 @@ SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLCommaSideEffects,        "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
+SKSL_TEST(SkSLFunctionArgumentMatch,   "shared/FunctionArgumentMatch.sksl")
 SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 
 /*
