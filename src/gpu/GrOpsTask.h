@@ -90,10 +90,6 @@ public:
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
 
-    // Merge as many opsTasks as possible from the head of 'tasks'. They should all be
-    // renderPass compatible. Return the number of tasks merged into 'this'.
-    int mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks);
-
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
@@ -108,6 +104,9 @@ public:
     int numOpChains() const { return fOpChains.count(); }
     const GrOp* getChain(int index) const { return fOpChains[index].head(); }
 #endif
+
+protected:
+    void onMerge(SkSpan<const sk_sp<GrRenderTask>>) override;
 
 private:
     bool isNoOp() const {
@@ -241,6 +240,8 @@ private:
     void forwardCombine(const GrCaps&);
 
     ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
+
+    int onCheckMerge(SkSpan<const sk_sp<GrRenderTask>>) const override;
 
     friend class OpsTaskTestingAccess;
 

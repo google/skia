@@ -129,6 +129,16 @@ public:
     // it is required)?
     bool isInstantiated() const;
 
+    // Merge as many tasks as possible from the head of `candidates` with `this`.
+    // Return the number of tasks merged.
+    int merge(SkSpan<const sk_sp<GrRenderTask>> candidates) {
+        int count = this->onCheckMerge(candidates);
+        if (count) {
+            this->onMerge(candidates.first(count));
+        }
+        return count;
+    }
+
     // Used by GrRenderTaskCluster.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrRenderTask);
 
@@ -155,6 +165,9 @@ protected:
     //
     // targetUpdateBounds must not extend beyond the proxy bounds.
     virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
+
+    // Execute the merge of `this` with the provided tasks.
+    virtual void onMerge(SkSpan<const sk_sp<GrRenderTask>>);
 
     SkSTArray<1, sk_sp<GrSurfaceProxy>> fTargets;
 
@@ -202,6 +215,9 @@ private:
     // Derived classes can override to indicate usage of proxies _other than target proxies_.
     // GrRenderTask itself will handle checking the target proxies.
     virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
+
+    // Query to see how many of the provided tasks can be merged with `this`. Called from `merge`.
+    virtual int onCheckMerge(SkSpan<const sk_sp<GrRenderTask>>) const { return 0; }
 
     void addDependency(GrRenderTask* dependedOn);
     void addDependent(GrRenderTask* dependent);
