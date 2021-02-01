@@ -38,6 +38,7 @@ func main() {
 
 	actualStdout := os.Stdout
 	actualStderr := os.Stderr
+	verbosity := exec.Info
 	if *local {
 		// Task Driver echoes every exec.Run() stdout and stderr to the console,
 		// which makes it hard to find failures (especially stdout).  Send them to /dev/null.
@@ -47,6 +48,9 @@ func main() {
 		}
 		os.Stdout = devnull
 		os.Stderr = devnull
+		// Having stifled stderr/stdout, changing Command.Verbose won't have any visible effect,
+		// but setting it to Silent will bypass a fair chunk of wasted formatting work.
+		verbosity = exec.Silent
 	}
 
 	if flag.NArg() < 1 {
@@ -57,7 +61,7 @@ func main() {
 	// Run `fm <flag>` to find the names of all linked GMs or tests.
 	query := func(flag string) []string {
 		stdout := &bytes.Buffer{}
-		cmd := &exec.Command{Name: fm, Stdout: stdout}
+		cmd := &exec.Command{Name: fm, Stdout: stdout, Verbose: verbosity}
 		cmd.Args = append(cmd.Args, "-i", *resources)
 		cmd.Args = append(cmd.Args, flag)
 		if err := exec.Run(ctx, cmd); err != nil {
@@ -106,10 +110,114 @@ func main() {
 		Sources []string // Passed to FM -s: names of gms/tests, paths to image files, .skps, etc.
 		Flags   []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
 	}
-	todo := []Work{}
 
-	// Parse a job like "gms b=cpu ct=8888" into Work{Sources=<all GMs>, Flags={-b,cpu,--ct,8888}}.
-	parse := func(job []string) (w Work) {
+	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
+	wg := &sync.WaitGroup{}
+	var failures int32 = 0
+
+	worker := func(sources, flags []string) {
+		defer wg.Done()
+
+		stdout := &bytes.Buffer{}
+		stderr := &bytes.Buffer{}
+		cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr, Verbose: verbosity}
+		cmd.Args = append(cmd.Args, "-i", *resources, "-s")
+		cmd.Args = append(cmd.Args, sources...)
+		cmd.Args = append(cmd.Args, flags...)
+
+		// Run our FM command.
+		err := exec.Run(ctx, cmd)
+
+		// On success, scan stdout for any unknown hashes.
+		unknownHash := func() string {
+			if err == nil && *bot != "" { // We only fetch known hashes when using -bot.
+				scanner := bufio.NewScanner(stdout)
+				for scanner.Scan() {
+					if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
+						md5 := parts[1]
+						if !known[md5] {
+							return md5
+						}
+					}
+				}
+				if err := scanner.Err(); err != nil {
+					td.Fatal(ctx, err)
+				}
+			}
+			return ""
+		}()
+
+		// If a batch failed or produced an unknown hash, isolate with individual reruns.
+		if len(sources) > 1 && (err != nil || unknownHash != "") {
+			wg.Add(len(sources))
+			for i := range sources {
+				queue <- Work{sources[i : i+1], flags}
+			}
+			return
+		}
+
+		// If an individual run failed, nothing more to do but fail.
+		if err != nil {
+			atomic.AddInt32(&failures, 1)
+			td.FailStep(ctx, err)
+			if *local {
+				lines := []string{}
+				scanner := bufio.NewScanner(stderr)
+				for scanner.Scan() {
+					lines = append(lines, scanner.Text())
+				}
+				if err := scanner.Err(); err != nil {
+					td.Fatal(ctx, err)
+				}
+				fmt.Fprintf(actualStderr, "%v %v #failed:\n\t%v\n",
+					cmd.Name,
+					strings.Join(cmd.Args, " "),
+					strings.Join(lines, "\n\t"))
+			}
+			return
+		}
+
+		// If an individual run succeeded but produced an unknown hash, TODO upload .png to Gold.
+		// For now just print out the command and the hash it produced.
+		if unknownHash != "" {
+			fmt.Fprintf(actualStdout, "%v %v #%v\n",
+				cmd.Name,
+				strings.Join(cmd.Args, " "),
+				unknownHash)
+		}
+	}
+
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go func() {
+			for w := range queue {
+				worker(w.Sources, w.Flags)
+			}
+		}()
+	}
+
+	// Get some work going, first breaking it into batches to increase our parallelism.
+	kickoff := func(sources, flags []string) {
+		if len(sources) == 0 {
+			return // A blank or commented job line from -script or the command line.
+		}
+
+		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
+		// (Intentionally not rand.Seed()'d to stay deterministically reproducible.)
+		rand.Shuffle(len(sources), func(i, j int) {
+			sources[i], sources[j] = sources[j], sources[i]
+		})
+
+		nbatches := runtime.NumCPU()                      // Arbitrary, nice to scale ~= cores.
+		batch := (len(sources) + nbatches - 1) / nbatches // Round up to avoid empty batches.
+		util.ChunkIter(len(sources), batch, func(start, end int) error {
+			wg.Add(1)
+			queue <- Work{sources[start:end], flags}
+			return nil
+		})
+	}
+
+	// Parse a job like "gms b=cpu ct=8888" into sources and flags for kickoff().
+	parse := func(job []string) (sources, flags []string) {
 		for _, token := range job {
 			// Everything after # is a comment.
 			if strings.HasPrefix(token, "#") {
@@ -118,12 +226,12 @@ func main() {
 
 			// Treat "gm" or "gms" as a shortcut for all known GMs.
 			if token == "gm" || token == "gms" {
-				w.Sources = append(w.Sources, gms...)
+				sources = append(sources, gms...)
 				continue
 			}
 			// Same for tests.
 			if token == "test" || token == "tests" {
-				w.Sources = append(w.Sources, tests...)
+				sources = append(sources, tests...)
 				continue
 			}
 
@@ -135,18 +243,18 @@ func main() {
 				}
 				f += parts[0]
 
-				w.Flags = append(w.Flags, f, parts[1])
+				flags = append(flags, f, parts[1])
 				continue
 			}
 
 			// Anything else must be the name of a source for FM to run.
-			w.Sources = append(w.Sources, token)
+			sources = append(sources, token)
 		}
 		return
 	}
 
 	// Parse one job from the command line, handy for ad hoc local runs.
-	todo = append(todo, parse(flag.Args()[1:]))
+	kickoff(parse(flag.Args()[1:]))
 
 	// Any number of jobs can come from -script.
 	if *script != "" {
@@ -160,14 +268,14 @@ func main() {
 		}
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			todo = append(todo, parse(strings.Fields(scanner.Text())))
+			kickoff(parse(strings.Fields(scanner.Text())))
 		}
 		if err := scanner.Err(); err != nil {
 			td.Fatal(ctx, err)
 		}
 	}
 
-	// If we're a bot (or acting as if we are one), add its work too.
+	// If we're a bot (or acting as if we are one), kick off its work.
 	if *bot != "" {
 		parts := strings.Split(*bot, "-")
 		OS := parts[1]
@@ -186,132 +294,12 @@ func main() {
 			tests = filter(tests, func(s string) bool { return s != "GoodHash" })
 		}
 
-		// You could use parse() here if you like, but it's just as easy to make Work{} directly.
-		work := func(sources []string, flags string) {
-			todo = append(todo, Work{sources, strings.Fields(flags)})
-		}
-		work(tests, "-b cpu")
-		work(gms, "-b cpu")
-		work(gms, "-b cpu --skvm")
+		kickoff(tests, strings.Fields("-b cpu"))
+		kickoff(gms, strings.Fields("-b cpu"))
+		kickoff(gms, strings.Fields("-b cpu --skvm"))
 	}
 
-	// We'll try to spread our work roughly evenly over a number of worker goroutines.
-	// We can't combine Work with different Flags, but we can do the opposite,
-	// splitting a single Work into smaller Work units with the same Flags,
-	// even all the way down to a single Source.  So we'll optimistically run
-	// batches of Sources together, but if a batch fails or crashes, we'll
-	// split it up and re-run one at a time to find the precise failures.
-	var failures int32 = 0
-	wg := &sync.WaitGroup{}
-	worker := func(queue chan Work) {
-		for w := range queue {
-			stdout := &bytes.Buffer{}
-			stderr := &bytes.Buffer{}
-			cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
-			cmd.Args = append(cmd.Args, "-i", *resources)
-			cmd.Args = append(cmd.Args, "-s")
-			cmd.Args = append(cmd.Args, w.Sources...)
-			cmd.Args = append(cmd.Args, w.Flags...)
-			// TODO: when len(w.Sources) == 1, add -w ... to cmd.Args to write a .png for upload.
-
-			// On cmd failure or unknown hash, we'll split the Work batch up into individual reruns.
-			requeue := func() {
-				// Requeuing Work from the workers is what makes sizing the chan buffer tricky:
-				// we don't ever want these `queue <-` to block a worker because of a full buffer.
-				for _, source := range w.Sources {
-					wg.Add(1)
-					queue <- Work{[]string{source}, w.Flags}
-				}
-			}
-
-			if err := exec.Run(ctx, cmd); err != nil {
-				if len(w.Sources) == 1 {
-					// If a source ran alone and failed, that's just a failure.
-					atomic.AddInt32(&failures, 1)
-					td.FailStep(ctx, err)
-					if *local {
-						lines := []string{}
-						scanner := bufio.NewScanner(stderr)
-						for scanner.Scan() {
-							lines = append(lines, scanner.Text())
-						}
-						if err := scanner.Err(); err != nil {
-							td.Fatal(ctx, err)
-						}
-
-						fmt.Fprintf(actualStderr, "%v %v #failed:\n\t%v\n",
-							cmd.Name,
-							strings.Join(cmd.Args, " "),
-							strings.Join(lines, "\n\t"))
-					}
-				} else {
-					// If a batch of sources failed, break up the batch to isolate the failures.
-					requeue()
-				}
-			} else {
-				// FM completed successfully.  Scan stdout for any unknown hash.
-				unknown := func() string {
-					if *bot != "" { // The map known[] is only filled when *bot != "".
-						scanner := bufio.NewScanner(stdout)
-						for scanner.Scan() {
-							if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
-								md5 := parts[1]
-								if !known[md5] {
-									return md5
-								}
-							}
-						}
-						if err := scanner.Err(); err != nil {
-							td.Fatal(ctx, err)
-						}
-					}
-					return ""
-				}()
-
-				if unknown != "" {
-					if len(w.Sources) == 1 {
-						// TODO upload .png with goldctl.
-						fmt.Fprintf(actualStdout, "%v %v #%v\n",
-							cmd.Name,
-							strings.Join(cmd.Args, " "),
-							unknown)
-					} else {
-						// Split the batch to run individually and TODO, write .pngs.
-						requeue()
-					}
-				}
-			}
-			wg.Done()
-		}
-	}
-
-	workers := runtime.NumCPU()
-	queue := make(chan Work, 1<<20) // Huge buffer to avoid having to be smart about requeuing.
-	for i := 0; i < workers; i++ {
-		go worker(queue)
-	}
-
-	for _, w := range todo {
-		if len(w.Sources) == 0 {
-			continue // A blank or commented job line from -script or the command line.
-		}
-
-		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
-		// (Intentionally not rand.Seed()'d to stay deterministically reproducible.)
-		rand.Shuffle(len(w.Sources), func(i, j int) {
-			w.Sources[i], w.Sources[j] = w.Sources[j], w.Sources[i]
-		})
-
-		// Round batch sizes up so there's at least one source per batch.
-		batch := (len(w.Sources) + workers - 1) / workers
-		util.ChunkIter(len(w.Sources), batch, func(start, end int) error {
-			wg.Add(1)
-			queue <- Work{w.Sources[start:end], w.Flags}
-			return nil
-		})
-	}
 	wg.Wait()
-
 	if failures > 0 {
 		if *local {
 			// td.Fatalf() would work fine, but barfs up a panic that we don't need to see.
