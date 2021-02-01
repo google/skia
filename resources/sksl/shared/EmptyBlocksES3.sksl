@@ -1,0 +1,17 @@
+half4 main() {
+    half4 color = half4(0);
+
+    for (int counter=0; counter<10; ++counter) int x;
+    for (int counter=0; counter<10; ++counter) int y, z;
+    for (int counter=0; counter<10; ++counter) true;
+
+    if (sqrt(1) == 1) color.g = 1; else 1;
+    if (sqrt(1) == 2) 0; else color.a = 1;
+    if (sqrt(1) == 3) 0; else 1;
+
+    while (sqrt(1) == 2) 1 + 2 + 3;
+
+    do 1 * 2 * 3; while (sqrt(1) == 2);
+
+    return color;
+}

@@ -116,6 +116,12 @@ SKSL_TEST(SkSLIntrinsicMixFloat,       "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLCommaSideEffects,        "shared/CommaSideEffects.sksl")
+SKSL_TEST(SkSLConstantIf,              "shared/ConstantIf.sksl")
+SKSL_TEST(SkSLConstVariableComparison, "shared/ConstVariableComparison.sksl")
+SKSL_TEST(SkSLDeadIfStatement,         "shared/DeadIfStatement.sksl")
+SKSL_TEST(SkSLDeadStripFunctions,      "shared/DeadStripFunctions.sksl")
+SKSL_TEST(SkSLDependentInitializers,   "shared/DependentInitializers.sksl")
+SKSL_TEST(SkSLEmptyBlocksES2,          "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 
@@ -143,6 +149,7 @@ SKSL_TEST(SkSLIntrinsicMixBool,        "intrinsics/MixBool.sksl")
 SKSL_TEST(SkSLIntrinsicSignInt,        "intrinsics/SignInt.sksl")
 
 SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")
+SKSL_TEST(SkSLEmptyBlocksES3,          "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")
 SKSL_TEST(SkSLOperatorsES3,            "shared/OperatorsES3.sksl")
 */
