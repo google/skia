@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "91590cf1_00b5d036",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T19:18:42Z",
+      "side": 1,
+      "message": "The scalar op-folding code isn\u0027t great either; it doesn\u0027t detect overflows properly at all, and dodges UBSAN mostly because SKSL_INT is 64 bits but the parser rejects literals \u003e2^32. The ideal here is that we actually detect overflow based on the types involved (ubyte 150+ubyte 150 should overflow) and report the error. We should look at cleaning up both those paths with this goal in mind, and it\u0027ll probably be significantly different from what we have now. Eventually the fuzzer will realize it can cause scalar overflows too, it just hasn\u0027t gotten there yet because the swizzles are such a tempting target (lots of juicy IRNodes for just a few bytes!)",
+      "parentUuid": "dd27c4e3_368d26bd",
+      "revId": "52be4381006d7b66325f38dca9736af2ef59226f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "926d4a2a_3a1fb1ed",
