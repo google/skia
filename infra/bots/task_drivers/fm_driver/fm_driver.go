@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -278,25 +279,41 @@ func main() {
 	// If we're a bot (or acting as if we are one), kick off its work.
 	if *bot != "" {
 		parts := strings.Split(*bot, "-")
-		OS := parts[1]
+		model, CPU_or_GPU := parts[3], parts[4]
 
-		// For no reason but as a demo, skip GM aarectmodes and test GoodHash.
-		filter := func(in []string, test func(string) bool) (out []string) {
-			for _, s := range in {
-				if test(s) {
-					out = append(out, s)
-				}
+		commonFlags := []string{
+			"--nativeFonts",
+			strconv.FormatBool(strings.Contains(*bot, "NativeFonts")),
+		}
+
+		run := func(sources []string, extraFlags string) {
+			kickoff(sources, append(strings.Fields(extraFlags), commonFlags...))
+		}
+
+		if CPU_or_GPU == "CPU" {
+			commonFlags = append(commonFlags, "-b", "cpu")
+
+			run(tests, "")
+			run(gms, "--ct 8888 --legacy")  // Equivalent to DM --config 8888.
+
+			if model == "GCE" {
+				run(gms, "--ct g8 --legacy")                      // --config g8
+				run(gms, "--ct 565 --legacy")                     // --config 565
+				run(gms, "--ct 8888")                             // --config srgb
+				run(gms, "--ct f16")                              // --config esrgb
+				run(gms, "--ct f16 --tf linear")                  // --config f16
+				run(gms, "--ct 8888 --gamut p3")                  // --config p3
+				run(gms, "--ct 8888 --gamut narrow --tf 2.2")     // --config narrow
+				run(gms, "--ct f16 --gamut rec2020 --tf rec2020") // --config erec2020
+
+				run(gms, "--skvm")
+				run(gms, "--skvm --ct f16")
 			}
-			return
-		}
-		if OS == "Debian10" {
-			gms = filter(gms, func(s string) bool { return s != "aarectmodes" })
-			tests = filter(tests, func(s string) bool { return s != "GoodHash" })
-		}
 
-		kickoff(tests, strings.Fields("-b cpu"))
-		kickoff(gms, strings.Fields("-b cpu"))
-		kickoff(gms, strings.Fields("-b cpu --skvm"))
+			// TODO: image/colorImage/svg tests
+			// TODO: pic-8888 equivalent?
+			// TODO: serialize-8888 equivalent?
+		}
 	}
 
 	wg.Wait()
