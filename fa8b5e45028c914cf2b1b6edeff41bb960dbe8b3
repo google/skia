@@ -16,6 +16,24 @@
       "message": "Skottie and (relative-sized) SVG slides now render 2x larger and get clipped out.  I\u0027m guessing it\u0027s because they use the window width/hight passed to load() \u0026 resize() to scale to full window size.\n\nAre slides supposed to compensate for the extra scale or is viewer supposed to scale down w/h before passing to slides?\n\n(ie what units are winWidth/winHeight in?)",
       "revId": "fa8b5e45028c914cf2b1b6edeff41bb960dbe8b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6535d931_d27ba08e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-01T16:19:51Z",
+      "side": 1,
+      "message": "The idea is for the units on the Skia side to be in terms of raw pixel size, then have the scale (in Viewer the fZoomFactor) default to the window scale factor so the drawing would be scaled up to size. In this case since svg and skottie are tracking the window size (now reported in raw pixels) and the default fZoomFactor is a scale by two, they are drawn 4x as big as they used to be (when we wanted just 2x). (Before the window size was in \u0027big pixels\" and the fZoomFactor default was identity.)\n\nThe issue here being that the gms are generally written in terms of \"big pixel\" units which we want to scale up on a retina device so that they end up more or less the same physical size on the screen and not tiny. The svg and skottie views which resize to the window size are in window units which used to be \"big pixel\" units and are now \"raw pixel\" units. So the real issue here is that different base zooms are wanted. We could split this out in Viewer from the fZoomFactor (fBackingFactor) and have the slide tell us if it is hi-dpi aware and does not need the fBackingFactor (it is already hi-dpi aware by virtue of using the window bounds to scale itself). Note there are two different ways to use the window bounds, one to do scale / stretch and one to simply draw more and a greater density.\n\nSplitting out the backing scale factor is probably a good idea anyway, since fZoomFactor is applied exponentially so it\u0027s rather difficult to get back to 1:1 from 2:1 scale using it.",
+      "parentUuid": "07fb541a_699d5662",
+      "revId": "fa8b5e45028c914cf2b1b6edeff41bb960dbe8b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
