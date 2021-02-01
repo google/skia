@@ -16,6 +16,29 @@
       "message": "This is clunky, but does work. Wondering if it would be cleaner to just disambiguate simplify_vector into two functions - or figure out a way to share the scalar op-folding code in Simplify, rather than having a repeated copy in simplify_vector?",
       "revId": "52be4381006d7b66325f38dca9736af2ef59226f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "926d4a2a_3a1fb1ed",
+        "filename": "src/sksl/SkSLConstantFolder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T19:07:01Z",
+      "side": 1,
+      "message": "nothing to change: We\u0027re allowing these SKSL_INTs to be implicitly converted to SKSL_UINTs here. At first I wasn\u0027t sure that this was safe, but it looks to me like this is \"implementation defined\" behavior if we pass a negative number here, not UB. Assuming our compilers are sane this should be fine.",
+      "range": {
+        "startLine": 99,
+        "startChar": 29,
+        "endLine": 99,
+        "endChar": 84
+      },
+      "revId": "52be4381006d7b66325f38dca9736af2ef59226f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
