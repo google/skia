@@ -12,6 +12,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrTBlockList.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/vk/GrVkSampler.h"
 
@@ -44,9 +45,18 @@ public:
         kDstInputAttachmentIndex = 0
     };
 
+    // The two types of memory layout
+    enum Layout {
+        kStd140Layout = 0,
+        kStd430Layout = 1,
+
+        kLastLayout = kStd430Layout
+    };
+    static constexpr int kLayoutCount = kLastLayout + 1;
+
     struct VkUniformInfo : public UniformInfo {
-        // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
-        uint32_t                fUBOffset;
+        // offsets are only valid if the GrSLType of the fVariable is not a sampler
+        uint32_t                fOffsets[kLayoutCount];
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
@@ -78,12 +88,24 @@ public:
         return fUniforms.item(idx);
     }
 
+    bool getFlipY() const { return fFlipY; }
+
+    bool usePushConstants() const { return fUsePushConstants; }
+    uint32_t currentOffset() const {
+        return fUsePushConstants ? fCurrentOffsets[kStd430Layout] : fCurrentOffsets[kStd140Layout];
+    }
+    Layout layout() const {
+        return fUsePushConstants ? kStd430Layout : kStd140Layout;
+    }
+
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentUBOOffset(0) {
+        , fFlipY(program->origin() != kTopLeft_GrSurfaceOrigin)
+        , fUsePushConstants(false)
+        , fCurrentOffsets{0, 0} {
     }
 
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
@@ -135,13 +157,17 @@ private:
         return fUniforms.item(u.toIndex());
     }
 
+    bool determineIfUsePushConstants() const;
+
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
     UniformInfo         fInputUniform;
     GrSwizzle           fInputSwizzle;
+    bool                fFlipY;
+    mutable bool        fUsePushConstants;
 
-    uint32_t            fCurrentUBOOffset;
+    uint32_t            fCurrentOffsets[kLayoutCount];
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
