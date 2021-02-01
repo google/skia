@@ -12,6 +12,7 @@ DEFAULT_BUILD_PRODUCTS = [
   'dm.exe',
   'dm.app',
   'fm',
+  'fm.exe',
   'nanobench.app',
   'get_images_from_skps',
   'get_images_from_skps.exe',

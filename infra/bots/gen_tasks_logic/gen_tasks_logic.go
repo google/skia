@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	BUILD_TASK_DRIVERS_NAME    = "Housekeeper-PerCommit-BuildTaskDrivers"
+	BUILD_TASK_DRIVERS_PREFIX  = "Housekeeper-PerCommit-BuildTaskDrivers"
 	BUNDLE_RECIPES_NAME        = "Housekeeper-PerCommit-BundleRecipes"
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
@@ -801,16 +801,20 @@ func (b *jobBuilder) bundleRecipes() string {
 // buildTaskDrivers generates the task to compile the task driver code to run on
 // all platforms. Returns the name of the task, which may be added as a
 // dependency.
-func (b *jobBuilder) buildTaskDrivers() string {
-	b.addTask(BUILD_TASK_DRIVERS_NAME, func(b *taskBuilder) {
+func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
+	name := BUILD_TASK_DRIVERS_PREFIX + "_" + goos + "_" + goarch
+	b.addTask(name, func(b *taskBuilder) {
 		b.usesGo()
-		b.cmd("/bin/bash", "skia/infra/bots/build_task_drivers.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR)
+		b.cmd("/bin/bash", "skia/infra/bots/build_task_drivers.sh",
+			specs.PLACEHOLDER_ISOLATED_OUTDIR,
+			goos,
+			goarch)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.idempotent()
 		b.isolate("task_drivers.isolate")
 	})
-	return BUILD_TASK_DRIVERS_NAME
+	return name
 }
 
 // updateGoDeps generates the task to update Go dependencies.
@@ -833,7 +837,7 @@ func (b *jobBuilder) updateGoDeps() {
 			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
 			"--alsologtostderr",
 		)
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.isolate("empty.isolate")
@@ -875,7 +879,7 @@ func (b *jobBuilder) createDockerImage(wasm bool) string {
 			"--swarm_out_dir", specs.PLACEHOLDER_ISOLATED_OUTDIR,
 			"--alsologtostderr",
 		)
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.isolate("empty.isolate")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
@@ -907,7 +911,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
 			"--alsologtostderr",
 		)
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(false))
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.isolate("empty.isolate")
@@ -939,7 +943,7 @@ func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
 			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
 			"--alsologtostderr",
 		)
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(true))
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.isolate("empty.isolate")
@@ -1112,7 +1116,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 func (b *jobBuilder) checkGnToBp() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.isolate("compile.isolate")
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.cmd("./run_gn_to_bp",
 			"--local=false",
 			"--project_id", "skia-swarming-bots",
@@ -1143,7 +1147,7 @@ func (b *jobBuilder) housekeeper() {
 func (b *jobBuilder) g3FrameworkCanary() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.isolate("empty.isolate")
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.cmd("./g3_canary",
 			"--local=false",
 			"--project_id", "skia-swarming-bots",
@@ -1384,16 +1388,24 @@ func (b *jobBuilder) dm() {
 }
 
 func (b *jobBuilder) fm() {
+	goos := "linux"
+	if strings.Contains(b.parts["os"], "Win") {
+		goos = "windows"
+	}
+	if strings.Contains(b.parts["os"], "Mac") {
+		goos = "darwin"
+	}
+
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.isolate("test_skia_bundled.isolate")
-		b.dep(b.buildTaskDrivers(), b.compile())
-		b.cmd("./fm_driver",
+		b.dep(b.buildTaskDrivers(goos, "amd64"), b.compile())
+		b.cmd("./fm_driver${EXECUTABLE_SUFFIX}",
 			"--local=false",
 			"--resources=skia/resources",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--bot", b.Name,
-			"build/fm")
+			"build/fm${EXECUTABLE_SUFFIX}")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
 		b.expiration(15 * time.Minute)
@@ -1406,7 +1418,7 @@ func (b *jobBuilder) fm() {
 func (b *jobBuilder) canary(rollerName string) {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.isolate("empty.isolate")
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.cmd("./canary",
 			"--local=false",
 			"--project_id", "skia-swarming-bots",
@@ -1435,7 +1447,7 @@ func (b *jobBuilder) puppeteer() {
 		b.defaultSwarmDimensions()
 		b.usesNode()
 		b.cipd(CIPD_PKG_LUCI_AUTH)
-		b.dep(b.buildTaskDrivers(), compileTaskName)
+		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName)
 		b.output(OUTPUT_PERF)
 		b.timeout(20 * time.Minute)
 		b.isolate("perf_puppeteer.isolate")
@@ -1546,7 +1558,7 @@ func (b *jobBuilder) cifuzz() {
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.cipd(CIPD_PKG_LUCI_AUTH)
 		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.output("cifuzz_out")
 		b.timeout(60 * time.Minute)
 		b.isolate("whole_repo.isolate")
@@ -1697,7 +1709,7 @@ func (b *jobBuilder) compileWasmGMTests(compileName string) {
 		b.usesDocker()
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.cipd(CIPD_PKG_LUCI_AUTH)
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.output("wasm_out")
 		b.timeout(60 * time.Minute)
 		b.isolate("compile.isolate")
@@ -1732,7 +1744,7 @@ func (b *jobBuilder) runWasmGMTests() {
 		b.swarmDimensions()
 		b.cipd(CIPD_PKG_LUCI_AUTH)
 		b.cipd(CIPD_PKGS_GOLDCTL...)
-		b.dep(b.buildTaskDrivers())
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(compileTaskName)
 		b.timeout(60 * time.Minute)
 		b.isolate("wasm_gm_tests.isolate")
