@@ -33,6 +33,24 @@
       "message": "Thanks.\n\nThere\u0027s another wrinkle with SkottieSlide: in addition to scaling content relative to window size, it also attempts to also scale a ImGui histogram (you get it if you hover at the bottom of the window).\n\nThe UI is now half-size but I think I can fix that by plumbing the zoom factor to SkottieSlide and scaling the UI only.",
       "revId": "1fcac9f72e37f01badc5f45eb9328e5fe6398d55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4d11546_50491bd7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-01T21:37:32Z",
+      "side": 1,
+      "message": "Hmmm, yes, it\u0027s half size if the backing scale is two and being applied. Disabling the backing scale using the new checkbox puts it back at the bottom.",
+      "parentUuid": "71cfd6a5_c54e623f",
+      "revId": "1fcac9f72e37f01badc5f45eb9328e5fe6398d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
