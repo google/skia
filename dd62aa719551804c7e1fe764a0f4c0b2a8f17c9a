@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb113b26_3af26293",
+        "filename": "modules/skottie/src/effects/SphereEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-01T16:54:47Z",
+      "side": 1,
+      "message": "good point, done.",
+      "parentUuid": "8576f785_5f1e27d5",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 179,
+        "endChar": 11
+      },
+      "revId": "dd62aa719551804c7e1fe764a0f4c0b2a8f17c9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "25d2c05f_7b253479",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-02-01T16:02:54Z",
       "side": 1,
       "message": "Is there a sensible default for this?  It\u0027s {0,0,0, 0,0,0, 0,0,0} right now right?  Or is it 9 undefined values?",
+      "revId": "dd62aa719551804c7e1fe764a0f4c0b2a8f17c9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df3a89a6_85b3f439",
+        "filename": "modules/skottie/src/effects/SphereEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-01T16:54:47Z",
+      "side": 1,
+      "message": "Ah, good catch - I converted from SkM44 to array and forgot to initialize.\n\nChanging back to SkM44 and deferring 3x3 conversion to buildEffectShader.",
+      "parentUuid": "25d2c05f_7b253479",
       "revId": "dd62aa719551804c7e1fe764a0f4c0b2a8f17c9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }

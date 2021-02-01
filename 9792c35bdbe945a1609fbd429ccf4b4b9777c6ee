@@ -68,6 +68,24 @@
       "message": "Might help to have one quick comment before this... is it something like\n\n  // This shader maps its child shader onto a sphere.\n\n?",
       "revId": "9792c35bdbe945a1609fbd429ccf4b4b9777c6ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2e303ec_070cb007",
+        "filename": "modules/skottie/src/effects/SphereEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-01T16:54:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0586ae64_0e6bf8b3",
+      "revId": "9792c35bdbe945a1609fbd429ccf4b4b9777c6ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
