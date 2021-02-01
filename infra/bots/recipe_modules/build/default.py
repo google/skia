@@ -102,6 +102,8 @@ def compile_fn(api, checkout_root, out_dir):
     # Use lowercase letters.
     # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode
     XCODE_BUILD_VERSION = '12c33'
+    if compiler == 'Xcode11.4.1':
+      XCODE_BUILD_VERSION = '11e503a'
     extra_cflags.append(
         '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.workdir.join(
