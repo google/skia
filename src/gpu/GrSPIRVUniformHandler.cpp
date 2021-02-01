@@ -88,6 +88,9 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         // This query is only valid for certain types.
         case kVoid_GrSLType:
         case kBool_GrSLType:
+        case kBool2_GrSLType:
+        case kBool3_GrSLType:
+        case kBool4_GrSLType:
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
@@ -167,6 +170,9 @@ static inline uint32_t grsltype_to_size(GrSLType type) {
         // This query is only valid for certain types.
         case kVoid_GrSLType:
         case kBool_GrSLType:
+        case kBool2_GrSLType:
+        case kBool3_GrSLType:
+        case kBool4_GrSLType:
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
