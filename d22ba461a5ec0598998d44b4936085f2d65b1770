@@ -51,6 +51,24 @@
       "parentUuid": "354a374e_ba47ae88",
       "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5df0008_f8d45834",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-01T18:43:03Z",
+      "side": 1,
+      "message": "If you look at FileResourceProvider, it just concats baseDir + path + name to load the file - so whether you split into dir/name of just pass the full path makes not difference for relative paths.\n\nLet\u0027s land as is and we can tweak later.",
+      "parentUuid": "d7e3ef60_c020d9cc",
+      "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
