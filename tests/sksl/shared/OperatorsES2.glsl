@@ -11,7 +11,7 @@ vec4 main() {
     y = 0.5;
     z = 5;
     bool c = sqrt(2.0) > 2.0;
-    bool d = true ^^ c;
+    bool d = true != c;
     bool e = c;
     x += 12.0;
     x -= 12.0;
