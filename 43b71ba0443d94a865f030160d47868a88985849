@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3ddaae47_d00750eb",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-01T21:33:01Z",
+      "side": 1,
+      "message": "This is a much bigger win: 18.2ms -\u003e 9.45ms on my laptop. However, with that change it\u0027s failing the \"matches reference\" correctness test. It may be that the tolerance is a bit too tight given that the reference impl is still using the bounding box center calculation?",
+      "parentUuid": "7a05a14d_081f8dbe",
+      "range": {
+        "startLine": 136,
+        "startChar": 21,
+        "endLine": 136,
+        "endChar": 73
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6d97198_96b4c555",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 5
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-01T20:16:28Z",
       "side": 1,
       "message": "I\u0027m guessing this would be faster just typed out as\n\n  std::max(dot(p0, p0), dot(p1, p1), dot(p2, p2))\n\nBut can you benchmark it?",
+      "range": {
+        "startLine": 150,
+        "startChar": 40,
+        "endLine": 151,
+        "endChar": 45
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2d96b4b_c5fea7df",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-01T21:33:01Z",
+      "side": 1,
+      "message": "Ok, typing it out as:\n\n  max_len \u003d std::max(grvx::dot(p0, p0), std::max(grvx::dot(p1, p1), grvx::dot(p2, p2)));\n\nKnocks about 0.4ms off the median time of the new bench (18.2ms -\u003e 17.8ms) on my laptop. Worth it?",
+      "parentUuid": "b6d97198_96b4c555",
       "range": {
         "startLine": 150,
         "startChar": 40,
