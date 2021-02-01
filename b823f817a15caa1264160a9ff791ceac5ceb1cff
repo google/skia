@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d03b0c9_09e71c6f",
+        "filename": "src/core/SkConvertPixels.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-01T17:58:05Z",
+      "side": 1,
+      "message": "Do you want to add that warning about ignore the return result?",
+      "revId": "b823f817a15caa1264160a9ff791ceac5ceb1cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
