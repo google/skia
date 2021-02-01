@@ -488,10 +488,13 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
 static const char* glsltype_string(const Context& context, const Type& type) {
     // If a new GrSL type is added, this function will need to be updated.
-    static_assert(kGrSLTypeCount == 46);
+    static_assert(kGrSLTypeCount == 49);
 
     if (type == *context.fTypes.fVoid    ) { return "kVoid_GrSLType";     }
     if (type == *context.fTypes.fBool    ) { return "kBool_GrSLType";     }
+    if (type == *context.fTypes.fBool2   ) { return "kBool2_GrSLType";    }
+    if (type == *context.fTypes.fBool3   ) { return "kBool3_GrSLType";    }
+    if (type == *context.fTypes.fBool4   ) { return "kBool4_GrSLType";    }
     if (type == *context.fTypes.fByte    ) { return "kByte_GrSLType";     }
     if (type == *context.fTypes.fByte2   ) { return "kByte2_GrSLType";    }
     if (type == *context.fTypes.fByte3   ) { return "kByte3_GrSLType";    }
