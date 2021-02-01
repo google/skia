@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c38cfa8_dabf97ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-01T14:10:05Z",
+      "side": 1,
+      "message": "This removes the old matrix filter factory from SkImageFilter, so there is only SkImageFilters::MatrixTransform to update to use SkSamplingOptions. Maybe this can land before your changes?",
+      "revId": "2b108b7c37ec6526359d820ca40e800777aafae1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
