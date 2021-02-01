@@ -191,10 +191,15 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
     if (!context || !fContext->priv().matches(context)) {
         return {};
     }
-
-
-    GrTextureAdjuster adjuster(context, *this->view(context), this->imageInfo().colorInfo(),
-                               this->uniqueID());
+    const GrSurfaceProxyView* view = this->view(context);
+    if (!view) {
+        return {};
+    }
+    GrColorType ct = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
+                                                       this->colorType(),
+                                                       view->proxy()->backendFormat());
+    GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
+    GrTextureAdjuster adjuster(context, *view, colorInfo, this->uniqueID());
     return adjuster.view(mipMapped);
 }
 
