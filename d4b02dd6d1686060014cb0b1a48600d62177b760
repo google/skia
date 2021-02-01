@@ -49,6 +49,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "235057f5_3d87cd01",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-01T14:55:17Z",
+      "side": 1,
+      "message": "Can we decouple the FP-specific uniform handling (involving these types) from the idea of marking a DSLVar as a uniform? This ties us to GPU support, which shouldn\u0027t really be necessary with runtime effects + CPU backend.",
+      "revId": "d4b02dd6d1686060014cb0b1a48600d62177b760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "95d932bf_9fd74d71",
         "filename": "tests/SkSLDSLTest.cpp",
         "patchSetId": 1
