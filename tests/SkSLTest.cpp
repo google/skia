@@ -123,6 +123,8 @@ SKSL_TEST(SkSLDeadStripFunctions,      "shared/DeadStripFunctions.sksl")
 SKSL_TEST(SkSLDependentInitializers,   "shared/DependentInitializers.sksl")
 SKSL_TEST(SkSLEmptyBlocksES2,          "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
+SKSL_TEST(SkSLFunctionArgTypeMatch,    "shared/FunctionArgTypeMatch.sksl")
+SKSL_TEST(SkSLFunctionReturnTypeMatch, "shared/FunctionReturnTypeMatch.sksl")
 SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 
 /*

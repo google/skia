@@ -1,0 +1,49 @@
+uniform half4 colorGreen, colorRed;
+
+bool takes_float   (float    x)         { return true; }
+bool takes_float2  (float2   x)         { return true; }
+bool takes_float3  (float3   x)         { return true; }
+bool takes_float4  (float4   x)         { return true; }
+bool takes_float2x2(float2x2 x)         { return true; }
+bool takes_float3x3(float3x3 x)         { return true; }
+bool takes_float4x4(float4x4 x)         { return true; }
+bool takes_half    (half     x)         { return true; }
+bool takes_half2   (half2    x)         { return true; }
+bool takes_half3   (half3    x)         { return true; }
+bool takes_half4   (half4    x)         { return true; }
+bool takes_half2x2 (half2x2  x)         { return true; }
+bool takes_half3x3 (half3x3  x)         { return true; }
+bool takes_half4x4 (half4x4  x)         { return true; }
+bool takes_bool    (bool     x)         { return true; }
+bool takes_bool2   (bool2    x)         { return true; }
+bool takes_bool3   (bool3    x)         { return true; }
+bool takes_bool4   (bool4    x)         { return true; }
+bool takes_int     (int      x)         { return true; }
+bool takes_int2    (int2     x)         { return true; }
+bool takes_int3    (int3     x)         { return true; }
+bool takes_int4    (int4     x)         { return true; }
+
+half4 main() {
+    return takes_float   (float    (1))    &&
+           takes_float2  (float2   (2))    &&
+           takes_float3  (float3   (3))    &&
+           takes_float4  (float4   (4))    &&
+           takes_float2x2(float2x2 (2))    &&
+           takes_float3x3(float3x3 (3))    &&
+           takes_float4x4(float4x4 (4))    &&
+           takes_half    (half     (1))    &&
+           takes_half2   (half2    (2))    &&
+           takes_half3   (half3    (3))    &&
+           takes_half4   (half4    (4))    &&
+           takes_half2x2 (half2x2  (2))    &&
+           takes_half3x3 (half3x3  (3))    &&
+           takes_half4x4 (half4x4  (4))    &&
+           takes_bool    (bool     (true)) &&
+           takes_bool2   (bool2    (true)) &&
+           takes_bool3   (bool3    (true)) &&
+           takes_bool4   (bool4    (true)) &&
+           takes_int     (int      (1))    &&
+           takes_int2    (int2     (2))    &&
+           takes_int3    (int3     (3))    &&
+           takes_int4    (int4     (4)) ? colorGreen : colorRed;
+}
