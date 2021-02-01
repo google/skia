@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "374d3bb9_44c6fb6c",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-02-01T17:19:50Z",
+      "side": 1,
+      "message": "OK, can the function comments be expanded to make that clear?",
+      "parentUuid": "6de08ccc_a74540cc",
+      "range": {
+        "startLine": 826,
+        "startChar": 4,
+        "endLine": 826,
+        "endChar": 24
+      },
+      "revId": "ecb459db3b924baf253d6db62295c61058cf3188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5732bcc5_4ca9e733",
         "filename": "modules/particles/src/SkParticleEffect.cpp",
         "patchSetId": 2
