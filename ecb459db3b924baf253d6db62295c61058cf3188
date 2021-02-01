@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5732bcc5_4ca9e733",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T16:51:06Z",
+      "side": 1,
+      "message": "nit: Does the constructor actually add any value here vs brace-construction? This looks like a plain-vanilla struct to me, and a user-provided constructor limits the compiler\u0027s ability to give you freebies.",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 41,
+        "endChar": 53
+      },
+      "revId": "ecb459db3b924baf253d6db62295c61058cf3188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c23ed494_cfa406de",
         "filename": "modules/particles/src/SkParticleEffect.cpp",
         "patchSetId": 2
