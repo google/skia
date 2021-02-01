@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f364990_53602066",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-01T22:27:47Z",
+      "side": 1,
+      "message": "This CL appears to cause GLSL compile errors on the Tecno Spark 3. \n\nThe error report doesn\u0027t list any specifics so we need to guess at a proper fix.\nHere are two attempts at simplifying the shader:\n\nhttp://review.skia.org/363944\nhttp://review.skia.org/364116\n",
+      "revId": "2ff8f8620536e60b6ae10f9a6d2df0758607340a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
