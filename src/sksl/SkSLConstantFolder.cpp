@@ -221,7 +221,9 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_LTEQ:       return RESULT(Bool, <=);
             case Token::Kind::TK_SHL:
                 if (rightVal >= 0 && rightVal <= 31) {
-                    return RESULT(Int,  <<);
+                    // Left-shifting a negative (or really, any signed) value is undefined behavior
+                    // in C++, but not GLSL. Do the shift on unsigned values, to avoid UBSAN.
+                    return URESULT(Int,  <<);
                 }
                 context.fErrors.error(right.fOffset, "shift value out of range");
                 return nullptr;
