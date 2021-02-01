@@ -4,13 +4,11 @@
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "EffectCode": [
+   "Code": [
       "void effectSpawn(inout Effect effect) {",
       "  effect.rate = 90;",
       "}",
-      ""
-   ],
-   "Code": [
+      "",
       "float2 circle(inout float seed) {",
       "  float r = sqrt(rand(seed));",
       "  float a = rand(seed) * 6.283185;",
