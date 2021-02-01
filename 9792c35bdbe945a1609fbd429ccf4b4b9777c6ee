@@ -51,6 +51,23 @@
       "message": "This SO needs to be an virtual-sphere interactive demo on skia.org",
       "revId": "9792c35bdbe945a1609fbd429ccf4b4b9777c6ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0586ae64_0e6bf8b3",
+        "filename": "modules/skottie/src/effects/SphereEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-01T16:02:54Z",
+      "side": 1,
+      "message": "Might help to have one quick comment before this... is it something like\n\n  // This shader maps its child shader onto a sphere.\n\n?",
+      "revId": "9792c35bdbe945a1609fbd429ccf4b4b9777c6ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
