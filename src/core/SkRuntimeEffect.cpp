@@ -158,7 +158,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                             settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
-    #define RETURN_FAILURE(...) return std::make_tuple(nullptr, SkStringPrintf(__VA_ARGS__))
+    #define RETURN_FAILURE(...) return EffectResult{nullptr, SkStringPrintf(__VA_ARGS__)}
 
     if (!program) {
         RETURN_FAILURE("%s", compiler->errorText().c_str());
@@ -269,7 +269,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(varyings),
                                                       usesSampleCoords,
                                                       allowColorFilter));
-    return std::make_tuple(std::move(effect), SkString());
+    return EffectResult{std::move(effect), SkString{}};
 }
 
 size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
@@ -518,7 +518,7 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     buffer.readString(&sksl);
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
 
-    auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    auto effect = SkRuntimeEffect::Make(std::move(sksl)).fEffect;
     if (!buffer.validate(effect != nullptr)) {
         return nullptr;
     }
@@ -677,7 +677,7 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
-    auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    auto effect = SkRuntimeEffect::Make(std::move(sksl)).fEffect;
     if (!buffer.validate(effect != nullptr)) {
         return nullptr;
     }
