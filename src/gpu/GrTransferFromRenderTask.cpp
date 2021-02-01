@@ -26,5 +26,5 @@ bool GrTransferFromRenderTask::onExecute(GrOpFlushState* flushState) {
     }
     return flushState->gpu()->transferPixelsFrom(
             fSrcProxy->peekSurface(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.width(),
-            fSrcRect.height(), fSurfaceColorType, fDstColorType, fDstBuffer.get(), fDstOffset);
+            fSrcRect.height(), fSurfaceColorType, fDstColorType, fDstBuffer, fDstOffset);
 }

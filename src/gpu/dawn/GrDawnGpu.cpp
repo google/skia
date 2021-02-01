@@ -189,7 +189,7 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, 
 
 bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                                    GrColorType textureColorType, GrColorType bufferColorType,
-                                   GrGpuBuffer* transferBuffer, size_t bufferOffset,
+                                   sk_sp<GrGpuBuffer> transferBuffer, size_t bufferOffset,
                                    size_t rowBytes) {
     SkASSERT(!"unimplemented");
     return false;
@@ -197,7 +197,7 @@ bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wi
 
 bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                      GrColorType surfaceColorType, GrColorType bufferColorType,
-                                     GrGpuBuffer* transferBuffer, size_t offset) {
+                                     sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
     SkASSERT(!"unimplemented");
     return false;
 }

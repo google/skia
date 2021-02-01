@@ -458,7 +458,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
 
 bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                              GrColorType textureColorType, GrColorType bufferColorType,
-                             GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) {
+                             sk_sp<GrGpuBuffer> transferBuffer, size_t offset, size_t rowBytes) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(transferBuffer);
@@ -490,7 +490,7 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
 
     this->handleDirtyContext();
     if (this->onTransferPixelsTo(texture, left, top, width, height, textureColorType,
-                                 bufferColorType, transferBuffer, offset, rowBytes)) {
+                                 bufferColorType, std::move(transferBuffer), offset, rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
         fStats.incTransfersToTexture();
@@ -502,7 +502,7 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
 
 bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                GrColorType surfaceColorType, GrColorType bufferColorType,
-                               GrGpuBuffer* transferBuffer, size_t offset) {
+                               sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(transferBuffer);
@@ -524,7 +524,7 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
 
     this->handleDirtyContext();
     if (this->onTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
-                                   bufferColorType, transferBuffer, offset)) {
+                                   bufferColorType, std::move(transferBuffer), offset)) {
         fStats.incTransfersFromSurface();
         return true;
     }

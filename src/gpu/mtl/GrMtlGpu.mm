@@ -1259,7 +1259,8 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 
 bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                                   GrColorType textureColorType, GrColorType bufferColorType,
-                                  GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) {
+                                  sk_sp<GrGpuBuffer> transferBuffer, size_t offset,
+                                  size_t rowBytes) {
     SkASSERT(texture);
     SkASSERT(transferBuffer);
     if (textureColorType != bufferColorType) {
@@ -1270,7 +1271,7 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
     id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
     SkASSERT(mtlTexture);
 
-    GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer);
+    GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer.get());
     id<MTLBuffer> mtlBuffer = grMtlBuffer->mtlBuffer();
     SkASSERT(mtlBuffer);
 
@@ -1300,7 +1301,7 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
 
 bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                     GrColorType surfaceColorType, GrColorType bufferColorType,
-                                    GrGpuBuffer* transferBuffer, size_t offset) {
+                                    sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
     SkASSERT(surface);
     SkASSERT(transferBuffer);
 
@@ -1317,7 +1318,7 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int w
         return false;
     }
 
-    GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer);
+    GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer.get());
 
     size_t transBufferRowBytes = bpp * width;
     size_t transBufferImageBytes = transBufferRowBytes * height;

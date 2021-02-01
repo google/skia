@@ -190,11 +190,11 @@ private:
                        bool prepForTexSampling) override;
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
-                            GrColorType textureColorType, GrColorType bufferColorType, GrGpuBuffer*,
-                            size_t offset, size_t rowBytes) override;
+                            GrColorType textureColorType, GrColorType bufferColorType,
+                            sk_sp<GrGpuBuffer>, size_t offset, size_t rowBytes) override;
     bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
                               GrColorType surfaceColorType, GrColorType bufferColorType,
-                              GrGpuBuffer*, size_t offset) override;
+                              sk_sp<GrGpuBuffer>, size_t offset) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
