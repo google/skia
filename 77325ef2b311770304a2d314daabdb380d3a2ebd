@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae2ab60e_fd7ae0fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-01T16:37:10Z",
+      "side": 1,
+      "message": "PTAL, see latest vs PS1 (pure reland).\n\nThe first version of this would cause us to never tile an image that would fit in a texture. This happened to cause a Metal bot to crash, AFAICT it was just OOMing somewhere in the driver because of large textures (and only happened when running all GMs, not just the few around the one that caused the OOM). Now we check tiling before calling refView. However, we have to be careful not to tile an SkImage_Raster that is pinned. So I added a new virtual to SkImage_Base that checks whether an image is pinned on a given context and made SkImage_Raster track which context it was pinned on. I wanted to make unpin check the context before decrementing the pin count but as the comment notes Android currently calls SkImage_unpinAsTexture with a GrContext* that has already been freed (will file a bug about this).",
+      "revId": "77325ef2b311770304a2d314daabdb380d3a2ebd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
