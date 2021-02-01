@@ -76,7 +76,10 @@ public:
 
     // [Effect, ErrorText]
     // If successful, Effect != nullptr, otherwise, ErrorText contains the reason for failure.
-    using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
+    struct EffectResult {
+        sk_sp<SkRuntimeEffect> fEffect;
+        SkString fErrorText;
+    };
     static EffectResult Make(SkString sksl);
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,

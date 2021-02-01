@@ -23,6 +23,9 @@ Milestone 90
   * Added SkRuntimeEffect::makeImage() to capture the output of an SkRuntimeEffect in an SkImage.
     https://review.skia.org/357284
 
+  * SkRuntimeEffect::Make() now returns an EffectResult structure, instead of a tuple.
+    http://review.skia.org/364117
+
   * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
     https://review.skia.org/344763
 
