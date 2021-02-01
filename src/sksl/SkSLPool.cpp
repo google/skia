@@ -11,8 +11,10 @@
 
 namespace SkSL {
 
-#if defined(SK_BUILD_FOR_IOS) && \
-        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
+#if (defined(SK_BUILD_FOR_IOS) && \
+        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)) || \
+    (defined(SK_BUILD_FOR_WATCHOS) && \
+        (!defined(__WATCHOS_3_0) || __WATCHOS_VERSION_MIN_REQUIRED < __WATCHOS_3_0))
 
 #include <pthread.h>
 

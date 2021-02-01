@@ -57,16 +57,16 @@ sk_image_t* sk_surface_new_image_snapshot_with_crop(sk_surface_t* surface, const
     return ToImage(AsSurface(surface)->makeImageSnapshot(*AsIRect(bounds)).release());
 }
 
-sk_surface_t* sk_surface_new_backend_render_target(gr_direct_context_t* context, const gr_backendrendertarget_t* target, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props) {
-    return ToSurface(SkSurface::MakeFromBackendRenderTarget(AsGrDirectContext(context), *AsGrBackendRenderTarget(target), (GrSurfaceOrigin)origin, (SkColorType)colorType, sk_ref_sp(AsColorSpace(colorspace)), AsSurfaceProps(props)).release());
+sk_surface_t* sk_surface_new_backend_render_target(gr_recording_context_t* context, const gr_backendrendertarget_t* target, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props) {
+    return ToSurface(SkSurface::MakeFromBackendRenderTarget(AsGrRecordingContext(context), *AsGrBackendRenderTarget(target), (GrSurfaceOrigin)origin, (SkColorType)colorType, sk_ref_sp(AsColorSpace(colorspace)), AsSurfaceProps(props)).release());
 }
 
-sk_surface_t* sk_surface_new_backend_texture(gr_direct_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, int samples, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props) {
-    return ToSurface(SkSurface::MakeFromBackendTexture(AsGrDirectContext(context), *AsGrBackendTexture(texture), (GrSurfaceOrigin)origin, samples, (SkColorType)colorType, sk_ref_sp(AsColorSpace(colorspace)), AsSurfaceProps(props)).release());
+sk_surface_t* sk_surface_new_backend_texture(gr_recording_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, int samples, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props) {
+    return ToSurface(SkSurface::MakeFromBackendTexture(AsGrRecordingContext(context), *AsGrBackendTexture(texture), (GrSurfaceOrigin)origin, samples, (SkColorType)colorType, sk_ref_sp(AsColorSpace(colorspace)), AsSurfaceProps(props)).release());
 }
 
-sk_surface_t* sk_surface_new_render_target(gr_direct_context_t* context, bool budgeted, const sk_imageinfo_t* cinfo, int sampleCount, gr_surfaceorigin_t origin, const sk_surfaceprops_t* props, bool shouldCreateWithMips) {
-    return ToSurface(SkSurface::MakeRenderTarget(AsGrDirectContext(context), (SkBudgeted)budgeted, AsImageInfo(cinfo), sampleCount, (GrSurfaceOrigin)origin, AsSurfaceProps(props), shouldCreateWithMips).release());
+sk_surface_t* sk_surface_new_render_target(gr_recording_context_t* context, bool budgeted, const sk_imageinfo_t* cinfo, int sampleCount, gr_surfaceorigin_t origin, const sk_surfaceprops_t* props, bool shouldCreateWithMips) {
+    return ToSurface(SkSurface::MakeRenderTarget(AsGrRecordingContext(context), (SkBudgeted)budgeted, AsImageInfo(cinfo), sampleCount, (GrSurfaceOrigin)origin, AsSurfaceProps(props), shouldCreateWithMips).release());
 }
 
 void sk_surface_draw(sk_surface_t* surface, sk_canvas_t* canvas, float x, float y, const sk_paint_t* paint) {

@@ -246,17 +246,31 @@ config("default") {
 
   if (is_ios) {
     if (target_cpu == "arm") {
-      _arch_flags = [
-        "-arch",
-        "armv7",
-      ]
+      if (is_watchos) {
+        _arch_flags = [
+          "-arch",
+          "armv7k",
+        ]
+      } else {
+        _arch_flags = [
+          "-arch",
+          "armv7",
+        ]
+      }
     } else if (target_cpu == "arm64") {
-      _arch_flags = [
-        "-arch",
-        "arm64",
-        "-arch",
-        "arm64e",
-      ]
+      if (is_watchos) {
+        _arch_flags = [
+          "-arch",
+          "arm64_32",
+        ]
+      } else {
+        _arch_flags = [
+          "-arch",
+          "arm64",
+          "-arch",
+          "arm64e",
+        ]
+      }
     } else if (target_cpu == "x86") {
       _arch_flags = [
         "-arch",
@@ -272,13 +286,6 @@ config("default") {
         "-arch",
         target_cpu,
       ]
-    }
-    if (is_watchos) {
-      if (target_cpu == "arm") {
-        _target = "armv7k"
-      } else if (target_cpu == "arm64") {
-        _target = "arm64_32"
-      }
     }
     asmflags += [
                   "-isysroot",
