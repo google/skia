@@ -168,8 +168,8 @@ bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
 
     const void* srcPixels = this->addr(rec.fX, rec.fY);
     const SkImageInfo srcInfo = fInfo.makeDimensions(rec.fInfo.dimensions());
-    SkConvertPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels, this->rowBytes());
-    return true;
+    return SkConvertPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels,
+                           this->rowBytes());
 }
 
 bool SkPixmap::erase(SkColor color, const SkIRect& subset) const {
