@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ec48bb7_9ff0ef3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-01T20:54:45Z",
+      "side": 1,
+      "message": "I tried a few different things before landing on this approach. It is interesting to realize that the units in GMs are both points and pixels. We want to look at the gms in points, but many of those values were chosen because they exercise specific parts of the code at that exact pixel size. So it seemed easiest to just have everything downstream from Viewer stay in \"points\" and then have viewer be able to have a toggle as to whether points and pixels should be the same or not. This allows the auto-scaling slides to stay autoscaling either way since they always scale to the window size, but the other slides to toggle between \"big and visible\" and \"small but as intended for testing\".",
+      "revId": "1fcac9f72e37f01badc5f45eb9328e5fe6398d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
