@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4ec7a97_64edd3bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-01T17:30:42Z",
+      "side": 1,
+      "message": "Have a mock test up that just passes in a mock soundMap, but eventually we\u0027ll need a new lottie json that has an audio file so that make sure loadAudioAsset works. Not sure where to add something to \u0027promises\u0027 to make that happen, but I think this will do for now.",
+      "parentUuid": "fb121cb9_8c2a3ddf",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86159f38_dc899ff7",
@@ -35,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8dd9fe8_3d8efaae",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-01T17:30:42Z",
+      "side": 1,
+      "message": "Sounds good. Done.",
+      "parentUuid": "86159f38_dc899ff7",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab73c784_0da0ee93",
@@ -48,6 +84,30 @@
       "writtenOn": "2021-01-28T15:01:35Z",
       "side": 1,
       "message": "nit: std::move(soundMap)",
+      "range": {
+        "startLine": 60,
+        "startChar": 87,
+        "endLine": 60,
+        "endChar": 95
+      },
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3488a67_cd0cbfaf",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-01T17:30:42Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "ab73c784_0da0ee93",
       "range": {
         "startLine": 60,
         "startChar": 87,
@@ -93,6 +153,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe2e4f5b_1ab0fc28",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-01T17:30:42Z",
+      "side": 1,
+      "message": "I\u0027ll put the check in loadAudioAsset. Done.",
+      "parentUuid": "4796db77_fe04bcf1",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "45f92c3c_b5954c6a",
@@ -128,6 +206,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c08bffe0_89bb846a",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-01T17:30:42Z",
+      "side": 1,
+      "message": "Big fan of hasOwnProperty. Done.",
+      "parentUuid": "65168ee7_c5afcd1c",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "481f77c0_2fcc7ced",
@@ -141,6 +237,24 @@
       "writtenOn": "2021-01-28T15:01:35Z",
       "side": 1,
       "message": "If we\u0027re changing the signature here, I think we also need to update the JS factory (CanvasKit.MakeManagedAnimation in skottie.js).\n\nWould be nice to exercise the updated API in some of the CK tests/samples (tests/skottie.spec.js, canvaskit/extra.html), even if just passing in a dummy/placeholder for now.",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd3895c0_1cbc4cbc",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-01T17:30:42Z",
+      "side": 1,
+      "message": "Setting up a test where we pass in a mock soundMap, but things like loadAudio won\u0027t be called until we set up an actual lottie that has audio layers.",
+      "parentUuid": "481f77c0_2fcc7ced",
       "revId": "4deca898b380b08a334526d905e6399ea1eec778",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
