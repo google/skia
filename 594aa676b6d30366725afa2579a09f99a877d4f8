@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25c3bd13_3424124a",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-01T14:13:14Z",
+      "side": 1,
+      "message": "This isn\u0027t used anywhere and should just be deletable: see https://skia-review.googlesource.com/c/skia/+/361497 if that can land first before this?",
+      "range": {
+        "startLine": 102,
+        "startChar": 32,
+        "endLine": 102,
+        "endChar": 48
+      },
+      "revId": "594aa676b6d30366725afa2579a09f99a877d4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
