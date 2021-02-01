@@ -33,6 +33,24 @@
       "message": "I wonder if we actually need to discriminate kDataIRI at all: we\u0027re going to be loading images through ResourceProvider::loadImageAsset(), and the DataURIResourceProviderProxy tries to parse the name as dataURI.\n\nSo as far as ResourceProvider is concerned, dataURI and non-local IRIs are handled via the same API.  Do we need to know the difference in SkSVG?",
       "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7e3ef60_c020d9cc",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-01T17:39:35Z",
+      "side": 1,
+      "message": "Hmm. I *think* the way things are set up, this is necessary. Here\u0027s how I plan to use this in supporting the \u003cimage\u003e tag (upcoming CL soon):\n\n    switch (href.type()) {\n        case SkSVGIRI::Type::kDataURI:\n            imageAsset \u003d rp-\u003eloadImageAsset(\"\", href.iri().c_str(), \"\");\n            break;\n        case SkSVGIRI::Type::kNonlocal: {\n            const auto path \u003d SkOSPath::Dirname(href.iri().c_str());\n            const auto name \u003d SkOSPath::Basename(href.iri().c_str());\n            imageAsset \u003d rp-\u003eloadImageAsset(path.c_str(), name.c_str(), /* id */ name.c_str());\n            break;\n        }\n        default:\n            SkDebugf(\"error loading image: unhandled iri type %d\\n\", href.type());\n            return nullptr;\n    }\n\nSo really it\u0027s just so we know if we should pass the URI unmodified (including \u0027data:\u0027 prefix\u0027) or if we need to split into dirname/basename.",
+      "parentUuid": "354a374e_ba47ae88",
+      "revId": "d22ba461a5ec0598998d44b4936085f2d65b1770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
