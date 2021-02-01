@@ -241,13 +241,19 @@ public:
      *  Create a filter that transforms the input image by 'matrix'. This matrix transforms the
      *  local space, which means it effectively happens prior to any transformation coming from the
      *  SkCanvas initiating the filtering.
-     *  @param matrix        The matrix to apply to the original content.
-     *  @param filterQuality The filter quality to use when sampling the input image.
-     *  @param input         The image filter to transform, or null to use the source image.
+     *  @param matrix   The matrix to apply to the original content.
+     *  @param sampling How the image will be sampled when it is transformed
+     *  @param input    The image filter to transform, or null to use the source image.
      */
+    static sk_sp<SkImageFilter> MatrixTransform(const SkMatrix& matrix,
+                                                const SkSamplingOptions& sampling,
+                                                sk_sp<SkImageFilter> input);
+#ifdef SK_SUPPORT_LEGACY_MATRIX_IMAGEFILTER
+    // DEPRECATED
     static sk_sp<SkImageFilter> MatrixTransform(const SkMatrix& matrix,
                                                 SkFilterQuality filterQuality,
                                                 sk_sp<SkImageFilter> input);
+#endif
 
     /**
      *  Create a filter that merges the 'count' filters together by drawing their results in order

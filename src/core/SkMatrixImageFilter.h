@@ -21,20 +21,20 @@ class SkMatrixImageFilter : public SkImageFilter_Base {
 public:
     /** Construct a 2D transformation image filter.
      *  @param transform     The matrix to apply when drawing the src bitmap
-     *  @param filterQuality The quality of filtering to apply when scaling.
+     *  @param sampling      What sampling technique to apply when scaling.
      *  @param input         The input image filter.  If nullptr, the src bitmap
      *                       passed to filterImage() is used instead.
      */
 
     static sk_sp<SkImageFilter> Make(const SkMatrix& transform,
-                                     SkFilterQuality filterQuality,
+                                     const SkSamplingOptions& sampling,
                                      sk_sp<SkImageFilter> input);
 
     SkRect computeFastBounds(const SkRect&) const override;
 
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
-                        SkFilterQuality,
+                        const SkSamplingOptions&,
                         sk_sp<SkImageFilter> input);
     void flatten(SkWriteBuffer&) const override;
 
@@ -45,8 +45,8 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkMatrixImageFilter)
 
-    SkMatrix              fTransform;
-    SkFilterQuality       fFilterQuality;
+    SkMatrix            fTransform;
+    SkSamplingOptions   fSampling;
     using INHERITED = SkImageFilter_Base;
 };
 

@@ -10,6 +10,9 @@
 
 #include "include/core/SkSamplingOptions.h"
 
+class SkReadBuffer;
+class SkWriteBuffer;
+
 class SkSamplingPriv {
 public:
     enum {
@@ -28,6 +31,9 @@ public:
         return !sampling.useCubic || sampling.cubic.B == 0;
     #endif
     }
+
+    static SkSamplingOptions Read(SkReadBuffer&);
+    static void Write(SkWriteBuffer&, const SkSamplingOptions&);
 };
 
 #endif

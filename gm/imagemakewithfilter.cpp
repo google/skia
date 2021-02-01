@@ -120,7 +120,7 @@ static sk_sp<SkImageFilter> matrix_factory(sk_sp<SkImage> auxImage, const SkIRec
     matrix.setRotate(45.f, 50.f, 50.f);
 
     // This doesn't support a cropRect
-    return SkImageFilters::MatrixTransform(matrix, kLow_SkFilterQuality, nullptr);
+    return SkImageFilters::MatrixTransform(matrix, SkSamplingOptions(SkFilterMode::kLinear), nullptr);
 }
 
 static sk_sp<SkImageFilter> alpha_threshold_factory(sk_sp<SkImage> auxImage,

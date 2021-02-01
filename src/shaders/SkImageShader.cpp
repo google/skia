@@ -16,6 +16,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
@@ -145,29 +146,6 @@ sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
     return SkImageShader::Make(std::move(img), tmx, tmy, nullptr, &localMatrix);
 }
 
-static void write_sampling(SkWriteBuffer& buffer, SkSamplingOptions sampling) {
-    buffer.writeBool(sampling.useCubic);
-    if (sampling.useCubic) {
-        buffer.writeScalar(sampling.cubic.B);
-        buffer.writeScalar(sampling.cubic.C);
-    } else {
-        buffer.writeUInt((unsigned)sampling.filter);
-        buffer.writeUInt((unsigned)sampling.mipmap);
-    }
-}
-
-static SkSamplingOptions read_sampling(SkReadBuffer& buffer) {
-    if (buffer.readBool()) {
-        SkScalar B = buffer.readScalar(),
-                 C = buffer.readScalar();
-        return SkSamplingOptions({B,C});
-    } else {
-        auto filter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-        auto mipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
-        return SkSamplingOptions(filter, mipmap);
-    }
-}
-
 // fClampAsIfUnpremul is always false when constructed through public APIs,
 // so there's no need to read or write it here.
 
@@ -183,7 +161,7 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
                       *samplingPtr = nullptr;
 
     if (buffer.readBool()) {    // fUseSamplingOptions
-        sampling = read_sampling(buffer);
+        sampling = SkSamplingPriv::Read(buffer);
         samplingPtr = &sampling;
     }
 
@@ -203,7 +181,7 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
 
     buffer.writeBool(fUseSamplingOptions);
     if (fUseSamplingOptions) {
-        write_sampling(buffer, fSampling);
+        SkSamplingPriv::Write(buffer, fSampling);
     }
 
     buffer.writeMatrix(this->getLocalMatrix());

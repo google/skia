@@ -29,7 +29,7 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
         paint.setImageFilter(SkImageFilters::MatrixTransform(matrix,
-                                                             kNone_SkFilterQuality,
+                                                             SkSamplingOptions(),
                                                              nullptr));
 
         SkFont         font(ToolUtils::create_portable_typeface(), 100);

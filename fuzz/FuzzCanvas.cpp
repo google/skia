@@ -537,8 +537,9 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             FuzzNiceMatrix(fuzz, &matrix);
             SkFilterQuality quality;
             fuzz->nextEnum(&quality, SkFilterQuality::kLast_SkFilterQuality);
+            auto sampling = SkSamplingOptions(quality);
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
-            return SkImageFilters::MatrixTransform(matrix, quality, std::move(input));
+            return SkImageFilters::MatrixTransform(matrix, sampling, std::move(input));
         }
         case 3: {
             SkRegion region;
