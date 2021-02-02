@@ -140,8 +140,9 @@ export interface CanvasKit {
      *                  a new one.
      * @returns The bounding rectangle or null if it could not be computed.
      */
-    getShadowLocalBounds(ctm: InputMatrix, path: Path, zPlaneParams: Vector3, lightPos: Vector3,
-                         lightRadius: number, flags: number, dstRect?: Rect): Rect | null;
+    getShadowLocalBounds(ctm: InputMatrix, path: Path, zPlaneParams: InputVector3,
+                         lightPos: InputVector3, lightRadius: number, flags: number,
+                         dstRect?: Rect): Rect | null;
 
     /**
      * Malloc returns a TypedArray backed by the C++ memory of the
@@ -1233,7 +1234,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param spotColor -  The color of the spot shadow.
      * @param flags - See SkShadowFlags.h; 0 means use default options.
      */
-    drawShadow(path: Path, zPlaneParams: Vector3, lightPos: Vector3, lightRadius: number,
+    drawShadow(path: Path, zPlaneParams: InputVector3, lightPos: InputVector3, lightRadius: number,
                ambientColor: InputColor, spotColor: InputColor, flags: number): void;
 
     /**
@@ -3469,7 +3470,7 @@ export type Matrix3x2 = Float32Array;
 /**
  * Vector3 represents an x, y, z coordinate or vector. It has length 3.
  */
-export type Vector3 = number[]; // TODO(kjlubick) make this include typed array and malloc'd.
+export type Vector3 = number[];
 
 /**
  * VectorN represents a vector of length n.
@@ -3536,6 +3537,11 @@ export type InputRRect = MallocObj | RRect | number[];
  * be scos, ssin, tx, ty for each RSXForm. See RSXForm.h for more details.
  */
 export type InputFlattenedRSXFormArray = MallocObj | Float32Array | number[];
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as a vector of 3 floats.
+ * For example, this is the x, y, z coordinates.
+ */
+export type InputVector3 = MallocObj | Vector3 | Float32Array;
 
 export type AlphaType = EmbindEnumEntity;
 export type BlendMode = EmbindEnumEntity;

@@ -79,16 +79,22 @@ var _scratch3x3MatrixPtr = nullptr;
 var _scratch3x3Matrix;  // the result from CanvasKit.Malloc
 
 var _scratch4x4MatrixPtr = nullptr;
-var _scratch4x4Matrix; // the result from CanvasKit.Malloc
+var _scratch4x4Matrix;
 
 var _scratchColorPtr = nullptr;
-var _scratchColor; // the result from CanvasKit.Malloc
+var _scratchColor;
 
 var _scratchFourFloatsA;
 var _scratchFourFloatsAPtr = nullptr;
 
 var _scratchFourFloatsB;
 var _scratchFourFloatsBPtr = nullptr;
+
+var _scratchThreeFloatsA;
+var _scratchThreeFloatsAPtr = nullptr;
+
+var _scratchThreeFloatsB;
+var _scratchThreeFloatsBPtr = nullptr;
 
 var _scratchIRect;
 var _scratchIRectPtr = nullptr;

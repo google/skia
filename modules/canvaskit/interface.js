@@ -29,6 +29,12 @@ CanvasKit.onRuntimeInitialized = function() {
   _scratchFourFloatsB = CanvasKit.Malloc(Float32Array, 4);
   _scratchFourFloatsBPtr = _scratchFourFloatsB['byteOffset'];
 
+  _scratchThreeFloatsA = CanvasKit.Malloc(Float32Array, 3); // 3 floats to represent SkVector3
+  _scratchThreeFloatsAPtr = _scratchThreeFloatsA['byteOffset'];
+
+  _scratchThreeFloatsB = CanvasKit.Malloc(Float32Array, 3); // 3 floats to represent SkVector3
+  _scratchThreeFloatsBPtr = _scratchThreeFloatsB['byteOffset'];
+
   _scratchIRect = CanvasKit.Malloc(Int32Array, 4);
   _scratchIRectPtr = _scratchIRect['byteOffset'];
 
@@ -621,7 +627,10 @@ CanvasKit.onRuntimeInitialized = function() {
                                                    ambientColor, spotColor, flags) {
     var ambiPtr = copyColorToWasmNoScratch(ambientColor);
     var spotPtr = copyColorToWasmNoScratch(spotColor);
-    this._drawShadow(path, zPlaneParams, lightPos, lightRadius, ambiPtr, spotPtr, flags);
+    // We use the return value from copy1dArray in case the passed in arrays are malloc'd.
+    var zPlanePtr = copy1dArray(zPlaneParams, 'HEAPF32', _scratchThreeFloatsAPtr);
+    var lightPosPtr = copy1dArray(lightPos, 'HEAPF32', _scratchThreeFloatsBPtr);
+    this._drawShadow(path, zPlanePtr, lightPosPtr, lightRadius, ambiPtr, spotPtr, flags);
     freeArraysThatAreNotMallocedByUsers(ambiPtr, ambientColor);
     freeArraysThatAreNotMallocedByUsers(spotPtr, spotColor);
   };
@@ -629,7 +638,10 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.getShadowLocalBounds = function(ctm, path, zPlaneParams, lightPos, lightRadius,
                                             flags, optOutputRect) {
     var ctmPtr = copy3x3MatrixToWasm(ctm);
-    var ok = this._getShadowLocalBounds(ctmPtr, path, zPlaneParams, lightPos, lightRadius,
+    // We use the return value from copy1dArray in case the passed in arrays are malloc'd.
+    var zPlanePtr = copy1dArray(zPlaneParams, 'HEAPF32', _scratchThreeFloatsAPtr);
+    var lightPosPtr = copy1dArray(lightPos, 'HEAPF32', _scratchThreeFloatsBPtr);
+    var ok = this._getShadowLocalBounds(ctmPtr, path, zPlanePtr, lightPosPtr, lightRadius,
                                         flags, _scratchFourFloatsAPtr);
     if (!ok) {
       return null;
