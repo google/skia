@@ -98,6 +98,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dec9050b_f913cd0c",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T19:32:21Z",
+      "side": 1,
+      "message": "Looks like we\u0027d have to fudge the tolerance quite a lot. I printed out the reference # segments versus computed with the bbox optimization, and the current tolerance:\n\n\t../../tests/WangsFormulaTest.cpp:466\treference nsegs 51231.496094 !\u003d computed 53557.199219 (tol \u003d 0.048858) [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, cmpThresh)\n\t../../tests/WangsFormulaTest.cpp:466\treference nsegs 72665.820312 !\u003d computed 77906.460938 (tol \u003d 0.069300) [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, cmpThresh)\n\t../../tests/WangsFormulaTest.cpp:466\treference nsegs 104510.445312 !\u003d computed 113486.406250 (tol \u003d 0.099669) [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, cmpThresh)\n\t../../tests/WangsFormulaTest.cpp:466\treference nsegs 150070.703125 !\u003d computed 159518.609375 (tol \u003d 0.143119) [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, cmpThresh)\n\t../../tests/WangsFormulaTest.cpp:466\treference nsegs 219656.031250 !\u003d computed 236711.468750 (tol \u003d 0.209480) [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, cmpThresh)\n\t../../tests/WangsFormulaTest.cpp:466\treference nsegs 304237.375000 !\u003d computed 325843.593750 (tol \u003d 0.290143) [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, cmpThresh)\n\nSo this optimization may not be good enough.",
+      "parentUuid": "271782cf_fffe4812",
+      "range": {
+        "startLine": 136,
+        "startChar": 21,
+        "endLine": 136,
+        "endChar": 73
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6d97198_96b4c555",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 5
