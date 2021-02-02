@@ -591,6 +591,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.model("TecnoSpark3Pro") {
 		// skbug.com/9421
 		skip("_ test _ InitialTextureClear")
+		// skbug.com/11255
+		skip("_ test _ SkSLOperatorsES2_GPU")
 	}
 
 	if b.os("iOS") {
