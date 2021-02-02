@@ -218,8 +218,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
         // either, so if the paint uses varyings we need to use indirect draws.
         if (shaderCaps.tessellationSupport() &&
             path.countVerbs() > 50 &&
-            !paint.usesVaryingCoords() &&
-            !SkPathPriv::ConicWeightCnt(path)) {
+            !paint.usesVaryingCoords()) {
             return GrOp::Make<GrStrokeTessellateOp>(rContext, aaType, viewMatrix, stroke, path,
                                                     std::move(paint));
         } else {

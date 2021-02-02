@@ -125,13 +125,14 @@ void GrStrokeTessellateOp::prepareBuffers() {
                     this->lineTo(pts[1]);
                     break;
                 case SkPathVerb::kQuad:
-                    this->quadraticTo(pts);
+                    this->conicTo(pts, 1);
+                    break;
+                case SkPathVerb::kConic:
+                    this->conicTo(pts, *w);
                     break;
                 case SkPathVerb::kCubic:
                     this->cubicTo(pts);
                     break;
-                case SkPathVerb::kConic:
-                    SkUNREACHABLE;
                 case SkPathVerb::kClose:
                     this->close();
                     break;
@@ -173,8 +174,8 @@ void GrStrokeTessellateOp::lineTo(SkPoint pt, JoinType prevJoinType) {
         prevJoinType = JoinType::kNone;
     }
 
-    SkPoint asCubic[4] = {fCurrentPoint, fCurrentPoint, pt, pt};
-    this->cubicToRaw(prevJoinType, asCubic);
+    SkPoint asPatch[4] = {fCurrentPoint, fCurrentPoint, pt, pt};
+    this->emitPatch(prevJoinType, asPatch, pt);
 }
 
 static bool chop_pt_is_cusp(const SkPoint& prevControlPoint, const SkPoint& chopPoint,
@@ -184,28 +185,34 @@ static bool chop_pt_is_cusp(const SkPoint& prevControlPoint, const SkPoint& chop
     return (nextControlPoint - chopPoint).dot(chopPoint - prevControlPoint) <= 0;
 }
 
-static bool quad_chop_is_cusp(const SkPoint chops[5]) {
-    SkPoint chopPt = chops[2];
-    SkPoint prevCtrlPt = (chops[1] != chopPt) ? chops[1] : chops[0];
-    SkPoint nextCtrlPt = (chops[3] != chopPt) ? chops[3] : chops[4];
+static bool quad_chop_is_cusp(const SkPoint left[3], const SkPoint right[3]) {
+    SkASSERT(left[2] == right[0]);
+    SkPoint chopPt = left[2];
+    SkPoint prevCtrlPt = (left[1] != chopPt) ? left[1] : left[0];
+    SkPoint nextCtrlPt = (right[1] != chopPt) ? right[1] : right[2];
     return chop_pt_is_cusp(prevCtrlPt, chopPt, nextCtrlPt);
 }
 
-void GrStrokeTessellateOp::quadraticTo(const SkPoint p[3], JoinType prevJoinType, int maxDepth) {
+void GrStrokeTessellateOp::conicTo(const SkPoint p[3], float w, JoinType prevJoinType,
+                                   int maxDepth) {
     SkASSERT(fHasCurrentPoint);
     SkASSERT(p[0] == fCurrentPoint);
 
     // Zero-length paths need special treatment because they are spec'd to behave differently. If
     // the control point is colocated on an endpoint then this might end up being the case. Fall
     // back on a lineTo and let it make the final check.
-    if (p[1] == p[0] || p[1] == p[2]) {
+    if (p[1] == p[0] || p[1] == p[2] || w == 0) {
         this->lineTo(p[2], prevJoinType);
         return;
     }
 
-    // Convert to a cubic.
-    SkPoint asCubic[4];
-    GrPathUtils::convertQuadToCubic(p, asCubic);
+    // Convert to a patch.
+    SkPoint asPatch[4];
+    if (w == 1) {
+        GrPathUtils::convertQuadToCubic(p, asPatch);
+    } else {
+        GrPathShader::WriteConicPatch(p, w, asPatch);
+    }
 
     // Ensure our hardware supports enough tessellation segments to render the curve. This early out
     // assumes a worst-case quadratic rotation of 180 degrees and a worst-case number of segments in
@@ -217,7 +224,7 @@ void GrStrokeTessellateOp::quadraticTo(const SkPoint p[3], JoinType prevJoinType
             GrWangsFormula::quadratic_pow4(fTolerances.fParametricIntolerance, p);
     if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
-        this->cubicToRaw(prevJoinType, asCubic);
+        this->emitPatch(prevJoinType, asPatch, p[2]);
         return;
     }
 
@@ -226,10 +233,10 @@ void GrStrokeTessellateOp::quadraticTo(const SkPoint p[3], JoinType prevJoinType
             prevJoinType == JoinType::kCusp) {
             // Either there aren't enough guaranteed segments to include the join in the quadratic's
             // patch, or we need a cusp. Emit a standalone patch for the join.
-            this->joinTo(prevJoinType, asCubic);
+            this->joinTo(prevJoinType, asPatch);
             prevJoinType = JoinType::kNone;
         }
-        this->cubicToRaw(prevJoinType, asCubic);
+        this->emitPatch(prevJoinType, asPatch, p[2]);
         return;
     }
 
@@ -250,18 +257,33 @@ void GrStrokeTessellateOp::quadraticTo(const SkPoint p[3], JoinType prevJoinType
                        sk_float_nextlog2(numRadialSegments) + 1;
             maxDepth = std::max(maxDepth, 1);
         }
-        SkPoint chops[5];
-        if (numParametricSegments >= numRadialSegments) {
-            SkChopQuadAtHalf(p, chops);
+        if (w == 1) {
+            SkPoint chops[5];
+            if (numParametricSegments >= numRadialSegments) {
+                SkChopQuadAtHalf(p, chops);
+            } else {
+                SkChopQuadAtMidTangent(p, chops);
+            }
+            this->conicTo(chops, 1, prevJoinType, maxDepth - 1);
+            // If we chopped at a cusp then rotation is not continuous between the two curves.
+            // Insert a cusp to make up for lost rotation.
+            JoinType nextJoinType = (quad_chop_is_cusp(chops, chops + 2)) ?
+                    JoinType::kCusp : JoinType::kFromStroke;
+            this->conicTo(chops + 2, 1, nextJoinType, maxDepth - 1);
         } else {
-            SkChopQuadAtMidTangent(p, chops);
+            SkConic conic(p, w);
+            float chopT = (numParametricSegments >= numRadialSegments) ? .5f
+                                                                       : conic.findMidTangent();
+            SkConic chops[2];
+            if (conic.chopAt(chopT, chops)) {
+                this->conicTo(chops[0].fPts, chops[0].fW, prevJoinType, maxDepth - 1);
+                // If we chopped at a cusp then rotation is not continuous between the two curves.
+                // Insert a cusp to make up for lost rotation.
+                JoinType nextJoinType = (quad_chop_is_cusp(chops[0].fPts, chops[1].fPts)) ?
+                        JoinType::kCusp : JoinType::kFromStroke;
+                this->conicTo(chops[1].fPts, chops[1].fW, nextJoinType, maxDepth - 1);
+            }
         }
-        this->quadraticTo(chops, prevJoinType, maxDepth - 1);
-        // If we chopped at a cusp then rotation is not continuous between the two curves. Insert a
-        // cusp to make up for lost rotation.
-        JoinType nextJoinType = (quad_chop_is_cusp(chops)) ?
-                JoinType::kCusp : JoinType::kFromStroke;
-        this->quadraticTo(chops + 2, nextJoinType, maxDepth - 1);
         return;
     }
 
@@ -269,10 +291,10 @@ void GrStrokeTessellateOp::quadraticTo(const SkPoint p[3], JoinType prevJoinType
         prevJoinType == JoinType::kCusp) {
         // Either there aren't enough guaranteed segments to include the join in the quadratic's
         // patch, or we need a cusp. Emit a standalone patch for the join.
-        this->joinTo(prevJoinType, asCubic);
+        this->joinTo(prevJoinType, asPatch);
         prevJoinType = JoinType::kNone;
     }
-    this->cubicToRaw(prevJoinType, asCubic);
+    this->emitPatch(prevJoinType, asPatch, p[2]);
 }
 
 static bool cubic_chop_is_cusp(const SkPoint chops[7]) {
@@ -304,7 +326,7 @@ void GrStrokeTessellateOp::cubicTo(const SkPoint p[4], JoinType prevJoinType,
             GrWangsFormula::cubic_pow4(fTolerances.fParametricIntolerance, p);
     if (numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
-        this->cubicToRaw(prevJoinType, p);
+        this->emitPatch(prevJoinType, p, p[3]);
         return;
     }
 
@@ -320,7 +342,7 @@ void GrStrokeTessellateOp::cubicTo(const SkPoint p[4], JoinType prevJoinType,
             this->joinTo(prevJoinType, p);
             prevJoinType = JoinType::kNone;
         }
-        this->cubicToRaw(prevJoinType, p);
+        this->emitPatch(prevJoinType, p, p[3]);
         return;
     }
 
@@ -385,7 +407,7 @@ void GrStrokeTessellateOp::cubicTo(const SkPoint p[4], JoinType prevJoinType,
         this->joinTo(prevJoinType, p);
         prevJoinType = JoinType::kNone;
     }
-    this->cubicToRaw(prevJoinType, p);
+    this->emitPatch(prevJoinType, p, p[3]);
 }
 
 void GrStrokeTessellateOp::joinTo(JoinType joinType, SkPoint nextControlPoint, int maxDepth) {
@@ -432,7 +454,7 @@ void GrStrokeTessellateOp::joinTo(JoinType joinType, SkPoint nextControlPoint, i
         }
     }
 
-    this->joinToRaw(joinType, nextControlPoint);
+    this->emitJoinPatch(joinType, nextControlPoint);
 }
 
 void GrStrokeTessellateOp::close() {
@@ -539,13 +561,13 @@ void GrStrokeTessellateOp::cap() {
     SkDEBUGCODE(fHasCurrentPoint = false;)
 }
 
-void GrStrokeTessellateOp::cubicToRaw(JoinType prevJoinType, const SkPoint pts[4]) {
+void GrStrokeTessellateOp::emitPatch(JoinType prevJoinType, const SkPoint pts[4], SkPoint endPt) {
     // Cusps can't be combined with a stroke patch. They need to have been written out already as
     // their own standalone patch.
     SkASSERT(prevJoinType != JoinType::kCusp);
 
     SkPoint c1 = (pts[1] == pts[0]) ? pts[2] : pts[1];
-    SkPoint c2 = (pts[2] == pts[3]) ? pts[1] : pts[2];
+    SkPoint c2 = (pts[2] == endPt) ? pts[1] : pts[2];
 
     if (!fHasLastControlPoint) {
         // The first stroke doesn't have a previous join (yet). If the current contour ends up
@@ -569,10 +591,10 @@ void GrStrokeTessellateOp::cubicToRaw(JoinType prevJoinType, const SkPoint pts[4
     }
 
     fLastControlPoint = c2;
-    fCurrentPoint = pts[3];
+    fCurrentPoint = endPt;
 }
 
-void GrStrokeTessellateOp::joinToRaw(JoinType joinType, SkPoint nextControlPoint) {
+void GrStrokeTessellateOp::emitJoinPatch(JoinType joinType, SkPoint nextControlPoint) {
     // We should never write out joins before the first curve.
     SkASSERT(fHasLastControlPoint);
     SkASSERT(fHasCurrentPoint);

@@ -48,8 +48,8 @@ private:
     void moveTo(SkPoint);
     void moveTo(SkPoint, SkPoint lastControlPoint);
     void lineTo(SkPoint, JoinType prevJoinType = JoinType::kFromStroke);
-    void quadraticTo(const SkPoint[3], JoinType prevJoinType = JoinType::kFromStroke,
-                     int maxDepth = -1);
+    void conicTo(const SkPoint[3], float w, JoinType prevJoinType = JoinType::kFromStroke,
+                 int maxDepth = -1);
     void cubicTo(const SkPoint[4], JoinType prevJoinType = JoinType::kFromStroke,
                  Convex180Status = Convex180Status::kUnknown, int maxDepth = -1);
     void joinTo(JoinType joinType, const SkPoint nextCubic[]) {
@@ -61,8 +61,8 @@ private:
     void joinTo(JoinType, SkPoint nextControlPoint, int maxDepth = -1);
     void close();
     void cap();
-    void cubicToRaw(JoinType prevJoinType, const SkPoint pts[4]);
-    void joinToRaw(JoinType, SkPoint nextControlPoint);
+    void emitPatch(JoinType prevJoinType, const SkPoint pts[4], SkPoint endPt);
+    void emitJoinPatch(JoinType, SkPoint nextControlPoint);
     GrStrokeTessellateShader::Patch* reservePatch();
     void allocPatchChunkAtLeast(int minPatchAllocCount);
 
