@@ -7,6 +7,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -34,39 +35,36 @@ func main() {
 		resources = flag.String("resources", "resources", "Passed to fm -i.")
 		script    = flag.String("script", "", "File (or - for stdin) with one job per line.")
 	)
-	ctx := td.StartRun(projectId, taskId, bot, output, local)
-	defer td.EndRun(ctx)
+	flag.Parse()
 
-	actualStdout := os.Stdout
-	actualStderr := os.Stderr
-	verbosity := exec.Info
-	if *local {
-		// Task Driver echoes every exec.Run() stdout and stderr to the console,
-		// which makes it hard to find failures (especially stdout).  Send them to /dev/null.
-		devnull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
-		if err != nil {
-			td.Fatal(ctx, err)
-		}
-		os.Stdout = devnull
-		os.Stderr = devnull
-		// Having stifled stderr/stdout, changing Command.Verbose won't have any visible effect,
-		// but setting it to Silent will bypass a fair chunk of wasted formatting work.
-		verbosity = exec.Silent
+	var failures int32 = 0
+	ctx := context.Background()
+	fail := func(_ error) { atomic.AddInt32(&failures, 1) }
+	fatal := func(err error) {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	if !*local {
+		ctx = td.StartRun(projectId, taskId, bot, output, local)
+		fail = func(err error) { td.FailStep(ctx, err) }
+		fatal = func(err error) { td.Fatal(ctx, err) }
+		defer td.EndRun(ctx)
 	}
 
 	if flag.NArg() < 1 {
-		td.Fatalf(ctx, "Please pass an fm binary.")
+		fatal(fmt.Errorf("Please pass an fm binary."))
 	}
 	fm := flag.Arg(0)
 
 	// Run `fm <flag>` to find the names of all linked GMs or tests.
 	query := func(flag string) []string {
 		stdout := &bytes.Buffer{}
-		cmd := &exec.Command{Name: fm, Stdout: stdout, Verbose: verbosity}
+		cmd := &exec.Command{Name: fm, Stdout: stdout}
 		cmd.Args = append(cmd.Args, "-i", *resources)
 		cmd.Args = append(cmd.Args, flag)
 		if err := exec.Run(ctx, cmd); err != nil {
-			td.Fatal(ctx, err)
+			fatal(err)
 		}
 
 		lines := []string{}
@@ -75,7 +73,7 @@ func main() {
 			lines = append(lines, scanner.Text())
 		}
 		if err := scanner.Err(); err != nil {
-			td.Fatal(ctx, err)
+			fatal(err)
 		}
 		return lines
 	}
@@ -91,7 +89,7 @@ func main() {
 			url := "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt"
 			resp, err := http.Get(url)
 			if err != nil {
-				td.Fatal(ctx, err)
+				fatal(err)
 			}
 			defer resp.Body.Close()
 
@@ -100,10 +98,10 @@ func main() {
 				known[scanner.Text()] = true
 			}
 			if err := scanner.Err(); err != nil {
-				td.Fatal(ctx, err)
+				fatal(err)
 			}
 
-			fmt.Fprintf(actualStdout, "Gold knew %v unique hashes.\n", len(known))
+			fmt.Fprintf(os.Stdout, "Gold knew %v unique hashes.\n", len(known))
 		}()
 	}
 
@@ -114,7 +112,6 @@ func main() {
 
 	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
 	wg := &sync.WaitGroup{}
-	var failures int32 = 0
 
 	var worker func([]string, []string)
 	worker = func(sources, flags []string) {
@@ -122,7 +119,7 @@ func main() {
 
 		stdout := &bytes.Buffer{}
 		stderr := &bytes.Buffer{}
-		cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr, Verbose: verbosity}
+		cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
 		cmd.Args = append(cmd.Args, "-i", *resources)
 		cmd.Args = append(cmd.Args, flags...)
 		cmd.Args = append(cmd.Args, "-s")
@@ -144,7 +141,7 @@ func main() {
 					}
 				}
 				if err := scanner.Err(); err != nil {
-					td.Fatal(ctx, err)
+					fatal(err)
 				}
 			}
 			return ""
@@ -161,8 +158,7 @@ func main() {
 
 		// If an individual run failed, nothing more to do but fail.
 		if err != nil {
-			atomic.AddInt32(&failures, 1)
-			td.FailStep(ctx, err)
+			fail(err)
 			if *local {
 				lines := []string{}
 				scanner := bufio.NewScanner(stderr)
@@ -170,9 +166,9 @@ func main() {
 					lines = append(lines, scanner.Text())
 				}
 				if err := scanner.Err(); err != nil {
-					td.Fatal(ctx, err)
+					fatal(err)
 				}
-				fmt.Fprintf(actualStderr, "%v %v #failed:\n\t%v\n",
+				fmt.Fprintf(os.Stderr, "%v %v #failed:\n\t%v\n",
 					cmd.Name,
 					strings.Join(cmd.Args, " "),
 					strings.Join(lines, "\n\t"))
@@ -183,7 +179,7 @@ func main() {
 		// If an individual run succeeded but produced an unknown hash, TODO upload .png to Gold.
 		// For now just print out the command and the hash it produced.
 		if unknownHash != "" {
-			fmt.Fprintf(actualStdout, "%v %v #%v\n",
+			fmt.Fprintf(os.Stdout, "%v %v #%v\n",
 				cmd.Name,
 				strings.Join(cmd.Args, " "),
 				unknownHash)
@@ -265,7 +261,7 @@ func main() {
 		if *script != "-" {
 			file, err := os.Open(*script)
 			if err != nil {
-				td.Fatal(ctx, err)
+				fatal(err)
 			}
 			defer file.Close()
 		}
@@ -274,7 +270,7 @@ func main() {
 			kickoff(parse(strings.Fields(scanner.Text())))
 		}
 		if err := scanner.Err(); err != nil {
-			td.Fatal(ctx, err)
+			fatal(err)
 		}
 	}
 
@@ -320,12 +316,6 @@ func main() {
 
 	wg.Wait()
 	if failures > 0 {
-		if *local {
-			// td.Fatalf() would work fine, but barfs up a panic that we don't need to see.
-			fmt.Fprintf(actualStderr, "%v runs of %v failed after retries.\n", failures, fm)
-			os.Exit(1)
-		} else {
-			td.Fatalf(ctx, "%v runs of %v failed after retries.", failures, fm)
-		}
+		fatal(fmt.Errorf("%v runs of %v failed after retries.\n", failures, fm))
 	}
 }
