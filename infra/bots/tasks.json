@@ -14906,10 +14906,30 @@
       "service_account": "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
+        }
+      ],
       "command": [
         "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
         "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",
@@ -14940,12 +14960,30 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:20"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
         }
       ],
       "command": [
         "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
         "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",
@@ -14984,12 +15022,30 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:20"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
         }
       ],
       "command": [
         "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
         "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",
@@ -15028,12 +15084,30 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:20"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
         }
       ],
       "command": [
         "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
         "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",
@@ -15067,10 +15141,30 @@
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
+        }
+      ],
       "command": [
         "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
         "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",
@@ -15094,10 +15188,30 @@
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
+        }
+      ],
       "command": [
         "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
         "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",

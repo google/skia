@@ -1397,11 +1397,15 @@ func (b *jobBuilder) fm() {
 	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
+		b.asset("skimage", "skp", "svg")
 		b.isolate("test_skia_bundled.isolate")
 		b.dep(b.buildTaskDrivers(goos, "amd64"), b.compile())
 		b.cmd("./fm_driver${EXECUTABLE_SUFFIX}",
 			"--local=false",
 			"--resources=skia/resources",
+			"--imgs=skimage",
+			"--skps=skp",
+			"--svgs=svg",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--bot", b.Name,

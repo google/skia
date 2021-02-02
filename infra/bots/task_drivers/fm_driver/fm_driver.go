@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -33,19 +34,24 @@ func main() {
 		local     = flag.Bool("local", true, "Running locally (else on the bots)?")
 
 		resources = flag.String("resources", "resources", "Passed to fm -i.")
+		imgs      = flag.String("imgs", "", "Shorthand `directory` contents as 'imgs'.")
+		skps      = flag.String("skps", "", "Shorthand `directory` contents as 'skps'.")
+		svgs      = flag.String("svgs", "", "Shorthand `directory` contents as 'svgs'.")
 		script    = flag.String("script", "", "File (or - for stdin) with one job per line.")
 	)
 	flag.Parse()
 
 	ctx := context.Background()
+	failStep := func(err error) { fmt.Fprintln(os.Stderr, err) }
 	fatal := func(err error) {
-		fmt.Fprintln(os.Stderr, err)
+		failStep(err)
 		os.Exit(1)
 	}
 
 	if !*local {
 		ctx = td.StartRun(projectId, taskId, bot, output, local)
 		defer td.EndRun(ctx)
+		failStep = func(err error) { td.FailStep(ctx, err) }
 		fatal = func(err error) { td.Fatal(ctx, err) }
 	}
 
@@ -74,8 +80,71 @@ func main() {
 		}
 		return lines
 	}
-	gms := query("--listGMs")
-	tests := query("--listTests")
+
+	// Lowercase with leading '.' stripped.
+	normalizedExt := func(s string) string {
+		return strings.ToLower(filepath.Ext(s)[1:])
+	}
+
+	// Walk directory for files with given set of extensions.
+	walk := func(dir string, exts map[string]bool) (files []string) {
+		if dir != "" {
+			err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if !info.IsDir() && exts[normalizedExt(info.Name())] {
+					files = append(files, path)
+				}
+				return nil
+			})
+
+			if err != nil {
+				fatal(err)
+			}
+		}
+		return
+	}
+
+	rawExts := map[string]bool{
+		"arw": true,
+		"cr2": true,
+		"dng": true,
+		"nef": true,
+		"nrw": true,
+		"orf": true,
+		"pef": true,
+		"raf": true,
+		"rw2": true,
+		"srw": true,
+	}
+	imgExts := map[string]bool{
+		"astc": true,
+		"bmp":  true,
+		"gif":  true,
+		"ico":  true,
+		"jpeg": true,
+		"jpg":  true,
+		"ktx":  true,
+		"png":  true,
+		"wbmp": true,
+		"webp": true,
+	}
+	for k, v := range rawExts {
+		imgExts[k] = v
+	}
+
+	// We can use "gm" or "gms" as shorthand to refer to all GMs, and similar for the rest.
+	shorthands := map[string][]string{
+		"gm":   query("--listGMs"),
+		"test": query("--listTests"),
+		"img":  walk(*imgs, imgExts),
+		"skp":  walk(*skps, map[string]bool{"skp": true}),
+		"svg":  walk(*svgs, map[string]bool{"svg": true}),
+	}
+	for k, v := range shorthands {
+		shorthands[k+"s"] = v
+	}
 
 	// Query Gold for all known hashes when running as a bot.
 	known := map[string]bool{
@@ -157,20 +226,21 @@ func main() {
 		// If an individual run failed, nothing more to do but fail.
 		if err != nil {
 			atomic.AddInt32(&failures, 1)
-			if *local {
-				lines := []string{}
-				scanner := bufio.NewScanner(stderr)
-				for scanner.Scan() {
-					lines = append(lines, scanner.Text())
-				}
-				if err := scanner.Err(); err != nil {
-					fatal(err)
-				}
-				fmt.Fprintf(os.Stderr, "%v %v #failed:\n\t%v\n",
-					cmd.Name,
-					strings.Join(cmd.Args, " "),
-					strings.Join(lines, "\n\t"))
+
+			lines := []string{}
+			scanner := bufio.NewScanner(stderr)
+			for scanner.Scan() {
+				lines = append(lines, scanner.Text())
 			}
+			if err := scanner.Err(); err != nil {
+				fatal(err)
+			}
+
+			failStep(fmt.Errorf("%v %v #failed:\n\t%v\n",
+				cmd.Name,
+				strings.Join(cmd.Args, " "),
+				strings.Join(lines, "\n\t")))
+
 			return
 		}
 
@@ -221,14 +291,9 @@ func main() {
 				break
 			}
 
-			// Treat "gm" or "gms" as a shortcut for all known GMs.
-			if token == "gm" || token == "gms" {
-				sources = append(sources, gms...)
-				continue
-			}
-			// Same for tests.
-			if token == "test" || token == "tests" {
-				sources = append(sources, tests...)
+			// Expand "gm" or "gms"  to all known GMs, or same for tests, images, skps, svgs.
+			if vals, ok := shorthands[token]; ok {
+				sources = append(sources, vals...)
 				continue
 			}
 
@@ -275,7 +340,7 @@ func main() {
 	// If we're a bot (or acting as if we are one), kick off its work.
 	if *bot != "" {
 		parts := strings.Split(*bot, "-")
-		model, CPU_or_GPU := parts[3], parts[4]
+		OS, model, CPU_or_GPU := parts[1], parts[3], parts[4]
 
 		commonFlags := []string{
 			"--nativeFonts",
@@ -286,16 +351,40 @@ func main() {
 			kickoff(sources, append(strings.Fields(extraFlags), commonFlags...))
 		}
 
+		gms := shorthands["gms"]
+		imgs := shorthands["imgs"]
+		svgs := shorthands["svgs"]
+		skps := shorthands["skps"]
+		tests := shorthands["tests"]
+
+		filter := func(in []string, keep func(string) bool) (out []string) {
+			for _, s := range in {
+				if keep(s) {
+					out = append(out, s)
+				}
+			}
+			return
+		}
+
+		if strings.Contains(OS, "Win") {
+			// We can't decode these formats on Windows.
+			imgs = filter(imgs, func(s string) bool { return !rawExts[normalizedExt(s)] })
+		}
+
 		if CPU_or_GPU == "CPU" {
 			commonFlags = append(commonFlags, "-b", "cpu")
 
+			// FM's default flags are equivalent to --config srgb in DM.
+			run(gms, "")
+			run(imgs, "")
+			run(svgs, "")
+			run(skps, "")
 			run(tests, "")
-			run(gms, "--ct 8888 --legacy") // Equivalent to DM --config 8888.
 
 			if model == "GCE" {
 				run(gms, "--ct g8 --legacy")                      // --config g8
 				run(gms, "--ct 565 --legacy")                     // --config 565
-				run(gms, "--ct 8888")                             // --config srgb
+				run(gms, "--ct 8888 --legacy")                    // --config 8888.
 				run(gms, "--ct f16")                              // --config esrgb
 				run(gms, "--ct f16 --tf linear")                  // --config f16
 				run(gms, "--ct 8888 --gamut p3")                  // --config p3
@@ -304,9 +393,10 @@ func main() {
 
 				run(gms, "--skvm")
 				run(gms, "--skvm --ct f16")
+
+				run(imgs, "--decodeToDst --ct f16 --gamut rec2020 --tf rec2020")
 			}
 
-			// TODO: image/colorImage/svg tests
 			// TODO: pic-8888 equivalent?
 			// TODO: serialize-8888 equivalent?
 		}
