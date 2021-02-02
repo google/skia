@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkMeshBuffer.h"
+
+#include "src/gpu/vk/GrVkGpu.h"
 
 GrVkMeshBuffer::GrVkMeshBuffer(GrVkGpu* gpu, GrGpuBufferType bufferType,
                                const GrVkBuffer::Desc& desc,
@@ -27,6 +28,7 @@ static GrVkBuffer::Type vk_mesh_buffer_type_from_gr_bufer_type(GrGpuBufferType b
             return GrVkBuffer::kIndirect_Type;
         case GrGpuBufferType::kXferCpuToGpu:
         case GrGpuBufferType::kXferGpuToCpu:
+        case GrGpuBufferType::kUniform:
             SK_ABORT("Invalid mesh buffer type.");
     }
     SkUNREACHABLE;

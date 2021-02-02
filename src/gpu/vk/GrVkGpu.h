@@ -23,6 +23,7 @@
 class GrDirectContext;
 class GrPipeline;
 
+class GrVkBuffer2;
 class GrVkBufferImpl;
 class GrVkCommandPool;
 class GrVkMemoryAllocator;
@@ -123,6 +124,10 @@ public:
                                 VkPipelineStageFlags dstStageMask,
                                 bool byRegion,
                                 VkBufferMemoryBarrier* barrier) const;
+    void addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
+                                VkPipelineStageFlags dstStageMask,
+                                bool byRegion,
+                                VkBufferMemoryBarrier* barrier) const;
     void addImageMemoryBarrier(const GrManagedResource*,
                                VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
@@ -168,7 +173,11 @@ public:
 
     void copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceSize srcOffset,
                     VkDeviceSize dstOffset, VkDeviceSize size);
+    void copyBuffer(GrVkBuffer* srcBuffer, sk_sp<GrVkBuffer2> dstBuffer, VkDeviceSize srcOffset,
+                    VkDeviceSize dstOffset, VkDeviceSize size);
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
+    bool updateBuffer(sk_sp<GrVkBuffer2> buffer, const void* src, VkDeviceSize offset,
+                      VkDeviceSize size);
 
     enum PersistentCacheKeyType : uint32_t {
         kShader_PersistentCacheKeyType = 0,
