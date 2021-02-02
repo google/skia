@@ -68,8 +68,7 @@ const GrManagedResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t 
 
     if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
                                               buffer,
-                                              kUniform_Type,
-                                              true,  // dynamic
+                                              GrVkMemoryAllocator::BufferUsage::kCpuWritesGpuReads,
                                               &alloc)) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
         return nullptr;
@@ -78,7 +77,7 @@ const GrManagedResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t 
     const GrVkDescriptorSet* descriptorSet = gpu->resourceProvider().getUniformDescriptorSet();
     if (!descriptorSet) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
-        GrVkMemory::FreeBufferMemory(gpu, kUniform_Type, alloc);
+        GrVkMemory::FreeBufferMemory(gpu, alloc);
         return nullptr;
     }
 
