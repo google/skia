@@ -448,7 +448,8 @@ function pathTests(CK: CanvasKit) {
     bounds = path.getBounds(); // $ExpectType Float32Array
     path.getBounds(bounds);
     const ft = path.getFillType();
-    const pt = path.getPoint(7); // $ExpectType Point
+    const pt = path.getPoint(7); // $ExpectType Float32Array
+    path.getPoint(8, pt);
     ok = path.isEmpty();
     ok = path.isVolatile();
     path.lineTo(10, -20);
@@ -663,7 +664,8 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     const a = anim.duration(); // $ExpectType number
     const b = anim.fps(); // $ExpectType number
     const c = anim.version(); // $ExpectType string
-    const d = anim.size(); // $ExpectType Point
+    const d = anim.size(); // $ExpectType Float32Array
+    anim.size(d);
     const rect = anim.seek(0.5);
     anim.seek(0.6, rect);
     const rect2 = anim.seekFrame(12.3);

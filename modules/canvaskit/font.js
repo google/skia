@@ -175,8 +175,8 @@ CanvasKit._extraInitializations.push(function() {
   // will be copied into that array. Otherwise, a new TypedArray will be allocated
   // and returned.
   CanvasKit.ShapedText.prototype.getBounds = function(optionalOutputArray) {
-    this._getBounds(_scratchRectPtr);
-    var ta = _scratchRect['toTypedArray']();
+    this._getBounds(_scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
     if (optionalOutputArray) {
       optionalOutputArray.set(ta);
       return optionalOutputArray;

@@ -837,7 +837,7 @@ export interface Particles extends EmbindObject<Particles> {
      * Sets the base position of the effect.
      * @param point
      */
-    setPosition(point: Point): void;
+    setPosition(point: InputPoint): void;
 
     /**
      * Sets the base rate of the effect.
@@ -2123,8 +2123,10 @@ export interface Path extends EmbindObject<Path> {
      * Returns the Point at index in Point array. Valid range for index is
      * 0 to countPoints() - 1.
      * @param index
+     * @param outputArray - if provided, the point will be copied into this array instead of
+     *                      allocating a new one.
      */
-    getPoint(index: number): Point;
+    getPoint(index: number, outputArray?: Point): Point;
 
     /**
      * Returns true if there are no verbs in the path.
@@ -2504,7 +2506,11 @@ export interface SkottieAnimation extends EmbindObject<SkottieAnimation> {
      */
     seekFrame(frame: number, damageRect?: Rect): Rect;
 
-    size(): Point;
+    /**
+     * Return the size of this animation.
+     * @param outputSize - If provided, the size will be copied into here as width, height.
+     */
+    size(outputSize?: Point): Point;
     version(): string;
 }
 
@@ -3153,7 +3159,7 @@ export interface ShaderFactory {
      *                between them.
      * @param colorSpace
      */
-    MakeLinearGradient(start: Point, end: Point, colors: InputFlexibleColorArray,
+    MakeLinearGradient(start: InputPoint, end: InputPoint, colors: InputFlexibleColorArray,
                        pos: number[] | null, mode: TileMode, localMatrix?: InputMatrix,
                        flags?: number, colorSpace?: ColorSpace): Shader;
 
@@ -3170,7 +3176,7 @@ export interface ShaderFactory {
      * @param flags - 0 to interpolate colors in unpremul, 1 to interpolate colors in premul.
      * @param colorSpace
      */
-    MakeRadialGradient(center: Point, radius: number, colors: InputFlexibleColorArray,
+    MakeRadialGradient(center: InputPoint, radius: number, colors: InputFlexibleColorArray,
                        pos: number[] | null, mode: TileMode, localMatrix?: InputMatrix,
                        flags?: number, colorSpace?: ColorSpace): Shader;
 
@@ -3223,10 +3229,10 @@ export interface ShaderFactory {
      * @param flags
      * @param colorSpace
      */
-    MakeTwoPointConicalGradient(start: Point, startRadius: number, end: Point, endRadius: number,
-                                colors: InputFlexibleColorArray, pos: number[] | null,
-                                mode: TileMode, localMatrix?: InputMatrix, flags?: number,
-                                colorSpace?: ColorSpace): Shader;
+    MakeTwoPointConicalGradient(start: InputPoint, startRadius: number, end: InputPoint,
+                                endRadius: number, colors: InputFlexibleColorArray,
+                                pos: number[] | null, mode: TileMode, localMatrix?: InputMatrix,
+                                flags?: number, colorSpace?: ColorSpace): Shader;
 }
 
 /**
@@ -3400,7 +3406,7 @@ export type IRect = Int32Array;
 /**
  * An Point is represented by 2 floats: (x, y).
  */
-export type Point = number[];
+export type Point = Float32Array;
 /**
  * An Rect is represented by 4 floats. In order, the floats correspond to left, top,
  * right, bottom. See Rect.h for more
@@ -3502,6 +3508,10 @@ export type InputFlattenedRectangleArray = MallocObj | FlattenedRectangleArray |
  * (e.g. Color). This is convenient for things like gradients when matching up colors to stops.
  */
 export type InputFlexibleColorArray = Float32Array | Uint32Array | Float32Array[];
+/**
+ * CanvasKit APIs accept a Float32Array or a normal array (of length 2) as a Point.
+ */
+export type InputPoint = Point | number[];
 /**
  * CanvasKit APIs accept all of these matrix types. Under the hood, we generally use 4x4 matrices.
  */

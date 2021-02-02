@@ -15,7 +15,7 @@ describe('Skottie behavior', () => {
     });
 
     const expectArrayCloseTo = (a, b, precision) => {
-        precision = precision || 14 // digits of precision in base 10
+        precision = precision || 14; // digits of precision in base 10
         expect(a.length).toEqual(b.length);
         for (let i=0; i<a.length; i++) {
           expect(a[i]).toBeCloseTo(b[i], precision);
@@ -40,6 +40,9 @@ describe('Skottie behavior', () => {
         });
         expect(animation).toBeTruthy();
         const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
+
+        const size = animation.size();
+        expectArrayCloseTo(size, Float32Array.of(800, 600), 4);
 
         canvas.clear(CanvasKit.WHITE);
         animation.render(canvas, bounds);

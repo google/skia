@@ -64,40 +64,70 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix) {
   CanvasKit._extraInitializations.push(function() {
 
   CanvasKit.Animation.prototype.render = function(canvas, dstRect) {
-    var dPtr = copyRectToWasm(dstRect);
-    this._render(canvas, dPtr);
-  }
+    copyRectToWasm(dstRect, _scratchFourFloatsAPtr);
+    this._render(canvas, _scratchFourFloatsAPtr);
+  };
+
+  CanvasKit.Animation.prototype.size = function(optSize) {
+    // This will copy 2 floats into a space for 4 floats
+    this._size(_scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
+    if (optSize) {
+      // We cannot call optSize.set() because it is an error to call .set() with
+      // a source bigger than the destination.
+      optSize[0] = ta[0];
+      optSize[1] = ta[1];
+      return optSize;
+    }
+    // Be sure to return a copy of just the first 2 values.
+    return ta.slice(0, 2);
+  };
 
   if (CanvasKit.ManagedAnimation) {
     CanvasKit.ManagedAnimation.prototype.render = function(canvas, dstRect) {
-      var dPtr = copyRectToWasm(dstRect);
-      this._render(canvas, dPtr);
-    }
+    copyRectToWasm(dstRect, _scratchFourFloatsAPtr);
+    this._render(canvas, _scratchFourFloatsAPtr);
+    };
 
     CanvasKit.ManagedAnimation.prototype.seek = function(t, optDamageRect) {
-      this._seek(t, _scratchRectPtr);
-      var ta = _scratchRect['toTypedArray']();
+      this._seek(t, _scratchFourFloatsAPtr);
+      var ta = _scratchFourFloatsA['toTypedArray']();
       if (optDamageRect) {
         optDamageRect.set(ta);
         return optDamageRect;
       }
       return ta.slice();
-    }
+    };
 
     CanvasKit.ManagedAnimation.prototype.seekFrame = function(frame, optDamageRect) {
-      this._seekFrame(frame, _scratchRectPtr);
-      var ta = _scratchRect['toTypedArray']();
+      this._seekFrame(frame, _scratchFourFloatsAPtr);
+      var ta = _scratchFourFloatsA['toTypedArray']();
       if (optDamageRect) {
         optDamageRect.set(ta);
         return optDamageRect;
       }
       return ta.slice();
-    }
+    };
 
     CanvasKit.ManagedAnimation.prototype.setColor = function(key, color) {
       var cPtr = copyColorToWasm(color);
       this._setColor(key, cPtr);
-    }
+    };
+
+    CanvasKit.ManagedAnimation.prototype.size = function(optSize) {
+      // This will copy 2 floats into a space for 4 floats
+      this._size(_scratchFourFloatsAPtr);
+      var ta = _scratchFourFloatsA['toTypedArray']();
+      if (optSize) {
+        // We cannot call optSize.set() because it is an error to call .set() with
+        // a source bigger than the destination.
+        optSize[0] = ta[0];
+        optSize[1] = ta[1];
+        return optSize;
+      }
+      // Be sure to return a copy of just the first 2 values.
+      return ta.slice(0, 2);
+    };
   }
 
 

@@ -233,6 +233,25 @@ describe('Path Behavior', () => {
         CanvasKit.Free(mWeights);
     });
 
+    it('can retrieve points from a path', () => {
+        const path = new CanvasKit.Path();
+        path.addRect([10, 15, 20, 25]);
+
+        let pt = path.getPoint(0);
+        expect(pt[0]).toEqual(10);
+        expect(pt[1]).toEqual(15);
+
+        path.getPoint(2, pt);
+        expect(pt[0]).toEqual(20);
+        expect(pt[1]).toEqual(25);
+
+        path.getPoint(1000, pt); // off the end returns (0, 0) as per the docs.
+        expect(pt[0]).toEqual(0);
+        expect(pt[1]).toEqual(0);
+
+        path.delete();
+    });
+
     gm('offset_path', (canvas) => {
         const path = starPath(CanvasKit);
 

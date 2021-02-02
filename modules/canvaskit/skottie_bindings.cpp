@@ -197,7 +197,11 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("version", optional_override([](skottie::Animation& self)->std::string {
             return std::string(self.version().c_str());
         }))
-        .function("size"    , &skottie::Animation::size)
+        .function("_size", optional_override([](skottie::Animation& self,
+                                                uintptr_t /* float* */ oPtr)->void {
+            SkSize* output = reinterpret_cast<SkSize*>(oPtr);
+            *output = self.size();
+        }))
         .function("duration", &skottie::Animation::duration)
         .function("fps"     , &skottie::Animation::fps)
         .function("seek", optional_override([](skottie::Animation& self, SkScalar t)->void {
@@ -221,7 +225,11 @@ EMSCRIPTEN_BINDINGS(Skottie) {
     class_<ManagedAnimation>("ManagedAnimation")
         .smart_ptr<sk_sp<ManagedAnimation>>("sk_sp<ManagedAnimation>")
         .function("version"   , &ManagedAnimation::version)
-        .function("size"      , &ManagedAnimation::size)
+        .function("_size", optional_override([](ManagedAnimation& self,
+                                                uintptr_t /* float* */ oPtr)->void {
+            SkSize* output = reinterpret_cast<SkSize*>(oPtr);
+            *output = self.size();
+        }))
         .function("duration"  , &ManagedAnimation::duration)
         .function("fps"       , &ManagedAnimation::fps)
         .function("_render", optional_override([](ManagedAnimation& self, SkCanvas* canvas,

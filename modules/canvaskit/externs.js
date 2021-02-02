@@ -95,8 +95,10 @@ var CanvasKit = {
   Animation: {
     prototype: {
       render: function() {},
+      size: function() {},
     },
     _render: function() {},
+    _size: function() {},
   },
 
   GrContext: {
@@ -113,10 +115,12 @@ var CanvasKit = {
       seek: function() {},
       seekFrame: function() {},
       setColor: function() {},
+      size: function() {},
     },
     _render: function() {},
     _seek: function() {},
     _seekFrame: function() {},
+    _size: function() {},
   },
 
   Paragraph: {
@@ -440,7 +444,6 @@ var CanvasKit = {
     /** @return {CanvasKit.Paint} */
     copy: function() {},
     getBlendMode: function() {},
-    getColor: function() {},
     getFilterQuality: function() {},
     getStrokeCap: function() {},
     getStrokeJoin: function() {},
@@ -461,6 +464,7 @@ var CanvasKit = {
     setStyle: function() {},
 
     prototype: {
+      getColor: function() {},
       setColor: function() {},
       setColorComponents: function() {},
       setColorInt: function() {},
@@ -488,13 +492,18 @@ var CanvasKit = {
     getUniformCount: function() {},
     getUniformFloatCount: function() {},
     getUniformName: function() {},
-    setPosition: function() {},
     setRate: function() {},
     start: function() {},
     update: function() {},
 
+    prototype: {
+      setPosition: function() {},
+      uniforms: function() {},
+    },
+
     // private API (from C++ bindings)
     _uniformPtr: function() {},
+    _setPosition: function() {},
   },
 
   Path: {
@@ -510,7 +519,6 @@ var CanvasKit = {
     equals: function() {},
     getBounds: function() {},
     getFillType: function() {},
-    getPoint: function() {},
     isEmpty: function() {},
     isVolatile: function() {},
     reset: function() {},
@@ -537,6 +545,7 @@ var CanvasKit = {
       computeTightBounds: function() {},
       cubicTo: function() {},
       dash: function() {},
+      getPoint: function() {},
       lineTo: function() {},
       moveTo: function() {},
       offset: function() {},
@@ -572,6 +581,7 @@ var CanvasKit = {
     _computeTightBounds: function() {},
     _cubicTo: function() {},
     _dash: function() {},
+    _getPoint: function() {},
     _lineTo: function() {},
     _moveTo: function() {},
     _op: function() {},
@@ -1028,8 +1038,6 @@ CanvasKit.ColorBuilder.prototype.set = function() {};
 
 CanvasKit.RuntimeEffect.prototype.makeShader = function() {};
 CanvasKit.RuntimeEffect.prototype.makeShaderWithChildren = function() {};
-
-CanvasKit.ParticleEffect.prototype.uniforms = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};
