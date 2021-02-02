@@ -696,8 +696,9 @@ enum class GrGpuBufferType {
     kDrawIndirect,
     kXferCpuToGpu,
     kXferGpuToCpu,
+    kUniform,
 };
-static const int kGrGpuBufferTypeCount = static_cast<int>(GrGpuBufferType::kXferGpuToCpu) + 1;
+static const int kGrGpuBufferTypeCount = static_cast<int>(GrGpuBufferType::kUniform) + 1;
 
 /**
  * Provides a performance hint regarding the frequency at which a data store will be accessed.

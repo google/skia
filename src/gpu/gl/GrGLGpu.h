@@ -662,6 +662,7 @@ private:
     auto* hwBufferState(GrGpuBufferType type) {
         unsigned typeAsUInt = static_cast<unsigned>(type);
         SkASSERT(typeAsUInt < SK_ARRAY_COUNT(fHWBufferState));
+        SkASSERT(type != GrGpuBufferType::kUniform);
         return &fHWBufferState[typeAsUInt];
     }
 
