@@ -74,6 +74,8 @@ skia_sksl_sources = [
   "$_src/sksl/dsl/DSLType.h",
   "$_src/sksl/dsl/DSLVar.cpp",
   "$_src/sksl/dsl/DSLVar.h",
+  "$_src/sksl/dsl/priv/DSLFPs.cpp",
+  "$_src/sksl/dsl/priv/DSLFPs.h",
   "$_src/sksl/dsl/priv/DSLWriter.cpp",
   "$_src/sksl/dsl/priv/DSLWriter.h",
   "$_src/sksl/ir/SkSLBinaryExpression.h",
