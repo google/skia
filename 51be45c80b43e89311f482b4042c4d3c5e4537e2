@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7dada29_8e9ea211",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T17:07:10Z",
+      "side": 1,
+      "message": "Can you also update our TS type files? https://github.com/google/skia/blob/master/modules/canvaskit/canvaskit/types/index.d.ts#L389\nhttps://github.com/google/skia/blob/master/modules/canvaskit/canvaskit/types/canvaskit-wasm-tests.ts#L683\n\nYou should be able to test those with `make typecheck`",
+      "revId": "51be45c80b43e89311f482b4042c4d3c5e4537e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43599e53_474bd3af",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T17:07:10Z",
+      "side": 1,
+      "message": "Maybe add a comment that a WebTrack is just a wrapper around a JS object that has a method \"seek\" defined on it.",
+      "revId": "51be45c80b43e89311f482b4042c4d3c5e4537e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72ecfdcc_1560011c",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T17:07:10Z",
+      "side": 1,
+      "message": "delete?",
+      "range": {
+        "startLine": 108,
+        "startChar": 15,
+        "endLine": 108,
+        "endChar": 24
+      },
+      "revId": "51be45c80b43e89311f482b4042c4d3c5e4537e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff19670c_339b30c2",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T17:07:10Z",
+      "side": 1,
+      "message": "If you aren\u0027t actually drawing to the canvas, you can make an \"it\" test like https://github.com/google/skia/blob/5d1b5a238e2879c3c4f7c3dade4a4853acc7d89d/modules/canvaskit/tests/core.spec.js#L54",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 6
+      },
+      "revId": "51be45c80b43e89311f482b4042c4d3c5e4537e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec350897_321df25b",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T17:07:10Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 95,
+        "startChar": 7,
+        "endLine": 95,
+        "endChar": 12
+      },
+      "revId": "51be45c80b43e89311f482b4042c4d3c5e4537e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
