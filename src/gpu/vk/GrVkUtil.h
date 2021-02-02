@@ -141,6 +141,8 @@ bool GrInstallVkShaderModule(GrVkGpu* gpu,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo);
 
+VkShaderStageFlags GrPushConstantStageFlags(const GrVkGpu* gpu);
+
 /**
  * Returns true if the format is compressed.
  */

@@ -155,3 +155,10 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
     SkUNREACHABLE;
 }
 
+VkShaderStageFlags GrPushConstantStageFlags(const GrVkGpu* gpu) {
+    VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    if (gpu->vkCaps().shaderCaps()->geometryShaderSupport()) {
+        stageFlags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+    }
+    return stageFlags;
+}
