@@ -23,11 +23,11 @@ CanvasKit.onRuntimeInitialized = function() {
   _scratchRRect2 = CanvasKit.Malloc(Float32Array, 12); // 4 scalars for rrect, 8 for radii.
   _scratchRRect2Ptr = _scratchRRect2['byteOffset'];
 
-  _scratchRect = CanvasKit.Malloc(Float32Array, 4);
-  _scratchRectPtr = _scratchRect['byteOffset'];
+  _scratchFourFloatsA = CanvasKit.Malloc(Float32Array, 4);
+  _scratchFourFloatsAPtr = _scratchFourFloatsA['byteOffset'];
 
-  _scratchRect2 = CanvasKit.Malloc(Float32Array, 4);
-  _scratchRect2Ptr = _scratchRect2['byteOffset'];
+  _scratchFourFloatsB = CanvasKit.Malloc(Float32Array, 4);
+  _scratchFourFloatsBPtr = _scratchFourFloatsB['byteOffset'];
 
   _scratchIRect = CanvasKit.Malloc(Int32Array, 4);
   _scratchIRectPtr = _scratchIRect['byteOffset'];
@@ -227,8 +227,8 @@ CanvasKit.onRuntimeInitialized = function() {
   // will be copied into that array. Otherwise, a new TypedArray will be allocated
   // and returned.
   CanvasKit.Path.prototype.computeTightBounds = function(optionalOutputArray) {
-    this._computeTightBounds(_scratchRectPtr);
-    var ta = _scratchRect['toTypedArray']();
+    this._computeTightBounds(_scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
     if (optionalOutputArray) {
       optionalOutputArray.set(ta);
       return optionalOutputArray;
@@ -252,8 +252,8 @@ CanvasKit.onRuntimeInitialized = function() {
   // will be copied into that array. Otherwise, a new TypedArray will be allocated
   // and returned.
   CanvasKit.Path.prototype.getBounds = function(optionalOutputArray) {
-    this._getBounds(_scratchRectPtr);
-    var ta = _scratchRect['toTypedArray']();
+    this._getBounds(_scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
     if (optionalOutputArray) {
       optionalOutputArray.set(ta);
       return optionalOutputArray;
@@ -574,21 +574,23 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   CanvasKit.Canvas.prototype.drawImageRect = function(img, src, dest, paint, fastSample) {
-    var sPtr = copyRectToWasm(src,  _scratchRectPtr);
-    var dPtr = copyRectToWasm(dest, _scratchRect2Ptr);
-    this._drawImageRect(img, sPtr, dPtr, paint, !!fastSample);
+    copyRectToWasm(src,  _scratchFourFloatsAPtr);
+    copyRectToWasm(dest, _scratchFourFloatsBPtr);
+    this._drawImageRect(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr, paint, !!fastSample);
   };
 
   CanvasKit.Canvas.prototype.drawImageRectCubic = function(img, src, dest, B, C, paint) {
-    var sPtr = copyRectToWasm(src,  _scratchRectPtr);
-    var dPtr = copyRectToWasm(dest, _scratchRect2Ptr);
-    this._drawImageRectCubic(img, sPtr, dPtr, B, C, paint || null);
+    copyRectToWasm(src,  _scratchFourFloatsAPtr);
+    copyRectToWasm(dest, _scratchFourFloatsBPtr);
+    this._drawImageRectCubic(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr, B, C,
+      paint || null);
   };
 
   CanvasKit.Canvas.prototype.drawImageRectOptions = function(img, src, dest, filter, mipmap, paint) {
-    var sPtr = copyRectToWasm(src,  _scratchRectPtr);
-    var dPtr = copyRectToWasm(dest, _scratchRect2Ptr);
-    this._drawImageRectOptions(img, sPtr, dPtr, filter, mipmap, paint || null);
+    copyRectToWasm(src,  _scratchFourFloatsAPtr);
+    copyRectToWasm(dest, _scratchFourFloatsBPtr);
+    this._drawImageRectOptions(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr, filter, mipmap,
+      paint || null);
   };
 
   CanvasKit.Canvas.prototype.drawOval = function(oval, paint) {
@@ -628,11 +630,11 @@ CanvasKit.onRuntimeInitialized = function() {
                                             flags, optOutputRect) {
     var ctmPtr = copy3x3MatrixToWasm(ctm);
     var ok = this._getShadowLocalBounds(ctmPtr, path, zPlaneParams, lightPos, lightRadius,
-                                        flags, _scratchRectPtr);
+                                        flags, _scratchFourFloatsAPtr);
     if (!ok) {
       return null;
     }
-    var ta = _scratchRect['toTypedArray']();
+    var ta = _scratchFourFloatsA['toTypedArray']();
     if (optOutputRect) {
       optOutputRect.set(ta);
       return optOutputRect;
@@ -753,6 +755,21 @@ CanvasKit.onRuntimeInitialized = function() {
     this._setColor(cPtr, colorSpace);
   };
 
+  CanvasKit.Path.prototype.getPoint = function(idx, optionalOutput) {
+    // This will copy 2 floats into a space for 4 floats
+    this._getPoint(idx, _scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
+    if (optionalOutput) {
+      // We cannot call optionalOutput.set() because it is an error to call .set() with
+      // a source bigger than the destination.
+      optionalOutput[0] = ta[0];
+      optionalOutput[1] = ta[1];
+      return optionalOutput;
+    }
+    // Be sure to return a copy of just the first 2 values.
+    return ta.slice(0, 2);
+  };
+
   CanvasKit.PictureRecorder.prototype.beginRecording = function(bounds) {
     var bPtr = copyRectToWasm(bounds);
     return this._beginRecording(bPtr);
@@ -812,7 +829,7 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   CanvasKit.Shader.MakeColor = function(color4f, colorSpace) {
-    colorSpace = colorSpace || null
+    colorSpace = colorSpace || null;
     var cPtr = copyColorToWasm(color4f);
     return CanvasKit.Shader._MakeColor(cPtr, colorSpace);
   };
@@ -829,7 +846,12 @@ CanvasKit.onRuntimeInitialized = function() {
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var lgs = CanvasKit.Shader._MakeLinearGradient(start, end, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+    // Copy start and end to _scratchFourFloatsAPtr.
+    var startEndPts = _scratchFourFloatsA['toTypedArray']();
+    startEndPts.set(start);
+    startEndPts.set(end, 2);
+
+    var lgs = CanvasKit.Shader._MakeLinearGradient(_scratchFourFloatsAPtr, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
                                                    cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
@@ -838,14 +860,15 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   CanvasKit.Shader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags, colorSpace) {
-    colorSpace = colorSpace || null
+    colorSpace = colorSpace || null;
     var cPtrInfo = copyFlexibleColorArray(colors);
     var posPtr = copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var rgs = CanvasKit.Shader._MakeRadialGradient(center, radius, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
-                                                   cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
+    var rgs = CanvasKit.Shader._MakeRadialGradient(center[0], center[1], radius, cPtrInfo.colorPtr,
+                                                   cPtrInfo.colorType, posPtr, cPtrInfo.count, mode,
+                                                   flags, localMatrixPtr, colorSpace);
 
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
@@ -853,7 +876,7 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   CanvasKit.Shader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle, colorSpace) {
-    colorSpace = colorSpace || null
+    colorSpace = colorSpace || null;
     var cPtrInfo = copyFlexibleColorArray(colors);
     var posPtr = copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;
@@ -873,14 +896,19 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.Shader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                           colors, pos, mode, localMatrix, flags, colorSpace) {
-    colorSpace = colorSpace || null
+    colorSpace = colorSpace || null;
     var cPtrInfo = copyFlexibleColorArray(colors);
     var posPtr =   copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var rgs = CanvasKit.Shader._MakeTwoPointConicalGradient(
-                          start, startRadius, end, endRadius, cPtrInfo.colorPtr, cPtrInfo.colorType,
+    // Copy start and end to _scratchFourFloatsAPtr.
+    var startEndPts = _scratchFourFloatsA['toTypedArray']();
+    startEndPts.set(start);
+    startEndPts.set(end, 2);
+
+    var rgs = CanvasKit.Shader._MakeTwoPointConicalGradient(_scratchFourFloatsAPtr,
+                          startRadius, endRadius, cPtrInfo.colorPtr, cPtrInfo.colorType,
                           posPtr, cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
@@ -892,8 +920,8 @@ CanvasKit.onRuntimeInitialized = function() {
   // will be copied into that array. Otherwise, a new TypedArray will be allocated
   // and returned.
   CanvasKit.Vertices.prototype.bounds = function(optionalOutputArray) {
-    this._bounds(_scratchRectPtr);
-    var ta = _scratchRect['toTypedArray']();
+    this._bounds(_scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
     if (optionalOutputArray) {
       optionalOutputArray.set(ta);
       return optionalOutputArray;

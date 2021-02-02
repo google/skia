@@ -1463,7 +1463,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("countPoints", &SkPath::countPoints)
         .function("contains", &SkPath::contains)
         .function("_cubicTo", &ApplyCubicTo)
-        .function("getPoint", &SkPath::getPoint)
+        .function("_getPoint", optional_override([](SkPath& self, int index,
+                                                    uintptr_t /* float* */ oPtr)->void {
+            SkPoint* output = reinterpret_cast<SkPoint*>(oPtr);
+            *output = self.getPoint(index);
+        }))
         .function("isEmpty",  &SkPath::isEmpty)
         .function("isVolatile", &SkPath::isVolatile)
         .function("_lineTo", &ApplyLineTo)
@@ -1586,13 +1590,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
          // Here and in other gradient functions, cPtr is a pointer to an array of data
          // representing colors. whether this is an array of SkColor or SkColor4f is indicated
          // by the colorType argument. Only RGBA_8888 and RGBA_F32 are accepted.
-        .class_function("_MakeLinearGradient", optional_override([](SkPoint start, SkPoint end,
+        .class_function("_MakeLinearGradient", optional_override([](
+                                         uintptr_t /* SkPoint*  */ fourFloatsPtr,
                                          uintptr_t cPtr, SkColorType colorType,
                                          uintptr_t /* SkScalar*  */ pPtr,
                                          int count, SkTileMode mode, uint32_t flags,
                                          uintptr_t /* SkScalar*  */ mPtr,
                                          sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
-             SkPoint points[] = { start, end };
+             const SkPoint* points = reinterpret_cast<const SkPoint*>(fourFloatsPtr);
              const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
              OptionalMatrix localMatrix(mPtr);
 
@@ -1608,7 +1613,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
              SkDebugf("%d is not an accepted colorType\n", colorType);
              return nullptr;
          }), allow_raw_pointers())
-        .class_function("_MakeRadialGradient", optional_override([](SkPoint center, SkScalar radius,
+        .class_function("_MakeRadialGradient", optional_override([](
+                                         SkScalar cx, SkScalar cy, SkScalar radius,
                                          uintptr_t cPtr, SkColorType colorType,
                                          uintptr_t /* SkScalar*  */ pPtr,
                                          int count, SkTileMode mode, uint32_t flags,
@@ -1618,12 +1624,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             OptionalMatrix localMatrix(mPtr);
             if (colorType == SkColorType::kRGBA_F32_SkColorType) {
                const SkColor4f* colors  = reinterpret_cast<const SkColor4f*>(cPtr);
-               return SkGradientShader::MakeRadial(center, radius, colors, colorSpace, positions, count,
-                                                   mode, flags, &localMatrix);
+               return SkGradientShader::MakeRadial({cx, cy}, radius, colors, colorSpace,
+                                                   positions, count, mode, flags, &localMatrix);
             } else if (colorType == SkColorType::kRGBA_8888_SkColorType) {
                const SkColor* colors  = reinterpret_cast<const SkColor*>(cPtr);
-               return SkGradientShader::MakeRadial(center, radius, colors, positions, count,
-                                                   mode, flags, &localMatrix);
+               return SkGradientShader::MakeRadial({cx, cy}, radius, colors, positions,
+                                                   count, mode, flags, &localMatrix);
             }
             SkDebugf("%d is not an accepted colorType\n", colorType);
             return nullptr;
@@ -1662,24 +1668,27 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                        numOctaves, seed, &tileSize);
         }))
         .class_function("_MakeTwoPointConicalGradient", optional_override([](
-                                         SkPoint start, SkScalar startRadius,
-                                         SkPoint end, SkScalar endRadius,
+                                         uintptr_t /* SkPoint*  */ fourFloatsPtr,
+                                         SkScalar startRadius, SkScalar endRadius,
                                          uintptr_t cPtr, SkColorType colorType,
                                          uintptr_t /* SkScalar*  */ pPtr,
                                          int count, SkTileMode mode, uint32_t flags,
                                          uintptr_t /* SkScalar*  */ mPtr,
                                          sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
+            const SkPoint* startAndEnd = reinterpret_cast<const SkPoint*>(fourFloatsPtr);
             const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
             OptionalMatrix localMatrix(mPtr);
 
             if (colorType == SkColorType::kRGBA_F32_SkColorType) {
                const SkColor4f* colors  = reinterpret_cast<const SkColor4f*>(cPtr);
-               return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+               return SkGradientShader::MakeTwoPointConical(startAndEnd[0], startRadius,
+                                                            startAndEnd[1], endRadius,
                                                             colors, colorSpace, positions, count, mode,
                                                             flags, &localMatrix);
             } else if (colorType == SkColorType::kRGBA_8888_SkColorType) {
                const SkColor* colors  = reinterpret_cast<const SkColor*>(cPtr);
-               return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+               return SkGradientShader::MakeTwoPointConical(startAndEnd[0], startRadius,
+                                                            startAndEnd[1], endRadius,
                                                             colors, positions, count, mode,
                                                             flags, &localMatrix);
             }
@@ -1991,11 +2000,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("colorType",  &SimpleImageInfo::colorType)
         .field("alphaType",  &SimpleImageInfo::alphaType)
         .field("colorSpace", &SimpleImageInfo::colorSpace);
-
-    // SkPoints can be represented by [x, y]
-    value_array<SkPoint>("Point")
-        .element(&SkPoint::fX)
-        .element(&SkPoint::fY);
 
     // SkPoint3s can be represented by [x, y, z]
     value_array<SkPoint3>("Point3")
