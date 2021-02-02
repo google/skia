@@ -598,9 +598,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 if (type == *fContext.fTypes.fVoid) {
                     this->writeInstruction(SpvOpTypeVoid, result, fConstantBuffer);
                 } else {
-#ifdef SK_DEBUG
-                    ABORT("invalid type: %s", type.description().c_str());
-#endif
+                    SkDEBUGFAILF("invalid type: %s", type.description().c_str());
                 }
         }
         fTypeMap[key] = result;
@@ -723,9 +721,7 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
         case Expression::Kind::kIndex:
             return this->writeIndexExpression(expr.as<IndexExpression>(), out);
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported expression: %s", expr.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported expression: %s", expr.description().c_str());
             break;
     }
     return -1;
@@ -2577,9 +2573,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         } else if (is_signed(fContext, type)) {
             this->writeInstruction(SpvOpSNegate, typeId, result, expr, out);
         } else {
-#ifdef SK_DEBUG
-            ABORT("unsupported prefix expression %s", p.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported prefix expression %s", p.description().c_str());
         }
         this->writePrecisionModifier(type, result);
         return result;
@@ -2618,9 +2612,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             return result;
         }
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported prefix expression: %s", p.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported prefix expression: %s", p.description().c_str());
             return -1;
     }
 }
@@ -2644,9 +2636,7 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
             return result;
         }
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported postfix expression %s", p.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported postfix expression %s", p.description().c_str());
             return -1;
     }
 }
@@ -3028,9 +3018,7 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
             this->writeInstruction(SpvOpKill, out);
             break;
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported statement: %s", s.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported statement: %s", s.description().c_str());
             break;
     }
 }

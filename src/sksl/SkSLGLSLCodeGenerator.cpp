@@ -224,9 +224,7 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
             this->writeIndexExpression(expr.as<IndexExpression>());
             break;
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported expression: %s", expr.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported expression: %s", expr.description().c_str());
             break;
     }
 }
@@ -1312,9 +1310,7 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
             this->write(";");
             break;
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported statement: %s", s.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported statement: %s", s.description().c_str());
             break;
     }
 }

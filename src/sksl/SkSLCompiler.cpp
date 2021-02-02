@@ -576,9 +576,7 @@ static bool is_dead(const Expression& lvalue, ProgramUsage* usage) {
                    is_dead(*t.ifFalse(), usage);
         }
         default:
-#ifdef SK_DEBUG
-            ABORT("invalid lvalue: %s\n", lvalue.description().c_str());
-#endif
+            SkDEBUGFAILF("invalid lvalue: %s\n", lvalue.description().c_str());
             return false;
     }
 }
