@@ -90,22 +90,24 @@ public:
         needSpace(1);
 
         fSubpathIndexStart = this->currentIndex();
+        fSubpathStartPoint = p;
         *(fCurVert++) = p;
     }
 
-    void addLine(const SkPoint& p) {
-        needSpace(1, this->indexScale());
+    void addLine(const SkPoint pts[]) {
+        needSpace(1, this->indexScale(), &pts[0]);
 
         if (this->isIndexed()) {
             uint16_t prevIdx = this->currentIndex() - 1;
             appendCountourEdgeIndices(prevIdx);
         }
-        *(fCurVert++) = p;
+        *(fCurVert++) = pts[1];
     }
 
     void addQuad(const SkPoint pts[], SkScalar srcSpaceTolSqd, SkScalar srcSpaceTol) {
         this->needSpace(GrPathUtils::kMaxPointsPerCurve,
-                        GrPathUtils::kMaxPointsPerCurve * this->indexScale());
+                        GrPathUtils::kMaxPointsPerCurve * this->indexScale(),
+                        &pts[0]);
 
         // First pt of quad is the pt we ended on in previous step
         uint16_t firstQPtIdx = this->currentIndex() - 1;
@@ -130,7 +132,8 @@ public:
 
     void addCubic(const SkPoint pts[], SkScalar srcSpaceTolSqd, SkScalar srcSpaceTol) {
         this->needSpace(GrPathUtils::kMaxPointsPerCurve,
-                        GrPathUtils::kMaxPointsPerCurve * this->indexScale());
+                        GrPathUtils::kMaxPointsPerCurve * this->indexScale(),
+                        &pts[0]);
 
         // First pt of cubic is the pt we ended on in previous step
         uint16_t firstCPtIdx = this->currentIndex() - 1;
@@ -158,7 +161,7 @@ public:
                     this->moveTo(pts[0]);
                     break;
                 case SkPath::kLine_Verb:
-                    this->addLine(pts[1]);
+                    this->addLine(pts);
                     break;
                 case SkPath::kConic_Verb:
                     this->addConic(iter.conicWeight(), pts, srcSpaceTolSqd, srcSpaceTol);
@@ -289,17 +292,11 @@ private:
         }
     }
 
-    void needSpace(int vertsNeeded, int indicesNeeded = 0) {
+    void needSpace(int vertsNeeded, int indicesNeeded = 0, const SkPoint* lastPoint = nullptr) {
         if (fCurVert + vertsNeeded > fVertices + fVerticesInChunk ||
             fCurIdx + indicesNeeded > fIndices + fIndicesInChunk) {
             // We are about to run out of space (possibly)
 
-            // To maintain continuity, we need to remember one or two points from the current mesh.
-            // Lines only need the last point, fills need the first point from the current contour.
-            // We always grab both here, and append the ones we need at the end of this process.
-            SkPoint lastPt = *(fCurVert - 1);
-            SkASSERT(fSubpathIndexStart < fVerticesInChunk);
-            SkPoint subpathStartPt = fVertices[fSubpathIndexStart];
 
             // Draw the mesh we've accumulated, and put back any unused space
             this->createMeshAndPutBackReserve();
@@ -307,11 +304,23 @@ private:
             // Get new buffers
             this->allocNewBuffers();
 
-            // Append copies of the points we saved so the two meshes will weld properly
-            if (!this->isHairline()) {
-                *(fCurVert++) = subpathStartPt;
+            // To maintain continuity, we need to remember one or two points from the current mesh.
+            // Lines only need the last point, fills need the first point from the current contour.
+            // We always grab both here, and append the ones we need at the end of this process.
+            SkASSERT(fSubpathIndexStart < fVerticesInChunk);
+            // This assert is reading from the gpu buffer fVertices and will be slow, but for debug
+            // that is okay.
+            SkASSERT(fSubpathStartPoint == fVertices[fSubpathIndexStart]);
+
+            // On moves the lastPoint will be null so we don't need to copy over any points to the
+            // new buffer.
+            if (lastPoint) {
+                // Append copies of the points we saved so the two meshes will weld properly
+                if (!this->isHairline()) {
+                    *(fCurVert++) = fSubpathStartPoint;
+                }
+                *(fCurVert++) = *lastPoint;
             }
-            *(fCurVert++) = lastPt;
         }
     }
 
@@ -331,6 +340,8 @@ private:
     uint16_t* fIndices;
     uint16_t* fCurIdx;
     uint16_t fSubpathIndexStart;
+    SkPoint fSubpathStartPoint;
+    SkPoint fLastPoint;
 
     SkTDArray<GrSimpleMesh*>* fMeshes;
 };
