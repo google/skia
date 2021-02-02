@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc5e118b_2601aab1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T19:04:20Z",
+      "side": 1,
+      "message": "I\u0027m pretty sure this fine -- I just had some questions to make things clear in my mind.",
+      "revId": "ee1f45de8b112bbd9db98c47f0c833c89e1ead05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d029ab16_e036d553",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T19:04:20Z",
+      "side": 1,
+      "message": "We never map and unmap repeatedly with a static buffer? (I mean, I know we *shouldn\u0027t*, just making sure)",
+      "range": {
+        "startLine": 191,
+        "startChar": 8,
+        "endLine": 191,
+        "endChar": 27
+      },
+      "revId": "ee1f45de8b112bbd9db98c47f0c833c89e1ead05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

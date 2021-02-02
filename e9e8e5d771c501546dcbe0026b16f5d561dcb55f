@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6820376_5990ca96",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T19:04:20Z",
+      "side": 0,
+      "message": "So previously we\u0027d only get here if we had a static buffer we were repeatedly updating? (for some reason...)",
+      "range": {
+        "startLine": 163,
+        "startChar": 8,
+        "endLine": 163,
+        "endChar": 16
+      },
+      "revId": "e9e8e5d771c501546dcbe0026b16f5d561dcb55f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
