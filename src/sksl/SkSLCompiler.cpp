@@ -824,7 +824,7 @@ static void clear_write(Expression& expr) {
             clear_write(*expr.as<IndexExpression>().base());
             break;
         default:
-            ABORT("shouldn't be writing to this kind of expression\n");
+            SK_ABORT("shouldn't be writing to this kind of expression\n");
             break;
     }
 }
@@ -2067,7 +2067,7 @@ const char* Compiler::OperatorName(Token::Kind op) {
         case Token::Kind::TK_MINUSMINUS:   return "--";
         case Token::Kind::TK_COMMA:        return ",";
         default:
-            ABORT("unsupported operator: %d\n", (int) op);
+            SK_ABORT("unsupported operator: %d\n", (int) op);
     }
 }
 

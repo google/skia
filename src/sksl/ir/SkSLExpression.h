@@ -119,26 +119,26 @@ public:
 
     /**
      * For an expression which evaluates to a constant int, returns the value. Otherwise calls
-     * ABORT.
+     * SK_ABORT.
      */
     virtual SKSL_INT getConstantInt() const {
-        ABORT("not a constant int");
+        SK_ABORT("not a constant int");
     }
 
     /**
      * For an expression which evaluates to a constant float, returns the value. Otherwise calls
-     * ABORT.
+     * SK_ABORT.
      */
     virtual SKSL_FLOAT getConstantFloat() const {
-        ABORT("not a constant float");
+        SK_ABORT("not a constant float");
     }
 
     /**
      * For an expression which evaluates to a constant Boolean, returns the value. Otherwise calls
-     * ABORT.
+     * SK_ABORT.
      */
     virtual bool getConstantBool() const {
-        ABORT("not a constant Boolean");
+        SK_ABORT("not a constant Boolean");
     }
 
     /**

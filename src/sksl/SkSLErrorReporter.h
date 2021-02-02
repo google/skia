@@ -41,7 +41,7 @@ public:
  */
 class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
-    void error(int offset, String msg) override { ABORT("%s", msg.c_str()); }
+    void error(int offset, String msg) override { SK_ABORT("%s", msg.c_str()); }
     int errorCount() override { return 0; }
     void setErrorCount(int) override {}
 };

@@ -1655,7 +1655,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
             return std::make_unique<ExternalFunctionReference>(offset, r);
         }
         default:
-            ABORT("unsupported symbol type %d\n", (int) result->kind());
+            SK_ABORT("unsupported symbol type %d\n", (int) result->kind());
     }
 }
 
@@ -2477,7 +2477,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
             }
             break;
         default:
-            ABORT("unsupported prefix operator\n");
+            SK_ABORT("unsupported prefix operator\n");
     }
     return std::make_unique<PrefixExpression>(op, std::move(base));
 }

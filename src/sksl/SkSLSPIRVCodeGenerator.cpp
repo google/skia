@@ -1398,7 +1398,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
         IntLiteral zero(fContext, -1, 0);
         zeroId = this->writeIntLiteral(zero);
     } else {
-        ABORT("unsupported matrix component type");
+        SK_ABORT("unsupported matrix component type");
     }
     SpvId zeroColumn = 0;
     SpvId columns[4];
@@ -2240,7 +2240,7 @@ static std::unique_ptr<Expression> create_literal_1(const Context& context, cons
     else if (type.isFloat()) {
         return std::unique_ptr<Expression>(new FloatLiteral(-1, 1.0, &type));
     } else {
-        ABORT("math is unsupported on type '%s'", String(type.name()).c_str());
+        SK_ABORT("math is unsupported on type '%s'", String(type.name()).c_str());
     }
 }
 
@@ -3429,7 +3429,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             this->writeWord(SpvExecutionModelGeometry, out);
             break;
         default:
-            ABORT("cannot write this kind of program to SPIR-V\n");
+            SK_ABORT("cannot write this kind of program to SPIR-V\n");
     }
     SpvId entryPoint = fFunctionMap[main];
     this->writeWord(entryPoint, out);

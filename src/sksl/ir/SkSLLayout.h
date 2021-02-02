@@ -114,7 +114,7 @@ struct Layout {
             case Format::kR8I:          return "r8i";
             case Format::kRG16F:        return "rg16f";
         }
-        ABORT("Unexpected format");
+        SK_ABORT("Unexpected format");
     }
 
     static bool ReadFormat(String str, Format* format) {

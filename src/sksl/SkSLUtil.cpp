@@ -29,15 +29,6 @@ ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
 }
 #endif  // defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 
-void sksl_abort() {
-#ifdef SKSL_STANDALONE
-    abort();
-#else
-    sk_abort_no_print();
-    exit(1);
-#endif
-}
-
 void write_stringstream(const StringStream& s, OutputStream& out) {
     out.write(s.str().c_str(), s.str().size());
 }
