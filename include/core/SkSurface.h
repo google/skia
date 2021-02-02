@@ -632,8 +632,9 @@ public:
         this->draw(canvas, x, y, SkSamplingOptions(), nullptr);
     }
 
-    // DEPRECATED -- use explicit sampling options
+#ifdef SK_SUPPORT_LEGACY_SURFACE_DRAW
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
+#endif
 
     /** Copies SkSurface pixel address, row bytes, and SkImageInfo to SkPixmap, if address
         is available, and returns true. If pixel address is not available, return

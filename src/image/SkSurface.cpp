@@ -218,10 +218,12 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingO
     asSB(this)->onDraw(canvas, x, y, sampling, paint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_SURFACE_DRAW
 void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
     SkSamplingOptions sampling(paint ? SkPaintPriv::GetFQ(*paint) : kNone_SkFilterQuality);
     this->draw(canvas, x, y, sampling, paint);
 }
+#endif
 
 bool SkSurface::peekPixels(SkPixmap* pmap) {
     return this->getCanvas()->peekPixels(pmap);
