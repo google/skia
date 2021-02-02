@@ -22,6 +22,30 @@
       },
       "revId": "1911c79efb5d40996131279b399e373b79961ff7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cfa1bfd_48c14bc0",
+        "filename": "bench/TessellateBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T14:58:11Z",
+      "side": 1,
+      "message": "Done -- changed to / 40 though, because the make_cubic_path() helper itself divides kNumCubicsInChalkboard by 2. Let me know if that\u0027s not right.",
+      "parentUuid": "c4301871_465e0d6d",
+      "range": {
+        "startLine": 56,
+        "startChar": 49,
+        "endLine": 56,
+        "endChar": 51
+      },
+      "revId": "1911c79efb5d40996131279b399e373b79961ff7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "271782cf_fffe4812",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T14:58:11Z",
+      "side": 1,
+      "message": "With the latest patchset (7, no modification to bbox calcuation) here is what I\u0027m measuring on my laptop for all the Wang\u0027s formula benchmarks:\n\nTimer overhead: 30.6ns\ncurr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples   \tconfig\tbench\n  57/57  MB\t1\t21.7ms\t21.8ms\t22.1ms\t23.1ms\t2%\t▁▂▂▂▁▅█▅▁▁\tnonrendering\ttessellate_wangs_formula_conic\n  57/57  MB\t1\t12.9ms\t13.2ms\t13.2ms\t13.5ms\t2%\t▆▆▅▅▃▁▃▂▁█\tnonrendering\ttessellate_wangs_formula_cubic_log2_affine\n  57/57  MB\t1\t10.4ms\t10.5ms\t10.5ms\t10.6ms\t1%\t▂▇▂▁█▁▁▃▅▁\tnonrendering\ttessellate_wangs_formula_cubic_log2_scale\n  57/57  MB\t1\t9.29ms\t9.54ms\t9.5ms\t9.68ms\t1%\t▆█▆▅▅▅▆▂▁▂\tnonrendering\ttessellate_wangs_formula_cubic_log2\n\nNext I\u0027ll play around with the tolerance to answer your other question.",
+      "parentUuid": "698c42ab_ed0dfeb3",
+      "range": {
+        "startLine": 136,
+        "startChar": 21,
+        "endLine": 136,
+        "endChar": 73
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6d97198_96b4c555",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 5
@@ -133,6 +157,30 @@
       "side": 1,
       "message": "I\u0027d say yes. I think this version is more straightforward.",
       "parentUuid": "a2d96b4b_c5fea7df",
+      "range": {
+        "startLine": 150,
+        "startChar": 40,
+        "endLine": 151,
+        "endChar": 45
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07a3da37_4ecda10a",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T14:58:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3a16bee_1dab4931",
       "range": {
         "startLine": 150,
         "startChar": 40,
