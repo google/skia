@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea70d93f_e71b69d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-02T17:35:32Z",
+      "side": 1,
+      "message": "They are kNo because in the future, we want the tessellator to have a chance at claiming them before simplifying the stroke. But for now, drawShape still simplifies the stroke right at the beginning. I updated the commit message to make this more clear.",
+      "parentUuid": "2c2b7638_6441b04e",
+      "revId": "4953a607293bb3db44b8c55033b31a443bf0a49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c0a03f84_c1f116cf",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-02-02T14:12:11Z",
       "side": 1,
       "message": "Maybe add a comment along the lines of \n\"Some stroked shapes can be represented as a different filled primitive (e.g. a stroked line becomes a filled round rect). When SimplifyStroke is kYes, such optimizations are permitted\"",
+      "range": {
+        "startLine": 286,
+        "startChar": 4,
+        "endLine": 286,
+        "endChar": 34
+      },
+      "revId": "4953a607293bb3db44b8c55033b31a443bf0a49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9fb144f_e8340ac1",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-02T17:35:32Z",
+      "side": 1,
+      "message": "How\u0027s this?",
+      "parentUuid": "c0a03f84_c1f116cf",
       "range": {
         "startLine": 286,
         "startChar": 4,
