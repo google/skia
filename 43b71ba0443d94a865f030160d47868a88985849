@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "698c42ab_ed0dfeb3",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-02T04:36:31Z",
+      "side": 1,
+      "message": "Yeah. Let\u0027s keep the \"matches reference\" test using the bbox center. How much do you have to fudge the tolerance to get it passing?\n\nI\u0027m a little concerned about the 9.45ms. Is that with the same number of curves as the cubic benchmarks?",
+      "parentUuid": "3ddaae47_d00750eb",
+      "range": {
+        "startLine": 136,
+        "startChar": 21,
+        "endLine": 136,
+        "endChar": 73
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6d97198_96b4c555",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 5
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Ok, typing it out as:\n\n  max_len \u003d std::max(grvx::dot(p0, p0), std::max(grvx::dot(p1, p1), grvx::dot(p2, p2)));\n\nKnocks about 0.4ms off the median time of the new bench (18.2ms -\u003e 17.8ms) on my laptop. Worth it?",
       "parentUuid": "b6d97198_96b4c555",
+      "range": {
+        "startLine": 150,
+        "startChar": 40,
+        "endLine": 151,
+        "endChar": 45
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3a16bee_1dab4931",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-02T04:36:31Z",
+      "side": 1,
+      "message": "I\u0027d say yes. I think this version is more straightforward.",
+      "parentUuid": "a2d96b4b_c5fea7df",
       "range": {
         "startLine": 150,
         "startChar": 40,
