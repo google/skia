@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e87fc78_07bbf8c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-02T22:02:11Z",
+      "side": 1,
+      "message": "I believe Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts (and the others) are using the system FreeType here for testing. I think we were doing that so that Skia could make sure we still work with older versions and the Chromium bots make sure we\u0027re using the newer versions.\n\nIn any event, if you temporarily add a change to third_party/freetype/BUILD.gn to make skia_use_system_freetype2 default to \u0027true\u0027 instead of \u0027false\u0027 I think it will build the FreeType in Skia\u0027s DEPS (which is fairly recent, maybe a week old at this point?).",
+      "revId": "f021de239e17f3c5590197be76d814a119e3364e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
