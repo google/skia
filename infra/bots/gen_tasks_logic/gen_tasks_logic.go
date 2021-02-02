@@ -1419,7 +1419,7 @@ func (b *jobBuilder) fm() {
 			// Point sanitizer builds at our prebuilt libc++ for this sanitizer.
 			if b.extraConfig("MSAN") {
 				// We'd see false positives in std::basic_string<char> if this weren't set.
-				b.env("LD_LIBRARY_PATH", "clang_linux/msan")
+				//b.env("LD_LIBRARY_PATH", "clang_linux/msan")
 			} else if b.extraConfig("TSAN") {
 				// Occasional false positives may crop up in the standard library without this.
 				b.env("LD_LIBRARY_PATH", "clang_linux/tsan")

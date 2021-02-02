@@ -15010,9 +15010,6 @@
         "pool:Skia"
       ],
       "env_prefixes": {
-        "LD_LIBRARY_PATH": [
-          "clang_linux/msan"
-        ],
         "PATH": [
           "clang_linux/bin"
         ]
