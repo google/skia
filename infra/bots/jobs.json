@@ -150,6 +150,8 @@
   "Canary-G3",
   "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
   "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN",
+  "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN",
+  "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN",
   "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All",
   "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
   "Fuzz-Debian10-Clang",
