@@ -1410,6 +1410,17 @@ func (b *jobBuilder) fm() {
 		b.swarmDimensions()
 		b.expiration(15 * time.Minute)
 		b.attempts(1)
+
+		if b.isLinux() && b.matchExtraConfig("SAN") {
+			b.asset("clang_linux")
+			if b.extraConfig("MSAN") {
+				b.env("LD_LIBRARY_PATH", "clang_linux/msan")
+			} else if b.extraConfig("TSAN") {
+				b.env("LD_LIBRARY_PATH", "clang_linux/tsan")
+			} else {
+				b.env("LD_LIBRARY_PATH", "clang_linux/lib")
+			}
+		}
 	})
 }
 
