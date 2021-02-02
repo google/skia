@@ -237,7 +237,7 @@ SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
         }
         currentIndex += argType.columns();
     }
-    ABORT("can't happen, matrix component out of bounds");
+    SK_ABORT("can't happen, matrix component out of bounds");
 }
 
 SKSL_INT Constructor::getConstantInt() const {

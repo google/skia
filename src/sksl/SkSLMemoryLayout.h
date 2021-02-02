@@ -40,7 +40,7 @@ public:
             case k430_Standard: return raw;
             case kMetal_Standard: return raw;
         }
-        ABORT("unreachable");
+        SkUNREACHABLE;
     }
 
     /**
@@ -70,7 +70,7 @@ public:
                 return this->roundUpIfNeeded(result);
             }
             default:
-                ABORT("cannot determine size of type %s", String(type.name()).c_str());
+                SK_ABORT("cannot determine size of type %s", String(type.name()).c_str());
         }
     }
 
@@ -95,7 +95,7 @@ public:
                 return stride;
             }
             default:
-                ABORT("type does not have a stride");
+                SK_ABORT("type does not have a stride");
         }
     }
 
@@ -137,7 +137,7 @@ public:
                 return (total + alignment - 1) & ~(alignment - 1);
             }
             default:
-                ABORT("cannot determine size of type %s", String(type.name()).c_str());
+                SK_ABORT("cannot determine size of type %s", String(type.name()).c_str());
         }
     }
 
