@@ -481,7 +481,7 @@ bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outTyp
 
 void write_stringstream(const StringStream& d, OutputStream& out);
 
-NORETURN void sksl_abort();
+[[noreturn]] void sksl_abort();
 
 }  // namespace SkSL
 

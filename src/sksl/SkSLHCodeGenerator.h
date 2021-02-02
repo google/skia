@@ -57,9 +57,9 @@ public:
     static String GetHeader(const Program& program, ErrorReporter& errors);
 
 private:
-    void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);
+    void writef(const char* s, va_list va) SK_PRINTF_LIKE(2, 0);
 
-    void writef(const char* s, ...) SKSL_PRINTF_LIKE(2, 3);
+    void writef(const char* s, ...) SK_PRINTF_LIKE(2, 3);
 
     bool writeSection(const char* name, const char* prefix = "");
 
