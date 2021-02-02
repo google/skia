@@ -167,6 +167,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6df57d03_24726594",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T19:01:15Z",
+      "side": 1,
+      "message": "Certainly. gm() is actually just a wrapper around it() [the default test declaration]. Your code could load in the custom audio file and lottie file (using fetch, and either await or Promise.all) and then run.",
+      "parentUuid": "40aab958_c511cc68",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 6
+      },
+      "revId": "51be45c80b43e89311f482b4042c4d3c5e4537e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ec350897_321df25b",
         "filename": "modules/canvaskit/tests/skottie.spec.js",
         "patchSetId": 5
