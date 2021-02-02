@@ -1524,31 +1524,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
         ;
 
-    // TODO(kjlubick) remove this now that we have SkContourMeasureIter
-    class_<SkPathMeasure>("PathMeasure")
-        .constructor<const SkPath&, bool, SkScalar>()
-        .function("getLength", &SkPathMeasure::getLength)
-        .function("getPosTan", optional_override([](SkPathMeasure& self,
-                                                    SkScalar distance) -> PosTan {
-            SkPoint p{0, 0};
-            SkVector v{0, 0};
-            if (!self.getPosTan(distance, &p, &v)) {
-                SkDebugf("zero-length path in getPosTan\n");
-            }
-            return PosTan{p.x(), p.y(), v.x(), v.y()};
-        }))
-        .function("getSegment", optional_override([](SkPathMeasure& self, SkScalar startD,
-                                                     SkScalar stopD, bool startWithMoveTo) -> SkPath {
-            SkPath p;
-            bool ok = self.getSegment(startD, stopD, &p, startWithMoveTo);
-            if (ok) {
-                return p;
-            }
-            return SkPath();
-        }))
-        .function("isClosed", &SkPathMeasure::isClosed)
-        .function("nextContour", &SkPathMeasure::nextContour);
-
     class_<SkPictureRecorder>("PictureRecorder")
         .constructor<>()
         .function("_beginRecording", optional_override([](SkPictureRecorder& self,
