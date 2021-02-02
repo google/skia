@@ -16,6 +16,23 @@
       "message": "I\u0027m ok with making this change, but it\u0027s going to break dependencies so I\u0027m not comfortable triggering autosubmit.",
       "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31f65a99_43a1b71b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-02T13:52:22Z",
+      "side": 1,
+      "message": "It\u0027s okay to trigger autosubmit when one of the CQ bots is broken...",
+      "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
