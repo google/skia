@@ -19,6 +19,7 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
+#include "src/sksl/SkSLCompiler.h"
 
 class GrProgramDesc;
 class GrShaderVar;
@@ -46,6 +47,7 @@ public:
         return fProgramInfo.pipeline().snapVerticesToPixelCenters();
     }
     bool hasPointSize() const { return fProgramInfo.primitiveType() == GrPrimitiveType::kPoints; }
+    virtual SkSL::Compiler* shaderCompiler() const = 0;
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() {
