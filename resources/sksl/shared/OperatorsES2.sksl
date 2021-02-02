@@ -14,9 +14,11 @@ half4 main() {
     x += 12;
     x -= 12;
     x *= y /= 10;
-    x = (float2(sqrt(1)), 6);
-    y = (float(b) * float(c) * float(d) * float(e) * float(f), 6.0);
-    z = (float2(sqrt(1)), 6);
+    x = 6;
+    y = float(b) * float(c) * float(d) * float(e) * float(f);
+    y = 6;
+    z = z - 1;
+    z = 6;
 
     return (x == 6 && y == 6 && z == 6) ? colorGreen : colorRed;
 }
