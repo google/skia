@@ -4170,6 +4170,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.angleVendor() == GrGLANGLEVendor::kAMD) {
         fProgramBinarySupport = false;
     }
+
+    // Two Adreno 530 devices (LG G6 and OnePlus 3T) appear to have driver bugs that are corrupting
+    // SkSL::Program memory. To get better/different crash reports, disable node-pooling, so that
+    // program allocations aren't reused.  (crbug.com/1147008, crbug.com/1164271)
+    if (kAdreno530_GrGLRenderer == ctxInfo.renderer()) {
+        shaderCaps->fUseNodePools = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

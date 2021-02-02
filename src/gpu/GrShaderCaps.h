@@ -180,6 +180,10 @@ public:
     // least some cases.
     bool canUseDoLoops() const { return fCanUseDoLoops; }
 
+    // By default, SkSL pools IR nodes per-program. To debug memory corruption, it is sometimes
+    // helpful to disable that feature.
+    bool useNodePools() const { return fUseNodePools; }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -309,6 +313,9 @@ private:
     bool fCanOnlyUseSampleMaskWithStencil             : 1;
     bool fColorSpaceMathNeedsFloat                    : 1;
     bool fCanUseDoLoops                               : 1;
+
+    // This controls behavior of the SkSL compiler, not the code we generate
+    bool fUseNodePools : 1;
 
     const char* fVersionDeclString;
 
