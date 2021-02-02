@@ -186,24 +186,9 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
 
 #ifdef SK_GL
 DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-    static constexpr auto kNativeGLType = sk_gpu_test::GrContextFactory::kGL_ContextType;
-#else
-    static constexpr auto kNativeGLType = sk_gpu_test::GrContextFactory::kGLES_ContextType;
-#endif
-
     for (int typeInt = 0; typeInt < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++typeInt) {
         for (auto flushType : {FlushType::kSurface, FlushType::kImage, FlushType::kContext}) {
-            sk_gpu_test::GrContextFactory::ContextType contextType =
-                    (sk_gpu_test::GrContextFactory::ContextType) typeInt;
-            // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
-            // desktop since tests do not account for not fixing http://skbug.com/2809
-            if (contextType == sk_gpu_test::GrContextFactory::kGL_ContextType ||
-                contextType == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
-                if (contextType != kNativeGLType) {
-                    continue;
-                }
-            }
+            auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(typeInt);
             sk_gpu_test::GrContextFactory factory(options);
             sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
             if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {

@@ -43,22 +43,8 @@ bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
 
 void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
                             Reporter* reporter, const GrContextOptions& options) {
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-    static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
-#else
-    static constexpr auto kNativeGLType = GrContextFactory::kGLES_ContextType;
-#endif
-
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
-        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
-        // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
-        // desktop since tests do not account for not fixing http://skbug.com/2809
-        if (contextType == GrContextFactory::kGL_ContextType ||
-            contextType == GrContextFactory::kGLES_ContextType) {
-            if (contextType != kNativeGLType) {
-                continue;
-            }
-        }
+        auto contextType = static_cast<GrContextFactory::ContextType>(typeInt);
         // We destroy the factory and its associated contexts after each test. This is due to the
         // fact that the command buffer sits on top of the native GL windowing (cgl, wgl, ...) but
         // also tracks which of its contexts is current above that API and gets tripped up if the
