@@ -204,9 +204,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
             default: ABORT("unsupported row count (%d)", rows);
         }
     }
-#ifdef SK_DEBUG
-    ABORT("unsupported toCompound type %s", this->description().c_str());
-#endif
+    SkDEBUGFAILF("unsupported toCompound type %s", this->description().c_str());
     return *context.fTypes.fVoid;
 }
 
