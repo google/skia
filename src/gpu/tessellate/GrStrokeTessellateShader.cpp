@@ -34,11 +34,10 @@ private:
         auto* uniHandler = args.fUniformHandler;
         auto* v = args.fVertBuilder;
 
-        SkASSERT(!shader.fHasConics);
-
         args.fVaryingHandler->emitAttributes(shader);
 
-        // uNumSegmentsInJoin, uWangsTermPow2, uNumRadialSegmentsPerRadian, uMiterLimitInvPow2.
+        // uNumSegmentsInJoin, uParametricIntolerance, uNumRadialSegmentsPerRadian,
+        // uMiterLimitInvPow2.
         fTessArgs1Uniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
                                                    kFloat4_GrSLType, "tessArgs1", nullptr);
         // uJoinTolerancePow2, uStrokeRadius.
@@ -99,8 +98,17 @@ private:
         if (shader.fStroke.isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
             // Hairline case. Transform the points before tessellation. We can still hold off on the
             // translate until the end; we just need to perform the scale and skew right now.
+            if (shader.fHasConics) {
+                v->codeAppend(R"(
+                P[0] = uAffineMatrix * P[0];
+                P[1] = uAffineMatrix * P[1];
+                P[2] = uAffineMatrix * P[2];
+                P[3] = isinf(P[3].y) ? P[3] : uAffineMatrix * P[3];)");
+            } else {
+                v->codeAppend(R"(
+                P = uAffineMatrix * P;)");
+            }
             v->codeAppend(R"(
-            P = uAffineMatrix * P;
             prevControlPoint = uAffineMatrix * prevControlPoint;)");
         }
         v->codeAppendf(R"(
@@ -109,7 +117,7 @@ private:
         // Find the beginning and ending tangents. It's imperative that we compute these tangents
         // form the original input points or else the seams might crack.
         float2 tan0 = (P[1] == P[0]) ? P[2] - P[0] : P[1] - P[0];
-        float2 tan1 = (P[3] == P[2]) ? P[3] - P[1] : P[3] - P[2];
+        float2 tan1 = (P[3] == P[2] || isinf(P[3].y)) ? P[2] - P[1] : P[3] - P[2];
 
         if (tan1 == float2(0)) {
             // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only.
@@ -224,8 +232,8 @@ private:
             innerTangents = float2x2(innerTangents[1], innerTangents[0]);
         }
 
-        // If the curve is a straight line or point, don't chop it into sections after all.
-        if (P[0] == P[1] && P[2] == P[3]) {
+        // If the curve is a straight line, point, or conic, don't chop it into sections after all.
+        if ((P[0] == P[1] && P[2] == P[3]) || isinf(P[3].y)) {
             chopT = float2(0);
             innerTangents = float2x2(tan0, tan0);
         }
@@ -233,7 +241,7 @@ private:
         // Chop the curve at chopT[0] and chopT[1].
         float4 ab = unchecked_mix(P[0].xyxy, P[1].xyxy, chopT.sstt);
         float4 bc = unchecked_mix(P[1].xyxy, P[2].xyxy, chopT.sstt);
-        float4 cd = unchecked_mix(P[2].xyxy, P[3].xyxy, chopT.sstt);
+        float4 cd = isinf(P[3].y) ? P[2].xyxy : unchecked_mix(P[2].xyxy, P[3].xyxy, chopT.sstt);
         float4 abc = unchecked_mix(ab, bc, chopT.sstt);
         float4 bcd = unchecked_mix(bc, cd, chopT.sstt);
         float4 abcd = unchecked_mix(abc, bcd, chopT.sstt);
@@ -290,8 +298,7 @@ private:
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
                     numSegmentsInJoin,  // uNumSegmentsInJoin
-                    GrWangsFormula::length_term_pow2<3>(
-                            tolerances.fParametricIntolerance),  // uWangsTermPow2
+                    tolerances.fParametricIntolerance,  // uParametricIntolerance
                     tolerances.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
                     1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2
         float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
@@ -335,12 +342,22 @@ float length_pow2(float2 v) {
 // Calculates the number of evenly spaced (in the parametric sense) segments to chop a cubic into.
 // (See GrWangsFormula::cubic() for more documentation on this formula.) The final tessellated strip
 // will be a composition of these parametric segments as well as radial segments.
-static const char* kWangsFormulaCubicFn = R"(
-float wangs_formula_cubic(float4x2 P, float wangsTermPow2) {
-    float m = max(length_pow2(fma(float2(-2), P[1], P[2]) + P[0]),
-                  length_pow2(fma(float2(-2), P[2], P[3]) + P[1])) * wangsTermPow2;
-    return ceil(inversesqrt(inversesqrt(max(m, 1e-2))));
-})";
+static void append_wangs_formula_fn(SkString* code, bool hasConics) {
+    code->appendf(R"(
+    float wangs_formula(in float4x2 P, in float w, in float parametricIntolerance) {
+        const float CUBIC_TERM_POW2 = %f;
+        float l0 = length_pow2(fma(float2(-2), P[1], P[2]) + P[0]);
+        float l1 = length_pow2(fma(float2(-2), P[2], P[3]) + P[1]);
+        float m = CUBIC_TERM_POW2 * max(l0, l1);)", GrWangsFormula::length_term_pow2<3>(1));
+    if (hasConics) {
+        code->appendf(R"(
+        const float QUAD_TERM_POW2 = %f;
+        m = (w > 0) ? QUAD_TERM_POW2 * l0 : m;)", GrWangsFormula::length_term_pow2<2>(1));
+    }
+    code->append(R"(
+        return max(ceil(sqrt(parametricIntolerance * sqrt(m))), 1);
+    })");
+}
 
 // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the miter
 // limit and need to revert to a bevel join.
@@ -374,7 +391,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     const char* tessArgs1Name = impl->getTessArgs1UniformName(uniformHandler);
     code.appendf("uniform vec4 %s;\n", tessArgs1Name);
     code.appendf("#define uNumSegmentsInJoin %s.x\n", tessArgs1Name);
-    code.appendf("#define uWangsTermPow2 %s.y\n", tessArgs1Name);
+    code.appendf("#define uParametricIntolerance %s.y\n", tessArgs1Name);
     code.appendf("#define uNumRadialSegmentsPerRadian %s.z\n", tessArgs1Name);
     code.appendf("#define uMiterLimitInvPow2 %s.w\n", tessArgs1Name);
 
@@ -404,7 +421,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
 
     code.append(kAtan2Fn);
     code.append(kLengthPow2Fn);
-    code.append(kWangsFormulaCubicFn);
+    append_wangs_formula_fn(&code, fHasConics);
     code.append(kMiterExtentFn);
 
     code.append(R"(
@@ -432,7 +449,8 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
 
         // Calculate the number of parametric segments. The final tessellated strip will be a
         // composition of these parametric segments as well as radial segments.
-        float numParametricSegments = wangs_formula_cubic(P, uWangsTermPow2);
+        float w = isinf(P[3].y) ? P[3].x : -1; // w<0 means the curve is an integral cubic.
+        float numParametricSegments = wangs_formula(P, w, uParametricIntolerance);
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how the patch builder articulates lineTos but Wang's formula returns
             // >>1 segment in this scenario. Assign 1 parametric segment.
@@ -452,7 +470,8 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // Adjust sign of rotation to match the direction the curve turns.
         // NOTE: Since the curve is not allowed to inflect, we can just check F'(.5) x F''(.5).
         // NOTE: F'(.5) x F''(.5) has the same sign as (P2 - P0) x (P3 - P1)
-        float turn = cross(P[2] - P[0], P[3] - P[1]);
+        float turn = isinf(P[3].y) ? cross(P[1] - P[0], P[2] - P[1])
+                                   : cross(P[2] - P[0], P[3] - P[1]);
         if (turn == 0) {  // This will be the case for joins and cusps where points are co-located.
             turn = determinant(tangents);
         }
@@ -561,15 +580,9 @@ float2 unchecked_mix(float2 a, float2 b, float T) {
 // "combinedEdgeID", where combinedEdgeID is the sorted-order index of parametric and radial edges.
 static void append_eval_stroke_edge_fn(SkString* code, bool hasConics) {
     code->append(R"(
-    void eval_stroke_edge(in float4x2 P, )");
-    if (hasConics) {
-        code->append(R"(
-                          in float w, )");
-    }
-    code->append(R"(
-                          in float numParametricSegments, in float combinedEdgeID, in float2 tan0,
-                          in float radsPerSegment, in float angle0, out float2 tangent,
-                          out float2 position) {
+    void eval_stroke_edge(in float4x2 P, in float w, in float numParametricSegments,
+                          in float combinedEdgeID, in float2 tan0, in float radsPerSegment,
+                          in float angle0, out float2 tangent, out float2 position) {
         // Start by finding the tangent function's power basis coefficients. These define a tangent
         // direction (scaled by some uniform value) as:
         //                                                 |T^2|
@@ -766,7 +779,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     uniform vec4 sk_RTAdjust;)");
 
     code.append(kUncheckedMixFn);
-    append_eval_stroke_edge_fn(&code, false/*hasConics*/);
+    append_eval_stroke_edge_fn(&code, fHasConics);
 
     code.append(R"(
     void main() {
@@ -814,8 +827,19 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         float angle0 = tessellationArgs.y;
         float radsPerSegment = tessellationArgs.z;
 
+        float w = -1;  // w<0 means the curve is an integral cubic.)");
+
+    if (fHasConics) {
+        code.append(R"(
+        if (isinf(P[3].y)) {
+            w = P[3].x;  // The curve is actually a conic.
+            P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
+        })");
+    }
+
+    code.append(R"(
         float2 tangent, position;
-        eval_stroke_edge(P, numParametricSegments, localEdgeID, tan0, radsPerSegment, angle0,
+        eval_stroke_edge(P, w, numParametricSegments, localEdgeID, tan0, radsPerSegment, angle0,
                          tangent, position);
 
         if (localEdgeID == 0) {
@@ -829,7 +853,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
             // The final edge of the quad strip always uses the provided endPt and endTan. This
             // ensures crack-free seaming between patches.
             tangent = tcsEndPtEndTan.zw;
-            position = tcsEndPtEndTan.xy;
+            position = P[3];
         }
 
         // Determine how far to outset our vertex orthogonally from the curve.
@@ -868,16 +892,13 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         args.fVertBuilder->defineConstant("MAX_PARAMETRIC_SEGMENTS_LOG2",
                                           GrTessellationPathRenderer::kMaxResolveLevel);
         args.fVertBuilder->defineConstant("float", "PI", "3.141592653589793238");
-        args.fVertBuilder->defineConstant("QUAD_TERM_POW2",
-                                          GrWangsFormula::length_term_pow2<2>(1));
-        args.fVertBuilder->defineConstant("CUBIC_TERM_POW2",
-                                          GrWangsFormula::length_term_pow2<3>(1));
 
         // Helper functions.
         args.fVertBuilder->insertFunction(kAtan2Fn);
         args.fVertBuilder->insertFunction(kLengthPow2Fn);
         args.fVertBuilder->insertFunction(kMiterExtentFn);
         args.fVertBuilder->insertFunction(kUncheckedMixFn);
+        append_wangs_formula_fn(&args.fVertBuilder->functions(), shader.fHasConics);
         append_eval_stroke_edge_fn(&args.fVertBuilder->functions(), shader.fHasConics);
         args.fVertBuilder->insertFunction(R"(
         float cosine_between_vectors(float2 a, float2 b) {
@@ -911,10 +932,10 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         // Tessellation code.
         args.fVertBuilder->codeAppend(R"(
         float4x2 P = float4x2(pts01, pts23);
-        float2 lastControlPoint = args.xy;)");
+        float2 lastControlPoint = args.xy;
+        float w = -1;  // w<0 means the curve is an integral cubic.)");
         if (shader.fHasConics) {
             args.fVertBuilder->codeAppend(R"(
-            float w = -1;  // w<0 means the curve is an integral cubic.
             if (isinf(P[3].y)) {
                 w = P[3].x;  // The curve is actually a conic.
                 P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
@@ -930,18 +951,9 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         args.fVertBuilder->codeAppend(R"(
         float numTotalEdges = abs(args.z);
 
-        // Use wang's formula to find how many parametric segments this stroke requires.
-        float l0 = length_pow2(fma(float2(-2), P[1], P[2]) + P[0]);
-        float l1 = length_pow2(fma(float2(-2), P[2], P[3]) + P[1]);)");
-
-        args.fVertBuilder->codeAppendf(R"(
-        float m =%s CUBIC_TERM_POW2 * max(l0, l1);)",
-                (shader.fHasConics) ? " (w >= 0) ? QUAD_TERM_POW2 * l0 :" : "");
-
-        args.fVertBuilder->codeAppend(R"(
-        float numParametricSegments = ceil(sqrt(uParametricIntolerance * sqrt(m)));
-        numParametricSegments = clamp(numParametricSegments,
-                                      1, float(1 << MAX_PARAMETRIC_SEGMENTS_LOG2));
+        // Find how many parametric segments this stroke requires.
+        float numParametricSegments = min(wangs_formula(P, w, uParametricIntolerance),
+                                          float(1 << MAX_PARAMETRIC_SEGMENTS_LOG2));
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how we describe lines, but Wang's formula does not return 1 in this case.
             numParametricSegments = 1;
@@ -1058,13 +1070,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
 
         args.fVertBuilder->codeAppendf(R"(
         float2 tangent, strokeCoord;
-        eval_stroke_edge(P,)");
-        if (shader.fHasConics) {
-            args.fVertBuilder->codeAppend(R"(
-                         w,)");
-        }
-        args.fVertBuilder->codeAppend(R"(
-                         numParametricSegments, combinedEdgeID, tan0, radsPerSegment, angle0,
+        eval_stroke_edge(P, w, numParametricSegments, combinedEdgeID, tan0, radsPerSegment, angle0,
                          tangent, strokeCoord);)");
 
         args.fVertBuilder->codeAppend(R"(
