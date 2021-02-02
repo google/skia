@@ -1714,8 +1714,15 @@ GrPathRenderer* GrSurfaceDrawContext::getPathRendererOrDrawSimplified(
 
     static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
 
-    // Always simplify the stroke for now. In the future we will give the tessellator a chance to
-    // claim strokes before trying to simplify them.
+    if (shape->style().applies()) {
+        // Give path renderers with dedicated stroke handling (e.g., tessellating) a chance to claim
+        // this stroke before we attempt to simplify it.
+        if (auto* pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType)) {
+            return pr;
+        }
+    }
+
+    // The shape isn't a stroke that can be drawn directly. Simplify if possible.
     shape->simplifyStroke();
 
     if (!fHasAppliedDrawShapeReduction) {
