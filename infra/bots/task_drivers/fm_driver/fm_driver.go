@@ -37,9 +37,7 @@ func main() {
 	)
 	flag.Parse()
 
-	var failures int32 = 0
 	ctx := context.Background()
-	fail := func(_ error) { atomic.AddInt32(&failures, 1) }
 	fatal := func(err error) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -47,9 +45,8 @@ func main() {
 
 	if !*local {
 		ctx = td.StartRun(projectId, taskId, bot, output, local)
-		fail = func(err error) { td.FailStep(ctx, err) }
-		fatal = func(err error) { td.Fatal(ctx, err) }
 		defer td.EndRun(ctx)
+		fatal = func(err error) { td.Fatal(ctx, err) }
 	}
 
 	if flag.NArg() < 1 {
@@ -112,6 +109,7 @@ func main() {
 
 	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
 	wg := &sync.WaitGroup{}
+	var failures int32 = 0
 
 	var worker func([]string, []string)
 	worker = func(sources, flags []string) {
@@ -158,7 +156,7 @@ func main() {
 
 		// If an individual run failed, nothing more to do but fail.
 		if err != nil {
-			fail(err)
+			atomic.AddInt32(&failures, 1)
 			if *local {
 				lines := []string{}
 				scanner := bufio.NewScanner(stderr)
@@ -172,6 +170,8 @@ func main() {
 					cmd.Name,
 					strings.Join(cmd.Args, " "),
 					strings.Join(lines, "\n\t"))
+			} else {
+				td.FailStep(ctx, err)
 			}
 			return
 		}
