@@ -783,13 +783,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     function("_getShadowLocalBounds", optional_override([](
             uintptr_t /* float* */ ctmPtr, const SkPath& path,
-            const SkPoint3& zPlaneParams, const SkPoint3& lightPos, SkScalar lightRadius,
-            uint32_t flags, uintptr_t /* SkRect* */ outPtr) -> bool {
+            uintptr_t /* float* */  zPlaneParamPtr, uintptr_t /* float* */ lightPosPtr,
+            SkScalar lightRadius, uint32_t flags, uintptr_t /* SkRect* */ outPtr) -> bool {
         SkMatrix ctm;
         const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(ctmPtr);
         ctm.set9(nineMatrixValues);
+        const SkVector3* zPlaneParams = reinterpret_cast<const SkVector3*>(zPlaneParamPtr);
+        const SkVector3* lightPos = reinterpret_cast<const SkVector3*>(lightPosPtr);
         SkRect* outputBounds = reinterpret_cast<SkRect*>(outPtr);
-        return SkShadowUtils::GetLocalBounds(ctm, path, zPlaneParams, lightPos, lightRadius,
+        return SkShadowUtils::GetLocalBounds(ctm, path, *zPlaneParams, *lightPos, lightRadius,
                               flags, outputBounds);
     }));
 
@@ -1009,12 +1011,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawRect(rect, paint);
         }))
         .function("_drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
-                                                     const SkPoint3& zPlaneParams,
-                                                     const SkPoint3& lightPos, SkScalar lightRadius,
+                                                     uintptr_t /* float* */ zPlaneParamPtr,
+                                                     uintptr_t /* float* */ lightPosPtr,
+                                                     SkScalar lightRadius,
                                                      uintptr_t /* float* */ ambientColorPtr,
                                                      uintptr_t /* float* */ spotColorPtr,
                                                      uint32_t flags) {
-            SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
+            const SkVector3* zPlaneParams = reinterpret_cast<const SkVector3*>(zPlaneParamPtr);
+            const SkVector3* lightPos = reinterpret_cast<const SkVector3*>(lightPosPtr);
+
+            SkShadowUtils::DrawShadow(&self, path, *zPlaneParams, *lightPos, lightRadius,
                                       ptrToSkColor4f(ambientColorPtr).toSkColor(),
                                       ptrToSkColor4f(spotColorPtr).toSkColor(),
                                       flags);
@@ -2001,27 +2007,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("alphaType",  &SimpleImageInfo::alphaType)
         .field("colorSpace", &SimpleImageInfo::colorSpace);
 
-    // SkPoint3s can be represented by [x, y, z]
-    value_array<SkPoint3>("Point3")
-        .element(&SkPoint3::fX)
-        .element(&SkPoint3::fY)
-        .element(&SkPoint3::fZ);
-
     // PosTan can be represented by [px, py, tx, ty]
     value_array<PosTan>("PosTan")
         .element(&PosTan::px)
         .element(&PosTan::py)
         .element(&PosTan::tx)
         .element(&PosTan::ty);
-
-    // {"w": Number, "h", Number}
-    value_object<SkSize>("Size")
-        .field("w",   &SkSize::fWidth)
-        .field("h",   &SkSize::fHeight);
-
-    value_object<SkISize>("ISize")
-        .field("w",   &SkISize::fWidth)
-        .field("h",   &SkISize::fHeight);
 
     value_object<StrokeOpts>("StrokeOpts")
         .field("width",       &StrokeOpts::width)
