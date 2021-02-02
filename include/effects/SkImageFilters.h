@@ -331,15 +331,15 @@ public:
         return Shader(std::move(shader), Dither::kNo, cropRect);
     }
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
-                                       const CropRect& cropRect = {}) {
-        return Shader(std::move(shader), dither, kNone_SkFilterQuality, cropRect);
-    }
+                                       const CropRect& cropRect = {});
+#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
     // As above, but the filter quality defines what is used in image shaders that defer to the
     // quality stored on an SkPaint. NOTE: this default behavior is deprecated, so prefer creating
     // image shaders with explicit sampling parameters and call the other Shader() factory instead.
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
                                        SkFilterQuality filterQuality,
                                        const CropRect& cropRect = {});
+#endif
 
     /**
      *  Create a tile image filter.
@@ -349,21 +349,6 @@ public:
      */
     static sk_sp<SkImageFilter> Tile(const SkRect& src, const SkRect& dst,
                                      sk_sp<SkImageFilter> input);
-
-    /**
-     *  This filter takes an SkBlendMode and uses it to composite the two filters together.
-     *  @param mode       The blend mode that defines the compositing operation
-     *  @param background The Dst pixels used in blending, if null the source bitmap is used.
-     *  @param foreground The Src pixels used in blending, if null the source bitmap is used.
-     *  @cropRect         Optional rectangle to crop input and output.
-     *
-     *  DEPRECATED: Prefer the more idiomatic Blend function
-     */
-    static sk_sp<SkImageFilter> Xfermode(SkBlendMode mode, sk_sp<SkImageFilter> background,
-                                         sk_sp<SkImageFilter> foreground = nullptr,
-                                         const CropRect& cropRect = {}) {
-        return Blend(mode, std::move(background), std::move(foreground), cropRect);
-    }
 
     // Morphology filter effects
 

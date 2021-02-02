@@ -178,6 +178,15 @@ sk_sp<SkImageFilter> SkImageFilters::Picture(sk_sp<SkPicture> pic, const SkRect&
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dither,
+                                            const CropRect& cropRect) {
+    SkPaint paint;
+    paint.setShader(std::move(shader));
+    paint.setDither((bool) dither);
+    return SkPaintImageFilter::Make(paint, cropRect);
+}
+
+#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
+sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dither,
                                             SkFilterQuality filterQuality,
                                             const CropRect& cropRect) {
     SkPaint paint;
@@ -187,6 +196,7 @@ sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dithe
     paint.setFilterQuality(filterQuality);
     return SkPaintImageFilter::Make(paint, cropRect);
 }
+#endif
 
 sk_sp<SkImageFilter> SkImageFilters::Tile(
         const SkRect& src, const SkRect& dst, sk_sp<SkImageFilter> input) {
