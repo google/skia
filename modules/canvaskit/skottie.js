@@ -7,7 +7,9 @@
 
 // prop_filter_prefix is an optional string acting as a name filter for selecting
 // "interesting" Lottie properties (surfaced in the embedded player controls)
-CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix) {
+
+//TODO @jmbetancourt: Update this function to use the soundMap
+CanvasKit.MakeManagedAnimation = function(json, assets, soundMap, prop_filter_prefix) {
   if (!CanvasKit._MakeManagedAnimation) {
     throw 'Not compiled with MakeManagedAnimation';
   }
@@ -15,7 +17,7 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix) {
     prop_filter_prefix = '';
   }
   if (!assets) {
-    return CanvasKit._MakeManagedAnimation(json, 0, nullptr, nullptr, nullptr, prop_filter_prefix);
+    return CanvasKit._MakeManagedAnimation(json, 0, nullptr, nullptr, nullptr, null, prop_filter_prefix);
   }
   var assetNamePtrs = [];
   var assetDataPtrs = [];
@@ -49,7 +51,7 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix) {
   var assetSizesPtr = copy1dArray(assetSizes,    "HEAPU32");
 
   var anim = CanvasKit._MakeManagedAnimation(json, assetKeys.length, namesPtr,
-                                             assetsPtr, assetSizesPtr, prop_filter_prefix);
+                                             assetsPtr, assetSizesPtr, nullptr, prop_filter_prefix);
 
   // The C++ code has made copies of the asset and string data, so free our copies.
   CanvasKit._free(namesPtr);
