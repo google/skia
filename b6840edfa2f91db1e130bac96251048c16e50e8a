@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6158a47e_3a16cec2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T20:25:07Z",
+      "side": 1,
+      "message": "LGTM with assumption of future removal of MakeUniform and minor nit.",
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "81a175ba_db2615cc",
