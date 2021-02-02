@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "204d5527_347e8aa3",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-02T13:53:10Z",
+      "side": 1,
+      "message": "Agreed, I think I can reuse the flag I have for legacy image.makeShader() on this function as well, since they are tied together.",
+      "parentUuid": "46b75ff4_b16b9cc8",
+      "range": {
+        "startLine": 339,
+        "startChar": 32,
+        "endLine": 339,
+        "endChar": 38
+      },
+      "revId": "41918c25ab06f9e4446577c23b80836763cec34f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "49fb2fae_a7a04d4e",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 1
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-02T13:49:24Z",
       "side": 1,
       "message": "Can we just straight up delete this function? I am pretty sure it\u0027s no longer being used by clients, instead of staging it with this flag?",
+      "range": {
+        "startLine": 363,
+        "startChar": 32,
+        "endLine": 363,
+        "endChar": 40
+      },
+      "revId": "41918c25ab06f9e4446577c23b80836763cec34f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82f78884_c5bfaedf",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-02T13:53:10Z",
+      "side": 1,
+      "message": "That\u0027s what I wanted to find out with this draft.",
+      "parentUuid": "49fb2fae_a7a04d4e",
       "range": {
         "startLine": 363,
         "startChar": 32,
