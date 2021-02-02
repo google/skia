@@ -105,6 +105,24 @@
       "parentUuid": "a8979780_ce3b653b",
       "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "060cd1ae_1937da5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T14:59:33Z",
+      "side": 1,
+      "message": "Yes, that\u0027s always an option if the alternative is too onerous.",
+      "parentUuid": "43a861fb_5e02cac0",
+      "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
