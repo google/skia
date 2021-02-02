@@ -115,6 +115,7 @@ SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMixFloat,       "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
+SKSL_TEST(SkSLCommaMixedTypes,         "shared/CommaMixedTypes.sksl")
 SKSL_TEST(SkSLCommaSideEffects,        "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLConstantIf,              "shared/ConstantIf.sksl")
 SKSL_TEST(SkSLConstVariableComparison, "shared/ConstVariableComparison.sksl")
