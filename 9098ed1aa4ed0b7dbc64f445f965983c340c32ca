@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5515ab0d_86cb9301",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-02-02T14:15:22Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "9098ed1aa4ed0b7dbc64f445f965983c340c32ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
