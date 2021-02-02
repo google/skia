@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c2b7638_6441b04e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-02T14:12:11Z",
+      "side": 1,
+      "message": "Are the GrSDC::drawFoo functions that you updated to use SimplifyStroke::kNo explicitly just because you know that their primitive shape + stroking cannot be simplified into a fill?",
+      "revId": "4953a607293bb3db44b8c55033b31a443bf0a49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0a03f84_c1f116cf",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-02T14:12:11Z",
+      "side": 1,
+      "message": "Maybe add a comment along the lines of \n\"Some stroked shapes can be represented as a different filled primitive (e.g. a stroked line becomes a filled round rect). When SimplifyStroke is kYes, such optimizations are permitted\"",
+      "range": {
+        "startLine": 286,
+        "startChar": 4,
+        "endLine": 286,
+        "endChar": 34
+      },
+      "revId": "4953a607293bb3db44b8c55033b31a443bf0a49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
