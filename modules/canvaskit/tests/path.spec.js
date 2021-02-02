@@ -404,6 +404,14 @@ describe('Path Behavior', () => {
         expect(pt[1]).toBeCloseTo(32.96, 3); // y
         expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
         expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+
+        pt.set([-1, -1, -1, -1]); // fill with sentinel values.
+        cont.getPosTan(28.7, pt); // arbitrary point again, passing in an array to copy into.
+        expect(pt[0]).toBeCloseTo(27.22, 3); // x
+        expect(pt[1]).toBeCloseTo(32.96, 3); // y
+        expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
+        expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+
         const subpath = cont.getSegment(20, 40, true); // make sure this doesn't crash
 
         cont.delete();

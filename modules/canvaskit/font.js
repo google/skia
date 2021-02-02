@@ -208,6 +208,7 @@ CanvasKit._extraInitializations.push(function() {
     var meas = new CanvasKit.ContourMeasureIter(path, false, 1);
     var cont = meas.next();
     var dist = initialOffset;
+    var xycs = new Float32Array(4);
     for (var i = 0; i < str.length && cont; i++) {
       var width = widths[i];
       dist += width/2;
@@ -226,7 +227,7 @@ CanvasKit._extraInitializations.push(function() {
 
       // Gives us the (x, y) coordinates as well as the cos/sin of the tangent
       // line at that position.
-      var xycs = cont.getPosTan(dist);
+      cont.getPosTan(dist, xycs);
       var cx = xycs[0];
       var cy = xycs[1];
       var cosT = xycs[2];

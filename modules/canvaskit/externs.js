@@ -322,10 +322,13 @@ var CanvasKit = {
   },
 
   ContourMeasure: {
-    getPosTan: function() {},
     getSegment: function() {},
     isClosed: function() {},
     length: function() {},
+    prototype: {
+      getPosTan: function() {},
+    },
+    _getPosTan: function() {},
   },
 
   Font: {
@@ -600,14 +603,6 @@ var CanvasKit = {
     delete: function() {},
     dump: function() {},
     dumpHex: function() {},
-  },
-
-  PathMeasure: {
-    getLength: function() {},
-    getSegment: function() {},
-    getPosTan: function() {},
-    isClosed: function() {},
-    nextContour: function() {},
   },
 
   Picture: {

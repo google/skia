@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - APIs that passed in points should have less overhead (and now can accept a TypedArray).
  - `Canvas.drawShadow()` now accepts zPlaneParams and lightPos as Malloc'ed and regular
    Float32Arrays. `getShadowLocalBounds()` does as well.
+ - `ContourMeasure.getPosTan` returns a Float32Array instead of a normal array. Additionally,
+   this method takes an optional parameter to allow the result to be copied into
+   that provided Float32Array instead of a new one being allocated.
 
 ### Fixed
  - Improper error returned when a WebGL context could not be used.

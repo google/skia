@@ -1433,9 +1433,12 @@ export interface ContourMeasureIter extends EmbindObject<ContourMeasureIter> {
 export interface ContourMeasure extends EmbindObject<ContourMeasure> {
     /**
      * Returns the given position and tangent line for the distance on the given contour.
+     * The return value is 4 floats in this order: posX, posY, vecX, vecY.
      * @param distance - will be pinned between 0 and length().
+     * @param output - if provided, the four floats of the PosTan will be copied into this array
+     *                 instead of allocating a new one.
      */
-    getPosTan(distance: number): PosTan;
+    getPosTan(distance: number, output?: PosTan): PosTan;
 
     /**
      * Returns an Path representing the segement of this contour.
@@ -3378,10 +3381,10 @@ export interface VectorHelpers {
 }
 
 /**
- * A PosTan is an array of 4 values, representing a position and a tangent vector. In order, the
- * values are [px, py, tx, ty].
+ * A PosTan is a Float32Array of length 4, representing a position and a tangent vector. In order,
+ * the values are [px, py, tx, ty].
  */
-export type PosTan = number[];
+export type PosTan = Float32Array;
 /**
  * An Color is represented by 4 floats, typically with values between 0 and 1.0. In order,
  * the floats correspond to red, green, blue, alpha.

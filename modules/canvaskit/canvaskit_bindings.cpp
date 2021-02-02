@@ -664,11 +664,6 @@ void drawShapedText(SkCanvas& canvas, ShapedText st, SkScalar x,
 }
 #endif //SK_NO_FONTS
 
-// This is simpler than dealing with an SkPoint and SkVector
-struct PosTan {
-    SkScalar px, py, tx, ty;
-};
-
 // This function is private, we call it in interface.js
 void computeTonalColors(uintptr_t cPtrAmbi /* float * */, uintptr_t cPtrSpot /* float * */) {
     // private methods accepting colors take pointers to floats already copied into wasm memory.
@@ -1132,14 +1127,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkContourMeasure>("ContourMeasure")
         .smart_ptr<sk_sp<SkContourMeasure>>("sk_sp<ContourMeasure>>")
-        .function("getPosTan", optional_override([](SkContourMeasure& self,
-                                                    SkScalar distance) -> PosTan {
-            SkPoint p{0, 0};
-            SkVector v{0, 0};
-            if (!self.getPosTan(distance, &p, &v)) {
+        .function("_getPosTan", optional_override([](SkContourMeasure& self,
+                                                     SkScalar distance,
+                                                     uintptr_t /* SkPoint* */ oPtr) -> void {
+            SkPoint* pointAndVector = reinterpret_cast<SkPoint*>(oPtr);
+            if (!self.getPosTan(distance, pointAndVector, pointAndVector + 1)) {
                 SkDebugf("zero-length path in getPosTan\n");
             }
-            return PosTan{p.x(), p.y(), v.x(), v.y()};
         }))
         .function("getSegment", optional_override([](SkContourMeasure& self, SkScalar startD,
                                                      SkScalar stopD, bool startWithMoveTo) -> SkPath {
@@ -1981,13 +1975,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("colorType",  &SimpleImageInfo::colorType)
         .field("alphaType",  &SimpleImageInfo::alphaType)
         .field("colorSpace", &SimpleImageInfo::colorSpace);
-
-    // PosTan can be represented by [px, py, tx, ty]
-    value_array<PosTan>("PosTan")
-        .element(&PosTan::px)
-        .element(&PosTan::py)
-        .element(&PosTan::tx)
-        .element(&PosTan::ty);
 
     value_object<StrokeOpts>("StrokeOpts")
         .field("width",       &StrokeOpts::width)
