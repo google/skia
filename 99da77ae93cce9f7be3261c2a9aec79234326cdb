@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d248938b_c8c2ef93",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T12:47:49Z",
+      "side": 1,
+      "message": "Please don\u0027t add lines with a version number and date until we actually push to npm.",
+      "revId": "99da77ae93cce9f7be3261c2a9aec79234326cdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
