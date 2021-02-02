@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "303565ef_cde6a837",
+        "filename": "src/gpu/GrShaderCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T17:04:34Z",
+      "side": 1,
+      "message": "nit: I feel like we could future-proof the name a bit by calling it \"useMemoryPool\" since I could imagine a future where we use also leverage the SkSL pool for, say, AST nodes or something.",
+      "range": {
+        "startLine": 318,
+        "startChar": 9,
+        "endLine": 318,
+        "endChar": 22
+      },
+      "revId": "1e73b5695f33cd16595f9081acbb908c9f0dc089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "026d4f21_3a6b6145",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4176,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T17:04:34Z",
+      "side": 1,
+      "message": "Aliased?",
+      "range": {
+        "startLine": 4176,
+        "startChar": 34,
+        "endLine": 4176,
+        "endChar": 41
+      },
+      "revId": "1e73b5695f33cd16595f9081acbb908c9f0dc089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f09a6942_3c05483c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1768,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T17:04:34Z",
+      "side": 1,
+      "message": "nit:\n\n    std::unique_ptr\u003cPool\u003e pool;\n    if (fCaps-\u003euseNodePools()) {\n        pool \u003d Pool::Create();\n        pool-\u003eattachToThread();\n    }",
+      "range": {
+        "startLine": 1765,
+        "startChar": 0,
+        "endLine": 1768,
+        "endChar": 5
+      },
+      "revId": "1e73b5695f33cd16595f9081acbb908c9f0dc089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
