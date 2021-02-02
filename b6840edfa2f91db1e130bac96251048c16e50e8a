@@ -88,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ff1ee0e_6c970a95",
+        "filename": "src/gpu/vk/GrVkBuffer2.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-02T20:37:10Z",
+      "side": 1,
+      "message": "You\u0027re right and the follow on change where I actually start using the uniform buffers moves this logic into GrResourceProvider.",
+      "parentUuid": "b0181dcc_3dfa9b9a",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 51
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec7aba20_990daf09",
@@ -101,6 +125,30 @@
       "writtenOn": "2021-02-02T20:10:04Z",
       "side": 1,
       "message": "Looks like you have tabs here.",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 0
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4124c9e2_b0043f52",
+        "filename": "src/gpu/vk/GrVkBuffer2.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-02T20:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec7aba20_990daf09",
       "range": {
         "startLine": 116,
         "startChar": 0,
