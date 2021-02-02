@@ -43,6 +43,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "779e1c36_b3795c95",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T20:00:24Z",
+      "side": 1,
+      "message": "Done. Looks like it works to return a const ref, so I did that instead. LMK if that\u0027s not right.",
+      "parentUuid": "8e6ea466_4e446fa4",
+      "range": {
+        "startLine": 128,
+        "startChar": 4,
+        "endLine": 128,
+        "endChar": 40
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d4ec139c_4bd57e60",
         "filename": "modules/svg/src/SkSVGImage.cpp",
         "patchSetId": 1
@@ -87,6 +111,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a379df7_d2c7ed2c",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T20:00:24Z",
+      "side": 1,
+      "message": "Ah I see.... Well, if you don\u0027t have strong opinions, I\u0027d vote to leave it as-is here and come back later if necessary.",
+      "parentUuid": "d4ec139c_4bd57e60",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 95
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90edb035_d9f3cf25",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T20:00:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a3c6a58_1cffc52c",
+      "range": {
+        "startLine": 42,
+        "startChar": 80,
+        "endLine": 42,
+        "endChar": 93
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ecbb769e_698c2e6e",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-02-02T19:24:31Z",
       "side": 1,
       "message": "SkASSERT(rp);\n\n(IIRC we set a NullResourceProvider if none is provided)",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 5
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac3b604b_c7bb2046",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T20:00:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecbb769e_698c2e6e",
       "range": {
         "startLine": 55,
         "startChar": 0,
@@ -141,6 +237,24 @@
       "side": 1,
       "message": "Also, the context fill paint may carry deferred opacity.  I think we need to pass that to drawImageRect too.",
       "parentUuid": "197f9187_36e8010e",
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72d0080f_f8087bbe",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T20:00:24Z",
+      "side": 1,
+      "message": "drawImageRect - done, although it will need further tweaking I think to support preserveAspectRatio\n\nRe: opacity, I couldn\u0027t find anything in the spec about fill/stroke paints affecting the image. I also played around in Chrome but the only attribute I found that did affect the image was the overall \u0027opacity\u0027 attribute. What do you think?",
+      "parentUuid": "0dd4ed70_f34daa3d",
       "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
