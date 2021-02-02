@@ -49,6 +49,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f2f728f5_4707cb93",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4176,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-02T17:41:59Z",
+      "side": 1,
+      "message": "Changed it to \u0027reused\u0027. Hope that makes it clearer?",
+      "parentUuid": "026d4f21_3a6b6145",
+      "range": {
+        "startLine": 4176,
+        "startChar": 34,
+        "endLine": 4176,
+        "endChar": 41
+      },
+      "revId": "1e73b5695f33cd16595f9081acbb908c9f0dc089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f09a6942_3c05483c",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 1
@@ -60,6 +84,30 @@
       "writtenOn": "2021-02-02T17:04:34Z",
       "side": 1,
       "message": "nit:\n\n    std::unique_ptr\u003cPool\u003e pool;\n    if (fCaps-\u003euseNodePools()) {\n        pool \u003d Pool::Create();\n        pool-\u003eattachToThread();\n    }",
+      "range": {
+        "startLine": 1765,
+        "startChar": 0,
+        "endLine": 1768,
+        "endChar": 5
+      },
+      "revId": "1e73b5695f33cd16595f9081acbb908c9f0dc089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fecfe63a_27e4481a",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1768,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-02T17:41:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f09a6942_3c05483c",
       "range": {
         "startLine": 1765,
         "startChar": 0,
