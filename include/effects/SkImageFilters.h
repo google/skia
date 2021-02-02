@@ -331,15 +331,15 @@ public:
         return Shader(std::move(shader), Dither::kNo, cropRect);
     }
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
-                                       const CropRect& cropRect = {}) {
-        return Shader(std::move(shader), dither, kNone_SkFilterQuality, cropRect);
-    }
+                                       const CropRect& cropRect = {});
+#ifdef SK_SUPPORT_LEGACY_SHADER_IMAGEFILTER
     // As above, but the filter quality defines what is used in image shaders that defer to the
     // quality stored on an SkPaint. NOTE: this default behavior is deprecated, so prefer creating
     // image shaders with explicit sampling parameters and call the other Shader() factory instead.
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
                                        SkFilterQuality filterQuality,
                                        const CropRect& cropRect = {});
+#endif
 
     /**
      *  Create a tile image filter.
@@ -350,6 +350,7 @@ public:
     static sk_sp<SkImageFilter> Tile(const SkRect& src, const SkRect& dst,
                                      sk_sp<SkImageFilter> input);
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_IMAGEFILTER
     /**
      *  This filter takes an SkBlendMode and uses it to composite the two filters together.
      *  @param mode       The blend mode that defines the compositing operation
@@ -364,6 +365,7 @@ public:
                                          const CropRect& cropRect = {}) {
         return Blend(mode, std::move(background), std::move(foreground), cropRect);
     }
+#endif
 
     // Morphology filter effects
 
