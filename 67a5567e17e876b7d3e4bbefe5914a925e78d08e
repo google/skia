@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "588867c8_107e163f",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1715,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-02T19:02:44Z",
+      "side": 1,
+      "message": "I don\u0027t love this. I\u0027m open to better ideas on how to guard against infinite recursion.",
+      "range": {
+        "startLine": 1715,
+        "startChar": 9,
+        "endLine": 1715,
+        "endChar": 38
+      },
+      "revId": "67a5567e17e876b7d3e4bbefe5914a925e78d08e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
