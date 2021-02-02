@@ -21,6 +21,10 @@ gr_direct_context_t* gr_direct_context_make_vulkan(const gr_vk_backendcontext_t 
     return SK_ONLY_VULKAN(ToGrDirectContext(GrDirectContext::MakeVulkan(AsGrVkBackendContext(&vkBackendContext)).release()), nullptr);
 }
 
+gr_direct_context_t* gr_direct_context_make_metal(void* device, void* queue) {
+    return SK_ONLY_METAL(ToGrDirectContext(GrDirectContext::MakeMetal(device, queue).release()), nullptr);
+}
+
 void gr_direct_context_unref(gr_direct_context_t* context) {
     SK_ONLY_GPU(SkSafeUnref(AsGrDirectContext(context)));
 }
@@ -151,6 +155,10 @@ gr_backendtexture_t* gr_backendtexture_new_vulkan(int width, int height, const g
     return SK_ONLY_VULKAN(ToGrBackendTexture(new GrBackendTexture(width, height, *AsGrVkImageInfo(vkInfo))), nullptr);
 }
 
+gr_backendtexture_t* gr_backendtexture_new_metal(int width, int height, bool mipmapped, const gr_mtl_textureinfo_t* mtlInfo) {
+    return SK_ONLY_METAL(ToGrBackendTexture(new GrBackendTexture(width, height, (GrMipMapped)mipmapped, AsGrMtlTextureInfo(mtlInfo))), nullptr);
+}
+
 void gr_backendtexture_delete(gr_backendtexture_t* texture) {
     SK_ONLY_GPU(delete AsGrBackendTexture(texture));
 }
@@ -188,6 +196,10 @@ gr_backendrendertarget_t* gr_backendrendertarget_new_gl(int width, int height, i
 
 gr_backendrendertarget_t* gr_backendrendertarget_new_vulkan(int width, int height, int samples, const gr_vk_imageinfo_t* vkImageInfo) {
     return SK_ONLY_VULKAN(ToGrBackendRenderTarget(new GrBackendRenderTarget(width, height, samples, *AsGrVkImageInfo(vkImageInfo))), nullptr);
+}
+
+gr_backendrendertarget_t* gr_backendrendertarget_new_metal(int width, int height, int samples, const gr_mtl_textureinfo_t* mtlInfo) {
+    return SK_ONLY_METAL(ToGrBackendRenderTarget(new GrBackendRenderTarget(width, height, samples, AsGrMtlTextureInfo(mtlInfo))), nullptr);
 }
 
 void gr_backendrendertarget_delete(gr_backendrendertarget_t* rendertarget) {
