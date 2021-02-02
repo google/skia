@@ -39,6 +39,30 @@
       },
       "revId": "ee1f45de8b112bbd9db98c47f0c833c89e1ead05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc7da443_6df361ad",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-02T20:34:45Z",
+      "side": 1,
+      "message": "yeah I\u0027ve added asserts in previous change to confirm this.",
+      "parentUuid": "d029ab16_e036d553",
+      "range": {
+        "startLine": 191,
+        "startChar": 8,
+        "endLine": 191,
+        "endChar": 27
+      },
+      "revId": "ee1f45de8b112bbd9db98c47f0c833c89e1ead05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

@@ -22,6 +22,30 @@
       },
       "revId": "e9e8e5d771c501546dcbe0026b16f5d561dcb55f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "861df0c9_f008c82b",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-02T20:34:45Z",
+      "side": 0,
+      "message": "Well it would have to be a static buffer that someone else also held a ref to (i.e. command buffer) while we were trying to update it. And as you said this would only happening if we were trying to change the data in a previously used static buffer which isn\u0027t allowed.",
+      "parentUuid": "a6820376_5990ca96",
+      "range": {
+        "startLine": 163,
+        "startChar": 8,
+        "endLine": 163,
+        "endChar": 16
+      },
+      "revId": "e9e8e5d771c501546dcbe0026b16f5d561dcb55f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
