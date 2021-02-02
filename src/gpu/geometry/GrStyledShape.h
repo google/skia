@@ -44,44 +44,61 @@ public:
 
     GrStyledShape() {}
 
-    explicit GrStyledShape(const SkPath& path) : GrStyledShape(path, GrStyle::SimpleFill()) {}
+    enum class SimplifyStroke : bool { kNo = false, kYes };
 
-    explicit GrStyledShape(const SkRRect& rrect) : GrStyledShape(rrect, GrStyle::SimpleFill()) {}
+    explicit GrStyledShape(const SkPath& path)
+            : GrStyledShape(path, GrStyle::SimpleFill(), SimplifyStroke::kNo) {}
 
-    explicit GrStyledShape(const SkRect& rect) : GrStyledShape(rect, GrStyle::SimpleFill()) {}
+    explicit GrStyledShape(const SkRRect& rrect)
+            : GrStyledShape(rrect, GrStyle::SimpleFill(), SimplifyStroke::kNo) {}
 
-    GrStyledShape(const SkPath& path, const SkPaint& paint) : GrStyledShape(path, GrStyle(paint)) {}
+    explicit GrStyledShape(const SkRect& rect)
+            : GrStyledShape(rect, GrStyle::SimpleFill(), SimplifyStroke::kNo) {}
 
-    GrStyledShape(const SkRRect& rrect, const SkPaint& paint)
-            : GrStyledShape(rrect, GrStyle(paint)) {}
+    GrStyledShape(const SkPath& path, const SkPaint& paint,
+                  SimplifyStroke simplifyStroke = SimplifyStroke::kYes)
+            : GrStyledShape(path, GrStyle(paint), simplifyStroke) {}
 
-    GrStyledShape(const SkRect& rect, const SkPaint& paint) : GrStyledShape(rect, GrStyle(paint)) {}
+    GrStyledShape(const SkRRect& rrect, const SkPaint& paint,
+                  SimplifyStroke simplifyStroke = SimplifyStroke::kYes)
+            : GrStyledShape(rrect, GrStyle(paint), simplifyStroke) {}
 
-    GrStyledShape(const SkPath& path, const GrStyle& style) : fShape(path), fStyle(style) {
-        this->simplify();
+    GrStyledShape(const SkRect& rect, const SkPaint& paint,
+                  SimplifyStroke simplifyStroke = SimplifyStroke::kYes)
+            : GrStyledShape(rect, GrStyle(paint), simplifyStroke) {}
+
+    GrStyledShape(const SkPath& path, const GrStyle& style,
+                  SimplifyStroke simplifyStroke = SimplifyStroke::kYes)
+            : fShape(path), fStyle(style) {
+        this->simplify(simplifyStroke);
     }
 
-    GrStyledShape(const SkRRect& rrect, const GrStyle& style) : fShape(rrect), fStyle(style) {
-        this->simplify();
+    GrStyledShape(const SkRRect& rrect, const GrStyle& style,
+                  SimplifyStroke simplifyStroke = SimplifyStroke::kYes)
+            : fShape(rrect), fStyle(style) {
+        this->simplify(simplifyStroke);
     }
 
     GrStyledShape(const SkRRect& rrect, SkPathDirection dir, unsigned start, bool inverted,
-                  const GrStyle& style)
+                  const GrStyle& style, SimplifyStroke simplifyStroke = SimplifyStroke::kYes)
             : fShape(rrect)
             , fStyle(style) {
         fShape.setPathWindingParams(dir, start);
         fShape.setInverted(inverted);
-        this->simplify();
+        this->simplify(simplifyStroke);
     }
 
-    GrStyledShape(const SkRect& rect, const GrStyle& style) : fShape(rect), fStyle(style) {
-        this->simplify();
+    GrStyledShape(const SkRect& rect, const GrStyle& style,
+                  SimplifyStroke simplifyStroke = SimplifyStroke::kYes)
+            : fShape(rect), fStyle(style) {
+        this->simplify(simplifyStroke);
     }
 
     GrStyledShape(const GrStyledShape&);
 
     static GrStyledShape MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
-                                 SkScalar sweepAngleDegrees, bool useCenter, const GrStyle& style);
+                                 SkScalar sweepAngleDegrees, bool useCenter, const GrStyle& style,
+                                 SimplifyStroke = SimplifyStroke::kYes);
 
     GrStyledShape& operator=(const GrStyledShape& that);
 
@@ -103,7 +120,8 @@ public:
      * made non-inverted since dashing ignores inverseness).
      */
     static GrStyledShape MakeFilled(const GrStyledShape& original,
-                                    FillInversion = FillInversion::kPreserve);
+                                    FillInversion = FillInversion::kPreserve,
+                                    SimplifyStroke = SimplifyStroke::kYes);
 
     const GrStyle& style() const { return fStyle; }
 
@@ -249,6 +267,12 @@ public:
     bool testingOnly_isPath() const;
     bool testingOnly_isNonVolatilePath() const;
 
+    /**
+     * As an optional part of the simplification process, some shapes can have stroking trivially
+     * evaluated and form a new geometry with just a fill.
+     */
+    void simplifyStroke();
+
 private:
     /** Constructor used by the applyStyle() function */
     GrStyledShape(const GrStyledShape& parentShape, GrStyle::Apply, SkScalar scale);
@@ -259,12 +283,12 @@ private:
      */
     void setInheritedKey(const GrStyledShape& parentShape, GrStyle::Apply, SkScalar scale);
 
-    // Similar to GrShape::simplify but also takes into account style and stroking, possibly
-    // applying the style explicitly to produce a new analytic shape with a simpler style.
-    void simplify();
-    // As part of the simplification process, some shapes can have stroking trivially evaluated
-    // and form a new geometry with just a fill.
-    bool simplifyStroke(bool originallyClosed);
+    /**
+     * Similar to GrShape::simplify but also takes into account style and, optionally, stroking.
+     * Some stroked shapes can be represented as a different filled primitive (e.g. a stroked line
+     * becomes a filled round rect). When SimplifyStroke is kYes, such optimizations are permitted.
+     */
+    void simplify(SimplifyStroke);
 
     /** Gets the path that gen id listeners should be added to. */
     const SkPath* originalPathForListeners() const;
@@ -273,6 +297,7 @@ private:
     GrStyle fStyle;
     // Gen ID of the original path (path may be modified or simplified away).
     int32_t fGenID      = 0;
+    bool    fClosed     = false;
     bool    fSimplified = false;
 
     SkTLazy<SkPath>            fInheritedPathForListeners;
