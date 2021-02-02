@@ -29,6 +29,7 @@
 #include "modules/svg/include/SkSVGFeTurbulence.h"
 #include "modules/svg/include/SkSVGFilter.h"
 #include "modules/svg/include/SkSVGG.h"
+#include "modules/svg/include/SkSVGImage.h"
 #include "modules/svg/include/SkSVGLine.h"
 #include "modules/svg/include/SkSVGLinearGradient.h"
 #include "modules/svg/include/SkSVGMask.h"
@@ -280,6 +281,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "feTurbulence"      , []() -> sk_sp<SkSVGNode> { return SkSVGFeTurbulence::Make();       }},
     { "filter"            , []() -> sk_sp<SkSVGNode> { return SkSVGFilter::Make();             }},
     { "g"                 , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();                  }},
+    { "image"             , []() -> sk_sp<SkSVGNode> { return SkSVGImage::Make();              }},
     { "line"              , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();               }},
     { "linearGradient"    , []() -> sk_sp<SkSVGNode> { return SkSVGLinearGradient::Make();     }},
     { "mask"              , []() -> sk_sp<SkSVGNode> { return SkSVGMask::Make();               }},

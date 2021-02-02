@@ -40,6 +40,7 @@ enum class SkSVGTag {
     kFeTurbulence,
     kFilter,
     kG,
+    kImage,
     kLine,
     kLinearGradient,
     kMask,
