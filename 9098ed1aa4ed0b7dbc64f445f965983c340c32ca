@@ -16,6 +16,24 @@
       "message": "remove",
       "revId": "9098ed1aa4ed0b7dbc64f445f965983c340c32ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cada1bd1_d3e64aa5",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-02T15:19:30Z",
+      "side": 1,
+      "message": "That defines the SkContourMeasure.",
+      "parentUuid": "5515ab0d_86cb9301",
+      "revId": "9098ed1aa4ed0b7dbc64f445f965983c340c32ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
