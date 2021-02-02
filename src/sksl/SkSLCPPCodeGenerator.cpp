@@ -98,7 +98,7 @@ static String default_value(const Type& type) {
         case Type::TypeKind::kScalar: return "0";
         case Type::TypeKind::kVector: return type.name() + "(0)";
         case Type::TypeKind::kMatrix: return type.name() + "(1)";
-        default: ABORT("unsupported default_value type\n");
+        default: SK_ABORT("unsupported default_value type");
     }
 }
 
@@ -253,7 +253,7 @@ String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
             ++samplerCount;
         }
     }
-    ABORT("should have found sampler in parameters\n");
+    SK_ABORT("should have found sampler in parameters\n");
 }
 
 void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
@@ -1318,7 +1318,7 @@ void CPPCodeGenerator::writeGetKey() {
                         this->writef("    b->add32((uint32_t) %s);\n",
                                      HCodeGenerator::FieldName(name).c_str());
                     } else {
-                        ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
+                        SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                               varType.displayName().c_str());
                     }
                     if (var.modifiers().fLayout.fWhen.fLength) {
