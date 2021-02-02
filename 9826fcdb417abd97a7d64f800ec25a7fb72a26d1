@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f66a68b4_d5800b95",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-02T16:44:48Z",
+      "side": 1,
+      "message": "We\u0027re failing to trigger Swarming tasks with the following error:\n\nE 2021-02-02T16:41:48.910814574Z Response: \"{\\\"error\\\": {\\\"message\\\": \\\"Env Prefix is not normalized. Normalized is \\\\\\\"clang_linux/lib\\\\\\\".\\\"}}\". At task_scheduler.go:1210 asm_amd64.s:1374\n \nLooks like we need to remove the \"./\" prefix from these environment variables.",
+      "range": {
+        "startLine": 1421,
+        "startChar": 0,
+        "endLine": 1421,
+        "endChar": 49
+      },
+      "revId": "9826fcdb417abd97a7d64f800ec25a7fb72a26d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
