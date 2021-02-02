@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    array. Additionally, they take an optional parameter to allow the result to be copied into
    that provided TypedArray instead of a new one being allocated.
  - APIs that passed in points should have less overhead (and now can accept a TypedArray).
+ - `Canvas.drawShadow()` now accepts zPlaneParams and lightPos as Malloc'ed and regular
+   Float32Arrays. `getShadowLocalBounds()` does as well.
 
 ### Fixed
  - Improper error returned when a WebGL context could not be used.
