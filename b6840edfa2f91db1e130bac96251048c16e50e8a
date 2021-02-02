@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81a175ba_db2615cc",
+        "filename": "src/gpu/vk/GrVkBuffer2.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-02T18:17:39Z",
+      "side": 1,
+      "message": "So a lot of logic in this file really is just copy and paste from the current GrVkBuffer class, but I\u0027m not really sure of any good way to stage these changes that allow you to easily compare.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c9baee9_f83520a6",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-02T18:17:39Z",
+      "side": 1,
+      "message": "This and the updateBuffer old functions will get deleted once all the series of changes land to switch to new buffer system. Same for their matching functions in GrVkGpu.",
+      "range": {
+        "startLine": 285,
+        "startChar": 9,
+        "endLine": 285,
+        "endChar": 20
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
