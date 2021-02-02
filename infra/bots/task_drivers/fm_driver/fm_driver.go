@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -33,6 +34,9 @@ func main() {
 		local     = flag.Bool("local", true, "Running locally (else on the bots)?")
 
 		resources = flag.String("resources", "resources", "Passed to fm -i.")
+		imgs      = flag.String("imgs", "", "Shorthand `directory` contents as 'imgs'.")
+		skps      = flag.String("skps", "", "Shorthand `directory` contents as 'skps'.")
+		svgs      = flag.String("svgs", "", "Shorthand `directory` contents as 'svgs'.")
 		script    = flag.String("script", "", "File (or - for stdin) with one job per line.")
 	)
 	flag.Parse()
@@ -74,8 +78,42 @@ func main() {
 		}
 		return lines
 	}
-	gms := query("--listGMs")
-	tests := query("--listTests")
+
+	// Walk directory for all files.
+	walk := func(dir string) (files []string) {
+		if dir != "" {
+			err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				dir := info.IsDir()
+				hidden := strings.HasPrefix(info.Name(), ".")
+				if dir && hidden {
+					return filepath.SkipDir
+				}
+				if !dir && !hidden {
+					files = append(files, path)
+				}
+				return nil
+			})
+			if err != nil {
+				fatal(err)
+			}
+		}
+		return
+	}
+
+	// We can use "gm" or "gms" as shorthand to refer to all GMs, and similar for the rest.
+	shorthands := map[string][]string{
+		"gm":   query("--listGMs"),
+		"test": query("--listTests"),
+		"img":  walk(*imgs),
+		"skp":  walk(*skps),
+		"svg":  walk(*svgs),
+	}
+	for k, v := range shorthands {
+		shorthands[k+"s"] = v
+	}
 
 	// Query Gold for all known hashes when running as a bot.
 	known := map[string]bool{
@@ -221,14 +259,9 @@ func main() {
 				break
 			}
 
-			// Treat "gm" or "gms" as a shortcut for all known GMs.
-			if token == "gm" || token == "gms" {
-				sources = append(sources, gms...)
-				continue
-			}
-			// Same for tests.
-			if token == "test" || token == "tests" {
-				sources = append(sources, tests...)
+			// Expand "gm" or "gms"  to all known GMs, or same for tests, images, skps, svgs.
+			if vals, ok := shorthands[token]; ok {
+				sources = append(sources, vals...)
 				continue
 			}
 
@@ -285,28 +318,39 @@ func main() {
 		run := func(sources []string, extraFlags string) {
 			kickoff(sources, append(strings.Fields(extraFlags), commonFlags...))
 		}
+		all := func(names ...string) (list []string) {
+			for _, name := range names {
+				if vals, ok := shorthands[name]; ok {
+					list = append(list, vals...)
+				} else {
+					list = append(list, name)
+				}
+			}
+			return
+		}
 
 		if CPU_or_GPU == "CPU" {
 			commonFlags = append(commonFlags, "-b", "cpu")
 
-			run(tests, "")
-			run(gms, "--ct 8888 --legacy") // Equivalent to DM --config 8888.
+			// FM's default flags are equivalent to --config srgb in DM.
+			run(all("gms", "imgs", "skps", "svgs", "tests"), "")
 
 			if model == "GCE" {
-				run(gms, "--ct g8 --legacy")                      // --config g8
-				run(gms, "--ct 565 --legacy")                     // --config 565
-				run(gms, "--ct 8888")                             // --config srgb
-				run(gms, "--ct f16")                              // --config esrgb
-				run(gms, "--ct f16 --tf linear")                  // --config f16
-				run(gms, "--ct 8888 --gamut p3")                  // --config p3
-				run(gms, "--ct 8888 --gamut narrow --tf 2.2")     // --config narrow
-				run(gms, "--ct f16 --gamut rec2020 --tf rec2020") // --config erec2020
+				run(all("gms"), "--ct g8 --legacy")                      // --config g8
+				run(all("gms"), "--ct 565 --legacy")                     // --config 565
+				run(all("gms"), "--ct 8888 --legacy")                    // --config 8888.
+				run(all("gms"), "--ct f16")                              // --config esrgb
+				run(all("gms"), "--ct f16 --tf linear")                  // --config f16
+				run(all("gms"), "--ct 8888 --gamut p3")                  // --config p3
+				run(all("gms"), "--ct 8888 --gamut narrow --tf 2.2")     // --config narrow
+				run(all("gms"), "--ct f16 --gamut rec2020 --tf rec2020") // --config erec2020
 
-				run(gms, "--skvm")
-				run(gms, "--skvm --ct f16")
+				run(all("gms"), "--skvm")
+				run(all("gms"), "--skvm --ct f16")
+
+				run(all("imgs"), "--decodeToDst --ct f16 --gamut rec2020 --tf rec2020")
 			}
 
-			// TODO: image/colorImage/svg tests
 			// TODO: pic-8888 equivalent?
 			// TODO: serialize-8888 equivalent?
 		}
