@@ -79,6 +79,10 @@ public:
     using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
     static EffectResult Make(SkString sksl);
 
+    // Accessors into the EffectResult to allow us to transition away from raw tuple access.
+    static sk_sp<SkRuntimeEffect> GetEffect(const EffectResult& e) { return std::get<0>(e); }
+    static SkString GetErrorText(const EffectResult& e) { return std::get<1>(e); }
+
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
                                size_t childCount,
