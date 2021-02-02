@@ -773,9 +773,9 @@
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN"
       ]
     },
-    "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+    "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All": {
       "tasks": [
-        "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
+        "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All"
       ]
     },
     "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
@@ -15066,7 +15066,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+    "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All": {
       "command": [
         "./fm_driver${EXECUTABLE_SUFFIX}",
         "--local=false",
@@ -15076,7 +15076,7 @@
         "--task_id",
         "<(TASK_ID)",
         "--bot",
-        "FM-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All",
+        "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15085,7 +15085,7 @@
       ],
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.13.6",
+        "os:Mac-10.14.6",
         "pool:Skia"
       ],
       "expiration_ns": 900000000000,
