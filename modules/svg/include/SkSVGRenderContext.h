@@ -125,6 +125,8 @@ public:
     // The node being rendered (may be null).
     const SkSVGNode* node() const { return fNode; }
 
+    sk_sp<skresources::ResourceProvider> resourceProvider() const { return fResourceProvider; }
+
     sk_sp<SkFontMgr> fontMgr() const {
         return fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
     }
