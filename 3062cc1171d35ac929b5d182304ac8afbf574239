@@ -125,6 +125,24 @@
       "message": "I think \u0027width\u0027 \u0026 \u0027height\u0027 do scale the image - shouldn\u0027t this be drawImageRect(image, rect)?",
       "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0dd4ed70_f34daa3d",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-02T19:27:22Z",
+      "side": 1,
+      "message": "Also, the context fill paint may carry deferred opacity.  I think we need to pass that to drawImageRect too.",
+      "parentUuid": "197f9187_36e8010e",
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
