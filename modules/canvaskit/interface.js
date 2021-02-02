@@ -740,6 +740,16 @@ CanvasKit.onRuntimeInitialized = function() {
     return m;
   };
 
+  CanvasKit.ContourMeasure.prototype.getPosTan = function(distance, optionalOutput) {
+    this._getPosTan(distance, _scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
+    if (optionalOutput) {
+      optionalOutput.set(ta);
+      return optionalOutput;
+    }
+    return ta.slice();
+  };
+
   CanvasKit.ImageFilter.MakeMatrixTransform = function(matr, filterQuality, input) {
     var matrPtr = copy3x3MatrixToWasm(matr);
     return CanvasKit.ImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
