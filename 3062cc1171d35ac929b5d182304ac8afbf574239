@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85141eab_085ed37d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-02T19:24:31Z",
+      "side": 1,
+      "message": "Neat!  So cool to finally see images!",
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e6ea466_4e446fa4",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-02T19:24:31Z",
+      "side": 1,
+      "message": "nit: sk_sp\u003cskresources::ResourceProvider\u003e\u0026\n\n(no need to ref)",
+      "range": {
+        "startLine": 128,
+        "startChar": 4,
+        "endLine": 128,
+        "endChar": 40
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4ec139c_4bd57e60",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-02T19:24:31Z",
+      "side": 1,
+      "message": "The thing I meant before is none of the resource provider implementations really cares about the path-vs-name distinction (they get concatenated back together to form a full file name).  We could pass an empty path and href.iri() as a name - which would make this branch identical to kDataURI and possibly simplify handling.\n\nKeeping separate does seem more rigorous/future-proof though, so I don\u0027t have a strong opinion.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 95
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a3c6a58_1cffc52c",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-02T19:24:31Z",
+      "side": 1,
+      "message": "Might be useful to pass the \"id\" attribute here, in case clients want to perform ID-based asset substitution... except we don\u0027t store that at the moment.  Maybe add a note.",
+      "range": {
+        "startLine": 42,
+        "startChar": 80,
+        "endLine": 42,
+        "endChar": 93
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecbb769e_698c2e6e",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-02T19:24:31Z",
+      "side": 1,
+      "message": "SkASSERT(rp);\n\n(IIRC we set a NullResourceProvider if none is provided)",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 5
+      },
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "197f9187_36e8010e",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-02T19:24:31Z",
+      "side": 1,
+      "message": "I think \u0027width\u0027 \u0026 \u0027height\u0027 do scale the image - shouldn\u0027t this be drawImageRect(image, rect)?",
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
