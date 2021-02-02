@@ -259,7 +259,6 @@ private:
 
             SkIRect srcR;
             SkRect dstR;
-            SkPoint* patchPositions = reinterpret_cast<SkPoint*>(vertices.fPtr);
             Sk4f scales(1.f / fView.proxy()->width(), 1.f / fView.proxy()->height(),
                         1.f / fView.proxy()->width(), 1.f / fView.proxy()->height());
             static const Sk4f kDomainOffsets(0.5f, 0.5f, -0.5f, -0.5f);
@@ -280,17 +279,36 @@ private:
                 domain.store(&texDomain);
                 coords.store(&texCoords);
 
-                vertices.writeQuad(GrVertexWriter::TriStripFromRect(dstR),
-                                   GrVertexWriter::TriStripFromRect(texCoords),
+                if (isScaleTranslate) {
+                    vertices.writeQuad(GrVertexWriter::TriStripFromRect(dstR),
+                                       GrVertexWriter::TriStripFromRect(texCoords),
+                                       texDomain,
+                                       patchColor);
+                } else {
+                    SkPoint mappedPts[4];
+                    patch.fViewMatrix.mapRectToQuad(mappedPts, dstR);
+                    // In the above if statement, writeQuad writes the corners as:
+                    // left-top, left-bottom, right-top, right-bottom.
+                    // However, mapRectToQuad returns them in the order:
+                    // left-top, right-top, right-bottom, left-bottom
+                    // Thus we write out the vertices to match the writeQuad path.
+                    vertices.write(mappedPts[0],
+                                   SkPoint::Make(texCoords.fLeft, texCoords.fTop),
                                    texDomain,
                                    patchColor);
-            }
-
-            // If we didn't handle it above, apply the matrix here.
-            if (!isScaleTranslate) {
-                SkMatrixPriv::MapPointsWithStride(
-                    patch.fViewMatrix, patchPositions, kVertexStride,
-                    GrResourceProvider::NumVertsPerNonAAQuad() * patch.fIter->numRectsToDraw());
+                    vertices.write(mappedPts[3],
+                                   SkPoint::Make(texCoords.fLeft, texCoords.fBottom),
+                                   texDomain,
+                                   patchColor);
+                    vertices.write(mappedPts[1],
+                                   SkPoint::Make(texCoords.fRight, texCoords.fTop),
+                                   texDomain,
+                                   patchColor);
+                    vertices.write(mappedPts[2],
+                                   SkPoint::Make(texCoords.fRight, texCoords.fBottom),
+                                   texDomain,
+                                   patchColor);
+                }
             }
         }
 
