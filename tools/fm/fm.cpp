@@ -179,8 +179,10 @@ static void init(Source* source, std::shared_ptr<SkCodec> codec) {
 }
 
 static void init(Source* source, sk_sp<SkSVGDOM> svg) {
-    source->size = svg->containerSize().isEmpty() ? SkISize{1000,1000}
-                                                  : svg->containerSize().toCeil();
+    if (svg->containerSize().isEmpty()) {
+        svg->setContainerSize({1000,1000});
+    }
+    source->size = svg->containerSize().toCeil();
     source->draw = [svg](SkCanvas* canvas) {
         svg->render(canvas);
         return ok;
