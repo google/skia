@@ -20,8 +20,6 @@
 #define SKSL_WARN_UNUSED_RESULT
 #endif
 
-#define ABORT(...) (printf(__VA_ARGS__), sksl_abort())
-
 #if _MSC_VER
 #define NORETURN __declspec(noreturn)
 #else
