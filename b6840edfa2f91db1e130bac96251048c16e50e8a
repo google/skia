@@ -24,6 +24,76 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a2d4949_b1de8690",
+        "filename": "src/gpu/vk/GrVkBuffer2.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T20:10:04Z",
+      "side": 1,
+      "message": "No prob, I\u0027ll scan through it.",
+      "parentUuid": "81a175ba_db2615cc",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0181dcc_3dfa9b9a",
+        "filename": "src/gpu/vk/GrVkBuffer2.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T20:10:04Z",
+      "side": 1,
+      "message": "This feels like a decision to be made at a higher level than this class, e.g., wherever we\u0027re managing uniform buffers.",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 51
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec7aba20_990daf09",
+        "filename": "src/gpu/vk/GrVkBuffer2.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T20:10:04Z",
+      "side": 1,
+      "message": "Looks like you have tabs here.",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 0
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7c9baee9_f83520a6",
@@ -37,6 +107,30 @@
       "writtenOn": "2021-02-02T18:17:39Z",
       "side": 1,
       "message": "This and the updateBuffer old functions will get deleted once all the series of changes land to switch to new buffer system. Same for their matching functions in GrVkGpu.",
+      "range": {
+        "startLine": 285,
+        "startChar": 9,
+        "endLine": 285,
+        "endChar": 20
+      },
+      "revId": "b6840edfa2f91db1e130bac96251048c16e50e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6387771d_80fde535",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T20:10:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7c9baee9_f83520a6",
       "range": {
         "startLine": 285,
         "startChar": 9,
