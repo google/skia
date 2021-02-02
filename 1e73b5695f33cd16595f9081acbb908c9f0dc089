@@ -73,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "053c5bf4_80cbaa1f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4176,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T17:58:11Z",
+      "side": 1,
+      "message": "I mean, it\u0027s OK with me, but GrMemoryPool actually reuses memory almost never. If the node you freed is the very last node in the pool, it will reuse it; otherwise, freeing poisons/scrubs the space but then sacrifices it until the pool is emptied/destroyed. Don\u0027t want to overthink it though :)",
+      "parentUuid": "f2f728f5_4707cb93",
+      "range": {
+        "startLine": 4176,
+        "startChar": 34,
+        "endLine": 4176,
+        "endChar": 41
+      },
+      "revId": "1e73b5695f33cd16595f9081acbb908c9f0dc089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f09a6942_3c05483c",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 1

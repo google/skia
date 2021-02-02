@@ -16,6 +16,24 @@
       "message": "One other dilemma with this approach - the crash rates on anything but stable are *incredibly* low. Without cherry-picking this back (which I don\u0027t really want to do), it\u0027s going to be a while before we get any real signal. 😕",
       "revId": "21329c5105ee3f2df022bc329ed094c3c407ff78",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ba62fa5_c7572fe5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T17:58:11Z",
+      "side": 1,
+      "message": "I agree. It would be much more useful if we could actually reproduce the issue locally, but since we have struggled to make any headway there, I don\u0027t have any better suggestions :(",
+      "parentUuid": "0517fd58_a47afae5",
+      "revId": "21329c5105ee3f2df022bc329ed094c3c407ff78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
