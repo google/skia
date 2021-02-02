@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42eb3c3d_0a88159a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-02T16:58:20Z",
+      "side": 1,
+      "message": "This, plus the next CL, disables node pooling on all Adreno 530 devices. That catches more than the two from the linked bugs, but it\u0027s about as good as we can do with the information available to Skia. This has a definite performance impact, but hopefully it shifts things around enough to shed more light...",
+      "revId": "cf85e286a21f4aa6278e5a6d6337f2f85f13e1e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
