@@ -128,7 +128,10 @@ EMSCRIPTEN_BINDINGS(Particles) {
             su = fromUniform(info->fUniforms[i]);
             return su;
         }))
-        .function("setPosition", select_overload<void (SkPoint)>(&SkParticleEffect::setPosition))
+        .function("_setPosition", optional_override([](SkParticleEffect& self,
+                                                       SkScalar x, SkScalar y)->void {
+            self.setPosition({x, y});
+        }))
         .function("setRate", select_overload<void (float)>(&SkParticleEffect::setRate))
         .function("start", select_overload<void (double, bool)>(&SkParticleEffect::start))
         .function("update", select_overload<void (double)>(&SkParticleEffect::update));
