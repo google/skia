@@ -407,7 +407,9 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
     SkYUVAPixmapInfo yuvaInfo;
     if (codec && codec->queryYUVAInfo(fSupportedYUVADataTypes, &yuvaInfo)) {
         auto yuvaPixmaps = SkYUVAPixmaps::Allocate(yuvaInfo);
-        SkAssertResult(codec->getYUVAPlanes(yuvaPixmaps));
+        if (!codec->getYUVAPlanes(yuvaPixmaps)) {
+            return -1;
+        }
         SkASSERT(yuvaPixmaps.isValid());
         newImageInfo.setYUVPlanes(std::move(yuvaPixmaps));
     } else {
