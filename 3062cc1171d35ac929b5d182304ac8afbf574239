@@ -299,6 +299,24 @@
       "parentUuid": "72d0080f_f8087bbe",
       "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bb4e4db_fa728fb5",
+        "filename": "modules/svg/src/SkSVGImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-02T20:27:04Z",
+      "side": 1,
+      "message": "Oh I see, I forgot about that deferred opacity logic. Agreed re: punt for now. I\u0027m assuming at some point we\u0027ll reach a comfortable spot feature-wise and we can invest some time in profiling / perf optimization.",
+      "parentUuid": "fe50a64c_4107b32f",
+      "revId": "3062cc1171d35ac929b5d182304ac8afbf574239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
