@@ -34,6 +34,7 @@ class HardwareAndroid(Hardware):
       settings put secure location_providers_allowed -network''']))
 
     if self._adb.is_root():
+
       self._adb.shell('\n'.join([
         # disable bluetooth, wifi, and mobile data.
         '''
@@ -50,7 +51,15 @@ class HardwareAndroid(Hardware):
 
         # disable ASLR
         '''
-        echo 0 > /proc/sys/kernel/randomize_va_space''']))
+        echo 0 > /proc/sys/kernel/randomize_va_space''',
+
+        # stop services which can change clock speed
+        '''
+        stop thermal-engine
+        stop perfd''']))
+
+      self.lock_top_three_cores()
+
     else:
       print("WARNING: no adb root access; results may be unreliable.",
             file=sys.stderr)
@@ -92,3 +101,28 @@ class HardwareAndroid(Hardware):
       done''')
 
     Hardware.print_debug_diagnostics(self)
+
+  def lock_top_three_cores(self):
+    # Lock the clocks of the fastest three cores and disable others.
+    # Assumes root privlidges
+    core_count = int(self._adb.check('cat /proc/cpuinfo | grep processor | wc -l'))
+    max_speeds = []
+    for i in range(core_count):
+      khz = int(self._adb.check('cat /sys/devices/system/cpu/cpu%i/cpufreq/cpuinfo_max_freq' % i))
+      max_speeds.append((khz, i)) # the tuple's first position and it will be the sort key
+    cores_in_desc_order_of_max_speed = [a[1] for a in sorted(max_speeds, reverse=True)]
+    top_cores = cores_in_desc_order_of_max_speed[:3]
+    disable_cores = cores_in_desc_order_of_max_speed[3:]
+    if disable_cores:
+      self._adb.shell('\n'.join([('echo 0 > /sys/devices/system/cpu/cpu%i/online' % i) for i in disable_cores]))
+    # since thermal-engine will be disabled, don't pick the max freq to lock these at,
+    # pick something lower, so it doesn't get too hot (it'd reboot)
+    # get a list of available scaling frequencies and pick one 2/3 of the way up.
+    for i in top_cores:
+      freqs = self._adb.check('cat /sys/devices/system/cpu/cpu%i/cpufreq/scaling_available_frequencies' % i).split()
+      speed = freqs[int((len(freqs)-1)*.66)]
+      self._adb.shell('''echo 1 > /sys/devices/system/cpu/cpu{id}/online
+      echo userspace > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_governor
+      echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_max_freq
+      echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_min_freq
+      echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_setspeed'''.format(id=i, speed=speed))

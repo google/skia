@@ -40,7 +40,6 @@ Run skpbench.py (in my case on a Pixel 3)
 ```
 python tools/skpbench/skpbench.py \
   --adb \
-  --force \
   --config gles \
   /data/local/tmp/skpbench \
   /data/local/tmp/skps/foo.skp
