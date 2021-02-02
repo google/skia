@@ -69,6 +69,24 @@
       "parentUuid": "6d9ede12_239cf603",
       "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8979780_ce3b653b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T14:42:48Z",
+      "side": 1,
+      "message": "Ohh, OK then. I\u0027ll figure out a plan B.",
+      "parentUuid": "d1c9bab4_7ed7fa0e",
+      "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
