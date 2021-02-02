@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a291c22a_600eeb8d",
+        "filename": "src/gpu/vk/GrVkUtil.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-02T21:47:05Z",
+      "side": 1,
+      "message": "This is needed in GrVkPipelineStateBuilder as well, that\u0027s why it\u0027s here.",
+      "range": {
+        "startLine": 144,
+        "startChar": 19,
+        "endLine": 144,
+        "endChar": 43
+      },
+      "revId": "4cffa57d058dca114fbdef2aa60fa8a3033bad30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
