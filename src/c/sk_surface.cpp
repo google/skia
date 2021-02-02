@@ -73,6 +73,10 @@ sk_surface_t* sk_surface_new_render_target(gr_context_t* context, bool budgeted,
     return ToSurface(SkSurface::MakeRenderTarget(AsGrContext(context), (SkBudgeted)budgeted, AsImageInfo(cinfo), sampleCount, (GrSurfaceOrigin)origin, AsSurfaceProps(props), shouldCreateWithMips).release());
 }
 
+sk_surface_t* sk_surface_new_metal_layer(gr_context_t* context, gr_mtl_handle_t layer, gr_surfaceorigin_t origin, int sampleCount, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props, gr_mtl_handle_t* drawable) {
+    return SK_ONLY_METAL(ToSurface(SkSurface::MakeFromCAMetalLayer(AsGrContext(context), layer, (GrSurfaceOrigin)origin, sampleCount, (SkColorType)colorType, sk_ref_sp(AsColorSpace(colorspace)), AsSurfaceProps(props), drawable).release()), nullptr);
+}
+
 void sk_surface_draw(sk_surface_t* surface, sk_canvas_t* canvas, float x, float y, const sk_paint_t* paint) {
     AsSurface(surface)->draw(AsCanvas(canvas), x, y, AsPaint(paint));
 }
@@ -87,6 +91,10 @@ bool sk_surface_read_pixels(sk_surface_t* surface, sk_imageinfo_t* dstInfo, void
 
 const sk_surfaceprops_t* sk_surface_get_props(sk_surface_t* surface) {
     return ToSurfaceProps(&AsSurface(surface)->props());
+}
+
+void sk_surface_flush(sk_surface_t* surface) {
+    AsSurface(surface)->flush();
 }
 
 // surface props

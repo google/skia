@@ -19,9 +19,9 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 
 SK_C_API gr_context_t* gr_context_make_gl(const gr_glinterface_t* glInterface);
 SK_C_API gr_context_t* gr_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext);
+SK_C_API gr_context_t* gr_context_make_metal(void* device, void* queue);
 
 // TODO: the overloads with GrContextOptions
-// TODO: the Metal context
 
 SK_C_API void gr_context_unref(gr_context_t* context);
 SK_C_API void gr_context_abandon_context(gr_context_t* context);
@@ -63,6 +63,7 @@ SK_C_API bool gr_vk_extensions_has_extension(gr_vk_extensions_t* extensions, con
 
 SK_C_API gr_backendtexture_t* gr_backendtexture_new_gl(int width, int height, bool mipmapped, const gr_gl_textureinfo_t* glInfo);
 SK_C_API gr_backendtexture_t* gr_backendtexture_new_vulkan(int width, int height, const gr_vk_imageinfo_t* vkInfo);
+SK_C_API gr_backendtexture_t* gr_backendtexture_new_metal(int width, int height, bool mipmapped, const gr_mtl_textureinfo_t* mtlInfo);
 SK_C_API void gr_backendtexture_delete(gr_backendtexture_t* texture);
 
 SK_C_API bool gr_backendtexture_is_valid(const gr_backendtexture_t* texture);
@@ -77,6 +78,7 @@ SK_C_API bool gr_backendtexture_get_gl_textureinfo(const gr_backendtexture_t* te
 
 SK_C_API gr_backendrendertarget_t* gr_backendrendertarget_new_gl(int width, int height, int samples, int stencils, const gr_gl_framebufferinfo_t* glInfo);
 SK_C_API gr_backendrendertarget_t* gr_backendrendertarget_new_vulkan(int width, int height, int samples, const gr_vk_imageinfo_t* vkImageInfo);
+SK_C_API gr_backendrendertarget_t* gr_backendrendertarget_new_metal(int width, int height, int samples, const gr_mtl_textureinfo_t* mtlInfo);
 
 SK_C_API void gr_backendrendertarget_delete(gr_backendrendertarget_t* rendertarget);
 

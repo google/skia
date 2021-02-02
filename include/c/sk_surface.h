@@ -25,6 +25,8 @@ SK_C_API sk_surface_t* sk_surface_new_backend_render_target(gr_context_t* contex
 SK_C_API sk_surface_t* sk_surface_new_backend_texture_as_render_target(gr_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, int samples, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props);
 SK_C_API sk_surface_t* sk_surface_new_render_target(gr_context_t* context, bool budgeted, const sk_imageinfo_t* cinfo, int sampleCount, gr_surfaceorigin_t origin, const sk_surfaceprops_t* props, bool shouldCreateWithMips);
 
+SK_C_API sk_surface_t* sk_surface_new_metal_layer(gr_context_t* context, gr_mtl_handle_t layer, gr_surfaceorigin_t origin, int sampleCount, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props, gr_mtl_handle_t* drawable);
+
 SK_C_API void sk_surface_unref(sk_surface_t*);
 SK_C_API sk_canvas_t* sk_surface_get_canvas(sk_surface_t*);
 SK_C_API sk_image_t* sk_surface_new_image_snapshot(sk_surface_t*);
@@ -33,6 +35,7 @@ SK_C_API void sk_surface_draw(sk_surface_t* surface, sk_canvas_t* canvas, float 
 SK_C_API bool sk_surface_peek_pixels(sk_surface_t* surface, sk_pixmap_t* pixmap);
 SK_C_API bool sk_surface_read_pixels(sk_surface_t* surface, sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY);
 SK_C_API const sk_surfaceprops_t* sk_surface_get_props(sk_surface_t* surface);
+SK_C_API void sk_surface_flush(sk_surface_t* surface);
 
 // surface props
 

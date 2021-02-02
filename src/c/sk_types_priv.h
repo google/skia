@@ -363,6 +363,17 @@ static inline GrVkBackendContext AsGrVkBackendContext(const gr_vk_backendcontext
 }
 
 #endif // SK_VULKAN
+
+#if SK_METAL
+
+static inline GrMtlTextureInfo AsGrMtlTextureInfo(const gr_mtl_textureinfo_t* mtlInfo) {
+    GrMtlTextureInfo info;
+    info.fTexture.retain(mtlInfo->fTexture);
+    return info;
+}
+
+#endif // SK_METAL
+
 #endif // SK_SUPPORT_GPU
 
 #endif
