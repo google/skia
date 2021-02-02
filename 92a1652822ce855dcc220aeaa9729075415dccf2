@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ee593be_e1619e93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-02-02T21:30:56Z",
+      "side": 1,
+      "message": "Set top three cores to 2/3 of their max speed and disable other cores in generic android profile\nSeems to reduce the std deviation on random skps for me on a pixel 3 from 12.2% to 10%\n\nMore testing to come (gotta work out why I can\u0027t connect to lease bots)\n\nI will do the same for GPU clocks in a subsequent CL because I think it\u0027s always in /sys/class/kgsl/kgsl-3d0",
+      "revId": "92a1652822ce855dcc220aeaa9729075415dccf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
