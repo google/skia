@@ -45,7 +45,7 @@ private:
     public:
         Resource(GrVkGpu* gpu, VkBuffer buf, const GrVkAlloc& alloc,
                  const GrVkDescriptorSet* descSet)
-            : INHERITED(gpu, buf, alloc, kUniform_Type)
+            : INHERITED(gpu, buf, alloc)
             , fDescriptorSet(descSet) {}
 
         void freeGPUData() const override;

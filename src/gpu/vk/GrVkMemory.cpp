@@ -7,39 +7,17 @@
 
 #include "src/gpu/vk/GrVkMemory.h"
 
-#include "include/gpu/vk/GrVkMemoryAllocator.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 using AllocationPropertyFlags = GrVkMemoryAllocator::AllocationPropertyFlags;
-using BufferUsage = GrVkMemoryAllocator::BufferUsage;
-
-static BufferUsage get_buffer_usage(GrVkBuffer::Type type, bool dynamic) {
-    switch (type) {
-        case GrVkBuffer::kVertex_Type: // fall through
-        case GrVkBuffer::kIndex_Type: // fall through
-        case GrVkBuffer::kIndirect_Type: // fall through
-        case GrVkBuffer::kTexel_Type:
-            return dynamic ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
-        case GrVkBuffer::kUniform_Type: // fall through
-        case GrVkBuffer::kCopyRead_Type:
-            SkASSERT(dynamic);
-            return BufferUsage::kCpuWritesGpuReads;
-        case GrVkBuffer::kCopyWrite_Type:
-            return BufferUsage::kGpuWritesCpuReads;
-    }
-    SK_ABORT("Invalid GrVkBuffer::Type");
-}
 
 bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
                                           VkBuffer buffer,
-                                          GrVkBuffer::Type type,
-                                          bool dynamic,
+                                          GrVkMemoryAllocator::BufferUsage usage,
                                           GrVkAlloc* alloc) {
     GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
     GrVkBackendMemory memory = 0;
-
-    GrVkMemoryAllocator::BufferUsage usage = get_buffer_usage(type, dynamic);
 
     AllocationPropertyFlags propFlags;
     if (usage == GrVkMemoryAllocator::BufferUsage::kCpuWritesGpuReads) {
@@ -68,15 +46,14 @@ bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
     GR_VK_CALL_RESULT(gpu, err, BindBufferMemory(gpu->device(), buffer, alloc->fMemory,
                                                  alloc->fOffset));
     if (err) {
-        FreeBufferMemory(gpu, type, *alloc);
+        FreeBufferMemory(gpu, *alloc);
         return false;
     }
 
     return true;
 }
 
-void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, GrVkBuffer::Type type,
-                                  const GrVkAlloc& alloc) {
+void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, const GrVkAlloc& alloc) {
     SkASSERT(alloc.fBackendMemory);
     GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
     allocator->freeMemory(alloc.fBackendMemory);
