@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6cf3d926_50edb1ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-02T13:50:32Z",
+      "side": 1,
+      "message": "I\u0027m ok with making this change, but it\u0027s going to break dependencies so I\u0027m not comfortable triggering autosubmit.",
+      "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
