@@ -61,10 +61,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
                                                            kRGBA_8888_SkColorType,
                                                            kPremul_SkAlphaType, nullptr);
 
-    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(dContext);
-    REPORTER_ASSERT(reporter, view);
-    REPORTER_ASSERT(reporter, view->proxy()->isInstantiated());
-    GrTexture* texture = view->proxy()->peekTexture();
+    GrSurfaceProxy* proxy = as_IB(wrappedImage)->peekProxy();
+    REPORTER_ASSERT(reporter, proxy);
+    REPORTER_ASSERT(reporter, proxy->isInstantiated());
+    GrTexture* texture = proxy->peekTexture();
     REPORTER_ASSERT(reporter, texture);
 
     // Verify that modifying the layout via the GrVkTexture is reflected in the GrBackendTexture
