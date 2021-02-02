@@ -170,8 +170,6 @@ func main() {
 					cmd.Name,
 					strings.Join(cmd.Args, " "),
 					strings.Join(lines, "\n\t"))
-			} else {
-				td.FailStep(ctx, err)
 			}
 			return
 		}
