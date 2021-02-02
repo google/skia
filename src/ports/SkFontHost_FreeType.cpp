@@ -1093,6 +1093,7 @@ FT_Error SkScalerContext_FreeType::setupSize() {
     if (err != 0) {
         return err;
     }
+
     FT_Set_Transform(fFace, &fMatrix22, nullptr);
     return 0;
 }
@@ -1237,27 +1238,45 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         FT_LayerIterator layerIterator = { 0, 0, nullptr };
         FT_UInt layerGlyphIndex;
         FT_UInt layerColorIndex;
-        while (FT_Get_Color_Glyph_Layer(fFace, glyph->getGlyphID(),
-                                        &layerGlyphIndex, &layerColorIndex, &layerIterator))
-        {
-            haveLayers = true;
-            err = FT_Load_Glyph(fFace, layerGlyphIndex,
-                                fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
-            if (err != 0) {
-                glyph->zeroMetrics();
-                return;
-            }
-            emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
 
-            if (0 < fFace->glyph->outline.n_contours) {
-                FT_BBox bbox;
-                getBBoxForCurrentGlyph(glyph, &bbox, true);
+#ifdef TT_SUPPORT_COLRV1
+        FT_OpaquePaint opaqueLayerPaint;
+        opaqueLayerPaint.p = nullptr;
+        // Only if FreeType is new enough to contain support for COLRv1, execute
+        // this call, otherwise temporarily set haveLayers to false and attempt
+        // checking for COLRv0.
+        haveLayers = FT_Get_Color_Glyph_Paint(fFace, glyph->getGlyphID(),
+                                              FT_COLOR_INCLUDE_ROOT_TRANSFORM, &opaqueLayerPaint);
+#else
+        haveLayers = false;
+#endif
+        if (haveLayers) {
+            // For COLRv1 take the glyph bounding box from the degenerate
+            // contour in the glyf table, see spec.
+            getBBoxForCurrentGlyph(glyph, &bounds, true);
+        } else {
+            // For COLRv0 compute the glyph bounding box from the union of layer bounding boxes.
+            while (FT_Get_Color_Glyph_Layer(fFace, glyph->getGlyphID(), &layerGlyphIndex,
+                                            &layerColorIndex, &layerIterator)) {
+                haveLayers = true;
+                err = FT_Load_Glyph(fFace, layerGlyphIndex,
+                                    fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+                if (err != 0) {
+                    glyph->zeroMetrics();
+                    return;
+                }
+                emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
 
-                // Union
-                bounds.xMin = std::min(bbox.xMin, bounds.xMin);
-                bounds.yMin = std::min(bbox.yMin, bounds.yMin);
-                bounds.xMax = std::max(bbox.xMax, bounds.xMax);
-                bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+                if (0 < fFace->glyph->outline.n_contours) {
+                    FT_BBox bbox;
+                    getBBoxForCurrentGlyph(glyph, &bbox, true);
+
+                    // Union
+                    bounds.xMin = std::min(bbox.xMin, bounds.xMin);
+                    bounds.yMin = std::min(bbox.yMin, bounds.yMin);
+                    bounds.xMax = std::max(bbox.xMax, bounds.xMax);
+                    bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+                }
             }
         }
 
@@ -1282,6 +1301,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         bounds.xMax = SkFDot6Ceil (bounds.xMax);
         bounds.yMax = SkFDot6Ceil (bounds.yMax);
 
+
         FT_Pos width  =  bounds.xMax - bounds.xMin;
         FT_Pos height =  bounds.yMax - bounds.yMin;
         FT_Pos top    = -bounds.yMax;  // Freetype y-up, Skia y-down.
@@ -1294,6 +1314,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
             width = height = top = left = 0;
         }
 
+        printf("Bounds for glyph id %d: xMin %ld xMax %ld yMin %ld yMax %ld\n", glyph->getGlyphID(), bounds.xMin, bounds.xMax, bounds.yMin, bounds.yMax);
+        
         glyph->fWidth  = SkToU16(width );
         glyph->fHeight = SkToU16(height);
         glyph->fTop    = SkToS16(top   );
