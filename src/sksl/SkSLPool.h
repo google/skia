@@ -54,6 +54,21 @@ private:
     std::unique_ptr<SkSL::MemoryPool> fMemPool;
 };
 
+/**
+ * If your class inherits from Poolable, its objects will be allocated from the pool.
+ */
+class Poolable {
+public:
+    // Override operator new and delete to allow us to use a memory pool.
+    static void* operator new(const size_t size) {
+        return Pool::AllocMemory(size);
+    }
+
+    static void operator delete(void* ptr) {
+        Pool::FreeMemory(ptr);
+    }
+};
+
 }  // namespace SkSL
 
 #endif

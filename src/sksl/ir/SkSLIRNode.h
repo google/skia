@@ -42,7 +42,7 @@ using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
  * version of the program (all types determined, everything validated), ready for code generation.
  */
-class IRNode {
+class IRNode : public Poolable {
 public:
     virtual ~IRNode() {}
 
@@ -55,15 +55,6 @@ public:
     // character offset of this element within the program being compiled, for error reporting
     // purposes
     int fOffset;
-
-    // Override operator new and delete to allow us to use a memory pool.
-    static void* operator new(const size_t size) {
-        return Pool::AllocMemory(size);
-    }
-
-    static void operator delete(void* ptr) {
-        Pool::FreeMemory(ptr);
-    }
 
 protected:
     IRNode(int offset, int kind)
