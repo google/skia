@@ -33,6 +33,24 @@
       "message": "It\u0027s okay to trigger autosubmit when one of the CQ bots is broken...",
       "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d9ede12_239cf603",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-02T14:40:06Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m going to need to finally learn how to build and submit changes to Chrome.\n\nAt least, structured binding syntax is compatible with both tuples and structs, so I can fix Chrome in isolation before this CL lands and not need to do a complex migration.",
+      "parentUuid": "6cf3d926_50edb1ac",
+      "revId": "fba4455d00610c8dafe678ec4f481da90ae375c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
