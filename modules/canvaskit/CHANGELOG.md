@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `Canvas.drawImageRect`, `Canvas.drawImage`, `Canvas.drawAtlas`,
    These rely on the Paint's FilterQuality, which is going away. Pass sampling options explicitly.
 
+### Removed
+ - `PathMeasure`, which was deprecated and replaced with `ContourMeasure`.
+
 ## [0.22.0] - 2020-12-17
 
 ### Added

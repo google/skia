@@ -45,7 +45,7 @@ describe('Path Behavior', () => {
 
         path.transform([2, 0, 0,
                         0, 2, 0,
-                        0, 0, 1 ])
+                        0, 0, 1 ]);
 
         canvas.drawPath(path, paint);
 
@@ -384,33 +384,6 @@ describe('Path Behavior', () => {
         paint.delete();
     });
 
-    it('can measure a path', () => {
-        const path = new CanvasKit.Path();
-        path.moveTo(10, 10)
-            .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
-
-        path.moveTo(80, 0)
-            .lineTo(80, 10)
-            .lineTo(100, 5)
-            .lineTo(80, 0);
-
-        const meas = new CanvasKit.PathMeasure(path, false, 1);
-        expect(meas.getLength()).toBeCloseTo(50.0, 3);
-        const pt = meas.getPosTan(28.7); // arbitrary point
-        expect(pt[0]).toBeCloseTo(27.22, 3); // x
-        expect(pt[1]).toBeCloseTo(32.96, 3); // y
-        expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
-        expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
-        const subpath = meas.getSegment(20, 40, true); // make sure this doesn't crash
-
-        expect(meas.nextContour()).toBeTruthy();
-        expect(meas.getLength()).toBeCloseTo(51.231, 3);
-
-        expect(meas.nextContour()).toBeFalsy();
-
-        path.delete();
-    });
-
     it('can measure the contours of a path',  () => {
         const path = new CanvasKit.Path();
         path.moveTo(10, 10)
@@ -435,7 +408,7 @@ describe('Path Behavior', () => {
 
         cont.delete();
         cont = meas.next();
-        expect(cont).toBeTruthy()
+        expect(cont).toBeTruthy();
         expect(cont.length()).toBeCloseTo(51.231, 3);
 
         cont.delete();
