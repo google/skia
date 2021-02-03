@@ -57,15 +57,15 @@ public:
             kSRGBUnpremul_Flag  = 0x8,
         };
 
-        SkString  fName;
-        size_t    fOffset;
-        Type      fType;
-        GrSLType  fGPUType;
-        int       fCount;
-        uint32_t  fFlags;
-        uint32_t  fMarker;
+        SkString  name;
+        size_t    offset;
+        Type      type;
+        GrSLType  gpuType;
+        int       count;
+        uint32_t  flags;
+        uint32_t  marker;
 
-        bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
+        bool isArray() const { return SkToBool(this->flags & kArray_Flag); }
         size_t sizeInBytes() const;
     };
 
@@ -227,7 +227,7 @@ public:
             } else if (sizeof(val) != fVar->sizeInBytes()) {
                 SkDEBUGFAIL("Incorrect value size");
             } else {
-                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->fOffset),
+                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->offset),
                        &val, sizeof(val));
             }
             return *this;
@@ -239,7 +239,7 @@ public:
             } else if (fVar->sizeInBytes() != 9 * sizeof(float)) {
                 SkDEBUGFAIL("Incorrect value size");
             } else {
-                float* data = SkTAddOffset<float>(fOwner->writableUniformData(), fVar->fOffset);
+                float* data = SkTAddOffset<float>(fOwner->writableUniformData(), fVar->offset);
                 data[0] = val.get(0); data[1] = val.get(3); data[2] = val.get(6);
                 data[3] = val.get(1); data[4] = val.get(4); data[5] = val.get(7);
                 data[6] = val.get(2); data[7] = val.get(5); data[8] = val.get(8);
@@ -257,7 +257,7 @@ public:
                 SkDEBUGFAIL("Incorrect value size");
                 return false;
             } else {
-                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->fOffset),
+                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->offset),
                        val, sizeof(T) * count);
             }
             return true;
