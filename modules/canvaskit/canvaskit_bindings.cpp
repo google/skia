@@ -687,6 +687,31 @@ void computeTonalColors(uintptr_t cPtrAmbi /* float * */, uintptr_t cPtrSpot /* 
     memcpy(spotFloats, spot4f.vec(), 4 * sizeof(SkScalar));
 }
 
+#ifdef SK_INCLUDE_RUNTIME_EFFECT
+struct SimpleUniform {
+    int columns;
+    int rows;
+    int slot; // the index into the uniforms array that this uniform begins.
+};
+
+SimpleUniform fromUniform(const SkRuntimeEffect::Uniform& u) {
+    SimpleUniform su;
+    su.rows    = u.fCount;  // arrayLength
+    su.columns = 1;
+    switch (u.fType) {
+        case SkRuntimeEffect::Uniform::Type::kFloat:                                  break;
+        case SkRuntimeEffect::Uniform::Type::kFloat2:   su.columns = 2;               break;
+        case SkRuntimeEffect::Uniform::Type::kFloat3:   su.columns = 3;               break;
+        case SkRuntimeEffect::Uniform::Type::kFloat4:   su.columns = 4;               break;
+        case SkRuntimeEffect::Uniform::Type::kFloat2x2: su.columns = 2; su.rows *= 2; break;
+        case SkRuntimeEffect::Uniform::Type::kFloat3x3: su.columns = 3; su.rows *= 3; break;
+        case SkRuntimeEffect::Uniform::Type::kFloat4x4: su.columns = 4; su.rows *= 4; break;
+    }
+    su.slot = u.fOffset / sizeof(float);
+    return su;
+}
+#endif
+
 // These objects have private destructors / delete methods - I don't think
 // we need to do anything other than tell emscripten to do nothing.
 namespace emscripten {
@@ -1710,7 +1735,27 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto s = self.makeShader(inputs, children, cLen, &localMatrix, isOpaque);
             delete[] children;
             return s;
+        }))
+        .function("getUniformCount", optional_override([](SkRuntimeEffect& self)->int {
+            return self.uniforms().count();
+        }))
+        .function("getUniformFloatCount", optional_override([](SkRuntimeEffect& self)->int {
+            return self.uniformSize() / sizeof(float);
+        }))
+        .function("getUniformName", optional_override([](SkRuntimeEffect& self, int i)->JSString {
+            auto it = self.uniforms().begin() + i;
+            return emscripten::val(it->fName.c_str());
+        }))
+        .function("getUniform", optional_override([](SkRuntimeEffect& self, int i)->SimpleUniform {
+            auto it = self.uniforms().begin() + i;
+            SimpleUniform su = fromUniform(*it);
+            return su;
         }));
+
+    value_object<SimpleUniform>("SimpleUniform")
+        .field("columns", &SimpleUniform::columns)
+        .field("rows",    &SimpleUniform::rows)
+        .field("slot",    &SimpleUniform::slot);
 #endif
 
     class_<SkSurface>("Surface")
