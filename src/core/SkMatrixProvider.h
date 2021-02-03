@@ -30,6 +30,8 @@ public:
 
     virtual bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const = 0;
 
+    virtual bool localToDeviceHitsPixelCenters() const = 0;
+
 private:
     friend class SkBaseDevice;
 
@@ -47,6 +49,10 @@ public:
         return fParent.getLocalToMarker(id, localToMarker);
     }
 
+    // We've replaced parent's localToDevice matrix,
+    // so we can't guarantee localToDevice() hits pixel centers anymore.
+    bool localToDeviceHitsPixelCenters() const override { return false; }
+
 private:
     const SkMatrixProvider& fParent;
 };
@@ -61,6 +67,9 @@ public:
     bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
         return fParent.getLocalToMarker(id, localToMarker);
     }
+
+    // parent.localToDevice() is folded into our localToDevice().
+    bool localToDeviceHitsPixelCenters() const override { return true; }
 
 private:
     const SkMatrixProvider& fParent;
@@ -83,6 +92,9 @@ public:
         return false;
     }
 
+    // parent.localToDevice() is folded into our localToDevice().
+    bool localToDeviceHitsPixelCenters() const override { return true; }
+
 private:
     const SkMatrixProvider& fParent;
     const SkMatrix          fPreMatrix;
@@ -94,6 +106,9 @@ public:
         : SkMatrixProvider(localToDevice) {}
 
     bool getLocalToMarker(uint32_t, SkM44*) const override { return false; }
+
+    // No trickiness to reason about here... we take this case to be axiomatically true.
+    bool localToDeviceHitsPixelCenters() const override { return true; }
 };
 
 #endif
