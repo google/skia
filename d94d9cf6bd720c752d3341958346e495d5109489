@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f2fba6c_f076f61e",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T14:29:01Z",
+      "side": 1,
+      "message": "Ok, I think we could add support for a quiet mode where we don\u0027t dump step metadata to stdout/stdout by default.  In most cases we probably do want subprocess logs to get plumbed through though.",
+      "parentUuid": "4a731abd_e1eb2df2",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 13
+      },
+      "revId": "d94d9cf6bd720c752d3341958346e495d5109489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "57572aca_1c4a5525",
@@ -102,6 +126,30 @@
       "side": 1,
       "message": "I don\u0027t start any new steps, so this is the only context.",
       "parentUuid": "57572aca_1c4a5525",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 54
+      },
+      "revId": "d94d9cf6bd720c752d3341958346e495d5109489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "480d1a8a_a53c8077",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T14:29:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c3c08e89_a29bcfb7",
       "range": {
         "startLine": 54,
         "startChar": 0,
