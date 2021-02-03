@@ -2372,19 +2372,35 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
         return this->convertCompoundConstructor(offset, type, std::move(args));
     }
     if (type.isArray()) {
-        // Convert each constructor argument to the array's component type.
-        const Type& base = type.componentType();
-        for (std::unique_ptr<Expression>& argument : args) {
-            argument = this->coerce(std::move(argument), base);
-            if (!argument) {
-                return nullptr;
-            }
-        }
-        return std::make_unique<Constructor>(offset, &type, std::move(args));
+        return this->convertArrayConstructor(offset, type, std::move(args));
     }
 
     this->errorReporter().error(offset, "cannot construct '" + type.displayName() + "'");
     return nullptr;
+}
+
+std::unique_ptr<Expression> IRGenerator::convertArrayConstructor(int offset,
+                                                                 const Type& type,
+                                                                 ExpressionArray args) {
+    // Check that the number of constructor arguments matches the array size.
+    if (type.columns() != Type::kUnsizedArray && type.columns() != args.count()) {
+        this->errorReporter().error(
+                offset,
+                String::printf("invalid arguments to '%s' constructor "
+                               "(expected %d elements, but found %d)",
+                               type.displayName().c_str(), type.columns(), args.count()));
+        return nullptr;
+    }
+
+    // Convert each constructor argument to the array's component type.
+    const Type& base = type.componentType();
+    for (std::unique_ptr<Expression>& argument : args) {
+        argument = this->coerce(std::move(argument), base);
+        if (!argument) {
+            return nullptr;
+        }
+    }
+    return std::make_unique<Constructor>(offset, &type, std::move(args));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& expression) {

@@ -1,0 +1,6 @@
+// Expect 3 errors
+
+float noElements[2]            = float[2]();
+float notEnoughElements[2]     = float[2](1);
+float rightNumberOfElements[2] = float[2](1, 2);
+float tooManyElements[2]       = float[2](1, 2, 3);
