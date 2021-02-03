@@ -23,9 +23,10 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
         SkDEBUGCODE(
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
             uniform.fType = uniformInfo.fVariable.getType();
-        )
+            )
 
-        uniform.fOffset = uniformInfo.fUBOffset;
+        // TODO: add std430 support
+        uniform.fOffset = uniformInfo.fOffsets[GrVkUniformHandler::kStd140Layout];
         ++i;
     }
 }
