@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3844688e_80feafd6",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-03T00:19:45Z",
+      "side": 0,
+      "message": "Looks like SkPath::Iter adds a line here. e.g.:\n\n  SkPoint p[] \u003d {pts[0], startPoint};\n  this-\u003eaddLine(p);\n\nThat might fix the gold diffs. But maybe it\u0027s just not worth it.",
+      "revId": "4126023779d31af02a32dd31293d14aca589f3a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
