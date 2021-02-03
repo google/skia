@@ -70,8 +70,8 @@ public:
     };
 
     struct Varying {
-        SkString fName;
-        int      fWidth;  // 1 - 4 (floats)
+        SkString name;
+        int      width;  // 1 - 4 (floats)
     };
 
     struct Options {

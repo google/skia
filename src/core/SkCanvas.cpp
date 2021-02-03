@@ -1825,7 +1825,7 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
         for (const auto& v : effect->varyings()) {
             const SkVertices::Attribute& attr(vertices->priv().attributes()[attrIndex++]);
             // Mismatch between the SkSL varying and the vertex shader output for this attribute
-            if (attr.channelCount() != v.fWidth) {
+            if (attr.channelCount() != v.width) {
                 return;
             }
             // If we can't provide any of the asked-for matrices, we can't draw this
