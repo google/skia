@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13a52da5_564d0c35",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T14:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "145c6a5c_9a008a77",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 17
+      },
+      "revId": "4126023779d31af02a32dd31293d14aca589f3a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fcd22011_32d6b97d",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-02-03T00:13:55Z",
       "side": 1,
       "message": "Could we assert *(fCurVert - 1) \u003d\u003d *lastPoint?",
+      "revId": "4126023779d31af02a32dd31293d14aca589f3a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca12095a_c1e544a6",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T14:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcd22011_32d6b97d",
       "revId": "4126023779d31af02a32dd31293d14aca589f3a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
