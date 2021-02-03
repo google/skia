@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9f3ea57_487d394d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-03T14:30:09Z",
+      "side": 1,
+      "message": "At first I had this in GrCopyRenderTask::Make, which seems more correct (there\u0027s another failure condition already in there). This gets triggered by the Dawn backend because it currently makes it\u0027s backend render targets be \"framebuffer only\", which seems to really mean \"write only\" in terms of how we use this. Without this we will assert in GrGpu::copy during flush. However, if this fails after closeActiveOpsTask() then we assert here:\n\nhttps://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/GrDrawingManager.cpp;l\u003d418;drc\u003dbe1084b5d9244d5445c61f4f5c8e82fbb6524f4d\n\nCould we closeActiveOpsTask() after checking if we can successfully make the copy task?",
+      "range": {
+        "startLine": 838,
+        "startChar": 0,
+        "endLine": 840,
+        "endChar": 5
+      },
+      "revId": "a67b437a5c3b1e8a44ff61451a19fd84eef8a857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
