@@ -52,12 +52,6 @@ public:
 
     SkSL::Compiler* operator->() const { return gImpl->fCompiler; }
 
-    // The inline threshold is exposed just for fuzzing, so we can test programs with it enabled
-    // and disabled. That lets us stress different code paths in the SkSL compiler. It's stashed
-    // along-side the compiler, but just so it can be guarded by the same mutex.
-    int  getInlineThreshold() const { return gImpl->fInlineThreshold; }
-    void setInlineThreshold(int threshold) { gImpl->fInlineThreshold = threshold; }
-
 private:
     SkAutoMutexExclusive fLock;
 
@@ -81,15 +75,10 @@ private:
             fCaps->fCanUseDoLoops = false;
 
             fCompiler = new SkSL::Compiler(fCaps.get());
-
-            // Using an inline threshold of zero stops all inlining, and causes us to re-emit SkSL
-            // that is nearly identical to what was ingested.
-            fInlineThreshold = 0;
         }
 
         SkSL::ShaderCapsPointer fCaps;
         SkSL::Compiler*         fCompiler;
-        int                     fInlineThreshold;
     };
 
     static Impl* gImpl;
@@ -98,11 +87,6 @@ private:
 SharedCompiler::Impl* SharedCompiler::gImpl = nullptr;
 
 }  // namespace SkSL
-
-void SkRuntimeEffect_SetInlineThreshold(int threshold) {
-    SkSL::SharedCompiler compiler;
-    compiler.setInlineThreshold(threshold);
-}
 
 // Accepts a valid marker, or "normals(<marker>)"
 static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint32_t* flags) {
@@ -148,17 +132,17 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     return false;
 }
 
-SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
-    settings.fInlineThreshold = compiler.getInlineThreshold();
+    settings.fInlineThreshold = options.inlineThreshold;
     settings.fAllowNarrowingConversions = true;
     auto program = compiler->convertProgram(SkSL::Program::kRuntimeEffect_Kind,
                                             SkSL::String(sksl.c_str(), sksl.size()),
                                             settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
-    #define RETURN_FAILURE(...) return std::make_tuple(nullptr, SkStringPrintf(__VA_ARGS__))
+    #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
 
     if (!program) {
         RETURN_FAILURE("%s", compiler->errorText().c_str());
@@ -269,7 +253,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(varyings),
                                                       usesSampleCoords,
                                                       allowColorFilter));
-    return std::make_tuple(std::move(effect), SkString());
+    return Result{std::move(effect), SkString()};
 }
 
 size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
