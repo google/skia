@@ -87,6 +87,47 @@
       "parentUuid": "387c58f0_cc45fd62",
       "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "678e2de8_accfb73e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T19:32:48Z",
+      "side": 1,
+      "message": "The only thing I can think of is that there\u0027s a mis-handled context somewhere which is causing the steps to nest under each other rather than be siblings of each other, but I don\u0027t see anything obvious in the code.  I guess one way to test would be to attach a variable to the context which stores the nesting level and increment it in startStep, then dump it to the log and make sure we don\u0027t see anything greater than 3 or so.\n\nEDIT: no, I found it",
+      "parentUuid": "5fce0fbb_c14dc223",
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c44a6175_75c46977",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T19:32:48Z",
+      "side": 1,
+      "message": "This should be `:\u003d`",
+      "range": {
+        "startLine": 202,
+        "startChar": 6,
+        "endLine": 202,
+        "endChar": 7
+      },
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
