@@ -140,6 +140,7 @@ SKSL_TEST(SkSLEmptyBlocksES2,          "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 SKSL_TEST(SkSLFunctionArgTypeMatch,    "shared/FunctionArgTypeMatch.sksl")
 SKSL_TEST(SkSLFunctionReturnTypeMatch, "shared/FunctionReturnTypeMatch.sksl")
+SKSL_TEST(SkSLMatrices,                "shared/Matrices.sksl")
 SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 
 /*
@@ -168,5 +169,6 @@ SKSL_TEST(SkSLIntrinsicSignInt,        "intrinsics/SignInt.sksl")
 SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLEmptyBlocksES3,          "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")
+SKSL_TEST(SkSLMatricesNonsquare,       "shared/MatricesNonsquare.sksl")
 SKSL_TEST(SkSLOperatorsES3,            "shared/OperatorsES3.sksl")
 */
