@@ -778,9 +778,29 @@
         "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All"
       ]
     },
+    "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-ASAN": {
+      "tasks": [
+        "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-ASAN"
+      ]
+    },
+    "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Release-All-TSAN": {
+      "tasks": [
+        "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Release-All-TSAN"
+      ]
+    },
     "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
         "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+      ]
+    },
+    "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN": {
+      "tasks": [
+        "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"
+      ]
+    },
+    "FM-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "tasks": [
+        "FM-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
     "Fuzz-Debian10-Clang": {
@@ -15073,6 +15093,102 @@
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
+    "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
+        }
+      ],
+      "command": [
+        "./fm_driver${EXECUTABLE_SUFFIX}",
+        "--local=false",
+        "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-ASAN",
+        "build/fm${EXECUTABLE_SUFFIX}"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-ASAN",
+        "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Release-All-TSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
+        }
+      ],
+      "command": [
+        "./fm_driver${EXECUTABLE_SUFFIX}",
+        "--local=false",
+        "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Release-All-TSAN",
+        "build/fm${EXECUTABLE_SUFFIX}"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-TSAN",
+        "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "cipd_packages": [
         {
@@ -15108,6 +15224,104 @@
       ],
       "dependencies": [
         "Build-Win-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-Server-17763",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
+        }
+      ],
+      "command": [
+        "./fm_driver${EXECUTABLE_SUFFIX}",
+        "--local=false",
+        "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN",
+        "build/fm${EXECUTABLE_SUFFIX}"
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-ASAN",
+        "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-Server-17763",
+        "pool:Skia"
+      ],
+      "expiration_ns": 900000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "FM-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:298"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:13"
+        }
+      ],
+      "command": [
+        "./fm_driver${EXECUTABLE_SUFFIX}",
+        "--local=false",
+        "--resources=skia/resources",
+        "--imgs=skimage",
+        "--skps=skp",
+        "--svgs=svg",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--bot",
+        "FM-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-All",
+        "build/fm${EXECUTABLE_SUFFIX}"
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug",
         "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"
       ],
       "dimensions": [
