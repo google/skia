@@ -101,7 +101,7 @@ float rand(inout float seed) {
 }
 )";
 
-static const char* kDefaultEffectCode =
+static const char* kDefaultCode =
 R"(void effectSpawn(inout Effect effect) {
 }
 
@@ -118,21 +118,13 @@ void update(inout Particle p) {
 SkParticleEffectParams::SkParticleEffectParams()
         : fMaxCount(128)
         , fDrawable(nullptr)
-        , fParticleCode(kDefaultEffectCode) {}
+        , fCode(kDefaultCode) {}
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("MaxCount", fMaxCount);
     v->visit("Drawable", fDrawable);
-    v->visit("EffectCode", fEffectCode);
-    v->visit("Code", fParticleCode);
+    v->visit("Code",     fCode);
     v->visit("Bindings", fBindings);
-
-    // Temporary migration hack: migrate EffectCode to the beginning of Code
-    if (!fEffectCode.isEmpty()) {
-        fParticleCode.prepend("\n");
-        fParticleCode.prepend(fEffectCode);
-        fEffectCode.reset();
-    }
 }
 
 void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resourceProvider) {
@@ -213,10 +205,8 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
                                                    std::move(uniformInfo));
     };
 
-    SkASSERT(fEffectCode.isEmpty());
-
     SkSL::String particleCode(kCommonHeader);
-    particleCode.append(fParticleCode.c_str());
+    particleCode.append(fCode.c_str());
 
     if (auto prog = buildProgram(particleCode)) {
         fProgram = std::move(prog);
