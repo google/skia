@@ -835,8 +835,6 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    this->closeActiveOpsTask();
-
     GrRenderTask* task = this->appendTask(GrCopyRenderTask::Make(this,
                                                                  src,
                                                                  srcRect,
@@ -846,6 +844,8 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
     if (!task) {
         return false;
     }
+
+    this->closeActiveOpsTask();
 
     const GrCaps& caps = *fContext->priv().caps();
     // We always say GrMipmapped::kNo here since we are always just copying from the base layer to

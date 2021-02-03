@@ -26,9 +26,9 @@ class SkCanvas;
 class SkMetaData;
 struct GrContextOptions;
 
-#define DEF_GM(CODE) \
-    static skiagm::GMRegistry SK_MACRO_APPEND_LINE(REG_)(\
-            [](){return std::unique_ptr<skiagm::GM>([](){ CODE ; }());});
+#define DEF_GM(CODE)                                         \
+    static skiagm::GMRegistry SK_MACRO_APPEND_COUNTER(REG_)( \
+            []() { return std::unique_ptr<skiagm::GM>([]() { CODE; }()); });
 
 // A Simple GM is a rendering test that does not store state between rendering calls or make use of
 // the onOnceBeforeDraw() virtual; it consists of:
