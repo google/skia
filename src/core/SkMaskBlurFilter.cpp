@@ -984,6 +984,10 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         dstW = dst->fBounds.width(),
         dstH = dst->fBounds.height();
     SkASSERT(srcW >= 0 && srcH >= 0 && dstW >= 0 && dstH >= 0);
+    constexpr int kNoBigger = 1 << 15;
+    if (srcW > kNoBigger || srcH > kNoBigger || dstW > kNoBigger || dstH > kNoBigger) {
+        return {0, 0};
+    }
 
     auto bufferSize = std::max(planW.bufferSize(), planH.bufferSize());
     auto buffer = alloc.makeArrayDefault<uint32_t>(bufferSize);
