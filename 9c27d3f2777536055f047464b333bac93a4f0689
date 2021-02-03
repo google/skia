@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81b89202_c221059d",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-03T16:28:17Z",
+      "side": 1,
+      "message": "I wonder if the example GrMotorcycle class should have some sort of non-accessor method on it to drive this point home? (e.g. `void drive();`)\n\nI also wonder if a good rule of thumb would be \"do we have access modifiers\"? The presence of  private fields seems like a good line in the sand to me for \"you\u0027re a class now\".",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "9c27d3f2777536055f047464b333bac93a4f0689",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
