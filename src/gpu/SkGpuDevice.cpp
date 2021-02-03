@@ -653,14 +653,14 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     SkPixmap pm;
     if (image->isTextureBacked()) {
-        const GrSurfaceProxyView* view = as_IB(image)->view(this->recordingContext());
+        auto [view, ct] = as_IB(image)->asView(this->recordingContext(), GrMipmapped::kNo);
         SkASSERT(view);
 
         return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                    SkIRect::MakeWH(image->width(), image->height()),
                                                    image->uniqueID(),
-                                                   *view,
-                                                   SkColorTypeToGrColorType(image->colorType()),
+                                                   std::move(view),
+                                                   ct,
                                                    image->refColorSpace(),
                                                    &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
@@ -771,10 +771,10 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
                                    SkFilterMode filter, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
-    if (GrSurfaceProxyView view = as_IB(image)->refView(this->recordingContext(),
-                                                        GrMipmapped::kNo)) {
+    if (auto [view, ct] = as_IB(image)->asView(this->recordingContext(), GrMipmapped::kNo); view) {
+        GrColorInfo colorInfo(ct, image->alphaType(), image->refColorSpace());
         this->drawViewLattice(std::move(view),
-                              image->imageInfo().colorInfo(),
+                              std::move(colorInfo),
                               std::move(iter),
                               dst,
                               filter,

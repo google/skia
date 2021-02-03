@@ -104,6 +104,20 @@ public:
         return {std::move(copy), src.origin(), src.swizzle()};
     }
 
+    static GrSurfaceProxyView Copy(GrRecordingContext* context,
+                                   GrSurfaceProxyView src,
+                                   GrMipmapped mipMapped,
+                                   SkBackingFit fit,
+                                   SkBudgeted budgeted) {
+        auto copy = GrSurfaceProxy::Copy(context,
+                                         src.refProxy(),
+                                         src.origin(),
+                                         mipMapped,
+                                         fit,
+                                         budgeted);
+        return {std::move(copy), src.origin(), src.swizzle()};
+    }
+
     // This does not reset the origin or swizzle, so the View can still be used to access those
     // properties associated with the detached proxy.
     sk_sp<GrSurfaceProxy> detachProxy() {

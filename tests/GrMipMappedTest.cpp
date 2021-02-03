@@ -86,12 +86,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                  sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                                                  mbet->releaseContext());
                 REPORTER_ASSERT(reporter, (mipmapped == GrMipmapped::kYes) == image->hasMipmaps());
-                const GrSurfaceProxyView* view = as_IB(image)->view(dContext);
-                REPORTER_ASSERT(reporter, view);
-                if (!view) {
+                GrSurfaceProxy* surfaceProxy = as_IB(image)->peekProxy();
+                REPORTER_ASSERT(reporter, surfaceProxy);
+                if (!proxy) {
                     continue;
                 }
-                proxy = view->asTextureProxyRef();
+                proxy = sk_ref_sp(surfaceProxy->asTextureProxy());
             }
             REPORTER_ASSERT(reporter, proxy);
             if (!proxy) {

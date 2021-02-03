@@ -754,10 +754,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     // Snaps an image from a surface and then makes a GrSurfaceContext from the image's texture.
     auto makeImageSurfaceContext = [dContext](SkSurface* surface) {
         sk_sp<SkImage> i(surface->makeImageSnapshot());
-        SkImage_Gpu* gpuImage = (SkImage_Gpu*)as_IB(i);
-        return GrSurfaceContext::Make(dContext,
-                                      *gpuImage->view(dContext),
-                                      i->imageInfo().colorInfo());
+        auto gpuImage = static_cast<SkImage_Gpu*>(as_IB(i));
+        auto [view, ct] = gpuImage->asView(dContext, GrMipmapped::kNo);
+        GrColorInfo colorInfo(ct, i->alphaType(), i->refColorSpace());
+        return GrSurfaceContext::Make(dContext, view, std::move(colorInfo));
     };
 
     // Test that non-wrapped RTs are created clear.

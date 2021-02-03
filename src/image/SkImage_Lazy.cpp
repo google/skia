@@ -32,7 +32,6 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrYUVATextureProxies.h"
-#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #endif
 
@@ -195,17 +194,6 @@ bool SkImage_Lazy::onIsValid(GrRecordingContext* context) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
-GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipmapped mipMapped) const {
-    if (!context) {
-        return {};
-    }
-
-    GrImageTextureMaker textureMaker(context, this, GrImageTexGenPolicy::kDraw);
-    return textureMaker.view(mipMapped);
-}
-#endif
-
 sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext* direct) const {
     // TODO: can we do this more efficiently, by telling the generator we want to
     //       "realize" a subset?
@@ -258,6 +246,14 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
 }
 
 #if SK_SUPPORT_GPU
+
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Lazy::onAsView(
+        GrRecordingContext* context,
+        GrMipmapped mipmapped,
+        GrImageTexGenPolicy policy) const {
+    GrImageTextureMaker textureMaker(context, this, policy);
+    return {textureMaker.view(mipmapped), textureMaker.colorType()};
+}
 
 GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* ctx,
                                                             SkBudgeted budgeted) const {

@@ -20,6 +20,7 @@
 #include "src/shaders/SkBitmapProcShader.h"
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 #endif
@@ -83,10 +84,6 @@ public:
     bool onPeekPixels(SkPixmap*) const override;
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
-#if SK_SUPPORT_GPU
-    GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const override;
-#endif
-
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
 
@@ -136,6 +133,12 @@ public:
     }
 
 private:
+#if SK_SUPPORT_GPU
+    std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
+                                                         GrMipmapped,
+                                                         GrImageTexGenPolicy) const override;
+#endif
+
     SkBitmap fBitmap;
 
 #if SK_SUPPORT_GPU
@@ -143,6 +146,7 @@ private:
     mutable int32_t fPinnedCount = 0;
     mutable uint32_t fPinnedUniqueID = SK_InvalidUniqueID;
     mutable uint32_t fPinnedContextID = SK_InvalidUniqueID;
+    mutable GrColorType fPinnedColorType = GrColorType::kUnknown;
 #endif
 
     using INHERITED = SkImage_Base;
@@ -191,24 +195,6 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
 }
 
 #if SK_SUPPORT_GPU
-GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
-                                           GrMipmapped mipmapped) const {
-    if (!context) {
-        return {};
-    }
-
-    if (fPinnedView) {
-        GrColorType ct = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
-                                                           this->colorType(),
-                                                           fPinnedView.proxy()->backendFormat());
-        GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-        GrTextureAdjuster adjuster(context, fPinnedView, colorInfo, fPinnedUniqueID);
-        return adjuster.view(mipmapped);
-    }
-
-    return GrRefCachedBitmapView(context, fBitmap, mipmapped);
-}
-
 bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
@@ -219,13 +205,15 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedView = GrRefCachedBitmapView(rContext, fBitmap, GrMipmapped::kNo);
+        GrBitmapTextureMaker maker(rContext, fBitmap, GrImageTexGenPolicy::kDraw);
+        fPinnedView = maker.view(GrMipmapped::kNo);
         if (!fPinnedView) {
             return false;
         }
         SkASSERT(fPinnedView.asTextureProxy());
         fPinnedUniqueID = fBitmap.getGenerationID();
         fPinnedContextID = rContext->priv().contextID();
+        fPinnedColorType = maker.colorType();
     }
     // Note: we only increment if the texture was successfully pinned
     ++fPinnedCount;
@@ -246,13 +234,13 @@ void SkImage_Raster::onUnpinAsTexture(GrRecordingContext* rContext) const {
         fPinnedView = GrSurfaceProxyView();
         fPinnedUniqueID = SK_InvalidUniqueID;
         fPinnedContextID = SK_InvalidUniqueID;
+        fPinnedColorType = GrColorType::kUnknown;
     }
 }
 
 bool SkImage_Raster::isPinnedOnContext(GrRecordingContext* rContext) const {
     return fPinnedContextID == rContext->priv().contextID();
 }
-
 #endif
 
 sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
@@ -416,3 +404,22 @@ sk_sp<SkImage> SkImage_Raster::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS
     pixmap.setColorSpace(std::move(newCS));
     return SkImage::MakeRasterCopy(pixmap);
 }
+
+#if SK_SUPPORT_GPU
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
+        GrRecordingContext* context,
+        GrMipmapped mipmapped,
+        GrImageTexGenPolicy policy) const {
+    if (fPinnedView) {
+        if (policy != GrImageTexGenPolicy::kDraw) {
+            return {CopyView(context, fPinnedView, mipmapped, policy), fPinnedColorType};
+        }
+        GrColorInfo colorInfo(fPinnedColorType, this->alphaType(), this->refColorSpace());
+        GrTextureAdjuster adjuster(context, fPinnedView, colorInfo, fPinnedUniqueID);
+        return {adjuster.view(mipmapped), adjuster.colorType()};
+    }
+
+    GrBitmapTextureMaker maker(context, fBitmap, policy);
+    return {maker.view(mipmapped), maker.colorType()};
+}
+#endif

@@ -143,75 +143,9 @@ bool SkImage_GpuYUVA::onHasMipmaps() const {
 
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
 
-void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
-    if (fRGBView.proxy()) {
-        return;
-    }
-
-    if (!context || !fContext->priv().matches(context)) {
-        return;
-    }
-
-    // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    GrImageInfo info(GrColorType::kRGBA_8888,
-                     kPremul_SkAlphaType,
-                     this->refColorSpace(),
-                     this->dimensions());
-    auto surfaceFillContext = GrSurfaceFillContext::Make(context,
-                                                         info,
-                                                         SkBackingFit::kExact,
-                                                         /*sample count*/ 1,
-                                                         GrMipmapped::kNo,
-                                                         GrProtected::kNo);
-    if (!surfaceFillContext) {
-        return;
-    }
-
-    const GrCaps& caps = *context->priv().caps();
-
-    auto fp = GrYUVtoRGBEffect::Make(fYUVAProxies, GrSamplerState::Filter::kNearest, caps);
-    if (fFromColorSpace) {
-        fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                           fFromColorSpace.get(), this->alphaType(),
-                                           this->colorSpace(),    this->alphaType());
-    }
-
-    surfaceFillContext->fillWithFP(std::move(fp));
-
-    fRGBView = surfaceFillContext->readSurfaceView();
-    SkASSERT(fRGBView.swizzle() == GrSwizzle());
-    fYUVAProxies = {};
-}
-
-GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
-    // if invalid or already has miplevels
-    this->flattenToRGB(context);
-    if (!fRGBView || fRGBView.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
-        return fRGBView;
-    }
-
-    // need to generate mips for the proxy
-    auto mippedView = GrCopyBaseMipMapToView(context, fRGBView);
-    if (!mippedView) {
-        return {};
-    }
-
-    fRGBView = std::move(mippedView);
-    return fRGBView;
-}
-
-const GrSurfaceProxyView* SkImage_GpuYUVA::view(GrRecordingContext* context) const {
-    this->flattenToRGB(context);
-    if (!fRGBView.proxy()) {
-        return nullptr;
-    }
-    return &fRGBView;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(
-        SkColorType, sk_sp<SkColorSpace> targetCS, GrDirectContext* direct) const {
+sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(SkColorType,
+                                                             sk_sp<SkColorSpace> targetCS,
+                                                             GrDirectContext* direct) const {
     // We explicitly ignore color type changes, for now.
 
     // we may need a mutex here but for now we expect usage to be in a single thread
@@ -229,6 +163,99 @@ sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(
 
 sk_sp<SkImage> SkImage_GpuYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
     return sk_sp<SkImage>(new SkImage_GpuYUVA(fContext, this, std::move(newCS)));
+}
+
+static GrSurfaceProxyView render_to_rgb(GrRecordingContext* context,
+                                        const SkColorInfo& colorInfo,
+                                        const GrYUVATextureProxies& proxies,
+                                        SkColorSpace* fromColorSpace,
+                                        GrMipmapped mipmapped,
+                                        SkBudgeted budgeted) {
+    GrImageInfo ii(colorInfo, proxies.yuvaInfo().dimensions());
+    auto surfaceFillContext = GrSurfaceFillContext::Make(context,
+                                                         std::move(ii),
+                                                         SkBackingFit::kExact,
+                                                         /*sample count*/ 1,
+                                                         mipmapped,
+                                                         GrProtected::kNo,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         budgeted);
+    if (!surfaceFillContext) {
+        return {};
+    }
+
+    const GrCaps& caps = *context->priv().caps();
+
+    auto fp = GrYUVtoRGBEffect::Make(proxies, GrSamplerState::Filter::kNearest, caps);
+    if (fromColorSpace) {
+        fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                           fromColorSpace,         colorInfo.alphaType(),
+                                           colorInfo.colorSpace(), colorInfo.alphaType());
+    }
+
+    surfaceFillContext->fillWithFP(std::move(fp));
+
+    return surfaceFillContext->readSurfaceView();
+}
+
+bool SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context, GrMipmapped mipmapped) const {
+    if (fRGBView.proxy()) {
+        if (mipmapped                                       == GrMipmapped::kYes &&
+            fRGBView.proxy()->asTextureProxy()->mipmapped() == GrMipmapped::kNo) {
+            GrSurfaceProxyView mippedView = GrCopyBaseMipMapToView(context, fRGBView);
+            if (!mippedView) {
+                return false;
+            }
+            fRGBView = std::move(mippedView);
+            return true;
+        }
+        return true;
+    }
+
+    if (!context || !fContext->priv().matches(context)) {
+        return false;
+    }
+
+    GrSurfaceProxyView rgbView = render_to_rgb(context,
+                                               this->imageInfo().colorInfo(),
+                                               fYUVAProxies,
+                                               fFromColorSpace.get(),
+                                               mipmapped,
+                                               SkBudgeted::kYes);
+    if (!rgbView) {
+        return false;
+    }
+    fRGBView = std::move(rgbView);
+    fYUVAProxies = {};
+    return true;
+}
+
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
+        GrRecordingContext* context,
+        GrMipmapped mipmapped,
+        GrImageTexGenPolicy policy) const {
+    if (!fContext->priv().matches(context)) {
+        return {};
+    }
+    if (policy != GrImageTexGenPolicy::kDraw) {
+        SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
+                                      ? SkBudgeted::kYes
+                                      : SkBudgeted::kNo;
+        if (fRGBView) {
+            return {CopyView(context, fRGBView, mipmapped, policy), GrColorType::kRGBA_8888};
+        }
+        auto view = render_to_rgb(context,
+                                  this->imageInfo().colorInfo(),
+                                  fYUVAProxies,
+                                  fFromColorSpace.get(),
+                                  mipmapped,
+                                  budgeted);
+        return {std::move(view), GrColorType::kRGBA_8888};
+    }
+    if (!this->flattenToRGB(context, mipmapped)) {
+        return {};
+    }
+    return {fRGBView, GrColorType::kRGBA_8888};
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
