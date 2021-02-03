@@ -773,14 +773,14 @@
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN"
       ]
     },
-    "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All": {
+    "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All": {
       "tasks": [
-        "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All"
+        "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All"
       ]
     },
-    "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+        "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
     "Fuzz-Debian10-Clang": {
@@ -15140,7 +15140,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All": {
+    "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15170,7 +15170,7 @@
         "--task_id",
         "<(TASK_ID)",
         "--bot",
-        "FM-Mac10.14-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All",
+        "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15178,8 +15178,9 @@
         "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
       ],
       "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.14.6",
+        "os:Mac-10.15.7",
         "pool:Skia"
       ],
       "expiration_ns": 900000000000,
@@ -15187,7 +15188,7 @@
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15217,7 +15218,7 @@
         "--task_id",
         "<(TASK_ID)",
         "--bot",
-        "FM-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
+        "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
