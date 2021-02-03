@@ -23,15 +23,15 @@ REVERT_CL_SUBJECT_PREFIX = 'Revert '
 
 # Please add the complete email address here (and not just 'xyz@' or 'xyz').
 PUBLIC_API_OWNERS = (
-    'mtklein@google.com',
-    'reed@chromium.org',
-    'reed@google.com',
-    'bsalomon@chromium.org',
+    'brianosman@google.com',
     'bsalomon@google.com',
     'djsollen@chromium.org',
     'djsollen@google.com',
     'hcm@chromium.org',
     'hcm@google.com',
+    'mtklein@google.com',
+    'reed@chromium.org',
+    'reed@google.com',
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
