@@ -68,6 +68,30 @@
       },
       "revId": "b29ce551e2612fc337d2a52fb939da40d14c8a50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4c924b3_81a63de4",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-03T17:02:38Z",
+      "side": 1,
+      "message": "Done. Somewhat surprisingly (to me), the log2 version isn\u0027t really any faster on my machine: \n\n  48/48  MB\t1\t229µs\t230µs\t230µs\t231µs\t0%\t███▁▁▁▁▁▁▁\tnonrendering\ttessellate_wangs_formula_conic_log2\n  48/48  MB\t1\t229µs\t229µs\t232µs\t242µs\t2%\t▁▄▁▁▁▁█▆▁▁\tnonrendering\ttessellate_wangs_formula_conic",
+      "parentUuid": "a35a044c_970c1733",
+      "range": {
+        "startLine": 162,
+        "startChar": 11,
+        "endLine": 162,
+        "endChar": 31
+      },
+      "revId": "b29ce551e2612fc337d2a52fb939da40d14c8a50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
