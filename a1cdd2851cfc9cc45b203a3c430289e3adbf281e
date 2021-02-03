@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f98fb435_f97579ca",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3476,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-02-03T19:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bb83444_b77e7d00",
+      "revId": "a1cdd2851cfc9cc45b203a3c430289e3adbf281e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad45658f_37bd05ca",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-02-03T16:05:57Z",
       "side": 1,
       "message": "nit: extra space\n\nIn fact, why touch this file at all in this CL, since it\u0027s only whitespace changes?",
+      "range": {
+        "startLine": 215,
+        "startChar": 4,
+        "endLine": 215,
+        "endChar": 5
+      },
+      "revId": "a1cdd2851cfc9cc45b203a3c430289e3adbf281e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5e9e060_785e8733",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-02-03T19:13:48Z",
+      "side": 1,
+      "message": "I removed the debugging prints, that\u0027s all. Didn\u0027t notice any spaces. Will remove them.",
+      "parentUuid": "ad45658f_37bd05ca",
       "range": {
         "startLine": 215,
         "startChar": 4,
