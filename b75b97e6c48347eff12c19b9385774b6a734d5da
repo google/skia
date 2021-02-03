@@ -22,6 +22,30 @@
       },
       "revId": "b75b97e6c48347eff12c19b9385774b6a734d5da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c03835e9_925ac95d",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-03T21:09:23Z",
+      "side": 1,
+      "message": "I thought that also, but the few of these I have diagnosed. The font size was either 132 or 168 (I think) which are the two break over points.",
+      "parentUuid": "368522c3_cf33f0f2",
+      "range": {
+        "startLine": 35,
+        "startChar": 58,
+        "endLine": 35,
+        "endChar": 72
+      },
+      "revId": "b75b97e6c48347eff12c19b9385774b6a734d5da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
