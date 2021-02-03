@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d85c21c7_8b552bf7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-03T18:18:27Z",
+      "side": 1,
+      "message": "LGTM assuming that issue in GrVkCaps is fixed. That\u0027s probably causing the diffs.\n\nThe creation of the buffer at upload time is a lot cleaner than having one hang around and replacing the underlying VkBuffer -- I like it.",
+      "revId": "9f76519a3669acd6b149a2e0b8a0b327fb863ee7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42de542e_94337b53",
+        "filename": "src/gpu/vk/GrVkBuffer2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-03T18:18:27Z",
+      "side": 1,
+      "message": "It feels weird having this here in the general buffer class, but I can\u0027t think of a better way other than subclassing.... which is what we\u0027re trying to avoid.",
+      "range": {
+        "startLine": 69,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 50
+      },
+      "revId": "9f76519a3669acd6b149a2e0b8a0b327fb863ee7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0338e1e_00d2ad76",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-03T18:18:27Z",
+      "side": 1,
+      "message": "This looks like an oops?",
+      "range": {
+        "startLine": 399,
+        "startChar": 4,
+        "endLine": 399,
+        "endChar": 44
+      },
+      "revId": "9f76519a3669acd6b149a2e0b8a0b327fb863ee7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
