@@ -656,6 +656,9 @@ function rectangleTests(CK: CanvasKit) {
 function runtimeEffectTests(CK: CanvasKit) {
     const rt = CK.RuntimeEffect.Make('not real sksl code'); // $ExpectType RuntimeEffect | null
     if (!rt) return;
+    const rt2 = CK.RuntimeEffect.Make('not real sksl code', (err) => {
+        console.log(err);
+    });
     const someMatr = CK.Matrix.translated(2, 60);
     const s1 = rt.makeShader([0, 1]); // $ExpectType Shader
     const s2 = rt.makeShader([0, 1], true, someMatr); // $ExpectType Shader

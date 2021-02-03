@@ -70,6 +70,15 @@ half4 main(float2 p) {
         testRTShader('rtshader_spiral_translated', done, CanvasKit.Matrix.translated(-200, 100));
     });
 
+    it('can provide a error handler for compilation errors', () => {
+        let error = '';
+        const spiral = CanvasKit.RuntimeEffect.Make(`invalid sksl code, I hope`, (e) => {
+            error = e;
+        });
+        expect(spiral).toBeFalsy();
+        expect(error).toContain('error');
+    });
+
     const loadBrick = fetch(
         '/assets/brickwork-texture.jpg')
         .then((response) => response.arrayBuffer());
