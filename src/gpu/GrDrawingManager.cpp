@@ -835,23 +835,28 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    this->closeActiveOpsTask();
-
-    GrRenderTask* task = this->appendTask(GrCopyRenderTask::Make(this,
-                                                                 src,
-                                                                 srcRect,
-                                                                 std::move(dst),
-                                                                 dstPoint,
-                                                                 origin));
+    sk_sp<GrRenderTask> task = GrCopyRenderTask::Make(this,
+                                                      src,
+                                                      srcRect,
+                                                      std::move(dst),
+                                                      dstPoint,
+                                                      origin);
     if (!task) {
         return false;
     }
 
+    this->closeActiveOpsTask();
+    GrRenderTask* appendedTask = this->appendTask(std::move(task));
+
     const GrCaps& caps = *fContext->priv().caps();
     // We always say GrMipmapped::kNo here since we are always just copying from the base layer to
     // another base layer. We don't need to make sure the whole mip map chain is valid.
-    task->addDependency(this, src.get(), GrMipmapped::kNo, GrTextureResolveManager(this), caps);
-    task->makeClosed(caps);
+    appendedTask->addDependency(this,
+                                src.get(),
+                                GrMipmapped::kNo,
+                                GrTextureResolveManager(this),
+                                caps);
+    appendedTask->makeClosed(caps);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.

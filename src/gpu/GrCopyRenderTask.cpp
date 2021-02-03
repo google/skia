@@ -29,6 +29,11 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
         return nullptr;
     }
 
+    if (src->framebufferOnly()) {
+        return nullptr;
+    }
+
+
     sk_sp<GrCopyRenderTask> task(new GrCopyRenderTask(drawingMgr,
                                                       std::move(src),
                                                       srcRect,
