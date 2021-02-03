@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af892e72_64908667",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-03T20:59:10Z",
+      "side": 1,
+      "message": "This fixes a rendering issue in the trickycubicstrokes gm. The rest of the improvements I have in mind can wait :-)",
+      "revId": "c2340acecfdebfcfc6b09079e2031ff9e59f8f0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
