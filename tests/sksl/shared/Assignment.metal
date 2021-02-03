@@ -3,9 +3,9 @@
 using namespace metal;
 struct S {
     float f;
-    float af[5];
+    array<float, 5> af;
     float4 h4;
-    float4 ah4[5];
+    array<float4, 5> ah4;
 };
 struct Inputs {
 };
@@ -18,15 +18,15 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float4 x;
     x.w = 0.0;
     x.yx = float2(0.0);
-    int ai[1];
+    array<int, 1> ai;
     ai[0] = 0;
-    int4 ai4[1];
+    array<int4, 1> ai4;
     ai4[0] = int4(1, 2, 3, 4);
-    float2x4 ah2x4[1];
+    array<float2x4, 1> ah2x4;
     ah2x4[0] = float2x4(float4(1.0, 2.0, 3.0, 4.0), float4(5.0, 6.0, 7.0, 8.0));
     ai[0] = 0;
     ai[ai[0]] = 0;
-    float4 af4[1];
+    array<float4, 1> af4;
     af4[0].x = 0.0;
     af4[0].ywxz = float4(1.0);
     S s;

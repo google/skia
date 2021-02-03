@@ -91,13 +91,15 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
     test(r, surface.get(), testFile);
 }
 
-#define SKSL_TEST(name, path)                                       \
+#define SKSL_TEST_CPU(name, path)                                   \
     DEF_TEST(name ## _CPU, r) {                                     \
         test_cpu(r, path);                                          \
-    }                                                               \
+    }
+#define SKSL_TEST_GPU(name, path)                                   \
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
         test_gpu(r, ctxInfo.directContext(), path);                 \
     }
+#define SKSL_TEST(name, path) SKSL_TEST_CPU(name, path) SKSL_TEST_GPU(name, path)
 
 SKSL_TEST(SkSLBoolFolding,             "folding/BoolFolding.sksl")
 SKSL_TEST(SkSLIntFoldingES2,           "folding/IntFoldingES2.sksl")
@@ -115,6 +117,7 @@ SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMixFloat,       "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
+SKSL_TEST_GPU(SkSLArrayConstructors,   "shared/ArrayConstructors.sksl")
 SKSL_TEST(SkSLCommaMixedTypes,         "shared/CommaMixedTypes.sksl")
 SKSL_TEST(SkSLCommaSideEffects,        "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLConstantIf,              "shared/ConstantIf.sksl")
