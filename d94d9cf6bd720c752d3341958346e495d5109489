@@ -16,6 +16,52 @@
       "message": "I\u0027ve left the PngSuite.LICENSE-related errors for now as a demo.",
       "revId": "d94d9cf6bd720c752d3341958346e495d5109489",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85a33176_58be62a8",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T13:33:10Z",
+      "side": 1,
+      "message": "I\u0027m curious why the behavior is different when running locally.  Task drivers are designed to be able to run locally without special handling.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 13
+      },
+      "revId": "d94d9cf6bd720c752d3341958346e495d5109489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57572aca_1c4a5525",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T13:33:10Z",
+      "side": 1,
+      "message": "I don\u0027t think this is going to do what you want; this will just fail the root step, not the active step.  You need to pass the context from the active step through to td.FailStep().",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 54
+      },
+      "revId": "d94d9cf6bd720c752d3341958346e495d5109489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
