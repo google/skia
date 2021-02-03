@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f255a3d8_833638e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-03T21:03:36Z",
+      "side": 1,
+      "message": "There\u0027s still an additional CL or two to hook in the push constants. This is just the changes to the offset tracking and uploading, depending on memory layout.",
+      "revId": "cb46cb859842dc62ed62b813e843844f13c12d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
