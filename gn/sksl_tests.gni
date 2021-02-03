@@ -337,6 +337,7 @@ sksl_shared_tests = [
   "/sksl/shared/Height.sksl",
   "/sksl/shared/HelloWorld.sksl",
   "/sksl/shared/Hex.sksl",
+  "/sksl/shared/HexUnsigned.sksl",
   "/sksl/shared/InstanceID.vert",
   "/sksl/shared/InterfaceBlockNamed.sksl",
   "/sksl/shared/InterfaceBlockNamedArray.sksl",
@@ -527,6 +528,7 @@ sksl_rte_tests = [
 ]
 
 sksl_rte_error_tests = [
+  "/sksl/runtime_errors/Discard.rte",
   "/sksl/runtime_errors/IllegalIndexing.rte",
   "/sksl/runtime_errors/IllegalOperators.rte",
   "/sksl/runtime_errors/IllegalStatements.rte",
