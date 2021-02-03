@@ -30,6 +30,9 @@ Milestone 90
   * Changed SkRuntimeEffect::Varying to have lower-case member names, with no 'f' prefix.
     https://review.skia.org/365656
 
+  * Changed SkRuntimeEffect::Uniform to have lower-case member names, with no 'f' prefix.
+    https://review.skia.org/365696
+
   * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
     https://review.skia.org/344763
 
