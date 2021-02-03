@@ -229,6 +229,30 @@
       },
       "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c21b4957_bb3ecb2b",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T16:19:14Z",
+      "side": 1,
+      "message": "You know, looking again, I\u0027d probably not decorate Uniform\u0027s fields with f, instead just updating sizeInBytes() to address the fields with this-\u003e.  It\u0027s mostly used accessing those fields directly right?",
+      "parentUuid": "6f6a0c97_cf37bfdd",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 28
+      },
+      "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
