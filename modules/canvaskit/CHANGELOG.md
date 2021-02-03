@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    SkColorMatrix (in case clients have logic to deal with that themselves).
  - `CanvasKit.RuntimeEffect.Make` now takes an optional callback function that will be called
    with any compilation error.
+ - `CanvasKit.RuntimeEffect` now exposes uniforms. The number, dimensions, and name of each
+   uniform can be queried, using `RuntimeEffect.getUniformCount`, `RuntimeEffect.getUniform`, and
+   `RuntimeEffect.getUniformName`. The total number of floats across all uniforms (that must be
+   passed to `RuntimeEffect.makeShader`) can be queried with `RuntimeEffect.getUniformFloatCount`.
 
 ### Breaking
  - `MakeImprovedNoise` is removed.
