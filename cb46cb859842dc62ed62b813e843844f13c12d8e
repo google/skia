@@ -16,6 +16,52 @@
       "message": "There\u0027s still an additional CL or two to hook in the push constants. This is just the changes to the offset tracking and uploading, depending on memory layout.",
       "revId": "cb46cb859842dc62ed62b813e843844f13c12d8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa7c51c6_86ada4b6",
+        "filename": "src/gpu/vk/GrVkPipelineStateDataManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T21:20:20Z",
+      "side": 1,
+      "message": "Are there still issues here? If so what are they. Or is this just left over from developing the change?",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 89
+      },
+      "revId": "cb46cb859842dc62ed62b813e843844f13c12d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9583e14_e3056b6e",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T21:20:20Z",
+      "side": 1,
+      "message": "So I\u0027m guessing nothing is currently using std430 with this change. So I\u0027m guessing in some follow on where you hook in push constants we had another branch check here?",
+      "range": {
+        "startLine": 359,
+        "startChar": 16,
+        "endLine": 359,
+        "endChar": 49
+      },
+      "revId": "cb46cb859842dc62ed62b813e843844f13c12d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
