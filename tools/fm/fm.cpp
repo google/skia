@@ -422,23 +422,20 @@ int main(int argc, char** argv) {
     SkTArray<Source> sources;
     for (const SkString& name : FLAGS_sources) {
         Source* source = &sources.push_back();
+        source->name = name;
 
         if (skiagm::GMFactory* factory = gm_factories.find(name)) {
             std::shared_ptr<skiagm::GM> gm{(*factory)()};
-            source->name = name;
             init(source, std::move(gm));
             continue;
         }
 
         if (const skiatest::Test** test = tests.find(name)) {
-            source->name = name;
             init(source, **test);
             continue;
         }
 
         if (sk_sp<SkData> blob = SkData::MakeFromFileName(name.c_str())) {
-            source->name = SkOSPath::Basename(name.c_str());
-
             if (name.endsWith(".skp")) {
                 if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get())) {
                     init(source, pic);
