@@ -1609,20 +1609,9 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
         const BasicBlock& block = cfg.fBlocks[i];
         if (!block.fIsReachable && !block.fAllowUnreachable && block.fNodes.size()) {
-            int offset;
             const BasicBlock::Node& node = block.fNodes[0];
-            if (node.isStatement()) {
-                offset = (*node.statement())->fOffset;
-            } else {
-                offset = (*node.expression())->fOffset;
-                if ((*node.expression())->is<BoolLiteral>()) {
-                    // Function inlining can generate do { ... } while(false) loops which always
-                    // break, so the boolean condition is considered unreachable. Since not being
-                    // able to reach a literal is a non-issue in the first place, we don't report an
-                    // error in this case.
-                    continue;
-                }
-            }
+            int offset = node.isStatement() ? (*node.statement())->fOffset
+                                            : (*node.expression())->fOffset;
             this->error(offset, String("unreachable"));
         }
     }
