@@ -5795,4 +5795,34 @@ DEF_TEST(SkParagraph_PlaceholderWidth, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(len2, 250.0f));
 }
 
-// "\u05D3\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}\uD83D\uDE00"
+DEF_TEST(SkParagraph_GlyphPositionsInEmptyLines, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_GlyphPositionsInEmptyLines");
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto") });
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText("A\n\n");
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(300);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto res1 = paragraph->
+        getGlyphPositionAtCoordinate(paragraph->getMinIntrinsicWidth(),1);
+    REPORTER_ASSERT(reporter, res1.position == 1 && res1.affinity == Affinity::kUpstream);
+
+    auto res2 = paragraph->
+        getGlyphPositionAtCoordinate(0,paragraph->getHeight() * 0.5);
+    REPORTER_ASSERT(reporter, res2.position == 2 && res2.affinity == Affinity::kDownstream);
+
+    auto res3 = paragraph->
+        getGlyphPositionAtCoordinate(0,paragraph->getHeight() - 1);
+    REPORTER_ASSERT(reporter, res3.position == 3 && res3.affinity == Affinity::kDownstream);
+}
