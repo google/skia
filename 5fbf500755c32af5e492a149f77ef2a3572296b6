@@ -16,6 +16,23 @@
       "message": "oops I never actually hit +1",
       "revId": "5fbf500755c32af5e492a149f77ef2a3572296b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffc0a094_9066b35b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-03T16:26:20Z",
+      "side": 1,
+      "message": "re: the Uniform and Varying structs, I\u0027d be happy to migrate them. I do prefer the simpler naming scheme. Luckily:\n\n1) No one uses Varying. It\u0027s a highly experimental feature, only referenced in GMs.\n2) Almost no one uses Uniform (at least directly). All clients (AFAIK) use SkRuntimeShaderBuilder, which abstracts that struct away, so we\u0027d just need to update some internal code (including CanvasKit bindings).",
+      "revId": "5fbf500755c32af5e492a149f77ef2a3572296b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
