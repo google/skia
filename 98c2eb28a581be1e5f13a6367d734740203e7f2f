@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73a3117d_3ae57e93",
+        "filename": "modules/canvaskit/rt_shader.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-03T16:33:36Z",
+      "side": 1,
+      "message": "effect",
+      "range": {
+        "startLine": 6,
+        "startChar": 5,
+        "endLine": 6,
+        "endChar": 14
+      },
+      "revId": "98c2eb28a581be1e5f13a6367d734740203e7f2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
