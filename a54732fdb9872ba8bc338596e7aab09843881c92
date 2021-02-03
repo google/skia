@@ -176,6 +176,30 @@
       },
       "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c728ae1_73ef861e",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T23:41:02Z",
+      "side": 1,
+      "message": "Wait, actually I\u0027m sorry to bother you again, but while everything looked fine on the surface, I don\u0027t understand what I\u0027m reading in the logs.  Do you see how I\u0027m wrapping the call to worker() in a step, with a name based on the same Work fields we pass to worker()?\n\nIn the logs I\u0027m seeing the `name` field not match what work is being done inside that call to worker(), e.g.\n\nname: clamped_gradients_nodither dropshadowimagefilter quadclosepath strokes3 linepath contour_start imagemakewithfilter bicubic shadermaskfilter_gradient pixel_snap_combo pixel_snap_line draw_image_set androidblendmodes bitmapshaders (--nativeFonts false -b cpu)\n\nbatch: build/fm -i skia/resources --nativeFonts false -b cpu -s encode-color-types-webp-lossless crbug_946965 tilemode_bitmap tilemodes_npot trimpatheffect textfilter_color skbug_257 big_rrect_rect_aa_effect gradients_many complexclip_bw_layer patch_image_persp path_effect_empty_result polygons manyrrects\n\nrerun: build/fm -i skia/resources --nativeFonts false -b cpu -s encode-color-types-webp-lossless\nrerun: build/fm -i skia/resources --nativeFonts false -b cpu -s crbug_946965\nec.\n\nThe batch run and reruns agree what\u0027s going on, but I can\u0027t figure out why name is not in sync with them.  Do you see anything off as of PS8?",
+      "parentUuid": "a9cb7347_f511ca56",
+      "range": {
+        "startLine": 202,
+        "startChar": 6,
+        "endLine": 202,
+        "endChar": 7
+      },
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
