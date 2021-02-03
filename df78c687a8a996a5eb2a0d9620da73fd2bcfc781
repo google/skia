@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cdc307f4_b9d7580e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T15:00:29Z",
+      "side": 1,
+      "message": "Its simple enough that its not too bad, but we do sort of repeat this pattern in a few places. Is there some way that make sense to abstract it?",
+      "range": {
+        "startLine": 630,
+        "startChar": 0,
+        "endLine": 639,
+        "endChar": 82
+      },
+      "revId": "df78c687a8a996a5eb2a0d9620da73fd2bcfc781",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
