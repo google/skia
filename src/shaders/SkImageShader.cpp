@@ -520,20 +520,6 @@ public:
     }
 };
 
-static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatrix& matrix) {
-    SkFilterMode filter = sampling.filter;
-
-    // When the matrix is just an integer translate, bilerp == nearest neighbor.
-    if (filter == SkFilterMode::kLinear &&
-            matrix.getType() <= SkMatrix::kTranslate_Mask &&
-            matrix.getTranslateX() == (int)matrix.getTranslateX() &&
-            matrix.getTranslateY() == (int)matrix.getTranslateY()) {
-        filter = SkFilterMode::kNearest;
-    }
-
-    return SkSamplingOptions(filter, sampling.mipmap);
-}
-
 static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
     // See skia:4649 and the GM image_scale_aligned.
     if (filter == SkFilterMode::kNearest) {
@@ -594,8 +580,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         updater->append_matrix_stage(p);
     } else {
         if (!sampling.useCubic) {
-            sampling = tweak_sampling(sampling, matrix);
-            matrix   = tweak_inv_matrix(sampling.filter, matrix);
+            matrix = tweak_inv_matrix(sampling.filter, matrix);
         }
         p->append_matrix(alloc, matrix);
     }
@@ -857,8 +842,6 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
     auto [upper, upperInv] = access->level();
     if (!sampling.useCubic) {
-        // Given the possibility of runtime effects sampling child shaders,
-        // we don't actually have enough information here to tweak_sampling(), so skip it.
         upperInv = tweak_inv_matrix(sampling.filter, upperInv);
     }
 
