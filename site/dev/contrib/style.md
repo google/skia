@@ -48,15 +48,27 @@ public:
 };
 ~~~~
 
-Data fields in structs, classes, unions begin with lower-case f and are then
-camel-capped.
+Data fields in structs, classes, and unions that have methods begin with
+lower-case f and are then camel-capped, to distinguish those fields from other
+variables.  Types that are predominantly meant for direct field access don't
+need f-decoration.
 
 <!--?prettify?-->
 ~~~~
 struct GrCar {
-    ...
+    float milesDriven;
+    Color color;
+};
+
+class GrMotorcyle {
+public:
+    float getMilesDriven() const { return fMilesDriven; }
+    void  setMilesDriven(float milesDriven) { fMilesDriven = milesDriven; }
+
+    Color getColor() const { return fColor; }
+private:
     float fMilesDriven;
-    ...
+    Color fColor;
 };
 ~~~~
 
