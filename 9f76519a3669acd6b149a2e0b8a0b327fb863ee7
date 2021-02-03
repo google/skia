@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c330b177_3933f6fe",
+        "filename": "src/gpu/vk/GrVkBuffer2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T18:42:07Z",
+      "side": 1,
+      "message": "Yeah I agree, but I also hate having a whole new subclass just for this (none of the other buffer types need anything special). Maybe in the future we\u0027ll change our mind here especially if we start adding any other speciality things to other buffer types. But for now I think this is best.",
+      "parentUuid": "42de542e_94337b53",
+      "range": {
+        "startLine": 69,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 50
+      },
+      "revId": "9f76519a3669acd6b149a2e0b8a0b327fb863ee7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d0338e1e_00d2ad76",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-02-03T18:18:27Z",
       "side": 1,
       "message": "This looks like an oops?",
+      "range": {
+        "startLine": 399,
+        "startChar": 4,
+        "endLine": 399,
+        "endChar": 44
+      },
+      "revId": "9f76519a3669acd6b149a2e0b8a0b327fb863ee7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9caa898_2fa4dbdd",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T18:42:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0338e1e_00d2ad76",
       "range": {
         "startLine": 399,
         "startChar": 4,
