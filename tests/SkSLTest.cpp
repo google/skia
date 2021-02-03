@@ -133,6 +133,7 @@ SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLArrayTypes,              "shared/ArrayTypes.sksl")
 SKSL_TEST(SkSLAssignment,              "shared/Assignment.sksl")
+SKSL_TEST(SkSLCastsRoundTowardZero,    "shared/CastsRoundTowardZero.sksl")
 SKSL_TEST(SkSLCommaMixedTypes,         "shared/CommaMixedTypes.sksl")
 SKSL_TEST(SkSLCommaSideEffects,        "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLConstantIf,              "shared/ConstantIf.sksl")
@@ -144,12 +145,17 @@ SKSL_TEST(SkSLEmptyBlocksES2,          "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
 SKSL_TEST(SkSLFunctionArgTypeMatch,    "shared/FunctionArgTypeMatch.sksl")
 SKSL_TEST(SkSLFunctionReturnTypeMatch, "shared/FunctionReturnTypeMatch.sksl")
+SKSL_TEST(SkSLFunctions,               "shared/Functions.sksl")
+SKSL_TEST(SkSLGeometricIntrinsics,     "shared/GeometricIntrinsics.sksl")
+SKSL_TEST(SkSLHelloWorld,              "shared/HelloWorld.sksl")
+SKSL_TEST(SkSLHex,                     "shared/Hex.sksl")
 SKSL_TEST(SkSLMatrices,                "shared/Matrices.sksl")
 SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 
 /*
-TODO(johnstiles): work around failures on ANGLE + Intel6000 + DX9 configuration and reland
-SKSL_TEST(SkSLIntrinsicFloor,          "intrinsics/Floor.sksl")
+// Incompatible with Runtime Effects because calling a function before its definition is disallowed.
+// (This was done to prevent recursion, as required by ES2.)
+SKSL_TEST(SkSLFunctionPrototype,       "shared/FunctionPrototype.sksl")
 */
 
 /*
@@ -171,9 +177,11 @@ SKSL_TEST(SkSLIntrinsicMixBool,        "intrinsics/MixBool.sksl")
 SKSL_TEST(SkSLIntrinsicSignInt,        "intrinsics/SignInt.sksl")
 
 SKSL_TEST(SkSLArrayConstructors,       "shared/ArrayConstructors.sksl")
+SKSL_TEST(SkSLDeadLoopVariable,        "shared/DeadLoopVariable.sksl")
 SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLEmptyBlocksES3,          "shared/EmptyBlocksES3.sksl")
-SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")
+SKSL_TEST(SkSLHexUnsigned,             "shared/HexUnsigned.sksl")
 SKSL_TEST(SkSLMatricesNonsquare,       "shared/MatricesNonsquare.sksl")
 SKSL_TEST(SkSLOperatorsES3,            "shared/OperatorsES3.sksl")
+SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")
 */

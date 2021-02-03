@@ -1,0 +1,15 @@
+uniform half4 colorGreen;
+
+half4 main() {
+    uint u1 = 0x0;
+    u1++;
+    uint u2 = 0x1234abcd;
+    u2++;
+    uint u3 = 0x7ffffffe;
+    u3++;
+    uint u4 = 0xfffffffe;
+    u4++;
+    ushort u5 = 0xfffe;
+    u5++;
+    return colorGreen;
+}

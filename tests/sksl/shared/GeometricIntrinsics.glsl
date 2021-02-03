@@ -1,6 +1,7 @@
 
 out vec4 sk_FragColor;
-void main() {
+uniform vec4 colorGreen;
+vec4 main() {
     float _1_x = 1.0;
     _1_x = length(1.0);
     _1_x = distance(_1_x, 2.0);
@@ -15,5 +16,5 @@ void main() {
     _3_x = normalize(_3_x);
     vec2 y = _3_x;
 
-    sk_FragColor = vec4(x, y, 1.0);
+    return ((x , y) , colorGreen);
 }

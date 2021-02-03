@@ -338,6 +338,7 @@ sksl_shared_tests = [
   "/sksl/shared/Height.sksl",
   "/sksl/shared/HelloWorld.sksl",
   "/sksl/shared/Hex.sksl",
+  "/sksl/shared/HexUnsigned.sksl",
   "/sksl/shared/InstanceID.vert",
   "/sksl/shared/InterfaceBlockNamed.sksl",
   "/sksl/shared/InterfaceBlockNamedArray.sksl",

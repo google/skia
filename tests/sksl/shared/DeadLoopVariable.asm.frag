@@ -1,30 +1,62 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_Clockwise
-OpExecutionMode %main OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint OriginUpperLeft
+OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
+OpName %_UniformBuffer "_UniformBuffer"
+OpMemberName %_UniformBuffer 0 "colorGreen"
+OpName %_entrypoint "_entrypoint"
 OpName %main "main"
+OpDecorate %sk_FragColor RelaxedPrecision
+OpDecorate %sk_FragColor Location 0
+OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
+OpMemberDecorate %_UniformBuffer 0 Offset 0
+OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
+OpDecorate %_UniformBuffer Block
+OpDecorate %10 Binding 0
+OpDecorate %10 DescriptorSet 0
+OpDecorate %30 RelaxedPrecision
+%float = OpTypeFloat 32
+%v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
+%_UniformBuffer = OpTypeStruct %v4float
+%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
+%10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
-%7 = OpTypeFunction %void
+%15 = OpTypeFunction %void
+%18 = OpTypeFunction %v4float
 %true = OpConstantTrue %bool
-%main = OpFunction %void None %7
-%8 = OpLabel
-OpBranch %9
-%9 = OpLabel
-OpLoopMerge %13 %12 None
-OpBranch %10
-%10 = OpLabel
-OpBranchConditional %true %11 %13
-%11 = OpLabel
-OpBranch %13
-%12 = OpLabel
-OpBranch %9
-%13 = OpLabel
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%int = OpTypeInt 32 1
+%int_0 = OpConstant %int 0
+%_entrypoint = OpFunction %void None %15
+%16 = OpLabel
+%17 = OpFunctionCall %v4float %main
+OpStore %sk_FragColor %17
 OpReturn
+OpFunctionEnd
+%main = OpFunction %v4float None %18
+%19 = OpLabel
+OpBranch %20
+%20 = OpLabel
+OpLoopMerge %24 %23 None
+OpBranch %21
+%21 = OpLabel
+OpBranchConditional %true %22 %24
+%22 = OpLabel
+OpBranch %24
+%23 = OpLabel
+OpBranch %20
+%24 = OpLabel
+%26 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%30 = OpLoad %v4float %26
+OpReturnValue %30
 OpFunctionEnd
