@@ -58,14 +58,6 @@ const char* DSLWriter::Name(const char* name) {
     return name;
 }
 
-const SkSL::FunctionDeclaration* DSLWriter::CurrentFunction() {
-    return IRGenerator().fCurrentFunction;
-}
-
-void DSLWriter::SetCurrentFunction(const SkSL::FunctionDeclaration* fn) {
-    IRGenerator().fCurrentFunction = fn;
-}
-
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 void DSLWriter::StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
                                        GrGLSLFragmentProcessor::EmitArgs* emitArgs) {

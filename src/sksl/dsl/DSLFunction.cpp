@@ -18,37 +18,15 @@ namespace dsl {
 
 void DSLFunction::define(DSLBlock block) {
     SkASSERT(fDecl);
-    SkASSERT(!DSLWriter::CurrentFunction());
-    DSLWriter::SetCurrentFunction(fDecl);
-    class FinalizeReturns : public ProgramWriter {
-    public:
-        bool visitStatement(Statement& stmt) override {
-            if (stmt.is<ReturnStatement>()) {
-                ReturnStatement& r = stmt.as<ReturnStatement>();
-                std::unique_ptr<Statement> finished = DSLWriter::IRGenerator().convertReturn(
-                                                                         r.fOffset,
-                                                                         std::move(r.expression()));
-                if (finished) {
-                    r.setExpression(std::move(finished->as<ReturnStatement>().expression()));
-                } else {
-                    SkASSERT(DSLWriter::Compiler().errorCount());
-                    DSLWriter::ReportError(
-                                      DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
-                }
-            }
-            return INHERITED::visitStatement(stmt);
-        }
-
-    private:
-        using INHERITED = ProgramWriter;
-    };
-    std::unique_ptr<Statement> body = block.release();
-    FinalizeReturns().visitStatement(*body);
-    DSLWriter::ProgramElements().emplace_back(new SkSL::FunctionDefinition(/*offset=*/-1,
-                                                                           fDecl,
-                                                                           /*builtin=*/false,
-                                                                           std::move(body)));
-    DSLWriter::SetCurrentFunction(nullptr);
+    auto function = std::make_unique<SkSL::FunctionDefinition>(/*offset=*/-1, fDecl,
+                                                               /*builtin=*/false, block.release());
+    DSLWriter::IRGenerator().finalizeFunction(*function);
+    if (DSLWriter::Compiler().errorCount()) {
+        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
+        DSLWriter::Compiler().setErrorCount(0);
+        SkASSERT(!DSLWriter::Compiler().errorCount());
+    }
+    DSLWriter::ProgramElements().push_back(std::move(function));
 }
 
 } // namespace dsl
