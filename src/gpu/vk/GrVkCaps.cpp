@@ -396,6 +396,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     if (kARM_VkVendor == properties.vendorID) {
         fPreferDiscardableMSAAAttachment = true;
     }
+    fPreferDiscardableMSAAAttachment = true;
+
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
