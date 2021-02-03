@@ -34,6 +34,41 @@
       "parentUuid": "c4d98c81_48bb276d",
       "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "387c58f0_cc45fd62",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T19:20:20Z",
+      "side": 1,
+      "message": "Yeah, I don\u0027t know how to work around this :(  I\u0027m not sure why the call stack would be very deep, since this is still a flat list of steps, we\u0027re just inserting another level, right?",
+      "parentUuid": "9901c0b1_f3b14ef0",
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f3bdf39_937ba351",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-03T19:20:20Z",
+      "side": 1,
+      "message": "Code change LGTM",
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
