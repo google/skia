@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de3d78ca_5bae9e95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-03T19:51:39Z",
+      "side": 1,
+      "message": "Looks like the big blurs GM is using a rect that\u0027s close 2^16, although it\u0027s always clipped. I\u0027m surprised skia would think it needs a mask for the entire un-clipped draw. Other than sorting out what\u0027s goin on there, this looks fine to me.",
+      "revId": "3472541216c0263b461c2e008176066853941c57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
