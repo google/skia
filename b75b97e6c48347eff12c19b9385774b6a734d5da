@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "368522c3_cf33f0f2",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-03T19:47:56Z",
+      "side": 1,
+      "message": "Not sure if this is the actual value you want or not. I believe this field always contains the nominal size as requested on the SkFont, but does not reflect the size actually used after applying the ctm, skewX, scaleX, or whatever else goes into the final size used by the scaler context.",
+      "range": {
+        "startLine": 35,
+        "startChar": 58,
+        "endLine": 35,
+        "endChar": 72
+      },
+      "revId": "b75b97e6c48347eff12c19b9385774b6a734d5da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
