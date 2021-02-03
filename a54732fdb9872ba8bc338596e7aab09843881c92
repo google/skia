@@ -16,6 +16,24 @@
       "message": "Does this look right if I want to mark each execution as its own step, with the recursive calls to worker() nested under the main batched ones?\n\nI don\u0027t see anything at https://task-driver.skia.org/td/SSt7TntbrkALTIdBSnF9?ifNotFound\u003dhttps%3A%2F%2Fchromium-swarm.appspot.com%2Ftask%3Fid%3D51820fd5b6c5a510.",
       "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9901c0b1_f3b14ef0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T19:07:38Z",
+      "side": 1,
+      "message": "Ooh, actually, I do see this in the JS console, and not on bots without this change:\n\nUncaught RangeError: Maximum call stack size exceeded\n    at J (task-driver-index-bundle.js?6640c9b3fef8d2a78706:112)\n    at X (task-driver-index-bundle.js?6640c9b3fef8d2a78706:149)\n    at K (task-driver-index-bundle.js?6640c9b3fef8d2a78706:178)\n    at task-driver-index-bundle.js?6640c9b3fef8d2a78706:159\n    at Array.map (\u003canonymous\u003e)\n    at task-driver-index-bundle.js?6640c9b3fef8d2a78706:159\n    at X (task-driver-index-bundle.js?6640c9b3fef8d2a78706:161)\n    at K (task-driver-index-bundle.js?6640c9b3fef8d2a78706:178)\n    at task-driver-index-bundle.js?6640c9b3fef8d2a78706:159\n    at Array.map (\u003canonymous\u003e)",
+      "parentUuid": "c4d98c81_48bb276d",
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
