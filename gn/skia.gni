@@ -19,7 +19,6 @@ declare_args() {
   skia_enable_fontmgr_empty = false
   skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
-  skia_enable_fontmgr_win_gdi = is_win
   skia_enable_gpu = true
   skia_enable_icu_ubrk_safeclone = false
   skia_enable_pdf = true
@@ -29,6 +28,7 @@ declare_args() {
   skia_enable_svg = true
   skia_enable_tools = is_skia_dev_build
   skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
+  skia_enable_winuwp = false
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
@@ -106,6 +106,7 @@ declare_args() {
   skia_enable_fontmgr_custom_embedded = skia_use_freetype && !is_fuchsia
   skia_enable_fontmgr_custom_empty = skia_use_freetype
   skia_enable_fontmgr_fontconfig = skia_use_freetype && skia_use_fontconfig
+  skia_enable_fontmgr_win_gdi = is_win && !skia_enable_winuwp
   skia_enable_fontmgr_FontConfigInterface =
       skia_use_freetype && skia_use_fontconfig
   skia_enable_nvpr = !skia_enable_flutter_defines
