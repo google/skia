@@ -1674,11 +1674,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #ifdef SK_INCLUDE_RUNTIME_EFFECT
     class_<SkRuntimeEffect>("RuntimeEffect")
         .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<RuntimeEffect>")
-        .class_function("Make", optional_override([](std::string sksl)->sk_sp<SkRuntimeEffect> {
+        .class_function("_Make", optional_override([](std::string sksl,
+                                                     emscripten::val errHandler
+                                                    )->sk_sp<SkRuntimeEffect> {
             SkString s(sksl.c_str(), sksl.length());
             auto [effect, errorText] = SkRuntimeEffect::Make(s);
             if (!effect) {
-                SkDebugf("Runtime effect failed to compile:\n%s\n", errorText.c_str());
+                errHandler.call<void>("onError", val(errorText.c_str()));
                 return nullptr;
             }
             return effect;
