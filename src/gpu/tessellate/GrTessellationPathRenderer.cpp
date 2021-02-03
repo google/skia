@@ -42,7 +42,7 @@ bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
            // We see perf regressions on platforms that don't have native support for indirect
            // draws. Disable while we investigate.
            // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
-           caps.nativeDrawIndirectSupport() &&
+           // caps.nativeDrawIndirectSupport() &&
            caps.shaderCaps()->vertexIDSupport() &&
            !caps.disableTessellationPathRenderer();
 }
@@ -217,7 +217,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
         // tessellation shaders isn't currently capable of passing varyings to the fragment shader
         // either, so if the paint uses varyings we need to use indirect draws.
         if (shaderCaps.tessellationSupport() &&
-            path.countVerbs() > 50 &&
+            // path.countVerbs() > 50 &&
             !paint.usesVaryingCoords()) {
             return GrOp::Make<GrStrokeTessellateOp>(rContext, aaType, viewMatrix, stroke, path,
                                                     std::move(paint));

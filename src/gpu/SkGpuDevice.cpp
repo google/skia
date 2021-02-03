@@ -609,6 +609,9 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
         return;
     }
 #endif
+    if (paint.getStyle() != SkPaint::kStroke_Style) {
+        return;
+    }
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
     if (!paint.getMaskFilter()) {

@@ -4007,7 +4007,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == kAdreno3xx_GrGLRenderer ||
         ctxInfo.renderer() == kAdreno430_GrGLRenderer ||
         ctxInfo.renderer() == kAdreno4xx_other_GrGLRenderer) {  // We get garbage on Adreno405.
-        fDisableTessellationPathRenderer = true;
+        // fDisableTessellationPathRenderer = true;
     }
 
     // http://skbug.com/9739
