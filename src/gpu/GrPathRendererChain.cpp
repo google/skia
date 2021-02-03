@@ -29,6 +29,7 @@
 
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
+#if 0
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
@@ -70,15 +71,25 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
+#endif
         if (GrTessellationPathRenderer::IsSupported(caps)) {
+            if (caps.shaderCaps()->tessellationSupport()) {
+                SkDebugf("Stroking with hardware tessellation.\n");
+            } else {
+                SkDebugf("Stroking with indirect draws.\n");
+            }
             auto tess = sk_make_sp<GrTessellationPathRenderer>(context);
             context->priv().addOnFlushCallbackObject(tess.get());
             fChain.push_back(std::move(tess));
+        } else {
+            SK_ABORT("Tessellation path renderer not supported.");
         }
+#if 0
     }
 
     // We always include the default path renderer (as well as SW), so we can draw any path
     fChain.push_back(sk_make_sp<GrDefaultPathRenderer>());
+#endif
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(
