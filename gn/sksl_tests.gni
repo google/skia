@@ -68,6 +68,7 @@ sksl_error_tests = [
   "/sksl/errors/ArgumentCountMismatch.sksl",
   "/sksl/errors/ArgumentMismatch.sksl",
   "/sksl/errors/ArgumentModifiers.sksl",
+  "/sksl/errors/ArrayConstructorElementCount.sksl",
   "/sksl/errors/ArrayIndexOutOfRange.sksl",
   "/sksl/errors/ArrayReturnTypes.sksl",
   "/sksl/errors/ArrayTooManyDimensions.sksl",

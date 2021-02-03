@@ -1,13 +1,5 @@
-#include <metal_stdlib>
-#include <simd/simd.h>
-using namespace metal;
-struct Inputs {
-};
-struct Outputs {
-    float4 sk_FragColor [[color(0)]];
-};
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Outputs _out;
-    (void)_out;
-    return _out;
-}
+### Compilation failed:
+
+error: 2: invalid arguments to 'float[1]' constructor (expected 1 elements, but found 0)
+error: 3: function 'void wna()' is not defined
+2 errors

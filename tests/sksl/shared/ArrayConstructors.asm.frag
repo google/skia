@@ -1,8 +1,3 @@
-### Compilation failed:
-
-error: SPIR-V validation error: Expected total number of Constituents to be equal to the number of elements of Result Type array
-  %33 = OpCompositeConstruct %_arr_mat4v4float_int_1
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -50,34 +45,39 @@ OpDecorate %_arr_mat4v4float_int_1 ArrayStride 64
 %_arr_mat4v4float_int_1 = OpTypeArray %mat4v4float %int_1
 %_ptr_Private__arr_mat4v4float_int_1 = OpTypePointer Private %_arr_mat4v4float_int_1
 %test3 = OpVariable %_ptr_Private__arr_mat4v4float_int_1 Private
+%float_16 = OpConstant %float 16
+%float_0 = OpConstant %float 0
 %void = OpTypeVoid
-%35 = OpTypeFunction %void
+%42 = OpTypeFunction %void
 %int_0 = OpConstant %int 0
 %_ptr_Private_float = OpTypePointer Private %float
 %_ptr_Private_v2float = OpTypePointer Private %v2float
 %_ptr_Private_v4float = OpTypePointer Private %v4float
 %_ptr_Output_float = OpTypePointer Output %float
-%main = OpFunction %void None %35
-%36 = OpLabel
+%main = OpFunction %void None %42
+%43 = OpLabel
 %19 = OpCompositeConstruct %_arr_float_int_4 %float_1 %float_2 %float_3 %float_4
 OpStore %test1 %19
 %27 = OpCompositeConstruct %_arr_v2float_int_2 %25 %26
 OpStore %test2 %27
-%33 = OpCompositeConstruct %_arr_mat4v4float_int_1
-OpStore %test3 %33
-%38 = OpAccessChain %_ptr_Private_float %test1 %int_0
-%40 = OpLoad %float %38
-%41 = OpAccessChain %_ptr_Private_v2float %test2 %int_0
-%43 = OpLoad %v2float %41
-%44 = OpCompositeExtract %float %43 0
-%45 = OpFAdd %float %40 %44
-%46 = OpAccessChain %_ptr_Private_v4float %test3 %int_0 %int_0
-%48 = OpLoad %v4float %46
-%49 = OpCompositeExtract %float %48 0
-%50 = OpFAdd %float %45 %49
-%51 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %51 %50
+%36 = OpCompositeConstruct %v4float %float_16 %float_0 %float_0 %float_0
+%37 = OpCompositeConstruct %v4float %float_0 %float_16 %float_0 %float_0
+%38 = OpCompositeConstruct %v4float %float_0 %float_0 %float_16 %float_0
+%39 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_16
+%34 = OpCompositeConstruct %mat4v4float %36 %37 %38 %39
+%40 = OpCompositeConstruct %_arr_mat4v4float_int_1 %34
+OpStore %test3 %40
+%45 = OpAccessChain %_ptr_Private_float %test1 %int_0
+%47 = OpLoad %float %45
+%48 = OpAccessChain %_ptr_Private_v2float %test2 %int_0
+%50 = OpLoad %v2float %48
+%51 = OpCompositeExtract %float %50 0
+%52 = OpFAdd %float %47 %51
+%53 = OpAccessChain %_ptr_Private_v4float %test3 %int_0 %int_0
+%55 = OpLoad %v4float %53
+%56 = OpCompositeExtract %float %55 0
+%57 = OpFAdd %float %52 %56
+%58 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %58 %57
 OpReturn
 OpFunctionEnd
-
-1 error
