@@ -133,6 +133,30 @@
       },
       "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35d8ed80_19a9226d",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T16:06:50Z",
+      "side": 1,
+      "message": "Please don\u0027t use the f-prefix in a struct unless the struct has methods.\nYes, we should update the style guide.",
+      "parentUuid": "2530848a_42d9aeee",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 28
+      },
+      "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
