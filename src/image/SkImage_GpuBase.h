@@ -35,8 +35,6 @@ public:
                       int srcY,
                       CachingHint) const override;
 
-    GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const final;
-
     bool onIsValid(GrRecordingContext*) const final;
 
 #if GR_TEST_UTILS
