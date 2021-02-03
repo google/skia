@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a7ac291_9ae5c70e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2386,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-03T20:00:11Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be possible, right? Pretty sure I\u0027ve locked this down so that the only place an unsized array can appear is on the declaration of an interface block (eg, sk_in in sksl_geom).",
+      "range": {
+        "startLine": 2386,
+        "startChar": 8,
+        "endLine": 2386,
+        "endChar": 45
+      },
+      "revId": "23755cb73b03661d853198a2338f1bf4a9234c28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
