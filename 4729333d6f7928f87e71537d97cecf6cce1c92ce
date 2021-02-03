@@ -205,6 +205,30 @@
       },
       "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f6a0c97_cf37bfdd",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T16:17:33Z",
+      "side": 1,
+      "message": "Yes, I\u0027d leave Uniform how it is.\n\nI don\u0027t think it\u0027s important to change, but go ahead if you like, particularly if you find code using those fields hard to read with all the fs.",
+      "parentUuid": "6b31cbac_be6cb123",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 28
+      },
+      "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
