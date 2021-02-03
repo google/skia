@@ -131,7 +131,7 @@ static GrGLFuncPtr egl_get_gl_proc(void* ctx, const char name[]) {
 }
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
-#if !SK_EMSCRIPTEN
+#if !SK_USE_WEBGL
     if (!eglGetCurrentContext())
         return nullptr;
 #endif
