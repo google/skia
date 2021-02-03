@@ -166,10 +166,14 @@ var CanvasKit = {
   },
 
   RuntimeEffect: {
-    // public API (from C++ bindings)
+    // public API (from JS bindings)
     Make: function() {},
-
-    // private API
+    prototype: {
+      makeShader: function() {},
+      makeShaderWithChildren: function() {},
+    },
+    // private API (from C++ bindings)
+    _Make: function() {},
     _makeShader: function() {},
     _makeShaderWithChildren: function() {},
   },
