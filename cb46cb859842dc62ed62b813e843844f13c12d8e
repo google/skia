@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "42e2ff64_b897d282",
+        "filename": "src/gpu/vk/GrVkPipelineStateDataManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-03T21:40:22Z",
+      "side": 1,
+      "message": "For example: from my reading of the layout docs (https://www.oreilly.com/library/view/opengl-programming-guide/9780132748445/app09lev1sec3.html), the size of a 3x3 matrix in std430 should be 9 * sizeof(float). Similarly we should be able to pack some arrays of smaller types tighter -- each element shouldn\u0027t need to be padded out to 4*sizeof(). Fixing it isn\u0027t important to get push constants working, I just think we might be able to save some more space in places.",
+      "parentUuid": "aa7c51c6_86ada4b6",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 89
+      },
+      "revId": "cb46cb859842dc62ed62b813e843844f13c12d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e9583e14_e3056b6e",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 2
@@ -54,6 +78,30 @@
       "writtenOn": "2021-02-03T21:20:20Z",
       "side": 1,
       "message": "So I\u0027m guessing nothing is currently using std430 with this change. So I\u0027m guessing in some follow on where you hook in push constants we had another branch check here?",
+      "range": {
+        "startLine": 359,
+        "startChar": 16,
+        "endLine": 359,
+        "endChar": 49
+      },
+      "revId": "cb46cb859842dc62ed62b813e843844f13c12d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38afb70e_99c1a3f5",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-03T21:40:22Z",
+      "side": 1,
+      "message": "Yes, there will be some branches introduced.",
+      "parentUuid": "e9583e14_e3056b6e",
       "range": {
         "startLine": 359,
         "startChar": 16,
