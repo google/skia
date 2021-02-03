@@ -916,6 +916,7 @@ describe('Canvas Behavior', () => {
 
         const particles = CanvasKit.MakeParticles(JSON.stringify(curveParticles));
         particles.start(0, true);
+        particles.setPosition([0, 0]);
 
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
