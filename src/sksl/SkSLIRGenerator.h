@@ -189,6 +189,9 @@ private:
                                                         std::unique_ptr<Expression> right);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
+    std::unique_ptr<Expression> convertArrayConstructor(int offset,
+                                                        const Type& type,
+                                                        ExpressionArray args);
     std::unique_ptr<Expression> convertScalarConstructor(int offset,
                                                          const Type& type,
                                                          ExpressionArray params);
