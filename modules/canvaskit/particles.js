@@ -65,7 +65,7 @@ CanvasKit._extraInitializations.push(function() {
     return new Float32Array(CanvasKit.HEAPU8.buffer, fptr, numFloats);
   };
 
-  CanvasKit.ParticleEffect.setPosition = function(pos) {
+  CanvasKit.ParticleEffect.prototype.setPosition = function(pos) {
     this._setPosition(pos[0], pos[1]);
   };
 });
