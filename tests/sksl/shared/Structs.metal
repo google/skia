@@ -7,7 +7,7 @@ struct A {
 };
 struct B {
     float x;
-    float y[2];
+    array<float, 2> y;
     A z;
 };
 struct Inputs {
