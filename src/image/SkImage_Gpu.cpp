@@ -358,7 +358,10 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
                                          : GrImageTexGenPolicy::kNew_Uncached_Unbudgeted;
     // TODO: Don't flatten YUVA images here. Add mips to the planes instead.
     auto [view, ct] = as_IB(this)->asView(dContext, mipmapped, policy);
-    SkASSERT(view && view.asTextureProxy());
+    if (!view) {
+        return nullptr;
+    }
+    SkASSERT(view.asTextureProxy());
     SkASSERT(mipmapped == GrMipmapped::kNo ||
              view.asTextureProxy()->mipmapped() == GrMipmapped::kYes);
     SkColorInfo colorInfo(GrColorTypeToSkColorType(ct), this->alphaType(), this->refColorSpace());
