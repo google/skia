@@ -112,6 +112,13 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src, SkScalar sigma, SkBlurS
         return false;
     }
 
+    // Since the tmp bitmap is in an alloc, then if any dimension is larger than 2^15, then there
+    // will be an overflow.
+    constexpr int kMaxDimension = 1 << 15;
+    if (src.fBounds.width() > kMaxDimension || src.fBounds.height() > kMaxDimension ) {
+        return false;
+    }
+
     SkMaskBlurFilter blurFilter{sigma, sigma};
     if (blurFilter.hasNoBlur()) {
         // If there is no effective blur most styles will just produce the original mask.
