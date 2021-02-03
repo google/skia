@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d35f9ff_3cdf3cf1",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-03T00:10:45Z",
+      "side": 1,
+      "message": "We need to use this.",
+      "range": {
+        "startLine": 127,
+        "startChar": 57,
+        "endLine": 127,
+        "endChar": 68
+      },
+      "revId": "b29ce551e2612fc337d2a52fb939da40d14c8a50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61703a87_47a075cc",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-03T00:10:45Z",
+      "side": 1,
+      "message": "I think we want:\n\n p0 \u003d vectorXform(p0 - C)\n ...\n\nDoes that sound right to you? Do you see a better way to use this value?",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 143,
+        "endChar": 11
+      },
+      "revId": "b29ce551e2612fc337d2a52fb939da40d14c8a50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a35a044c_970c1733",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-03T00:10:45Z",
+      "side": 1,
+      "message": "Let\u0027s also do the same for a _log2 version (and add a benchmark).\n\nwe could just return next_log4(numer/denom);\n\n\n // Returns nextlog2(sqrt(x)):\n //\n //   log2(sqrt(x)) \u003d\u003d log2(x^(1/2)) \u003d\u003d log2(x)/2 \u003d\u003d log2(x)/log2(4) \u003d\u003d log4(x)\n //\n SK_ALWAYS_INLINE static int nextlog4(float x) {\n     return (sk_float_nextlog2(x) + 1) \u003e\u003e 1;\n }",
+      "range": {
+        "startLine": 162,
+        "startChar": 11,
+        "endLine": 162,
+        "endChar": 31
+      },
+      "revId": "b29ce551e2612fc337d2a52fb939da40d14c8a50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

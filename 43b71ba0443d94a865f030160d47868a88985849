@@ -122,6 +122,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "59714382_1d8d6e2b",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-03T00:10:45Z",
+      "side": 1,
+      "message": "Let\u0027s not worry about it. Looks like the test is already probably fast enough. On my laptop I get:\n\n 7/7   MB\t2\t200µs\t206µs\t210µs\t710µs\t9%\t11906\tnonrendering\ttessellate_wangs_formula_conic\n   9/9   MB\t2\t192µs\t205µs\t209µs\t926µs\t10%\t11956\tnonrendering\ttessellate_wangs_formula_cubic_log2_affine\n  10/10  MB\t2\t170µs\t179µs\t182µs\t433µs\t10%\t13747\tnonrendering\ttessellate_wangs_formula_cubic_log2_scale\n  10/10  MB\t2\t156µs\t165µs\t167µs\t500µs\t9%\t14976\tnonrendering\ttessellate_wangs_formula_cubic_log2",
+      "parentUuid": "dec9050b_f913cd0c",
+      "range": {
+        "startLine": 136,
+        "startChar": 21,
+        "endLine": 136,
+        "endChar": 73
+      },
+      "revId": "43b71ba0443d94a865f030160d47868a88985849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6d97198_96b4c555",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 5
