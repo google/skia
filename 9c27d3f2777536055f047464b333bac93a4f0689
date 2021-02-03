@@ -46,6 +46,30 @@
       },
       "revId": "9c27d3f2777536055f047464b333bac93a4f0689",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a51e7746_17306923",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-03T16:36:37Z",
+      "side": 1,
+      "message": "What do you think about hiding the bodies of the Motorcycle methods? Right now the methods don\u0027t make the example any clearer because all they do is \"direct field access\". Take them away and I think the example becomes stronger because the reader can assume they do more.\n\n    float getMilesDriven() const;\n    void setMilesDriven(float m);\n    Color getColor() const;",
+      "parentUuid": "551590f0_16c0d6d9",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "9c27d3f2777536055f047464b333bac93a4f0689",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
