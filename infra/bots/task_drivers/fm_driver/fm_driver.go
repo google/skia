@@ -203,29 +203,34 @@ func main() {
 		err := exec.Run(ctx, cmd)
 
 		// On success, scan stdout for any unknown hashes.
-		unknownHash := func() string {
-			if err == nil && *bot != "" { // We only fetch known hashes when using -bot.
-				scanner := bufio.NewScanner(stdout)
-				for scanner.Scan() {
-					if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
-						md5 := parts[1]
-						if !known[md5] {
-							return md5
-						}
+		sourcesWithUnknownHashes := []string{}
+		unknownHash := ""
+		if err == nil && *bot != "" { // We only fetch known hashes when using -bot.
+			scanner := bufio.NewScanner(stdout)
+			for scanner.Scan() {
+				if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
+					name, md5 := parts[0], parts[1]
+					if !known[md5] {
+						sourcesWithUnknownHashes = append(sourcesWithUnknownHashes, name)
+						unknownHash = md5
 					}
 				}
-				if err := scanner.Err(); err != nil {
-					fatal(ctx, err)
-				}
 			}
-			return ""
-		}()
+			if err := scanner.Err(); err != nil {
+				fatal(ctx, err)
+			}
+		}
 
-		// If a batch failed or produced an unknown hash, isolate with individual reruns.
-		if len(sources) > 1 && (err != nil || unknownHash != "") {
-			wg.Add(len(sources))
-			for i := range sources {
-				worker(ctx, sources[i:i+1], flags)
+		// If a batch failed or produced any unknown hashes, isolate with individual reruns.
+		if len(sources) > 1 && (err != nil || len(sourcesWithUnknownHashes) > 0) {
+			reruns := sources
+			if err == nil {
+				reruns = sourcesWithUnknownHashes
+			}
+
+			wg.Add(len(reruns))
+			for _, s := range reruns {
+				worker(ctx, []string{s}, flags)
 			}
 			return
 		}
