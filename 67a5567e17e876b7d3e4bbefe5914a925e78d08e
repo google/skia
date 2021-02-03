@@ -22,6 +22,30 @@
       },
       "revId": "67a5567e17e876b7d3e4bbefe5914a925e78d08e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab9dc6fe_fe9cf6ce",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1715,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-03T13:56:14Z",
+      "side": 1,
+      "message": "So to clarify, the end logic flow that we\u0027ll end up with for the tessellating path renderer is:\n\n1. Path or other geometry is wrapped in a GrStyledShape\n2. We apply the style part to the shape, but not the stroke\n3. We see if any path renderer (namely the tessellating one) can handle the shape\n4. If so, return that path renderer\n5. Otherwise, attempt to simplify the stroke. If simplified, we try and send it to other drawFoo functions.\n6. And if not, we query for a valid path renderer again.",
+      "parentUuid": "588867c8_107e163f",
+      "range": {
+        "startLine": 1715,
+        "startChar": 9,
+        "endLine": 1715,
+        "endChar": 38
+      },
+      "revId": "67a5567e17e876b7d3e4bbefe5914a925e78d08e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
