@@ -140,17 +140,7 @@ const SkSL::Variable& DSLWriter::Var(const DSLVar& var) {
     return *var.var();
 }
 
-#if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
-
-DSLWriter& DSLWriter::Instance() {
-    SkUNREACHABLE;
-}
-
-void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> instance) {
-    SkDEBUGFAIL("unimplemented");
-}
-
-#elif SKSL_USE_THREAD_LOCAL
+#if SKSL_USE_THREAD_LOCAL
 
 thread_local DSLWriter* instance = nullptr;
 
