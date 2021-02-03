@@ -154,4 +154,3 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
     }
     SkUNREACHABLE;
 }
-

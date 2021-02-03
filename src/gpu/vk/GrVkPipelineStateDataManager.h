@@ -13,6 +13,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 
+class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkUniformBuffer;
 
@@ -26,6 +27,8 @@ public:
     // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
     // that they will need to update the descriptor set that is using these buffers.
     bool uploadUniformBuffers(GrVkGpu* gpu, GrVkUniformBuffer* buffer) const;
+
+    void uploadPushConstants(const GrVkGpu*, VkPipelineLayout, GrVkCommandBuffer*) const;
 
 private:
     using INHERITED = GrUniformDataManager;

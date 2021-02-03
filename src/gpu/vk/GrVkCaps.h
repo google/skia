@@ -225,6 +225,8 @@ public:
 
     GrInternalSurfaceFlags getExtraSurfaceFlagsForDeferredRT() const override;
 
+    VkShaderStageFlags getPushConstantStageFlags() const;
+
     // If true then when doing MSAA draws, we will prefer to discard the msaa attachment on load
     // and stores. The use of this feature for specific draws depends on the render target having a
     // resolve attachment, and if we need to load previous data the resolve attachment must be
