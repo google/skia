@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bed75139_677f256f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-03T19:20:03Z",
+      "side": 1,
+      "message": "PS4 just adds a setUniform API (very similar to what\u0027s exposed on runtime shader builder), to make it easier to use. This will really simplify Joe\u0027s life when he makes the \"turn a particles.skia.org demo into a fiddle.skia.org demo\" button.",
+      "revId": "143a79f743b0de8299166c922999c6dffe75c823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
