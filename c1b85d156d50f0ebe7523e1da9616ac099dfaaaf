@@ -16,6 +16,24 @@
       "message": "+Weston for FYI",
       "revId": "c1b85d156d50f0ebe7523e1da9616ac099dfaaaf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a5abd0a_af8363d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-02-03T16:22:38Z",
+      "side": 1,
+      "message": "LGTM, there were some 10.14s yesterday, but Golo finally completed the upgrade so ~all our builders are 10.15.7. We have 2 10.14s left behind for NativeFonts.",
+      "parentUuid": "a6871f33_7102c8a4",
+      "revId": "c1b85d156d50f0ebe7523e1da9616ac099dfaaaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
