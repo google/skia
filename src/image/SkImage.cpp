@@ -33,6 +33,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 #include "include/gpu/GrBackendSurface.h"
@@ -307,6 +308,20 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
     // call client's callback.
     callback(context, nullptr);
 }
+
+#if SK_SUPPORT_GPU
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Base::asView(GrRecordingContext* context,
+                                                                 GrMipmapped mipmapped,
+                                                                 GrImageTexGenPolicy policy) const {
+    if (!context) {
+        return {};
+    }
+    if (!context->priv().caps()->mipmapSupport() || this->dimensions().area() <= 1) {
+        mipmapped = GrMipmapped::kNo;
+    }
+    return this->onAsView(context, mipmapped, policy);
+}
+#endif
 
 GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
                                                    GrSurfaceOrigin* origin) const {
