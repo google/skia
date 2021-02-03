@@ -33,6 +33,24 @@
       "message": "+kjlubick: Incoming changes to SkRuntimeEffect::Make (in case you want to incorporate the new options stuff into the CK binding). May not be necessary yet, just FYI.",
       "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e15cf057_23e33d40",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-03T15:55:00Z",
+      "side": 1,
+      "message": "Options should be straight-forward to support if necessary. The return value change shouldn\u0027t be an issue because we don\u0027t return the error message (yet). At the behest of Joe, I\u0027ll be adding in a way to get the error message in a way that is not \"look at the console in debug mode\".",
+      "parentUuid": "05beca9a_3c5049c6",
+      "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
