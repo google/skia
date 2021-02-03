@@ -39,6 +39,30 @@
       },
       "revId": "69db2f6136fe3eeea32f70e06cb849f22d2773d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1b33a35_62916bba",
+        "filename": "src/gpu/vk/GrVkPipelineStateDataManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-03T14:49:22Z",
+      "side": 1,
+      "message": "The comment got lost in a previous revision, but yes, it\u0027s used in GrVkPipelineStateBuilder in later CLs. I can move it to GrVkCaps.",
+      "parentUuid": "f3f9f630_1bc3911b",
+      "range": {
+        "startLine": 50,
+        "startChar": 33,
+        "endLine": 50,
+        "endChar": 57
+      },
+      "revId": "69db2f6136fe3eeea32f70e06cb849f22d2773d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
