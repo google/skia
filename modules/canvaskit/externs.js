@@ -168,6 +168,10 @@ var CanvasKit = {
   RuntimeEffect: {
     // public API (from JS bindings)
     Make: function() {},
+    getUniform: function() {},
+    getUniformCount: function() {},
+    getUniformFloatCount: function() {},
+    getUniformName: function() {},
     prototype: {
       makeShader: function() {},
       makeShaderWithChildren: function() {},

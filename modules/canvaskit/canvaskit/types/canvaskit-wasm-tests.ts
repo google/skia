@@ -563,7 +563,7 @@ function particlesTests(CK: CanvasKit, canvas?: Canvas) {
     const par = CK.MakeParticles('some json'); // $ExpectType Particles
     par.draw(canvas);
     par.uniforms()[0] = 1.2;
-    const a = par.getUniform(1); // $ExpectType ParticlesUniform
+    const a = par.getUniform(1); // $ExpectType SkSLUniform
     const b = par.getUniformCount(); // $ExpectType number
     const c = par.getUniformFloatCount(); // $ExpectType number
     const d = par.getUniformName(3); // $ExpectType string
@@ -664,6 +664,10 @@ function runtimeEffectTests(CK: CanvasKit) {
     const s2 = rt.makeShader([0, 1], true, someMatr); // $ExpectType Shader
     const s3 = rt.makeShaderWithChildren([4, 5], true, [s1, s2]); // $ExpectType Shader
     const s4 = rt.makeShaderWithChildren([4, 5], true, [s1, s2], someMatr); // $ExpectType Shader
+    const a = rt.getUniform(1); // $ExpectType SkSLUniform
+    const b = rt.getUniformCount(); // $ExpectType number
+    const c = rt.getUniformFloatCount(); // $ExpectType number
+    const d = rt.getUniformName(3); // $ExpectType string
 }
 
 function skottieTests(CK: CanvasKit, canvas?: Canvas) {

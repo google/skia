@@ -42,6 +42,16 @@ half4 main(float2 p) {
         }
         const spiral = CanvasKit.RuntimeEffect.Make(spiralSkSL);
         expect(spiral).toBeTruthy('could not compile program');
+
+        expect(spiral.getUniformCount()     ).toEqual(4);
+        expect(spiral.getUniformFloatCount()).toEqual(11);
+        const color_0 = spiral.getUniform(2);
+        expect(color_0).toBeTruthy('could not fetch numbered uniform');
+        expect(color_0.slot   ).toEqual(3);
+        expect(color_0.columns).toEqual(4);
+        expect(color_0.rows   ).toEqual(1);
+        expect(spiral.getUniformName(2)).toEqual('in_colors0');
+
         const canvas = surface.getCanvas();
         const paint = new CanvasKit.Paint();
         canvas.clear(CanvasKit.BLACK); // black should not be visible

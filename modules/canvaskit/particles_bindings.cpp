@@ -77,14 +77,14 @@ private:
 
 }
 
-struct SimpleUniform {
+struct ParticleUniform {
     int columns;
     int rows;
     int slot; // the index into the uniforms array that this uniform begins.
 };
 
-SimpleUniform fromUniform(const SkSL::UniformInfo::Uniform& u) {
-    SimpleUniform su;
+ParticleUniform fromUniform(const SkSL::UniformInfo::Uniform& u) {
+    ParticleUniform su;
     su.columns = u.fColumns;
     su.rows = u.fRows;
     su.slot = u.fSlot;
@@ -119,8 +119,8 @@ EMSCRIPTEN_BINDINGS(Particles) {
             }
             return emscripten::val(info->fUniforms[i].fName.c_str());
         }))
-        .function("getUniform", optional_override([](SkParticleEffect& self, int i)->SimpleUniform {
-            SimpleUniform su;
+        .function("getUniform", optional_override([](SkParticleEffect& self, int i)->ParticleUniform {
+            ParticleUniform su;
             auto info = self.uniformInfo();
             if (!info) {
                 return su;
@@ -136,10 +136,10 @@ EMSCRIPTEN_BINDINGS(Particles) {
         .function("start", select_overload<void (double, bool)>(&SkParticleEffect::start))
         .function("update", select_overload<void (double)>(&SkParticleEffect::update));
 
-    value_object<SimpleUniform>("SimpleUniform")
-        .field("columns", &SimpleUniform::columns)
-        .field("rows",    &SimpleUniform::rows)
-        .field("slot",    &SimpleUniform::slot);
+    value_object<ParticleUniform>("ParticleUniform")
+        .field("columns", &ParticleUniform::columns)
+        .field("rows",    &ParticleUniform::rows)
+        .field("slot",    &ParticleUniform::slot);
 
     function("_MakeParticles", optional_override([](std::string json,
                                                    size_t assetCount,
