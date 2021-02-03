@@ -82,9 +82,9 @@ public:
         for (const auto& v : fp.fEffect->uniforms()) {
             auto handle = args.fUniformHandler->addUniformArray(&fp,
                                                                 kFragment_GrShaderFlag,
-                                                                v.fGPUType,
-                                                                v.fName.c_str(),
-                                                                v.isArray() ? v.fCount : 0);
+                                                                v.gpuType,
+                                                                v.name.c_str(),
+                                                                v.isArray() ? v.count : 0);
             fUniformHandles.push_back(handle);
         }
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -126,28 +126,28 @@ public:
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         const uint8_t* uniformData = outer.fUniforms->bytes();
         for (const auto& v : outer.fEffect->uniforms()) {
-            const float* data = reinterpret_cast<const float*>(uniformData + v.fOffset);
-            switch (v.fType) {
+            const float* data = reinterpret_cast<const float*>(uniformData + v.offset);
+            switch (v.type) {
                 case SkRuntimeEffect::Uniform::Type::kFloat:
-                    pdman.set1fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    pdman.set1fv(fUniformHandles[uniIndex++], v.count, data);
                     break;
                 case SkRuntimeEffect::Uniform::Type::kFloat2:
-                    pdman.set2fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    pdman.set2fv(fUniformHandles[uniIndex++], v.count, data);
                     break;
                 case SkRuntimeEffect::Uniform::Type::kFloat3:
-                    pdman.set3fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    pdman.set3fv(fUniformHandles[uniIndex++], v.count, data);
                     break;
                 case SkRuntimeEffect::Uniform::Type::kFloat4:
-                    pdman.set4fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    pdman.set4fv(fUniformHandles[uniIndex++], v.count, data);
                     break;
                 case SkRuntimeEffect::Uniform::Type::kFloat2x2:
-                    pdman.setMatrix2fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    pdman.setMatrix2fv(fUniformHandles[uniIndex++], v.count, data);
                     break;
                 case SkRuntimeEffect::Uniform::Type::kFloat3x3:
-                    pdman.setMatrix3fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    pdman.setMatrix3fv(fUniformHandles[uniIndex++], v.count, data);
                     break;
                 case SkRuntimeEffect::Uniform::Type::kFloat4x4:
-                    pdman.setMatrix4fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    pdman.setMatrix4fv(fUniformHandles[uniIndex++], v.count, data);
                     break;
                 default:
                     SkDEBUGFAIL("Unsupported uniform type");
