@@ -313,6 +313,12 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         SkScalar lineHeight = fEndLine.metrics().height();
         firstLine = false;
 
+        if (fEndLine.empty()) {
+            // Correct text and clusters (make it empty for an empty line)
+            text.end = text.start;
+            clusters.end = clusters.start;
+        }
+
         addLine(text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces,
                 fEndLine.startPos(),
                 fEndLine.endPos(),
