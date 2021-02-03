@@ -13,8 +13,8 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 
+class GrGpuBuffer;
 class GrVkGpu;
-class GrVkUniformBuffer;
 
 class GrVkPipelineStateDataManager : public GrUniformDataManager {
 public:
@@ -22,12 +22,16 @@ public:
 
     GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize);
 
-    // Returns true if either the geometry or fragment buffers needed to generate a new underlying
-    // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
-    // that they will need to update the descriptor set that is using these buffers.
-    bool uploadUniformBuffers(GrVkGpu* gpu, GrVkUniformBuffer* buffer) const;
+    // Returns the uniform buffer that holds all the uniform data. If there are no uniforms it
+    // returns nullptr. If there was an error in creating or uploading the uniforms the value of the
+    // returned bool will be false and the buffer will be nullptr. Otherwise the bool will be true.
+    std::pair<sk_sp<GrGpuBuffer>, bool> uploadUniformBuffers(GrVkGpu* gpu);
+
+    void releaseData();
 
 private:
+    sk_sp<GrGpuBuffer> fUniformBuffer;
+
     using INHERITED = GrUniformDataManager;
 };
 

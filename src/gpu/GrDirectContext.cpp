@@ -60,6 +60,9 @@ GrDirectContext::~GrDirectContext() {
     // this if-test protects against the case where the context is being destroyed
     // before having been fully created
     if (fGpu) {
+        // We need to make sure we flush all work and that it finishes on the gpu before we release
+        // objects from the resource cached that may still be in use on an outstanding command
+        // buffer.
         this->flushAndSubmit();
     }
 

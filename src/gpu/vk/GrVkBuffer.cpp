@@ -90,6 +90,7 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
                                               buffer,
                                               get_buffer_usage(desc.fType, desc.fDynamic),
                                               &alloc)) {
+        VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
         return nullptr;
     }
 
