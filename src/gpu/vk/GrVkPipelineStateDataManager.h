@@ -21,7 +21,8 @@ class GrVkPipelineStateDataManager : public GrUniformDataManager {
 public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize);
+    GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize,
+                                 GrVkUniformHandler::Layout memLayout);
 
     // Returns true if either the geometry or fragment buffers needed to generate a new underlying
     // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
@@ -30,7 +31,12 @@ public:
 
     void uploadPushConstants(const GrVkGpu*, VkPipelineLayout, GrVkCommandBuffer*) const;
 
+    // TODO: we might need more of these once std430 size/alignment issues are worked out
+    void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const override;
+
 private:
+    GrVkUniformHandler::Layout fMemLayout;
+
     using INHERITED = GrUniformDataManager;
 };
 

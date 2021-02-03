@@ -43,7 +43,8 @@ GrVkPipelineState::GrVkPipelineState(
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
-        , fDataManager(uniforms, uniformSize) {
+        // TODO: add std430 usage
+        , fDataManager(uniforms, uniformSize, GrVkUniformHandler::kStd140Layout) {
     fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
 
     fNumSamplers = samplers.count();

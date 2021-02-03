@@ -44,9 +44,18 @@ public:
         kDstInputAttachmentIndex = 0
     };
 
+    // The two types of memory layout we're concerned with
+    enum Layout {
+        kStd140Layout = 0,
+        kStd430Layout = 1,
+
+        kLastLayout = kStd430Layout
+    };
+    static constexpr int kLayoutCount = kLastLayout + 1;
+
     struct VkUniformInfo : public UniformInfo {
-        // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
-        uint32_t                fUBOffset;
+        // offsets are only valid if the GrSLType of the fVariable is not a sampler.
+        uint32_t                fOffsets[kLayoutCount];
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
@@ -83,7 +92,7 @@ private:
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentUBOOffset(0) {
+        , fCurrentOffsets{ 0, 0 } {
     }
 
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
@@ -141,7 +150,7 @@ private:
     UniformInfo         fInputUniform;
     GrSwizzle           fInputSwizzle;
 
-    uint32_t            fCurrentUBOOffset;
+    uint32_t            fCurrentOffsets[kLayoutCount];
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
