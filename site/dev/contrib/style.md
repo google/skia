@@ -48,19 +48,41 @@ public:
 };
 ~~~~
 
-Data fields in structs, classes, unions begin with lower-case f and are then
-camel-capped.
+Data fields in structs, classes, and unions that have methods begin with
+lower-case f and are then camel-capped, to distinguish fields from other
+variables.  Types without methods (usually structs, unions) don't need
+f-decoration.
 
 <!--?prettify?-->
 ~~~~
 struct GrCar {
-    ...
+    float milesDriven;
+    Color color;
+};
+
+class GrMotorcyle {
+public:
+    float getMilesDriven() const { return fMilesDriven; }
+    void  setMilesDriven(float milesDriven) { fMilesDriven = milesDriven; }
+
+    Color getColor() const { return fColor; }
+private:
     float fMilesDriven;
-    ...
+    Color fColor;
 };
 ~~~~
 
-Global variables are similar but prefixed with g and camel-capped.
+Constants are named with a leading "k" and then camel-capped.
+
+<!--?prettify?-->
+~~~~
+int drawPicture() {
+    constexpr SkISize kPictureSize = {100, 100};
+    constexpr float kZoom = 1.0f;
+}
+~~~~
+
+Non-constant global variables are prefixed with g and camel-capped.
 
 <!--?prettify?-->
 ~~~~
@@ -73,17 +95,6 @@ Local variables and arguments are camel-capped with no initial cap.
 ~~~~
 int herdCats(const Array& cats) {
     int numCats = cats.count();
-}
-~~~~
-
-Variables declared `constexpr` or `const`, and whose value is fixed for the
-duration of the program, are named with a leading "k" and then camel-capped.
-
-<!--?prettify?-->
-~~~~
-int drawPicture() {
-    constexpr SkISize kPictureSize = {100, 100};
-    constexpr float kZoom = 1.0f;
 }
 ~~~~
 
