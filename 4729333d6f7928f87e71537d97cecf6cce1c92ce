@@ -253,6 +253,30 @@
       },
       "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efd5a9ec_cb50359d",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-03T16:21:51Z",
+      "side": 1,
+      "message": "Ack\n\nSeems pretty low-priority to me but if I ever find myself working on RuntimeEffect Varyings for some reason, I might fix it up at that point. \n\nIn terms of readability my biggest concern would be consistency, e.g. we now have code like this:\n\n    SkSL::Program::Settings settings;\n    settings.fInlineThreshold \u003d options.inlineThreshold;\n\nWhere we need to remember which structs have migrated to modern-style, and use the f prefix or not. But that\u0027s the ropes for any style migration, and ideally (hopefully?) we\u0027ll eventually converge on the new style and this will smooth out.",
+      "parentUuid": "6f6a0c97_cf37bfdd",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 28
+      },
+      "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
