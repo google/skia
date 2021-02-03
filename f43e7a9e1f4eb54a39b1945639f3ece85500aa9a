@@ -22,6 +22,30 @@
       },
       "revId": "f43e7a9e1f4eb54a39b1945639f3ece85500aa9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "098708ee_aec39487",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-03T20:29:25Z",
+      "side": 1,
+      "message": "It\u0027s never used (at least right now). Varying binding (between effects and vertex attributes) is done by order of declaration, and all GMs that use the feature have the effect and attribute setup code sync\u0027d, so no need to query. This is mostly informational: \"Given an effect, how do I know what vertex attributes are expected, and in what order?\"",
+      "parentUuid": "61956c74_92b03b09",
+      "range": {
+        "startLine": 73,
+        "startChar": 18,
+        "endLine": 73,
+        "endChar": 21
+      },
+      "revId": "f43e7a9e1f4eb54a39b1945639f3ece85500aa9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
