@@ -128,6 +128,30 @@
       },
       "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8699cce9_e8c8532b",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T20:29:07Z",
+      "side": 1,
+      "message": "Ah ha!  So they were all just nesting under each other in incredibly willy-nilly and thread-unsafe ways huh?",
+      "parentUuid": "c44a6175_75c46977",
+      "range": {
+        "startLine": 202,
+        "startChar": 6,
+        "endLine": 202,
+        "endChar": 7
+      },
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
