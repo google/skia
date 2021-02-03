@@ -109,6 +109,30 @@
       },
       "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2530848a_42d9aeee",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-03T16:04:25Z",
+      "side": 1,
+      "message": "SkRuntimeEffect already exposes structs with the f prefix (Uniform, Varying)--I would hesitate to have one class mix and match styles. Are we planning on going back and simplifying old structs too? (... should we update the style guide?)",
+      "parentUuid": "f5323c08_b6d79771",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 28
+      },
+      "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
