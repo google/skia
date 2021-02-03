@@ -55,7 +55,7 @@ public:
         return id <= fLastDeletedHandleId;
     }
 
-    void notifyCacheMiss(SkStrikeClient::CacheMissType type) override {
+    void notifyCacheMiss(SkStrikeClient::CacheMissType type, int fontSize) override {
         SkAutoMutexExclusive l(fMutex);
 
         fCacheMissCount[type]++;

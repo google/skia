@@ -130,7 +130,12 @@ public:
         // successful, subsequent attempts to delete the same handle are invalid.
         virtual bool deleteHandle(SkDiscardableHandleId) = 0;
 
-        virtual void notifyCacheMiss(CacheMissType) {}
+        // TODO: remove this old interface when Chrome has moved over to the one below.
+        virtual void notifyCacheMiss(CacheMissType type) { }
+
+        virtual void notifyCacheMiss(CacheMissType type, int fontSize) {
+            this->notifyCacheMiss(type);
+        }
 
         struct ReadFailureData {
             size_t memorySize;
