@@ -190,6 +190,7 @@
   "Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android_Vulkan",
   "Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android",
   "Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan",
+  "Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Mskp_Skpbench",
   "Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Skpbench",
   "Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan_Skpbench",
   "Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_AllPathsVolatile_Skpbench",
