@@ -16,6 +16,23 @@
       "message": "+bsalomon for public API TBR. I think this is good, and after we migrate clients, we can delete the old version of Make and change the signature so that options defaults to {}, right?",
       "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05beca9a_3c5049c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-03T15:33:43Z",
+      "side": 1,
+      "message": "+kjlubick: Incoming changes to SkRuntimeEffect::Make (in case you want to incorporate the new options stuff into the CK binding). May not be necessary yet, just FYI.",
+      "revId": "4729333d6f7928f87e71537d97cecf6cce1c92ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
