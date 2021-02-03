@@ -42,21 +42,28 @@ func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-	failStep := func(err error) { fmt.Fprintln(os.Stderr, err) }
-	fatal := func(err error) {
-		failStep(err)
+	startStep := func(ctx context.Context, _ *td.StepProperties) context.Context { return ctx }
+	endStep := func(_ context.Context) {}
+	failStep := func(_ context.Context, err error) error {
+		fmt.Fprintln(os.Stderr, err)
+		return err
+	}
+	fatal := func(ctx context.Context, err error) {
+		failStep(ctx, err)
 		os.Exit(1)
 	}
 
 	if !*local {
 		ctx = td.StartRun(projectId, taskId, bot, output, local)
 		defer td.EndRun(ctx)
-		failStep = func(err error) { td.FailStep(ctx, err) }
-		fatal = func(err error) { td.Fatal(ctx, err) }
+		startStep = td.StartStep
+		endStep = td.EndStep
+		failStep = td.FailStep
+		fatal = td.Fatal
 	}
 
 	if flag.NArg() < 1 {
-		fatal(fmt.Errorf("Please pass an fm binary."))
+		fatal(ctx, fmt.Errorf("Please pass an fm binary."))
 	}
 	fm := flag.Arg(0)
 
@@ -67,7 +74,7 @@ func main() {
 		cmd.Args = append(cmd.Args, "-i", *resources)
 		cmd.Args = append(cmd.Args, flag)
 		if err := exec.Run(ctx, cmd); err != nil {
-			fatal(err)
+			fatal(ctx, err)
 		}
 
 		lines := []string{}
@@ -76,7 +83,7 @@ func main() {
 			lines = append(lines, scanner.Text())
 		}
 		if err := scanner.Err(); err != nil {
-			fatal(err)
+			fatal(ctx, err)
 		}
 		return lines
 	}
@@ -100,7 +107,7 @@ func main() {
 			})
 
 			if err != nil {
-				fatal(err)
+				fatal(ctx, err)
 			}
 		}
 		return
@@ -155,7 +162,7 @@ func main() {
 			url := "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt"
 			resp, err := http.Get(url)
 			if err != nil {
-				fatal(err)
+				fatal(ctx, err)
 			}
 			defer resp.Body.Close()
 
@@ -164,7 +171,7 @@ func main() {
 				known[scanner.Text()] = true
 			}
 			if err := scanner.Err(); err != nil {
-				fatal(err)
+				fatal(ctx, err)
 			}
 
 			fmt.Fprintf(os.Stdout, "Gold knew %v unique hashes.\n", len(known))
@@ -180,8 +187,8 @@ func main() {
 	wg := &sync.WaitGroup{}
 	var failures int32 = 0
 
-	var worker func([]string, []string)
-	worker = func(sources, flags []string) {
+	var worker func(context.Context, []string, []string)
+	worker = func(ctx context.Context, sources, flags []string) {
 		defer wg.Done()
 
 		stdout := &bytes.Buffer{}
@@ -208,7 +215,7 @@ func main() {
 					}
 				}
 				if err := scanner.Err(); err != nil {
-					fatal(err)
+					fatal(ctx, err)
 				}
 			}
 			return ""
@@ -218,7 +225,7 @@ func main() {
 		if len(sources) > 1 && (err != nil || unknownHash != "") {
 			wg.Add(len(sources))
 			for i := range sources {
-				worker(sources[i:i+1], flags)
+				worker(ctx, sources[i:i+1], flags)
 			}
 			return
 		}
@@ -233,12 +240,11 @@ func main() {
 				lines = append(lines, scanner.Text())
 			}
 			if err := scanner.Err(); err != nil {
-				fatal(err)
+				fatal(ctx, err)
 			}
 
-			failStep(fmt.Errorf("%v %v #failed:\n\t%v\n",
-				cmd.Name,
-				strings.Join(cmd.Args, " "),
+			failStep(ctx, fmt.Errorf("%v #failed:\n\t%v\n",
+				exec.DebugString(cmd),
 				strings.Join(lines, "\n\t")))
 
 			return
@@ -247,9 +253,8 @@ func main() {
 		// If an individual run succeeded but produced an unknown hash, TODO upload .png to Gold.
 		// For now just print out the command and the hash it produced.
 		if unknownHash != "" {
-			fmt.Fprintf(os.Stdout, "%v %v #%v\n",
-				cmd.Name,
-				strings.Join(cmd.Args, " "),
+			fmt.Fprintf(os.Stdout, "%v #%v\n",
+				exec.DebugString(cmd),
 				unknownHash)
 		}
 	}
@@ -257,7 +262,12 @@ func main() {
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
 			for w := range queue {
-				worker(w.Sources, w.Flags)
+				name := fmt.Sprintf("%v (%v)",
+					strings.Join(w.Sources, " "),
+					strings.Join(w.Flags, " "))
+				ctx := startStep(ctx, td.Props(name))
+				worker(ctx, w.Sources, w.Flags)
+				endStep(ctx)
 			}
 		}()
 	}
@@ -325,7 +335,7 @@ func main() {
 		if *script != "-" {
 			file, err := os.Open(*script)
 			if err != nil {
-				fatal(err)
+				fatal(ctx, err)
 			}
 			defer file.Close()
 		}
@@ -334,7 +344,7 @@ func main() {
 			kickoff(parse(strings.Fields(scanner.Text())))
 		}
 		if err := scanner.Err(); err != nil {
-			fatal(err)
+			fatal(ctx, err)
 		}
 	}
 
@@ -405,6 +415,6 @@ func main() {
 
 	wg.Wait()
 	if failures > 0 {
-		fatal(fmt.Errorf("%v runs of %v failed after retries.\n", failures, fm))
+		fatal(ctx, fmt.Errorf("%v runs of %v failed after retries.\n", failures, fm))
 	}
 }
