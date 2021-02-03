@@ -78,10 +78,10 @@ static constexpr char gSphereSkSL[] = R"(
 
 static sk_sp<SkRuntimeEffect> sphere_effect_singleton() {
     static const SkRuntimeEffect* effect =
-            std::get<0>(SkRuntimeEffect::Make(SkString(gSphereSkSL))).release();
+            SkRuntimeEffect::Make(SkString(gSphereSkSL), /*options=*/{}).effect.release();
     if (0 && !effect) {
-        auto err = std::get<1>(SkRuntimeEffect::Make(SkString(gSphereSkSL)));
-        printf("!!! %s\n", err.c_str());
+        printf("!!! %s\n",
+               SkRuntimeEffect::Make(SkString(gSphereSkSL), /*options=*/{}).errorText.c_str());
     }
     SkASSERT(effect);
 

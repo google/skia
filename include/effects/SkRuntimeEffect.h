@@ -74,10 +74,27 @@ public:
         int      fWidth;  // 1 - 4 (floats)
     };
 
-    // [Effect, ErrorText]
-    // If successful, Effect != nullptr, otherwise, ErrorText contains the reason for failure.
+    struct Options {
+        // Sets an upper limit on the acceptable amount of code growth from inlining.
+        // By default, runtime effects don't run the inliner directly.
+        int inlineThreshold = 0;
+    };
+
+    // If the effect is compiled successfully, `effect` will be non-null.
+    // Otherwise, `errorText` will contain the reason for failure.
+    struct Result {
+        sk_sp<SkRuntimeEffect> effect;
+        SkString errorText;
+    };
+
+    static Result Make(SkString sksl, const Options& options);
+
+    // Older/deprecated version of the Make() API:
     using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
-    static EffectResult Make(SkString sksl);
+    static EffectResult Make(SkString sksl) {
+        Result result = Make(sksl, Options{});
+        return EffectResult{std::move(result.effect), std::move(result.errorText)};
+    }
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
