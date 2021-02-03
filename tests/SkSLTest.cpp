@@ -18,6 +18,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/utils/SkRandom.h"
+#include "src/sksl/SkSLDefines.h"  // for kDefaultInlineThreshold
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -32,22 +33,26 @@ static void set_uniform(SkRuntimeShaderBuilder* builder, const char* name, const
     }
 }
 
-static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
+static void test_one_permutation(skiatest::Reporter* r,
+                                 SkSurface* surface,
+                                 const char* testFile,
+                                 const char* permutationSuffix,
+                                 const SkRuntimeEffect::Options& options) {
     SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
     sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
     if (!shaderData) {
-        ERRORF(r, "%s: Unable to load file", testFile);
+        ERRORF(r, "%s%s: Unable to load file", testFile, permutationSuffix);
         return;
     }
 
     SkString shaderString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
-    auto [effect, error] = SkRuntimeEffect::Make(shaderString);
-    if (!effect) {
-        ERRORF(r, "%s: %s", testFile, error.c_str());
+    SkRuntimeEffect::Result result = SkRuntimeEffect::Make(shaderString, options);
+    if (!result.effect) {
+        ERRORF(r, "%s%s: %s", testFile, permutationSuffix, result.errorText.c_str());
         return;
     }
 
-    SkRuntimeShaderBuilder builder(effect);
+    SkRuntimeShaderBuilder builder(result.effect);
     set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
     set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
     set_uniform(&builder, "colorGreen",       SkV4{0, 1, 0, 1});
@@ -58,7 +63,7 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
-        ERRORF(r, "%s: Unable to build shader", testFile);
+        ERRORF(r, "%s%s: Unable to build shader", testFile, permutationSuffix);
         return;
     }
 
@@ -77,18 +82,27 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
                     SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
 }
 
+static void test_permutations(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
+    SkRuntimeEffect::Options options;
+    options.inlineThreshold = 0;
+    test_one_permutation(r, surface, testFile, " (NoInline)", options);
+
+    options.inlineThreshold = SkSL::kDefaultInlineThreshold;
+    test_one_permutation(r, surface, testFile, "", options);
+}
+
 static void test_cpu(skiatest::Reporter* r, const char* testFile) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
     sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
 
-    test(r, surface.get(), testFile);
+    test_permutations(r, surface.get(), testFile);
 }
 
 static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
 
-    test(r, surface.get(), testFile);
+    test_permutations(r, surface.get(), testFile);
 }
 
 #define SKSL_TEST(name, path)                                       \
