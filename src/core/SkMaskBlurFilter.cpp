@@ -992,6 +992,10 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     int tmpW = srcH,
         tmpH = dstW;
 
+    // Make usr not to overflow the multiply for the buffer size.
+    if (tmpH > std::numeric_limits<int>::max() / tmpW) {
+        return {0, 0};
+    }
     auto tmp = alloc.makeArrayDefault<uint8_t>(tmpW * tmpH);
 
     // Blur horizontally, and transpose.
