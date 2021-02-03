@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c55257b_fcbb56f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-02-03T15:23:36Z",
+      "side": 1,
+      "message": "Joe, it should be possible to try this job before submitting right? Does this error mean anything to you?\n\nnifong@~/skia(jobs1)$ git cl try -B skia.primary -b Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Mskp_Skpbench\nWARNING Please use skia/skia.primary to specify the bucket.\nScheduling jobs on:\n  skia/skia.primary: Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Mskp_Skpbench\nTo see results here, run:        git cl try-results\nTo see results in browser, run:  git cl web\nERROR: Failed to schedule builds for some bots:\n  user:naavox@gmail.com cannot schedule builds in bucket skia/skia.primary",
+      "revId": "412209e14a95c5ba1153fa8d709c21bf0cd3d94d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
