@@ -1,22 +1,21 @@
-/*#pragma settings NoInline*/
+uniform half4 colorGreen;
 
 float this_function_is_prototyped_at_the_start_and_never_defined();
-half4 this_function_is_defined_before_use();
-half4 this_function_is_defined_after_use();
+half4 this_function_is_defined_before_use(half4 x);
+half4 this_function_is_defined_after_use(half4 x);
 
-half4 this_function_is_defined_before_use() {
-    return half4(1);
+half4 this_function_is_defined_before_use(half4 x) {
+    return x;
 }
 
 bool this_function_is_prototyped_in_the_middle_and_never_defined(float4x4 a);
 
-void main() {
-    sk_FragColor = this_function_is_defined_before_use();
-    sk_FragColor = this_function_is_defined_after_use();
+half4 main() {
+    return this_function_is_defined_after_use(this_function_is_defined_before_use(colorGreen));
 }
 
-half4 this_function_is_defined_after_use() {
-    return half4(2);
+half4 this_function_is_defined_after_use(half4 x) {
+    return x;
 }
 
-int3 this_function_is_prototyped_at_the_very_end_and_never_defined(half2x3 x, bool2 y);
+int3 this_function_is_prototyped_at_the_very_end_and_never_defined(half2x2 x, bool2 y);
