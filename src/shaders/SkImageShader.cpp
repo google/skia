@@ -520,30 +520,33 @@ public:
     }
 };
 
-static SkSamplingOptions tweak_filter_and_inv_matrix(SkSamplingOptions sampling, SkMatrix* matrix) {
+static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatrix& matrix) {
     SkFilterMode filter = sampling.filter;
 
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
     if (filter == SkFilterMode::kLinear &&
-            matrix->getType() <= SkMatrix::kTranslate_Mask &&
-            matrix->getTranslateX() == (int)matrix->getTranslateX() &&
-            matrix->getTranslateY() == (int)matrix->getTranslateY()) {
+            matrix.getType() <= SkMatrix::kTranslate_Mask &&
+            matrix.getTranslateX() == (int)matrix.getTranslateX() &&
+            matrix.getTranslateY() == (int)matrix.getTranslateY()) {
         filter = SkFilterMode::kNearest;
     }
 
+    return SkSamplingOptions(filter, sampling.mipmap);
+}
+
+static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
     // See skia:4649 and the GM image_scale_aligned.
     if (filter == SkFilterMode::kNearest) {
-        if (matrix->getScaleX() >= 0) {
-            matrix->setTranslateX(nextafterf(matrix->getTranslateX(),
-                                             floorf(matrix->getTranslateX())));
+        if (matrix.getScaleX() >= 0) {
+            matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
+                                            floorf(matrix.getTranslateX())));
         }
-        if (matrix->getScaleY() >= 0) {
-            matrix->setTranslateY(nextafterf(matrix->getTranslateY(),
-                                             floorf(matrix->getTranslateY())));
+        if (matrix.getScaleY() >= 0) {
+            matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
+                                            floorf(matrix.getTranslateY())));
         }
     }
-
-    return SkSamplingOptions(filter, sampling.mipmap);
+    return matrix;
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
@@ -591,7 +594,11 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         updater->append_matrix_stage(p);
     } else {
         if (!sampling.useCubic) {
-            sampling = tweak_filter_and_inv_matrix(sampling, &matrix);
+            // TODO: can tweak_sampling sometimes for cubic too when B=0
+            if (rec.fMatrixProvider.localToDeviceHitsPixelCenters()) {
+                sampling = tweak_sampling(sampling, matrix);
+            }
+            matrix = tweak_inv_matrix(sampling.filter, matrix);
         }
         p->append_matrix(alloc, matrix);
     }
@@ -853,7 +860,11 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
     auto [upper, upperInv] = access->level();
     if (!sampling.useCubic) {
-        sampling = tweak_filter_and_inv_matrix(sampling, &upperInv);
+        // TODO: can tweak_sampling sometimes for cubic too when B=0
+        if (matrices.localToDeviceHitsPixelCenters()) {
+            sampling = tweak_sampling(sampling, upperInv);
+        }
+        upperInv = tweak_inv_matrix(sampling.filter, upperInv);
     }
 
     SkPixmap lowerPixmap;

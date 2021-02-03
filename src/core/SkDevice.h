@@ -148,6 +148,7 @@ public:
 
     // SkMatrixProvider interface:
     bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
+    bool localToDeviceHitsPixelCenters() const override { return true; }
 
     const SkMatrixProvider& asMatrixProvider() const { return *this; }
 

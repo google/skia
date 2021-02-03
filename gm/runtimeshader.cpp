@@ -337,3 +337,28 @@ public:
     }
 };
 DEF_GM(return new DefaultColorRT;)
+
+
+DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
+    static constexpr char scale[] =
+        "uniform shader child;"
+        "half4 main(float2 xy) {"
+        "    return sample(child, xy*0.1);"
+        "}";
+
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(1);
+
+    auto surf = SkSurface::MakeRasterN32Premul(100,100);
+    surf->getCanvas()->drawLine(0, 0, 100, 100, p);
+    auto shader = surf->makeImageSnapshot()->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+
+    SkRuntimeShaderBuilder builder(std::get<0>(SkRuntimeEffect::Make(SkString(scale))));
+    builder.child("child") = shader;
+    p.setShader(builder.makeShader(nullptr, false));
+
+    canvas->drawPaint(p);
+}
