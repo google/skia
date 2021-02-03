@@ -24,6 +24,8 @@
  */
 #define SK_MACRO_APPEND_LINE(name)  SK_MACRO_CONCAT(name, __LINE__)
 
+#define SK_MACRO_APPEND_COUNTER(name) SK_MACRO_CONCAT(name, __COUNTER__)
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Can be used to bracket data types that must be dense, e.g. hash keys.
