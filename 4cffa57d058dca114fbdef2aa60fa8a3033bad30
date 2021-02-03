@@ -46,6 +46,30 @@
       },
       "revId": "4cffa57d058dca114fbdef2aa60fa8a3033bad30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba56bfe9_8431057c",
+        "filename": "src/gpu/vk/GrVkUtil.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-03T15:19:11Z",
+      "side": 1,
+      "message": "Ahhh I hate that. I can\u0027t wait till they launch the feature for unresolved comments to be moved to newer patch sets.",
+      "parentUuid": "4105e1cb_a16d6a86",
+      "range": {
+        "startLine": 144,
+        "startChar": 19,
+        "endLine": 144,
+        "endChar": 43
+      },
+      "revId": "4cffa57d058dca114fbdef2aa60fa8a3033bad30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
