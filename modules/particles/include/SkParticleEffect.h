@@ -111,8 +111,7 @@ public:
     // SkParticleEffect's update() method. It can animate any of the particle's values. Note that
     // the 'lifetime' field has a different meaning in 'update', and should not be used or changed.
 
-    SkString fEffectCode;
-    SkString fParticleCode;
+    SkString fCode;
 
     // External objects accessible by the effect's SkSL code. Each binding is a name and particular
     // kind of object. See SkParticleBinding::Make* for details.
@@ -195,7 +194,7 @@ private:
     void runEffectScript(EntryPoint entryPoint);
     void runParticleScript(EntryPoint entryPoint, int start, int count);
 
-    sk_sp<SkParticleEffectParams>        fParams;
+    sk_sp<SkParticleEffectParams> fParams;
 
     bool   fLooping;
     int    fCount;
@@ -203,7 +202,7 @@ private:
     float  fSpawnRemainder;
 
     // C++ version of the SkSL Effect struct. This is the inout parameter to per-effect scripts,
-    // and provided as a uniform (named 'effect') to the per-particle scripts.
+    // and provided as a uniform (named 'effect') to all scripts.
     struct EffectState {
         float fAge;
         float fLifetime;
