@@ -11,7 +11,7 @@ struct uniformBuffer {
     float4 sk_RTAdjust;
     float2 uIncrement_Stage1_c0;
     char pad0[8];
-    float4 uKernel_Stage1_c0[7];
+    array<float4, 7> uKernel_Stage1_c0;
     float3x3 umatrix_Stage1_c0_c0;
     float4 uborder_Stage1_c0_c0_c0;
     float4 usubset_Stage1_c0_c0_c0;
