@@ -1870,6 +1870,14 @@ GrInternalSurfaceFlags GrVkCaps::getExtraSurfaceFlagsForDeferredRT() const {
     return GrInternalSurfaceFlags::kVkRTSupportsInputAttachment;
 }
 
+VkShaderStageFlags GrVkCaps::getPushConstantStageFlags() const {
+    VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    if (this->shaderCaps()->geometryShaderSupport()) {
+        stageFlags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+    }
+    return stageFlags;
+}
+
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinations() const {
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
