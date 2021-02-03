@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "03c4ac86_646b4219",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-03T22:10:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d35f9ff_3cdf3cf1",
+      "range": {
+        "startLine": 127,
+        "startChar": 57,
+        "endLine": 127,
+        "endChar": 68
+      },
+      "revId": "b29ce551e2612fc337d2a52fb939da40d14c8a50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61703a87_47a075cc",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-03T00:10:45Z",
       "side": 1,
       "message": "I think we want:\n\n p0 \u003d vectorXform(p0 - C)\n ...\n\nDoes that sound right to you? Do you see a better way to use this value?",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 143,
+        "endChar": 11
+      },
+      "revId": "b29ce551e2612fc337d2a52fb939da40d14c8a50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "843f298b_3607804f",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-03T22:10:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61703a87_47a075cc",
       "range": {
         "startLine": 143,
         "startChar": 4,
