@@ -127,6 +127,7 @@ DEF_CLASS_MAP(SkPictureRecorder, sk_picture_recorder_t, PictureRecorder)
 DEF_CLASS_MAP(SkPixmap, sk_pixmap_t, Pixmap)
 DEF_CLASS_MAP(SkRegion, sk_region_t, Region)
 DEF_CLASS_MAP(SkRRect, sk_rrect_t, RRect)
+DEF_CLASS_MAP(SkRuntimeEffect, sk_runtimeeffect_t, RuntimeEffect)
 DEF_CLASS_MAP(SkShader, sk_shader_t, Shader)
 DEF_CLASS_MAP(SkStream, sk_stream_t, Stream)
 DEF_CLASS_MAP(SkStreamAsset, sk_stream_asset_t, StreamAsset)
@@ -171,6 +172,9 @@ DEF_STRUCT_MAP(GrGLInterface, gr_glinterface_t, GrGLInterface)
 
 DEF_STRUCT_MAP(GrVkYcbcrConversionInfo, gr_vk_ycbcrconversioninfo_t, GrVkYcbcrConversionInfo)
 DEF_STRUCT_MAP(GrVkImageInfo, gr_vk_imageinfo_t, GrVkImageInfo)
+
+#include "include/effects/SkRuntimeEffect.h"
+DEF_MAP(SkRuntimeEffect::Uniform, sk_runtimeeffect_uniform_t, RuntimeEffectUniform)
 
 #include "include/core/SkCanvas.h"
 DEF_MAP(SkCanvas::Lattice, sk_lattice_t, Lattice)
