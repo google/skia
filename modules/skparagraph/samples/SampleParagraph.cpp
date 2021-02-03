@@ -3396,19 +3396,26 @@ protected:
         text_style.setFontSize(20);
         text_style.setColor(SK_ColorBLACK);
         builder.pushStyle(text_style);
-        builder.addText("abc");
+        builder.addText("A\n\n");
         builder.pop();
-        builder.addText("\r\n");
-        builder.pushStyle(text_style);
-        builder.addText("def");
-        builder.pop();
-        builder.addText("\r\n");
         auto paragraph = builder.Build();
         paragraph->layout(width());
 
         //auto impl = static_cast<ParagraphImpl*>(paragraph.get());
         //auto blocks = impl->ParagraphImpl::findAllBlocks({0, 24});
         paragraph->paint(canvas, 0, 0);
+        auto res1 = paragraph->
+            getGlyphPositionAtCoordinate(paragraph->getMinIntrinsicWidth(),
+                                         + 1);
+        auto res2 = paragraph->
+            getGlyphPositionAtCoordinate(0,
+                                         paragraph->getHeight() * 0.5);
+        auto res3 = paragraph->
+            getGlyphPositionAtCoordinate(0,
+                                         paragraph->getHeight() - 1);
+        SkDebugf("res1: %d %s\n", res1.position, res1.affinity == Affinity::kDownstream ? "D" : "U");
+        SkDebugf("res2: %d %s\n", res2.position, res2.affinity == Affinity::kDownstream ? "D" : "U");
+        SkDebugf("res3: %d %s\n", res3.position, res3.affinity == Affinity::kDownstream ? "D" : "U");
     }
 
 private:

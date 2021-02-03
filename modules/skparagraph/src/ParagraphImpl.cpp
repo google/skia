@@ -669,7 +669,8 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
             continue;
         }
 
-        // This is so far the the line vertically closest to our coordinates
+        // This is so far the the line vertically closest to our coordinates    auto pos = paragraph->getGlyphPositionAtCoordinate(0, 21);
+      //    REPORTER_ASSERT(reporter, pos.affinity == Affinity::kDownstream && pos.position == 4);
         // (or the first one, or the only one - all the same)
 
         auto result = line.getGlyphPositionAtCoordinate(dx);
