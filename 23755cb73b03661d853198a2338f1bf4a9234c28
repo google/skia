@@ -46,6 +46,30 @@
       },
       "revId": "23755cb73b03661d853198a2338f1bf4a9234c28",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52bdebd3_a8575ee9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2386,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-03T20:05:56Z",
+      "side": 1,
+      "message": "Want to just SkASSERT(type.columns() \u003e 0) ?",
+      "parentUuid": "5a8ff63b_6a930aeb",
+      "range": {
+        "startLine": 2386,
+        "startChar": 8,
+        "endLine": 2386,
+        "endChar": 45
+      },
+      "revId": "23755cb73b03661d853198a2338f1bf4a9234c28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
