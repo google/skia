@@ -132,60 +132,7 @@ const SkSL::Variable& DSLWriter::Var(const DSLVar& var) {
     return *var.var();
 }
 
-#if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
-
-DSLWriter& DSLWriter::Instance() {
-    SkUNREACHABLE;
-}
-
-void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> instance) {
-    SkDEBUGFAIL("unimplemented");
-}
-
-#elif SKSL_USE_THREAD_LOCAL
-
-thread_local DSLWriter* instance = nullptr;
-
-DSLWriter& DSLWriter::Instance() {
-    SkASSERTF(instance, "dsl::Start() has not been called");
-    return *instance;
-}
-
-void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> newInstance) {
-    SkASSERT((instance == nullptr) != (newInstance == nullptr));
-    delete instance;
-    instance = newInstance.release();
-}
-
-#else
-
-static void destroy_dslwriter(void* dslWriter) {
-    delete static_cast<DSLWriter*>(dslWriter);
-}
-
-static pthread_key_t get_pthread_key() {
-    static pthread_key_t sKey = []{
-        pthread_key_t key;
-        int result = pthread_key_create(&key, destroy_dslwriter);
-        if (result != 0) {
-            SK_ABORT("pthread_key_create failure: %d", result);
-        }
-        return key;
-    }();
-    return sKey;
-}
-
-DSLWriter& DSLWriter::Instance() {
-    DSLWriter* instance = static_cast<DSLWriter*>(pthread_getspecific(get_pthread_key()));
-    SkASSERTF(instance, "dsl::Start() has not been called");
-    return *instance;
-}
-
-void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> instance) {
-    delete static_cast<DSLWriter*>(pthread_getspecific(get_pthread_key()));
-    pthread_setspecific(get_pthread_key(), instance.release());
-}
-#endif
+thread_local DSLWriter* writer_instance = nullptr;
 
 } // namespace dsl
 

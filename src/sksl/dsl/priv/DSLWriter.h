@@ -31,7 +31,12 @@ class Type;
 
 namespace dsl {
 
+class DSLWriter;
 class ErrorHandler;
+
+#if SKSL_USE_THREAD_LOCAL
+    extern thread_local DSLWriter* writer_instance;
+#endif
 
 /**
  * Thread-safe class that tracks per-thread state associated with DSL output. This class is for
@@ -158,10 +163,45 @@ public:
         return Instance().fMangle;
     }
 
-    static DSLWriter& Instance();
+#if SKSL_USE_THREAD_LOCAL
+    static DSLWriter& Instance() {
+        SkASSERTF(writer_instance, "dsl::Start() has not been called");
+        return *writer_instance;
+    }
 
-    static void SetInstance(std::unique_ptr<DSLWriter> instance);
+    static void SetInstance(std::unique_ptr<DSLWriter> newInstance) {
+        SkASSERT((writer_instance == nullptr) != (newInstance == nullptr));
+        delete writer_instance;
+        writer_instance = newInstance.release();
+    }
+#else
+    static void DestroyDSLWriter(void* dslWriter) {
+        delete static_cast<DSLWriter*>(dslWriter);
+    }
 
+    static pthread_key_t GetPThreadKey() {
+        static pthread_key_t sKey = []{
+            pthread_key_t key;
+            int result = pthread_key_create(&key, DestroyDSLWriter);
+            if (result != 0) {
+                SK_ABORT("pthread_key_create failure: %d", result);
+            }
+            return key;
+        }();
+        return sKey;
+    }
+
+    DSLWriter& DSLWriter::Instance() {
+        DSLWriter* instance = static_cast<DSLWriter*>(pthread_getspecific(GetPThreadKey()));
+        SkASSERTF(instance, "dsl::Start() has not been called");
+        return *instance;
+    }
+
+    void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> instance) {
+        delete static_cast<DSLWriter*>(pthread_getspecific(GetPThreadKey()));
+        pthread_setspecific(GetPThreadKey(), instance.release());
+    }
+#endif
 private:
     SkSL::Program::Settings fSettings;
     SkSL::Compiler* fCompiler;
