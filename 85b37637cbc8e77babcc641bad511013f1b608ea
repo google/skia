@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "870d7cf0_dd8d5bcc",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa83cebc_55047f02",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0d15cc7a_b23128f0",
@@ -88,6 +106,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "38a066cb_0a12b312",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "221f669a_c34b406a",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dcbd24c8_5c835d30",
@@ -101,6 +137,30 @@
       "writtenOn": "2021-01-14T19:11:09Z",
       "side": 1,
       "message": "SkMatrix::MakeAll?",
+      "range": {
+        "startLine": 460,
+        "startChar": 11,
+        "endLine": 460,
+        "endChar": 31
+      },
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72e71d60_30a578d3",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dcbd24c8_5c835d30",
       "range": {
         "startLine": 460,
         "startChar": 11,
@@ -178,6 +238,24 @@
       "side": 1,
       "message": "The negative signs are now added and we can avoid the neutralizeUpemTransform function, including the inversion.",
       "parentUuid": "9ba63d95_8dc484ec",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b27bcd30_3f35d5a5",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99938d49_7236ee78",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -277,6 +355,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9eb27395_0b0c1b52",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b225a3e6_f76e0ad3",
+      "range": {
+        "startLine": 485,
+        "startChar": 36,
+        "endLine": 485,
+        "endChar": 42
+      },
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d58342d_b434f179",
@@ -326,6 +428,24 @@
       "side": 1,
       "message": "Now relying on work-in-progress https://gitlab.freedesktop.org/drott/freetype/-/tree/internalScaling - (so far only applies x_scale and y_scale, still issues with PaintRotate and radial gradients when a transform is applied to FT_Face.",
       "parentUuid": "52d21900_5771bd50",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fad3db5_a12b3127",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Marking this as resolved, as I think the new iteration of this CL addresses these things and we discussed most of this in meetings.",
+      "parentUuid": "aa5d4755_c94da0a7",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -383,6 +503,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcc703bd_c3f7ac1f",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "setAlpha(1.f) was not sufficient - still some gradients disappeared. This line appears to still be needed. I updated the comment with parts of your suggested wording.",
+      "parentUuid": "2efea3f5_a1adb3ef",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "621463d6_c44c1e27",
@@ -436,6 +574,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30c7cda0_dea003be",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1670d1c5_b1e0934c",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "35131088_0318a22a",
@@ -467,6 +623,24 @@
       "side": 1,
       "message": "Ack.",
       "parentUuid": "35131088_0318a22a",
+      "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21012ce3_263c5e10",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c2a62a5_937f30de",
       "revId": "85b37637cbc8e77babcc641bad511013f1b608ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c089952_242cddb2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 40
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-03T19:37:10Z",
+      "side": 1,
+      "message": "Ben, I made some progress and will go into details on the updates below. Could you do another review pass?\n\nI have two functional changes coming up, which we could pile onto this CL or land this and do those separately:\n1) The definition for linear gradients was adjusted so that the point P2 is now \"normal to the gradient front\".\n2) We have a definition for PaintSweep that\u0027s not implemented in FT and here yet. (that will probably really be separate CLs.)\n\nSample screenshots of the GMs:\nhttp://shortn/_INFjNsPAVb http://shortn/_yL9J3ifLgO\n\nMy plan was to get your next round of feedback before I ask Werner to review and merge the FreeType change - just in case we need additional changes here.\n\n\u003e I believe Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts (and the others) are using the system FreeType here for testing. I think we were doing that so that Skia could make sure we still work with older versions and the Chromium bots make sure we\u0027re using the newer versions.\n\n\u003e In any event, if you temporarily add a change to third_party/freetype/BUILD.gn to make skia_use_system_freetype2 default to \u0027true\u0027 instead of \u0027false\u0027 I think it will build the FreeType in Skia\u0027s DEPS (which is fairly recent, maybe a week old at this point?).\n\nThat\u0027s why this approach currently would probably build, but not produce the right result, as I need the topLevelTransform commit from my branch.\n\n\u003e Cleanup FreeType side of this change\n\nThe FreeType change that this change still needs is in:\nhttps://gitlab.freedesktop.org/drott/freetype/-/tree/topLevelTransform - in this form I think it\u0027s close to ready for review.\n\n\u003e Fix scaling in PaintGlyph to EM box size to fix variations instead of using FT_LOAD_NO_SCALE, or optionally, already to actual scale (possible in later CL as well)\n\nThat\u0027s done. No more from FDot6 conversion needed.\n\n\u003e Consider adding SkShowTextBlitCoverage debug flag functionality for rectangles when drawing V1,\n\nThe bounding box is visible under SK_SHOW_TEXT_BLIT_COVERAGE, I added a shaded rectangle for the bounds of the applied clip in FT_COLR_PAINTFORMAT_GLYPH.\n\n\u003e Add a basic GM based on samples font\n\nSee commit message: Added a sample font and a GM that\u0027s drawing some color glyphs, at identity matrix and skewed and rotated.\n\n\u003e Remove top level upem passing in start_colr_glyph\n\nDone.\n\n\u003e Look into fixing path_maker and consider making path generators static - which might already fix path_maker closure requirement.\n\nMoved the bodies of the two functions to static implementations so that I can call one of them statically. Added a new function for retrieving the contour needed for COLRv1.\n",
+      "revId": "93f3115598c05756c9d96350c7ecb738cb174195",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
