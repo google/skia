@@ -14944,7 +14944,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
         "pool:Skia"
@@ -14998,7 +14997,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
         "pool:Skia"
@@ -15060,7 +15058,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
         "pool:Skia"
@@ -15122,7 +15119,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-10.3",
         "pool:Skia"
@@ -15178,7 +15174,7 @@
         "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
       ],
       "dimensions": [
-        "gpu:none",
+        "cpu:x86-64-E5-2697_v2",
         "os:Mac-10.14.6",
         "pool:Skia"
       ],
@@ -15226,7 +15222,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Windows-Server-17763",
         "pool:Skia"

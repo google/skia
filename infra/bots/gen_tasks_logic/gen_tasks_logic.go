@@ -580,7 +580,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
-	if b.role("Test", "Perf") {
+	if b.role("Test", "Perf", "FM") {
 		if b.os("Android") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
@@ -675,7 +675,11 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
 			if b.model("GCE") && d["cpu"] == "x86-64-Haswell_GCE" {
-				d["machine_type"] = MACHINE_TYPE_MEDIUM
+				if b.role("FM") {
+					d["machine_type"] = MACHINE_TYPE_LARGE
+				} else {
+					d["machine_type"] = MACHINE_TYPE_MEDIUM
+				}
 			}
 		} else {
 			if b.matchOs("Win") {
