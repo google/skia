@@ -27,8 +27,11 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/gpu/BackendSurfaceFactory.h"
 
 #define W 200
 #define H 100
@@ -167,9 +170,77 @@ DEF_GM( return new NewSurfaceGM )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
+// The GPU backend may behave differently when images are snapped from wrapped textures and
+// render targets compared.
+namespace {
+enum SurfaceType {
+    kManaged,
+    kBackendTexture,
+    kBackendRenderTarget
+};
+}
+
+static sk_sp<SkSurface> make_surface(const SkImageInfo& ii, SkCanvas* canvas, SurfaceType type) {
+    GrDirectContext* direct = GrAsDirectContext(canvas->recordingContext());
+    switch (type) {
+        case kManaged:
+            return ToolUtils::makeSurface(canvas, ii);
+        case kBackendTexture:
+            if (!direct) {
+                return nullptr;
+            }
+            return sk_gpu_test::MakeBackendTextureSurface(direct, ii, kTopLeft_GrSurfaceOrigin, 1);
+        case kBackendRenderTarget:
+            return sk_gpu_test::MakeBackendRenderTargetSurface(direct,
+                                                               ii,
+                                                               kTopLeft_GrSurfaceOrigin,
+                                                               1);
+    }
+    return nullptr;
+}
+
+using MakeSurfaceFn = std::function<sk_sp<SkSurface>(const SkImageInfo&)>;
+
+#define DEF_BASIC_SURFACE_TEST(name, canvas, main, W, H)            \
+    DEF_SIMPLE_GM(name, canvas, W, H) {                             \
+        auto make = [canvas](const SkImageInfo& ii) {               \
+            return make_surface(ii, canvas, SurfaceType::kManaged); \
+        };                                                          \
+        main(canvas, MakeSurfaceFn(make));                          \
+    }
+
+#define DEF_BACKEND_SURFACE_TEST(name, canvas, main, type, W, H)                                \
+    DEF_SIMPLE_GM_CAN_FAIL(name, canvas, err_msg, W, H) {                                       \
+        GrDirectContext* direct = GrAsDirectContext(canvas->recordingContext());                \
+        if (!direct || direct->abandoned()) {                                                   \
+            *err_msg = "Requires non-abandoned GrDirectContext";                                \
+            return skiagm::DrawResult::kSkip;                                                   \
+        }                                                                                       \
+        auto make = [canvas](const SkImageInfo& ii) { return make_surface(ii, canvas, type); }; \
+        main(canvas, MakeSurfaceFn(make));                                                      \
+        return skiagm::DrawResult::kOk;                                                         \
+    }
+
+#define DEF_BET_SURFACE_TEST(name, canvas, main, W, H)                  \
+    DEF_BACKEND_SURFACE_TEST(SK_MACRO_CONCAT(name, _bet), canvas, main, \
+                             SurfaceType::kBackendTexture, W, H)
+
+#define DEF_BERT_SURFACE_TEST(name, canvas, main, W, H)                  \
+    DEF_BACKEND_SURFACE_TEST(SK_MACRO_CONCAT(name, _bert), canvas, main, \
+                             SurfaceType::kBackendRenderTarget, W, H)
+
+// This makes 3 GMs from the same code, normal, wrapped backend texture, and wrapped backend
+// render target.
+#define DEF_SURFACE_TESTS(name, canvas, W, H)                                  \
+    static void SK_MACRO_CONCAT(name, _main)(SkCanvas*, const MakeSurfaceFn&); \
+    DEF_BASIC_SURFACE_TEST(name, canvas, SK_MACRO_CONCAT(name, _main), W, H)   \
+    DEF_BET_SURFACE_TEST  (name, canvas, SK_MACRO_CONCAT(name, _main), W, H)   \
+    DEF_BERT_SURFACE_TEST (name, canvas, SK_MACRO_CONCAT(name, _main), W, H)   \
+    static void SK_MACRO_CONCAT(name, _main)(SkCanvas * canvas, const MakeSurfaceFn& make)
+
+DEF_SURFACE_TESTS(copy_on_write_retain, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    sk_sp<SkSurface>  surf = ToolUtils::makeSurface(canvas, info);
+    sk_sp<SkSurface> surf = make(info);
 
     surf->getCanvas()->clear(SK_ColorRED);
     // its important that image survives longer than the next draw, so the surface will see
@@ -185,9 +256,9 @@ DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
     canvas->drawImage(surf->makeImageSnapshot(), 0, 0);
 }
 
-DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
+DEF_SURFACE_TESTS(copy_on_write_savelayer, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    sk_sp<SkSurface>  surf = ToolUtils::makeSurface(canvas, info);
+    sk_sp<SkSurface> surf = make(info);
     surf->getCanvas()->clear(SK_ColorRED);
     // its important that image survives longer than the next draw, so the surface will see
     // an outstanding image, and have to decide if it should retain or discard those pixels
@@ -206,9 +277,9 @@ DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
     canvas->drawImage(surf->makeImageSnapshot(), 0, 0);
 }
 
-DEF_SIMPLE_GM(surface_underdraw, canvas, 256, 256) {
+DEF_SURFACE_TESTS(surface_underdraw, canvas, 256, 256) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256, nullptr);
-    auto        surf = ToolUtils::makeSurface(canvas, info);
+    auto surf = make(info);
 
     const SkIRect subset = SkIRect::MakeLTRB(180, 0, 256, 256);
 

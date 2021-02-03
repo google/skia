@@ -835,6 +835,16 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
+    // It'd be nicer to check this in GrCopyRenderTask::Make. This gets complicated because of
+    // "active ops task" tracking. dst will be the target of our copy task but it might also be the
+    // target of the active ops task. We currently require the active ops task to be closed before
+    // making a new task that targets the same proxy. However, if we first close the active ops
+    // task, then fail to make a copy task, the next active ops task may target the same proxy. This
+    // will trip an assert related to unnecessary ops task splitting.
+    if (src->framebufferOnly()) {
+        return false;
+    }
+
     this->closeActiveOpsTask();
 
     GrRenderTask* task = this->appendTask(GrCopyRenderTask::Make(this,
