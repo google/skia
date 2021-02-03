@@ -87,16 +87,6 @@ public:
      */
     static const char* Name(const char* name);
 
-    /**
-     * Returns the current function for which we are generating nodes.
-     */
-    static const SkSL::FunctionDeclaration* CurrentFunction();
-
-    /**
-     * Specifies the function for which we are generating nodes.
-     */
-    static void SetCurrentFunction(const SkSL::FunctionDeclaration* fn);
-
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     /**
      * Returns the fragment processor for which DSL output is being generated for the current

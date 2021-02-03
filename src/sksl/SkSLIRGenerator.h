@@ -264,6 +264,8 @@ private:
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void findAndDeclareBuiltinVariables();
     bool detectVarDeclarationWithoutScope(const Statement& stmt);
+    // Coerces returns to correct type and detects invalid break / continue placement
+    void finalizeFunction(FunctionDefinition& f);
 
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).
@@ -277,7 +279,6 @@ private:
     Program::Kind fKind;
 
     std::unique_ptr<ASTFile> fFile;
-    const FunctionDeclaration* fCurrentFunction = nullptr;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     // additional statements that need to be inserted before the one that convertStatement is
@@ -286,8 +287,6 @@ private:
     // Symbols which have definitions in the include files.
     IRIntrinsicMap* fIntrinsics = nullptr;
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
-    int fLoopLevel = 0;
-    int fSwitchLevel = 0;
     int fInvocations;
     std::unordered_set<const Type*> fDefinedStructs;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
