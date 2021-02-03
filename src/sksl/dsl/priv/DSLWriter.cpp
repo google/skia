@@ -7,9 +7,6 @@
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/mock/GrMockCaps.h"
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIRGenerator.h"
@@ -66,9 +63,8 @@ void DSLWriter::SetCurrentFunction(const SkSL::FunctionDeclaration* fn) {
     IRGenerator().fCurrentFunction = fn;
 }
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 void DSLWriter::StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
-                                       GrGLSLFragmentProcessor::EmitArgs* emitArgs) {
+                                       void* emitArgs) {
     Instance().fStack.push({processor, emitArgs});
     IRGenerator().pushSymbolTable();
 }
@@ -79,7 +75,6 @@ void DSLWriter::EndFragmentProcessor() {
     instance.fStack.pop();
     IRGenerator().popSymbolTable();
 }
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
     if (expr == nullptr) {
@@ -140,7 +135,7 @@ const SkSL::Variable& DSLWriter::Var(const DSLVar& var) {
     return *var.var();
 }
 
-#if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
+#if defined(SKSL_STANDALONE)
 
 DSLWriter& DSLWriter::Instance() {
     SkUNREACHABLE;
