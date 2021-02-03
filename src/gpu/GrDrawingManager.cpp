@@ -835,6 +835,10 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
+    if (src->framebufferOnly()) {
+        return false;
+    }
+
     this->closeActiveOpsTask();
 
     GrRenderTask* task = this->appendTask(GrCopyRenderTask::Make(this,
