@@ -27,6 +27,9 @@ Milestone 90
     instead of a tuple.
     https://review.skia.org/363785
 
+  * Changed SkRuntimeEffect::Varying to have lower-case member names, with no 'f' prefix.
+    https://review.skia.org/365656
+
   * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
     https://review.skia.org/344763
 
