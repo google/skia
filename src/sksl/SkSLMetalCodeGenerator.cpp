@@ -1245,7 +1245,9 @@ MetalCodeGenerator::Precedence MetalCodeGenerator::GetBinaryPrecedence(Token::Ki
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
     String key = "TimesEqual" + this->typeName(left) + this->typeName(right);
-    if (fHelpers.find(key) == fHelpers.end()) {
+
+    auto [iter, wasInserted] = fHelpers.insert(key);
+    if (wasInserted) {
         fExtraFunctions.printf("thread %s& operator*=(thread %s& left, thread const %s& right) {\n"
                                "    left = left * right;\n"
                                "    return left;\n"
