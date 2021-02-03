@@ -22,6 +22,30 @@
       },
       "revId": "9c27d3f2777536055f047464b333bac93a4f0689",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "551590f0_16c0d6d9",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T16:29:22Z",
+      "side": 1,
+      "message": "The non-accessor is setMilesDriven().",
+      "parentUuid": "81b89202_c221059d",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "9c27d3f2777536055f047464b333bac93a4f0689",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
