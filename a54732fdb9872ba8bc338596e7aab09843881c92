@@ -69,6 +69,24 @@
       "message": "Code change LGTM",
       "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fce0fbb_c14dc223",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T19:22:48Z",
+      "side": 1,
+      "message": "Yeah, It\u0027s gone from\n\n   Batch\n   Singleton\n   Singleton\n   Singleton\n   Batch\n   Batch\n   Singleton\n   Singleton\n   Batch\n   ...\n\nto\n\n   Batch\n       Singleton\n       Singleton\n       Singleton\n   Batch\n   Batch\n       Singleton\n       Singleton\n   Batch\n   ...\n\nSo... bummer.",
+      "parentUuid": "387c58f0_cc45fd62",
+      "revId": "a54732fdb9872ba8bc338596e7aab09843881c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
