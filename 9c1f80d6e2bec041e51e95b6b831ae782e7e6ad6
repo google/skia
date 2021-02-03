@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dff1f4e8_d14f352c",
+        "filename": "resources/sksl/runtime_errors/Discard.rte",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-03T20:21:25Z",
+      "side": 1,
+      "message": "Good catch, deleted",
+      "parentUuid": "6f73f47e_8c0bb8e0",
+      "revId": "9c1f80d6e2bec041e51e95b6b831ae782e7e6ad6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c3ceb7df_3085b983",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-02-03T18:23:27Z",
       "side": 1,
       "message": "LoopVariable ?",
+      "range": {
+        "startLine": 174,
+        "startChar": 51,
+        "endLine": 174,
+        "endChar": 62
+      },
+      "revId": "9c1f80d6e2bec041e51e95b6b831ae782e7e6ad6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daf1d282_2979fbe9",
+        "filename": "tests/SkSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-03T20:21:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3ceb7df_3085b983",
       "range": {
         "startLine": 174,
         "startChar": 51,
