@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4a731abd_e1eb2df2",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T13:57:10Z",
+      "side": 1,
+      "message": "Well, there\u0027s kind of both visible and invisible reasons.\n\nThe main visible thing we\u0027re avoiding here is echoing all the exec.Run() logs to the console, which buries the signal amongst a huge spew of noise we don\u0027t need to read.  And then secondarily, if there are failures, td.Fatal() works via a panic, so we\u0027d get a whole spiel from that where we really just want to read a short message counting failures.\n\nOriginally I had unconditionally StartRun/EndRun\u0027d and just redirected os.Stderr and os.Stdout to /dev/null (hanging on to the real ones for this program to use with fmt.Fprintf), and just avoided calling td.Fatal() when *local.  That worked fine in terms of those visible issues above, but it was a little awkward, and behind the scenes the task driver machinery was still burning CPU managing all these logs before they get burned in /dev/null.\n\nYou\u0027re right though that beyond those issues, things run fine either way.  You should be able to see this locally if you want, switching the condition to true here and running something like\n\n    ninja -C out fm \n    go run **/fm_driver.go --skps ../bots-skp/ --svgs ../bots-svg/ --imgs ../bots-skimage/ out/fm b\u003dcpu svgs skps imgs w\u003dfoo",
+      "parentUuid": "85a33176_58be62a8",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 13
+      },
+      "revId": "d94d9cf6bd720c752d3341958346e495d5109489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "57572aca_1c4a5525",
         "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
         "patchSetId": 7
@@ -54,6 +78,30 @@
       "writtenOn": "2021-02-03T13:33:10Z",
       "side": 1,
       "message": "I don\u0027t think this is going to do what you want; this will just fail the root step, not the active step.  You need to pass the context from the active step through to td.FailStep().",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 54
+      },
+      "revId": "d94d9cf6bd720c752d3341958346e495d5109489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3c08e89_a29bcfb7",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-03T13:57:10Z",
+      "side": 1,
+      "message": "I don\u0027t start any new steps, so this is the only context.",
+      "parentUuid": "57572aca_1c4a5525",
       "range": {
         "startLine": 54,
         "startChar": 0,
