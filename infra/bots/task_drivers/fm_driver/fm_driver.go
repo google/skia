@@ -183,14 +183,10 @@ func main() {
 		Flags   []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
 	}
 
-	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
-	wg := &sync.WaitGroup{}
 	var failures int32 = 0
 
 	var worker func(context.Context, []string, []string)
 	worker = func(ctx context.Context, sources, flags []string) {
-		defer wg.Done()
-
 		stdout := &bytes.Buffer{}
 		stderr := &bytes.Buffer{}
 		cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
@@ -228,7 +224,6 @@ func main() {
 				reruns = sourcesWithUnknownHashes
 			}
 
-			wg.Add(len(reruns))
 			for _, s := range reruns {
 				worker(ctx, []string{s}, flags)
 			}
@@ -264,6 +259,9 @@ func main() {
 		}
 	}
 
+	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
+	wg := &sync.WaitGroup{}
+
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
 			for w := range queue {
@@ -273,6 +271,7 @@ func main() {
 				ctx := startStep(ctx, td.Props(name))
 				worker(ctx, w.Sources, w.Flags)
 				endStep(ctx)
+				wg.Done()
 			}
 		}()
 	}
