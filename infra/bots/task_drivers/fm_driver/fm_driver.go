@@ -37,6 +37,7 @@ func main() {
 		skps      = flag.String("skps", "", "Shorthand `directory` contents as 'skps'.")
 		svgs      = flag.String("svgs", "", "Shorthand `directory` contents as 'svgs'.")
 		script    = flag.String("script", "", "File (or - for stdin) with one job per line.")
+		gold      = flag.Bool("gold", false, "Fetch known hashes, upload to Gold, etc.?")
 	)
 	flag.Parse()
 
@@ -156,7 +157,7 @@ func main() {
 	known := map[string]bool{
 		"0832f708a97acc6da385446384647a8f": true, // MD5 of passing unit test.
 	}
-	if *bot != "" {
+	if *gold {
 		func() {
 			url := "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt"
 			resp, err := http.Get(url)
@@ -197,10 +198,10 @@ func main() {
 		// Run our FM command.
 		err := exec.Run(ctx, cmd)
 
-		// On success, scan stdout for any unknown hashes.
+		// On success, scan stdout for any unknown hashes if we're planning to upload to Gold.
 		sourcesWithUnknownHashes := []string{}
 		unknownHash := ""
-		if err == nil && *bot != "" { // We only fetch known hashes when using -bot.
+		if err == nil && *gold {
 			scanner := bufio.NewScanner(stdout)
 			for scanner.Scan() {
 				if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
