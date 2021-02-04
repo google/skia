@@ -556,16 +556,17 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     SkVector cb = b;
     cb -= c;
 
-    // After the transform we might have a line, try to do something reasonable
-    if (toDevice && SkPointPriv::LengthSqd(ab) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+    // After the transform (or due to floating point math) we might have a line,
+    // try to do something reasonable
+    if (SkPointPriv::LengthSqd(ab) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
         ab = cb;
     }
-    if (toDevice && SkPointPriv::LengthSqd(cb) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+    if (SkPointPriv::LengthSqd(cb) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
         cb = ab;
     }
 
     // We should have already handled degenerates
-    SkASSERT(toDevice || (ab.length() > 0 && cb.length() > 0));
+    SkASSERT(ab.length() > 0 && cb.length() > 0);
 
     ab.normalize();
     SkVector abN = SkPointPriv::MakeOrthog(ab, SkPointPriv::kLeft_Side);
