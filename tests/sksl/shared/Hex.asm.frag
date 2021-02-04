@@ -42,10 +42,10 @@ OpDecorate %45 RelaxedPrecision
 %_ptr_Function_int = OpTypePointer Function %int
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
-%int_305441740 = OpConstant %int 305441740
-%int_2147483646 = OpConstant %int 2147483646
-%int_n2147483647 = OpConstant %int -2147483647
-%int_n48879 = OpConstant %int -48879
+%int_4660 = OpConstant %int 4660
+%int_32766 = OpConstant %int 32766
+%int_n32766 = OpConstant %int -32766
+%int_19132 = OpConstant %int 19132
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %_entrypoint = OpFunction %void None %15
 %16 = OpLabel
@@ -64,19 +64,19 @@ OpStore %i1 %int_0
 %24 = OpLoad %int %i1
 %26 = OpIAdd %int %24 %int_1
 OpStore %i1 %26
-OpStore %i2 %int_305441740
+OpStore %i2 %int_4660
 %29 = OpLoad %int %i2
 %30 = OpIAdd %int %29 %int_1
 OpStore %i2 %30
-OpStore %i3 %int_2147483646
+OpStore %i3 %int_32766
 %33 = OpLoad %int %i3
 %34 = OpIAdd %int %33 %int_1
 OpStore %i3 %34
-OpStore %i4 %int_n2147483647
+OpStore %i4 %int_n32766
 %37 = OpLoad %int %i4
 %38 = OpIAdd %int %37 %int_1
 OpStore %i4 %38
-OpStore %i5 %int_n48879
+OpStore %i5 %int_19132
 %41 = OpLoad %int %i5
 %42 = OpIAdd %int %41 %int_1
 OpStore %i5 %42

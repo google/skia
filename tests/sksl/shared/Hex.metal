@@ -15,13 +15,13 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     int i1 = 0;
     i1++;
-    int i2 = 305441740;
+    int i2 = 4660;
     i2++;
-    int i3 = 2147483646;
+    int i3 = 32766;
     i3++;
-    int i4 = -2147483647;
+    int i4 = -32766;
     i4++;
-    int i5 = -48879;
+    int i5 = 19132;
     i5++;
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
