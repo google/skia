@@ -137,6 +137,30 @@
       },
       "revId": "f4c51025090359731dcc9149f51a40562081b50e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86af3e08_92f9be67",
+        "filename": "src/sksl/SkSLOperators.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:49:35Z",
+      "side": 1,
+      "message": "Anyplace that stores *an operator as* a Token::Kind",
+      "parentUuid": "f27905c9_266dddf4",
+      "range": {
+        "startLine": 9,
+        "startChar": 8,
+        "endLine": 9,
+        "endChar": 22
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
