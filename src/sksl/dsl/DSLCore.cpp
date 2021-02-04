@@ -19,7 +19,6 @@ namespace SkSL {
 
 namespace dsl {
 
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 void Start(SkSL::Compiler* compiler) {
     DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler));
 }
@@ -27,7 +26,6 @@ void Start(SkSL::Compiler* compiler) {
 void End() {
     DSLWriter::SetInstance(nullptr);
 }
-#endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 
 void SetErrorHandler(ErrorHandler* errorHandler) {
     DSLWriter::SetErrorHandler(errorHandler);
