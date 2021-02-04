@@ -10,23 +10,19 @@
 
 #include "src/sksl/dsl/DSL.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+class GrGLSLFragmentProcessor;
 
 namespace SkSL {
 
 namespace dsl {
 
 void StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
-                            GrGLSLFragmentProcessor::EmitArgs* emitArgs);
+                            void* emitArgs);
 
 void EndFragmentProcessor();
 
 } // namespace dsl
 
 } // namespace SkSL
-
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 #endif

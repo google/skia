@@ -9,14 +9,12 @@
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-
 namespace SkSL {
 
 namespace dsl {
 
 void StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
-                            GrGLSLFragmentProcessor::EmitArgs* emitArgs) {
+                            void* emitArgs) {
     DSLWriter::StartFragmentProcessor(processor, emitArgs);
 }
 
@@ -27,5 +25,3 @@ void EndFragmentProcessor() {
 } // namespace dsl
 
 } // namespace SkSL
-
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
