@@ -3392,11 +3392,11 @@ protected:
         ParagraphStyle paragraph_style;
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("Roboto") });
+        //text_style.setFontFamilies({SkString("Roboto") });
         text_style.setFontSize(20);
         text_style.setColor(SK_ColorBLACK);
         builder.pushStyle(text_style);
-        builder.addText("A\n\n");
+        builder.addText("אאאאn\n\nבבבב");
         builder.pop();
         auto paragraph = builder.Build();
         paragraph->layout(width());
