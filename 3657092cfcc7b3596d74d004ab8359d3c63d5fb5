@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bca5402_9d3c9861",
+        "filename": "infra/bots/task_drivers/fm_driver/fm_driver.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-04T16:16:40Z",
+      "side": 1,
+      "message": "Can we just use two levels of sync.WaitGroup?  ie. add a `wg *sync.WaitGroup` field to the Work struct and do:\n\nfor w :\u003d range queue {\n  // For organizational purposes, create a step representing this batch,\n  // with the batch call to FM and any individual reruns all nested inside.\n  defer w.wg.Done()\n  ctx :\u003d startStep(w.Ctx, td.Props(strings.Join(w.Sources, \" \")))\n  defer endStep(ctx)\n  worker(ctx, w.Sources, w.Flags)\n}\n\nThen, in kickoff() we do:\n\nkickoff :\u003d func(...) {\n  wg.Add(1)\n  ...\n  var kickoffWg sync.WaitGroup // Pending Work for this instance of kickoff().\n  util.ChunkIter(len(sources), batchSize, func(start, end int) error {\n    kickoffWg.Add(1)\n    queue \u003c- \u0026Work{ctx, \u0026kickoffWg, sources[start:end], flags}\n    return nil\n  })\n  // Once all the work we\u0027ve kicked off finishes, signal that we\u0027re done.\n  go func() {\n    kickoffWg.Wait()\n    wg.Done()\n  }()\n}",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 278,
+        "endChar": 5
+      },
+      "revId": "3657092cfcc7b3596d74d004ab8359d3c63d5fb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
