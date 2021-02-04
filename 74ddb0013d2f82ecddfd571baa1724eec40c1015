@@ -16,6 +16,23 @@
       "message": "New to Skia, so I’m not sure if I’ve covered everything with this patch. For example, SkDrawLooper is SkFlattenable, so does that require special consideration when adding new fields?",
       "revId": "74ddb0013d2f82ecddfd571baa1724eec40c1015",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89167ce4_28ea69fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-04T14:35:18Z",
+      "side": 1,
+      "message": "Skia no longer uses loopers at all. They used to be stored in SkPaint, but no more.",
+      "revId": "74ddb0013d2f82ecddfd571baa1724eec40c1015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
