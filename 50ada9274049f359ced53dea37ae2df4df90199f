@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4302285_498209da",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 1256,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-04T16:55:59Z",
+      "side": 1,
+      "message": "Yeah, it seems the complexity here comes from the placeholder glyph being spec\u0027ed as having arbitrary points which mark extremes instead of defining contour(s) which define a simple area which will cover the whole glyph.",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "778145b8_09ee1c32",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-04T16:55:59Z",
+      "side": 1,
+      "message": "I don\u0027t think this ref/unref_ft_library stuff should be needed here. The SkScalerContext_FreeType holds a ref_ft_library for its lifetime already.",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e3156ab_a25b80cb",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-04T16:55:59Z",
+      "side": 1,
+      "message": "nit: comment line a bit long",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e838b7b3_8947bda2",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-04T16:55:59Z",
+      "side": 1,
+      "message": "Seems like this block should go inside the conditional block below?",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "377804b2_d0b8b7b8",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-04T16:55:59Z",
+      "side": 1,
+      "message": "nit: Skia likes braces",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
