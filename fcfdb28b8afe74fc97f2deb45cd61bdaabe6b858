@@ -57,6 +57,24 @@
       "parentUuid": "64a9d9d5_5d1bb023",
       "revId": "fcfdb28b8afe74fc97f2deb45cd61bdaabe6b858",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd78cfef_9e3afa81",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-04T16:26:03Z",
+      "side": 1,
+      "message": "Ah true -- the matrix tweak runs iff nearest, and the sampling tweak runs iff linear -- but interesting that the matrix tweak would turn integer translate into non-integers.",
+      "parentUuid": "d9dc7f2c_0160d2d7",
+      "revId": "fcfdb28b8afe74fc97f2deb45cd61bdaabe6b858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
