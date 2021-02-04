@@ -94,14 +94,6 @@ public:
      */
     sk_sp<SkImageFilter> makeWithLocalMatrix(const SkMatrix& matrix) const;
 
-    /**
-     * Return an imagefilter which transforms its input by the given matrix.
-     * DEPRECATED: Use include/effects/SkImageFilters::MatrixTransform
-     */
-    static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
-                                                 SkFilterQuality quality,
-                                                 sk_sp<SkImageFilter> input);
-
     static SkFlattenable::Type GetFlattenableType() {
         return kSkImageFilter_Type;
     }

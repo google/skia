@@ -202,8 +202,8 @@ protected:
         filterMatrix.setRotate(fDegrees, 64, 64);
 
         sk_sp<SkImageFilter> filter =
-                SkImageFilter::MakeMatrixFilter(filterMatrix, kLow_SkFilterQuality, nullptr)
-                             ->makeWithLocalMatrix(localMatrix);
+                SkImageFilters::MatrixTransform(filterMatrix, kLow_SkFilterQuality, nullptr)
+                              ->makeWithLocalMatrix(localMatrix);
 
         SkPaint p;
         p.setImageFilter(filter);
