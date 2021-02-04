@@ -9,11 +9,12 @@
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
+#include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
-GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMatrix,
-                       const SkStrokeRec& stroke, const SkPath& path, GrPaint&& paint)
-        : GrDrawOp(classID)
+GrStrokeOp::GrStrokeOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkPath& path,
+                       const SkStrokeRec& stroke, GrPaint&& paint)
+        : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
         , fStroke(stroke)
@@ -103,14 +104,32 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
-void GrStrokeOp::prePreparePrograms(GrStrokeTessellateShader::Mode shaderMode, SkArenaAlloc* arena,
-                                    const GrSurfaceProxyView& writeView, GrAppliedClip&& clip,
-                                    const GrXferProcessor::DstProxyView& dstProxyView,
-                                    GrXferBarrierFlags renderPassXferBarriers,
-                                    GrLoadOp colorLoadOp, const GrCaps& caps) {
+void GrStrokeOp::prePrepareTessellator(SkArenaAlloc* arena, const GrSurfaceProxyView& writeView,
+                                       GrAppliedClip&& clip,
+                                       const GrXferProcessor::DstProxyView& dstProxyView,
+                                       GrXferBarrierFlags renderPassXferBarriers,
+                                       GrLoadOp colorLoadOp, const GrCaps& caps) {
     using InputFlags = GrPipeline::InputFlags;
+    SkASSERT(!fTessellator);
     SkASSERT(!fFillProgram);
     SkASSERT(!fStencilProgram);
+
+    // Only use hardware tessellation if the path has a somewhat large number of verbs. Otherwise we
+    // seem to be better off using indirect draws. Our back door for HW tessellation shaders isn't
+    // currently capable of passing varyings to the fragment shader either, so if the processors use
+    // varyings we have to use indirect draws.
+    GrStrokeTessellateShader::Mode shaderMode;
+    if (caps.shaderCaps()->tessellationSupport() &&
+        fTotalCombinedVerbCnt > 50 &&
+        !fProcessors.usesVaryingCoords()) {
+        fTessellator = arena->make<GrStrokeHardwareTessellator>(*caps.shaderCaps(), fViewMatrix,
+                                                                fStroke);
+        shaderMode = GrStrokeTessellateShader::Mode::kTessellation;
+    } else {
+        fTessellator = arena->make<GrStrokeIndirectTessellator>(fViewMatrix, fPathList, fStroke,
+                                                                fTotalCombinedVerbCnt, arena);
+        shaderMode = GrStrokeTessellateShader::Mode::kIndirect;
+    }
 
     // This will be created iff the stencil pass can't share a pipeline with the fill pass.
     GrPipeline* standaloneStencilPipeline = nullptr;
@@ -159,7 +178,48 @@ void GrStrokeOp::prePreparePrograms(GrStrokeTessellateShader::Mode shaderMode, S
         fillStencil = &kTestAndResetStencil;
         fillXferFlags = GrXferBarrierFlags::kNone;
     }
+
     fFillProgram = GrPathShader::MakeProgramInfo(strokeTessellateShader, arena, writeView,
                                                  fillPipeline, dstProxyView, fillXferFlags,
                                                  colorLoadOp, fillStencil, caps);
+}
+
+void GrStrokeOp::onPrePrepare(GrRecordingContext* context, const GrSurfaceProxyView& writeView,
+                              GrAppliedClip* clip,
+                              const GrXferProcessor::DstProxyView& dstProxyView,
+                              GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
+    this->prePrepareTessellator(context->priv().recordTimeAllocator(), writeView,
+                                (clip) ? std::move(*clip) : GrAppliedClip::Disabled(), dstProxyView,
+                                renderPassXferBarriers, colorLoadOp, *context->priv().caps());
+    if (fStencilProgram) {
+        context->priv().recordProgramInfo(fStencilProgram);
+    }
+    if (fFillProgram) {
+        context->priv().recordProgramInfo(fFillProgram);
+    }
+}
+
+void GrStrokeOp::onPrepare(GrOpFlushState* flushState) {
+    if (!fTessellator) {
+        this->prePrepareTessellator(flushState->allocator(), flushState->writeView(),
+                                    flushState->detachAppliedClip(), flushState->dstProxyView(),
+                                    flushState->renderPassBarriers(), flushState->colorLoadOp(),
+                                    flushState->caps());
+    }
+    SkASSERT(fTessellator);
+    fTessellator->prepare(flushState, fViewMatrix, fPathList, fStroke, fTotalCombinedVerbCnt);
+}
+
+void GrStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    SkASSERT(chainBounds == this->bounds());
+    if (fStencilProgram) {
+        flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
+        flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
+        fTessellator->draw(flushState);
+    }
+    if (fFillProgram) {
+        flushState->bindPipelineAndScissorClip(*fFillProgram, this->bounds());
+        flushState->bindTextures(fFillProgram->primProc(), nullptr, fFillProgram->pipeline());
+        fTessellator->draw(flushState);
+    }
 }
