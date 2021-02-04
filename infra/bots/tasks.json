@@ -14846,6 +14846,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
+        "--gold=true",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -14900,6 +14901,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN",
+        "--gold=false",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -14962,6 +14964,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN",
+        "--gold=false",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15024,6 +15027,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN",
+        "--gold=false",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15081,6 +15085,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All",
+        "--gold=true",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15129,6 +15134,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-ASAN",
+        "--gold=false",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15177,6 +15183,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Mac-Clang-VMware7.1-CPU-AVX-x86_64-Release-All-TSAN",
+        "--gold=false",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15225,6 +15232,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
+        "--gold=true",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15274,6 +15282,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN",
+        "--gold=false",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
@@ -15323,6 +15332,7 @@
         "<(TASK_ID)",
         "--bot",
         "FM-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-All",
+        "--gold=true",
         "build/fm${EXECUTABLE_SUFFIX}"
       ],
       "dependencies": [
