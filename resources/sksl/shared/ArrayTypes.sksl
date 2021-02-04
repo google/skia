@@ -1,6 +1,13 @@
-void main() {
-    float2 x[2] = float2[2](float2(1), float2(2));
-    float2[2] y = float2[2](float2(3), float2(4));
+half4 main() {
+    float2 x[2];
+    x[0] = float2( 0, 0);
+    x[1] = float2( 1, 0);
+    float2 y[2];
+    y[0] = float2( 0, 1);
+    y[1] = float2(-1, 2);
 
-    sk_FragColor = half4(half2(x[0]), half2(y[1]));
+    return half4(x[0][0] * x[0][1],   // R=0
+                 x[1][0] - x[1][1],   // G=1
+                 y[0][0] / y[0][1],   // B=0
+                 y[1][0] + y[1][1]);  // A=1
 }

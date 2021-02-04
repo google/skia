@@ -10,7 +10,7 @@ struct testBlock {
     float x;
     int w;
     char pad0[8];
-    float y[2];
+    array<float, 2> y;
     char pad1[24];
     float3x3 z;
 };

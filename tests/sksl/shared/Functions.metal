@@ -22,7 +22,7 @@ float foo(float2 v) {
     return v.x * v.y;
 }
 void bar(thread float& x) {
-    float y[2];
+    array<float, 2> y;
     y[0] = x;
     y[1] = x * 2.0;
     x = foo(float2(y[0], y[1]));
