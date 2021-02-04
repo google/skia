@@ -50,6 +50,19 @@ static SkPath make_cubic_path() {
     return path;
 }
 
+static SkPath make_conic_path() {
+    SkRandom rand;
+    SkPath path;
+    for (int i = 0; i < kNumCubicsInChalkboard / 40; ++i) {
+        for (int j = -10; j <= 10; j++) {
+            const float x = std::ldexp(rand.nextF(), (i % 18)) / 1e3f;
+            const float w = std::ldexp(1 + rand.nextF(), j);
+            path.conicTo(111.625f * x, 308.188f * x, 764.62f * x, -435.688f * x, w);
+        }
+    }
+    return path;
+}
+
 // This serves as a base class for benchmarking individual methods on GrPathTessellateOp.
 class PathTessellateBenchmark : public Benchmark {
 public:
@@ -135,6 +148,46 @@ DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_scale, make_cubic_path(),
 DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(),
                     SkMatrix::MakeAll(.9f,0.9f,0,  1.1f,1.1f,0, 0,0,1)) {
     benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
+}
+
+static void benchmark_wangs_formula_conic(const SkMatrix& matrix, const SkPath& path) {
+    // Conic version expects tolerance, not intolerance
+    constexpr float kTolerance = 4;
+    int sum = 0;
+    GrVectorXform xform(matrix);
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        if (verb == SkPathVerb::kConic) {
+            sum += GrWangsFormula::conic(kTolerance, pts, *w, xform);
+        }
+    }
+    // Don't let the compiler optimize away GrWangsFormula::conic.
+    if (sum <= 0) {
+        SK_ABORT("sum should be > 0.");
+    }
+}
+
+static void benchmark_wangs_formula_conic_log2(const SkMatrix& matrix, const SkPath& path) {
+    // Conic version expects tolerance, not intolerance
+    constexpr float kTolerance = 4;
+    int sum = 0;
+    GrVectorXform xform(matrix);
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        if (verb == SkPathVerb::kConic) {
+            sum += GrWangsFormula::conic_log2(kTolerance, pts, *w, xform);
+        }
+    }
+    // Don't let the compiler optimize away GrWangsFormula::conic.
+    if (sum <= 0) {
+        SK_ABORT("sum should be > 0.");
+    }
+}
+
+DEF_PATH_TESS_BENCH(wangs_formula_conic, make_conic_path(), SkMatrix::I()) {
+    benchmark_wangs_formula_conic(fMatrix, fPath);
+}
+
+DEF_PATH_TESS_BENCH(wangs_formula_conic_log2, make_conic_path(), SkMatrix::I()) {
+    benchmark_wangs_formula_conic_log2(fMatrix, fPath);
 }
 
 DEF_PATH_TESS_BENCH(middle_out_triangulation,
