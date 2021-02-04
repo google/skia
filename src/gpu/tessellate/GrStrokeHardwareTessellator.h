@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeTessellateOp_DEFINED
-#define GrStrokeTessellateOp_DEFINED
+#ifndef GrStrokeHardwareTessellator_DEFINED
+#define GrStrokeHardwareTessellator_DEFINED
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/tessellate/GrStrokeOp.h"
@@ -15,22 +15,16 @@
 // Renders opaque, constant-color strokes by decomposing them into standalone tessellation patches.
 // Each patch is either a "cubic" (single stroked bezier curve with butt caps) or a "join". Requires
 // MSAA if antialiasing is desired.
-class GrStrokeTessellateOp : public GrStrokeOp {
+class GrStrokeHardwareTessellator : public GrStrokeTessellator {
 public:
-    DEFINE_OP_CLASS_ID
+    GrStrokeHardwareTessellator(const GrShaderCaps&, const SkMatrix&, const SkStrokeRec& stroke);
+
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<SkPath>&,
+                 const SkStrokeRec&, int totalCombinedVerbCnt) override;
+
+    void draw(GrOpFlushState*) const override;
 
 private:
-    // Patches can overlap, so until a stencil technique is implemented, the provided paint must be
-    // a constant blended color.
-    GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkStrokeRec& stroke,
-                         const SkPath& path, GrPaint&& paint)
-            : GrStrokeOp(ClassID(), aaType, viewMatrix, stroke, path, std::move(paint)) {
-    }
-
-    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
-                      GrLoadOp colorLoadOp) override;
-
     enum class JoinType {
         kFromStroke,  // The shader will use the join type defined in our fStrokeRec.
         kBowtie,  // Double sided round join.
@@ -43,8 +37,6 @@ private:
         kYes
     };
 
-    void onPrepare(GrOpFlushState*) override;
-    void prepareBuffers();
     void moveTo(SkPoint);
     void moveTo(SkPoint, SkPoint lastControlPoint);
     void lineTo(SkPoint, JoinType prevJoinType = JoinType::kFromStroke);
@@ -54,7 +46,7 @@ private:
                  Convex180Status = Convex180Status::kUnknown, int maxDepth = -1);
     void joinTo(JoinType joinType, const SkPoint nextCubic[]) {
         const SkPoint& nextCtrlPt = (nextCubic[1] == nextCubic[0]) ? nextCubic[2] : nextCubic[1];
-        // The caller should have culled out cubics where p0==p1==p2 by this point.
+        // The caller should have culled out curves where p0==p1==p2 by this point.
         SkASSERT(nextCtrlPt != nextCubic[0]);
         this->joinTo(joinType, nextCtrlPt);
     }
@@ -66,27 +58,17 @@ private:
     GrStrokeTessellateShader::Patch* reservePatch();
     void allocPatchChunkAtLeast(int minPatchAllocCount);
 
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-
-    // We generate and store patch buffers in chunks. Normally there will only be one chunk, but in
-    // rare cases the first can run out of space if too many cubics needed to be subdivided.
-    struct PatchChunk {
-        sk_sp<const GrBuffer> fPatchBuffer;
-        int fPatchCount = 0;
-        int fBasePatch;
-    };
-    SkSTArray<1, PatchChunk> fPatchChunks;
-
-    // The target will be non-null during prepareBuffers. It is used to allocate vertex space for
-    // the patch chunks.
-    GrMeshDrawOp::Target* fTarget = nullptr;
-
     // The maximum number of tessellation segments the hardware can emit for a single patch.
-    int fMaxTessellationSegments;
+    const int fMaxTessellationSegments;
+    const SkStrokeRec fStroke;
 
     // Tolerances the tessellation shader will use for determining how much subdivision to do. We
     // need to ensure every curve we emit doesn't require more than fMaxTessellationSegments.
     GrStrokeTessellateShader::Tolerances fTolerances;
+
+    // The target and view matrix will only be non-null during prepare() and its callees.
+    GrMeshDrawOp::Target* fTarget = nullptr;
+    const SkMatrix* fViewMatrix = nullptr;
 
     // These values contain worst-case numbers of parametric segments, raised to the 4th power, that
     // our hardware can support for the current stroke radius. They assume curve rotations of 180
@@ -99,6 +81,15 @@ private:
     float fMaxParametricSegments360_pow4_withJoin;
     float fMaxCombinedSegments_withJoin;
     bool fSoloRoundJoinAlwaysFitsInPatch;
+
+    // We generate and store patch buffers in chunks. Normally there will only be one chunk, but in
+    // rare cases the first can run out of space if too many cubics needed to be subdivided.
+    struct PatchChunk {
+        sk_sp<const GrBuffer> fPatchBuffer;
+        int fPatchCount = 0;
+        int fBasePatch;
+    };
+    SkSTArray<1, PatchChunk> fPatchChunks;
 
     // Variables related to the patch chunk that we are currently writing out during prepareBuffers.
     int fCurrChunkPatchCapacity;

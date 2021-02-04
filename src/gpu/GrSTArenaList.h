@@ -40,12 +40,12 @@ public:
         bool operator!=(const Iter& it) const { return fCurr != it.fCurr; }
         bool operator==(const Iter& it) const { return fCurr == it.fCurr; }
         void operator++() { fCurr = fCurr->fNext; }
-        T& operator*() { return fCurr->fElement; }
-        Node* fCurr;
+        const T& operator*() { return fCurr->fElement; }
+        const Node* fCurr;
     };
 
-    Iter begin() { return Iter{&fHead}; }
-    Iter end() { return Iter{nullptr}; }
+    Iter begin() const { return Iter{&fHead}; }
+    Iter end() const { return Iter{nullptr}; }
 
 private:
     Node fHead;
