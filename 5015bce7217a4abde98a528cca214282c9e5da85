@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82e9d8d0_9aacd642",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-04T15:29:34Z",
+      "side": 1,
+      "message": "Okay last real change in this series (final one is just a renaming of GrVkBuffer2 to GrVkBuffer).",
+      "revId": "5015bce7217a4abde98a528cca214282c9e5da85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
