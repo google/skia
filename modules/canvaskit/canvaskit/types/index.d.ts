@@ -382,10 +382,11 @@ export interface CanvasKit {
      * Requires that Skottie be compiled into CanvasKit.
      * @param json
      * @param assets - a dictionary of named blobs: { key: ArrayBuffer, ... }
+     * @param soundMap - an object with a backing Map of strings to audio players with seek()
      * @param filterPrefix - an optional string acting as a name filter for selecting "interesting"
      *                       Lottie properties (surfaced in the embedded player controls)
      */
-    MakeManagedAnimation(json: string, assets?: Record<string, ArrayBuffer>,
+    MakeManagedAnimation(json: string, assets?: Record<string, ArrayBuffer>, soundMap?: SoundMap,
                          filterPrefix?: string): ManagedSkottieAnimation;
 
     /**
@@ -676,6 +677,14 @@ export interface MallocObj {
     toTypedArray(): TypedArray;
 }
 
+export interface AudioPlayer {
+    seek(t: number): void;
+}
+
+export interface SoundMap {
+    setPlayer(key: string, player: AudioPlayer): void;
+    getPlayer(key: string): AudioPlayer;
+}
 export interface ManagedSkottieAnimation extends SkottieAnimation {
     setColor(key: string, color: InputColor): void;
     setOpacity(key: string, opacity: number): void;
