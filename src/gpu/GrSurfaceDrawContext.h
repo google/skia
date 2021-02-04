@@ -709,10 +709,13 @@ private:
     void drawStrokedLine(const GrClip*, GrPaint&&, GrAA, const SkMatrix&, const SkPoint[2],
                          const SkStrokeRec&);
 
-    // If 'attemptShapeFallback' is true, and the original shape had been simplfied, this
-    // will re-route through drawShape() to see if we can avoid path rendering one more time.
+    bool drawSimpleShape(const GrClip*, GrPaint*, GrAA, const SkMatrix&, const GrStyledShape&);
+
+    // If 'attemptDrawSimple' is true, and the original shape had been simplfied, this
+    // will attempt to re-route through drawSimplShape() to see if we can avoid path rendering one
+    // more time.
     void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
-                                    GrStyledShape&&, bool attemptShapeFallback = true);
+                                    GrStyledShape&&, bool attemptDrawSimple = true);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
