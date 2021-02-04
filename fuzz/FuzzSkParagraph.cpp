@@ -252,7 +252,7 @@ ParagraphStyle BuildParagraphStyle(Fuzz* fuzz) {
 
 }  // namespace
 
-DEF_FUZZ(api_skparagraph, fuzz) {
+DEF_FUZZ(SkParagraph, fuzz) {
     static sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     ParagraphStyle paragraph_style = BuildParagraphStyle(fuzz);
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
