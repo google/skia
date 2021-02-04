@@ -75,7 +75,7 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     Token::Kind op = b.getOperator();
     if (op == Token::Kind::TK_PERCENT) {
         // need to use "%%" instead of "%" b/c the code will be inside of a printf
-        Precedence precedence = GetBinaryPrecedence(op);
+        Precedence precedence = Operators::GetBinaryPrecedence(op);
         if (precedence >= parentPrecedence) {
             this->write("(");
         }
@@ -239,7 +239,7 @@ void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression
     if (is_private(var)) {
         this->writeRuntimeValue(var.type(), var.modifiers().fLayout, var.name());
     } else {
-        this->writeExpression(value, kTopLevel_Precedence);
+        this->writeExpression(value, Precedence::kTopLevel);
     }
 }
 
@@ -264,7 +264,7 @@ void CPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     if (fCPPMode) {
         // no support for multiple swizzle components yet
         SkASSERT(swizzle.components().size() == 1);
-        this->writeExpression(*swizzle.base(), kPostfix_Precedence);
+        this->writeExpression(*swizzle.base(), Precedence::kPostfix);
         switch (swizzle.components()[0]) {
             case 0: this->write(".left()");   break;
             case 1: this->write(".top()");    break;
@@ -471,7 +471,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         for (const auto& arg : arguments) {
             this->write(separator);
             separator = ", ";
-            this->writeExpression(*arg, kSequence_Precedence);
+            this->writeExpression(*arg, Precedence::kSequence);
         }
         this->write(")");
     }
@@ -734,7 +734,7 @@ void CPPCodeGenerator::writePrivateVarValues() {
             if (is_private(decl.var()) && decl.value()) {
                 this->writef("%s = ", String(decl.var().name()).c_str());
                 fCPPMode = true;
-                this->writeExpression(*decl.value(), kAssignment_Precedence);
+                this->writeExpression(*decl.value(), Precedence::kAssignment);
                 fCPPMode = false;
                 this->write(";\n");
             }
@@ -900,7 +900,7 @@ String CPPCodeGenerator::convertSKSLExpressionToCPP(const Expression& e,
     fFormatArgs.clear();
 
     // Convert the argument expression into a format string and args
-    this->writeExpression(e, Precedence::kTopLevel_Precedence);
+    this->writeExpression(e, Precedence::kTopLevel);
     std::vector<String> newArgs(fFormatArgs);
     String expr = exprBuffer.str();
 
@@ -1289,7 +1289,7 @@ void CPPCodeGenerator::writeGetKey() {
                                         String(var.name()).c_str());
                         if (decl.value()) {
                             fCPPMode = true;
-                            this->writeExpression(*decl.value(), kAssignment_Precedence);
+                            this->writeExpression(*decl.value(), Precedence::kAssignment);
                             fCPPMode = false;
                         } else {
                             this->writef("%s", default_value(var).c_str());
