@@ -9,7 +9,7 @@
 #define GrStrokeHardwareTessellator_DEFINED
 
 #include "include/core/SkStrokeRec.h"
-#include "src/gpu/tessellate/GrStrokeOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
 // Renders opaque, constant-color strokes by decomposing them into standalone tessellation patches.

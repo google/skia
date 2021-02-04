@@ -18,7 +18,7 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
-#include "src/gpu/tessellate/GrStrokeOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrTessellatingStencilFillOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
@@ -211,7 +211,8 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
     if (!shape.style().isSimpleFill()) {
         const SkStrokeRec& stroke = shape.style().strokeRec();
         SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
-        return GrOp::Make<GrStrokeOp>(rContext, aaType, viewMatrix, path, stroke, std::move(paint));
+        return GrOp::Make<GrStrokeTessellateOp>(rContext, aaType, viewMatrix, path, stroke,
+                                                std::move(paint));
     } else {
         if ((1 << worstCaseResolveLevel) > shaderCaps.maxTessellationSegments()) {
             // The path is too large for hardware tessellation; a curve in this bounding box could
