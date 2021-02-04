@@ -19,6 +19,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/dsl/DSL.h"
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
