@@ -16,6 +16,23 @@
       "message": "Be prepared for this ugliness...let me know if you can think of a better way to do this.\n\nI was thinking of a writeQuadsWithMatrix, but then we need to also add a specialized TriStrip struct to differentiate the position points from the texCoord points so we only map the position ones.",
       "revId": "474579380323438eac713b4606070988ff703afe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5633e664_9c9a5b74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-04T14:57:16Z",
+      "side": 1,
+      "message": "ugh I didn\u0027t actually add you as a reviewer to this CL. See my original comment.",
+      "revId": "474579380323438eac713b4606070988ff703afe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
