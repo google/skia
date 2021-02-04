@@ -16,6 +16,24 @@
       "message": "Interesting that we (I think?) must tweak sampling before tweaking the matrix? Does the matrix tweak turn int-translates into non-ints?",
       "revId": "fcfdb28b8afe74fc97f2deb45cd61bdaabe6b858",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9dc7f2c_0160d2d7",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-04T16:18:34Z",
+      "side": 1,
+      "message": "Other way around... the sampling tweak turns on the matrix tweak sometimes when the SkFilterMode drops to kNearest.",
+      "parentUuid": "64a9d9d5_5d1bb023",
+      "revId": "fcfdb28b8afe74fc97f2deb45cd61bdaabe6b858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
