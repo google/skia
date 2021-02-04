@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f7d6753_79524c5c",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1811,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-04T22:39:31Z",
+      "side": 1,
+      "message": "wdyt about having a kDisallowSWPathRendering and using here and below?",
+      "range": {
+        "startLine": 1811,
+        "startChar": 66,
+        "endLine": 1811,
+        "endChar": 71
+      },
+      "revId": "16ace4e86bf0da90263841abcd33230bb9a83572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
