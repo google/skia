@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "354eaf82_713267ed",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1811,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-04T23:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f4e8144_f27caf0b",
+      "range": {
+        "startLine": 1811,
+        "startChar": 66,
+        "endLine": 1811,
+        "endChar": 71
+      },
+      "revId": "16ace4e86bf0da90263841abcd33230bb9a83572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e9609e81_84b4bbfc",
@@ -71,6 +95,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0e277e9_d94bf1bd",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1852,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-04T23:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9609e81_84b4bbfc",
+      "range": {
+        "startLine": 1852,
+        "startChar": 70,
+        "endLine": 1852,
+        "endChar": 74
+      },
+      "revId": "16ace4e86bf0da90263841abcd33230bb9a83572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c7ddcc41_07c323c1",
@@ -84,6 +132,30 @@
       "writtenOn": "2021-02-04T23:04:12Z",
       "side": 1,
       "message": "Because then we get this fallback message every time it falls back on software",
+      "range": {
+        "startLine": 1856,
+        "startChar": 12,
+        "endLine": 1856,
+        "endChar": 58
+      },
+      "revId": "16ace4e86bf0da90263841abcd33230bb9a83572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01b9068f_acba2582",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1856,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-04T23:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7ddcc41_07c323c1",
       "range": {
         "startLine": 1856,
         "startChar": 12,
