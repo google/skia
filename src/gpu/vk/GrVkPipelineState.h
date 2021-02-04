@@ -45,6 +45,7 @@ public:
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
             uint32_t uniformSize,
+            bool usePushConstants,
             const UniformInfoArray& samplers,
             std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -125,6 +126,7 @@ private:
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
 
     GrVkPipelineStateDataManager fDataManager;
+    bool fUsePushConstants; //**** maybe move this into the data manager?
 
     int fNumSamplers;
 };
