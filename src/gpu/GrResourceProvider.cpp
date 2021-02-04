@@ -469,14 +469,16 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     }
     // bin by pow2+midpoint with a reasonable min
     static const size_t MIN_SIZE = 1 << 12;
-    size_t allocSize = std::max(size, MIN_SIZE);
+    static const size_t MIN_UNIFORM_SIZE = 1 << 7;
+    size_t allocSize = intendedType == GrGpuBufferType::kUniform ? std::max(size, MIN_UNIFORM_SIZE)
+                                                                 : std::max(size, MIN_SIZE);
     size_t ceilPow2 = GrNextSizePow2(allocSize);
     size_t floorPow2 = ceilPow2 >> 1;
     size_t mid = floorPow2 + (floorPow2 >> 1);
     allocSize = (allocSize <= mid) ? mid : ceilPow2;
 
     GrScratchKey key;
-    GrGpuBuffer::ComputeScratchKeyForDynamicVBO(allocSize, intendedType, &key);
+    GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(allocSize, intendedType, &key);
     auto buffer =
             sk_sp<GrGpuBuffer>(static_cast<GrGpuBuffer*>(this->cache()->findAndRefScratchResource(
                     key)));

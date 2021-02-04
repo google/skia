@@ -415,6 +415,8 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
             break;
         case GrGpuBufferType::kUniform:
             SkASSERT(accessPattern == kDynamic_GrAccessPattern);
+            buff = GrVkBuffer2::MakeUniform(this, size);
+            break;
     }
     if (data && buff) {
         buff->updateData(data, size);

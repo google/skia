@@ -17,7 +17,6 @@
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
-#include "src/gpu/vk/GrVkUniformBuffer.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
@@ -460,22 +459,6 @@ void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
     }
 }
 
-const GrManagedResource* GrVkResourceProvider::findOrCreateStandardUniformBufferResource() {
-    const GrManagedResource* resource = nullptr;
-    int count = fAvailableUniformBufferResources.count();
-    if (count > 0) {
-        resource = fAvailableUniformBufferResources[count - 1];
-        fAvailableUniformBufferResources.removeShuffle(count - 1);
-    } else {
-        resource = GrVkUniformBuffer::CreateResource(fGpu, GrVkUniformBuffer::kStandardSize);
-    }
-    return resource;
-}
-
-void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrManagedResource* resource) {
-    fAvailableUniformBufferResources.push_back(resource);
-}
-
 void GrVkResourceProvider::destroyResources() {
     SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
@@ -519,13 +502,6 @@ void GrVkResourceProvider::destroyResources() {
         pool->unref();
     }
     fAvailableCommandPools.reset();
-
-    // release our uniform buffers
-    for (int i = 0; i < fAvailableUniformBufferResources.count(); ++i) {
-        SkASSERT(fAvailableUniformBufferResources[i]->unique());
-        fAvailableUniformBufferResources[i]->unref();
-    }
-    fAvailableUniformBufferResources.reset();
 
     // We must release/destroy all command buffers and pipeline states before releasing the
     // GrVkDescriptorSetManagers. Additionally, we must release all uniform buffers since they hold

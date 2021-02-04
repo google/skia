@@ -7,9 +7,12 @@
 
 #include "src/gpu/vk/GrVkPipelineStateDataManager.h"
 
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrGpuBuffer.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
-#include "src/gpu/vk/GrVkUniformBuffer.h"
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
                                                            uint32_t uniformSize,
@@ -33,16 +36,23 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
     }
 }
 
-bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
-                                                        GrVkUniformBuffer* buffer) const {
-    bool updatedBuffer = false;
-    if (buffer && fUniformsDirty) {
-        SkAssertResult(buffer->updateData(gpu, fUniformData.get(),
-                                          fUniformSize, &updatedBuffer));
+std::pair<sk_sp<GrGpuBuffer>, bool> GrVkPipelineStateDataManager::uploadUniformBuffers(
+        GrVkGpu* gpu) {
+    if (fUniformSize == 0) {
+        return std::make_pair(nullptr, true);
+    }
+    if (fUniformsDirty) {
+        GrResourceProvider* resourceProvider = gpu->getContext()->priv().resourceProvider();
+        fUniformBuffer = resourceProvider->createBuffer(
+                fUniformSize, GrGpuBufferType::kUniform, kDynamic_GrAccessPattern,
+                 fUniformData.get());
+        if (!fUniformBuffer) {
+            return std::make_pair(nullptr, false);
+        }
         fUniformsDirty = false;
     }
 
-    return updatedBuffer;
+    return std::make_pair(fUniformBuffer, true);
 }
 
 void GrVkPipelineStateDataManager::uploadPushConstants(const GrVkGpu* gpu,
@@ -73,3 +83,5 @@ void GrVkPipelineStateDataManager::setMatrix2fv(UniformHandle u,
         this->INHERITED::setMatrix2fv(u, arrayCount, m);
     }
 }
+
+void GrVkPipelineStateDataManager::releaseData() { fUniformBuffer.reset(); }

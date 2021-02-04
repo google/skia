@@ -7,6 +7,7 @@
 
 #include "src/gpu/vk/GrVkBuffer2.h"
 
+#include "src/gpu/vk/GrVkDescriptorSet.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkTransferBuffer.h"
@@ -19,22 +20,50 @@ GrVkBuffer2::GrVkBuffer2(GrVkGpu* gpu,
                          GrGpuBufferType bufferType,
                          GrAccessPattern accessPattern,
                          VkBuffer buffer,
-                         const GrVkAlloc& alloc)
+                         const GrVkAlloc& alloc,
+                         const GrVkDescriptorSet* uniformDescriptorSet)
         : GrGpuBuffer(gpu, sizeInBytes, bufferType, accessPattern)
         , fBuffer(buffer)
-        , fAlloc(alloc) {
+        , fAlloc(alloc)
+        , fUniformDescriptorSet(uniformDescriptorSet) {
     // We always require dynamic buffers to be mappable
     SkASSERT(accessPattern != kDynamic_GrAccessPattern || this->isVkMappable());
+    SkASSERT(bufferType != GrGpuBufferType::kUniform || uniformDescriptorSet);
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 sk_sp<GrVkBuffer2> GrVkBuffer2::MakeUniform(GrVkGpu* gpu, size_t size) {
-    // We want to have a cache of many reusable "small" uniform buffers. Thus we bump the size of
-    // all uniform buffers up to 128 bytes. This should be able to handle most draws and thus we
-    // will get a lot more cache reuse out of them.
-    static constexpr size_t kMinUniformBufferSize = 128;
-    size = std::max(size, kMinUniformBufferSize);
     return Make(gpu, size, GrGpuBufferType::kUniform, kDynamic_GrAccessPattern);
+}
+
+static const GrVkDescriptorSet* make_uniform_desc_set(GrVkGpu* gpu, VkBuffer buffer, size_t size) {
+    const GrVkDescriptorSet* descriptorSet = gpu->resourceProvider().getUniformDescriptorSet();
+    if (!descriptorSet) {
+        return nullptr;
+    }
+
+    VkDescriptorBufferInfo bufferInfo;
+    memset(&bufferInfo, 0, sizeof(VkDescriptorBufferInfo));
+    bufferInfo.buffer = buffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = size;
+
+    VkWriteDescriptorSet descriptorWrite;
+    memset(&descriptorWrite, 0, sizeof(VkWriteDescriptorSet));
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.pNext = nullptr;
+    descriptorWrite.dstSet = *descriptorSet->descriptorSet();
+    descriptorWrite.dstBinding = GrVkUniformHandler::kUniformBinding;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.pImageInfo = nullptr;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+    descriptorWrite.pTexelBufferView = nullptr;
+
+    GR_VK_CALL(gpu->vkInterface(),
+               UpdateDescriptorSets(gpu->device(), 1, &descriptorWrite, 0, nullptr));
+    return descriptorSet;
 }
 
 sk_sp<GrVkBuffer2> GrVkBuffer2::Make(GrVkGpu* gpu,
@@ -103,10 +132,23 @@ sk_sp<GrVkBuffer2> GrVkBuffer2::Make(GrVkGpu* gpu,
     }
 
     if (!GrVkMemory::AllocAndBindBufferMemory(gpu, buffer, allocUsage, &alloc)) {
+        VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
         return nullptr;
     }
 
-    return sk_sp<GrVkBuffer2>(new GrVkBuffer2(gpu, size, bufferType, accessPattern, buffer, alloc));
+    // If this is a uniform buffer we must setup a descriptor set
+    const GrVkDescriptorSet* uniformDescSet = nullptr;
+    if (bufferType == GrGpuBufferType::kUniform) {
+        uniformDescSet = make_uniform_desc_set(gpu, buffer, size);
+        if (!uniformDescSet) {
+            VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
+            GrVkMemory::FreeBufferMemory(gpu, alloc);
+            return nullptr;
+        }
+    }
+
+    return sk_sp<GrVkBuffer2>(new GrVkBuffer2(gpu, size, bufferType, accessPattern, buffer, alloc,
+                                              uniformDescSet));
 }
 
 void GrVkBuffer2::vkMap(size_t size) {
@@ -214,6 +256,11 @@ void GrVkBuffer2::vkRelease() {
         fMapPtr = nullptr;
     }
 
+    if (fUniformDescriptorSet) {
+        fUniformDescriptorSet->recycle();
+        fUniformDescriptorSet = nullptr;
+    }
+
     SkASSERT(fBuffer);
     SkASSERT(fAlloc.fMemory && fAlloc.fBackendMemory);
     VK_CALL(this->getVkGpu(), DestroyBuffer(this->getVkGpu()->device(), fBuffer, nullptr));
@@ -262,6 +309,7 @@ bool GrVkBuffer2::onUpdateData(const void* src, size_t srcSizeInBytes) {
         }
         memcpy(fMapPtr, src, srcSizeInBytes);
         this->vkUnmap(srcSizeInBytes);
+        fMapPtr = nullptr;
     } else {
         this->copyCpuDataToGpuBuffer(src, srcSizeInBytes);
     }
@@ -272,3 +320,9 @@ GrVkGpu* GrVkBuffer2::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
 }
+
+const VkDescriptorSet* GrVkBuffer2::uniformDescriptorSet() const {
+    SkASSERT(fUniformDescriptorSet);
+    return fUniformDescriptorSet->descriptorSet();
+}
+

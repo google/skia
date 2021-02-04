@@ -7,7 +7,10 @@
 
 #include "src/gpu/vk/GrVkMSAALoadManager.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/vk/GrVkBuffer2.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkDescriptorSet.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -16,7 +19,6 @@
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
-#include "src/gpu/vk/GrVkUniformBuffer.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 GrVkMSAALoadManager::GrVkMSAALoadManager()
@@ -114,10 +116,6 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
         return false;
     }
 
-    // We use 1 half4's for uniforms
-    fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, 4 * sizeof(float)));
-    SkASSERT(fUniformBuffer.get());
-
     return true;
 }
 
@@ -142,8 +140,7 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
     }
 
     if (VK_NULL_HANDLE == fVertShaderModule) {
-        SkASSERT(fFragShaderModule == VK_NULL_HANDLE && fPipelineLayout == VK_NULL_HANDLE &&
-                 fUniformBuffer.get() == nullptr);
+        SkASSERT(fFragShaderModule == VK_NULL_HANDLE && fPipelineLayout == VK_NULL_HANDLE);
         if (!this->createMSAALoadProgram(gpu)) {
             SkDebugf("Failed to create copy program.\n");
             return false;
@@ -194,13 +191,22 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
 
     float uniData[] = {dx1 - dx0, dy1 - dy0, dx0, dy0};  // posXform
 
-    fUniformBuffer->updateData(gpu, uniData, sizeof(uniData), nullptr);
+    GrResourceProvider* resourceProvider = gpu->getContext()->priv().resourceProvider();
+    // TODO: Is it worth holding onto the last used uniform buffer and tracking the width, height,
+    // dst width, and dst height so that we can use the buffer again without having to update the
+    // data?
+    sk_sp<GrGpuBuffer> uniformBuffer = resourceProvider->createBuffer(
+            4 * sizeof(float), GrGpuBufferType::kUniform, kDynamic_GrAccessPattern, uniData);
+    if (!uniformBuffer) {
+        return false;
+    }
+    GrVkBuffer2* vkUniformBuffer = static_cast<GrVkBuffer2*>(uniformBuffer.get());
     static_assert(GrVkUniformHandler::kUniformBufferDescSet < GrVkUniformHandler::kInputDescSet);
     commandBuffer->bindDescriptorSets(gpu, fPipelineLayout,
                                       GrVkUniformHandler::kUniformBufferDescSet,
-                                      /*setCount=*/1, fUniformBuffer->descriptorSet(),
+                                      /*setCount=*/1, vkUniformBuffer->uniformDescriptorSet(),
                                       /*dynamicOffsetCount=*/0, /*dynamicOffsets=*/nullptr);
-    commandBuffer->addRecycledResource(fUniformBuffer->resource());
+    commandBuffer->addGrBuffer(std::move(uniformBuffer));
 
     // Update the input descriptor set
     const GrVkDescriptorSet* inputDS = srcRT->inputDescSet(gpu, /*forResolve=*/true);
@@ -238,11 +244,6 @@ void GrVkMSAALoadManager::destroyResources(GrVkGpu* gpu) {
         GR_VK_CALL(gpu->vkInterface(),
                    DestroyPipelineLayout(gpu->device(), fPipelineLayout, nullptr));
         fPipelineLayout = VK_NULL_HANDLE;
-    }
-
-    if (fUniformBuffer) {
-        fUniformBuffer->release(gpu);
-        fUniformBuffer.reset();
     }
 }
 

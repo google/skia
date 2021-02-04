@@ -16,6 +16,7 @@
 
 class GrPipeline;
 class GrStencilSettings;
+class GrVkBuffer2;
 class GrVkCommandBuffer;
 class GrVkDescriptorPool;
 class GrVkDescriptorSet;
@@ -25,7 +26,6 @@ class GrVkPipeline;
 class GrVkRenderTarget;
 class GrVkSampler;
 class GrVkTexture;
-class GrVkUniformBuffer;
 
 /**
  * This class holds onto a GrVkPipeline object that we use for draws. Besides storing the acutal
@@ -114,8 +114,6 @@ private:
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
 
     SkSTArray<4, const GrVkSampler*> fImmutableSamplers;
-
-    std::unique_ptr<GrVkUniformBuffer> fUniformBuffer;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;
