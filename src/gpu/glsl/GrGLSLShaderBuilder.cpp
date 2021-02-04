@@ -81,6 +81,9 @@ void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
     this->functions().append(";\n");
 }
 
+void GrGLSLShaderBuilder::codeAppend(SkSL::dsl::Statement stmt) {
+}
+
 static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
     if (swizzle != GrSwizzle::RGBA()) {
         out->appendf(".%s", swizzle.asString().c_str());
