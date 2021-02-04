@@ -58,6 +58,8 @@ public:
 private:
     constexpr static float kLinearizationIntolerance =
             GrTessellationPathRenderer::kLinearizationIntolerance;
+    constexpr static float kLinearizationTolerance =
+            1.f / GrTessellationPathRenderer::kLinearizationIntolerance;
     constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
 
     const bool fDrawInnerFan;
