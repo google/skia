@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "435392a8_52c9a7b8",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-04T16:34:26Z",
+      "side": 1,
+      "message": "Yeah I thought about that... but I figured making \u003d 0 would force us to at least notionally think about whether this is true or false for each impl.",
+      "parentUuid": "59cecfa6_e65aafa8",
+      "range": {
+        "startLine": 33,
+        "startChar": 17,
+        "endLine": 33,
+        "endChar": 46
+      },
+      "revId": "fcfdb28b8afe74fc97f2deb45cd61bdaabe6b858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "64a9d9d5_5d1bb023",
