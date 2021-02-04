@@ -9,11 +9,14 @@
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/tessellate/GrFillPathShader.h"
+#include "src/gpu/tessellate/GrStencilPathShader.h"
+#include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
+#include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
-GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMatrix,
-                       const SkStrokeRec& stroke, const SkPath& path, GrPaint&& paint)
-        : GrDrawOp(classID)
+GrStrokeOp::GrStrokeOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkPath& path,
+                       const SkStrokeRec& stroke, GrPaint&& paint)
+        : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
         , fStroke(stroke)
@@ -21,7 +24,7 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
         , fProcessors(std::move(paint))
         , fPathList(path)
         , fTotalCombinedVerbCnt(path.countVerbs())
-        , fTotalConicWeightCnt(SkPathPriv::ConicWeightCnt(path)) {
+        , fHasConics(SkPathPriv::ConicWeightCnt(path) != 0) {
     SkRect devBounds = path.getBounds();
     float inflationRadius = fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);
@@ -76,7 +79,7 @@ GrOp::CombineResult GrStrokeOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* al
 
     fPathList.concat(std::move(op->fPathList), alloc);
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
-    fTotalConicWeightCnt += op->fTotalConicWeightCnt;
+    fHasConics |= op->fHasConics;
 
     return CombineResult::kMerged;
 }
@@ -103,63 +106,95 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
-void GrStrokeOp::prePreparePrograms(GrStrokeTessellateShader::Mode shaderMode, SkArenaAlloc* arena,
-                                    const GrSurfaceProxyView& writeView, GrAppliedClip&& clip,
-                                    const GrXferProcessor::DstProxyView& dstProxyView,
-                                    GrXferBarrierFlags renderPassXferBarriers,
-                                    GrLoadOp colorLoadOp, const GrCaps& caps) {
-    using InputFlags = GrPipeline::InputFlags;
+void GrStrokeOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args, GrAppliedClip&& clip) {
+    SkASSERT(!fTessellator);
     SkASSERT(!fFillProgram);
     SkASSERT(!fStencilProgram);
 
-    // This will be created iff the stencil pass can't share a pipeline with the fill pass.
-    GrPipeline* standaloneStencilPipeline = nullptr;
+    const GrCaps& caps = *args.fCaps;
+    SkArenaAlloc* arena = args.fArena;
 
-    GrPipeline::InitArgs fillArgs;
-    fillArgs.fCaps = &caps;
-    fillArgs.fDstProxyView = dstProxyView;
-    fillArgs.fWriteSwizzle = writeView.swizzle();
-    if (fAAType != GrAAType::kNone) {
-        if (writeView.asRenderTargetProxy()->numSamples() == 1) {
-            // We are mixed sampled. We need to either enable conservative raster (preferred) or
-            // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
-            // the cover geometry, the stencil test is still multisampled and will still produce
-            // smooth results.)
-            SkASSERT(GrAAType::kCoverage == fAAType);
-            if (caps.conservativeRasterSupport()) {
-                fillArgs.fInputFlags |= InputFlags::kHWAntialias | InputFlags::kConservativeRaster;
-            }
-            // Since we either need conservative raster enabled or MSAA disabled during fill, we
-            // need a separate pipeline for the stencil pass.
-            SkASSERT(fNeedsStencil);  // Mixed samples always needs stencil.
-            GrPipeline::InitArgs stencilArgs;
-            stencilArgs.fCaps = &caps;
-            stencilArgs.fInputFlags = InputFlags::kHWAntialias;
-            stencilArgs.fWriteSwizzle = writeView.swizzle();
-            standaloneStencilPipeline = arena->make<GrPipeline>(
-                    stencilArgs, GrDisableColorXPFactory::MakeXferProcessor(), clip.hardClip());
-        } else {
-            // We are standard MSAA. Leave MSAA enabled for both the fill and stencil passes.
-            fillArgs.fInputFlags |= InputFlags::kHWAntialias;
-        }
+    // Only use hardware tessellation if the path has a somewhat large number of verbs. Otherwise we
+    // seem to be better off using indirect draws. Our back door for HW tessellation shaders isn't
+    // currently capable of passing varyings to the fragment shader either, so if the processors
+    // have varyings we need to use indirect draws.
+    GrStrokeTessellateShader::Mode shaderMode;
+    if (caps.shaderCaps()->tessellationSupport() &&
+        fTotalCombinedVerbCnt > 50 &&
+        !fProcessors.usesVaryingCoords()) {
+        fTessellator = arena->make<GrStrokeHardwareTessellator>(*caps.shaderCaps(), fViewMatrix,
+                                                                fStroke);
+        shaderMode = GrStrokeTessellateShader::Mode::kTessellation;
+    } else {
+        fTessellator = arena->make<GrStrokeIndirectTessellator>(fViewMatrix, fPathList, fStroke,
+                                                                fTotalCombinedVerbCnt, arena);
+        shaderMode = GrStrokeTessellateShader::Mode::kIndirect;
+    }
+
+    // If we are mixed sampled then we need a separate pipeline for the stencil pass. This is
+    // because mixed samples either needs conservative raster enabled or MSAA disabled during fill.
+    const GrPipeline* mixedSampledStencilPipeline = nullptr;
+    if (fAAType == GrAAType::kCoverage) {
+        SkASSERT(args.fWriteView.asRenderTargetProxy()->numSamples() == 1);
+        SkASSERT(fNeedsStencil);  // Mixed samples always needs stencil.
+        mixedSampledStencilPipeline = GrStencilPathShader::MakeStencilPassPipeline(
+                args, fAAType, GrTessellationPathRenderer::OpFlags::kNone, clip.hardClip());
     }
 
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-            shaderMode, fTotalConicWeightCnt, fStroke, fViewMatrix, fColor);
-    auto fillPipeline = arena->make<GrPipeline>(fillArgs, std::move(fProcessors), std::move(clip));
+            shaderMode, fHasConics, fStroke, fViewMatrix, fColor);
+    auto* fillPipeline = GrFillPathShader::MakeFillPassPipeline(args, fAAType, std::move(clip),
+                                                                std::move(fProcessors));
     auto fillStencil = &GrUserStencilSettings::kUnused;
-    auto fillXferFlags = renderPassXferBarriers;
     if (fNeedsStencil) {
-        auto* stencilPipeline = (standaloneStencilPipeline) ? standaloneStencilPipeline
-                                                            : fillPipeline;
-        fStencilProgram = GrPathShader::MakeProgramInfo(strokeTessellateShader, arena, writeView,
-                                                        stencilPipeline, dstProxyView,
-                                                        renderPassXferBarriers, colorLoadOp,
-                                                        &kMarkStencil, caps);
+        auto* stencilPipeline = (mixedSampledStencilPipeline) ? mixedSampledStencilPipeline
+                                                              : fillPipeline;
+        fStencilProgram = GrPathShader::MakeProgram(args, strokeTessellateShader, stencilPipeline,
+                                                    &kMarkStencil);
         fillStencil = &kTestAndResetStencil;
-        fillXferFlags = GrXferBarrierFlags::kNone;
+        args.fXferBarrierFlags = GrXferBarrierFlags::kNone;
     }
-    fFillProgram = GrPathShader::MakeProgramInfo(strokeTessellateShader, arena, writeView,
-                                                 fillPipeline, dstProxyView, fillXferFlags,
-                                                 colorLoadOp, fillStencil, caps);
+
+    fFillProgram = GrPathShader::MakeProgram(args, strokeTessellateShader, fillPipeline,
+                                             fillStencil);
+}
+
+void GrStrokeOp::onPrePrepare(GrRecordingContext* context, const GrSurfaceProxyView& writeView,
+                              GrAppliedClip* clip,
+                              const GrXferProcessor::DstProxyView& dstProxyView,
+                              GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
+    this->prePrepareTessellator({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
+                                renderPassXferBarriers, colorLoadOp, context->priv().caps()},
+                                (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
+    if (fStencilProgram) {
+        context->priv().recordProgramInfo(fStencilProgram);
+    }
+    if (fFillProgram) {
+        context->priv().recordProgramInfo(fFillProgram);
+    }
+}
+
+void GrStrokeOp::onPrepare(GrOpFlushState* flushState) {
+    if (!fTessellator) {
+        this->prePrepareTessellator({flushState->allocator(), flushState->writeView(),
+                                    &flushState->dstProxyView(), flushState->renderPassBarriers(),
+                                    flushState->colorLoadOp(), &flushState->caps()},
+                                    flushState->detachAppliedClip());
+    }
+    SkASSERT(fTessellator);
+    fTessellator->prepare(flushState, fViewMatrix, fPathList, fStroke, fTotalCombinedVerbCnt);
+}
+
+void GrStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    SkASSERT(chainBounds == this->bounds());
+    if (fStencilProgram) {
+        flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
+        flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
+        fTessellator->draw(flushState);
+    }
+    if (fFillProgram) {
+        flushState->bindPipelineAndScissorClip(*fFillProgram, this->bounds());
+        flushState->bindTextures(fFillProgram->primProc(), nullptr, fFillProgram->pipeline());
+        fTessellator->draw(flushState);
+    }
 }
