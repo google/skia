@@ -146,6 +146,8 @@ public:
 protected:
     SkSVGNode(SkSVGTag);
 
+    static SkMatrix ComputeViewboxMatrix(const SkRect&, const SkRect&, SkSVGPreserveAspectRatio);
+
     // Called before onRender(), to apply local attributes to the context.  Unlike onRender(),
     // onPrepareToRender() bubbles up the inheritance chain: overriders should always call
     // INHERITED::onPrepareToRender(), unless they intend to short-circuit rendering
