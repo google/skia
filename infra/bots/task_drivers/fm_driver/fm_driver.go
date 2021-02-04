@@ -179,6 +179,7 @@ func main() {
 	}
 
 	type Work struct {
+		Ctx     context.Context
 		Sources []string // Passed to FM -s: names of gms/tests, paths to image files, .skps, etc.
 		Flags   []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
 	}
@@ -265,10 +266,7 @@ func main() {
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
 			for w := range queue {
-				name := fmt.Sprintf("%v (%v)",
-					strings.Join(w.Sources, " "),
-					strings.Join(w.Flags, " "))
-				ctx := startStep(ctx, td.Props(name))
+				ctx := startStep(w.Ctx, td.Props(strings.Join(w.Sources, " ")))
 				worker(ctx, w.Sources, w.Flags)
 				endStep(ctx)
 				wg.Done()
@@ -289,11 +287,14 @@ func main() {
 			sources[i], sources[j] = sources[j], sources[i]
 		})
 
+		ctx := startStep(ctx, td.Props(strings.Join(flags, " ")))
+		defer endStep(ctx)
+
 		nbatches := runtime.NumCPU()                      // Arbitrary, nice to scale ~= cores.
 		batch := (len(sources) + nbatches - 1) / nbatches // Round up to avoid empty batches.
 		util.ChunkIter(len(sources), batch, func(start, end int) error {
 			wg.Add(1)
-			queue <- Work{sources[start:end], flags}
+			queue <- Work{ctx, sources[start:end], flags}
 			return nil
 		})
 	}
