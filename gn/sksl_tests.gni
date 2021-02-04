@@ -529,6 +529,7 @@ sksl_rte_tests = [
 ]
 
 sksl_rte_error_tests = [
+  "/sksl/runtime_errors/FirstClassArrays.rte",
   "/sksl/runtime_errors/IllegalIndexing.rte",
   "/sksl/runtime_errors/IllegalOperators.rte",
   "/sksl/runtime_errors/IllegalStatements.rte",

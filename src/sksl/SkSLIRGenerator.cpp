@@ -301,6 +301,10 @@ int IRGenerator::convertArraySize(std::unique_ptr<Expression> size) {
 
 void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
                                       Variable::Storage storage) {
+    if (this->strictES2Mode() && baseType->isArray()) {
+        this->errorReporter().error(offset, "array size must appear after variable name");
+    }
+
     if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
         this->errorReporter().error(
                 offset,
@@ -2403,6 +2407,13 @@ std::unique_ptr<Expression> IRGenerator::convertArrayConstructor(int offset,
                                                                  const Type& type,
                                                                  ExpressionArray args) {
     SkASSERTF(type.isArray() && type.columns() > 0, "%s", type.description().c_str());
+
+    // ES2 doesn't support first-class array types.
+    if (this->strictES2Mode()) {
+        this->errorReporter().error(
+                offset, "construction of array type '" + type.displayName() + "' is not supported");
+        return nullptr;
+    }
 
     // Check that the number of constructor arguments matches the array size.
     if (type.columns() != args.count()) {
