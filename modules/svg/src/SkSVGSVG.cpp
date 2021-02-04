@@ -44,8 +44,8 @@ static SkMatrix ViewboxMatrix(const SkRect& view_box, const SkRect& view_port,
         SkASSERT(x_coeff < SK_ARRAY_COUNT(gAlignCoeffs) &&
                  y_coeff < SK_ARRAY_COUNT(gAlignCoeffs));
 
-        const auto tx = -view_box.x() * scale.x,
-                   ty = -view_box.y() * scale.y,
+        const auto tx = view_port.fLeft    - view_box.x() * scale.x,
+                   ty = view_port.fTop     - view_box.y() * scale.y,
                    dx = view_port.width()  - view_box.width() * scale.x,
                    dy = view_port.height() - view_box.height()* scale.y;
 
