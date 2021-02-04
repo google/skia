@@ -8,7 +8,7 @@
 #ifndef GrStrokeIndirectTessellator_DEFINED
 #define GrStrokeIndirectTessellator_DEFINED
 
-#include "src/gpu/tessellate/GrStrokeOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 struct SkPoint;
 namespace skiatest { class Reporter; }
