@@ -25,6 +25,8 @@ public:
     bool generateCode() override;
 
 private:
+    using Precedence = Operators::Precedence;
+
     void writef(const char* s, va_list va) SK_PRINTF_LIKE(2, 0);
 
     void writef(const char* s, ...) SK_PRINTF_LIKE(2, 3);

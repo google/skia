@@ -10,6 +10,7 @@
 #include "src/sksl/GLSL.std.450.h"
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -2480,7 +2481,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 
     std::unique_ptr<LValue> lvalue;
     SpvId lhs;
-    if (Compiler::IsAssignment(op)) {
+    if (Operators::IsAssignment(op)) {
         lvalue = this->getLValue(left, out);
         lhs = lvalue->load(out);
     } else {
@@ -2488,7 +2489,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         lhs = this->writeExpression(left, out);
     }
     SpvId rhs = this->writeExpression(right, out);
-    SpvId result = this->writeBinaryExpression(left.type(), lhs, Compiler::RemoveAssignment(op),
+    SpvId result = this->writeBinaryExpression(left.type(), lhs, Operators::RemoveAssignment(op),
                                                right.type(), rhs, b.type(), out);
     if (lvalue) {
         lvalue->store(result, out);
