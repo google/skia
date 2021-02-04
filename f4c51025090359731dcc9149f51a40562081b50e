@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "324ae71b_93888679",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 1,
+      "message": "That\u0027s where all the tokens are (Token::Kind::TK_xxxxxx)",
+      "range": {
+        "startLine": 20,
+        "startChar": 35,
+        "endLine": 20,
+        "endChar": 38
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae50638d_b562ba85",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 1,
+      "message": "Can we get away with `using Operators::Precedence`?\n\n(`using namespace` is forbidden in the Google style guide, which I know we don\u0027t rigorously follow but I like to try and stay on the straight and narrow where we can.)",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 25
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9297200a_99b8f44f",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 871,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 1,
+      "message": "(If we added `using namespace` above, why?)",
+      "range": {
+        "startLine": 871,
+        "startChar": 28,
+        "endLine": 871,
+        "endChar": 39
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "308c4ebc_33441667",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 1,
+      "message": "Does it work to put `using Operators::Precedence;` here instead of needing to scope it throughout?",
+      "range": {
+        "startLine": 53,
+        "startChar": 6,
+        "endLine": 53,
+        "endChar": 7
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83e4fdbd_f4b3e69c",
+        "filename": "src/sksl/SkSLOperators.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 1,
+      "message": "[[fallthrough]] with no additional code between cases will cause build failures in some configs, I think.",
+      "range": {
+        "startLine": 16,
+        "startChar": 43,
+        "endLine": 16,
+        "endChar": 59
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f27905c9_266dddf4",
+        "filename": "src/sksl/SkSLOperators.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 1,
+      "message": "Not for this CL, but a future idea: it seems like an SkSL::Operator class that holds a Token::Kind and provides methods like getBinaryPrecedence and operatorName would be even better. Anyplace that stores a Token::Kind could switch to SkSL::Operator, and it would be basically free to make a temporary one from a Token.\n\nThat is...\n\n  Operators::IsAssignment(fMyToken)    --\u003e fMyOperator.isAssignment()\n\nor...\n\n  Operators::IsAssignment(myTempToken) --\u003e Operator(myTempToken).isAssignment()",
+      "range": {
+        "startLine": 9,
+        "startChar": 8,
+        "endLine": 9,
+        "endChar": 22
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

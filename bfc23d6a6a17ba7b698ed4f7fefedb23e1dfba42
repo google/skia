@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f998ea1_a0e65275",
+        "filename": "src/sksl/SkSLMangler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 0,
+      "message": "🤔\nGood catch!",
+      "range": {
+        "startLine": 8,
+        "startChar": 19,
+        "endLine": 8,
+        "endChar": 41
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "256698ef_58d666ef",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:46:20Z",
+      "side": 0,
+      "message": "Another place where if it works, `using Operators::Precedence` would be nice",
+      "range": {
+        "startLine": 53,
+        "startChar": 6,
+        "endLine": 53,
+        "endChar": 7
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
