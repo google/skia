@@ -37,7 +37,8 @@ private:
 
     String getTypeName(const Type& type) override;
 
-    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
+    void writeBinaryExpression(const BinaryExpression& b,
+                               Operators::Precedence parentPrecedence) override;
 
     void writeIntLiteral(const IntLiteral& i) override;
 

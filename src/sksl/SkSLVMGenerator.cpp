@@ -8,6 +8,8 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
 #include "src/sksl/SkSLCodeGenerator.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLVMGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -527,9 +529,9 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     const Type& rType = right.type();
     bool lVecOrMtx = (lType.isVector() || lType.isMatrix());
     bool rVecOrMtx = (rType.isVector() || rType.isMatrix());
-    bool isAssignment = Compiler::IsAssignment(op);
+    bool isAssignment = Operators::IsAssignment(op);
     if (isAssignment) {
-        op = Compiler::RemoveAssignment(op);
+        op = Operators::RemoveAssignment(op);
     }
     Type::NumberKind nk = base_number_kind(lType);
 

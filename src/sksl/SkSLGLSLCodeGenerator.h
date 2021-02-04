@@ -8,11 +8,13 @@
 #ifndef SKSL_GLSLCODEGENERATOR
 #define SKSL_GLSLCODEGENERATOR
 
+#include <set>
 #include <stack>
 #include <tuple>
 #include <unordered_map>
 
 #include "src/sksl/SkSLCodeGenerator.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
@@ -49,27 +51,6 @@ namespace SkSL {
  */
 class GLSLCodeGenerator : public CodeGenerator {
 public:
-    enum Precedence {
-        kParentheses_Precedence    =  1,
-        kPostfix_Precedence        =  2,
-        kPrefix_Precedence         =  3,
-        kMultiplicative_Precedence =  4,
-        kAdditive_Precedence       =  5,
-        kShift_Precedence          =  6,
-        kRelational_Precedence     =  7,
-        kEquality_Precedence       =  8,
-        kBitwiseAnd_Precedence     =  9,
-        kBitwiseXor_Precedence     = 10,
-        kBitwiseOr_Precedence      = 11,
-        kLogicalAnd_Precedence     = 12,
-        kLogicalXor_Precedence     = 13,
-        kLogicalOr_Precedence      = 14,
-        kTernary_Precedence        = 15,
-        kAssignment_Precedence     = 16,
-        kSequence_Precedence       = 17,
-        kTopLevel_Precedence       = kSequence_Precedence
-    };
-
     GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
                       OutputStream* out)
     : INHERITED(program, errors, out)
@@ -134,7 +115,7 @@ protected:
 
     virtual void writeVariableReference(const VariableReference& ref);
 
-    void writeExpression(const Expression& expr, Precedence parentPrecedence);
+    void writeExpression(const Expression& expr, Operators::Precedence parentPrecedence);
 
     void writeIntrinsicCall(const FunctionCall& c);
 
@@ -150,25 +131,24 @@ protected:
 
     virtual void writeFunctionCall(const FunctionCall& c);
 
-    void writeConstructor(const Constructor& c, Precedence parentPrecedence);
+    void writeConstructor(const Constructor& c, Operators::Precedence parentPrecedence);
 
     virtual void writeFieldAccess(const FieldAccess& f);
 
     virtual void writeSwizzle(const Swizzle& swizzle);
 
-    static Precedence GetBinaryPrecedence(Token::Kind op);
-
-    virtual void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
+    virtual void writeBinaryExpression(const BinaryExpression& b,
+                                       Operators::Precedence parentPrecedence);
     void writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
-                                               Precedence parentPrecedence);
+                                               Operators::Precedence parentPrecedence);
 
-    void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
+    void writeTernaryExpression(const TernaryExpression& t, Operators::Precedence parentPrecedence);
 
     virtual void writeIndexExpression(const IndexExpression& expr);
 
-    void writePrefixExpression(const PrefixExpression& p, Precedence parentPrecedence);
+    void writePrefixExpression(const PrefixExpression& p, Operators::Precedence parentPrecedence);
 
-    void writePostfixExpression(const PostfixExpression& p, Precedence parentPrecedence);
+    void writePostfixExpression(const PostfixExpression& p, Operators::Precedence parentPrecedence);
 
     void writeBoolLiteral(const BoolLiteral& b);
 

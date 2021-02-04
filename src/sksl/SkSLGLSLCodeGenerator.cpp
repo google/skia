@@ -24,6 +24,8 @@
 
 namespace SkSL {
 
+using namespace Operators;
+
 void GLSLCodeGenerator::write(const char* s) {
     if (s[0] == 0) {
         return;
@@ -855,43 +857,6 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
-GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_STAR:         // fall through
-        case Token::Kind::TK_SLASH:        // fall through
-        case Token::Kind::TK_PERCENT:      return GLSLCodeGenerator::kMultiplicative_Precedence;
-        case Token::Kind::TK_PLUS:         // fall through
-        case Token::Kind::TK_MINUS:        return GLSLCodeGenerator::kAdditive_Precedence;
-        case Token::Kind::TK_SHL:          // fall through
-        case Token::Kind::TK_SHR:          return GLSLCodeGenerator::kShift_Precedence;
-        case Token::Kind::TK_LT:           // fall through
-        case Token::Kind::TK_GT:           // fall through
-        case Token::Kind::TK_LTEQ:         // fall through
-        case Token::Kind::TK_GTEQ:         return GLSLCodeGenerator::kRelational_Precedence;
-        case Token::Kind::TK_EQEQ:         // fall through
-        case Token::Kind::TK_NEQ:          return GLSLCodeGenerator::kEquality_Precedence;
-        case Token::Kind::TK_BITWISEAND:   return GLSLCodeGenerator::kBitwiseAnd_Precedence;
-        case Token::Kind::TK_BITWISEXOR:   return GLSLCodeGenerator::kBitwiseXor_Precedence;
-        case Token::Kind::TK_BITWISEOR:    return GLSLCodeGenerator::kBitwiseOr_Precedence;
-        case Token::Kind::TK_LOGICALAND:   return GLSLCodeGenerator::kLogicalAnd_Precedence;
-        case Token::Kind::TK_LOGICALXOR:   return GLSLCodeGenerator::kLogicalXor_Precedence;
-        case Token::Kind::TK_LOGICALOR:    return GLSLCodeGenerator::kLogicalOr_Precedence;
-        case Token::Kind::TK_EQ:           // fall through
-        case Token::Kind::TK_PLUSEQ:       // fall through
-        case Token::Kind::TK_MINUSEQ:      // fall through
-        case Token::Kind::TK_STAREQ:       // fall through
-        case Token::Kind::TK_SLASHEQ:      // fall through
-        case Token::Kind::TK_PERCENTEQ:    // fall through
-        case Token::Kind::TK_SHLEQ:        // fall through
-        case Token::Kind::TK_SHREQ:        // fall through
-        case Token::Kind::TK_BITWISEANDEQ: // fall through
-        case Token::Kind::TK_BITWISEXOREQ: // fall through
-        case Token::Kind::TK_BITWISEOREQ:  return GLSLCodeGenerator::kAssignment_Precedence;
-        case Token::Kind::TK_COMMA:        return GLSLCodeGenerator::kSequence_Precedence;
-        default: SK_ABORT("unsupported binary operator");
-    }
-}
-
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
     const Expression& left = *b.left();
@@ -903,12 +868,12 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         return;
     }
 
-    Precedence precedence = GetBinaryPrecedence(op);
+    Precedence precedence = Operators::GetBinaryPrecedence(op);
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
     bool positionWorkaround = fProgramKind == Program::Kind::kVertex_Kind &&
-                              Compiler::IsAssignment(op) &&
+                              Operators::IsAssignment(op) &&
                               left.kind() == Expression::Kind::kFieldAccess &&
                               is_sk_position((FieldAccess&) left) &&
                               !right.containsRTAdjust() &&
@@ -918,7 +883,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     }
     this->writeExpression(left, precedence);
     this->write(" ");
-    this->write(Compiler::OperatorName(op));
+    this->write(Operators::OperatorName(op));
     this->write(" ");
     this->writeExpression(right, precedence);
     if (positionWorkaround) {
@@ -978,7 +943,7 @@ void GLSLCodeGenerator::writePrefixExpression(const PrefixExpression& p,
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->write(Compiler::OperatorName(p.getOperator()));
+    this->write(Operators::OperatorName(p.getOperator()));
     this->writeExpression(*p.operand(), kPrefix_Precedence);
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write(")");
@@ -991,7 +956,7 @@ void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
         this->write("(");
     }
     this->writeExpression(*p.operand(), kPostfix_Precedence);
-    this->write(Compiler::OperatorName(p.getOperator()));
+    this->write(Operators::OperatorName(p.getOperator()));
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write(")");
     }

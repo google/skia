@@ -22,10 +22,12 @@
 
 namespace SkSL {
 
+using namespace Operators;
+
 const char* MetalCodeGenerator::OperatorName(Token::Kind op) {
     switch (op) {
         case Token::Kind::TK_LOGICALXOR:  return "!=";
-        default:                          return Compiler::OperatorName(op);
+        default:                          return Operators::OperatorName(op);
     }
 }
 
@@ -1205,43 +1207,6 @@ void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
-MetalCodeGenerator::Precedence MetalCodeGenerator::GetBinaryPrecedence(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_STAR:         // fall through
-        case Token::Kind::TK_SLASH:        // fall through
-        case Token::Kind::TK_PERCENT:      return MetalCodeGenerator::kMultiplicative_Precedence;
-        case Token::Kind::TK_PLUS:         // fall through
-        case Token::Kind::TK_MINUS:        return MetalCodeGenerator::kAdditive_Precedence;
-        case Token::Kind::TK_SHL:          // fall through
-        case Token::Kind::TK_SHR:          return MetalCodeGenerator::kShift_Precedence;
-        case Token::Kind::TK_LT:           // fall through
-        case Token::Kind::TK_GT:           // fall through
-        case Token::Kind::TK_LTEQ:         // fall through
-        case Token::Kind::TK_GTEQ:         return MetalCodeGenerator::kRelational_Precedence;
-        case Token::Kind::TK_EQEQ:         // fall through
-        case Token::Kind::TK_NEQ:          return MetalCodeGenerator::kEquality_Precedence;
-        case Token::Kind::TK_BITWISEAND:   return MetalCodeGenerator::kBitwiseAnd_Precedence;
-        case Token::Kind::TK_BITWISEXOR:   return MetalCodeGenerator::kBitwiseXor_Precedence;
-        case Token::Kind::TK_BITWISEOR:    return MetalCodeGenerator::kBitwiseOr_Precedence;
-        case Token::Kind::TK_LOGICALAND:   return MetalCodeGenerator::kLogicalAnd_Precedence;
-        case Token::Kind::TK_LOGICALXOR:   return MetalCodeGenerator::kLogicalXor_Precedence;
-        case Token::Kind::TK_LOGICALOR:    return MetalCodeGenerator::kLogicalOr_Precedence;
-        case Token::Kind::TK_EQ:           // fall through
-        case Token::Kind::TK_PLUSEQ:       // fall through
-        case Token::Kind::TK_MINUSEQ:      // fall through
-        case Token::Kind::TK_STAREQ:       // fall through
-        case Token::Kind::TK_SLASHEQ:      // fall through
-        case Token::Kind::TK_PERCENTEQ:    // fall through
-        case Token::Kind::TK_SHLEQ:        // fall through
-        case Token::Kind::TK_SHREQ:        // fall through
-        case Token::Kind::TK_BITWISEANDEQ: // fall through
-        case Token::Kind::TK_BITWISEXOREQ: // fall through
-        case Token::Kind::TK_BITWISEOREQ:  return MetalCodeGenerator::kAssignment_Precedence;
-        case Token::Kind::TK_COMMA:        return MetalCodeGenerator::kSequence_Precedence;
-        default: SK_ABORT("unsupported binary operator");
-    }
-}
-
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
     String key = "TimesEqual" + this->typeName(left) + this->typeName(right);
@@ -1264,7 +1229,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     const Type& leftType = left.type();
     const Type& rightType = right.type();
     Token::Kind op = b.getOperator();
-    Precedence precedence = GetBinaryPrecedence(b.getOperator());
+    Precedence precedence = Operators::GetBinaryPrecedence(b.getOperator());
     bool needParens = precedence >= parentPrecedence;
     switch (op) {
         case Token::Kind::TK_EQEQ:
@@ -1289,7 +1254,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
     this->writeExpression(left, precedence);
-    if (op != Token::Kind::TK_EQ && Compiler::IsAssignment(op) &&
+    if (op != Token::Kind::TK_EQ && Operators::IsAssignment(op) &&
         left.kind() == Expression::Kind::kSwizzle && !left.hasSideEffects()) {
         // This doesn't compile in Metal:
         // float4 x = float4(1);

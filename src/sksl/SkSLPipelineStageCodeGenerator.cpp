@@ -14,6 +14,8 @@
 
 namespace SkSL {
 
+using namespace Operators;
+
 PipelineStageCodeGenerator::PipelineStageCodeGenerator(const Context* context,
                                                        const Program* program,
                                                        ErrorReporter* errors,
@@ -360,56 +362,19 @@ void PipelineStageCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
-PipelineStageCodeGenerator::Precedence PipelineStageCodeGenerator::GetBinaryPrecedence(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_STAR:         // fall through
-        case Token::Kind::TK_SLASH:        // fall through
-        case Token::Kind::TK_PERCENT:      return PipelineStageCodeGenerator::kMultiplicative_Precedence;
-        case Token::Kind::TK_PLUS:         // fall through
-        case Token::Kind::TK_MINUS:        return PipelineStageCodeGenerator::kAdditive_Precedence;
-        case Token::Kind::TK_SHL:          // fall through
-        case Token::Kind::TK_SHR:          return PipelineStageCodeGenerator::kShift_Precedence;
-        case Token::Kind::TK_LT:           // fall through
-        case Token::Kind::TK_GT:           // fall through
-        case Token::Kind::TK_LTEQ:         // fall through
-        case Token::Kind::TK_GTEQ:         return PipelineStageCodeGenerator::kRelational_Precedence;
-        case Token::Kind::TK_EQEQ:         // fall through
-        case Token::Kind::TK_NEQ:          return PipelineStageCodeGenerator::kEquality_Precedence;
-        case Token::Kind::TK_BITWISEAND:   return PipelineStageCodeGenerator::kBitwiseAnd_Precedence;
-        case Token::Kind::TK_BITWISEXOR:   return PipelineStageCodeGenerator::kBitwiseXor_Precedence;
-        case Token::Kind::TK_BITWISEOR:    return PipelineStageCodeGenerator::kBitwiseOr_Precedence;
-        case Token::Kind::TK_LOGICALAND:   return PipelineStageCodeGenerator::kLogicalAnd_Precedence;
-        case Token::Kind::TK_LOGICALXOR:   return PipelineStageCodeGenerator::kLogicalXor_Precedence;
-        case Token::Kind::TK_LOGICALOR:    return PipelineStageCodeGenerator::kLogicalOr_Precedence;
-        case Token::Kind::TK_EQ:           // fall through
-        case Token::Kind::TK_PLUSEQ:       // fall through
-        case Token::Kind::TK_MINUSEQ:      // fall through
-        case Token::Kind::TK_STAREQ:       // fall through
-        case Token::Kind::TK_SLASHEQ:      // fall through
-        case Token::Kind::TK_PERCENTEQ:    // fall through
-        case Token::Kind::TK_SHLEQ:        // fall through
-        case Token::Kind::TK_SHREQ:        // fall through
-        case Token::Kind::TK_BITWISEANDEQ: // fall through
-        case Token::Kind::TK_BITWISEXOREQ: // fall through
-        case Token::Kind::TK_BITWISEOREQ:  return PipelineStageCodeGenerator::kAssignment_Precedence;
-        case Token::Kind::TK_COMMA:        return PipelineStageCodeGenerator::kSequence_Precedence;
-        default: SK_ABORT("unsupported binary operator");
-    }
-}
-
 void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
     const Expression& left = *b.left();
     const Expression& right = *b.right();
     Token::Kind op = b.getOperator();
 
-    Precedence precedence = GetBinaryPrecedence(op);
+    Precedence precedence = Operators::GetBinaryPrecedence(op);
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
     this->writeExpression(left, precedence);
     this->write(" ");
-    this->write(Compiler::OperatorName(op));
+    this->write(Operators::OperatorName(op));
     this->write(" ");
     this->writeExpression(right, precedence);
     if (precedence >= parentPrecedence) {
@@ -437,7 +402,7 @@ void PipelineStageCodeGenerator::writePrefixExpression(const PrefixExpression& p
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->write(Compiler::OperatorName(p.getOperator()));
+    this->write(Operators::OperatorName(p.getOperator()));
     this->writeExpression(*p.operand(), kPrefix_Precedence);
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write(")");
@@ -450,7 +415,7 @@ void PipelineStageCodeGenerator::writePostfixExpression(const PostfixExpression&
         this->write("(");
     }
     this->writeExpression(*p.operand(), kPostfix_Precedence);
-    this->write(Compiler::OperatorName(p.getOperator()));
+    this->write(Operators::OperatorName(p.getOperator()));
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write(")");
     }
