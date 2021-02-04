@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d64661ab_de2bc24c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 31
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-04T21:08:12Z",
+      "side": 1,
+      "message": "Looks like this is ready for another pass. ",
+      "revId": "b9a000c22434ac00da02afbbab2594fa28bba23e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bad14061_56ed7211",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-04T21:08:12Z",
+      "side": 1,
+      "message": "This forces the SkSL compiler to create synthetic uniforms as push constants.",
+      "range": {
+        "startLine": 222,
+        "startChar": 4,
+        "endLine": 222,
+        "endChar": 50
+      },
+      "revId": "b9a000c22434ac00da02afbbab2594fa28bba23e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
