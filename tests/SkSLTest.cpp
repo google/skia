@@ -144,7 +144,6 @@ SKSL_TEST(SkSLFunctionReturnTypeMatch, "shared/FunctionReturnTypeMatch.sksl")
 SKSL_TEST(SkSLFunctions,               "shared/Functions.sksl")
 SKSL_TEST(SkSLGeometricIntrinsics,     "shared/GeometricIntrinsics.sksl")
 SKSL_TEST(SkSLHelloWorld,              "shared/HelloWorld.sksl")
-SKSL_TEST(SkSLHex,                     "shared/Hex.sksl")
 SKSL_TEST(SkSLMatrices,                "shared/Matrices.sksl")
 SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 
@@ -157,6 +156,12 @@ SKSL_TEST(SkSLFunctionPrototype,       "shared/FunctionPrototype.sksl")
 /*
 TODO(skia:10939): enable this test when Runtime Effects supports structs in function signatures
 SKSL_TEST(SkSLStructsInFunctions,      "shared/StructsInFunctions.sksl")
+*/
+
+/*
+// TODO: fails on Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android
+// with "integer constant overflow" (even though these numbers do not overflow int)
+SKSL_TEST(SkSLHex,                     "shared/Hex.sksl")
 */
 
 /*
