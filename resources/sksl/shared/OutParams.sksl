@@ -1,32 +1,36 @@
-void out_half (out half  v) { v = 1; }
-void out_half2(out half2 v) { v = half2(2); }
-void out_half3(out half3 v) { v = half3(3); }
-void out_half4(out half4 v) { v = half4(4); }
+uniform half4 colorGreen, colorRed, colorWhite;
 
-void out_half2x2(out half2x2 v) { v = half2x2(2); }
-void out_half3x3(out half3x3 v) { v = half3x3(3); }
-void out_half4x4(out half4x4 v) { v = half4x4(4); }
+void out_half (out half  v) { v = colorWhite.r; }
+void out_half2(out half2 v) { v = half2(colorWhite.g); }
+void out_half3(out half3 v) { v = half3(colorWhite.b); }
+void out_half4(out half4 v) { v = half4(colorWhite.a); }
 
-void out_int (out int  v) { v = 1; }
-void out_int2(out int2 v) { v = int2(2); }
-void out_int3(out int3 v) { v = int3(3); }
-void out_int4(out int4 v) { v = int4(4); }
+void out_half2x2(out half2x2 v) { v = half2x2(colorWhite.r); }
+void out_half3x3(out half3x3 v) { v = half3x3(colorWhite.g); }
+void out_half4x4(out half4x4 v) { v = half4x4(colorWhite.b); }
 
-void out_float (out float  v) { v = 1; }
-void out_float2(out float2 v) { v = float2(2); }
-void out_float3(out float3 v) { v = float3(3); }
-void out_float4(out float4 v) { v = float4(4); }
+void out_int (out int  v) { v = int(colorWhite.r); }
+void out_int2(out int2 v) { v = int2(colorWhite.g); }
+void out_int3(out int3 v) { v = int3(colorWhite.b); }
+void out_int4(out int4 v) { v = int4(colorWhite.a); }
 
-void out_float2x2(out float2x2 v) { v = float2x2(2); }
-void out_float3x3(out float3x3 v) { v = float3x3(3); }
-void out_float4x4(out float4x4 v) { v = float4x4(4); }
+void out_float (out float  v) { v = float(colorWhite.r); }
+void out_float2(out float2 v) { v = float2(colorWhite.g); }
+void out_float3(out float3 v) { v = float3(colorWhite.b); }
+void out_float4(out float4 v) { v = float4(colorWhite.a); }
 
-void out_bool (out bool  v) { v = true; }
-void out_bool2(out bool2 v) { v = bool2(false); }
-void out_bool3(out bool3 v) { v = bool3(true);  }
-void out_bool4(out bool4 v) { v = bool4(false); }
+void out_float2x2(out float2x2 v) { v = float2x2(colorWhite.r); }
+void out_float3x3(out float3x3 v) { v = float3x3(colorWhite.g); }
+void out_float4x4(out float4x4 v) { v = float4x4(colorWhite.b); }
 
-void main() {
+void out_bool (out bool  v) { v = bool(colorWhite.r); }
+void out_bool2(out bool2 v) { v = bool2(colorWhite.g); }
+void out_bool3(out bool3 v) { v = bool3(colorWhite.b); }
+void out_bool4(out bool4 v) { v = bool4(colorWhite.a); }
+
+half4 main() {
+    half4 result;
+
     half     h;    out_half (h);
     half2    h2;   out_half2(h2);
     half3    h3;   out_half3(h3);
@@ -34,7 +38,6 @@ void main() {
                    out_half(h3[1]);
                    out_half2(h3.xz);
                    out_half4(h4.zwxy);
-    sk_FragColor = half4(h, h2.x, h3.x, h4.x);
 
     half2x2  h2x2; out_half2x2(h2x2);
     half3x3  h3x3; out_half3x3(h3x3);
@@ -42,7 +45,6 @@ void main() {
                    out_half3(h3x3[1]);
                    out_half(h4x4[3].w);
                    out_half(h2x2[0][0]);
-    sk_FragColor = half4(h2x2[0][0], h3x3[0][0], h4x4[0][0], 1);
 
     int      i;    out_int (i);
     int2     i2;   out_int2(i2);
@@ -50,7 +52,6 @@ void main() {
     int4     i4;   out_int4(i4);
                    out_int3(i4.xyz);
                    out_int(i2[1]);
-    sk_FragColor = half4(i, i2.x, i3.x, i4.x);
 
     float    f;    out_float (f);
     float2   f2;   out_float2(f2);
@@ -58,13 +59,11 @@ void main() {
     float4   f4;   out_float4(f4);
                    out_float2(f3.xy);
                    out_float(f2[0]);
-    sk_FragColor = half4(f, f2.x, f3.x, f4.x);
 
     float2x2 f2x2; out_float2x2(f2x2);
     float3x3 f3x3; out_float3x3(f3x3);
     float4x4 f4x4; out_float4x4(f4x4);
                    out_float(f2x2[0][0]);
-    sk_FragColor = half4(f2x2[0][0], f3x3[0][0], f4x4[0][0], 1);
 
     bool     b;    out_bool (b);
     bool2    b2;   out_bool2(b2);
@@ -72,5 +71,12 @@ void main() {
     bool4    b4;   out_bool4(b4);
                    out_bool2(b4.xw);
                    out_bool(b3[2]);
-    sk_FragColor = half4(b, b2.x, b3.x, b4.x);
+
+    bool ok = true;
+    ok = ok && 1 == (h * h2.x * h3.x * h4.x * h2x2[0][0] * h3x3[0][0] * h4x4[0][0]);
+    ok = ok && 1 == (f * f2.x * f3.x * f4.x * f2x2[0][0] * f3x3[0][0] * f4x4[0][0]);
+    ok = ok && 1 == (i * i2.x * i3.x * i4.x);
+    ok = ok &&      (b && b2.x && b3.x && b4.x);
+
+    return ok ? colorGreen : colorRed;
 }
