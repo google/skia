@@ -9,8 +9,6 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/effects/SkBlurDrawLooper.h"
-#include "include/effects/SkLayerDrawLooper.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -19,6 +17,11 @@
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/core/SkXfermodePriv.h"
+
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
+
+#include "include/effects/SkBlurDrawLooper.h"
+#include "include/effects/SkLayerDrawLooper.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPaintBits = 0;                     // ignore our paint fields
@@ -331,3 +334,5 @@ sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor4f color, SkColorSpace* cs,
 
     return builder.detach();
 }
+
+#endif
