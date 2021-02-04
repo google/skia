@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64a9d9d5_5d1bb023",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-04T16:16:47Z",
+      "side": 1,
+      "message": "Interesting that we (I think?) must tweak sampling before tweaking the matrix? Does the matrix tweak turn int-translates into non-ints?",
+      "revId": "fcfdb28b8afe74fc97f2deb45cd61bdaabe6b858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
