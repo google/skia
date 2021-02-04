@@ -319,6 +319,17 @@ static inline SkPDF::Metadata AsDocumentPDFMetadata(const sk_document_pdf_metada
 #if SK_SUPPORT_GPU
 // GPU specific
 
+static inline GrContextOptions AsGrContextOptions(const gr_context_options_t* options) {
+    GrContextOptions opts;
+    opts.fAllowPathMaskCaching = options->fAllowPathMaskCaching;
+    opts.fAvoidStencilBuffers = options->fAvoidStencilBuffers;
+    opts.fBufferMapThreshold = options->fBufferMapThreshold;
+    opts.fDoManualMipmapping = options->fDoManualMipmapping;
+    opts.fGlyphCacheTextureMaximumBytes = options->fGlyphCacheTextureMaximumBytes;
+    opts.fRuntimeProgramCacheSize = options->fRuntimeProgramCacheSize;
+    return opts;
+}
+
 #if SK_VULKAN
 #define DEF_MAP_VK(VkType, vk_type)                 \
     static inline VkType As##VkType(vk_type* t) {   \
