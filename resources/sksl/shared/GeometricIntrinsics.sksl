@@ -1,5 +1,3 @@
-uniform half4 colorGreen;
-
 float scalar(float x, float y) {
     x = length(x);
     x = distance(x, y);
@@ -16,8 +14,8 @@ float2 vector(float2 x, float2 y) {
     return x;
 }
 
-half4 main() {
+void main() {
     float x = scalar(1, 2);
     float2 y = vector(float2(1, 2), float2(3, 4));
-    return x, y, colorGreen;
+    sk_FragColor = half4(half(x), half2(y), 1);
 }

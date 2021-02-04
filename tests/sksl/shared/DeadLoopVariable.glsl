@@ -1,9 +1,6 @@
 
-out vec4 sk_FragColor;
-uniform vec4 colorGreen;
-vec4 main() {
+void main() {
     for (; true; ) {
         break;
     }
-    return colorGreen;
 }

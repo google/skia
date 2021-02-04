@@ -1,20 +1,18 @@
 /*#pragma settings NoInline*/
 
-uniform half4 colorGreen, colorRed;
-
-float foo(float2 v) {
-    return v.x * v.y;
+float foo(float v[2]) {
+    return v[0] * v[1];
 }
 
 void bar(inout float x) {
-    float y[2];
+    float y[2], z;
     y[0] = x;
     y[1] = x * 2;
-    x = foo(float2(y[0], y[1]));
+    z = foo(y);
 }
 
-half4 main() {
+void main() {
     float x = 10;
     bar(x);
-    return x == 200 ? colorGreen : colorRed;
+    sk_FragColor = half4(half(x));
 }

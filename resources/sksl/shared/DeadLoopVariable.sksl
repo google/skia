@@ -1,8 +1,5 @@
-uniform half4 colorGreen;
-
-half4 main() {
+void main() {
     for (int x = 0; x < 4; ) {
         break;
     }
-    return colorGreen;
 }
