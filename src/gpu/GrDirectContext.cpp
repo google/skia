@@ -67,12 +67,14 @@ GrDirectContext::~GrDirectContext() {
     this->syncAllOutstandingGpuWork(/*shouldExecuteWhileAbandoned=*/false);
 
     this->destroyDrawingManager();
-    fMappedBufferManager.reset();
 
     // Ideally we could just let the ptr drop, but resource cache queries this ptr in releaseAll.
     if (fResourceCache) {
         fResourceCache->releaseAll();
     }
+    // This has to be after GrResourceCache::releaseAll so that other threads that are holding
+    // async pixel result don't try to destroy buffers off thread.
+    fMappedBufferManager.reset();
 }
 
 sk_sp<GrContextThreadSafeProxy> GrDirectContext::threadSafeProxy() {
@@ -112,7 +114,9 @@ void GrDirectContext::abandonContext() {
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
+    // Must be after GrResourceCache::abandonAll().
     fMappedBufferManager.reset();
+
     if (fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr->reset();
     }
@@ -143,12 +147,13 @@ void GrDirectContext::releaseResourcesAndAbandonContext() {
     // We need to make sure all work is finished on the gpu before we start releasing resources.
     this->syncAllOutstandingGpuWork(/*shouldExecuteWhileAbandoned=*/true);
 
-    fMappedBufferManager.reset();
-
     fResourceProvider->abandon();
 
     // Release all resources in the backend 3D API.
     fResourceCache->releaseAll();
+
+    // Must be after GrResourceCache::releaseAll().
+    fMappedBufferManager.reset();
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
     if (fSmallPathAtlasMgr) {
