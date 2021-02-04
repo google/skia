@@ -15,7 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -284,7 +283,7 @@ func main() {
 
 		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
 		// (Intentionally not rand.Seed()'d to stay deterministically reproducible.)
-		sources = append([]string{}, sources...)  // We'll be needing our own copy...
+		sources = append([]string{}, sources...) // We'll be needing our own copy...
 		rand.Shuffle(len(sources), func(i, j int) {
 			sources[i], sources[j] = sources[j], sources[i]
 		})
@@ -357,10 +356,7 @@ func main() {
 		parts := strings.Split(*bot, "-")
 		OS, model, CPU_or_GPU := parts[1], parts[3], parts[4]
 
-		commonFlags := []string{
-			"--nativeFonts",
-			strconv.FormatBool(strings.Contains(*bot, "NativeFonts")),
-		}
+		commonFlags := []string{}
 
 		run := func(sources []string, extraFlags string) {
 			kickoff(sources, append(strings.Fields(extraFlags), commonFlags...))
@@ -389,7 +385,11 @@ func main() {
 		if CPU_or_GPU == "CPU" {
 			commonFlags = append(commonFlags, "-b", "cpu")
 
-			// FM's default flags are equivalent to --config srgb in DM.
+			// Run GMs once using native fonts, then switch to portable fonts for everything else.
+			run(gms, "--nativeFonts true")
+			commonFlags = append(commonFlags, "--nativeFonts", "false")
+
+			// FM's default ct/gamut/tf flags are equivalent to --config srgb in DM.
 			run(gms, "")
 			run(imgs, "")
 			run(svgs, "")
