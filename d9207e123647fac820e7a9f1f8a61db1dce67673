@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbedbbdd_bf499890",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-04T14:39:04Z",
+      "side": 1,
+      "message": "Yes, it *should* work, as task drivers are supposed to handle out-of-order messages, but I don\u0027t know that we\u0027ve ever done it on purpose.  It might lead to some strange behavior where if you look at the task while it\u0027s in progress it might appear that all the steps are finished until you drill down.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 69
+      },
+      "revId": "d9207e123647fac820e7a9f1f8a61db1dce67673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
