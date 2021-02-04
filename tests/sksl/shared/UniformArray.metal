@@ -2,7 +2,7 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float arr[3];
+    array<float, 3> arr;
 };
 struct Inputs {
 };
