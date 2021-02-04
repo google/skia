@@ -16,6 +16,24 @@
       "message": "Did I miss anything? This was basically lots of grep\u0027ing and Ctrl-C, Ctrl-V.",
       "revId": "5594396693d1a147a6fabe5d6ea135ac8ddfb643",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0670e96c_22e3dec5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-04T12:44:50Z",
+      "side": 1,
+      "message": "Ctrl-C,Ctrl-V coding covers like 40% of what I do. Code wise, this looks fine. Could you add a test covering the new APIs to rtshader.spec.js and an entry in CHANGELOG.md?",
+      "parentUuid": "b19d0975_49070ce2",
+      "revId": "5594396693d1a147a6fabe5d6ea135ac8ddfb643",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
