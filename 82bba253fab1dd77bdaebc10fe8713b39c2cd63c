@@ -16,6 +16,24 @@
       "message": "That look about right to you?",
       "revId": "82bba253fab1dd77bdaebc10fe8713b39c2cd63c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "070106e5_04836ccc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-04T17:13:12Z",
+      "side": 1,
+      "message": "Yep, LGTM!",
+      "parentUuid": "08ad908f_bb46ec5a",
+      "revId": "82bba253fab1dd77bdaebc10fe8713b39c2cd63c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
