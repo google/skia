@@ -257,6 +257,24 @@
       "parentUuid": "481f77c0_2fcc7ced",
       "revId": "4deca898b380b08a334526d905e6399ea1eec778",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6639ae4e_ba46007e",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-04T21:22:31Z",
+      "side": 1,
+      "message": "The test doesn\u0027t run so seek is never called, but once I finish up I\u0027ll add a sound lottie to the samples page.",
+      "parentUuid": "cd3895c0_1cbc4cbc",
+      "revId": "4deca898b380b08a334526d905e6399ea1eec778",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
