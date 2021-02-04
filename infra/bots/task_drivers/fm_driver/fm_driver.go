@@ -52,6 +52,7 @@ func main() {
 		failStep(ctx, err)
 		os.Exit(1)
 	}
+	httpClient := func(_ context.Context) *http.Client { return http.DefaultClient }
 
 	if !*local {
 		ctx = td.StartRun(projectId, taskId, bot, output, local)
@@ -60,6 +61,7 @@ func main() {
 		endStep = td.EndStep
 		failStep = td.FailStep
 		fatal = td.Fatal
+		httpClient = func(ctx context.Context) *http.Client { return td.HttpClient(ctx, nil) }
 	}
 
 	if flag.NArg() < 1 {
@@ -160,7 +162,7 @@ func main() {
 	if *gold {
 		func() {
 			url := "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt"
-			resp, err := http.Get(url)
+			resp, err := httpClient(ctx).Get(url)
 			if err != nil {
 				fatal(ctx, err)
 			}
