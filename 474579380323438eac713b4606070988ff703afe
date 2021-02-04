@@ -33,6 +33,24 @@
       "message": "ugh I didn\u0027t actually add you as a reviewer to this CL. See my original comment.",
       "revId": "474579380323438eac713b4606070988ff703afe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fece1d94_71e12811",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-04T15:10:26Z",
+      "side": 1,
+      "message": "Yeah, given the ugliness, this may be the best option. One other possibility is a different mapRectToQuad (mapRectToStripQuad?), that outputs the verts in the alternate order?",
+      "parentUuid": "95aeef36_037080b3",
+      "revId": "474579380323438eac713b4606070988ff703afe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
