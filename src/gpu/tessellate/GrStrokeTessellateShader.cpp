@@ -186,7 +186,7 @@ private:
             //      Tangent_Direction(T) x tan0 == 0
             //      (AT^2 x tan0) + (2BT x tan0) + (C x tan0) == 0
             //      (A x C)T^2 + (2B x C)T + (C x C) == 0  [[because tan0 == P1 - P0 == C]]
-            //      bT^2 + 2c + 0 == 0  [[because A x C == b, B x C == c]]
+            //      bT^2 + 2cT + 0 == 0  [[because A x C == b, B x C == c]]
             //
             // NOTE: When P0 == P1 then C != tan0, C == 0 and these roots will be undefined. But
             // that's ok because when P0 == P1 the curve cannot rotate more than 180 degrees anyway.

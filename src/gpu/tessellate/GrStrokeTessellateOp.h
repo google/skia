@@ -33,7 +33,7 @@ private:
 
     enum class JoinType {
         kFromStroke,  // The shader will use the join type defined in our fStrokeRec.
-        kCusp,  // Double sided round join.
+        kBowtie,  // Double sided round join.
         kNone
     };
 
