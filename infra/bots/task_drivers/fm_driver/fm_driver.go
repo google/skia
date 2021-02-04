@@ -180,6 +180,7 @@ func main() {
 
 	type Work struct {
 		Ctx     context.Context
+		Pending *int32
 		Sources []string // Passed to FM -s: names of gms/tests, paths to image files, .skps, etc.
 		Flags   []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
 	}
@@ -266,9 +267,14 @@ func main() {
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
 			for w := range queue {
+				// For organizational purposes, create a step representing this batch,
+				// with the batch call to FM and any individual reruns all nested inside.
 				ctx := startStep(w.Ctx, td.Props(strings.Join(w.Sources, " ")))
 				worker(ctx, w.Sources, w.Flags)
 				endStep(ctx)
+				if atomic.AddInt32(w.Pending, -1) == 0 {
+					endStep(w.Ctx)
+				}
 				wg.Done()
 			}
 		}()
@@ -287,14 +293,21 @@ func main() {
 			sources[i], sources[j] = sources[j], sources[i]
 		})
 
+		// For organizational purposes, create a step representing this call to kickoff(),
+		// with each batch of sources nested inside.
 		ctx := startStep(ctx, td.Props(strings.Join(flags, " ")))
-		defer endStep(ctx)
+		pending := new(int32)  // The last batch to run calls endStep(ctx) when pending hits zero.
 
-		nbatches := runtime.NumCPU()                      // Arbitrary, nice to scale ~= cores.
-		batch := (len(sources) + nbatches - 1) / nbatches // Round up to avoid empty batches.
+		// Arbitrary, nice to scale ~= cores.
+		approxBatches := runtime.NumCPU()
+
+		// Round up batch size to avoid empty batches; this is why approxBatches is approximate.
+		batch := (len(sources) + approxBatches - 1) / approxBatches
+
 		util.ChunkIter(len(sources), batch, func(start, end int) error {
 			wg.Add(1)
-			queue <- Work{ctx, sources[start:end], flags}
+			atomic.AddInt32(pending, +1)
+			queue <- Work{ctx, pending, sources[start:end], flags}
 			return nil
 		})
 	}
