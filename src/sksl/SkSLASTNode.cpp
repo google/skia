@@ -6,7 +6,7 @@
  */
 
 #include "src/sksl/SkSLASTNode.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLString.h"
 
 namespace SkSL {
@@ -17,7 +17,7 @@ String ASTNode::description() const {
         case Kind::kNull: return "";
         case Kind::kBinary:
             return "(" + this->begin()->description() + " " +
-                               Compiler::OperatorName(getToken().fKind) + " " +
+                               Operators::OperatorName(getToken().fKind) + " " +
                                (this->begin() + 1)->description() + ")";
         case Kind::kBlock: {
             String result = "{\n";
@@ -162,9 +162,9 @@ String ASTNode::description() const {
             return result;
         }
         case Kind::kPostfix:
-            return this->begin()->description() + Compiler::OperatorName(getToken().fKind);
+            return this->begin()->description() + Operators::OperatorName(getToken().fKind);
         case Kind::kPrefix:
-            return Compiler::OperatorName(getToken().fKind) + this->begin()->description();
+            return Operators::OperatorName(getToken().fKind) + this->begin()->description();
         case Kind::kReturn:
             if (this->begin() != this->end()) {
                 return "return " + this->begin()->description() + ";";

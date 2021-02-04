@@ -17,6 +17,7 @@
 #include "src/sksl/SkSLHCodeGenerator.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLMetalCodeGenerator.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLSPIRVCodeGenerator.h"
@@ -430,7 +431,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node, DefinitionMap* defin
                 BinaryExpression* b = &expr->as<BinaryExpression>();
                 if (b->getOperator() == Token::Kind::TK_EQ) {
                     this->addDefinition(b->left().get(), &b->right(), definitions);
-                } else if (Compiler::IsAssignment(b->getOperator())) {
+                } else if (Operators::IsAssignment(b->getOperator())) {
                     this->addDefinition(
                                   b->left().get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
@@ -586,7 +587,7 @@ static bool is_dead(const Expression& lvalue, ProgramUsage* usage) {
  * to a dead target and lack of side effects on the left hand side.
  */
 static bool dead_assignment(const BinaryExpression& b, ProgramUsage* usage) {
-    if (!Compiler::IsAssignment(b.getOperator())) {
+    if (!Operators::IsAssignment(b.getOperator())) {
         return false;
     }
     return is_dead(*b.left(), usage);
@@ -2017,84 +2018,6 @@ bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
     return result;
 }
 #endif
-
-const char* Compiler::OperatorName(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_PLUS:         return "+";
-        case Token::Kind::TK_MINUS:        return "-";
-        case Token::Kind::TK_STAR:         return "*";
-        case Token::Kind::TK_SLASH:        return "/";
-        case Token::Kind::TK_PERCENT:      return "%";
-        case Token::Kind::TK_SHL:          return "<<";
-        case Token::Kind::TK_SHR:          return ">>";
-        case Token::Kind::TK_LOGICALNOT:   return "!";
-        case Token::Kind::TK_LOGICALAND:   return "&&";
-        case Token::Kind::TK_LOGICALOR:    return "||";
-        case Token::Kind::TK_LOGICALXOR:   return "^^";
-        case Token::Kind::TK_BITWISENOT:   return "~";
-        case Token::Kind::TK_BITWISEAND:   return "&";
-        case Token::Kind::TK_BITWISEOR:    return "|";
-        case Token::Kind::TK_BITWISEXOR:   return "^";
-        case Token::Kind::TK_EQ:           return "=";
-        case Token::Kind::TK_EQEQ:         return "==";
-        case Token::Kind::TK_NEQ:          return "!=";
-        case Token::Kind::TK_LT:           return "<";
-        case Token::Kind::TK_GT:           return ">";
-        case Token::Kind::TK_LTEQ:         return "<=";
-        case Token::Kind::TK_GTEQ:         return ">=";
-        case Token::Kind::TK_PLUSEQ:       return "+=";
-        case Token::Kind::TK_MINUSEQ:      return "-=";
-        case Token::Kind::TK_STAREQ:       return "*=";
-        case Token::Kind::TK_SLASHEQ:      return "/=";
-        case Token::Kind::TK_PERCENTEQ:    return "%=";
-        case Token::Kind::TK_SHLEQ:        return "<<=";
-        case Token::Kind::TK_SHREQ:        return ">>=";
-        case Token::Kind::TK_BITWISEANDEQ: return "&=";
-        case Token::Kind::TK_BITWISEOREQ:  return "|=";
-        case Token::Kind::TK_BITWISEXOREQ: return "^=";
-        case Token::Kind::TK_PLUSPLUS:     return "++";
-        case Token::Kind::TK_MINUSMINUS:   return "--";
-        case Token::Kind::TK_COMMA:        return ",";
-        default:
-            SK_ABORT("unsupported operator: %d\n", (int) op);
-    }
-}
-
-
-bool Compiler::IsAssignment(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_EQ:           // fall through
-        case Token::Kind::TK_PLUSEQ:       // fall through
-        case Token::Kind::TK_MINUSEQ:      // fall through
-        case Token::Kind::TK_STAREQ:       // fall through
-        case Token::Kind::TK_SLASHEQ:      // fall through
-        case Token::Kind::TK_PERCENTEQ:    // fall through
-        case Token::Kind::TK_SHLEQ:        // fall through
-        case Token::Kind::TK_SHREQ:        // fall through
-        case Token::Kind::TK_BITWISEOREQ:  // fall through
-        case Token::Kind::TK_BITWISEXOREQ: // fall through
-        case Token::Kind::TK_BITWISEANDEQ:
-            return true;
-        default:
-            return false;
-    }
-}
-
-Token::Kind Compiler::RemoveAssignment(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_PLUSEQ:       return Token::Kind::TK_PLUS;
-        case Token::Kind::TK_MINUSEQ:      return Token::Kind::TK_MINUS;
-        case Token::Kind::TK_STAREQ:       return Token::Kind::TK_STAR;
-        case Token::Kind::TK_SLASHEQ:      return Token::Kind::TK_SLASH;
-        case Token::Kind::TK_PERCENTEQ:    return Token::Kind::TK_PERCENT;
-        case Token::Kind::TK_SHLEQ:        return Token::Kind::TK_SHL;
-        case Token::Kind::TK_SHREQ:        return Token::Kind::TK_SHR;
-        case Token::Kind::TK_BITWISEOREQ:  return Token::Kind::TK_BITWISEOR;
-        case Token::Kind::TK_BITWISEXOREQ: return Token::Kind::TK_BITWISEXOR;
-        case Token::Kind::TK_BITWISEANDEQ: return Token::Kind::TK_BITWISEAND;
-        default: return op;
-    }
-}
 
 Position Compiler::position(int offset) {
     if (fSource && offset >= 0) {

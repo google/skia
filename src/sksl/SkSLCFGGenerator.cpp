@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLCFGGenerator.h"
 
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -374,7 +375,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                 }
                 default:
                     this->addExpression(cfg, &b.left(),
-                                        !Compiler::IsAssignment(b.getOperator()));
+                                        !Operators::IsAssignment(b.getOperator()));
                     this->addExpression(cfg, &b.right(), constantPropagate);
                     cfg.currentBlock().fNodes.push_back(
                             BasicBlock::MakeExpression(e, constantPropagate));

@@ -17,7 +17,6 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLInliner.h"
-#include "src/sksl/SkSLLexer.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
@@ -193,15 +192,6 @@ public:
     Context& context() {
         return *fContext;
     }
-
-    static const char* OperatorName(Token::Kind op);
-
-    // Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
-    static bool IsAssignment(Token::Kind op);
-
-    // Given a compound assignment operator, returns the non-assignment version of the operator
-    // (e.g. '+=' becomes '+')
-    static Token::Kind RemoveAssignment(Token::Kind op);
 
     // When  SKSL_STANDALONE, fPath is used. (fData, fSize) will be (nullptr, 0)
     // When !SKSL_STANDALONE, fData and fSize are used. fPath will be nullptr.

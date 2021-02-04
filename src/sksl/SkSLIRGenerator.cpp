@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -1865,7 +1866,7 @@ static bool determine_binary_type(const Context& context,
         return false;
     }
 
-    bool isAssignment = Compiler::IsAssignment(op);
+    bool isAssignment = Operators::IsAssignment(op);
     if (is_matrix_multiply(left, op, right)) {  // left * right
         // Determine final component type.
         if (!determine_binary_type(context, allowNarrowing, op,
@@ -1997,10 +1998,10 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     }
     if (this->strictES2Mode() && !op_allowed_in_strict_es2_mode(op)) {
         this->errorReporter().error(
-                offset, String("operator '") + Compiler::OperatorName(op) + "' is not allowed");
+                offset, String("operator '") + Operators::OperatorName(op) + "' is not allowed");
         return nullptr;
     }
-    bool isAssignment = Compiler::IsAssignment(op);
+    bool isAssignment = Operators::IsAssignment(op);
     if (isAssignment && !this->setRefKind(*left, op != Token::Kind::TK_EQ
                                                  ? VariableReference::RefKind::kReadWrite
                                                  : VariableReference::RefKind::kWrite)) {
@@ -2009,7 +2010,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
         this->errorReporter().error(
-                offset, String("type mismatch: '") + Compiler::OperatorName(op) +
+                offset, String("type mismatch: '") + Operators::OperatorName(op) +
                                 "' cannot operate on '" + left->type().displayName() + "', '" +
                                 right->type().displayName() + "'");
         return nullptr;
@@ -2466,7 +2467,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_PLUSPLUS:
             if (!baseType.isNumber()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2477,7 +2478,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2488,7 +2489,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2502,13 +2503,13 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
             if (this->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
                 this->errorReporter().error(base->fOffset,
-                              String("operator '") + Compiler::OperatorName(op) +
+                              String("operator '") + Operators::OperatorName(op) +
                               "' is not allowed");
                 return nullptr;
             }
             if (!baseType.isInteger()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2912,7 +2913,7 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_pt
     const Type& baseType = base->type();
     if (!baseType.isNumber()) {
         this->errorReporter().error(base->fOffset,
-                                    "'" + String(Compiler::OperatorName(op)) +
+                                    "'" + String(Operators::OperatorName(op)) +
                                     "' cannot operate on '" + baseType.displayName() + "'");
         return nullptr;
     }

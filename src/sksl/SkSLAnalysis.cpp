@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 
 #include "include/private/SkSLSampleUsage.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"

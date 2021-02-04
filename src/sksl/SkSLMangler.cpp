@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLMetalCodeGenerator.h"
+#include "src/sksl/SkSLMangler.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {
 

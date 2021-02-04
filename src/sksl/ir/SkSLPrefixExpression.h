@@ -8,9 +8,9 @@
 #ifndef SKSL_PREFIXEXPRESSION
 #define SKSL_PREFIXEXPRESSION
 
-#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
@@ -57,7 +57,7 @@ public:
     }
 
     String description() const override {
-        return Compiler::OperatorName(this->getOperator()) + this->operand()->description();
+        return Operators::OperatorName(this->getOperator()) + this->operand()->description();
     }
 
 private:
