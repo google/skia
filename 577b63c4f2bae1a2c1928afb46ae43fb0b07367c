@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd7187d0_37388bcd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T19:50:49Z",
+      "side": 1,
+      "message": "My original CL got clobbered by running git commands in the wrong order, so here\u0027s a new one.",
+      "revId": "577b63c4f2bae1a2c1928afb46ae43fb0b07367c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
