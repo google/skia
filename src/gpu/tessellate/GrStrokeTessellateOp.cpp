@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStrokeOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -14,8 +14,9 @@
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
-GrStrokeOp::GrStrokeOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkPath& path,
-                       const SkStrokeRec& stroke, GrPaint&& paint)
+GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
+                                           const SkPath& path, const SkStrokeRec& stroke,
+                                           GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
@@ -32,7 +33,7 @@ GrStrokeOp::GrStrokeOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkPath
     this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
 }
 
-void GrStrokeOp::visitProxies(const VisitProxyFunc& fn) const {
+void GrStrokeTessellateOp::visitProxies(const VisitProxyFunc& fn) const {
     if (fFillProgram) {
         fFillProgram->visitFPProxies(fn);
     } else if (fStencilProgram) {
@@ -42,7 +43,7 @@ void GrStrokeOp::visitProxies(const VisitProxyFunc& fn) const {
     }
 }
 
-GrDrawOp::FixedFunctionFlags GrStrokeOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags GrStrokeTessellateOp::fixedFunctionFlags() const {
     // We might not actually end up needing stencil, but won't know for sure until finalize().
     // Request it just in case we do end up needing it.
     auto flags = FixedFunctionFlags::kUsesStencil;
@@ -52,8 +53,10 @@ GrDrawOp::FixedFunctionFlags GrStrokeOp::fixedFunctionFlags() const {
     return flags;
 }
 
-GrProcessorSet::Analysis GrStrokeOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                              bool hasMixedSampledCoverage, GrClampType clampType) {
+GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
+                                                        const GrAppliedClip* clip,
+                                                        bool hasMixedSampledCoverage,
+                                                        GrClampType clampType) {
     // Make sure the finalize happens before combining. We might change fNeedsStencil here.
     SkASSERT(fPathList.begin().fCurr->fNext == nullptr);
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
@@ -63,10 +66,10 @@ GrProcessorSet::Analysis GrStrokeOp::finalize(const GrCaps& caps, const GrApplie
     return analysis;
 }
 
-GrOp::CombineResult GrStrokeOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* alloc,
-                                                    const GrCaps&) {
+GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* alloc,
+                                                              const GrCaps&) {
     SkASSERT(grOp->classID() == this->classID());
-    auto* op = static_cast<GrStrokeOp*>(grOp);
+    auto* op = static_cast<GrStrokeTessellateOp*>(grOp);
     if (fNeedsStencil ||
         op->fNeedsStencil ||
         fColor != op->fColor ||
@@ -106,7 +109,8 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
-void GrStrokeOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args, GrAppliedClip&& clip) {
+void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args,
+                                                 GrAppliedClip&& clip) {
     SkASSERT(!fTessellator);
     SkASSERT(!fFillProgram);
     SkASSERT(!fStencilProgram);
@@ -159,10 +163,11 @@ void GrStrokeOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args, GrAppli
                                              fillStencil);
 }
 
-void GrStrokeOp::onPrePrepare(GrRecordingContext* context, const GrSurfaceProxyView& writeView,
-                              GrAppliedClip* clip,
-                              const GrXferProcessor::DstProxyView& dstProxyView,
-                              GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
+void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
+                                        const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
+                                        const GrXferProcessor::DstProxyView& dstProxyView,
+                                        GrXferBarrierFlags renderPassXferBarriers, GrLoadOp
+                                        colorLoadOp) {
     this->prePrepareTessellator({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
                                 renderPassXferBarriers, colorLoadOp, context->priv().caps()},
                                 (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
@@ -174,7 +179,7 @@ void GrStrokeOp::onPrePrepare(GrRecordingContext* context, const GrSurfaceProxyV
     }
 }
 
-void GrStrokeOp::onPrepare(GrOpFlushState* flushState) {
+void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prePrepareTessellator({flushState->allocator(), flushState->writeView(),
                                     &flushState->dstProxyView(), flushState->renderPassBarriers(),
@@ -185,7 +190,7 @@ void GrStrokeOp::onPrepare(GrOpFlushState* flushState) {
     fTessellator->prepare(flushState, fViewMatrix, fPathList, fStroke, fTotalCombinedVerbCnt);
 }
 
-void GrStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkASSERT(chainBounds == this->bounds());
     if (fStencilProgram) {
         flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());

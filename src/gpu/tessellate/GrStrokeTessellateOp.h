@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeOp_DEFINED
-#define GrStrokeOp_DEFINED
+#ifndef GrStrokeTessellateOp_DEFINED
+#define GrStrokeTessellateOp_DEFINED
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrSTArenaList.h"
@@ -31,19 +31,19 @@ public:
 
 // Base class for ops that render opaque, constant-color strokes by linearizing them into sorted
 // "parametric" and "radial" edges. See GrStrokeTessellateShader.
-class GrStrokeOp : public GrDrawOp {
+class GrStrokeTessellateOp : public GrDrawOp {
 public:
     // The provided matrix must be a similarity matrix for the time being. This is so we can
     // bootstrap this Op on top of GrStrokeGeometry with minimal modifications.
     //
     // Patches can overlap, so until a stencil technique is implemented, the provided paint must be
     // a constant blended color.
-    GrStrokeOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
+    GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
 
 protected:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "GrStrokeOp"; }
+    const char* name() const override { return "GrStrokeTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
