@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edc63aec_c5ac3fb4",
+        "filename": "src/core/SkMatrixProvider.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-04T16:35:24Z",
+      "side": 1,
+      "message": "I should note we\u0027ve already got virtuals on this type, so the new one is ~free.",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 16
+      },
+      "revId": "70ef90ddb77c9e16dccbb4f6d8846868612ef3e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
