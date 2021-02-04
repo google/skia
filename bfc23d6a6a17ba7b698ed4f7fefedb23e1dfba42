@@ -16,6 +16,144 @@
       "message": "This is phase one, it leaves some obvious kruft still around, but the next CL(s) will make things much nicer.",
       "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7ea8b7d_b3a04765",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:35:01Z",
+      "side": 1,
+      "message": "What about s.isStatic --\u003e @if?",
+      "range": {
+        "startLine": 167,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 24
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4af53501_f284d75c",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:35:01Z",
+      "side": 1,
+      "message": "We don\u0027t need these prefixes, do we?",
+      "range": {
+        "startLine": 367,
+        "startChar": 50,
+        "endLine": 367,
+        "endChar": 78
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e7b16de_d0968374",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:35:01Z",
+      "side": 1,
+      "message": "tiny nit: indentation",
+      "range": {
+        "startLine": 401,
+        "startChar": 45,
+        "endLine": 401,
+        "endChar": 47
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5495fdc8_2e27f818",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:35:01Z",
+      "side": 1,
+      "message": "tiny nit: indentation",
+      "range": {
+        "startLine": 421,
+        "startChar": 47,
+        "endLine": 421,
+        "endChar": 57
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a885939_b63527c3",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:35:01Z",
+      "side": 1,
+      "message": "Why not?",
+      "range": {
+        "startLine": 487,
+        "startChar": 7,
+        "endLine": 487,
+        "endChar": 32
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c2c98fc_36ab8875",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-04T22:35:01Z",
+      "side": 1,
+      "message": "Obsolete?",
+      "range": {
+        "startLine": 552,
+        "startChar": 6,
+        "endLine": 554,
+        "endChar": 5
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
