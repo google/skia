@@ -597,6 +597,7 @@ int main(int argc, char** argv) {
     }
 
     // Create a render target.
+    SkDebugf("@@@> w,h = %i,%i\n", width, height);
     SkImageInfo info =
             SkImageInfo::Make(width, height, config->getColorType(), config->getAlphaType(),
                               sk_ref_sp(config->getColorSpace()));
