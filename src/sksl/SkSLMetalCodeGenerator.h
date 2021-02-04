@@ -172,7 +172,11 @@ protected:
 
     void writeStructDefinition(const StructDefinition& s);
 
-    void writeType(const Type& type);
+    void disallowArrayTypes(const Type& type, int offset);
+
+    void writeBaseType(const Type& type);
+
+    void writeArrayDimensions(const Type& type);
 
     void writeExtension(const Extension& ext);
 
