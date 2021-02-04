@@ -12,11 +12,11 @@ void _skOutParamHelper0_bar(thread float& x) {
     bar(_var0);
     x = _var0;
 }
-float foo(array<float, 2> v) {
+float foo(float v[2]) {
     return v[0] * v[1];
 }
 void bar(thread float& x) {
-    array<float, 2> y;
+    float y[2];
 
     y[0] = x;
     y[1] = x * 2.0;
