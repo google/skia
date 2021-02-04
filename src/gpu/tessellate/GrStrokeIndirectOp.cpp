@@ -782,13 +782,16 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
                         numChops = -resolveLevel >> 1;
                         SkChopCubicAt(pts, scratch, nextChopTs, numChops);
                         nextChopTs += numChops;
-                        pts_ = scratch;
                         if (-resolveLevel & 1) {  // Are the chop points cusps?
-                            for (int i = 1; i <= numChops; ++i) {
+                            for (int i = 3; i <= numChops*3; i += 3) {
+                                // When chopping on a perfect cusp, these 3 points will be equal.
+                                scratch[i - 1] = scratch[i + 1] = scratch[i];
                                 nextInstanceLocations[fResolveLevelForCircles]++->setCircle(
-                                        pts_[i*3],numEdgesPerResolveLevel[fResolveLevelForCircles]);
+                                        scratch[i],
+                                        numEdgesPerResolveLevel[fResolveLevelForCircles]);
                             }
                         }
+                        pts_ = scratch;
                         resolveLevel = *nextResolveLevel++;
                     }
                     break;
