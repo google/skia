@@ -1,0 +1,6 @@
+// Expect 2 errors
+
+void array_decl() { float[123] x; }
+
+void array_ctor() { float[3](1, 2, 3); }
+
