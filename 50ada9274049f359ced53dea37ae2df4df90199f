@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6819c5d_c59fd1b6",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 1256,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-04T17:38:33Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d4302285_498209da",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "778145b8_09ee1c32",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-02-04T16:55:59Z",
       "side": 1,
       "message": "I don\u0027t think this ref/unref_ft_library stuff should be needed here. The SkScalerContext_FreeType holds a ref_ft_library for its lifetime already.",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09dbd0fd_17ce5279",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-04T17:38:33Z",
+      "side": 1,
+      "message": "Removed. Thanks.",
+      "parentUuid": "778145b8_09ee1c32",
       "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -52,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab63b37a_9dd5fba7",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-04T17:38:33Z",
+      "side": 1,
+      "message": "Reflown.",
+      "parentUuid": "3e3156ab_a25b80cb",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e838b7b3_8947bda2",
@@ -69,6 +123,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "73c8de59_8030263a",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-04T17:38:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e838b7b3_8947bda2",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "377804b2_d0b8b7b8",
@@ -82,6 +154,24 @@
       "writtenOn": "2021-02-04T16:55:59Z",
       "side": 1,
       "message": "nit: Skia likes braces",
+      "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbfe55a9_7da8ed9a",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 43
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-04T17:38:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "377804b2_d0b8b7b8",
       "revId": "50ada9274049f359ced53dea37ae2df4df90199f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
