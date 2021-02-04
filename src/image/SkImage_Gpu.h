@@ -35,23 +35,26 @@ public:
                           info.alphaType(),
                           info.refColorSpace()) {}
 
+    static sk_sp<SkImage> MakeWithVolatileSrc(sk_sp<GrRecordingContext> context,
+                                              GrSurfaceProxyView volatileSrc,
+                                              SkColorInfo colorInfo);
+
     ~SkImage_Gpu() override;
 
+    bool surfaceMustPerformCopyOnWrite(GrSurfaceProxy::UniqueID surfaceProxyID) const;
+
     bool onHasMipmaps() const override {
-        return fView.asTextureProxy()->mipmapped() == GrMipmapped::kYes;
+        return fStableProxy->asTextureProxy()->mipmapped() == GrMipmapped::kYes;
     }
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
-    GrTextureProxy* peekProxy() const override { return fView.asTextureProxy(); }
+    GrTextureProxy* peekProxy() const override { return this->chooseProxy()->asTextureProxy(); }
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
 
-    bool onIsTextureBacked() const override {
-        SkASSERT(fView.proxy());
-        return true;
-    }
+    bool onIsTextureBacked() const override { return true; }
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const final;
@@ -74,6 +77,8 @@ public:
                                            ReadPixelsCallback,
                                            ReadPixelsContext) override;
 
+    void generatingSurfaceIsDeleted() override;
+
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
      */
@@ -94,7 +99,19 @@ private:
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
 
-    GrSurfaceProxyView fView;
+    GrSurfaceProxy* chooseProxy() const;
+    GrSurfaceProxyView makeView() const {
+        return {sk_ref_sp(this->chooseProxy()), fOrigin, fSwizzle};
+    }
+    GrSurfaceProxy* switchToStableProxy() const;
+
+    mutable sk_sp<GrSurfaceProxy> fStableProxy;
+    mutable sk_sp<GrSurfaceProxy> fVolatileProxy;
+    mutable sk_sp<GrRenderTask> fVolatileToStableCopyTask;
+    int fVolatileProxyTargetCount = 0;
+
+    GrSwizzle fSwizzle;
+    GrSurfaceOrigin fOrigin;
 
     using INHERITED = SkImage_GpuBase;
 };

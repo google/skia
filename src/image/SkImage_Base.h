@@ -104,6 +104,7 @@ public:
 
     virtual bool isYUVA() const { return false; }
 
+    virtual void generatingSurfaceIsDeleted() {}
 #endif
 
     virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
