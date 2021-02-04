@@ -12,12 +12,11 @@
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLStatement.h"
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-
 #include <stack>
+
+#if SK_SUPPORT_GPU
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#endif // SK_SUPPORT_GPU
 
 class AutoDSLContext;
 
@@ -25,7 +24,9 @@ namespace SkSL {
 
 class Compiler;
 class Context;
+class Expression;
 class IRGenerator;
+class Statement;
 class SymbolTable;
 class Type;
 
@@ -87,7 +88,6 @@ public:
      */
     static const char* Name(const char* name);
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     /**
      * Returns the fragment processor for which DSL output is being generated for the current
      * thread.
@@ -105,6 +105,7 @@ public:
         return Instance().fStack.top().fEmitArgs;
     }
 
+#if SK_SUPPORT_GPU
     /**
      * Pushes a new processor / emitArgs pair for the current thread.
      */
@@ -115,7 +116,7 @@ public:
      * Pops the processor / emitArgs pair associated with the current thread.
      */
     static void EndFragmentProcessor();
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#endif // SK_SUPPORT_GPU
 
     /**
      * Reports an error if the argument is null. Returns its argument unmodified.
@@ -169,13 +170,13 @@ private:
     ErrorHandler* fErrorHandler = nullptr;
     bool fMangle = true;
     Mangler fMangler;
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
     struct StackFrame {
         GrGLSLFragmentProcessor* fProcessor;
         GrGLSLFragmentProcessor::EmitArgs* fEmitArgs;
     };
     std::stack<StackFrame> fStack;
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#endif // SK_SUPPORT_GPU
 
     friend class DSLCore;
     friend class ::AutoDSLContext;
