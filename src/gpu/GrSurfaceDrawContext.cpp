@@ -1583,17 +1583,9 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    // Always simplify the stroke for now. In the future we will give the tessellator a chance to
-    // claim strokes before trying to simplify them.
-    shape.simplifyStroke();
-
-    if (this->drawSimpleShape(clip, &paint, aa, viewMatrix, shape)) {
-        return;
-    }
-
     // If we get here in drawShape(), we definitely need to use path rendering
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, std::move(shape),
-                                     /* attemptDrawSimple */ false);
+                                     /* attemptDrawSimple */ true);
 }
 
 static SkIRect get_clip_bounds(const GrSurfaceDrawContext* rtc, const GrClip* clip) {
@@ -1799,7 +1791,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     // claim strokes before trying to simplify them.
     shape.simplifyStroke();
 
-    if (attemptDrawSimple && shape.simplified()) {
+    if (attemptDrawSimple || shape.simplified()) {
         // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
         // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
         // we ought to try again instead of going right to path rendering.

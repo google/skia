@@ -713,11 +713,11 @@ private:
     // we know how.
     bool drawSimpleShape(const GrClip*, GrPaint*, GrAA, const SkMatrix&, const GrStyledShape&);
 
-    // If 'attemptDrawSimple' is true, and the original shape had been simplfied, this
-    // will attempt to re-route through drawSimpleShape() to see if we can avoid path rendering one
-    // more time.
+    // If 'attemptDrawSimple' is true, of if the original shape is marked as having been simplfied,
+    // this will attempt to re-route through drawSimpleShape() to see if we can avoid path rendering
+    // one more time.
     void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
-                                    GrStyledShape&&, bool attemptDrawSimple = true);
+                                    GrStyledShape&&, bool attemptDrawSimple = false);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
