@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b027b1e_04005838",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-04T14:32:04Z",
+      "side": 1,
+      "message": "To be honest I just don\u0027t understand this code enough to truly know if you\u0027re doing the right math or emitting the right lines/joins. Put at least in terms of the coding it lgtm.",
+      "revId": "ad78c5963e8b34cfb333f65452b4f1fb70f456cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
