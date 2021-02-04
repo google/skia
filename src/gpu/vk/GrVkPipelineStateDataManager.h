@@ -22,7 +22,7 @@ public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
     GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize,
-                                 GrVkUniformHandler::Layout memLayout);
+                                 bool usePushConstants);
 
     // Returns the uniform buffer that holds all the uniform data. If there are no uniforms it
     // returns nullptr. If there was an error in creating or uploading the uniforms the value of the
@@ -31,14 +31,15 @@ public:
 
     void releaseData();
 
+    bool usePushConstants() const { return fUsePushConstants; }
     void uploadPushConstants(const GrVkGpu*, VkPipelineLayout, GrVkCommandBuffer*) const;
 
     // TODO: we might need more of these once std430 size/alignment issues are worked out
     void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
 private:
-    GrVkUniformHandler::Layout fMemLayout;
     sk_sp<GrGpuBuffer> fUniformBuffer;
+    bool fUsePushConstants;
 
     using INHERITED = GrUniformDataManager;
 };

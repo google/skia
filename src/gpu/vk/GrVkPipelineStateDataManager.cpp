@@ -16,12 +16,14 @@
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
                                                            uint32_t uniformSize,
-                                                           GrVkUniformHandler::Layout memLayout)
+                                                           bool usePushConstants)
     : INHERITED(uniforms.count(), uniformSize)
-    , fMemLayout(memLayout) {
+    , fUsePushConstants(usePushConstants) {
     // We must add uniforms in same order as the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
     int i = 0;
+    GrVkUniformHandler::Layout memLayout = usePushConstants ? GrVkUniformHandler::kStd430Layout
+                                                            : GrVkUniformHandler::kStd140Layout;
     for (const auto& uniformInfo : uniforms.items()) {
         Uniform& uniform = fUniforms[i];
         SkASSERT(GrShaderVar::kNonArray == uniformInfo.fVariable.getArrayCount() ||
@@ -66,7 +68,8 @@ void GrVkPipelineStateDataManager::uploadPushConstants(const GrVkGpu* gpu,
 void GrVkPipelineStateDataManager::setMatrix2fv(UniformHandle u,
                                                 int arrayCount,
                                                 const float m[]) const {
-    if (fMemLayout == GrVkUniformHandler::kStd430Layout) {
+    if (fUsePushConstants) {
+        // upload as std430
         const Uniform& uni = fUniforms[u.toIndex()];
         SkASSERT(uni.fType == kFloat2x2_GrSLType || uni.fType == kHalf2x2_GrSLType);
         SkASSERT(arrayCount > 0);

@@ -33,6 +33,7 @@ GrVkPipelineState::GrVkPipelineState(
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
         uint32_t uniformSize,
+        bool usePushConstants,
         const UniformInfoArray& samplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -43,8 +44,7 @@ GrVkPipelineState::GrVkPipelineState(
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
-        // TODO: add std430 usage
-        , fDataManager(uniforms, uniformSize, GrVkUniformHandler::kStd140Layout) {
+        , fDataManager(uniforms, uniformSize, usePushConstants) {
     fNumSamplers = samplers.count();
     for (const auto& sampler : samplers.items()) {
         // We store the immutable samplers here and take ownership of the ref from the
@@ -86,18 +86,22 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                 dstTexture, offset);
     }
 
-    // Upload uniform data to buffer and bind descriptor set.
-    auto[uniformBuffer, success] = fDataManager.uploadUniformBuffers(gpu);
-    if (!success) {
-        return false;
-    }
-    if (uniformBuffer) {
-        const GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(uniformBuffer.get());
-        static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
-        commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kUniformDSIdx, /*setCount=*/1,
-                                          vkBuffer->uniformDescriptorSet(),
-                                          /*dynamicOffsetCount=*/0, /*dynamicOffsets=*/nullptr);
-        commandBuffer->addGrBuffer(std::move(uniformBuffer));
+    if (!fDataManager.usePushConstants()) {
+        // Upload uniform data to buffer and bind descriptor set.
+        auto [uniformBuffer, success] = fDataManager.uploadUniformBuffers(gpu);
+        if (!success) {
+            return false;
+        }
+        if (uniformBuffer) {
+            const GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(uniformBuffer.get());
+            static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
+            commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kUniformDSIdx, /*setCount=*/1,
+                                              vkBuffer->uniformDescriptorSet(),
+                                              /*dynamicOffsetCount=*/0, /*dynamicOffsets=*/nullptr);
+            commandBuffer->addGrBuffer(std::move(uniformBuffer));
+        }
+    } else {
+        fDataManager.uploadPushConstants(gpu, fPipeline->layout(), commandBuffer);
     }
     return true;
 }
