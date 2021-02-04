@@ -1787,17 +1787,8 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
         return;
     }
 
-    // Always simplify the stroke for now. In the future we will give the tessellator a chance to
-    // claim strokes before trying to simplify them.
-    shape.simplifyStroke();
-
-    if (attemptDrawSimple || shape.simplified()) {
-        // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
-        // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
-        // we ought to try again instead of going right to path rendering.
-        if (this->drawSimpleShape(clip, &paint, aa, viewMatrix, shape)) {
-            return;
-        }
+    if (shape.isEmpty() && !shape.inverseFilled()) {
+        return;
     }
 
     SkIRect clipConservativeBounds = get_clip_bounds(this, clip);
@@ -1813,17 +1804,34 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     canDrawArgs.fHasUserStencilSettings = false;
-
-    GrPathRenderer* pr;
-    static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
-    if (shape.isEmpty() && !shape.inverseFilled()) {
-        return;
-    }
-
     canDrawArgs.fAAType = aaType;
 
-    // Try a 1st time without applying any of the style to the geometry (and barring sw)
-    pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+    GrPathRenderer* pr = nullptr;
+    static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
+
+    if (shape.style().applies()) {
+        // Give path renderers with dedicated stroke handling (e.g., tessellation) a chance to claim
+        // this stroke before we attempt to simplify it.
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+    }
+
+    if (!pr) {
+        // The shape isn't a stroke that can be drawn directly. Simplify if possible.
+        shape.simplifyStroke();
+
+        if (attemptDrawSimple || shape.simplified()) {
+            // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too complex
+            // for dedicated draw ops. However, if GrStyledShape was able to reduce something we
+            // ought to try again instead of going right to path rendering.
+            if (this->drawSimpleShape(clip, &paint, aa, viewMatrix, shape)) {
+                return;
+            }
+        }
+
+        // Try a 1st time without applying any of the style to the geometry (and barring sw)
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+    }
+
     SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
 
     if (!pr && shape.style().pathEffect()) {
