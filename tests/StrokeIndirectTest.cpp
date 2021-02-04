@@ -11,7 +11,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
-#include "src/gpu/tessellate/GrStrokeIndirectOp.h"
+#include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
@@ -40,17 +40,17 @@ static void test_stroke(skiatest::Reporter* r, GrDirectContext* ctx, GrMeshDrawO
         stroke.setStrokeParams(SkPaint::kButt_Cap, join, 4);
         for (int i = 0; i < 16; ++i) {
             float scale = ldexpf(rand.nextF() + 1, i);
-            auto op = GrOp::Make<GrStrokeIndirectOp>(ctx, GrAAType::kMSAA,
-                                                     SkMatrix::Scale(scale, scale), path, stroke,
-                                                     GrPaint());
-            auto strokeIndirectOp = op->cast<GrStrokeIndirectOp>();
-            strokeIndirectOp->verifyPrePrepareResolveLevels(r, target);
-            strokeIndirectOp->verifyPrepareBuffers(r, target);
+            auto matrix = SkMatrix::Scale(scale, scale);
+            GrStrokeIndirectTessellator tessellator(matrix, path, stroke, path.countVerbs(),
+                                                    target->allocator());
+            tessellator.verifyResolveLevels(r, target, matrix, path, stroke);
+            tessellator.prepare(target, matrix, path, stroke, path.countVerbs());
+            tessellator.verifyBuffers(r, target, matrix, stroke);
         }
     }
 }
 
-DEF_TEST(tessellate_GrStrokeIndirectOp, r) {
+DEF_TEST(tessellate_GrStrokeIndirectTessellator, r) {
     auto ctx = make_mock_context();
     auto target = std::make_unique<GrMockOpTarget>(ctx);
     SkRandom rand;
@@ -262,180 +262,180 @@ static float test_tolerance(SkPaint::Join joinType) {
     return tolerance;
 }
 
-void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
-                                                       GrMeshDrawOp::Target* target) {
-    GrStrokeTessellateShader::Tolerances tolerances(fViewMatrix.getMaxScale(), fStroke.getWidth());
-    float tolerance = test_tolerance(fStroke.getJoin());
-    // Fill in fResolveLevels with our resolve levels for each curve.
-    this->prePrepareResolveLevels(target->allocator());
+void GrStrokeIndirectTessellator::verifyResolveLevels(skiatest::Reporter* r,
+                                                      GrMeshDrawOp::Target* target,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkPath& path,
+                                                      const SkStrokeRec& stroke) {
+    GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
+    float tolerance = test_tolerance(stroke.getJoin());
     int8_t* nextResolveLevel = fResolveLevels;
-    // Now check out answers.
-    for (const SkPath& path : fPathList) {
-        auto iterate = SkPathPriv::Iterate(path);
-        SkSTArray<3, float> firstNumSegments;
-        bool isFirstStroke = true;
-        SkPoint startPoint = {0,0};
-        SkPoint lastControlPoint;
-        for (auto iter = iterate.begin(); iter != iterate.end(); ++iter) {
-            auto [verb, pts, w] = *iter;
-            switch (verb) {
-                int n;
-                SkPoint chops[10];
-                case SkPathVerb::kMove:
-                    startPoint = pts[0];
-                    lastControlPoint = get_contour_closing_control_point(iter, iterate.end());
-                    if (!check_first_resolve_levels(r, firstNumSegments, &nextResolveLevel,
+    auto iterate = SkPathPriv::Iterate(path);
+    SkSTArray<3, float> firstNumSegments;
+    bool isFirstStroke = true;
+    SkPoint startPoint = {0,0};
+    SkPoint lastControlPoint;
+    for (auto iter = iterate.begin(); iter != iterate.end(); ++iter) {
+        auto [verb, pts, w] = *iter;
+        switch (verb) {
+            int n;
+            SkPoint chops[10];
+            case SkPathVerb::kMove:
+                startPoint = pts[0];
+                lastControlPoint = get_contour_closing_control_point(iter, iterate.end());
+                if (!check_first_resolve_levels(r, firstNumSegments, &nextResolveLevel,
+                                                tolerance)) {
+                    return;
+                }
+                firstNumSegments.reset();
+                isFirstStroke = true;
+                break;
+            case SkPathVerb::kLine:
+                if (pts[0] == pts[1]) {
+                    break;
+                }
+                if (stroke.getJoin() == SkPaint::kRound_Join) {
+                    float rotation = SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
+                                                                  pts[1] - pts[0]);
+                    float numSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
+                    if (isFirstStroke) {
+                        firstNumSegments.push_back(numSegments);
+                    } else if (!check_resolve_level(r, numSegments, *nextResolveLevel++,
                                                     tolerance)) {
                         return;
                     }
-                    firstNumSegments.reset();
-                    isFirstStroke = true;
+                }
+                lastControlPoint = pts[0];
+                isFirstStroke = false;
+                break;
+            case SkPathVerb::kQuad: {
+                if (pts[0] == pts[1] && pts[1] == pts[2]) {
                     break;
-                case SkPathVerb::kLine:
-                    if (pts[0] == pts[1]) {
-                        break;
+                }
+                SkVector a = pts[1] - pts[0];
+                SkVector b = pts[2] - pts[1];
+                bool hasCusp = (a.cross(b) == 0 && a.dot(b) < 0);
+                if (hasCusp) {
+                    // The quad has a cusp. Make sure we wrote out a -1 to signal that.
+                    if (isFirstStroke) {
+                        firstNumSegments.push_back(-1);
+                    } else {
+                        REPORTER_ASSERT(r, *nextResolveLevel++ == -1);
                     }
-                    if (fStroke.getJoin() == SkPaint::kRound_Join) {
-                        float rotation = SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
-                                                                      pts[1] - pts[0]);
-                        float numSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
-                        if (isFirstStroke) {
-                            firstNumSegments.push_back(numSegments);
-                        } else if (!check_resolve_level(r, numSegments, *nextResolveLevel++,
-                                                        tolerance)) {
-                            return;
-                        }
+                }
+                float numParametricSegments = (hasCusp) ? 0 : GrWangsFormula::quadratic(
+                        tolerances.fParametricIntolerance, pts);
+                float rotation = (hasCusp) ? 0 : SkMeasureQuadRotation(pts);
+                if (stroke.getJoin() == SkPaint::kRound_Join) {
+                    SkVector controlPoint = (pts[0] == pts[1]) ? pts[2] : pts[1];
+                    rotation += SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
+                                                             controlPoint - pts[0]);
+                }
+                float numRadialSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
+                float numSegments = numParametricSegments + numRadialSegments;
+                if (!hasCusp || stroke.getJoin() == SkPaint::kRound_Join) {
+                    if (isFirstStroke) {
+                        firstNumSegments.push_back(numSegments);
+                    } else if (!check_resolve_level(r, numSegments, *nextResolveLevel++,
+                                                    tolerance)) {
+                        return;
                     }
-                    lastControlPoint = pts[0];
-                    isFirstStroke = false;
+                }
+                lastControlPoint = (pts[2] == pts[1]) ? pts[0] : pts[1];
+                isFirstStroke = false;
+                break;
+            }
+            case SkPathVerb::kCubic: {
+                if (pts[0] == pts[1] && pts[1] == pts[2] && pts[2] == pts[3]) {
                     break;
-                case SkPathVerb::kQuad: {
-                    if (pts[0] == pts[1] && pts[1] == pts[2]) {
-                        break;
+                }
+                float T[2];
+                bool areCusps = false;
+                n = GrPathUtils::findCubicConvex180Chops(pts, T, &areCusps);
+                SkChopCubicAt(pts, chops, T, n);
+                if (n > 0) {
+                    int signal = -((n << 1) | (int)areCusps);
+                    if (isFirstStroke) {
+                        firstNumSegments.push_back((float)signal);
+                    } else {
+                        REPORTER_ASSERT(r, *nextResolveLevel++ == signal);
                     }
-                    SkVector a = pts[1] - pts[0];
-                    SkVector b = pts[2] - pts[1];
-                    bool hasCusp = (a.cross(b) == 0 && a.dot(b) < 0);
-                    if (hasCusp) {
-                        // The quad has a cusp. Make sure we wrote out a -1 to signal that.
-                        if (isFirstStroke) {
-                            firstNumSegments.push_back(-1);
-                        } else {
-                            REPORTER_ASSERT(r, *nextResolveLevel++ == -1);
-                        }
-                    }
-                    float numParametricSegments = (hasCusp) ? 0 : GrWangsFormula::quadratic(
-                            tolerances.fParametricIntolerance, pts);
-                    float rotation = (hasCusp) ? 0 : SkMeasureQuadRotation(pts);
-                    if (fStroke.getJoin() == SkPaint::kRound_Join) {
-                        SkVector controlPoint = (pts[0] == pts[1]) ? pts[2] : pts[1];
-                        rotation += SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
-                                                                 controlPoint - pts[0]);
+                }
+                for (int i = 0; i <= n; ++i) {
+                    // Find the number of segments with our unoptimized approach and make sure
+                    // it matches the answer we got already.
+                    SkPoint* p = chops + i*3;
+                    float numParametricSegments =
+                            GrWangsFormula::cubic(tolerances.fParametricIntolerance, p);
+                    SkVector tan0 =
+                            ((p[0] == p[1]) ? (p[1] == p[2]) ? p[3] : p[2] : p[1]) - p[0];
+                    SkVector tan1 =
+                            p[3] - ((p[3] == p[2]) ? (p[2] == p[1]) ? p[0] : p[1] : p[2]);
+                    float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
+                    if (i == 0 && stroke.getJoin() == SkPaint::kRound_Join) {
+                        rotation += SkMeasureAngleBetweenVectors(p[0] - lastControlPoint, tan0);
                     }
                     float numRadialSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
                     float numSegments = numParametricSegments + numRadialSegments;
-                    if (!hasCusp || fStroke.getJoin() == SkPaint::kRound_Join) {
-                        if (isFirstStroke) {
-                            firstNumSegments.push_back(numSegments);
-                        } else if (!check_resolve_level(r, numSegments, *nextResolveLevel++,
-                                                        tolerance)) {
-                            return;
-                        }
-                    }
-                    lastControlPoint = (pts[2] == pts[1]) ? pts[0] : pts[1];
-                    isFirstStroke = false;
-                    break;
-                }
-                case SkPathVerb::kCubic: {
-                    if (pts[0] == pts[1] && pts[1] == pts[2] && pts[2] == pts[3]) {
-                        break;
-                    }
-                    float T[2];
-                    bool areCusps = false;
-                    n = GrPathUtils::findCubicConvex180Chops(pts, T, &areCusps);
-                    SkChopCubicAt(pts, chops, T, n);
-                    if (n > 0) {
-                        int signal = -((n << 1) | (int)areCusps);
-                        if (isFirstStroke) {
-                            firstNumSegments.push_back((float)signal);
-                        } else {
-                            REPORTER_ASSERT(r, *nextResolveLevel++ == signal);
-                        }
-                    }
-                    for (int i = 0; i <= n; ++i) {
-                        // Find the number of segments with our unoptimized approach and make sure
-                        // it matches the answer we got already.
-                        SkPoint* p = chops + i*3;
-                        float numParametricSegments =
-                                GrWangsFormula::cubic(tolerances.fParametricIntolerance, p);
-                        SkVector tan0 =
-                                ((p[0] == p[1]) ? (p[1] == p[2]) ? p[3] : p[2] : p[1]) - p[0];
-                        SkVector tan1 =
-                                p[3] - ((p[3] == p[2]) ? (p[2] == p[1]) ? p[0] : p[1] : p[2]);
-                        float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
-                        if (i == 0 && fStroke.getJoin() == SkPaint::kRound_Join) {
-                            rotation += SkMeasureAngleBetweenVectors(p[0] - lastControlPoint, tan0);
-                        }
-                        float numRadialSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
-                        float numSegments = numParametricSegments + numRadialSegments;
-                        if (isFirstStroke) {
-                            firstNumSegments.push_back(numSegments);
-                        } else if (!check_resolve_level(r, numSegments, *nextResolveLevel++,
-                                                        tolerance)) {
-                            return;
-                        }
-                    }
-                    lastControlPoint =
-                            (pts[3] == pts[2]) ? (pts[2] == pts[1]) ? pts[0] : pts[1] : pts[2];
-                    isFirstStroke = false;
-                    break;
-                }
-                case SkPathVerb::kConic:
-                    SkUNREACHABLE;
-                case SkPathVerb::kClose:
-                    if (pts[0] != startPoint) {
-                        SkASSERT(!isFirstStroke);
-                        if (fStroke.getJoin() == SkPaint::kRound_Join) {
-                            // Line from pts[0] to startPoint, with a preceding join.
-                            float rotation = SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
-                                                                          startPoint - pts[0]);
-                            if (!check_resolve_level(
-                                    r, rotation * tolerances.fNumRadialSegmentsPerRadian,
-                                    *nextResolveLevel++, tolerance)) {
-                                return;
-                            }
-                        }
-                    }
-                    if (!check_first_resolve_levels(r, firstNumSegments, &nextResolveLevel,
+                    if (isFirstStroke) {
+                        firstNumSegments.push_back(numSegments);
+                    } else if (!check_resolve_level(r, numSegments, *nextResolveLevel++,
                                                     tolerance)) {
                         return;
                     }
-                    firstNumSegments.reset();
-                    isFirstStroke = true;
-                    break;
+                }
+                lastControlPoint =
+                        (pts[3] == pts[2]) ? (pts[2] == pts[1]) ? pts[0] : pts[1] : pts[2];
+                isFirstStroke = false;
+                break;
             }
+            case SkPathVerb::kConic:
+                SkUNREACHABLE;
+            case SkPathVerb::kClose:
+                if (pts[0] != startPoint) {
+                    SkASSERT(!isFirstStroke);
+                    if (stroke.getJoin() == SkPaint::kRound_Join) {
+                        // Line from pts[0] to startPoint, with a preceding join.
+                        float rotation = SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
+                                                                      startPoint - pts[0]);
+                        if (!check_resolve_level(
+                                r, rotation * tolerances.fNumRadialSegmentsPerRadian,
+                                *nextResolveLevel++, tolerance)) {
+                            return;
+                        }
+                    }
+                }
+                if (!check_first_resolve_levels(r, firstNumSegments, &nextResolveLevel,
+                                                tolerance)) {
+                    return;
+                }
+                firstNumSegments.reset();
+                isFirstStroke = true;
+                break;
         }
-        if (!check_first_resolve_levels(r, firstNumSegments, &nextResolveLevel, tolerance)) {
-            return;
-        }
-        firstNumSegments.reset();
     }
+    if (!check_first_resolve_levels(r, firstNumSegments, &nextResolveLevel, tolerance)) {
+        return;
+    }
+    firstNumSegments.reset();
     SkASSERT(nextResolveLevel == fResolveLevels + fResolveLevelArrayCount);
 }
 
-void GrStrokeIndirectOp::verifyPrepareBuffers(skiatest::Reporter* r, GrMeshDrawOp::Target* target) {
+void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r,
+                                                GrMeshDrawOp::Target* target,
+                                                const SkMatrix& viewMatrix,
+                                                const SkStrokeRec& stroke) {
     using IndirectInstance = GrStrokeTessellateShader::IndirectInstance;
-    GrStrokeTessellateShader::Tolerances tolerances(fViewMatrix.getMaxScale(), fStroke.getWidth());
-    float tolerance = test_tolerance(fStroke.getJoin());
+    GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
+    float tolerance = test_tolerance(stroke.getJoin());
     // Make sure the resolve level we assign to each instance agrees with the actual data.
-    this->prepareBuffers(target);
     // GrMockOpTarget returns the same pointers every time.
     int _;
     auto instance = (const IndirectInstance*)target->makeVertexSpace(0, 0, nullptr, &_);
     size_t __;
     auto indirect = target->makeDrawIndirectSpace(0, nullptr, &__);
     for (int i = 0; i < fDrawIndirectCount; ++i) {
-        int numExtraEdgesInJoin = (fStroke.getJoin() == SkPaint::kMiter_Join) ? 4 : 3;
+        int numExtraEdgesInJoin = (stroke.getJoin() == SkPaint::kMiter_Join) ? 4 : 3;
         int numStrokeEdges = indirect->fVertexCount/2 - numExtraEdgesInJoin;
         int numSegments = numStrokeEdges - 1;
         bool isPow2 = !(numSegments & (numSegments - 1));
@@ -458,7 +458,7 @@ void GrStrokeIndirectOp::verifyPrepareBuffers(skiatest::Reporter* r, GrMeshDrawO
             float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
             // Negative fNumTotalEdges means the curve is a chop, and chops always get treated as a
             // bevel join.
-            if (fStroke.getJoin() == SkPaint::kRound_Join && instance->fNumTotalEdges > 0) {
+            if (stroke.getJoin() == SkPaint::kRound_Join && instance->fNumTotalEdges > 0) {
                 SkVector lastTangent = p[0] - instance->fLastControlPoint;
                 rotation += SkMeasureAngleBetweenVectors(lastTangent, tan0);
             }
