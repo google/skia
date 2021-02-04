@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStrokeIndirectOp.h"
+#include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
@@ -16,29 +16,6 @@
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
-                                      const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
-                                      const GrXferProcessor::DstProxyView& dstProxyView,
-                                      GrXferBarrierFlags renderPassXferBarriers,
-                                      GrLoadOp colorLoadOp) {
-    auto* arena = context->priv().recordTimeAllocator();
-    this->prePrepareResolveLevels(arena);
-    SkASSERT(fResolveLevels);
-    if (!fTotalInstanceCount) {
-        return;
-    }
-    this->prePreparePrograms(GrStrokeTessellateShader::Mode::kIndirect, arena, writeView,
-                             (clip) ? std::move(*clip) : GrAppliedClip::Disabled(), dstProxyView,
-                             renderPassXferBarriers, colorLoadOp, *context->priv().caps());
-    if (fFillProgram) {
-        context->priv().recordProgramInfo(fFillProgram);
-    }
-    if (fStencilProgram) {
-        context->priv().recordProgramInfo(fStencilProgram);
-    }
-}
-
-// Helpers for GrStrokeIndirectOp::prePrepareResolveLevels.
 namespace {
 
 // Only use SIMD if SkVx will use a built-in compiler extensions for vectors.
@@ -152,7 +129,7 @@ private:
         float numCombinedSegments =
                 fTolerances.fNumRadialSegmentsPerRadian * rotation + numParametricSegments;
         int8_t resolveLevel = sk_float_nextlog2(numCombinedSegments);
-        resolveLevel = std::min(resolveLevel, GrStrokeIndirectOp::kMaxResolveLevel);
+        resolveLevel = std::min(resolveLevel, GrStrokeIndirectTessellator::kMaxResolveLevel);
         ++fResolveLevelCounts[(*resolveLevelPtr = resolveLevel)];
     }
 
@@ -408,7 +385,7 @@ private:
         bits += (1u << 23) - 1u;  // Increment the exponent for non-powers-of-2.
         // This will make negative values, denorms, and negative exponents all < 0.
         auto exp = (skvx::bit_pun<ivec<N>>(bits) >> 23) - 127;
-        auto level = skvx::pin<N,int>(exp, 0, GrStrokeIndirectOp::kMaxResolveLevel);
+        auto level = skvx::pin<N,int>(exp, 0, GrStrokeIndirectTessellator::kMaxResolveLevel);
 
         switch (count) {
             default: SkUNREACHABLE;
@@ -438,7 +415,9 @@ private:
 
 }  // namespace
 
-void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
+GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
+        const SkMatrix& viewMatrix, const GrSTArenaList<SkPath>& pathList,
+        const SkStrokeRec& stroke, int totalCombinedVerbCnt, SkArenaAlloc* alloc) {
     SkASSERT(!fTotalInstanceCount);
     SkASSERT(!fResolveLevels);
     SkASSERT(!fResolveLevelArrayCount);
@@ -450,24 +429,24 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
     //   * Plus 1 extra resolveLevel per verb that says how many chops it needs
     //   * Plus 2 final resolveLevels for square caps at the very end not initiated by a "kMoveTo".
     //
-    int resolveLevelAllocCount = fTotalCombinedVerbCnt * (3 + 1) + 2;
+    int resolveLevelAllocCount = totalCombinedVerbCnt * (3 + 1) + 2;
     fResolveLevels = alloc->makeArrayDefault<int8_t>(resolveLevelAllocCount);
     int8_t* nextResolveLevel = fResolveLevels;
 
     // The maximum potential number of chopT values we will need is 2 per verb.
-    int chopTAllocCount = fTotalCombinedVerbCnt * 2;
+    int chopTAllocCount = totalCombinedVerbCnt * 2;
     fChopTs = alloc->makeArrayDefault<float>(chopTAllocCount);
     float* nextChopTs = fChopTs;
 
-    auto tolerances = this->preTransformTolerances();
+    auto tolerances = GrStrokeTessellateShader::Tolerances::MakePreTransform(viewMatrix, stroke);
     fResolveLevelForCircles =
             std::max(sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI), 1);
-    ResolveLevelCounter counter(fStroke, tolerances, fResolveLevelCounts);
+    ResolveLevelCounter counter(stroke, tolerances, fResolveLevelCounts);
 
     SkPoint lastControlPoint = {0,0};
-    for (const SkPath& path : fPathList) {
+    for (const SkPath& path : pathList) {
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
-        GrStrokeIterator iter(path, &fStroke, &fViewMatrix);
+        GrStrokeIterator iter(path, &stroke, &viewMatrix);
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
             Verb verb = iter.verb();
@@ -597,23 +576,6 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
 #endif
 }
 
-void GrStrokeIndirectOp::onPrepare(GrOpFlushState* flushState) {
-    if (!fResolveLevels) {
-        auto* arena = flushState->allocator();
-        this->prePrepareResolveLevels(arena);
-        if (!fTotalInstanceCount) {
-            return;
-        }
-        this->prePreparePrograms(GrStrokeTessellateShader::Mode::kIndirect, arena,
-                                 flushState->writeView(), flushState->detachAppliedClip(),
-                                 flushState->dstProxyView(), flushState->renderPassBarriers(),
-                                 flushState->colorLoadOp(), flushState->caps());
-    }
-    SkASSERT(fResolveLevels);
-
-    this->prepareBuffers(flushState);
-}
-
 constexpr static int num_edges_in_resolve_level(int resolveLevel) {
     // A resolveLevel means the instance is composed of 2^resolveLevel line segments.
     int numSegments = 1 << resolveLevel;
@@ -623,7 +585,9 @@ constexpr static int num_edges_in_resolve_level(int resolveLevel) {
     return numStrokeEdges;
 }
 
-void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
+void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& viewMatrix,
+                                          const GrSTArenaList<SkPath>& pathList,
+                                          const SkStrokeRec& stroke, int totalCombinedVerbCnt) {
     using IndirectInstance = GrStrokeTessellateShader::IndirectInstance;
 
     SkASSERT(fResolveLevels);
@@ -655,7 +619,7 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
     }
 
     // Fill out our drawIndirect commands and determine the layout of the instance buffer.
-    int numExtraEdgesInJoin = IndirectInstance::NumExtraEdgesInJoin(fStroke.getJoin());
+    int numExtraEdgesInJoin = IndirectInstance::NumExtraEdgesInJoin(stroke.getJoin());
     int currentInstanceIdx = 0;
     float numEdgesPerResolveLevel[kMaxResolveLevel];
     IndirectInstance* nextInstanceLocations[kMaxResolveLevel + 1];
@@ -688,7 +652,7 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
     SkPoint scratchBuffer[4 + 10];
     SkPoint* scratch = scratchBuffer;
 
-    bool isRoundJoin = (fStroke.getJoin() == SkPaint::kRound_Join);
+    bool isRoundJoin = (stroke.getJoin() == SkPaint::kRound_Join);
     int8_t* nextResolveLevel = fResolveLevels;
     float* nextChopTs = fChopTs;
 
@@ -698,8 +662,8 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
     int8_t resolveLevel;
 
     // Now write out each instance to its resolveLevel's designated location in the instance buffer.
-    for (const SkPath& path : fPathList) {
-        GrStrokeIterator iter(path, &fStroke, &fViewMatrix);
+    for (const SkPath& path : pathList) {
+        GrStrokeIterator iter(path, &stroke, &viewMatrix);
         bool hasLastControlPoint = false;
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
@@ -847,27 +811,14 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
 #endif
 }
 
-void GrStrokeIndirectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void GrStrokeIndirectTessellator::draw(GrOpFlushState* flushState) const {
     if (!fInstanceBuffer) {
         return;
     }
 
     SkASSERT(fDrawIndirectCount);
     SkASSERT(fTotalInstanceCount > 0);
-    SkASSERT(chainBounds == this->bounds());
 
-    if (fStencilProgram) {
-        flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
-        flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
-        flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
-        flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset,
-                                 fDrawIndirectCount);
-    }
-    if (fFillProgram) {
-        flushState->bindPipelineAndScissorClip(*fFillProgram, this->bounds());
-        flushState->bindTextures(fFillProgram->primProc(), nullptr, fFillProgram->pipeline());
-        flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
-        flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset,
-                                 fDrawIndirectCount);
-    }
+    flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
+    flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset, fDrawIndirectCount);
 }

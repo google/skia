@@ -101,6 +101,29 @@ public:
     // These tolerances decide the number of parametric and radial segments the tessellator will
     // linearize curves into. These decisions are made in (pre-viewMatrix) local path space.
     struct Tolerances {
+        // Returns the equivalent tolerances in (pre-viewMatrix) local path space that the
+        // tessellator will use when rendering this stroke.
+        static Tolerances MakePreTransform(const SkMatrix& viewMatrix, const SkStrokeRec& stroke) {
+            std::array<float,2> matrixScales;
+            if (!viewMatrix.getMinMaxScales(matrixScales.data())) {
+                matrixScales.fill(1);
+            }
+            auto [matrixMinScale, matrixMaxScale] = matrixScales;
+            float localStrokeWidth = stroke.getWidth();
+            if (stroke.isHairlineStyle()) {
+                // If the stroke is hairline then the tessellator will operate in post-transform
+                // space instead. But for the sake of CPU methods that need to conservatively
+                // approximate the number of segments to emit, we use
+                // localStrokeWidth ~= 1/matrixMinScale.
+                float approxScale = matrixMinScale;
+                // If the matrix has strong skew, don't let the scale shoot off to infinity. (This
+                // does not affect the tessellator; only the CPU methods that approximate the number
+                // of segments to emit.)
+                approxScale = std::max(matrixMinScale, matrixMaxScale * .25f);
+                localStrokeWidth = 1/approxScale;
+            }
+            return GrStrokeTessellateShader::Tolerances(matrixMaxScale, localStrokeWidth);
+        }
         Tolerances() = default;
         Tolerances(float matrixMaxScale, float strokeWidth) {
             this->set(matrixMaxScale, strokeWidth);

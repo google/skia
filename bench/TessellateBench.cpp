@@ -13,8 +13,8 @@
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
-#include "src/gpu/tessellate/GrStrokeIndirectOp.h"
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
+#include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
 #include <vector>
@@ -146,10 +146,10 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     GrMiddleOutPolygonTriangulator::WritePathInnerFan(vertexData, 3, fPath);
 }
 
-class GrStrokeTessellateOp::TestingOnly_Benchmark : public Benchmark {
+class GrStrokeHardwareTessellator::TestingOnly_Benchmark : public Benchmark {
 public:
     TestingOnly_Benchmark(float matrixScale, const char* suffix) : fMatrixScale(matrixScale) {
-        fName.printf("tessellate_GrStrokeTessellateOp_prepare%s", suffix);
+        fName.printf("tessellate_GrStrokeHardwareTessellator_prepare%s", suffix);
     }
 
 private:
@@ -173,10 +173,10 @@ private:
             return;
         }
         for (int i = 0; i < loops; ++i) {
-            GrStrokeTessellateOp op(GrAAType::kMSAA, SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                    fStrokeRec, fPath, GrPaint());
-            op.fTarget = fTarget.get();
-            op.prepareBuffers();
+            SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
+            GrStrokeHardwareTessellator tessellator(*fTarget->caps().shaderCaps(), matrix,
+                                                    fStrokeRec);
+            tessellator.prepare(fTarget.get(), matrix, fPath, fStrokeRec, fPath.countVerbs());
         }
     }
 
@@ -187,13 +187,13 @@ private:
     SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
 };
 
-DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(1, ""); )
-DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(5, "_one_chop"); )
+DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(1, ""); )
+DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(5, "_one_chop"); )
 
-class GrStrokeIndirectOp::Benchmark : public ::Benchmark {
+class GrStrokeIndirectTessellator::Benchmark : public ::Benchmark {
 protected:
     Benchmark(const char* nameSuffix, SkPaint::Join join) : fJoin(join) {
-        fName.printf("tessellate_GrStrokeIndirectOpBench%s", nameSuffix);
+        fName.printf("tessellate_GrStrokeIndirectTessellator%s", nameSuffix);
     }
 
     const SkPaint::Join fJoin;
@@ -214,9 +214,10 @@ private:
         }
         for (int i = 0; i < loops; ++i) {
             for (const SkPath& path : fPaths) {
-                GrStrokeIndirectOp op(GrAAType::kMSAA, SkMatrix::I(), path, fStrokeRec, GrPaint());
-                op.prePrepareResolveLevels(fTarget->allocator());
-                op.prepareBuffers(fTarget.get());
+                GrStrokeIndirectTessellator tessellator(SkMatrix::I(), path, fStrokeRec,
+                                                        path.countVerbs(), fTarget->allocator());
+                tessellator.prepare(fTarget.get(), SkMatrix::I(), path, fStrokeRec,
+                                    path.countVerbs());
             }
             fTarget->resetAllocator();
         }
@@ -229,7 +230,7 @@ private:
     SkStrokeRec fStrokeRec{SkStrokeRec::kHairline_InitStyle};
 };
 
-class StrokeIndirectBenchmark : public GrStrokeIndirectOp::Benchmark {
+class StrokeIndirectBenchmark : public GrStrokeIndirectTessellator::Benchmark {
 public:
     StrokeIndirectBenchmark(const char* nameSuffix, SkPaint::Join join, std::vector<SkPoint> pts)
             : Benchmark(nameSuffix, join), fPts(std::move(pts)) {}
@@ -280,7 +281,7 @@ DEF_BENCH( return new StrokeIndirectBenchmark(
 DEF_BENCH( return new StrokeIndirectBenchmark(
         "_roundjoin", SkPaint::kRound_Join, {{0,0}, {50,100}, {100,0}}); )
 
-class SingleVerbStrokeIndirectBenchmark : public GrStrokeIndirectOp::Benchmark {
+class SingleVerbStrokeIndirectBenchmark : public GrStrokeIndirectTessellator::Benchmark {
 public:
     SingleVerbStrokeIndirectBenchmark(const char* nameSuffix, SkPathVerb verb)
             : Benchmark(nameSuffix, SkPaint::kBevel_Join), fVerb(verb) {}
