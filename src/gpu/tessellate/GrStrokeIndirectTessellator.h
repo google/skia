@@ -5,43 +5,31 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeIndirectOp_DEFINED
-#define GrStrokeIndirectOp_DEFINED
+#ifndef GrStrokeIndirectTessellator_DEFINED
+#define GrStrokeIndirectTessellator_DEFINED
 
-#include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrStrokeOp.h"
 
 struct SkPoint;
 namespace skiatest { class Reporter; }
 
 // This class bins strokes into indirect draws for consumption by GrStrokeTessellateShader.
-class GrStrokeIndirectOp : public GrStrokeOp {
+class GrStrokeIndirectTessellator : public GrStrokeTessellator {
 public:
-    DEFINE_OP_CLASS_ID
-
     // Don't allow more than 2^15 stroke edges in a triangle strip. GrTessellationPathRenderer
     // already crops paths that require more than 2^10 parametric segments, so this should only
     // become an issue if we try to draw a stroke with an astronomically wide width.
     constexpr static int8_t kMaxResolveLevel = 15;
 
+    GrStrokeIndirectTessellator(const SkMatrix&, const GrSTArenaList<SkPath>&,
+                                const SkStrokeRec&, int totalCombinedVerbCnt, SkArenaAlloc*);
+
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<SkPath>&,
+                 const SkStrokeRec&, int totalCombinedVerbCnt) override;
+
+    void draw(GrOpFlushState*) const override;
+
 private:
-    GrStrokeIndirectOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkPath& path,
-                       const SkStrokeRec& stroke, GrPaint&& paint)
-            : GrStrokeOp(ClassID(), aaType, viewMatrix, stroke, path, std::move(paint)) {
-    }
-
-    const char* name() const override { return "GrStrokeIndirectOp"; }
-
-    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
-                      GrLoadOp colorLoadOp) override;
-    void prePrepareResolveLevels(SkArenaAlloc*);
-
-    void onPrepare(GrOpFlushState*) override;
-    void prepareBuffers(GrMeshDrawOp::Target*);
-
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-
     int fResolveLevelCounts[kMaxResolveLevel + 1] = {0};  // # of instances at each resolve level.
     int fTotalInstanceCount = 0;  // Total number of stroke instances we will draw.
 
@@ -73,8 +61,10 @@ private:
 
 #if GR_TEST_UTILS
 public:
-    void verifyPrePrepareResolveLevels(skiatest::Reporter*, GrMeshDrawOp::Target*);
-    void verifyPrepareBuffers(skiatest::Reporter*, GrMeshDrawOp::Target*);
+    void verifyResolveLevels(skiatest::Reporter*, GrMeshDrawOp::Target*, const SkMatrix&,
+                             const SkPath&, const SkStrokeRec&);
+    void verifyBuffers(skiatest::Reporter*, GrMeshDrawOp::Target*, const SkMatrix&,
+                       const SkStrokeRec&);
     class Benchmark;
 #endif
 };
