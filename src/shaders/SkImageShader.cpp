@@ -575,6 +575,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
         return false;
     }
+    matrix.normalizePerspective();
 
     if (sampling.useCubic &&
         SkMatrixPriv::AdjustHighQualityFilterLevel(matrix, true) != kHigh_SkFilterQuality)
