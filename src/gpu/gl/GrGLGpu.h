@@ -312,9 +312,12 @@ private:
                                   GrColorType surfaceColorType, GrColorType dstColorType,
                                   void* offsetOrPtr, int rowWidthInPixels);
 
-    // Before calling any variation of TexImage, TexSubImage, etc..., call this to ensure that the
-    // PIXEL_UNPACK_BUFFER is unbound.
-    void unbindCpuToGpuXferBuffer();
+    // Unbinds xfer buffers from GL for operations that don't need them.
+    // Before calling any variation of TexImage, TexSubImage, etc..., call this with
+    // GrGpuBufferType::kXferCpuToGpu to ensure that the PIXEL_UNPACK_BUFFER is unbound.
+    // Before calling ReadPixels and reading back into cpu memory call this with
+    // GrGpuBufferType::kXferGpuToCpu to ensure that the PIXEL_PACK_BUFFER is unbound.
+    void unbindXferBuffer(GrGpuBufferType type);
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) override;
 

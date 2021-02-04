@@ -915,8 +915,9 @@ bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
                                           dstColorType, offsetAsPtr, width);
 }
 
-void GrGLGpu::unbindCpuToGpuXferBuffer() {
-    auto* xferBufferState = this->hwBufferState(GrGpuBufferType::kXferCpuToGpu);
+void GrGLGpu::unbindXferBuffer(GrGpuBufferType type) {
+    SkASSERT(type == GrGpuBufferType::kXferCpuToGpu || type == GrGpuBufferType::kXferGpuToCpu);
+    auto* xferBufferState = this->hwBufferState(type);
     if (!xferBufferState->fBoundBufferUniqueID.isInvalid()) {
         GL_CALL(BindBuffer(xferBufferState->fGLTarget, 0));
         xferBufferState->invalidate();
@@ -1009,7 +1010,7 @@ void GrGLGpu::uploadTexData(SkISize texDims,
 
     bool restoreGLRowLength = false;
 
-    this->unbindCpuToGpuXferBuffer();
+    this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
 
     SkISize dims = dstRect.size();
@@ -2163,6 +2164,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         SkASSERT(!(rowBytes % bytesPerPixel));
         rowPixelWidth = rowBytes / bytesPerPixel;
     }
+    this->unbindXferBuffer(GrGpuBufferType::kXferGpuToCpu);
     return this->readOrTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
                                           dstColorType, buffer, rowPixelWidth);
 }
