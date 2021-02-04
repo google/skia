@@ -10,7 +10,7 @@
 
 #include "src/sksl/dsl/DSL.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#ifdef SK_SUPPORT_GPU
 
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 
@@ -27,6 +27,6 @@ void EndFragmentProcessor();
 
 } // namespace SkSL
 
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#endif // SK_SUPPORT_GPU
 
 #endif

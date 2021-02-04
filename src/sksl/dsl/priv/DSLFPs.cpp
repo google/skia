@@ -9,7 +9,7 @@
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#ifdef SK_SUPPORT_GPU
 
 namespace SkSL {
 
@@ -28,4 +28,4 @@ void EndFragmentProcessor() {
 
 } // namespace SkSL
 
-#endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#endif // SK_SUPPORT_GPU
