@@ -50,6 +50,23 @@
       "message": "Chrome should have its own copy of this code (and then modify it as they wish), so Skia can delete it.\n\nAndroid is in the same boat (but they use a different subclass), and I will work with them to copy the code they need into their repo.",
       "revId": "74ddb0013d2f82ecddfd571baa1724eec40c1015",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fad872f0_d91f6308",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-04T17:13:20Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/366338\nhttps://chromium-review.googlesource.com/c/chromium/src/+/2676321\n\nThese should make it easier to know that the copy-over is complete.",
+      "revId": "74ddb0013d2f82ecddfd571baa1724eec40c1015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
