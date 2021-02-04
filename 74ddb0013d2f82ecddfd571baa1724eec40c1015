@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c375708_ea357f71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16339
+      },
+      "writtenOn": "2021-02-04T10:20:58Z",
+      "side": 1,
+      "message": "New to Skia, so I’m not sure if I’ve covered everything with this patch. For example, SkDrawLooper is SkFlattenable, so does that require special consideration when adding new fields?",
+      "revId": "74ddb0013d2f82ecddfd571baa1724eec40c1015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
