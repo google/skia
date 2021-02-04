@@ -20,7 +20,6 @@
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
-#include "src/gpu/vk/GrVkTransferBuffer.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 void GrVkCommandBuffer::invalidateState() {
@@ -440,13 +439,15 @@ void GrVkPrimaryCommandBuffer::begin(GrVkGpu* gpu) {
     fIsActive = true;
 }
 
-void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu) {
+void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu, bool abandoningBuffer) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
 
-    this->submitPipelineBarriers(gpu);
+    if (!abandoningBuffer) {
+        this->submitPipelineBarriers(gpu);
 
-    GR_VK_CALL_ERRCHECK(gpu, EndCommandBuffer(fCmdBuffer));
+        GR_VK_CALL_ERRCHECK(gpu, EndCommandBuffer(fCmdBuffer));
+    }
     this->invalidateState();
     fIsActive = false;
     fHasWork = false;
@@ -755,24 +756,25 @@ void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
 void GrVkPrimaryCommandBuffer::copyImageToBuffer(const GrVkGpu* gpu,
                                                  GrVkImage* srcImage,
                                                  VkImageLayout srcLayout,
-                                                 GrVkTransferBuffer* dstBuffer,
+                                                 sk_sp<GrGpuBuffer> dstBuffer,
                                                  uint32_t copyRegionCount,
                                                  const VkBufferImageCopy* copyRegions) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addingWork(gpu);
-    this->addResource(srcImage->resource());
-    this->addResource(dstBuffer->resource());
+    GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(dstBuffer.get());
     GR_VK_CALL(gpu->vkInterface(), CmdCopyImageToBuffer(fCmdBuffer,
                                                         srcImage->image(),
                                                         srcLayout,
-                                                        dstBuffer->buffer(),
+                                                        vkBuffer->vkBuffer(),
                                                         copyRegionCount,
                                                         copyRegions));
+    this->addResource(srcImage->resource());
+    this->addGrBuffer(std::move(dstBuffer));
 }
 
 void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
-                                                 GrVkTransferBuffer* srcBuffer,
+                                                 VkBuffer srcBuffer,
                                                  GrVkImage* dstImage,
                                                  VkImageLayout dstLayout,
                                                  uint32_t copyRegionCount,
@@ -780,19 +782,19 @@ void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addingWork(gpu);
-    this->addResource(srcBuffer->resource());
-    this->addResource(dstImage->resource());
+
     GR_VK_CALL(gpu->vkInterface(), CmdCopyBufferToImage(fCmdBuffer,
-                                                        srcBuffer->buffer(),
+                                                        srcBuffer,
                                                         dstImage->image(),
                                                         dstLayout,
                                                         copyRegionCount,
                                                         copyRegions));
+    this->addResource(dstImage->resource());
 }
 
 
 void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
-                                          GrVkBuffer* srcBuffer,
+                                          sk_sp<GrGpuBuffer> srcBuffer,
                                           GrVkBuffer* dstBuffer,
                                           uint32_t regionCount,
                                           const VkBufferCopy* regions) {
@@ -809,18 +811,20 @@ void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
         SkASSERT(region.dstOffset + region.size <= dstBuffer->size());
     }
 #endif
-    this->addResource(srcBuffer->resource());
-    this->addResource(dstBuffer->resource());
+    const GrVkBuffer2* srcVk = static_cast<GrVkBuffer2*>(srcBuffer.get());
+
     GR_VK_CALL(gpu->vkInterface(), CmdCopyBuffer(fCmdBuffer,
-                                                 srcBuffer->buffer(),
+                                                 srcVk->vkBuffer(),
                                                  dstBuffer->buffer(),
                                                  regionCount,
                                                  regions));
+    this->addGrBuffer(std::move(srcBuffer));
+    this->addResource(dstBuffer->resource());
 }
 
 void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
-                                          GrVkBuffer* srcBuffer,
-                                          sk_sp<GrVkBuffer2> dstBuffer,
+                                          sk_sp<GrGpuBuffer> srcBuffer,
+                                          sk_sp<GrGpuBuffer> dstBuffer,
                                           uint32_t regionCount,
                                           const VkBufferCopy* regions) {
     SkASSERT(fIsActive);
@@ -837,11 +841,15 @@ void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
     }
 #endif
 
-    GR_VK_CALL(gpu->vkInterface(),
-               CmdCopyBuffer(
-                       fCmdBuffer, srcBuffer->buffer(), dstBuffer->vkBuffer(), regionCount,
-                       regions));
-    this->addResource(srcBuffer->resource());
+    const GrVkBuffer2* srcVk = static_cast<GrVkBuffer2*>(srcBuffer.get());
+    const GrVkBuffer2* dstVk = static_cast<GrVkBuffer2*>(dstBuffer.get());
+
+    GR_VK_CALL(gpu->vkInterface(), CmdCopyBuffer(fCmdBuffer,
+                                                 srcVk->vkBuffer(),
+                                                 dstVk->vkBuffer(),
+                                                 regionCount,
+                                                 regions));
+    this->addGrBuffer(std::move(srcBuffer));
     this->addGrBuffer(std::move(dstBuffer));
 }
 
