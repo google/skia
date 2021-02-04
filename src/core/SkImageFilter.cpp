@@ -128,15 +128,6 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_MATRIX_IMAGEFILTER
-sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,
-                                                     SkFilterQuality filterQuality,
-                                                     sk_sp<SkImageFilter> input) {
-    SkSamplingOptions sampling(filterQuality, SkSamplingOptions::kMedium_asMipmapLinear);
-    return SkMatrixImageFilter::Make(matrix, sampling, std::move(input));
-}
-#endif
-
 sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) const {
     return SkLocalMatrixImageFilter::Make(matrix, this->refMe());
 }

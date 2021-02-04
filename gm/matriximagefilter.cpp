@@ -11,7 +11,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
