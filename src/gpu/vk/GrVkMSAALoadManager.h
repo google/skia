@@ -18,7 +18,6 @@ class GrSurface;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
-class GrVkUniformBuffer;
 class GrVkMeshBuffer;
 struct SkIRect;
 
@@ -48,8 +47,6 @@ private:
     // All pipelines used by this class use the same VkPipelineLayout. Therefore, unlike regular
     // GrVkPipelines, we have the manager own the layout instead of the GrVkPipeline.
     VkPipelineLayout fPipelineLayout;
-
-    std::unique_ptr<GrVkUniformBuffer> fUniformBuffer;
 };
 
 #endif

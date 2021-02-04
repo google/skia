@@ -11,6 +11,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrGpuBuffer.h"
 
+class GrVkDescriptorSet;
 class GrVkGpu;
 
 class GrVkBuffer2 : public GrGpuBuffer {
@@ -25,6 +26,10 @@ public:
                           VkPipelineStageFlags dstStageMask,
                           bool byRegion) const;
 
+    // If the buffer is a uniform buffer, return the descriptor set for that buffer. It is not valid
+    // to call this on non uniform buffers.
+    const VkDescriptorSet* uniformDescriptorSet() const;
+
 private:
     static sk_sp<GrVkBuffer2> Make(GrVkGpu* gpu,
                                    size_t size,
@@ -36,7 +41,8 @@ private:
                 GrGpuBufferType bufferType,
                 GrAccessPattern accessPattern,
                 VkBuffer buffer,
-                const GrVkAlloc& alloc);
+                const GrVkAlloc& alloc,
+                const GrVkDescriptorSet* uniformDescriptorSet);
 
     bool isVkMappable() const { return fAlloc.fFlags & GrVkAlloc::kMappable_Flag; }
 
@@ -59,6 +65,8 @@ private:
 
     VkBuffer fBuffer;
     GrVkAlloc fAlloc;
+
+    const GrVkDescriptorSet* fUniformDescriptorSet;
 
     using INHERITED = GrGpuBuffer;
 };
