@@ -1587,61 +1587,13 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
     // claim strokes before trying to simplify them.
     shape.simplifyStroke();
 
-    if (!shape.style().hasPathEffect()) {
-        GrAAType aaType = this->chooseAAType(aa);
-        SkPoint linePts[2];
-        SkRRect rrect;
-        // We can ignore the starting point and direction since there is no path effect.
-        bool inverted;
-        if (shape.asLine(linePts, &inverted) && !inverted &&
-            shape.style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style &&
-            shape.style().strokeRec().getCap() != SkPaint::kRound_Cap) {
-            // The stroked line is an oriented rectangle, which looks the same or better (if
-            // perspective) compared to path rendering. The exception is subpixel/hairline lines
-            // that are non-AA or MSAA, in which case the default path renderer achieves higher
-            // quality.
-            // FIXME(michaelludwig): If the fill rect op could take an external coverage, or checks
-            // for and outsets thin non-aa rects to 1px, the path renderer could be skipped.
-            SkScalar coverage;
-            if (aaType == GrAAType::kCoverage ||
-                !SkDrawTreatAAStrokeAsHairline(shape.style().strokeRec().getWidth(), viewMatrix,
-                                               &coverage)) {
-                this->drawStrokedLine(clip, std::move(paint), aa, viewMatrix, linePts,
-                                      shape.style().strokeRec());
-                return;
-            }
-        } else if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
-            if (rrect.isRect()) {
-                this->drawRect(clip, std::move(paint), aa, viewMatrix, rrect.rect(),
-                               &shape.style());
-                return;
-            } else if (rrect.isOval()) {
-                this->drawOval(clip, std::move(paint), aa, viewMatrix, rrect.rect(), shape.style());
-                return;
-            }
-            this->drawRRect(clip, std::move(paint), aa, viewMatrix, rrect, shape.style());
-            return;
-        } else if (GrAAType::kCoverage == aaType && shape.style().isSimpleFill() &&
-                   viewMatrix.rectStaysRect()) {
-            // TODO: the rectStaysRect restriction could be lifted if we were willing to apply
-            // the matrix to all the points individually rather than just to the rect
-            SkRect rects[2];
-            if (shape.asNestedRects(rects)) {
-                // Concave AA paths are expensive - try to avoid them for special cases
-                GrOp::Owner op = GrStrokeRectOp::MakeNested(
-                                fContext, std::move(paint), viewMatrix, rects);
-                if (op) {
-                    this->addDrawOp(clip, std::move(op));
-                }
-                // Returning here indicates that there is nothing to draw in this case.
-                return;
-            }
-        }
+    if (this->drawSimpleShape(clip, &paint, aa, viewMatrix, shape)) {
+        return;
     }
 
     // If we get here in drawShape(), we definitely need to use path rendering
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, std::move(shape),
-                                     /* attempt fallback */ false);
+                                     /* attemptDrawSimple */ false);
 }
 
 static SkIRect get_clip_bounds(const GrSurfaceDrawContext* rtc, const GrClip* clip) {
@@ -1772,12 +1724,69 @@ void GrSurfaceDrawContext::drawStrokedLine(const GrClip* clip, GrPaint&& paint,
     this->fillQuadWithEdgeAA(clip, std::move(paint), aa, edgeAA, viewMatrix, corners, nullptr);
 }
 
+bool GrSurfaceDrawContext::drawSimpleShape(const GrClip* clip, GrPaint* paint, GrAA aa,
+                                           const SkMatrix& viewMatrix, const GrStyledShape& shape) {
+    if (!shape.style().hasPathEffect()) {
+        GrAAType aaType = this->chooseAAType(aa);
+        SkPoint linePts[2];
+        SkRRect rrect;
+        // We can ignore the starting point and direction since there is no path effect.
+        bool inverted;
+        if (shape.asLine(linePts, &inverted) && !inverted &&
+            shape.style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style &&
+            shape.style().strokeRec().getCap() != SkPaint::kRound_Cap) {
+            // The stroked line is an oriented rectangle, which looks the same or better (if
+            // perspective) compared to path rendering. The exception is subpixel/hairline lines
+            // that are non-AA or MSAA, in which case the default path renderer achieves higher
+            // quality.
+            // FIXME(michaelludwig): If the fill rect op could take an external coverage, or checks
+            // for and outsets thin non-aa rects to 1px, the path renderer could be skipped.
+            SkScalar coverage;
+            if (aaType == GrAAType::kCoverage ||
+                !SkDrawTreatAAStrokeAsHairline(shape.style().strokeRec().getWidth(), viewMatrix,
+                                               &coverage)) {
+                this->drawStrokedLine(clip, std::move(*paint), aa, viewMatrix, linePts,
+                                      shape.style().strokeRec());
+                return true;
+            }
+        } else if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
+            if (rrect.isRect()) {
+                this->drawRect(clip, std::move(*paint), aa, viewMatrix, rrect.rect(),
+                               &shape.style());
+                return true;
+            } else if (rrect.isOval()) {
+                this->drawOval(clip, std::move(*paint), aa, viewMatrix, rrect.rect(),
+                               shape.style());
+                return true;
+            }
+            this->drawRRect(clip, std::move(*paint), aa, viewMatrix, rrect, shape.style());
+            return true;
+        } else if (GrAAType::kCoverage == aaType && shape.style().isSimpleFill() &&
+                   viewMatrix.rectStaysRect()) {
+            // TODO: the rectStaysRect restriction could be lifted if we were willing to apply the
+            // matrix to all the points individually rather than just to the rect
+            SkRect rects[2];
+            if (shape.asNestedRects(rects)) {
+                // Concave AA paths are expensive - try to avoid them for special cases
+                GrOp::Owner op = GrStrokeRectOp::MakeNested(
+                                fContext, std::move(*paint), viewMatrix, rects);
+                if (op) {
+                    this->addDrawOp(clip, std::move(op));
+                }
+                // Returning here indicates that there is nothing to draw in this case.
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                                       GrPaint&& paint,
                                                       GrAA aa,
                                                       const SkMatrix& viewMatrix,
                                                       GrStyledShape&& shape,
-                                                      bool attemptShapeFallback) {
+                                                      bool attemptDrawSimple) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "internalDrawPath", fContext);
@@ -1790,12 +1799,13 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     // claim strokes before trying to simplify them.
     shape.simplifyStroke();
 
-    if (attemptShapeFallback && shape.simplified()) {
+    if (attemptDrawSimple && shape.simplified()) {
         // Usually we enter drawShapeUsingPathRenderer() because the shape+style was too
         // complex for dedicated draw ops. However, if GrStyledShape was able to reduce something
         // we ought to try again instead of going right to path rendering.
-        this->drawShape(clip, std::move(paint), aa, viewMatrix, std::move(shape));
-        return;
+        if (this->drawSimpleShape(clip, &paint, aa, viewMatrix, shape)) {
+            return;
+        }
     }
 
     SkIRect clipConservativeBounds = get_clip_bounds(this, clip);
