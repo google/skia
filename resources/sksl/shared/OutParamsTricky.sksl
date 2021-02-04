@@ -1,3 +1,5 @@
+uniform half4 colorGreen, colorRed;
+
 half2 tricky(half x, half y, inout half2 color, half z) {
     color.xy = color.yx;
     return half2(x + y, z);
@@ -8,6 +10,8 @@ void func(inout half4 color) {
     color.ga = t;
 }
 
-void main() {
-    func(sk_FragColor);
+half4 main() {
+    half4 result = half4(0, 1, 2, 3);
+    func(result);
+    return result == half4(2, 3, 0, 5) ? colorGreen : colorRed;
 }
