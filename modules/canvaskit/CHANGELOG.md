@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2021-02-04
+
 ### Added
  - Constants for the shadow flags. Of note, some of these values can be used on previous releases.
  - `getShadowLocalBounds()` to estimate the bounds of the shadows drawn by `Canvas.drawShadow`.
