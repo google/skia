@@ -16,6 +16,24 @@
       "message": "driveby: did we want to have a TODO to try to actually draw the paragraph?",
       "revId": "f35e8c92ebd743fff708a3e1a734720e750e9706",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ad5f027_ee0c5030",
+        "filename": "fuzz/FuzzSkParagraph.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-02-04T19:34:25Z",
+      "side": 1,
+      "message": "Yep, wanted this first so I can watch incremental coverage progress.",
+      "parentUuid": "6cd042e9_15f76aea",
+      "revId": "f35e8c92ebd743fff708a3e1a734720e750e9706",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
