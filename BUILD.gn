@@ -2227,6 +2227,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
       "fuzz/oss_fuzz/FuzzSVG.cpp",
       "fuzz/oss_fuzz/FuzzSkDescriptorDeserialize.cpp",
+      "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
       "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
@@ -2989,6 +2990,15 @@ if (skia_enable_tools) {
         "modules/svg",
         "//third_party/libpng",
       ]
+    }
+
+    libfuzzer_app("api_skparagraph") {
+      sources = [
+        "fuzz/FuzzSkParagraph.cpp",
+        "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
+        "tools/Resources.cpp",
+      ]
+      deps = [ "modules/skparagraph" ]
     }
 
     libfuzzer_app("api_svg_canvas") {
