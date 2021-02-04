@@ -16,6 +16,23 @@
       "message": "Let\u0027s see if we get away without a Chrome guard.",
       "revId": "c46e7b754d1494626426712add07318a70b6a5e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5eb77195_e26a6113",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-04T23:59:33Z",
+      "side": 1,
+      "message": "The legacy code could also use perspective normalization, but that change is a lot more intrusive (we recompute the inverse all over the place).  I think ultimately we want computeTotalInverse() to normalize - I\u0027ll try that separately.",
+      "revId": "c46e7b754d1494626426712add07318a70b6a5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
