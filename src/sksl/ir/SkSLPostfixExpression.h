@@ -8,8 +8,8 @@
 #ifndef SKSL_POSTFIXEXPRESSION
 #define SKSL_POSTFIXEXPRESSION
 
-#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
@@ -51,7 +51,7 @@ public:
     }
 
     String description() const override {
-        return this->operand()->description() + Compiler::OperatorName(this->getOperator());
+        return this->operand()->description() + Operators::OperatorName(this->getOperator());
     }
 
 private:
