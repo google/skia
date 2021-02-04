@@ -446,3 +446,55 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
                 maxExponent);
     }
 }
+
+// Ensure the vectorized conic version equals the reference implementation
+DEF_TEST(WangsFormula_conic_matches_reference, r) {
+    constexpr static float kTolerance = 1.f / kIntolerance;
+
+    SkRandom rand;
+    for (int i = -10; i <= 10; ++i) {
+        const float w = std::ldexp(1 + rand.nextF(), i);
+        for_random_beziers(3, &rand, [&r, w](const SkPoint pts[]) {
+            const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / w), pts[2]};
+            const float ref_nsegs = wangs_formula_conic_reference_impl(kIntolerance, projPts, w);
+            const float nsegs = GrWangsFormula::conic(kTolerance, projPts, w);
+
+            // Because the Gr version may implement the math differently for performance,
+            // allow different slack in the comparison based on the rough scale of the answer.
+            const float cmpThresh = ref_nsegs * (1.f / (1 << 20));
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(ref_nsegs, nsegs, cmpThresh));
+        });
+    }
+}
+
+// Ensure using transformations gives the same result as pre-transforming all points.
+DEF_TEST(WangsFormula_conic_vectorXforms, r) {
+    constexpr static float kTolerance = 1.f / kIntolerance;
+
+    auto check_conic_with_transform = [&](const SkPoint* pts, float w, const SkMatrix& m) {
+        const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / w), pts[2]};
+        SkPoint ptsXformed[3];
+        m.mapPoints(ptsXformed, projPts, 3);
+        float expected = GrWangsFormula::conic(kTolerance, ptsXformed, w);
+        float actual = GrWangsFormula::conic(kTolerance, projPts, w, GrVectorXform(m));
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(actual, expected));
+    };
+
+    SkRandom rand;
+    for (int i = -10; i <= 10; ++i) {
+        const float w = std::ldexp(1 + rand.nextF(), i);
+        for_random_beziers(3, &rand, [&](const SkPoint pts[]) {
+            check_conic_with_transform(pts, w, SkMatrix::I());
+            check_conic_with_transform(
+                    pts, w, SkMatrix::Scale(rand.nextRangeF(-10, 10), rand.nextRangeF(-10, 10)));
+
+            // Random 2x2 matrix
+            SkMatrix m;
+            m.setScaleX(rand.nextRangeF(-10, 10));
+            m.setSkewX(rand.nextRangeF(-10, 10));
+            m.setSkewY(rand.nextRangeF(-10, 10));
+            m.setScaleY(rand.nextRangeF(-10, 10));
+            check_conic_with_transform(pts, w, m);
+        });
+    }
+}
