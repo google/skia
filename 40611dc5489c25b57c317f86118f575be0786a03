@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4226daec_ff2378f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-04T22:15:13Z",
+      "side": 1,
+      "message": "I had this sitting around in a branch already written from when looking into various reasons XML parsing might be slower than normal. This change doesn\u0027t make much difference to most SVG documents since they tend not to have much in the way of text, but it may help text heavy documents. In any event, fewer copies are made along the way.",
+      "revId": "40611dc5489c25b57c317f86118f575be0786a03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
