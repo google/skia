@@ -270,6 +270,7 @@ func main() {
 
 		// Shuffle the sources randomly as a cheap way to approximate evenly expensive batches.
 		// (Intentionally not rand.Seed()'d to stay deterministically reproducible.)
+		sources = append([]string{}, sources...)  // We'll be needing our own copy...
 		rand.Shuffle(len(sources), func(i, j int) {
 			sources[i], sources[j] = sources[j], sources[i]
 		})
