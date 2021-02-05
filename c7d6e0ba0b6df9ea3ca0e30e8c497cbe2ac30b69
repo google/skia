@@ -22,6 +22,30 @@
       },
       "revId": "c7d6e0ba0b6df9ea3ca0e30e8c497cbe2ac30b69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73d81af7_098f831f",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:52:05Z",
+      "side": 0,
+      "message": "It can, but unless you feel strongly about it I think it reads better to have all the Types use the same style. (I also prefer to avoid reference class members unless there\u0027s a good reason to have them, since they have quirks that pointers don\u0027t.)",
+      "parentUuid": "fc7a047e_c9de1684",
+      "range": {
+        "startLine": 1861,
+        "startChar": 4,
+        "endLine": 1861,
+        "endChar": 26
+      },
+      "revId": "c7d6e0ba0b6df9ea3ca0e30e8c497cbe2ac30b69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
