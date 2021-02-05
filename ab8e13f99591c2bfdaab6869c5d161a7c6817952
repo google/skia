@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aefbb81f_cd116f6d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-05T18:57:23Z",
+      "side": 1,
+      "message": "This is the final fix for stroke tessellation. MotionMark renders correctly now.",
+      "revId": "ab8e13f99591c2bfdaab6869c5d161a7c6817952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
