@@ -98,8 +98,14 @@ public:
         virtual ~LValue() {}
 
         // returns a pointer to the lvalue, if possible. If the lvalue cannot be directly referenced
-        // by a pointer (e.g. vector swizzles), returns 0.
-        virtual SpvId getPointer() = 0;
+        // by a pointer (e.g. vector swizzles), returns -1.
+        virtual SpvId getPointer() { return -1; }
+
+        // Applies a swizzle to the components of the LValue, if possible. This is used to create
+        // LValues that are swizzes-of-swizzles. Non-swizzle LValues can just return false.
+        virtual bool applySwizzle(const ComponentArray& components, const Type& newType) {
+            return false;
+        }
 
         virtual SpvId load(OutputStream& out) = 0;
 

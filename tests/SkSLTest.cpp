@@ -155,12 +155,7 @@ SKSL_TEST(SkSLNegatedVectorLiteral,    "shared/NegatedVectorLiteral.sksl")
 SKSL_TEST(SkSLNumberCasts,             "shared/NumberCasts.sksl")
 SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
 SKSL_TEST(SkSLOutParams,               "shared/OutParams.sksl")
-SKSL_TEST_CPU(SkSLOutParamsTricky,     "shared/OutParamsTricky.sksl")
-
-/*
-TODO(skia:11269): enable this test on GPU when SPIR-V double-swizzle lvalues are working
 SKSL_TEST(SkSLOutParamsTricky,         "shared/OutParamsTricky.sksl")
-*/
 
 /*
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.
