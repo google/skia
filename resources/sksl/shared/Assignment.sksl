@@ -29,11 +29,15 @@ half4 main() {
 
 // Not allowed natively in GLSL, but SkSL will turn these into valid GLSL expressions.
     /* assign to folded ternary */       half l, r; (true ? l : r) = 0;
+    /* assign to unary plus */           +ai[0] += +ai4[0][0];
 // TODO(skia:10939): Structs not working in Runtime Effects yet
 //  /* assign to struct unary plus */    +s.f = 1; +s.af[0] = 2;
 //                                       +s.h4 = half4(1); +s.ah4[0] = half4(2);
 
+    // Keep these variables alive
+    af4[0] *= float(ah2x4[0][0][0]);
     i4.y *= i;
     x.y *= l;
-    return ai, ai4, ah2x4, af4, colorGreen;
+
+    return colorGreen;
 }

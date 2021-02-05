@@ -16,7 +16,9 @@ vec4 main() {
     vec4 af4[1];
     af4[0].x = 0.0;
     af4[0].ywxz = vec4(1.0);
+    ai[0] += ai4[0].x;
+    af4[0] *= ah2x4[0][0].x;
     i4.y *= 0;
     x.y *= 0.0;
-    return ((((ai , ai4) , ah2x4) , af4) , colorGreen);
+    return colorGreen;
 }

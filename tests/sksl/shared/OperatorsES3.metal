@@ -22,9 +22,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     x = 2.0;
     y = 0.5;
     z = 8;
-    bool c = sqrt(2.0) > 2.0;
-    bool d = true != c;
-    bool e = c;
     x += 12.0;
     x -= 12.0;
     x *= (y /= 10.0);
@@ -34,9 +31,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     z >>= 2;
     z <<= 4;
     z %= 5;
-    x = float((float2(sqrt(1.0)) , 6));
-    y = ((float(c) * float(d)) * float(e) , 6.0);
-    z = int((float2(sqrt(1.0)) , 6));
-    _out.sk_FragColor = (x == 6.0 && y == 6.0) && z == 6 ? _uniforms.colorGreen : _uniforms.colorRed;
+    x = 6.0;
+    y = 6.0;
+    z = 6;
+    _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 }
