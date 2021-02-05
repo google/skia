@@ -1429,8 +1429,8 @@ bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
         return false;
     }
 
-    for (GrSubRun* subRun : this->subRunList()) {
-        if (!subRun->canReuse(paint, drawMatrix)) {
+    for (GrSubRun& subRun : this->fSubRunList) {
+        if (!subRun.canReuse(paint, drawMatrix)) {
             return false;
         }
     }
@@ -1484,7 +1484,7 @@ GrTextBlob::GrTextBlob(size_t allocSize,
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
 
 void GrTextBlob::insertSubRun(GrSubRun* subRun) {
-    fSubRunList.addToTail(subRun);
+    fSubRunList.append(subRun);
 }
 
 void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
