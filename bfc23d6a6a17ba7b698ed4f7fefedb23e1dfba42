@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d21c440_82070b1e",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:00:26Z",
+      "side": 1,
+      "message": "Yes, that\u0027s all it is. IMO it adds a little value as a hint to the reader--\"don\u0027t stress over this if-check, it\u0027s actually free, we promise\"--but we could probably provide that same assurance in other less language-bending ways.",
+      "parentUuid": "bd71161e_85eb2a2a",
+      "range": {
+        "startLine": 167,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 24
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4af53501_f284d75c",
@@ -102,6 +126,30 @@
       "side": 1,
       "message": "No, but I knew I was about to delete all of this code in the next CL. ;)",
       "parentUuid": "4af53501_f284d75c",
+      "range": {
+        "startLine": 367,
+        "startChar": 50,
+        "endLine": 367,
+        "endChar": 78
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fff74871_44ae0fe6",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:00:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d9760c1b_a9210b46",
       "range": {
         "startLine": 367,
         "startChar": 50,
@@ -243,6 +291,30 @@
       "side": 1,
       "message": "Anything that\u0027s emitting SkSL that doesn\u0027t go into a function body has to be wrong - the strings built by this code are injected as function bodies by the FP. Basically, anything that\u0027s metadata about the shader, global declarations (variables, types, etc...) has to somehow be routed elsewhere or it ends up scoped incorrectly.",
       "parentUuid": "3a885939_b63527c3",
+      "range": {
+        "startLine": 487,
+        "startChar": 7,
+        "endLine": 487,
+        "endChar": 32
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28396080_257c5a59",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:00:26Z",
+      "side": 1,
+      "message": "Wait... Runtime Effects can have (non-inlined) helper functions, can\u0027t they??\nIf we omit prototypes we run the risk of emitting function calls that haven\u0027t been declared.\n\n(I know in CPU mode the calls will be flattened out but in GPU mode, that\u0027s not guaranteed)",
+      "parentUuid": "39840cff_f368a4ca",
       "range": {
         "startLine": 487,
         "startChar": 7,
