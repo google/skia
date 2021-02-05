@@ -171,10 +171,9 @@ bool GrDrawingManager::flush(
             onFlushRenderTask->makeClosed(*fContext->priv().caps());
 #ifdef SK_DEBUG
             // OnFlush callbacks are invoked during flush, and are therefore expected to handle
-            // resource allocation & usage on their own. (No deferred or lazy proxies!)
+            // resource allocation & usage on their own. (No lazy proxies!)
             onFlushRenderTask->visitTargetAndSrcProxies_debugOnly(
                     [](GrSurfaceProxy* p, GrMipmapped mipMapped) {
-                SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
                 SkASSERT(!p->isLazy());
                 if (p->requiresManualMSAAResolve()) {
                     // The onFlush callback is responsible for ensuring MSAA gets resolved.
@@ -317,8 +316,6 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         if (!renderTask || !renderTask->isInstantiated()) {
              continue;
         }
-
-        SkASSERT(renderTask->deferredProxiesAreInstantiated());
 
         renderTask->prepare(flushState);
     }
