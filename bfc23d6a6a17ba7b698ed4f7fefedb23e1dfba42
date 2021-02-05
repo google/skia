@@ -351,6 +351,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "15ce5b82_6108dc68",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T15:12:24Z",
+      "side": 1,
+      "message": "The upshot is that today we can fix this bug by just dropping function prototypes on the floor, because they\u0027re never necessary until we allow calling declared-but-not-defined functions.",
+      "parentUuid": "a11d7e6e_481215b8",
+      "range": {
+        "startLine": 487,
+        "startChar": 7,
+        "endLine": 487,
+        "endChar": 32
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0c2c98fc_36ab8875",
         "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
         "patchSetId": 2
