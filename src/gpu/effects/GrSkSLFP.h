@@ -11,15 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 #include <atomic>
-
-#if GR_TEST_UTILS
-#define GR_FP_SRC_STRING const char*
-#else
-#define GR_FP_SRC_STRING static const char*
-#endif
 
 class GrContext_Base;
 class GrShaderCaps;
