@@ -28,7 +28,6 @@ skia_core_public = [
   "$_include/core/SkDeferredDisplayList.h",
   "$_include/core/SkDeferredDisplayListRecorder.h",
   "$_include/core/SkDocument.h",
-  "$_include/core/SkDrawLooper.h",
   "$_include/core/SkDrawable.h",
   "$_include/core/SkEncodedImageFormat.h",
   "$_include/core/SkExecutor.h",
