@@ -327,6 +327,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a11d7e6e_481215b8",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T15:10:01Z",
+      "side": 1,
+      "message": "Yes. Today, as our conservative way of enforcing that recursion can\u0027t happen, we don\u0027t allow calls to undefined functions (in strictESMode). If we decide to relax that (and do an actual analysis of the call graph), we\u0027d need to handle this correctly. As it stands, I think that if you make a runtime effect with:\n\n  void foo();\n  void foo() { /* some code */ }\n\n  half4 main() {\n    foo();\n  }\n\n... and foo() doesn\u0027t get inlined, the declaration of foo() will get emitted into main\u0027s body. Testing now... yup.",
+      "parentUuid": "28396080_257c5a59",
+      "range": {
+        "startLine": 487,
+        "startChar": 7,
+        "endLine": 487,
+        "endChar": 32
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0c2c98fc_36ab8875",
         "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
         "patchSetId": 2
