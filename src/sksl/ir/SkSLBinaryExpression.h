@@ -20,28 +20,6 @@
 
 namespace SkSL {
 
-static inline bool check_ref(const Expression& expr) {
-    switch (expr.kind()) {
-        case Expression::Kind::kFieldAccess:
-            return check_ref(*expr.as<FieldAccess>().base());
-        case Expression::Kind::kIndex:
-            return check_ref(*expr.as<IndexExpression>().base());
-        case Expression::Kind::kSwizzle:
-            return check_ref(*expr.as<Swizzle>().base());
-        case Expression::Kind::kTernary: {
-            const TernaryExpression& t = expr.as<TernaryExpression>();
-            return check_ref(*t.ifTrue()) && check_ref(*t.ifFalse());
-        }
-        case Expression::Kind::kVariableReference: {
-            const VariableReference& ref = expr.as<VariableReference>();
-            return ref.refKind() == VariableReference::RefKind::kWrite ||
-                   ref.refKind() == VariableReference::RefKind::kReadWrite;
-        }
-        default:
-            return false;
-    }
-}
-
 /**
  * A binary operation.
  */
@@ -56,7 +34,7 @@ public:
     , fOperator(op)
     , fRight(std::move(right)) {
         // If we are assigning to a VariableReference, ensure that it is set to Write or ReadWrite
-        SkASSERT(!Compiler::IsAssignment(op) || check_ref(*this->left()));
+        SkASSERT(!Compiler::IsAssignment(op) || IsVariableReferenceWritable(*this->left()));
     }
 
     std::unique_ptr<Expression>& left() {
@@ -84,10 +62,7 @@ public:
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
-        return ConstantFolder::Simplify(irGenerator.fContext, *this->left(), this->getOperator(),
-                                        *this->right());
-    }
+                                                  const DefinitionMap& definitions) override;
 
     bool hasProperty(Property property) const override {
         if (property == Property::kSideEffects && Compiler::IsAssignment(this->getOperator())) {
@@ -111,6 +86,8 @@ public:
     }
 
 private:
+    bool IsVariableReferenceWritable(const Expression& expr);
+
     std::unique_ptr<Expression> fLeft;
     Token::Kind fOperator;
     std::unique_ptr<Expression> fRight;
