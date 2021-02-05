@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ede27872_1f2a0b80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-05T19:49:50Z",
+      "side": 1,
+      "message": "The Android Gardener Docs already say it is the Android Gardener\u0027s responsibility to triage the Android bugs.",
+      "revId": "eabc9c82dca14bc11dcd81cc8d412932cd92f850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
