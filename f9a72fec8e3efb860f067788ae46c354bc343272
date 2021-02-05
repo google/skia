@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "68fff3f2_44b13276",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-05T17:48:47Z",
+      "side": 1,
+      "message": "These work, and can still be actual values if we want to take an address...\n\nconstexpr SkCubicResampler kMitchell_SkCubicResampler{1.0f/3, 1.0f/3};\nconstexpr SkCubicResampler kCatmullRom_SkCubicResampler{0.0f, 0.5f};\n",
+      "revId": "f9a72fec8e3efb860f067788ae46c354bc343272",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "960fbc87_8221c499",
