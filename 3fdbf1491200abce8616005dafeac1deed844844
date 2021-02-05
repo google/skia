@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e462ed2a_47d41376",
+        "filename": "resources/sksl/errors/UnknownDivideByZero.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T17:12:06Z",
+      "side": 1,
+      "message": "I think it might be useful to add test cases for  \n\n  float getZero() { return 0; } \n\n  0 / getZero();\n  half4(0) / getZero();\n  unknownInput / getZero();\n\nI wonder if either of first two would have caught constant-propagation div-by-zero.",
+      "range": {
+        "startLine": 7,
+        "startChar": 1,
+        "endLine": 7,
+        "endChar": 2
+      },
+      "revId": "3fdbf1491200abce8616005dafeac1deed844844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
