@@ -1,7 +1,11 @@
-void main() {
+uniform half4 colorRed, colorGreen;
+
+half4 main() {
+    half4 result = colorRed;
     float x = 5;
     float y = 10;
     @if (x < y) {
-        sk_FragColor = half4(1);
+        result = colorGreen;
     }
+    return result;
 }

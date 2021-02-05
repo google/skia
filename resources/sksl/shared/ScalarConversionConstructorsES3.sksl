@@ -1,0 +1,31 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    float f = colorGreen.g;
+    int   i = int(colorGreen.g);
+    uint  u = uint(colorGreen.g);
+    bool  b = bool(colorGreen.g);
+
+    float f1 = float(f);
+    float f2 = float(i);
+    float f3 = float(u);
+    float f4 = float(b);
+    int   i1 = int(f);
+    int   i2 = int(i);
+    int   i3 = int(u);
+    int   i4 = int(b);
+    uint  u1 = uint(f);
+    uint  u2 = uint(i);
+    uint  u3 = uint(u);
+    uint  u4 = uint(b);
+    bool  b1 = bool(f);
+    bool  b2 = bool(i);
+    bool  b3 = bool(u);
+    bool  b4 = bool(b);
+
+    return  half(f1) + half(f2) + half(f3) + half(f4) +
+            half(i1) + half(i2) + half(i3) + half(i4) +
+            half(u1) + half(u2) + half(u3) + half(u4) +
+            half(b1) + half(b2) + half(b3) + half(b4) == 16 ? colorGreen : colorRed;
+}
+
