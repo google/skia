@@ -394,6 +394,7 @@ sksl_shared_tests = [
   "/sksl/shared/SwitchContainingDeadCode.sksl",
   "/sksl/shared/SwitchWithFallthrough.sksl",
   "/sksl/shared/SwizzleBoolConstants.sksl",
+  "/sksl/shared/SwizzleByConstantIndex.sksl",
   "/sksl/shared/SwizzleByIndex.sksl",
   "/sksl/shared/SwizzleConstants.sksl",
   "/sksl/shared/SwizzleLTRB.sksl",

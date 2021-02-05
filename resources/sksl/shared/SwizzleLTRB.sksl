@@ -1,3 +1,5 @@
-void main() {
-    sk_FragColor = sk_FragColor.BRTL;
+uniform half4 colorRed;
+
+half4 main() {
+    return colorRed.RBTL;
 }

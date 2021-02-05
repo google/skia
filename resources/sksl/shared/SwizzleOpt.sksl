@@ -1,46 +1,48 @@
-half fn(half v) {
+uniform half4 colorRed, colorGreen, testInputs;
+
+half fn(half4 v) {
     // Add an un-inlinable construct to ensure that fn() remains a standalone function.
-    switch (int(v)) {
-        case 1:  return 2;
-        default: return 3;
+    for (int x=1; x<=2; ++x) {
+        return v.x;
     }
 }
 
-layout(set=0) uniform half3 colRGB;
+half4 main() {
+    half4 v = testInputs;
 
-void main() {
-    half v = half(sqrt(1));
-
-    sk_FragColor = half4(v).rgba;
-    sk_FragColor = half4(v).rgb0.abgr;
-    sk_FragColor = half4(v).rgba.00ra;
-    sk_FragColor = half4(v).rgba.rrra.00ra.11ab;
-    sk_FragColor = half4(v).abga.gb11;
-    sk_FragColor = half4(v).abgr.abgr;
-    sk_FragColor = half4(half4(v).rrrr.bb, 1, 1);
-    sk_FragColor = half4(half4(v).ba.grgr);
+    v = v.rgba;
+    v = v.rgb0.abgr;
+    v = v.rgba.00ra;
+    v = v.rgba.rrra.00ra.11ab;
+    v = v.abga.gb11;
+    v = v.abgr.abgr;
+    v = half4(v.rrrr.bb, 1, 1);
+    v = half4(v.ba.grgr);
 
     // The swizzle will not be optimized away to avoid eliminating fn().
-    sk_FragColor = half3(fn(v), 123, 456).yyzz;
-    sk_FragColor = half3(fn(v), half2(123, 456)).yyzz;
+    v = half3(fn(v), 123, 456).yyzz;
+    v = half3(fn(v), half2(123, 456)).yyzz;
 
     // The swizzle will be optimized away because fn() can be reordered.
-    sk_FragColor = half3(fn(v), 123, 456).yzzx;
-    sk_FragColor = half3(fn(v), half2(123, 456)).yzzx;
+    v = half3(fn(v), 123, 456).yzzx;
+    v = half3(fn(v), half2(123, 456)).yzzx;
 
     // The swizzle will not be optimized away to avoid duplicating fn().
-    sk_FragColor = half3(fn(v), 123, 456).yxxz;
-    sk_FragColor = half3(fn(v), half2(123, 456)).yxxz;
+    v = half3(fn(v), 123, 456).yxxz;
+    v = half3(fn(v), half2(123, 456)).yxxz;
 
     // Swizzled constants.
-    sk_FragColor = half4(1, 2, 3, 4).xxyz;
+    v = half4(1, 2, 3, 4).xxyz;
 
     // Swizzled uniforms mixed with constants.
-    sk_FragColor = half4(1, colRGB).yzwx;
-    sk_FragColor = half4(1, colRGB).yxzw;
+    v = half4(1, colorRed.rgb).yzwx;
+    v = half4(1, colorRed.rgb).yxzw;
 
-    sk_FragColor.rgba = sk_FragColor;
-    sk_FragColor.abgr = sk_FragColor;
-    sk_FragColor.rgba.ra = sk_FragColor.gb;
-    sk_FragColor.abgr.gba = sk_FragColor.aa1;
+    // Left-side swizzles.
+    v.rgba = v;
+    v.abgr = v;
+    v.rgba.ra = v.gb;
+    v.abgr.gba = v.aa1;
+
+    return v == half4(1) ? colorGreen : colorRed;
 }

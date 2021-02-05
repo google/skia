@@ -2,46 +2,48 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float3 colRGB;
+    float4 colorRed;
+    float4 colorGreen;
+    float4 testInputs;
 };
 struct Inputs {
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-float fn(float v) {
-    switch (int(v)) {
-        case 1:
-            return 2.0;
-        default:
-            return 3.0;
+
+
+
+float fn(float4 v) {
+    for (int x = 1;x <= 2; ++x) {
+        return v.x;
     }
 }
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float v = sqrt(1.0);
-    _out.sk_FragColor = float4(v);
-    _out.sk_FragColor = float4(0.0, float3(v));
-    _out.sk_FragColor = float4(0.0, 0.0, float2(v));
-    _out.sk_FragColor = float4(1.0, 1.0, float2(v));
-    _out.sk_FragColor = float4(float2(v), 1.0, 1.0);
-    _out.sk_FragColor = float4(v);
-    _out.sk_FragColor = float4(float2(v), 1.0, 1.0);
-    _out.sk_FragColor = float4(v);
-    _out.sk_FragColor = float3(fn(v), 123.0, 456.0).yyzz;
-    _out.sk_FragColor = float3(fn(v), 123.0, 456.0).yyzz;
-    _out.sk_FragColor = float4(123.0, 456.0, 456.0, fn(v));
-    _out.sk_FragColor = float4(123.0, 456.0, 456.0, fn(v));
-    _out.sk_FragColor = float3(fn(v), 123.0, 456.0).yxxz;
-    _out.sk_FragColor = float3(fn(v), 123.0, 456.0).yxxz;
-    _out.sk_FragColor = float4(1.0, 1.0, 2.0, 3.0);
-    _out.sk_FragColor = float4(_uniforms.colRGB, 1.0);
-    _out.sk_FragColor = float4(_uniforms.colRGB.x, 1.0, _uniforms.colRGB.yz);
-    _out.sk_FragColor.xyzw = _out.sk_FragColor;
-    _out.sk_FragColor.wzyx = _out.sk_FragColor;
-    _out.sk_FragColor.xyzw.xw = _out.sk_FragColor.yz;
-    _out.sk_FragColor.wzyx.yzw = float3(_out.sk_FragColor.ww, 1.0);
+    float4 v = _uniforms.testInputs;
+    v = v;
+    v = float4(0.0, v.zyx);
+    v = float4(0.0, 0.0, v.xw);
+    v = float4(1.0, 1.0, v.wx);
+    v = float4(v.zy, 1.0, 1.0);
+    v = v;
+    v = float4(v.xx, 1.0, 1.0);
+    v = v.wzwz;
+    v = float3(fn(v), 123.0, 456.0).yyzz;
+    v = float3(fn(v), 123.0, 456.0).yyzz;
+    v = float4(123.0, 456.0, 456.0, fn(v));
+    v = float4(123.0, 456.0, 456.0, fn(v));
+    v = float3(fn(v), 123.0, 456.0).yxxz;
+    v = float3(fn(v), 123.0, 456.0).yxxz;
+    v = float4(1.0, 1.0, 2.0, 3.0);
+    v = float4(_uniforms.colorRed.xyz, 1.0);
+    v = float4(_uniforms.colorRed.x, 1.0, _uniforms.colorRed.yz);
+    v.xyzw = v;
+    v.wzyx = v;
+    v.xyzw.xw = v.yz;
+    v.wzyx.yzw = float3(v.ww, 1.0);
+    _out.sk_FragColor = all(v == float4(1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
