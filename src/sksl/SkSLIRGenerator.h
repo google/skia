@@ -184,6 +184,8 @@ private:
     CoercionCost coercionCost(const Expression& expr, const Type& type);
     int convertArraySize(int offset, const ASTNode& s);
     int convertArraySize(std::unique_ptr<Expression> s);
+    bool containsConstantZero(Expression& expr);
+    bool dividesByZero(Token::Kind op, Expression& right);
     std::unique_ptr<Expression> convertBinaryExpression(std::unique_ptr<Expression> left,
                                                         Token::Kind op,
                                                         std::unique_ptr<Expression> right);
@@ -264,6 +266,7 @@ private:
     bool typeContainsPrivateFields(const Type& type);
     bool setRefKind(Expression& expr, VariableReference::RefKind kind);
     bool getConstantInt(const Expression& value, SKSL_INT* out);
+    bool getConstantFloat(const Expression& value, SKSL_FLOAT* out);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void findAndDeclareBuiltinVariables();
     bool detectVarDeclarationWithoutScope(const Statement& stmt);

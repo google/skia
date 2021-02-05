@@ -102,26 +102,11 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         return std::make_unique<Constructor>(left.fOffset, &type, std::move(args));
     };
 
-    const auto isVectorDivisionByZero = [&]() -> bool {
-        for (int i = 0; i < type.columns(); i++) {
-            if (right.getVecComponent<T>(i) == 0) {
-                return true;
-            }
-        }
-        return false;
-    };
-
     switch (op) {
         case Token::Kind::TK_PLUS:  return vectorComponentwiseFold([](U a, U b) { return a + b; });
         case Token::Kind::TK_MINUS: return vectorComponentwiseFold([](U a, U b) { return a - b; });
         case Token::Kind::TK_STAR:  return vectorComponentwiseFold([](U a, U b) { return a * b; });
-        case Token::Kind::TK_SLASH: {
-            if (isVectorDivisionByZero()) {
-                context.fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
-            }
-            return vectorComponentwiseFold([](T a, T b) { return a / b; });
-        }
+        case Token::Kind::TK_SLASH: return vectorComponentwiseFold([](T a, T b) { return a / b; });
         default:
             return nullptr;
     }
@@ -200,18 +185,10 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                     context.fErrors.error(right.fOffset, "arithmetic overflow");
                     return nullptr;
                 }
-                if (!rightVal) {
-                    context.fErrors.error(right.fOffset, "division by zero");
-                    return nullptr;
-                }
                 return RESULT(Int, /);
             case Token::Kind::TK_PERCENT:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
                     context.fErrors.error(right.fOffset, "arithmetic overflow");
-                    return nullptr;
-                }
-                if (!rightVal) {
-                    context.fErrors.error(right.fOffset, "division by zero");
                     return nullptr;
                 }
                 return RESULT(Int, %);
@@ -252,12 +229,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_PLUS:  return RESULT(Float, +);
             case Token::Kind::TK_MINUS: return RESULT(Float, -);
             case Token::Kind::TK_STAR:  return RESULT(Float, *);
-            case Token::Kind::TK_SLASH:
-                if (rightVal) {
-                    return RESULT(Float, /);
-                }
-                context.fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
+            case Token::Kind::TK_SLASH: return RESULT(Float, /);
             case Token::Kind::TK_EQEQ: return RESULT(Bool, ==);
             case Token::Kind::TK_NEQ:  return RESULT(Bool, !=);
             case Token::Kind::TK_GT:   return RESULT(Bool, >);
