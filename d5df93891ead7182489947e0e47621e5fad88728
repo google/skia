@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "caf9f6f3_703f6e66",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T17:30:02Z",
+      "side": 0,
+      "message": "This was just leftover/unused.",
+      "revId": "d5df93891ead7182489947e0e47621e5fad88728",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
