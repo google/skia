@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cdafd36_b54fd596",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-05T18:00:00Z",
+      "side": 1,
+      "message": "YES!  Another convert to the One True Fraction Style.  :)",
+      "range": {
+        "startLine": 50,
+        "startChar": 59,
+        "endLine": 50,
+        "endChar": 73
+      },
+      "revId": "4b4f1086a7fd7e97c9da58a497abf22562282a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
