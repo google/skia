@@ -562,8 +562,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrSurfaceDrawContext* surfaceDrawCo
     auto context = surfaceDrawContext->recordingContext();
 
     SkASSERT(GrAAType::kCoverage != aaType);
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;

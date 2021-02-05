@@ -430,8 +430,7 @@ private:
         // TODO We should really generate this directly into the plot somehow
         SkAutoSMalloc<1024> dfStorage(width * height * sizeof(unsigned char));
 
-        SkPath path;
-        shape.asPath(&path);
+        SkPath path = shape.asPath();
         // Generate signed distance field directly from SkPath
         bool succeed = GrGenerateDistanceFieldFromPath((unsigned char*)dfStorage.get(),
                                                        path, drawMatrix, width, height,
@@ -511,8 +510,7 @@ private:
         SkASSERT(devPathBounds.width() > 0);
         SkASSERT(devPathBounds.height() > 0);
 
-        SkPath path;
-        shape.asPath(&path);
+        SkPath path = shape.asPath();
         // setup bitmap backing
         SkAutoPixmapStorage dst;
         if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(), devPathBounds.height()))) {

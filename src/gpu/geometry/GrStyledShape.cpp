@@ -339,20 +339,20 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
     }
 
     SkPathEffect* pe = parent.fStyle.pathEffect();
-    SkTLazy<SkPath> tmpPath;
     const GrStyledShape* parentForKey = &parent;
     SkTLazy<GrStyledShape> tmpParent;
 
     // Start out as an empty path that is filled in by the applied style
     fShape.setPath(SkPath());
 
+    SkPath storage;
     if (pe) {
         const SkPath* srcForPathEffect;
         if (parent.fShape.isPath()) {
             srcForPathEffect = &parent.fShape.path();
         } else {
-            srcForPathEffect = tmpPath.init();
-            parent.asPath(tmpPath.get());
+            storage = parent.asPath();
+            srcForPathEffect = &storage;
         }
         // Should we consider bounds? Would have to include in key, but it'd be nice to know
         // if the bounds actually modified anything before including in key.
@@ -376,15 +376,13 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
             // once produces the same key.
             tmpParent.init(fShape.path(), GrStyle(strokeRec, nullptr));
             tmpParent->setInheritedKey(parent, GrStyle::Apply::kPathEffectOnly, scale);
-            if (!tmpPath.isValid()) {
-                tmpPath.init();
-            }
-            tmpParent->asPath(tmpPath.get());
+
+            storage = tmpParent->asPath();
             SkStrokeRec::InitStyle fillOrHairline;
             // The parent shape may have simplified away the strokeRec, check for that here.
             if (tmpParent->style().applies()) {
                 SkAssertResult(tmpParent.get()->style().applyToPath(&fShape.path(), &fillOrHairline,
-                                                                    *tmpPath.get(), scale));
+                                                                    storage, scale));
             } else if (tmpParent->style().isSimpleFill()) {
                 fillOrHairline = SkStrokeRec::kFill_InitStyle;
             } else {
@@ -401,8 +399,8 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         if (parent.fShape.isPath()) {
             srcForParentStyle = &parent.fShape.path();
         } else {
-            srcForParentStyle = tmpPath.init();
-            parent.asPath(tmpPath.get());
+            storage = parent.asPath();
+            srcForParentStyle = &storage;
         }
         SkStrokeRec::InitStyle fillOrHairline;
         SkASSERT(parent.fStyle.applies());

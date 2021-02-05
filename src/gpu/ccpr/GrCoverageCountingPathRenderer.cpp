@@ -91,8 +91,7 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         return CanDrawPath::kNo;
     }
 
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
 
     const SkStrokeRec& stroke = shape.style().strokeRec();
     switch (stroke.getStyle()) {

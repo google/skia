@@ -159,8 +159,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
 
     const GrShaderCaps& shaderCaps = *rContext->priv().caps()->shaderCaps();
 
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
 
     // Find the worst-case log2 number of line segments that a curve in this path might need to be
     // divided into.
@@ -245,7 +244,6 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrSurfaceDrawContext* surfaceDrawContext = args.fRenderTargetContext;
-
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
 
@@ -307,8 +305,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
 
     // Atlas paths require their points to be transformed on the CPU and copied into an "uber path".
     // Check if this path has too many points to justify this extra work.
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
     if (path.countPoints() > 200) {
         return false;
     }

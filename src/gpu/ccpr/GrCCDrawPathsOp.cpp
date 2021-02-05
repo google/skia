@@ -44,8 +44,7 @@ GrOp::Owner GrCCDrawPathsOp::Make(
     float conservativeSize = std::max(conservativeDevBounds.height(), conservativeDevBounds.width());
     if (conservativeSize > GrCoverageCountingPathRenderer::kPathCropThreshold) {
         // The path is too large. Crop it or analytic AA can run out of fp32 precision.
-        SkPath croppedDevPath;
-        shape.asPath(&croppedDevPath);
+        SkPath croppedDevPath = shape.asPath();
         croppedDevPath.transform(m, &croppedDevPath);
 
         SkIRect cropBox = clipIBounds;
@@ -171,8 +170,7 @@ GrProcessorSet::Analysis GrCCDrawPathsOp::SingleDraw::finalize(
         SkASSERT(!fCacheEntry);
         SkASSERT(SkStrokeRec::kStroke_Style == fShape.style().strokeRec().getStyle());
 
-        SkPath path;
-        fShape.asPath(&path);
+        SkPath path = fShape.asPath();
 
         // Create a hairline version of our stroke.
         SkStrokeRec hairlineStroke = fShape.style().strokeRec();
@@ -231,8 +229,7 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
         GrCCPerFlushResourceSpecs* specs) {
     using CoverageType = GrCCAtlas::CoverageType;
 
-    SkPath path;
-    fShape.asPath(&path);
+    SkPath path = fShape.asPath();
 
     SkASSERT(!fCacheEntry);
     SkASSERT(!fCachedAtlasProxy);
@@ -334,8 +331,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
         GrCCPerFlushResources* resources, DoCopiesToA8Coverage doCopies, GrCCDrawPathsOp* op) {
     using CoverageType = GrCCAtlas::CoverageType;
 
-    SkPath path;
-    fShape.asPath(&path);
+    SkPath path = fShape.asPath();
 
     auto fillRule = (fShape.style().strokeRec().isFillStyle())
             ? GrFillRuleForSkPath(path)

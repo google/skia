@@ -8,6 +8,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 
 #include "include/core/SkDrawable.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"
@@ -1339,12 +1340,11 @@ void GrSurfaceDrawContext::drawDRRect(const GrClip* clip,
     }
     assert_alive(paint);
 
-    SkPath path;
+    SkPathBuilder path(SkPathFillType::kEvenOdd);
     path.setIsVolatile(true);
     path.addRRect(inner);
     path.addRRect(outer);
-    path.setFillType(SkPathFillType::kEvenOdd);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrStyledShape(path));
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrStyledShape(path.detach()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

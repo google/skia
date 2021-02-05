@@ -3242,25 +3242,28 @@ bool SkPathPriv::DrawArcIsConvex(SkScalar sweepAngle, bool useCenter, bool isFil
     return SkScalarAbs(sweepAngle) <= 360.f;
 }
 
-void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar startAngle,
+SkPath SkPathPriv::CreateDrawArcPath(const SkRect& oval, SkScalar startAngle,
                                    SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect) {
     SkASSERT(!oval.isEmpty());
     SkASSERT(sweepAngle);
+
 #if defined(SK_BUILD_FOR_FUZZER)
     if (sweepAngle > 3600.0f || sweepAngle < -3600.0f) {
         return;
     }
 #endif
-    path->reset();
-    path->setIsVolatile(true);
-    path->setFillType(SkPathFillType::kWinding);
+
+    SkPathBuilder builder(SkPathFillType::kWinding);
+    builder.setIsVolatile(true);
+
     if (isFillNoPathEffect && SkScalarAbs(sweepAngle) >= 360.f) {
-        path->addOval(oval);
-        SkASSERT(path->isConvex() && DrawArcIsConvex(sweepAngle, false, isFillNoPathEffect));
-        return;
+        builder.addOval(oval);
+        SkPath path = builder.detach();
+        SkASSERT(path.isConvex() && DrawArcIsConvex(sweepAngle, false, isFillNoPathEffect));
+        return path;
     }
     if (useCenter) {
-        path->moveTo(oval.centerX(), oval.centerY());
+        builder.moveTo(oval.centerX(), oval.centerY());
     }
     auto firstDir =
             sweepAngle > 0 ? SkPathFirstDirection::kCW : SkPathFirstDirection::kCCW;
@@ -3268,27 +3271,28 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
     // Arc to mods at 360 and drawArc is not supposed to.
     bool forceMoveTo = !useCenter;
     while (sweepAngle <= -360.f) {
-        path->arcTo(oval, startAngle, -180.f, forceMoveTo);
+        builder.arcTo(oval, startAngle, -180.f, forceMoveTo);
         startAngle -= 180.f;
-        path->arcTo(oval, startAngle, -180.f, false);
+        builder.arcTo(oval, startAngle, -180.f, false);
         startAngle -= 180.f;
         forceMoveTo = false;
         sweepAngle += 360.f;
     }
     while (sweepAngle >= 360.f) {
-        path->arcTo(oval, startAngle, 180.f, forceMoveTo);
+        builder.arcTo(oval, startAngle, 180.f, forceMoveTo);
         startAngle += 180.f;
-        path->arcTo(oval, startAngle, 180.f, false);
+        builder.arcTo(oval, startAngle, 180.f, false);
         startAngle += 180.f;
         forceMoveTo = false;
         sweepAngle -= 360.f;
     }
-    path->arcTo(oval, startAngle, sweepAngle, forceMoveTo);
+    builder.arcTo(oval, startAngle, sweepAngle, forceMoveTo);
     if (useCenter) {
-        path->close();
+        builder.close();
     }
-    path->setConvexity(convex ? SkPathConvexity::kConvex : SkPathConvexity::kConcave);
-    path->setFirstDirection(firstDir);
+    SetConvexity(&builder, convex ? SkPathConvexity::kConvex : SkPathConvexity::kConcave);
+//    builder.setFirstDirection(firstDir);
+    return builder.detach();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

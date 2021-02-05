@@ -135,10 +135,9 @@ void SkBaseDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void SkBaseDevice::drawArc(const SkRect& oval, SkScalar startAngle,
                            SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
-    SkPath path;
     bool isFillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
-    SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
-                                  isFillNoPathEffect);
+    SkPath path = SkPathPriv::CreateDrawArcPath(oval, startAngle, sweepAngle, useCenter,
+                                                isFillNoPathEffect);
     this->drawPath(path, paint);
 }
 
