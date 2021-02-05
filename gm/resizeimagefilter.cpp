@@ -77,7 +77,7 @@ protected:
             SkSamplingOptions(),
             SkSamplingOptions(SkFilterMode::kLinear),
             SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
-            SkSamplingOptions({1.0f/3, 1.0f/3}),
+            SkSamplingOptions(SkCubicResampler::Mitchell()),
         };
         const SkRect srcRect = SkRect::MakeWH(96, 96);
         const SkSize deviceSize = SkSize::Make(16, 16);

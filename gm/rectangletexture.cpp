@@ -157,7 +157,7 @@ private:
             SkSamplingOptions(SkFilterMode::kNearest),
             SkSamplingOptions(SkFilterMode::kLinear),
             SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
-            SkSamplingOptions({1.0f/3, 1.0f/3}),
+            SkSamplingOptions(SkCubicResampler::Mitchell()),
         };
 
         constexpr SkScalar kScales[] = {1.0f, 1.2f, 0.75f};

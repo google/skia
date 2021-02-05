@@ -243,7 +243,7 @@ protected:
                     SkSamplingOptions(SkFilterMode::kNearest),
                     SkSamplingOptions(SkFilterMode::kLinear),
                     SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest),
-                    SkSamplingOptions({1.0f/3, 1.0f/3})})
+                    SkSamplingOptions(SkCubicResampler::Mitchell())})
                 {
                     canvas->save();
                         canvas->scale(scale, scale);

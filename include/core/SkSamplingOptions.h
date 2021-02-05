@@ -45,6 +45,10 @@ enum class SkMipmapMode {
  */
 struct SkCubicResampler {
     float B, C;
+
+    // Historic default for kHigh_SkFilterQuality
+    static constexpr SkCubicResampler Mitchell() { return {1/3.0f, 1/3.0f}; }
+    static constexpr SkCubicResampler CatmullRom() { return {0.0f, 1/2.0f}; }
 };
 
 struct SK_API SkSamplingOptions {
