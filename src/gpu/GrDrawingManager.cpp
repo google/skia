@@ -959,6 +959,14 @@ GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRendere
     return fPathRendererChain->getCoverageCountingPathRenderer();
 }
 
+GrPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
+    if (!fPathRendererChain) {
+        fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
+                                                                   fOptionsForPathRendererChain);
+    }
+    return fPathRendererChain->getTessellationPathRenderer();
+}
+
 void GrDrawingManager::flushIfNecessary() {
     auto direct = fContext->asDirectContext();
     if (!direct) {

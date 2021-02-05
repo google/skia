@@ -108,6 +108,10 @@ public:
     // supported and turned on.
     GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();
 
+    // Returns a direct pointer to the tessellation path renderer, or null if it is not supported
+    // and turned on.
+    GrPathRenderer* getTessellationPathRenderer();
+
     void flushIfNecessary();
 
     static bool ProgramUnitTest(GrDirectContext*, int maxStages, int maxLevels);
