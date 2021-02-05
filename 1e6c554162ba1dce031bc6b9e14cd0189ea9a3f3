@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1c7f886_4d3623a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-05T22:00:22Z",
+      "side": 1,
+      "message": "The assert is fixed in https://skia-review.googlesource.com/c/skia/+/367077\n\nThe poor quality issue from using the triangulator is fixed in https://skia-review.googlesource.com/c/skia/+/367022/1..3\n\nThis should be good to go again.",
+      "revId": "1e6c554162ba1dce031bc6b9e14cd0189ea9a3f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
