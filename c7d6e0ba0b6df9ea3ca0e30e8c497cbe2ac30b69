@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc7a047e_c9de1684",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T15:48:01Z",
+      "side": 0,
+      "message": "nit: This one can still be a reference, right? That might make it clearer that just the SwizzleType is being updated as more swizzles are applied.",
+      "range": {
+        "startLine": 1861,
+        "startChar": 4,
+        "endLine": 1861,
+        "endChar": 26
+      },
+      "revId": "c7d6e0ba0b6df9ea3ca0e30e8c497cbe2ac30b69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
