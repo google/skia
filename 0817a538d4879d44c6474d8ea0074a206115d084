@@ -39,6 +39,30 @@
       },
       "revId": "0817a538d4879d44c6474d8ea0074a206115d084",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0cbf310_c6c58494",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T14:33:56Z",
+      "side": 1,
+      "message": "yeah, inside GrVkBuffer we had asserts that the offset was always 0.",
+      "parentUuid": "60503148_63b5e388",
+      "range": {
+        "startLine": 190,
+        "startChar": 8,
+        "endLine": 190,
+        "endChar": 31
+      },
+      "revId": "0817a538d4879d44c6474d8ea0074a206115d084",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
