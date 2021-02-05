@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "59d20f43_1cfab40b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-05T16:32:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0dbe12_4ac650c5",
+      "revId": "bc74163d695d625b7fd86dcd36526e4d5a20ca01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0f4ae0f_5324cdd9",
@@ -59,6 +77,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfadb41a_27539397",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2018,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-05T16:32:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b0f4ae0f_5324cdd9",
+      "range": {
+        "startLine": 2018,
+        "startChar": 0,
+        "endLine": 2018,
+        "endChar": 0
+      },
+      "revId": "bc74163d695d625b7fd86dcd36526e4d5a20ca01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea3ae8ac_ad159b95",
@@ -72,6 +114,30 @@
       "writtenOn": "2021-02-05T15:55:14Z",
       "side": 1,
       "message": "Intended for this different CL?",
+      "range": {
+        "startLine": 77,
+        "startChar": 3,
+        "endLine": 80,
+        "endChar": 5
+      },
+      "revId": "bc74163d695d625b7fd86dcd36526e4d5a20ca01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c248ecc4_792685e7",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-05T16:32:00Z",
+      "side": 1,
+      "message": "Currently, convertBinary() returns non-null in the event of 1/0 - it fails the folding, reports an error, and then falls back to IntLiteral(1) / IntLiteral(0). If we change this to return null, it causes the compiler to stop processing code as soon as it runs into an error, which breaks the existing DivideByZero test.\n\nBut the DSL was keying off null as a signal that an error had occurred... which really isn\u0027t right, so I had to fix it to get the DSL reporting errors on divide by zero.",
+      "parentUuid": "ea3ae8ac_ad159b95",
       "range": {
         "startLine": 77,
         "startChar": 3,
