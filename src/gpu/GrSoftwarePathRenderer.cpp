@@ -173,27 +173,10 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                   dstRect, invert);
 }
 
-static GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* context,
-                                                          SkBackingFit fit,
-                                                          SkISize dimensions) {
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    const GrCaps* caps = context->priv().caps();
-
-    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
-                                                                 GrRenderable::kNo);
-
-    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
-
-    auto proxy =
-            proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipmapped::kNo,
-                                       fit, SkBudgeted::kYes, GrProtected::kNo);
-    return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
-}
-
 namespace {
 
 /**
- * Payload class for use with GrTDeferredProxyUploader. The software path renderer only draws
+ * Payload class for use with GrSWMaskHelper. The software path renderer only draws
  * a single path into the mask texture. This stores all of the information needed by the worker
  * thread's call to drawShape (see below, in onDrawPath).
  */
@@ -207,7 +190,7 @@ public:
             , fAA(aa) {}
 
     const SkIRect& getMaskBounds() const { return fMaskBounds; }
-    const SkMatrix* getViewMatrix() const { return &fViewMatrix; }
+    const SkMatrix& getViewMatrix() const { return fViewMatrix; }
     const GrStyledShape& getShape() const { return fShape; }
     GrAA getAA() const { return fAA; }
 
@@ -326,44 +309,15 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!view) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAA(GrAAType::kCoverage == args.fAAType);
-
-        SkTaskGroup* taskGroup = nullptr;
-        if (auto direct = args.fContext->asDirectContext()) {
-            taskGroup = direct->priv().getTaskGroup();
-        }
-
-        if (taskGroup) {
-            view = make_deferred_mask_texture_view(args.fContext, fit, boundsForMask->size());
-            if (!view) {
-                return false;
-            }
-
-            auto uploader = std::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
-                    *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
-            GrTDeferredProxyUploader<SoftwarePathData>* uploaderRaw = uploader.get();
-
-            auto drawAndUploadMask = [uploaderRaw] {
-                TRACE_EVENT0("skia.gpu", "Threaded SW Mask Render");
-                GrSWMaskHelper helper(uploaderRaw->getPixels());
-                if (helper.init(uploaderRaw->data().getMaskBounds())) {
-                    helper.drawShape(uploaderRaw->data().getShape(),
-                                     *uploaderRaw->data().getViewMatrix(),
-                                     SkRegion::kReplace_Op, uploaderRaw->data().getAA(), 0xFF);
-                } else {
-                    SkDEBUGFAIL("Unable to allocate SW mask.");
-                }
-                uploaderRaw->signalAndFreeData();
-            };
-            taskGroup->add(std::move(drawAndUploadMask));
-            view.asTextureProxy()->texPriv().setDeferredUploader(std::move(uploader));
-        } else {
-            GrSWMaskHelper helper;
-            if (!helper.init(*boundsForMask)) {
-                return false;
-            }
-            helper.drawShape(*args.fShape, *args.fViewMatrix, SkRegion::kReplace_Op, aa, 0xFF);
-            view = helper.toTextureView(args.fContext, fit);
-        }
+        SoftwarePathData data(*boundsForMask, *args.fViewMatrix, *args.fShape, aa);
+        view = GrSWMaskHelper::MakeTexture(data.getMaskBounds(),
+                                           args.fContext,
+                                           fit,
+                                           [data{std::move(data)}](GrSWMaskHelper* helper) {
+            TRACE_EVENT0("skia.gpu", "SW Mask Render");
+            helper->drawShape(data.getShape(), data.getViewMatrix(), SkRegion::kReplace_Op,
+                              data.getAA(), 0xFF);
+        });
 
         if (!view) {
             return false;

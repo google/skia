@@ -22,7 +22,6 @@
 
 struct SkIRect;
 
-class GrTexture;
 class SkDiscardableMemory;
 
 /** \class SkPixelRef
