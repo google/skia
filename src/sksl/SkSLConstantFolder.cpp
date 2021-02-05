@@ -141,6 +141,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                                      const Expression& left,
                                                      Token::Kind op,
                                                      const Expression& right) {
+    // If this is the comma operator, the left side is evaluated but not otherwise used in any way.
+    // So if the left side has no side effects, it can just be eliminated entirely.
+    bool leftHasSideEffects = left.hasSideEffects();
+    if (op == Token::Kind::TK_COMMA && !leftHasSideEffects) {
+        return right.clone();
+    }
+
     // Simplify the expression when both sides are constant Boolean literals.
     if (left.is<BoolLiteral>() && right.is<BoolLiteral>()) {
         bool leftVal  = left.as<BoolLiteral>().value();
@@ -165,7 +172,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // If the right side is a Boolean literal...
     if (right.is<BoolLiteral>()) {
         // ... and the left side has no side effects...
-        if (!left.hasSideEffects()) {
+        if (!leftHasSideEffects) {
             // We can reverse the expressions and short-circuit optimizations are still valid.
             return short_circuit_boolean(right, op, left);
         }
