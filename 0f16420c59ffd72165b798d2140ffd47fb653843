@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2379035_9f1eb954",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-05T02:23:17Z",
+      "side": 1,
+      "message": "I think https://skia-review.googlesource.com/c/skia/+/366410 is a superior approach, but ok...\n\n:)",
+      "revId": "0f16420c59ffd72165b798d2140ffd47fb653843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
