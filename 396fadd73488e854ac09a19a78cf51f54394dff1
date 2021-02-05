@@ -34,6 +34,24 @@
       "parentUuid": "a7127ed0_ba755d47",
       "revId": "396fadd73488e854ac09a19a78cf51f54394dff1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40efe4d1_755746aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T20:23:40Z",
+      "side": 1,
+      "message": "Brian: Done. Might not happen for much more than just variable references, but not very hard to just do it right for those other cases either.\n\nEthan: look at the compiled Folding glsl tests for examples of how this happens--expressions of the form `x \u003d x OP y` where we eventually inline/fold away everything and are left with `x \u003d x`. When I was experimenting with expanding `x OP\u003d y` to `x \u003d x OP y`, we had even more of these appear in the output, so it will become even more beneficial if I can get a handle on skia:11192.",
+      "parentUuid": "0ad0ad53_1b7e20bf",
+      "revId": "396fadd73488e854ac09a19a78cf51f54394dff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
