@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4466131f_1ba161c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-05T17:01:04Z",
+      "side": 1,
+      "message": "Mac bot is failing due to disk space issues, let\u0027s see if it clears up with a retry",
+      "revId": "51051b93bd47225f9fcbda7a7d15552b72d4e508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
