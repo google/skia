@@ -8,37 +8,47 @@
 #ifndef SkArithmeticImageFilter_DEFINED
 #define SkArithmeticImageFilter_DEFINED
 
-#include "include/core/SkImageFilter.h"
+#include "src/core/SkImageFilter_Base.h"
 
-struct ArithmeticFPInputs {
-    ArithmeticFPInputs(float k0, float k1, float k2, float k3, bool enforcePMColor) {
-        // We copy instances of this struct as the input data blob for the  SkSL FP. The FP
-        // may try to access all of our bytes (for comparison purposes), so be sure to zero out
-        // any padding after the dangling bool.
-        memset(this, 0, sizeof(*this));
-        fK[0] = k0;
-        fK[1] = k1;
-        fK[2] = k2;
-        fK[3] = k3;
-        fEnforcePMColor = enforcePMColor;
-    }
-
-    float fK[4];
-    bool  fEnforcePMColor;
-};
-
-// DEPRECATED: Use include/effects/SkImageFilters::Arithmetic
-class SK_API SkArithmeticImageFilter {
+class SkArithmeticImageFilter final : public SkImageFilter_Base {
 public:
-    static sk_sp<SkImageFilter> Make(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                                     sk_sp<SkImageFilter> background,
-                                     sk_sp<SkImageFilter> foreground,
-                                     const SkRect* cropRect);
+    SkArithmeticImageFilter(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                            sk_sp<SkImageFilter> inputs[2], const SkRect* cropRect)
+            : INHERITED(inputs, 2, cropRect)
+            , fK{k1, k2, k3, k4}
+            , fEnforcePMColor(enforcePMColor) {}
+
+protected:
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
+
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
+                           MapDirection, const SkIRect* inputRect) const override;
+
+    void flatten(SkWriteBuffer& buffer) const override;
+
+private:
+    SK_FLATTENABLE_HOOKS(SkArithmeticImageFilter)
 
     static void RegisterFlattenables();
 
-private:
-    SkArithmeticImageFilter();  // can't instantiate
+    bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
+
+#if SK_SUPPORT_GPU
+    sk_sp<SkSpecialImage> filterImageGPU(const Context& ctx,
+                                         sk_sp<SkSpecialImage> background,
+                                         const SkIPoint& backgroundOffset,
+                                         sk_sp<SkSpecialImage> foreground,
+                                         const SkIPoint& foregroundOffset,
+                                         const SkIRect& bounds) const;
+#endif
+
+    void drawForeground(SkCanvas* canvas, SkSpecialImage*, const SkIRect&) const;
+
+    SkV4 fK;
+    bool fEnforcePMColor;
+
+    using INHERITED = SkImageFilter_Base;
 };
+
 
 #endif
