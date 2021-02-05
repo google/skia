@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e1e56c2_f944564f",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-05T18:05:45Z",
+      "side": 1,
+      "message": "Aside from the fact that a recording context might not have the task group (though, maybe it could) I suppose this is right anyway, because the client is presumably trying to move the work to the recording phase on a specific thread.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 5
+      },
+      "revId": "2b0b811277aa8102e83754c177d67590109a2c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c60b89a_7619ff3f",
+        "filename": "src/gpu/GrSWMaskHelper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-05T18:05:45Z",
+      "side": 1,
+      "message": "While you\u0027re in here, SkNoncopyable is kinda dated. Could just replace with copy cons and assignment \u003d delete.",
+      "range": {
+        "startLine": 43,
+        "startChar": 23,
+        "endLine": 43,
+        "endChar": 36
+      },
+      "revId": "2b0b811277aa8102e83754c177d67590109a2c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

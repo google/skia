@@ -16,6 +16,24 @@
       "message": "Since ClipMaskData has an LList in it, we can\u0027t copy it. If we can\u0027t copy it, we can\u0027t capture it in a std::function even if we capture it using std::move. So we use shared_ptr.",
       "revId": "b9d573ef4b35014082e2d2b8c546d12b28ef08bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4910894_dd8113c9",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-05T18:05:45Z",
+      "side": 1,
+      "message": "Can\u0027t you capture it with [\u0026reducedClip]? (I\u0027m assuming it\u0027s safe... not sure where this thing lives.)",
+      "parentUuid": "aa7a78ee_f6dc5e8a",
+      "revId": "b9d573ef4b35014082e2d2b8c546d12b28ef08bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
