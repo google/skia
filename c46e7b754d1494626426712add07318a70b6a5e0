@@ -33,6 +33,23 @@
       "message": "The legacy code could also use perspective normalization, but that change is a lot more intrusive (we recompute the inverse all over the place).  I think ultimately we want computeTotalInverse() to normalize - I\u0027ll try that separately.",
       "revId": "c46e7b754d1494626426712add07318a70b6a5e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6544f5e_827ff617",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-05T14:08:46Z",
+      "side": 1,
+      "message": "guys guys don\u0027t make me choose...",
+      "revId": "c46e7b754d1494626426712add07318a70b6a5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
