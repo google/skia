@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "960fbc87_8221c499",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-05T17:34:45Z",
+      "side": 1,
+      "message": "It looks like maybe making msvc++ happy might need and \u0027inline\u0027 here (or in the definition) somewhere?\n\nClang at least is fine with\n\n    static_assert(SkCubicResampler::kMitchell.B \u003d\u003d SkCubicResampler::kMitchell.C, \"\");\n\nright here, but if you put it above the definitions (say at line 52 here) then they aren\u0027t constexpr yet (which is somewhat to be expected). It is interesting that the constexpr part is applied at the definition here. I\u0027m not 100% sure if that is required by the specification or not.",
+      "revId": "f9a72fec8e3efb860f067788ae46c354bc343272",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
