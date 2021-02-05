@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd71161e_85eb2a2a",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:56:18Z",
+      "side": 1,
+      "message": "Yeah, that was here before. I\u0027ll put it back, but doing this made me realize that we should just forbid that construct in runtime effects - it doesn\u0027t mean anything. (I actually wonder how much value it\u0027s providing anywhere - it\u0027s really just a safety check that fps use to assert that a condition is known at compile time, right?)",
+      "parentUuid": "e7ea8b7d_b3a04765",
+      "range": {
+        "startLine": 167,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 24
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4af53501_f284d75c",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-02-04T22:35:01Z",
       "side": 1,
       "message": "We don\u0027t need these prefixes, do we?",
+      "range": {
+        "startLine": 367,
+        "startChar": 50,
+        "endLine": 367,
+        "endChar": 78
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9760c1b_a9210b46",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:56:18Z",
+      "side": 1,
+      "message": "No, but I knew I was about to delete all of this code in the next CL. ;)",
+      "parentUuid": "4af53501_f284d75c",
       "range": {
         "startLine": 367,
         "startChar": 50,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4418b9c9_a3f83722",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:56:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e7b16de_d0968374",
+      "range": {
+        "startLine": 401,
+        "startChar": 45,
+        "endLine": 401,
+        "endChar": 47
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5495fdc8_2e27f818",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-02-04T22:35:01Z",
       "side": 1,
       "message": "tiny nit: indentation",
+      "range": {
+        "startLine": 421,
+        "startChar": 47,
+        "endLine": 421,
+        "endChar": 57
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b4e4f01_b4ec3fa4",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:56:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5495fdc8_2e27f818",
       "range": {
         "startLine": 421,
         "startChar": 47,
@@ -135,6 +231,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "39840cff_f368a4ca",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:56:18Z",
+      "side": 1,
+      "message": "Anything that\u0027s emitting SkSL that doesn\u0027t go into a function body has to be wrong - the strings built by this code are injected as function bodies by the FP. Basically, anything that\u0027s metadata about the shader, global declarations (variables, types, etc...) has to somehow be routed elsewhere or it ends up scoped incorrectly.",
+      "parentUuid": "3a885939_b63527c3",
+      "range": {
+        "startLine": 487,
+        "startChar": 7,
+        "endLine": 487,
+        "endChar": 32
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0c2c98fc_36ab8875",
         "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
         "patchSetId": 2
@@ -146,6 +266,30 @@
       "writtenOn": "2021-02-04T22:35:01Z",
       "side": 1,
       "message": "Obsolete?",
+      "range": {
+        "startLine": 552,
+        "startChar": 6,
+        "endLine": 554,
+        "endChar": 5
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77bc2379_f28490c2",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:56:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c2c98fc_36ab8875",
       "range": {
         "startLine": 552,
         "startChar": 6,
