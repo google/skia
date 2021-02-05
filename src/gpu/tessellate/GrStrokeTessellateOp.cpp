@@ -59,6 +59,7 @@ GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
                                                         GrClampType clampType) {
     // Make sure the finalize happens before combining. We might change fNeedsStencil here.
     SkASSERT(fPathList.begin().fCurr->fNext == nullptr);
+    SkASSERT(fAAType != GrAAType::kCoverage || hasMixedSampledCoverage);
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
             fColor, GrProcessorAnalysisCoverage::kNone, clip, &GrUserStencilSettings::kUnused,
             hasMixedSampledCoverage, caps, clampType, &fColor);

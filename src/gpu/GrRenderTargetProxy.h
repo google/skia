@@ -30,7 +30,7 @@ public:
 
     bool canUseMixedSamples(const GrCaps& caps) const {
         return caps.mixedSamplesSupport() && !this->glRTFBOIDIs0() &&
-               caps.internalMultisampleCount(this->backendFormat()) > 0 &&
+               caps.internalMultisampleCount(this->backendFormat()) > 1 &&
                this->canChangeStencilAttachment();
     }
 
