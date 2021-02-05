@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25d75c22_5a0eb2ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-05T18:59:45Z",
+      "side": 1,
+      "message": "I\u0027m sorry for the diff of GrTextBlob.h. It\u0027s mainly a move of GrSubRun and GrAtlasSubRun from the bottom of the file to the top. The thing to focus on in GrTextBlob.h is the new GrSubRunList class.",
+      "revId": "e097a79304e3005ec718b6ec929f867b12203a2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
