@@ -50,6 +50,24 @@
       "message": "guys guys don\u0027t make me choose...",
       "revId": "c46e7b754d1494626426712add07318a70b6a5e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bd29e66_2903273f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-05T14:42:14Z",
+      "side": 1,
+      "message": "I think legacy code doesn\u0027t have to worry about perspective at all?\n\nSkShaderBase::Context* SkShaderBase::makeContext(const ContextRec\u0026 rec, SkArenaAlloc* alloc) const {\n#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT\n    // We always fall back to raster pipeline when perspective is present.\n    if (rec.fMatrix-\u003ehasPerspective() ||\n        fLocalMatrix.hasPerspective() ||\n        (rec.fLocalMatrix \u0026\u0026 rec.fLocalMatrix-\u003ehasPerspective()) ||\n        !this-\u003ecomputeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)) {\n        return nullptr;\n    }\n\n    return this-\u003eonMakeContext(rec, alloc);\n#else\n    return nullptr;\n#endif\n}",
+      "parentUuid": "5eb77195_e26a6113",
+      "revId": "c46e7b754d1494626426712add07318a70b6a5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
