@@ -102,26 +102,11 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         return std::make_unique<Constructor>(left.fOffset, &type, std::move(args));
     };
 
-    const auto isVectorDivisionByZero = [&]() -> bool {
-        for (int i = 0; i < type.columns(); i++) {
-            if (right.getVecComponent<T>(i) == 0) {
-                return true;
-            }
-        }
-        return false;
-    };
-
     switch (op) {
         case Token::Kind::TK_PLUS:  return vectorComponentwiseFold([](U a, U b) { return a + b; });
         case Token::Kind::TK_MINUS: return vectorComponentwiseFold([](U a, U b) { return a - b; });
         case Token::Kind::TK_STAR:  return vectorComponentwiseFold([](U a, U b) { return a * b; });
-        case Token::Kind::TK_SLASH: {
-            if (isVectorDivisionByZero()) {
-                context.fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
-            }
-            return vectorComponentwiseFold([](T a, T b) { return a / b; });
-        }
+        case Token::Kind::TK_SLASH: return vectorComponentwiseFold([](T a, T b) { return a / b; });
         default:
             return nullptr;
     }
@@ -137,7 +122,70 @@ static Constructor splat_scalar(const Expression& scalar, const Type& type) {
     return Constructor{scalar.fOffset, &type, std::move(arg)};
 }
 
+bool ConstantFolder::GetConstantInt(const Expression& value, SKSL_INT* out) {
+    switch (value.kind()) {
+        case Expression::Kind::kIntLiteral:
+            *out = value.as<IntLiteral>().value();
+            return true;
+        case Expression::Kind::kVariableReference: {
+            const Variable& var = *value.as<VariableReference>().variable();
+            return (var.modifiers().fFlags & Modifiers::kConst_Flag) &&
+                   var.initialValue() && GetConstantInt(*var.initialValue(), out);
+        }
+        default:
+            return false;
+    }
+}
+
+bool ConstantFolder::GetConstantFloat(const Expression& value, SKSL_FLOAT* out) {
+    switch (value.kind()) {
+        case Expression::Kind::kFloatLiteral:
+            *out = value.as<FloatLiteral>().value();
+            return true;
+        case Expression::Kind::kVariableReference: {
+            const Variable& var = *value.as<VariableReference>().variable();
+            return (var.modifiers().fFlags & Modifiers::kConst_Flag) &&
+                   var.initialValue() && GetConstantFloat(*var.initialValue(), out);
+        }
+        default:
+            return false;
+    }
+}
+
+static bool contains_constant_zero(const Expression& expr) {
+    if (expr.is<Constructor>()) {
+        for (const auto& arg : expr.as<Constructor>().arguments()) {
+            if (contains_constant_zero(*arg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    SKSL_INT intValue;
+    SKSL_FLOAT floatValue;
+    return (ConstantFolder::GetConstantInt(expr, &intValue) && intValue == 0) ||
+           (ConstantFolder::GetConstantFloat(expr, &floatValue) && floatValue == 0.0f);
+}
+
+bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int offset, Token::Kind op,
+                                         const Expression& right) {
+    switch (op) {
+        case Token::Kind::TK_SLASH:
+        case Token::Kind::TK_SLASHEQ:
+        case Token::Kind::TK_PERCENT:
+        case Token::Kind::TK_PERCENTEQ:
+            if (contains_constant_zero(right)) {
+                context.fErrors.error(offset, "division by zero");
+                return true;
+            }
+            return false;
+        default:
+            return false;
+    }
+}
+
 std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
+                                                     int offset,
                                                      const Expression& left,
                                                      Token::Kind op,
                                                      const Expression& right) {
@@ -160,7 +208,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_NEQ:        result = leftVal != rightVal; break;
             default: return nullptr;
         }
-        return std::make_unique<BoolLiteral>(context, left.fOffset, result);
+        return std::make_unique<BoolLiteral>(context, offset, result);
     }
 
     // If the left side is a Boolean literal, apply short-circuit optimizations.
@@ -180,6 +228,10 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         return eliminate_no_op_boolean(left, op, right);
     }
 
+    if (ErrorOnDivideByZero(context, offset, op, right)) {
+        return nullptr;
+    }
+
     // Other than the short-circuit cases above, constant folding requires both sides to be constant
     if (!left.isCompileTimeConstant() || !right.isCompileTimeConstant()) {
         return nullptr;
@@ -189,9 +241,9 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // precision to calculate the results and hope the result makes sense.
     // TODO: detect and handle integer overflow properly.
     using SKSL_UINT = uint64_t;
-    #define RESULT(t, op) std::make_unique<t ## Literal>(context, left.fOffset, \
+    #define RESULT(t, op) std::make_unique<t ## Literal>(context, offset, \
                                                          leftVal op rightVal)
-    #define URESULT(t, op) std::make_unique<t ## Literal>(context, left.fOffset, \
+    #define URESULT(t, op) std::make_unique<t ## Literal>(context, offset,       \
                                                           (SKSL_UINT) leftVal op \
                                                           (SKSL_UINT) rightVal)
     if (left.is<IntLiteral>() && right.is<IntLiteral>()) {
@@ -203,21 +255,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_STAR:       return URESULT(Int, *);
             case Token::Kind::TK_SLASH:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
-                    context.fErrors.error(right.fOffset, "arithmetic overflow");
-                    return nullptr;
-                }
-                if (!rightVal) {
-                    context.fErrors.error(right.fOffset, "division by zero");
+                    context.fErrors.error(offset, "arithmetic overflow");
                     return nullptr;
                 }
                 return RESULT(Int, /);
             case Token::Kind::TK_PERCENT:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
-                    context.fErrors.error(right.fOffset, "arithmetic overflow");
-                    return nullptr;
-                }
-                if (!rightVal) {
-                    context.fErrors.error(right.fOffset, "division by zero");
+                    context.fErrors.error(offset, "arithmetic overflow");
                     return nullptr;
                 }
                 return RESULT(Int, %);
@@ -236,13 +280,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                     // in C++, but not GLSL. Do the shift on unsigned values, to avoid UBSAN.
                     return URESULT(Int,  <<);
                 }
-                context.fErrors.error(right.fOffset, "shift value out of range");
+                context.fErrors.error(offset, "shift value out of range");
                 return nullptr;
             case Token::Kind::TK_SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
                     return RESULT(Int,  >>);
                 }
-                context.fErrors.error(right.fOffset, "shift value out of range");
+                context.fErrors.error(offset, "shift value out of range");
                 return nullptr;
 
             default:
@@ -258,12 +302,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_PLUS:  return RESULT(Float, +);
             case Token::Kind::TK_MINUS: return RESULT(Float, -);
             case Token::Kind::TK_STAR:  return RESULT(Float, *);
-            case Token::Kind::TK_SLASH:
-                if (rightVal) {
-                    return RESULT(Float, /);
-                }
-                context.fErrors.error(right.fOffset, "division by zero");
-                return nullptr;
+            case Token::Kind::TK_SLASH: return RESULT(Float, /);
             case Token::Kind::TK_EQEQ: return RESULT(Bool, ==);
             case Token::Kind::TK_NEQ:  return RESULT(Bool, !=);
             case Token::Kind::TK_GT:   return RESULT(Bool, >);
@@ -332,7 +371,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                 [[fallthrough]];
 
             case Expression::ComparisonResult::kEqual:
-                return std::make_unique<BoolLiteral>(context, left.fOffset, equality);
+                return std::make_unique<BoolLiteral>(context, offset, equality);
 
             case Expression::ComparisonResult::kUnknown:
                 return nullptr;

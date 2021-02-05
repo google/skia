@@ -1526,7 +1526,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         case Statement::Kind::kSwitch: {
             SwitchStatement& s = stmt->as<SwitchStatement>();
             int64_t switchValue;
-            if (fIRGenerator->getConstantInt(*s.value(), &switchValue)) {
+            if (ConstantFolder::GetConstantInt(*s.value(), &switchValue)) {
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
@@ -1536,7 +1536,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         continue;
                     }
                     int64_t caseValue;
-                    SkAssertResult(fIRGenerator->getConstantInt(*c->value(), &caseValue));
+                    SkAssertResult(ConstantFolder::GetConstantInt(*c->value(), &caseValue));
                     if (caseValue == switchValue) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {

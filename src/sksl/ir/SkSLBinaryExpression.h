@@ -85,8 +85,8 @@ public:
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        return ConstantFolder::Simplify(irGenerator.fContext, *this->left(), this->getOperator(),
-                                        *this->right());
+        return ConstantFolder::Simplify(irGenerator.fContext, fOffset, *this->left(),
+                                        this->getOperator(), *this->right());
     }
 
     bool hasProperty(Property property) const override {

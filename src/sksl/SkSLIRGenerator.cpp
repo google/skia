@@ -757,7 +757,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
                 return nullptr;
             }
             SKSL_INT v = 0;
-            if (!this->getConstantInt(*caseValue, &v)) {
+            if (!ConstantFolder::GetConstantInt(*caseValue, &v)) {
                 this->errorReporter().error(caseValue->fOffset,
                                             "case value must be a constant integer");
                 return nullptr;
@@ -1423,21 +1423,6 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                             symbols);
 }
 
-bool IRGenerator::getConstantInt(const Expression& value, SKSL_INT* out) {
-    switch (value.kind()) {
-        case Expression::Kind::kIntLiteral:
-            *out = value.as<IntLiteral>().value();
-            return true;
-        case Expression::Kind::kVariableReference: {
-            const Variable& var = *value.as<VariableReference>().variable();
-            return (var.modifiers().fFlags & Modifiers::kConst_Flag) &&
-                   var.initialValue() && this->getConstantInt(*var.initialValue(), out);
-        }
-        default:
-            return false;
-    }
-}
-
 void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
     StatementArray decls = this->convertVarDeclarations(decl, Variable::Storage::kGlobal);
     for (std::unique_ptr<Statement>& stmt : decls) {
@@ -1478,7 +1463,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                 fSymbolTable = oldTable;
                 return;
             }
-            if (!this->getConstantInt(*value, &currentValue)) {
+            if (!ConstantFolder::GetConstantInt(*value, &currentValue)) {
                 this->errorReporter().error(value->fOffset,
                                             "enum value must be a constant integer");
                 fSymbolTable = oldTable;
@@ -2038,7 +2023,10 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
-    std::unique_ptr<Expression> result = ConstantFolder::Simplify(fContext, *left, op, *right);
+    std::unique_ptr<Expression> result;
+    if (!ConstantFolder::ErrorOnDivideByZero(fContext, offset, op, *right)) {
+        result = ConstantFolder::Simplify(fContext, offset, *left, op, *right);
+    }
     if (!result) {
         result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
                                                     resultType);

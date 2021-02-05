@@ -1,0 +1,22 @@
+uniform float unknownInput;
+
+void main() {
+    const int zero = 0;
+    float x = unknownInput / 0;
+    x = (float2(unknownInput) / 0).x;
+    x = (float2(unknownInput) / float2(zero)).x;
+    x = (float2(unknownInput) / float2(unknownInput, 0)).x;
+    x = (float3(unknownInput) / float3(float(0), unknownInput, unknownInput)).x;
+    x = (float4(unknownInput) / float4(float2(unknownInput, float(zero)), 1, 1)).x;
+    x /= 0;
+
+    int y = int(unknownInput) / 0;
+    y = int(unknownInput) % 0;
+    y = (int2(unknownInput) / 0).x;
+    y = (int2(unknownInput) / int2(zero)).x;
+    y = (int2(unknownInput) / int2(unknownInput, 0)).x;
+    y = (int3(unknownInput) / int3(0, unknownInput, unknownInput)).x;
+    y = (int4(unknownInput) % int4(int2(unknownInput, int(zero)), 1, 1)).x;
+    y /= 0;
+    y %= 0;
+}
