@@ -12,38 +12,11 @@
 
 SkSVGCircle::SkSVGCircle() : INHERITED(SkSVGTag::kCircle) {}
 
-void SkSVGCircle::setCx(const SkSVGLength& cx) {
-    fCx = cx;
-}
-
-void SkSVGCircle::setCy(const SkSVGLength& cy) {
-    fCy = cy;
-}
-
-void SkSVGCircle::setR(const SkSVGLength& r) {
-    fR = r;
-}
-
-void SkSVGCircle::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kCx:
-        if (const auto* cx = v.as<SkSVGLengthValue>()) {
-            this->setCx(*cx);
-        }
-        break;
-    case SkSVGAttribute::kCy:
-        if (const auto* cy = v.as<SkSVGLengthValue>()) {
-            this->setCy(*cy);
-        }
-        break;
-    case SkSVGAttribute::kR:
-        if (const auto* r = v.as<SkSVGLengthValue>()) {
-            this->setR(*r);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGCircle::parseAndSetAttribute(const char* n, const char* v) {
+    return INHERITED::parseAndSetAttribute(n, v) ||
+           this->setCx(SkSVGAttributeParser::parse<SkSVGLength>("cx", n, v)) ||
+           this->setCy(SkSVGAttributeParser::parse<SkSVGLength>("cy", n, v)) ||
+           this->setR(SkSVGAttributeParser::parse<SkSVGLength>("r", n, v));
 }
 
 std::tuple<SkPoint, SkScalar> SkSVGCircle::resolve(const SkSVGLengthContext& lctx) const {
