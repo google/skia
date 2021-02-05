@@ -16,6 +16,29 @@
       "message": "This should be ready for review, now. The follow-up CL is as well, although the grand-child is not. (I\u0027ve got exciting things, coming though!)",
       "revId": "99d14216c643bf2a715427abe21f8ac6aa173575",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "adede0a3_5ab7770b",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T23:23:06Z",
+      "side": 1,
+      "message": "Double checking: Compiler, and not Operators?",
+      "range": {
+        "startLine": 11,
+        "startChar": 19,
+        "endLine": 11,
+        "endChar": 31
+      },
+      "revId": "99d14216c643bf2a715427abe21f8ac6aa173575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
