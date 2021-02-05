@@ -1577,7 +1577,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         stack.clipPath(path, m, SkClipOp::kIntersect, true);
         sk_sp<GrTextureProxy> mask =
                 GrClipStackClip(stackBounds.size(), &stack).testingOnly_createClipMask(context);
-        mask->instantiate(context->priv().resourceProvider());
+        // TODO: Make `instantiate` work for lazy proxies.
+        if (mask->isLazy()) {
+            mask->priv().doLazyInstantiation(context->priv().resourceProvider());
+        } else {
+            mask->instantiate(context->priv().resourceProvider());
+        }
         GrTexture* tex = mask->peekTexture();
         REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
         // Make sure mask isn't pinned in cache.
