@@ -155,11 +155,14 @@ inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
 // cubics are convex and rotate no more than 180 degrees.
 //
 //   - If the cubic is "serpentine", then the T values are any inflection points in [0 < T < 1].
-//
 //   - If the cubic is linear, then the T values are any 180-degree cusp points in [0 < T < 1].
-//
 //   - Otherwise the T value is the point at which rotation reaches 180 degrees, iff in [0 < T < 1].
 //
+// 'areCusps' is set to true if the chop point occurred at a cusp (within tolerance), or if the chop
+// point(s) occurred at 180-degree turnaround points on a degenerate flat line.
+//
+// If 'T' is null, then this method returns -1 and writes out a value to 'areCusps' indicating
+// whether the chop point(s) would have been cusps.
 int findCubicConvex180Chops(const SkPoint[], float T[2], bool* areCusps = nullptr);
 
 }  // namespace GrPathUtils
