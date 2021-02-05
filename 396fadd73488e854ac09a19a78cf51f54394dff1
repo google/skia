@@ -16,6 +16,24 @@
       "message": "Do we expect this to happen (often)? If it does, it only catches entire-variable self-assignment, not:\n\n  array[0] \u003d array[0];\n  struct.field \u003d struct.field;\n  vec.xy \u003d vec.xy;\n\nBut my gut feeling is that this might not be worth checking?",
       "revId": "396fadd73488e854ac09a19a78cf51f54394dff1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ad0ad53_1b7e20bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-05T19:54:58Z",
+      "side": 1,
+      "message": "Came here to say this. Does this actually catch anything?",
+      "parentUuid": "a7127ed0_ba755d47",
+      "revId": "396fadd73488e854ac09a19a78cf51f54394dff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
