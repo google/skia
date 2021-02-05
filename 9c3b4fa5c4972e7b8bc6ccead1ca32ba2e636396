@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a5c39f7_6326aba0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T14:32:03Z",
+      "side": 1,
+      "message": "Okay things should be fixed now with latest update. The missing Invalidate was in the GrVkTransferBuffer\u0027s header file and I just didn\u0027t look closely in the header and mostly just ported things from the cpp...",
+      "revId": "9c3b4fa5c4972e7b8bc6ccead1ca32ba2e636396",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
