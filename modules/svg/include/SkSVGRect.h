@@ -17,15 +17,15 @@ class SkSVGRect final : public SkSVGShape {
 public:
     static sk_sp<SkSVGRect> Make() { return sk_sp<SkSVGRect>(new SkSVGRect()); }
 
-    void setX(const SkSVGLength&);
-    void setY(const SkSVGLength&);
-    void setWidth(const SkSVGLength&);
-    void setHeight(const SkSVGLength&);
-    void setRx(const SkSVGLength&);
-    void setRy(const SkSVGLength&);
+    SVG_ATTR(X     , SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Y     , SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Width , SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Height, SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Rx    , SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Ry    , SkSVGLength, SkSVGLength(0))
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    bool parseAndSetAttribute(const char*, const char*) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPathFillType) const override;
@@ -38,16 +38,6 @@ private:
     SkSVGRect();
 
     SkRRect resolve(const SkSVGLengthContext&) const;
-
-    SkSVGLength fX      = SkSVGLength(0);
-    SkSVGLength fY      = SkSVGLength(0);
-    SkSVGLength fWidth  = SkSVGLength(0);
-    SkSVGLength fHeight = SkSVGLength(0);
-
-    // The x radius for rounded rects.
-    SkSVGLength fRx     = SkSVGLength(0);
-    // The y radius for rounded rects.
-    SkSVGLength fRy     = SkSVGLength(0);
 
     using INHERITED = SkSVGShape;
 };

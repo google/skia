@@ -12,47 +12,12 @@
 
 SkSVGEllipse::SkSVGEllipse() : INHERITED(SkSVGTag::kEllipse) {}
 
-void SkSVGEllipse::setCx(const SkSVGLength& cx) {
-    fCx = cx;
-}
-
-void SkSVGEllipse::setCy(const SkSVGLength& cy) {
-    fCy = cy;
-}
-
-void SkSVGEllipse::setRx(const SkSVGLength& rx) {
-    fRx = rx;
-}
-
-void SkSVGEllipse::setRy(const SkSVGLength& ry) {
-    fRy = ry;
-}
-
-void SkSVGEllipse::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kCx:
-        if (const auto* cx = v.as<SkSVGLengthValue>()) {
-            this->setCx(*cx);
-        }
-        break;
-    case SkSVGAttribute::kCy:
-        if (const auto* cy = v.as<SkSVGLengthValue>()) {
-            this->setCy(*cy);
-        }
-        break;
-    case SkSVGAttribute::kRx:
-        if (const auto* rx = v.as<SkSVGLengthValue>()) {
-            this->setRx(*rx);
-        }
-        break;
-    case SkSVGAttribute::kRy:
-        if (const auto* ry = v.as<SkSVGLengthValue>()) {
-            this->setRy(*ry);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGEllipse::parseAndSetAttribute(const char* n, const char* v) {
+    return INHERITED::parseAndSetAttribute(n, v) ||
+           this->setCx(SkSVGAttributeParser::parse<SkSVGLength>("cx", n, v)) ||
+           this->setCy(SkSVGAttributeParser::parse<SkSVGLength>("cy", n, v)) ||
+           this->setRx(SkSVGAttributeParser::parse<SkSVGLength>("rx", n, v)) ||
+           this->setRy(SkSVGAttributeParser::parse<SkSVGLength>("ry", n, v));
 }
 
 SkRect SkSVGEllipse::resolve(const SkSVGLengthContext& lctx) const {

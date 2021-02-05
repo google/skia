@@ -17,13 +17,13 @@ class SkSVGEllipse final : public SkSVGShape {
 public:
     static sk_sp<SkSVGEllipse> Make() { return sk_sp<SkSVGEllipse>(new SkSVGEllipse()); }
 
-    void setCx(const SkSVGLength&);
-    void setCy(const SkSVGLength&);
-    void setRx(const SkSVGLength&);
-    void setRy(const SkSVGLength&);
+    SVG_ATTR(Cx, SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Cy, SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Rx, SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Ry, SkSVGLength, SkSVGLength(0))
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    bool parseAndSetAttribute(const char*, const char*) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPathFillType) const override;
@@ -34,11 +34,6 @@ private:
     SkSVGEllipse();
 
     SkRect resolve(const SkSVGLengthContext&) const;
-
-    SkSVGLength fCx = SkSVGLength(0);
-    SkSVGLength fCy = SkSVGLength(0);
-    SkSVGLength fRx = SkSVGLength(0);
-    SkSVGLength fRy = SkSVGLength(0);
 
     using INHERITED = SkSVGShape;
 };

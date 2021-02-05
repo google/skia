@@ -13,65 +13,14 @@
 
 SkSVGRect::SkSVGRect() : INHERITED(SkSVGTag::kRect) {}
 
-void SkSVGRect::setX(const SkSVGLength& x) {
-    fX = x;
-}
-
-void SkSVGRect::setY(const SkSVGLength& y) {
-    fY = y;
-}
-
-void SkSVGRect::setWidth(const SkSVGLength& w) {
-    fWidth = w;
-}
-
-void SkSVGRect::setHeight(const SkSVGLength& h) {
-    fHeight = h;
-}
-
-void SkSVGRect::setRx(const SkSVGLength& rx) {
-    fRx = rx;
-}
-
-void SkSVGRect::setRy(const SkSVGLength& ry) {
-    fRy = ry;
-}
-
-void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kX:
-        if (const auto* x = v.as<SkSVGLengthValue>()) {
-            this->setX(*x);
-        }
-        break;
-    case SkSVGAttribute::kY:
-        if (const auto* y = v.as<SkSVGLengthValue>()) {
-            this->setY(*y);
-        }
-        break;
-    case SkSVGAttribute::kWidth:
-        if (const auto* w = v.as<SkSVGLengthValue>()) {
-            this->setWidth(*w);
-        }
-        break;
-    case SkSVGAttribute::kHeight:
-        if (const auto* h = v.as<SkSVGLengthValue>()) {
-            this->setHeight(*h);
-        }
-        break;
-    case SkSVGAttribute::kRx:
-        if (const auto* rx = v.as<SkSVGLengthValue>()) {
-            this->setRx(*rx);
-        }
-        break;
-    case SkSVGAttribute::kRy:
-        if (const auto* ry = v.as<SkSVGLengthValue>()) {
-            this->setRy(*ry);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGRect::parseAndSetAttribute(const char* n, const char* v) {
+    return INHERITED::parseAndSetAttribute(n, v) ||
+           this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", n, v)) ||
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", n, v)) ||
+           this->setWidth(SkSVGAttributeParser::parse<SkSVGLength>("width", n, v)) ||
+           this->setHeight(SkSVGAttributeParser::parse<SkSVGLength>("height", n, v)) ||
+           this->setRx(SkSVGAttributeParser::parse<SkSVGLength>("rx", n, v)) ||
+           this->setRy(SkSVGAttributeParser::parse<SkSVGLength>("ry", n, v));
 }
 
 SkRRect SkSVGRect::resolve(const SkSVGLengthContext& lctx) const {
