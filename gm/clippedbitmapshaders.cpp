@@ -92,7 +92,7 @@ protected:
         s.postTranslate(SLIDE_SIZE / 2, SLIDE_SIZE / 2);
         SkPaint paint;
         paint.setShader(bmp.makeShader(fMode, fMode,
-                                       fHQ ? SkSamplingOptions({1.0f/3, 1.0f/3})
+                                       fHQ ? SkSamplingOptions(SkCubicResampler::Mitchell())
                                            : SkSamplingOptions(),
                                        s));
 

@@ -49,7 +49,7 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
         SkSamplingOptions(SkFilterMode::kNearest),
         SkSamplingOptions(SkFilterMode::kLinear),
         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
-        SkSamplingOptions({1.0f/3, 1.0f/3}),
+        SkSamplingOptions(SkCubicResampler::Mitchell()),
     };
 
     canvas->translate(20, 20);

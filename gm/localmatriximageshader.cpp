@@ -71,7 +71,8 @@ DEF_SIMPLE_GM(localmatriximageshader_filtering, canvas, 256, 256) {
     auto image = GetResourceAsImage("images/mandrill_256.png");
     SkPaint p;
     SkMatrix m = SkMatrix::Scale(2, 2);
-    p.setShader(image->makeShader(SkSamplingOptions({1.0f/3, 1.0f/3}))->makeWithLocalMatrix(m));
+    p.setShader(image->makeShader(SkSamplingOptions(SkCubicResampler::Mitchell()))
+                ->makeWithLocalMatrix(m));
 
     canvas->drawRect(SkRect::MakeXYWH(0, 0, 256, 256), p);
 }

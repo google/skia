@@ -246,7 +246,7 @@ protected:
 
         const SkSamplingOptions none(SkFilterMode::kNearest);
         const SkSamplingOptions  low(SkFilterMode::kLinear);
-        const SkSamplingOptions high({1.0f/3, 1.0f/3});
+        const SkSamplingOptions high(SkCubicResampler::Mitchell());
 
         SkScalar maxX = 0;
         for (bool antiAlias : {false, true}) {

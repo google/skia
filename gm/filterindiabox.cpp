@@ -41,7 +41,7 @@ static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, 
     draw_cell(canvas, bm, mat, 1 * dx, SkSamplingOptions(SkFilterMode::kLinear));
     draw_cell(canvas, bm, mat, 2 * dx, SkSamplingOptions(SkFilterMode::kLinear,
                                                          SkMipmapMode::kLinear));
-    draw_cell(canvas, bm, mat, 3 * dx, SkSamplingOptions({1.0f/3, 1.0f/3}));
+    draw_cell(canvas, bm, mat, 3 * dx, SkSamplingOptions(SkCubicResampler::Mitchell()));
 }
 
 class FilterIndiaBoxGM : public skiagm::GM {

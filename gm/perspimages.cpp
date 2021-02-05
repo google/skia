@@ -82,7 +82,7 @@ protected:
                         SkSamplingOptions(SkFilterMode::kNearest),
                         SkSamplingOptions(SkFilterMode::kLinear),
                         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
-                        SkSamplingOptions({1.0f/3, 1.0f/3})}) {
+                        SkSamplingOptions(SkCubicResampler::Mitchell())}) {
                         for (const auto& img : fImages) {
                             canvas->save();
                             canvas->concat(m);

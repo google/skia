@@ -96,7 +96,8 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
         SkMatrix matrix;
         SkSimpleMatrixProvider matrixProvider(matrix);
         GrColorInfo colorInfo;
-        GrFPArgs args(ctx, matrixProvider, SkSamplingOptions({1.0f/3, 1.0f/3}), &colorInfo);
+        GrFPArgs args(ctx, matrixProvider, SkSamplingOptions(SkCubicResampler::Mitchell()),
+                      &colorInfo);
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
         draw(std::move(gradientFP), -128, 256, 256, 0);
     }

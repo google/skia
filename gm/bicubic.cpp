@@ -34,8 +34,8 @@ DEF_SIMPLE_GM(bicubic, canvas, 300, 320) {
     SkPaint paint;
 
     SkImage::CubicResampler cubics[] = {
-        {      0, 1.0f/2 },
-        { 1.0f/3, 1.0f/3 },
+        SkCubicResampler::CatmullRom(),
+        SkCubicResampler::Mitchell(),
     };
     for (auto c : cubics) {
         paint.setShader(img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,

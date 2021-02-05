@@ -270,7 +270,7 @@ private:
         int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions.width(),
                                                        levelDimensions.height()) + 1;
 
-        SkSamplingOptions sampling({1.0f/3, 1.0f/3});
+        SkSamplingOptions sampling(SkCubicResampler::Mitchell());
 
         bool isCompressed = false;
         if (image->isTextureBacked()) {
