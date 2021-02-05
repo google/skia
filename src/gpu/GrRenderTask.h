@@ -35,7 +35,7 @@ public:
     void prePrepare(GrRecordingContext* context) { this->onPrePrepare(context); }
 
     // These two methods are only invoked at flush time
-    void prepare(GrOpFlushState* flushState);
+    void prepare(GrOpFlushState* flushState) { this->onPrepare(flushState); }
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
     virtual bool requiresExplicitCleanup() const { return false; }
@@ -133,8 +133,6 @@ public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrRenderTask);
 
 protected:
-    SkDEBUGCODE(bool deferredProxiesAreInstantiated() const;)
-
     // Add a target surface proxy to the list of targets for this task.
     // This also informs the drawing manager to update the lastRenderTask association.
     void addTarget(GrDrawingManager*, sk_sp<GrSurfaceProxy>);
@@ -157,11 +155,6 @@ protected:
     virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
     SkSTArray<1, sk_sp<GrSurfaceProxy>> fTargets;
-
-    // List of texture proxies whose contents are being prepared on a worker thread
-    // TODO: this list exists so we can fire off the proper upload when an renderTask begins
-    // executing. Can this be replaced?
-    SkTArray<GrTextureProxy*, true> fDeferredProxies;
 
     enum Flags {
         kClosed_Flag    = 0x01,   //!< This task can't accept any more dependencies.
