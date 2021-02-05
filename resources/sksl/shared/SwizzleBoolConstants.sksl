@@ -1,6 +1,8 @@
+uniform half4 colorGreen, colorRed;
 
-void main() {
-    bool4 v = bool4(sqrt(1) == 1);
+half4 main() {
+    bool4 v = bool4(colorGreen.g);
+
     bool4 result;
     result = bool4(v.x, true, true, true);
     result = bool4(v.xy, false, true);
@@ -28,5 +30,5 @@ void main() {
     result = v.00zw;
     result = v.00z1;
     result = v.011w;
-    sk_FragColor = any(result) ? half4(1) : half4(0);
+    return any(result) ? colorGreen : colorRed;
 }

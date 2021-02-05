@@ -1,0 +1,13 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    float result = 0;
+    float3x3 g = float3x3(float2x3(1));           result += g[0][0];
+    float3x3 h = float3x3(float3x2(1));           result += h[0][0];
+    float4x4 i = float4x4(float4x3(float4x2(1))); result += i[0][0];
+    float4x4 j = float4x4(float3x4(float2x4(1))); result += j[0][0];
+    float2x4 k = float2x4(float4x2(1));           result += k[0][0];
+    float4x2 l = float4x2(float2x4(1));           result += l[0][0];
+
+    return result == 6 ? colorGreen : colorRed;
+}
