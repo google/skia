@@ -8,6 +8,9 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 #include "fuzz/Fuzz.h"
 
@@ -24,8 +27,20 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
         return false;
     }
 
-    SkSL::PipelineStage::Args args;
-    SkSL::PipelineStage::ConvertProgram(*program, &args);
+    auto declareUniformFn = [](const SkSL::VarDeclaration* decl) -> SkSL::String {
+        return decl->var().name();
+    };
+    auto sampleChildFn = [](int childIndex, SkSL::String coordsOrMatrix) {
+        return SkSL::String::printf("sample(%d%s%s)", childIndex,
+                                    coordsOrMatrix.empty() ? "" : ", ", coordsOrMatrix.c_str());
+    };
+    auto defineFunctionFn = [](const SkSL::FunctionDeclaration* fn,
+                               SkSL::String body) -> SkSL::String {
+        return fn->name();
+    };
+
+    SkSL::PipelineStage::ConvertProgram(
+            *program, "coords", declareUniformFn, defineFunctionFn, sampleChildFn, sampleChildFn);
     return true;
 }
 
