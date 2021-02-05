@@ -54,9 +54,24 @@ DSLVar sk_FragColor();
 DSLVar sk_FragCoord();
 
 /**
+ * break;
+ */
+DSLStatement Break();
+
+/**
+ * continue;
+ */
+DSLStatement Continue();
+
+/**
  * Creates a variable declaration statement with an initial value.
  */
 DSLStatement Declare(DSLVar& var, DSLExpression initialValue = DSLExpression());
+
+/**
+ * discard;
+ */
+DSLStatement Discard();
 
 /**
  * do stmt; while (test);
