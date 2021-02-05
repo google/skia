@@ -19,7 +19,9 @@ bool SkSVGImage::parseAndSetAttribute(const char* n, const char* v) {
            this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", n, v)) ||
            this->setWidth(SkSVGAttributeParser::parse<SkSVGLength>("width", n, v)) ||
            this->setHeight(SkSVGAttributeParser::parse<SkSVGLength>("height", n, v)) ||
-           this->setHref(SkSVGAttributeParser::parse<SkSVGIRI>("xlink:href", n, v));
+           this->setHref(SkSVGAttributeParser::parse<SkSVGIRI>("xlink:href", n, v)) ||
+           this->setPreserveAspectRatio(SkSVGAttributeParser::parse<SkSVGPreserveAspectRatio>(
+                   "preserveAspectRatio", n, v));
 }
 
 bool SkSVGImage::onPrepareToRender(SkSVGRenderContext* ctx) const {
@@ -52,6 +54,12 @@ static sk_sp<SkImage> LoadImage(const sk_sp<skresources::ResourceProvider>& rp,
     return imageAsset ? imageAsset->getFrameData(0).image : nullptr;
 }
 
+SkRect SkSVGImage::resolveImageRect(const SkRect& viewBox, const SkRect& viewPort) const {
+    const SkMatrix m = ComputeViewboxMatrix(viewBox, viewPort, fPreserveAspectRatio);
+    // Map and place at x, y specified by image attributes
+    return m.mapRect(viewBox).makeOffset(viewPort.fLeft, viewPort.fTop);
+}
+
 void SkSVGImage::onRender(const SkSVGRenderContext& ctx) const {
     const auto& rp = ctx.resourceProvider();
     SkASSERT(rp);
@@ -63,10 +71,15 @@ void SkSVGImage::onRender(const SkSVGRenderContext& ctx) const {
         return;
     }
 
-    // TODO: preserveAspectRatio support
+    // Per spec: x, w, width, height attributes establish the new viewport.
     const SkSVGLengthContext& lctx = ctx.lengthContext();
-    const SkRect rect = lctx.resolveRect(fX, fY, fWidth, fHeight);
-    ctx.canvas()->drawImageRect(image, rect, SkSamplingOptions(SkFilterMode::kLinear));
+    const SkRect viewPort = lctx.resolveRect(fX, fY, fWidth, fHeight);
+    // Per spec: raster content has implicit viewbox of '0 0 width height'.
+    const SkRect viewBox = SkRect::Make(image->bounds());
+
+    ctx.canvas()->drawImageRect(image,
+                                this->resolveImageRect(viewBox, viewPort),
+                                SkSamplingOptions(SkFilterMode::kLinear));
 }
 
 SkPath SkSVGImage::onAsPath(const SkSVGRenderContext&) const { return {}; }

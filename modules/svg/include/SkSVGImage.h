@@ -26,17 +26,20 @@ public:
     SkPath onAsPath(const SkSVGRenderContext&) const override;
     SkRect onObjectBoundingBox(const SkSVGRenderContext&) const override;
 
-    SVG_ATTR(X     , SkSVGLength, SkSVGLength(0))
-    SVG_ATTR(Y     , SkSVGLength, SkSVGLength(0))
-    SVG_ATTR(Width , SkSVGLength, SkSVGLength(0))
-    SVG_ATTR(Height, SkSVGLength, SkSVGLength(0))
-    SVG_ATTR(Href  , SkSVGIRI   , SkSVGIRI())
+    SVG_ATTR(X                  , SkSVGLength             , SkSVGLength(0))
+    SVG_ATTR(Y                  , SkSVGLength             , SkSVGLength(0))
+    SVG_ATTR(Width              , SkSVGLength             , SkSVGLength(0))
+    SVG_ATTR(Height             , SkSVGLength             , SkSVGLength(0))
+    SVG_ATTR(Href               , SkSVGIRI                , SkSVGIRI())
+    SVG_ATTR(PreserveAspectRatio, SkSVGPreserveAspectRatio, SkSVGPreserveAspectRatio())
 
 protected:
     bool parseAndSetAttribute(const char*, const char*) override;
 
 private:
     SkSVGImage() : INHERITED(SkSVGTag::kImage) {}
+
+    SkRect resolveImageRect(const SkRect&, const SkRect&) const;
 
     using INHERITED = SkSVGTransformableNode;
 };

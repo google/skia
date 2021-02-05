@@ -916,6 +916,11 @@ bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* pa
     return parsedValue && this->parseEOSToken();
 }
 
+template <>
+bool SkSVGAttributeParser::parse(SkSVGPreserveAspectRatio* par) {
+    return this->parsePreserveAspectRatio(par);
+}
+
 // https://www.w3.org/TR/SVG11/types.html#DataTypeCoordinates
 template <typename T>
 bool SkSVGAttributeParser::parseList(std::vector<T>* vals) {
