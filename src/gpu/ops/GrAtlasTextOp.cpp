@@ -470,11 +470,11 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
             rtc->surfaceProps(),
             rContext->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
-    if (!blob->subRunList().head()) {
+    if (blob->subRunList().isEmpty()) {
         return nullptr;
     }
 
-    GrAtlasSubRun* subRun = blob->subRunList().head()->testingOnly_atlasSubRun();
+    GrAtlasSubRun* subRun = blob->subRunList().front().testingOnly_atlasSubRun();
     SkASSERT(subRun);
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);

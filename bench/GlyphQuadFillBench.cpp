@@ -57,15 +57,15 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
                     glyphRun, view, drawOrigin, drawPaint, props, false, options, fBlob.get());
         }
 
-        SkASSERT(fBlob->subRunList().head() != nullptr);
-        GrAtlasSubRun* subRun = fBlob->subRunList().head()->testingOnly_atlasSubRun();
+        SkASSERT(!fBlob->subRunList().isEmpty());
+        GrAtlasSubRun* subRun = fBlob->subRunList().front().testingOnly_atlasSubRun();
         SkASSERT(subRun);
         subRun->testingOnly_packedGlyphIDToGrGlyph(&fCache);
         fVertices.reset(new char[subRun->vertexStride(view) * subRun->glyphCount() * 4]);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        GrAtlasSubRun* subRun = fBlob->subRunList().head()->testingOnly_atlasSubRun();
+        GrAtlasSubRun* subRun = fBlob->subRunList().front().testingOnly_atlasSubRun();
         SkASSERT(subRun);
 
         SkIRect clip = SkIRect::MakeEmpty();

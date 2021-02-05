@@ -1429,8 +1429,8 @@ bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
         return false;
     }
 
-    for (GrSubRun* subRun : this->subRunList()) {
-        if (!subRun->canReuse(paint, drawMatrix)) {
+    for (GrSubRun& subRun : this->fSubRunList) {
+        if (!subRun.canReuse(paint, drawMatrix)) {
             return false;
         }
     }
@@ -1451,7 +1451,7 @@ void GrTextBlob::addMultiMaskFormat(
     auto addSameFormat = [&](const SkZip<SkGlyphVariant, SkPoint>& drawable, GrMaskFormat format) {
         GrSubRun* subRun = addSingle(drawable, strikeSpec, format, this, &fAlloc);
         if (subRun != nullptr) {
-            this->insertSubRun(subRun);
+            fSubRunList.append(subRun);
         } else {
             fSomeGlyphsExcluded = true;
         }
@@ -1483,10 +1483,6 @@ GrTextBlob::GrTextBlob(size_t allocSize,
         , fInitialLuminance{initialLuminance}
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
 
-void GrTextBlob::insertSubRun(GrSubRun* subRun) {
-    fSubRunList.addToTail(subRun);
-}
-
 void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) {
 
@@ -1501,7 +1497,7 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
                                         strikeSpec,
                                         *this,
                                         &fAlloc);
-    this->insertSubRun(subRun);
+    fSubRunList.append(subRun);
 }
 
 void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -1511,7 +1507,7 @@ void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                                    SkScalar maxScale) {
     this->setMinAndMaxScale(minScale, maxScale);
     GrSubRun* subRun = SDFTSubRun::Make(drawables, runFont, strikeSpec, this, &fAlloc);
-    this->insertSubRun(subRun);
+    fSubRunList.append(subRun);
 }
 
 void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
