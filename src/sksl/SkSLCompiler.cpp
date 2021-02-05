@@ -18,7 +18,6 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLMetalCodeGenerator.h"
 #include "src/sksl/SkSLOperators.h"
-#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLSPIRVCodeGenerator.h"
 #include "src/sksl/SkSLSPIRVtoHLSL.h"
@@ -2005,19 +2004,6 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
 #endif // defined(SKSL_STANDALONE) || GR_TEST_UTILS
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
-    AutoSource as(this, program.fSource.get());
-    StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outArgs);
-    bool result = cg.generateCode();
-    if (result) {
-        outArgs->fCode = buffer.str();
-    }
-    return result;
-}
-#endif
 
 Position Compiler::position(int offset) {
     if (fSource && offset >= 0) {

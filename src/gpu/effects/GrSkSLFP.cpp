@@ -12,6 +12,7 @@
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrTexture.h"
+#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/SkSLUtil.h"
 
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
@@ -20,36 +21,37 @@
 
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(SkSL::PipelineStageArgs&& args) : fArgs(std::move(args)) {}
+    GrGLSLSkSLFP(SkSL::PipelineStage::Args&& args) : fArgs(std::move(args)) {}
 
-    SkSL::String expandFormatArgs(const SkSL::String& raw,
-                                  EmitArgs& args,
-                                  const char* sampleCoords,
-                                  std::vector<SkSL::Compiler::FormatArg>::const_iterator& fmtArg) {
+    SkSL::String expandFormatArgs(
+            const SkSL::String& raw,
+            EmitArgs& args,
+            const char* sampleCoords,
+            std::vector<SkSL::PipelineStage::FormatArg>::const_iterator& fmtArg) {
         SkSL::String result;
         int substringStartIndex = 0;
         for (size_t i = 0; i < raw.length(); ++i) {
             char c = raw[i];
-            if (c == SkSL::Compiler::kFormatArgPlaceholder) {
+            if (c == SkSL::PipelineStage::kFormatArgPlaceholder) {
                 result += SkSL::StringFragment(raw.c_str() + substringStartIndex,
                                                i - substringStartIndex);
-                const SkSL::Compiler::FormatArg& arg = *fmtArg++;
+                const SkSL::PipelineStage::FormatArg& arg = *fmtArg++;
                 switch (arg.fKind) {
-                    case SkSL::Compiler::FormatArg::Kind::kCoords:
+                    case SkSL::PipelineStage::FormatArg::Kind::kCoords:
                         // See note about helper functions in emitCode
                         SkASSERT(sampleCoords);
                         result += sampleCoords ? sampleCoords : "float2(0)";
                         break;
-                    case SkSL::Compiler::FormatArg::Kind::kUniform:
+                    case SkSL::PipelineStage::FormatArg::Kind::kUniform:
                         result += args.fUniformHandler->getUniformCStr(fUniformHandles[arg.fIndex]);
                         break;
-                    case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
+                    case SkSL::PipelineStage::FormatArg::Kind::kChildProcessor: {
                         SkSL::String coords =
                                 this->expandFormatArgs(arg.fCoords, args, sampleCoords, fmtArg);
                         result += this->invokeChild(arg.fIndex, args, coords).c_str();
                         break;
                     }
-                    case SkSL::Compiler::FormatArg::Kind::kChildProcessorWithMatrix: {
+                    case SkSL::PipelineStage::FormatArg::Kind::kChildProcessorWithMatrix: {
                         const auto& fp(args.fFp.cast<GrSkSLFP>());
                         const auto& sampleUsages(fp.fEffect->fSampleUsages);
 
@@ -64,7 +66,7 @@ public:
                                           .c_str();
                         break;
                     }
-                    case SkSL::Compiler::FormatArg::Kind::kFunctionName:
+                    case SkSL::PipelineStage::FormatArg::Kind::kFunctionName:
                         SkASSERT((int) fFunctionNames.size() > arg.fIndex);
                         result += fFunctionNames[arg.fIndex].c_str();
                         break;
@@ -156,10 +158,9 @@ public:
         }
     }
 
-    // nearly-finished GLSL; still contains printf-style "%s" format tokens
-    SkSL::PipelineStageArgs fArgs;
+    SkSL::PipelineStage::Args  fArgs;
     std::vector<UniformHandle> fUniformHandles;
-    std::vector<SkString> fFunctionNames;
+    std::vector<SkString>      fFunctionNames;
 };
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,
@@ -208,8 +209,8 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     // Note: This is actually SkSL (again) but with inline format specifiers.
-    SkSL::PipelineStageArgs args;
-    SkAssertResult(fEffect->toPipelineStage(fShaderErrorHandler, &args));
+    SkSL::PipelineStage::Args args;
+    SkSL::PipelineStage::ConvertProgram(*fEffect->fBaseProgram, &args);
     return new GrGLSLSkSLFP(std::move(args));
 }
 
