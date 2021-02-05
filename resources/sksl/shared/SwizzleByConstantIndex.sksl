@@ -1,0 +1,27 @@
+uniform half4 testInputs, colorGreen, colorRed;
+
+half4 constant_swizzle() {
+    half4 v = testInputs;
+    half x = v[0];
+    half y = v[1];
+    half z = v[2];
+    half w = v[3];
+    return half4(x, y, z, w); // -1.25, 0, 0.75, 2.25
+}
+
+half4 foldable() {
+    half4 v = half4(0, 1, 2, 3);
+    half x = v[0];
+    half y = v[1];
+    half z = v[2];
+    half w = v[3];
+    return half4(x, y, z, w); // 0, 1, 2, 3
+}
+
+half4 main() {
+    half4 a = constant_swizzle();
+    half4 b = foldable();
+
+    return a == half4(-1.25, 0, 0.75, 2.25)   &&
+           b == half4(0, 1, 2, 3)             ? colorGreen : colorRed;
+}

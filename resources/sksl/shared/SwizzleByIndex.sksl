@@ -1,33 +1,15 @@
-void non_constant_swizzle() {
-    int4 i = int4(int(sqrt(1)));
-    half4 v = half4(half(sqrt(1)));
+uniform half4 testInputs, colorBlack, colorGreen, colorRed;
+
+half4 non_constant_swizzle() {
+    half4 v = half4(testInputs);
+    int4 i = int4(colorBlack);
     half x = v[i[0]];
     half y = v[i[1]];
     half z = v[i[2]];
     half w = v[i[3]];
-    sk_FragColor = half4(x, y, z, w);
+    return half4(x, y, z, w); // -1.25, -1.25, -1.25, 0
 }
 
-void constant_swizzle() {
-    half4 v = half4(half(sqrt(1)));
-    half x = v[0];
-    half y = v[1];
-    half z = v[2];
-    half w = v[3];
-    sk_FragColor = half4(x, y, z, w);
-}
-
-void foldable() {
-    half4 v = half4(2);
-    half x = v[0];
-    half y = v[1];
-    half z = v[2];
-    half w = v[3];
-    sk_FragColor = half4(x, y, z, w);
-}
-
-void main() {
-    non_constant_swizzle();
-    constant_swizzle();
-    foldable();
+half4 main() {
+    return non_constant_swizzle() == half4(-1.25, -1.25, -1.25, 0) ? colorGreen : colorRed;
 }
