@@ -26,9 +26,7 @@ class SkShader;
 
 namespace SkSL {
 class FunctionDefinition;
-struct PipelineStageArgs;
 struct Program;
-class SharedCompiler;
 }  // namespace SkSL
 
 /*
@@ -164,11 +162,8 @@ private:
     bool usesSampleCoords() const { return fUsesSampleCoords; }
 
 #if SK_SUPPORT_GPU
-    friend class GrSkSLFP;      // toPipelineStage
-    friend class GrGLSLSkSLFP;  // fSampleUsages
-
-    bool toPipelineStage(GrContextOptions::ShaderErrorHandler* errorHandler,
-                         SkSL::PipelineStageArgs* outArgs);
+    friend class GrSkSLFP;      // fBaseProgram, fSampleUsages
+    friend class GrGLSLSkSLFP;  //
 #endif
 
     friend class SkRTShader;            // fBaseProgram, fMain

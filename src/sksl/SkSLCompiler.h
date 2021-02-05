@@ -52,7 +52,6 @@ class ExternalFunction;
 class FunctionDeclaration;
 class IRGenerator;
 class IRIntrinsicMap;
-struct PipelineStageArgs;
 class ProgramUsage;
 
 struct LoadedModule {
@@ -87,31 +86,6 @@ public:
         kPermitInvalidStaticTests_Flag = 1,
     };
 
-    // An invalid (otherwise unused) character to mark where FormatArgs are inserted
-    static constexpr       char  kFormatArgPlaceholder    = '\001';
-    static constexpr const char* kFormatArgPlaceholderStr = "\001";
-
-    struct FormatArg {
-        enum class Kind {
-            kCoords,
-            kUniform,
-            kChildProcessor,
-            kChildProcessorWithMatrix,
-            kFunctionName
-        };
-
-        FormatArg(Kind kind)
-                : fKind(kind) {}
-
-        FormatArg(Kind kind, int index)
-                : fKind(kind)
-                , fIndex(index) {}
-
-        Kind fKind;
-        int fIndex;
-        String fCoords;
-    };
-
     struct OptimizationContext {
         // nodes we have already reported errors for and should not error on again
         std::unordered_set<const IRNode*> fSilences;
@@ -124,17 +98,6 @@ public:
         // Nodes which we can't throw away until the end of optimization
         StatementArray fOwnedStatements;
     };
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    /**
-     * Represents the arguments to GrGLSLShaderBuilder::emitFunction.
-     */
-    struct GLSLFunction {
-        const FunctionDeclaration* fDecl;
-        String fBody;
-        std::vector<Compiler::FormatArg> fFormatArgs;
-    };
-#endif
 
     Compiler(const ShaderCapsClass* caps, Flags flags = kNone_Flags);
 
@@ -171,10 +134,6 @@ public:
     bool toCPP(Program& program, String name, OutputStream& out);
 
     bool toH(Program& program, String name, OutputStream& out);
-#endif
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    bool toPipelineStage(Program& program, PipelineStageArgs* outArgs);
 #endif
 
     void error(int offset, String msg) override;
@@ -300,14 +259,6 @@ private:
     friend class ::SkSLCompileBench;
     friend class dsl::DSLWriter;
 };
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-struct PipelineStageArgs {
-    String fCode;
-    std::vector<Compiler::FormatArg>    fFormatArgs;
-    std::vector<Compiler::GLSLFunction> fFunctions;
-};
-#endif
 
 }  // namespace SkSL
 

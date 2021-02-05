@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 
 #include "fuzz/Fuzz.h"
 
@@ -19,10 +20,12 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
                                                     settings);
-    SkSL::PipelineStageArgs args;
-    if (!program || !compiler.toPipelineStage(*program, &args)) {
+    if (!program) {
         return false;
     }
+
+    SkSL::PipelineStage::Args args;
+    SkSL::PipelineStage::ConvertProgram(*program, &args);
     return true;
 }
 

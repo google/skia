@@ -315,20 +315,6 @@ int SkRuntimeEffect::findChild(const char* name) const {
     return iter == fChildren.end() ? -1 : static_cast<int>(iter - fChildren.begin());
 }
 
-#if SK_SUPPORT_GPU
-bool SkRuntimeEffect::toPipelineStage(GrContextOptions::ShaderErrorHandler* errorHandler,
-                                      SkSL::PipelineStageArgs* outArgs) {
-    SkSL::SharedCompiler compiler;
-
-    if (!compiler->toPipelineStage(*fBaseProgram, outArgs)) {
-        errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
-        return false;
-    }
-
-    return true;
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
