@@ -16,11 +16,11 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
     int i = 0;
     while (i < 10) {
-        _out.sk_FragColor *= 0.5;
+        _out.sk_FragColor = _out.sk_FragColor * 0.5;
         i++;
     }
     do {
-        _out.sk_FragColor += 0.25;
+        _out.sk_FragColor = _out.sk_FragColor + 0.25;
     } while (_out.sk_FragColor.x < 0.75);
     for (int i = 0;i < 10; i++) {
         if (i % 2 == 1) break; else if (i > 100) return _out; else continue;

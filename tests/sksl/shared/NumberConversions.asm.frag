@@ -126,7 +126,7 @@ OpDecorate %198 RelaxedPrecision
 OpDecorate %200 RelaxedPrecision
 OpDecorate %201 RelaxedPrecision
 OpDecorate %203 RelaxedPrecision
-OpDecorate %207 RelaxedPrecision
+OpDecorate %206 RelaxedPrecision
 OpDecorate %208 RelaxedPrecision
 OpDecorate %210 RelaxedPrecision
 OpDecorate %212 RelaxedPrecision
@@ -396,8 +396,8 @@ OpStore %b2f %133
 %203 = OpFAdd %float %200 %202
 %204 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %204 %203
-%206 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-%207 = OpLoad %float %206
+%206 = OpLoad %v4float %sk_FragColor
+%207 = OpCompositeExtract %float %206 0
 %208 = OpLoad %uint %ui2us
 %209 = OpConvertUToF %float %208
 %210 = OpLoad %uint %h2us
@@ -445,6 +445,7 @@ OpStore %204 %203
 %252 = OpLoad %float %b2f
 %253 = OpFAdd %float %251 %252
 %254 = OpFAdd %float %207 %253
-OpStore %206 %254
+%255 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %255 %254
 OpReturn
 OpFunctionEnd

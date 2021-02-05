@@ -1987,6 +1987,31 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     return this->convertBinaryExpression(std::move(left), op, std::move(right));
 }
 
+// FIXME FIXME FIXME: STOLEN FROM INLINER
+std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
+                                                VariableReference::RefKind refKind) {
+    std::unique_ptr<Expression> clone = expr.clone();
+    class SetRefKindInExpression : public ProgramWriter {
+    public:
+        SetRefKindInExpression(VariableReference::RefKind refKind) : fRefKind(refKind) {}
+        bool visitExpression(Expression& expr) override {
+            if (expr.is<VariableReference>()) {
+                expr.as<VariableReference>().setRefKind(fRefKind);
+            }
+            return INHERITED::visitExpression(expr);
+        }
+
+    private:
+        VariableReference::RefKind fRefKind;
+
+        using INHERITED = ProgramWriter;
+    };
+
+    SetRefKindInExpression{refKind}.visitExpression(*clone);
+    return clone;
+}
+
+
 std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                                                                 std::unique_ptr<Expression> left,
                                                                 Token::Kind op,
@@ -2038,12 +2063,37 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
-    std::unique_ptr<Expression> result = ConstantFolder::Simplify(fContext, *left, op, *right);
-    if (!result) {
-        result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
-                                                    resultType);
+
+    // If the expression can be simplified by the constant-folder, do that.
+    if (std::unique_ptr<Expression> fold = ConstantFolder::Simplify(fContext, *left, op, *right)) {
+        return fold;
     }
-    return result;
+
+    // We expand `x *= y` to `x = x * y` at IR generation time to simplify future constant folding.
+    // (It's easier to constant-fold `x = x + 2` into `x = 4` because `x + 2` is separable.)
+    // We collapse it later.
+    if (!this->strictES2Mode() &&
+        isAssignment && op != Token::Kind::TK_EQ &&
+        Analysis::IsTrivialExpression(*left)) {
+        // Synthesize `x * y` from `x *= y`.
+        std::unique_ptr<Expression> readLeft = clone_with_ref_kind(*left, VariableRefKind::kRead);
+        auto binaryOp = std::make_unique<BinaryExpression>(right->fOffset,
+                                                           std::move(readLeft),
+                                                           Compiler::RemoveAssignment(op),
+                                                           std::move(right),
+                                                           resultType);
+
+        // Synthesize `x = (x * y)`.`
+        return std::make_unique<BinaryExpression>(offset,
+                                                  std::move(left),
+                                                  Token::Kind::TK_EQ,
+                                                  std::move(binaryOp),
+                                                  resultType);
+    }
+
+    // Emit the binary expression as it we found it.
+    return std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
+                                              resultType);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(

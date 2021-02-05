@@ -35,10 +35,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
 
     (b = _uniforms.colorRed , c = _uniforms.colorGreen);
     a = (    _skOutParamHelper0_setToColorBlack(_uniforms, d) , _uniforms.colorWhite);
-    a *= a;
-    b *= b;
-    c *= c;
-    d *= d;
+    a = a * a;
+    b = b * b;
+    c = c * c;
+    d = d * d;
     _out.sk_FragColor = ((all(a == _uniforms.colorWhite) && all(b == _uniforms.colorRed)) && all(c == _uniforms.colorGreen)) && all(d == _uniforms.colorBlack) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

@@ -33,7 +33,7 @@ half3 p = hsl.xxx + half3(0.0, 0.66666668653488159, 0.3333333432674408);
 half3 q = clamp(abs(fract(p) * 6.0 - 3.0) - 1.0, 0.0, 1.0);
 half3 rgb = (q - 0.5) * C + hsl.z;
 color = clamp(half4(rgb, color.w), 0.0, 1.0);
-color.xyz *= color.w;
+color.xyz = color.xyz * color.w;
 return color;
 )SkSL",
                 _sample0.c_str());
