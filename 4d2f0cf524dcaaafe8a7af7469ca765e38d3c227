@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ff45e09_9736c9f4",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T18:08:29Z",
+      "side": 1,
+      "message": "what if we just had an uploadUniform call that handled both pushConstant and buffer case. In the pushConstant case this function could return [nullptr, true] and I think the following code would all just work. This would allow us to not need the public usePushConstants() query on the data manager.",
+      "range": {
+        "startLine": 91,
+        "startChar": 53,
+        "endLine": 91,
+        "endChar": 73
+      },
+      "revId": "4d2f0cf524dcaaafe8a7af7469ca765e38d3c227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2524540_982e788b",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T18:08:29Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 98,
+        "startChar": 100,
+        "endLine": 98,
+        "endChar": 102
+      },
+      "revId": "4d2f0cf524dcaaafe8a7af7469ca765e38d3c227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e242428_86ee1137",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T18:08:29Z",
+      "side": 1,
+      "message": "should we move all this down to the push constant stuff (or move that up here) so that it is all together?",
+      "range": {
+        "startLine": 196,
+        "startChar": 4,
+        "endLine": 202,
+        "endChar": 44
+      },
+      "revId": "4d2f0cf524dcaaafe8a7af7469ca765e38d3c227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e6532d8_4ab9d372",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T18:08:29Z",
+      "side": 1,
+      "message": "in the uniform handler determineIfUsePushContants it says we \"may\" not know if we need the RTHeight Uniform or not. Is there still a decision done in SKSL whether it is needed or is it passed on this fFlipY setting here? If it is this setting it seems like we do know since we\u0027re telling it what to do. If the SkSL compiler still gets to pick how does it notify us at this level so that we have the right size of the pushContants in the layoutCreateInfo?",
+      "range": {
+        "startLine": 218,
+        "startChar": 22,
+        "endLine": 218,
+        "endChar": 48
+      },
+      "revId": "4d2f0cf524dcaaafe8a7af7469ca765e38d3c227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b172005_65fe37da",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T18:08:29Z",
+      "side": 1,
+      "message": "do we need to return the bool here? We have fUsePushContants",
+      "range": {
+        "startLine": 358,
+        "startChar": 4,
+        "endLine": 358,
+        "endChar": 28
+      },
+      "revId": "4d2f0cf524dcaaafe8a7af7469ca765e38d3c227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "990567a6_02d28b62",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-05T18:08:29Z",
+      "side": 1,
+      "message": "What if this was:\n\nLayout layout \u003d fUsePushContants ? kStd430Layout : kStd140Layout;\nuniformString.appdedf(\"layout(offset\u003d%d) \", localUniform.fOffsets[layout]);",
+      "range": {
+        "startLine": 363,
+        "startChar": 16,
+        "endLine": 369,
+        "endChar": 17
+      },
+      "revId": "4d2f0cf524dcaaafe8a7af7469ca765e38d3c227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
