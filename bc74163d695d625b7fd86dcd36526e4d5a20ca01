@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecff0591_a4938063",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:55:14Z",
+      "side": 1,
+      "message": "Can we remove the checks in ConstantFolder?",
+      "revId": "bc74163d695d625b7fd86dcd36526e4d5a20ca01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0f4ae0f_5324cdd9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2018,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:55:14Z",
+      "side": 1,
+      "message": "tiny nit: blank line",
+      "range": {
+        "startLine": 2018,
+        "startChar": 0,
+        "endLine": 2018,
+        "endChar": 0
+      },
+      "revId": "bc74163d695d625b7fd86dcd36526e4d5a20ca01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea3ae8ac_ad159b95",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:55:14Z",
+      "side": 1,
+      "message": "Intended for this different CL?",
+      "range": {
+        "startLine": 77,
+        "startChar": 3,
+        "endLine": 80,
+        "endChar": 5
+      },
+      "revId": "bc74163d695d625b7fd86dcd36526e4d5a20ca01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
