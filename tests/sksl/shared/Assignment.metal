@@ -27,8 +27,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     array<float4, 1> af4;
     af4[0].x = 0.0;
     af4[0].ywxz = float4(1.0);
+    ai[0] += ai4[0].x;
+    af4[0] *= ah2x4[0][0].x;
     i4.y = i4.y * 0;
     x.y = x.y * 0.0;
-    _out.sk_FragColor = ((((ai , ai4) , ah2x4) , af4) , _uniforms.colorGreen);
+    _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 }
