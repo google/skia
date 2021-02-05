@@ -23,10 +23,11 @@ GrPathIndirectTessellator::GrPathIndirectTessellator(const SkMatrix& viewMatrix,
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         int level;
         switch (verb) {
-            case SkPathVerb::kConic:
-                // We use the same quadratic formula for conics, ignoring w. This appears to be
-                // an upper bound on what the actual number of subdivisions would have been.
-                [[fallthrough]];
+            case SkPathVerb::kConic: {
+                const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / *w), pts[2]};
+                level = GrWangsFormula::conic_log2(kLinearizationTolerance, projPts, *w, xform);
+                break;
+            }
             case SkPathVerb::kQuad:
                 level = GrWangsFormula::quadratic_log2(kLinearizationIntolerance, pts, xform);
                 break;
@@ -173,10 +174,11 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
             switch (verb) {
                 default:
                     continue;
-                case SkPathVerb::kConic:
-                    // We use the same quadratic formula for conics, ignoring w. This appears to be
-                    // an upper bound on what the actual number of subdivisions would have been.
-                    [[fallthrough]];
+                case SkPathVerb::kConic: {
+                    const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / *w), pts[2]};
+                    level = GrWangsFormula::conic_log2(kLinearizationTolerance, projPts, *w, xform);
+                    break;
+                }
                 case SkPathVerb::kQuad:
                     level = GrWangsFormula::quadratic_log2(kLinearizationIntolerance, pts, xform);
                     break;

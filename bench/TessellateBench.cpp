@@ -157,7 +157,8 @@ static void benchmark_wangs_formula_conic(const SkMatrix& matrix, const SkPath& 
     GrVectorXform xform(matrix);
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         if (verb == SkPathVerb::kConic) {
-            sum += GrWangsFormula::conic(kTolerance, pts, *w, xform);
+            const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / *w), pts[2]};
+            sum += GrWangsFormula::conic(kTolerance, projPts, *w, xform);
         }
     }
     // Don't let the compiler optimize away GrWangsFormula::conic.
@@ -173,7 +174,8 @@ static void benchmark_wangs_formula_conic_log2(const SkMatrix& matrix, const SkP
     GrVectorXform xform(matrix);
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         if (verb == SkPathVerb::kConic) {
-            sum += GrWangsFormula::conic_log2(kTolerance, pts, *w, xform);
+            const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / *w), pts[2]};
+            sum += GrWangsFormula::conic_log2(kTolerance, projPts, *w, xform);
         }
     }
     // Don't let the compiler optimize away GrWangsFormula::conic.
