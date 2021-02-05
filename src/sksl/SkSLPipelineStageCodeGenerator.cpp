@@ -33,13 +33,24 @@
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 namespace SkSL {
+namespace PipelineStage {
 
 class PipelineStageCodeGenerator {
 public:
-    PipelineStageCodeGenerator(const Program& program, PipelineStage::Args* outArgs)
-            : fProgram(program), fArgs(outArgs) {}
+    PipelineStageCodeGenerator(const Program& program,
+                               const char* sampleCoords,
+                               UniformNameFn uniformName,
+                               FunctionNameFn functionName,
+                               SampleChildFn sampleChild,
+                               SampleChildFn sampleChildWithMatrix)
+            : fProgram(program)
+            , fSampleCoords(sampleCoords)
+            , fUniformName(std::move(uniformName))
+            , fFunctionName(std::move(functionName))
+            , fSampleChild(std::move(sampleChild))
+            , fSampleChildWithMatrix(std::move(sampleChildWithMatrix)) {}
 
-    void generateCode();
+    String generateCode(const FunctionDefinition&);
 
 private:
     using Precedence = Operators::Precedence;
@@ -50,9 +61,6 @@ private:
     void write(StringFragment s);
 
     void writeType(const Type& type);
-
-    void writeFunctionDeclaration(const FunctionDeclaration& f);
-    void writeFunction(const FunctionDefinition& f);
 
     void writeModifiers(const Modifiers& modifiers);
 
@@ -76,8 +84,6 @@ private:
     void writeForStatement(const ForStatement& f);
     void writeReturnStatement(const ReturnStatement& r);
 
-    void writeProgramElement(const ProgramElement& e);
-
     struct AutoOutputBuffer {
         AutoOutputBuffer(PipelineStageCodeGenerator* generator) : fGenerator(generator) {
             fOldBuffer = fGenerator->fBuffer;
@@ -94,8 +100,12 @@ private:
     };
 
     const Program&       fProgram;
-    PipelineStage::Args* fArgs;
-    StringStream*        fBuffer;
+    const char*          fSampleCoords;
+    UniformNameFn        fUniformName;
+    FunctionNameFn       fFunctionName;
+    SampleChildFn        fSampleChild;
+    SampleChildFn        fSampleChildWithMatrix;
+    StringStream*        fBuffer = nullptr;
     bool                 fCastReturnsToHalf = false;
 };
 
@@ -121,11 +131,9 @@ void PipelineStageCodeGenerator::write(StringFragment s) {
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
-    if (function.isBuiltin() && function.name() == "sample" &&
-        arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
+    if (function.isBuiltin() && function.name() == "sample") {
         SkASSERT(arguments.size() <= 2);
-        SkDEBUGCODE(const Type& arg0Type = arguments[0]->type());
-        SkASSERT("fragmentProcessor"  == arg0Type.name());
+        SkASSERT("fragmentProcessor" == arguments[0]->type().name());
         SkASSERT(arguments[0]->is<VariableReference>());
         int index = 0;
         bool found = false;
@@ -144,100 +152,81 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
         }
         SkASSERT(found);
-        size_t childCallIndex = fArgs->fFormatArgs.size();
-        this->write(PipelineStage::kFormatArgPlaceholderStr);
-        bool matrixCall = arguments.size() == 2 && arguments[1]->type().isMatrix();
-        fArgs->fFormatArgs.push_back(PipelineStage::FormatArg(
-                matrixCall ? PipelineStage::FormatArg::Kind::kChildProcessorWithMatrix
-                           : PipelineStage::FormatArg::Kind::kChildProcessor,
-                index));
+
+        String coordsOrMatrix;
         if (arguments.size() > 1) {
             AutoOutputBuffer outputToBuffer(this);
             this->writeExpression(*arguments[1], Precedence::kSequence);
-            fArgs->fFormatArgs[childCallIndex].fCoords = outputToBuffer.fBuffer.str();
+            coordsOrMatrix = outputToBuffer.fBuffer.str();
+        }
+
+        bool matrixCall = arguments.size() == 2 && arguments[1]->type().isMatrix();
+        if (matrixCall) {
+            this->write(fSampleChildWithMatrix(index, std::move(coordsOrMatrix)));
+        } else {
+            this->write(fSampleChild(index, std::move(coordsOrMatrix)));
         }
         return;
     }
+
     if (function.isBuiltin()) {
         this->write(function.name());
-        this->write("(");
-        const char* separator = "";
-        for (const auto& arg : arguments) {
-            this->write(separator);
-            separator = ", ";
-            this->writeExpression(*arg, Precedence::kSequence);
-        }
-        this->write(")");
     } else {
-        int index = 0;
-        for (const ProgramElement* e : fProgram.elements()) {
-            if (e->is<FunctionDefinition>()) {
-                if (&e->as<FunctionDefinition>().declaration() == &function) {
-                    break;
-                }
-                ++index;
-            }
-        }
-        this->write(PipelineStage::kFormatArgPlaceholderStr);
-        fArgs->fFormatArgs.push_back(
-                PipelineStage::FormatArg(PipelineStage::FormatArg::Kind::kFunctionName, index));
-        this->write("(");
-        const char* separator = "";
-        for (const std::unique_ptr<Expression>& arg : arguments) {
-            this->write(separator);
-            separator = ", ";
-            this->writeExpression(*arg, Precedence::kSequence);
-        }
-        this->write(")");
+        this->write(fFunctionName(&function));
     }
+
+    this->write("(");
+    const char* separator = "";
+    for (const auto& arg : arguments) {
+        this->write(separator);
+        separator = ", ";
+        this->writeExpression(*arg, Precedence::kSequence);
+    }
+    this->write(")");
 }
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.variable()->modifiers().fLayout.fBuiltin) {
-        case SK_MAIN_COORDS_BUILTIN:
-            this->write(PipelineStage::kFormatArgPlaceholderStr);
-            fArgs->fFormatArgs.push_back(
-                    PipelineStage::FormatArg(PipelineStage::FormatArg::Kind::kCoords));
-            break;
-        default: {
-            auto varIndexByFlag = [this, &ref](uint32_t flag) {
-                int index = 0;
-                bool found = false;
-                for (const ProgramElement* e : fProgram.elements()) {
-                    if (found) {
-                        break;
-                    }
-                    if (e->is<GlobalVarDeclaration>()) {
-                        const GlobalVarDeclaration& global = e->as<GlobalVarDeclaration>();
-                        const Variable& var = global.declaration()->as<VarDeclaration>().var();
-                        if (&var == ref.variable()) {
-                            found = true;
-                            break;
-                        }
-                        // Skip over fragmentProcessors (shaders).
-                        // These are indexed separately from other globals.
-                        if (var.modifiers().fFlags & flag &&
-                            var.type() != *fProgram.fContext->fTypes.fFragmentProcessor) {
-                            ++index;
-                        }
-                    }
-                }
-                SkASSERT(found);
-                return index;
-            };
+    const Variable* var = ref.variable();
+    const Modifiers& modifiers = var->modifiers();
 
-            if (ref.variable()->modifiers().fFlags & Modifiers::kUniform_Flag) {
-                this->write(PipelineStage::kFormatArgPlaceholderStr);
-                fArgs->fFormatArgs.push_back(
-                        PipelineStage::FormatArg(PipelineStage::FormatArg::Kind::kUniform,
-                                                 varIndexByFlag(Modifiers::kUniform_Flag)));
-            } else if (ref.variable()->modifiers().fFlags & Modifiers::kVarying_Flag) {
-                this->write("_vtx_attr_");
-                this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
-            } else {
-                this->write(ref.variable()->name());
+    if (modifiers.fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
+        this->write(fSampleCoords);
+        return;
+    }
+
+    auto varIndexByFlag = [this, &ref](uint32_t flag) {
+        int index = 0;
+        bool found = false;
+        for (const ProgramElement* e : fProgram.elements()) {
+            if (found) {
+                break;
+            }
+            if (e->is<GlobalVarDeclaration>()) {
+                const GlobalVarDeclaration& global = e->as<GlobalVarDeclaration>();
+                const Variable& var = global.declaration()->as<VarDeclaration>().var();
+                if (&var == ref.variable()) {
+                    found = true;
+                    break;
+                }
+                // Skip over fragmentProcessors (shaders).
+                // These are indexed separately from other globals.
+                if (var.modifiers().fFlags & flag &&
+                    var.type() != *fProgram.fContext->fTypes.fFragmentProcessor) {
+                    ++index;
+                }
             }
         }
+        SkASSERT(found);
+        return index;
+    };
+
+    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+        this->write(fUniformName(var));
+    } else if (modifiers.fFlags & Modifiers::kVarying_Flag) {
+        this->write("_vtx_attr_");
+        this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
+    } else {
+        this->write(var->name());
     }
 }
 
@@ -268,63 +257,6 @@ void PipelineStageCodeGenerator::writeReturnStatement(const ReturnStatement& r) 
         }
     }
     this->write(";");
-}
-
-void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    PipelineStage::Function result;
-    if (f.declaration().name() == "main") {
-        // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
-        // our code in the processor, the surrounding code is going to expect half4, so we
-        // explicitly cast any returns (from main) to half4. This is only strictly necessary
-        // if the return type is float4 - injecting it unconditionally reduces the risk of an
-        // obscure bug.
-        fCastReturnsToHalf = true;
-        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
-        }
-        fCastReturnsToHalf = false;
-    } else {
-        AutoOutputBuffer outputToBuffer(this);
-        result.fDecl = &f.declaration();
-        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
-        }
-
-        result.fBody = outputToBuffer.fBuffer.str();
-        result.fFormatArgs = std::move(fArgs->fFormatArgs);
-        fArgs->fFunctions.push_back(std::move(result));
-    }
-}
-
-void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& e) {
-    switch (e.kind()) {
-        case ProgramElement::Kind::kGlobalVar:
-            // All global variables are manually re-declared by the FP
-            break;
-        case ProgramElement::Kind::kFunction:
-            this->writeFunction(e.as<FunctionDefinition>());
-            break;
-        case ProgramElement::Kind::kFunctionPrototype:
-            // Runtime effects don't allow calls to undefined functions, so prototypes are never
-            // necessary. If we do support them, they should emit calls to emitFunctionPrototype.
-            break;
-        case ProgramElement::Kind::kModifiers: {
-            const Modifiers& modifiers = e.as<ModifiersDeclaration>().modifiers();
-            this->writeModifiers(modifiers);
-            this->writeLine(";");
-            break;
-        }
-        case ProgramElement::Kind::kEnum:
-        case ProgramElement::Kind::kExtension:
-        case ProgramElement::Kind::kInterfaceBlock:
-        case ProgramElement::Kind::kSection:
-        case ProgramElement::Kind::kStructDefinition:
-        default:
-            SkDEBUGFAILF("unsupported program element %s\n", e.description().c_str());
-            break;
-    }
 }
 
 void PipelineStageCodeGenerator::writeType(const Type& type) {
@@ -473,33 +405,6 @@ void PipelineStageCodeGenerator::writePostfixExpression(const PostfixExpression&
     }
 }
 
-void PipelineStageCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    this->writeType(f.returnType());
-    this->write(" " + f.name() + "(");
-    const char* separator = "";
-    for (const auto& param : f.parameters()) {
-        this->write(separator);
-        separator = ", ";
-        this->writeModifiers(param->modifiers());
-        std::vector<int> sizes;
-        const Type* type = &param->type();
-        if (type->isArray()) {
-            sizes.push_back(type->columns());
-            type = &type->componentType();
-        }
-        this->writeType(*type);
-        this->write(" " + param->name());
-        for (int s : sizes) {
-            if (s == Type::kUnsizedArray) {
-                this->write("[]");
-            } else {
-                this->write("[" + to_string(s) + "]");
-            }
-        }
-    }
-    this->write(")");
-}
-
 void PipelineStageCodeGenerator::writeModifiers(const Modifiers& modifiers) {
     if (modifiers.fFlags & Modifiers::kFlat_Flag) {
         this->write("flat ");
@@ -646,35 +551,46 @@ void PipelineStageCodeGenerator::writeForStatement(const ForStatement& f) {
     this->writeStatement(*f.statement());
 }
 
-void PipelineStageCodeGenerator::generateCode() {
-    StringStream mainBody;
-    fBuffer = &mainBody;
+String PipelineStageCodeGenerator::generateCode(const FunctionDefinition& f) {
+    AutoOutputBuffer body(this);
 
-    // Write all the program elements except for functions.
-    for (const ProgramElement* e : fProgram.elements()) {
-        if (!e->is<FunctionDefinition>()) {
-            this->writeProgramElement(*e);
-        }
+    // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
+    // our code in the processor, the surrounding code is going to expect half4, so we
+    // explicitly cast any returns (from main) to half4. This is only strictly necessary
+    // if the return type is float4 - injecting it unconditionally reduces the risk of an
+    // obscure bug.
+    bool isMain = f.declaration().name() == "main";
+
+    if (isMain) {
+        fCastReturnsToHalf = true;
     }
 
-    // Write the functions last.
-    // Why don't we write things in their original order? Because the Inliner likes to move function
-    // bodies around. After inlining, code can inadvertently move upwards, above ProgramElements
-    // that the code relies on.
-    for (const ProgramElement* e : fProgram.elements()) {
-        if (e->is<FunctionDefinition>()) {
-            this->writeProgramElement(*e);
-        }
+    for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
+        this->writeStatement(*stmt);
+        this->writeLine();
     }
 
-    fArgs->fCode = mainBody.str();
+    if (isMain) {
+        fCastReturnsToHalf = false;
+    }
+
+    return body.fBuffer.str();
 }
 
-void PipelineStage::ConvertProgram(const Program& program, Args* outArgs) {
-    PipelineStageCodeGenerator generator(program, outArgs);
-    generator.generateCode();
+String ConvertFunction(const Program& program,
+                       const FunctionDefinition& function,
+                       const char* sampleCoords,
+                       UniformNameFn uniformName,
+                       FunctionNameFn functionName,
+                       SampleChildFn sampleChild,
+                       SampleChildFn sampleChildWithMatrix) {
+    PipelineStageCodeGenerator generator(program, sampleCoords, std::move(uniformName),
+                                         std::move(functionName), std::move(sampleChild),
+                                         std::move(sampleChildWithMatrix));
+    return generator.generateCode(function);
 }
 
+}  // namespace PipelineStage
 }  // namespace SkSL
 
 #endif

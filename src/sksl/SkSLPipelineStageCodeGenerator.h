@@ -10,54 +10,31 @@
 
 #include "src/sksl/SkSLString.h"
 
-#include <vector>
+#include <functional>
 
+// TODO: This can now be used in SKSL_STANDALONE, with shim code for all of the callbacks.
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 namespace SkSL {
 
 class FunctionDeclaration;
+class FunctionDefinition;
 struct Program;
+class Variable;
 
-class PipelineStage {
-public:
-    // An invalid (otherwise unused) character to mark where FormatArgs are inserted
-    static constexpr       char  kFormatArgPlaceholder    = '\001';
-    static constexpr const char* kFormatArgPlaceholderStr = "\001";
+namespace PipelineStage {
+    using UniformNameFn  = std::function<String(const Variable*)>;
+    using FunctionNameFn = std::function<String(const FunctionDeclaration*)>;
+    using SampleChildFn  = std::function<String(int /*index*/, String /*coords -or- matrix*/)>;
 
-    struct FormatArg {
-        enum class Kind {
-            kCoords,
-            kUniform,
-            kChildProcessor,
-            kChildProcessorWithMatrix,
-            kFunctionName
-        };
-
-        FormatArg(Kind kind, int index = 0) : fKind(kind), fIndex(index) {}
-
-        Kind   fKind;
-        int    fIndex;
-        String fCoords;
-    };
-
-    /**
-     * Represents the arguments to GrGLSLShaderBuilder::emitFunction.
-     */
-    struct Function {
-        const FunctionDeclaration* fDecl;
-        String                     fBody;
-        std::vector<FormatArg>     fFormatArgs;
-    };
-
-    struct Args {
-        String                 fCode;
-        std::vector<FormatArg> fFormatArgs;
-        std::vector<Function>  fFunctions;
-    };
-
-    static void ConvertProgram(const Program& program, Args* outArgs);
-};
+    String ConvertFunction(const Program& program,
+                           const FunctionDefinition& function,
+                           const char* sampleCoords,
+                           UniformNameFn uniformName,
+                           FunctionNameFn functionName,
+                           SampleChildFn sampleChild,
+                           SampleChildFn sampleChildWithMatrix);
+}  // namespace PipelineStage
 
 }  // namespace SkSL
 
