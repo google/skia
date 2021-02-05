@@ -633,6 +633,15 @@ typedef struct {
     sk_mask_format_t  fFormat;
 } sk_mask_t;
 
+typedef struct {
+    bool      fAvoidStencilBuffers;
+    int       fRuntimeProgramCacheSize;
+    size_t    fGlyphCacheTextureMaximumBytes;
+    bool      fAllowPathMaskCaching;
+    bool      fDoManualMipmapping;
+    int       fBufferMapThreshold;
+} gr_context_options_t;
+
 typedef intptr_t gr_backendobject_t;
 
 typedef struct gr_backendrendertarget_t gr_backendrendertarget_t;

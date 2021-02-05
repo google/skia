@@ -17,12 +17,39 @@ gr_direct_context_t* gr_direct_context_make_gl(const gr_glinterface_t* glInterfa
     return SK_ONLY_GPU(ToGrDirectContext(GrDirectContext::MakeGL(sk_ref_sp(AsGrGLInterface(glInterface))).release()), nullptr);
 }
 
+gr_direct_context_t* gr_direct_context_make_gl_with_options(const gr_glinterface_t* glInterface, const gr_context_options_t* options) {
+    SK_ONLY_GPU(
+        GrContextOptions opts;
+        if (options) {
+            opts = AsGrContextOptions(options);
+        });
+    return SK_ONLY_GPU(ToGrDirectContext(GrDirectContext::MakeGL(sk_ref_sp(AsGrGLInterface(glInterface)), opts).release()), nullptr);
+}
+
 gr_direct_context_t* gr_direct_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext) {
     return SK_ONLY_VULKAN(ToGrDirectContext(GrDirectContext::MakeVulkan(AsGrVkBackendContext(&vkBackendContext)).release()), nullptr);
 }
 
+gr_direct_context_t* gr_direct_context_make_vulkan_with_options(const gr_vk_backendcontext_t vkBackendContext, const gr_context_options_t* options) {
+    SK_ONLY_VULKAN(
+        GrContextOptions opts;
+        if (options) {
+            opts = AsGrContextOptions(options);
+        });
+    return SK_ONLY_VULKAN(ToGrDirectContext(GrDirectContext::MakeVulkan(AsGrVkBackendContext(&vkBackendContext), opts).release()), nullptr);
+}
+
 gr_direct_context_t* gr_direct_context_make_metal(void* device, void* queue) {
     return SK_ONLY_METAL(ToGrDirectContext(GrDirectContext::MakeMetal(device, queue).release()), nullptr);
+}
+
+gr_direct_context_t* gr_direct_context_make_metal_with_options(void* device, void* queue, const gr_context_options_t* options) {
+    SK_ONLY_METAL(
+        GrContextOptions opts;
+        if (options) {
+            opts = AsGrContextOptions(options);
+        });
+    return SK_ONLY_METAL(ToGrDirectContext(GrDirectContext::MakeMetal(device, queue, opts).release()), nullptr);
 }
 
 void gr_direct_context_unref(gr_direct_context_t* context) {
