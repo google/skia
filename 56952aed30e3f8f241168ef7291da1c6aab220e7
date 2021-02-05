@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6985d7fd_dd98767b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-05T21:50:53Z",
+      "side": 1,
+      "message": "This fixes the error from this morning from the \"don\u0027t simplify stencil\" patch:\n\nstart angle_gl_es3 gm  srcmode\n../../../../../../skia/src/gpu/tessellate/GrStrokeTessellateOp.cpp(143): fatal error: \"assert(fNeedsStencil)\"",
+      "revId": "56952aed30e3f8f241168ef7291da1c6aab220e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
