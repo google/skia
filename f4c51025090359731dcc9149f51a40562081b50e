@@ -188,6 +188,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ac7dc63_d37ed0c1",
+        "filename": "src/sksl/SkSLOperators.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T14:46:28Z",
+      "side": 1,
+      "message": "(TBH I also find the // fallthrough comments between consecutive cases kind of silly. That\u0027s like C 101, we don\u0027t need to be told :) But that\u0027s just my opinion.)",
+      "parentUuid": "2d042de3_5637dc6c",
+      "range": {
+        "startLine": 16,
+        "startChar": 43,
+        "endLine": 16,
+        "endChar": 59
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f27905c9_266dddf4",
