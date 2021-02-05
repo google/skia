@@ -1438,6 +1438,21 @@ bool IRGenerator::getConstantInt(const Expression& value, SKSL_INT* out) {
     }
 }
 
+bool IRGenerator::getConstantFloat(const Expression& value, SKSL_FLOAT* out) {
+    switch (value.kind()) {
+        case Expression::Kind::kFloatLiteral:
+            *out = value.as<FloatLiteral>().value();
+            return true;
+        case Expression::Kind::kVariableReference: {
+            const Variable& var = *value.as<VariableReference>().variable();
+            return (var.modifiers().fFlags & Modifiers::kConst_Flag) &&
+                   var.initialValue() && this->getConstantFloat(*var.initialValue(), out);
+        }
+        default:
+            return false;
+    }
+}
+
 void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
     StatementArray decls = this->convertVarDeclarations(decl, Variable::Storage::kGlobal);
     for (std::unique_ptr<Statement>& stmt : decls) {
@@ -1987,6 +2002,37 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     return this->convertBinaryExpression(std::move(left), op, std::move(right));
 }
 
+bool IRGenerator::containsConstantZero(Expression& expr) {
+    if (expr.is<Constructor>()) {
+        for (const auto& arg : expr.as<Constructor>().arguments()) {
+            if (this->containsConstantZero(*arg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    SKSL_INT intValue;
+    SKSL_FLOAT floatValue;
+    return (this->getConstantInt(expr, &intValue) && intValue == 0) ||
+           (this->getConstantFloat(expr, &floatValue) && floatValue == 0.0f);
+
+}
+
+void IRGenerator::checkForDivideByZero(Token::Kind op, Expression& right) {
+    switch (op) {
+        case Token::Kind::TK_SLASH:
+        case Token::Kind::TK_SLASHEQ:
+        case Token::Kind::TK_PERCENT:
+        case Token::Kind::TK_PERCENTEQ:
+            if (this->containsConstantZero(right)) {
+                this->errorReporter().error(right.fOffset, "division by zero");
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                                                                 std::unique_ptr<Expression> left,
                                                                 Token::Kind op,
@@ -2038,8 +2084,10 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
+    int oldErrorCount = this->errorReporter().errorCount();
     std::unique_ptr<Expression> result = ConstantFolder::Simplify(fContext, *left, op, *right);
-    if (!result) {
+    if (!result && this->errorReporter().errorCount() == oldErrorCount) {
+        this->checkForDivideByZero(op, *right);
         result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
                                                     resultType);
     }
