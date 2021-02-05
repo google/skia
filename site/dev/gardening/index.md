@@ -40,7 +40,8 @@ Below is a brief summary of what the gardener does for each task:
 
 <a name="triage"></a>
 ### Triage
-You should triage bugs that show up under "Untriaged Bugs" on the [status page](https://status.skia.org).
+You should triage Chromium and Skia bugs that show up under "Untriaged Bugs" on the [status page](https://status.skia.org).
+The Android Gardener will triage the untriaged Android Bugs.
 For a more detailed view of bugs see [Skia Bugs Central](https://bugs-central.skia.org/).
 
 <a name="blamer"></a>
