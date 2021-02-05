@@ -898,6 +898,46 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     REPORTER_ASSERT(r, whitespace_insensitive_compare(y, "{ int a = 1; int b = 2; (a = b); }"));
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Var i(kInt, "i");
+    DSLFunction(kVoid, "success").define(
+        For(Declare(i, 0), i < 10, ++i, Block(
+            If(i > 5, Break())
+        ))
+    );
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(*DSLWriter::ProgramElements()[0],
+            "void success() { for (int i = 0; (i < 10); ++i) { if ((i > 5)) break; } }"));
+
+    {
+        ExpectError error(r, "error: break statement must be inside a loop or switch\n");
+        DSLFunction(kVoid, "fail").define(
+            Break()
+        );
+    }
+}
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Var i(kInt, "i");
+    DSLFunction(kVoid, "success").define(
+        For(Declare(i, 0), i < 10, ++i, Block(
+            If(i < 5, Continue())
+        ))
+    );
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(*DSLWriter::ProgramElements()[0],
+            "void success() { for (int i = 0; (i < 10); ++i) { if ((i < 5)) continue; } }"));
+
+    {
+        ExpectError error(r, "error: continue statement must be inside a loop\n");
+        DSLFunction(kVoid, "fail").define(
+            Continue()
+        );
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kHalf4, "a"), b(kHalf4, "b");
@@ -911,6 +951,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
         ExpectError error(r, "error: expected 'half4', but found 'int'\n");
         Declare(c, 1).release();
     }
+}
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDiscard, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Statement x = If(Sqrt(1) > 0, Discard());
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(x, "if ((sqrt(1.0) > 0.0)) discard;"));
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {

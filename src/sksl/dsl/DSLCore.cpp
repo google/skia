@@ -10,6 +10,9 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLBreakStatement.h"
+#include "src/sksl/ir/SkSLContinueStatement.h"
+#include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
@@ -76,6 +79,14 @@ public:
         return ir.call(/*offset=*/-1, ir.convertIdentifier(-1, name), std::move(argArray));
     }
 
+    static DSLStatement Break() {
+        return std::unique_ptr<SkSL::Statement>(new SkSL::BreakStatement(/*offset=*/-1));
+    }
+
+    static DSLStatement Continue() {
+        return std::unique_ptr<SkSL::Statement>(new SkSL::ContinueStatement(/*offset=*/-1));
+    }
+
     static DSLStatement Declare(DSLVar& var, DSLExpression initialValue) {
         if (!var.fDeclaration) {
             DSLWriter::ReportError("Declare failed (was the variable already declared?)");
@@ -87,6 +98,10 @@ public:
             decl.fValue = std::move(expr);
         }
         return DSLStatement(std::move(var.fDeclaration));
+    }
+
+    static DSLStatement Discard() {
+        return std::unique_ptr<SkSL::Statement>(new SkSL::DiscardStatement(/*offset=*/-1));
     }
 
     static DSLStatement Do(DSLStatement stmt, DSLExpression test) {
@@ -161,8 +176,20 @@ DSLVar sk_FragCoord() {
     return DSLCore::sk_FragCoord();
 }
 
+DSLStatement Break() {
+    return DSLCore::Break();
+}
+
+DSLStatement Continue() {
+    return DSLCore::Continue();
+}
+
 DSLStatement Declare(DSLVar& var, DSLExpression initialValue) {
     return DSLCore::Declare(var, std::move(initialValue));
+}
+
+DSLStatement Discard() {
+    return DSLCore::Discard();
 }
 
 DSLStatement Do(DSLStatement stmt, DSLExpression test) {
