@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1ffcfba_a939466e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-05T18:34:08Z",
+      "side": 1,
+      "message": "Do you get what\u0027s going on with the diffs here?",
+      "revId": "665ab0e8c3ce6634294a23bed3609a00c8443102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
