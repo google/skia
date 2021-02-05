@@ -13,6 +13,10 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 
+#ifndef SK_SUPPORT_LEGACY_DRAWLOOPER
+#error "SkDrawLooper is unsupported"
+#endif
+
 /**
  *  DEPRECATED: No longer supported by Skia.
  */

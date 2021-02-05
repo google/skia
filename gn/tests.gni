@@ -147,7 +147,6 @@ tests_sources = [
   "$_tests/JSONTest.cpp",
   "$_tests/LListTest.cpp",
   "$_tests/LRUCacheTest.cpp",
-  "$_tests/LayerDrawLooperTest.cpp",
   "$_tests/LazyProxyTest.cpp",
   "$_tests/M44Test.cpp",
   "$_tests/MD5Test.cpp",

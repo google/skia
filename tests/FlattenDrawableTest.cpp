@@ -296,7 +296,6 @@ DEF_TEST(Flattenable_EmptyDeserialze, reporter) {
     test(SkShaderBase); // todo: make this just be shader!
     test(SkColorFilterBase);
     test(SkImageFilter);
-    test(SkDrawLooper);
     #undef test
 }
 
