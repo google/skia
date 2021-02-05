@@ -53,7 +53,7 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkLinearGradient::onMakeContext(
-    const ContextRec& rec, SkArenaAlloc* alloc) const
+    const ContextRec& rec, const SkMatrix&, SkArenaAlloc* alloc) const
 {
     // make sure our colorspaces are compatible with legacy blits
     if (!rec.isLegacyCompatible(fColorSpace.get())) {

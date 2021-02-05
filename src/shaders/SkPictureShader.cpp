@@ -337,8 +337,8 @@ skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
-const {
+SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, const SkMatrix&,
+                                                      SkArenaAlloc* alloc) const {
     auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
     sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorType,
                                                          rec.fDstColorSpace,

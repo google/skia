@@ -234,7 +234,7 @@ protected:
      * Specialize creating a SkShader context using the supplied allocator.
      * @return pointer to context owned by the arena allocator.
      */
-    virtual Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const {
+    virtual Context* onMakeContext(const ContextRec&, const SkMatrix&, SkArenaAlloc*) const {
         return nullptr;
     }
 #endif

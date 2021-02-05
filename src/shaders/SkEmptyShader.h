@@ -22,7 +22,7 @@ public:
 
 protected:
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override {
+    Context* onMakeContext(const ContextRec&, const SkMatrix&, SkArenaAlloc*) const override {
         return nullptr;
     }
 #endif

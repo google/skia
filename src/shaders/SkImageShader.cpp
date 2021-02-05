@@ -227,8 +227,8 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
     return true;
 }
 
-SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
-                                                    SkArenaAlloc* alloc) const {
+SkShaderBase::Context* SkImageShader::onMakeContext(
+        const ContextRec& rec, const SkMatrix& inv, SkArenaAlloc* alloc) const {
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
@@ -277,9 +277,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
-    SkMatrix inv;
-    if (!this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &inv) ||
-        !legacy_shader_can_handle(inv)) {
+    if (!legacy_shader_can_handle(inv)) {
         return nullptr;
     }
 
@@ -292,7 +290,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     modifiedRec.fPaintSampling = sampling;
 
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 as_IB(fImage.get()), modifiedRec, alloc);
+                                                 as_IB(fImage.get()), modifiedRec, inv, alloc);
 }
 #endif
 

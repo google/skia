@@ -51,7 +51,7 @@ protected:
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    Context* onMakeContext(const ContextRec&, const SkMatrix&, SkArenaAlloc*) const override;
 #endif
 
 private:

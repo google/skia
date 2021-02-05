@@ -41,7 +41,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    Context* onMakeContext(const ContextRec&, const SkMatrix&, SkArenaAlloc*) const override;
 #endif
 
     SkImage* onIsAImage(SkMatrix* matrix, SkTileMode* mode) const override;

@@ -41,7 +41,7 @@ void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
-    const ContextRec& rec, SkArenaAlloc* alloc) const
+    const ContextRec& rec, const SkMatrix&, SkArenaAlloc* alloc) const
 {
     SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
     if (rec.fLocalMatrix) {
@@ -140,7 +140,9 @@ protected:
     void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override { return nullptr; }
+    Context* onMakeContext(const ContextRec&, const SkMatrix&, SkArenaAlloc*) const override {
+        return nullptr;
+    }
 #endif
 
     bool onAppendStages(const SkStageRec& rec) const override {

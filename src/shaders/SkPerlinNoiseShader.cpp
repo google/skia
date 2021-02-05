@@ -314,7 +314,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    Context* onMakeContext(const ContextRec&, const SkMatrix&, SkArenaAlloc*) const override;
 #endif
 
 private:
@@ -528,6 +528,7 @@ SkPMColor SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shade(
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkPerlinNoiseShaderImpl::onMakeContext(const ContextRec& rec,
+                                                              const SkMatrix&,
                                                               SkArenaAlloc* alloc) const {
     // should we pay attention to rec's device-colorspace?
     return alloc->make<PerlinNoiseShaderContext>(*this, rec);
