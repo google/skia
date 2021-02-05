@@ -397,6 +397,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87b062bd_3d804d6e",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T15:47:53Z",
+      "side": 1,
+      "message": "The inliner can arbitrarily move around function bodies, including function calls, so we need to be careful. But I\u0027m unable to think of a counterexample where this can actually break if you disallow prototypes.",
+      "parentUuid": "66634231_3889c9ca",
+      "range": {
+        "startLine": 487,
+        "startChar": 7,
+        "endLine": 487,
+        "endChar": 32
+      },
+      "revId": "bfc23d6a6a17ba7b698ed4f7fefedb23e1dfba42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c2c98fc_36ab8875",
