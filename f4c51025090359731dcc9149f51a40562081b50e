@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90338ee0_425c3586",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:44:33Z",
+      "side": 1,
+      "message": "Ah, that was a breadcrumb for myself, to see if I could remove that include once I moved all the helpers out of compiler. Turns out I can.",
+      "parentUuid": "324ae71b_93888679",
+      "range": {
+        "startLine": 20,
+        "startChar": 35,
+        "endLine": 20,
+        "endChar": 38
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae50638d_b562ba85",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-04T22:46:20Z",
       "side": 1,
       "message": "Can we get away with `using Operators::Precedence`?\n\n(`using namespace` is forbidden in the Google style guide, which I know we don\u0027t rigorously follow but I like to try and stay on the straight and narrow where we can.)",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 25
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4aa16782_da44049c",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:44:33Z",
+      "side": 1,
+      "message": "Yeah, I was trying to be cautious here. Unfortunately, `using \u003cenum\u003e` imports the name of the enum, but *not* any values. So we\u0027d still need to prefix every kFoo_Precedence (or have a using statement per-value, which is probably worse than just being explicit everywhere).\n\nI\u0027ve changed things more dramatically, and I think the end result is much nicer:\n\n1) Made Precedence an enum class, and removed the _Precedence from each name accordingly.\n2) Added using Precedence \u003d Operators::Precedence to the class declarations.\n3) Instances of precedence values are only one char longer than before, and no `using namespace` needed.",
+      "parentUuid": "ae50638d_b562ba85",
       "range": {
         "startLine": 27,
         "startChar": 6,
@@ -116,6 +164,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d042de3_5637dc6c",
+        "filename": "src/sksl/SkSLOperators.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:44:33Z",
+      "side": 1,
+      "message": "Ah, I didn\u0027t realize that. These all had fallthrough comments before, and I figured I was making things better.",
+      "parentUuid": "83e4fdbd_f4b3e69c",
+      "range": {
+        "startLine": 16,
+        "startChar": 43,
+        "endLine": 16,
+        "endChar": 59
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f27905c9_266dddf4",
@@ -153,6 +225,30 @@
       "side": 1,
       "message": "Anyplace that stores *an operator as* a Token::Kind",
       "parentUuid": "f27905c9_266dddf4",
+      "range": {
+        "startLine": 9,
+        "startChar": 8,
+        "endLine": 9,
+        "endChar": 22
+      },
+      "revId": "f4c51025090359731dcc9149f51a40562081b50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ed5527c_14d016ce",
+        "filename": "src/sksl/SkSLOperators.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-05T14:44:33Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "86af3e08_92f9be67",
       "range": {
         "startLine": 9,
         "startChar": 8,
