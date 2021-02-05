@@ -1,0 +1,9 @@
+uniform float unknownInput;
+
+int getZero() { return 0; }
+
+void main() {
+    int inlineTest = 0 / getZero();
+    inlineTest = (int4(0) / getZero()).x;
+    inlineTest = int(unknownInput.x) / getZero();
+}

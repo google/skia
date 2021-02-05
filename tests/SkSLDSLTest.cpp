@@ -481,6 +481,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
         ExpectError error(r, "error: cannot assign to this expression\n");
         (1.0 /= a).release();
     }
+
+    {
+        ExpectError error(r, "error: division by zero\n");
+        (a /= 0).release();
+    }
+
+    {
+        Var c(kFloat2, "c");
+        ExpectError error(r, "error: division by zero\n");
+        (c /= Float2(Float(0), 1)).release();
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
@@ -511,6 +522,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
         (1 %= a).release();
+    }
+
+    {
+        ExpectError error(r, "error: division by zero\n");
+        (a %= 0).release();
+    }
+
+    {
+        Var c(kInt2, "c");
+        ExpectError error(r, "error: division by zero\n");
+        (c %= Int2(Int(0), 1)).release();
     }
 }
 
