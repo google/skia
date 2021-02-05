@@ -86,6 +86,24 @@
       "parentUuid": "960fbc87_8221c499",
       "revId": "f9a72fec8e3efb860f067788ae46c354bc343272",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5de0d9eb_7fa509d6",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-05T17:56:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a210fe97_46306c2c",
+      "revId": "f9a72fec8e3efb860f067788ae46c354bc343272",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
