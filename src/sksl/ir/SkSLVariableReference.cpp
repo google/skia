@@ -49,9 +49,11 @@ void VariableReference::setVariable(const Variable* variable) {
 
 std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,
                                                                  const DefinitionMap& definitions) {
-    if (this->refKind() != RefKind::kRead) {
-        return nullptr;
-    }
+    return this->refKind() == RefKind::kRead ? this->getConstantValue(definitions)
+                                             : nullptr;
+}
+
+std::unique_ptr<Expression> VariableReference::getConstantValue(const DefinitionMap& definitions) {
     const Expression* initialValue = this->variable()->initialValue();
     if ((this->variable()->modifiers().fFlags & Modifiers::kConst_Flag) && initialValue &&
         initialValue->isCompileTimeConstant() &&

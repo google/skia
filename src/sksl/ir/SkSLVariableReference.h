@@ -67,6 +67,9 @@ public:
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
 
+    // Works like `constantPropagate` but looks up values from writable variables too.
+    std::unique_ptr<Expression> getConstantValue(const DefinitionMap& definitions);
+
 private:
     const Variable* fVariable;
     VariableRefKind fRefKind;
