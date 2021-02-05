@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5557c3c5_790c5bc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-05T23:26:21Z",
+      "side": 1,
+      "message": "I found a case where this CL causes trouble. In VectorVectorFolding, if I replace the op\u003d expressions with their expanded-out equivalents, that is...\n\n    val +\u003d half4(1);   --\u003e val \u003d val + half4(1);\n    val +\u003d half4(0);   --\u003e val \u003d val + half4(0);\n    etc\n\nThe optimizer crashes and burns in CFG-scanning.",
+      "revId": "b791545144d6221538e864d89c7a007efe7a933b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
