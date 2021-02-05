@@ -16,6 +16,52 @@
       "message": "Okay things should be fixed now with latest update. The missing Invalidate was in the GrVkTransferBuffer\u0027s header file and I just didn\u0027t look closely in the header and mostly just ported things from the cpp...",
       "revId": "9c3b4fa5c4972e7b8bc6ccead1ca32ba2e636396",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1f54a59_e5eb79bd",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-05T17:00:05Z",
+      "side": 1,
+      "message": "Maybe a comment here as well about how it\u0027s safe to pass the raw VkBuffer because we know the staging manager will handle lifetime. I\u0027m just afraid someone will cargo cult this and get into trouble.",
+      "range": {
+        "startLine": 944,
+        "startChar": 52,
+        "endLine": 944,
+        "endChar": 72
+      },
+      "revId": "9c3b4fa5c4972e7b8bc6ccead1ca32ba2e636396",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca316db2_56cd4129",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-05T17:00:05Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 1015,
+        "startChar": 52,
+        "endLine": 1015,
+        "endChar": 72
+      },
+      "revId": "9c3b4fa5c4972e7b8bc6ccead1ca32ba2e636396",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
