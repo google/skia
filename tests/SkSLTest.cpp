@@ -165,12 +165,13 @@ SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl
 /*
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.
 // (This was done to prevent recursion, as required by ES2.)
-SKSL_TEST(SkSLFunctionPrototype,       "shared/FunctionPrototype.sksl")
+SKSL_TEST(SkSLFunctionPrototype,               "shared/FunctionPrototype.sksl")
 */
 
 /*
-TODO(skia:10939): enable this test when Runtime Effects supports structs in function signatures
-SKSL_TEST(SkSLStructsInFunctions,      "shared/StructsInFunctions.sksl")
+TODO(skia:10939): enable these tests when Runtime Effects supports structs properly
+SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
+SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 */
 
 /*
