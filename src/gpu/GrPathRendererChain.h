@@ -53,12 +53,19 @@ public:
         return fCoverageCountingPathRenderer;
     }
 
+    /** Returns a direct pointer to the tessellation path renderer, or null if it is not in the
+        chain. */
+    GrPathRenderer* getTessellationPathRenderer() {
+        return fTessellationPathRenderer;
+    }
+
 private:
     enum {
         kPreAllocCount = 8,
     };
     SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
     GrCoverageCountingPathRenderer*                     fCoverageCountingPathRenderer = nullptr;
+    GrPathRenderer*                                     fTessellationPathRenderer = nullptr;
 };
 
 #endif
