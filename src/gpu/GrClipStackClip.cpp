@@ -14,7 +14,6 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrAttachment.h"
-#include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpuResourcePriv.h"

@@ -16,7 +16,6 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
-#include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLContext.h"
 #include "src/gpu/gl/GrGLRenderTarget.h"

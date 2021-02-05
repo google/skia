@@ -12,10 +12,8 @@
 #include "src/gpu/GrSurfaceProxy.h"
 
 class GrCaps;
-class GrDeferredProxyUploader;
 class GrProxyProvider;
 class GrResourceProvider;
-class GrTextureProxyPriv;
 
 // This class delays the acquisition of textures until they are actually required
 class GrTextureProxy : virtual public GrSurfaceProxy {
@@ -94,17 +92,12 @@ public:
     inline CacheAccess cacheAccess();
     inline const CacheAccess cacheAccess() const;  // NOLINT(readability-const-return-type)
 
-    // Provides access to special purpose functions.
-    GrTextureProxyPriv texPriv();
-    const GrTextureProxyPriv texPriv() const;  // NOLINT(readability-const-return-type)
-
     SkDEBUGCODE(GrDDLProvider creatingProvider() const { return fCreatingProvider; })
 
 protected:
     // DDL TODO: rm the GrSurfaceProxy friending
     friend class GrSurfaceProxy;   // for ctors
     friend class GrProxyProvider;  // for ctors
-    friend class GrTextureProxyPriv;
     friend class GrSurfaceProxyPriv;  // ability to change key sync state after lazy instantiation.
 
     // Deferred version - no data.
@@ -188,11 +181,6 @@ private:
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
 
     LazySurfaceDesc callbackDesc() const override;
-
-    // Only used for proxies whose contents are being prepared on a worker thread. This object
-    // stores the texture data, allowing the proxy to remain uninstantiated until flush. At that
-    // point, the proxy is instantiated, and this data is used to perform an ASAP upload.
-    std::unique_ptr<GrDeferredProxyUploader> fDeferredUploader;
 
     size_t onUninstantiatedGpuMemorySize() const override;
 

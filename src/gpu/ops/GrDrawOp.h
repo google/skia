@@ -9,7 +9,6 @@
 #define GrDrawOp_DEFINED
 
 #include <functional>
-#include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/ops/GrOp.h"
 

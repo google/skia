@@ -14,7 +14,6 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
-#include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrOpFlushState.h"
