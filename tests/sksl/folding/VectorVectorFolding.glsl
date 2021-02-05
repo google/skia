@@ -35,9 +35,6 @@ bool test_int() {
     ok = true;
     ok = ivec4(unknown) == ivec4(unknown);
     ok = ok && ivec4(unknown) == ivec4(unknown);
-    ok = ok;
-    ok = ok;
-    ok = ok;
     ok = ok && ivec4(unknown) == ivec4(unknown);
     ok = ok && ivec4(unknown) == ivec4(unknown);
     ok = ok && ivec4(unknown) == ivec4(unknown);
@@ -82,9 +79,6 @@ vec4 main() {
     _2_ok = true;
     _2_ok = vec4(_1_unknown) == vec4(_1_unknown);
     _2_ok = _2_ok && vec4(_1_unknown) == vec4(_1_unknown);
-    _2_ok = _2_ok;
-    _2_ok = _2_ok;
-    _2_ok = _2_ok;
     _2_ok = _2_ok && vec4(_1_unknown) == vec4(_1_unknown);
     _2_ok = _2_ok && vec4(_1_unknown) == vec4(_1_unknown);
     _2_ok = _2_ok && vec4(_1_unknown) == vec4(_1_unknown);
