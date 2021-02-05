@@ -55,9 +55,9 @@ static constexpr char gDisplacementSkSL[] = R"(
 
 static sk_sp<SkRuntimeEffect> displacement_effect_singleton() {
     static const SkRuntimeEffect* effect =
-            std::get<0>(SkRuntimeEffect::Make(SkString(gDisplacementSkSL))).release();
+            SkRuntimeEffect::Make(SkString(gDisplacementSkSL)).effect.release();
     if (0 && !effect) {
-        auto err = std::get<1>(SkRuntimeEffect::Make(SkString(gDisplacementSkSL)));
+        auto err = SkRuntimeEffect::Make(SkString(gDisplacementSkSL)).errorText;
         printf("!!! %s\n", err.c_str());
     }
     SkASSERT(effect);
