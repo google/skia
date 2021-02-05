@@ -1,7 +1,9 @@
 
 out vec4 sk_FragColor;
-void main() {
-    bvec4 v = bvec4(sqrt(1.0) == 1.0);
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+vec4 main() {
+    bvec4 v = bvec4(bool(colorGreen.y));
     bvec4 result;
     result = bvec4(v.x, true, true, true);
     result = bvec4(v.xy, false, true);
@@ -29,5 +31,5 @@ void main() {
     result = bvec4(false, false, v.zw);
     result = bvec4(false, false, v.z, true);
     result = bvec4(false, true, true, v.w);
-    sk_FragColor = any(result) ? vec4(1.0) : vec4(0.0);
+    return any(result) ? colorGreen : colorRed;
 }
