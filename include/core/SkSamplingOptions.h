@@ -45,7 +45,14 @@ enum class SkMipmapMode {
  */
 struct SkCubicResampler {
     float B, C;
+
+    static const SkCubicResampler kMitchell;
+    static const SkCubicResampler kCatmullRom;
 };
+
+// Historic default for kHigh_SkFilterQuality
+constexpr SkCubicResampler SkCubicResampler::kMitchell{1.0f/3, 1.0f/3};
+constexpr SkCubicResampler SkCubicResampler::kCatmullRom{0.0f, 0.5f};
 
 struct SK_API SkSamplingOptions {
     const bool             useCubic = false;
