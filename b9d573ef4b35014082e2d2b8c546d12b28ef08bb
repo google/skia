@@ -52,6 +52,24 @@
       "parentUuid": "f4910894_dd8113c9",
       "revId": "b9d573ef4b35014082e2d2b8c546d12b28ef08bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9dcc95cd_8ea24862",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-05T20:03:30Z",
+      "side": 1,
+      "message": "Sorry, I was confused about what was happening here. Makes sense.",
+      "parentUuid": "14913d78_9f33c14b",
+      "revId": "b9d573ef4b35014082e2d2b8c546d12b28ef08bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
