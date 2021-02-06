@@ -69,7 +69,7 @@ bool test_half() {
     x = 1 * half4(unknown);
     ok = ok && (x == half4(unknown));
 
-    // Unknown vector op scalar
+    // X = Unknown op scalar
     x = half4(unknown) + 0;
     ok = ok && (x == half4(unknown));
     x = half4(unknown) * 0;
@@ -77,6 +77,26 @@ bool test_half() {
     x = half4(unknown) * 1;
     ok = ok && (x == half4(unknown));
     x = half4(unknown) - 0;
+    ok = ok && (x == half4(unknown));
+
+    // X op= scalar.
+    x = half4(unknown);
+    x += 1;
+    x += 0;
+    x -= 1;
+    x -= 0;
+    x *= 1;
+    x /= 1;
+    ok = ok && (x == half4(unknown));
+
+    // X = X op scalar.
+    x = half4(unknown);
+    x = x + 1;
+    x = x + 0;
+    x = x - 1;
+    x = x - 0;
+    x = x * 1;
+    x = x / 1;
     ok = ok && (x == half4(unknown));
 
     return ok;
@@ -158,6 +178,26 @@ bool test_int() {
     x = int4(unknown) * 1;
     ok = ok && (x == int4(unknown));
     x = int4(unknown) - 0;
+    ok = ok && (x == int4(unknown));
+
+    // X op= scalar.
+    x = int4(unknown);
+    x += 1;
+    x += 0;
+    x -= 1;
+    x -= 0;
+    x *= 1;
+    x /= 1;
+    ok = ok && (x == int4(unknown));
+
+    // X = X op scalar.
+    x = int4(unknown);
+    x = x + 1;
+    x = x + 0;
+    x = x - 1;
+    x = x - 0;
+    x = x * 1;
+    x = x / 1;
     ok = ok && (x == int4(unknown));
 
     return ok;

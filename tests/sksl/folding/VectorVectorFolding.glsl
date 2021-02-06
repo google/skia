@@ -44,9 +44,17 @@ bool test_int() {
     ivec4 val = ivec4(unknown);
     val += ivec4(1);
     val -= ivec4(1);
+    val = val + ivec4(1);
+    val = val;
+    val = val - ivec4(1);
+    val = val;
     ok = ok && val == ivec4(unknown);
     val *= ivec4(2);
     val /= ivec4(2);
+    val = val;
+    val = val * ivec4(2);
+    val = val;
+    val = val / ivec4(2);
     ok = ok && val == ivec4(unknown);
     return ok;
 }
@@ -91,9 +99,17 @@ vec4 main() {
     vec4 _3_val = vec4(_1_unknown);
     _3_val += vec4(1.0);
     _3_val -= vec4(1.0);
+    _3_val = _3_val + vec4(1.0);
+    _3_val = _3_val;
+    _3_val = _3_val - vec4(1.0);
+    _3_val = _3_val;
     _2_ok = _2_ok && _3_val == vec4(_1_unknown);
     _3_val *= vec4(2.0);
     _3_val /= vec4(2.0);
+    _3_val = _3_val;
+    _3_val = _3_val * vec4(2.0);
+    _3_val = _3_val;
+    _3_val = _3_val / vec4(2.0);
     _2_ok = _2_ok && _3_val == vec4(_1_unknown);
     return _2_ok && test_int() ? colorGreen : colorRed;
 
