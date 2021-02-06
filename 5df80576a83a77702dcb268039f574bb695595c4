@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32446aec_adcb79c1",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-06T16:54:29Z",
+      "side": 1,
+      "message": "This is awkward, but we cannot refer to anything from the C++17 standard library anywhere in Skia at the moment.\n\nPublic headers like this one must be C++14 in language and library, and private headers and source files may additionally use C++17 language features but not C++17 library features like std::string_view.\n\nIs this essential for your use case or nice to have?  If nice to have, let\u0027s just wait... I\u0027ll work something out if essential.",
+      "range": {
+        "startLine": 125,
+        "startChar": 31,
+        "endLine": 125,
+        "endChar": 47
+      },
+      "revId": "5df80576a83a77702dcb268039f574bb695595c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
