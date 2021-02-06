@@ -46,17 +46,14 @@ vec4 main() {
     _2_x = _3_unknown;
     _1_ok = _1_ok && _2_x == _3_unknown;
     _2_x = 0.0;
-    _1_ok = _1_ok;
     _2_x = _3_unknown;
     _1_ok = _1_ok && _2_x == _3_unknown;
     _2_x = _3_unknown;
     _1_ok = _1_ok && _2_x == _3_unknown;
     _2_x = 0.0;
-    _1_ok = _1_ok;
     _2_x = _3_unknown;
     _1_ok = _1_ok && _2_x == _3_unknown;
     _2_x = 0.0;
-    _1_ok = _1_ok;
     _2_x += 1.0;
     _1_ok = _1_ok && _2_x == 1.0;
     _1_ok = _1_ok && _2_x == 1.0;
