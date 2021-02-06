@@ -46,11 +46,19 @@ bool test_half() {
     val += half4(0);
     val -= half4(1);
     val -= half4(0);
+    val = val + half4(1);
+    val = val + half4(0);
+    val = val - half4(1);
+    val = val - half4(0);
     ok = ok && (val == half4(unknown));
     val *= half4(1);
     val *= half4(2);
     val /= half4(1);
     val /= half4(2);
+    val = val * half4(1);
+    val = val * half4(2);
+    val = val / half4(1);
+    val = val / half4(2);
     ok = ok && (val == half4(unknown));
 
     return ok;
@@ -101,11 +109,19 @@ bool test_int() {
     val += int4(0);
     val -= int4(1);
     val -= int4(0);
+    val = val + int4(1);
+    val = val + int4(0);
+    val = val - int4(1);
+    val = val - int4(0);
     ok = ok && (val == int4(unknown));
     val *= int4(1);
     val *= int4(2);
     val /= int4(1);
     val /= int4(2);
+    val = val * int4(1);
+    val = val * int4(2);
+    val = val / int4(1);
+    val = val / int4(2);
     ok = ok && (val == int4(unknown));
 
     return ok;

@@ -64,6 +64,18 @@ bool test_int() {
     ok = ok && x == ivec4(unknown);
     x = ivec4(unknown);
     ok = ok && x == ivec4(unknown);
+    x = ivec4(unknown);
+    x += 1;
+    x -= 1;
+    ok = ok && x == ivec4(unknown);
+    x = ivec4(unknown);
+    x = x + 1;
+    x = x;
+    x = x - 1;
+    x = x;
+    x = x;
+    x = x;
+    ok = ok && x == ivec4(unknown);
     return ok;
 }
 vec4 main() {
@@ -126,6 +138,18 @@ vec4 main() {
     _2_x = vec4(_3_unknown);
     _1_ok = _1_ok && _2_x == vec4(_3_unknown);
     _2_x = vec4(_3_unknown);
+    _1_ok = _1_ok && _2_x == vec4(_3_unknown);
+    _2_x = vec4(_3_unknown);
+    _2_x += 1.0;
+    _2_x -= 1.0;
+    _1_ok = _1_ok && _2_x == vec4(_3_unknown);
+    _2_x = vec4(_3_unknown);
+    _2_x = _2_x + 1.0;
+    _2_x = _2_x;
+    _2_x = _2_x - 1.0;
+    _2_x = _2_x;
+    _2_x = _2_x;
+    _2_x = _2_x;
     _1_ok = _1_ok && _2_x == vec4(_3_unknown);
     return _1_ok && test_int() ? colorGreen : colorRed;
 
