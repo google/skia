@@ -43,6 +43,7 @@
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
+#include "src/gpu/vk/GrVkTransferBuffer.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 
@@ -246,7 +247,7 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrVkBackendContext& backendConte
 
 void GrVkGpu::destroyResources() {
     if (fMainCmdPool) {
-        fMainCmdPool->getPrimaryCommandBuffer()->end(this, /*abandoningBuffer=*/true);
+        fMainCmdPool->getPrimaryCommandBuffer()->end(this);
         fMainCmdPool->close();
     }
 
@@ -403,12 +404,14 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                         accessPattern == kDynamic_GrAccessPattern);
             break;
         case GrGpuBufferType::kXferCpuToGpu:
-            SkASSERT(accessPattern == kDynamic_GrAccessPattern);
-            buff = GrVkBuffer2::MakeTransferSrc(this, size);
+            SkASSERT(accessPattern == kDynamic_GrAccessPattern ||
+                     accessPattern == kStream_GrAccessPattern);
+            buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyRead_Type, accessPattern);
             break;
         case GrGpuBufferType::kXferGpuToCpu:
-            SkASSERT(accessPattern == kDynamic_GrAccessPattern);
-            buff = GrVkBuffer2::MakeTransferDst(this, size);
+            SkASSERT(accessPattern == kDynamic_GrAccessPattern ||
+                     accessPattern == kStream_GrAccessPattern);
+            buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyWrite_Type, accessPattern);
             break;
         case GrGpuBufferType::kUniform:
             SkASSERT(accessPattern == kDynamic_GrAccessPattern);
@@ -499,7 +502,8 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     // Can't transfer compressed data
     SkASSERT(!GrVkFormatIsCompressed(vkTex->imageFormat()));
 
-    if (!transferBuffer) {
+    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer.get());
+    if (!vkBuffer) {
         return false;
     }
 
@@ -526,16 +530,13 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                           false);
 
-    const GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(transferBuffer.get());
-
-    // Copy the buffer to the image.
+    // Copy the buffer to the image
     this->currentCommandBuffer()->copyBufferToImage(this,
-                                                    vkBuffer->vkBuffer(),
+                                                    vkBuffer,
                                                     vkTex,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                     1,
                                                     &region);
-    this->currentCommandBuffer()->addGrBuffer(std::move(transferBuffer));
 
     vkTex->markMipmapsDirty();
     return true;
@@ -555,6 +556,8 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
     if (surfaceColorType != bufferColorType) {
         return false;
     }
+
+    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer.get());
 
     GrVkImage* srcImage;
     if (GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(surface->asRenderTarget())) {
@@ -592,11 +595,11 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
 
     this->currentCommandBuffer()->copyImageToBuffer(this, srcImage,
                                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                    transferBuffer, 1, &region);
+                                                    vkBuffer, 1, &region);
 
-    GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(transferBuffer.get());
     // Make sure the copy to buffer has finished.
-    vkBuffer->addMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT,
+    vkBuffer->addMemoryBarrier(this,
+                               VK_ACCESS_TRANSFER_WRITE_BIT,
                                VK_ACCESS_HOST_READ_BIT,
                                VK_PIPELINE_STAGE_TRANSFER_BIT,
                                VK_PIPELINE_STAGE_HOST_BIT,
@@ -938,14 +941,9 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
                                   false);
 
-    // Copy the buffer to the image. This call takes the raw VkBuffer instead of a GrGpuBuffer
-    // because we don't need the command buffer to ref the buffer here. The reason being is that
-    // the buffer is coming from the staging manager and the staging manager will make sure the
-    // command buffer has a ref on the buffer. This avoids having to add and remove a ref for ever
-    // upload in the frame.
-    GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(slice.fBuffer);
+    // Copy the buffer to the image
     this->currentCommandBuffer()->copyBufferToImage(this,
-                                                    vkBuffer->vkBuffer(),
+                                                    static_cast<GrVkTransferBuffer*>(slice.fBuffer),
                                                     uploadTexture,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                     regions.count(),
@@ -1013,14 +1011,9 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
                                   false);
 
-    // Copy the buffer to the image. This call takes the raw VkBuffer instead of a GrGpuBuffer
-    // because we don't need the command buffer to ref the buffer here. The reason being is that
-    // the buffer is coming from the staging manager and the staging manager will make sure the
-    // command buffer has a ref on the buffer. This avoids having to add and remove a ref for ever
-    // upload in the frame.
-    GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(slice.fBuffer);
+    // Copy the buffer to the image
     this->currentCommandBuffer()->copyBufferToImage(this,
-                                                    vkBuffer->vkBuffer(),
+                                                    static_cast<GrVkTransferBuffer*>(slice.fBuffer),
                                                     uploadTexture,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                     regions.count(),
@@ -1177,9 +1170,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpu::copyBuffer(sk_sp<GrGpuBuffer> srcBuffer,
-                         GrVkBuffer* dstBuffer,
-                         VkDeviceSize srcOffset,
+void GrVkGpu::copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceSize srcOffset,
                          VkDeviceSize dstOffset, VkDeviceSize size) {
     if (!this->currentCommandBuffer()) {
         return;
@@ -1188,14 +1179,11 @@ void GrVkGpu::copyBuffer(sk_sp<GrGpuBuffer> srcBuffer,
     copyRegion.srcOffset = srcOffset;
     copyRegion.dstOffset = dstOffset;
     copyRegion.size = size;
-    this->currentCommandBuffer()->copyBuffer(this, std::move(srcBuffer), dstBuffer, 1, &copyRegion);
+    this->currentCommandBuffer()->copyBuffer(this, srcBuffer, dstBuffer, 1, &copyRegion);
 }
 
-void GrVkGpu::copyBuffer(sk_sp<GrGpuBuffer> srcBuffer,
-                         sk_sp<GrGpuBuffer> dstBuffer,
-                         VkDeviceSize srcOffset,
-                         VkDeviceSize dstOffset,
-                         VkDeviceSize size) {
+void GrVkGpu::copyBuffer(GrVkBuffer* srcBuffer, sk_sp<GrVkBuffer2> dstBuffer,
+                         VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size) {
     if (!this->currentCommandBuffer()) {
         return;
     }
@@ -1203,8 +1191,7 @@ void GrVkGpu::copyBuffer(sk_sp<GrGpuBuffer> srcBuffer,
     copyRegion.srcOffset = srcOffset;
     copyRegion.dstOffset = dstOffset;
     copyRegion.size = size;
-    this->currentCommandBuffer()->copyBuffer(this, std::move(srcBuffer), std::move(dstBuffer), 1,
-                                             &copyRegion);
+    this->currentCommandBuffer()->copyBuffer(this, srcBuffer, std::move(dstBuffer), 1, &copyRegion);
 }
 
 bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
@@ -1752,13 +1739,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         }
 
         cmdBuffer->addGrSurface(texture);
-        const GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(slice.fBuffer);
-        // Copy the buffer to the image. This call takes the raw VkBuffer instead of a GrGpuBuffer
-        // because we don't need the command buffer to ref the buffer here. The reason being is that
-        // the buffer is coming from the staging manager and the staging manager will make sure the
-        // command buffer has a ref on the buffer. This avoids having to add and remove a ref for
-        // every upload in the frame.
-        cmdBuffer->copyBufferToImage(this, vkBuffer->vkBuffer(),
+        cmdBuffer->copyBufferToImage(this, static_cast<GrVkTransferBuffer*>(slice.fBuffer),
                                      texture.get(), texture->currentLayout(), regions.count(),
                                      regions.begin());
     }
@@ -2563,19 +2544,14 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     size_t transBufferRowBytes = bpp * region.imageExtent.width;
     size_t imageRows = region.imageExtent.height;
-    GrResourceProvider* resourceProvider = this->getContext()->priv().resourceProvider();
-    sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
-            transBufferRowBytes * imageRows, GrGpuBufferType::kXferGpuToCpu,
-            kDynamic_GrAccessPattern);
-
-    if (!transferBuffer) {
-        return false;
-    }
-
-    GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(transferBuffer.get());
+    auto transferBuffer = sk_sp<GrVkTransferBuffer>(
+            static_cast<GrVkTransferBuffer*>(this->createBuffer(transBufferRowBytes * imageRows,
+                                                                GrGpuBufferType::kXferGpuToCpu,
+                                                                kStream_GrAccessPattern)
+                                                     .release()));
 
     // Copy the image to a buffer so we can map it to cpu memory
-    region.bufferOffset = 0;
+    region.bufferOffset = transferBuffer->offset();
     region.bufferRowLength = 0; // Forces RowLength to be width. We handle the rowBytes below.
     region.bufferImageHeight = 0; // Forces height to be tightly packed. Only useful for 3d images.
     region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
@@ -2583,16 +2559,17 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     this->currentCommandBuffer()->copyImageToBuffer(this,
                                                     image,
                                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                    transferBuffer,
+                                                    transferBuffer.get(),
                                                     1,
                                                     &region);
 
     // make sure the copy to buffer has finished
-    vkBuffer->addMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT,
-                               VK_ACCESS_HOST_READ_BIT,
-                               VK_PIPELINE_STAGE_TRANSFER_BIT,
-                               VK_PIPELINE_STAGE_HOST_BIT,
-                               false);
+    transferBuffer->addMemoryBarrier(this,
+                                     VK_ACCESS_TRANSFER_WRITE_BIT,
+                                     VK_ACCESS_HOST_READ_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_HOST_BIT,
+                                     false);
 
     // We need to submit the current command buffer to the Queue and make sure it finishes before
     // we can copy the data out of the buffer.
