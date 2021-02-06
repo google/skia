@@ -162,23 +162,7 @@ private:
         float discr_over_4 = b_over_2*b_over_2 - a*c;
 
         float2x2 innerTangents = float2x2(0);
-        if (float3(a,b,c) == float3(0)) {
-            // The curve is a flat line. Search for turnaround cusp points instead. (These are the
-            // points where the tangent is perpendicular to tan0.)
-            //
-            //     dot(tan0, Tangent_Direction(T)) == 0
-            //
-            //                         |T^2|
-            //     tan0 * |A  2B  C| * |T  | == 0
-            //            |.   .  .|   |1  |
-            //
-            float3 coeffs = tan0 * float3x2(A,B,C);
-            a = coeffs.x;
-            b_over_2 = coeffs.y;
-            c = coeffs.z;
-            discr_over_4 = max(b_over_2*b_over_2 - a*c, 0);
-            innerTangents = float2x2(-tan0, -tan0);
-        } else if (discr_over_4 <= 0) {
+        if (discr_over_4 <= 0) {
             // The curve does not inflect. This means it might rotate more than 180 degrees instead.
             // Craft a quadratic whose roots are the points were rotation == 180 deg and 0. (These
             // are the points where the tangent is parallel to tan0.)

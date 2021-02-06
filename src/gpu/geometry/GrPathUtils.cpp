@@ -586,9 +586,6 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 }
 
 int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2], bool* areCusps) {
-    // It's slow for us to write out a value to "areCaps", especially when 99% of the time we aren't
-    // drawing cusps. The caller must initialize this value to false.
-    SkASSERT(!areCusps || *areCusps == false);
     using grvx::float2;
 
     // If a chop falls within a distance of "kEpsilon" from 0 or 1, throw it out. Tangents become
@@ -641,6 +638,23 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2], bool* 
     // consider them a single cusp.
     float cuspThreshold = a * (kEpsilon/2);
     cuspThreshold *= cuspThreshold;
+
+    if (!T) {
+        // When T == null, the caller just wants to know if the chops will be cusp points.
+        SkASSERT(areCusps);
+        *areCusps = fabsf(discr_over_4) <= cuspThreshold &&
+                    // The most common type of cusp we encounter is when p0==p1 or p2==p3. Unless
+                    // the curve is a flat line (a==b==c==0), these don't actually need special
+                    // treatment because the cusps occur at t=0 and t=1.
+                    ((pts[0] != pts[1] && pts[2] != pts[3]) ||
+                     (a == 0 && b == 0 && c == 0));
+        return -1;
+    }
+
+    // When T != null, it's slow for us to write out a value to "areCusps", especially when 99% of
+    // the time we aren't drawing cusps. The caller must initialize this value to false.
+    SkASSERT(!areCusps || *areCusps == false);
+
     if (discr_over_4 < -cuspThreshold) {
         // The curve does not inflect or cusp. This means it might rotate more than 180 degrees
         // instead. Chop were rotation == 180 deg. (This is the 2nd root where the tangent is
