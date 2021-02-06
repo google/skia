@@ -70,7 +70,7 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
     auto readUsage = [](GrAccessPattern pattern) {
         switch (pattern) {
             case kDynamic_GrAccessPattern:
-                return GR_GL_DYNAMIC_READ;
+                return GR_GL_STREAM_READ;
             case kStatic_GrAccessPattern:
                 return GR_GL_STATIC_READ;
             case kStream_GrAccessPattern:
