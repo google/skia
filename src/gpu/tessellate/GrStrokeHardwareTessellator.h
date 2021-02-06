@@ -44,6 +44,10 @@ private:
                  int maxDepth = -1);
     void cubicTo(const SkPoint[4], JoinType prevJoinType = JoinType::kFromStroke,
                  Convex180Status = Convex180Status::kUnknown, int maxDepth = -1);
+    // Chops the curve into 1-3 convex sections that rotate no more than 180 degrees, then calls
+    // cubicTo() for each section.
+    void cubicConvex180SegmentsTo(const SkPoint[4], JoinType prevJoinType = JoinType::kFromStroke,
+                                  int maxDepth = -1);
     void joinTo(JoinType joinType, const SkPoint nextCubic[]) {
         const SkPoint& nextCtrlPt = (nextCubic[1] == nextCubic[0]) ? nextCubic[2] : nextCubic[1];
         // The caller should have culled out curves where p0==p1==p2 by this point.
