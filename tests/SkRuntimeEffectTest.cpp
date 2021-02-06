@@ -382,3 +382,22 @@ DEF_TEST(SkRuntimeEffectThreaded, r) {
         thread.join();
     }
 }
+
+DEF_TEST(SkRuntimeColorFilterSingleColor, r) {
+    // Test runtime colorfilters support filterColor4f().
+    auto [effect, err] = SkRuntimeEffect::Make(SkString{
+            "uniform shader input;  half4 main() { half4 c = sample(input); return c*c; }"});
+    REPORTER_ASSERT(r, effect);
+    REPORTER_ASSERT(r, err.isEmpty());
+
+    sk_sp<SkColorFilter> input = nullptr;
+    sk_sp<SkColorFilter> cf = effect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
+    REPORTER_ASSERT(r, cf);
+
+    SkColor4f c = cf->filterColor4f({0.25, 0.5, 0.75, 1.0},
+                                    sk_srgb_singleton(), sk_srgb_singleton());
+    REPORTER_ASSERT(r, c.fR == 0.0625f);
+    REPORTER_ASSERT(r, c.fG == 0.25f);
+    REPORTER_ASSERT(r, c.fB == 0.5625f);
+    REPORTER_ASSERT(r, c.fA == 1.0f);
+}

@@ -102,13 +102,29 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     SkStageRec rec = {
         &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, matrixProvider
     };
-    as_CFB(this)->onAppendStages(rec, color.fA == 1);
 
-    SkPMColor4f dst;
-    SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
-    pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
-    pipeline.run(0,0, 1,1);
-    return dst.unpremul();
+    if (as_CFB(this)->onAppendStages(rec, color.fA == 1)) {
+        SkPMColor4f dst;
+        SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
+        pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
+        pipeline.run(0,0, 1,1);
+        return dst.unpremul();
+    }
+
+    // This filter doesn't support SkRasterPipeline... try skvm.
+    skvm::Builder b;
+    skvm::Uniforms uni(b.uniform(), 4);
+    if (skvm::Color filtered =
+            as_CFB(this)->program(&b, b.uniformColor(color, &uni), dstCS, &uni, &alloc)) {
+
+        b.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96},
+                b.varying<SkColor4f>(), unpremul(filtered));
+        b.done().eval(1, uni.buf.data(), &color);  // tell SkVM to skip JIT?
+        return color;
+    }
+
+    SkASSERT(false);
+    return SkColor4f{0,0,0,0};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
