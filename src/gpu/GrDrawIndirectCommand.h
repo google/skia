@@ -25,7 +25,7 @@ public:
     GrDrawIndirectWriter() = default;
     GrDrawIndirectWriter(void* data) : fData(static_cast<GrDrawIndirectCommand*>(data)) {}
 
-    operator bool() const { return fData != nullptr; }
+    bool isValid() const { return fData != nullptr; }
 
     inline void write(uint32_t instanceCount, uint32_t baseInstance, uint32_t vertexCount,
                       uint32_t baseVertex, const GrCaps&) {
@@ -47,7 +47,7 @@ public:
     GrDrawIndexedIndirectWriter(void* data)
             : fData(static_cast<GrDrawIndexedIndirectCommand*>(data)) {}
 
-    operator bool() const { return fData != nullptr; }
+    bool isValid() const { return fData != nullptr; }
 
     inline void writeIndexed(uint32_t indexCount, uint32_t baseIndex, uint32_t instanceCount,
                              uint32_t baseInstance, uint32_t baseVertex, const GrCaps&) {

@@ -113,7 +113,7 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
     int indirectLockCnt = kMaxResolveLevel + 1;
     GrDrawIndexedIndirectWriter indirectWriter = target->makeDrawIndexedIndirectSpace(
             indirectLockCnt, &fIndirectDrawBuffer, &fIndirectDrawOffset);
-    if (!indirectWriter) {
+    if (!indirectWriter.isValid()) {
         SkASSERT(!fIndirectDrawBuffer);
         return;
     }
