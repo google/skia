@@ -25,6 +25,16 @@
 struct GrVertexWriter {
     void* fPtr;
 
+    operator bool() const { return fPtr != nullptr; }
+
+    bool operator==(const GrVertexWriter& that) {
+        return fPtr == that.fPtr;
+    }
+
+    GrVertexWriter makeOffset(size_t offsetInBytes) const {
+        return {SkTAddOffset<void>(fPtr, offsetInBytes)};
+    }
+
     template <typename T>
     class Conditional {
     public:
@@ -97,6 +107,21 @@ struct GrVertexWriter {
         vector.store(buffer);
         this->write<float, 4>(buffer);
         this->write(remainder...);
+    }
+
+    template <typename T>
+    void writeArray(const T* array, int count) {
+        static_assert(std::is_pod<T>::value, "");
+        static_assert(alignof(T) <= 4, "");
+        memcpy(fPtr, array, count * sizeof(T));
+        fPtr = SkTAddOffset<void>(fPtr, count * sizeof(T));
+    }
+
+    template <typename T>
+    void fill(const T& val, int repeatCount) {
+        for (int i = 0; i < repeatCount; ++i) {
+            this->write(val);
+        }
     }
 
     void writeRaw(const void* data, size_t size) {
