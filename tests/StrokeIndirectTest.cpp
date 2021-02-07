@@ -9,6 +9,7 @@
 
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkUtils.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
@@ -433,17 +434,20 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r,
     int _;
     auto instance = (const IndirectInstance*)target->makeVertexSpace(0, 0, nullptr, &_);
     size_t __;
-    auto indirect = target->makeDrawIndirectSpace(0, nullptr, &__);
+    auto cmds = sk_bit_cast<const std::array<uint32_t, 4>*>(
+            target->makeDrawIndirectSpace(0, nullptr, &__));
     for (int i = 0; i < fDrawIndirectCount; ++i) {
+        // TODO: SkASSERT(caps.drawIndirectCmdSignature() == standard);
+        auto [vertexCount, instanceCount, baseVertex, baseInstance] = *cmds++;
         int numExtraEdgesInJoin = (stroke.getJoin() == SkPaint::kMiter_Join) ? 4 : 3;
-        int numStrokeEdges = indirect->fVertexCount/2 - numExtraEdgesInJoin;
+        int numStrokeEdges = vertexCount/2 - numExtraEdgesInJoin;
         int numSegments = numStrokeEdges - 1;
         bool isPow2 = !(numSegments & (numSegments - 1));
         REPORTER_ASSERT(r, isPow2);
         int resolveLevel = sk_float_nextlog2(numSegments);
         REPORTER_ASSERT(r, 1 << resolveLevel == numSegments);
-        for (unsigned j = 0; j < indirect->fInstanceCount; ++j) {
-            SkASSERT(fabsf(instance->fNumTotalEdges) == indirect->fVertexCount/2);
+        for (unsigned j = 0; j < instanceCount; ++j) {
+            SkASSERT(fabsf(instance->fNumTotalEdges) == vertexCount/2);
             const SkPoint* p = instance->fPts.data();
             float numParametricSegments = GrWangsFormula::cubic(
                     tolerances.fParametricIntolerance, p);
@@ -476,6 +480,5 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r,
             }
             ++instance;
         }
-        ++indirect;
     }
 }

@@ -256,7 +256,7 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
         GL_CALL(MultiDrawArraysIndirect(glPrimType,
                                         buffer_offset_to_gl_address(drawIndirectBuffer, offset),
-                                        drawCount, sizeof(GrDrawIndirectCommand)));
+                                        drawCount, sizeof(GrDrawIndirectCmdWriter::Cmd)));
         return;
     }
 
@@ -264,7 +264,7 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
         GL_CALL(DrawArraysIndirect(glPrimType,
                                    buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
-        offset += sizeof(GrDrawIndirectCommand);
+        offset += sizeof(GrDrawIndirectCmdWriter::Cmd);
     }
 }
 
@@ -281,16 +281,17 @@ void GrGLOpsRenderPass::multiDrawArraysANGLEOrWebGL(const GrBuffer* drawIndirect
 
     GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
     auto* cpuBuffer = static_cast<const GrCpuBuffer*>(drawIndirectBuffer);
-    auto* cmds = reinterpret_cast<const GrDrawIndirectCommand*>(cpuBuffer->data() + offset);
+    auto* cmds = reinterpret_cast<const std::array<uint32_t, 4>*>(cpuBuffer->data() + offset);
 
     while (drawCount) {
         int countInBatch = std::min(drawCount, kMaxDrawCountPerBatch);
         for (int i = 0; i < countInBatch; ++i) {
-            const auto& cmd = cmds[i];
-            fFirsts[i] = cmd.fBaseVertex;
-            fCounts[i] = cmd.fVertexCount;
-            fInstanceCounts[i] = cmd.fInstanceCount;
-            fBaseInstances[i] = cmd.fBaseInstance;
+            // TODO: SkASSERT(caps.drawIndirectCmdSignature() == standard);
+            auto [vertexCount, instanceCount, baseVertex, baseInstance] = cmds[i];
+            fFirsts[i] = baseVertex;
+            fCounts[i] = vertexCount;
+            fInstanceCounts[i] = instanceCount;
+            fBaseInstances[i] = baseInstance;
         }
         if (countInBatch == 1) {
             GL_CALL(DrawArraysInstancedBaseInstance(glPrimType, fFirsts[0], fCounts[0],
@@ -328,7 +329,7 @@ void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
         GL_CALL(MultiDrawElementsIndirect(glPrimType, GR_GL_UNSIGNED_SHORT,
                                           buffer_offset_to_gl_address(drawIndirectBuffer, offset),
-                                          drawCount, sizeof(GrDrawIndexedIndirectCommand)));
+                                          drawCount, sizeof(GrDrawIndexedIndirectCmdWriter::Cmd)));
         return;
     }
 
@@ -336,7 +337,7 @@ void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
         GL_CALL(DrawElementsIndirect(glPrimType, GR_GL_UNSIGNED_SHORT,
                                      buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
-        offset += sizeof(GrDrawIndexedIndirectCommand);
+        offset += sizeof(GrDrawIndexedIndirectCmdWriter::Cmd);
     }
 }
 
@@ -354,17 +355,18 @@ void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndire
 
     GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
     auto* cpuBuffer = static_cast<const GrCpuBuffer*>(drawIndirectBuffer);
-    auto* cmds = reinterpret_cast<const GrDrawIndexedIndirectCommand*>(cpuBuffer->data() + offset);
+    auto* cmds = reinterpret_cast<const std::array<uint32_t, 5>*>(cpuBuffer->data() + offset);
 
     while (drawCount) {
         int countInBatch = std::min(drawCount, kMaxDrawCountPerBatch);
         for (int i = 0; i < countInBatch; ++i) {
-            const auto& cmd = cmds[i];
-            fCounts[i] = cmd.fIndexCount;
-            fIndices[i] = this->offsetForBaseIndex(cmd.fBaseIndex);
-            fInstanceCounts[i] = cmd.fInstanceCount;
-            fBaseVertices[i] = cmd.fBaseVertex;
-            fBaseInstances[i] = cmd.fBaseInstance;
+            // TODO: SkASSERT(caps.drawIndirectCmdSignature() == standard);
+            auto [indexCount, instanceCount, baseIndex, baseVertex, baseInstance] = cmds[i];
+            fCounts[i] = indexCount;
+            fIndices[i] = this->offsetForBaseIndex(baseIndex);
+            fInstanceCounts[i] = instanceCount;
+            fBaseVertices[i] = baseVertex;
+            fBaseInstances[i] = baseInstance;
         }
         if (countInBatch == 1) {
             GL_CALL(DrawElementsInstancedBaseVertexBaseInstance(glPrimType, fCounts[0],

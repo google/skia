@@ -324,8 +324,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                              -1,-1, 0,0, 0,1, 1,0, 1,1, -1,-1, 0,0, 1,0, 0,1, 1,1});
                      VALIDATE(helper->fVertBuffer);
 
-                     GrDrawIndirectCommand* drawIndirect = nullptr;
-                     GrDrawIndexedIndirectCommand* drawIndexedIndirect = nullptr;
+                     GrDrawIndirectCmdWriter indirectWriter;
+                     GrDrawIndexedIndirectCmdWriter indexedIndirectWriter;
                      if (indexed) {
                          // Make helper->fDrawIndirectBufferOffset nonzero.
                          sk_sp<const GrBuffer> dummyBuff;
@@ -333,7 +333,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          // Make a superfluous call to makeDrawIndirectSpace in order to test
                          // "offsetInBytes!=0" for the actual call to makeDrawIndexedIndirectSpace.
                          helper->target()->makeDrawIndirectSpace(29, &dummyBuff, &dummyOffset);
-                         drawIndexedIndirect = helper->target()->makeDrawIndexedIndirectSpace(
+                         indexedIndirectWriter = helper->target()->makeDrawIndexedIndirectSpace(
                                  kBoxCountY, &helper->fDrawIndirectBuffer,
                                  &helper->fDrawIndirectBufferOffset);
                      } else {
@@ -342,8 +342,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          size_t dummyOffset;
                          // Make a superfluous call to makeDrawIndexedIndirectSpace in order to test
                          // "offsetInBytes!=0" for the actual call to makeDrawIndirectSpace.
-                         helper->target()->makeDrawIndexedIndirectSpace(7, &dummyBuff, &dummyOffset);
-                         drawIndirect = helper->target()->makeDrawIndirectSpace(
+                         helper->target()->makeDrawIndexedIndirectSpace(7, &dummyBuff,
+                                                                        &dummyOffset);
+                         indirectWriter = helper->target()->makeDrawIndirectSpace(
                                  kBoxCountY, &helper->fDrawIndirectBuffer,
                                  &helper->fDrawIndirectBufferOffset);
                      }
@@ -353,18 +354,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          int baseVertex = (y % 2) ? 1 : 6;
                          if (indexed) {
                              int baseIndex = 1 + y * 6;
-                             drawIndexedIndirect->fIndexCount = 6;
-                             drawIndexedIndirect->fBaseIndex = baseIndex;
-                             drawIndexedIndirect->fInstanceCount = kBoxCountX;
-                             drawIndexedIndirect->fBaseInstance = y * kBoxCountX;
-                             drawIndexedIndirect->fBaseVertex = baseVertex;
-                             ++drawIndexedIndirect;
+                             indexedIndirectWriter.writeIndexed(6, baseIndex, kBoxCountX,
+                                                                y * kBoxCountX, baseVertex,
+                                                                *dContext->priv().caps());
                          } else {
-                             drawIndirect->fInstanceCount = kBoxCountX;
-                             drawIndirect->fBaseInstance = y * kBoxCountX;
-                             drawIndirect->fVertexCount = 4;
-                             drawIndirect->fBaseVertex = baseVertex;
-                             ++drawIndirect;
+                             indirectWriter.write(kBoxCountX, y * kBoxCountX, 4, baseVertex,
+                                                  *dContext->priv().caps());
                          }
                      }
                  },
@@ -378,7 +373,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                              int start = kBoxCountY * i / 3;
                              int end = kBoxCountY * (i + 1) / 3;
                              size_t offset = helper->fDrawIndirectBufferOffset + start *
-                                             sizeof(GrDrawIndexedIndirectCommand);
+                                             sizeof(GrDrawIndexedIndirectCmdWriter::Cmd);
                              pass->drawIndexedIndirect(helper->fDrawIndirectBuffer.get(), offset,
                                                        end - start);
                          }
@@ -389,7 +384,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                              int start = kBoxCountY * i / 2;
                              int end = kBoxCountY * (i + 1) / 2;
                              size_t offset = helper->fDrawIndirectBufferOffset + start *
-                                             sizeof(GrDrawIndirectCommand);
+                                             sizeof(GrDrawIndirectCmdWriter::Cmd);
                              pass->drawIndirect(helper->fDrawIndirectBuffer.get(), offset,
                                                 end - start);
                          }
