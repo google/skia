@@ -10,6 +10,7 @@
 
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrDrawIndirectCommand.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -199,16 +200,16 @@ public:
      * Makes space for elements in a draw-indirect buffer. Upon success, the returned pointer is a
      * CPU mapping where the data should be written.
      */
-    virtual GrDrawIndirectCommand* makeDrawIndirectSpace(int drawCount,
-                                                         sk_sp<const GrBuffer>* buffer,
-                                                         size_t* offsetInBytes) = 0;
+    virtual GrDrawIndirectWriter makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
+                                                       size_t* offsetInBytes) = 0;
 
     /**
      * Makes space for elements in a draw-indexed-indirect buffer. Upon success, the returned
      * pointer is a CPU mapping where the data should be written.
      */
-    virtual GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
-            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) = 0;
+    virtual GrDrawIndexedIndirectWriter makeDrawIndexedIndirectSpace(int drawCount,
+                                                                     sk_sp<const GrBuffer>*,
+                                                                     size_t* offsetInBytes) = 0;
 
     /** Helpers for ops which over-allocate and then return excess data to the pool. */
     virtual void putBackIndices(int indices) = 0;

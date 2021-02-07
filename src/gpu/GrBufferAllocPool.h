@@ -14,6 +14,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/GrCpuBuffer.h"
+#include "src/gpu/GrDrawIndirectCommand.h"
 #include "src/gpu/GrNonAtomicRef.h"
 
 class GrGpu;
@@ -319,23 +320,23 @@ public:
     GrDrawIndirectBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache> cpuBufferCache)
             : GrBufferAllocPool(gpu, GrGpuBufferType::kDrawIndirect, std::move(cpuBufferCache)) {}
 
-    GrDrawIndirectCommand* makeSpace(int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset) {
-        return static_cast<GrDrawIndirectCommand*>(this->GrBufferAllocPool::makeSpace(
-                (size_t)drawCount * sizeof(GrDrawIndirectCommand), 4, buffer, offset));
+    GrDrawIndirectWriter makeSpace(int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset) {
+        return this->GrBufferAllocPool::makeSpace(drawCount * sizeof(GrDrawIndirectCommand), 4,
+                                                  buffer, offset);
     }
 
     void putBack(int drawCount) {
-        this->GrBufferAllocPool::putBack((size_t)drawCount * sizeof(GrDrawIndirectCommand));
+        this->GrBufferAllocPool::putBack(drawCount * sizeof(GrDrawIndirectCommand));
     }
 
-    GrDrawIndexedIndirectCommand* makeIndexedSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
-                                                   size_t* offset) {
-        return static_cast<GrDrawIndexedIndirectCommand*>(this->GrBufferAllocPool::makeSpace(
-                (size_t)drawCount * sizeof(GrDrawIndexedIndirectCommand), 4, buffer, offset));
+    GrDrawIndexedIndirectWriter makeIndexedSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
+                                                 size_t* offset) {
+        return this->GrBufferAllocPool::makeSpace(
+                drawCount * sizeof(GrDrawIndexedIndirectCommand), 4, buffer, offset);
     }
 
     void putBackIndexed(int drawCount) {
-        this->GrBufferAllocPool::putBack((size_t)drawCount * sizeof(GrDrawIndexedIndirectCommand));
+        this->GrBufferAllocPool::putBack(drawCount * sizeof(GrDrawIndexedIndirectCommand));
     }
 
     using GrBufferAllocPool::unmap;
