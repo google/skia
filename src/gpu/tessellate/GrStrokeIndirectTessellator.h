@@ -10,6 +10,7 @@
 
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
+class GrVertexWriter;
 struct SkPoint;
 namespace skiatest { class Reporter; }
 
@@ -30,6 +31,17 @@ public:
     void draw(GrOpFlushState*) const override;
 
 private:
+    // Writes out the given stroke instance. "abs(numTotalEdges)" tells the shader the literal
+    // number of edges in the triangle strip being rendered (i.e., it should be vertexCount/2). If
+    // numTotalEdges is negative and the join type is "kRound", it also instructs the shader to only
+    // allocate one segment the preceding round join.
+    void writeInstance(GrVertexWriter*, const SkPoint[4], SkPoint lastControlPoint,
+                       int numTotalEdges);
+
+    // A "circle" is a stroke-width circle drawn as a 180-degree point stroke. They are drawn at
+    // cusp points on curves and for round caps.
+    void writeCircleInstance(GrVertexWriter*, SkPoint center, int numEdgesForCircles);
+
     int fResolveLevelCounts[kMaxResolveLevel + 1] = {0};  // # of instances at each resolve level.
     int fTotalInstanceCount = 0;  // Total number of stroke instances we will draw.
 
