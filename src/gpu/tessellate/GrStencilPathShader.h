@@ -8,6 +8,7 @@
 #ifndef GrStencilPathShader_DEFINED
 #define GrStencilPathShader_DEFINED
 
+#include "src/gpu/GrDrawIndirectCommand.h"
 #include "src/gpu/tessellate/GrPathShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
@@ -165,25 +166,26 @@ public:
 
     // Configures an indirect draw to render cubic instances with 2^resolveLevel evenly-spaced (in
     // the parametric sense) line segments.
-    static GrDrawIndexedIndirectCommand MakeDrawCubicsIndirectCmd(int resolveLevel,
-                                                                  uint32_t instanceCount,
-                                                                  uint32_t baseInstance) {
+    static void WriteDrawCubicsIndirectCmd(GrDrawIndexedIndirectWriter* indirectWriter,
+                                           int resolveLevel, uint32_t instanceCount,
+                                           uint32_t baseInstance, const GrCaps& caps) {
         SkASSERT(resolveLevel > 0 && resolveLevel <= GrTessellationPathRenderer::kMaxResolveLevel);
         // Starting at baseIndex=3, the index buffer triangulates a cubic with 2^kMaxResolveLevel
         // line segments. Each index value corresponds to a parametric T value on the curve. Since
         // the triangles are arranged in "middle-out" order, we can conveniently control the
         // resolveLevel by changing only the indexCount.
         uint32_t indexCount = NumVerticesAtResolveLevel(resolveLevel);
-        return {indexCount, instanceCount, 3, 0, baseInstance};
+        indirectWriter->writeIndexed(indexCount, 3, instanceCount, baseInstance, 0, caps);
     }
 
     // For performance reasons we can often express triangles as an indirect cubic draw and sneak
     // them in alongside the other indirect draws. This method configures an indirect draw to emit
     // the triangle [P0, P1, P2] from a 4-point instance.
-    static GrDrawIndexedIndirectCommand MakeDrawTrianglesIndirectCmd(uint32_t instanceCount,
-                                                                     uint32_t baseInstance) {
+    static void WriteDrawTrianglesIndirectCmd(GrDrawIndexedIndirectWriter* indirectWriter,
+                                              uint32_t instanceCount, uint32_t baseInstance,
+                                              const GrCaps& caps) {
         // Indices 0,1,2 have special index values that emit points P0, P1, and P2 respectively.
-        return {3, instanceCount, 0, 0, baseInstance};
+        indirectWriter->writeIndexed(3, 0, instanceCount, baseInstance, 0, caps);
     }
 
     // Returns the index buffer that should be bound when drawing with this shader.
