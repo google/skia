@@ -56,28 +56,28 @@ public:
         return fStaticVertexData;
     }
 
-    GrDrawIndirectCommand* makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
+    GrDrawIndirectCmdWriter makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
                                                  size_t* offsetInBytes) override {
-        int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndirectData);
+        int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticIndirectData);
         if (drawCount > staticBufferCount) {
             SK_ABORT("FATAL: wanted %i static drawIndirect elements; only have %i.\n",
                      drawCount, staticBufferCount);
         }
         *offsetInBytes = 0;
-        return fStaticDrawIndirectData;
+        return fStaticIndirectData;
     }
 
     void putBackIndirectDraws(int count) override { /* no-op */ }
 
-    GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
+    GrDrawIndexedIndirectCmdWriter makeDrawIndexedIndirectSpace(
             int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) override {
-        int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndexedIndirectData);
+        int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticIndirectData);
         if (drawCount > staticBufferCount) {
             SK_ABORT("FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
                      drawCount, staticBufferCount);
         }
         *offsetInBytes = 0;
-        return fStaticDrawIndexedIndirectData;
+        return fStaticIndirectData;
     }
 
     void putBackIndexedIndirectDraws(int count) override { /* no-op */ }
@@ -100,8 +100,7 @@ public:
 private:
     sk_sp<GrDirectContext> fMockContext;
     char fStaticVertexData[6 * 1024 * 1024];
-    GrDrawIndirectCommand fStaticDrawIndirectData[32];
-    GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
+    std::array<uint32_t, 5> fStaticIndirectData[32];
     SkSTArenaAllocWithReset<1024 * 1024> fAllocator;
     GrXferProcessor::DstProxyView fDstProxyView;
 };
