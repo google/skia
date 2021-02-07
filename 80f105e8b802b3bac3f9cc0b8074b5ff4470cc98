@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8cb6abd_a22c78ea",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1296,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2021-02-07T18:05:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f89c49f_691c3096",
+      "revId": "80f105e8b802b3bac3f9cc0b8074b5ff4470cc98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d63f835_f249a0a5",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-02-04T03:41:08Z",
       "side": 1,
       "message": "As far as I can tell, OpenGL32.lib is also not usable with a UWP. There seem to be ways to create a GL context through Angle which will back onto DX, but there is no way to get at any native GL in a UWP, afaict. Considering that this is in a test library it seems that maybe the Gdi32.lib line above was put in the conditional because of search and replace but maybe not because it actually affected your build?\n\nIt seems this whole build target would need to be re-worked since the source file \"tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp\" directly depends on \"src/utils/win/SkWGL.h\" which was explicitly removed from sources above?\n\nIf your build doesn\u0027t require the change above then I would prefer that the change be left out since it seems misleading. Maybe you only compiled for arm64 UWP? If so and that\u0027s the only platform of interest then that would be interesting to know. I\u0027m guessing this is the case since SkWGL_win.cpp already has \"!defined(_M_ARM64)\" around its content and that this wasn\u0027t put into the conditional.\n\nAt the very least the \" \u0026\u0026 !skia_enable_winuwp\" should go up with the \"} else if (is_win) {\" line above, since this block is effectively already empty in that case.",
+      "range": {
+        "startLine": 1725,
+        "startChar": 21,
+        "endLine": 1725,
+        "endChar": 33
+      },
+      "revId": "80f105e8b802b3bac3f9cc0b8074b5ff4470cc98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61592450_376062fd",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1725,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2021-02-07T18:05:01Z",
+      "side": 1,
+      "message": "I missed the fact that this was a test binary, hence reverting this as it has no impact on flutter",
+      "parentUuid": "4d63f835_f249a0a5",
       "range": {
         "startLine": 1725,
         "startChar": 21,
