@@ -41,9 +41,24 @@ void TransformAdapter2D::onSync() {
 }
 
 SkMatrix TransformAdapter2D::totalMatrix() const {
-    // TODO: skew
+    auto skew_matrix = [](float sk, float sa) {
+        if (!sk) return SkMatrix::I();
+
+        // AE control limit.
+        static constexpr float kMaxSkewAngle = 85;
+        sk = -SkDegreesToRadians(SkTPin(sk, -kMaxSkewAngle, kMaxSkewAngle));
+        sa =  SkDegreesToRadians(sa);
+
+        // Similar to CSS/SVG SkewX [1] with an explicit rotation.
+        // [1] https://www.w3.org/TR/css-transforms-1/#SkewXDefined
+        return SkMatrix::RotateRad(sa)
+             * SkMatrix::Skew(std::tan(sk), 0)
+             * SkMatrix::RotateRad(-sa);
+    };
+
     return SkMatrix::Translate(fPosition.x, fPosition.y)
          * SkMatrix::RotateDeg(fRotation + fOrientation)
+         * skew_matrix        (fSkew, fSkewAxis)
          * SkMatrix::Scale    (fScale.x / 100, fScale.y / 100) // 100% based
          * SkMatrix::Translate(-fAnchorPoint.x, -fAnchorPoint.y);
 }

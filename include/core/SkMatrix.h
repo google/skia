@@ -109,6 +109,18 @@ public:
         return RotateDeg(SkRadiansToDegrees(rad));
     }
 
+    /** Sets SkMatrix to skew by (kx, ky) about pivot point (0, 0).
+
+        @param kx  horizontal skew factor
+        @param ky  vertical skew factor
+        @return    SkMatrix with skew
+    */
+    static SkMatrix SK_WARN_UNUSED_RESULT Skew(SkScalar kx, SkScalar ky) {
+        SkMatrix m;
+        m.setSkew(kx, ky);
+        return m;
+    }
+
     /** \enum SkMatrix::ScaleToFit
         ScaleToFit describes how SkMatrix is constructed to map one SkRect to another.
         ScaleToFit may allow SkMatrix to have unequal horizontal and vertical scaling,
