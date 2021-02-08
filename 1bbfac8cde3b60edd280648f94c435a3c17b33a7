@@ -22,6 +22,30 @@
       },
       "revId": "1bbfac8cde3b60edd280648f94c435a3c17b33a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61c5e7d3_399f46a5",
+        "filename": "fuzz/FuzzSkParagraph.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-02-08T20:28:18Z",
+      "side": 1,
+      "message": "It takes a SkScalar which can be 0, if the input doesn\u0027t make sense in this context, AFL will cover that test case and quickly learn that it\u0027s uninteresting, right?",
+      "parentUuid": "25fef33b_5d154beb",
+      "range": {
+        "startLine": 280,
+        "startChar": 15,
+        "endLine": 280,
+        "endChar": 21
+      },
+      "revId": "1bbfac8cde3b60edd280648f94c435a3c17b33a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
