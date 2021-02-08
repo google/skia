@@ -51,6 +51,7 @@
     #include "src/core/SkMatrixImageFilter.h"
     #include "src/effects/imagefilters/SkAlphaThresholdImageFilter.h"
     #include "src/effects/imagefilters/SkArithmeticImageFilter.h"
+    #include "src/effects/imagefilters/SkColorFilterImageFilter.h"
 
     /*
      *  Register most effects for deserialization.
@@ -118,6 +119,7 @@
         SkImageFilters::RegisterFlattenables();
         SkAlphaThresholdImageFilter::RegisterFlattenables();
         SkArithmeticImageFilter::RegisterFlattenables();
+        SkColorFilterImageFilter::RegisterFlattenables();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }

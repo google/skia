@@ -9,19 +9,30 @@
 #define SkColorFilterImageFilter_DEFINED
 
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkImageFilter.h"
+#include "src/core/SkImageFilter_Base.h"
 
-// DEPRECATED: Use include/effects/SkImageFilters::ColorFilter
-class SK_API SkColorFilterImageFilter {
+class SkColorFilterImageFilter final : public SkImageFilter_Base {
 public:
-    static sk_sp<SkImageFilter> Make(sk_sp<SkColorFilter> cf,
-                                     sk_sp<SkImageFilter> input,
-                                     const SkRect* cropRect = nullptr);
+    SkColorFilterImageFilter(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input,
+                             const SkRect* cropRect)
+            : INHERITED(&input, 1, cropRect)
+            , fColorFilter(std::move(cf)) {}
+
+protected:
+    void flatten(SkWriteBuffer&) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
+    bool onIsColorFilterNode(SkColorFilter**) const override;
+    bool onCanHandleComplexCTM() const override { return true; }
+    bool affectsTransparentBlack() const override;
+
+private:
+    SK_FLATTENABLE_HOOKS(SkColorFilterImageFilter)
 
     static void RegisterFlattenables();
 
-private:
-    SkColorFilterImageFilter() = delete;
+    sk_sp<SkColorFilter> fColorFilter;
+
+    using INHERITED = SkImageFilter_Base;
 };
 
 #endif
