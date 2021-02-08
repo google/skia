@@ -41,6 +41,27 @@ void DefinitionMap::computeStartState(const CFG& cfg) {
     }
 }
 
+Expression* DefinitionMap::getKnownDefinition(const Variable* var) const {
+    // Find this variable in the definition map.
+    std::unique_ptr<Expression>** exprPtr = fDefinitions.find(var);
+    if (!exprPtr || !*exprPtr) {
+        return nullptr;
+    }
+    // Return known expressions only; return "null" for defined-but-unknown expressions.
+    Expression* expr = (*exprPtr)->get();
+    return (expr->kind() != Expression::Kind::kDefined) ? expr : nullptr;
+}
+
+// Add compile-time constants to the definition map. Non-compile-time constant expressions are saved
+// as just "defined" since we can't guarantee that the expression will remain alive until the end of
+// optimization.
+void DefinitionMap::addDefinition(const Context& context, const Variable* var,
+                                  std::unique_ptr<Expression>* expr) {
+    fDefinitions.set(var, (*expr)->isCompileTimeConstant()
+                                  ? expr
+                                  : (std::unique_ptr<Expression>*)&context.fDefined_Expression);
+}
+
 // Add the definition created by assigning to the lvalue to the definition map.
 void DefinitionMap::addDefinition(const Context& context, const Expression* lvalue,
                                   std::unique_ptr<Expression>* expr) {
@@ -48,7 +69,7 @@ void DefinitionMap::addDefinition(const Context& context, const Expression* lval
         case Expression::Kind::kVariableReference: {
             const Variable& var = *lvalue->as<VariableReference>().variable();
             if (var.storage() == Variable::Storage::kLocal) {
-                fDefinitions.set(&var, expr);
+                this->addDefinition(context, &var, expr);
             }
             break;
         }
@@ -156,7 +177,7 @@ void DefinitionMap::addDefinitions(const Context& context, const BasicBlock::Nod
         if (stmt->is<VarDeclaration>()) {
             VarDeclaration& vd = stmt->as<VarDeclaration>();
             if (vd.value()) {
-                fDefinitions.set(&vd.var(), &vd.value());
+                this->addDefinition(context, &vd.var(), &vd.value());
             }
         }
     }
