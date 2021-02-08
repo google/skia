@@ -16,6 +16,24 @@
       "message": "Did it help the performance of uniform buffers?",
       "revId": "66e24214bac8dfb1ec15030f2e2be8540d57111e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1684d36_afcbb668",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-08T19:56:11Z",
+      "side": 1,
+      "message": "yeah locally they dropped back to where they were before the original change.",
+      "parentUuid": "7e0f351c_b9a97228",
+      "revId": "66e24214bac8dfb1ec15030f2e2be8540d57111e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
