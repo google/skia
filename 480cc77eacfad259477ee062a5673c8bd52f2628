@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7babd03_5eb6f2bf",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Got it. Done.",
+      "parentUuid": "edd9f9d2_8acf6874",
+      "range": {
+        "startLine": 385,
+        "startChar": 26,
+        "endLine": 385,
+        "endChar": 92
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aed050f4_a0906b7f",
@@ -70,6 +94,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a42c0b5_1a313af3",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "debe92d6_e4f7eddb",
+      "range": {
+        "startLine": 681,
+        "startChar": 4,
+        "endLine": 681,
+        "endChar": 8
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab5a2bc8_ca75fedb",
@@ -83,6 +131,30 @@
       "writtenOn": "2021-02-05T13:00:05Z",
       "side": 1,
       "message": "skottie_bindings never calls setPlayer, so it shouldn\u0027t be a requirement on the interface here.",
+      "range": {
+        "startLine": 685,
+        "startChar": 4,
+        "endLine": 685,
+        "endChar": 13
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "deb0d5c5_5f03f7c6",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "I see, done.",
+      "parentUuid": "ab5a2bc8_ca75fedb",
       "range": {
         "startLine": 685,
         "startChar": 4,
@@ -116,6 +188,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13158241_d028e78d",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a451d02a_728bf0eb",
+      "range": {
+        "startLine": 686,
+        "startChar": 4,
+        "endLine": 686,
+        "endChar": 13
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "670fee03_32688eb0",
@@ -129,6 +225,30 @@
       "writtenOn": "2021-02-05T13:00:05Z",
       "side": 1,
       "message": "This is an async test, so you want to add a param \"done\" here and then call done() when the test finishes.\n\nThe gm wrapper takes care of this for you, so if writing your own test, we must handle this explicitly.",
+      "range": {
+        "startLine": 79,
+        "startChar": 32,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5da75266_57cd3d83",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Ah, thank you. Done.",
+      "parentUuid": "670fee03_32688eb0",
       "range": {
         "startLine": 79,
         "startChar": 32,
@@ -186,6 +306,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9b8f814_22b16628",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df2b9455_b6373e48",
+      "range": {
+        "startLine": 93,
+        "startChar": 34,
+        "endLine": 93,
+        "endChar": 35
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "69158256_c274fb78",
@@ -199,6 +343,30 @@
       "writtenOn": "2021-02-05T13:00:05Z",
       "side": 1,
       "message": "style: always wrap arrow function params, even if there\u0027s only one.",
+      "range": {
+        "startLine": 99,
+        "startChar": 14,
+        "endLine": 99,
+        "endChar": 22
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3dbc21fb_45b7ffaa",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69158256_c274fb78",
       "range": {
         "startLine": 99,
         "startChar": 14,
@@ -232,6 +400,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8524e861_a40f629b",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f67843a_f13a2c88",
+      "range": {
+        "startLine": 100,
+        "startChar": 14,
+        "endLine": 100,
+        "endChar": 22
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0d0a9c57_efc5f56e",
@@ -246,6 +438,30 @@
       "side": 1,
       "message": "\u003e Please remove the trailing whitespace.\n\nPlease fix.",
       "parentUuid": "4aa61d51_d0c6b78d",
+      "range": {
+        "startLine": 101,
+        "startChar": 89,
+        "endLine": 101,
+        "endChar": 90
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49c70774_ebb108b7",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-08T17:34:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d0a9c57_efc5f56e",
       "range": {
         "startLine": 101,
         "startChar": 89,
