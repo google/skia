@@ -57,6 +57,7 @@ namespace {
 const uint8_t MAX_TEXT_LENGTH = 255;
 const uint8_t MAX_TEXT_ADDITIONS = 4;
 const uint16_t TEST_CANVAS_WIDTH = 1000;
+const uint16_t TEST_CANVAS_HEIGHT = 1000;
 
 class ResourceFontCollection : public FontCollection {
 public:
@@ -269,6 +270,9 @@ DEF_FUZZ(SkParagraph, fuzz) {
     builder.pop();
     auto paragraph = builder.Build();
 
+    SkBitmap bm;
+    bm.allocN32Pixels(TEST_CANVAS_WIDTH, TEST_CANVAS_HEIGHT);
+    SkCanvas canvas(bm);
     paragraph->layout(TEST_CANVAS_WIDTH);
-
+    paragraph->paint(&canvas, 0, 0);
 }
