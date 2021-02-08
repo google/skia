@@ -39,6 +39,30 @@
       },
       "revId": "9c1eedca20064a16c4156503fc9813bcf54b46fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d586968_026abb0e",
+        "filename": "modules/svg/src/SkSVGPoly.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-08T19:51:15Z",
+      "side": 1,
+      "message": "Probably not. I was thinking of migrating towards SkPathBuilder but now you mention it, I wonder if the SkPath factory methods will stick around?",
+      "parentUuid": "244b9908_4d35ac6a",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 33
+      },
+      "revId": "9c1eedca20064a16c4156503fc9813bcf54b46fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
