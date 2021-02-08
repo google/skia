@@ -16,6 +16,46 @@
       "message": "I think this is ready for (re-) review now -- fixed treatment of points.",
       "revId": "723e1bf15fbbbd735ef9440ebdfd8f6218386bd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6792303b_f2971d9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T16:29:34Z",
+      "side": 1,
+      "message": "Let\u0027s also run Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-GpuTess when ready and see the gold output before landing",
+      "revId": "723e1bf15fbbbd735ef9440ebdfd8f6218386bd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7391b9e_4ca56fd9",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T16:29:34Z",
+      "side": 1,
+      "message": "We might not need this. I don\u0027t want it to get out of sync with the intolerance version if somebody changes one and doesn\u0027t notice the other. What do you think about just using \"1/kLinearizationIntolerance\" at the code sites that need it?",
+      "range": {
+        "startLine": 23,
+        "startChar": 27,
+        "endLine": 23,
+        "endChar": 50
+      },
+      "revId": "723e1bf15fbbbd735ef9440ebdfd8f6218386bd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
