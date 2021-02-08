@@ -7,9 +7,11 @@
 
 #include "src/gpu/vk/GrVkBuffer.h"
 
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/vk/GrVkBuffer2.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkMemory.h"
-#include "src/gpu/vk/GrVkTransferBuffer.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
@@ -206,18 +208,14 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(GrVkGpu* gpu, const void* src, size_t si
     if ((size <= 65536) && (0 == (size & 0x3)) && !gpu->vkCaps().avoidUpdateBuffers()) {
         gpu->updateBuffer(this, src, this->offset(), size);
     } else {
-        sk_sp<GrVkTransferBuffer> transferBuffer =
-                GrVkTransferBuffer::Make(gpu, size, GrVkBuffer::kCopyRead_Type,
-                                         kStream_GrAccessPattern);
+        GrResourceProvider* resourceProvider = gpu->getContext()->priv().resourceProvider();
+        sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
+                size, GrGpuBufferType::kXferCpuToGpu, kDynamic_GrAccessPattern, src);
         if (!transferBuffer) {
             return;
         }
 
-        char* buffer = (char*) transferBuffer->map();
-        memcpy (buffer, src, size);
-        transferBuffer->unmap();
-
-        gpu->copyBuffer(transferBuffer.get(), this, 0, this->offset(), size);
+        gpu->copyBuffer(std::move(transferBuffer), this, 0, this->offset(), size);
     }
     this->addMemoryBarrier(gpu,
                            VK_ACCESS_TRANSFER_WRITE_BIT,
