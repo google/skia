@@ -235,6 +235,13 @@ sk_sp<SkData> ResourceProviderProxyBase::loadFont(const char name[], const char 
                   : nullptr;
 }
 
+sk_sp<ExternalTrackAsset> ResourceProviderProxyBase::loadAudioAsset(const char path[],
+                                                                    const char name[],
+                                                                    const char id[]) {
+    return fProxy ? fProxy->loadAudioAsset(path, name, id)
+                  : nullptr;
+}
+
 CachingResourceProvider::CachingResourceProvider(sk_sp<ResourceProvider> rp)
     : INHERITED(std::move(rp)) {}
 

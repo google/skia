@@ -209,6 +209,7 @@ protected:
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
     sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override;
     sk_sp<SkData> loadFont(const char[], const char[]) const override;
+    sk_sp<ExternalTrackAsset> loadAudioAsset(const char[], const char[], const char[]) override;
 
 private:
     const sk_sp<ResourceProvider> fProxy;
