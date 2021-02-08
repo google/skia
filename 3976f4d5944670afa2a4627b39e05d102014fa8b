@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "874925d8_bc3fbabb",
+        "filename": "fuzz/FuzzSkParagraph.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-02-08T19:44:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27004c27_e5d3d40d",
+      "range": {
+        "startLine": 274,
+        "startChar": 22,
+        "endLine": 274,
+        "endChar": 39
+      },
+      "revId": "3976f4d5944670afa2a4627b39e05d102014fa8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86e11442_5d1df18d",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-08T17:52:14Z",
       "side": 1,
       "message": "You could have the layout width be a fuzzable range.",
+      "range": {
+        "startLine": 276,
+        "startChar": 22,
+        "endLine": 276,
+        "endChar": 39
+      },
+      "revId": "3976f4d5944670afa2a4627b39e05d102014fa8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87ecf13e_f635214a",
+        "filename": "fuzz/FuzzSkParagraph.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-02-08T19:44:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86e11442_5d1df18d",
       "range": {
         "startLine": 276,
         "startChar": 22,
