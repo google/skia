@@ -21,9 +21,9 @@ class SkTraceMemoryDump;
  * Separated out as a base class to isolate the ref-cnting behavior and provide friendship without
  * exposing all of GrGpuResource.
  *
- * PRIOR to the last ref being removed DERIVED::notifyRefCntWillBeZero() will be called
+ * PRIOR to the last ref being removed DERIVED::notifyARefCntWillBeZero() will be called
  * (static poly morphism using CRTP). It is legal for additional ref's to be added
- * during this time. AFTER the ref count reaches zero DERIVED::notifyRefCntIsZero() will be
+ * during this time. AFTER the ref count reaches zero DERIVED::notifyARefCntIsZero() will be
  * called.
  */
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
@@ -37,11 +37,16 @@ public:
         (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
+    // This enum is used to notify the GrResourceCache which type of ref just dropped to zero.
+    enum class LastRemovedRef {
+        kMainRef,            // This refers to fRefCnt
+        kCommandBufferUsage, // This refers to fCommandBufferUsageCnt
+    };
+
     void unref() const {
         SkASSERT(this->getRefCnt() > 0);
-        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel) &&
-            this->hasNoCommandBufferUsages()) {
-            this->notifyWillBeZero();
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+            this->notifyWillBeZero(LastRemovedRef::kMainRef);
         }
     }
 
@@ -52,9 +57,8 @@ public:
 
     void removeCommandBufferUsage() const {
         SkASSERT(!this->hasNoCommandBufferUsages());
-        if (1 == fCommandBufferUsageCnt.fetch_add(-1, std::memory_order_acq_rel) &&
-            0 == this->getRefCnt()) {
-            this->notifyWillBeZero();
+        if (1 == fCommandBufferUsageCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+            this->notifyWillBeZero(LastRemovedRef::kCommandBufferUsage);
         }
     }
 
@@ -63,8 +67,6 @@ public:
 #endif
 
 protected:
-    friend class GrResourceCache; // for internalHasRef
-
     GrIORef() : fRefCnt(1), fCommandBufferUsageCnt(0) {}
 
     bool internalHasRef() const { return SkToBool(this->getRefCnt()); }
@@ -80,18 +82,22 @@ protected:
     }
 
 private:
-    void notifyWillBeZero() const {
-        // At this point we better be the only thread accessing this resource.
-        // Trick out the notifyRefCntWillBeZero() call by adding back one more ref.
-        fRefCnt.fetch_add(+1, std::memory_order_relaxed);
-        static_cast<const DERIVED*>(this)->notifyRefCntWillBeZero();
-        // notifyRefCntWillBeZero() could have done anything, including re-refing this and
-        // passing on to another thread. Take away the ref-count we re-added above and see
-        // if we're back to zero.
-        // TODO: Consider making it so that refs can't be added and merge
-        //  notifyRefCntWillBeZero()/willRemoveLastRef() with notifyRefCntIsZero().
-        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
-            static_cast<const DERIVED*>(this)->notifyRefCntIsZero();
+    void notifyWillBeZero(LastRemovedRef removedRef) const {
+        if (0 == this->getRefCnt() && this->hasNoCommandBufferUsages()) {
+            // At this point we better be the only thread accessing this resource.
+            // Trick out the notifyRefCntWillBeZero() call by adding back one more ref.
+            fRefCnt.fetch_add(+1, std::memory_order_relaxed);
+            static_cast<const DERIVED*>(this)->notifyRefCntWillBeZero();
+            // notifyRefCntWillBeZero() could have done anything, including re-refing this and
+            // passing on to another thread. Take away the ref-count we re-added above and see
+            // if we're back to zero.
+            // TODO: Consider making it so that refs can't be added and merge
+            //  notifyRefCntWillBeZero()/willRemoveLastRef() with notifyARefCntIsZero().
+            if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+                static_cast<const DERIVED*>(this)->notifyARefCntIsZero(removedRef);
+            }
+        } else {
+            static_cast<const DERIVED*>(this)->notifyARefCntIsZero(removedRef);
         }
     }
 
@@ -297,7 +303,7 @@ private:
     void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();
     void notifyRefCntWillBeZero() const;
-    void notifyRefCntIsZero() const;
+    void notifyARefCntIsZero(LastRemovedRef removedRef) const;
     void removeScratchKey();
     void makeBudgeted();
     void makeUnbudgeted();
@@ -328,7 +334,8 @@ private:
     const UniqueID fUniqueID;
 
     using INHERITED = GrIORef<GrGpuResource>;
-    friend class GrIORef<GrGpuResource>; // to access notifyRefCntWillBeZero and notifyRefCntIsZero.
+    friend class GrIORef<GrGpuResource>; // to access notifyRefCntWillBeZero and
+                                         // notifyARefCntIsZero.
 };
 
 class GrGpuResource::ProxyAccess {
