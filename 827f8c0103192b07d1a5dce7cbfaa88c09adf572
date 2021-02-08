@@ -22,6 +22,30 @@
       },
       "revId": "827f8c0103192b07d1a5dce7cbfaa88c09adf572",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf9e81bf_b58910b3",
+        "filename": "src/gpu/effects/generated/GrLumaColorFilterEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-08T21:34:48Z",
+      "side": 0,
+      "message": "I think that\u0027s a good idea.  I\u0027d like to be able to assume color filters all kConstantOutputForConstantInput, and if we find a way to write a runtime color filter that violates that, to close that hole rather than back off the assumption.\n\nI have some ideas for other bits we might want, like alpha-is-opaque and alpha-is-unchanged, mostly around creating the skvm program and inspecting value IDs.",
+      "parentUuid": "33f9c767_f6de194d",
+      "range": {
+        "startLine": 42,
+        "startChar": 32,
+        "endLine": 42,
+        "endChar": 80
+      },
+      "revId": "827f8c0103192b07d1a5dce7cbfaa88c09adf572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

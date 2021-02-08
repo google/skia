@@ -16,6 +16,24 @@
       "message": "Is SK_SUPPORT_LEGACY_RUNTIME_EFFECTS for other effects too, or just this LUMA one?",
       "revId": "f6706887015ae346700f225cdc7b560b48673480",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "376b2537_faa1c961",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-08T21:34:48Z",
+      "side": 1,
+      "message": "Not sure yet.  It\u0027s really for whatever I troll up that I can port to SkRuntimeEffect easily and is not important to have special implementation in Skia long-term.  Next thing I\u0027m eyeing is SkHighContrastFilter.\n\nI figure there will be several rounds adding and removing this or similar #defines from users like Chromium.",
+      "parentUuid": "5bf798b6_904080cb",
+      "revId": "f6706887015ae346700f225cdc7b560b48673480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
