@@ -22,6 +22,30 @@
       },
       "revId": "7f97811222d3c0ca3fbf795d03b17eee0aaa7471",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "785067e6_f8c3f1fe",
+        "filename": "tests/WangsFormulaTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-08T16:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1d60d50_91ba53b1",
+      "range": {
+        "startLine": 418,
+        "startChar": 17,
+        "endLine": 418,
+        "endChar": 21
+      },
+      "revId": "7f97811222d3c0ca3fbf795d03b17eee0aaa7471",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
