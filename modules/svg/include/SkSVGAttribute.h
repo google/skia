@@ -20,7 +20,6 @@ enum class SkSVGAttribute {
     kColorInterpolationFilters,
     kCx, // <circle>, <ellipse>, <radialGradient>: center x position
     kCy, // <circle>, <ellipse>, <radialGradient>: center y position
-    kD,
     kFill,
     kFillOpacity,
     kFillRule,

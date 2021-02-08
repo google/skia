@@ -9,7 +9,6 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTo.h"
-#include "include/utils/SkParsePath.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGCircle.h"
 #include "modules/svg/include/SkSVGClipPath.h"
@@ -59,17 +58,6 @@ bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     }
 
     node->setAttribute(attr, SkSVGStringValue(parseResult->iri()));
-    return true;
-}
-
-bool SetPathDataAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                          const char* stringValue) {
-    SkPath path;
-    if (!SkParsePath::FromSVGString(stringValue, &path)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGPathValue(path));
     return true;
 }
 
@@ -219,7 +207,6 @@ struct AttrParseInfo {
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "cx"                 , { SkSVGAttribute::kCx               , SetLengthAttribute       }},
     { "cy"                 , { SkSVGAttribute::kCy               , SetLengthAttribute       }},
-    { "d"                  , { SkSVGAttribute::kD                , SetPathDataAttribute     }},
     { "filterUnits"        , { SkSVGAttribute::kFilterUnits      ,
                                SetObjectBoundingBoxUnitsAttribute }},
     // focal point x & y
