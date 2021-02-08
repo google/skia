@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d14020e7_9464dee3",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-08T16:26:22Z",
+      "side": 1,
+      "message": "Knowing that there will be more of these (declare struct, declare enum, ...), thinking I should just use a real interface here?\n\n  class PipelineStageCallbacks {\n      virtual String declareUniform(const VarDeclaration*) \u003d 0;\n      ...\n  };",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 95
+      },
+      "revId": "c3aabfc56615431a07e429aa30303258d9be67f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
