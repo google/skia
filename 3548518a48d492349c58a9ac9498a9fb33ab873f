@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02715473_8743183c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T03:38:46Z",
+      "side": 1,
+      "message": "Also adding Greg since you\u0027ve recently had thoughts on ensuring the mapped buffers are write-only.",
+      "revId": "3548518a48d492349c58a9ac9498a9fb33ab873f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
