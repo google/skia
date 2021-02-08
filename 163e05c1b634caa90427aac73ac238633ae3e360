@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "978f1d6e_d31c8ea1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-08T16:35:15Z",
+      "side": 1,
+      "message": "The other of two minor followups to SkColorFilter::filterColor4f().  I noticed that I was only checking the result of store() and SkColorType_to_PixelFormat() about half the time, the other half relying on my secret knowledge they can\u0027t fail.  So might as well drop all the error handling... we\u0027ll still get a very obvious assertion failure on the first debug bot we try to run if we add a new color type.\n",
+      "revId": "163e05c1b634caa90427aac73ac238633ae3e360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
