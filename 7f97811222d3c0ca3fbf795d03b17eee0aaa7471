@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1d60d50_91ba53b1",
+        "filename": "tests/WangsFormulaTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T16:03:35Z",
+      "side": 1,
+      "message": "Can you use skvx::Vec\u003c2, double\u003e? SkNx is being phased out.",
+      "range": {
+        "startLine": 418,
+        "startChar": 17,
+        "endLine": 418,
+        "endChar": 21
+      },
+      "revId": "7f97811222d3c0ca3fbf795d03b17eee0aaa7471",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
