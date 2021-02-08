@@ -61,9 +61,9 @@ private:
 
 #if GR_TEST_UTILS
 public:
-    void verifyResolveLevels(skiatest::Reporter*, GrMeshDrawOp::Target*, const SkMatrix&,
+    void verifyResolveLevels(skiatest::Reporter*, class GrMockOpTarget*, const SkMatrix&,
                              const SkPath&, const SkStrokeRec&);
-    void verifyBuffers(skiatest::Reporter*, GrMeshDrawOp::Target*, const SkMatrix&,
+    void verifyBuffers(skiatest::Reporter*, class GrMockOpTarget*, const SkMatrix&,
                        const SkStrokeRec&);
     class Benchmark;
 #endif
