@@ -574,3 +574,7 @@ sksl_spirv_tests_sources =
 ## Tests in sksl_skvm_tests_sources will be compiled with --settings on, and are expected to
 ## generate a .skvm output file.
 sksl_skvm_tests_sources = sksl_rte_tests + sksl_rte_error_tests
+
+## Tests in sksl_stage_tests_sources will be compiled with --settings on, and are expected to
+## generate a .stage output file.
+sksl_stage_tests_sources = sksl_rte_tests

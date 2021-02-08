@@ -1,0 +1,26 @@
+uniform float u1[4];
+uniform float u2[4];
+uniform float u3[4];
+uniform float u4[16];
+float4 main()
+{
+	float _2_sum = 0.0;
+	for (int _3_i = 3;_3_i >= 0; --_3_i) 
+	{
+		_2_sum += u2[_3_i];
+	}
+	float _5_prod = 1.0;
+	for (int _6_i = 0;_6_i < 4; ++_6_i) 
+	{
+		_5_prod *= u3[_6_i < 2 ? 0 : _6_i];
+	}
+	float _8_sum = 0.0;
+	for (float _9_f = -2.2999999523162842;_9_f < 17.0; _9_f += 3.7000000476837158) 
+	{
+		if (_9_f > 0.0 && _9_f < 16.0) 
+		{
+			_8_sum -= u4[int(_9_f)];
+		}
+	}
+	return half4(float4(u1[0], _2_sum, _5_prod, _8_sum));
+}

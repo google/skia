@@ -1,0 +1,6 @@
+uniform fragmentProcessor child;
+uniform float3x3 matrix;
+half4 main()
+{
+	return half4(sample(child, matrix));
+}

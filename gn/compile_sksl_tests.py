@@ -96,8 +96,12 @@ for input, targetDir in pairwise(inputs):
         worklist.write(input + "\n")
         worklist.write(target + ".skvm\n")
         worklist.write(settings + "\n\n")
+    elif lang == "--stage":
+        worklist.write(input + "\n")
+        worklist.write(target + ".stage\n")
+        worklist.write(settings + "\n\n")
     else:
-        sys.exit("### Expected one of: --fp --glsl --metal --spirv --skvm, got " + lang)
+        sys.exit("### Expected one of: --fp --glsl --metal --spirv --skvm --stage, got " + lang)
 
     # Compile items one at a time.
     if not batchCompile:

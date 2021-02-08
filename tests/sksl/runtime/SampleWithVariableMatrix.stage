@@ -1,0 +1,6 @@
+uniform fragmentProcessor child;
+half4 main()
+{
+	float x = sqrt(1.0);
+	return half4(sample(child, float3x3(x, 0.0, 0.0, 0.0, x, 0.0, 0.0, 0.0, 1.0)));
+}

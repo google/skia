@@ -9,10 +9,12 @@
 #include "src/opts/SkChecksum_opts.h"
 #include "src/opts/SkVM_opts.h"
 
+#include "src/gpu/GrShaderUtils.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/SkSLVMGenerator.h"
@@ -395,6 +397,44 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
 
                     std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
                     builder.done().dump(redirect.get());
+                    return true;
+                });
+    } else if (outputPath.endsWith(".stage")) {
+        return compileProgram(SkSL::Compiler::kNone_Flags,
+                [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
+                    class Callbacks : public SkSL::PipelineStage::Callbacks {
+                    public:
+                        using String = SkSL::String;
+
+                        String declareUniform(const SkSL::VarDeclaration* decl) override {
+                            fOutput += decl->description();
+                            if (decl->var().type().name() == "fragmentProcessor") {
+                                fChildNames.push_back(decl->var().name());
+                            }
+                            return decl->var().name();
+                        }
+
+                        String defineFunction(const SkSL::FunctionDeclaration* decl,
+                                              String body) override {
+                            fOutput += (decl->description() + "{" + body + "}");
+                            return decl->name();
+                        }
+
+                        String sampleChild(int index, String coords) override {
+                            return String::printf("sample(%s%s%s)", fChildNames[index].c_str(),
+                                                  coords.empty() ? "" : ", ", coords.c_str());
+                        }
+                        String sampleChildWithMatrix(int index, String matrix) override {
+                            return String::printf("sample(%s%s%s)", fChildNames[index].c_str(),
+                                                  matrix.empty() ? "" : ", ", matrix.c_str());
+                        }
+
+                        String              fOutput;
+                        std::vector<String> fChildNames;
+                    };
+                    Callbacks callbacks;
+                    SkSL::PipelineStage::ConvertProgram(program, "_coords", &callbacks);
+                    out.writeString(GrShaderUtils::PrettyPrint(callbacks.fOutput));
                     return true;
                 });
     } else if (outputPath.endsWith(".dehydrated.sksl")) {
