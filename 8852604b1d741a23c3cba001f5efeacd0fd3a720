@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5154130a_a2f19299",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-08T23:50:54Z",
+      "side": 0,
+      "message": "No one used this anymore so it was removed.",
+      "range": {
+        "startLine": 51,
+        "startChar": 13,
+        "endLine": 51,
+        "endChar": 24
+      },
+      "revId": "8852604b1d741a23c3cba001f5efeacd0fd3a720",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
