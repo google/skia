@@ -20,7 +20,6 @@ public:
 
     bool parseInteger(SkSVGIntegerType*);
     bool parseViewBox(SkSVGViewBoxType*);
-    bool parsePoints(SkSVGPointsType*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
     // TODO: Migrate all parse*() functions to this style (and delete the old version)

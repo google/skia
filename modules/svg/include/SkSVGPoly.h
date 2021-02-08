@@ -22,10 +22,10 @@ public:
         return sk_sp<SkSVGPoly>(new SkSVGPoly(SkSVGTag::kPolyline));
     }
 
-    void setPoints(const SkSVGPointsType&);
+    SVG_ATTR(Points, SkSVGPointsType, SkSVGPointsType())
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    bool parseAndSetAttribute(const char*, const char*) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPathFillType) const override;
