@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d3886ff_690ac048",
+        "filename": "include/core/SkBlendMode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-08T18:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24c373bb_749ed03c",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 24
+      },
+      "revId": "76684193330e65230c7caf989c51d6811b85047c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae57faa0_a4ac5786",
