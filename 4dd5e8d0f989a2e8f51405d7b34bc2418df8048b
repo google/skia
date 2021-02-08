@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "093e8ee6_fb0c87a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T17:28:33Z",
+      "side": 1,
+      "message": "I did not know this could be done in the generic profile!! This is awesome!",
+      "revId": "4dd5e8d0f989a2e8f51405d7b34bc2418df8048b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23fad096_4ff92d33",
+        "filename": "tools/skpbench/_hardware_android.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T17:28:33Z",
+      "side": 1,
+      "message": "This seems unrelated. Can it go in a separate CL?",
+      "range": {
+        "startLine": 59,
+        "startChar": 7,
+        "endLine": 63,
+        "endChar": 17
+      },
+      "revId": "4dd5e8d0f989a2e8f51405d7b34bc2418df8048b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87733934_ab769dab",
+        "filename": "tools/skpbench/_hardware_android.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T17:28:33Z",
+      "side": 1,
+      "message": "Why did we settle on .66? Can this be configurable?, like \"--clock-speed\u003d{0-100}\"",
+      "range": {
+        "startLine": 144,
+        "startChar": 38,
+        "endLine": 144,
+        "endChar": 40
+      },
+      "revId": "4dd5e8d0f989a2e8f51405d7b34bc2418df8048b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
