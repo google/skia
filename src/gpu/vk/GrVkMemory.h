@@ -11,7 +11,6 @@
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/SkTArray.h"
-#include "src/gpu/vk/GrVkBuffer.h"
 
 class GrVkGpu;
 

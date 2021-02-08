@@ -15,7 +15,6 @@
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
-class GrVkBuffer;
 class GrVkFramebuffer;
 class GrVkImage;
 class GrVkPipeline;
@@ -289,24 +288,12 @@ public:
 
     void copyBuffer(GrVkGpu* gpu,
                     sk_sp<GrGpuBuffer> srcBuffer,
-                    GrVkBuffer* dstBuffer,
-                    uint32_t regionCount,
-                    const VkBufferCopy* regions);
-
-    void copyBuffer(GrVkGpu* gpu,
-                    sk_sp<GrGpuBuffer> srcBuffer,
                     sk_sp<GrGpuBuffer> dstBuffer,
                     uint32_t regionCount,
                     const VkBufferCopy* regions);
 
     void updateBuffer(GrVkGpu* gpu,
-                      GrVkBuffer* dstBuffer,
-                      VkDeviceSize dstOffset,
-                      VkDeviceSize dataSize,
-                      const void* data);
-
-    void updateBuffer(GrVkGpu* gpu,
-                      sk_sp<GrVkBuffer2> dstBuffer,
+                      sk_sp<GrVkBuffer> dstBuffer,
                       VkDeviceSize dstOffset,
                       VkDeviceSize dataSize,
                       const void* data);
