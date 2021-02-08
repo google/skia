@@ -14,61 +14,15 @@
 
 SkSVGPattern::SkSVGPattern() : INHERITED(SkSVGTag::kPattern) {}
 
-void SkSVGPattern::setX(const SkSVGLength& x) {
-    fAttributes.fX.set(x);
-}
-
-void SkSVGPattern::setY(const SkSVGLength& y) {
-    fAttributes.fY.set(y);
-}
-
-void SkSVGPattern::setWidth(const SkSVGLength& w) {
-    fAttributes.fWidth.set(w);
-}
-
-void SkSVGPattern::setHeight(const SkSVGLength& h) {
-    fAttributes.fHeight.set(h);
-}
-
-void SkSVGPattern::setPatternTransform(const SkSVGTransformType& patternTransform) {
-    fAttributes.fPatternTransform.set(patternTransform);
-}
-
 bool SkSVGPattern::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", name, value)) ||
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value)) ||
+           this->setWidth(SkSVGAttributeParser::parse<SkSVGLength>("width", name, value)) ||
+           this->setHeight(SkSVGAttributeParser::parse<SkSVGLength>("height", name, value)) ||
+           this->setPatternTransform(SkSVGAttributeParser::parse<SkSVGTransformType>(
+                   "patternTransform", name, value)) ||
            this->setHref(SkSVGAttributeParser::parse<SkSVGIRI>("xlink:href", name, value));
-}
-
-void SkSVGPattern::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kX:
-        if (const auto* x = v.as<SkSVGLengthValue>()) {
-            this->setX(*x);
-        }
-        break;
-    case SkSVGAttribute::kY:
-        if (const auto* y = v.as<SkSVGLengthValue>()) {
-            this->setY(*y);
-        }
-        break;
-    case SkSVGAttribute::kWidth:
-        if (const auto* w = v.as<SkSVGLengthValue>()) {
-            this->setWidth(*w);
-        }
-        break;
-    case SkSVGAttribute::kHeight:
-        if (const auto* h = v.as<SkSVGLengthValue>()) {
-            this->setHeight(*h);
-        }
-        break;
-    case SkSVGAttribute::kPatternTransform:
-        if (const auto* t = v.as<SkSVGTransformValue>()) {
-            this->setPatternTransform(*t);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
 }
 
 const SkSVGPattern* SkSVGPattern::hrefTarget(const SkSVGRenderContext& ctx) const {
@@ -110,11 +64,11 @@ const SkSVGPattern* SkSVGPattern::resolveHref(const SkSVGRenderContext& ctx,
     do {
         // Bitwise OR to avoid short-circuiting.
         const bool didInherit =
-            inherit_if_needed(currentNode->fAttributes.fX               , attrs->fX)      |
-            inherit_if_needed(currentNode->fAttributes.fY               , attrs->fY)      |
-            inherit_if_needed(currentNode->fAttributes.fWidth           , attrs->fWidth)  |
-            inherit_if_needed(currentNode->fAttributes.fHeight          , attrs->fHeight) |
-            inherit_if_needed(currentNode->fAttributes.fPatternTransform, attrs->fPatternTransform);
+            inherit_if_needed(currentNode->fX               , attrs->fX)      |
+            inherit_if_needed(currentNode->fY               , attrs->fY)      |
+            inherit_if_needed(currentNode->fWidth           , attrs->fWidth)  |
+            inherit_if_needed(currentNode->fHeight          , attrs->fHeight) |
+            inherit_if_needed(currentNode->fPatternTransform, attrs->fPatternTransform);
 
         if (!contentNode->hasChildren()) {
             contentNode = currentNode;

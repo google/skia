@@ -36,7 +36,7 @@ void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
 
         const auto& stop = static_cast<const SkSVGStop&>(*child);
         colors->push_back(this->resolveStopColor(ctx, stop));
-        pos->push_back(SkTPin(ltx.resolve(stop.offset(), SkSVGLengthContext::LengthType::kOther),
+        pos->push_back(SkTPin(ltx.resolve(stop.getOffset(), SkSVGLengthContext::LengthType::kOther),
                               0.f, 1.f));
     }
 

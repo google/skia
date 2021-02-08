@@ -36,9 +36,7 @@ enum class SkSVGAttribute {
     kGradientTransform,
     kHeight,
     kHref,
-    kOffset,
     kOpacity,
-    kPatternTransform,
     kPoints,
     kPreserveAspectRatio,
     kR,  // <circle>, <radialGradient>: radius
