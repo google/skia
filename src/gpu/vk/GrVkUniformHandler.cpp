@@ -352,13 +352,16 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 #endif
 
+    // At this point we determine whether we'll be using push constants based on the
+    // uniforms set so far. Later checks will use the internal bool we set here to
+    // keep things consistent.
+    this->determineIfUsePushConstants();
     SkString uniformsString;
     for (const VkUniformInfo& localUniform : fUniforms.items()) {
         if (visibility & localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
-                // TODO: add use of std430 layout
-                uniformsString.appendf("layout(offset=%d) ",
-                                       localUniform.fOffsets[kStd140Layout]);
+                Layout layout = fUsePushConstants ? kStd430Layout : kStd140Layout;
+                uniformsString.appendf("layout(offset=%d) ", localUniform.fOffsets[layout]);
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
@@ -366,14 +369,28 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 
     if (!uniformsString.isEmpty()) {
-        out->appendf("layout (set=%d, binding=%d) uniform uniformBuffer\n{\n",
-                     kUniformBufferDescSet, kUniformBinding);
+        if (fUsePushConstants) {
+            out->append("layout (push_constant) ");
+        } else {
+            out->appendf("layout (set=%d, binding=%d) ",
+                         kUniformBufferDescSet, kUniformBinding);
+        }
+        out->append("uniform uniformBuffer\n{\n");
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
 
 uint32_t GrVkUniformHandler::getRTHeightOffset() const {
-    // TODO: make use of std430 offset
-    uint32_t currentOffset = fCurrentOffsets[kStd140Layout];
-    return get_aligned_offset(&currentOffset, kFloat_GrSLType, 0, kStd140Layout);
+    Layout layout = fUsePushConstants ? kStd430Layout : kStd140Layout;
+    uint32_t currentOffset = fCurrentOffsets[layout];
+    return get_aligned_offset(&currentOffset, kFloat_GrSLType, 0, layout);
+}
+
+void GrVkUniformHandler::determineIfUsePushConstants() const {
+    // If flipY is enabled we may be adding the RTHeight uniform during compilation.
+    // We won't know that for sure until then but we need to make this determination now,
+    // so assume we will need it.
+    uint32_t pad = fFlipY ? sizeof(float) : 0;
+    fUsePushConstants = fCurrentOffsets[kStd430Layout] > 0 &&
+            fCurrentOffsets[kStd430Layout] + pad <= fProgramBuilder->caps()->maxPushConstantsSize();
 }
