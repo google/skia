@@ -10,6 +10,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "src/core/SkSurfacePriv.h"
+#include "src/gpu/text/GrTextBlob.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
@@ -138,6 +139,45 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround, reporter, ctxInfo) {
                     REPORTER_ASSERT(reporter, checkBitmap(bitmap));
                 }
             }
+        }
+    }
+}
+
+DEF_TEST(GrBagOfBytesBasic, r) {
+    const int k4K = 1 << 12;
+    {
+        // GrBagOfBytes::MinimumSizeWithOverhead(-1); // This should fail
+        GrBagOfBytes::MinimumSizeWithOverhead(0);
+        GrBagOfBytes::MinimumSizeWithOverhead(std::numeric_limits<int>::max() - k4K - 1);
+        // GrBagOfBytes::MinimumSizeWithOverhead(std::numeric_limits<int>::max() - k4K);  // Fail
+    }
+
+    {
+        GrBagOfBytes bob;
+        // bob.alignedBytes(0, 1);  // This should fail
+        // bob.alignedBytes(1, 0);  // This should fail
+        // bob.alignedBytes(1, 3);  // This should fail
+
+        struct Big {
+            char stuff[std::numeric_limits<int>::max()];
+        };
+        // bob.alignedBytes(sizeof(Big), 1);  // this should fail
+        // bob.allocateBytesFor<Big>();  // this should not compile
+        // The following should run, but should not be regularly tested.
+        // bob.allocateBytesFor<int>((std::numeric_limits<int>::max() - (1<<12)) / sizeof(int) - 1);
+        // The following should fail
+        // bob.allocateBytesFor<int>((std::numeric_limits<int>::max() - (1<<12)) / sizeof(int));
+        bob.alignedBytes(1, 1);  // To avoid unused variable problems.
+    }
+
+    // Force multiple block allocation
+    {
+        GrBagOfBytes bob;
+        const int k64K = 1 << 16;
+        // By default allocation block sizes start at 1K and go up with fib. This should allocate
+        // 10 individual blocks.
+        for (int i = 0; i < 10; i++) {
+            bob.alignedBytes(k64K, 1);
         }
     }
 }
