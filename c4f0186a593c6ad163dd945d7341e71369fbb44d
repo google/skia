@@ -22,6 +22,30 @@
       },
       "revId": "c4f0186a593c6ad163dd945d7341e71369fbb44d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4576f45e_f79c21c8",
+        "filename": "tools/CrashHandler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-08T21:25:31Z",
+      "side": 1,
+      "message": "Yeah, as I looked at it my conscious brain kept shouting \"hey, that\u0027s no good!\" while simultaneously some deeper pattern matching part of my brain kept saying \"nah, green and + mean the same thing, it\u0027s fine.\"",
+      "parentUuid": "9437c7d5_8754d42d",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 1
+      },
+      "revId": "c4f0186a593c6ad163dd945d7341e71369fbb44d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
