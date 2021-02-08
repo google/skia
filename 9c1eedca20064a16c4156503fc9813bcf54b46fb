@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56b98ed3_8281e848",
+        "filename": "modules/svg/src/SkSVGPoly.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-08T19:36:47Z",
+      "side": 1,
+      "message": "Outside the scope of this CL but now that we\u0027re storing the points, I think we can drop the internal SkPath and create it on the fly when needed.",
+      "revId": "9c1eedca20064a16c4156503fc9813bcf54b46fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "244b9908_4d35ac6a",
+        "filename": "modules/svg/src/SkSVGPoly.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-08T19:36:47Z",
+      "side": 1,
+      "message": "Is this different from SkPath::Polygon()?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 33
+      },
+      "revId": "9c1eedca20064a16c4156503fc9813bcf54b46fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
