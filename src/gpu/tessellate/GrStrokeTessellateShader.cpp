@@ -980,7 +980,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             })");
         } else {
             args.fVertBuilder->codeAppendf(R"(
-            float numEdgesInJoin = %i;)", IndirectInstance::NumExtraEdgesInJoin(joinType));
+            float numEdgesInJoin = %i;)", NumExtraEdgesInIndirectJoin(joinType));
         }
 
         args.fVertBuilder->codeAppend(R"(
