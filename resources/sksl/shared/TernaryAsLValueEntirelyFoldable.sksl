@@ -1,7 +1,6 @@
-void main() {
-    int r, g;
-    (true ? r : g) = 1;
-    (false ? r : g) = 0;
-    sk_FragColor.x = half(r);
-    sk_FragColor.y = half(g);
+half4 main() {
+    half r, g;
+    (true ? r : g) = 0;
+    (false ? r : g) = 1;
+    return half4(r, g, 0, 1);
 }

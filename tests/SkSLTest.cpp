@@ -166,6 +166,11 @@ SKSL_TEST(SkSLSwizzleConstants,                "shared/SwizzleConstants.sksl")
 SKSL_TEST(SkSLSwizzleLTRB,                     "shared/SwizzleLTRB.sksl")
 SKSL_TEST(SkSLSwizzleOpt,                      "shared/SwizzleOpt.sksl")
 SKSL_TEST(SkSLSwizzleScalar,                   "shared/SwizzleScalar.sksl")
+SKSL_TEST(SkSLTernaryAsLValueEntirelyFoldable, "shared/TernaryAsLValueEntirelyFoldable.sksl")
+SKSL_TEST(SkSLTernaryAsLValueFoldableTest,     "shared/TernaryAsLValueFoldableTest.sksl")
+SKSL_TEST(SkSLUnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
+SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
+SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 
 /*
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.

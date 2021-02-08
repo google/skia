@@ -1,11 +1,11 @@
 
 out vec4 sk_FragColor;
-void main() {
+uniform float unknownInput;
+vec4 main() {
     float r;
     float g;
 
-    r = sqrt(1.0);
-    g = sqrt(0.0);
-    sk_FragColor.x = r;
-    sk_FragColor.y = g;
+    r = 1.0 - unknownInput;
+    g = unknownInput;
+    return vec4(r, g, 0.0, 1.0);
 }
