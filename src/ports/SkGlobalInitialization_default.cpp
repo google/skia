@@ -53,6 +53,7 @@
     #include "src/effects/imagefilters/SkArithmeticImageFilter.h"
     #include "src/effects/imagefilters/SkBlendImageFilter.h"
     #include "src/effects/imagefilters/SkColorFilterImageFilter.h"
+    #include "src/effects/imagefilters/SkComposeImageFilter.h"
 
     /*
      *  Register most effects for deserialization.
@@ -122,6 +123,7 @@
         SkArithmeticImageFilter::RegisterFlattenables();
         SkBlendImageFilter::RegisterFlattenables();
         SkColorFilterImageFilter::RegisterFlattenables();
+        SkComposeImageFilter::RegisterFlattenables();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }
