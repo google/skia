@@ -9,6 +9,7 @@
 #define SKSL_EXPRESSION
 
 #include "include/private/SkTHash.h"
+#include "src/sksl/SkSLDefinitionMap.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -19,8 +20,6 @@ namespace SkSL {
 class Expression;
 class IRGenerator;
 class Variable;
-
-using DefinitionMap = SkTHashMap<const Variable*, std::unique_ptr<Expression>*>;
 
 /**
  * Abstract supertype of all expressions.

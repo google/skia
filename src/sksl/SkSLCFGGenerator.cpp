@@ -30,14 +30,14 @@
 
 namespace SkSL {
 
-void BasicBlock::Node::setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage) {
+void BasicBlockNode::setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage) {
     SkASSERT(!this->isStatement());
     usage->remove(fExpression->get());
     *fExpression = std::move(expr);
 }
 
-std::unique_ptr<Statement> BasicBlock::Node::setStatement(std::unique_ptr<Statement> stmt,
-                                                          ProgramUsage* usage) {
+std::unique_ptr<Statement> BasicBlockNode::setStatement(std::unique_ptr<Statement> stmt,
+                                                        ProgramUsage* usage) {
     SkASSERT(!this->isExpression());
     // See comment in header - we assume that stmt was already counted in usage (it was a subset
     // of fStatement). There is no way to verify that, unfortunately.

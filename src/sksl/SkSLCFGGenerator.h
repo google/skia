@@ -21,77 +21,82 @@ class ProgramUsage;
 // index of a block within CFG.fBlocks
 typedef size_t BlockId;
 
-struct BasicBlock {
-    struct Node {
-        Node(std::unique_ptr<Statement>* statement)
-                : fConstantPropagation(false)
-                , fExpression(nullptr)
-                , fStatement(statement) {}
+// Conceptually, this is part of BasicBlock, but structs inside structs can't be forward-declared;
+// this name can be used in places where forward declaration is required.
+class BasicBlockNode {
+public:
+    BasicBlockNode(std::unique_ptr<Statement>* statement)
+            : fConstantPropagation(false)
+            , fExpression(nullptr)
+            , fStatement(statement) {}
 
-        Node(std::unique_ptr<Expression>* expression, bool constantPropagation)
-                : fConstantPropagation(constantPropagation)
-                , fExpression(expression)
-                , fStatement(nullptr) {}
+    BasicBlockNode(std::unique_ptr<Expression>* expression, bool constantPropagation)
+            : fConstantPropagation(constantPropagation)
+            , fExpression(expression)
+            , fStatement(nullptr) {}
 
-        bool isExpression() const {
-            return fExpression != nullptr;
-        }
+    bool isExpression() const {
+        return fExpression != nullptr;
+    }
 
-        std::unique_ptr<Expression>* expression() const {
-            SkASSERT(!this->isStatement());
-            return fExpression;
-        }
+    std::unique_ptr<Expression>* expression() const {
+        SkASSERT(!this->isStatement());
+        return fExpression;
+    }
 
-        // See comment below on setStatement. Assumption is that 'expr' is a strict subset of the
-        // existing expression.
-        void setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage);
+    // See comment below on setStatement. Assumption is that 'expr' is a strict subset of the
+    // existing expression.
+    void setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage);
 
-        bool isStatement() const {
-            return fStatement != nullptr;
-        }
+    bool isStatement() const {
+        return fStatement != nullptr;
+    }
 
-        std::unique_ptr<Statement>* statement() const {
-            SkASSERT(!this->isExpression());
-            return fStatement;
-        }
+    std::unique_ptr<Statement>* statement() const {
+        SkASSERT(!this->isExpression());
+        return fStatement;
+    }
 
-        // Replaces the pointed-to statement with 'stmt'. The assumption is that 'stmt' is a strict
-        // subset of the existing statement, or a Nop. For example: just the True or False of an if,
-        // or a single Case from a Switch. To maintain usage's bookkeeping, we remove references in
-        // this node's pointed-to statement. By the time this is called, there is no path from our
-        // statement to 'stmt', because it's been moved to the argument.
-        // If stmt is Nop, returns the previous statement, otherwise nullptr.
-        std::unique_ptr<Statement> setStatement(std::unique_ptr<Statement> stmt,
-                                                ProgramUsage* usage);
+    // Replaces the pointed-to statement with 'stmt'. The assumption is that 'stmt' is a strict
+    // subset of the existing statement, or a Nop. For example: just the True or False of an if,
+    // or a single Case from a Switch. To maintain usage's bookkeeping, we remove references in
+    // this node's pointed-to statement. By the time this is called, there is no path from our
+    // statement to 'stmt', because it's been moved to the argument.
+    // If stmt is Nop, returns the previous statement, otherwise nullptr.
+    std::unique_ptr<Statement> setStatement(std::unique_ptr<Statement> stmt,
+                                            ProgramUsage* usage);
 
 #ifdef SK_DEBUG
-        String description() const {
-            SkASSERT(fStatement || fExpression);
-            if (fStatement) {
-                return *fStatement ? (*fStatement)->description() : "(null statement)";
-            } else if (fExpression) {
-                return *fExpression ? (*fExpression)->description() : "(null expression)";
-            } else {
-                return "(nothing)";
-            }
+    String description() const {
+        SkASSERT(fStatement || fExpression);
+        if (fStatement) {
+            return *fStatement ? (*fStatement)->description() : "(null statement)";
+        } else if (fExpression) {
+            return *fExpression ? (*fExpression)->description() : "(null expression)";
+        } else {
+            return "(nothing)";
         }
+    }
 #endif
 
-        // if false, this node should not be subject to constant propagation. This happens with
-        // compound assignment (i.e. x *= 2), in which the value x is used as an rvalue for
-        // multiplication by 2 and then as an lvalue for assignment purposes. Since there is only
-        // one "x" node, replacing it with a constant would break the assignment and we suppress
-        // it. Down the road, we should handle this more elegantly by substituting a regular
-        // assignment if the target is constant (i.e. x = 1; x *= 2; should become x = 1; x = 1 * 2;
-        // and then collapse down to a simple x = 2;).
-        bool fConstantPropagation;
+    // if false, this node should not be subject to constant propagation. This happens with
+    // compound assignment (i.e. x *= 2), in which the value x is used as an rvalue for
+    // multiplication by 2 and then as an lvalue for assignment purposes. Since there is only
+    // one "x" node, replacing it with a constant would break the assignment and we suppress
+    // it. Down the road, we should handle this more elegantly by substituting a regular
+    // assignment if the target is constant (i.e. x = 1; x *= 2; should become x = 1; x = 1 * 2;
+    // and then collapse down to a simple x = 2;).
+    bool fConstantPropagation;
 
-    private:
-        // we store pointers to the unique_ptrs so that we can replace expressions or statements
-        // during optimization without having to regenerate the entire tree
-        std::unique_ptr<Expression>* fExpression;
-        std::unique_ptr<Statement>* fStatement;
-    };
+private:
+    // we store pointers to the unique_ptrs so that we can replace expressions or statements
+    // during optimization without having to regenerate the entire tree
+    std::unique_ptr<Expression>* fExpression;
+    std::unique_ptr<Statement>* fStatement;
+};
+
+struct BasicBlock {
+    using Node = BasicBlockNode;
 
     static Node MakeStatement(std::unique_ptr<Statement>* stmt) {
         return Node{stmt};

@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLVariableReference.h"
 
+#include "src/sksl/SkSLDefinitionMap.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
