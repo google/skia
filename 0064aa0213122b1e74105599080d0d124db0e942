@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51ba1530_0f0a0828",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T04:14:34Z",
+      "side": 1,
+      "message": "Brian/Greg- do you have thoughts on the direction I\u0027m taking GrVertexWriter? If we can wean the existing users off using fPtr directly, this class can become write only.",
+      "revId": "0064aa0213122b1e74105599080d0d124db0e942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
