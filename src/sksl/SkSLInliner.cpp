@@ -182,23 +182,7 @@ static std::unique_ptr<Statement>* find_parent_statement(
 std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
                                                 VariableReference::RefKind refKind) {
     std::unique_ptr<Expression> clone = expr.clone();
-    class SetRefKindInExpression : public ProgramWriter {
-    public:
-        SetRefKindInExpression(VariableReference::RefKind refKind) : fRefKind(refKind) {}
-        bool visitExpression(Expression& expr) override {
-            if (expr.is<VariableReference>()) {
-                expr.as<VariableReference>().setRefKind(fRefKind);
-            }
-            return INHERITED::visitExpression(expr);
-        }
-
-    private:
-        VariableReference::RefKind fRefKind;
-
-        using INHERITED = ProgramWriter;
-    };
-
-    SetRefKindInExpression{refKind}.visitExpression(*clone);
+    Analysis::UpdateRefKind(clone.get(), refKind);
     return clone;
 }
 
