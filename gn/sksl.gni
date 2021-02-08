@@ -25,6 +25,8 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLContext.cpp",
   "$_src/sksl/SkSLContext.h",
   "$_src/sksl/SkSLDefines.h",
+  "$_src/sksl/SkSLDefinitionMap.cpp",
+  "$_src/sksl/SkSLDefinitionMap.h",
   "$_src/sksl/SkSLDehydrator.cpp",
   "$_src/sksl/SkSLDehydrator.h",
   "$_src/sksl/SkSLErrorReporter.h",
