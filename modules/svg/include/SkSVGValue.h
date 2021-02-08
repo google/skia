@@ -23,7 +23,6 @@ public:
         kLength,
         kNumber,
         kObjectBoundingBoxUnits,
-        kPath,
         kPreserveAspectRatio,
         kStopColor,
         kString,
@@ -71,7 +70,6 @@ private:
 
 using SkSVGColorValue        = SkSVGWrapperValue<SkSVGColorType    , SkSVGValue::Type::kColor     >;
 using SkSVGLengthValue       = SkSVGWrapperValue<SkSVGLength       , SkSVGValue::Type::kLength    >;
-using SkSVGPathValue         = SkSVGWrapperValue<SkPath            , SkSVGValue::Type::kPath      >;
 using SkSVGTransformValue    = SkSVGWrapperValue<SkSVGTransformType, SkSVGValue::Type::kTransform >;
 using SkSVGViewBoxValue      = SkSVGWrapperValue<SkSVGViewBoxType  , SkSVGValue::Type::kViewBox   >;
 using SkSVGNumberValue       = SkSVGWrapperValue<SkSVGNumberType   , SkSVGValue::Type::kNumber    >;
