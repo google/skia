@@ -14,7 +14,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
-#include "src/gpu/vk/GrVkBuffer2.h"
+#include "src/gpu/vk/GrVkBuffer.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkDescriptorPool.h"
 #include "src/gpu/vk/GrVkDescriptorSet.h"
@@ -93,7 +93,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
         return false;
     }
     if (uniformBuffer) {
-        const GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(uniformBuffer.get());
+        const GrVkBuffer* vkBuffer = static_cast<GrVkBuffer*>(uniformBuffer.get());
         static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
         commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kUniformDSIdx, /*setCount=*/1,
                                           vkBuffer->uniformDescriptorSet(),

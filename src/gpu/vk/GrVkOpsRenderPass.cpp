@@ -17,7 +17,7 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/vk/GrVkAttachment.h"
-#include "src/gpu/vk/GrVkBuffer2.h"
+#include "src/gpu/vk/GrVkBuffer.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkGpu.h"

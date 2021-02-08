@@ -16,7 +16,7 @@
 
 class GrPipeline;
 class GrStencilSettings;
-class GrVkBuffer2;
+class GrVkBuffer;
 class GrVkCommandBuffer;
 class GrVkDescriptorPool;
 class GrVkDescriptorSet;
