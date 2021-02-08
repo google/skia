@@ -56,6 +56,11 @@ public:
             const SkRect* bounds = nullptr) {
         return builder->allocRunTextPos(font, count, textByteCount, lang, bounds);
     }
+    static const SkTextBlobBuilder::RunBuffer& AllocRunRSXForm(SkTextBlobBuilder* builder,
+            const SkFont& font, int count, int textByteCount, SkString lang,
+            const SkRect* bounds = nullptr) {
+        return builder->allocRunRSXform(font, count, textByteCount, lang, bounds);
+    }
 };
 
 //
@@ -244,6 +249,7 @@ public:
         return fCurrentRun->font();
     }
     GlyphPositioning positioning() const;
+    unsigned scalarsPerGlyph() const;
     uint32_t* clusters() const {
         SkASSERT(!this->done());
         return fCurrentRun->clusterBuffer();

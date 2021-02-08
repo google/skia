@@ -235,6 +235,10 @@ SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() con
     return SkTo<GlyphPositioning>(fCurrentRun->positioning());
 }
 
+unsigned SkTextBlobRunIterator::scalarsPerGlyph() const {
+    return SkTextBlob::ScalarsPerGlyph(fCurrentRun->positioning());
+}
+
 bool SkTextBlobRunIterator::isLCD() const {
     return fCurrentRun->font().getEdging() == SkFont::Edging::kSubpixelAntiAlias;
 }

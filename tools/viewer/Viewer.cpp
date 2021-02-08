@@ -1285,6 +1285,9 @@ public:
                 : it.positioning() == SkTextBlobRunIterator::kFull_Positioning
                     ? SkTextBlobBuilderPriv::AllocRunTextPos(&builder, font,
                         it.glyphCount(), it.textSize(), SkString())
+                : it.positioning() == SkTextBlobRunIterator::kRSXform_Positioning
+                    ? SkTextBlobBuilderPriv::AllocRunRSXForm(&builder, font,
+                        it.glyphCount(), it.textSize(), SkString())
                 : (SkASSERT_RELEASE(false), SkTextBlobBuilder::RunBuffer());
             uint32_t glyphCount = it.glyphCount();
             if (it.glyphs()) {
@@ -1293,8 +1296,8 @@ public:
             }
             if (it.pos()) {
                 size_t posSize = sizeof(decltype(*it.pos()));
-                uint8_t positioning = it.positioning();
-                memcpy(runBuffer.pos, it.pos(), glyphCount * positioning * posSize);
+                unsigned posPerGlyph = it.scalarsPerGlyph();
+                memcpy(runBuffer.pos, it.pos(), glyphCount * posPerGlyph * posSize);
             }
             if (it.text()) {
                 size_t textSize = sizeof(decltype(*it.text()));
