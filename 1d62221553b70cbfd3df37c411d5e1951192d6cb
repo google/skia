@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1711ae43_b567993f",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1700,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-08T15:10:03Z",
+      "side": 0,
+      "message": "Should this be removed? Seems this could just be left in?",
+      "revId": "1d62221553b70cbfd3df37c411d5e1951192d6cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
