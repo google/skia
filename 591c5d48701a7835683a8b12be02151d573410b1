@@ -22,6 +22,30 @@
       },
       "revId": "591c5d48701a7835683a8b12be02151d573410b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5a0e16e_cbcdb3a0",
+        "filename": "src/gpu/mock/GrMockOpTarget.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-08T19:13:20Z",
+      "side": 1,
+      "message": "Probably. I\u0027m not sure why GrMockGpu et el. aren\u0027t surrounded in GR_TEST_UTILS either. We should probably add #if GR_TEST_UTILS for all of mock/* at once. Looking at the gn args I think we may in fact be including mock/* in production builds.",
+      "parentUuid": "d35c3908_41529881",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "591c5d48701a7835683a8b12be02151d573410b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
