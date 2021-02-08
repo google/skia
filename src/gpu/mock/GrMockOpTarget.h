@@ -56,31 +56,34 @@ public:
         return fStaticVertexData;
     }
 
-    GrDrawIndirectCommand* makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
-                                                 size_t* offsetInBytes) override {
-        int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndirectData);
-        if (drawCount > staticBufferCount) {
-            SK_ABORT("FATAL: wanted %i static drawIndirect elements; only have %i.\n",
-                     drawCount, staticBufferCount);
+    GrDrawIndirectWriter makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
+                                               size_t* offsetInBytes) override {
+        if (sizeof(GrDrawIndirectCommand) * drawCount > sizeof(fStaticIndirectData)) {
+            SK_ABORT("FATAL: wanted %zu bytes of static indirect data; only have %zu.\n",
+                     sizeof(GrDrawIndirectCommand) * drawCount, sizeof(fStaticIndirectData));
         }
         *offsetInBytes = 0;
-        return fStaticDrawIndirectData;
+        return fStaticIndirectData;
     }
 
     void putBackIndirectDraws(int count) override { /* no-op */ }
 
-    GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
-            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) override {
-        int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndexedIndirectData);
-        if (drawCount > staticBufferCount) {
-            SK_ABORT("FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
-                     drawCount, staticBufferCount);
+    GrDrawIndexedIndirectWriter makeDrawIndexedIndirectSpace(int drawCount,
+                                                             sk_sp<const GrBuffer>* buffer,
+                                                             size_t* offsetInBytes) override {
+        if (sizeof(GrDrawIndexedIndirectCommand) * drawCount > sizeof(fStaticIndirectData)) {
+            SK_ABORT("FATAL: wanted %zu bytes of static indirect data; only have %zu.\n",
+                     sizeof(GrDrawIndexedIndirectCommand) * drawCount, sizeof(fStaticIndirectData));
         }
         *offsetInBytes = 0;
-        return fStaticDrawIndexedIndirectData;
+        return fStaticIndirectData;
     }
 
     void putBackIndexedIndirectDraws(int count) override { /* no-op */ }
+
+    // Call these methods to see what got written after the previous call to make*Space.
+    const void* peekStaticVertexData() const { return fStaticVertexData; }
+    const void* peekStaticIndirectData() const { return fStaticIndirectData; }
 
 #define UNIMPL(...) __VA_ARGS__ override { SK_ABORT("unimplemented."); }
     UNIMPL(void recordDraw(const GrGeometryProcessor*, const GrSimpleMesh[], int,
@@ -100,8 +103,7 @@ public:
 private:
     sk_sp<GrDirectContext> fMockContext;
     char fStaticVertexData[6 * 1024 * 1024];
-    GrDrawIndirectCommand fStaticDrawIndirectData[32];
-    GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
+    char fStaticIndirectData[sizeof(GrDrawIndexedIndirectCommand) * 32];
     SkSTArenaAllocWithReset<1024 * 1024> fAllocator;
     GrXferProcessor::DstProxyView fDstProxyView;
 };
