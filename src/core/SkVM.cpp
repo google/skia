@@ -515,14 +515,14 @@ namespace skvm {
         return    finalize           (std::move(program));
     }
 
-    Program Builder::done(const char* debug_name) const {
+    Program Builder::done(const char* debug_name, bool allow_jit) const {
         char buf[64] = "skvm-jit-";
         if (!debug_name) {
             *SkStrAppendU32(buf+9, this->hash()) = '\0';
             debug_name = buf;
         }
 
-        return {this->optimize(), fStrides, debug_name};
+        return {this->optimize(), fStrides, debug_name, allow_jit};
     }
 
     uint64_t Builder::hash() const {
@@ -2878,9 +2878,9 @@ namespace skvm {
 
     Program::Program(const std::vector<OptimizedInstruction>& instructions,
                      const std::vector<int>& strides,
-                     const char* debug_name) : Program() {
+                     const char* debug_name, bool allow_jit) : Program() {
         fImpl->strides = strides;
-        if (gSkVMAllowJIT) {
+        if (gSkVMAllowJIT && allow_jit) {
         #if 1 && defined(SKVM_LLVM)
             this->setupLLVM(instructions, debug_name);
         #elif 1 && defined(SKVM_JIT)
