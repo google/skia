@@ -7,29 +7,29 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
+#include "include/utils/SkParsePath.h"
 #include "modules/svg/include/SkSVGPath.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
 SkSVGPath::SkSVGPath() : INHERITED(SkSVGTag::kPath) { }
 
-void SkSVGPath::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kD:
-        if (const auto* path = v.as<SkSVGPathValue>()) {
-            this->setPath(*path);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGPath::parseAndSetAttribute(const char* n, const char* v) {
+    return INHERITED::parseAndSetAttribute(n, v) ||
+           this->setPath(SkSVGAttributeParser::parse<SkPath>("d", n, v));
+}
+
+template <>
+bool SkSVGAttributeParser::parse<SkPath>(SkPath* path) {
+    return SkParsePath::FromSVGString(fCurPos, path);
 }
 
 void SkSVGPath::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPaint& paint,
                        SkPathFillType fillType) const {
     // the passed fillType follows inheritance rules and needs to be applied at draw time.
-    fPath.setFillType(fillType);
-    canvas->drawPath(fPath, paint);
+    SkPath path = fPath;  // Note: point and verb data are CoW
+    path.setFillType(fillType);
+    canvas->drawPath(path, paint);
 }
 
 SkPath SkSVGPath::onAsPath(const SkSVGRenderContext& ctx) const {
