@@ -242,6 +242,9 @@ private:
 
     ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
 
+    // Remove all ops, proxies, etc. Used in the merging algorithm when tasks can be skipped.
+    void reset();
+
     friend class OpsTaskTestingAccess;
 
     // The RTC and OpsTask have to work together to handle buffer clears. In most cases, buffer
