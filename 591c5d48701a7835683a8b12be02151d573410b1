@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d35c3908_41529881",
+        "filename": "src/gpu/mock/GrMockOpTarget.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-08T19:08:34Z",
+      "side": 1,
+      "message": "tangential nit: should this whole class be surrounded by #if GR_TEST_UTILS?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "591c5d48701a7835683a8b12be02151d573410b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
