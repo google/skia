@@ -16,6 +16,23 @@
       "message": "Brian/Greg- do you have thoughts on the direction I\u0027m taking GrVertexWriter? If we can wean the existing users off using fPtr directly, this class can become write only.",
       "revId": "0064aa0213122b1e74105599080d0d124db0e942",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3dc47d5_9626831c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-08T22:05:19Z",
+      "side": 1,
+      "message": "Makes sense to me - I had slightly similar ideas about some of the other places we have to break the rules today. eg: We save off the fPtr so we can overwrite the positions with transformed positions in some situations (using MapPointsWithStride). We could instead save off a copy of the writer at that point, and use a new version of that function (or a version *on GrVertexWriter*) to get the same effect, without exposing fPtr at all.",
+      "revId": "0064aa0213122b1e74105599080d0d124db0e942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
