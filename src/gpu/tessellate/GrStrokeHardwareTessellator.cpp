@@ -12,8 +12,6 @@
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-using Patch = GrStrokeTessellateShader::Patch;
-
 static float num_combined_segments(float numParametricSegments, float numRadialSegments) {
     // The first and last edges are shared by both the parametric and radial sets of edges, so
     // the total number of edges is:
@@ -601,11 +599,11 @@ void GrStrokeHardwareTessellator::emitPatch(JoinType prevJoinType, const SkPoint
         SkASSERT((prevJoinType != JoinType::kNone) || fLastControlPoint == c1);
     }
 
-    if (Patch* patch = this->reservePatch()) {
+    if (this->reservePatch()) {
         // Disable the join section of this patch if prevJoinType is kNone by setting the previous
         // control point equal to p0.
-        patch->fPrevControlPoint = (prevJoinType == JoinType::kNone) ? p[0] : fLastControlPoint;
-        patch->fPts = {p[0], p[1], p[2], p[3]};
+        fPatchWriter.write((prevJoinType == JoinType::kNone) ? p[0] : fLastControlPoint);
+        fPatchWriter.writeArray(p, 4);
     }
 
     fLastControlPoint = c2;
@@ -617,48 +615,45 @@ void GrStrokeHardwareTessellator::emitJoinPatch(JoinType joinType, SkPoint nextC
     SkASSERT(fHasLastControlPoint);
     SkASSERT(fHasCurrentPoint);
 
-    if (Patch* joinPatch = this->reservePatch()) {
-        joinPatch->fPrevControlPoint = fLastControlPoint;
-        joinPatch->fPts[0] = fCurrentPoint;
+    if (this->reservePatch()) {
+        fPatchWriter.write(fLastControlPoint, fCurrentPoint);
         if (joinType == JoinType::kFromStroke) {
             // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only (no cubic
             // sections in the patch).
-            joinPatch->fPts[1] = joinPatch->fPts[2] = nextControlPoint;
+            fPatchWriter.write(nextControlPoint, nextControlPoint);
         } else {
             SkASSERT(joinType == JoinType::kBowtie);
             // [p0, p0, p0, p3] is a reserved pattern that means this patch is a bowtie.
-            joinPatch->fPts[1] = joinPatch->fPts[2] = fCurrentPoint;
+            fPatchWriter.write(fCurrentPoint, fCurrentPoint);
         }
-        joinPatch->fPts[3] = nextControlPoint;
+        fPatchWriter.write(nextControlPoint);
     }
 
     fLastControlPoint = nextControlPoint;
 }
 
-Patch* GrStrokeHardwareTessellator::reservePatch() {
+bool GrStrokeHardwareTessellator::reservePatch() {
     if (fPatchChunks.back().fPatchCount >= fCurrChunkPatchCapacity) {
         // The current chunk is full. Time to allocate a new one. (And no need to put back vertices;
         // the buffer is full.)
         this->allocPatchChunkAtLeast(fCurrChunkMinPatchAllocCount * 2);
     }
-    if (!fCurrChunkPatchData) {
+    if (!fPatchWriter.isValid()) {
         SkDebugf("WARNING: Failed to allocate vertex buffer for tessellated stroke.");
-        return nullptr;
+        return false;
     }
     SkASSERT(fPatchChunks.back().fPatchCount <= fCurrChunkPatchCapacity);
-    Patch* patch = fCurrChunkPatchData + fPatchChunks.back().fPatchCount;
     ++fPatchChunks.back().fPatchCount;
-    return patch;
+    return true;
 }
 
 void GrStrokeHardwareTessellator::allocPatchChunkAtLeast(int minPatchAllocCount) {
     SkASSERT(fTarget);
     PatchChunk* chunk = &fPatchChunks.push_back();
-    fCurrChunkPatchData = (Patch*)fTarget->makeVertexSpaceAtLeast(sizeof(Patch), minPatchAllocCount,
-                                                                  minPatchAllocCount,
-                                                                  &chunk->fPatchBuffer,
-                                                                  &chunk->fBasePatch,
-                                                                  &fCurrChunkPatchCapacity);
+    fPatchWriter = {fTarget->makeVertexSpaceAtLeast(
+            GrStrokeTessellateShader::kTessellationPatchBaseStride, minPatchAllocCount,
+            minPatchAllocCount, &chunk->fPatchBuffer, &chunk->fBasePatch,
+            &fCurrChunkPatchCapacity)};
     fCurrChunkMinPatchAllocCount = minPatchAllocCount;
 }
 

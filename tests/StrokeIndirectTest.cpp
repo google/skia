@@ -425,7 +425,11 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r, GrMockOpT
                                                 const SkMatrix& viewMatrix,
                                                 const SkStrokeRec& stroke) {
     // Make sure the resolve level we assigned to each instance agrees with the actual data.
-    using IndirectInstance = GrStrokeTessellateShader::IndirectInstance;
+    struct IndirectInstance {
+        SkPoint fPts[4];
+        SkPoint fLastControlPoint;
+        float fNumTotalEdges;
+    };
     auto instance = static_cast<const IndirectInstance*>(target->peekStaticVertexData());
     auto* indirect = static_cast<const GrDrawIndirectCommand*>(target->peekStaticIndirectData());
     GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
@@ -442,7 +446,7 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r, GrMockOpT
         REPORTER_ASSERT(r, 1 << resolveLevel == numSegments);
         for (unsigned j = 0; j < instanceCount; ++j) {
             SkASSERT(fabsf(instance->fNumTotalEdges) == vertexCount/2);
-            const SkPoint* p = instance->fPts.data();
+            const SkPoint* p = instance->fPts;
             float numParametricSegments = GrWangsFormula::cubic(
                     tolerances.fParametricIntolerance, p);
             float alternateNumParametricSegments = numParametricSegments;

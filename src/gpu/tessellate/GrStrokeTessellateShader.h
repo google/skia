@@ -31,72 +31,38 @@ public:
         kIndirect
     };
 
-    // When using Mode::kTessellation, this is how patches sent to the GPU are structured.
-    struct Patch {
-        // A join calculates its starting angle using fPrevControlPoint.
-        SkPoint fPrevControlPoint;
-        // fPts define the cubic stroke as well as the ending angle of the previous join.
-        //
-        // If fPts[0] == fPrevControlPoint, then no join is emitted.
-        //
-        // fPts=[p0, p3, p3, p3] is a reserved pattern that means this patch is a join only, whose
-        // start and end tangents are (fPts[0] - fPrevControlPoint) and (fPts[3] - fPts[0]).
-        //
-        // fPts=[p0, p0, p0, p3] is a reserved pattern that means this patch is a cusp point
-        // anchored on p0 and rotating from (fPts[0] - fPrevControlPoint) to (fPts[3] - fPts[0]).
-        std::array<SkPoint, 4> fPts;
-    };
+    // Size in bytes of a basic tessellation patch without any dynamic attribs like stroke params or
+    // color.
+    constexpr static size_t kTessellationPatchBaseStride = sizeof(SkPoint) * 5;
 
-    // When using Mode::kIndirect, these are the instances that get sent to the GPU.
-    struct IndirectInstance {
-        constexpr static int NumExtraEdgesInJoin(SkPaint::Join joinType) {
-            // We expect a fixed number of additional edges to be appended onto each instance in
-            // order to implement its preceding join. Specifically, each join emits:
-            //
-            //   * Two colocated edges at the beginning (a double-sided edge to seam with the
-            //     preceding stroke and a single-sided edge to seam with the join).
-            //
-            //   * An extra edge in the middle for miter joins, or else a variable number for round
-            //     joins (counted in the resolveLevel).
-            //
-            //   * A single sided edge at the end of the join that is colocated with the first
-            //     (double sided) edge of the stroke
-            //
-            switch (joinType) {
-                case SkPaint::kMiter_Join:
-                    return 4;
-                case SkPaint::kRound_Join:
-                    // The inner edges for round joins are counted in the stroke's resolveLevel.
-                    [[fallthrough]];
-                case SkPaint::kBevel_Join:
-                    return 3;
-            }
-            SkUNREACHABLE;
+    // Size in bytes of a basic indirect draw instance without any dynamic attribs like stroke
+    // params or color.
+    constexpr static size_t kIndirectInstanceBaseStride = sizeof(float) * 11;
+
+    // When using indirect draws, we expect a fixed number of additional edges to be appended onto
+    // each instance in order to implement its preceding join. Specifically, each join emits:
+    //
+    //   * Two colocated edges at the beginning (a double-sided edge to seam with the preceding
+    //     stroke and a single-sided edge to seam with the join).
+    //
+    //   * An extra edge in the middle for miter joins, or else a variable number for round joins
+    //     (counted in the resolveLevel).
+    //
+    //   * A single sided edge at the end of the join that is colocated with the first (double
+    //     sided) edge of the stroke
+    //
+    constexpr static int NumExtraEdgesInIndirectJoin(SkPaint::Join joinType) {
+        switch (joinType) {
+            case SkPaint::kMiter_Join:
+                return 4;
+            case SkPaint::kRound_Join:
+                // The inner edges for round joins are counted in the stroke's resolveLevel.
+                [[fallthrough]];
+            case SkPaint::kBevel_Join:
+                return 3;
         }
-        // Writes the given stroke into this instance. "abs(numTotalEdges)" tells the shader the
-        // literal number of edges in the triangle strip being rendered (i.e., it should be
-        // vertexCount/2). If numTotalEdges is negative and the join type is "kRound", it also
-        // instructs the shader to only allocate one segment the preceding round join.
-        void set(const SkPoint pts[4], SkPoint lastControlPoint, int numTotalEdges) {
-            memcpy(fPts.data(), pts, sizeof(fPts));
-            fLastControlPoint = lastControlPoint;
-            fNumTotalEdges = numTotalEdges;
-        }
-        // A "circle" is a stroke-width circle drawn as a 180-degree point stroke. They should be
-        // drawn at cusp points on the curve and for round caps.
-        void setCircle(SkPoint pt, int numEdgesForCircles) {
-            SkASSERT(numEdgesForCircles >= 0);
-            // An empty stroke is a special case that denotes a circle, or 180-degree point stroke.
-            fPts.fill(pt);
-            fLastControlPoint = pt;
-            // Mark fNumTotalEdges negative so the shader assigns the least possible number of edges
-            // to its (empty) preceding join.
-            fNumTotalEdges = -numEdgesForCircles;
-        }
-        std::array<SkPoint, 4> fPts;
-        SkPoint fLastControlPoint;
-        float fNumTotalEdges;
-    };
+        SkUNREACHABLE;
+    }
 
     // These tolerances decide the number of parametric and radial segments the tessellator will
     // linearize curves into. These decisions are made in (pre-viewMatrix) local path space.
@@ -158,20 +124,44 @@ public:
             , fColor(color) {
         if (fMode == Mode::kTessellation) {
             constexpr static Attribute kTessellationAttribs[] = {
+                    // A join calculates its starting angle using inputPrevCtrlPt.
                     {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
+                    // inputPts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then
+                    // it's a conic with w=p3.x.
+                    //
+                    // If p0 == inputPrevCtrlPt, then no join is emitted.
+                    //
+                    // inputPts=[p0, p3, p3, p3] is a reserved pattern that means this patch is a
+                    // join only, whose start and end tangents are (p0 - inputPrevCtrlPt) and
+                    // (p3 - p0).
+                    //
+                    // inputPts=[p0, p0, p0, p3] is a reserved pattern that means this patch is a
+                    // "bowtie", or double-sided round join, anchored on p0 and rotating from
+                    // (p0 - inputPrevCtrlPt) to (p3 - p0).
                     {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
                     {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
             this->setVertexAttributes(kTessellationAttribs, SK_ARRAY_COUNT(kTessellationAttribs));
-            SkASSERT(this->vertexStride() == sizeof(Patch));
+            SkASSERT(this->vertexStride() == kTessellationPatchBaseStride);
         } else {
             constexpr static Attribute kIndirectAttribs[] = {
+                    // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's
+                    // a conic with w=p3.x.
+                    //
+                    // An empty stroke (p0==p1==p2==p3) is a special case that denotes a circle, or
+                    // 180-degree point stroke.
                     {"pts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
                     {"pts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                    // "fLastControlPoint" and "fNumTotalEdges" are both packed into these args.
-                    // See IndirectInstance.
+                    // "lastControlPoint" and "numTotalEdges" are both packed into these args.
+                    //
+                    // A join calculates its starting angle using "args.xy=lastControlPoint".
+                    //
+                    // "abs(args.z=numTotalEdges)" tells the shader the literal number of edges in
+                    // the triangle strip being rendered (i.e., it should be vertexCount/2). If
+                    // numTotalEdges is negative and the join type is "kRound", it also instructs
+                    // the shader to only allocate one segment the preceding round join.
                     {"args", kFloat3_GrVertexAttribType, kFloat3_GrSLType}};
             this->setInstanceAttributes(kIndirectAttribs, SK_ARRAY_COUNT(kIndirectAttribs));
-            SkASSERT(this->instanceStride() == sizeof(IndirectInstance));
+            SkASSERT(this->instanceStride() == kIndirectInstanceBaseStride);
         }
     }
 

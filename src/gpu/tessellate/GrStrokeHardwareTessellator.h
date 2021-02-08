@@ -9,6 +9,7 @@
 #define GrStrokeHardwareTessellator_DEFINED
 
 #include "include/core/SkStrokeRec.h"
+#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
@@ -59,7 +60,7 @@ private:
     void cap();
     void emitPatch(JoinType prevJoinType, const SkPoint pts[4], SkPoint endPt);
     void emitJoinPatch(JoinType, SkPoint nextControlPoint);
-    GrStrokeTessellateShader::Patch* reservePatch();
+    bool reservePatch();
     void allocPatchChunkAtLeast(int minPatchAllocCount);
 
     // The maximum number of tessellation segments the hardware can emit for a single patch.
@@ -98,7 +99,7 @@ private:
     // Variables related to the patch chunk that we are currently writing out during prepareBuffers.
     int fCurrChunkPatchCapacity;
     int fCurrChunkMinPatchAllocCount;
-    GrStrokeTessellateShader::Patch* fCurrChunkPatchData;
+    GrVertexWriter fPatchWriter;
 
     // Variables related to the specific contour that we are currently iterating during
     // prepareBuffers.

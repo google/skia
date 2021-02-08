@@ -270,6 +270,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrUserStencilSettings.h",
   "$_src/gpu/GrUtil.cpp",
   "$_src/gpu/GrUtil.h",
+  "$_src/gpu/GrVertexWriter.h",
   "$_src/gpu/GrVx.h",
   "$_src/gpu/GrWaitRenderTask.cpp",
   "$_src/gpu/GrWaitRenderTask.h",

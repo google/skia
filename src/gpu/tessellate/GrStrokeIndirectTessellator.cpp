@@ -10,6 +10,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/GrStrokeIterator.h"
@@ -585,11 +586,25 @@ constexpr static int num_edges_in_resolve_level(int resolveLevel) {
     return numStrokeEdges;
 }
 
+void GrStrokeIndirectTessellator::writeInstance(GrVertexWriter* instanceWriter,
+                                                const SkPoint pts[4], SkPoint lastControlPoint,
+                                                int numTotalEdges) {
+    instanceWriter->writeArray(pts, 4);
+    instanceWriter->write(lastControlPoint, float(numTotalEdges));
+}
+
+void GrStrokeIndirectTessellator::writeCircleInstance(GrVertexWriter* instanceWriter,
+                                                      SkPoint center, int numEdgesForCircles) {
+    // An empty stroke is a special case that denotes a circle, or 180-degree point stroke.
+    instanceWriter->fill(center, 5);
+    // Mark numTotalEdges negative so the shader assigns the least possible number of edges to its
+    // (empty) preceding join.
+    instanceWriter->write(float(-numEdgesForCircles));
+}
+
 void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& viewMatrix,
                                           const GrSTArenaList<SkPath>& pathList,
                                           const SkStrokeRec& stroke, int totalCombinedVerbCnt) {
-    using IndirectInstance = GrStrokeTessellateShader::IndirectInstance;
-
     SkASSERT(fResolveLevels);
     SkASSERT(!fDrawIndirectBuffer);
     SkASSERT(!fInstanceBuffer);
@@ -611,22 +626,25 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
         return;
     }
 
+    size_t instanceStride = GrStrokeTessellateShader::kIndirectInstanceBaseStride;
+
     // We already know the instance count. Allocate an instance for each.
     int baseInstance;
-    IndirectInstance* instanceData = static_cast<IndirectInstance*>(target->makeVertexSpace(
-            sizeof(IndirectInstance), fTotalInstanceCount, &fInstanceBuffer, &baseInstance));
-    if (!instanceData) {
+    GrVertexWriter baseWriter = {target->makeVertexSpace(instanceStride, fTotalInstanceCount,
+                                                         &fInstanceBuffer, &baseInstance)};
+    if (!baseWriter.isValid()) {
         SkASSERT(!fInstanceBuffer);
         fDrawIndirectBuffer.reset();
         return;
     }
 
     // Fill out our drawIndirect commands and determine the layout of the instance buffer.
-    int numExtraEdgesInJoin = IndirectInstance::NumExtraEdgesInJoin(stroke.getJoin());
+    int numExtraEdgesInJoin =
+            GrStrokeTessellateShader::NumExtraEdgesInIndirectJoin(stroke.getJoin());
     int currentInstanceIdx = 0;
     float numEdgesPerResolveLevel[kMaxResolveLevel];
-    IndirectInstance* nextInstanceLocations[kMaxResolveLevel + 1];
-    SkDEBUGCODE(IndirectInstance* endInstanceLocations[kMaxResolveLevel];)
+    GrVertexWriter instanceWriters[kMaxResolveLevel + 1];
+    SkDEBUGCODE(GrVertexWriter endWriters[kMaxResolveLevel];)
     for (int i = 0; i <= kMaxResolveLevel; ++i) {
         if (fResolveLevelCounts[i]) {
             int numEdges = numExtraEdgesInJoin + num_edges_in_resolve_level(i);
@@ -634,14 +652,14 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                                  numEdges * 2, 0, caps);
             ++fDrawIndirectCount;
             numEdgesPerResolveLevel[i] = numEdges;
-            nextInstanceLocations[i] = instanceData + currentInstanceIdx;
+            instanceWriters[i] = baseWriter.makeOffset(instanceStride * currentInstanceIdx);
 #ifdef SK_DEBUG
         } else {
-            nextInstanceLocations[i] = nullptr;
+            instanceWriters[i] = {nullptr};
         }
         if (i > 0) {
-            endInstanceLocations[i - 1] = instanceData + currentInstanceIdx;
-            SkASSERT(endInstanceLocations[i - 1] <= instanceData + fTotalInstanceCount);
+            endWriters[i - 1] = baseWriter.makeOffset(instanceStride * currentInstanceIdx);
+            SkASSERT(currentInstanceIdx <= fTotalInstanceCount);
 #endif
         }
         currentInstanceIdx += fResolveLevelCounts[i];
@@ -649,6 +667,9 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     SkASSERT(currentInstanceIdx == fTotalInstanceCount);
     SkASSERT(fDrawIndirectCount);
     target->putBackIndirectDraws(kMaxResolveLevel + 1 - fDrawIndirectCount);
+
+    GrVertexWriter* instanceWriterForCircles = &instanceWriters[fResolveLevelForCircles];
+    float numEdgesForCircles = numEdgesPerResolveLevel[fResolveLevelForCircles];
 
     SkPoint scratchBuffer[4 + 10];
     SkPoint* scratch = scratchBuffer;
@@ -673,8 +694,7 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
             Verb verb = iter.verb();
             switch (verb) {
                 case Verb::kCircle:
-                    nextInstanceLocations[fResolveLevelForCircles]++->setCircle(
-                            pts[0], numEdgesPerResolveLevel[fResolveLevelForCircles]);
+                    this->writeCircleInstance(instanceWriterForCircles, pts[0], numEdgesForCircles);
                     [[fallthrough]];
                 case Verb::kMoveWithinContour:
                     // The next verb won't be joined to anything.
@@ -685,8 +705,9 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                     SkASSERT(hasLastControlPoint);
                     if (firstCubic) {
                         // Emit the initial cubic that we deferred at the beginning.
-                        nextInstanceLocations[firstResolveLevel]++->set(firstCubic,
-                                lastControlPoint, numEdgesPerResolveLevel[firstResolveLevel]);
+                        this->writeInstance(&instanceWriters[firstResolveLevel], firstCubic,
+                                            lastControlPoint,
+                                            numEdgesPerResolveLevel[firstResolveLevel]);
                         firstCubic = nullptr;
                     }
                     hasLastControlPoint = false;
@@ -711,8 +732,8 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                         scratch[0] = scratch[1] = pts[0];
                         scratch[2] = scratch[3] = scratch[4] = cusp;
                         scratch[5] = scratch[6] = pts[2];
-                        nextInstanceLocations[fResolveLevelForCircles]++->setCircle(
-                                cusp, numEdgesPerResolveLevel[fResolveLevelForCircles]);
+                        this->writeCircleInstance(instanceWriterForCircles, cusp,
+                                                  numEdgesForCircles);
                     } else {
                         GrPathUtils::convertQuadToCubic(pts, scratch);
                     }
@@ -732,8 +753,8 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                         scratch[0] = scratch[1] = pts[0];
                         scratch[2] = scratch[3] = scratch[4] = cusp;
                         scratch[5] = scratch[6] = pts[2];
-                        nextInstanceLocations[fResolveLevelForCircles]++->setCircle(
-                                cusp, numEdgesPerResolveLevel[fResolveLevelForCircles]);
+                        this->writeCircleInstance(instanceWriterForCircles, cusp,
+                                                  numEdgesForCircles);
                     } else {
                         GrPathShader::WriteConicPatch(pts, iter.w(), scratch);
                     }
@@ -750,8 +771,8 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                         pts_ = scratch;
                         if (-resolveLevel & 1) {  // Are the chop points cusps?
                             for (int i = 1; i <= numChops; ++i) {
-                                nextInstanceLocations[fResolveLevelForCircles]++->setCircle(
-                                        pts_[i*3],numEdgesPerResolveLevel[fResolveLevelForCircles]);
+                                this->writeCircleInstance(instanceWriterForCircles, pts_[i*3],
+                                                          numEdgesForCircles);
                             }
                         }
                         resolveLevel = *nextResolveLevel++;
@@ -768,10 +789,11 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                     scratch += 4;
                 } else {
                     int numEdges = numEdgesPerResolveLevel[resolveLevel];
-                    nextInstanceLocations[resolveLevel]++->set(pts_, lastControlPoint,
-                            // Negative numEdges will tell the GPU that this stroke instance follows
-                            // a chop, and round joins from chopping always get exactly one segment.
-                            (i == 0) ? numEdges : -numEdges);
+                    this->writeInstance(&instanceWriters[resolveLevel], pts_, lastControlPoint,
+                                        // Negative numEdges will tell the GPU that this stroke
+                                        // instance follows a chop, and round joins from chopping
+                                        // always get exactly one segment.
+                                        (i == 0) ? numEdges : -numEdges);
                 }
                 // Determine the last control point.
                 if (pts_[2] != pts_[3] && verb != Verb::kConic) {  // Conics use pts_[3] for w.
@@ -799,16 +821,16 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
 #ifdef SK_DEBUG
     SkASSERT(nextResolveLevel == fResolveLevels + fResolveLevelArrayCount);
     SkASSERT(nextChopTs == fChopTs + fChopTsArrayCount);
-    auto lastInstanceLocation = nextInstanceLocations[kMaxResolveLevel];
+    auto* finalWriter = &instanceWriters[kMaxResolveLevel];
     for (int i = kMaxResolveLevel - 1; i >= 0; --i) {
-        if (nextInstanceLocations[i]) {
-            SkASSERT(nextInstanceLocations[i] == endInstanceLocations[i]);
-        }
-        if (!lastInstanceLocation) {
-            lastInstanceLocation = nextInstanceLocations[i];
+        if (instanceWriters[i].isValid()) {
+            SkASSERT(instanceWriters[i] == endWriters[i]);
+            if (!finalWriter->isValid()) {
+                finalWriter = &instanceWriters[i];
+            }
         }
     }
-    SkDEBUGCODE(lastInstanceLocation = instanceData + fTotalInstanceCount;)
+    SkASSERT(*finalWriter == baseWriter.makeOffset(fTotalInstanceCount * instanceStride));
 #endif
 }
 
