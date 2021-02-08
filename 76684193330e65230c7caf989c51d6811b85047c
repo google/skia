@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae57faa0_a4ac5786",
+        "filename": "include/core/SkBlendMode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-08T15:33:55Z",
+      "side": 1,
+      "message": "Do you think it makes sense to write these as\n\n   sa + (1-sa)*da\n\nor even\n\n   s + (1-sa)*d\n\nto make it clear it\u0027s SrcOver?",
+      "range": {
+        "startLine": 56,
+        "startChar": 60,
+        "endLine": 56,
+        "endChar": 75
+      },
+      "revId": "76684193330e65230c7caf989c51d6811b85047c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
