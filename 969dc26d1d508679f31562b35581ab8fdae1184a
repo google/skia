@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7362794_904e7a90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-08T14:45:22Z",
+      "side": 1,
+      "message": "I often find myself looking up the simple algebra in rasterpipline_ops, so I thought I\u0027d lift some of it here.",
+      "revId": "969dc26d1d508679f31562b35581ab8fdae1184a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
