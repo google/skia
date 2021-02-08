@@ -898,22 +898,19 @@ void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     if (fOpChains.count()) {
         unsigned int cur = alloc->curOp();
 
-        alloc->addInterval(targetProxy, cur, cur + fOpChains.count() - 1,
-                           GrResourceAllocator::ActualUse::kYes);
+        alloc->addInterval(targetProxy, cur, cur + fOpChains.count() - 1);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(targetProxy, alloc->curOp(), alloc->curOp(),
-                           GrResourceAllocator::ActualUse::kYes);
+        alloc->addInterval(targetProxy, alloc->curOp(), alloc->curOp());
         alloc->incOps();
     }
 
     auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrMipmapped) {
         alloc->addInterval(p,
                            alloc->curOp(),
-                           alloc->curOp(),
-                           GrResourceAllocator::ActualUse::kYes
+                           alloc->curOp()
                            SkDEBUGCODE(, this->target(0) == p));
     };
     for (const OpChain& recordedOp : fOpChains) {

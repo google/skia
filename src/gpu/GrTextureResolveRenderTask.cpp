@@ -56,7 +56,7 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
     auto fakeOp = alloc->curOp();
     SkASSERT(fResolves.count() == this->numTargets());
     for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
-        alloc->addInterval(target.get(), fakeOp, fakeOp, GrResourceAllocator::ActualUse::kYes);
+        alloc->addInterval(target.get(), fakeOp, fakeOp);
     }
     alloc->incOps();
 }

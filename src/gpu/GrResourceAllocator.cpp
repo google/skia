@@ -68,8 +68,7 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
-                                      ActualUse actualUse
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);  // We shouldn't be adding any intervals after (or during) assignment
@@ -102,9 +101,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
             SkASSERT(intvl->end() <= start && intvl->end() <= end);
         }
 #endif
-        if (ActualUse::kYes == actualUse) {
-            intvl->addUse();
-        }
+        intvl->addUse();
         intvl->extendEnd(end);
         return;
     }
@@ -118,9 +115,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
     }
 
-    if (ActualUse::kYes == actualUse) {
-        newIntvl->addUse();
-    }
+    newIntvl->addUse();
     fIntvlList.insertByIncreasingStart(newIntvl);
     fIntvlHash.add(newIntvl);
 }
