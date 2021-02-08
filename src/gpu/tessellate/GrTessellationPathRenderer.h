@@ -20,6 +20,7 @@
 class GrTessellationPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
     // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
+    constexpr static float kLinearizationTolerance   = 0.25f;
     constexpr static float kLinearizationIntolerance = 4;
 
     // This is the maximum resolve level supported by our internal indirect draw shaders. (Indirect
