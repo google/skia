@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8d1ebf9_9e40cac1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-08T18:57:09Z",
+      "side": 1,
+      "message": "The final capstone CL for this series of changes.\n\nGit has decided to make the diffs as complicated as possible to read, but this really is just deleting the old GrVkBuffer.h/cpp and then rename GrVkBuffer2.h/cpp to GrVkBuffer.",
+      "revId": "ce8f864a97ed5f9a7d4069dbdac8b4b6d27eec55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
