@@ -87,6 +87,48 @@
       },
       "revId": "9c1eedca20064a16c4156503fc9813bcf54b46fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50debf5b_46007d04",
+        "filename": "modules/svg/src/SkSVGPoly.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-08T20:07:51Z",
+      "side": 1,
+      "message": "Added a TODO comment for this",
+      "parentUuid": "56b98ed3_8281e848",
+      "revId": "9c1eedca20064a16c4156503fc9813bcf54b46fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6540b240_d5675e6b",
+        "filename": "modules/svg/src/SkSVGPoly.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-08T20:07:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "939bdb8b_f1db11d2",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 33
+      },
+      "revId": "9c1eedca20064a16c4156503fc9813bcf54b46fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
