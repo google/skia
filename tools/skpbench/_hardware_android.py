@@ -35,6 +35,9 @@ class HardwareAndroid(Hardware):
 
     if self._adb.is_root():
 
+      # For explanation of variance reducing steps, see
+      # https://g3doc.corp.google.com/engedu/portal/android/g3doc/learn/develop/performance/content/best/reliable-startup-latency.md?cl=head
+
       self._adb.shell('\n'.join([
         # disable bluetooth, wifi, and mobile data.
         '''
@@ -54,11 +57,16 @@ class HardwareAndroid(Hardware):
         echo 0 > /proc/sys/kernel/randomize_va_space''',
 
         # stop services which can change clock speed
-        '''
-        stop thermal-engine
-        stop perfd''']))
+        # this fails on every device I've tried (pixel 3, 3a, 5)
+        # '''
+        # stop thermal-engine
+        # stop perfd'''
+
+        ]))
 
       self.lock_top_three_cores()
+
+      self.lock_adreno_gpu()
 
     else:
       print("WARNING: no adb root access; results may be unreliable.",
@@ -126,3 +134,30 @@ class HardwareAndroid(Hardware):
       echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_max_freq
       echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_min_freq
       echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_setspeed'''.format(id=i, speed=speed))
+
+  def lock_adreno_gpu(self):
+    # Use presense of /sys/class/kgsl to indicate Adreno GPU
+    exists = self._adb.check('test -d /sys/class/kgsl && echo y')
+    if (exists.strip() != 'y'):
+      print('Not attempting Adreno GPU clock locking steps')
+      return
+
+    # variance reducing changes
+    self._adb.shell('''
+      echo 0 > /sys/class/kgsl/kgsl-3d0/bus_split
+      echo 1 > /sys/class/kgsl/kgsl-3d0/force_clk_on
+      echo 10000 > /sys/class/kgsl/kgsl-3d0/idle_timer''')
+
+    freqs = self._adb.check('cat /sys/class/kgsl/kgsl-3d0/devfreq/available_frequencies').split()
+    speed = freqs[int((len(freqs)-1)*.66)]
+
+    # Set GPU to performance mode and lock clock
+    self._adb.shell('''
+      echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
+      echo {speed} > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+      echo {speed} > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq'''.format(speed=speed))
+
+    # Set GPU power level
+    self._adb.shell('''
+      echo 1 > /sys/class/kgsl/kgsl-3d0/max_pwrlevel
+      echo 1 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel''')
