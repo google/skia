@@ -18,7 +18,6 @@
 class GrVkBuffer;
 class GrVkFramebuffer;
 class GrVkImage;
-class GrVkMeshBuffer;
 class GrVkPipeline;
 class GrVkPipelineState;
 class GrVkRenderPass;
@@ -97,13 +96,13 @@ public:
               uint32_t firstInstance);
 
     void drawIndirect(const GrVkGpu* gpu,
-                      const GrVkMeshBuffer* indirectBuffer,
+                      sk_sp<const GrBuffer> indirectBuffer,
                       VkDeviceSize offset,
                       uint32_t drawCount,
                       uint32_t stride);
 
     void drawIndexedIndirect(const GrVkGpu* gpu,
-                             const GrVkMeshBuffer* indirectBuffer,
+                             sk_sp<const GrBuffer> indirectBuffer,
                              VkDeviceSize offset,
                              uint32_t drawCount,
                              uint32_t stride);

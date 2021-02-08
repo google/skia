@@ -34,18 +34,6 @@ GrVkBuffer2::GrVkBuffer2(GrVkGpu* gpu,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-sk_sp<GrVkBuffer2> GrVkBuffer2::MakeTransferSrc(GrVkGpu* gpu, size_t size ) {
-    return Make(gpu, size, GrGpuBufferType::kXferCpuToGpu, kDynamic_GrAccessPattern);
-}
-
-sk_sp<GrVkBuffer2> GrVkBuffer2::MakeTransferDst(GrVkGpu* gpu, size_t size, GrAccessPattern access) {
-    return Make(gpu, size, GrGpuBufferType::kXferGpuToCpu, access);
-}
-
-sk_sp<GrVkBuffer2> GrVkBuffer2::MakeUniform(GrVkGpu* gpu, size_t size) {
-    return Make(gpu, size, GrGpuBufferType::kUniform, kDynamic_GrAccessPattern);
-}
-
 static const GrVkDescriptorSet* make_uniform_desc_set(GrVkGpu* gpu, VkBuffer buffer, size_t size) {
     const GrVkDescriptorSet* descriptorSet = gpu->resourceProvider().getUniformDescriptorSet();
     if (!descriptorSet) {
@@ -83,6 +71,9 @@ sk_sp<GrVkBuffer2> GrVkBuffer2::Make(GrVkGpu* gpu,
     VkBuffer buffer;
     GrVkAlloc alloc;
 
+    // The only time we don't require mappable buffers is when we have a static access pattern and
+    // we're on a device where gpu only memory has faster reads on the gpu than memory that is also
+    // mappable on the cpu. Protected memory always uses mappable buffers.
     bool requiresMappable = gpu->protectedContext() ||
                             accessPattern == kDynamic_GrAccessPattern ||
                             accessPattern == kStream_GrAccessPattern ||

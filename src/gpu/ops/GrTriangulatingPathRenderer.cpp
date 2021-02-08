@@ -117,8 +117,10 @@ public:
         }
         if (fCanMapVB) {
             fVertices = fVertexBuffer->map();
-        } else {
+        }
+        if (!fVertices) {
             fVertices = sk_malloc_throw(eagerCount * stride);
+            fCanMapVB = false;
         }
         fLockStride = stride;
         return fVertices;

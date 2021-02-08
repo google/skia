@@ -17,6 +17,7 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/vk/GrVkAttachment.h"
+#include "src/gpu/vk/GrVkBuffer2.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -766,19 +767,19 @@ void GrVkOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
     // Here our vertex and instance inputs need to match the same 0-based bindings they were
     // assigned in GrVkPipeline. That is, vertex first (if any) followed by instance.
     uint32_t binding = 0;
-    if (auto* vkVertexBuffer = static_cast<const GrVkMeshBuffer*>(vertexBuffer.get())) {
-        SkASSERT(!vkVertexBuffer->isCpuBuffer());
-        SkASSERT(!vkVertexBuffer->isMapped());
+    if (auto* gpuVertexBuffer = static_cast<const GrGpuBuffer*>(vertexBuffer.get())) {
+        SkASSERT(!gpuVertexBuffer->isCpuBuffer());
+        SkASSERT(!gpuVertexBuffer->isMapped());
         currCmdBuf->bindInputBuffer(fGpu, binding++, std::move(vertexBuffer));
     }
-    if (auto* vkInstanceBuffer = static_cast<const GrVkMeshBuffer*>(instanceBuffer.get())) {
-        SkASSERT(!vkInstanceBuffer->isCpuBuffer());
-        SkASSERT(!vkInstanceBuffer->isMapped());
+    if (auto* gpuInstanceBuffer = static_cast<const GrGpuBuffer*>(instanceBuffer.get())) {
+        SkASSERT(!gpuInstanceBuffer->isCpuBuffer());
+        SkASSERT(!gpuInstanceBuffer->isMapped());
         currCmdBuf->bindInputBuffer(fGpu, binding++, std::move(instanceBuffer));
     }
-    if (auto* vkIndexBuffer = static_cast<const GrVkMeshBuffer*>(indexBuffer.get())) {
-        SkASSERT(!vkIndexBuffer->isCpuBuffer());
-        SkASSERT(!vkIndexBuffer->isMapped());
+    if (auto* gpuIndexBuffer = static_cast<const GrGpuBuffer*>(indexBuffer.get())) {
+        SkASSERT(!gpuIndexBuffer->isCpuBuffer());
+        SkASSERT(!gpuIndexBuffer->isMapped());
         currCmdBuf->bindIndexBuffer(fGpu, std::move(indexBuffer));
     }
 }
@@ -826,8 +827,7 @@ void GrVkOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
     while (remainingDraws >= 1) {
         uint32_t currDrawCount = std::min(remainingDraws, maxDrawCount);
         this->currentCommandBuffer()->drawIndirect(
-                fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, currDrawCount,
-                stride);
+                fGpu, sk_ref_sp(drawIndirectBuffer), offset, currDrawCount, stride);
         remainingDraws -= currDrawCount;
         offset += stride * currDrawCount;
         fGpu->stats()->incNumDraws();
@@ -851,8 +851,7 @@ void GrVkOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
     while (remainingDraws >= 1) {
         uint32_t currDrawCount = std::min(remainingDraws, maxDrawCount);
         this->currentCommandBuffer()->drawIndexedIndirect(
-                fGpu, static_cast<const GrVkMeshBuffer*>(drawIndirectBuffer), offset, currDrawCount,
-                stride);
+                fGpu, sk_ref_sp(drawIndirectBuffer), offset, currDrawCount, stride);
         remainingDraws -= currDrawCount;
         offset += stride * currDrawCount;
         fGpu->stats()->incNumDraws();

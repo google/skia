@@ -15,7 +15,6 @@
 #include "src/gpu/vk/GrVkCaps.h"
 #include "src/gpu/vk/GrVkMSAALoadManager.h"
 #include "src/gpu/vk/GrVkMemory.h"
-#include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkUtil.h"

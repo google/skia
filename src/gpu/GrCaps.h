@@ -176,6 +176,11 @@ public:
                                      //   submitted to GrGpu.
     };
 
+    // This returns the general mapping support for the GPU. However, even if this returns a flag
+    // that says buffers can be mapped, it does NOT mean that every buffer will be mappable. Thus
+    // calls of map should still check to see if a valid pointer was returned from the map call and
+    // handle fallbacks appropriately. If this does return kNone_MapFlags then all calls to map() on
+    // any buffer will fail.
     uint32_t mapBufferFlags() const { return fMapBufferFlags; }
 
     // Scratch textures not being reused means that those scratch textures
