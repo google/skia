@@ -32,10 +32,9 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     : fStatement(std::move(stmt)) {
-    if (!fStatement) {
-        SkASSERTF(DSLWriter::Compiler().errorCount(),
-                  "statement is null, but no errors were reported");
+    if (DSLWriter::Compiler().errorCount()) {
         DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
+        DSLWriter::Compiler().setErrorCount(0);
     }
 }
 

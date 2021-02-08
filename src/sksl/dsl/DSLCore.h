@@ -9,6 +9,7 @@
 #define SKSL_DSL_CORE
 
 #include "src/sksl/dsl/DSLBlock.h"
+#include "src/sksl/dsl/DSLCase.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLStatement.h"
@@ -69,6 +70,14 @@ DSLStatement Continue();
 DSLStatement Declare(DSLVar& var, DSLExpression initialValue = DSLExpression());
 
 /**
+ * default: statements
+ */
+template<class... Statements>
+DSLCase Default(Statements... statements) {
+    return DSLCase(DSLExpression(), std::move(statements)...);
+}
+
+/**
  * discard;
  */
 DSLStatement Discard();
@@ -93,6 +102,22 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = 
  * return [value];
  */
 DSLStatement Return(DSLExpression value = DSLExpression());
+
+/**
+ * switch (value) { cases }
+ */
+template<class... Cases>
+DSLStatement Switch(DSLExpression value, Cases... cases) {
+    std::vector<std::unique_ptr<Expression>> caseValues;
+    std::vector<StatementArray> caseStatements;
+    caseValues.reserve(sizeof...(cases));
+    caseStatements.reserve(sizeof...(cases));
+    (caseValues.push_back(cases.fValue.release()), ...);
+    (caseStatements.push_back(std::move(cases.fStatements)), ...);
+    return DSLWriter::ConvertSwitch(value.release(),
+                                    std::move(caseValues),
+                                    std::move(caseStatements));
+}
 
 /**
  * test ? ifTrue : ifFalse
