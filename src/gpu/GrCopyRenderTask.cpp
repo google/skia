@@ -52,10 +52,8 @@ void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so
     // fEndOfOpsTaskOpIndices will remain in sync), so we create a fake op# to capture the fact that
     // we read fSrcView and copy to target view.
-    alloc->addInterval(fSrc.get(), alloc->curOp(), alloc->curOp(),
-                       GrResourceAllocator::ActualUse::kYes);
-    alloc->addInterval(this->target(0), alloc->curOp(), alloc->curOp(),
-                       GrResourceAllocator::ActualUse::kYes);
+    alloc->addInterval(fSrc.get(), alloc->curOp(), alloc->curOp());
+    alloc->addInterval(this->target(0), alloc->curOp(), alloc->curOp());
     alloc->incOps();
 }
 
