@@ -979,7 +979,6 @@ namespace skvm {
         bool empty() const;
 
         bool hasJIT() const;  // Has this Program been JITted?
-        void dropJIT();       // If hasJIT(), drop it, forcing interpreter fallback.
 
         void dump(SkWStream* = nullptr) const;
 
@@ -993,6 +992,7 @@ namespace skvm {
                  Assembler*) const;
 
         void waitForLLVM() const;
+        void dropJIT();
 
         struct Impl;
         std::unique_ptr<Impl> fImpl;

@@ -13,12 +13,12 @@
 #include "tests/Test.h"
 
 template <typename Fn>
-static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
-    if (program.hasJIT()) {
-        test((const skvm::Program&) program);
-        program.dropJIT();
+static void test_jit_and_interpreter(const skvm::Builder& b, Fn&& test) {
+    skvm::Program p = b.done();
+    test(p);
+    if (p.hasJIT()) {
+        test(b.done(/*debug_name=*/nullptr, /*allow_jit=*/false));
     }
-    test((const skvm::Program&) program);
 }
 
 DEF_TEST(SkVM_eliminate_dead_code, r) {
@@ -46,7 +46,7 @@ DEF_TEST(SkVM_Pointless, r) {
               b.splat(4.0f));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         for (int N = 0; N < 64; N++) {
             program.eval(N);
         }
@@ -61,7 +61,7 @@ DEF_TEST(SkVM_memset, r) {
     skvm::Builder b;
     b.store32(b.varying<int>(), b.splat(42));
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& p) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& p) {
         int buf[18];
         buf[17] = 47;
 
@@ -81,7 +81,7 @@ DEF_TEST(SkVM_memcpy, r) {
         b.store32(dst, b.load32(src));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& p) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& p) {
         int src[] = {1,2,3,4,5,6,7,8,9},
             dst[] = {0,0,0,0,0,0,0,0,0};
 
@@ -117,7 +117,7 @@ DEF_TEST(SkVM_LoopCounts, r) {
               b.add(b.splat(1),
                     b.load32(arg)));
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int buf[64];
         for (int N = 0; N <= (int)SK_ARRAY_COUNT(buf); N++) {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
@@ -144,7 +144,7 @@ DEF_TEST(SkVM_gather32, r) {
         b.store32(buf, b.gather32(uniforms,0, b.bit_and(x, b.splat(7))));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         const int img[] = {12,34,56,78, 90,98,76,54};
 
         int buf[20];
@@ -198,7 +198,7 @@ DEF_TEST(SkVM_gathers, r) {
         b.store8 (buf8 , b.gather8 (uniforms,0, b.bit_and(x, b.splat(31))));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         const int img[] = {12,34,56,78, 90,98,76,54};
 
         constexpr int N = 20;
@@ -256,7 +256,7 @@ DEF_TEST(SkVM_gathers2, r) {
         b.store8 (buf8 , b.gather8 (uniforms,0, x));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         uint8_t img[256];
         for (int i = 0; i < 256; i++) {
             img[i] = i;
@@ -309,7 +309,7 @@ DEF_TEST(SkVM_bitops, r) {
         b.store32(ptr, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int x = 0x42;
         program.eval(1, &x);
         REPORTER_ASSERT(r, x == 0x7fff'ffff);
@@ -335,7 +335,7 @@ DEF_TEST(SkVM_select_is_NaN, r) {
     REPORTER_ASSERT(r, program[2].op == skvm::Op::bit_clear);
     REPORTER_ASSERT(r, program[3].op == skvm::Op::store32);
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         // ±NaN, ±0, ±1, ±inf
         uint32_t src[] = {0x7f80'0001, 0xff80'0001, 0x0000'0000, 0x8000'0000,
                           0x3f80'0000, 0xbf80'0000, 0x7f80'0000, 0xff80'0000};
@@ -360,7 +360,7 @@ DEF_TEST(SkVM_f32, r) {
         b.storeF(arg, w);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         float buf[] = { 1,2,3,4,5,6,7,8,9 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (float v : buf) {
@@ -388,7 +388,7 @@ DEF_TEST(SkVM_cmp_i32, r) {
 
         b.store32(b.varying<int>(), m);
     }
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int in[] = { 0,1,2,3,4,5,6,7,8,9 };
         int out[SK_ARRAY_COUNT(in)];
 
@@ -425,7 +425,7 @@ DEF_TEST(SkVM_cmp_f32, r) {
         b.store32(b.varying<int>(), m);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         float in[] = { 0,1,2,3,4,5,6,7,8,9 };
         int out[SK_ARRAY_COUNT(in)];
 
@@ -446,7 +446,7 @@ DEF_TEST(SkVM_index, r) {
     skvm::Builder b;
     b.store32(b.varying<int>(), b.index());
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int buf[23];
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
@@ -471,7 +471,7 @@ DEF_TEST(SkVM_mad, r) {
         b.store32(arg, b.trunc(v));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int x = 2;
         program.eval(1, &x);
         // x = 2
@@ -495,7 +495,7 @@ DEF_TEST(SkVM_fms, r) {
         b.store32(arg, b.trunc(v));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int buf[] = {0,1,2,3,4,5,6,7,8,9,10};
         program.eval((int)SK_ARRAY_COUNT(buf), &buf);
 
@@ -517,7 +517,7 @@ DEF_TEST(SkVM_fnma, r) {
         b.store32(arg, b.trunc(v));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int buf[] = {0,1,2,3,4,5,6,7,8,9,10};
         program.eval((int)SK_ARRAY_COUNT(buf), &buf);
 
@@ -539,7 +539,7 @@ DEF_TEST(SkVM_madder, r) {
         b.storeF(arg, w);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         float x = 2.0f;
         // y = 2*2 + 2 = 6
         // z = 6*2 + 6 = 18
@@ -556,7 +556,7 @@ DEF_TEST(SkVM_floor, r) {
         b.storeF(arg, b.floor(b.loadF(arg)));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         float buf[]  = { -2.0f, -1.5f, -1.0f, 0.0f, 1.0f, 1.5f, 2.0f };
         float want[] = { -2.0f, -2.0f, -1.0f, 0.0f, 1.0f, 1.0f, 2.0f };
         program.eval(SK_ARRAY_COUNT(buf), buf);
@@ -576,7 +576,7 @@ DEF_TEST(SkVM_round, r) {
 
     // The test cases on exact 0.5f boundaries assume the current rounding mode is nearest even.
     // We haven't explicitly guaranteed that here... it just probably is.
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         float buf[]  = { -1.5f, -0.5f, 0.0f, 0.5f, 0.2f, 0.6f, 1.0f, 1.4f, 1.5f, 2.0f };
         int want[] =   { -2   ,  0   , 0   , 0   , 0   , 1   , 1   , 1   , 2   , 2    };
         int dst[SK_ARRAY_COUNT(buf)];
@@ -598,7 +598,7 @@ DEF_TEST(SkVM_min, r) {
         b.storeF(dst, b.min(b.loadF(src1), b.loadF(src2)));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         float s1[]  =  { 0.0f, 1.0f, 4.0f, -1.0f, -1.0f};
         float s2[]  =  { 0.0f, 2.0f, 3.0f,  1.0f, -2.0f};
         float want[] = { 0.0f, 1.0f, 3.0f, -1.0f, -2.0f};
@@ -620,7 +620,7 @@ DEF_TEST(SkVM_max, r) {
         b.storeF(dst, b.max(b.loadF(src1), b.loadF(src2)));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         float s1[]  =  { 0.0f, 1.0f, 4.0f, -1.0f, -1.0f};
         float s2[]  =  { 0.0f, 2.0f, 3.0f,  1.0f, -2.0f};
         float want[] = { 0.0f, 2.0f, 4.0f,  1.0f, -1.0f};
@@ -645,7 +645,7 @@ DEF_TEST(SkVM_hoist, r) {
         b.store32(arg, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int x = 4;
         program.eval(1, &x);
         // x += 0 + 1 + 2 + 3 + ... + 30 + 31
@@ -666,7 +666,7 @@ DEF_TEST(SkVM_select, r) {
         b.store32(buf, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int buf[] = { 0,1,2,3,4,5,6,7,8 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
@@ -699,7 +699,7 @@ DEF_TEST(SkVM_swap, r) {
         b.store32(Y, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int b1[] = { 0,1,2,3 };
         int b2[] = { 4,5,6,7 };
         program.eval(SK_ARRAY_COUNT(b1), b1, b2);
@@ -734,7 +734,7 @@ DEF_TEST(SkVM_NewOps, r) {
         b.store16(buf, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         const int N = 31;
         int16_t buf[N];
         for (int i = 0; i < N; i++) {
@@ -774,7 +774,7 @@ DEF_TEST(SkVM_sqrt, r) {
     auto buf = b.varying<int>();
     b.storeF(buf, b.sqrt(b.loadF(buf)));
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         constexpr int K = 17;
         float buf[K];
         for (int i = 0; i < K; i++) {
@@ -797,7 +797,7 @@ DEF_TEST(SkVM_MSAN, r) {
     skvm::Builder b;
     b.store32(b.varying<int>(), b.splat(42));
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         constexpr int K = 17;
         int buf[K];                 // Intentionally uninitialized.
         program.eval(K, buf);
@@ -813,7 +813,7 @@ DEF_TEST(SkVM_assert, r) {
     b.assert_true(b.lt(b.load32(b.varying<int>()),
                        b.splat(42)));
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
         int buf[] = { 0,1,2,3,4,5,6,7,8,9 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
     });
@@ -2108,7 +2108,7 @@ DEF_TEST(SkVM_min_max, r) {
             b.storeF(mx, b.max(x,y));
         }
 
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             float mn[8], mx[8];
             for (int i = 0; i < 8; i++) {
                 // min() and max() everything with f[i].
@@ -2137,7 +2137,7 @@ DEF_TEST(SkVM_min_max, r) {
             b.storeF(mx, b.max(x,y));
         }
 
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             float mn[8], mx[8];
             program.eval(8, f,mn,mx);
             for (int j = 0; j < 8; j++) {
@@ -2162,7 +2162,7 @@ DEF_TEST(SkVM_min_max, r) {
             b.storeF(mx, b.max(x,y));
         }
 
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             float mn[8], mx[8];
             program.eval(8, f,mn,mx);
             for (int j = 0; j < 8; j++) {
@@ -2184,7 +2184,7 @@ DEF_TEST(SkVM_halfs, r) {
                   dst = b.varying<float>();
         b.storeF(dst, b.from_fp16(b.load16(src)));
 
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             float dst[8];
             program.eval(8, hs, dst);
             for (int i = 0; i < 8; i++) {
@@ -2198,7 +2198,7 @@ DEF_TEST(SkVM_halfs, r) {
                   dst = b.varying<uint16_t>();
         b.store16(dst, b.to_fp16(b.loadF(src)));
 
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             uint16_t dst[8];
             program.eval(8, fs, dst);
             for (int i = 0; i < 8; i++) {
@@ -2228,7 +2228,7 @@ DEF_TEST(SkVM_64bit, r) {
             b.store32(lo, b.load64(wide, 0));
             b.store32(hi, b.load64(wide, 1));
         }
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             uint32_t l[65], h[65];
             program.eval(65, wide,l,h);
             for (int i = 0; i < 65; i++) {
@@ -2246,7 +2246,7 @@ DEF_TEST(SkVM_64bit, r) {
                         hi = b.varying<int>();
             b.store64(wide, b.load32(lo), b.load32(hi));
         }
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             uint64_t w[65];
             program.eval(65, w,lo,hi);
             for (int i = 0; i < 65; i++) {
@@ -2276,7 +2276,7 @@ DEF_TEST(SkVM_128bit, r) {
             skvm::Color c = b.load(rgba_ffff, src);
             b.store(rgba_8888, dst, c);
         }
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             memset(packed, 0, sizeof(packed));
             program.eval(63, packed, floats);
             for (int i = 0; i < 4*63; i++) {
@@ -2295,7 +2295,7 @@ DEF_TEST(SkVM_128bit, r) {
             skvm::Color c = b.load(rgba_8888, src);
             b.store(rgba_ffff, dst, c);
         }
-        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        test_jit_and_interpreter(b, [&](const skvm::Program& program){
             memset(floats, 0, sizeof(floats));
             program.eval(63, floats, packed);
             for (int i = 0; i < 4*63; i++) {
@@ -2315,7 +2315,7 @@ DEF_TEST(SkVM_is_NaN_is_finite, r) {
         b.store32(nan, is_NaN   (b.loadF(src)));
         b.store32(fin, is_finite(b.loadF(src)));
     }
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+    test_jit_and_interpreter(b, [&](const skvm::Program& program){
         // ±NaN, ±0, ±1, ±inf
         const uint32_t bits[] = {0x7f80'0001, 0xff80'0001, 0x0000'0000, 0x8000'0000,
                                  0x3f80'0000, 0xbf80'0000, 0x7f80'0000, 0xff80'0000};
@@ -2347,7 +2347,7 @@ DEF_TEST(SkVM_args, r) {
                   + b.loadF(E));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+    test_jit_and_interpreter(b, [&](const skvm::Program& program){
         float dst[17],A[17],B[17],C[17],D[17],E[17];
         for (int i = 0; i < 17; i++) {
             A[i] = B[i] = C[i] = D[i] = E[i] = (float)i;
@@ -2376,7 +2376,7 @@ DEF_TEST(SkVM_badpack, r) {
         store16(dst, _4444);
     }
 
-    test_jit_and_interpreter(p.done(), [&](const skvm::Program& program){
+    test_jit_and_interpreter(p, [&](const skvm::Program& program){
         const float uniforms[] = { 0.0f, 0.0f,
                                    1.0f, 0.0f, 0.0f, 1.0f };
 
@@ -2476,7 +2476,7 @@ DEF_TEST(SkVM_dont_dedup_loads, r) {
         }
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+    test_jit_and_interpreter(b, [&](const skvm::Program& program){
         int buf[] = { 0,1,2,3,4 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
@@ -2497,7 +2497,7 @@ DEF_TEST(SkVM_dont_dedup_stores, r) {
         b.store32(buf, b.splat(4));   // If we dedup'd, we'd skip this store.
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+    test_jit_and_interpreter(b, [&](const skvm::Program& program){
         int buf[42];
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (int x : buf) {
