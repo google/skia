@@ -12,18 +12,7 @@
 
 SkSVGStop::SkSVGStop() : INHERITED(SkSVGTag::kStop) {}
 
-void SkSVGStop::setOffset(const SkSVGLength& offset) {
-    fOffset = offset;
-}
-
-void SkSVGStop::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kOffset:
-        if (const auto* offset = v.as<SkSVGLengthValue>()) {
-            this->setOffset(*offset);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGStop::parseAndSetAttribute(const char* n, const char* v) {
+    return INHERITED::parseAndSetAttribute(n, v) ||
+           this->setOffset(SkSVGAttributeParser::parse<SkSVGLength>("offset", n, v));
 }
