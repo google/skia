@@ -317,62 +317,19 @@ static GrSurfaceProxyView render_sw_mask(GrRecordingContext* context, const SkIR
                                          const GrClipStack::Element** elements, int count) {
     SkASSERT(count > 0);
 
-    SkTaskGroup* taskGroup = nullptr;
-    if (auto direct = context->asDirectContext()) {
-        taskGroup = direct->priv().getTaskGroup();
+    SkTArray<GrClipStack::Element> data(count);
+    for (int i = 0; i < count; ++i) {
+        data.push_back(*(elements[i]));
     }
-
-    if (taskGroup) {
-        const GrCaps* caps = context->priv().caps();
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-
-        // Create our texture proxy
-        GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
-                                                               GrRenderable::kNo);
-
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
-        auto proxy = proxyProvider->createProxy(format, bounds.size(), GrRenderable::kNo, 1,
-                                                GrMipMapped::kNo, SkBackingFit::kApprox,
-                                                SkBudgeted::kYes, GrProtected::kNo);
-
-        // Since this will be rendered on another thread, make a copy of the elements in case
-        // the clip stack is modified on the main thread
-        using Uploader = GrTDeferredProxyUploader<SkTArray<GrClipStack::Element>>;
-        std::unique_ptr<Uploader> uploader = std::make_unique<Uploader>(count);
-        for (int i = 0; i < count; ++i) {
-            uploader->data().push_back(*(elements[i]));
+    return GrSWMaskHelper::MakeTexture(bounds,
+                                       context,
+                                       SkBackingFit::kApprox,
+                                       [data{std::move(data)}](GrSWMaskHelper* helper) {
+        TRACE_EVENT0("skia.gpu", "SW Clip Mask Render");
+        for (int i = 0; i < data.count(); ++i) {
+            draw_to_sw_mask(helper, data[i], i == 0);
         }
-
-        Uploader* uploaderRaw = uploader.get();
-        auto drawAndUploadMask = [uploaderRaw, bounds] {
-            TRACE_EVENT0("skia.gpu", "Threaded SW Clip Mask Render");
-            GrSWMaskHelper helper(uploaderRaw->getPixels());
-            if (helper.init(bounds)) {
-                for (int i = 0; i < uploaderRaw->data().count(); ++i) {
-                    draw_to_sw_mask(&helper, uploaderRaw->data()[i], i == 0);
-                }
-            } else {
-                SkDEBUGFAIL("Unable to allocate SW clip mask.");
-            }
-            uploaderRaw->signalAndFreeData();
-        };
-
-        taskGroup->add(std::move(drawAndUploadMask));
-        proxy->texPriv().setDeferredUploader(std::move(uploader));
-
-        return {std::move(proxy), kMaskOrigin, swizzle};
-    } else {
-        GrSWMaskHelper helper;
-        if (!helper.init(bounds)) {
-            return {};
-        }
-
-        for (int i = 0; i < count; ++i) {
-            draw_to_sw_mask(&helper,*(elements[i]), i == 0);
-        }
-
-        return helper.toTextureView(context, SkBackingFit::kApprox);
-    }
+    });
 }
 
 static void render_stencil_mask(GrRecordingContext* context, GrSurfaceDrawContext* rtc,

@@ -378,8 +378,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
                     }
                 }
             };
-            uniformsGui(effect->effectUniformInfo(), effect->effectUniforms());
-            uniformsGui(effect->particleUniformInfo(), effect->particleUniforms());
+            uniformsGui(effect->uniformInfo(), effect->uniformData());
             if (remove) {
                 fRunning.removeShuffle(i);
             }

@@ -4,7 +4,7 @@
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "EffectCode": [
+   "Code": [
       "void effectSpawn(inout Effect effect) {",
       "  effect.lifetime = 4;",
       "}",
@@ -16,9 +16,7 @@
       "",
       "  effect.rate = effect.age < 0.75 ? 800 : 0;",
       "}",
-      ""
-   ],
-   "Code": [
+      "",
       "uniform float2 mouse_pos;",
       "",
       "void spawn(inout Particle p) {",

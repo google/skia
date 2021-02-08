@@ -1,0 +1,22 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    float f = colorGreen.g;
+    int   i = int(colorGreen.g);
+    bool  b = bool(colorGreen.g);
+
+    float f1 = float(f);
+    float f2 = float(i);
+    float f3 = float(b);
+    int   i1 = int(f);
+    int   i2 = int(i);
+    int   i3 = int(b);
+    bool  b1 = bool(f);
+    bool  b2 = bool(i);
+    bool  b3 = bool(b);
+
+    return  half(f1) + half(f2) + half(f3)  +
+            half(i1) + half(i2) + half(i3)  +
+            half(b1) + half(b2) + half(b3)  == 9 ? colorGreen : colorRed;
+}
+

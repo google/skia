@@ -66,7 +66,7 @@ protected:
         mat.postTranslate(-72, -72);
 
         paint.setShader(fBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                           SkSamplingOptions({1.0f/3, 1.0f/3}), mat));
+                                           SkSamplingOptions(SkCubicResampler::Mitchell()), mat));
         canvas->drawRect({ 8, 8, 1008, 608 }, paint);
     }
 

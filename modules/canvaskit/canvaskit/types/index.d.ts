@@ -140,8 +140,9 @@ export interface CanvasKit {
      *                  a new one.
      * @returns The bounding rectangle or null if it could not be computed.
      */
-    getShadowLocalBounds(ctm: InputMatrix, path: Path, zPlaneParams: Vector3, lightPos: Vector3,
-                         lightRadius: number, flags: number, dstRect?: Rect): Rect | null;
+    getShadowLocalBounds(ctm: InputMatrix, path: Path, zPlaneParams: InputVector3,
+                         lightPos: InputVector3, lightRadius: number, flags: number,
+                         dstRect?: Rect): Rect | null;
 
     /**
      * Malloc returns a TypedArray backed by the C++ memory of the
@@ -807,63 +808,37 @@ export interface Particles extends EmbindObject<Particles> {
      * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
      * floats will change the corresponding uniforms instantly.
      */
-    effectUniforms(): Float32Array;
+    uniforms(): Float32Array;
 
     /**
      * Returns the nth uniform from the effect.
      * @param index
      */
-    getEffectUniform(index: number): ParticlesUniform;
+    getUniform(index: number): SkSLUniform;
 
     /**
      * Returns the number of uniforms on the effect.
      */
-    getEffectUniformCount(): number;
+    getUniformCount(): number;
 
     /**
-     * Returns the number of float uniforms on the effect.
+     * Returns the total number of floats across all uniforms on the effect. This is the length
+     * of the array returned by `uniforms()`. For example, an effect with a single float3 uniform,
+     * would return 1 from `getUniformCount()`, but 3 from `getUniformFloatCount()`.
      */
-    getEffectUniformFloatCount(): number;
+    getUniformFloatCount(): number;
 
     /**
      * Returns the name of the nth effect uniform.
      * @param index
      */
-    getEffectUniformName(index: number): string;
-
-    /**
-     * Returns the nth uniform on the particles.
-     * @param index
-     */
-    getParticleUniform(index: number): ParticlesUniform;
-
-    /**
-     * Returns the count of uniforms on the particles.
-     */
-    getParticleUniformCount(): number;
-
-    /**
-     * Returns the number of float uniforms on the particles.
-     */
-    getParticleUniformFloatCount(): number;
-
-    /**
-     * Returns the name of the nth particle uniform.
-     * @param index
-     */
-    getParticleUniformName(index: number): string;
-
-    /**
-     * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
-     * floats will change the corresponding uniforms instantly.
-     */
-    particleUniforms(): Float32Array;
+    getUniformName(index: number): string;
 
     /**
      * Sets the base position of the effect.
      * @param point
      */
-    setPosition(point: Point): void;
+    setPosition(point: InputPoint): void;
 
     /**
      * Sets the base rate of the effect.
@@ -885,7 +860,7 @@ export interface Particles extends EmbindObject<Particles> {
     update(now: number): void;
 }
 
-export interface ParticlesUniform {
+export interface SkSLUniform {
     columns: number;
     rows: number;
     /** The index into the uniforms array that this uniform begins. */
@@ -1259,7 +1234,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param spotColor -  The color of the spot shadow.
      * @param flags - See SkShadowFlags.h; 0 means use default options.
      */
-    drawShadow(path: Path, zPlaneParams: Vector3, lightPos: Vector3, lightRadius: number,
+    drawShadow(path: Path, zPlaneParams: InputVector3, lightPos: InputVector3, lightRadius: number,
                ambientColor: InputColor, spotColor: InputColor, flags: number): void;
 
     /**
@@ -1458,9 +1433,12 @@ export interface ContourMeasureIter extends EmbindObject<ContourMeasureIter> {
 export interface ContourMeasure extends EmbindObject<ContourMeasure> {
     /**
      * Returns the given position and tangent line for the distance on the given contour.
+     * The return value is 4 floats in this order: posX, posY, vecX, vecY.
      * @param distance - will be pinned between 0 and length().
+     * @param output - if provided, the four floats of the PosTan will be copied into this array
+     *                 instead of allocating a new one.
      */
-    getPosTan(distance: number): PosTan;
+    getPosTan(distance: number, output?: PosTan): PosTan;
 
     /**
      * Returns an Path representing the segement of this contour.
@@ -2149,8 +2127,10 @@ export interface Path extends EmbindObject<Path> {
      * Returns the Point at index in Point array. Valid range for index is
      * 0 to countPoints() - 1.
      * @param index
+     * @param outputArray - if provided, the point will be copied into this array instead of
+     *                      allocating a new one.
      */
-    getPoint(index: number): Point;
+    getPoint(index: number, outputArray?: Point): Point;
 
     /**
      * Returns true if there are no verbs in the path.
@@ -2399,6 +2379,30 @@ export interface RuntimeEffect extends EmbindObject<RuntimeEffect> {
      */
     makeShaderWithChildren(uniforms: Float32Array | number[], isOpaque?: boolean,
                            children?: Shader[], localMatrix?: InputMatrix): Shader;
+
+    /**
+     * Returns the nth uniform from the effect.
+     * @param index
+     */
+    getUniform(index: number): SkSLUniform;
+
+    /**
+     * Returns the number of uniforms on the effect.
+     */
+    getUniformCount(): number;
+
+    /**
+     * Returns the total number of floats across all uniforms on the effect. This is the length
+     * of the uniforms array expected by makeShader. For example, an effect with a single float3
+     * uniform, would return 1 from `getUniformCount()`, but 3 from `getUniformFloatCount()`.
+     */
+    getUniformFloatCount(): number;
+
+    /**
+     * Returns the name of the nth effect uniform.
+     * @param index
+     */
+    getUniformName(index: number): string;
 }
 
 /**
@@ -2530,7 +2534,11 @@ export interface SkottieAnimation extends EmbindObject<SkottieAnimation> {
      */
     seekFrame(frame: number, damageRect?: Rect): Rect;
 
-    size(): Point;
+    /**
+     * Return the size of this animation.
+     * @param outputSize - If provided, the size will be copied into here as width, height.
+     */
+    size(outputSize?: Point): Point;
     version(): string;
 }
 
@@ -3117,8 +3125,10 @@ export interface RuntimeEffectFactory {
     /**
      * Compiles a RuntimeEffect from the given shader code.
      * @param sksl - Source code for a shader written in SkSL
+     * @param callback - will be called with any compilation error. If not provided, errors will
+     *                   be printed to console.log().
      */
-    Make(sksl: string): RuntimeEffect | null;
+    Make(sksl: string, callback?: (err: string) => void): RuntimeEffect | null;
 }
 
 /**
@@ -3179,7 +3189,7 @@ export interface ShaderFactory {
      *                between them.
      * @param colorSpace
      */
-    MakeLinearGradient(start: Point, end: Point, colors: InputFlexibleColorArray,
+    MakeLinearGradient(start: InputPoint, end: InputPoint, colors: InputFlexibleColorArray,
                        pos: number[] | null, mode: TileMode, localMatrix?: InputMatrix,
                        flags?: number, colorSpace?: ColorSpace): Shader;
 
@@ -3196,7 +3206,7 @@ export interface ShaderFactory {
      * @param flags - 0 to interpolate colors in unpremul, 1 to interpolate colors in premul.
      * @param colorSpace
      */
-    MakeRadialGradient(center: Point, radius: number, colors: InputFlexibleColorArray,
+    MakeRadialGradient(center: InputPoint, radius: number, colors: InputFlexibleColorArray,
                        pos: number[] | null, mode: TileMode, localMatrix?: InputMatrix,
                        flags?: number, colorSpace?: ColorSpace): Shader;
 
@@ -3249,10 +3259,10 @@ export interface ShaderFactory {
      * @param flags
      * @param colorSpace
      */
-    MakeTwoPointConicalGradient(start: Point, startRadius: number, end: Point, endRadius: number,
-                                colors: InputFlexibleColorArray, pos: number[] | null,
-                                mode: TileMode, localMatrix?: InputMatrix, flags?: number,
-                                colorSpace?: ColorSpace): Shader;
+    MakeTwoPointConicalGradient(start: InputPoint, startRadius: number, end: InputPoint,
+                                endRadius: number, colors: InputFlexibleColorArray,
+                                pos: number[] | null, mode: TileMode, localMatrix?: InputMatrix,
+                                flags?: number, colorSpace?: ColorSpace): Shader;
 }
 
 /**
@@ -3397,10 +3407,10 @@ export interface VectorHelpers {
 }
 
 /**
- * A PosTan is an array of 4 values, representing a position and a tangent vector. In order, the
- * values are [px, py, tx, ty].
+ * A PosTan is a Float32Array of length 4, representing a position and a tangent vector. In order,
+ * the values are [px, py, tx, ty].
  */
-export type PosTan = number[];
+export type PosTan = Float32Array;
 /**
  * An Color is represented by 4 floats, typically with values between 0 and 1.0. In order,
  * the floats correspond to red, green, blue, alpha.
@@ -3426,7 +3436,7 @@ export type IRect = Int32Array;
 /**
  * An Point is represented by 2 floats: (x, y).
  */
-export type Point = number[];
+export type Point = Float32Array;
 /**
  * An Rect is represented by 4 floats. In order, the floats correspond to left, top,
  * right, bottom. See Rect.h for more
@@ -3489,7 +3499,7 @@ export type Matrix3x2 = Float32Array;
 /**
  * Vector3 represents an x, y, z coordinate or vector. It has length 3.
  */
-export type Vector3 = number[]; // TODO(kjlubick) make this include typed array and malloc'd.
+export type Vector3 = number[];
 
 /**
  * VectorN represents a vector of length n.
@@ -3529,6 +3539,10 @@ export type InputFlattenedRectangleArray = MallocObj | FlattenedRectangleArray |
  */
 export type InputFlexibleColorArray = Float32Array | Uint32Array | Float32Array[];
 /**
+ * CanvasKit APIs accept a Float32Array or a normal array (of length 2) as a Point.
+ */
+export type InputPoint = Point | number[];
+/**
  * CanvasKit APIs accept all of these matrix types. Under the hood, we generally use 4x4 matrices.
  */
 export type InputMatrix = MallocObj | Matrix4x4 | Matrix3x3 | Matrix3x2 | DOMMatrix | number[];
@@ -3552,6 +3566,11 @@ export type InputRRect = MallocObj | RRect | number[];
  * be scos, ssin, tx, ty for each RSXForm. See RSXForm.h for more details.
  */
 export type InputFlattenedRSXFormArray = MallocObj | Float32Array | number[];
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as a vector of 3 floats.
+ * For example, this is the x, y, z coordinates.
+ */
+export type InputVector3 = MallocObj | Vector3 | Float32Array;
 
 export type AlphaType = EmbindEnumEntity;
 export type BlendMode = EmbindEnumEntity;

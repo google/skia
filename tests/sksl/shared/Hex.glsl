@@ -1,23 +1,16 @@
 
-void main() {
+out vec4 sk_FragColor;
+uniform vec4 colorGreen;
+vec4 main() {
     int i1 = 0;
     i1++;
-    int i2 = 305441741;
+    int i2 = 4660;
     i2++;
-    int i3 = 2147483647;
+    int i3 = 32766;
     i3++;
-    int i4 = 4294967295;
+    int i4 = -32766;
     i4++;
-    int i5 = -48879;
+    int i5 = 19132;
     i5++;
-    uint u1 = 0u;
-    u1++;
-    uint u2 = 305441741u;
-    u2++;
-    uint u3 = 2147483647u;
-    u3++;
-    uint u4 = 4294967295u;
-    u4++;
-    uint u5 = 65535u;
-    u5++;
+    return colorGreen;
 }

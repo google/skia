@@ -17,7 +17,7 @@
 #include "src/sksl/SkSLHCodeGenerator.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLMetalCodeGenerator.h"
-#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLSPIRVCodeGenerator.h"
 #include "src/sksl/SkSLSPIRVtoHLSL.h"
@@ -430,7 +430,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node, DefinitionMap* defin
                 BinaryExpression* b = &expr->as<BinaryExpression>();
                 if (b->getOperator() == Token::Kind::TK_EQ) {
                     this->addDefinition(b->left().get(), &b->right(), definitions);
-                } else if (Compiler::IsAssignment(b->getOperator())) {
+                } else if (Operators::IsAssignment(b->getOperator())) {
                     this->addDefinition(
                                   b->left().get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
@@ -576,9 +576,7 @@ static bool is_dead(const Expression& lvalue, ProgramUsage* usage) {
                    is_dead(*t.ifFalse(), usage);
         }
         default:
-#ifdef SK_DEBUG
-            ABORT("invalid lvalue: %s\n", lvalue.description().c_str());
-#endif
+            SkDEBUGFAILF("invalid lvalue: %s\n", lvalue.description().c_str());
             return false;
     }
 }
@@ -588,7 +586,7 @@ static bool is_dead(const Expression& lvalue, ProgramUsage* usage) {
  * to a dead target and lack of side effects on the left hand side.
  */
 static bool dead_assignment(const BinaryExpression& b, ProgramUsage* usage) {
-    if (!Compiler::IsAssignment(b.getOperator())) {
+    if (!Operators::IsAssignment(b.getOperator())) {
         return false;
     }
     return is_dead(*b.left(), usage);
@@ -826,7 +824,7 @@ static void clear_write(Expression& expr) {
             clear_write(*expr.as<IndexExpression>().base());
             break;
         default:
-            ABORT("shouldn't be writing to this kind of expression\n");
+            SK_ABORT("shouldn't be writing to this kind of expression\n");
             break;
     }
 }
@@ -1528,7 +1526,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         case Statement::Kind::kSwitch: {
             SwitchStatement& s = stmt->as<SwitchStatement>();
             int64_t switchValue;
-            if (fIRGenerator->getConstantInt(*s.value(), &switchValue)) {
+            if (ConstantFolder::GetConstantInt(*s.value(), &switchValue)) {
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
@@ -1538,7 +1536,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         continue;
                     }
                     int64_t caseValue;
-                    SkAssertResult(fIRGenerator->getConstantInt(*c->value(), &caseValue));
+                    SkAssertResult(ConstantFolder::GetConstantInt(*c->value(), &caseValue));
                     if (caseValue == switchValue) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {
@@ -1611,20 +1609,9 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
         const BasicBlock& block = cfg.fBlocks[i];
         if (!block.fIsReachable && !block.fAllowUnreachable && block.fNodes.size()) {
-            int offset;
             const BasicBlock::Node& node = block.fNodes[0];
-            if (node.isStatement()) {
-                offset = (*node.statement())->fOffset;
-            } else {
-                offset = (*node.expression())->fOffset;
-                if ((*node.expression())->is<BoolLiteral>()) {
-                    // Function inlining can generate do { ... } while(false) loops which always
-                    // break, so the boolean condition is considered unreachable. Since not being
-                    // able to reach a literal is a non-issue in the first place, we don't report an
-                    // error in this case.
-                    continue;
-                }
-            }
+            int offset = node.isStatement() ? (*node.statement())->fOffset
+                                            : (*node.expression())->fOffset;
             this->error(offset, String("unreachable"));
         }
     }
@@ -1762,8 +1749,11 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
-    std::unique_ptr<Pool> pool = Pool::Create();
-    pool->attachToThread();
+    std::unique_ptr<Pool> pool;
+    if (fCaps->useNodePools()) {
+        pool = Pool::Create();
+        pool->attachToThread();
+    }
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
                                          textPtr->c_str(), textPtr->size(), externalFunctions);
@@ -1788,7 +1778,9 @@ std::unique_ptr<Program> Compiler::convertProgram(
         success = true;
     }
 
-    program->fPool->detachFromThread();
+    if (program->fPool) {
+        program->fPool->detachFromThread();
+    }
     return success ? std::move(program) : nullptr;
 }
 
@@ -2012,97 +2004,6 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
 #endif // defined(SKSL_STANDALONE) || GR_TEST_UTILS
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
-
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
-    AutoSource as(this, program.fSource.get());
-    StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outArgs);
-    bool result = cg.generateCode();
-    if (result) {
-        outArgs->fCode = buffer.str();
-    }
-    return result;
-}
-#endif
-
-const char* Compiler::OperatorName(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_PLUS:         return "+";
-        case Token::Kind::TK_MINUS:        return "-";
-        case Token::Kind::TK_STAR:         return "*";
-        case Token::Kind::TK_SLASH:        return "/";
-        case Token::Kind::TK_PERCENT:      return "%";
-        case Token::Kind::TK_SHL:          return "<<";
-        case Token::Kind::TK_SHR:          return ">>";
-        case Token::Kind::TK_LOGICALNOT:   return "!";
-        case Token::Kind::TK_LOGICALAND:   return "&&";
-        case Token::Kind::TK_LOGICALOR:    return "||";
-        case Token::Kind::TK_LOGICALXOR:   return "^^";
-        case Token::Kind::TK_BITWISENOT:   return "~";
-        case Token::Kind::TK_BITWISEAND:   return "&";
-        case Token::Kind::TK_BITWISEOR:    return "|";
-        case Token::Kind::TK_BITWISEXOR:   return "^";
-        case Token::Kind::TK_EQ:           return "=";
-        case Token::Kind::TK_EQEQ:         return "==";
-        case Token::Kind::TK_NEQ:          return "!=";
-        case Token::Kind::TK_LT:           return "<";
-        case Token::Kind::TK_GT:           return ">";
-        case Token::Kind::TK_LTEQ:         return "<=";
-        case Token::Kind::TK_GTEQ:         return ">=";
-        case Token::Kind::TK_PLUSEQ:       return "+=";
-        case Token::Kind::TK_MINUSEQ:      return "-=";
-        case Token::Kind::TK_STAREQ:       return "*=";
-        case Token::Kind::TK_SLASHEQ:      return "/=";
-        case Token::Kind::TK_PERCENTEQ:    return "%=";
-        case Token::Kind::TK_SHLEQ:        return "<<=";
-        case Token::Kind::TK_SHREQ:        return ">>=";
-        case Token::Kind::TK_BITWISEANDEQ: return "&=";
-        case Token::Kind::TK_BITWISEOREQ:  return "|=";
-        case Token::Kind::TK_BITWISEXOREQ: return "^=";
-        case Token::Kind::TK_PLUSPLUS:     return "++";
-        case Token::Kind::TK_MINUSMINUS:   return "--";
-        case Token::Kind::TK_COMMA:        return ",";
-        default:
-            ABORT("unsupported operator: %d\n", (int) op);
-    }
-}
-
-
-bool Compiler::IsAssignment(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_EQ:           // fall through
-        case Token::Kind::TK_PLUSEQ:       // fall through
-        case Token::Kind::TK_MINUSEQ:      // fall through
-        case Token::Kind::TK_STAREQ:       // fall through
-        case Token::Kind::TK_SLASHEQ:      // fall through
-        case Token::Kind::TK_PERCENTEQ:    // fall through
-        case Token::Kind::TK_SHLEQ:        // fall through
-        case Token::Kind::TK_SHREQ:        // fall through
-        case Token::Kind::TK_BITWISEOREQ:  // fall through
-        case Token::Kind::TK_BITWISEXOREQ: // fall through
-        case Token::Kind::TK_BITWISEANDEQ:
-            return true;
-        default:
-            return false;
-    }
-}
-
-Token::Kind Compiler::RemoveAssignment(Token::Kind op) {
-    switch (op) {
-        case Token::Kind::TK_PLUSEQ:       return Token::Kind::TK_PLUS;
-        case Token::Kind::TK_MINUSEQ:      return Token::Kind::TK_MINUS;
-        case Token::Kind::TK_STAREQ:       return Token::Kind::TK_STAR;
-        case Token::Kind::TK_SLASHEQ:      return Token::Kind::TK_SLASH;
-        case Token::Kind::TK_PERCENTEQ:    return Token::Kind::TK_PERCENT;
-        case Token::Kind::TK_SHLEQ:        return Token::Kind::TK_SHL;
-        case Token::Kind::TK_SHREQ:        return Token::Kind::TK_SHR;
-        case Token::Kind::TK_BITWISEOREQ:  return Token::Kind::TK_BITWISEOR;
-        case Token::Kind::TK_BITWISEXOREQ: return Token::Kind::TK_BITWISEXOR;
-        case Token::Kind::TK_BITWISEANDEQ: return Token::Kind::TK_BITWISEAND;
-        default: return op;
-    }
-}
 
 Position Compiler::position(int offset) {
     if (fSource && offset >= 0) {

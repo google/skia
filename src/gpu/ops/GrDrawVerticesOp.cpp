@@ -713,7 +713,8 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
 
         if (fMultipleViewMatrices) {
             SkASSERT(!mesh.fViewMatrix.hasPerspective());
-            SkMatrixPriv::MapPointsWithStride(mesh.fViewMatrix, posBase, vertexStride, vertexCount);
+            SkMatrixPriv::MapPointsWithStride(mesh.fViewMatrix, posBase, vertexStride,
+                                              positions, sizeof(SkPoint), vertexCount);
         }
 
         vertexOffset += vertexCount;

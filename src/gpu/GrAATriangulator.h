@@ -20,7 +20,7 @@ public:
         aaTriangulator.fRoundVerticesToQuarterPixel = true;
         aaTriangulator.fEmitCoverage = true;
         bool isLinear;
-        Poly* polys = aaTriangulator.pathToPolys(tolerance, clipBounds, nullptr, &isLinear);
+        Poly* polys = aaTriangulator.pathToPolys(tolerance, clipBounds, &isLinear);
         return aaTriangulator.polysToAATriangles(polys, vertexAllocator);
     }
 

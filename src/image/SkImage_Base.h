@@ -17,6 +17,7 @@
 #include "include/private/SkTDArray.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SkGr.h"
 
 class GrTexture;
 #endif
@@ -92,18 +93,23 @@ public:
     // that single backing proxy will be returned.
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
 
-    // If it exists, this returns a pointer to the GrSurfaceProxyView of image. The caller does not
-    // own the returned view and must copy it if they want to gain a ref to the internal proxy.
-    // If the returned view is not null, then it is guaranteed to have a valid proxy. Additionally
-    // this call will flatten a SkImage_GpuYUV to a single texture.
-    virtual const GrSurfaceProxyView* view(GrRecordingContext*) const { return nullptr; }
+    // Returns a GrSurfaceProxyView representation of the image, if possible. This also returns
+    // a color type. This may be different than the image's color type when the image is not
+    // texture-backed and the capabilities of the GPU require a data type conversion to put
+    // the data in a texture.
+    std::tuple<GrSurfaceProxyView, GrColorType> asView(
+            GrRecordingContext* context,
+            GrMipmapped mipmapped,
+            GrImageTexGenPolicy policy = GrImageTexGenPolicy::kDraw) const;
 
-    virtual GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const = 0;
-    virtual GrSurfaceProxyView refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
-        return {};
-    }
     virtual bool isYUVA() const { return false; }
+
 #endif
+
+    virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
+    virtual void onUnpinAsTexture(GrRecordingContext*) const {}
+    virtual bool isPinnedOnContext(GrRecordingContext*) const { return false; }
+
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                                  GrSurfaceOrigin* origin) const;
 
@@ -132,9 +138,6 @@ public:
 
     virtual bool onIsValid(GrRecordingContext*) const = 0;
 
-    virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
-    virtual void onUnpinAsTexture(GrRecordingContext*) const {}
-
     virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                         GrDirectContext*) const = 0;
 
@@ -148,7 +151,21 @@ public:
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
 
+#if SK_SUPPORT_GPU
+    // Utility for making a copy of an existing view when the GrImageTexGenPolicy is not kDraw.
+    static GrSurfaceProxyView CopyView(GrRecordingContext*,
+                                       GrSurfaceProxyView src,
+                                       GrMipmapped,
+                                       GrImageTexGenPolicy);
+#endif
+
 private:
+#if SK_SUPPORT_GPU
+    virtual std::tuple<GrSurfaceProxyView, GrColorType> onAsView(
+            GrRecordingContext*,
+            GrMipmapped,
+            GrImageTexGenPolicy policy) const = 0;
+#endif
     // Set true by caches when they cache content that's derived from the current pixels.
     mutable std::atomic<bool> fAddedToRasterCache;
 
@@ -166,5 +183,21 @@ static inline SkImage_Base* as_IB(const sk_sp<SkImage>& image) {
 static inline const SkImage_Base* as_IB(const SkImage* image) {
     return static_cast<const SkImage_Base*>(image);
 }
+
+#if SK_SUPPORT_GPU
+inline GrSurfaceProxyView SkImage_Base::CopyView(GrRecordingContext* context,
+                                                 GrSurfaceProxyView src,
+                                                 GrMipmapped mipmapped,
+                                                 GrImageTexGenPolicy policy) {
+    SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
+                          ? SkBudgeted::kYes
+                          : SkBudgeted::kNo;
+    return GrSurfaceProxyView::Copy(context,
+                                    std::move(src),
+                                    mipmapped,
+                                    SkBackingFit::kExact,
+                                    budgeted);
+}
+#endif
 
 #endif

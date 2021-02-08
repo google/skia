@@ -1397,19 +1397,43 @@ func (b *jobBuilder) fm() {
 	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
+		b.asset("skimage", "skp", "svg")
 		b.isolate("test_skia_bundled.isolate")
 		b.dep(b.buildTaskDrivers(goos, "amd64"), b.compile())
 		b.cmd("./fm_driver${EXECUTABLE_SUFFIX}",
 			"--local=false",
 			"--resources=skia/resources",
+			"--imgs=skimage",
+			"--skps=skp",
+			"--svgs=svg",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--bot", b.Name,
+			"--gold="+strconv.FormatBool(!b.matchExtraConfig("SAN")),
 			"build/fm${EXECUTABLE_SUFFIX}")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
 		b.expiration(15 * time.Minute)
 		b.attempts(1)
+
+		if b.isLinux() && b.matchExtraConfig("SAN") {
+			b.asset("clang_linux")
+			// Sanitizers may want to run llvm-symbolizer for readable stack traces.
+			b.addToPATH("clang_linux/bin")
+
+			// Point sanitizer builds at our prebuilt libc++ for this sanitizer.
+			if b.extraConfig("MSAN") {
+				// We'd see false positives in std::basic_string<char> if this weren't set.
+				b.env("LD_LIBRARY_PATH", "clang_linux/msan")
+			} else if b.extraConfig("TSAN") {
+				// Occasional false positives may crop up in the standard library without this.
+				b.env("LD_LIBRARY_PATH", "clang_linux/tsan")
+			} else {
+				// This isn't strictly required, but we usually get better sanitizer
+				// diagnostics from libc++ than the default OS-provided libstdc++.
+				b.env("LD_LIBRARY_PATH", "clang_linux/lib")
+			}
+		}
 	})
 }
 

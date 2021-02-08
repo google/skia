@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLCFGGenerator.h"
 
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -186,9 +187,7 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
             return this->tryRemoveLValueBefore(iter, ternary.ifFalse().get());
         }
         default:
-#ifdef SK_DEBUG
-            ABORT("invalid lvalue: %s\n", lvalue->description().c_str());
-#endif
+            SkDEBUGFAILF("invalid lvalue: %s\n", lvalue->description().c_str());
             return false;
     }
 }
@@ -287,9 +286,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
             *iter = fNodes.erase(*iter);
             return true;
         default:
-#ifdef SK_DEBUG
-            ABORT("unhandled expression: %s\n", expr->description().c_str());
-#endif
+            SkDEBUGFAILF("unhandled expression: %s\n", expr->description().c_str());
             return false;
     }
 }
@@ -378,7 +375,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                 }
                 default:
                     this->addExpression(cfg, &b.left(),
-                                        !Compiler::IsAssignment(b.getOperator()));
+                                        !Operators::IsAssignment(b.getOperator()));
                     this->addExpression(cfg, &b.right(), constantPropagate);
                     cfg.currentBlock().fNodes.push_back(
                             BasicBlock::MakeExpression(e, constantPropagate));
@@ -655,9 +652,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         case Statement::Kind::kNop:
             break;
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported statement: %s\n", (*s)->description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported statement: %s\n", (*s)->description().c_str());
             break;
     }
 }

@@ -16,6 +16,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
@@ -145,29 +146,6 @@ sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
     return SkImageShader::Make(std::move(img), tmx, tmy, nullptr, &localMatrix);
 }
 
-static void write_sampling(SkWriteBuffer& buffer, SkSamplingOptions sampling) {
-    buffer.writeBool(sampling.useCubic);
-    if (sampling.useCubic) {
-        buffer.writeScalar(sampling.cubic.B);
-        buffer.writeScalar(sampling.cubic.C);
-    } else {
-        buffer.writeUInt((unsigned)sampling.filter);
-        buffer.writeUInt((unsigned)sampling.mipmap);
-    }
-}
-
-static SkSamplingOptions read_sampling(SkReadBuffer& buffer) {
-    if (buffer.readBool()) {
-        SkScalar B = buffer.readScalar(),
-                 C = buffer.readScalar();
-        return SkSamplingOptions({B,C});
-    } else {
-        auto filter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-        auto mipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
-        return SkSamplingOptions(filter, mipmap);
-    }
-}
-
 // fClampAsIfUnpremul is always false when constructed through public APIs,
 // so there's no need to read or write it here.
 
@@ -183,7 +161,7 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
                       *samplingPtr = nullptr;
 
     if (buffer.readBool()) {    // fUseSamplingOptions
-        sampling = read_sampling(buffer);
+        sampling = SkSamplingPriv::Read(buffer);
         samplingPtr = &sampling;
     }
 
@@ -203,7 +181,7 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
 
     buffer.writeBool(fUseSamplingOptions);
     if (fUseSamplingOptions) {
-        write_sampling(buffer, fSampling);
+        SkSamplingPriv::Write(buffer, fSampling);
     }
 
     buffer.writeMatrix(this->getLocalMatrix());
@@ -374,44 +352,6 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    // This would all be much nicer with std::variant.
-    static constexpr size_t kSize = std::max({sizeof(GrYUVAImageTextureMaker),
-                                              sizeof(GrTextureAdjuster      ),
-                                              sizeof(GrImageTextureMaker    ),
-                                              sizeof(GrBitmapTextureMaker   )});
-    static constexpr size_t kAlign = std::max({alignof(GrYUVAImageTextureMaker),
-                                               alignof(GrTextureAdjuster      ),
-                                               alignof(GrImageTextureMaker    ),
-                                               alignof(GrBitmapTextureMaker   )});
-    alignas(kAlign) char storage[kSize];
-    GrTextureProducer* producer = nullptr;
-    SkScopeExit destroyProducer([&producer]{ if (producer) { producer->~GrTextureProducer(); } });
-
-    uint32_t pinnedUniqueID;
-    SkBitmap bm;
-    if (as_IB(fImage)->isYUVA()) {
-        producer = new (&storage) GrYUVAImageTextureMaker(args.fContext, fImage.get());
-    } else if (GrSurfaceProxyView view =
-                       as_IB(fImage)->refPinnedView(args.fContext, &pinnedUniqueID)) {
-        GrColorInfo colorInfo;
-        if (args.fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
-            SkASSERT(fImage->colorType() == kRGBA_8888_SkColorType);
-            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, fImage->alphaType(),
-                                    fImage->refColorSpace());
-        } else {
-            colorInfo = fImage->imageInfo().colorInfo();
-        }
-        producer = new (&storage)
-                GrTextureAdjuster(args.fContext, std::move(view), colorInfo, pinnedUniqueID);
-    } else if (fImage->isLazyGenerated()) {
-        producer = new (&storage)
-                GrImageTextureMaker(args.fContext, fImage.get(), GrImageTexGenPolicy::kDraw);
-    } else if (as_IB(fImage)->getROPixels(nullptr, &bm)) {
-        producer =
-                new (&storage) GrBitmapTextureMaker(args.fContext, bm, GrImageTexGenPolicy::kDraw);
-    } else {
-        return nullptr;
-    }
     GrSamplerState::WrapMode wmX = SkTileModeToWrapMode(fTileModeX),
                              wmY = SkTileModeToWrapMode(fTileModeY);
     // Must set wrap and filter on the sampler before requesting a texture. In two places
@@ -421,12 +361,10 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     bool sharpen = args.fContext->priv().options().fSharpenMipmappedTextures;
     GrSamplerState::Filter     fm = GrSamplerState::Filter::kNearest;
     GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
-    bool bicubic = false;
     SkCubicResampler kernel = kInvalidCubicResampler;
 
     if (fUseSamplingOptions) {
-        bicubic = fSampling.useCubic;
-        if (bicubic) {
+        if (fSampling.useCubic) {
             kernel = fSampling.cubic;
         } else {
             switch (fSampling.filter) {
@@ -447,19 +385,54 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                          *lm,
                                          sharpen,
                                          args.fAllowFilterQualityReduction);
-        bicubic = GrValidCubicResampler(kernel);
     }
+
     std::unique_ptr<GrFragmentProcessor> fp;
-    if (bicubic) {
-        fp = producer->createBicubicFragmentProcessor(lmInverse, nullptr, nullptr, wmX, wmY, kernel);
+    // TODO: Replace this mess with SkImage_Base::asFragmentProcessor() after it's implemented.
+    if (as_IB(fImage)->isYUVA()) {
+        GrYUVAImageTextureMaker maker(args.fContext, fImage.get());
+        if (GrValidCubicResampler(kernel)) {
+            fp = maker.createBicubicFragmentProcessor(lmInverse,
+                                                      nullptr,
+                                                      nullptr,
+                                                      wmX, wmY,
+                                                      kernel);
+        } else {
+            fp = maker.createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
+        }
+        if (!fp) {
+            return nullptr;
+        }
     } else {
-        fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
+        auto mipmapped = !GrValidCubicResampler(kernel) && mm != SkMipmapMode::kNone
+                ? GrMipmapped::kYes
+                : GrMipmapped::kNo;
+        auto [view, ct] = as_IB(fImage)->asView(args.fContext, mipmapped);
+        if (!view) {
+            return nullptr;
+        }
+        if (GrValidCubicResampler(kernel)) {
+            fp = GrBicubicEffect::Make(std::move(view),
+                                       fImage->alphaType(),
+                                       lmInverse,
+                                       wmX, wmY,
+                                       kernel,
+                                       GrBicubicEffect::Direction::kXY,
+                                       *args.fContext->priv().caps());
+        } else {
+            fp = GrTextureEffect::Make(std::move(view),
+                                       fImage->alphaType(),
+                                       lmInverse,
+                                       {wmX, wmY, fm, mm},
+                                       *args.fContext->priv().caps());
+        }
     }
-    if (!fp) {
-        return nullptr;
-    }
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
-                                       args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
+    SkASSERT(fp);
+    fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                       fImage->colorSpace(),
+                                       fImage->alphaType(),
+                                       args.fDstColorInfo->colorSpace(),
+                                       kPremul_SkAlphaType);
     if (fImage->isAlphaOnly()) {
         return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
     } else if (args.fInputColorIsOpaque) {
@@ -547,30 +520,33 @@ public:
     }
 };
 
-static SkSamplingOptions tweak_filter_and_inv_matrix(SkSamplingOptions sampling, SkMatrix* matrix) {
+static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatrix& matrix) {
     SkFilterMode filter = sampling.filter;
 
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
     if (filter == SkFilterMode::kLinear &&
-            matrix->getType() <= SkMatrix::kTranslate_Mask &&
-            matrix->getTranslateX() == (int)matrix->getTranslateX() &&
-            matrix->getTranslateY() == (int)matrix->getTranslateY()) {
+            matrix.getType() <= SkMatrix::kTranslate_Mask &&
+            matrix.getTranslateX() == (int)matrix.getTranslateX() &&
+            matrix.getTranslateY() == (int)matrix.getTranslateY()) {
         filter = SkFilterMode::kNearest;
     }
 
+    return SkSamplingOptions(filter, sampling.mipmap);
+}
+
+static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
     // See skia:4649 and the GM image_scale_aligned.
     if (filter == SkFilterMode::kNearest) {
-        if (matrix->getScaleX() >= 0) {
-            matrix->setTranslateX(nextafterf(matrix->getTranslateX(),
-                                             floorf(matrix->getTranslateX())));
+        if (matrix.getScaleX() >= 0) {
+            matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
+                                            floorf(matrix.getTranslateX())));
         }
-        if (matrix->getScaleY() >= 0) {
-            matrix->setTranslateY(nextafterf(matrix->getTranslateY(),
-                                             floorf(matrix->getTranslateY())));
+        if (matrix.getScaleY() >= 0) {
+            matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
+                                            floorf(matrix.getTranslateY())));
         }
     }
-
-    return SkSamplingOptions(filter, sampling.mipmap);
+    return matrix;
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
@@ -599,6 +575,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
         return false;
     }
+    matrix.normalizePerspective();
 
     if (sampling.useCubic &&
         SkMatrixPriv::AdjustHighQualityFilterLevel(matrix, true) != kHigh_SkFilterQuality)
@@ -618,7 +595,11 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         updater->append_matrix_stage(p);
     } else {
         if (!sampling.useCubic) {
-            sampling = tweak_filter_and_inv_matrix(sampling, &matrix);
+            // TODO: can tweak_sampling sometimes for cubic too when B=0
+            if (rec.fMatrixProvider.localToDeviceHitsPixelCenters()) {
+                sampling = tweak_sampling(sampling, matrix);
+            }
+            matrix = tweak_inv_matrix(sampling.filter, matrix);
         }
         p->append_matrix(alloc, matrix);
     }
@@ -880,7 +861,11 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
     auto [upper, upperInv] = access->level();
     if (!sampling.useCubic) {
-        sampling = tweak_filter_and_inv_matrix(sampling, &upperInv);
+        // TODO: can tweak_sampling sometimes for cubic too when B=0
+        if (matrices.localToDeviceHitsPixelCenters()) {
+            sampling = tweak_sampling(sampling, upperInv);
+        }
+        upperInv = tweak_inv_matrix(sampling.filter, upperInv);
     }
 
     SkPixmap lowerPixmap;

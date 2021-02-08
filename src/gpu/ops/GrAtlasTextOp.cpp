@@ -261,6 +261,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             if (quadCursor == quadEnd || subRunCursor < subRunEnd) {
                 // Flush if not all the glyphs are drawn because either the quad buffer is full or
                 // the atlas is out of space.
+                if (subRunCursor < subRunEnd) {
+                    ATRACE_ANDROID_FRAMEWORK_ALWAYS("Atlas full");
+                }
                 this->createDrawForGeneratedGlyphs(target, &flushInfo);
                 if (quadCursor == quadEnd && allGlyphsCursor < allGlyphsEnd) {
                     // If the vertex buffer is full and there are still glyphs to draw then
@@ -467,11 +470,11 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
             rtc->surfaceProps(),
             rContext->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
-    if (!blob->subRunList().head()) {
+    if (blob->subRunList().isEmpty()) {
         return nullptr;
     }
 
-    GrAtlasSubRun* subRun = blob->subRunList().head()->testingOnly_atlasSubRun();
+    GrAtlasSubRun* subRun = blob->subRunList().front().testingOnly_atlasSubRun();
     SkASSERT(subRun);
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);

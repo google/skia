@@ -18,6 +18,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/utils/SkRandom.h"
+#include "src/sksl/SkSLDefines.h"  // for kDefaultInlineThreshold
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -32,22 +33,26 @@ static void set_uniform(SkRuntimeShaderBuilder* builder, const char* name, const
     }
 }
 
-static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
+static void test_one_permutation(skiatest::Reporter* r,
+                                 SkSurface* surface,
+                                 const char* testFile,
+                                 const char* permutationSuffix,
+                                 const SkRuntimeEffect::Options& options) {
     SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
     sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
     if (!shaderData) {
-        ERRORF(r, "%s: Unable to load file", testFile);
+        ERRORF(r, "%s%s: Unable to load file", testFile, permutationSuffix);
         return;
     }
 
     SkString shaderString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
-    auto [effect, error] = SkRuntimeEffect::Make(shaderString);
-    if (!effect) {
-        ERRORF(r, "%s: %s", testFile, error.c_str());
+    SkRuntimeEffect::Result result = SkRuntimeEffect::Make(shaderString, options);
+    if (!result.effect) {
+        ERRORF(r, "%s%s: %s", testFile, permutationSuffix, result.errorText.c_str());
         return;
     }
 
-    SkRuntimeShaderBuilder builder(effect);
+    SkRuntimeShaderBuilder builder(result.effect);
     set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
     set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
     set_uniform(&builder, "colorGreen",       SkV4{0, 1, 0, 1});
@@ -58,7 +63,7 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
-        ERRORF(r, "%s: Unable to build shader", testFile);
+        ERRORF(r, "%s%s: Unable to build shader", testFile, permutationSuffix);
         return;
     }
 
@@ -77,51 +82,90 @@ static void test(skiatest::Reporter* r, SkSurface* surface, const char* testFile
                     SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
 }
 
+static void test_permutations(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
+    SkRuntimeEffect::Options options;
+    options.inlineThreshold = 0;
+    test_one_permutation(r, surface, testFile, " (NoInline)", options);
+
+    options.inlineThreshold = SkSL::kDefaultInlineThreshold;
+    test_one_permutation(r, surface, testFile, "", options);
+}
+
 static void test_cpu(skiatest::Reporter* r, const char* testFile) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
     sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
 
-    test(r, surface.get(), testFile);
+    test_permutations(r, surface.get(), testFile);
 }
 
 static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
 
-    test(r, surface.get(), testFile);
+    test_permutations(r, surface.get(), testFile);
 }
 
-#define SKSL_TEST(name, path)                                       \
+#define SKSL_TEST_CPU(name, path)                                   \
     DEF_TEST(name ## _CPU, r) {                                     \
         test_cpu(r, path);                                          \
-    }                                                               \
+    }
+#define SKSL_TEST_GPU(name, path)                                   \
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
         test_gpu(r, ctxInfo.directContext(), path);                 \
     }
+#define SKSL_TEST(name, path) SKSL_TEST_CPU(name, path) SKSL_TEST_GPU(name, path)
 
-SKSL_TEST(SkSLBoolFolding,             "folding/BoolFolding.sksl")
-SKSL_TEST(SkSLIntFoldingES2,           "folding/IntFoldingES2.sksl")
-SKSL_TEST(SkSLFloatFolding,            "folding/FloatFolding.sksl")
-SKSL_TEST(SkSLMatrixFoldingES2,        "folding/MatrixFoldingES2.sksl")
-SKSL_TEST(SkSLShortCircuitBoolFolding, "folding/ShortCircuitBoolFolding.sksl")
-SKSL_TEST(SkSLVectorScalarFolding,     "folding/VectorScalarFolding.sksl")
-SKSL_TEST(SkSLVectorVectorFolding,     "folding/VectorVectorFolding.sksl")
+SKSL_TEST(SkSLBoolFolding,                     "folding/BoolFolding.sksl")
+SKSL_TEST(SkSLIntFoldingES2,                   "folding/IntFoldingES2.sksl")
+SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
+SKSL_TEST(SkSLMatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
+SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
+SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
+SKSL_TEST(SkSLVectorVectorFolding,             "folding/VectorVectorFolding.sksl")
 
-SKSL_TEST(SkSLIntrinsicAbsFloat,       "intrinsics/AbsFloat.sksl")
-SKSL_TEST(SkSLIntrinsicCeil,           "intrinsics/Ceil.sksl")
-SKSL_TEST(SkSLIntrinsicClampFloat,     "intrinsics/ClampFloat.sksl")
-SKSL_TEST(SkSLIntrinsicMaxFloat,       "intrinsics/MaxFloat.sksl")
-SKSL_TEST(SkSLIntrinsicMinFloat,       "intrinsics/MinFloat.sksl")
-SKSL_TEST(SkSLIntrinsicMixFloat,       "intrinsics/MixFloat.sksl")
-SKSL_TEST(SkSLIntrinsicSignFloat,      "intrinsics/SignFloat.sksl")
+SKSL_TEST(SkSLIntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
+SKSL_TEST(SkSLIntrinsicCeil,                   "intrinsics/Ceil.sksl")
+SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
+SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
+SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
+SKSL_TEST(SkSLIntrinsicMixFloat,               "intrinsics/MixFloat.sksl")
+SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 
-SKSL_TEST(SkSLCommaSideEffects,        "shared/CommaSideEffects.sksl")
-SKSL_TEST(SkSLForLoopControlFlow,      "shared/ForLoopControlFlow.sksl")
-SKSL_TEST(SkSLOperatorsES2,            "shared/OperatorsES2.sksl")
+SKSL_TEST(SkSLArrayTypes,                      "shared/ArrayTypes.sksl")
+SKSL_TEST(SkSLAssignment,                      "shared/Assignment.sksl")
+SKSL_TEST(SkSLCastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
+SKSL_TEST(SkSLCommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
+SKSL_TEST(SkSLCommaSideEffects,                "shared/CommaSideEffects.sksl")
+SKSL_TEST(SkSLConstantIf,                      "shared/ConstantIf.sksl")
+SKSL_TEST(SkSLConstVariableComparison,         "shared/ConstVariableComparison.sksl")
+SKSL_TEST(SkSLDeadIfStatement,                 "shared/DeadIfStatement.sksl")
+SKSL_TEST(SkSLDeadStripFunctions,              "shared/DeadStripFunctions.sksl")
+SKSL_TEST(SkSLDependentInitializers,           "shared/DependentInitializers.sksl")
+SKSL_TEST(SkSLEmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
+SKSL_TEST(SkSLForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
+SKSL_TEST(SkSLFunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
+SKSL_TEST(SkSLFunctionReturnTypeMatch,         "shared/FunctionReturnTypeMatch.sksl")
+SKSL_TEST(SkSLFunctions,                       "shared/Functions.sksl")
+SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
+SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
+SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
+SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
+SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl")
+SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
+SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
+SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
+SKSL_TEST(SkSLOutParams,                       "shared/OutParams.sksl")
+SKSL_TEST(SkSLOutParamsTricky,                 "shared/OutParamsTricky.sksl")
+SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
+SKSL_TEST(SkSLScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
+SKSL_TEST(SkSLStackingVectorCasts,             "shared/StackingVectorCasts.sksl")
+SKSL_TEST(SkSLStaticIf,                        "shared/StaticIf.sksl")
+SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 
 /*
-TODO(johnstiles): work around failures on ANGLE + Intel6000 + DX9 configuration and reland
-SKSL_TEST(SkSLIntrinsicFloor,          "intrinsics/Floor.sksl")
+// Incompatible with Runtime Effects because calling a function before its definition is disallowed.
+// (This was done to prevent recursion, as required by ES2.)
+SKSL_TEST(SkSLFunctionPrototype,       "shared/FunctionPrototype.sksl")
 */
 
 /*
@@ -132,17 +176,24 @@ SKSL_TEST(SkSLStructsInFunctions,      "shared/StructsInFunctions.sksl")
 /*
 TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 
-SKSL_TEST(SkSLIntFoldingES3,           "folding/IntFoldingES3.sksl")
-SKSL_TEST(SkSLMatrixFoldingES3,        "folding/MatrixFoldingES3.sksl")
+SKSL_TEST(SkSLIntFoldingES3,                   "folding/IntFoldingES3.sksl")
+SKSL_TEST(SkSLMatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
 
-SKSL_TEST(SkSLIntrinsicAbsInt,         "intrinsics/AbsInt.sksl")
-SKSL_TEST(SkSLIntrinsicClampInt,       "intrinsics/ClampInt.sksl")
-SKSL_TEST(SkSLIntrinsicMaxInt,         "intrinsics/MaxInt.sksl")
-SKSL_TEST(SkSLIntrinsicMinInt,         "intrinsics/MinInt.sksl")
-SKSL_TEST(SkSLIntrinsicMixBool,        "intrinsics/MixBool.sksl")
-SKSL_TEST(SkSLIntrinsicSignInt,        "intrinsics/SignInt.sksl")
+SKSL_TEST(SkSLIntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
+SKSL_TEST(SkSLIntrinsicClampInt,               "intrinsics/ClampInt.sksl")
+SKSL_TEST(SkSLIntrinsicMaxInt,                 "intrinsics/MaxInt.sksl")
+SKSL_TEST(SkSLIntrinsicMinInt,                 "intrinsics/MinInt.sksl")
+SKSL_TEST(SkSLIntrinsicMixBool,                "intrinsics/MixBool.sksl")
+SKSL_TEST(SkSLIntrinsicSignInt,                "intrinsics/SignInt.sksl")
 
-SKSL_TEST(SkSLDoWhileControlFlow,      "shared/DoWhileControlFlow.sksl")
-SKSL_TEST(SkSLWhileLoopControlFlow,    "shared/WhileLoopControlFlow.sksl")
-SKSL_TEST(SkSLOperatorsES3,            "shared/OperatorsES3.sksl")
+SKSL_TEST(SkSLArrayConstructors,               "shared/ArrayConstructors.sksl")
+SKSL_TEST(SkSLDeadLoopVariable,                "shared/DeadLoopVariable.sksl")
+SKSL_TEST(SkSLDoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
+SKSL_TEST(SkSLEmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
+SKSL_TEST(SkSLHexUnsigned,                     "shared/HexUnsigned.sksl")
+SKSL_TEST(SkSLMatricesNonsquare,               "shared/MatricesNonsquare.sksl")
+SKSL_TEST(SkSLOperatorsES3,                    "shared/OperatorsES3.sksl")
+SKSL_TEST(SkSLResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")
+SKSL_TEST(SkSLScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
+SKSL_TEST(SkSLWhileLoopControlFlow,            "shared/WhileLoopControlFlow.sksl")
 */

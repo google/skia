@@ -59,7 +59,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const SkSamplingOptions kSampling({1.0f/3, 1.0f/3});
+        static const SkSamplingOptions kSampling(SkCubicResampler::Mitchell());
         static const bool kDoAA = true;
 
         {

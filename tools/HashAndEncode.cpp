@@ -68,10 +68,19 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
     int N = fSize.width() * fSize.height();
     fPixels.reset(new uint64_t[N]);
 
-    if (!skcms_Transform(bitmap.getPixels(), srcFmt, srcAlpha, &srcProfile,
-                         fPixels.get(),      dstFmt, dstAlpha, &dstProfile, N)) {
-        SkASSERT(false);
-        fPixels.reset(nullptr);
+    const void* src = bitmap.getPixels();
+    void* dst = fPixels.get();
+    while (N > 0) {
+        int todo = std::min(N, 1<<27);  // Keep todo*8 <= 1B; skcms requires N*bpp < MAX_INT.
+        if (!skcms_Transform(src, srcFmt, srcAlpha, &srcProfile,
+                             dst, dstFmt, dstAlpha, &dstProfile, todo)) {
+            SkASSERT(false);
+            fPixels.reset(nullptr);
+            break;
+        }
+        src = (char*)src + todo*SkColorTypeBytesPerPixel(bitmap.colorType());
+        dst = (char*)dst + todo*sizeof(uint64_t);
+        N -= todo;
     }
 }
 

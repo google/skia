@@ -13,8 +13,8 @@
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
-#include "src/gpu/tessellate/GrStrokeIndirectOp.h"
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
+#include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
 #include <vector>
@@ -46,6 +46,19 @@ static SkPath make_cubic_path() {
         float x = std::ldexp(rand.nextF(), (i % 18)) / 1e3f;
         path.cubicTo(111.625f*x, 308.188f*x, 764.62f*x, -435.688f*x, 742.63f*x, 85.187f*x);
         path.cubicTo(764.62f*x, -435.688f*x, 111.625f*x, 308.188f*x, 0, 0);
+    }
+    return path;
+}
+
+static SkPath make_conic_path() {
+    SkRandom rand;
+    SkPath path;
+    for (int i = 0; i < kNumCubicsInChalkboard / 40; ++i) {
+        for (int j = -10; j <= 10; j++) {
+            const float x = std::ldexp(rand.nextF(), (i % 18)) / 1e3f;
+            const float w = std::ldexp(1 + rand.nextF(), j);
+            path.conicTo(111.625f * x, 308.188f * x, 764.62f * x, -435.688f * x, w);
+        }
     }
     return path;
 }
@@ -137,6 +150,46 @@ DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(),
     benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
 }
 
+static void benchmark_wangs_formula_conic(const SkMatrix& matrix, const SkPath& path) {
+    // Conic version expects tolerance, not intolerance
+    constexpr float kTolerance = 4;
+    int sum = 0;
+    GrVectorXform xform(matrix);
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        if (verb == SkPathVerb::kConic) {
+            sum += GrWangsFormula::conic(kTolerance, pts, *w, xform);
+        }
+    }
+    // Don't let the compiler optimize away GrWangsFormula::conic.
+    if (sum <= 0) {
+        SK_ABORT("sum should be > 0.");
+    }
+}
+
+static void benchmark_wangs_formula_conic_log2(const SkMatrix& matrix, const SkPath& path) {
+    // Conic version expects tolerance, not intolerance
+    constexpr float kTolerance = 4;
+    int sum = 0;
+    GrVectorXform xform(matrix);
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        if (verb == SkPathVerb::kConic) {
+            sum += GrWangsFormula::conic_log2(kTolerance, pts, *w, xform);
+        }
+    }
+    // Don't let the compiler optimize away GrWangsFormula::conic.
+    if (sum <= 0) {
+        SK_ABORT("sum should be > 0.");
+    }
+}
+
+DEF_PATH_TESS_BENCH(wangs_formula_conic, make_conic_path(), SkMatrix::I()) {
+    benchmark_wangs_formula_conic(fMatrix, fPath);
+}
+
+DEF_PATH_TESS_BENCH(wangs_formula_conic_log2, make_conic_path(), SkMatrix::I()) {
+    benchmark_wangs_formula_conic_log2(fMatrix, fPath);
+}
+
 DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     ToolUtils::make_star(SkRect::MakeWH(500, 500), kNumCubicsInChalkboard),
                     SkMatrix::I()) {
@@ -146,10 +199,10 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     GrMiddleOutPolygonTriangulator::WritePathInnerFan(vertexData, 3, fPath);
 }
 
-class GrStrokeTessellateOp::TestingOnly_Benchmark : public Benchmark {
+class GrStrokeHardwareTessellator::TestingOnly_Benchmark : public Benchmark {
 public:
     TestingOnly_Benchmark(float matrixScale, const char* suffix) : fMatrixScale(matrixScale) {
-        fName.printf("tessellate_GrStrokeTessellateOp_prepare%s", suffix);
+        fName.printf("tessellate_GrStrokeHardwareTessellator_prepare%s", suffix);
     }
 
 private:
@@ -173,10 +226,10 @@ private:
             return;
         }
         for (int i = 0; i < loops; ++i) {
-            GrStrokeTessellateOp op(GrAAType::kMSAA, SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                    fStrokeRec, fPath, GrPaint());
-            op.fTarget = fTarget.get();
-            op.prepareBuffers();
+            SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
+            GrStrokeHardwareTessellator tessellator(*fTarget->caps().shaderCaps(), matrix,
+                                                    fStrokeRec);
+            tessellator.prepare(fTarget.get(), matrix, fPath, fStrokeRec, fPath.countVerbs());
         }
     }
 
@@ -187,13 +240,13 @@ private:
     SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
 };
 
-DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(1, ""); )
-DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(5, "_one_chop"); )
+DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(1, ""); )
+DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(5, "_one_chop"); )
 
-class GrStrokeIndirectOp::Benchmark : public ::Benchmark {
+class GrStrokeIndirectTessellator::Benchmark : public ::Benchmark {
 protected:
     Benchmark(const char* nameSuffix, SkPaint::Join join) : fJoin(join) {
-        fName.printf("tessellate_GrStrokeIndirectOpBench%s", nameSuffix);
+        fName.printf("tessellate_GrStrokeIndirectTessellator%s", nameSuffix);
     }
 
     const SkPaint::Join fJoin;
@@ -214,9 +267,10 @@ private:
         }
         for (int i = 0; i < loops; ++i) {
             for (const SkPath& path : fPaths) {
-                GrStrokeIndirectOp op(GrAAType::kMSAA, SkMatrix::I(), path, fStrokeRec, GrPaint());
-                op.prePrepareResolveLevels(fTarget->allocator());
-                op.prepareBuffers(fTarget.get());
+                GrStrokeIndirectTessellator tessellator(SkMatrix::I(), path, fStrokeRec,
+                                                        path.countVerbs(), fTarget->allocator());
+                tessellator.prepare(fTarget.get(), SkMatrix::I(), path, fStrokeRec,
+                                    path.countVerbs());
             }
             fTarget->resetAllocator();
         }
@@ -229,7 +283,7 @@ private:
     SkStrokeRec fStrokeRec{SkStrokeRec::kHairline_InitStyle};
 };
 
-class StrokeIndirectBenchmark : public GrStrokeIndirectOp::Benchmark {
+class StrokeIndirectBenchmark : public GrStrokeIndirectTessellator::Benchmark {
 public:
     StrokeIndirectBenchmark(const char* nameSuffix, SkPaint::Join join, std::vector<SkPoint> pts)
             : Benchmark(nameSuffix, join), fPts(std::move(pts)) {}
@@ -280,7 +334,7 @@ DEF_BENCH( return new StrokeIndirectBenchmark(
 DEF_BENCH( return new StrokeIndirectBenchmark(
         "_roundjoin", SkPaint::kRound_Join, {{0,0}, {50,100}, {100,0}}); )
 
-class SingleVerbStrokeIndirectBenchmark : public GrStrokeIndirectOp::Benchmark {
+class SingleVerbStrokeIndirectBenchmark : public GrStrokeIndirectTessellator::Benchmark {
 public:
     SingleVerbStrokeIndirectBenchmark(const char* nameSuffix, SkPathVerb verb)
             : Benchmark(nameSuffix, SkPaint::kBevel_Join), fVerb(verb) {}

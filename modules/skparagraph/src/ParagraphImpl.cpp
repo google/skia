@@ -537,6 +537,12 @@ BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
         end = index;
     }
 
+    if (begin == EMPTY_INDEX || end == EMPTY_INDEX) {
+        // It's possible if some text is not covered with any text style
+        // Not in Flutter but in direct use of SkParagraph
+        return EMPTY_RANGE;
+    }
+
     return { begin, end + 1 };
 }
 

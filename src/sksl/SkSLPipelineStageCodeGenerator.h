@@ -8,45 +8,55 @@
 #ifndef SKSL_PIPELINESTAGECODEGENERATOR
 #define SKSL_PIPELINESTAGECODEGENERATOR
 
-#include "src/sksl/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/SkSLString.h"
+
+#include <vector>
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 namespace SkSL {
 
-class PipelineStageCodeGenerator : public GLSLCodeGenerator {
+class FunctionDeclaration;
+struct Program;
+
+class PipelineStage {
 public:
-    PipelineStageCodeGenerator(const Context* context, const Program* program,
-                               ErrorReporter* errors, OutputStream* out,
-                               PipelineStageArgs* outArgs);
+    // An invalid (otherwise unused) character to mark where FormatArgs are inserted
+    static constexpr       char  kFormatArgPlaceholder    = '\001';
+    static constexpr const char* kFormatArgPlaceholderStr = "\001";
 
-private:
-    void writeHeader() override;
+    struct FormatArg {
+        enum class Kind {
+            kCoords,
+            kUniform,
+            kChildProcessor,
+            kChildProcessorWithMatrix,
+            kFunctionName
+        };
 
-    bool usesPrecisionModifiers() const override;
+        FormatArg(Kind kind, int index = 0) : fKind(kind), fIndex(index) {}
 
-    String getTypeName(const Type& type) override;
+        Kind   fKind;
+        int    fIndex;
+        String fCoords;
+    };
 
-    void writeFunctionCall(const FunctionCall& c) override;
+    /**
+     * Represents the arguments to GrGLSLShaderBuilder::emitFunction.
+     */
+    struct Function {
+        const FunctionDeclaration* fDecl;
+        String                     fBody;
+        std::vector<FormatArg>     fFormatArgs;
+    };
 
-    void writeIntLiteral(const IntLiteral& i) override;
+    struct Args {
+        String                 fCode;
+        std::vector<FormatArg> fFormatArgs;
+        std::vector<Function>  fFunctions;
+    };
 
-    void writeVariableReference(const VariableReference& ref) override;
-
-    void writeIfStatement(const IfStatement& s) override;
-
-    void writeReturnStatement(const ReturnStatement& r) override;
-
-    void writeSwitchStatement(const SwitchStatement& s) override;
-
-    void writeFunction(const FunctionDefinition& f) override;
-
-    void writeProgramElement(const ProgramElement& p) override;
-
-    PipelineStageArgs* fArgs;
-    bool fCastReturnsToHalf = false;
-
-    using INHERITED = GLSLCodeGenerator;
+    static void ConvertProgram(const Program& program, Args* outArgs);
 };
 
 }  // namespace SkSL

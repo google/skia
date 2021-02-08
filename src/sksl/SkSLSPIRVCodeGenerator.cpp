@@ -10,6 +10,7 @@
 #include "src/sksl/GLSL.std.450.h"
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -598,9 +599,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 if (type == *fContext.fTypes.fVoid) {
                     this->writeInstruction(SpvOpTypeVoid, result, fConstantBuffer);
                 } else {
-#ifdef SK_DEBUG
-                    ABORT("invalid type: %s", type.description().c_str());
-#endif
+                    SkDEBUGFAILF("invalid type: %s", type.description().c_str());
                 }
         }
         fTypeMap[key] = result;
@@ -723,9 +722,7 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
         case Expression::Kind::kIndex:
             return this->writeIndexExpression(expr.as<IndexExpression>(), out);
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported expression: %s", expr.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported expression: %s", expr.description().c_str());
             break;
     }
     return -1;
@@ -1402,7 +1399,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
         IntLiteral zero(fContext, -1, 0);
         zeroId = this->writeIntLiteral(zero);
     } else {
-        ABORT("unsupported matrix component type");
+        SK_ABORT("unsupported matrix component type");
     }
     SpvId zeroColumn = 0;
     SpvId columns[4];
@@ -1748,7 +1745,7 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
         }
         default: {
             SpvId id = this->getLValue(expr, out)->getPointer();
-            SkASSERT(id != 0);
+            SkASSERT(id != (SpvId) -1);
             chain.push_back(id);
         }
     }
@@ -1794,21 +1791,31 @@ public:
     : fGen(gen)
     , fVecPointer(vecPointer)
     , fComponents(components)
-    , fBaseType(baseType)
-    , fSwizzleType(swizzleType)
+    , fBaseType(&baseType)
+    , fSwizzleType(&swizzleType)
     , fPrecision(precision) {}
 
-    SpvId getPointer() override {
-        return 0;
+    bool applySwizzle(const ComponentArray& components, const Type& newType) override {
+        ComponentArray updatedSwizzle;
+        for (int8_t component : components) {
+            if (component < 0 || component >= fComponents.count()) {
+                SkDEBUGFAILF("swizzle accessed nonexistent component %d", (int)component);
+                return false;
+            }
+            updatedSwizzle.push_back(fComponents[component]);
+        }
+        fComponents = updatedSwizzle;
+        fSwizzleType = &newType;
+        return true;
     }
 
     SpvId load(OutputStream& out) override {
         SpvId base = fGen.nextId();
-        fGen.writeInstruction(SpvOpLoad, fGen.getType(fBaseType), base, fVecPointer, out);
+        fGen.writeInstruction(SpvOpLoad, fGen.getType(*fBaseType), base, fVecPointer, out);
         fGen.writePrecisionModifier(fPrecision, base);
         SpvId result = fGen.nextId();
         fGen.writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) fComponents.size(), out);
-        fGen.writeWord(fGen.getType(fSwizzleType), out);
+        fGen.writeWord(fGen.getType(*fSwizzleType), out);
         fGen.writeWord(result, out);
         fGen.writeWord(base, out);
         fGen.writeWord(base, out);
@@ -1831,14 +1838,14 @@ public:
         // our result vector to look like (R.x, L.y, R.y), so we need to select indices
         // (3, 1, 4).
         SpvId base = fGen.nextId();
-        fGen.writeInstruction(SpvOpLoad, fGen.getType(fBaseType), base, fVecPointer, out);
+        fGen.writeInstruction(SpvOpLoad, fGen.getType(*fBaseType), base, fVecPointer, out);
         SpvId shuffle = fGen.nextId();
-        fGen.writeOpCode(SpvOpVectorShuffle, 5 + fBaseType.columns(), out);
-        fGen.writeWord(fGen.getType(fBaseType), out);
+        fGen.writeOpCode(SpvOpVectorShuffle, 5 + fBaseType->columns(), out);
+        fGen.writeWord(fGen.getType(*fBaseType), out);
         fGen.writeWord(shuffle, out);
         fGen.writeWord(base, out);
         fGen.writeWord(value, out);
-        for (int i = 0; i < fBaseType.columns(); i++) {
+        for (int i = 0; i < fBaseType->columns(); i++) {
             // current offset into the virtual vector, defaults to pulling the unmodified
             // value from the left side
             int offset = i;
@@ -1848,7 +1855,7 @@ public:
                     // we're writing to this component, so adjust the offset to pull from
                     // the correct component of the right side instead of preserving the
                     // value from the left
-                    offset = (int) (j + fBaseType.columns());
+                    offset = (int) (j + fBaseType->columns());
                     break;
                 }
             }
@@ -1861,9 +1868,9 @@ public:
 private:
     SPIRVCodeGenerator& fGen;
     const SpvId fVecPointer;
-    const ComponentArray& fComponents;
-    const Type& fBaseType;
-    const Type& fSwizzleType;
+    ComponentArray fComponents;
+    const Type* fBaseType;
+    const Type* fSwizzleType;
     const SPIRVCodeGenerator::Precision fPrecision;
 };
 
@@ -1915,12 +1922,15 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
         }
         case Expression::Kind::kSwizzle: {
             const Swizzle& swizzle = expr.as<Swizzle>();
-            size_t count = swizzle.components().size();
-            SpvId base = this->getLValue(*swizzle.base(), out)->getPointer();
-            if (!base) {
+            std::unique_ptr<LValue> lvalue = this->getLValue(*swizzle.base(), out);
+            if (lvalue->applySwizzle(swizzle.components(), type)) {
+                return lvalue;
+            }
+            SpvId base = lvalue->getPointer();
+            if (base == (SpvId) -1) {
                 fErrors.error(swizzle.fOffset, "unable to retrieve lvalue from swizzle");
             }
-            if (count == 1) {
+            if (swizzle.components().size() == 1) {
                 SpvId member = this->nextId();
                 SpvId typeId = this->getPointerType(type, get_storage_class(*swizzle.base()));
                 IntLiteral index(fContext, /*offset=*/-1, swizzle.components()[0]);
@@ -2244,7 +2254,7 @@ static std::unique_ptr<Expression> create_literal_1(const Context& context, cons
     else if (type.isFloat()) {
         return std::unique_ptr<Expression>(new FloatLiteral(-1, 1.0, &type));
     } else {
-        ABORT("math is unsupported on type '%s'", String(type.name()).c_str());
+        SK_ABORT("math is unsupported on type '%s'", String(type.name()).c_str());
     }
 }
 
@@ -2471,7 +2481,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 
     std::unique_ptr<LValue> lvalue;
     SpvId lhs;
-    if (Compiler::IsAssignment(op)) {
+    if (Operators::IsAssignment(op)) {
         lvalue = this->getLValue(left, out);
         lhs = lvalue->load(out);
     } else {
@@ -2479,7 +2489,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         lhs = this->writeExpression(left, out);
     }
     SpvId rhs = this->writeExpression(right, out);
-    SpvId result = this->writeBinaryExpression(left.type(), lhs, Compiler::RemoveAssignment(op),
+    SpvId result = this->writeBinaryExpression(left.type(), lhs, Operators::RemoveAssignment(op),
                                                right.type(), rhs, b.type(), out);
     if (lvalue) {
         lvalue->store(result, out);
@@ -2577,9 +2587,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         } else if (is_signed(fContext, type)) {
             this->writeInstruction(SpvOpSNegate, typeId, result, expr, out);
         } else {
-#ifdef SK_DEBUG
-            ABORT("unsupported prefix expression %s", p.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported prefix expression %s", p.description().c_str());
         }
         this->writePrecisionModifier(type, result);
         return result;
@@ -2618,9 +2626,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             return result;
         }
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported prefix expression: %s", p.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported prefix expression: %s", p.description().c_str());
             return -1;
     }
 }
@@ -2644,9 +2650,7 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
             return result;
         }
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported postfix expression %s", p.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported postfix expression %s", p.description().c_str());
             return -1;
     }
 }
@@ -3028,9 +3032,7 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
             this->writeInstruction(SpvOpKill, out);
             break;
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported statement: %s", s.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported statement: %s", s.description().c_str());
             break;
     }
 }
@@ -3441,7 +3443,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             this->writeWord(SpvExecutionModelGeometry, out);
             break;
         default:
-            ABORT("cannot write this kind of program to SPIR-V\n");
+            SK_ABORT("cannot write this kind of program to SPIR-V\n");
     }
     SpvId entryPoint = fFunctionMap[main];
     this->writeWord(entryPoint, out);

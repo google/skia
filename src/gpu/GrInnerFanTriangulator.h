@@ -19,7 +19,8 @@ public:
 
     GrInnerFanTriangulator(const SkPath& path, SkArenaAlloc* alloc)
             : GrTriangulator(path, alloc) {
-        fCullCollinearVertices = false;
+        fPreserveCollinearVertices = true;
+        fCollectBreadcrumbTriangles = true;
     }
 
     int pathToTriangles(GrEagerVertexAllocator* vertexAlloc, BreadcrumbTriangleList* breadcrumbList,
@@ -29,12 +30,16 @@ public:
     }
 
     Poly* pathToPolys(BreadcrumbTriangleList* breadcrumbList, bool* isLinear) const {
-        return this->GrTriangulator::pathToPolys(0, SkRect::MakeEmpty(), breadcrumbList, isLinear);
+        Poly* polys = this->GrTriangulator::pathToPolys(0, SkRect::MakeEmpty(), isLinear);
+        breadcrumbList->concat(std::move(fBreadcrumbList));
+        return polys;
     }
 
     int polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertexAlloc,
                          BreadcrumbTriangleList* breadcrumbList) const {
-        return this->GrTriangulator::polysToTriangles(polys, vertexAlloc, breadcrumbList);
+        int vertexCount = this->GrTriangulator::polysToTriangles(polys, vertexAlloc);
+        breadcrumbList->concat(std::move(fBreadcrumbList));
+        return vertexCount;
     }
 };
 

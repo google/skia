@@ -164,6 +164,12 @@ public:
     // is used to work around bugs for devices that don't handle non-coherent memory correctly.
     bool mustUseCoherentHostVisibleMemory() const { return fMustUseCoherentHostVisibleMemory; }
 
+    // Returns whether a pure GPU accessible buffer is more performant to read than a buffer that is
+    // also host visible. If so then in some cases we may prefer the cost of doing a copy to the
+    // buffer. This typically would only be the case for buffers that are written once and read
+    // many times on the gpu.
+    bool gpuOnlyBuffersMorePerformant() const { return fGpuOnlyBuffersMorePerformant; }
+
     // The max draw count that can be passed into indirect draw calls.
     uint32_t  maxDrawIndirectDrawCount() const { return fMaxDrawIndirectDrawCount; }
 
@@ -218,6 +224,8 @@ public:
                            ProgramDescOverrideFlags) const override;
 
     GrInternalSurfaceFlags getExtraSurfaceFlagsForDeferredRT() const override;
+
+    VkShaderStageFlags getPushConstantStageFlags() const;
 
     // If true then when doing MSAA draws, we will prefer to discard the msaa attachment on load
     // and stores. The use of this feature for specific draws depends on the render target having a
@@ -363,6 +371,7 @@ private:
     bool fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = false;
 
     bool fMustUseCoherentHostVisibleMemory = false;
+    bool fGpuOnlyBuffersMorePerformant = false;
 
     // We default this to 100 since we already cap the max render tasks at 100 before doing a
     // submission in the GrDrawingManager, so we shouldn't be going over 100 secondary command

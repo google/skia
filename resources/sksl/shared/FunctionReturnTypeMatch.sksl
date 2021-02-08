@@ -1,0 +1,72 @@
+uniform half4 colorGreen, colorRed;
+
+float    returns_float()             { return float(1); }
+float2   returns_float2()            { return float2(2); }
+float3   returns_float3()            { return float3(3); }
+float4   returns_float4()            { return float4(4); }
+float2x2 returns_float2x2()          { return float2x2(2); }
+float3x3 returns_float3x3()          { return float3x3(3); }
+float4x4 returns_float4x4()          { return float4x4(4); }
+half     returns_half()              { return half(1); }
+half2    returns_half2()             { return half2(2); }
+half3    returns_half3()             { return half3(3); }
+half4    returns_half4()             { return half4(4); }
+half2x2  returns_half2x2()           { return half2x2(2); }
+half3x3  returns_half3x3()           { return half3x3(3); }
+half4x4  returns_half4x4()           { return half4x4(4); }
+bool     returns_bool()              { return bool(true); }
+bool2    returns_bool2()             { return bool2(true); }
+bool3    returns_bool3()             { return bool3(true); }
+bool4    returns_bool4()             { return bool4(true); }
+int      returns_int()               { return int(1); }
+int2     returns_int2()              { return int2(2); }
+int3     returns_int3()              { return int3(3); }
+int4     returns_int4()              { return int4(4); }
+
+half4 main() {
+    float     x1  = returns_float();
+    float2    x2  = returns_float2();
+    float3    x3  = returns_float3();
+    float4    x4  = returns_float4();
+    float2x2  x5  = returns_float2x2();
+    float3x3  x6  = returns_float3x3();
+    float4x4  x7  = returns_float4x4();
+    half      x8  = returns_half();
+    half2     x9  = returns_half2();
+    half3     x10 = returns_half3();
+    half4     x11 = returns_half4();
+    half2x2   x12 = returns_half2x2();
+    half3x3   x13 = returns_half3x3();
+    half4x4   x14 = returns_half4x4();
+    bool      x15 = returns_bool();
+    bool2     x16 = returns_bool2();
+    bool3     x17 = returns_bool3();
+    bool4     x18 = returns_bool4();
+    int       x19 = returns_int();
+    int2      x20 = returns_int2();
+    int3      x21 = returns_int3();
+    int4      x22 = returns_int4();
+
+    return x1  == returns_float() &&
+           x2  == returns_float2() &&
+           x3  == returns_float3() &&
+           x4  == returns_float4() &&
+           x5  == returns_float2x2() &&
+           x6  == returns_float3x3() &&
+           x7  == returns_float4x4() &&
+           x8  == returns_half() &&
+           x9  == returns_half2() &&
+           x10 == returns_half3() &&
+           x11 == returns_half4() &&
+           x12 == returns_half2x2() &&
+           x13 == returns_half3x3() &&
+           x14 == returns_half4x4() &&
+           x15 == returns_bool() &&
+           x16 == returns_bool2() &&
+           x17 == returns_bool3() &&
+           x18 == returns_bool4() &&
+           x19 == returns_int() &&
+           x20 == returns_int2() &&
+           x21 == returns_int3() &&
+           x22 == returns_int4() ? colorGreen : colorRed;
+}

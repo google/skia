@@ -3774,7 +3774,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
     // Galaxy S7.
     // TODO: Once this is fixed we can update the check here to look at a driver version number too.
-    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer()) {
+    if (kAdreno530_GrGLRenderer == ctxInfo.renderer() ||
+        kAdreno5xx_other_GrGLRenderer == ctxInfo.renderer()) {
         shaderCaps->fFBFetchSupport = false;
     }
 
@@ -3917,7 +3918,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // for now until its own denylists can be updated.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
-        kAdreno5xx_GrGLRenderer == ctxInfo.renderer() ||
+        kAdreno530_GrGLRenderer == ctxInfo.renderer() ||
+        kAdreno5xx_other_GrGLRenderer == ctxInfo.renderer() ||
         kIntel_GrGLDriver == ctxInfo.driver() ||
         kChromium_GrGLDriver == ctxInfo.driver()) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
@@ -4167,6 +4169,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 &&
         ctxInfo.angleVendor() == GrGLANGLEVendor::kAMD) {
         fProgramBinarySupport = false;
+    }
+
+    // Two Adreno 530 devices (LG G6 and OnePlus 3T) appear to have driver bugs that are corrupting
+    // SkSL::Program memory. To get better/different crash reports, disable node-pooling, so that
+    // program allocations aren't reused.  (crbug.com/1147008, crbug.com/1164271)
+    if (kAdreno530_GrGLRenderer == ctxInfo.renderer()) {
+        shaderCaps->fUseNodePools = false;
     }
 }
 

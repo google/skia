@@ -39,7 +39,7 @@ protected:
     void draw(SkCanvas* canvas,
               const SkRect& rect,
               const SkSize& deviceSize,
-              SkFilterQuality filterQuality,
+              const SkSamplingOptions& sampling,
               sk_sp<SkImageFilter> input) {
         SkRect dstRect;
         canvas->getLocalToDeviceAs3x3().mapRect(&dstRect, rect);
@@ -52,7 +52,7 @@ protected:
         SkMatrix matrix;
         matrix.setScale(SkScalarInvert(deviceScaleX), SkScalarInvert(deviceScaleY));
         sk_sp<SkImageFilter> filter(SkImageFilters::MatrixTransform(matrix,
-                                                                    filterQuality,
+                                                                    sampling,
                                                                     std::move(input)));
         SkPaint filteredPaint;
         filteredPaint.setImageFilter(std::move(filter));
@@ -73,19 +73,25 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
+        const SkSamplingOptions samplings[] = {
+            SkSamplingOptions(),
+            SkSamplingOptions(SkFilterMode::kLinear),
+            SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+            SkSamplingOptions(SkCubicResampler::Mitchell()),
+        };
         const SkRect srcRect = SkRect::MakeWH(96, 96);
         const SkSize deviceSize = SkSize::Make(16, 16);
 
-        this->draw(canvas, srcRect, deviceSize, kNone_SkFilterQuality, nullptr);
+        this->draw(canvas, srcRect, deviceSize, samplings[0], nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        this->draw(canvas, srcRect, deviceSize, kLow_SkFilterQuality, nullptr);
+        this->draw(canvas, srcRect, deviceSize, samplings[1], nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        this->draw(canvas, srcRect, deviceSize, kMedium_SkFilterQuality, nullptr);
+        this->draw(canvas, srcRect, deviceSize, samplings[2], nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        this->draw(canvas, srcRect, deviceSize, kHigh_SkFilterQuality, nullptr);
+        this->draw(canvas, srcRect, deviceSize, samplings[3], nullptr);
 
         {
             sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(16, 16));
@@ -104,7 +110,7 @@ protected:
             sk_sp<SkImageFilter> source(
                 SkImageFilters::Image(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
             canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-            this->draw(canvas, srcRect, deviceSize, kHigh_SkFilterQuality, std::move(source));
+            this->draw(canvas, srcRect, deviceSize, samplings[3], std::move(source));
         }
     }
 

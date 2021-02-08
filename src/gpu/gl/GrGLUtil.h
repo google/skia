@@ -94,7 +94,8 @@ enum GrGLRenderer {
     kAdreno3xx_GrGLRenderer,
     kAdreno430_GrGLRenderer,
     kAdreno4xx_other_GrGLRenderer,
-    kAdreno5xx_GrGLRenderer,
+    kAdreno530_GrGLRenderer,
+    kAdreno5xx_other_GrGLRenderer,
     kAdreno615_GrGLRenderer,  // Pixel3a
     kAdreno630_GrGLRenderer,  // Pixel3
     kAdreno640_GrGLRenderer,  // Pixel4

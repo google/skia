@@ -893,14 +893,12 @@ describe('Canvas Behavior', () => {
                'Type': 'SkCircleDrawable',
                'Radius': 2
             },
-            'EffectCode': [
-                `void effectSpawn(inout Effect effect) {
+            'Code': [
+               `void effectSpawn(inout Effect effect) {
                   effect.rate = 200;
                   effect.color = float4(1, 0, 0, 1);
-                }`
-            ],
-            'Code': [
-               `void spawn(inout Particle p) {
+                }
+                void spawn(inout Particle p) {
                   p.lifetime = 3 + rand(p.seed);
                   p.vel.y = -50;
                 }
@@ -918,6 +916,7 @@ describe('Canvas Behavior', () => {
 
         const particles = CanvasKit.MakeParticles(JSON.stringify(curveParticles));
         particles.start(0, true);
+        particles.setPosition([0, 0]);
 
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);

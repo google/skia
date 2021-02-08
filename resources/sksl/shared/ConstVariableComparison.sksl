@@ -1,5 +1,11 @@
-void main() {
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
   const float4 a = float4(0);
   const float4 b = float4(1);
-  if (a == b) { discard; }
+  if (a == b) {
+      return colorRed;
+  } else {
+      return colorGreen;
+  }
 }

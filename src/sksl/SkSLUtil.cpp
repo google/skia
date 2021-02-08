@@ -29,15 +29,6 @@ ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
 }
 #endif  // defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 
-void sksl_abort() {
-#ifdef SKSL_STANDALONE
-    abort();
-#else
-    sk_abort_no_print();
-    exit(1);
-#endif
-}
-
 void write_stringstream(const StringStream& s, OutputStream& out) {
     out.write(s.str().c_str(), s.str().size());
 }
@@ -45,10 +36,13 @@ void write_stringstream(const StringStream& s, OutputStream& out) {
 #if !defined(SKSL_STANDALONE)
 bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outType) {
     // If a new GrSL type is added, this function will need to be updated.
-    static_assert(kGrSLTypeCount == 46);
+    static_assert(kGrSLTypeCount == 49);
 
     if (type == *context.fTypes.fVoid    ) { *outType = kVoid_GrSLType;     return true; }
     if (type == *context.fTypes.fBool    ) { *outType = kBool_GrSLType;     return true; }
+    if (type == *context.fTypes.fBool2   ) { *outType = kBool2_GrSLType;    return true; }
+    if (type == *context.fTypes.fBool3   ) { *outType = kBool3_GrSLType;    return true; }
+    if (type == *context.fTypes.fBool4   ) { *outType = kBool4_GrSLType;    return true; }
     if (type == *context.fTypes.fByte    ) { *outType = kByte_GrSLType;     return true; }
     if (type == *context.fTypes.fByte2   ) { *outType = kByte2_GrSLType;    return true; }
     if (type == *context.fTypes.fByte3   ) { *outType = kByte3_GrSLType;    return true; }

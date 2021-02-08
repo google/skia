@@ -413,7 +413,7 @@ public:
                    GrPaint&&,
                    GrAA,
                    const SkMatrix& viewMatrix,
-                   const GrStyledShape&);
+                   GrStyledShape&&);
 
 
     /**
@@ -706,10 +706,18 @@ private:
                           DrawQuad* quad,
                           const SkRect* subset = nullptr);
 
-    // If 'attemptShapeFallback' is true, and the original shape had been simplfied, this
-    // will re-route through drawShape() to see if we can avoid path rendering one more time.
+    void drawStrokedLine(const GrClip*, GrPaint&&, GrAA, const SkMatrix&, const SkPoint[2],
+                         const SkStrokeRec&);
+
+    // Tries to detect if the given shape is a simple, and draws it without path rendering if
+    // we know how.
+    bool drawSimpleShape(const GrClip*, GrPaint*, GrAA, const SkMatrix&, const GrStyledShape&);
+
+    // If 'attemptDrawSimple' is true, of if the original shape is marked as having been simplfied,
+    // this will attempt to re-route through drawSimpleShape() to see if we can avoid path rendering
+    // one more time.
     void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
-                                    const GrStyledShape&, bool attemptShapeFallback = true);
+                                    GrStyledShape&&, bool attemptDrawSimple = false);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return

@@ -13,6 +13,7 @@
 
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -137,9 +138,9 @@ struct Program {
         // If true, remove any uncalled functions other than main(). Note that a function which
         // starts out being used may end up being uncalled after optimization.
         bool fRemoveDeadFunctions = true;
-        // Functions larger than this (measured in IR nodes) will not be inlined. The default value
-        // is arbitrary. A value of zero will disable the inliner entirely.
-        int fInlineThreshold = 50;
+        // Sets an upper limit on the acceptable amount of code growth from inlining.
+        // A value of zero will disable the inliner entirely.
+        int fInlineThreshold = SkSL::kDefaultInlineThreshold;
         // true to enable optimization passes
         bool fOptimize = true;
         // If true, implicit conversions to lower precision numeric types are allowed
@@ -212,12 +213,16 @@ struct Program {
         // Some or all of the program elements are in the pool. To free them safely, we must attach
         // the pool before destroying any program elements. (Otherwise, we may accidentally call
         // delete on a pooled node.)
-        fPool->attachToThread();
+        if (fPool) {
+            fPool->attachToThread();
+        }
         fElements.clear();
         fContext.reset();
         fSymbols.reset();
         fModifiers.reset();
-        fPool->detachFromThread();
+        if (fPool) {
+            fPool->detachFromThread();
+        }
     }
 
     class ElementsCollection {

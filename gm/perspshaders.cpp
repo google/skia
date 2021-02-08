@@ -157,7 +157,7 @@ protected:
         this->drawRow(canvas, SkSamplingOptions(SkFilterMode::kLinear,
                                                 SkMipmapMode::kNearest));
         canvas->translate(0, SkIntToScalar(kCellSize));
-        this->drawRow(canvas, SkSamplingOptions({1.0f/3, 1.0f/3}));
+        this->drawRow(canvas, SkSamplingOptions(SkCubicResampler::Mitchell()));
         canvas->translate(0, SkIntToScalar(kCellSize));
     }
 private:

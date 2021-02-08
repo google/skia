@@ -450,6 +450,10 @@ const GrCaps* GrDawnProgramBuilder::caps() const {
     return fGpu->caps();
 }
 
+SkSL::Compiler* GrDawnProgramBuilder::shaderCompiler() const {
+    return fGpu->shaderCompiler();
+}
+
 void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&

@@ -8,10 +8,10 @@
 #ifndef SKSL_BINARYEXPRESSION
 #define SKSL_BINARYEXPRESSION
 
-#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -56,7 +56,7 @@ public:
     , fOperator(op)
     , fRight(std::move(right)) {
         // If we are assigning to a VariableReference, ensure that it is set to Write or ReadWrite
-        SkASSERT(!Compiler::IsAssignment(op) || check_ref(*this->left()));
+        SkASSERT(!Operators::IsAssignment(op) || check_ref(*this->left()));
     }
 
     std::unique_ptr<Expression>& left() {
@@ -85,12 +85,12 @@ public:
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        return ConstantFolder::Simplify(irGenerator.fContext, *this->left(), this->getOperator(),
-                                        *this->right());
+        return ConstantFolder::Simplify(irGenerator.fContext, fOffset, *this->left(),
+                                        this->getOperator(), *this->right());
     }
 
     bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects && Compiler::IsAssignment(this->getOperator())) {
+        if (property == Property::kSideEffects && Operators::IsAssignment(this->getOperator())) {
             return true;
         }
         return this->left()->hasProperty(property) || this->right()->hasProperty(property);
@@ -106,7 +106,7 @@ public:
 
     String description() const override {
         return "(" + this->left()->description() + " " +
-               Compiler::OperatorName(this->getOperator()) + " " + this->right()->description() +
+               Operators::OperatorName(this->getOperator()) + " " + this->right()->description() +
                ")";
     }
 

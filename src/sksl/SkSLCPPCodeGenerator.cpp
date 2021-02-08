@@ -75,7 +75,7 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     Token::Kind op = b.getOperator();
     if (op == Token::Kind::TK_PERCENT) {
         // need to use "%%" instead of "%" b/c the code will be inside of a printf
-        Precedence precedence = GetBinaryPrecedence(op);
+        Precedence precedence = Operators::GetBinaryPrecedence(op);
         if (precedence >= parentPrecedence) {
             this->write("(");
         }
@@ -98,7 +98,7 @@ static String default_value(const Type& type) {
         case Type::TypeKind::kScalar: return "0";
         case Type::TypeKind::kVector: return type.name() + "(0)";
         case Type::TypeKind::kMatrix: return type.name() + "(1)";
-        default: ABORT("unsupported default_value type\n");
+        default: SK_ABORT("unsupported default_value type");
     }
 }
 
@@ -239,7 +239,7 @@ void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression
     if (is_private(var)) {
         this->writeRuntimeValue(var.type(), var.modifiers().fLayout, var.name());
     } else {
-        this->writeExpression(value, kTopLevel_Precedence);
+        this->writeExpression(value, Precedence::kTopLevel);
     }
 }
 
@@ -253,7 +253,7 @@ String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
             ++samplerCount;
         }
     }
-    ABORT("should have found sampler in parameters\n");
+    SK_ABORT("should have found sampler in parameters\n");
 }
 
 void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
@@ -264,7 +264,7 @@ void CPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     if (fCPPMode) {
         // no support for multiple swizzle components yet
         SkASSERT(swizzle.components().size() == 1);
-        this->writeExpression(*swizzle.base(), kPostfix_Precedence);
+        this->writeExpression(*swizzle.base(), Precedence::kPostfix);
         switch (swizzle.components()[0]) {
             case 0: this->write(".left()");   break;
             case 1: this->write(".top()");    break;
@@ -471,7 +471,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         for (const auto& arg : arguments) {
             this->write(separator);
             separator = ", ";
-            this->writeExpression(*arg, kSequence_Precedence);
+            this->writeExpression(*arg, Precedence::kSequence);
         }
         this->write(")");
     }
@@ -488,10 +488,13 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
 static const char* glsltype_string(const Context& context, const Type& type) {
     // If a new GrSL type is added, this function will need to be updated.
-    static_assert(kGrSLTypeCount == 46);
+    static_assert(kGrSLTypeCount == 49);
 
     if (type == *context.fTypes.fVoid    ) { return "kVoid_GrSLType";     }
     if (type == *context.fTypes.fBool    ) { return "kBool_GrSLType";     }
+    if (type == *context.fTypes.fBool2   ) { return "kBool2_GrSLType";    }
+    if (type == *context.fTypes.fBool3   ) { return "kBool3_GrSLType";    }
+    if (type == *context.fTypes.fBool4   ) { return "kBool4_GrSLType";    }
     if (type == *context.fTypes.fByte    ) { return "kByte_GrSLType";     }
     if (type == *context.fTypes.fByte2   ) { return "kByte2_GrSLType";    }
     if (type == *context.fTypes.fByte3   ) { return "kByte3_GrSLType";    }
@@ -731,7 +734,7 @@ void CPPCodeGenerator::writePrivateVarValues() {
             if (is_private(decl.var()) && decl.value()) {
                 this->writef("%s = ", String(decl.var().name()).c_str());
                 fCPPMode = true;
-                this->writeExpression(*decl.value(), kAssignment_Precedence);
+                this->writeExpression(*decl.value(), Precedence::kAssignment);
                 fCPPMode = false;
                 this->write(";\n");
             }
@@ -897,7 +900,7 @@ String CPPCodeGenerator::convertSKSLExpressionToCPP(const Expression& e,
     fFormatArgs.clear();
 
     // Convert the argument expression into a format string and args
-    this->writeExpression(e, Precedence::kTopLevel_Precedence);
+    this->writeExpression(e, Precedence::kTopLevel);
     std::vector<String> newArgs(fFormatArgs);
     String expr = exprBuffer.str();
 
@@ -1286,7 +1289,7 @@ void CPPCodeGenerator::writeGetKey() {
                                         String(var.name()).c_str());
                         if (decl.value()) {
                             fCPPMode = true;
-                            this->writeExpression(*decl.value(), kAssignment_Precedence);
+                            this->writeExpression(*decl.value(), Precedence::kAssignment);
                             fCPPMode = false;
                         } else {
                             this->writef("%s", default_value(var).c_str());
@@ -1315,7 +1318,7 @@ void CPPCodeGenerator::writeGetKey() {
                         this->writef("    b->add32((uint32_t) %s);\n",
                                      HCodeGenerator::FieldName(name).c_str());
                     } else {
-                        ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
+                        SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                               varType.displayName().c_str());
                     }
                     if (var.modifiers().fLayout.fWhen.fLength) {

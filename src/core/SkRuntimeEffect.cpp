@@ -52,12 +52,6 @@ public:
 
     SkSL::Compiler* operator->() const { return gImpl->fCompiler; }
 
-    // The inline threshold is exposed just for fuzzing, so we can test programs with it enabled
-    // and disabled. That lets us stress different code paths in the SkSL compiler. It's stashed
-    // along-side the compiler, but just so it can be guarded by the same mutex.
-    int  getInlineThreshold() const { return gImpl->fInlineThreshold; }
-    void setInlineThreshold(int threshold) { gImpl->fInlineThreshold = threshold; }
-
 private:
     SkAutoMutexExclusive fLock;
 
@@ -81,15 +75,10 @@ private:
             fCaps->fCanUseDoLoops = false;
 
             fCompiler = new SkSL::Compiler(fCaps.get());
-
-            // Using an inline threshold of zero stops all inlining, and causes us to re-emit SkSL
-            // that is nearly identical to what was ingested.
-            fInlineThreshold = 0;
         }
 
         SkSL::ShaderCapsPointer fCaps;
         SkSL::Compiler*         fCompiler;
-        int                     fInlineThreshold;
     };
 
     static Impl* gImpl;
@@ -98,11 +87,6 @@ private:
 SharedCompiler::Impl* SharedCompiler::gImpl = nullptr;
 
 }  // namespace SkSL
-
-void SkRuntimeEffect_SetInlineThreshold(int threshold) {
-    SkSL::SharedCompiler compiler;
-    compiler.setInlineThreshold(threshold);
-}
 
 // Accepts a valid marker, or "normals(<marker>)"
 static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint32_t* flags) {
@@ -121,10 +105,10 @@ static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint3
 static bool init_uniform_type(const SkSL::Context& ctx,
                               const SkSL::Type* type,
                               SkRuntimeEffect::Uniform* v) {
-#define SET_TYPES(cpuType, gpuType)                         \
+#define SET_TYPES(cpu_type, gpu_type)                       \
     do {                                                    \
-        v->fType = SkRuntimeEffect::Uniform::Type::cpuType; \
-        v->fGPUType = gpuType;                              \
+        v->type = SkRuntimeEffect::Uniform::Type::cpu_type; \
+        v->gpuType = gpu_type;                              \
         return true;                                        \
     } while (false)
 
@@ -148,17 +132,17 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     return false;
 }
 
-SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
-    settings.fInlineThreshold = compiler.getInlineThreshold();
+    settings.fInlineThreshold = options.inlineThreshold;
     settings.fAllowNarrowingConversions = true;
     auto program = compiler->convertProgram(SkSL::Program::kRuntimeEffect_Kind,
                                             SkSL::String(sksl.c_str(), sksl.size()),
                                             settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
-    #define RETURN_FAILURE(...) return std::make_tuple(nullptr, SkStringPrintf(__VA_ARGS__))
+    #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
 
     if (!program) {
         RETURN_FAILURE("%s", compiler->errorText().c_str());
@@ -208,14 +192,14 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             // 'uniform' variables
             else if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
                 Uniform uni;
-                uni.fName = var.name();
-                uni.fFlags = 0;
-                uni.fCount = 1;
+                uni.name = var.name();
+                uni.flags = 0;
+                uni.count = 1;
 
                 const SkSL::Type* type = &var.type();
                 if (type->isArray()) {
-                    uni.fFlags |= Uniform::kArray_Flag;
-                    uni.fCount = type->columns();
+                    uni.flags |= Uniform::kArray_Flag;
+                    uni.count = type->columns();
                     type = &type->componentType();
                 }
 
@@ -225,19 +209,19 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 
                 const SkSL::StringFragment& marker(var.modifiers().fLayout.fMarker);
                 if (marker.fLength) {
-                    uni.fFlags |= Uniform::kMarker_Flag;
+                    uni.flags |= Uniform::kMarker_Flag;
                     allowColorFilter = false;
-                    if (!parse_marker(marker, &uni.fMarker, &uni.fFlags)) {
+                    if (!parse_marker(marker, &uni.marker, &uni.flags)) {
                         RETURN_FAILURE("Invalid 'marker' string: '%.*s'", (int)marker.fLength,
                                         marker.fChars);
                     }
                 }
 
                 if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
-                    uni.fFlags |= Uniform::kSRGBUnpremul_Flag;
+                    uni.flags |= Uniform::kSRGBUnpremul_Flag;
                 }
 
-                uni.fOffset = offset;
+                uni.offset = offset;
                 offset += uni.sizeInBytes();
                 SkASSERT(SkIsAlign4(offset));
 
@@ -269,7 +253,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(varyings),
                                                       usesSampleCoords,
                                                       allowColorFilter));
-    return std::make_tuple(std::move(effect), SkString());
+    return Result{std::move(effect), SkString()};
 }
 
 size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
@@ -286,7 +270,7 @@ size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
             default: SkUNREACHABLE;
         }
     };
-    return element_size(fType) * fCount;
+    return element_size(this->type) * this->count;
 }
 
 SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
@@ -316,12 +300,12 @@ SkRuntimeEffect::~SkRuntimeEffect() = default;
 
 size_t SkRuntimeEffect::uniformSize() const {
     return fUniforms.empty() ? 0
-                             : SkAlign4(fUniforms.back().fOffset + fUniforms.back().sizeInBytes());
+                             : SkAlign4(fUniforms.back().offset + fUniforms.back().sizeInBytes());
 }
 
 const SkRuntimeEffect::Uniform* SkRuntimeEffect::findUniform(const char* name) const {
     auto iter = std::find_if(fUniforms.begin(), fUniforms.end(),
-                             [name](const Uniform& u) { return u.fName.equals(name); });
+                             [name](const Uniform& u) { return u.name.equals(name); });
     return iter == fUniforms.end() ? nullptr : &(*iter);
 }
 
@@ -330,20 +314,6 @@ int SkRuntimeEffect::findChild(const char* name) const {
                              [name](const SkString& s) { return s.equals(name); });
     return iter == fChildren.end() ? -1 : static_cast<int>(iter - fChildren.begin());
 }
-
-#if SK_SUPPORT_GPU
-bool SkRuntimeEffect::toPipelineStage(GrContextOptions::ShaderErrorHandler* errorHandler,
-                                      SkSL::PipelineStageArgs* outArgs) {
-    SkSL::SharedCompiler compiler;
-
-    if (!compiler->toPipelineStage(*fBaseProgram, outArgs)) {
-        errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
-        return false;
-    }
-
-    return true;
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -365,16 +335,16 @@ static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
     };
 
     for (const auto& v : effect->uniforms()) {
-        if (v.fFlags & Flags::kMarker_Flag) {
-            SkASSERT(v.fType == Type::kFloat4x4);
+        if (v.flags & Flags::kMarker_Flag) {
+            SkASSERT(v.type == Type::kFloat4x4);
             // Color filters don't provide a matrix provider, but shouldn't be allowed to get here
             SkASSERT(matrixProvider);
-            SkM44* localToMarker = SkTAddOffset<SkM44>(writableData(), v.fOffset);
-            if (!matrixProvider->getLocalToMarker(v.fMarker, localToMarker)) {
+            SkM44* localToMarker = SkTAddOffset<SkM44>(writableData(), v.offset);
+            if (!matrixProvider->getLocalToMarker(v.marker, localToMarker)) {
                 // We couldn't provide a matrix that was requested by the SkSL
                 return nullptr;
             }
-            if (v.fFlags & Flags::kMarkerNormals_Flag) {
+            if (v.flags & Flags::kMarkerNormals_Flag) {
                 // Normals need to be transformed by the inverse-transpose of the upper-left
                 // 3x3 portion (scale + rotate) of the matrix.
                 localToMarker->setRow(3, {0, 0, 0, 1});
@@ -384,13 +354,13 @@ static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
                 }
                 *localToMarker = localToMarker->transpose();
             }
-        } else if (v.fFlags & Flags::kSRGBUnpremul_Flag) {
-            SkASSERT(v.fType == Type::kFloat3 || v.fType == Type::kFloat4);
+        } else if (v.flags & Flags::kSRGBUnpremul_Flag) {
+            SkASSERT(v.type == Type::kFloat3 || v.type == Type::kFloat4);
             if (steps.flags.mask()) {
-                float* color = SkTAddOffset<float>(writableData(), v.fOffset);
-                if (v.fType == Type::kFloat4) {
+                float* color = SkTAddOffset<float>(writableData(), v.offset);
+                if (v.type == Type::kFloat4) {
                     // RGBA, easy case
-                    for (int i = 0; i < v.fCount; ++i) {
+                    for (int i = 0; i < v.count; ++i) {
                         steps.apply(color);
                         color += 4;
                     }
@@ -399,7 +369,7 @@ static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
                     // because steps shouldn't include unpremul or premul, and thus shouldn't
                     // read or write the fourth element. But let's be safe.
                     float rgba[4];
-                    for (int i = 0; i < v.fCount; ++i) {
+                    for (int i = 0; i < v.count; ++i) {
                         memcpy(rgba, color, 3 * sizeof(float));
                         rgba[3] = 1.0f;
                         steps.apply(rgba);

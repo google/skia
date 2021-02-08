@@ -146,9 +146,18 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixConvolution(
 }
 
 sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(
-        const SkMatrix& transform, SkFilterQuality filterQuality, sk_sp<SkImageFilter> input) {
-    return SkMatrixImageFilter::Make(transform, filterQuality, std::move(input));
+        const SkMatrix& transform, const SkSamplingOptions& sampling, sk_sp<SkImageFilter> input) {
+    return SkMatrixImageFilter::Make(transform, sampling, std::move(input));
 }
+
+#ifdef SK_SUPPORT_LEGACY_MATRIX_IMAGEFILTER
+sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(
+        const SkMatrix& transform, SkFilterQuality filterQuality, sk_sp<SkImageFilter> input) {
+    auto sampling = SkSamplingOptions(filterQuality,
+                                      SkSamplingOptions::kMedium_asMipmapLinear);
+    return SkMatrixImageFilter::Make(transform, sampling, std::move(input));
+}
+#endif
 
 sk_sp<SkImageFilter> SkImageFilters::Merge(
         sk_sp<SkImageFilter>* const filters, int count, const CropRect& cropRect) {
@@ -169,6 +178,15 @@ sk_sp<SkImageFilter> SkImageFilters::Picture(sk_sp<SkPicture> pic, const SkRect&
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dither,
+                                            const CropRect& cropRect) {
+    SkPaint paint;
+    paint.setShader(std::move(shader));
+    paint.setDither((bool) dither);
+    return SkPaintImageFilter::Make(paint, cropRect);
+}
+
+#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
+sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dither,
                                             SkFilterQuality filterQuality,
                                             const CropRect& cropRect) {
     SkPaint paint;
@@ -178,6 +196,7 @@ sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dithe
     paint.setFilterQuality(filterQuality);
     return SkPaintImageFilter::Make(paint, cropRect);
 }
+#endif
 
 sk_sp<SkImageFilter> SkImageFilters::Tile(
         const SkRect& src, const SkRect& dst, sk_sp<SkImageFilter> input) {

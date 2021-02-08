@@ -82,6 +82,8 @@ private:
     template <typename F>
     bool advanceWhile(F func);
 
+    bool matchStringToken(const char* token, const char** newPos = nullptr) const;
+
     bool parseWSToken();
     bool parseEOSToken();
     bool parseSepToken();

@@ -303,17 +303,21 @@ private:
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType,
-                            GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) override;
+                            sk_sp<GrGpuBuffer> transferBuffer, size_t offset,
+                            size_t rowBytes) override;
     bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
                               GrColorType surfaceColorType, GrColorType bufferColorType,
-                              GrGpuBuffer* transferBuffer, size_t offset) override;
+                              sk_sp<GrGpuBuffer> transferBuffer, size_t offset) override;
     bool readOrTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
                                   GrColorType surfaceColorType, GrColorType dstColorType,
                                   void* offsetOrPtr, int rowWidthInPixels);
 
-    // Before calling any variation of TexImage, TexSubImage, etc..., call this to ensure that the
-    // PIXEL_UNPACK_BUFFER is unbound.
-    void unbindCpuToGpuXferBuffer();
+    // Unbinds xfer buffers from GL for operations that don't need them.
+    // Before calling any variation of TexImage, TexSubImage, etc..., call this with
+    // GrGpuBufferType::kXferCpuToGpu to ensure that the PIXEL_UNPACK_BUFFER is unbound.
+    // Before calling ReadPixels and reading back into cpu memory call this with
+    // GrGpuBufferType::kXferGpuToCpu to ensure that the PIXEL_PACK_BUFFER is unbound.
+    void unbindXferBuffer(GrGpuBufferType type);
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) override;
 
@@ -661,6 +665,7 @@ private:
     auto* hwBufferState(GrGpuBufferType type) {
         unsigned typeAsUInt = static_cast<unsigned>(type);
         SkASSERT(typeAsUInt < SK_ARRAY_COUNT(fHWBufferState));
+        SkASSERT(type != GrGpuBufferType::kUniform);
         return &fHWBufferState[typeAsUInt];
     }
 

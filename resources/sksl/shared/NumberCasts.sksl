@@ -1,23 +1,18 @@
-bool BF = bool(1.23);
-bool BI = bool(1);
-bool BB = bool(true);
+half4 main() {
+    bool3  B;
+    B.x = bool(1.23);
+    B.y = bool(1);
+    B.z = bool(true);
 
-float FF = float(1.23);
-float FI = float(1);
-float FB = float(true);
+    float3 F;
+    F.x = float(1.23);
+    F.y = float(0);
+    F.z = float(true);
 
-int IF = int(1.23);
-int II = int(1);
-int IB = int(true);
+    int3   I;
+    I.x = int(1.23);
+    I.y = int(1);
+    I.z = int(true);
 
-void main() {
-    sk_FragColor.x = half(BF);
-    sk_FragColor.x = half(BI);
-    sk_FragColor.x = half(BB);
-    sk_FragColor.x = half(FF);
-    sk_FragColor.x = half(FI);
-    sk_FragColor.x = half(FB);
-    sk_FragColor.x = half(IF);
-    sk_FragColor.x = half(II);
-    sk_FragColor.x = half(IB);
+    return half4(half(F.x * F.y * F.z), half(B.x && B.y && B.z), 0, half(I.x * I.y * I.z));
 }

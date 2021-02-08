@@ -95,6 +95,9 @@ static void cleanup_test(skiatest::Reporter* reporter) {
     SkCanvas bmCanvas(bm);
     bmCanvas.clear(SK_ColorRED);
 
+    GrMockOptions options;
+    sk_sp<GrDirectContext> mockContext = GrDirectContext::MakeMock(&options);
+
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
 
@@ -114,6 +117,8 @@ static void cleanup_test(skiatest::Reporter* reporter) {
                 if (!SkImage_pinAsTexture(img.get(), dContext)) {
                     continue;
                 }
+                // Pinning on a second context should be blocked.
+                REPORTER_ASSERT(reporter, !SkImage_pinAsTexture(img.get(), mockContext.get()));
             }
 
             // The context used to pin the image is gone at this point!

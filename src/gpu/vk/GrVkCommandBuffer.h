@@ -61,6 +61,10 @@ public:
                             uint32_t dynamicOffsetCount,
                             const uint32_t* dynamicOffsets);
 
+    void pushConstants(const GrVkGpu* gpu, VkPipelineLayout layout,
+                       VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size,
+                       const void* values);
+
     void setViewport(const GrVkGpu* gpu,
                      uint32_t firstViewport,
                      uint32_t viewportCount,
@@ -288,8 +292,20 @@ public:
                     uint32_t regionCount,
                     const VkBufferCopy* regions);
 
+    void copyBuffer(GrVkGpu* gpu,
+                    GrVkBuffer* srcBuffer,
+                    sk_sp<GrVkBuffer2> dstBuffer,
+                    uint32_t regionCount,
+                    const VkBufferCopy* regions);
+
     void updateBuffer(GrVkGpu* gpu,
                       GrVkBuffer* dstBuffer,
+                      VkDeviceSize dstOffset,
+                      VkDeviceSize dataSize,
+                      const void* data);
+
+    void updateBuffer(GrVkGpu* gpu,
+                      sk_sp<GrVkBuffer2> dstBuffer,
                       VkDeviceSize dstOffset,
                       VkDeviceSize dataSize,
                       const void* data);
