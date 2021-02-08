@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33f9c767_f6de194d",
+        "filename": "src/gpu/effects/generated/GrLumaColorFilterEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-08T21:28:51Z",
+      "side": 0,
+      "message": "I don\u0027t think it\u0027s terrible for this particular effect, but it\u0027s worth noting: Runtime effects don\u0027t implement any of the GrFragmentProcessor optimizations, so we will lose out on those. At least for runtime color filters, we could try adding a callback to the FP, so that we run the skvm version...",
+      "range": {
+        "startLine": 42,
+        "startChar": 32,
+        "endLine": 42,
+        "endChar": 80
+      },
+      "revId": "827f8c0103192b07d1a5dce7cbfaa88c09adf572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
