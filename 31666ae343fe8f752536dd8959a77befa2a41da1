@@ -16,6 +16,92 @@
       "message": "Fixed bug that caused bot failures, and switched from \"pile of std::function\" to \"C++ interface\"",
       "revId": "31666ae343fe8f752536dd8959a77befa2a41da1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9b71b0d_f4c29c61",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-08T19:14:38Z",
+      "side": 1,
+      "message": "tiny nit: extra blank line",
+      "revId": "31666ae343fe8f752536dd8959a77befa2a41da1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68a8e948_e5fa475c",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-08T19:14:38Z",
+      "side": 1,
+      "message": "optional: All these `return xxxxx.c_str()`s look unsafe at first glance, until you realize that the result is being implicitly cast to SkSL::String. Maybe we should explicitly add the constructor. It\u0027s a shame that we are mixing the SkString/SkSL::String streams here but I don\u0027t have a better fix.",
+      "range": {
+        "startLine": 84,
+        "startChar": 38,
+        "endLine": 84,
+        "endChar": 47
+      },
+      "revId": "31666ae343fe8f752536dd8959a77befa2a41da1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9555212_874adb71",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-08T19:14:38Z",
+      "side": 1,
+      "message": "A very brief description here and on StructDefinition would be helper to the reader, who probably wants to know what\u0027s broken without leaving their IDE.",
+      "range": {
+        "startLine": 319,
+        "startChar": 58,
+        "endLine": 319,
+        "endChar": 73
+      },
+      "revId": "31666ae343fe8f752536dd8959a77befa2a41da1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95fa2d7e_c1e69587",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-08T19:14:38Z",
+      "side": 1,
+      "message": "nit: clunky phrasing. At least explain via \"We always place FunctionDefinition elements last because the inliner...\" or something. (I wrote the original comment so I\u0027m biased.)",
+      "range": {
+        "startLine": 631,
+        "startChar": 32,
+        "endLine": 631,
+        "endChar": 36
+      },
+      "revId": "31666ae343fe8f752536dd8959a77befa2a41da1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
