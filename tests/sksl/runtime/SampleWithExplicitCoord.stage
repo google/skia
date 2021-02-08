@@ -1,0 +1,5 @@
+uniform fragmentProcessor child;
+half4 main(float2 p)
+{
+	return half4(sample(child, _coords.yx));
+}

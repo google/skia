@@ -570,6 +570,7 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
       "src/core/SkVM.cpp",
       "src/gpu/GrBlockAllocator.cpp",
       "src/gpu/GrMemoryPool.cpp",
+      "src/gpu/GrShaderUtils.cpp",
       "src/ports/SkMemory_malloc.cpp",
       "src/ports/SkOSFile_stdio.cpp",
       "src/sksl/SkSLMain.cpp",
@@ -779,6 +780,12 @@ if (skia_compile_sksl_tests) {
     sources = sksl_skvm_tests_sources
     outExtensions = [ ".skvm" ]
     lang = "--skvm"
+    settings = "--settings"
+  }
+  compile_sksl("stage_tests") {
+    sources = sksl_stage_tests_sources
+    outExtensions = [ ".stage" ]
+    lang = "--stage"
     settings = "--settings"
   }
   compile_sksl("spirv_tests") {

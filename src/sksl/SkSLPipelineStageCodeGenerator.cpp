@@ -32,7 +32,7 @@
 
 #include <unordered_map>
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 namespace SkSL {
 namespace PipelineStage {
