@@ -14,11 +14,11 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float4 x = _uniforms.colorWhite;
-    for (float r = -5.0;r < 5.0; r += 1.0) {
+    for (float r = -5.0;r < 5.0; r = r + 1.0) {
         x.x = saturate(r);
         if (x.x == 0.0) break;
     }
-    for (float b = 5.0;b >= 0.0; b -= 1.0) {
+    for (float b = 5.0;b >= 0.0; b = b - 1.0) {
         x.z = b;
         if (x.w == 1.0) continue;
         x.y = 0.0;

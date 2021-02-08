@@ -52,7 +52,7 @@ public:
                 R"SkSL(float2 zoom_coord = float2(%s) + %s * float2(%s, %s);
 float2 delta = (%s - %s.xy) * %s.zw;
 delta = min(delta, float2(1.0) - delta);
-delta *= float2(%s, %s);
+delta = delta * float2(%s, %s);
 float weight = 0.0;
 if (delta.x < 2.0 && delta.y < 2.0) {
     delta = float2(2.0) - delta;

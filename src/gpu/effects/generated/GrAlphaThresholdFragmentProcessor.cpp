@@ -43,12 +43,12 @@ half4 mask_color = %s;
 if (mask_color.w < 0.5) {
     if (color.w > %s) {
         half scale = %s / color.w;
-        color.xyz *= scale;
+        color.xyz = color.xyz * scale;
         color.w = %s;
     }
 } else if (color.w < %s) {
     half scale = %s / max(0.0010000000474974513, color.w);
-    color.xyz *= scale;
+    color.xyz = color.xyz * scale;
     color.w = %s;
 }
 return color;

@@ -15,9 +15,9 @@ vec4 main() {
 
     (b = colorRed , c = colorGreen);
     a = (setToColorBlack(d) , colorWhite);
-    a *= a;
-    b *= b;
-    c *= c;
-    d *= d;
+    a = a * a;
+    b = b * b;
+    c = c * c;
+    d = d * d;
     return ((a == colorWhite && b == colorRed) && c == colorGreen) && d == colorBlack ? colorGreen : colorRed;
 }

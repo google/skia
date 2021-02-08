@@ -31,12 +31,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float result = 0.0;
-    result += float2x2_from_float3x3(float3x3(1.0))[0].x;
-    result += float2x2_from_float4x4(float4x4(1.0))[0].x;
-    result += float3x3_from_float4x4(float4x4(1.0))[0].x;
-    result += float3x3_from_float2x2(float2x2(1.0))[0].x;
-    result += float4x4_from_float3x3(float3x3_from_float2x2(float2x2(1.0)))[0].x;
-    result += float2x2_from_float3x3(float3x3_from_float4x4(float4x4(1.0)))[0].x;
+    result = float2x2_from_float3x3(float3x3(1.0))[0].x;
+    result = result + float2x2_from_float4x4(float4x4(1.0))[0].x;
+    result = result + float3x3_from_float4x4(float4x4(1.0))[0].x;
+    result = result + float3x3_from_float2x2(float2x2(1.0))[0].x;
+    result = result + float4x4_from_float3x3(float3x3_from_float2x2(float2x2(1.0)))[0].x;
+    result = result + float2x2_from_float3x3(float3x3_from_float4x4(float4x4(1.0)))[0].x;
     _out.sk_FragColor = result == 6.0 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

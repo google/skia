@@ -47,12 +47,12 @@ void main() {
     sk_FragColor = vec4(_8_c);
 
 
-    sk_FragColor *= 1.25;
+    sk_FragColor = sk_FragColor * 1.25;
 
-    sk_FragColor *= color.xxyy * color.w;
+    sk_FragColor = sk_FragColor * (color.xxyy * color.w);
 
-    sk_FragColor *= color.zzww * color.y;
+    sk_FragColor = sk_FragColor * (color.zzww * color.y);
 
-    sk_FragColor *= blend_hue(color, color.wwww);
-    sk_FragColor *= blend_hue(color, color.wzyx);
+    sk_FragColor = sk_FragColor * blend_hue(color, color.wwww);
+    sk_FragColor = sk_FragColor * blend_hue(color, color.wzyx);
 }
