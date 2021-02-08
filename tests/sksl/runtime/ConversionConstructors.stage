@@ -1,0 +1,9 @@
+uniform half f;
+uniform int i;
+uniform bool b;
+half4 main()
+{
+	half x = bool(f) ? half(b) : half(i);
+	int y = bool(i) ? int(b) : int(f);
+	return half4(half4(x) * half(y));
+}

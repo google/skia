@@ -32,7 +32,7 @@
 
 #include <unordered_map>
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 namespace SkSL {
 namespace PipelineStage {
@@ -242,7 +242,7 @@ void PipelineStageCodeGenerator::writeIfStatement(const IfStatement& stmt) {
     }
     this->write("if (");
     this->writeExpression(*stmt.test(), Precedence::kTopLevel);
-    this->write(") ");
+    this->write(")");
     this->writeStatement(*stmt.ifTrue());
     if (stmt.ifFalse()) {
         this->write(" else ");
@@ -619,7 +619,7 @@ void PipelineStageCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.next()) {
         this->writeExpression(*f.next(), Precedence::kTopLevel);
     }
-    this->write(") ");
+    this->write(")");
     this->writeStatement(*f.statement());
 }
 
