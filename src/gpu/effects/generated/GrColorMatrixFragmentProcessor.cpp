@@ -53,7 +53,7 @@ color = %s * color + %s;
     color.w = clamp(color.w, 0.0, 1.0);
 }
 @if (%s) {
-    color.xyz *= color.w;
+    color.xyz = color.xyz * color.w;
 }
 return color;
 )SkSL",

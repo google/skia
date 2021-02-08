@@ -44,7 +44,7 @@ float2 prevRadii = float2(%f, %f);
 bool medPrecision = %s;
 float2 d = sk_FragCoord.xy - %s.xy;
 @if (medPrecision) {
-    d *= %s.y;
+    d = d * %s.y;
 }
 float2 Z = d * %s.zw;
 float implicit = dot(Z, d) - 1.0;
@@ -56,7 +56,7 @@ float grad_dot = 4.0 * dot(Z, Z);
 }
 float approx_dist = implicit * inversesqrt(grad_dot);
 @if (medPrecision) {
-    approx_dist *= %s.x;
+    approx_dist = approx_dist * %s.x;
 }
 half alpha;
 @switch (%d) {

@@ -58,7 +58,7 @@ if (!%s && t.y < 0.0) {
     outColor = %s;
 }
 @if (%s) {
-    outColor.xyz *= outColor.w;
+    outColor.xyz = outColor.xyz * outColor.w;
 }
 return outColor;
 )SkSL",
