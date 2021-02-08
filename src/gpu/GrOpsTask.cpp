@@ -674,11 +674,19 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     }
 }
 
+void GrOpsTask::reset() {
+    fDeferredProxies.reset();
+    fSampledProxies.reset();
+    fClipAllocators.reset();
+    fClippedContentBounds = SkIRect::MakeEmpty();
+    fTotalBounds = SkRect::MakeEmpty();
+    fOpChains.reset();
+    fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
+}
+
 int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
-    GrOpsTask* last = this;
-    int addlDeferredProxyCount = 0;
-    int addlProxyCount = 0;
-    int addlOpChainCount = 0;
+    // Find the index of the last color-clearing task. -1 indicates this or "there are none."
+    int indexOfLastColorClear = -1;
     int mergedCount = 0;
     for (const sk_sp<GrRenderTask>& task : tasks) {
         auto opsTask = task->asOpsTask();
@@ -687,7 +695,39 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         }
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
         SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
+        if (GrLoadOp::kClear == opsTask->fColorLoadOp) {
+            indexOfLastColorClear = &task - tasks.begin();
+        }
         mergedCount += 1;
+    }
+    if (0 == mergedCount) {
+        return 0;
+    }
+
+    SkSpan<const sk_sp<GrOpsTask>> opsTasks(reinterpret_cast<const sk_sp<GrOpsTask>*>(tasks.data()),
+                                            SkToSizeT(mergedCount));
+    if (indexOfLastColorClear >= 0) {
+        // If any dropped task needs to preserve stencil, for now just bail on the merge.
+        // Could keep the merge and insert a clear op, but might be tricky due to closed task.
+        if (fMustPreserveStencil) {
+            return 0;
+        }
+        for (const auto& opsTask : opsTasks.first(indexOfLastColorClear)) {
+            if (opsTask->fMustPreserveStencil) {
+                return 0;
+            }
+        }
+        // Clear `this` and forget about the tasks pre-color-clear.
+        this->reset();
+        opsTasks = opsTasks.last(opsTasks.count() - indexOfLastColorClear);
+        // Copy the color-clear into `this`.
+        fColorLoadOp = GrLoadOp::kClear;
+        fLoadClearColor = opsTasks.front()->fLoadClearColor;
+    }
+    int addlDeferredProxyCount = 0;
+    int addlProxyCount = 0;
+    int addlOpChainCount = 0;
+    for (const auto& opsTask : opsTasks) {
         addlDeferredProxyCount += opsTask->fDeferredProxies.count();
         addlProxyCount += opsTask->fSampledProxies.count();
         addlOpChainCount += opsTask->fOpChains.count();
@@ -695,18 +735,14 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         fTotalBounds.join(opsTask->fTotalBounds);
         fRenderPassXferBarriers |= opsTask->fRenderPassXferBarriers;
         SkDEBUGCODE(fNumClips += opsTask->fNumClips);
-        last = opsTask;
     }
-    if (last == this) {
-        return 0;
-    }
+
     fLastClipStackGenID = SK_InvalidUniqueID;
     fDeferredProxies.reserve_back(addlDeferredProxyCount);
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
-    fClipAllocators.reserve_back(mergedCount);
-    for (const sk_sp<GrRenderTask>& task : tasks.first(mergedCount)) {
-        auto opsTask = reinterpret_cast<GrOpsTask*>(task.get());
+    fClipAllocators.reserve_back(opsTasks.count());
+    for (const auto& opsTask : opsTasks) {
         fDeferredProxies.move_back_n(opsTask->fDeferredProxies.count(),
                                      opsTask->fDeferredProxies.data());
         fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
@@ -720,7 +756,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();
     }
-    fMustPreserveStencil = last->fMustPreserveStencil;
+    fMustPreserveStencil = opsTasks.back()->fMustPreserveStencil;
     return mergedCount;
 }
 
