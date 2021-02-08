@@ -12,6 +12,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrTBlockList.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/vk/GrVkSampler.h"
 
@@ -87,12 +88,21 @@ public:
         return fUniforms.item(idx);
     }
 
+    bool getFlipY() const { return fFlipY; }
+
+    bool usePushConstants() const { return fUsePushConstants; }
+    uint32_t currentOffset() const {
+        return fUsePushConstants ? fCurrentOffsets[kStd430Layout] : fCurrentOffsets[kStd140Layout];
+    }
+
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentOffsets{ 0, 0 } {
+        , fFlipY(program->origin() != kTopLeft_GrSurfaceOrigin)
+        , fUsePushConstants(false)
+        , fCurrentOffsets{0, 0} {
     }
 
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
@@ -144,11 +154,15 @@ private:
         return fUniforms.item(u.toIndex());
     }
 
+    void determineIfUsePushConstants() const;
+
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
     UniformInfo         fInputUniform;
     GrSwizzle           fInputSwizzle;
+    bool                fFlipY;
+    mutable bool        fUsePushConstants;
 
     uint32_t            fCurrentOffsets[kLayoutCount];
 
