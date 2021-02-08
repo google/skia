@@ -34,7 +34,6 @@
 #include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkMemory.h"
-#include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkOpsRenderPass.h"
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
@@ -392,30 +391,28 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 ///////////////////////////////////////////////////////////////////////////////
 sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                            GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrGpuBuffer> buff;
+#ifdef SK_DEBUG
     switch (type) {
         case GrGpuBufferType::kVertex:
         case GrGpuBufferType::kIndex:
         case GrGpuBufferType::kDrawIndirect:
             SkASSERT(accessPattern == kDynamic_GrAccessPattern ||
                      accessPattern == kStatic_GrAccessPattern);
-            buff = GrVkMeshBuffer::Make(this, type, size,
-                                        accessPattern == kDynamic_GrAccessPattern);
             break;
         case GrGpuBufferType::kXferCpuToGpu:
             SkASSERT(accessPattern == kDynamic_GrAccessPattern);
-            buff = GrVkBuffer2::MakeTransferSrc(this, size);
             break;
         case GrGpuBufferType::kXferGpuToCpu:
             SkASSERT(accessPattern == kDynamic_GrAccessPattern ||
                      accessPattern == kStream_GrAccessPattern);
-            buff = GrVkBuffer2::MakeTransferDst(this, size, accessPattern);
             break;
         case GrGpuBufferType::kUniform:
             SkASSERT(accessPattern == kDynamic_GrAccessPattern);
-            buff = GrVkBuffer2::MakeUniform(this, size);
             break;
     }
+#endif
+    sk_sp<GrGpuBuffer> buff = GrVkBuffer2::Make(this, size, type, accessPattern);
+
     if (data && buff) {
         buff->updateData(data, size);
     }

@@ -18,7 +18,6 @@ class GrSurface;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
-class GrVkMeshBuffer;
 struct SkIRect;
 
 class GrVkMSAALoadManager {
