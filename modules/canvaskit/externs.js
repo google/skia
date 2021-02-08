@@ -95,8 +95,10 @@ var CanvasKit = {
   Animation: {
     prototype: {
       render: function() {},
+      size: function() {},
     },
     _render: function() {},
+    _size: function() {},
   },
 
   GrContext: {
@@ -113,10 +115,12 @@ var CanvasKit = {
       seek: function() {},
       seekFrame: function() {},
       setColor: function() {},
+      size: function() {},
     },
     _render: function() {},
     _seek: function() {},
     _seekFrame: function() {},
+    _size: function() {},
   },
 
   Paragraph: {
@@ -162,10 +166,18 @@ var CanvasKit = {
   },
 
   RuntimeEffect: {
-    // public API (from C++ bindings)
+    // public API (from JS bindings)
     Make: function() {},
-
-    // private API
+    getUniform: function() {},
+    getUniformCount: function() {},
+    getUniformFloatCount: function() {},
+    getUniformName: function() {},
+    prototype: {
+      makeShader: function() {},
+      makeShaderWithChildren: function() {},
+    },
+    // private API (from C++ bindings)
+    _Make: function() {},
     _makeShader: function() {},
     _makeShaderWithChildren: function() {},
   },
@@ -318,10 +330,13 @@ var CanvasKit = {
   },
 
   ContourMeasure: {
-    getPosTan: function() {},
     getSegment: function() {},
     isClosed: function() {},
     length: function() {},
+    prototype: {
+      getPosTan: function() {},
+    },
+    _getPosTan: function() {},
   },
 
   Font: {
@@ -440,7 +455,6 @@ var CanvasKit = {
     /** @return {CanvasKit.Paint} */
     copy: function() {},
     getBlendMode: function() {},
-    getColor: function() {},
     getFilterQuality: function() {},
     getStrokeCap: function() {},
     getStrokeJoin: function() {},
@@ -461,6 +475,7 @@ var CanvasKit = {
     setStyle: function() {},
 
     prototype: {
+      getColor: function() {},
       setColor: function() {},
       setColorComponents: function() {},
       setColorInt: function() {},
@@ -484,22 +499,22 @@ var CanvasKit = {
   ParticleEffect: {
     // public API (from C++ bindings)
     draw: function() {},
-    getEffectUniform: function() {},
-    getEffectUniformCount: function() {},
-    getEffectUniformFloatCount: function() {},
-    getEffectUniformName: function() {},
-    getParticleUniformCount: function() {},
-    getParticleUniformFloatCount: function() {},
-    getParticleUniformName: function() {},
-    getParticleUniform: function() {},
-    setPosition: function() {},
+    getUniform: function() {},
+    getUniformCount: function() {},
+    getUniformFloatCount: function() {},
+    getUniformName: function() {},
     setRate: function() {},
     start: function() {},
     update: function() {},
 
+    prototype: {
+      setPosition: function() {},
+      uniforms: function() {},
+    },
+
     // private API (from C++ bindings)
-    _effectUniformPtr: function() {},
-    _particleUniformPtr: function() {},
+    _uniformPtr: function() {},
+    _setPosition: function() {},
   },
 
   Path: {
@@ -515,7 +530,6 @@ var CanvasKit = {
     equals: function() {},
     getBounds: function() {},
     getFillType: function() {},
-    getPoint: function() {},
     isEmpty: function() {},
     isVolatile: function() {},
     reset: function() {},
@@ -542,6 +556,7 @@ var CanvasKit = {
       computeTightBounds: function() {},
       cubicTo: function() {},
       dash: function() {},
+      getPoint: function() {},
       lineTo: function() {},
       moveTo: function() {},
       offset: function() {},
@@ -577,6 +592,7 @@ var CanvasKit = {
     _computeTightBounds: function() {},
     _cubicTo: function() {},
     _dash: function() {},
+    _getPoint: function() {},
     _lineTo: function() {},
     _moveTo: function() {},
     _op: function() {},
@@ -595,14 +611,6 @@ var CanvasKit = {
     delete: function() {},
     dump: function() {},
     dumpHex: function() {},
-  },
-
-  PathMeasure: {
-    getLength: function() {},
-    getSegment: function() {},
-    getPosTan: function() {},
-    isClosed: function() {},
-    nextContour: function() {},
   },
 
   Picture: {
@@ -1033,9 +1041,6 @@ CanvasKit.ColorBuilder.prototype.set = function() {};
 
 CanvasKit.RuntimeEffect.prototype.makeShader = function() {};
 CanvasKit.RuntimeEffect.prototype.makeShaderWithChildren = function() {};
-
-CanvasKit.ParticleEffect.prototype.effectUniforms = function() {};
-CanvasKit.ParticleEffect.prototype.particleUniforms = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};

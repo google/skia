@@ -716,7 +716,7 @@ static sk_sp<SkImageFilter> apply_ctm_to_filter(sk_sp<SkImageFilter> input, cons
         remainder->setIdentity();
     }
 
-    return SkMatrixImageFilter::Make(ctmToEmbed, kLow_SkFilterQuality, input);
+    return SkMatrixImageFilter::Make(ctmToEmbed, SkSamplingOptions(SkFilterMode::kLinear), input);
 }
 
 sk_sp<SkImageFilter> SkImageFilter_Base::applyCTM(const SkMatrix& ctm, SkMatrix* remainder) const {

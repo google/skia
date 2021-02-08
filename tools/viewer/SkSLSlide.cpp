@@ -154,29 +154,29 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     fMousePos.w = abs(fMousePos.w) * (ImGui::IsMouseClicked(0) ? 1 : -1);
 
     for (const auto& v : fEffect->uniforms()) {
-        char* data = fInputs.get() + v.fOffset;
-        if (v.fName.equals("iResolution")) {
+        char* data = fInputs.get() + v.offset;
+        if (v.name.equals("iResolution")) {
             memcpy(data, &fResolution, sizeof(fResolution));
             continue;
         }
-        if (v.fName.equals("iTime")) {
+        if (v.name.equals("iTime")) {
             memcpy(data, &fSeconds, sizeof(fSeconds));
             continue;
         }
-        if (v.fName.equals("iMouse")) {
+        if (v.name.equals("iMouse")) {
             memcpy(data, &fMousePos, sizeof(fMousePos));
             continue;
         }
-        switch (v.fType) {
+        switch (v.type) {
             case SkRuntimeEffect::Uniform::Type::kFloat:
             case SkRuntimeEffect::Uniform::Type::kFloat2:
             case SkRuntimeEffect::Uniform::Type::kFloat3:
             case SkRuntimeEffect::Uniform::Type::kFloat4: {
-                int rows = ((int)v.fType - (int)SkRuntimeEffect::Uniform::Type::kFloat) + 1;
+                int rows = ((int)v.type - (int)SkRuntimeEffect::Uniform::Type::kFloat) + 1;
                 float* f = reinterpret_cast<float*>(data);
-                for (int c = 0; c < v.fCount; ++c, f += rows) {
-                    SkString name = v.isArray() ? SkStringPrintf("%s[%d]", v.fName.c_str(), c)
-                                                : v.fName;
+                for (int c = 0; c < v.count; ++c, f += rows) {
+                    SkString name = v.isArray() ? SkStringPrintf("%s[%d]", v.name.c_str(), c)
+                                                : v.name;
                     ImGui::PushID(c);
                     ImGui::DragScalarN(name.c_str(), ImGuiDataType_Float, f, rows, 1.0f);
                     ImGui::PopID();
@@ -186,14 +186,14 @@ void SkSLSlide::draw(SkCanvas* canvas) {
             case SkRuntimeEffect::Uniform::Type::kFloat2x2:
             case SkRuntimeEffect::Uniform::Type::kFloat3x3:
             case SkRuntimeEffect::Uniform::Type::kFloat4x4: {
-                int rows = ((int)v.fType - (int)SkRuntimeEffect::Uniform::Type::kFloat2x2) + 2;
+                int rows = ((int)v.type - (int)SkRuntimeEffect::Uniform::Type::kFloat2x2) + 2;
                 int cols = rows;
                 float* f = reinterpret_cast<float*>(data);
-                for (int e = 0; e < v.fCount; ++e) {
+                for (int e = 0; e < v.count; ++e) {
                     for (int c = 0; c < cols; ++c, f += rows) {
                         SkString name = v.isArray()
-                            ? SkStringPrintf("%s[%d][%d]", v.fName.c_str(), e, c)
-                            : SkStringPrintf("%s[%d]", v.fName.c_str(), c);
+                            ? SkStringPrintf("%s[%d][%d]", v.name.c_str(), e, c)
+                            : SkStringPrintf("%s[%d]", v.name.c_str(), c);
                         ImGui::DragScalarN(name.c_str(), ImGuiDataType_Float, f, rows, 1.0f);
                     }
                 }

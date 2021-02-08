@@ -57,8 +57,8 @@ protected:
 
     class Resource : public GrVkRecycledResource {
     public:
-        Resource(GrVkGpu* gpu, VkBuffer buf, const GrVkAlloc& alloc, Type type)
-            : GrVkRecycledResource(gpu), fBuffer(buf), fAlloc(alloc), fType(type) {}
+        Resource(GrVkGpu* gpu, VkBuffer buf, const GrVkAlloc& alloc)
+            : GrVkRecycledResource(gpu), fBuffer(buf), fAlloc(alloc) {}
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
@@ -67,7 +67,6 @@ protected:
 #endif
         VkBuffer           fBuffer;
         GrVkAlloc          fAlloc;
-        Type               fType;
 
     protected:
         void freeGPUData() const override;

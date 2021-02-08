@@ -6,23 +6,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2021-02-04
+
 ### Added
  - Constants for the shadow flags. Of note, some of these values can be used on previous releases.
  - `getShadowLocalBounds()` to estimate the bounds of the shadows drawn by `Canvas.drawShadow`.
+ - compile.sh now takes "no_matrix", which will omit the helper JS to deal with 3x3, 4x4 and
+   SkColorMatrix (in case clients have logic to deal with that themselves).
+ - `CanvasKit.RuntimeEffect.Make` now takes an optional callback function that will be called
+   with any compilation error.
+ - `CanvasKit.RuntimeEffect` now exposes uniforms. The number, dimensions, and name of each
+   uniform can be queried, using `RuntimeEffect.getUniformCount`, `RuntimeEffect.getUniform`, and
+   `RuntimeEffect.getUniformName`. The total number of floats across all uniforms (that must be
+   passed to `RuntimeEffect.makeShader`) can be queried with `RuntimeEffect.getUniformFloatCount`.
 
 ### Breaking
-- `MakeImprovedNoise` is removed.
+ - `MakeImprovedNoise` is removed.
+ - Particles now use a single code string containing both Effect and Particle code. Uniform APIs are
+   now shared between Effect and Particle programs, and are no longer prefixed with `Effect` or
+   `Particle`. For example, instead of `ParticleEffect.getEffectUniform` and
+   `ParticleEffect.getParticleUniform`, there is now just: `ParticleEffect.getUniform`.
+
+### Changed
+ - `Path.getPoint()` and `SkottieAnimation.size()` now return a TypedArray instead of a normal
+   array. Additionally, they take an optional parameter to allow the result to be copied into
+   that provided TypedArray instead of a new one being allocated.
+ - APIs that passed in points should have less overhead (and now can accept a TypedArray).
+ - `Canvas.drawShadow()` now accepts zPlaneParams and lightPos as Malloc'ed and regular
+   Float32Arrays. `getShadowLocalBounds()` does as well.
+ - `ContourMeasure.getPosTan` returns a Float32Array instead of a normal array. Additionally,
+   this method takes an optional parameter to allow the result to be copied into
+   that provided Float32Array instead of a new one being allocated.
 
 ### Fixed
  - Improper error returned when a WebGL context could not be used.
  - 4x4 matrices are "downsampled" properly if necessary to 3x3 matrices by removing the third
    column and the third row.
-
-## [0.23.0] - 2021-1-29
+ - `SkottieAnimation.size()` was incorrectly returning an object. It now returns a TypedArray of
+   length 2 (w, h).
 
 ### Deprecated
  - `Canvas.drawImageRect`, `Canvas.drawImage`, `Canvas.drawAtlas`,
    These rely on the Paint's FilterQuality, which is going away. Pass sampling options explicitly.
+
+### Removed
+ - `PathMeasure`, which was deprecated and replaced with `ContourMeasure`.
 
 ## [0.22.0] - 2020-12-17
 

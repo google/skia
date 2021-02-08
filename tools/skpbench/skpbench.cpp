@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cinttypes>
 #include <cmath>
 #include <vector>
 
@@ -77,6 +78,7 @@ static DEFINE_string(png, "", "if set, save a .png proof to disk at this file lo
 static DEFINE_int(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 static DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
 static DEFINE_double(scale, 1, "Scale the size of the canvas and the zoom level by this factor.");
+static DEFINE_bool(dumpSamples, false, "print the individual samples to stdout");
 
 static const char header[] =
 "   accum    median       max       min   stddev  samples  sample_ms  clock  metric  config    bench";
@@ -444,6 +446,14 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer, GrDirectCont
 void print_result(const std::vector<Sample>& samples, const char* config, const char* bench)  {
     if (0 == (samples.size() % 2)) {
         exitf(ExitErr::kSoftware, "attempted to gather stats on even number of samples");
+    }
+
+    if (FLAGS_dumpSamples) {
+        printf("Samples: ");
+        for (const Sample& sample : samples) {
+            printf("%" PRId64 " ", static_cast<int64_t>(sample.fDuration.count()));
+        }
+        printf("%s\n", bench);
     }
 
     Sample accum = Sample();

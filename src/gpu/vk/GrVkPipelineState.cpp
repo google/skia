@@ -14,6 +14,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
+#include "src/gpu/vk/GrVkBuffer2.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkDescriptorPool.h"
 #include "src/gpu/vk/GrVkDescriptorSet.h"
@@ -24,7 +25,6 @@
 #include "src/gpu/vk/GrVkRenderTarget.h"
 #include "src/gpu/vk/GrVkSampler.h"
 #include "src/gpu/vk/GrVkTexture.h"
-#include "src/gpu/vk/GrVkUniformBuffer.h"
 
 GrVkPipelineState::GrVkPipelineState(
         GrVkGpu* gpu,
@@ -43,9 +43,8 @@ GrVkPipelineState::GrVkPipelineState(
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
-        , fDataManager(uniforms, uniformSize) {
-    fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
-
+        // TODO: add std430 usage
+        , fDataManager(uniforms, uniformSize, GrVkUniformHandler::kStd140Layout) {
     fNumSamplers = samplers.count();
     for (const auto& sampler : samplers.items()) {
         // We store the immutable samplers here and take ownership of the ref from the
@@ -61,11 +60,7 @@ GrVkPipelineState::~GrVkPipelineState() {
 
 void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
     fPipeline.reset();
-
-    if (fUniformBuffer) {
-        fUniformBuffer->release(gpu);
-        fUniformBuffer.reset();
-    }
+    fDataManager.releaseData();
 }
 
 bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
@@ -91,14 +86,18 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                 dstTexture, offset);
     }
 
-    // Get new descriptor set
-    if (fUniformBuffer) {
-        fDataManager.uploadUniformBuffers(gpu, fUniformBuffer.get());
+    // Upload uniform data to buffer and bind descriptor set.
+    auto[uniformBuffer, success] = fDataManager.uploadUniformBuffers(gpu);
+    if (!success) {
+        return false;
+    }
+    if (uniformBuffer) {
+        const GrVkBuffer2* vkBuffer = static_cast<GrVkBuffer2*>(uniformBuffer.get());
         static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
         commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kUniformDSIdx, /*setCount=*/1,
-                                          fUniformBuffer->descriptorSet(), /*dynamicOffsetCount=*/0,
-                                          /*dynamicOffsets=*/nullptr);
-        commandBuffer->addRecycledResource(fUniformBuffer->resource());
+                                          vkBuffer->uniformDescriptorSet(),
+                                          /*dynamicOffsetCount=*/0, /*dynamicOffsets=*/nullptr);
+        commandBuffer->addGrBuffer(std::move(uniformBuffer));
     }
     return true;
 }

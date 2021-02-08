@@ -1,6 +1,7 @@
 
 out vec4 sk_FragColor;
-void main() {
-    sk_FragColor = vec4(1.0);
-    sk_FragColor = vec4(2.0);
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+vec4 main() {
+    return colorGreen;
 }

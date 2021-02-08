@@ -174,10 +174,7 @@ public:
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            const GrSurfaceProxyView* view = as_IB(image)->view(rContext);
-            if (view) {
-                fView = *view;
-            }
+            std::tie(fView, std::ignore) = as_IB(image)->asView(rContext, GrMipmapped::kNo);
         }
     }
 protected:
@@ -305,19 +302,20 @@ protected:
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
         // The gpu-backed images are drawn in this manner bc the generator backed images
         // aren't considered texture-backed
-        GrSurfaceProxyView view = as_IB(image)->refView(canvas->recordingContext(),
-                                                        GrMipmapped::kNo);
+        auto [view, ct] = as_IB(image)->asView(canvas->recordingContext(), GrMipmapped::kNo);
         if (!view) {
             // show placeholder if we have no texture
             draw_placeholder(canvas, x, y, image->width(), image->height());
             return;
         }
-
+        SkColorInfo colorInfo(GrColorTypeToSkColorType(ct),
+                              image->alphaType(),
+                              image->refColorSpace());
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
-                                                image->uniqueID(), std::move(view),
-                                                image->colorType(), image->alphaType(),
-                                                image->refColorSpace()));
+                                                image->uniqueID(),
+                                                std::move(view),
+                                                std::move(colorInfo)));
         canvas->drawImage(texImage.get(), x, y);
     }
 

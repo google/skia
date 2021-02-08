@@ -12,7 +12,9 @@
 
 #define INVALID -1
 
-#define ABORT(...) (fprintf(stderr, __VA_ARGS__), abort())
-#define SkASSERT(x) (void)((x) || (ABORT("failed SkASSERT(%s): %s:%d\n", #x, __FILE__, __LINE__), 0))
+#define SK_ABORT(...) (fprintf(stderr, __VA_ARGS__), abort())
+#define SkASSERT(x) \
+    (void)((x) || (SK_ABORT("failed SkASSERT(%s): %s:%d\n", #x, __FILE__, __LINE__), 0))
+#define SkUNREACHABLE (SK_ABORT("unreachable"))
 
 #endif

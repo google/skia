@@ -62,7 +62,7 @@ def create_asset(target_dir):
   # Download SVGs from Google storage.
   # The Google storage bucket will either contain private SVGs or SVGs which we
   # cannot download over the internet using svg_downloader.py.
-  for skbug in ['skbug4713', 'skbug6918']:
+  for skbug in ['skbug4713', 'skbug6918', 'skbug11244']:
     subprocess.check_call([
         'gsutil', '-m', 'cp', os.path.join(SVG_GS_BUCKET, skbug, '*'),
         target_svg_dir

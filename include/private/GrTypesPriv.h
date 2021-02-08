@@ -304,6 +304,9 @@ static inline GrQuadAAFlags SkToGrQuadAAFlags(unsigned flags) {
 enum GrSLType {
     kVoid_GrSLType,
     kBool_GrSLType,
+    kBool2_GrSLType,
+    kBool3_GrSLType,
+    kBool4_GrSLType,
     kByte_GrSLType,
     kByte2_GrSLType,
     kByte3_GrSLType,
@@ -409,6 +412,9 @@ static constexpr bool GrSLTypeIsFloatType(GrSLType type) {
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
         case kBool_GrSLType:
+        case kBool2_GrSLType:
+        case kBool3_GrSLType:
+        case kBool4_GrSLType:
         case kByte_GrSLType:
         case kByte2_GrSLType:
         case kByte3_GrSLType:
@@ -457,6 +463,7 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
 
         case kFloat2_GrSLType:
         case kHalf2_GrSLType:
+        case kBool2_GrSLType:
         case kByte2_GrSLType:
         case kUByte2_GrSLType:
         case kShort2_GrSLType:
@@ -467,6 +474,7 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
 
         case kFloat3_GrSLType:
         case kHalf3_GrSLType:
+        case kBool3_GrSLType:
         case kByte3_GrSLType:
         case kUByte3_GrSLType:
         case kShort3_GrSLType:
@@ -477,6 +485,7 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
 
         case kFloat4_GrSLType:
         case kHalf4_GrSLType:
+        case kBool4_GrSLType:
         case kByte4_GrSLType:
         case kUByte4_GrSLType:
         case kShort4_GrSLType:
@@ -563,6 +572,9 @@ static constexpr bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kUint3_GrSLType:
         case kUint4_GrSLType:
         case kBool_GrSLType:
+        case kBool2_GrSLType:
+        case kBool3_GrSLType:
+        case kBool4_GrSLType:
         case kByte_GrSLType:
         case kByte2_GrSLType:
         case kByte3_GrSLType:
@@ -684,8 +696,9 @@ enum class GrGpuBufferType {
     kDrawIndirect,
     kXferCpuToGpu,
     kXferGpuToCpu,
+    kUniform,
 };
-static const int kGrGpuBufferTypeCount = static_cast<int>(GrGpuBufferType::kXferGpuToCpu) + 1;
+static const int kGrGpuBufferTypeCount = static_cast<int>(GrGpuBufferType::kUniform) + 1;
 
 /**
  * Provides a performance hint regarding the frequency at which a data store will be accessed.

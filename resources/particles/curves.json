@@ -4,14 +4,12 @@
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "EffectCode": [
+   "Code": [
       "void effectSpawn(inout Effect effect) {",
       "  effect.rate = 200;",
       "  effect.color = float4(1, 0, 0, 1);",
       "}",
-      ""
-   ],
-   "Code": [
+      "",
       "void spawn(inout Particle p) {",
       "  p.lifetime = 3 + rand(p.seed);",
       "  p.vel.y = -50;",

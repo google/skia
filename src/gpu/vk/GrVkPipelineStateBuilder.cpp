@@ -58,6 +58,10 @@ const GrCaps* GrVkPipelineStateBuilder::caps() const {
     return fGpu->caps();
 }
 
+SkSL::Compiler* GrVkPipelineStateBuilder::shaderCompiler() const {
+    return fGpu->shaderCompiler();
+}
+
 void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputColor) {
     outputColor.addLayoutQualifier("location = 0, index = 0");
 }
@@ -356,7 +360,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                  samplerDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
-                                 fUniformHandler.fCurrentUBOOffset,
+                                 // TODO: add std430 support
+                                 fUniformHandler.fCurrentOffsets[GrVkUniformHandler::kStd140Layout],
                                  fUniformHandler.fSamplers,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),

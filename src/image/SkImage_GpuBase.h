@@ -35,14 +35,6 @@ public:
                       int srcY,
                       CachingHint) const override;
 
-    GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const final;
-
-    GrSurfaceProxyView refPinnedView(GrRecordingContext* context, uint32_t* uniqueID) const final {
-        *uniqueID = this->uniqueID();
-        SkASSERT(this->view(context));
-        return *this->view(context);
-    }
-
     bool onIsValid(GrRecordingContext*) const final;
 
 #if GR_TEST_UTILS

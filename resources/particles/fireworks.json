@@ -4,7 +4,7 @@
       "Type": "SkCircleDrawable",
       "Radius": 3
    },
-   "EffectCode": [
+   "Code": [
       "void effectSpawn(inout Effect effect) {",
       "  // Phase one: Launch",
       "  effect.lifetime = 4;",
@@ -29,9 +29,7 @@
       "    effect.vel.y += dt * 90;",
       "  }",
       "}",
-      ""
-   ],
-   "Code": [
+      "",
       "void spawn(inout Particle p) {",
       "  bool explode = p.scale == 1;",
       "",

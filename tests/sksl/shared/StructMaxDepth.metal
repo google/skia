@@ -26,32 +26,32 @@ struct S8 {
     S7 x;
 };
 struct SA1 {
-    int x[8];
+    array<int, 8> x;
 };
 struct SA2 {
-    SA1 x[7];
+    array<SA1, 7> x;
 };
 struct SA3 {
-    SA2 x[6];
+    array<SA2, 6> x;
 };
 struct SA4 {
-    SA3 x[5];
+    array<SA3, 5> x;
 };
 struct SA5 {
-    SA4 x[4];
+    array<SA4, 4> x;
 };
 struct SA6 {
-    SA5 x[3];
+    array<SA5, 3> x;
 };
 struct SA7 {
-    SA6 x[2];
+    array<SA6, 2> x;
 };
 struct SA8 {
-    SA7 x[1];
+    array<SA7, 1> x;
 };
 struct Inputs {
     S8 s8;
-    SA8 sa8[9];
+    array<SA8, 9> sa8;
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];

@@ -6,11 +6,14 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkDrawLooper.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "src/core/SkArenaAlloc.h"
+
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
+
+#include "include/core/SkDrawLooper.h"
 
 void SkDrawLooper::Context::Info::applyToCTM(SkMatrix* ctm) const {
     if (fApplyPostCTM) {
@@ -103,3 +106,5 @@ void SkDrawLooper::apply(SkCanvas* canvas, const SkPaint& paint,
         }
     }
 }
+
+#endif

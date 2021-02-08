@@ -10,7 +10,6 @@ _include = get_path_info("../include", "abspath")
 skia_effects_public = [
   "$_include/effects/Sk1DPathEffect.h",
   "$_include/effects/Sk2DPathEffect.h",
-  "$_include/effects/SkBlurDrawLooper.h",
   "$_include/effects/SkBlurMaskFilter.h",
   "$_include/effects/SkColorMatrix.h",
   "$_include/effects/SkColorMatrixFilter.h",
@@ -19,7 +18,6 @@ skia_effects_public = [
   "$_include/effects/SkDiscretePathEffect.h",
   "$_include/effects/SkGradientShader.h",
   "$_include/effects/SkHighContrastFilter.h",
-  "$_include/effects/SkLayerDrawLooper.h",
   "$_include/effects/SkLumaColorFilter.h",
   "$_include/effects/SkOverdrawColorFilter.h",
   "$_include/effects/SkPerlinNoiseShader.h",

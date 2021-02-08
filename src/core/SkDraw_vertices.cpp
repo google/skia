@@ -220,7 +220,7 @@ static SkPMColor4f* convert_colors(const SkColor src[], int count, SkColorSpace*
                                             kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB());
     SkImageInfo dstInfo = SkImageInfo::Make(count, 1, kRGBA_F32_SkColorType,
                                             kPremul_SkAlphaType, sk_ref_sp(deviceCS));
-    SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0);
+    SkAssertResult(SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0));
     return dst;
 }
 

@@ -168,7 +168,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
 
     bool result;
     result = gpu->transferPixelsTo(tex.get(), 0, 0, kTexDims.fWidth, kTexDims.fHeight, colorType,
-                                   allowedSrc.fColorType, buffer.get(), 0, srcRowBytes);
+                                   allowedSrc.fColorType, buffer, 0, srcRowBytes);
     REPORTER_ASSERT(reporter, result);
 
     size_t dstRowBytes = GrColorTypeBytesPerPixel(colorType) * kTexDims.fWidth;
@@ -227,10 +227,10 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     buffer->unmap();
 
     result = gpu->transferPixelsTo(tex.get(), left, top, width, height, colorType,
-                                   allowedSrc.fColorType, buffer.get(), offset, srcRowBytes);
+                                   allowedSrc.fColorType, buffer, offset, srcRowBytes);
     if (!result) {
         gpu->transferPixelsTo(tex.get(), left, top, width, height, colorType, allowedSrc.fColorType,
-                              buffer.get(), offset, srcRowBytes);
+                              buffer, offset, srcRowBytes);
         ERRORF(reporter, "Could not transfer pixels to texture, color type: %d",
                static_cast<int>(colorType));
         return;
@@ -327,7 +327,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     //////////////////////////
     // transfer full data
     bool result = gpu->transferPixelsFrom(tex.get(), 0, 0, kTexDims.fWidth, kTexDims.fHeight,
-                                          colorType, allowedRead.fColorType, buffer.get(), 0);
+                                          colorType, allowedRead.fColorType, buffer, 0);
     if (!result) {
         ERRORF(reporter, "transferPixelsFrom failed.");
         return;
@@ -368,7 +368,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     // Now test a partial read at an offset into the buffer.
     result = gpu->transferPixelsFrom(tex.get(), kPartialLeft, kPartialTop, kPartialWidth,
                                      kPartialHeight, colorType, allowedRead.fColorType,
-                                     buffer.get(), partialReadOffset);
+                                     buffer, partialReadOffset);
     if (!result) {
         ERRORF(reporter, "transferPixelsFrom failed.");
         return;

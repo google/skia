@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -75,34 +76,6 @@ public:
 
     IRGenerator* fIR;
     std::shared_ptr<SymbolTable> fPrevious;
-};
-
-class AutoLoopLevel {
-public:
-    AutoLoopLevel(IRGenerator* ir)
-    : fIR(ir) {
-        fIR->fLoopLevel++;
-    }
-
-    ~AutoLoopLevel() {
-        fIR->fLoopLevel--;
-    }
-
-    IRGenerator* fIR;
-};
-
-class AutoSwitchLevel {
-public:
-    AutoSwitchLevel(IRGenerator* ir)
-    : fIR(ir) {
-        fIR->fSwitchLevel++;
-    }
-
-    ~AutoSwitchLevel() {
-        fIR->fSwitchLevel--;
-    }
-
-    IRGenerator* fIR;
 };
 
 static void fill_caps(const SkSL::ShaderCapsClass& caps,
@@ -329,6 +302,10 @@ int IRGenerator::convertArraySize(std::unique_ptr<Expression> size) {
 
 void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
                                       Variable::Storage storage) {
+    if (this->strictES2Mode() && baseType->isArray()) {
+        this->errorReporter().error(offset, "array size must appear after variable name");
+    }
+
     if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
         this->errorReporter().error(
                 offset,
@@ -646,7 +623,6 @@ std::unique_ptr<Statement> IRGenerator::convertFor(int offset,
 
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     SkASSERT(f.fKind == ASTNode::Kind::kFor);
-    AutoLoopLevel level(this);
     AutoSymbolTable table(this);
     std::unique_ptr<Statement> initializer;
     auto iter = f.begin();
@@ -703,7 +679,6 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     SkASSERT(w.fKind == ASTNode::Kind::kWhile);
-    AutoLoopLevel level(this);
     auto iter = w.begin();
     std::unique_ptr<Expression> test = this->convertExpression(*(iter++));
     if (!test) {
@@ -735,8 +710,6 @@ std::unique_ptr<Statement> IRGenerator::convertDo(std::unique_ptr<Statement> stm
 
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDo);
-    AutoLoopLevel level(this);
-
     auto iter = d.begin();
     std::unique_ptr<Statement> statement = this->convertStatement(*(iter++));
     if (!statement) {
@@ -756,7 +729,6 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
         return nullptr;
     }
 
-    AutoSwitchLevel level(this);
     auto iter = s.begin();
     std::unique_ptr<Expression> value = this->convertExpression(*(iter++));
     if (!value) {
@@ -786,7 +758,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
                 return nullptr;
             }
             SKSL_INT v = 0;
-            if (!this->getConstantInt(*caseValue, &v)) {
+            if (!ConstantFolder::GetConstantInt(*caseValue, &v)) {
                 this->errorReporter().error(caseValue->fOffset,
                                             "case value must be a constant integer");
                 return nullptr;
@@ -822,29 +794,9 @@ std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(const ASTNode
 
 std::unique_ptr<Statement> IRGenerator::convertReturn(int offset,
                                                       std::unique_ptr<Expression> result) {
-    SkASSERT(fCurrentFunction);
-    // early returns from a vertex main function will bypass the sk_Position normalization, so
-    // SkASSERT that we aren't doing that. It is of course possible to fix this by adding a
-    // normalization before each return, but it will probably never actually be necessary.
-    SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->name());
     if (result) {
-        if (fCurrentFunction->returnType() == *fContext.fTypes.fVoid) {
-            this->errorReporter().error(result->fOffset,
-                                        "may not return a value from a void function");
-            return nullptr;
-        } else {
-            result = this->coerce(std::move(result), fCurrentFunction->returnType());
-            if (!result) {
-                return nullptr;
-            }
-        }
         return std::make_unique<ReturnStatement>(std::move(result));
     } else {
-        if (fCurrentFunction->returnType() != *fContext.fTypes.fVoid) {
-            this->errorReporter().error(offset, "expected function to return '" +
-                                                fCurrentFunction->returnType().displayName() + "'");
-            return nullptr;
-        }
         return std::make_unique<ReturnStatement>(offset);
     }
 }
@@ -864,22 +816,12 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
 
 std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTNode& b) {
     SkASSERT(b.fKind == ASTNode::Kind::kBreak);
-    if (fLoopLevel > 0 || fSwitchLevel > 0) {
-        return std::make_unique<BreakStatement>(b.fOffset);
-    } else {
-        this->errorReporter().error(b.fOffset, "break statement must be inside a loop or switch");
-        return nullptr;
-    }
+    return std::make_unique<BreakStatement>(b.fOffset);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
     SkASSERT(c.fKind == ASTNode::Kind::kContinue);
-    if (fLoopLevel > 0) {
-        return std::make_unique<ContinueStatement>(c.fOffset);
-    } else {
-        this->errorReporter().error(c.fOffset, "continue statement must be inside a loop");
-        return nullptr;
-    }
+    return std::make_unique<ContinueStatement>(c.fOffset);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
@@ -1055,6 +997,92 @@ void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int per
     CHECK(Modifiers::kVarying_Flag,        "varying")
     CHECK(Modifiers::kInline_Flag,         "inline")
     SkASSERT(flags == 0);
+}
+
+void IRGenerator::finalizeFunction(FunctionDefinition& f) {
+    class Finalizer : public ProgramWriter {
+    public:
+        Finalizer(IRGenerator* irGenerator, const FunctionDeclaration* function)
+            : fIRGenerator(irGenerator)
+            , fFunction(function) {}
+
+        ~Finalizer() override {
+            SkASSERT(!fBreakableLevel);
+            SkASSERT(!fContinuableLevel);
+        }
+
+        bool visitStatement(Statement& stmt) override {
+            switch (stmt.kind()) {
+                case Statement::Kind::kReturn: {
+                    // early returns from a vertex main function will bypass the sk_Position
+                    // normalization, so SkASSERT that we aren't doing that. It is of course
+                    // possible to fix this by adding a normalization before each return, but it
+                    // will probably never actually be necessary.
+                    SkASSERT(fIRGenerator->fKind != Program::kVertex_Kind ||
+                             !fIRGenerator->fRTAdjust ||
+                             fFunction->name() != "main");
+                    ReturnStatement& r = stmt.as<ReturnStatement>();
+                    const Type& returnType = fFunction->returnType();
+                    std::unique_ptr<Expression> result;
+                    if (r.expression()) {
+                        if (returnType == *fIRGenerator->fContext.fTypes.fVoid) {
+                            fIRGenerator->errorReporter().error(r.fOffset,
+                                                     "may not return a value from a void function");
+                        } else {
+                            result = fIRGenerator->coerce(std::move(r.expression()), returnType);
+                        }
+                    } else if (returnType != *fIRGenerator->fContext.fTypes.fVoid) {
+                        fIRGenerator->errorReporter().error(r.fOffset,
+                                                    "expected function to return '" +
+                                                    returnType.displayName() + "'");
+                    }
+                    r.setExpression(std::move(result));
+                    break;
+                }
+                case Statement::Kind::kDo:
+                case Statement::Kind::kFor: {
+                    ++fBreakableLevel;
+                    ++fContinuableLevel;
+                    bool result = INHERITED::visitStatement(stmt);
+                    --fContinuableLevel;
+                    --fBreakableLevel;
+                    return result;
+                }
+                case Statement::Kind::kSwitch: {
+                    ++fBreakableLevel;
+                    bool result = INHERITED::visitStatement(stmt);
+                    --fBreakableLevel;
+                    return result;
+                }
+                case Statement::Kind::kBreak:
+                    if (!fBreakableLevel) {
+                        fIRGenerator->errorReporter().error(stmt.fOffset,
+                                                 "break statement must be inside a loop or switch");
+                    }
+                    break;
+                case Statement::Kind::kContinue:
+                    if (!fContinuableLevel) {
+                        fIRGenerator->errorReporter().error(stmt.fOffset,
+                                                        "continue statement must be inside a loop");
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return INHERITED::visitStatement(stmt);
+        }
+
+    private:
+        IRGenerator* fIRGenerator;
+        const FunctionDeclaration* fFunction;
+        // how deeply nested we are in breakable constructs (for, do, switch).
+        int fBreakableLevel = 0;
+        // how deeply nested we are in continuable constructs (for, do).
+        int fContinuableLevel = 0;
+
+        using INHERITED = ProgramWriter;
+    };
+    Finalizer(this, &f.declaration()).visitStatement(*f.body());
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
@@ -1265,9 +1293,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                                                                         fIsBuiltinCode));
     } else {
         // Compile function body.
-        SkASSERT(!fCurrentFunction);
-        fCurrentFunction = decl;
-
         AutoSymbolTable table(this);
         for (const Variable* param : decl->parameters()) {
             fSymbolTable->addWithoutOwnership(param);
@@ -1275,7 +1300,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
                                           fCaps && !fCaps->gsInvocationsSupport();
         std::unique_ptr<Block> body = this->convertBlock(*iter);
-        fCurrentFunction = nullptr;
         if (!body) {
             return;
         }
@@ -1287,6 +1311,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
         auto result = std::make_unique<FunctionDefinition>(
                 f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(fReferencedIntrinsics));
+        this->finalizeFunction(*result);
         decl->setDefinition(result.get());
         result->setSource(&f);
         fProgramElements->push_back(std::move(result));
@@ -1399,21 +1424,6 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                             symbols);
 }
 
-bool IRGenerator::getConstantInt(const Expression& value, SKSL_INT* out) {
-    switch (value.kind()) {
-        case Expression::Kind::kIntLiteral:
-            *out = value.as<IntLiteral>().value();
-            return true;
-        case Expression::Kind::kVariableReference: {
-            const Variable& var = *value.as<VariableReference>().variable();
-            return (var.modifiers().fFlags & Modifiers::kConst_Flag) &&
-                   var.initialValue() && this->getConstantInt(*var.initialValue(), out);
-        }
-        default:
-            return false;
-    }
-}
-
 void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
     StatementArray decls = this->convertVarDeclarations(decl, Variable::Storage::kGlobal);
     for (std::unique_ptr<Statement>& stmt : decls) {
@@ -1454,7 +1464,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                 fSymbolTable = oldTable;
                 return;
             }
-            if (!this->getConstantInt(*value, &currentValue)) {
+            if (!ConstantFolder::GetConstantInt(*value, &currentValue)) {
                 this->errorReporter().error(value->fOffset,
                                             "enum value must be a constant integer");
                 fSymbolTable = oldTable;
@@ -1568,9 +1578,7 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
         case ASTNode::Kind::kTernary:
             return this->convertTernaryExpression(expr);
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported expression: %s\n", expr.description().c_str());
-#endif
+            SkDEBUGFAILF("unsupported expression: %s\n", expr.description().c_str());
             return nullptr;
     }
 }
@@ -1657,7 +1665,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
             return std::make_unique<ExternalFunctionReference>(offset, r);
         }
         default:
-            ABORT("unsupported symbol type %d\n", (int) result->kind());
+            SK_ABORT("unsupported symbol type %d\n", (int) result->kind());
     }
 }
 
@@ -1858,7 +1866,7 @@ static bool determine_binary_type(const Context& context,
         return false;
     }
 
-    bool isAssignment = Compiler::IsAssignment(op);
+    bool isAssignment = Operators::IsAssignment(op);
     if (is_matrix_multiply(left, op, right)) {  // left * right
         // Determine final component type.
         if (!determine_binary_type(context, allowNarrowing, op,
@@ -1990,10 +1998,10 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     }
     if (this->strictES2Mode() && !op_allowed_in_strict_es2_mode(op)) {
         this->errorReporter().error(
-                offset, String("operator '") + Compiler::OperatorName(op) + "' is not allowed");
+                offset, String("operator '") + Operators::OperatorName(op) + "' is not allowed");
         return nullptr;
     }
-    bool isAssignment = Compiler::IsAssignment(op);
+    bool isAssignment = Operators::IsAssignment(op);
     if (isAssignment && !this->setRefKind(*left, op != Token::Kind::TK_EQ
                                                  ? VariableReference::RefKind::kReadWrite
                                                  : VariableReference::RefKind::kWrite)) {
@@ -2002,7 +2010,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
         this->errorReporter().error(
-                offset, String("type mismatch: '") + Compiler::OperatorName(op) +
+                offset, String("type mismatch: '") + Operators::OperatorName(op) +
                                 "' cannot operate on '" + left->type().displayName() + "', '" +
                                 right->type().displayName() + "'");
         return nullptr;
@@ -2016,7 +2024,10 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
-    std::unique_ptr<Expression> result = ConstantFolder::Simplify(fContext, *left, op, *right);
+    std::unique_ptr<Expression> result;
+    if (!ConstantFolder::ErrorOnDivideByZero(fContext, offset, op, *right)) {
+        result = ConstantFolder::Simplify(fContext, offset, *left, op, *right);
+    }
     if (!result) {
         result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
                                                     resultType);
@@ -2373,20 +2384,45 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
     if (type.isVector() || type.isMatrix()) {
         return this->convertCompoundConstructor(offset, type, std::move(args));
     }
-    if (type.isArray()) {
-        // Convert each constructor argument to the array's component type.
-        const Type& base = type.componentType();
-        for (std::unique_ptr<Expression>& argument : args) {
-            argument = this->coerce(std::move(argument), base);
-            if (!argument) {
-                return nullptr;
-            }
-        }
-        return std::make_unique<Constructor>(offset, &type, std::move(args));
+    if (type.isArray() && type.columns() > 0) {
+        return this->convertArrayConstructor(offset, type, std::move(args));
     }
 
     this->errorReporter().error(offset, "cannot construct '" + type.displayName() + "'");
     return nullptr;
+}
+
+std::unique_ptr<Expression> IRGenerator::convertArrayConstructor(int offset,
+                                                                 const Type& type,
+                                                                 ExpressionArray args) {
+    SkASSERTF(type.isArray() && type.columns() > 0, "%s", type.description().c_str());
+
+    // ES2 doesn't support first-class array types.
+    if (this->strictES2Mode()) {
+        this->errorReporter().error(
+                offset, "construction of array type '" + type.displayName() + "' is not supported");
+        return nullptr;
+    }
+
+    // Check that the number of constructor arguments matches the array size.
+    if (type.columns() != args.count()) {
+        this->errorReporter().error(
+                offset,
+                String::printf("invalid arguments to '%s' constructor "
+                               "(expected %d elements, but found %d)",
+                               type.displayName().c_str(), type.columns(), args.count()));
+        return nullptr;
+    }
+
+    // Convert each constructor argument to the array's component type.
+    const Type& base = type.componentType();
+    for (std::unique_ptr<Expression>& argument : args) {
+        argument = this->coerce(std::move(argument), base);
+        if (!argument) {
+            return nullptr;
+        }
+    }
+    return std::make_unique<Constructor>(offset, &type, std::move(args));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& expression) {
@@ -2431,7 +2467,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_PLUSPLUS:
             if (!baseType.isNumber()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2442,7 +2478,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2453,7 +2489,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2467,19 +2503,19 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
             if (this->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
                 this->errorReporter().error(base->fOffset,
-                              String("operator '") + Compiler::OperatorName(op) +
+                              String("operator '") + Operators::OperatorName(op) +
                               "' is not allowed");
                 return nullptr;
             }
             if (!baseType.isInteger()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Compiler::OperatorName(op) +
+                                            String("'") + Operators::OperatorName(op) +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             break;
         default:
-            ABORT("unsupported prefix operator\n");
+            SK_ABORT("unsupported prefix operator\n");
     }
     return std::make_unique<PrefixExpression>(op, std::move(base));
 }
@@ -2877,7 +2913,7 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_pt
     const Type& baseType = base->type();
     if (!baseType.isNumber()) {
         this->errorReporter().error(base->fOffset,
-                                    "'" + String(Compiler::OperatorName(op)) +
+                                    "'" + String(Operators::OperatorName(op)) +
                                     "' cannot operate on '" + baseType.displayName() + "'");
         return nullptr;
     }
@@ -3103,9 +3139,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
                 break;
             }
             default:
-#ifdef SK_DEBUG
-                ABORT("unsupported declaration: %s\n", decl.description().c_str());
-#endif
+                SkDEBUGFAILF("unsupported declaration: %s\n", decl.description().c_str());
                 break;
         }
     }

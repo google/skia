@@ -10,9 +10,6 @@ vec4 main() {
     x = 2.0;
     y = 0.5;
     z = 8;
-    bool c = sqrt(2.0) > 2.0;
-    bool d = true ^^ c;
-    bool e = c;
     x += 12.0;
     x -= 12.0;
     x *= (y /= 10.0);
@@ -22,8 +19,8 @@ vec4 main() {
     z >>= 2;
     z <<= 4;
     z %= 5;
-    x = float((vec2(sqrt(1.0)) , 6));
-    y = ((float(c) * float(d)) * float(e) , 6.0);
-    z = int((vec2(sqrt(1.0)) , 6));
-    return (x == 6.0 && y == 6.0) && z == 6 ? colorGreen : colorRed;
+    x = 6.0;
+    y = 6.0;
+    z = 6;
+    return colorGreen;
 }

@@ -7,13 +7,11 @@
       "Columns": 4,
       "Rows": 4
    },
-   "EffectCode": [
+   "Code": [
       "void effectSpawn(inout Effect effect) {",
       "  effect.rate = 8;",
       "}",
-      ""
-   ],
-   "Code": [
+      "",
       "float2 circle(inout float seed) {",
       "  float r = sqrt(rand(seed));",
       "  float a = rand(seed) * 6.283185;",

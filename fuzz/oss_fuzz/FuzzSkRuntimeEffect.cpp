@@ -30,23 +30,23 @@ static constexpr size_t kReservedBytes = 256;
  * This gives us better coverage, and eases the burden on the fuzzer to inject useless noise into
  * functions to suppress inlining.
  */
-static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> bytes) {
+static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> bytes, const SkRuntimeEffect::Options& options) {
     if (bytes->size() < kReservedBytes) {
         return false;
     }
     sk_sp<SkData> codeBytes = SkData::MakeSubset(bytes.get(), 0, bytes->size() - kReservedBytes);
 
-    SkRuntimeEffect::EffectResult tuple = SkRuntimeEffect::Make(
-        SkString((const char*) codeBytes->data(), codeBytes->size())
-    );
-    SkRuntimeEffect* effect = std::get<0>(tuple).get();
+    SkString shaderText{static_cast<const char*>(codeBytes->data()), codeBytes->size()};
+    SkRuntimeEffect::Result result = SkRuntimeEffect::Make(shaderText, options);
+    SkRuntimeEffect* effect = result.effect.get();
 
     if (!effect || effect->uniformSize() > kReservedBytes) { // if there is not enough uniform bytes
         return false;
     }
     sk_sp<SkData> uniformBytes =
             SkData::MakeSubset(bytes.get(), bytes->size() - kReservedBytes, effect->uniformSize());
-    auto shader = effect->makeShader(uniformBytes, nullptr, 0, nullptr, false);
+    auto shader = effect->makeShader(uniformBytes, /*children=*/nullptr, /*childCount=*/0,
+                                     /*localMatrix=*/nullptr, /*isOpaque=*/false);
     if (!shader) {
         return false;
     }
@@ -64,12 +64,13 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> bytes) {
 
 bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes) {
     // Inline nothing
-    SkRuntimeEffect_SetInlineThreshold(0);
-    bool result = FuzzSkRuntimeEffect_Once(bytes);
+    SkRuntimeEffect::Options options;
+    options.inlineThreshold = 0;
+    bool result = FuzzSkRuntimeEffect_Once(bytes, options);
 
     // Inline everything
-    SkRuntimeEffect_SetInlineThreshold(std::numeric_limits<int>::max());
-    result = FuzzSkRuntimeEffect_Once(bytes) || result;
+    options.inlineThreshold = std::numeric_limits<int>::max();
+    result = FuzzSkRuntimeEffect_Once(bytes, options) || result;
 
     return result;
 }

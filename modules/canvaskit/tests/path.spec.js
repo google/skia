@@ -45,7 +45,7 @@ describe('Path Behavior', () => {
 
         path.transform([2, 0, 0,
                         0, 2, 0,
-                        0, 0, 1 ])
+                        0, 0, 1 ]);
 
         canvas.drawPath(path, paint);
 
@@ -233,6 +233,25 @@ describe('Path Behavior', () => {
         CanvasKit.Free(mWeights);
     });
 
+    it('can retrieve points from a path', () => {
+        const path = new CanvasKit.Path();
+        path.addRect([10, 15, 20, 25]);
+
+        let pt = path.getPoint(0);
+        expect(pt[0]).toEqual(10);
+        expect(pt[1]).toEqual(15);
+
+        path.getPoint(2, pt);
+        expect(pt[0]).toEqual(20);
+        expect(pt[1]).toEqual(25);
+
+        path.getPoint(1000, pt); // off the end returns (0, 0) as per the docs.
+        expect(pt[0]).toEqual(0);
+        expect(pt[1]).toEqual(0);
+
+        path.delete();
+    });
+
     gm('offset_path', (canvas) => {
         const path = starPath(CanvasKit);
 
@@ -365,33 +384,6 @@ describe('Path Behavior', () => {
         paint.delete();
     });
 
-    it('can measure a path', () => {
-        const path = new CanvasKit.Path();
-        path.moveTo(10, 10)
-            .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
-
-        path.moveTo(80, 0)
-            .lineTo(80, 10)
-            .lineTo(100, 5)
-            .lineTo(80, 0);
-
-        const meas = new CanvasKit.PathMeasure(path, false, 1);
-        expect(meas.getLength()).toBeCloseTo(50.0, 3);
-        const pt = meas.getPosTan(28.7); // arbitrary point
-        expect(pt[0]).toBeCloseTo(27.22, 3); // x
-        expect(pt[1]).toBeCloseTo(32.96, 3); // y
-        expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
-        expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
-        const subpath = meas.getSegment(20, 40, true); // make sure this doesn't crash
-
-        expect(meas.nextContour()).toBeTruthy();
-        expect(meas.getLength()).toBeCloseTo(51.231, 3);
-
-        expect(meas.nextContour()).toBeFalsy();
-
-        path.delete();
-    });
-
     it('can measure the contours of a path',  () => {
         const path = new CanvasKit.Path();
         path.moveTo(10, 10)
@@ -412,11 +404,19 @@ describe('Path Behavior', () => {
         expect(pt[1]).toBeCloseTo(32.96, 3); // y
         expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
         expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+
+        pt.set([-1, -1, -1, -1]); // fill with sentinel values.
+        cont.getPosTan(28.7, pt); // arbitrary point again, passing in an array to copy into.
+        expect(pt[0]).toBeCloseTo(27.22, 3); // x
+        expect(pt[1]).toBeCloseTo(32.96, 3); // y
+        expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
+        expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+
         const subpath = cont.getSegment(20, 40, true); // make sure this doesn't crash
 
         cont.delete();
         cont = meas.next();
-        expect(cont).toBeTruthy()
+        expect(cont).toBeTruthy();
         expect(cont.length()).toBeCloseTo(51.231, 3);
 
         cont.delete();

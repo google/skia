@@ -34,23 +34,6 @@ public:
     int tessellationPatchVertexCount() const { return fTessellationPatchVertexCount; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
 
-    static GrProgramInfo* MakeProgramInfo(const GrPathShader* shader, SkArenaAlloc* arena,
-                                          const GrSurfaceProxyView& writeView,
-                                          const GrPipeline* pipeline,
-                                          const GrXferProcessor::DstProxyView& dstProxyView,
-                                          GrXferBarrierFlags renderPassXferBarriers,
-                                          GrLoadOp colorLoadOp,
-                                          const GrUserStencilSettings* stencil,
-                                          const GrCaps& caps) {
-        return arena->make<GrProgramInfo>(writeView,
-                                          pipeline,
-                                          stencil,
-                                          shader,
-                                          shader->fPrimitiveType,
-                                          shader->fTessellationPatchVertexCount,
-                                          renderPassXferBarriers, colorLoadOp);
-    }
-
     struct ProgramArgs {
         SkArenaAlloc* fArena;
         const GrSurfaceProxyView& fWriteView;

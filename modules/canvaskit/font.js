@@ -16,7 +16,7 @@ CanvasKit._extraInitializations.push(function() {
     } else {
       this._drawShapedText(str, x, y, paint);
     }
-  }
+  };
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
@@ -122,7 +122,7 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(strPtr);
     CanvasKit._free(widthPtr);
     return retVal;
-  }
+  };
 
   // arguments should all be arrayBuffers or be an array of arrayBuffers.
   CanvasKit.FontMgr.FromData = function() {
@@ -154,7 +154,7 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(datasPtr);
     CanvasKit._free(sizesPtr);
     return fm;
-  }
+  };
 
   // fontData should be an arrayBuffer
   CanvasKit.FontMgr.prototype.MakeTypefaceFromData = function(fontData) {
@@ -169,20 +169,20 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return font;
-  }
+  };
 
   // Clients can pass in a Float32Array with length 4 to this and the results
   // will be copied into that array. Otherwise, a new TypedArray will be allocated
   // and returned.
   CanvasKit.ShapedText.prototype.getBounds = function(optionalOutputArray) {
-    this._getBounds(_scratchRectPtr);
-    var ta = _scratchRect['toTypedArray']();
+    this._getBounds(_scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
     if (optionalOutputArray) {
       optionalOutputArray.set(ta);
       return optionalOutputArray;
     }
     return ta.slice();
-  }
+  };
 
   CanvasKit.TextBlob.MakeOnPath = function(str, path, font, initialOffset) {
     if (!str || !str.length) {
@@ -205,14 +205,18 @@ CanvasKit._extraInitializations.push(function() {
     var widths = font.getWidths(str);
 
     var rsx = new CanvasKit.RSXFormBuilder();
-    var meas = new CanvasKit.PathMeasure(path, false, 1);
+    var meas = new CanvasKit.ContourMeasureIter(path, false, 1);
+    var cont = meas.next();
     var dist = initialOffset;
-    for (var i = 0; i < str.length; i++) {
+    var xycs = new Float32Array(4);
+    for (var i = 0; i < str.length && cont; i++) {
       var width = widths[i];
       dist += width/2;
-      if (dist > meas.getLength()) {
+      if (dist > cont.length()) {
         // jump to next contour
-        if (!meas.nextContour()) {
+        cont.delete();
+        cont = meas.next();
+        if (!cont) {
           // We have come to the end of the path - terminate the string
           // right here.
           str = str.substring(0, i);
@@ -223,7 +227,7 @@ CanvasKit._extraInitializations.push(function() {
 
       // Gives us the (x, y) coordinates as well as the cos/sin of the tangent
       // line at that position.
-      var xycs = meas.getPosTan(dist);
+      cont.getPosTan(dist, xycs);
       var cx = xycs[0];
       var cy = xycs[1];
       var cosT = xycs[2];
@@ -237,9 +241,10 @@ CanvasKit._extraInitializations.push(function() {
     }
     var retVal = this.MakeFromRSXform(str, rsx, font);
     rsx.delete();
+    cont && cont.delete();
     meas.delete();
     return retVal;
-  }
+  };
 
   CanvasKit.TextBlob.MakeFromRSXform = function(str, rsxBuilderOrArray, font) {
     // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
@@ -264,7 +269,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
@@ -287,7 +292,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
@@ -302,7 +307,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   CanvasKit.TextBlob.MakeFromText = function(str, font) {
     // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
@@ -320,7 +325,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   // A helper to return the right type for GlyphIDs stored internally. When that changes, this
   // will also be changed, which will help avoid future breakages.

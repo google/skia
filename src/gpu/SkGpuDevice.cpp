@@ -20,7 +20,6 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkDrawProcs.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
@@ -602,60 +601,6 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
 #include "include/core/SkMaskFilter.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
-                                  const SkPaint& origPaint) {
-    ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawStrokedLine", fContext.get());
-    // Adding support for round capping would require a
-    // GrSurfaceDrawContext::fillRRectWithLocalMatrix entry point
-    SkASSERT(SkPaint::kRound_Cap != origPaint.getStrokeCap());
-    SkASSERT(SkPaint::kStroke_Style == origPaint.getStyle());
-    SkASSERT(!origPaint.getPathEffect());
-    SkASSERT(!origPaint.getMaskFilter());
-
-    const SkScalar halfWidth = 0.5f * origPaint.getStrokeWidth();
-    if (halfWidth <= 0.f) {
-        // Prevents underflow when stroke width is epsilon > 0 (so technically not a hairline).
-        // The CTM would need to have a scale near 1/epsilon in order for this to have meaningful
-        // coverage (although that would likely overflow elsewhere and cause the draw to drop due
-        // to non-finite bounds). At any other scale, this line is so thin, it's coverage is
-        // negligible, so discarding the draw is visually equivalent.
-        return;
-    }
-
-    SkVector parallel = points[1] - points[0];
-
-    if (!SkPoint::Normalize(&parallel)) {
-        parallel.fX = 1.0f;
-        parallel.fY = 0.0f;
-    }
-    parallel *= halfWidth;
-
-    SkVector ortho = { parallel.fY, -parallel.fX };
-    if (SkPaint::kButt_Cap == origPaint.getStrokeCap()) {
-        // No extra extension for butt caps
-        parallel = {0.f, 0.f};
-    }
-    // Order is TL, TR, BR, BL where arbitrarily "down" is p0 to p1 and "right" is positive
-    SkPoint corners[4] = { points[0] - ortho - parallel,
-                           points[0] + ortho - parallel,
-                           points[1] + ortho + parallel,
-                           points[1] - ortho + parallel };
-
-    SkPaint newPaint(origPaint);
-    newPaint.setStyle(SkPaint::kFill_Style);
-
-    GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), newPaint,
-                          this->asMatrixProvider(), &grPaint)) {
-        return;
-    }
-
-    GrAA aa = newPaint.isAntiAlias() ? GrAA::kYes : GrAA::kNo;
-    GrQuadAAFlags edgeAA = newPaint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    fSurfaceDrawContext->fillQuadWithEdgeAA(this->clip(), std::move(grPaint), aa, edgeAA,
-                                            this->localToDevice(), corners, nullptr);
-}
 
 void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool pathIsMutable) {
 #if GR_TEST_UTILS
@@ -665,27 +610,6 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     }
 #endif
     ASSERT_SINGLE_OWNER
-    if (!origSrcPath.isInverseFillType() && !paint.getPathEffect() && !paint.getMaskFilter() &&
-        SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0.f &&
-        SkPaint::kRound_Cap != paint.getStrokeCap()) {
-        SkPoint points[2];
-        if (origSrcPath.isLine(points)) {
-            // The stroked line is an oriented rectangle, which looks the same or better
-            // (if perspective) compared to path rendering. The exception is subpixel/hairline lines
-            // that are non-AA or MSAA, in which case the default path renderer achieves higher
-            // quality.
-            // FIXME(michaelludwig): If the fill rect op could take an external coverage, or
-            // checks for and outsets thin non-aa rects to 1px, the path renderer could be skipped.
-            SkScalar coverage;
-            if ((paint.isAntiAlias() && fSurfaceDrawContext->numSamples() == 1) ||
-                !SkDrawTreatAAStrokeAsHairline(paint.getStrokeWidth(), this->localToDevice(),
-                                               &coverage)) {
-                this->drawStrokedLine(points, paint);
-                return;
-            }
-        }
-    }
-
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
     if (!paint.getMaskFilter()) {
         GrPaint grPaint;
@@ -729,14 +653,14 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     SkPixmap pm;
     if (image->isTextureBacked()) {
-        const GrSurfaceProxyView* view = as_IB(image)->view(this->recordingContext());
+        auto [view, ct] = as_IB(image)->asView(this->recordingContext(), GrMipmapped::kNo);
         SkASSERT(view);
 
         return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                    SkIRect::MakeWH(image->width(), image->height()),
                                                    image->uniqueID(),
-                                                   *view,
-                                                   SkColorTypeToGrColorType(image->colorType()),
+                                                   std::move(view),
+                                                   ct,
                                                    image->refColorSpace(),
                                                    &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
@@ -809,13 +733,18 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
                         sampling, paint, constraint);
 }
 
-void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
-                                      std::unique_ptr<SkLatticeIter> iter, const SkRect& dst,
-                                      SkFilterMode filter, const SkPaint& origPaint) {
+void SkGpuDevice::drawViewLattice(GrSurfaceProxyView view,
+                                  const GrColorInfo& info,
+                                  std::unique_ptr<SkLatticeIter> iter,
+                                  const SkRect& dst,
+                                  SkFilterMode filter,
+                                  const SkPaint& origPaint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
+    SkASSERT(view);
+
     SkTCopyOnFirstWrite<SkPaint> paint(&origPaint);
 
-    if (!producer->isAlphaOnly() && (paint->getColor() & 0x00FFFFFF) != 0x00FFFFFF) {
+    if (!info.isAlphaOnly() && (paint->getColor() & 0x00FFFFFF) != 0x00FFFFFF) {
         paint.writable()->setColor(SkColorSetARGB(origPaint.getAlpha(), 0xFF, 0xFF, 0xFF));
     }
     GrPaint grPaint;
@@ -825,19 +754,15 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
         return;
     }
 
-    auto dstColorSpace = fSurfaceDrawContext->colorInfo().colorSpace();
-    auto view = producer->view(GrMipmapped::kNo);
-    if (!view) {
-        return;
-    }
-    if (producer->isAlphaOnly()) {
+    if (info.isAlphaOnly()) {
+        // If we were doing this with an FP graph we'd use a kDstIn blend between the texture and
+        // the paint color.
         view.concatSwizzle(GrSwizzle("aaaa"));
     }
-    auto csxf = GrColorSpaceXform::Make(producer->colorSpace(), producer->alphaType(),
-                                        dstColorSpace,          kPremul_SkAlphaType);
+    auto csxf = GrColorSpaceXform::Make(info, fSurfaceDrawContext->colorInfo());
 
     fSurfaceDrawContext->drawImageLattice(this->clip(), std::move(grPaint), this->localToDevice(),
-                                          std::move(view), producer->alphaType(), std::move(csxf),
+                                          std::move(view), info.alphaType(), std::move(csxf),
                                           filter, std::move(iter), dst);
 }
 
@@ -845,22 +770,15 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
                                    SkFilterMode filter, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    uint32_t pinnedUniqueID;
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
-    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->recordingContext(),
-                                                              &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->recordingContext(), std::move(view),
-                                   image->imageInfo().colorInfo(), pinnedUniqueID);
-        this->drawProducerLattice(&adjuster, std::move(iter), dst, filter, paint);
-    } else {
-        SkBitmap bm;
-        if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, filter, paint);
-        } else if (as_IB(image)->getROPixels(nullptr, &bm)) {
-            GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, filter, paint);
-        }
+    if (auto [view, ct] = as_IB(image)->asView(this->recordingContext(), GrMipmapped::kNo); view) {
+        GrColorInfo colorInfo(ct, image->alphaType(), image->refColorSpace());
+        this->drawViewLattice(std::move(view),
+                              std::move(colorInfo),
+                              std::move(iter),
+                              dst,
+                              filter,
+                              paint);
     }
 }
 

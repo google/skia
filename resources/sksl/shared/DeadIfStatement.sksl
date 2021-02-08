@@ -1,5 +1,7 @@
-void main() {
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
     bool x = true;
-    if (x) return;
-    if (!x) return;
+    if (x) return colorGreen;
+    if (!x) return colorRed;
 }

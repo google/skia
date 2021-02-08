@@ -45,6 +45,25 @@ inline bool SkSVGAttributeParser::advanceWhile(F f) {
     return fCurPos != initial;
 }
 
+bool SkSVGAttributeParser::matchStringToken(const char* token, const char** newPos) const {
+    const char* c = fCurPos;
+
+    while (*c && *token && *c == *token) {
+        c++;
+        token++;
+    }
+
+    if (*token) {
+        return false;
+    }
+
+    if (newPos) {
+        *newPos = c;
+    }
+
+    return true;
+}
+
 bool SkSVGAttributeParser::parseEOSToken() {
     return is_eos(*fCurPos);
 }
@@ -64,18 +83,12 @@ bool SkSVGAttributeParser::parseCommaWspToken() {
 }
 
 bool SkSVGAttributeParser::parseExpectedStringToken(const char* expected) {
-    const char* c = fCurPos;
-
-    while (*c && *expected && *c == *expected) {
-        c++;
-        expected++;
-    }
-
-    if (*expected) {
+    const char* newPos;
+    if (!matchStringToken(expected, &newPos)) {
         return false;
     }
 
-    fCurPos = c;
+    fCurPos = newPos;
     return true;
 }
 
@@ -268,16 +281,21 @@ bool SkSVGAttributeParser::parse(SkSVGIRI* iri) {
     // consume preceding whitespace
     this->parseWSToken();
 
-    // we only support local fragments
-    if (!this->parseExpectedStringToken("#")) {
-        return false;
+    SkSVGIRI::Type iriType;
+    if (this->parseExpectedStringToken("#")) {
+        iriType = SkSVGIRI::Type::kLocal;
+    } else if (this->matchStringToken("data:")) {
+        iriType = SkSVGIRI::Type::kDataURI;
+    } else {
+        iriType = SkSVGIRI::Type::kNonlocal;
     }
+
     const auto* start = fCurPos;
     this->advanceWhile([](char c) -> bool { return !is_eos(c) && c != ')'; });
     if (start == fCurPos) {
         return false;
     }
-    *iri = SkSVGIRI(SkSVGIRI::Type::kLocal, SkString(start, fCurPos - start));
+    *iri = SkSVGIRI(iriType, SkString(start, fCurPos - start));
     return true;
 }
 
@@ -896,6 +914,11 @@ bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* pa
     }
 
     return parsedValue && this->parseEOSToken();
+}
+
+template <>
+bool SkSVGAttributeParser::parse(SkSVGPreserveAspectRatio* par) {
+    return this->parsePreserveAspectRatio(par);
 }
 
 // https://www.w3.org/TR/SVG11/types.html#DataTypeCoordinates

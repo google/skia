@@ -26,9 +26,7 @@ class SkShader;
 
 namespace SkSL {
 class FunctionDefinition;
-struct PipelineStageArgs;
 struct Program;
-class SharedCompiler;
 }  // namespace SkSL
 
 /*
@@ -57,27 +55,44 @@ public:
             kSRGBUnpremul_Flag  = 0x8,
         };
 
-        SkString  fName;
-        size_t    fOffset;
-        Type      fType;
-        GrSLType  fGPUType;
-        int       fCount;
-        uint32_t  fFlags;
-        uint32_t  fMarker;
+        SkString  name;
+        size_t    offset;
+        Type      type;
+        GrSLType  gpuType;
+        int       count;
+        uint32_t  flags;
+        uint32_t  marker;
 
-        bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
+        bool isArray() const { return SkToBool(this->flags & kArray_Flag); }
         size_t sizeInBytes() const;
     };
 
     struct Varying {
-        SkString fName;
-        int      fWidth;  // 1 - 4 (floats)
+        SkString name;
+        int      width;  // 1 - 4 (floats)
     };
 
-    // [Effect, ErrorText]
-    // If successful, Effect != nullptr, otherwise, ErrorText contains the reason for failure.
+    struct Options {
+        // Sets an upper limit on the acceptable amount of code growth from inlining.
+        // By default, runtime effects don't run the inliner directly.
+        int inlineThreshold = 0;
+    };
+
+    // If the effect is compiled successfully, `effect` will be non-null.
+    // Otherwise, `errorText` will contain the reason for failure.
+    struct Result {
+        sk_sp<SkRuntimeEffect> effect;
+        SkString errorText;
+    };
+
+    static Result Make(SkString sksl, const Options& options);
+
+    // Older/deprecated version of the Make() API:
     using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
-    static EffectResult Make(SkString sksl);
+    static EffectResult Make(SkString sksl) {
+        Result result = Make(sksl, Options{});
+        return EffectResult{std::move(result.effect), std::move(result.errorText)};
+    }
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
@@ -147,11 +162,8 @@ private:
     bool usesSampleCoords() const { return fUsesSampleCoords; }
 
 #if SK_SUPPORT_GPU
-    friend class GrSkSLFP;      // toPipelineStage
-    friend class GrGLSLSkSLFP;  // fSampleUsages
-
-    bool toPipelineStage(GrContextOptions::ShaderErrorHandler* errorHandler,
-                         SkSL::PipelineStageArgs* outArgs);
+    friend class GrSkSLFP;      // fBaseProgram, fSampleUsages
+    friend class GrGLSLSkSLFP;  //
 #endif
 
     friend class SkRTShader;            // fBaseProgram, fMain
@@ -210,7 +222,7 @@ public:
             } else if (sizeof(val) != fVar->sizeInBytes()) {
                 SkDEBUGFAIL("Incorrect value size");
             } else {
-                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->fOffset),
+                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->offset),
                        &val, sizeof(val));
             }
             return *this;
@@ -222,7 +234,7 @@ public:
             } else if (fVar->sizeInBytes() != 9 * sizeof(float)) {
                 SkDEBUGFAIL("Incorrect value size");
             } else {
-                float* data = SkTAddOffset<float>(fOwner->writableUniformData(), fVar->fOffset);
+                float* data = SkTAddOffset<float>(fOwner->writableUniformData(), fVar->offset);
                 data[0] = val.get(0); data[1] = val.get(3); data[2] = val.get(6);
                 data[3] = val.get(1); data[4] = val.get(4); data[5] = val.get(7);
                 data[6] = val.get(2); data[7] = val.get(5); data[8] = val.get(8);
@@ -240,7 +252,7 @@ public:
                 SkDEBUGFAIL("Incorrect value size");
                 return false;
             } else {
-                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->fOffset),
+                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->offset),
                        val, sizeof(T) * count);
             }
             return true;

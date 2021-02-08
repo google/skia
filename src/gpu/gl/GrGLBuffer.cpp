@@ -90,6 +90,7 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
             case GrGpuBufferType::kIndex:
             case GrGpuBufferType::kDrawIndirect:
             case GrGpuBufferType::kXferCpuToGpu:
+            case GrGpuBufferType::kUniform:
                 return drawUsage(pattern);
             case GrGpuBufferType::kXferGpuToCpu:
                 return readUsage(pattern);

@@ -6,6 +6,7 @@
  */
 
 #include "src/gpu/vk/GrVkBuffer.h"
+
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkTransferBuffer.h"
@@ -18,6 +19,25 @@
 #else
 #define VALIDATE() do {} while(false)
 #endif
+
+using BufferUsage = GrVkMemoryAllocator::BufferUsage;
+
+static BufferUsage get_buffer_usage(GrVkBuffer::Type type, bool dynamic) {
+    switch (type) {
+        case GrVkBuffer::kVertex_Type:    // fall through
+        case GrVkBuffer::kIndex_Type:     // fall through
+        case GrVkBuffer::kIndirect_Type:  // fall through
+        case GrVkBuffer::kTexel_Type:
+            return dynamic ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
+        case GrVkBuffer::kUniform_Type:  // fall through
+        case GrVkBuffer::kCopyRead_Type:
+            SkASSERT(dynamic);
+            return BufferUsage::kCpuWritesGpuReads;
+        case GrVkBuffer::kCopyWrite_Type:
+            return BufferUsage::kGpuWritesCpuReads;
+    }
+    SK_ABORT("Invalid GrVkBuffer::Type");
+}
 
 const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
     SkASSERT(!gpu->protectedContext() || (gpu->protectedContext() == desc.fDynamic));
@@ -68,16 +88,16 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
 
     if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
                                               buffer,
-                                              desc.fType,
-                                              desc.fDynamic,
+                                              get_buffer_usage(desc.fType, desc.fDynamic),
                                               &alloc)) {
+        VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
         return nullptr;
     }
 
-    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(gpu, buffer, alloc, desc.fType);
+    const GrVkBuffer::Resource* resource = new GrVkBuffer::Resource(gpu, buffer, alloc);
     if (!resource) {
         VK_CALL(gpu, DestroyBuffer(gpu->device(), buffer, nullptr));
-        GrVkMemory::FreeBufferMemory(gpu, desc.fType, alloc);
+        GrVkMemory::FreeBufferMemory(gpu, alloc);
         return nullptr;
     }
 
@@ -111,7 +131,7 @@ void GrVkBuffer::Resource::freeGPUData() const {
     SkASSERT(fBuffer);
     SkASSERT(fAlloc.fMemory);
     VK_CALL(fGpu, DestroyBuffer(fGpu->device(), fBuffer, nullptr));
-    GrVkMemory::FreeBufferMemory(fGpu, fType, fAlloc);
+    GrVkMemory::FreeBufferMemory(fGpu, fAlloc);
 }
 
 void GrVkBuffer::vkRelease(GrVkGpu* gpu) {
@@ -153,21 +173,12 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
     SkASSERT(!this->vkIsMapped());
 
     if (!fResource->unique()) {
-        if (fDesc.fDynamic) {
-            // in use by the command buffer, so we need to create a new one
-            fResource->recycle();
-            fResource = this->createResource(gpu, fDesc);
-            if (createdNewBuffer) {
-                *createdNewBuffer = true;
-            }
-        } else {
-            SkASSERT(fMapPtr);
-            this->addMemoryBarrier(gpu,
-                                   buffer_type_to_access_flags(fDesc.fType),
-                                   VK_ACCESS_TRANSFER_WRITE_BIT,
-                                   VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                   false);
+        SkASSERT(fDesc.fDynamic);
+        // in use by the command buffer, so we need to create a new one
+        fResource->recycle();
+        fResource = this->createResource(gpu, fDesc);
+        if (createdNewBuffer) {
+            *createdNewBuffer = true;
         }
     }
 
@@ -179,9 +190,8 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
 
         fMapPtr = GrVkMemory::MapAlloc(gpu, alloc);
     } else {
-        if (!fMapPtr) {
-            fMapPtr = new unsigned char[this->size()];
-        }
+        SkASSERT(!fMapPtr);
+        fMapPtr = new unsigned char[this->size()];
     }
 
     VALIDATE();

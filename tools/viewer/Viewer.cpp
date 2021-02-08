@@ -321,6 +321,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fColorSpacePrimaries(gSrgbPrimaries)
     // Our UI can only tweak gamma (currently), so start out gamma-only
     , fColorSpaceTransferFn(SkNamedTransferFn::k2Dot2)
+    , fApplyBackingScale(true)
     , fZoomLevel(0.0f)
     , fRotation(0.0f)
     , fOffset{0.5f, 0.5f}
@@ -376,10 +377,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fDisplay = fWindow->getRequestedDisplayParams();
     fRefresh = FLAGS_redraw;
 
-    // computePreTouchMatrix uses exp(fZoomLevel) to compute the scale.
-    float scaleFactor = fWindow->scaleFactor();
-    fZoomLevel = log(scaleFactor);
-    fImGuiLayer.setScaleFactor(scaleFactor);
+    fImGuiLayer.setScaleFactor(fWindow->scaleFactor());
 
     // Configure timers
     fStatsLayer.setActive(FLAGS_stats);
@@ -1104,8 +1102,12 @@ void Viewer::setCurrentSlide(int slide) {
         fSlides[fCurrentSlide]->unload();
     }
 
-    fSlides[slide]->load(SkIntToScalar(fWindow->width()),
-                         SkIntToScalar(fWindow->height()));
+    SkScalar scaleFactor = 1.0;
+    if (fApplyBackingScale) {
+        scaleFactor = fWindow->scaleFactor();
+    }
+    fSlides[slide]->load(SkIntToScalar(fWindow->width()) / scaleFactor,
+                         SkIntToScalar(fWindow->height()) / scaleFactor);
     fCurrentSlide = slide;
     this->setupCurrentSlide();
 }
@@ -1175,6 +1177,9 @@ SkMatrix Viewer::computePreTouchMatrix() {
     SkMatrix m = fDefaultMatrix;
 
     SkScalar zoomScale = exp(fZoomLevel);
+    if (fApplyBackingScale) {
+        zoomScale *= fWindow->scaleFactor();
+    }
     m.preTranslate((fOffset.x() - 0.5f) * 2.0f, (fOffset.y() - 0.5f) * 2.0f);
     m.preScale(zoomScale, zoomScale);
 
@@ -1540,7 +1545,11 @@ void Viewer::onPaint(SkSurface* surface) {
 
 void Viewer::onResize(int width, int height) {
     if (fCurrentSlide >= 0) {
-        fSlides[fCurrentSlide]->resize(width, height);
+        SkScalar scaleFactor = 1.0;
+        if (fApplyBackingScale) {
+            scaleFactor = fWindow->scaleFactor();
+        }
+        fSlides[fCurrentSlide]->resize(width / scaleFactor, height / scaleFactor);
     }
 }
 
@@ -1905,6 +1914,12 @@ void Viewer::drawImGui() {
             }
 
             if (ImGui::CollapsingHeader("Transform")) {
+                if (ImGui::Checkbox("Apply Backing Scale", &fApplyBackingScale)) {
+                    this->preTouchMatrixChanged();
+                    this->onResize(fWindow->width(), fWindow->height());
+                    paramsChanged = true;
+                }
+
                 float zoom = fZoomLevel;
                 if (ImGui::SliderFloat("Zoom", &zoom, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
                     fZoomLevel = zoom;

@@ -473,8 +473,8 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
     }
 
     std::vector<float> rgba(4*fColorCount);  // TODO: SkSTArray?
-    SkConvertPixels(dst,   rgba.data(), dst.minRowBytes(),
-                    src, fOrigColors4f, src.minRowBytes());
+    SkAssertResult(SkConvertPixels(dst,   rgba.data(), dst.minRowBytes(),
+                                   src, fOrigColors4f, src.minRowBytes()));
 
     // Transform our colors into a scale factor f and bias b such that for
     // any t between stops i and i+1, the color we want is mad(t, f[i], b[i]).
@@ -637,8 +637,10 @@ SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
 
         auto info = SkImageInfo::Make(colorCount,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType);
 
-        SkConvertPixels(info.makeColorSpace(sk_ref_sp(dst)), fStorage.begin(), info.minRowBytes(),
-                        info.makeColorSpace(sk_ref_sp(src)), fColors         , info.minRowBytes());
+        auto dstInfo = info.makeColorSpace(sk_ref_sp(dst));
+        auto srcInfo = info.makeColorSpace(sk_ref_sp(src));
+        SkAssertResult(SkConvertPixels(dstInfo, fStorage.begin(), info.minRowBytes(),
+                                       srcInfo, fColors         , info.minRowBytes()));
 
         fColors = fStorage.begin();
     }

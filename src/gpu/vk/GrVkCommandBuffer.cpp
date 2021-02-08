@@ -8,6 +8,7 @@
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 
 #include "include/core/SkRect.h"
+#include "src/gpu/vk/GrVkBuffer2.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkFramebuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -272,6 +273,21 @@ void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, sk_sp<const GrVkPipelin
                                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
                                                    pipeline->pipeline()));
     this->addResource(std::move(pipeline));
+}
+
+void GrVkCommandBuffer::pushConstants(const GrVkGpu* gpu, VkPipelineLayout layout,
+                                      VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size,
+                                      const void* values) {
+    SkASSERT(fIsActive);
+    // offset and size must be a multiple of 4
+    SkASSERT(!SkToBool(offset & 0x3));
+    SkASSERT(!SkToBool(size & 0x3));
+    GR_VK_CALL(gpu->vkInterface(), CmdPushConstants(fCmdBuffer,
+                                                    layout,
+                                                    stageFlags,
+                                                    offset,
+                                                    size,
+                                                    values));
 }
 
 void GrVkCommandBuffer::drawIndexed(const GrVkGpu* gpu,
@@ -802,6 +818,33 @@ void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
                                                  regions));
 }
 
+void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
+                                          GrVkBuffer* srcBuffer,
+                                          sk_sp<GrVkBuffer2> dstBuffer,
+                                          uint32_t regionCount,
+                                          const VkBufferCopy* regions) {
+    SkASSERT(fIsActive);
+    SkASSERT(!fActiveRenderPass);
+    this->addingWork(gpu);
+#ifdef SK_DEBUG
+    for (uint32_t i = 0; i < regionCount; ++i) {
+        const VkBufferCopy& region = regions[i];
+        SkASSERT(region.size > 0);
+        SkASSERT(region.srcOffset < srcBuffer->size());
+        SkASSERT(region.dstOffset < dstBuffer->size());
+        SkASSERT(region.srcOffset + region.size <= srcBuffer->size());
+        SkASSERT(region.dstOffset + region.size <= dstBuffer->size());
+    }
+#endif
+
+    GR_VK_CALL(gpu->vkInterface(),
+               CmdCopyBuffer(
+                       fCmdBuffer, srcBuffer->buffer(), dstBuffer->vkBuffer(), regionCount,
+                       regions));
+    this->addResource(srcBuffer->resource());
+    this->addGrBuffer(std::move(dstBuffer));
+}
+
 void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
                                             GrVkBuffer* dstBuffer,
                                             VkDeviceSize dstOffset,
@@ -820,6 +863,25 @@ void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
                                                    dstOffset,
                                                    dataSize,
                                                    (const uint32_t*) data));
+}
+
+void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
+                                            sk_sp<GrVkBuffer2> dstBuffer,
+                                            VkDeviceSize dstOffset,
+                                            VkDeviceSize dataSize,
+                                            const void* data) {
+    SkASSERT(fIsActive);
+    SkASSERT(!fActiveRenderPass);
+    SkASSERT(0 == (dstOffset & 0x03));  // four byte aligned
+    // TODO: handle larger transfer sizes
+    SkASSERT(dataSize <= 65536);
+    SkASSERT(0 == (dataSize & 0x03));  // four byte aligned
+    this->addingWork(gpu);
+    GR_VK_CALL(
+            gpu->vkInterface(),
+            CmdUpdateBuffer(
+                    fCmdBuffer, dstBuffer->vkBuffer(), dstOffset, dataSize, (const uint32_t*)data));
+    this->addGrBuffer(std::move(dstBuffer));
 }
 
 void GrVkPrimaryCommandBuffer::clearColorImage(const GrVkGpu* gpu,

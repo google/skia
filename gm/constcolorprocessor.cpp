@@ -110,7 +110,7 @@ protected:
                 // Create a base-layer FP for the const color processor to draw on top of.
                 std::unique_ptr<GrFragmentProcessor> baseFP;
                 if (paintType >= SK_ARRAY_COUNT(kPaintColors)) {
-                    SkSamplingOptions high({1.0f/3, 1.0f/3});
+                    SkSamplingOptions high(SkCubicResampler::Mitchell());
                     GrColorInfo colorInfo;
                     GrFPArgs args(context, SkSimpleMatrixProvider(SkMatrix::I()), high, &colorInfo);
                     baseFP = as_SB(fShader)->asFragmentProcessor(args);

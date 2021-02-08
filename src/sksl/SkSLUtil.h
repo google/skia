@@ -187,6 +187,11 @@ public:
         return fCanUseDoLoops;
     }
 
+    bool fUseNodePools = true;
+    bool useNodePools() const {
+        return fUseNodePools;
+    }
+
     const char* fShaderDerivativeExtensionString = nullptr;
     const char* shaderDerivativeExtensionString() const {
         return fShaderDerivativeExtensionString;
@@ -475,8 +480,6 @@ bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outTyp
 #endif
 
 void write_stringstream(const StringStream& d, OutputStream& out);
-
-NORETURN void sksl_abort();
 
 }  // namespace SkSL
 

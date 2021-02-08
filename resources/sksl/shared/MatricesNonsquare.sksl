@@ -1,0 +1,35 @@
+uniform half4 colorGreen, colorRed;
+
+bool test_float() {
+    float2x3 m23 = float2x3(23);
+    float2x4 m24 = float2x4(24);
+    float3x2 m32 = float3x2(32);
+    float3x4 m34 = float3x4(34);
+    float4x2 m42 = float4x2(42);
+    float4x3 m43 = float4x3(44);
+
+    float2x2 m22 = m32 * m23; m22 *= m22;
+    float3x3 m33 = m43 * m34; m33 *= m33;
+    float4x4 m44 = m24 * m42; m44 *= m44;
+
+    return true;
+}
+
+bool test_half() {
+    half2x3 m23 = half2x3(23);
+    half2x4 m24 = half2x4(24);
+    half3x2 m32 = half3x2(32);
+    half3x4 m34 = half3x4(34);
+    half4x2 m42 = half4x2(42);
+    half4x3 m43 = half4x3(44);
+
+    half2x2 m22 = m32 * m23; m22 *= m22;
+    half3x3 m33 = m43 * m34; m33 *= m33;
+    half4x4 m44 = m24 * m42; m44 *= m44;
+
+    return true;
+}
+
+half4 main() {
+    return test_float() && test_half() ? colorGreen : colorRed;
+}

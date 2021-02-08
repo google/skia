@@ -5,7 +5,7 @@ error: 4: invalid init declaration
 error: 5: missing loop index initializer
 error: 7: invalid type for loop index
 error: 8: invalid type for loop index
-error: 9: invalid type for loop index
+error: 9: construction of array type 'int[2]' is not supported
 error: 13: loop index initializer must be a constant expression
 error: 14: loop index initializer must be a constant expression
 8 errors
