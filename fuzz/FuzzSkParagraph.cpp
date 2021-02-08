@@ -56,7 +56,8 @@ using namespace skia::textlayout;
 namespace {
 const uint8_t MAX_TEXT_LENGTH = 255;
 const uint8_t MAX_TEXT_ADDITIONS = 4;
-const uint16_t TEST_CANVAS_WIDTH = 1000;
+// Use 250 so uint8 can create text and layout width larger than the canvas.
+const uint16_t TEST_CANVAS_DIM = 250;
 
 class ResourceFontCollection : public FontCollection {
 public:
@@ -269,6 +270,13 @@ DEF_FUZZ(SkParagraph, fuzz) {
     builder.pop();
     auto paragraph = builder.Build();
 
-    paragraph->layout(TEST_CANVAS_WIDTH);
-
+    SkBitmap bm;
+    if (!bm.tryAllocN32Pixels(TEST_CANVAS_DIM, TEST_CANVAS_DIM)) {
+        return;
+    }
+    SkCanvas canvas(bm);
+    uint8_t layout_width;
+    fuzz->next(&layout_width);
+    paragraph->layout(layout_width);
+    paragraph->paint(&canvas, 0, 0);
 }
