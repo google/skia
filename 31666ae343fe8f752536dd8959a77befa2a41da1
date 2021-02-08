@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0518534a_aae262df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-08T18:54:44Z",
+      "side": 1,
+      "message": "Fixed bug that caused bot failures, and switched from \"pile of std::function\" to \"C++ interface\"",
+      "revId": "31666ae343fe8f752536dd8959a77befa2a41da1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
