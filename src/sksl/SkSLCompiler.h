@@ -186,10 +186,6 @@ private:
     const ParsedModule& loadPublicModule();
     const ParsedModule& loadRuntimeEffectModule();
 
-    void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
-                       DefinitionMap* definitions);
-    void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
-
     void scanCFG(CFG* cfg, BlockId block, SkBitSet* processedSet);
     void computeDataFlow(CFG* cfg);
 
