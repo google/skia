@@ -226,8 +226,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fx"                 , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"                 , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
-    { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
-    { "patternTransform"   , { SkSVGAttribute::kPatternTransform , SetTransformAttribute    }},
     { "preserveAspectRatio", { SkSVGAttribute::kPreserveAspectRatio,
                                SetPreserveAspectRatioAttribute }},
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},
