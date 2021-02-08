@@ -1,7 +1,8 @@
-void main() {
+uniform half unknownInput; // 1
+
+half4 main() {
     half r, g;
-    (true ? r : g) = half(sqrt(1));
-    (false ? r : g) = half(sqrt(0));
-    sk_FragColor.x = half(r);
-    sk_FragColor.y = half(g);
+    (true ? r : g) = 1 - unknownInput;
+    (false ? r : g) = unknownInput;
+    return half4(r, g, 0, 1);
 }

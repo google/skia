@@ -1,6 +1,8 @@
-void main() {
-    half2 x = half2(1);
+uniform half4 colorWhite, colorGreen, colorRed;
+
+half4 main() {
+    half2 x = colorWhite.rg;
     x = +x;
     x = -x;
-    sk_FragColor.rg = x;
+    return x == half2(-1) ? colorGreen : colorRed;
 }
