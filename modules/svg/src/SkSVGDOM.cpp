@@ -127,18 +127,6 @@ bool SetObjectBoundingBoxUnitsAttribute(const sk_sp<SkSVGNode>& node,
     return true;
 }
 
-bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                        const char* stringValue) {
-    SkSVGPointsType points;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parsePoints(&points)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGPointsValue(points));
-    return true;
-}
-
 bool SetPreserveAspectRatioAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                                      const char* stringValue) {
     SkSVGPreserveAspectRatio par;
@@ -240,7 +228,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
     { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "patternTransform"   , { SkSVGAttribute::kPatternTransform , SetTransformAttribute    }},
-    { "points"             , { SkSVGAttribute::kPoints           , SetPointsAttribute       }},
     { "preserveAspectRatio", { SkSVGAttribute::kPreserveAspectRatio,
                                SetPreserveAspectRatioAttribute }},
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},

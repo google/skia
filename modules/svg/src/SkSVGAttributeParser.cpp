@@ -640,7 +640,8 @@ bool SkSVGAttributeParser::parse(SkSVGObjectBoundingBoxUnits* objectBoundingBoxU
 }
 
 // https://www.w3.org/TR/SVG11/shapes.html#PolygonElementPointsAttribute
-bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGPointsType* points) {
     SkTDArray<SkPoint> pts;
 
     // Skip initial wsp.
