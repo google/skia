@@ -57,6 +57,7 @@ namespace {
 const uint8_t MAX_TEXT_LENGTH = 255;
 const uint8_t MAX_TEXT_ADDITIONS = 4;
 const uint16_t TEST_CANVAS_WIDTH = 1000;
+const uint16_t TEST_CANVAS_HEIGHT = 1000;
 
 class ResourceFontCollection : public FontCollection {
 public:
@@ -252,7 +253,7 @@ ParagraphStyle BuildParagraphStyle(Fuzz* fuzz) {
 
 }  // namespace
 
-DEF_FUZZ(api_skparagraph, fuzz) {
+DEF_FUZZ(SkParagraph, fuzz) {
     static sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     ParagraphStyle paragraph_style = BuildParagraphStyle(fuzz);
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
@@ -269,6 +270,9 @@ DEF_FUZZ(api_skparagraph, fuzz) {
     builder.pop();
     auto paragraph = builder.Build();
 
+    SkBitmap bm;
+    bm.allocN32Pixels(TEST_CANVAS_WIDTH, TEST_CANVAS_HEIGHT);
+    SkCanvas canvas(bm);
     paragraph->layout(TEST_CANVAS_WIDTH);
-
+    paragraph->paint(&canvas, 0, 0);
 }
