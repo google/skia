@@ -10,8 +10,7 @@
 
 #include "src/sksl/SkSLString.h"
 
-// TODO: This can now be used in SKSL_STANDALONE, with shim code for all of the callbacks.
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 namespace SkSL {
 
