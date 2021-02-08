@@ -2251,10 +2251,8 @@ DEF_TEST(SkVM_128bit, r) {
         floats[i] = i * (1/255.0f);
     }
 
-    skvm::PixelFormat rgba_ffff,
-                      rgba_8888;
-    skvm::SkColorType_to_PixelFormat(kRGBA_F32_SkColorType , &rgba_ffff);
-    skvm::SkColorType_to_PixelFormat(kRGBA_8888_SkColorType, &rgba_8888);
+    skvm::PixelFormat rgba_ffff = skvm::SkColorType_to_PixelFormat(kRGBA_F32_SkColorType),
+                      rgba_8888 = skvm::SkColorType_to_PixelFormat(kRGBA_8888_SkColorType);
 
     {  // Convert RGBA F32 to RGBA 8888, testing 128-bit loads.
         skvm::Builder b;

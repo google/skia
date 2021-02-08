@@ -1023,41 +1023,42 @@ namespace skvm {
         return round(mul(x, limit));
     }
 
-    bool SkColorType_to_PixelFormat(SkColorType ct, PixelFormat* f) {
+    PixelFormat SkColorType_to_PixelFormat(SkColorType ct) {
         auto UNORM = PixelFormat::UNORM,
              FLOAT = PixelFormat::FLOAT;
         switch (ct) {
-            case kUnknown_SkColorType: SkASSERT(false); return false;
+            case kUnknown_SkColorType: break;
 
-            case kRGBA_F32_SkColorType: *f = {FLOAT,32,32,32,32, 0,32,64,96}; return true;
+            case kRGBA_F32_SkColorType: return {FLOAT,32,32,32,32, 0,32,64,96};
 
-            case kRGBA_F16Norm_SkColorType:       *f = {FLOAT,16,16,16,16, 0,16,32,48}; return true;
-            case kRGBA_F16_SkColorType:           *f = {FLOAT,16,16,16,16, 0,16,32,48}; return true;
-            case kR16G16B16A16_unorm_SkColorType: *f = {UNORM,16,16,16,16, 0,16,32,48}; return true;
+            case kRGBA_F16Norm_SkColorType:       return {FLOAT,16,16,16,16, 0,16,32,48};
+            case kRGBA_F16_SkColorType:           return {FLOAT,16,16,16,16, 0,16,32,48};
+            case kR16G16B16A16_unorm_SkColorType: return {UNORM,16,16,16,16, 0,16,32,48};
 
-            case kA16_float_SkColorType:    *f = {FLOAT,  0, 0,0,16, 0, 0,0,0}; return true;
-            case kR16G16_float_SkColorType: *f = {FLOAT, 16,16,0, 0, 0,16,0,0}; return true;
+            case kA16_float_SkColorType:    return {FLOAT,  0, 0,0,16, 0, 0,0,0};
+            case kR16G16_float_SkColorType: return {FLOAT, 16,16,0, 0, 0,16,0,0};
 
-            case kAlpha_8_SkColorType: *f = {UNORM, 0,0,0,8, 0,0,0,0}; return true;
-            case kGray_8_SkColorType:  *f = {UNORM, 8,8,8,0, 0,0,0,0}; return true;  // Subtle.
+            case kAlpha_8_SkColorType: return {UNORM, 0,0,0,8, 0,0,0,0};
+            case kGray_8_SkColorType:  return {UNORM, 8,8,8,0, 0,0,0,0};  // Subtle.
 
-            case kRGB_565_SkColorType:   *f = {UNORM, 5,6,5,0, 11,5,0,0}; return true;  // (BGR)
-            case kARGB_4444_SkColorType: *f = {UNORM, 4,4,4,4, 12,8,4,0}; return true;  // (ABGR)
+            case kRGB_565_SkColorType:   return {UNORM, 5,6,5,0, 11,5,0,0};  // (BGR)
+            case kARGB_4444_SkColorType: return {UNORM, 4,4,4,4, 12,8,4,0};  // (ABGR)
 
-            case kRGBA_8888_SkColorType:  *f = {UNORM, 8,8,8,8,  0,8,16,24}; return true;
-            case kRGB_888x_SkColorType:   *f = {UNORM, 8,8,8,0,  0,8,16,32}; return true;  // 32-bit
-            case kBGRA_8888_SkColorType:  *f = {UNORM, 8,8,8,8, 16,8, 0,24}; return true;
+            case kRGBA_8888_SkColorType:  return {UNORM, 8,8,8,8,  0,8,16,24};
+            case kRGB_888x_SkColorType:   return {UNORM, 8,8,8,0,  0,8,16,32};  // 32-bit
+            case kBGRA_8888_SkColorType:  return {UNORM, 8,8,8,8, 16,8, 0,24};
 
-            case kRGBA_1010102_SkColorType: *f = {UNORM, 10,10,10,2,  0,10,20,30}; return true;
-            case kBGRA_1010102_SkColorType: *f = {UNORM, 10,10,10,2, 20,10, 0,30}; return true;
-            case kRGB_101010x_SkColorType:  *f = {UNORM, 10,10,10,0,  0,10,20, 0}; return true;
-            case kBGR_101010x_SkColorType:  *f = {UNORM, 10,10,10,0, 20,10, 0, 0}; return true;
+            case kRGBA_1010102_SkColorType: return {UNORM, 10,10,10,2,  0,10,20,30};
+            case kBGRA_1010102_SkColorType: return {UNORM, 10,10,10,2, 20,10, 0,30};
+            case kRGB_101010x_SkColorType:  return {UNORM, 10,10,10,0,  0,10,20, 0};
+            case kBGR_101010x_SkColorType:  return {UNORM, 10,10,10,0, 20,10, 0, 0};
 
-            case kR8G8_unorm_SkColorType:   *f = {UNORM,  8, 8,0, 0, 0, 8,0,0}; return true;
-            case kR16G16_unorm_SkColorType: *f = {UNORM, 16,16,0, 0, 0,16,0,0}; return true;
-            case kA16_unorm_SkColorType:    *f = {UNORM,  0, 0,0,16, 0, 0,0,0}; return true;
+            case kR8G8_unorm_SkColorType:   return {UNORM,  8, 8,0, 0, 0, 8,0,0};
+            case kR16G16_unorm_SkColorType: return {UNORM, 16,16,0, 0, 0,16,0,0};
+            case kA16_unorm_SkColorType:    return {UNORM,  0, 0,0,16, 0, 0,0,0};
         }
-        return false;
+        SkASSERT(false);
+        return {UNORM, 0,0,0,0, 0,0,0,0};
     }
 
     static int byte_size(PixelFormat f) {
@@ -1112,8 +1113,7 @@ namespace skvm {
     static void assert_16byte_is_rgba_f32(PixelFormat f) {
     #if defined(SK_DEBUG)
         SkASSERT(byte_size(f) == 16);
-        PixelFormat rgba_f32;
-        SkAssertResult(SkColorType_to_PixelFormat(kRGBA_F32_SkColorType, &rgba_f32));
+        PixelFormat rgba_f32 = SkColorType_to_PixelFormat(kRGBA_F32_SkColorType);
 
         SkASSERT(f.encoding == rgba_f32.encoding);
 
@@ -1209,7 +1209,7 @@ namespace skvm {
         return packed;
     }
 
-    bool Builder::store(PixelFormat f, Ptr ptr, Color c) {
+    void Builder::store(PixelFormat f, Ptr ptr, Color c) {
         // Detect a grayscale PixelFormat: r,g,b bit counts and shifts all equal.
         if (f.r_bits  == f.g_bits  && f.g_bits  == f.b_bits &&
             f.r_shift == f.g_shift && f.g_shift == f.b_shift) {
@@ -1222,24 +1222,23 @@ namespace skvm {
         }
 
         switch (byte_size(f)) {
-            case 1: store8 (ptr, pack32(f,c)); return true;
-            case 2: store16(ptr, pack32(f,c)); return true;
-            case 4: store32(ptr, pack32(f,c)); return true;
+            case 1: store8 (ptr, pack32(f,c)); break;
+            case 2: store16(ptr, pack32(f,c)); break;
+            case 4: store32(ptr, pack32(f,c)); break;
             case 8: {
                 PixelFormat lo,hi;
                 split_disjoint_8byte_format(f, &lo,&hi);
                 store64(ptr, pack32(lo,c)
                            , pack32(hi,c));
-                return true;
+                break;
             }
             case 16: {
                 assert_16byte_is_rgba_f32(f);
                 store128(ptr, pun_to_I32(c.r), pun_to_I32(c.g), pun_to_I32(c.b), pun_to_I32(c.a));
-                return true;
+                break;
             }
             default: SkUNREACHABLE;
         }
-        return false;
     }
 
     void Builder::unpremul(F32* r, F32* g, F32* b, F32 a) {

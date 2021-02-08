@@ -548,7 +548,7 @@ namespace skvm {
         int r_bits,  g_bits,  b_bits,  a_bits,
             r_shift, g_shift, b_shift, a_shift;
     };
-    bool SkColorType_to_PixelFormat(SkColorType, PixelFormat*);
+    PixelFormat SkColorType_to_PixelFormat(SkColorType);
 
     SK_BEGIN_REQUIRE_DENSE
     struct Instruction {
@@ -876,7 +876,7 @@ namespace skvm {
         I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
 
         Color   load(PixelFormat, Ptr ptr);
-        bool   store(PixelFormat, Ptr ptr, Color);
+        void   store(PixelFormat, Ptr ptr, Color);
         Color gather(PixelFormat, Ptr ptr, int offset, I32 index);
         Color gather(PixelFormat f, Uniform u, I32 index) {
             return gather(f, u.ptr, u.offset, index);
@@ -1240,7 +1240,7 @@ namespace skvm {
     SI F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
     SI I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
 
-    SI bool store(PixelFormat f, Ptr p, Color c) { return c->store(f,p,c); }
+    SI void store(PixelFormat f, Ptr p, Color c) { return c->store(f,p,c); }
 
     SI Color gather(PixelFormat f, Ptr p, int off, I32 ix) { return ix->gather(f,p,off,ix); }
     SI Color gather(PixelFormat f, Uniform u     , I32 ix) { return ix->gather(f,u,ix); }
