@@ -583,7 +583,7 @@ namespace skvm {
         Builder();
         explicit Builder(Features);
 
-        Program done(const char* debug_name = nullptr) const;
+        Program done(const char* debug_name = nullptr, bool allow_jit=true) const;
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
@@ -951,7 +951,7 @@ namespace skvm {
     public:
         Program(const std::vector<OptimizedInstruction>& instructions,
                 const std::vector<int>& strides,
-                const char* debug_name);
+                const char* debug_name, bool allow_jit);
 
         Program();
         ~Program();

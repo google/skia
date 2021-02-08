@@ -94,6 +94,19 @@ DEF_TEST(SkVM_memcpy, r) {
     });
 }
 
+DEF_TEST(SkVM_allow_jit, r) {
+    skvm::Builder b;
+    {
+        auto src = b.varying<int>(),
+             dst = b.varying<int>();
+        b.store32(dst, b.load32(src));
+    }
+
+    if (b.done("", /*allow_jit=*/true).hasJIT()) {
+        REPORTER_ASSERT(r, !b.done("", false).hasJIT());
+    }
+}
+
 DEF_TEST(SkVM_LoopCounts, r) {
     // Make sure we cover all the exact N we want.
 

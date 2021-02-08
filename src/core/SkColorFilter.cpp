@@ -119,7 +119,9 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
 
         b.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96},
                 b.varying<SkColor4f>(), unpremul(filtered));
-        b.done().eval(1, uni.buf.data(), &color);  // tell SkVM to skip JIT?
+
+        const bool allow_jit = false;  // We're only filtering one color, no point JITing.
+        b.done("filterColor4f", allow_jit).eval(1, uni.buf.data(), &color);
         return color;
     }
 
