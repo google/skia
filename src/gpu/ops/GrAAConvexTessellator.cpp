@@ -42,8 +42,7 @@ static bool intersect(const SkPoint& p0, const SkPoint& n0,
         return false;
     }
     *t = (v.fX * n1.fY - v.fY * n1.fX) / perpDot;
-    SkASSERT(SkScalarIsFinite(*t));
-    return true;
+    return SkScalarIsFinite(*t);
 }
 
 // This is a special case version of intersect where we have the vector
