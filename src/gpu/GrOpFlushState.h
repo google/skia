@@ -134,12 +134,13 @@ public:
     uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
                                     sk_sp<const GrBuffer>*, int* startIndex,
                                     int* actualIndexCount) final;
-    GrDrawIndirectCommand* makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
-                                                 size_t* offset) override {
+    GrDrawIndirectWriter makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
+                                               size_t* offset) override {
         return fDrawIndirectPool.makeSpace(drawCount, buffer, offset);
     }
-    GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
-            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset) override {
+    GrDrawIndexedIndirectWriter makeDrawIndexedIndirectSpace(int drawCount,
+                                                             sk_sp<const GrBuffer>* buffer,
+                                                             size_t* offset) override {
         return fDrawIndirectPool.makeIndexedSpace(drawCount, buffer, offset);
     }
     void putBackIndices(int indexCount) final;

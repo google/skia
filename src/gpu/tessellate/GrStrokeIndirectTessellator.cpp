@@ -599,11 +599,14 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
         return;
     }
 
+    const GrCaps& caps = target->caps();
+
     // Allocate enough indirect commands for every resolve level. We will putBack the unused ones
     // at the end.
-    GrDrawIndirectCommand* drawIndirectData = target->makeDrawIndirectSpace(
-            kMaxResolveLevel + 1, &fDrawIndirectBuffer, &fDrawIndirectOffset);
-    if (!drawIndirectData) {
+    GrDrawIndirectWriter indirectWriter = target->makeDrawIndirectSpace(kMaxResolveLevel + 1,
+                                                                        &fDrawIndirectBuffer,
+                                                                        &fDrawIndirectOffset);
+    if (!indirectWriter.isValid()) {
         SkASSERT(!fDrawIndirectBuffer);
         return;
     }
@@ -627,11 +630,9 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     for (int i = 0; i <= kMaxResolveLevel; ++i) {
         if (fResolveLevelCounts[i]) {
             int numEdges = numExtraEdgesInJoin + num_edges_in_resolve_level(i);
-            auto& cmd = drawIndirectData[fDrawIndirectCount++];
-            cmd.fVertexCount = numEdges * 2;
-            cmd.fInstanceCount = fResolveLevelCounts[i];
-            cmd.fBaseVertex = 0;
-            cmd.fBaseInstance = baseInstance + currentInstanceIdx;
+            indirectWriter.write(fResolveLevelCounts[i], baseInstance + currentInstanceIdx,
+                                 numEdges * 2, 0, caps);
+            ++fDrawIndirectCount;
             numEdgesPerResolveLevel[i] = numEdges;
             nextInstanceLocations[i] = instanceData + currentInstanceIdx;
 #ifdef SK_DEBUG

@@ -92,6 +92,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrDirectContextPriv.h",
   "$_src/gpu/GrDistanceFieldGenFromVector.cpp",
   "$_src/gpu/GrDistanceFieldGenFromVector.h",
+  "$_src/gpu/GrDrawIndirectCommand.h",
   "$_src/gpu/GrDrawOpAtlas.cpp",
   "$_src/gpu/GrDrawOpAtlas.h",
   "$_src/gpu/GrDrawOpTest.cpp",
