@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7aaa961f_75188a53",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-02-08T16:16:00Z",
+      "side": 1,
+      "message": "I think this is ready for (re-) review now -- fixed treatment of points.",
+      "revId": "723e1bf15fbbbd735ef9440ebdfd8f6218386bd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
