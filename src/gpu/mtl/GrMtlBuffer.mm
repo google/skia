@@ -191,7 +191,8 @@ void GrMtlBuffer::validate() const {
              this->intendedType() == GrGpuBufferType::kVertex ||
              this->intendedType() == GrGpuBufferType::kIndex ||
              this->intendedType() == GrGpuBufferType::kXferCpuToGpu ||
-             this->intendedType() == GrGpuBufferType::kXferGpuToCpu);
+             this->intendedType() == GrGpuBufferType::kXferGpuToCpu ||
+             this->intendedType() == GrGpuBufferType::kDrawIndirect);
     SkASSERT(fMappedBuffer == nil || fMtlBuffer == nil ||
              fMappedBuffer.length <= fMtlBuffer.length);
 }
