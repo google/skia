@@ -210,7 +210,12 @@ protected:
     void assembleMatrixFromExpressions(const ExpressionArray& args, int rows, int columns);
 
     void writeMatrixCompMult();
+
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
+
+    void writeMatrixEqualityHelper(const Type& left, const Type& right);
+
+    void writeMatrixInequalityHelper(const Type& left, const Type& right);
 
     void writeArgumentList(const ExpressionArray& arguments);
 
