@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9366a2a_1efa162c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T19:21:10Z",
+      "side": 1,
+      "message": "It\u0027s difficult to get a feel for the motivation for this since it doesn\u0027t seem to be used in this CL. Is the idea to replace some of the existing uses of SkArenaAlloc?",
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
