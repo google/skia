@@ -33,6 +33,24 @@
       "message": "Too bad you can\u0027t use the current value (kLast)... Is there a way to make that one work in chrome?",
       "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e485083a_68bd30e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2021-02-09T17:31:17Z",
+      "side": 1,
+      "message": "I am not too sure how to do it, the current implementation requires the key word kMaxValue, https://source.chromium.org/chromium/chromium/src/+/master:base/metrics/histogram_functions.h;l\u003d62?ss\u003dchromium%2Fchromium%2Fsrc\u0026q\u003dUmaHistogramEnumeration\n\nIf SKia doesn\u0027t like this kind of enum, i can maybe change to use a different enum constructor.",
+      "parentUuid": "9fc26f1f_69a00775",
+      "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
