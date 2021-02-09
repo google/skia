@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0504db4_b3b98a8b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T19:46:40Z",
+      "side": 0,
+      "message": "mat2x2, 3x3 and 4x4 are not valid in ES2, but we could allow them anyway if we wanted to and we\u0027ll emit the right GLSL.",
+      "range": {
+        "startLine": 240,
+        "startChar": 49,
+        "endLine": 240,
+        "endChar": 55
+      },
+      "revId": "af1d193d46a16d0d852ad3cf4b1d56bbd8485822",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
