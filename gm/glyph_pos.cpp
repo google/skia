@@ -138,7 +138,7 @@ static void drawTestCase(SkCanvas* canvas,
 
         // Magenta lines are the positions for the characters.
         paint.setColor(SK_ColorMAGENTA);
-        SkScalar w = bounds.x();
+        SkScalar w = 0;
         for (size_t i = 0; i < sizeof(kText) - 1; ++i) {
             canvas->drawLine(w, 0.0f, w, 5.0f, paint);
             w += widths[i];
