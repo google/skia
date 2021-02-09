@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkDisplacementMapEffect.h"
 #include "src/effects/imagefilters/SkDropShadowImageFilter.h"
 #include "src/effects/imagefilters/SkImageSource.h"
 #include "src/effects/imagefilters/SkLightingImageFilter.h"
@@ -28,7 +27,6 @@
 
 void SkImageFilters::RegisterFlattenables() {
     SkDilateImageFilter::RegisterFlattenables();
-    SkDisplacementMapEffect::RegisterFlattenables();
     SkDropShadowImageFilter::RegisterFlattenables();
     SkImageSource::RegisterFlattenables();
     SkLightingImageFilter::RegisterFlattenables();
@@ -42,13 +40,6 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::DisplacementMap(
-        SkColorChannel xChannelSelector, SkColorChannel yChannelSelector, SkScalar scale,
-        sk_sp<SkImageFilter> displacement, sk_sp<SkImageFilter> color, const CropRect& cropRect) {
-    return SkDisplacementMapEffect::Make(xChannelSelector, yChannelSelector, scale,
-                                         std::move(displacement), std::move(color), cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::DropShadow(
         SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor color,
