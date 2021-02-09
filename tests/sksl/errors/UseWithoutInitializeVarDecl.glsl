@@ -1,4 +1,5 @@
-### Compilation failed:
 
-error: 1: 'x' has not been assigned
-1 error
+void var_decl() {
+    int x;
+    int y = x;
+}

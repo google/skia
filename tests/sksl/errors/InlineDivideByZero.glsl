@@ -1,6 +1,10 @@
-### Compilation failed:
 
-error: 6: division by zero
-error: 7: division by zero
-error: 8: division by zero
-3 errors
+uniform float unknownInput;
+int getZero() {
+    return 0;
+}
+void main() {
+    int inlineTest = 0 / getZero();
+    inlineTest = (ivec4(0) / getZero()).x;
+    inlineTest = int(unknownInput) / getZero();
+}

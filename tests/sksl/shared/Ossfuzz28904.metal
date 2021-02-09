@@ -6,9 +6,13 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+void n() {
+    all(-int2($intLiteral(2), $intLiteral(1)) == -(-int2($intLiteral(2), $intLiteral(1))));
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    n();
     _out.sk_FragColor = float4(0.0);
     return _out;
 }

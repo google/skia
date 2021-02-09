@@ -48,18 +48,17 @@ if (t > 1.0) t -= 1.0;
 return t < 0.1666666716337204 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0.66666668653488159 ? p + ((q - p) * (0.66666668653488159 - t)) * 6.0 : p));
 )SkSL");
         fragBuilder->codeAppendf(
-                R"SkSL(;)SkSL");
+                R"SkSL(const half3 SK_ITU_BT709_LUM_COEFF = half3(0.2125999927520752, 0.71520000696182251, 0.072200000286102295);)SkSL");
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inColor = %s;
-half4 color = half4(inColor.xyz / max(inColor.w, 9.9999997473787516e-05), inColor.w);
-
+half4 color = unpremul(inColor);
 @if (%s) {
     color.xyz = color.xyz * color.xyz;
 }
 @if (%s) {
-    color = half4(half3(dot(color.xyz, half3(0.2125999927520752, 0.71520000696182251, 0.072200000286102295))), 0.0);
+    color = half4(half3(dot(color.xyz, SK_ITU_BT709_LUM_COEFF)), 0.0);
 }
 @if (%s) {
     color = half4(1.0) - color;
@@ -104,7 +103,7 @@ color = clamp(color, 0.0, 1.0);
 @if (%s) {
     color.xyz = sqrt(color.xyz);
 }
-return half4(color.xyz, 1.0) * inColor.w;
+return half4(color.xyz, half(1)) * inColor.w;
 )SkSL",
                 _sample0.c_str(), (_outer.linearize ? "true" : "false"),
                 (_outer.grayscale ? "true" : "false"), (_outer.invertBrightness ? "true" : "false"),

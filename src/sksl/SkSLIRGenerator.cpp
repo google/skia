@@ -2900,7 +2900,10 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
         if (!type) {
             return nullptr;
         }
-        return std::make_unique<Setting>(fieldNode.fOffset, field, type);
+        if (fIsBuiltinCode || !fSettings->fReplaceSettings) {
+            return std::make_unique<Setting>(fieldNode.fOffset, field, type);
+        }
+        return this->valueForSetting(fieldNode.fOffset, field);
     }
     switch (baseType.typeKind()) {
         case Type::TypeKind::kOther:
