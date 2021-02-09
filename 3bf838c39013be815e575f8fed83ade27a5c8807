@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2943baf0_4e2a2f3f",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-09T19:10:23Z",
+      "side": 1,
+      "message": "Brian this is that key plumbing I mentioned that makes ~everything work.",
+      "range": {
+        "startLine": 385,
+        "startChar": 42,
+        "endLine": 385,
+        "endChar": 60
+      },
+      "revId": "3bf838c39013be815e575f8fed83ade27a5c8807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
