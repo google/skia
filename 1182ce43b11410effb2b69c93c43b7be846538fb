@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cc8efc9_2a5dcf18",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 10
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T21:44:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c6807da_c2720458",
+      "range": {
+        "startLine": 391,
+        "startChar": 45,
+        "endLine": 391,
+        "endChar": 47
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "de4b956c_572accb3",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-09T20:55:22Z",
       "side": 1,
       "message": "in tests, we can/should use let/const; not var.",
+      "range": {
+        "startLine": 87,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 11
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2f59a7d_464993b8",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T21:44:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de4b956c_572accb3",
       "range": {
         "startLine": 87,
         "startChar": 8,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9f5ccbd_26498de4",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T21:44:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e8f669d_8e13e209",
+      "range": {
+        "startLine": 98,
+        "startChar": 13,
+        "endLine": 98,
+        "endChar": 14
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b010551_dfde5627",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-02-09T20:55:22Z",
       "side": 1,
       "message": "const player",
+      "range": {
+        "startLine": 113,
+        "startChar": 16,
+        "endLine": 113,
+        "endChar": 22
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f46ae328_422d7781",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T21:44:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b010551_dfde5627",
       "range": {
         "startLine": 113,
         "startChar": 16,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fc3a1d7_300f70ca",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T21:44:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "008138c0_0e7326d1",
+      "range": {
+        "startLine": 114,
+        "startChar": 16,
+        "endLine": 114,
+        "endChar": 36
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8878c048_ed106ab9",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-02-09T20:55:22Z",
       "side": 1,
       "message": "I think you want done to be inside the promise resolution. (It might be and I\u0027m just having a hard time with nested brackets 😄)",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 12
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0470594c_134afb43",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T21:44:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8878c048_ed106ab9",
       "range": {
         "startLine": 121,
         "startChar": 8,
