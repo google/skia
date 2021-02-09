@@ -167,31 +167,20 @@ void SPIRVCodeGenerator::writeWord(int32_t word, OutputStream& out) {
 }
 
 static bool is_float(const Context& context, const Type& type) {
-    if (type.columns() > 1) {
-        return is_float(context, type.componentType());
-    }
-    return type.isFloat();
+    return (type.isScalar() || type.isVector() || type.isMatrix()) &&
+           type.componentType().isFloat();
 }
 
 static bool is_signed(const Context& context, const Type& type) {
-    if (type.isVector()) {
-        return is_signed(context, type.componentType());
-    }
-    return type.isSigned();
+    return (type.isScalar() || type.isVector()) && type.componentType().isSigned();
 }
 
 static bool is_unsigned(const Context& context, const Type& type) {
-    if (type.isVector()) {
-        return is_unsigned(context, type.componentType());
-    }
-    return type.isUnsigned();
+    return (type.isScalar() || type.isVector()) && type.componentType().isUnsigned();
 }
 
 static bool is_bool(const Context& context, const Type& type) {
-    if (type.isVector()) {
-        return is_bool(context, type.componentType());
-    }
-    return type.isBoolean();
+    return (type.isScalar() || type.isVector()) && type.componentType().isBoolean();
 }
 
 static bool is_out(const Variable& var) {
