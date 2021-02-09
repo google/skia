@@ -13,8 +13,10 @@
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -76,22 +78,34 @@ GrSurfaceProxyView GrSWMaskHelper::threadedExecute(SkTaskGroup* taskGroup,
     });
     auto lazy_cb = [spThis{std::move(spThis)}](GrResourceProvider* provider,
                                                const GrProxyProvider::LazySurfaceDesc& desc) {
+        // Create the texture before waiting on the draw.
+        sk_sp<GrTexture> tex;
+        if (desc.fFit == SkBackingFit::kExact) {
+            tex = provider->createTexture(desc.fDimensions,
+                                          desc.fFormat,
+                                          desc.fRenderable,
+                                          desc.fSampleCnt,
+                                          GrMipmapped::kNo,
+                                          desc.fBudgeted,
+                                          desc.fProtected);
+        } else {
+            tex = provider->createApproxTexture(desc.fDimensions,
+                                                desc.fFormat,
+                                                desc.fRenderable,
+                                                desc.fSampleCnt,
+                                                desc.fProtected);
+        }
         spThis->fSemaphore.wait();
         const SkBitmap& mask = spThis->fBitmap;
-        if (!mask.getPixels()) {
-            return GrProxyProvider::LazyCallbackResult();
+        // If the worker thread was unable to allocate pixels, this check will fail, and we'll
+        // end up drawing with an uninitialized mask texture, but at least we won't crash.
+        if (auto pixels = mask.getPixels()) {
+            GrColorType ct{SkColorTypeToGrColorType(mask.colorType())};
+            auto gpu = provider->priv().gpu();
+            SkAssertResult(gpu->writePixels(tex.get(), /*left=*/0, /*top=*/0, mask.width(),
+                                            mask.height(), ct, ct, pixels, mask.rowBytes()));
         }
-        GrMipLevel mip{mask.getPixels(), mask.pixmap().rowBytes()};
-        GrColorType ct{SkColorTypeToGrColorType(mask.colorType())};
-        sk_sp<GrTexture> tex = provider->createTexture(desc.fDimensions,
-                                                       desc.fFormat,
-                                                       ct,
-                                                       desc.fRenderable,
-                                                       desc.fSampleCnt,
-                                                       desc.fBudgeted,
-                                                       desc.fFit,
-                                                       desc.fProtected,
-                                                       mip);
+
         return GrProxyProvider::LazyCallbackResult(std::move(tex));
     };
     const GrCaps* caps = context->priv().caps();
