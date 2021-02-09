@@ -27,6 +27,7 @@ class ProgramUsage;
 class Statement;
 class Variable;
 class VariableReference;
+enum class VariableRefKind : int8_t;
 
 /**
  * Provides utilities for analyzing SkSL statically before it's composed into a full program.
@@ -48,10 +49,12 @@ struct Analysis {
 
     struct AssignmentInfo {
         VariableReference* fAssignedVar = nullptr;
-        bool fIsSwizzled = false;
     };
     static bool IsAssignable(Expression& expr, AssignmentInfo* info,
                              ErrorReporter* errors = nullptr);
+
+    // Updates the `refKind` field of every VariableReference found within `expr`.
+    static void UpdateRefKind(Expression* expr, VariableRefKind refKind);
 
     // A "trivial" expression is one where we'd feel comfortable cloning it multiple times in
     // the code, without worrying about incurring a performance penalty. Examples:

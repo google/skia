@@ -69,6 +69,8 @@
 
 namespace SkSL {
 
+using RefKind = VariableReference::RefKind;
+
 class AutoSource {
 public:
     AutoSource(Compiler* compiler, const String* source)
@@ -662,28 +664,6 @@ static void vectorize_right(BasicBlock* b,
     vectorize(b, iter, bin.left()->type(), &bin.right(), optimizationContext);
 }
 
-// Mark that an expression which we were writing to is no longer being written to
-static void clear_write(Expression& expr) {
-    switch (expr.kind()) {
-        case Expression::Kind::kVariableReference: {
-            expr.as<VariableReference>().setRefKind(VariableReference::RefKind::kRead);
-            break;
-        }
-        case Expression::Kind::kFieldAccess:
-            clear_write(*expr.as<FieldAccess>().base());
-            break;
-        case Expression::Kind::kSwizzle:
-            clear_write(*expr.as<Swizzle>().base());
-            break;
-        case Expression::Kind::kIndex:
-            clear_write(*expr.as<IndexExpression>().base());
-            break;
-        default:
-            SK_ABORT("shouldn't be writing to this kind of expression\n");
-            break;
-    }
-}
-
 void Compiler::simplifyExpression(DefinitionMap& definitions,
                                   BasicBlock& b,
                                   std::vector<BasicBlock::Node>::iterator* iter,
@@ -868,25 +848,25 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     break;
                 case Token::Kind::TK_PLUSEQ:
                     if (is_constant(right, 0)) {
-                        clear_write(left);
+                        Analysis::UpdateRefKind(&left, RefKind::kRead);
                         delete_right(&b, iter, optimizationContext);
                     }
                     break;
                 case Token::Kind::TK_MINUSEQ:
                     if (is_constant(right, 0)) {
-                        clear_write(left);
+                        Analysis::UpdateRefKind(&left, RefKind::kRead);
                         delete_right(&b, iter, optimizationContext);
                     }
                     break;
                 case Token::Kind::TK_STAREQ:
                     if (is_constant(right, 1)) {
-                        clear_write(left);
+                        Analysis::UpdateRefKind(&left, RefKind::kRead);
                         delete_right(&b, iter, optimizationContext);
                     }
                     break;
                 case Token::Kind::TK_SLASHEQ:
                     if (is_constant(right, 1)) {
-                        clear_write(left);
+                        Analysis::UpdateRefKind(&left, RefKind::kRead);
                         delete_right(&b, iter, optimizationContext);
                     }
                     break;
