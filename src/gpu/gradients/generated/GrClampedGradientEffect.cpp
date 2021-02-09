@@ -51,7 +51,7 @@ if (!%s && t.y < 0.0) {
                 (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar),
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
-        SkString _coords1("float2(half2(t.x, 0.0))");
+        SkString _coords1("float2(half2(t.x, half(0)))");
         SkString _sample1 = this->invokeChild(0, args, _coords1.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(

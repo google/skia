@@ -17,12 +17,20 @@ struct Outputs {
 };
 struct Globals {
     A a1;
+    A a2;
+    A a3;
     B b1;
+    B b2;
+    B b3;
 };
 
 
+
+
+
+
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{{}, {}};
+    Globals _globals{{}, {}, {}, {}, {}, {}};
     (void)_globals;
     Outputs _out;
     (void)_out;

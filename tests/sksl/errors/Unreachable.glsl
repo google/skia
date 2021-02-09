@@ -1,7 +1,24 @@
-### Compilation failed:
 
-error: 1: unreachable
-error: 2: unreachable
-error: 3: unreachable
-error: 4: unreachable
-4 errors
+void return_after_return() {
+    return;
+    return;
+}
+void call_after_return() {
+    return;
+    call_after_return();
+}
+void code_after_continue() {
+    for (; ; ) {
+        continue;
+        int x = 1;
+    }
+}
+void code_after_if_else_both_sided_exit() {
+    return;
+    return;
+}
+void code_after_infinite_loop() {
+    for (; ; ) {
+    }
+    return;
+}

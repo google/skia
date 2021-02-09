@@ -8,6 +8,9 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float _guarded_divide(float n, float d) {
+    return n / d;
+}
 float _soft_light_component(float2 s, float2 d) {
     if (2.0 * s.x <= s.y) {
         float _8_n = (d.x * d.x) * (s.y - 2.0 * s.x);
@@ -25,12 +28,14 @@ float _soft_light_component(float2 s, float2 d) {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
 }
+float4 blend_soft_light(float4 src, float4 dst) {
+    return dst.w == 0.0 ? src : float4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
+}
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = _in.dst.w == 0.0 ? _in.src : float4(_soft_light_component(_in.src.xw, _in.dst.xw), _soft_light_component(_in.src.yw, _in.dst.yw), _soft_light_component(_in.src.zw, _in.dst.zw), _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
-
+    _out.sk_FragColor = blend_soft_light(_in.src, _in.dst);
     return _out;
 }
