@@ -59,11 +59,8 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
         !this->type().isArray()) {
         return initialValue->clone();
     }
-    std::unique_ptr<Expression>** exprPPtr = definitions.find(this->variable());
-    if (exprPPtr && *exprPPtr && (**exprPPtr)->isCompileTimeConstant()) {
-        return (**exprPPtr)->clone();
-    }
-    return nullptr;
+    Expression* expr = definitions.getKnownDefinition(this->variable());
+    return expr ? expr->clone() : nullptr;
 }
 
 }  // namespace SkSL
