@@ -32,14 +32,14 @@ public:
         (void)invVM;
         auto isFast = _outer.isFast;
         (void)isFast;
-        highp = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
-                 abs(rect.right()) > 16000.0) ||
-                abs(rect.bottom()) > 16000.0;
-        if (highp) {
+        highPrecision = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
+                         abs(rect.right()) > 16000.0) ||
+                        abs(rect.bottom()) > 16000.0;
+        if (highPrecision) {
             rectFVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                         kFloat4_GrSLType, "rectF");
         }
-        if (!highp) {
+        if (!highPrecision) {
             rectHVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                         kHalf4_GrSLType, "rectH");
         }
@@ -48,7 +48,7 @@ public:
                                                         kFloat3x3_GrSLType, "invVM");
         }
         fragBuilder->codeAppendf(
-                R"SkSL(/* key */ bool highp = %s;
+                R"SkSL(/* key */ bool highPrecision = %s;
 half xCoverage;
 half yCoverage;
 
@@ -58,12 +58,12 @@ float2 pos = sk_FragCoord.xy;
 }
 @if (%s) {
     half2 xy;
-    @if (highp) {
+    @if (highPrecision) {
         xy = max(half2(%s.xy - pos), half2(pos - %s.zw));
     } else {
         xy = max(half2(float2(%s.xy) - pos), half2(pos - float2(%s.zw)));
     })SkSL",
-                (highp ? "true" : "false"), (_outer.applyInvVM ? "true" : "false"),
+                (highPrecision ? "true" : "false"), (_outer.applyInvVM ? "true" : "false"),
                 invVMVar.isValid() ? args.fUniformHandler->getUniformCStr(invVMVar) : "float3x3(1)",
                 (_outer.isFast ? "true" : "false"),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
@@ -83,7 +83,7 @@ float2 pos = sk_FragCoord.xy;
     yCoverage = %s.w;
 } else {
     half4 rect;
-    @if (highp) {
+    @if (highPrecision) {
         rect.xy = half2(%s.xy - pos);
         rect.zw = half2(pos - %s.zw);
     } else {
@@ -144,9 +144,9 @@ private:
         (void)isFast;
 
         float r[]{rect.fLeft, rect.fTop, rect.fRight, rect.fBottom};
-        pdman.set4fv(highp ? rectF : rectH, 1, r);
+        pdman.set4fv(highPrecision ? rectF : rectH, 1, r);
     }
-    bool highp = false;
+    bool highPrecision = false;
     UniformHandle rectFVar;
     UniformHandle rectHVar;
     UniformHandle invVMVar;
@@ -156,10 +156,10 @@ GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
 }
 void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
-    bool highp = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
-                  abs(rect.right()) > 16000.0) ||
-                 abs(rect.bottom()) > 16000.0;
-    b->add32((uint32_t)highp);
+    bool highPrecision = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
+                          abs(rect.right()) > 16000.0) ||
+                         abs(rect.bottom()) > 16000.0;
+    b->add32((uint32_t)highPrecision);
     b->add32((uint32_t)applyInvVM);
     b->add32((uint32_t)isFast);
 }
