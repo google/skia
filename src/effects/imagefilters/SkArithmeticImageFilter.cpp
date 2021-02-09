@@ -5,17 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/imagefilters/SkArithmeticImageFilter.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkXfermodeImageFilter.h"
+
 #if SK_SUPPORT_GPU
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -34,11 +33,13 @@
 
 namespace {
 
-class ArithmeticImageFilterImpl final : public SkImageFilter_Base {
+class SkArithmeticImageFilter final : public SkImageFilter_Base {
 public:
-    ArithmeticImageFilterImpl(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                              sk_sp<SkImageFilter> inputs[2], const SkRect* cropRect)
-            : INHERITED(inputs, 2, cropRect), fInputs{k1, k2, k3, k4, enforcePMColor} {}
+    SkArithmeticImageFilter(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                            sk_sp<SkImageFilter> inputs[2], const SkRect* cropRect)
+            : INHERITED(inputs, 2, cropRect)
+            , fK{k1, k2, k3, k4}
+            , fEnforcePMColor(enforcePMColor) {}
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
@@ -60,23 +61,23 @@ protected:
     void drawForeground(SkCanvas* canvas, SkSpecialImage*, const SkIRect&) const;
 
 private:
-    friend void SkArithmeticImageFilter::RegisterFlattenables();
-    SK_FLATTENABLE_HOOKS(ArithmeticImageFilterImpl)
+    friend void ::SkRegisterArithmeticImageFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkArithmeticImageFilter)
 
-    bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fInputs.fK[3]); }
+    bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
 
-    ArithmeticFPInputs fInputs;
+    SkV4 fK;
+    bool fEnforcePMColor;
 
     using INHERITED = SkImageFilter_Base;
 };
 
 }; // end namespace
 
-sk_sp<SkImageFilter> SkArithmeticImageFilter::Make(float k1, float k2, float k3, float k4,
-                                                   bool enforcePMColor,
-                                                   sk_sp<SkImageFilter> background,
-                                                   sk_sp<SkImageFilter> foreground,
-                                                   const SkRect* crop) {
+sk_sp<SkImageFilter> SkImageFilters::Arithmetic(
+        SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4, bool enforcePMColor,
+        sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
+        const CropRect& cropRect) {
     if (!SkScalarIsFinite(k1) || !SkScalarIsFinite(k2) || !SkScalarIsFinite(k3) ||
         !SkScalarIsFinite(k4)) {
         return nullptr;
@@ -95,22 +96,21 @@ sk_sp<SkImageFilter> SkArithmeticImageFilter::Make(float k1, float k2, float k3,
         mode = (int)SkBlendMode::kClear;
     }
     if (mode >= 0) {
-        return SkXfermodeImageFilter::Make((SkBlendMode)mode, std::move(background),
-                                           std::move(foreground), crop);
+        return SkImageFilters::Blend((SkBlendMode)mode, std::move(background),
+                                     std::move(foreground), cropRect);
     }
 
     sk_sp<SkImageFilter> inputs[2] = {std::move(background), std::move(foreground)};
     return sk_sp<SkImageFilter>(
-            new ArithmeticImageFilterImpl(k1, k2, k3, k4, enforcePMColor, inputs, crop));
+            new SkArithmeticImageFilter(k1, k2, k3, k4, enforcePMColor, inputs, cropRect));
 }
 
-void SkArithmeticImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(ArithmeticImageFilterImpl);
+void SkRegisterArithmeticImageFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkArithmeticImageFilter);
+    SkFlattenable::Register("ArithmeticImageFilterImpl", SkArithmeticImageFilter::CreateProc);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkArithmeticImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     float k[4];
     for (int i = 0; i < 4; ++i) {
@@ -120,24 +120,26 @@ sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer)
     if (!buffer.isValid()) {
         return nullptr;
     }
-    return SkArithmeticImageFilter::Make(k[0], k[1], k[2], k[3], enforcePMColor, common.getInput(0),
-                                         common.getInput(1), common.cropRect());
+    return SkImageFilters::Arithmetic(k[0], k[1], k[2], k[3], enforcePMColor, common.getInput(0),
+                                      common.getInput(1), common.cropRect());
 }
 
-void ArithmeticImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
+void SkArithmeticImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     for (int i = 0; i < 4; ++i) {
-        buffer.writeScalar(fInputs.fK[i]);
+        buffer.writeScalar(fK[i]);
     }
-    buffer.writeBool(fInputs.fEnforcePMColor);
+    buffer.writeBool(fEnforcePMColor);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static Sk4f pin(float min, const Sk4f& val, float max) {
     return Sk4f::Max(min, Sk4f::Min(val, max));
 }
 
 template <bool EnforcePMColor>
-void arith_span(const float k[], SkPMColor dst[], const SkPMColor src[], int count) {
+void arith_span(const SkV4& k, SkPMColor dst[], const SkPMColor src[], int count) {
     const Sk4f k1 = k[0] * (1/255.0f),
                k2 = k[1],
                k3 = k[2],
@@ -156,7 +158,7 @@ void arith_span(const float k[], SkPMColor dst[], const SkPMColor src[], int cou
 }
 
 // apply mode to src==transparent (0)
-template<bool EnforcePMColor> void arith_transparent(const float k[], SkPMColor dst[], int count) {
+template<bool EnforcePMColor> void arith_transparent(const SkV4& k, SkPMColor dst[], int count) {
     const Sk4f k3 = k[2],
                k4 = k[3] * 255.0f + 0.5f;
 
@@ -187,8 +189,8 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
     return true;
 }
 
-sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(const Context& ctx,
-                                                               SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkArithmeticImageFilter::onFilterImage(const Context& ctx,
+                                                             SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> background(this->filterInput(0, ctx, &backgroundOffset));
 
@@ -250,10 +252,10 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(const Context& ct
     return surf->makeImageSnapshot();
 }
 
-SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
-                                                  const SkMatrix& ctm,
-                                                  MapDirection dir,
-                                                  const SkIRect* inputRect) const {
+SkIRect SkArithmeticImageFilter::onFilterBounds(const SkIRect& src,
+                                                const SkMatrix& ctm,
+                                                MapDirection dir,
+                                                const SkIRect* inputRect) const {
     if (kReverse_MapDirection == dir) {
         return INHERITED::onFilterBounds(src, ctm, dir, inputRect);
     }
@@ -267,33 +269,33 @@ SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
 
     // Arithmetic with non-zero k4 may influence the complete filter primitive
     // region. [k4 > 0 => result(0,0) = k4 => result(i1,i2) >= k4]
-    if (!SkScalarNearlyZero(fInputs.fK[3])) {
+    if (!SkScalarNearlyZero(fK[3])) {
         i1.join(i2);
         return i1;
     }
 
     // If both K2 or K3 are non-zero, both i1 and i2 appear.
-    if (!SkScalarNearlyZero(fInputs.fK[1]) && !SkScalarNearlyZero(fInputs.fK[2])) {
+    if (!SkScalarNearlyZero(fK[1]) && !SkScalarNearlyZero(fK[2])) {
         i1.join(i2);
         return i1;
     }
 
     // If k2 is non-zero, output can be produced whenever i1 is non-transparent.
     // [k3 = k4 = 0 => result(i1,i2) = k1*i1*i2 + k2*i1 = (k1*i2 + k2)*i1]
-    if (!SkScalarNearlyZero(fInputs.fK[1])) {
+    if (!SkScalarNearlyZero(fK[1])) {
         return i1;
     }
 
     // If k3 is non-zero, output can be produced whenever i2 is non-transparent.
     // [k2 = k4 = 0 => result(i1,i2) = k1*i1*i2 + k3*i2 = (k1*i1 + k3)*i2]
-    if (!SkScalarNearlyZero(fInputs.fK[2])) {
+    if (!SkScalarNearlyZero(fK[2])) {
         return i2;
     }
 
     // If just k1 is non-zero, output will only be produce where both inputs
     // are non-transparent. Use intersection.
     // [k1 > 0 and k2 = k3 = k4 = 0 => result(i1,i2) = k1*i1*i2]
-    if (!SkScalarNearlyZero(fInputs.fK[0])) {
+    if (!SkScalarNearlyZero(fK[0])) {
         if (!i1.intersect(i2)) {
             return SkIRect::MakeEmpty();
         }
@@ -306,7 +308,7 @@ SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
 
 #if SK_SUPPORT_GPU
 
-sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
+sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
         const Context& ctx,
         sk_sp<SkSpecialImage> background,
         const SkIPoint& backgroundOffset,
@@ -373,7 +375,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                              foreground->alphaType(),
                                              ctx.colorSpace(),
                                              kPremul_SkAlphaType);
-        fp = GrArithmeticProcessor::Make(std::move(fgFP), std::move(fp), fInputs);
+        fp = GrArithmeticProcessor::Make(std::move(fgFP), std::move(fp), fK, fEnforcePMColor);
     }
 
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
@@ -400,8 +402,8 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 }
 #endif
 
-void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
-                                               const SkIRect& fgBounds) const {
+void SkArithmeticImageFilter::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
+                                             const SkIRect& fgBounds) const {
     SkPixmap dst;
     if (!canvas->peekPixels(&dst)) {
         return;
@@ -424,11 +426,11 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
             return;
         }
 
-        auto proc = fInputs.fEnforcePMColor ? arith_span<true> : arith_span<false>;
+        auto proc = fEnforcePMColor ? arith_span<true> : arith_span<false>;
         SkPixmap tmpDst = dst;
         if (intersect(&tmpDst, &src, fgoffset.fLeft, fgoffset.fTop)) {
             for (int y = 0; y < tmpDst.height(); ++y) {
-                proc(fInputs.fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
+                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
             }
         }
     }
@@ -436,11 +438,11 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
     // Now apply the mode with transparent-color to the outside of the fg image
     SkRegion outside(SkIRect::MakeWH(dst.width(), dst.height()));
     outside.op(fgoffset, SkRegion::kDifference_Op);
-    auto proc = fInputs.fEnforcePMColor ? arith_transparent<true> : arith_transparent<false>;
+    auto proc = fEnforcePMColor ? arith_transparent<true> : arith_transparent<false>;
     for (SkRegion::Iterator iter(outside); !iter.done(); iter.next()) {
         const SkIRect r = iter.rect();
         for (int y = r.fTop; y < r.fBottom; ++y) {
-            proc(fInputs.fK, dst.writable_addr32(r.fLeft, y), r.width());
+            proc(fK, dst.writable_addr32(r.fLeft, y), r.width());
         }
     }
 }
