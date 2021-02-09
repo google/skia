@@ -63,9 +63,9 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
                          bool expectedResult) {
     GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, 1));
 
-    alloc.addInterval(p1.get(), 0, 4);
+    alloc.addInterval(p1.get(), 0, 4, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
-    alloc.addInterval(p2.get(), 1, 2);
+    alloc.addInterval(p2.get(), 1, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
     alloc.markEndOfOpsTask(0);
 
@@ -96,8 +96,8 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     alloc.incOps();
     alloc.incOps();
 
-    alloc.addInterval(p1.get(), 0, 2);
-    alloc.addInterval(p2.get(), 3, 5);
+    alloc.addInterval(p1.get(), 0, 2, GrResourceAllocator::ActualUse::kYes);
+    alloc.addInterval(p2.get(), 3, 5, GrResourceAllocator::ActualUse::kYes);
     alloc.markEndOfOpsTask(0);
 
     alloc.determineRecyclability();
@@ -275,15 +275,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
 
         GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, 2));
 
-        alloc.addInterval(p1.get(), 0, 0);
+        alloc.addInterval(p1.get(), 0, 0, GrResourceAllocator::ActualUse::kYes);
         alloc.incOps();
-        alloc.addInterval(p2.get(), 1, 1);
+        alloc.addInterval(p2.get(), 1, 1, GrResourceAllocator::ActualUse::kYes);
         alloc.incOps();
         alloc.markEndOfOpsTask(0);
 
-        alloc.addInterval(p3.get(), 2, 2);
+        alloc.addInterval(p3.get(), 2, 2, GrResourceAllocator::ActualUse::kYes);
         alloc.incOps();
-        alloc.addInterval(p4.get(), 3, 3);
+        alloc.addInterval(p4.get(), 3, 3, GrResourceAllocator::ActualUse::kYes);
         alloc.incOps();
         alloc.markEndOfOpsTask(1);
 
@@ -354,22 +354,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
 
     GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, 4));
 
-    alloc.addInterval(proxyWrapped.get(), 0, 0);
+    alloc.addInterval(proxyWrapped.get(), 0, 0, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
     alloc.markEndOfOpsTask(0);
 
-    alloc.addInterval(proxyWrapped2.get(), 1, 1);
+    alloc.addInterval(proxyWrapped2.get(), 1, 1, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
     alloc.markEndOfOpsTask(1);
 
-    alloc.addInterval(proxy1.get(), 2, 2);
+    alloc.addInterval(proxy1.get(), 2, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
     alloc.markEndOfOpsTask(2);
 
-    // We want to force the resource allocator to do an intermediateFlush for the previous interval.
+    // We want to force the resource allocator to do a intermediateFlush for the previous interval.
     // But if it is the resource allocator is at the of its list of intervals it skips the
     // intermediate flush call, so we add another interval here so it is not skipped.
-    alloc.addInterval(proxy2.get(), 3, 3);
+    alloc.addInterval(proxy2.get(), 3, 3, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
     alloc.markEndOfOpsTask(3);
 

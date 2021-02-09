@@ -75,9 +75,19 @@ public:
     unsigned int curOp() const { return fNumOps; }
     void incOps() { fNumOps++; }
 
+    /** Indicates whether a given call to addInterval represents an actual usage of the
+     *  provided proxy. This is mainly here to accommodate deferred proxies attached to opsTasks.
+     *  In that case we need to create an extra long interval for them (due to the upload) but
+     *  don't want to count that usage/reference towards the proxy's recyclability.
+     */
+    enum class ActualUse : bool {
+        kNo  = false,
+        kYes = true
+    };
+
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
     enum class AssignError {
