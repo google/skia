@@ -75,10 +75,11 @@ public:
         return SkToBool(FormatInfo::kBlitSrc_Flag & flags);
     }
 
-    // Sometimes calls to QueueWaitIdle return before actually signalling the fences
-    // on the command buffers even though they have completed. This causes an assert to fire when
-    // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
-    bool mustSleepOnTearDown() const { return fMustSleepOnTearDown; }
+    // On some GPUs (Windows Nvidia and Imagination) calls to QueueWaitIdle return before actually
+    // signalling the fences on the command buffers even though they have completed. This causes
+    // issues when then deleting the command buffers. Therefore we additionally will call
+    // vkWaitForFences on each outstanding command buffer to make sure the driver signals the fence.
+    bool mustSyncCommandBuffersWithQueue() const { return fMustSyncCommandBuffersWithQueue; }
 
     // Returns true if we should always make dedicated allocations for VkImages.
     bool shouldAlwaysUseDedicatedImageMemory() const {
@@ -345,7 +346,7 @@ private:
 
     SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
 
-    bool fMustSleepOnTearDown = false;
+    bool fMustSyncCommandBuffersWithQueue = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
 
     bool fAvoidUpdateBuffers = false;

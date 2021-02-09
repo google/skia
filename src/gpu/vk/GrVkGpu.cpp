@@ -50,14 +50,6 @@
 
 #include <utility>
 
-#if !defined(SK_BUILD_FOR_WIN)
-#include <unistd.h>
-#endif // !defined(SK_BUILD_FOR_WIN)
-
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
-#include "src/core/SkLeanWindows.h"
-#endif
-
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RESULT(this, RET, X)
 
@@ -2172,19 +2164,9 @@ bool GrVkGpu::onSubmitToGpu(bool syncCpu) {
 void GrVkGpu::finishOutstandingGpuWork() {
     VK_CALL(QueueWaitIdle(fQueue));
 
-    // On Windows and Imagination, sometimes calls to QueueWaitIdle return before actually
-    // signalling the fences on the command buffers even though they have completed. This causes an
-    // assert to fire when destroying the command buffers. Therefore we add asleep to make sure the
-    // fence signals.
-    #ifdef SK_DEBUG
-        if (this->vkCaps().mustSleepOnTearDown()) {
-    #if defined(SK_BUILD_FOR_WIN)
-            Sleep(10);  // In milliseconds
-    #else
-            sleep(1);  // In seconds
-    #endif
-        }
-    #endif
+    if (this->vkCaps().mustSyncCommandBuffersWithQueue()) {
+        fResourceProvider.forceSyncAllCommandBuffers();
+    }
 }
 
 void GrVkGpu::onReportSubmitHistograms() {

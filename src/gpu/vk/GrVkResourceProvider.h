@@ -103,6 +103,8 @@ public:
 
     void checkCommandBuffers();
 
+    void forceSyncAllCommandBuffers();
+
     // We must add the finishedProc to all active command buffers since we may have flushed work
     // that the client cares about before they explicitly called flush and the GPU may reorder
     // command execution. So we make sure all previously submitted work finishes before we call the

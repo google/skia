@@ -476,11 +476,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
 #if defined(SK_BUILD_FOR_WIN)
     if (kNvidia_VkVendor == properties.vendorID || kIntel_VkVendor == properties.vendorID) {
-        fMustSleepOnTearDown = true;
+        fMustSyncCommandBuffersWithQueue = true;
     }
 #elif defined(SK_BUILD_FOR_ANDROID)
     if (kImagination_VkVendor == properties.vendorID) {
-        fMustSleepOnTearDown = true;
+        fMustSyncCommandBuffersWithQueue = true;
     }
 #endif
 

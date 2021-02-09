@@ -646,7 +646,9 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
 }
 
 void GrVkPrimaryCommandBuffer::forceSync(GrVkGpu* gpu) {
-    SkASSERT(fSubmitFence != VK_NULL_HANDLE);
+    if (fSubmitFence == VK_NULL_HANDLE) {
+        return;
+    }
     GR_VK_CALL_ERRCHECK(gpu, WaitForFences(gpu->device(), 1, &fSubmitFence, true, UINT64_MAX));
 }
 
