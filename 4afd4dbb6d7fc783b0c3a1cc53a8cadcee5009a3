@@ -16,6 +16,23 @@
       "message": "Could you please review this patch? This is the preparation for the chromium cl that add the histogram, https://chromium-review.googlesource.com/c/chromium/src/+/2683715",
       "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fc26f1f_69a00775",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-09T14:25:13Z",
+      "side": 1,
+      "message": "Too bad you can\u0027t use the current value (kLast)... Is there a way to make that one work in chrome?",
+      "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
