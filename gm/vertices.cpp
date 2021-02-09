@@ -305,7 +305,7 @@ DEF_SIMPLE_GM(vertices_data, canvas, 512, 256) {
                 return vtx_color;
             }
         )";
-        auto[effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
         if (!effect) {
             SK_ABORT("RuntimeEffect error: %s\n", errorText.c_str());
         }

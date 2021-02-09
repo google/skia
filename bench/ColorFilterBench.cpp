@@ -204,14 +204,14 @@ DEF_BENCH( return new ColorFilterBench("gaussian", []() {
 
 #if SK_SUPPORT_GPU
 DEF_BENCH( return new ColorFilterBench("src_runtime", []() {
-        static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
-                SkRuntimeEffect::Make(SkString(RuntimeNone_GPU_SRC)));
+        static sk_sp<SkRuntimeEffect> gEffect =
+                SkRuntimeEffect::Make(SkString(RuntimeNone_GPU_SRC)).effect;
         sk_sp<SkColorFilter> input = nullptr;
         return gEffect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
     });)
 DEF_BENCH( return new ColorFilterBench("matrix_runtime", []() {
-        static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
-                SkRuntimeEffect::Make(SkString(RuntimeColorMatrix_GPU_SRC)));
+        static sk_sp<SkRuntimeEffect> gEffect =
+                SkRuntimeEffect::Make(SkString(RuntimeColorMatrix_GPU_SRC)).effect;
         sk_sp<SkColorFilter> input = nullptr;
         return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)),
                                         &input, 1);
