@@ -14,7 +14,6 @@
 
 namespace SkSL {
 
-class FunctionDeclaration;
 struct Program;
 class VarDeclaration;
 
@@ -22,8 +21,11 @@ namespace PipelineStage {
     class Callbacks {
     public:
         virtual ~Callbacks() = default;
+
+        virtual String getMangledName(const char* name) { return name; }
+        virtual void   defineFunction(const char* declaration, const char* body, bool isMain) = 0;
+
         virtual String declareUniform(const VarDeclaration*) = 0;
-        virtual String defineFunction(const FunctionDeclaration*, String body) = 0;
         virtual String sampleChild(int index, String coords) = 0;
         virtual String sampleChildWithMatrix(int index, String matrix) = 0;
     };

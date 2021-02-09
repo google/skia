@@ -56,6 +56,7 @@ private:
     void write(const String& s);
     void write(StringFragment s);
 
+    String typeName(const Type& type);
     void writeType(const Type& type);
 
     void writeFunction(const FunctionDefinition& f);
@@ -288,8 +289,36 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         fCastReturnsToHalf = false;
     }
 
-    String fnName = fCallbacks->defineFunction(&f.declaration(), body.fBuffer.str());
+    String fnName =
+            isMain ? "main" : fCallbacks->getMangledName(String(f.declaration().name()).c_str());
+
+    // This is similar to decl->description(), but substitutes a mangled name, and handles
+    // modifiers on parameters (eg inout).
+    const FunctionDeclaration& decl = f.declaration();
+    String declString =
+            String::printf("%s %s(", this->typeName(decl.returnType()).c_str(), fnName.c_str());
+    const char* separator = "";
+    for (auto p : decl.parameters()) {
+        // TODO: Handle arrays
+        const char* typeModifier = "";
+        switch (p->modifiers().fFlags & (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag)) {
+            case SkSL::Modifiers::kOut_Flag:
+                typeModifier = "out ";
+                break;
+            case SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag:
+                typeModifier = "inout ";
+                break;
+            default:
+                break;
+        }
+        declString.appendf("%s%s%s %s", separator, typeModifier, this->typeName(p->type()).c_str(),
+                           String(p->name()).c_str());
+        separator = ", ";
+    }
+    declString.append(")");
+
     fFunctionNames.insert({&f.declaration(), std::move(fnName)});
+    fCallbacks->defineFunction(declString.c_str(), body.fBuffer.str().c_str(), isMain);
 }
 
 void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& g) {
@@ -331,8 +360,12 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& e) {
     }
 }
 
+String PipelineStageCodeGenerator::typeName(const Type& type) {
+    return type.name();
+}
+
 void PipelineStageCodeGenerator::writeType(const Type& type) {
-    this->write(type.name());
+    this->write(this->typeName(type));
 }
 
 void PipelineStageCodeGenerator::writeExpression(const Expression& expr,

@@ -8,7 +8,6 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -34,9 +33,7 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
             return decl->var().name();
         }
 
-        String defineFunction(const SkSL::FunctionDeclaration* decl, String /*body*/) override {
-            return decl->name();
-        }
+        void defineFunction(const char* /*decl*/, const char* /*body*/, bool /*isMain*/) override {}
 
         String sampleChild(int index, String coords) override {
             return SkSL::String::printf("sample(%d%s%s)", index, coords.empty() ? "" : ", ",
