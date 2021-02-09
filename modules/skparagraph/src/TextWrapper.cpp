@@ -196,16 +196,10 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
     }
 
     auto width = fEndLine.widthWithGhostSpaces();
-    auto cluster = fEndLine.breakCluster();
-    if (fEndLine.endCluster() != fEndLine.startCluster() ||
-        fEndLine.endPos() != fEndLine.startPos()) {
+    auto cluster = fEndLine.breakCluster() + 1;
+    while (cluster < endOfClusters && cluster->isWhitespaces()) {
+        width += cluster->width();
         ++cluster;
-        while (cluster < endOfClusters && cluster->isWhitespaces()) {
-            width += cluster->width();
-            ++cluster;
-        }
-    } else {
-        // Nothing fits the line - no need to check for spaces
     }
 
     return std::make_tuple(cluster, 0, width);
