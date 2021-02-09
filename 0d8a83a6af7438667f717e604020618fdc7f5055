@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "798de5b3_f8b02cec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-02-09T20:25:12Z",
+      "side": 1,
+      "message": "It\u0027s a regression from the \"Glyph positions in empty lines\" patch",
+      "revId": "0d8a83a6af7438667f717e604020618fdc7f5055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
