@@ -432,6 +432,7 @@ void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
     this->deleteOps();
     fClipAllocators.reset();
 
+    fDeferredProxies.reset();
     fSampledProxies.reset();
     fAuditTrail = nullptr;
 
@@ -674,6 +675,7 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
 }
 
 void GrOpsTask::reset() {
+    fDeferredProxies.reset();
     fSampledProxies.reset();
     fClipAllocators.reset();
     fClippedContentBounds = SkIRect::MakeEmpty();
@@ -722,9 +724,11 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         fColorLoadOp = GrLoadOp::kClear;
         fLoadClearColor = opsTasks.front()->fLoadClearColor;
     }
+    int addlDeferredProxyCount = 0;
     int addlProxyCount = 0;
     int addlOpChainCount = 0;
     for (const auto& opsTask : opsTasks) {
+        addlDeferredProxyCount += opsTask->fDeferredProxies.count();
         addlProxyCount += opsTask->fSampledProxies.count();
         addlOpChainCount += opsTask->fOpChains.count();
         fClippedContentBounds.join(opsTask->fClippedContentBounds);
@@ -734,10 +738,13 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     }
 
     fLastClipStackGenID = SK_InvalidUniqueID;
+    fDeferredProxies.reserve_back(addlDeferredProxyCount);
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
     fClipAllocators.reserve_back(opsTasks.count());
     for (const auto& opsTask : opsTasks) {
+        fDeferredProxies.move_back_n(opsTask->fDeferredProxies.count(),
+                                     opsTask->fDeferredProxies.data());
         fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
                                     opsTask->fSampledProxies.data());
         fOpChains.move_back_n(opsTask->fOpChains.count(),
@@ -745,6 +752,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         SkASSERT(1 == opsTask->fClipAllocators.count());
         fClipAllocators.push_back(std::move(opsTask->fClipAllocators[0]));
         opsTask->fClipAllocators.reset();
+        opsTask->fDeferredProxies.reset();
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();
     }
@@ -755,6 +763,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
     if (CanDiscardPreviousOps::kYes == canDiscardPreviousOps || this->isEmpty()) {
         this->deleteOps();
+        fDeferredProxies.reset();
         fSampledProxies.reset();
 
         // If the opsTask is using a render target which wraps a vulkan command buffer, we can't do
@@ -892,6 +901,16 @@ void GrOpsTask::handleInternalAllocationFailure() {
 }
 
 void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
+        SkASSERT(!fDeferredProxies[i]->isInstantiated());
+        // We give all the deferred proxies a write usage at the very start of flushing. This
+        // locks them out of being reused for the entire flush until they are read - and then
+        // they can be recycled. This is a bit unfortunate because a flush can proceed in waves
+        // with sub-flushes. The deferred proxies only need to be pinned from the start of
+        // the sub-flush in which they appear.
+        alloc->addInterval(fDeferredProxies[i], 0, 0, GrResourceAllocator::ActualUse::kNo);
+    }
+
     GrSurfaceProxy* targetProxy = this->target(0);
 
     // Add the interval for all the writes to this GrOpsTasks's target
