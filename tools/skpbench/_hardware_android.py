@@ -13,6 +13,7 @@ class HardwareAndroid(Hardware):
     Hardware.__init__(self)
     self.warmup_time = 5
     self._adb = adb
+    self.desiredClock = 0.66
 
     if self._adb.root():
       self._adb.remount()
@@ -35,6 +36,9 @@ class HardwareAndroid(Hardware):
 
     if self._adb.is_root():
 
+      # For explanation of variance reducing steps, see
+      # https://g3doc.corp.google.com/engedu/portal/android/g3doc/learn/develop/performance/content/best/reliable-startup-latency.md?cl=head
+
       self._adb.shell('\n'.join([
         # disable bluetooth, wifi, and mobile data.
         '''
@@ -52,13 +56,11 @@ class HardwareAndroid(Hardware):
         # disable ASLR
         '''
         echo 0 > /proc/sys/kernel/randomize_va_space''',
-
-        # stop services which can change clock speed
-        '''
-        stop thermal-engine
-        stop perfd''']))
+        ]))
 
       self.lock_top_three_cores()
+
+      self.lock_adreno_gpu()
 
     else:
       print("WARNING: no adb root access; results may be unreliable.",
@@ -102,6 +104,10 @@ class HardwareAndroid(Hardware):
 
     Hardware.print_debug_diagnostics(self)
 
+  # expects a float between 0 and 100 representing where along the list of freqs to choose a value.
+  def setDesiredClock(self, c):
+    self.desiredClock = c / 100
+
   def lock_top_three_cores(self):
     # Lock the clocks of the fastest three cores and disable others.
     # Assumes root privlidges
@@ -120,9 +126,36 @@ class HardwareAndroid(Hardware):
     # get a list of available scaling frequencies and pick one 2/3 of the way up.
     for i in top_cores:
       freqs = self._adb.check('cat /sys/devices/system/cpu/cpu%i/cpufreq/scaling_available_frequencies' % i).split()
-      speed = freqs[int((len(freqs)-1)*.66)]
+      speed = freqs[int((len(freqs)-1) * self.desiredClock)]
       self._adb.shell('''echo 1 > /sys/devices/system/cpu/cpu{id}/online
       echo userspace > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_governor
       echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_max_freq
       echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_min_freq
       echo {speed} > /sys/devices/system/cpu/cpu{id}/cpufreq/scaling_setspeed'''.format(id=i, speed=speed))
+
+  def lock_adreno_gpu(self):
+    # Use presence of /sys/class/kgsl to indicate Adreno GPU
+    exists = self._adb.check('test -d /sys/class/kgsl && echo y')
+    if (exists.strip() != 'y'):
+      print('Not attempting Adreno GPU clock locking steps')
+      return
+
+    # variance reducing changes
+    self._adb.shell('''
+      echo 0 > /sys/class/kgsl/kgsl-3d0/bus_split
+      echo 1 > /sys/class/kgsl/kgsl-3d0/force_clk_on
+      echo 10000 > /sys/class/kgsl/kgsl-3d0/idle_timer''')
+
+    freqs = self._adb.check('cat /sys/class/kgsl/kgsl-3d0/devfreq/available_frequencies').split()
+    speed = freqs[int((len(freqs)-1) * self.desiredClock)]
+
+    # Set GPU to performance mode and lock clock
+    self._adb.shell('''
+      echo performance > /sys/class/kgsl/kgsl-3d0/devfreq/governor
+      echo {speed} > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+      echo {speed} > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq'''.format(speed=speed))
+
+    # Set GPU power level
+    self._adb.shell('''
+      echo 1 > /sys/class/kgsl/kgsl-3d0/max_pwrlevel
+      echo 1 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel''')
