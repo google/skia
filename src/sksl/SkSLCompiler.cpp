@@ -238,18 +238,6 @@ const ParsedModule& Compiler::loadRuntimeEffectModule() {
         fRuntimeEffectModule.fSymbols->addAlias("mat2", fContext->fTypes.fFloat2x2.get());
         fRuntimeEffectModule.fSymbols->addAlias("mat3", fContext->fTypes.fFloat3x3.get());
         fRuntimeEffectModule.fSymbols->addAlias("mat4", fContext->fTypes.fFloat4x4.get());
-
-        fRuntimeEffectModule.fSymbols->addAlias("mat2x2", fContext->fTypes.fFloat2x2.get());
-        fRuntimeEffectModule.fSymbols->addAlias("mat2x3", fContext->fTypes.fFloat2x3.get());
-        fRuntimeEffectModule.fSymbols->addAlias("mat2x4", fContext->fTypes.fFloat2x4.get());
-
-        fRuntimeEffectModule.fSymbols->addAlias("mat3x2", fContext->fTypes.fFloat3x2.get());
-        fRuntimeEffectModule.fSymbols->addAlias("mat3x3", fContext->fTypes.fFloat3x3.get());
-        fRuntimeEffectModule.fSymbols->addAlias("mat3x4", fContext->fTypes.fFloat3x4.get());
-
-        fRuntimeEffectModule.fSymbols->addAlias("mat4x2", fContext->fTypes.fFloat4x2.get());
-        fRuntimeEffectModule.fSymbols->addAlias("mat4x3", fContext->fTypes.fFloat4x3.get());
-        fRuntimeEffectModule.fSymbols->addAlias("mat4x4", fContext->fTypes.fFloat4x4.get());
     }
     return fRuntimeEffectModule;
 }
