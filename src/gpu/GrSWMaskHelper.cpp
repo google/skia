@@ -92,7 +92,10 @@ GrSurfaceProxyView GrSWMaskHelper::threadedExecute(SkTaskGroup* taskGroup,
                                                        desc.fFit,
                                                        desc.fProtected,
                                                        mip);
-        return GrProxyProvider::LazyCallbackResult(std::move(tex));
+        GrProxyProvider::LazyCallbackResult result(std::move(tex));
+        // Callback refs us, we own bitmap, don't release callback.
+        result.fReleaseCallback = false;
+        return result;
     };
     const GrCaps* caps = context->priv().caps();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
