@@ -522,4 +522,4 @@ Run the DM test.
 [recipe_engine/recipe_modules/raw_io]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/c89555ad4aad0d235c318a660be9bb34a5d51c60/README.recipes.md#recipe_modules-raw_io
 [recipe_engine/recipe_modules/step]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/c89555ad4aad0d235c318a660be9bb34a5d51c60/README.recipes.md#recipe_modules-step
 [recipe_engine/recipe_modules/time]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/c89555ad4aad0d235c318a660be9bb34a5d51c60/README.recipes.md#recipe_modules-time
-[recipe_engine/wkt/RecipeApi]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/c89555ad4aad0d235c318a660be9bb34a5d51c60/recipe_engine/recipe_api.py#802
+[recipe_engine/wkt/RecipeApi]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/c89555ad4aad0d235c318a660be9bb34a5d51c60/recipe_engine\recipe_api.py#802
