@@ -56,25 +56,30 @@ GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& o
 }
 
 GrDirectContext::~GrDirectContext() {
+    SkDebugf("In direct context dtor\n");
     ASSERT_SINGLE_OWNER
     // this if-test protects against the case where the context is being destroyed
     // before having been fully created
     if (fGpu) {
         this->flushAndSubmit();
     }
+    SkDebugf("In direct context dtor before sync\n");
 
     // We need to make sure all work is finished on the gpu before we start releasing resources.
     this->syncAllOutstandingGpuWork(/*shouldExecuteWhileAbandoned=*/false);
 
     this->destroyDrawingManager();
 
+    SkDebugf("In direct context dtor before RC\n");
     // Ideally we could just let the ptr drop, but resource cache queries this ptr in releaseAll.
     if (fResourceCache) {
         fResourceCache->releaseAll();
     }
     // This has to be after GrResourceCache::releaseAll so that other threads that are holding
     // async pixel result don't try to destroy buffers off thread.
+    SkDebugf("In direct context dtor before MB\n");
     fMappedBufferManager.reset();
+    SkDebugf("In direct context dtor end\n");
 }
 
 sk_sp<GrContextThreadSafeProxy> GrDirectContext::threadSafeProxy() {
@@ -94,6 +99,8 @@ void GrDirectContext::resetContext(uint32_t state) {
 }
 
 void GrDirectContext::abandonContext() {
+    SkDebugf("In direct context abandon\n");
+
     if (INHERITED::abandoned()) {
         return;
     }
@@ -138,6 +145,8 @@ bool GrDirectContext::abandoned() {
 bool GrDirectContext::oomed() { return fGpu ? fGpu->checkAndResetOOMed() : false; }
 
 void GrDirectContext::releaseResourcesAndAbandonContext() {
+    SkDebugf("In direct context release and abandon\n");
+
     if (INHERITED::abandoned()) {
         return;
     }
@@ -163,6 +172,8 @@ void GrDirectContext::releaseResourcesAndAbandonContext() {
 }
 
 void GrDirectContext::freeGpuResources() {
+    SkDebugf("In direct context free gpu resources\n");
+
     ASSERT_SINGLE_OWNER
 
     if (this->abandoned()) {
