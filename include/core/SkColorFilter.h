@@ -95,6 +95,17 @@ public:
     static sk_sp<SkColorFilter> SRGBToLinearGamma();
     static sk_sp<SkColorFilter> Lerp(float t, sk_sp<SkColorFilter> dst, sk_sp<SkColorFilter> src);
 
+    // Transforms input color to {tf,gamut,at}, then runs the child filter, and
+    // finally transforms its output back from {tf,gamut,at} to the destination format.
+    // Null {tf,gamut,at} parameters will use the destination's own settings.
+    // If the destination is not tagged with an SkColorSpace, we'll treat it as if dstNullCS.
+    static sk_sp<SkColorFilter> WithColorXform(
+            sk_sp<SkColorFilter>          child,
+            const skcms_TransferFunction* tf,
+            const skcms_Matrix3x3*        gamut,
+            const SkAlphaType*            at,
+            sk_sp<SkColorSpace>           dstNullCS = SkColorSpace::MakeSRGB());
+
 private:
     SkColorFilters() = delete;
 };
