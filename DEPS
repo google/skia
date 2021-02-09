@@ -12,11 +12,11 @@ deps = {
   "third_party/externals/d3d12allocator"  : "https://skia.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git@169895d529dfce00390a20e69c2f516066fe7a3b",
   # Dawn requires jinja2 and markupsafe for the code generator, and shaderc and tint for SPIRV compilation.
   # When the Dawn revision is updated these should be updated from the Dawn DEPS as well.
-  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@2831f0584028114a8896059ce00e7bddaf3bba1f",
+  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@e7e42ebbed9077e5b7c2f2a111176d990d3e58fb",
   "third_party/externals/jinja2"          : "https://chromium.googlesource.com/chromium/src/third_party/jinja2@a82a4944a7f2496639f34a89c9923be5908b80aa",
   "third_party/externals/markupsafe"      : "https://chromium.googlesource.com/chromium/src/third_party/markupsafe@0944e71f4b2cb9a871bcbe353f95e889b64a611a",
   "third_party/externals/shaderc"         : "https://chromium.googlesource.com/external/github.com/google/shaderc@6216d098d8abe3ccda8781016c4f69372c48afb9",
-  "third_party/externals/tint"            : "https://dawn.googlesource.com/tint@a2fa690cda4658bef40528d866296e3033542e2d",
+  "third_party/externals/tint"            : "https://dawn.googlesource.com/tint@4a7981e300f3e61fe0f7cb6e55e993dc3b7c2a93",
   "third_party/externals/dng_sdk"         : "https://android.googlesource.com/platform/external/dng_sdk.git@c8d0c9b1d16bfda56f15165d39e0ffa360a11123",
   "third_party/externals/egl-registry"    : "https://skia.googlesource.com/external/github.com/KhronosGroup/EGL-Registry@a0bca08de07c7d7651047bedc0b653cfaaa4f2ae",
   "third_party/externals/expat"           : "https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git@e976867fb57a0cd87e3b0fe05d59e0ed63c6febb",
