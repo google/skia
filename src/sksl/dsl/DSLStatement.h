@@ -53,6 +53,7 @@ private:
 
     friend class DSLBlock;
     friend class DSLCore;
+    friend class DSLWriter;
 };
 
 } // namespace dsl
