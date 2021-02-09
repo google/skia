@@ -642,7 +642,16 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
 
         // Move the start until it's on the grapheme edge (and glypheme, too)
     } while (true);
-
+/*
+    // It's possible the grapheme is large than the run
+    // We do not allow breaking line
+    if (run->index() != start->runIndex()) {
+        start = &fOwner->cluster(run->leftToRight() ? run->clusterRange().start : run->clusterRange().end - 1);
+    }
+    if (run->index() != end->runIndex()) {
+        end = &fOwner->cluster(run->leftToRight() ? run->clusterRange().end - 1 : run->clusterRange().start);
+    }
+*/
     result.pos = start->startPos();
     result.size = (end->isHardBreak() ? end->startPos() : end->endPos()) - start->startPos();
 
