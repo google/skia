@@ -34,6 +34,24 @@
       "parentUuid": "ae9e9e06_dd7eb976",
       "revId": "270791629c0d84e27484c5b3ab8e0361881e54ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "316f4fa3_a86628ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T14:19:53Z",
+      "side": 1,
+      "message": "For the Inliner case, yeah it\u0027s always something that would pass IsTrivialExpression and is an lvalue. (In no case would `y\u003dx` make sense to pass to UpdateRefKind because y and x shouldn\u0027t have the same refkind :)  )\n\nI suppose for the simplifyExpression +\u003d case, you could have something bizarre on the left like \n\n(x, y) +\u003d 0\n\n?\nAt any rate, this is tricky enough that I think I am going to stop relying on IsAssignable and probably copy the implementation from the Inliner (which used a ProgramWriter to just burrow through the entire expression)",
+      "parentUuid": "60fd9b73_cdfa4475",
+      "revId": "270791629c0d84e27484c5b3ab8e0361881e54ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
