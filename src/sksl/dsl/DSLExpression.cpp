@@ -26,7 +26,12 @@ namespace dsl {
 DSLExpression::DSLExpression() {}
 
 DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
-    : fExpression(DSLWriter::Check(std::move(expression))) {}
+    : fExpression(std::move(expression)) {
+    if (DSLWriter::Compiler().errorCount()) {
+        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
+        DSLWriter::Compiler().setErrorCount(0);
+    }
+}
 
 DSLExpression::DSLExpression(float value)
     : fExpression(std::make_unique<SkSL::FloatLiteral>(DSLWriter::Context(),
