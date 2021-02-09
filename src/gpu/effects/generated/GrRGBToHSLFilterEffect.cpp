@@ -29,13 +29,13 @@ public:
                 R"SkSL(half4 c = %s;
 half4 p = c.y < c.z ? half4(c.zy, -1.0, 0.66666668653488159) : half4(c.yz, 0.0, -0.3333333432674408);
 half4 q = c.x < p.x ? half4(p.x, c.x, p.yw) : half4(c.x, p.x, p.yz);
-;
+half eps = 9.9999997473787516e-05;
 half pmV = q.x;
 half pmC = pmV - min(q.y, q.z);
 half pmL = pmV - pmC * 0.5;
-half H = abs(q.w + (q.y - q.z) / (pmC * 6.0 + 9.9999997473787516e-05));
-half S = pmC / ((c.w + 9.9999997473787516e-05) - abs(pmL * 2.0 - c.w));
-half L = pmL / (c.w + 9.9999997473787516e-05);
+half H = abs(q.w + (q.y - q.z) / (pmC * 6.0 + eps));
+half S = pmC / ((c.w + eps) - abs(pmL * 2.0 - c.w));
+half L = pmL / (c.w + eps);
 return half4(H, S, L, c.w);
 )SkSL",
                 _sample0.c_str());
