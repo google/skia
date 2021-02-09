@@ -79,7 +79,7 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
     , fPathEffect(sk_ref_sp(effects.fPathEffect))
     , fMaskFilter(sk_ref_sp(effects.fMaskFilter))
       // Initialize based on our settings. Subclasses can also force this.
-    , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != nullptr)
+    , fGenerateImageFromPath(fRec.fFrameWidth >= 0 || fPathEffect != nullptr)
 
     , fPreBlend(fMaskFilter ? SkMaskGamma::PreBlend() : SkScalerContext::GetMaskPreBlend(fRec))
 {
@@ -214,14 +214,20 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
             const bool a8FromLCD = fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag;
             const bool fromLCD = (glyph.fMaskFormat == SkMask::kLCD16_Format) ||
                                  (glyph.fMaskFormat == SkMask::kA8_Format && a8FromLCD);
-            if (0 < glyph.fWidth && fromLCD) {
-                if (fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag) {
-                    glyph.fHeight += 2;
-                    glyph.fTop -= 1;
-                } else {
-                    glyph.fWidth += 2;
-                    glyph.fLeft -= 1;
-                }
+            const bool notEmptyAndFromLCD = 0 < glyph.fWidth && fromLCD;
+            const bool verticalLCD = fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag;
+
+            const bool hasHairline = fRec.fFrameWidth == 0;
+
+            const bool needExtraWidth  = (notEmptyAndFromLCD && !verticalLCD) || hasHairline;
+            const bool needExtraHeight = (notEmptyAndFromLCD &&  verticalLCD) || hasHairline;
+            if (needExtraWidth) {
+                glyph.fWidth += 2;
+                glyph.fLeft -= 1;
+            }
+            if (needExtraHeight) {
+                glyph.fHeight += 2;
+                glyph.fTop -= 1;
             }
         }
     }
@@ -448,12 +454,15 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
 
 static void generateMask(const SkMask& mask, const SkPath& path,
                          const SkMaskGamma::PreBlend& maskPreBlend,
-                         const bool doBGR, const bool doVert, const bool a8FromLCD) {
+                         const bool doBGR, const bool doVert, const bool a8FromLCD,
+                         const SkPaint::Style paintStyle) {
     SkASSERT(mask.fFormat == SkMask::kBW_Format ||
              mask.fFormat == SkMask::kA8_Format ||
              mask.fFormat == SkMask::kLCD16_Format);
 
     SkPaint paint;
+    SkPath strokePath;
+    const SkPath* pathToUse = &path;
 
     int srcW = mask.fBounds.width();
     int srcH = mask.fBounds.height();
@@ -464,6 +473,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft),
                         -SkIntToScalar(mask.fBounds.fTop));
 
+    paint.setStyle(paintStyle);
     paint.setAntiAlias(SkMask::kBW_Format != mask.fFormat);
 
     const bool fromLCD = (mask.fFormat == SkMask::kLCD16_Format) ||
@@ -481,6 +491,17 @@ static void generateMask(const SkMask& mask, const SkPath& path,
             matrix.setAll(4, 0, -SkIntToScalar(mask.fBounds.fLeft + 1) * 4,
                           0, 1, -SkIntToScalar(mask.fBounds.fTop),
                           0, 0, 1);
+        }
+
+        // LCD hairline doesn't line up with the pixels, so do it the expensive way.
+        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+        if (paintStyle != SkPaint::kFill_Style) {
+            rec.setStrokeStyle(1.0f, paintStyle == SkPaint::kStrokeAndFill_Style);
+            rec.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 0.0f);
+        }
+        if (rec.needToApply() && rec.applyToPath(&strokePath, path)) {
+            pathToUse = &strokePath;
+            paint.setStyle(SkPaint::kFill_Style);
         }
     }
 
@@ -506,7 +527,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     draw.fDst            = dst;
     draw.fRC             = &clip;
     draw.fMatrixProvider = &matrixProvider;
-    draw.drawPath(path, paint);
+    draw.drawPath(*pathToUse, paint);
 
     switch (mask.fFormat) {
         case SkMask::kBW_Format:
@@ -567,7 +588,11 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
             const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
             const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
-            generateMask(mask, devPath, fPreBlend, doBGR, doVert, a8LCD);
+            const bool frameAndFill = SkToBool(fRec.fFlags & kFrameAndFill_Flag);
+            const SkPaint::Style paintStyle = fRec.fFrameWidth != 0 ? SkPaint::kFill_Style
+                                            : frameAndFill          ? SkPaint::kStrokeAndFill_Style
+                                            :                         SkPaint::kStroke_Style;
+            generateMask(mask, devPath, fPreBlend, doBGR, doVert, a8LCD, paintStyle);
         }
     }
 
@@ -633,7 +658,7 @@ bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) 
         }
     }
 
-    if (fRec.fFrameWidth > 0 || fPathEffect != nullptr) {
+    if (fRec.fFrameWidth >= 0 || fPathEffect != nullptr) {
         // need the path in user-space, with only the point-size applied
         // so that our stroking and effects will operate the same way they
         // would if the user had extracted the path themself, and then
@@ -651,7 +676,7 @@ bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) 
 
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
 
-        if (fRec.fFrameWidth > 0) {
+        if (fRec.fFrameWidth >= 0) {
             rec.setStrokeStyle(fRec.fFrameWidth,
                                SkToBool(fRec.fFlags & kFrameAndFill_Flag));
             // glyphs are always closed contours, so cap type is ignored,
@@ -961,7 +986,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
 #endif
     }
 
-    if (style != SkPaint::kFill_Style && strokeWidth > 0) {
+    if (style != SkPaint::kFill_Style && strokeWidth >= 0) {
         rec->fFrameWidth = strokeWidth;
         rec->fMiterLimit = paint.getStrokeMiter();
         rec->fStrokeJoin = SkToU8(paint.getStrokeJoin());
@@ -971,7 +996,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
             flags |= SkScalerContext::kFrameAndFill_Flag;
         }
     } else {
-        rec->fFrameWidth = 0;
+        rec->fFrameWidth = -1;
         rec->fMiterLimit = 0;
         rec->fStrokeJoin = 0;
         rec->fStrokeCap = 0;

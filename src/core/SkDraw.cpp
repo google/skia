@@ -830,7 +830,7 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
 
     if (paint.getMaskFilter()) {
         SkStrokeRec::InitStyle style = doFill ? SkStrokeRec::kFill_InitStyle
-        : SkStrokeRec::kHairline_InitStyle;
+                                              : SkStrokeRec::kHairline_InitStyle;
         if (as_MFB(paint.getMaskFilter())
                     ->filterPath(devPath, fMatrixProvider->localToDevice(), *fRC, blitter, style)) {
             return;  // filterPath() called the blitter, so we're done
