@@ -163,7 +163,7 @@ void GrGpuResource::notifyRefCntWillBeZero() const {
     mutableThis->willRemoveLastRef();
 }
 
-void GrGpuResource::notifyARefCntIsZero(LastRemovedRef removedRef) const {
+void GrGpuResource::notifyRefCntIsZero() const {
     if (this->wasDestroyed()) {
         // We've already been removed from the cache. Goodbye cruel world!
         delete this;
@@ -172,7 +172,7 @@ void GrGpuResource::notifyARefCntIsZero(LastRemovedRef removedRef) const {
 
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
 
-    get_resource_cache(fGpu)->resourceAccess().notifyARefCntReachedZero(mutableThis, removedRef);
+    get_resource_cache(fGpu)->resourceAccess().notifyRefCntReachedZero(mutableThis);
 }
 
 void GrGpuResource::removeScratchKey() {
