@@ -11,6 +11,7 @@
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/src/Iterators.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/Run.h"
@@ -212,7 +213,13 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
-
+/*
+    SkDebugf("Runs:\n");
+    for (auto& r : fRuns) {
+        auto t = this->text(r.fTextRange);
+        SkDebugf("[%d:%d) %d\n", r.fTextRange.start, r.fTextRange.end, r.size(), t.data());
+    }
+*/
     if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
         // Paint the text without recording it
         this->paintLines(canvas, x, y);
@@ -293,7 +300,30 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     for (auto pos : graphemes) {
         fCodeUnitProperties[pos] |= CodeUnitFlags::kGraphemeStart;
     }
-
+    for (auto& bidi : fBidiRegions) {
+        fCodeUnitProperties[bidi.start] |= CodeUnitFlags::kGraphemeStart;
+        fCodeUnitProperties[bidi.end] |= CodeUnitFlags::kGraphemeStart;
+    }
+    auto scriptIter = SkShaper::MakeSkUnicodeHbScriptRunIterator
+                                     (this->getUnicode(), this->fText.c_str(), this->fText.size());
+    while (!scriptIter->atEnd()) {
+        auto index = scriptIter->endOfCurrentRun();
+        fCodeUnitProperties[index] |= CodeUnitFlags::kGraphemeStart;
+        scriptIter->consume();
+    }
+    LangIterator langIter(this->text(), this->styles(),this->paragraphStyle().getTextStyle());
+    while (!langIter.atEnd()) {
+        auto index = langIter.endOfCurrentRun();
+        fCodeUnitProperties[index] |= CodeUnitFlags::kGraphemeStart;
+        langIter.consume();
+    }
+/*
+    SkDebugf("Graphemes:\n");
+    for (auto& g : graphemes) {
+        SkDebugf("%d ", g);
+    }
+    SkDebugf("\n");
+*/
     return true;
 }
 

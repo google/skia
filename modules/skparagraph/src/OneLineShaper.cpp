@@ -19,12 +19,7 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
     fCurrentRun->commit();
 
     auto oldUnresolvedCount = fUnresolvedBlocks.size();
-/*
-    SkDebugf("Run [%d:%d)\n", fCurrentRun->fTextRange.start, fCurrentRun->fTextRange.end);
-    for (size_t i = 0; i < fCurrentRun->size(); ++i) {
-        SkDebugf("[%d] %d %d %f\n", i, fCurrentRun->fGlyphs[i], fCurrentRun->fClusterIndexes[i], fCurrentRun->fPositions[i].fX);
-    }
-*/
+
     // Find all unresolved blocks
     sortOutGlyphs([&](GlyphRange block){
         if (block.width() == 0) {
