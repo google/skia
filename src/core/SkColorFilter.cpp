@@ -311,6 +311,94 @@ sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
     return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
 }
 
+struct SkColorXformColorFilter : public SkColorFilterBase {
+    sk_sp<SkColorFilter>   fChild;
+    skcms_TransferFunction fTF;     bool fUseDstTF    = true;
+    skcms_Matrix3x3        fGamut;  bool fUseDstGamut = true;
+    SkAlphaType            fAT;     bool fUseDstAT    = true;
+
+    SkColorXformColorFilter(sk_sp<SkColorFilter>          child,
+                            const skcms_TransferFunction* tf,
+                            const skcms_Matrix3x3*        gamut,
+                            const SkAlphaType*            at) {
+        fChild = std::move(child);
+        if (tf)    { fTF    = *tf;    fUseDstTF    = false; }
+        if (gamut) { fGamut = *gamut; fUseDstGamut = false; }
+        if (at)    { fAT    = *at;    fUseDstAT    = false; }
+    }
+
+    SkColorInfo dstInfo(const SkColorSpace* dstCS) const {
+        return {kUnknown_SkColorType, kPremul_SkAlphaType, sk_ref_sp(dstCS)};
+    }
+
+    SkColorInfo xformInfo(const SkColorSpace* dstCS) const {
+        skcms_TransferFunction dstTF;
+        skcms_Matrix3x3        dstGamut;
+
+        SkAssertResult(dstCS->isNumericalTransferFn(&dstTF));
+        SkAssertResult(dstCS->toXYZD50             (&dstGamut));
+
+        return {
+            kUnknown_SkColorType,
+            fUseDstAT ? kPremul_SkAlphaType : fAT,
+            SkColorSpace::MakeRGB(fUseDstTF    ? dstTF    : fTF,
+                                  fUseDstGamut ? dstGamut : fGamut),
+        };
+    }
+
+#if 0 && SK_SUPPORT_GPU  // TODO
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext* context,
+                                   const GrColorInfo& dstColorInfo) const override {
+        // wish our caller would let us know if our input was opaque...
+        constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
+        switch (fDir) {
+            case Direction::kLinearToSRGB:
+                return GrFPSuccess(GrColorSpaceXformEffect::Make(
+                                       std::move(inputFP),
+                                       sk_srgb_linear_singleton(), alphaType,
+                                       sk_srgb_singleton(),        alphaType));
+            case Direction::kSRGBToLinear:
+                return GrFPSuccess(GrColorSpaceXformEffect::Make(
+                                       std::move(inputFP),
+                                       sk_srgb_singleton(),        alphaType,
+                                       sk_srgb_linear_singleton(), alphaType));
+        }
+        SkUNREACHABLE;
+    }
+#endif
+
+    bool onAppendStages(const SkStageRec&, bool) const override { return false; }
+
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        if (!dstCS) { dstCS = sk_srgb_singleton(); }
+        SkColorInfo dst = this->  dstInfo(dstCS),
+                  xform = this->xformInfo(dstCS);
+
+        c = SkColorSpaceXformSteps{dst,xform}.program(p, uniforms, c);
+        c = as_CFB(fChild)->program(p, c, xform.colorSpace(), uniforms, alloc);
+        return c ? SkColorSpaceXformSteps{xform,dst}.program(p, uniforms, c)
+                 : c;
+    }
+
+    SK_FLATTENABLE_HOOKS(SkColorXformColorFilter)
+    void flatten(SkWriteBuffer& buffer) const override {
+        // TODO
+    }
+};
+
+sk_sp<SkFlattenable> SkColorXformColorFilter::CreateProc(SkReadBuffer& buffer) {
+    return nullptr;  // TODO
+}
+
+sk_sp<SkColorFilter> SkColorFilters::WithColorXform(sk_sp<SkColorFilter>          child,
+                                                    const skcms_TransferFunction* tf,
+                                                    const skcms_Matrix3x3*        gamut,
+                                                    const SkAlphaType*            at) {
+    return sk_make_sp<SkColorXformColorFilter>(std::move(child), tf, gamut, at);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkMixerColorFilter : public SkColorFilterBase {
