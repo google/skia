@@ -51,6 +51,23 @@
       "parentUuid": "2b885300_c23dd9a4",
       "revId": "2cd170c096a862d18113e658390d0a036346b11e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58d858f3_6e15b05d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-09T15:49:37Z",
+      "side": 1,
+      "message": "So this is a workaround for a bug in Gold?  The code as written is correct, but Gold has a bug preventing it from linking?\n\nI did not realize Chromium was using Gold.  Can you link to one of the build.chromium.org waterfall bots that\u0027s using it?\n\nI don\u0027t think I understand how this can both simultaneously be working and require a workaround.",
+      "revId": "2cd170c096a862d18113e658390d0a036346b11e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
