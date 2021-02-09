@@ -25,6 +25,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkLumaColorFilter.h"
+#include "include/effects/SkRuntimeEffect.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -165,3 +167,36 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new LumaFilterGM;)
+
+DEF_SIMPLE_GM(AlternateLuma, canvas, 384,128) {
+    sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_128.png");
+    if (!img) {
+        return;
+    }
+
+    // Normal luma colorfilter on the left.
+    SkPaint paint;
+    paint.setColorFilter(SkLumaColorFilter::Make());
+    canvas->drawImage(img, 0,0, SkSamplingOptions{}, &paint);
+    canvas->translate(128,0);
+
+    // Original image in the middle for reference.
+    canvas->drawImage(img, 0,0);
+    canvas->translate(128,0);
+
+    // Splatting the Y channel of XYZ on the right should result in (near) greyscale.
+    auto [effect, err] = SkRuntimeEffect::Make(SkString{
+            "uniform shader input; half4 main() { return sample(input).yyya; }"});
+    SkASSERT(effect && err.isEmpty());
+
+    sk_sp<SkColorFilter> input = nullptr,
+                        filter = effect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
+    SkASSERT(filter);
+
+    SkAlphaType unpremul = kUnpremul_SkAlphaType;
+    paint.setColorFilter(SkColorFilters::WithWorkingFormat(std::move(filter),
+                                                           &SkNamedTransferFn::kLinear,
+                                                           &SkNamedGamut::kXYZ,
+                                                           &unpremul));
+    canvas->drawImage(img, 0,0, SkSamplingOptions{}, &paint);
+}
