@@ -22,6 +22,13 @@
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
+namespace SkSL {
+namespace dsl {
+void Start(SkSL::Compiler* compiler);
+void End();
+}
+}
+
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
                                            const GrProgramDesc& desc,
                                            const GrProgramInfo& programInfo)
@@ -54,12 +61,14 @@ void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
 bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     // First we loop over all of the installed processors and collect coord transforms.  These will
     // be sent to the GrGLSLPrimitiveProcessor in its emitCode function
+    SkSL::dsl::Start(this->shaderCompiler());
     SkString inputColor;
     SkString inputCoverage;
     this->emitAndInstallPrimProc(&inputColor, &inputCoverage);
     this->emitAndInstallFragProcs(&inputColor, &inputCoverage);
     this->emitAndInstallXferProc(inputColor, inputCoverage);
     fGeometryProcessor->emitTransformCode(&fVS, this->uniformHandler());
+    SkSL::dsl::End();
 
     return this->checkSamplerCounts();
 }
