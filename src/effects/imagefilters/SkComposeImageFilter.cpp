@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/imagefilters/SkComposeImageFilter.h"
-
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -14,9 +13,9 @@
 
 namespace {
 
-class SkComposeImageFilterImpl final : public SkImageFilter_Base {
+class SkComposeImageFilter final : public SkImageFilter_Base {
 public:
-    explicit SkComposeImageFilterImpl(sk_sp<SkImageFilter> inputs[2])
+    explicit SkComposeImageFilter(sk_sp<SkImageFilter> inputs[2])
             : INHERITED(inputs, 2, nullptr) {
         SkASSERT(inputs[0].get());
         SkASSERT(inputs[1].get());
@@ -31,16 +30,16 @@ protected:
     bool onCanHandleComplexCTM() const override { return true; }
 
 private:
-    friend void SkComposeImageFilter::RegisterFlattenables();
-    SK_FLATTENABLE_HOOKS(SkComposeImageFilterImpl)
+    friend void ::SkRegisterComposeImageFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkComposeImageFilter)
 
     using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
 
-sk_sp<SkImageFilter> SkComposeImageFilter::Make(sk_sp<SkImageFilter> outer,
-                                                sk_sp<SkImageFilter> inner) {
+sk_sp<SkImageFilter> SkImageFilters::Compose(sk_sp<SkImageFilter> outer,
+                                             sk_sp<SkImageFilter> inner) {
     if (!outer) {
         return inner;
     }
@@ -48,31 +47,31 @@ sk_sp<SkImageFilter> SkComposeImageFilter::Make(sk_sp<SkImageFilter> outer,
         return outer;
     }
     sk_sp<SkImageFilter> inputs[2] = { std::move(outer), std::move(inner) };
-    return sk_sp<SkImageFilter>(new SkComposeImageFilterImpl(inputs));
+    return sk_sp<SkImageFilter>(new SkComposeImageFilter(inputs));
 }
 
-void SkComposeImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkComposeImageFilterImpl);
+void SkRegisterComposeImageFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkComposeImageFilter);
     // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
-    SkFlattenable::Register("SkComposeImageFilter", SkComposeImageFilterImpl::CreateProc);
+    SkFlattenable::Register("SkComposeImageFilterImpl", SkComposeImageFilter::CreateProc);
+}
+
+sk_sp<SkFlattenable> SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+    return SkImageFilters::Compose(common.getInput(0), common.getInput(1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkComposeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    return SkComposeImageFilter::Make(common.getInput(0), common.getInput(1));
-}
-
-SkRect SkComposeImageFilterImpl::computeFastBounds(const SkRect& src) const {
+SkRect SkComposeImageFilter::computeFastBounds(const SkRect& src) const {
     const SkImageFilter* outer = this->getInput(0);
     const SkImageFilter* inner = this->getInput(1);
 
     return outer->computeFastBounds(inner->computeFastBounds(src));
 }
 
-sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(const Context& ctx,
-                                                              SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(const Context& ctx,
+                                                          SkIPoint* offset) const {
     // The bounds passed to the inner filter must be filtered by the outer
     // filter, so that the inner filter produces the pixels that the outer
     // filter requires as input. This matters if the outer filter moves pixels.
@@ -111,8 +110,8 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(const Context& ctx
     return outer;
 }
 
-SkIRect SkComposeImageFilterImpl::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                 MapDirection dir, const SkIRect* inputRect) const {
+SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                             MapDirection dir, const SkIRect* inputRect) const {
     const SkImageFilter* outer = this->getInput(0);
     const SkImageFilter* inner = this->getInput(1);
 
