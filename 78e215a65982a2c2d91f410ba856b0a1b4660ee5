@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cc3e673_6e854c7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-09T20:57:43Z",
+      "side": 1,
+      "message": "Pretty straightforward. I saw the note about the buffer layout, but the initializer for MTLDrawPrimitivesIndirectArguments is deceptive. If you go to the header, in memory it\u0027s laid out exactly the same as the Vulkan struct. Same for indirect indexed.",
+      "revId": "78e215a65982a2c2d91f410ba856b0a1b4660ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
