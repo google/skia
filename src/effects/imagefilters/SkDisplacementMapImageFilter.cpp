@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/imagefilters/SkDisplacementMapEffect.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkUnPreMultiply.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
+
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
@@ -31,11 +31,11 @@
 
 namespace {
 
-class SkDisplacementMapEffectImpl final : public SkImageFilter_Base {
+class SkDisplacementMapImageFilter final : public SkImageFilter_Base {
 public:
-    SkDisplacementMapEffectImpl(SkColorChannel xChannelSelector, SkColorChannel yChannelSelector,
-                                SkScalar scale, sk_sp<SkImageFilter> inputs[2],
-                                const SkRect* cropRect)
+    SkDisplacementMapImageFilter(SkColorChannel xChannelSelector, SkColorChannel yChannelSelector,
+                                 SkScalar scale, sk_sp<SkImageFilter> inputs[2],
+                                 const SkRect* cropRect)
             : INHERITED(inputs, 2, cropRect)
             , fXChannelSelector(xChannelSelector)
             , fYChannelSelector(yChannelSelector)
@@ -54,8 +54,8 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    friend void SkDisplacementMapEffect::RegisterFlattenables();
-    SK_FLATTENABLE_HOOKS(SkDisplacementMapEffectImpl)
+    friend void ::SkRegisterDisplacementMapImageFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkDisplacementMapImageFilter)
 
     SkColorChannel fXChannelSelector;
     SkColorChannel fYChannelSelector;
@@ -100,80 +100,50 @@ static bool channel_selector_type_is_valid(SkColorChannel cst) {
     return false;
 }
 
-static SkColorChannel convert_channel_type(SkDisplacementMapEffect::ChannelSelectorType c) {
-    switch(c) {
-        case SkDisplacementMapEffect::kR_ChannelSelectorType:
-            return SkColorChannel::kR;
-        case SkDisplacementMapEffect::kG_ChannelSelectorType:
-            return SkColorChannel::kG;
-        case SkDisplacementMapEffect::kB_ChannelSelectorType:
-            return SkColorChannel::kB;
-        case SkDisplacementMapEffect::kA_ChannelSelectorType:
-            return SkColorChannel::kA;
-        case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
-        default:
-            // Raster backend historically treated this as B, GPU backend would fail when generating
-            // shader code. Just return B without aborting in debug-builds in order to keep fuzzers
-            // happy when they pass in the technically still valid kUnknown_ChannelSelectorType.
-            return SkColorChannel::kB;
-    }
-}
-
 }  // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(ChannelSelectorType xChannelSelector,
-                                                   ChannelSelectorType yChannelSelector,
-                                                   SkScalar scale,
-                                                   sk_sp<SkImageFilter> displacement,
-                                                   sk_sp<SkImageFilter> color,
-                                                   const SkRect* cropRect) {
-    return Make(convert_channel_type(xChannelSelector), convert_channel_type(yChannelSelector),
-                scale, std::move(displacement), std::move(color), cropRect);
-}
-
-sk_sp<SkImageFilter> SkDisplacementMapEffect::Make(SkColorChannel xChannelSelector,
-                                                   SkColorChannel yChannelSelector,
-                                                   SkScalar scale,
-                                                   sk_sp<SkImageFilter> displacement,
-                                                   sk_sp<SkImageFilter> color,
-                                                   const SkRect* cropRect) {
+sk_sp<SkImageFilter> SkImageFilters::DisplacementMap(
+        SkColorChannel xChannelSelector, SkColorChannel yChannelSelector, SkScalar scale,
+        sk_sp<SkImageFilter> displacement, sk_sp<SkImageFilter> color, const CropRect& cropRect) {
     if (!channel_selector_type_is_valid(xChannelSelector) ||
         !channel_selector_type_is_valid(yChannelSelector)) {
         return nullptr;
     }
 
     sk_sp<SkImageFilter> inputs[2] = { std::move(displacement), std::move(color) };
-    return sk_sp<SkImageFilter>(new SkDisplacementMapEffectImpl(xChannelSelector, yChannelSelector,
-                                                                scale, inputs, cropRect));
+    return sk_sp<SkImageFilter>(new SkDisplacementMapImageFilter(xChannelSelector, yChannelSelector,
+                                                                 scale, inputs, cropRect));
 }
 
-void SkDisplacementMapEffect::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkDisplacementMapEffectImpl);
+void SkRegisterDisplacementMapImageFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkDisplacementMapImageFilter);
     // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
-    SkFlattenable::Register("SkDisplacementMapEffect", SkDisplacementMapEffectImpl::CreateProc);
+    SkFlattenable::Register("SkDisplacementMapEffect", SkDisplacementMapImageFilter::CreateProc);
+    SkFlattenable::Register("SkDisplacementMapEffectImpl",
+                            SkDisplacementMapImageFilter::CreateProc);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkFlattenable> SkDisplacementMapEffectImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkDisplacementMapImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
 
     SkColorChannel xsel = buffer.read32LE(SkColorChannel::kLastEnum);
     SkColorChannel ysel = buffer.read32LE(SkColorChannel::kLastEnum);
     SkScalar      scale = buffer.readScalar();
 
-    return SkDisplacementMapEffect::Make(xsel, ysel, scale, common.getInput(0), common.getInput(1),
-                                         common.cropRect());
+    return SkImageFilters::DisplacementMap(xsel, ysel, scale, common.getInput(0),
+                                           common.getInput(1), common.cropRect());
 }
 
-void SkDisplacementMapEffectImpl::flatten(SkWriteBuffer& buffer) const {
+void SkDisplacementMapImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeInt((int) fXChannelSelector);
     buffer.writeInt((int) fYChannelSelector);
     buffer.writeScalar(fScale);
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
 
@@ -257,8 +227,8 @@ static void compute_displacement(Extractor ex, const SkVector& scale, SkBitmap* 
     }
 }
 
-sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& ctx,
-                                                                 SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context& ctx,
+                                                                  SkIPoint* offset) const {
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> color(this->filterInput(1, ctx, &colorOffset));
     if (!color) {
@@ -402,13 +372,13 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
                                           dst);
 }
 
-SkRect SkDisplacementMapEffectImpl::computeFastBounds(const SkRect& src) const {
+SkRect SkDisplacementMapImageFilter::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getColorInput() ? this->getColorInput()->computeFastBounds(src) : src;
     bounds.outset(SkScalarAbs(fScale) * SK_ScalarHalf, SkScalarAbs(fScale) * SK_ScalarHalf);
     return bounds;
 }
 
-SkIRect SkDisplacementMapEffectImpl::onFilterNodeBounds(
+SkIRect SkDisplacementMapImageFilter::onFilterNodeBounds(
         const SkIRect& src, const SkMatrix& ctm, MapDirection, const SkIRect* inputRect) const {
     SkVector scale = SkVector::Make(fScale, fScale);
     ctm.mapVectors(&scale, 1);
@@ -416,7 +386,7 @@ SkIRect SkDisplacementMapEffectImpl::onFilterNodeBounds(
                           SkScalarCeilToInt(SkScalarAbs(scale.fY) * SK_ScalarHalf));
 }
 
-SkIRect SkDisplacementMapEffectImpl::onFilterBounds(
+SkIRect SkDisplacementMapImageFilter::onFilterBounds(
         const SkIRect& src, const SkMatrix& ctm, MapDirection dir, const SkIRect* inputRect) const {
     if (kReverse_MapDirection == dir) {
         return INHERITED::onFilterBounds(src, ctm, dir, inputRect);
