@@ -301,12 +301,12 @@ void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t m
     this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(),
                           fCurrentVertexStride * baseVertex, 0);
 
-    auto mtlIndexBufer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
-    size_t indexOffset = mtlIndexBufer->offset() + sizeof(uint16_t) * baseIndex;
+    auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
+    size_t indexOffset = mtlIndexBuffer->offset() + sizeof(uint16_t) * baseIndex;
     [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
                                         indexCount:indexCount
                                          indexType:MTLIndexTypeUInt16
-                                       indexBuffer:mtlIndexBufer->mtlBuffer()
+                                       indexBuffer:mtlIndexBuffer->mtlBuffer()
                                  indexBufferOffset:indexOffset];
     fGpu->stats()->incNumDraws();
 }
@@ -336,13 +336,13 @@ void GrMtlOpsRenderPass::onDrawIndexedInstanced(
     SkASSERT(fActiveIndexBuffer);
     this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
-    auto mtlIndexBufer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
-    size_t indexOffset = mtlIndexBufer->offset() + sizeof(uint16_t) * baseIndex;
+    auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
+    size_t indexOffset = mtlIndexBuffer->offset() + sizeof(uint16_t) * baseIndex;
     if (@available(macOS 10.11, iOS 9.0, *)) {
         [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
                                             indexCount:indexCount
                                              indexType:MTLIndexTypeUInt16
-                                           indexBuffer:mtlIndexBufer->mtlBuffer()
+                                           indexBuffer:mtlIndexBuffer->mtlBuffer()
                                      indexBufferOffset:indexOffset
                                          instanceCount:instanceCount
                                             baseVertex:baseVertex
@@ -351,6 +351,61 @@ void GrMtlOpsRenderPass::onDrawIndexedInstanced(
         SkASSERT(false);
     }
     fGpu->stats()->incNumDraws();
+}
+
+void GrMtlOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer,
+                                        size_t bufferOffset,
+                                        int drawCount) {
+    SkASSERT(fGpu->caps()->nativeDrawIndirectSupport());
+    SkASSERT(fActivePipelineState);
+    SkASSERT(nil != fActiveRenderCmdEncoder);
+    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
+
+    auto mtlIndirectBuffer = static_cast<const GrMtlBuffer*>(drawIndirectBuffer);
+    const size_t stride = sizeof(GrDrawIndirectCommand);
+    while (drawCount >= 1) {
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
+                                     indirectBuffer:mtlIndirectBuffer->mtlBuffer()
+                               indirectBufferOffset:bufferOffset];
+        } else {
+            SkASSERT(false);
+        }
+        drawCount--;
+        bufferOffset += stride;
+        fGpu->stats()->incNumDraws();
+    }
+}
+
+void GrMtlOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer,
+                                               size_t bufferOffset,
+                                               int drawCount) {
+    SkASSERT(fGpu->caps()->nativeDrawIndirectSupport());
+    SkASSERT(fActivePipelineState);
+    SkASSERT(nil != fActiveRenderCmdEncoder);
+    SkASSERT(fActiveIndexBuffer);
+    this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
+
+    auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
+    auto mtlIndirectBuffer = static_cast<const GrMtlBuffer*>(drawIndirectBuffer);
+    size_t indexOffset = mtlIndexBuffer->offset();
+
+    const size_t stride = sizeof(GrDrawIndexedIndirectCommand);
+    while (drawCount >= 1) {
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
+                                                 indexType:MTLIndexTypeUInt16
+                                               indexBuffer:mtlIndexBuffer->mtlBuffer()
+                                         indexBufferOffset:indexOffset
+                                            indirectBuffer:mtlIndirectBuffer->mtlBuffer()
+                                      indirectBufferOffset:bufferOffset];
+        } else {
+            SkASSERT(false);
+        }
+        drawCount--;
+        bufferOffset += stride;
+        fGpu->stats()->incNumDraws();
+    }
 }
 
 void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
