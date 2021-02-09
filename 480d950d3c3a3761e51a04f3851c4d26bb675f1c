@@ -16,6 +16,24 @@
       "message": "\u003e Skia linking fails in GOLD because of missing instantiation of kNoCropRect in SkImageFilters::CropRect.\n\nIs this not the instantiation?",
       "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a223d04_98e3dc8f",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2021-02-09T15:41:06Z",
+      "side": 0,
+      "message": "It does not properly identify the instaciation provided in SkImageFilters.cpp, so it will fail on linking stage. The workaround avoids that problem.",
+      "parentUuid": "9cdaa7e6_84146a65",
+      "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
