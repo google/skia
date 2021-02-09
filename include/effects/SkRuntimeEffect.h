@@ -77,6 +77,7 @@ public:
         // By default, runtime effects don't run the inliner directly.
         int inlineThreshold = 0;
     };
+    static constexpr Options kDefaultOptions = {0};
 
     // If the effect is compiled successfully, `effect` will be non-null.
     // Otherwise, `errorText` will contain the reason for failure.
@@ -85,14 +86,7 @@ public:
         SkString errorText;
     };
 
-    static Result Make(SkString sksl, const Options& options);
-
-    // Older/deprecated version of the Make() API:
-    using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
-    static EffectResult Make(SkString sksl) {
-        Result result = Make(sksl, Options{});
-        return EffectResult{std::move(result.effect), std::move(result.errorText)};
-    }
+    static Result Make(SkString sksl, const Options& options = kDefaultOptions);
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
