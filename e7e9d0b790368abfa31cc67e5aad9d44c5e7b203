@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "528c752a_7a962e71",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T16:40:25Z",
+      "side": 1,
+      "message": "For non-Block-enclosed code, will this emit as\n\n if (foo)bar();\n\n?\nOr is the pretty printer smart enough to fix this?",
+      "range": {
+        "startLine": 245,
+        "startChar": 4,
+        "endLine": 246,
+        "endChar": 41
+      },
+      "revId": "e7e9d0b790368abfa31cc67e5aad9d44c5e7b203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4421315_66cbbeff",
+        "filename": "tests/sksl/runtime/LoopInt.stage",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T16:40:25Z",
+      "side": 1,
+      "message": "Maybe remove the blocks from the test input to test that path?",
+      "range": {
+        "startLine": 18,
+        "startChar": 2,
+        "endLine": 18,
+        "endChar": 3
+      },
+      "revId": "e7e9d0b790368abfa31cc67e5aad9d44c5e7b203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ef6740b_572fbeb8",
+        "filename": "tests/sksl/runtime/SampleWithUniformMatrix.stage",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T16:40:25Z",
+      "side": 1,
+      "message": "Did we want to fix these up?",
+      "range": {
+        "startLine": 5,
+        "startChar": 21,
+        "endLine": 5,
+        "endChar": 22
+      },
+      "revId": "e7e9d0b790368abfa31cc67e5aad9d44c5e7b203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
