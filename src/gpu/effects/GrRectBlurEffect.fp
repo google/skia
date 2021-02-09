@@ -24,11 +24,11 @@
 in fragmentProcessor inputFP;
 in float4 rect;
 
-layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
-                         abs(rect.z) > 16000 || abs(rect.w) > 16000;
+layout(key) bool highPrecision = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
+                                 abs(rect.z) > 16000 || abs(rect.w) > 16000;
 
-layout(when= highp) uniform float4 rectF;
-layout(when=!highp) uniform half4  rectH;
+layout(when= highPrecision) uniform float4 rectF;
+layout(when=!highPrecision) uniform half4  rectH;
 
 layout(key) in bool applyInvVM;
 layout(when=applyInvVM) in uniform float3x3 invVM;
@@ -193,7 +193,7 @@ half4 main() {
         // computations align the left edge of the integral texture with the inset rect's edge
         // extending outward 6 * sigma from the inset rect.
         half2 xy;
-        @if (highp) {
+        @if (highPrecision) {
             xy = max(half2(rectF.LT - pos), half2(pos - rectF.RB));
        } else {
             xy = max(half2(rectH.LT - pos), half2(pos - rectH.RB));
@@ -217,7 +217,7 @@ half4 main() {
         // Also, our rect uniform was pre-inset by 3 sigma from the actual rect being blurred,
         // also factored in.
         half4 rect;
-        @if (highp) {
+        @if (highPrecision) {
             rect.LT = half2(rectF.LT - pos);
             rect.RB = half2(pos - rectF.RB);
         } else {
@@ -234,7 +234,7 @@ half4 main() {
 
 @setData(pdman) {
     float r[] {rect.fLeft, rect.fTop, rect.fRight, rect.fBottom};
-    pdman.set4fv(highp ? rectF : rectH, 1, r);
+    pdman.set4fv(highPrecision ? rectF : rectH, 1, r);
 }
 
 @test(data) {
