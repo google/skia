@@ -30,6 +30,7 @@
     #include "include/effects/SkShaderMaskFilter.h"
     #include "include/effects/SkTableColorFilter.h"
     #include "src/core/SkColorFilter_Matrix.h"
+    #include "src/core/SkImageFilter_Base.h"
     #include "src/core/SkRecordedDrawable.h"
     #include "src/effects/SkDashImpl.h"
     #include "src/effects/SkEmbossMaskFilter.h"
@@ -119,6 +120,7 @@
      */
     void SkFlattenable::PrivateInitializer::InitImageFilters() {
         SkImageFilters::RegisterFlattenables();
+        SkRegisterAlphaThresholdImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }
