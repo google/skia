@@ -63,9 +63,9 @@ float fma(float a, float b, float c) {
 }
 void main() {
     sk_FragColor = vec4(fma(color.x, color.y, color.z));
-    sk_FragColor *= singleuse();
-    sk_FragColor *= blend_src_in(color.xxyy, color.zzww);
-    sk_FragColor *= blend_dst_in(color.xxyy, color.zzww);
-    sk_FragColor *= blend_hue(color, color.wwww);
-    sk_FragColor *= blend_hue(color, color.wzyx);
+    sk_FragColor = sk_FragColor * singleuse();
+    sk_FragColor = sk_FragColor * blend_src_in(color.xxyy, color.zzww);
+    sk_FragColor = sk_FragColor * blend_dst_in(color.xxyy, color.zzww);
+    sk_FragColor = sk_FragColor * blend_hue(color, color.wwww);
+    sk_FragColor = sk_FragColor * blend_hue(color, color.wzyx);
 }

@@ -53,6 +53,7 @@ OpReturn
 %29 = OpAccessChain %_ptr_Uniform_float %8 %int_0
 %30 = OpLoad %float %29
 %31 = OpVectorTimesScalar %v4float %28 %30
-OpStore %27 %31
+%32 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+OpStore %32 %31
 OpReturn
 OpFunctionEnd
