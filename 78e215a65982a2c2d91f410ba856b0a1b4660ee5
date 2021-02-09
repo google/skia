@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "15ca361f_946dd5fd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-09T21:30:47Z",
+      "side": 1,
+      "message": "Think we could reference the MotionMark bug here too? It\u0027s specifically interested in M1.\n\nBug: chromium:1172543",
+      "revId": "78e215a65982a2c2d91f410ba856b0a1b4660ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "4cc3e673_6e854c7f",
@@ -14,6 +31,24 @@
       "writtenOn": "2021-02-09T20:57:43Z",
       "side": 1,
       "message": "Pretty straightforward. I saw the note about the buffer layout, but the initializer for MTLDrawPrimitivesIndirectArguments is deceptive. If you go to the header, in memory it\u0027s laid out exactly the same as the Vulkan struct. Same for indirect indexed.",
+      "revId": "78e215a65982a2c2d91f410ba856b0a1b4660ee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6b67bae_93bc8bad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-09T21:30:47Z",
+      "side": 1,
+      "message": "Oh, ok. I can go back and undo some of my last change then. Were you able to measure any perf improvements from this CL on something like desk_ynev.skp?",
+      "parentUuid": "4cc3e673_6e854c7f",
       "revId": "78e215a65982a2c2d91f410ba856b0a1b4660ee5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
