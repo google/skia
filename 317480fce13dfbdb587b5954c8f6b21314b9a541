@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bd60929_6edb019a",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1556,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-09T22:57:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c198dd7_6b2e6651",
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e021a39_669a4ccc",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-02-09T21:46:14Z",
       "side": 1,
       "message": "So this is really alignof(Block). Except that very subtly it isn\u0027t since allocateBytes depends on fEndByte being at maximum alignment. Probably at least want to comment here as to why this is a load bearing over alignment.",
+      "range": {
+        "startLine": 1562,
+        "startChar": 83,
+        "endLine": 1562,
+        "endChar": 96
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b75fa0cf_7a82e5ef",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1562,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-09T22:57:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e021a39_669a4ccc",
       "range": {
         "startLine": 1562,
         "startChar": 83,
@@ -81,6 +123,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c0bd540_1cb122ca",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-09T22:57:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f41a27e5_8e4e81a8",
+      "range": {
+        "startLine": 1576,
+        "startChar": 24,
+        "endLine": 1576,
+        "endChar": 25
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9bf52f7_3a472b02",
@@ -94,6 +160,30 @@
       "writtenOn": "2021-02-09T21:46:14Z",
       "side": 1,
       "message": "Why all the \u0027int\u0027 and not size_t?",
+      "range": {
+        "startLine": 43,
+        "startChar": 30,
+        "endLine": 43,
+        "endChar": 33
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7484d0a_297cf384",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-09T22:57:08Z",
+      "side": 1,
+      "message": "I\u0027ve decided to use int through the entire system. One of the big reasons is that UBSan can catch overflows of signed things. I have found it harder to make overflow mistakes using int.",
+      "parentUuid": "d9bf52f7_3a472b02",
       "range": {
         "startLine": 43,
         "startChar": 30,
@@ -127,6 +217,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b87f7eb_ba94f744",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-09T22:57:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05ec5414_d9a2d2aa",
+      "range": {
+        "startLine": 51,
+        "startChar": 56,
+        "endLine": 51,
+        "endChar": 77
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "94237ace_703fcf09",
@@ -150,6 +264,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6545e4bd_3102ebea",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-09T22:57:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94237ace_703fcf09",
+      "range": {
+        "startLine": 105,
+        "startChar": 61,
+        "endLine": 105,
+        "endChar": 68
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "18c5c3b2_87910124",
@@ -163,6 +301,24 @@
       "writtenOn": "2021-02-09T21:46:14Z",
       "side": 1,
       "message": "So this is the very subtle reason why the fEndByte needs to be maximally aligned. In some sense the alignment of the start of the memory block isn\u0027t interesting.",
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73d84b2d_9be63256",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-09T22:57:08Z",
+      "side": 1,
+      "message": "That\u0027s right. It\u0027s fEndByte that needs to be aligned correctly.",
+      "parentUuid": "18c5c3b2_87910124",
       "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
