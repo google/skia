@@ -78,4 +78,46 @@ describe('Skottie behavior', () => {
         animation.render(canvas, bounds);
         animation.delete();
     }, washPromise);
+
+    fit('can load audio assets', (done) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+        var mockSoundMap = {
+            map : new Map(),
+            getPlayer : function(name) {return this.map.get(name)},
+            setPlayer : function(name, player) {this.map.set(name, player)},
+        };
+        function mockPlayer() {
+            this.wasPlayed = false,
+            this.seek = function(t) {
+                this.wasPlayed = true;
+            }
+        }
+        for (i = 0; i < 20; i++) {
+            var name = 'aud_' + i + '.mp3';
+            mockSoundMap.setPlayer(name, new mockPlayer());
+        }
+        fetch('/assets/audio_external.json')
+        .then((response) => response.text())
+        .then((lottie) => {
+            const animation = CanvasKit.MakeManagedAnimation(lottie, null, mockSoundMap);
+            expect(animation).toBeTruthy();
+            // 190 frames in sample lottie
+            for (t = 0; t < 190; t++) {
+                animation.seekFrame(t);
+            }
+            animation.delete();
+            var allPlayed = true;
+            for(player of mockSoundMap.map.values()) {
+                if(!player.wasPlayed) {
+                    allPlayed = false;
+                    break;
+                }
+            }
+            expect(allPlayed).toBeTrue();
+        });
+        done();
+    });
 });
