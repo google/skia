@@ -49,7 +49,8 @@ GrWritePixelsTask::GrWritePixelsTask(GrDrawingManager* dm,
 }
 
 void GrWritePixelsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
-    alloc->addInterval(this->target(0), alloc->curOp(), alloc->curOp());
+    alloc->addInterval(this->target(0), alloc->curOp(), alloc->curOp(),
+                       GrResourceAllocator::ActualUse::kYes);
     alloc->incOps();
 }
 
