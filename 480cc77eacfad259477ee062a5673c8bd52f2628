@@ -95,6 +95,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72e13b54_345588ae",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T19:51:34Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "3b5c0206_ea887d0c",
+      "range": {
+        "startLine": 389,
+        "startChar": 77,
+        "endLine": 389,
+        "endChar": 85
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "debe92d6_e4f7eddb",
@@ -320,6 +344,30 @@
       "side": 1,
       "message": "I like it, currently working on it.",
       "parentUuid": "f1665350_934855a9",
+      "range": {
+        "startLine": 91,
+        "startChar": 49,
+        "endLine": 91,
+        "endChar": 53
+      },
+      "revId": "480cc77eacfad259477ee062a5673c8bd52f2628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e059aa8_a026a623",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-02-09T19:51:34Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "4df99ca2_fc77b60c",
       "range": {
         "startLine": 91,
         "startChar": 49,
