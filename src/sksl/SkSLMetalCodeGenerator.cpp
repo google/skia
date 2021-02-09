@@ -1609,7 +1609,7 @@ void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers,
         this->write("thread ");
     }
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
-        this->write("constant ");
+        this->write("const ");
     }
 }
 
