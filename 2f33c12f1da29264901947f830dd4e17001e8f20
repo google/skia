@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea106de0_5c192645",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-09T23:01:29Z",
+      "side": 1,
+      "message": "This works around the issue that caused the recent GrResourceCache change to fail on the one win bot. I\u0027m not sure exactly what the change did to cause this, but the investigations I\u0027ve done on the bot suggest it just changed the timings of when resources are released and checked. I actually think this issue would have shown up with the original buffer/resource changes but they were slow enough that we didn\u0027t hit these race conditions. With the GrResourceCache change we were just doing things faster and thus hit this race more often.",
+      "revId": "2f33c12f1da29264901947f830dd4e17001e8f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8230814e_ac6da1f5",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-09T23:01:29Z",
+      "side": 0,
+      "message": "The issue on the bots was we weren\u0027t doing this on the release perf bots.",
+      "range": {
+        "startLine": 2204,
+        "startChar": 4,
+        "endLine": 2204,
+        "endChar": 19
+      },
+      "revId": "11a1bb1cf6b767bdc149a981189e9c70605fc0d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
