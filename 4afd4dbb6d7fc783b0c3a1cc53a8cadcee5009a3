@@ -51,6 +51,23 @@
       "parentUuid": "9fc26f1f_69a00775",
       "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6667e24f_eb1ceb06",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-09T20:25:32Z",
+      "side": 1,
+      "message": "We can decide to land this, but I think it is fragile. Having two value for the same idea, and the new one not matching any of our other enums, is just risky (that someone will remove it in the future).\n\nI wonder if chrome can be more accommodating for different conventions, esp. given that it uses code from third_party (which have their own naming conventions). Alternatively, you can make a clone of this enum (perhaps inside paint_flags.h), and in that one you can name things however you wish!\n\nIf none of these suggestions seem doable, we can land this, but it doesn\u0027t feel great.\n",
+      "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
