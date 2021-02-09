@@ -3,7 +3,8 @@ uniform half4 colorGreen, colorRed;
 half4 main() {
   const float4 a = float4(0);
   const float4 b = float4(1);
-  if (a == b) {
+  const float4 c = abs(b);  // still a Constant Expression, but SkSL cannot eliminate it (today)
+  if (a == b || b != c) {
       return colorRed;
   } else {
       return colorGreen;
