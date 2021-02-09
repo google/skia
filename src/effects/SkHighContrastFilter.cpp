@@ -7,6 +7,7 @@
 
 #include "include/core/SkString.h"
 #include "include/effects/SkHighContrastFilter.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTPin.h"
 #include "src/core/SkArenaAlloc.h"
@@ -203,12 +204,83 @@ sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
     return SkHighContrastFilter::Make(config);
 }
 
-sk_sp<SkColorFilter> SkHighContrastFilter::Make(
-    const SkHighContrastConfig& config) {
+sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
     if (!config.isValid()) {
         return nullptr;
     }
+#if defined(SK_SUPPORT_LEGACY_RUNTIME_EFFECTS)
     return sk_make_sp<SkHighContrast_Filter>(config);
+#else
+    struct { float M,B; } uniforms;
+    SkString code{
+            "uniform shader input;"
+            "uniform half M,B;"
+
+            //This is straight out of GrHSLToRGBFilterEffect.fp.
+            "half3 hsl_to_rgb(half3 hsl) {"
+                "half  C = (1 - abs(2 * hsl.z - 1)) * hsl.y;"
+                "half3 p = hsl.xxx + half3(0, 2/3.0, 1/3.0);"
+                "half3 q = saturate(abs(fract(p) * 6 - 3) - 1);"
+                "return (q - 0.5) * C + hsl.z;"
+            "}"
+
+            // GrRGBToHSLFilterEffect.fp was a bit too tricky for me, so I went with skvm's.
+            "half3 rgb_to_hsl(half3 c) {"
+                "half mx = max(max(c.r,c.g),c.b),"
+                "     mn = min(min(c.r,c.g),c.b),"
+                "      d = mx-mn,                "
+                "   invd = 1.0 / d,              "
+                " g_lt_b = c.g < c.b ? 6.0 : 0.0;"
+
+                "half h = (1/6.0) * (mx == mn  ? 0.0 :"
+                "                    mx == c.r ? invd * (c.g - c.b) + g_lt_b :"
+                "                    mx == c.g ? invd * (c.b - c.r) + 2.0 :"
+                "                                invd * (c.r - c.g) + 4.0);"
+
+                "half sum = mx+mn,"
+                "       l = sum * 0.5,"
+                "       s = mx == mn ? 0.0"
+                "                    : d / (l > 0.5 ? 2.0 - sum : sum);"
+                "return half3(h,s,l);"
+            "}"
+
+            "half4 main() {"
+                "half4 c = unpremul(sample(input));"
+                "c.rgb *= c.rgb;"       // TODO, need real linearize()
+    };
+    if (config.fGrayscale) {
+        code += "c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;";
+    }
+    if (config.fInvertStyle == InvertStyle::kInvertBrightness) {
+        code += "c.rgb = 1 - c.rgb;";
+    }
+    if (config.fInvertStyle == InvertStyle::kInvertLightness) {
+        code += "c.rgb = rgb_to_hsl(c.rgb);";
+        code += "c.b = 1 - c.b;";
+        code += "c.rgb = hsl_to_rgb(c.rgb);";
+    }
+    if (float c = config.fContrast) {
+        uniforms.M = (1+c)/(1-c);
+        uniforms.B = -0.5f * uniforms.M + 0.5f;
+        code += "c.rgb = c.rgb*M + B;";
+    }
+    if (true) {
+        code += "c = saturate(c);"
+                "c.rgb = sqrt(c.rgb);"  // TODO, need real encode_tf()
+                "c.rgb *= c.a;"
+                "return c;";
+    }
+    code += "}";
+
+    auto [effect, err] = SkRuntimeEffect::Make(code);
+    if (!err.isEmpty()) {
+        SkDebugf("%s\n%s\n", code.c_str(), err.c_str());
+    }
+    SkASSERT(effect && err.isEmpty());
+
+    sk_sp<SkColorFilter> input = nullptr;
+    return effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms)), &input, 1);
+#endif
 }
 
 void SkHighContrastFilter::RegisterFlattenables() {
