@@ -211,14 +211,11 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
 #if defined(SK_SUPPORT_LEGACY_RUNTIME_EFFECTS)
     return sk_make_sp<SkHighContrast_Filter>(config);
 #else
+    // TODO: need to port over GPU idiosyncrasies from GrHighContrastFilterEffect.fp.
     struct { float M,B; } uniforms;
     SkString code{
             "uniform shader input;"
             "uniform half M,B;"
-
-            // TODO: these will need to be built-ins to depend on the dst SkColorSpace.
-            "half3 linearize(half3 rgb) { return rgb*rgb; }"
-            "half3 dst_gamma(half3 rgb) { return sqrt(rgb); }"
 
             //This is straight out of GrHSLToRGBFilterEffect.fp.
             "half3 hsl_to_rgb(half3 hsl) {"
@@ -249,8 +246,7 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
             "}"
 
             "half4 main() {"
-                "half4 c = unpremul(sample(input));"
-                "c.rgb = linearize(c.rgb);"
+                "half4 c = sample(input);"  // c is linear unpremul RGBA in the dst gamut.
     };
     if (config.fGrayscale) {
         code += "c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;";
@@ -269,10 +265,7 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
         code += "c.rgb = c.rgb*M + B;";
     }
     if (true) {
-        code += "c = saturate(c);"
-                "c.rgb = dst_gamma(c.rgb);"
-                "c.rgb *= c.a;"
-                "return c;";
+        code += "return saturate(c);";
     }
     code += "}";
 
@@ -282,8 +275,12 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
     }
     SkASSERT(effect && err.isEmpty());
 
-    sk_sp<SkColorFilter> input = nullptr;
-    return effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms)), &input, 1);
+    sk_sp<SkColorFilter>    input = nullptr;
+    skcms_TransferFunction linear = SkNamedTransferFn::kLinear;
+    SkAlphaType          unpremul = kUnpremul_SkAlphaType;
+    return SkColorFilters::WithColorXform(
+            effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms)), &input, 1),
+            &linear, nullptr/*use dst gamut*/, &unpremul);
 #endif
 }
 
