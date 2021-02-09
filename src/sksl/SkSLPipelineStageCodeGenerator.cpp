@@ -478,31 +478,6 @@ void PipelineStageCodeGenerator::writePostfixExpression(const PostfixExpression&
 }
 
 void PipelineStageCodeGenerator::writeModifiers(const Modifiers& modifiers) {
-    if (modifiers.fFlags & Modifiers::kFlat_Flag) {
-        this->write("flat ");
-    }
-    if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
-        this->write("noperspective ");
-    }
-    String layout = modifiers.fLayout.description();
-    if (layout.size()) {
-        this->write(layout + " ");
-    }
-    if (modifiers.fFlags & Modifiers::kReadOnly_Flag) {
-        this->write("readonly ");
-    }
-    if (modifiers.fFlags & Modifiers::kWriteOnly_Flag) {
-        this->write("writeonly ");
-    }
-    if (modifiers.fFlags & Modifiers::kCoherent_Flag) {
-        this->write("coherent ");
-    }
-    if (modifiers.fFlags & Modifiers::kVolatile_Flag) {
-        this->write("volatile ");
-    }
-    if (modifiers.fFlags & Modifiers::kRestrict_Flag) {
-        this->write("restrict ");
-    }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
         (modifiers.fFlags & Modifiers::kOut_Flag)) {
         this->write("inout ");
@@ -511,20 +486,8 @@ void PipelineStageCodeGenerator::writeModifiers(const Modifiers& modifiers) {
     } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
         this->write("out ");
     }
-    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-        this->write("uniform ");
-    }
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
         this->write("const ");
-    }
-    if (modifiers.fFlags & Modifiers::kPLS_Flag) {
-        this->write("__pixel_localEXT ");
-    }
-    if (modifiers.fFlags & Modifiers::kPLSIn_Flag) {
-        this->write("__pixel_local_inEXT ");
-    }
-    if (modifiers.fFlags & Modifiers::kPLSOut_Flag) {
-        this->write("__pixel_local_outEXT ");
     }
 }
 
