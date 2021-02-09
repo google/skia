@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fc530b1_9d25831a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T16:32:14Z",
+      "side": 1,
+      "message": "Maybe ExpressionArray? (Not really important though)",
+      "range": {
+        "startLine": 784,
+        "startChar": 4,
+        "endLine": 784,
+        "endChar": 42
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3093a79b_dd2e2467",
+        "filename": "src/sksl/dsl/DSLCore.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T16:32:14Z",
+      "side": 1,
+      "message": "Wait, so this one needed the C++14 treatment and the one immediately below it did not? That\u0027s so weird.",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 96
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9418abee_5be684e9",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T16:32:14Z",
+      "side": 1,
+      "message": "None of these examples switch on a variable, which is the 99% common case. Let\u0027s put `a` here.",
+      "range": {
+        "startLine": 1107,
+        "startChar": 25,
+        "endLine": 1107,
+        "endChar": 26
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2eb721e_5456d677",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1124,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-09T16:32:14Z",
+      "side": 1,
+      "message": "Maybe add an error case where we attempt to `continue` inside a switch.",
+      "range": {
+        "startLine": 1124,
+        "startChar": 4,
+        "endLine": 1124,
+        "endChar": 5
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
