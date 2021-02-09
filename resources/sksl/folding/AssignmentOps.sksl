@@ -1,0 +1,37 @@
+uniform half4 colorRed, colorGreen;
+
+half4 main() {
+    bool ok = true;
+
+    int a = 1;
+    a = a + a; // 2
+    a += a;    // 4
+    a = a + a; // 8
+    a += a;    // 16
+    a = a + a; // 32
+    ok = ok && (a == 32);
+
+    int b = 10;
+    b = b - 2; // 8
+    b -= 2;    // 6
+    b = b - 1; // 5
+    b -= 3;    // 2
+    ok = ok && (b == 2);
+
+    int c = 2;
+    c = c * c; // 4
+    c *= c;    // 16
+    c = c * 4; // 64
+    c *= 2;    // 128
+    ok = ok && (c == 128);
+
+    int d = 256;
+    d = d / 2; // 128
+    d /= 2;    // 64
+    d = d / 4; // 16
+    d /= 4;    // 4
+    ok = ok && (d == 4);
+
+    return ok ? colorGreen : colorRed;
+}
+

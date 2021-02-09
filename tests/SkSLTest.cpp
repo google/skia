@@ -115,6 +115,7 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
     }
 #define SKSL_TEST(name, path) SKSL_TEST_CPU(name, path) SKSL_TEST_GPU(name, path)
 
+SKSL_TEST(SkSLAssignmentOps,                   "folding/AssignmentOps.sksl")
 SKSL_TEST(SkSLBoolFolding,                     "folding/BoolFolding.sksl")
 SKSL_TEST(SkSLIntFoldingES2,                   "folding/IntFoldingES2.sksl")
 SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
