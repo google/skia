@@ -195,17 +195,13 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
         return std::make_tuple(fEndLine.breakCluster() + 1, 0, width);
     }
 
+    // breakCluster points to the end of the line;
+    // It's a soft line break so we need to move lineStart forward skipping all the spaces
     auto width = fEndLine.widthWithGhostSpaces();
-    auto cluster = fEndLine.breakCluster();
-    if (fEndLine.endCluster() != fEndLine.startCluster() ||
-        fEndLine.endPos() != fEndLine.startPos()) {
+    auto cluster = fEndLine.breakCluster() + 1;
+    while (cluster < endOfClusters && cluster->isWhitespaces()) {
+        width += cluster->width();
         ++cluster;
-        while (cluster < endOfClusters && cluster->isWhitespaces()) {
-            width += cluster->width();
-            ++cluster;
-        }
-    } else {
-        // Nothing fits the line - no need to check for spaces
     }
 
     return std::make_tuple(cluster, 0, width);
