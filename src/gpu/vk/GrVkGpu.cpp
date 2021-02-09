@@ -54,7 +54,8 @@
 #include <unistd.h>
 #endif // !defined(SK_BUILD_FOR_WIN)
 
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
+//#if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
+#if defined(SK_BUILD_FOR_WIN)
 #include "src/core/SkLeanWindows.h"
 #endif
 
@@ -244,50 +245,72 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrVkBackendContext& backendConte
 }
 
 void GrVkGpu::destroyResources() {
+    SkDebugf("In GrVkGpu destroyResources\n");
+
     if (fMainCmdPool) {
         fMainCmdPool->getPrimaryCommandBuffer()->end(this, /*abandoningBuffer=*/true);
         fMainCmdPool->close();
     }
 
     // wait for all commands to finish
+    SkDebugf("In GrVkGpu destroyResources b4 finish outstanding\n");
+
     this->finishOutstandingGpuWork();
 
     if (fMainCmdPool) {
+        SkDebugf("In GrVkGpu destroyResources b4 unref main cmd pool\n");
+
         fMainCmdPool->unref();
         fMainCmdPool = nullptr;
     }
 
+    SkDebugf("In GrVkGpu destroyResources b4 sem to wait on\n");
     for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
         fSemaphoresToWaitOn[i]->unref();
     }
     fSemaphoresToWaitOn.reset();
 
+    SkDebugf("In GrVkGpu destroyResources b4 sem to signal\n");
     for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
         fSemaphoresToSignal[i]->unref();
     }
     fSemaphoresToSignal.reset();
 
+    SkDebugf("In GrVkGpu destroyResources b4 staging buffer manager\n");
     fStagingBufferManager.reset();
 
+    SkDebugf("In GrVkGpu destroyResources b4 msaa load\n");
     fMSAALoadManager.destroyResources(this);
 
+    SkDebugf("In GrVkGpu destroyResources b4 resource provider\n");
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources();
+    SkDebugf("In GrVkGpu destroyResources end\n");
 }
 
 GrVkGpu::~GrVkGpu() {
+    SkDebugf("In GrVkGpu dtor\n");
+
     if (!fDisconnected) {
+        SkDebugf("In GrVkGpu dtor b4 destroyResources\n");
+
         this->destroyResources();
     }
     // We don't delete the memory allocator until the very end of the GrVkGpu lifetime so that
     // clients can continue to delete backend textures even after a context has been abandoned.
+    SkDebugf("In GrVkGpu dtor b4 reset allocator\n");
+
     fMemoryAllocator.reset();
 }
 
 
 void GrVkGpu::disconnect(DisconnectType type) {
+    SkDebugf("In GrVkGpu disconnect\n");
+
     INHERITED::disconnect(type);
     if (!fDisconnected) {
+        SkDebugf("In GrVkGpu disconnect b4 destroy resources\n");
+
         this->destroyResources();
 
         fSemaphoresToWaitOn.reset();
@@ -2209,7 +2232,7 @@ void GrVkGpu::finishOutstandingGpuWork() {
             sleep(1);  // In seconds
     #endif
         }
-    #endif
+#endif
 }
 
 void GrVkGpu::onReportSubmitHistograms() {
