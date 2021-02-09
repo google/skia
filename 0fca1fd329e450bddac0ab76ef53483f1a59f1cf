@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "627caefb_1f57aea9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-09T15:00:12Z",
+      "side": 1,
+      "message": "Nice exercise in programmatic variants of a text-sksl-format.",
+      "revId": "0fca1fd329e450bddac0ab76ef53483f1a59f1cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
