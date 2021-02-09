@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9ff7671_8a9126f3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-09T20:27:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fc530b1_9d25831a",
+      "range": {
+        "startLine": 784,
+        "startChar": 4,
+        "endLine": 784,
+        "endChar": 42
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3093a79b_dd2e2467",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-09T16:32:14Z",
       "side": 1,
       "message": "Wait, so this one needed the C++14 treatment and the one immediately below it did not? That\u0027s so weird.",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 96
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26027956_ab734269",
+        "filename": "src/sksl/dsl/DSLCore.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-09T20:27:25Z",
+      "side": 1,
+      "message": "It failed on a handful of bots with a complaint about how it\u0027s accessing a private constructor of DSLExpression (the implicit conversion from std::unique_ptr\u003cSkSL::Expression\u003e). But since this template is a friend, it should be able to access it. So it\u0027s either a compiler bug or some wiggle room in an obscure corner of the C++ standard that I\u0027m unfamiliar with.",
+      "parentUuid": "3093a79b_dd2e2467",
       "range": {
         "startLine": 117,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0373502_69803a20",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-09T20:27:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9418abee_5be684e9",
+      "range": {
+        "startLine": 1107,
+        "startChar": 25,
+        "endLine": 1107,
+        "endChar": 26
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e2eb721e_5456d677",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-02-09T16:32:14Z",
       "side": 1,
       "message": "Maybe add an error case where we attempt to `continue` inside a switch.",
+      "range": {
+        "startLine": 1124,
+        "startChar": 4,
+        "endLine": 1124,
+        "endChar": 5
+      },
+      "revId": "0efad789eb5d4e4d16beb675b82e000f4dc3ec16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc8915cb_65c7cfd3",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1124,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-09T20:27:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2eb721e_5456d677",
       "range": {
         "startLine": 1124,
         "startChar": 4,
