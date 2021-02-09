@@ -21,6 +21,7 @@
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrMixerEffect.h"
@@ -309,6 +310,97 @@ sk_sp<SkColorFilter> SkColorFilters::LinearToSRGBGamma() {
 
 sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
     return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
+}
+
+struct SkColorXformColorFilter : public SkColorFilterBase {
+    sk_sp<SkColorFilter>   fChild;
+    skcms_TransferFunction fTF;     bool fUseDstTF    = true;
+    skcms_Matrix3x3        fGamut;  bool fUseDstGamut = true;
+    SkAlphaType            fAT;     bool fUseDstAT    = true;
+    sk_sp<SkColorSpace>    fDstNullCS;
+
+    SkColorXformColorFilter(sk_sp<SkColorFilter>          child,
+                            const skcms_TransferFunction* tf,
+                            const skcms_Matrix3x3*        gamut,
+                            const SkAlphaType*            at,
+                            sk_sp<SkColorSpace>           dstNullCS) {
+        fChild = std::move(child);
+        if (tf)    { fTF    = *tf;    fUseDstTF    = false; }
+        if (gamut) { fGamut = *gamut; fUseDstGamut = false; }
+        if (at)    { fAT    = *at;    fUseDstAT    = false; }
+        fDstNullCS = std::move(dstNullCS);
+    }
+
+
+    sk_sp<SkColorSpace> xformInfo(const sk_sp<SkColorSpace>& dstCS, SkAlphaType* at) const {
+        skcms_TransferFunction dstTF;
+        skcms_Matrix3x3        dstGamut;
+
+        SkAssertResult(dstCS->isNumericalTransferFn(&dstTF));
+        SkAssertResult(dstCS->toXYZD50             (&dstGamut));
+
+        *at = fUseDstAT ? kPremul_SkAlphaType : fAT;
+        return SkColorSpace::MakeRGB(fUseDstTF    ? dstTF    : fTF,
+                                     fUseDstGamut ? dstGamut : fGamut);
+    }
+
+#if SK_SUPPORT_GPU
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext* context,
+                                   const GrColorInfo& dstColorInfo) const override {
+        sk_sp<SkColorSpace> dstCS = dstColorInfo.colorSpace() ? dstColorInfo.refColorSpace()
+                                                              : fDstNullCS;
+
+        SkAlphaType xformAT;
+        sk_sp<SkColorSpace> xformCS = this->xformInfo(dstCS, &xformAT);
+
+        GrColorInfo dst = {dstColorInfo.colorType(), dstColorInfo.alphaType(), dstCS},
+                  xform = {dstColorInfo.colorType(), xformAT, xformCS};
+
+        auto [ok, fp] = as_CFB(fChild)->asFragmentProcessor(
+                GrColorSpaceXformEffect::Make(std::move(inputFP), dst,xform), context, xform);
+
+        return ok ? GrFPSuccess(GrColorSpaceXformEffect::Make(std::move(fp), xform,dst))
+                  : GrFPFailure(std::move(fp));
+    }
+#endif
+
+    bool onAppendStages(const SkStageRec&, bool) const override { return false; }
+
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* rawDstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        sk_sp<SkColorSpace> dstCS = rawDstCS ? sk_ref_sp(rawDstCS)
+                                             : fDstNullCS;
+
+        SkAlphaType xformAT;
+        sk_sp<SkColorSpace> xformCS = this->xformInfo(dstCS, &xformAT);
+
+        SkColorInfo dst = {kUnknown_SkColorType, kPremul_SkAlphaType, dstCS},
+                  xform = {kUnknown_SkColorType, xformAT, xformCS};
+
+        c = SkColorSpaceXformSteps{dst,xform}.program(p, uniforms, c);
+        c = as_CFB(fChild)->program(p, c, xform.colorSpace(), uniforms, alloc);
+        return c ? SkColorSpaceXformSteps{xform,dst}.program(p, uniforms, c)
+                 : c;
+    }
+
+    SK_FLATTENABLE_HOOKS(SkColorXformColorFilter)
+    void flatten(SkWriteBuffer& buffer) const override {
+        // TODO
+    }
+};
+
+sk_sp<SkFlattenable> SkColorXformColorFilter::CreateProc(SkReadBuffer& buffer) {
+    return nullptr;  // TODO
+}
+
+sk_sp<SkColorFilter> SkColorFilters::WithColorXform(sk_sp<SkColorFilter>          child,
+                                                    const skcms_TransferFunction* tf,
+                                                    const skcms_Matrix3x3*        gamut,
+                                                    const SkAlphaType*            at,
+                                                    sk_sp<SkColorSpace>           dstNullCS) {
+    return sk_make_sp<SkColorXformColorFilter>(std::move(child),
+                                               tf, gamut, at, std::move(dstNullCS));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
