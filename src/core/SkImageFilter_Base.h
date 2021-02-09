@@ -487,5 +487,6 @@ void SkRegisterAlphaThresholdImageFilterFlattenable();
 void SkRegisterArithmeticImageFilterFlattenable();
 void SkRegisterBlendImageFilterFlattenable();
 void SkRegisterBlurImageFilterFlattenable();
+void SkRegisterColorFilterImageFilterFlattenable();
 
 #endif // SkImageFilter_Base_DEFINED
