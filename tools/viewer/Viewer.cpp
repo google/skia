@@ -1362,6 +1362,21 @@ public:
         if (fPaintOverrides->fDither) {
             paint.setDither(fPaint->isDither());
         }
+        if (fPaintOverrides->fStyle) {
+            paint.setStyle(fPaint->getStyle());
+        }
+        if (fPaintOverrides->fWidth) {
+            paint.setStrokeWidth(fPaint->getStrokeWidth());
+        }
+        if (fPaintOverrides->fMiterLimit) {
+            paint.setStrokeMiter(fPaint->getStrokeMiter());
+        }
+        if (fPaintOverrides->fCapType) {
+            paint.setStrokeCap(fPaint->getStrokeCap());
+        }
+        if (fPaintOverrides->fJoinType) {
+            paint.setStrokeJoin(fPaint->getStrokeJoin());
+        }
         return true;
     }
     SkPaint* fPaint;
@@ -2015,6 +2030,75 @@ void Viewer::drawImGui() {
                           "Default\0No Dither\0Dither\0\0",
                           &SkPaintFields::fDither,
                           &SkPaint::isDither, &SkPaint::setDither);
+
+                int styleIdx = 0;
+                if (fPaintOverrides.fStyle) {
+                    styleIdx = SkTo<int>(fPaint.getStyle()) + 1;
+                }
+                if (ImGui::Combo("Style", &styleIdx,
+                                 "Default\0Fill\0Stroke\0Stroke and Fill\0\0"))
+                {
+                    if (styleIdx == 0) {
+                        fPaintOverrides.fStyle = false;
+                        fPaint.setStyle(SkPaint::kFill_Style);
+                    } else {
+                        fPaint.setStyle(SkTo<SkPaint::Style>(styleIdx - 1));
+                        fPaintOverrides.fStyle = true;
+                    }
+                    paramsChanged = true;
+                }
+
+                ImGui::Checkbox("Override Stroke Width", &fPaintOverrides.fWidth);
+                if (fPaintOverrides.fWidth) {
+                    float width = fPaint.getStrokeWidth();
+                    if (ImGui::SliderFloat("Stroke Width", &width, 0, 20)) {
+                        fPaint.setStrokeWidth(width);
+                        paramsChanged = true;
+                    }
+                }
+
+                ImGui::Checkbox("Override Miter Limit", &fPaintOverrides.fMiterLimit);
+                if (fPaintOverrides.fMiterLimit) {
+                    float miterLimit = fPaint.getStrokeMiter();
+                    if (ImGui::SliderFloat("Miter Limit", &miterLimit, 0, 20)) {
+                        fPaint.setStrokeMiter(miterLimit);
+                        paramsChanged = true;
+                    }
+                }
+
+                int capIdx = 0;
+                if (fPaintOverrides.fCapType) {
+                    capIdx = SkTo<int>(fPaint.getStrokeCap()) + 1;
+                }
+                if (ImGui::Combo("Cap Type", &capIdx,
+                                 "Default\0Butt\0Round\0Square\0\0"))
+                {
+                    if (capIdx == 0) {
+                        fPaintOverrides.fCapType = false;
+                        fPaint.setStrokeCap(SkPaint::kDefault_Cap);
+                    } else {
+                        fPaint.setStrokeCap(SkTo<SkPaint::Cap>(capIdx - 1));
+                        fPaintOverrides.fCapType = true;
+                    }
+                    paramsChanged = true;
+                }
+
+                int joinIdx = 0;
+                if (fPaintOverrides.fJoinType) {
+                    joinIdx = SkTo<int>(fPaint.getStrokeJoin()) + 1;
+                }
+                if (ImGui::Combo("Join Type", &joinIdx,
+                                 "Default\0Miter\0Round\0Bevel\0\0"))
+                {
+                    if (joinIdx == 0) {
+                        fPaintOverrides.fJoinType = false;
+                        fPaint.setStrokeJoin(SkPaint::kDefault_Join);
+                    } else {
+                        fPaint.setStrokeJoin(SkTo<SkPaint::Join>(joinIdx - 1));
+                        fPaintOverrides.fJoinType = true;
+                    }
+                    paramsChanged = true;
+                }
             }
 
             if (ImGui::CollapsingHeader("Font")) {
