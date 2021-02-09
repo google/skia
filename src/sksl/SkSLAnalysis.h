@@ -71,6 +71,10 @@ struct Analysis {
     // - myStruct.myArrayField[7].xyz
     static bool IsTrivialExpression(const Expression& expr);
 
+    // Ensures that 'loop' meets the strict requirements of The OpenGL ES Shading Language 1.00,
+    // Appendix A, Section 4.
+    // Information about the loop's structure are placed in outLoopInfo (if not nullptr).
+    // If the function returns false, specific reasons are reported via errors (if not nullptr).
     struct UnrollableLoopInfo {
         const Variable* fIndex;
         double fStart;
@@ -78,10 +82,6 @@ struct Analysis {
         int fCount;
     };
 
-    // Ensures that 'loop' meets the strict requirements of The OpenGL ES Shading Language 1.00,
-    // Appendix A, Section 4.
-    // Information about the loop's structure are placed in outLoopInfo (if not nullptr).
-    // If the function returns false, specific reasons are reported via errors (if not nullptr).
     static bool ForLoopIsValidForES2(const ForStatement& loop,
                                      UnrollableLoopInfo* outLoopInfo,
                                      ErrorReporter* errors);

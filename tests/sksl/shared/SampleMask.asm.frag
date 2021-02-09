@@ -28,6 +28,7 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %15 = OpAccessChain %_ptr_Output_int %sk_SampleMask %int_0
 %17 = OpLoad %int %15
 %19 = OpBitwiseOr %int %17 %int_8
-OpStore %15 %19
+%20 = OpAccessChain %_ptr_Output_int %sk_SampleMask %int_0
+OpStore %20 %19
 OpReturn
 OpFunctionEnd

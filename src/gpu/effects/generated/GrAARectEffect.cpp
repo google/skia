@@ -44,9 +44,9 @@ half alpha;
         half ySub;
 
         xSub = min(half(sk_FragCoord.x - %s.x), 0.0);
-        xSub += min(half(%s.z - sk_FragCoord.x), 0.0);
+        xSub = xSub + min(half(%s.z - sk_FragCoord.x), 0.0);
         ySub = min(half(sk_FragCoord.y - %s.y), 0.0);
-        ySub += min(half(%s.w - sk_FragCoord.y), 0.0);
+        ySub = ySub + min(half(%s.w - sk_FragCoord.y), 0.0);
         alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));
 }
 @if (%d == 2 || %d == 3) {

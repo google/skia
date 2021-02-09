@@ -23,9 +23,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     bool c = sqrt(2.0) > 2.0;
     bool d = true != c;
     bool e = c;
-    x += 12.0;
-    x -= 12.0;
-    x *= (y /= 10.0);
+    x = 14.0;
+    x = 2.0;
+    x = 2.0 * (y = 0.05000000074505806);
     x = 6.0;
     y = (float(c) * float(d)) * float(e);
     y = 6.0;

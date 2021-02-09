@@ -2024,15 +2024,45 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
-    std::unique_ptr<Expression> result;
+
+    // If the expression can be simplified by the constant-folder, do that.
     if (!ConstantFolder::ErrorOnDivideByZero(fContext, offset, op, *right)) {
-        result = ConstantFolder::Simplify(fContext, offset, *left, op, *right);
+        std::unique_ptr<Expression> fold = ConstantFolder::Simplify(fContext, offset,
+                                                                    *left, op, *right);
+        if (fold) {
+            return fold;
+        }
     }
-    if (!result) {
-        result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
-                                                    resultType);
+
+    // We expand `x *= y` to `x = x * y` at IR generation time to simplify future constant folding.
+    // (It's easier to constant-fold `x = x + 2` into `x = 4` because `x + 2` is separable.)
+    // We collapse it later.
+    // TODO: we don't do this yet in ES2 mode because of its arcane for-loop rules; `x += 1` is a
+    // valid for loop increment expression, but `x = x + 1` is not. When we learn how to re-collapse
+    // the expression, the ES2 restriction can be lifted.
+    if (!this->strictES2Mode() &&
+        isAssignment && op != Token::Kind::TK_EQ &&
+        Analysis::IsTrivialExpression(*left)) {
+        // Synthesize `x * y` from `x *= y`.
+        std::unique_ptr<Expression> readLeft = left->clone();
+        Analysis::UpdateRefKind(readLeft.get(), VariableRefKind::kRead);
+        auto binaryOp = std::make_unique<BinaryExpression>(right->fOffset,
+                                                           std::move(readLeft),
+                                                           Operators::RemoveAssignment(op),
+                                                           std::move(right),
+                                                           resultType);
+
+        // Synthesize `x = (x * y)`.
+        return std::make_unique<BinaryExpression>(offset,
+                                                  std::move(left),
+                                                  Token::Kind::TK_EQ,
+                                                  std::move(binaryOp),
+                                                  resultType);
     }
-    return result;
+
+    // Emit the binary expression as it we found it.
+    return std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
+                                              resultType);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(

@@ -360,13 +360,13 @@ public:
                 R"SkSL(float2 translatedFragPosFloat = sk_FragCoord.xy - %s.xy;
 float2 proxyCenter = (%s.zw - %s.xy) * 0.5;
 half edgeSize = (2.0 * %s + %s) + 0.5;
-translatedFragPosFloat -= proxyCenter;
+translatedFragPosFloat = translatedFragPosFloat - proxyCenter;
 half2 fragDirection = half2(sign(translatedFragPosFloat));
 translatedFragPosFloat = abs(translatedFragPosFloat);
 half2 translatedFragPosHalf = half2(translatedFragPosFloat - (proxyCenter - float(edgeSize)));
 translatedFragPosHalf = max(translatedFragPosHalf, 0.0);
-translatedFragPosHalf *= fragDirection;
-translatedFragPosHalf += half2(edgeSize);
+translatedFragPosHalf = translatedFragPosHalf * fragDirection;
+translatedFragPosHalf = translatedFragPosHalf + half2(edgeSize);
 half2 proxyDims = half2(2.0 * edgeSize);
 half2 texCoord = translatedFragPosHalf / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),

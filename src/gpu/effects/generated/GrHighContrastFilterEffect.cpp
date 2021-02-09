@@ -43,8 +43,8 @@ public:
                                              GrShaderVar("q", kHalf_GrSLType),
                                              GrShaderVar("t", kHalf_GrSLType)};
         fragBuilder->emitFunction(kHalf_GrSLType, HSLToRGB_name.c_str(), {HSLToRGB_args, 3},
-                                  R"SkSL(if (t < 0.0) t += 1.0;
-if (t > 1.0) t -= 1.0;
+                                  R"SkSL(if (t < 0.0) t = t + 1.0;
+if (t > 1.0) t = t - 1.0;
 return t < 0.1666666716337204 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0.66666668653488159 ? p + ((q - p) * (0.66666668653488159 - t)) * 6.0 : p));
 )SkSL");
         fragBuilder->codeAppendf(
@@ -83,7 +83,7 @@ half4 color = half4(inColor.xyz / max(inColor.w, 9.9999997473787516e-05), inColo
         } else {
             h = (color.x - color.y) / d + 4.0;
         }
-        h *= 0.1666666716337204;
+        h = h * 0.1666666716337204;
     }
     l = 1.0 + l * -0.5;
     if (s == 0.0) {
