@@ -94,6 +94,12 @@ config("skia_private") {
   }
 }
 
+config("skia_winuwp") {
+  if (skia_enable_winuwp) {
+    defines = [ "WINUWP" ]
+  }
+}
+
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
 config("skia_library") {
   visibility = [ "./*" ]
@@ -248,6 +254,7 @@ template("optional") {
       if (defined(invoker.public_include_dirs)) {
         include_dirs = invoker.public_include_dirs
       }
+      configs = [ ":skia_winuwp" ]
     }
     source_set(target_name) {
       check_includes = false
@@ -263,6 +270,7 @@ template("optional") {
       if (defined(invoker.configs_to_remove)) {
         configs -= invoker.configs_to_remove
       }
+      configs += [ ":skia_winuwp" ]
     }
   } else {
     source_set(target_name) {
@@ -283,6 +291,7 @@ template("optional") {
         sources = invoker.sources_when_disabled
       }
       configs += skia_library_configs
+      configs += [ ":skia_winuwp" ]
     }
   }
 }
@@ -864,7 +873,7 @@ optional("gpu") {
       sources += [ "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp" ]
     } else if (is_ios) {
       sources += [ "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
-    } else if (is_win) {
+    } else if (is_win && !skia_enable_winuwp) {
       sources += [ "src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp" ]
       if (target_cpu != "arm64") {
         libs += [ "OpenGL32.lib" ]
@@ -1284,12 +1293,17 @@ component("skia") {
       "src/ports/SkOSLibrary_win.cpp",
     ]
     libs += [
-      "FontSub.lib",
       "Ole32.lib",
       "OleAut32.lib",
-      "User32.lib",
-      "Usp10.lib",
     ]
+
+    if (!skia_enable_winuwp) {
+      libs += [
+        "FontSub.lib",
+        "User32.lib",
+        "Usp10.lib",
+      ]
+    }
   } else {
     sources += [
       "src/ports/SkOSFile_posix.cpp",
@@ -1842,7 +1856,7 @@ if (skia_enable_tools) {
         sources += [ "tools/AutoreleasePool.mm" ]
         frameworks += [ "Foundation.framework" ]
       }
-    } else if (is_win) {
+    } else if (is_win && !skia_enable_winuwp) {
       libs += [ "DbgHelp.lib" ]
     }
 
