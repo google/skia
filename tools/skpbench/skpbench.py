@@ -73,6 +73,11 @@ __argparse.add_argument('-a', '--resultsfile',
   help="optional file to append results into")
 __argparse.add_argument('--ddl',
   action='store_true', help="record the skp into DDLs before rendering")
+__argparse.add_argument('--lock-clocks',
+  action='store_true', help="Put device in benchmarking mode (locked clocks, no other processes)")
+__argparse.add_argument('--clock-speed',
+  type=float, default=66.0, help="A number between 0 and 100 indicating how fast to lock the CPU and GPU clock."
+  "Valid speeds are chosen from their respective available frequencies list.")
 __argparse.add_argument('--ddlNumRecordingThreads',
   type=int, default=0,
   help="number of DDL recording threads (0=num_cores)")
@@ -340,9 +345,12 @@ def main():
   srcs = _path.find_skps(FLAGS.srcs)
   assert srcs
 
+
   if FLAGS.adb:
     adb = Adb(FLAGS.device_serial, FLAGS.adb_binary,
               echo=(FLAGS.verbosity >= 5))
+    from _hardware_android import HardwareAndroid
+
     model = adb.check('getprop ro.product.model').strip()
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
@@ -357,10 +365,17 @@ def main():
       from _hardware_nexus_6p import HardwareNexus6P
       hardware = HardwareNexus6P(adb)
     else:
-      from _hardware_android import HardwareAndroid
       print("WARNING: %s: don't know how to monitor this hardware; results "
             "may be unreliable." % model, file=sys.stderr)
       hardware = HardwareAndroid(adb)
+
+    if FLAGS.lock_clocks:
+      hardware.__enter__()
+      print("Entered benchmarking mode, not running benchmarks. Reboot to restore.");
+      return;
+
+    if FLAGS.clock_speed:
+      hardware.setDesiredClock(FLAGS.clock_speed)
   else:
     hardware = Hardware()
 
