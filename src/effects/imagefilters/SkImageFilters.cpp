@@ -24,7 +24,6 @@
 #include "src/effects/imagefilters/SkPaintImageFilter.h"
 #include "src/effects/imagefilters/SkPictureImageFilter.h"
 #include "src/effects/imagefilters/SkTileImageFilter.h"
-#include "src/effects/imagefilters/SkXfermodeImageFilter.h"
 
 // TODO (michaelludwig) - Once SkCanvas can draw the results of a filter with any transform, this
 // filter can be moved out of core
@@ -46,17 +45,9 @@ void SkImageFilters::RegisterFlattenables() {
     SkPaintImageFilter::RegisterFlattenables();
     SkPictureImageFilter::RegisterFlattenables();
     SkTileImageFilter::RegisterFlattenables();
-    SkXfermodeImageFilter::RegisterFlattenables();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::Blend(
-        SkBlendMode mode, sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
-        const CropRect& cropRect) {
-    return SkXfermodeImageFilter::Make(mode, std::move(background), std::move(foreground),
-                                       cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::Blur(
         SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode, sk_sp<SkImageFilter> input,
