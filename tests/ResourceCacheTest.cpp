@@ -817,8 +817,7 @@ static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
 
     // Scratch resources are registered with GrResourceCache just by existing. There are 2.
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
-    // As long as there are outstanding refs on the resources they will not be in the scratch map
-    SkDEBUGCODE(REPORTER_ASSERT(reporter, 0 == cache->countScratchEntriesForKey(scratchKey));)
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->countScratchEntriesForKey(scratchKey));)
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() ==
                               cache->getResourceBytes());
@@ -832,7 +831,6 @@ static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
     a->unref();
     b->unref();
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
-    // Since we removed the refs to the resources they will now be in the scratch map
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->countScratchEntriesForKey(scratchKey));)
 
     // Purge again. This time resources should be purgeable.

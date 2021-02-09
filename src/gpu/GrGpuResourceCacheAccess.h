@@ -32,10 +32,6 @@ private:
                GrBudgetedType::kBudgeted == fResource->resourcePriv().budgetedType();
     }
 
-    bool isUsableAsScratch() const {
-        return this->isScratch() && !fResource->internalHasRef();
-    }
-
     /**
      * Called by the cache to delete the resource under normal circumstances.
      */
