@@ -7,6 +7,7 @@
 
 #include "include/core/SkString.h"
 #include "include/effects/SkHighContrastFilter.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTPin.h"
 #include "src/core/SkArenaAlloc.h"
@@ -203,12 +204,57 @@ sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
     return SkHighContrastFilter::Make(config);
 }
 
-sk_sp<SkColorFilter> SkHighContrastFilter::Make(
-    const SkHighContrastConfig& config) {
+sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
     if (!config.isValid()) {
         return nullptr;
     }
+#if defined(SK_SUPPORT_LEGACY_RUNTIME_EFFECTS)
     return sk_make_sp<SkHighContrast_Filter>(config);
+#else
+    sk_sp<SkData> uniforms = SkData::MakeUninitialized(2 * sizeof(float));
+    auto uniform = (float*)uniforms->writable_data();
+    SkString code{
+            "uniform shader input;"
+            "uniform half contrastM, contrastB;"
+            "half4 main() {"
+                "half4 c = unpremul(sample(input));"
+                "c.rgb *= c.rgb;"       // TODO, need real linearize()
+    };
+    if (config.fGrayscale) {
+        code += "c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;";
+    }
+    if (config.fInvertStyle == InvertStyle::kInvertBrightness) {
+        code += "c.rgb = 1 - c.rgb;";
+    }
+    if (config.fInvertStyle == InvertStyle::kInvertLightness && false) {
+        code += "c.rgb = rgb_to_hsl(c.rgb);";  // TODO
+        code += "c.b = 1 - c.b;";
+        code += "c.rgb = hsl_to_rgb(c.rgb);";  // TODO
+    }
+    if (float c = config.fContrast) {
+        float m = (1+c)/(1-c),
+              b = -0.5f*m + 0.5f;
+        *uniform++ = m;
+        *uniform++ = b;
+        code += "c.rgb = c.rgb*contrastM + contrastB;";
+    }
+    if (true) {
+        code += "c = saturate(c);"
+                "c.rgb = sqrt(c.rgb);"  // TODO, need real encode_tf()
+                "c.rgb *= c.a;"
+                "return c;";
+    }
+    code += "}";
+
+    auto [effect, err] = SkRuntimeEffect::Make(code);
+    if (!err.isEmpty()) {
+        SkDebugf("%s\n%s\n", code.c_str(), err.c_str());
+    }
+    SkASSERT(effect && err.isEmpty());
+
+    sk_sp<SkColorFilter> input = nullptr;
+    return effect->makeColorFilter(std::move(uniforms), &input, 1);
+#endif
 }
 
 void SkHighContrastFilter::RegisterFlattenables() {

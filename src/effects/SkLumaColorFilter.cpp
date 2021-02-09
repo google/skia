@@ -65,12 +65,12 @@ sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
     return sk_sp<SkColorFilter>(new SkLumaColorFilterImpl);
 #else
     static SkRuntimeEffect* effect = []{
-        const char* code =
+        SkString code{
             "uniform shader input;"
             "half4 main() {"
                 "return saturate(dot(half3(0.2126, 0.7152, 0.0722), sample(input).rgb)).000r;"
-            "}";
-        auto [effect, err] = SkRuntimeEffect::Make(SkString{code}, SkRuntimeEffect::Options{});
+            "}"};
+        auto [effect, err] = SkRuntimeEffect::Make(code);
         SkASSERT(effect && err.isEmpty());
         return effect.release();
     }();
