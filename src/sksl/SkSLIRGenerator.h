@@ -208,6 +208,12 @@ private:
     std::unique_ptr<Statement> convertDo(std::unique_ptr<Statement> stmt,
                                          std::unique_ptr<Expression> test);
     std::unique_ptr<Statement> convertDo(const ASTNode& d);
+    std::unique_ptr<Statement> convertSwitch(int offset,
+                                             bool isStatic,
+                                             std::unique_ptr<Expression> value,
+                                             ExpressionArray caseValues,
+                                             SkTArray<StatementArray> caseStatements,
+                                             std::shared_ptr<SymbolTable> symbolTable);
     std::unique_ptr<Statement> convertSwitch(const ASTNode& s);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
     std::unique_ptr<Extension> convertExtension(int offset, StringFragment name);

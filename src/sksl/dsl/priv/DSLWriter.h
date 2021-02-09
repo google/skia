@@ -10,6 +10,7 @@
 
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLStatement.h"
@@ -135,6 +136,12 @@ public:
     static DSLExpression ConvertPostfix(std::unique_ptr<Expression> expr, Token::Kind op);
 
     static DSLExpression ConvertPrefix(Token::Kind op, std::unique_ptr<Expression> expr);
+
+    static DSLStatement ConvertSwitch(std::unique_ptr<Expression> value,
+                                      ExpressionArray caseValues,
+                                      SkTArray<SkSL::StatementArray> caseStatements);
+
+    static void Ignore(std::unique_ptr<SkSL::Expression>&) {}
 
     /**
      * Sets the ErrorHandler associated with the current thread. This object will be notified when

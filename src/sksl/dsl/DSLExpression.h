@@ -20,7 +20,7 @@ class Expression;
 
 namespace dsl {
 
-class DSLExpression;
+class DSLStatement;
 class DSLVar;
 
 /**
@@ -103,6 +103,9 @@ private:
     std::unique_ptr<SkSL::Expression> coerceAndRelease(const SkSL::Type& type);
 
     std::unique_ptr<SkSL::Expression> fExpression;
+
+    template<class... Cases>
+    friend DSLStatement Switch(DSLExpression value, Cases... cases);
 
     friend class DSLCore;
     friend class DSLVar;

@@ -119,6 +119,15 @@ DSLExpression DSLWriter::ConvertPrefix(Token::Kind op, std::unique_ptr<Expressio
     return DSLExpression(Check(IRGenerator().convertPrefixExpression(op, std::move(expr))));
 }
 
+DSLStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
+                                      ExpressionArray caseValues,
+                                      SkTArray<SkSL::StatementArray> caseStatements) {
+    return IRGenerator().convertSwitch(/*offset=*/-1, /*isStatic=*/false, std::move(value),
+                                       std::move(caseValues), std::move(caseStatements),
+                                       IRGenerator().fSymbolTable);
+}
+
+
 void DSLWriter::ReportError(const char* msg) {
     if (Instance().fErrorHandler) {
         Instance().fErrorHandler->handleError(msg);
