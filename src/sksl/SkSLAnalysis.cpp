@@ -269,7 +269,6 @@ public:
         this->visitExpression(expr);
         if (info) {
             info->fAssignedVar = fAssignedVar;
-            info->fIsSwizzled = fIsSwizzled;
         }
         return fErrors->errorCount() == oldErrorCount;
     }
@@ -295,17 +294,14 @@ public:
 
             case Expression::Kind::kSwizzle: {
                 const Swizzle& swizzle = expr.as<Swizzle>();
-                fIsSwizzled = true;
                 this->checkSwizzleWrite(swizzle);
                 this->visitExpression(*swizzle.base());
                 break;
             }
-            case Expression::Kind::kIndex: {
-                Expression& inner = *expr.as<IndexExpression>().base();
-                fIsSwizzled |= inner.type().isVector();
-                this->visitExpression(inner);
+            case Expression::Kind::kIndex:
+                this->visitExpression(*expr.as<IndexExpression>().base());
                 break;
-            }
+
             default:
                 fErrors->error(expr.fOffset, "cannot assign to this expression");
                 break;
@@ -329,7 +325,6 @@ private:
 
     ErrorReporter* fErrors;
     VariableReference* fAssignedVar = nullptr;
-    bool fIsSwizzled = false;
 
     using INHERITED = ProgramVisitor;
 };
@@ -441,6 +436,27 @@ bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& 
 bool Analysis::IsAssignable(Expression& expr, AssignmentInfo* info, ErrorReporter* errors) {
     TrivialErrorReporter trivialErrors;
     return IsAssignableVisitor{errors ? errors : &trivialErrors}.visit(expr, info);
+}
+
+void Analysis::UpdateRefKind(Expression* expr, VariableRefKind refKind) {
+    class RefKindWriter : public ProgramWriter {
+    public:
+        RefKindWriter(VariableReference::RefKind refKind) : fRefKind(refKind) {}
+
+        bool visitExpression(Expression& expr) override {
+            if (expr.is<VariableReference>()) {
+                expr.as<VariableReference>().setRefKind(fRefKind);
+            }
+            return INHERITED::visitExpression(expr);
+        }
+
+    private:
+        VariableReference::RefKind fRefKind;
+
+        using INHERITED = ProgramWriter;
+    };
+
+    RefKindWriter{refKind}.visitExpression(*expr);
 }
 
 bool Analysis::IsTrivialExpression(const Expression& expr) {
