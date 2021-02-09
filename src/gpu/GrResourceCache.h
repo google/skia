@@ -249,7 +249,7 @@ private:
     ////
     void insertResource(GrGpuResource*);
     void removeResource(GrGpuResource*);
-    void notifyRefCntReachedZero(GrGpuResource*);
+    void notifyARefCntReachedZero(GrGpuResource*, GrGpuResource::LastRemovedRef);
     void changeUniqueKey(GrGpuResource*, const GrUniqueKey&);
     void removeUniqueKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
@@ -406,10 +406,12 @@ private:
         kRefCntReachedZero_RefNotificationFlag  = 0x2,
     };
     /**
-     * Called by GrGpuResources when they detect that their ref cnt has reached zero.
+     * Called by GrGpuResources when they detect one of their ref cnts have reached zero. This may
+     * either be the main ref or the command buffer usage ref.
      */
-    void notifyRefCntReachedZero(GrGpuResource* resource) {
-        fCache->notifyRefCntReachedZero(resource);
+    void notifyARefCntReachedZero(GrGpuResource* resource,
+                                  GrGpuResource::LastRemovedRef removedRef) {
+        fCache->notifyARefCntReachedZero(resource, removedRef);
     }
 
     /**
