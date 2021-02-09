@@ -23,6 +23,11 @@ class SkColorFilter;
 class SkPaint;
 class SkRegion;
 
+namespace skif {
+  static constexpr SkRect kNoCropRect = {SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
+                                         SK_ScalarInfinity, SK_ScalarInfinity};
+}
+
 // A set of factory functions providing useful SkImageFilter effects. For image filters that take an
 // input filter, providing nullptr means it will automatically use the dynamic source image. This
 // source depends on how the filter is applied, but is either the contents of a saved layer when
@@ -33,20 +38,18 @@ public:
     // to those types as a crop rect for the image filter factories. It's not intended to be used
     // directly.
     struct CropRect {
-        static constexpr SkRect kNoCropRect = {SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
-                                               SK_ScalarInfinity, SK_ScalarInfinity};
-        CropRect() : fCropRect(kNoCropRect) {}
+        CropRect() : fCropRect(skif::kNoCropRect) {}
         // Intentionally not explicit so callers don't have to use this type but can use SkIRect or
         // SkRect as desired.
-        CropRect(std::nullptr_t) : fCropRect(kNoCropRect) {}
+        CropRect(std::nullptr_t) : fCropRect(skif::kNoCropRect) {}
         CropRect(const SkIRect& crop) : fCropRect(SkRect::Make(crop)) {}
         CropRect(const SkRect& crop) : fCropRect(crop) {}
         CropRect(const SkIRect* optionalCrop) : fCropRect(optionalCrop ? SkRect::Make(*optionalCrop)
-                                                                       : kNoCropRect) {}
+                                                                       : skif::kNoCropRect) {}
         CropRect(const SkRect* optionalCrop) : fCropRect(optionalCrop ? *optionalCrop
-                                                                      : kNoCropRect) {}
+                                                                      : skif::kNoCropRect) {}
 
-        operator const SkRect*() const { return fCropRect == kNoCropRect ? nullptr : &fCropRect; }
+        operator const SkRect*() const { return fCropRect == skif::kNoCropRect ? nullptr : &fCropRect; }
 
         SkRect fCropRect;
     };

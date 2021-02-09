@@ -31,10 +31,6 @@
 // filter can be moved out of core
 #include "src/core/SkMatrixImageFilter.h"
 
-// Allow kNoCropRect to be referenced (for certain builds, e.g. macOS libFuzzer chromium target,
-// see crbug.com/1139725)
-constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
-
 void SkImageFilters::RegisterFlattenables() {
     SkArithmeticImageFilter::RegisterFlattenables();
     SkBlurImageFilter::RegisterFlattenables();
