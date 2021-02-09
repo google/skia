@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b16b158_b9070a08",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-09T15:55:25Z",
+      "side": 1,
+      "message": "This ought to be unnecessary...",
+      "revId": "74e1b92827f2f1f75dbcf59943c7870c79348fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64985e5d_bb3f6f90",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-09T15:55:25Z",
+      "side": 1,
+      "message": "... I think you can write this as Options{} or even {}.",
+      "range": {
+        "startLine": 89,
+        "startChar": 63,
+        "endLine": 89,
+        "endChar": 78
+      },
+      "revId": "74e1b92827f2f1f75dbcf59943c7870c79348fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
