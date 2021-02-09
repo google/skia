@@ -331,12 +331,8 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     if (@available(macOS 10.11, iOS 9.0, *)) {
         if (this->isMac() || 3 == fFamilyGroup) {
             fDrawInstancedSupport = true;
+            fNativeDrawIndirectSupport = true;
         }
-        // https://developer.apple.com/documentation/metal/mtlrendercommandencoder/specifying_drawing_and_dispatch_arguments_indirectly
-        // Metal does not appear to have a call that issues multiple indirect draws. Furthermore,
-        // the indirect draw structs are ordered differently than GL and Vulkan. For now we leave it
-        // unsupported and rely on polyfills in GrOpsRenderPass.
-        SkASSERT(!fNativeDrawIndirectSupport);
     }
 
     fMixedSamplesSupport = false;

@@ -48,6 +48,10 @@ private:
                          int baseVertex) override;
     void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                                 int baseVertex) override;
+    void onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+                        int drawCount) override;
+    void onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+                               int drawCount) override;
 
     void onClear(const GrScissorState& scissor, std::array<float, 4> color) override;
 
