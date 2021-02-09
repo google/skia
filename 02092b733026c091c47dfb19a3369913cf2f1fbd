@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75204a32_d84a9a9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T20:27:39Z",
+      "side": 1,
+      "message": "A rather trivial change, but the wrongness of anchoring the visual representation of the advance widths at the origin of the bounding box instead of the origin of the run of glyphs was driving me crazy.",
+      "revId": "02092b733026c091c47dfb19a3369913cf2f1fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
