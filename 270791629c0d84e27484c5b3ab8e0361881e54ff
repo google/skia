@@ -16,6 +16,24 @@
       "message": "This implementation is different from the previous versions in a *very* subtle way - it only works for a single assigned variable within the expression. For the uses of clone_with_ref_kind, that looks alright. For one or two of the cases in the inliner, that also seems ok. Out arguments had to have been assignable in the first place, so they can\u0027t contain multiple assigned variables. I think the variable map case is ok, too? not sure - what\u0027s in there?\n\nBut for the complex return statement case, what happens with:\n\nfloat updateAndReturn(float x, inout float y)\n{\n  // Some extra scope to skip the trivial version...\n  {\n    return y \u003d x;\n  }\n}",
       "revId": "270791629c0d84e27484c5b3ab8e0361881e54ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60fd9b73_cdfa4475",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-09T14:03:08Z",
+      "side": 1,
+      "message": "ah - wait, I see. The thing being cloned is always just a variable reference in the return case. Hmm. OK, I think this is okay then? We can\u0027t quite just assert that the expression is a variable reference (it is in a few spots, but not in the out-arguments of an inlined call case), but can we actually just assert that the IsAssignable visitor succeeds?",
+      "parentUuid": "ae9e9e06_dd7eb976",
+      "revId": "270791629c0d84e27484c5b3ab8e0361881e54ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
