@@ -16,6 +16,155 @@
       "message": "It\u0027s difficult to get a feel for the motivation for this since it doesn\u0027t seem to be used in this CL. Is the idea to replace some of the existing uses of SkArenaAlloc?",
       "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c198dd7_6b2e6651",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1556,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T21:46:14Z",
+      "side": 1,
+      "message": "That this is called \u0027alignment\u0027 but the \u0027\u003d\u0027 is almost but not quite aligned is quite the troll move.",
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e021a39_669a4ccc",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1562,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T21:46:14Z",
+      "side": 1,
+      "message": "So this is really alignof(Block). Except that very subtly it isn\u0027t since allocateBytes depends on fEndByte being at maximum alignment. Probably at least want to comment here as to why this is a load bearing over alignment.",
+      "range": {
+        "startLine": 1562,
+        "startChar": 83,
+        "endLine": 1562,
+        "endChar": 96
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f41a27e5_8e4e81a8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T21:46:14Z",
+      "side": 1,
+      "message": "nit: sp",
+      "range": {
+        "startLine": 1576,
+        "startChar": 24,
+        "endLine": 1576,
+        "endChar": 25
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9bf52f7_3a472b02",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T21:46:14Z",
+      "side": 1,
+      "message": "Why all the \u0027int\u0027 and not size_t?",
+      "range": {
+        "startLine": 43,
+        "startChar": 30,
+        "endLine": 43,
+        "endChar": 33
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05ec5414_d9a2d2aa",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T21:46:14Z",
+      "side": 1,
+      "message": "Might want to assert that this is \u003c\u003d kMaxAlignment, or maybe make kMaxAlignment the max(16, alignof(max_align_t)).",
+      "range": {
+        "startLine": 51,
+        "startChar": 56,
+        "endLine": 51,
+        "endChar": 77
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94237ace_703fcf09",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T21:46:14Z",
+      "side": 1,
+      "message": "is",
+      "range": {
+        "startLine": 105,
+        "startChar": 61,
+        "endLine": 105,
+        "endChar": 68
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18c5c3b2_87910124",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-09T21:46:14Z",
+      "side": 1,
+      "message": "So this is the very subtle reason why the fEndByte needs to be maximally aligned. In some sense the alignment of the start of the memory block isn\u0027t interesting.",
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
