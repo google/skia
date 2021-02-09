@@ -54,7 +54,8 @@
 #include <unistd.h>
 #endif // !defined(SK_BUILD_FOR_WIN)
 
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
+//#if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
+#if defined(SK_BUILD_FOR_WIN)
 #include "src/core/SkLeanWindows.h"
 #endif
 
@@ -244,6 +245,8 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrVkBackendContext& backendConte
 }
 
 void GrVkGpu::destroyResources() {
+    SkDebugf("In GrVkGpu destroyResources\n");
+
     if (fMainCmdPool) {
         fMainCmdPool->getPrimaryCommandBuffer()->end(this, /*abandoningBuffer=*/true);
         fMainCmdPool->close();
@@ -276,18 +279,28 @@ void GrVkGpu::destroyResources() {
 }
 
 GrVkGpu::~GrVkGpu() {
+    SkDebugf("In GrVkGpu dtor\n");
+
     if (!fDisconnected) {
+        SkDebugf("In GrVkGpu dtor b4 destroyResources\n");
+
         this->destroyResources();
     }
     // We don't delete the memory allocator until the very end of the GrVkGpu lifetime so that
     // clients can continue to delete backend textures even after a context has been abandoned.
+    SkDebugf("In GrVkGpu dtor b4 reset allocator\n");
+
     fMemoryAllocator.reset();
 }
 
 
 void GrVkGpu::disconnect(DisconnectType type) {
+    SkDebugf("In GrVkGpu disconnect\n");
+
     INHERITED::disconnect(type);
     if (!fDisconnected) {
+        SkDebugf("In GrVkGpu disconnect b4 destroy resources\n");
+
         this->destroyResources();
 
         fSemaphoresToWaitOn.reset();
@@ -2201,7 +2214,7 @@ void GrVkGpu::finishOutstandingGpuWork() {
     // signalling the fences on the command buffers even though they have completed. This causes an
     // assert to fire when destroying the command buffers. Therefore we add asleep to make sure the
     // fence signals.
-    #ifdef SK_DEBUG
+  //  #ifdef SK_DEBUG
         if (this->vkCaps().mustSleepOnTearDown()) {
     #if defined(SK_BUILD_FOR_WIN)
             Sleep(10);  // In milliseconds
@@ -2209,7 +2222,7 @@ void GrVkGpu::finishOutstandingGpuWork() {
             sleep(1);  // In seconds
     #endif
         }
-    #endif
+//#endif
 }
 
 void GrVkGpu::onReportSubmitHistograms() {
