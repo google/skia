@@ -71,16 +71,15 @@ public:
                 return String(uniformName);
             }
 
-            String defineFunction(const SkSL::FunctionDeclaration* decl, String body) override {
-                GrGLSLFPFragmentBuilder* fragBuilder = fArgs.fFragBuilder;
-                if (decl->name() == "main") {
-                    fragBuilder->codeAppend(body.c_str());
-                    return String("main");
+            String getMangledName(const char* name) override {
+                return String(fArgs.fFragBuilder->getMangledFunctionName(name).c_str());
+            }
+
+            void defineFunction(const char* decl, const char* body, bool isMain) override {
+                if (isMain) {
+                    fArgs.fFragBuilder->codeAppend(body);
                 } else {
-                    SkString mangledName =
-                            fragBuilder->getMangledFunctionName(SkString(decl->name()).c_str());
-                    fragBuilder->emitFunction(decl, mangledName.c_str(), body.c_str());
-                    return String(mangledName.c_str());
+                    fArgs.fFragBuilder->emitFunction(decl, body);
                 }
             }
 
