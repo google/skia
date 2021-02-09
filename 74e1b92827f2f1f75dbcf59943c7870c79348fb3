@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f37e3517_44f2679e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-09T19:13:27Z",
+      "side": 1,
+      "message": "One alternative that works:\n\n  static Result Make(SkString sksl, const Options\u0026 options);\n  static Result Make(SkString sksl) { return Make(std::move(sksl), {}); }\n\nNot sure if that\u0027s better/worse (either way we should probably put a comment indicating that the non-idiomatic code is working around https://bugs.llvm.org/show_bug.cgi?id\u003d36684).",
+      "revId": "74e1b92827f2f1f75dbcf59943c7870c79348fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b16b158_b9070a08",
