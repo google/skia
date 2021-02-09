@@ -486,5 +486,6 @@ static inline const SkImageFilter_Base* as_IFB(const SkImageFilter* filter) {
 void SkRegisterAlphaThresholdImageFilterFlattenable();
 void SkRegisterArithmeticImageFilterFlattenable();
 void SkRegisterBlendImageFilterFlattenable();
+void SkRegisterBlurImageFilterFlattenable();
 
 #endif // SkImageFilter_Base_DEFINED
