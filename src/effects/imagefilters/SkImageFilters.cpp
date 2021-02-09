@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkArithmeticImageFilter.h"
 #include "src/effects/imagefilters/SkBlurImageFilter.h"
 #include "src/effects/imagefilters/SkColorFilterImageFilter.h"
 #include "src/effects/imagefilters/SkComposeImageFilter.h"
@@ -32,7 +31,6 @@
 #include "src/core/SkMatrixImageFilter.h"
 
 void SkImageFilters::RegisterFlattenables() {
-    SkArithmeticImageFilter::RegisterFlattenables();
     SkBlurImageFilter::RegisterFlattenables();
     SkColorFilterImageFilter::RegisterFlattenables();
     SkComposeImageFilter::RegisterFlattenables();
@@ -52,14 +50,6 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::Arithmetic(
-        SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4, bool enforcePMColor,
-        sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
-        const CropRect& cropRect) {
-    return SkArithmeticImageFilter::Make(k1, k2, k3, k4, enforcePMColor, std::move(background),
-                                         std::move(foreground), cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::Blend(
         SkBlendMode mode, sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,

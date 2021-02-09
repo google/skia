@@ -5,10 +5,6 @@
  * found in the LICENSE file.
  */
 
-@header {
-    #include "src/effects/imagefilters/SkArithmeticImageFilter.h"
-}
-
 in fragmentProcessor srcFP;
 in fragmentProcessor dstFP;
 layout(ctype=SkV4) in uniform float4 k;
@@ -34,17 +30,15 @@ half4 main() {
 @make{
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> srcFP,
                                                      std::unique_ptr<GrFragmentProcessor> dstFP,
-                                                     const ArithmeticFPInputs& inputs) {
+                                                     const SkV4& k, bool enforcePMColor) {
         return std::unique_ptr<GrFragmentProcessor>(new GrArithmeticProcessor(
-                std::move(srcFP), std::move(dstFP),
-                SkV4{inputs.fK[0], inputs.fK[1], inputs.fK[2], inputs.fK[3]},
-                inputs.fEnforcePMColor));
+                std::move(srcFP), std::move(dstFP), k, enforcePMColor));
     }
 }
 
 @test(d) {
     return GrArithmeticProcessor::Make(
             GrProcessorUnitTest::MakeChildFP(d), GrProcessorUnitTest::MakeChildFP(d),
-            ArithmeticFPInputs{d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(),
-                               d->fRandom->nextF(), d->fRandom->nextBool()});
+            {d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF()},
+            d->fRandom->nextBool());
 }

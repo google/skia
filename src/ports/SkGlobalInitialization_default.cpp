@@ -121,6 +121,7 @@
     void SkFlattenable::PrivateInitializer::InitImageFilters() {
         SkImageFilters::RegisterFlattenables();
         SkRegisterAlphaThresholdImageFilterFlattenable();
+        SkRegisterArithmeticImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }
