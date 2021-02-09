@@ -125,6 +125,7 @@
         SkRegisterBlendImageFilterFlattenable();
         SkRegisterBlurImageFilterFlattenable();
         SkRegisterColorFilterImageFilterFlattenable();
+        SkRegisterComposeImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }

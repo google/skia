@@ -16,7 +16,6 @@ skia_effects_imagefilter_sources = [
   "$_src/effects/imagefilters/SkBlurImageFilter.cpp",
   "$_src/effects/imagefilters/SkColorFilterImageFilter.cpp",
   "$_src/effects/imagefilters/SkComposeImageFilter.cpp",
-  "$_src/effects/imagefilters/SkComposeImageFilter.h",
   "$_src/effects/imagefilters/SkDisplacementMapEffect.cpp",
   "$_src/effects/imagefilters/SkDisplacementMapEffect.h",
   "$_src/effects/imagefilters/SkDropShadowImageFilter.cpp",
