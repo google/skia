@@ -73,7 +73,7 @@ public:
 
         // in C++17, we could just do:
         // (argArray.push_back(args.release()), ...);
-        int unused[] = {0, (ignore(argArray.push_back(args.release())), 0)...};
+        int unused[] = {0, (DSLWriter::Ignore(argArray.push_back(args.release())), 0)...};
         static_cast<void>(unused);
 
         return ir.call(/*offset=*/-1, ir.convertIdentifier(-1, name), std::move(argArray));
@@ -163,9 +163,6 @@ public:
     static DSLStatement While(DSLExpression test, DSLStatement stmt) {
         return DSLWriter::IRGenerator().convertWhile(/*offset=*/-1, test.release(), stmt.release());
     }
-
-private:
-    static void ignore(std::unique_ptr<SkSL::Expression>&) {}
 };
 
 DSLVar sk_FragColor() {

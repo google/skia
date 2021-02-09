@@ -1091,6 +1091,50 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
     REPORTER_ASSERT(r, whitespace_insensitive_compare(y, "return true;"));
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+
+    Var a(kFloat, "a"), b(kInt, "b");
+
+    Statement x = Switch(5,
+        Case(0, a = 0, Break()),
+        Case(1, a = 1, Continue()),
+        Default(Discard())
+    );
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(x,
+        "switch (5) { case 0: (a = 0.0); break; case 1: (a = 1.0); continue; default: discard; }"));
+
+    Statement y = Switch(b);
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(y,
+        "switch (b) {}"));
+
+    Statement z = Switch(b, Default(), Case(0), Case(1));
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(z,
+        "switch (b) { default: case 0: case 1: }"));
+
+    {
+        ExpectError error(r, "error: duplicate case value\n");
+        Switch(0, Case(0), Case(0)).release();
+    }
+
+    {
+        ExpectError error(r, "error: case value must be a constant integer\n");
+        Var b(kInt);
+        Switch(0, Case(b)).release();
+    }
+
+    {
+        ExpectError error(r, "error: continue statement must be inside a loop\n");
+        DSLFunction(kVoid, "fail").define(
+            Switch(5,
+                Case(0, a = 0, Break()),
+                Case(1, a = 1, Continue()),
+                Default(Discard())
+            )
+        );
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat4, "a");
