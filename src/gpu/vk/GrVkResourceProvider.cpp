@@ -450,6 +450,16 @@ void GrVkResourceProvider::checkCommandBuffers() {
     }
 }
 
+void GrVkResourceProvider::forceSyncAllCommandBuffers() {
+    for (int i = fActiveCommandPools.count() - 1; fActiveCommandPools.count() && i >= 0; --i) {
+        GrVkCommandPool* pool = fActiveCommandPools[i];
+        if (!pool->isOpen()) {
+            GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
+            buffer->forceSync(fGpu);
+        }
+    }
+}
+
 void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
         sk_sp<GrRefCntedCallback> finishedCallback) {
     for (int i = 0; i < fActiveCommandPools.count(); ++i) {
