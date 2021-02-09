@@ -49,6 +49,11 @@ static constexpr char gSphereSkSL[] = R"(
     uniform half2   child_scale;
     uniform half    side_select;
 
+    uniform half3 l_vec;
+    uniform half3 l_color;
+    uniform half  l_coeff_ambient;
+    uniform half  l_coeff_diffuse;
+
     half3 to_sphere(half2 xy) {
         half cam_z  = 5.5,
              cam_z2 = cam_z*cam_z;
@@ -62,24 +67,38 @@ static constexpr char gSphereSkSL[] = R"(
         return half3(0, 0, cam_z) + RAY*t;
     }
 
+    half4 apply_light(half3 N, half4 input_c) {
+        //half3 c = input_c.rgb * l_coeff_ambient;
+        half3 c = input_c.rgb;
+        
+        half3 amb = half3(l_coeff_ambient, l_coeff_ambient, l_coeff_ambient);
+        half3 dif = l_color * (dot(l_vec, N) * l_coeff_diffuse);
+
+        // c *= l_color * (dot(l_vec, N) * l_coeff_diffuse);
+        c *= amb + dif;
+
+        return half4(c, input_c.a);
+    }
+
     half4 main(float2 xy) {
-        half3 N = rot_matrix*to_sphere(xy);
+        half3 SN = to_sphere(xy);
+        half3 RN = rot_matrix*SN;
 
         half kRPI = 1/3.1415927;
 
         half2 UV = half2(
-            0.5 + kRPI * 0.5 * atan(N.x, N.z),
-            0.5 + kRPI * asin(N.y)
+            0.5 + kRPI * 0.5 * atan(RN.x, RN.z),
+            0.5 + kRPI * asin(RN.y)
         );
 
-        return sample(child, UV*child_scale);
+        return apply_light(SN, sample(child, UV*child_scale));
     }
 )";
 
 static sk_sp<SkRuntimeEffect> sphere_effect_singleton() {
     static const SkRuntimeEffect* effect =
             SkRuntimeEffect::Make(SkString(gSphereSkSL), /*options=*/{}).effect.release();
-    if (0 && !effect) {
+    if (1 && !effect) {
         printf("!!! %s\n",
                SkRuntimeEffect::Make(SkString(gSphereSkSL), /*options=*/{}).errorText.c_str());
     }
@@ -104,6 +123,11 @@ public:
     SG_ATTRIBUTE(Radius  , float     , fRadius)
     SG_ATTRIBUTE(Rotation, SkM44     , fRot   )
     SG_ATTRIBUTE(Side    , RenderSide, fSide  )
+
+    SG_ATTRIBUTE(LightVec    , SkV3 , fLightVec    )
+    SG_ATTRIBUTE(LightColor  , SkV3 , fLightColor  )
+    SG_ATTRIBUTE(AmbientLight, float, fAmbientLight)
+    SG_ATTRIBUTE(DiffuseLight, float, fDiffuseLight)
 
 private:
     sk_sp<SkShader> contentShader() {
@@ -133,6 +157,11 @@ private:
             fRot.rc(1,0), fRot.rc(1,1), fRot.rc(1,2),
             fRot.rc(2,0), fRot.rc(2,1), fRot.rc(2,2),
         };
+
+        builder.uniform("l_vec")           = fLightVec;
+        builder.uniform("l_color")         = fLightColor;
+        builder.uniform("l_coeff_ambient") = fAmbientLight;
+        builder.uniform("l_coeff_diffuse") = fDiffuseLight;
 
         const auto lm = SkMatrix::Translate(fCenter.fX, fCenter.fY) *
                         SkMatrix::Scale(fRadius, fRadius);
@@ -187,6 +216,11 @@ private:
     float      fRadius = 0;
     RenderSide fSide   = RenderSide::kFull;
 
+    SkV3       fLightVec     = {0,0,1},
+               fLightColor   = {1,1,1};
+    float      fAmbientLight = 1,
+               fDiffuseLight = 0;
+
     using INHERITED = sksg::CustomRenderNode;
 };
 
@@ -198,17 +232,27 @@ public:
         : INHERITED(std::move(node))
     {
         enum : size_t {
-            // kRotGrp_Index = 0,
-                 kRotX_Index = 1,
-                 kRotY_Index = 2,
-                 kRotZ_Index = 3,
-             kRotOrder_Index = 4,
-            // ???           = 5,
-               kRadius_Index = 6,
-               kOffset_Index = 7,
-               kRender_Index = 8,
+            //      kRotGrp_Index =  0,
+                      kRotX_Index =  1,
+                      kRotY_Index =  2,
+                      kRotZ_Index =  3,
+                  kRotOrder_Index =  4,
+            // ???                =  5,
+                    kRadius_Index =  6,
+                    kOffset_Index =  7,
+                    kRender_Index =  8,
 
-            // TODO: Light params
+            //       kLight_Index =  9,
+            kLightIntensity_Index = 10,
+                kLightColor_Index = 11,
+               kLightHeight_Index = 12,
+            kLightDirection_Index = 13,
+            // ???                = 14,
+            //     kShading_Index = 15,
+                   kAmbient_Index = 16,
+                   kDiffuse_Index = 17,
+                  kSpecular_Index = 18,
+                 kRoughness_Index = 19,
         };
 
         EffectBinder(jprops, *abuilder, this)
@@ -218,7 +262,14 @@ public:
             .bind(    kRotY_Index, fRotY    )
             .bind(    kRotZ_Index, fRotZ    )
             .bind(kRotOrder_Index, fRotOrder)
-            .bind(  kRender_Index, fRender  );
+            .bind(  kRender_Index, fRender  )
+
+            .bind(kLightIntensity_Index, fLightIntensity)
+            .bind(    kLightColor_Index, fLightColor    )
+            .bind(   kLightHeight_Index, fLightHeight   )
+            .bind(kLightDirection_Index, fLightDirection)
+            .bind(       kAmbient_Index, fAmbient       )
+            .bind(       kDiffuse_Index, fDiffuse       );
     }
 
 private:
@@ -251,12 +302,33 @@ private:
             SkUNREACHABLE;
         };
 
+        const auto light_vec = [](float intensity, float height, float direction) {
+            float z = height,
+                  r = std::sqrt(1 - z*z),
+                  x = std::cos(direction) * r,
+                  y = std::sin(direction) * r;
+
+            return SkV3{x,y,z} * intensity;
+        };
+
         const auto& sph = this->node();
 
         sph->setCenter({fOffset.x, fOffset.y});
         sph->setRadius(fRadius);
         sph->setSide(side(fRender));
         sph->setRotation(rotation(fRotOrder, fRotX, fRotY, fRotZ));
+
+        sph->setAmbientLight(SkTPin(fAmbient * 0.01f, 0.0f, 2.0f));
+        sph->setDiffuseLight(SkTPin(fDiffuse * 0.01f, 0.0f, 1.0f));
+
+        sph->setLightVec(light_vec(
+            SkTPin(fLightIntensity * 0.01f,  0.0f, 10.0f),
+            SkTPin(fLightHeight    * 0.01f, -1.0f,  1.0f),
+            SkDegreesToRadians(fLightDirection)
+        ));
+
+        const auto lc = static_cast<SkColor4f>(fLightColor);
+        sph->setLightColor({lc.fR, lc.fG, lc.fB});
     }
 
     Vec2Value   fOffset   = {0,0};
@@ -266,6 +338,13 @@ private:
                 fRotZ     = 0,
                 fRotOrder = 1,
                 fRender   = 1;
+    
+    VectorValue fLightColor;
+    ScalarValue fLightIntensity =   0,
+                fLightHeight    =   0,
+                fLightDirection =   0,
+                fAmbient        = 100,
+                fDiffuse        =   0;
 
     using INHERITED = DiscardableAdapterBase<SphereAdapter, SphereNode>;
 };
