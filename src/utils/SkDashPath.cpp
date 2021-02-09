@@ -121,6 +121,12 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
         return false;
     }
 
+    SkDebugf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+    SkDebugf("max %f min %f LT %f RB %f pP %f iL %f sw %d\n",
+             maxXY, minXY,
+             leftTop, rightBottom,
+             priorPhase, intervalLength, swapped);
+
     // Now we actually perform the chop, removing the excess to the left/top and
     // right/bottom of the bounds (keeping our new line "in phase" with the dash,
     // hence the (mod intervalLength).
@@ -137,6 +143,12 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
             maxXY += priorPhase;  // for rectangles, adjust by prior phase
         }
     }
+
+    SkDebugf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+    SkDebugf("%f %f %f %f %f\n",
+             maxXY, minXY,
+             leftTop, rightBottom,
+             priorPhase);
 
     SkASSERT(maxXY >= minXY);
     if (swapped) {
@@ -191,12 +203,29 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
         SkPoint pts[4];  // Rects are all moveTo and lineTo, so we'll only use pts[0] and pts[1].
         SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
 
+        SkDebugf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ pts %d vbs %d\n",
+                 srcPath.countPoints(),
+                 srcPath.countVerbs());
+
+        int iPt = 0;
         SkScalar accum = 0;  // Sum of unculled edge lengths to keep the phase correct.
         while (iter.next(pts) == SkPath::kLine_Verb) {
             // Notice this vector v and accum work with the original unclipped length.
             SkVector v = pts[1] - pts[0];
 
-            if (clip_line(pts, bounds, intervalLength, SkScalarMod(accum, intervalLength))) {
+            SkDebugf("%d p1 %f %f p0 %f %f v %f %f accum %f\n",
+                     iPt,
+                     pts[1].fX, pts[1].fY,
+                     pts[0].fX, pts[0].fY,
+                     v.fX, v.fY,
+                     accum);
+
+            float pP = SkScalarMod(accum, intervalLength);
+            SkDebugf("++++++++++++++++++++ %f %% %f == %f\n",
+                     accum,
+                     intervalLength,
+                     pP);
+            if (clip_line(pts, bounds, intervalLength, accum)) {
                 // pts[0] may have just been changed by clip_line().
                 // If that's not where we ended the previous lineTo(), we need to moveTo() there.
                 SkPoint last;
@@ -209,6 +238,8 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
             // We either just traveled v.fX horizontally or v.fY vertically.
             SkASSERT(v.fX == 0 || v.fY == 0);
             accum += SkScalarAbs(v.fX + v.fY);
+            accum = SkScalarMod(accum, intervalLength);
+            ++iPt;
         }
         return !dstPath->isEmpty();
     }
