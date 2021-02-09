@@ -10,21 +10,25 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
+float scalar(float x, float y) {
+    x = abs(x);
+    x = abs(x - y);
+    x = (x * y);
+    x = sign(x);
+    return x;
+}
+float2 vector(float2 x, float2 y) {
+    x = float2(length(x));
+    x = float2(distance(x, y));
+    x = float2(dot(x, y));
+    x = normalize(x);
+    return x;
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float _1_x = 1.0;
-    _1_x = abs(1.0);
-    _1_x = abs(_1_x - 2.0);
-    _1_x = (_1_x * 2.0);
-    _1_x = sign(_1_x);
-
-    float2 _3_x = float2(1.0, 2.0);
-    _3_x = float2(length(float2(1.0, 2.0)));
-    _3_x = float2(distance(_3_x, float2(3.0, 4.0)));
-    _3_x = float2(dot(_3_x, float2(3.0, 4.0)));
-    _3_x = normalize(_3_x);
-
+    float x = scalar(1.0, 2.0);
+    float2 y = vector(float2(1.0, 2.0), float2(3.0, 4.0));
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 }

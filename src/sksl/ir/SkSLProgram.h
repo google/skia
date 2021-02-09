@@ -142,7 +142,7 @@ struct Program {
         // A value of zero will disable the inliner entirely.
         int fInlineThreshold = SkSL::kDefaultInlineThreshold;
         // true to enable optimization passes
-        bool fOptimize = true;
+        bool fOptimize = false;
         // If true, implicit conversions to lower precision numeric types are allowed
         // (eg, float to half)
         bool fAllowNarrowingConversions = false;

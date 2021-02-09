@@ -13,8 +13,12 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    int i;
+    i = 0;
     int4 i4;
     i4 = int4(1, 2, 3, 4);
+    float3x3 f3x3;
+    f3x3 = float3x3(float3(1.0, 2.0, 3.0), float3(4.0, 5.0, 6.0), float3(7.0, 8.0, 9.0));
     float4 x;
     x.w = 0.0;
     x.yx = float2(0.0);
@@ -27,10 +31,14 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     array<float4, 1> af4;
     af4[0].x = 0.0;
     af4[0].ywxz = float4(1.0);
+    float l;
+    float r;
+
+    l = 0.0;
     ai[0] += ai4[0].x;
     af4[0] *= ah2x4[0][0].x;
-    i4.y = i4.y * 0;
-    x.y = x.y * 0.0;
+    i4.y = i4.y * i;
+    x.y = x.y * l;
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 }

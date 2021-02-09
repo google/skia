@@ -36,7 +36,7 @@ half value;
     uint x = uint(sk_FragCoord.x);
     uint y = uint(sk_FragCoord.y) ^ x;
     uint m = (((((y & 1) << 5 | (x & 1) << 4) | (y & 2) << 2) | (x & 2) << 1) | (y & 4) >> 1) | (x & 4) >> 2;
-    value = half(m) / 64.0 - 0.4921875;
+    value = (half(m) * 1.0) / 64.0 - 0.4921875;
 } else {
     half4 bits = mod(half4(sk_FragCoord.yxyx), half4(2.0, 2.0, 4.0, 4.0));
     bits.zw = step(2.0, bits.zw);

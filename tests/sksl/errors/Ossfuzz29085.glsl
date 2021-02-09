@@ -1,4 +1,5 @@
-### Compilation failed:
 
-error: 1: 'i' has not been assigned
-1 error
+void a() {
+    int i;
+    ivec3(ivec2(i = i), int(1)).xzy.xx.x;
+}

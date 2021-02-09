@@ -8,25 +8,32 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float _blend_color_luminance(float3 color) {
+    return dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), color);
+}
+float3 _blend_set_color_luminance(float3 hueSatColor, float alpha, float3 lumColor) {
+    float lum = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
+
+    float3 result = (lum - dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
+
+    float minComp = min(min(result.x, result.y), result.z);
+    float maxComp = max(max(result.x, result.y), result.z);
+    if (minComp < 0.0 && lum != minComp) {
+        result = lum + ((result - lum) * lum) / (lum - minComp);
+    }
+    return maxComp > alpha && maxComp != lum ? lum + ((result - lum) * (alpha - lum)) / (maxComp - lum) : result;
+}
+float4 blend_luminosity(float4 src, float4 dst) {
+    float alpha = dst.w * src.w;
+    float3 sda = src.xyz * dst.w;
+    float3 dsa = dst.xyz * src.w;
+    return float4((((_blend_set_color_luminance(dsa, alpha, sda) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
+}
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float _1_alpha = _in.dst.w * _in.src.w;
-    float3 _2_sda = _in.src.xyz * _in.dst.w;
-    float3 _3_dsa = _in.dst.xyz * _in.src.w;
-    float _5_lum = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _2_sda);
-
-    float3 _6_result = (_5_lum - dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa)) + _3_dsa;
-
-    float _7_minComp = min(min(_6_result.x, _6_result.y), _6_result.z);
-    float _8_maxComp = max(max(_6_result.x, _6_result.y), _6_result.z);
-    if (_7_minComp < 0.0 && _5_lum != _7_minComp) {
-        _6_result = _5_lum + ((_6_result - _5_lum) * _5_lum) / (_5_lum - _7_minComp);
-    }
-    _out.sk_FragColor = float4(((((_8_maxComp > _1_alpha && _8_maxComp != _5_lum ? _5_lum + ((_6_result - _5_lum) * (_1_alpha - _5_lum)) / (_8_maxComp - _5_lum) : _6_result) + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
-
-
+    _out.sk_FragColor = blend_luminosity(_in.src, _in.dst);
     return _out;
 }

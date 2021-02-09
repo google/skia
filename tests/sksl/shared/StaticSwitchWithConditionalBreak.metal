@@ -13,7 +13,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     switch (0) {
         case 0:
             x = 0.0;
-            if (0.0 < sqrt(1.0)) break;
+            if (x < sqrt(1.0)) break;
         case 1:
             x = 1.0;
     }
