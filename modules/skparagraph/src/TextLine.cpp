@@ -1148,21 +1148,29 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
             bool keepLooking = true;
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
             run, runOffsetInLine, textRange, StyleType::kNone,
-            [this, dx, &result, &keepLooking]
+            [this, run, dx, &result, &keepLooking]
             (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
 
                 SkScalar offsetX = this->offset().fX;
                 if (dx < context.clip.fLeft + offsetX) {
                     // All the other runs are placed right of this one
                     auto utf16Index = fOwner->getUTF16Index(context.run->globalClusterIndex(context.pos));
-                    result = { SkToS32(utf16Index), kDownstream };
+                    if (run->leftToRight()) {
+                        result = { SkToS32(utf16Index), kDownstream };
+                    } else {
+                        result = { SkToS32(utf16Index + 1), kUpstream };
+                    }
                     return keepLooking = false;
                 }
 
                 if (dx >= context.clip.fRight + offsetX) {
                     // We have to keep looking ; just in case keep the last one as the closest
                     auto utf16Index = fOwner->getUTF16Index(context.run->globalClusterIndex(context.pos + context.size));
-                    result = { SkToS32(utf16Index), kUpstream };
+                    if (run->leftToRight()) {
+                        result = {SkToS32(utf16Index), kUpstream};
+                    } else {
+                        result = {SkToS32(utf16Index), kDownstream};
+                    }
                     return keepLooking = true;
                 }
 

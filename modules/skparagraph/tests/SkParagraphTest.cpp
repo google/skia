@@ -5826,3 +5826,46 @@ DEF_TEST(SkParagraph_GlyphPositionsInEmptyLines, reporter) {
         getGlyphPositionAtCoordinate(0,paragraph->getHeight() - 1);
     REPORTER_ASSERT(reporter, res3.position == 3 && res3.affinity == Affinity::kDownstream);
 }
+
+DEF_TEST(SkParagraph_RTLGlyphPositions, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RTLGlyphPositions");
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto") });
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText("אאאא");
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(500);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto res1 = paragraph->getGlyphPositionAtCoordinate(0, 1);
+    REPORTER_ASSERT(reporter, res1.position == 4 && res1.affinity == Affinity::kUpstream);
+/*
+    auto width = paragraph->getMinIntrinsicWidth();
+    auto letter = width / 4;
+    for (size_t i = 0; i < 4; i++) {
+        auto left = 500 - letter * (4 - i) + letter * 0.25;
+        auto right = left + letter * 0.5;
+        auto res1 = paragraph->getGlyphPositionAtCoordinate(left, 1);
+        auto res2 = paragraph->getGlyphPositionAtCoordinate(right, 1);
+
+        SkDebugf("%d: %f %d%s %f %d%s\n", i,
+           left, res1.position, res1.affinity == Affinity::kUpstream ? "U" : "D",
+           right, res2.position, res2.affinity == Affinity::kUpstream ? "U" : "D");
+    }
+*/
+    auto res2 = paragraph->getGlyphPositionAtCoordinate(500, 1);
+    REPORTER_ASSERT(reporter, res2.position == 0 && res2.affinity == Affinity::kDownstream);
+//    SkDebugf("edges: %f %d%s %f %d%s\n",
+//           0.0f, res1.position, res1.affinity == Affinity::kUpstream ? "U" : "D",
+//           500.0f, res2.position, res2.affinity == Affinity::kUpstream ? "U" : "D");
+}
