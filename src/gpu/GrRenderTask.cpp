@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTextureResolveRenderTask.h"
 
 uint32_t GrRenderTask::CreateUniqueID() {
@@ -46,6 +47,15 @@ GrRenderTask::~GrRenderTask() {
     SkASSERT(this->isSetFlag(kDisowned_Flag));
 }
 
+bool GrRenderTask::deferredProxiesAreInstantiated() const {
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
+        if (!fDeferredProxies[i]->isInstantiated()) {
+            return false;
+        }
+    }
+
+    return true;
+}
 #endif
 
 void GrRenderTask::makeClosed(const GrCaps& caps) {
@@ -73,6 +83,14 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
     }
 
     this->setFlag(kClosed_Flag);
+}
+
+void GrRenderTask::prepare(GrOpFlushState* flushState) {
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
+        fDeferredProxies[i]->texPriv().scheduleUpload(flushState);
+    }
+
+    this->onPrepare(flushState);
 }
 
 // Add a GrRenderTask-based dependency
@@ -113,6 +131,8 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
         SkASSERT(GrMipmapped::kNo == mipMapped);
         // We should never attempt a self-read on a surface that has a separate MSAA renderbuffer.
         SkASSERT(!dependedOn->requiresManualMSAAResolve());
+        SkASSERT(!dependedOn->asTextureProxy() ||
+                 !dependedOn->asTextureProxy()->texPriv().isDeferred());
         return;
     }
 
@@ -166,6 +186,9 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
         if (dependedOnTask) {
             SkASSERT(fTextureResolveTask->dependsOn(dependedOnTask));
         }
+        if (textureProxy && textureProxy->texPriv().isDeferred()) {
+            SkASSERT(fTextureResolveTask->fDeferredProxies.back() == textureProxy);
+        }
 
         // The GrTextureResolveRenderTask factory should have also marked the proxy clean, set the
         // last renderTask on the textureProxy to textureResolveTask, and closed textureResolveTask.
@@ -178,6 +201,10 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
         SkASSERT(drawingMgr->getLastRenderTask(dependedOn) == fTextureResolveTask);
 #endif
         return;
+    }
+
+    if (textureProxy && textureProxy->texPriv().isDeferred()) {
+        fDeferredProxies.push_back(textureProxy);
     }
 
     if (dependedOnTask) {

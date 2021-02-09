@@ -31,6 +31,7 @@
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTracing.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/utils/SkJSONWriter.h"
