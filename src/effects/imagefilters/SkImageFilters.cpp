@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkBlurImageFilter.h"
 #include "src/effects/imagefilters/SkColorFilterImageFilter.h"
 #include "src/effects/imagefilters/SkComposeImageFilter.h"
 #include "src/effects/imagefilters/SkDisplacementMapEffect.h"
@@ -34,7 +33,6 @@
 constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
 
 void SkImageFilters::RegisterFlattenables() {
-    SkBlurImageFilter::RegisterFlattenables();
     SkColorFilterImageFilter::RegisterFlattenables();
     SkComposeImageFilter::RegisterFlattenables();
     SkDilateImageFilter::RegisterFlattenables();
@@ -52,12 +50,6 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::Blur(
-        SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode, sk_sp<SkImageFilter> input,
-        const CropRect& cropRect) {
-    return SkBlurImageFilter::Make(sigmaX, sigmaY, tileMode, std::move(input), cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::ColorFilter(
         sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input, const CropRect& cropRect) {

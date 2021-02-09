@@ -123,6 +123,7 @@
         SkRegisterAlphaThresholdImageFilterFlattenable();
         SkRegisterArithmeticImageFilterFlattenable();
         SkRegisterBlendImageFilterFlattenable();
+        SkRegisterBlurImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }

@@ -8,12 +8,12 @@
 #include "src/effects/imagefilters/SkDropShadowImageFilter.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkBlurImageFilter.h"
 
 namespace {
 
@@ -130,7 +130,7 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilterImpl::onFilterImage(const Context& 
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setImageFilter(SkBlurImageFilter::Make(sigma.fX, sigma.fY, nullptr));
+    paint.setImageFilter(SkImageFilters::Blur(sigma.fX, sigma.fY, nullptr));
     paint.setColorFilter(SkColorFilters::Blend(fColor, SkBlendMode::kSrcIn));
 
     SkVector offsetVec = SkVector::Make(fDx, fDy);
