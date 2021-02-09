@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c6807da_c2720458",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 10
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-09T20:55:22Z",
+      "side": 1,
+      "message": "soundMap should be here. ManagedSkottieAnimation is the return value.\n\nBe sure to run `make typecheck` to make sure the type annotations are correct (we don\u0027t yet run those on the CQ/CI)",
+      "range": {
+        "startLine": 391,
+        "startChar": 45,
+        "endLine": 391,
+        "endChar": 47
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de4b956c_572accb3",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-09T20:55:22Z",
+      "side": 1,
+      "message": "in tests, we can/should use let/const; not var.",
+      "range": {
+        "startLine": 87,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 11
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e8f669d_8e13e209",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-09T20:55:22Z",
+      "side": 1,
+      "message": "use let to declare your loop variables. (see also 108)",
+      "range": {
+        "startLine": 98,
+        "startChar": 13,
+        "endLine": 98,
+        "endChar": 14
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b010551_dfde5627",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-09T20:55:22Z",
+      "side": 1,
+      "message": "const player",
+      "range": {
+        "startLine": 113,
+        "startChar": 16,
+        "endLine": 113,
+        "endChar": 22
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "008138c0_0e7326d1",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-09T20:55:22Z",
+      "side": 1,
+      "message": "How about expect(player.wasPlayed).toBeTrue(\"something to identify what didn\u0027t get played\").\n\nThat way, if the assertion fails, we have a glimpse into what got missed.",
+      "range": {
+        "startLine": 114,
+        "startChar": 16,
+        "endLine": 114,
+        "endChar": 36
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8878c048_ed106ab9",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-09T20:55:22Z",
+      "side": 1,
+      "message": "I think you want done to be inside the promise resolution. (It might be and I\u0027m just having a hard time with nested brackets 😄)",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 12
+      },
+      "revId": "1182ce43b11410effb2b69c93c43b7be846538fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
