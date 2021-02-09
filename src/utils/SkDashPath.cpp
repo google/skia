@@ -191,12 +191,12 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
         SkPoint pts[4];  // Rects are all moveTo and lineTo, so we'll only use pts[0] and pts[1].
         SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
 
-        SkScalar accum = 0;  // Sum of unculled edge lengths to keep the phase correct.
+        SkScalar accumPhase = 0;  // Running phase to keep the phase correct around the rect
         while (iter.next(pts) == SkPath::kLine_Verb) {
-            // Notice this vector v and accum work with the original unclipped length.
+            // Notice this vector v works with the original unclipped length.
             SkVector v = pts[1] - pts[0];
 
-            if (clip_line(pts, bounds, intervalLength, SkScalarMod(accum, intervalLength))) {
+            if (clip_line(pts, bounds, intervalLength, accumPhase)) {
                 // pts[0] may have just been changed by clip_line().
                 // If that's not where we ended the previous lineTo(), we need to moveTo() there.
                 SkPoint last;
@@ -208,7 +208,7 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
 
             // We either just traveled v.fX horizontally or v.fY vertically.
             SkASSERT(v.fX == 0 || v.fY == 0);
-            accum += SkScalarAbs(v.fX + v.fY);
+            accumPhase = SkScalarMod(accumPhase + SkScalarAbs(v.fX + v.fY), intervalLength);
         }
         return !dstPath->isEmpty();
     }
