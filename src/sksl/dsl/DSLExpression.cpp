@@ -103,6 +103,10 @@ DSLExpression DSLExpression::a() {
     return Swizzle(this->release(), A);
 }
 
+DSLExpression DSLExpression::field(const char* name) {
+    return DSLWriter::ConvertField(this->release(), name);
+}
+
 DSLExpression DSLExpression::operator=(DSLExpression right) {
     return DSLWriter::ConvertBinary(this->release(), SkSL::Token::Kind::TK_EQ, right.release());
 }
