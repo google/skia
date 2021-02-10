@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "623bb2ed_8b875dd4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-10T16:18:04Z",
+      "side": 1,
+      "message": "Please uncomment the TODO(skia:10939) blocks from Assignment.sksl.",
+      "revId": "c8e7f737ca11609564c28ada0d75bbd72ddf6d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
