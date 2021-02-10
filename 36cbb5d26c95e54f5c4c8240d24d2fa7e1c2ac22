@@ -16,6 +16,24 @@
       "message": "This shader code split has got me thinking again about that idea we had of things which are ambiguously uniforms or constants... it\u0027d be neat to have just one (\"fancy\") shader body and let the machinery specialize it down to the simple fast version through constant propagation after pinning those uniform parameters down as constants.",
       "revId": "36cbb5d26c95e54f5c4c8240d24d2fa7e1c2ac22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7c0aae8_28770c1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-10T21:17:17Z",
+      "side": 1,
+      "message": "I patched this CL in and tried a few quick hacks with interesting results.\n\nRunning skottie-sphere-controls.json normally I measured around 57ms frametimes in viewer.  Then forcing fancy lighting, around 73ms (1.28x).  Then switching all uniforms to splats in SkRuntimeEffect.cpp,\n\n              //uniform.push_back(p-\u003euniform32(uniforms-\u003epush(bits)).id);\n              uniform.push_back(p-\u003esplat(bits).id);\n\nNot as big a change as you\u0027d hope, around 68ms.\n\nI had hoped we\u0027d be able to constant-propagate away the fancy lighting if we know the values as constants, but I think I may be being stymied by skvm\u0027s reticence to fold 0.0*x into 0.0?  Adding in that not-quite legal optimization to skvm::Builder::mul_f32(),\n\n          if (this-\u003eisImm(x.id, 0.0f) || this-\u003eisImm(y.id, 0.0f)) { return splat(0.0f); }\n\nWe get down right where we want to be, 57ms!\n\nSo, two ideas to ponder:\n   - a flag to makeColorFilter() and makeShader() to bake in (some? all?)\n     uniforms as constants, maybe in SkRuntimeEffects::Options?\n   - give skvm a `F32 fast_mul(F32,F32)` that\u0027s allowed to assume 0*x\u003d\u003d0,\n     or maybe a Builder setting (seems dangerous)?",
+      "parentUuid": "43f69acb_8beef8f9",
+      "revId": "36cbb5d26c95e54f5c4c8240d24d2fa7e1c2ac22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
