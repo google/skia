@@ -10,7 +10,8 @@ _include = get_path_info("../include", "abspath")
 skia_effects_imagefilter_public = [ "$_include/effects/SkImageFilters.h" ]
 
 skia_effects_imagefilter_sources = [
-  "$_src/effects/imagefilters/SkAlphaThresholdImageFilter.cpp",
+  "$_src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
+  "$_src/effects/imagefilters/SkAlphaThresholdFilter.h",
   "$_src/effects/imagefilters/SkArithmeticImageFilter.cpp",
   "$_src/effects/imagefilters/SkArithmeticImageFilter.h",
   "$_src/effects/imagefilters/SkBlurImageFilter.cpp",

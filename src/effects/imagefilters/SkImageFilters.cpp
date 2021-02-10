@@ -9,6 +9,7 @@
 
 #include "include/core/SkPaint.h"
 
+#include "src/effects/imagefilters/SkAlphaThresholdFilter.h"
 #include "src/effects/imagefilters/SkArithmeticImageFilter.h"
 #include "src/effects/imagefilters/SkBlurImageFilter.h"
 #include "src/effects/imagefilters/SkColorFilterImageFilter.h"
@@ -36,6 +37,7 @@
 constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
 
 void SkImageFilters::RegisterFlattenables() {
+    SkAlphaThresholdFilter::RegisterFlattenables();
     SkArithmeticImageFilter::RegisterFlattenables();
     SkBlurImageFilter::RegisterFlattenables();
     SkColorFilterImageFilter::RegisterFlattenables();
@@ -56,6 +58,12 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImageFilter> SkImageFilters::AlphaThreshold(
+        const SkRegion& region, SkScalar innerMin, SkScalar outerMax, sk_sp<SkImageFilter> input,
+        const CropRect& cropRect) {
+    return SkAlphaThresholdFilter::Make(region, innerMin, outerMax, std::move(input), cropRect);
+}
 
 sk_sp<SkImageFilter> SkImageFilters::Arithmetic(
         SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4, bool enforcePMColor,
