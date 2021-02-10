@@ -1,6 +1,12 @@
 
 out vec4 sk_FragColor;
 uniform vec4 color;
+float _guarded_divide(float n, float d) {
+    return n / d;
+}
+vec3 _guarded_divide(vec3 n, float d) {
+    return n / d;
+}
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
 
@@ -9,12 +15,14 @@ vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
     if (minComp < 0.0 && lum != minComp) {
-        result = lum + ((result - lum) * lum) / (lum - minComp);
+        float _14_d = lum - minComp;
+        result = lum + (result - lum) * (lum / _14_d);
+
     }
-    return maxComp > alpha && maxComp != lum ? lum + ((result - lum) * (alpha - lum)) / (maxComp - lum) : result;
+    return maxComp > alpha && maxComp != lum ? lum + _guarded_divide((result - lum) * (alpha - lum), maxComp - lum) : result;
 }
 vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
-    return minMidMax.x < minMidMax.z ? vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat) : vec3(0.0);
+    return minMidMax.x < minMidMax.z ? vec3(0.0, _guarded_divide(sat * (minMidMax.y - minMidMax.x), minMidMax.z - minMidMax.x), sat) : vec3(0.0);
 }
 vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
     float sat = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
