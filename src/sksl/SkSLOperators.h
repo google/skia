@@ -41,9 +41,15 @@ namespace Operators {
     // Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
     bool IsAssignment(Token::Kind op);
 
-    // Given a compound assignment operator, returns the non-assignment version of the operator
+    // Given an operator, returns the non-compound-assignment version of the operator.
     // (e.g. '+=' becomes '+')
+    // Other operators are returned unchanged.
     Token::Kind RemoveAssignment(Token::Kind op);
+
+    // Given an operator, returns the compound-assignment version of the operator.
+    // (e.g. '+' becomes '+=')
+    // Returns TK_INVALID if the operator has no assignment form.
+    Token::Kind AddAssignment(Token::Kind op);
 
 }  // namespace Operators
 }  // namespace SkSL

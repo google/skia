@@ -127,5 +127,21 @@ Token::Kind RemoveAssignment(Token::Kind op) {
     }
 }
 
+Token::Kind AddAssignment(Token::Kind op) {
+    switch (op) {
+        case Token::Kind::TK_PLUS:       return Token::Kind::TK_PLUSEQ;
+        case Token::Kind::TK_MINUS:      return Token::Kind::TK_MINUSEQ;
+        case Token::Kind::TK_STAR:       return Token::Kind::TK_STAREQ;
+        case Token::Kind::TK_SLASH:      return Token::Kind::TK_SLASHEQ;
+        case Token::Kind::TK_PERCENT:    return Token::Kind::TK_PERCENTEQ;
+        case Token::Kind::TK_SHL:        return Token::Kind::TK_SHLEQ;
+        case Token::Kind::TK_SHR:        return Token::Kind::TK_SHREQ;
+        case Token::Kind::TK_BITWISEOR:  return Token::Kind::TK_BITWISEOREQ;
+        case Token::Kind::TK_BITWISEXOR: return Token::Kind::TK_BITWISEXOREQ;
+        case Token::Kind::TK_BITWISEAND: return Token::Kind::TK_BITWISEANDEQ;
+        default: return Token::Kind::TK_INVALID;
+    }
+}
+
 }  // namespace Operators
 }  // namespace SkSL
