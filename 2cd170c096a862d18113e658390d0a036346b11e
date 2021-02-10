@@ -86,6 +86,23 @@
       "parentUuid": "58d858f3_6e15b05d",
       "revId": "2cd170c096a862d18113e658390d0a036346b11e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d8ecd6a_fdde6ba2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-10T13:44:46Z",
+      "side": 1,
+      "message": "Looks like there\u0027s a merge conflict, so may need to sync back up to HEAD?",
+      "revId": "2cd170c096a862d18113e658390d0a036346b11e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
