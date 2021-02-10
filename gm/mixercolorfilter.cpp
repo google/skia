@@ -117,7 +117,7 @@ private:
                     return mix(sample(cf0), sample(cf1), t);
                 }
             )";
-            effect = SkRuntimeEffect::Make(SkString(sksl)).effect;
+            effect = std::get<0>(SkRuntimeEffect::Make(SkString(sksl)));
             SkASSERT(effect);
         }
 

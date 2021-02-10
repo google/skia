@@ -356,7 +356,7 @@ DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     surf->getCanvas()->drawLine(0, 0, 100, 100, p);
     auto shader = surf->makeImageSnapshot()->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
 
-    SkRuntimeShaderBuilder builder(SkRuntimeEffect::Make(SkString(scale)).effect);
+    SkRuntimeShaderBuilder builder(std::get<0>(SkRuntimeEffect::Make(SkString(scale))));
     builder.child("child") = shader;
     p.setShader(builder.makeShader(nullptr, false));
 
