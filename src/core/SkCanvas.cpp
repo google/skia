@@ -67,19 +67,6 @@
 // and std::max() is constexpr only since the c++14 stdlib.
 static_assert(std::max(3,4) == 4);
 
-static SkSamplingOptions paint_to_sampling(const SkPaint* paint, const GrRecordingContext* ctx) {
-    SkSamplingOptions::MediumBehavior mb = ctx ? SkSamplingOptions::kMedium_asMipmapLinear
-                                               : SkSamplingOptions::kMedium_asMipmapNearest;
-    return SkSamplingOptions(paint ? paint->getFilterQuality() : kNone_SkFilterQuality, mb);
-}
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
-static SkFilterMode paint_to_filter(const SkPaint* paint) {
-    return paint && paint->getFilterQuality() >= kLow_SkFilterQuality ? SkFilterMode::kLinear
-                                                                      : SkFilterMode::kNearest;
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -1861,30 +1848,6 @@ static bool fillable(const SkRect& r) {
     return SkScalarIsFinite(w) && w > 0 && SkScalarIsFinite(h) && h > 0;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
-void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    this->drawImage(image, x, y, paint_to_sampling(paint, this->recordingContext()), paint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint constraint) {
-    this->drawImageRect(image, src, dst, paint_to_sampling(paint, this->recordingContext()),
-                        paint, constraint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint constraint) {
-    RETURN_ON_NULL(image);
-    this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint) {
-    RETURN_ON_NULL(image);
-    this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
-                        kFast_SrcRectConstraint);
-}
-#endif
-
 static SkPaint clean_paint_for_lattice(const SkPaint* paint) {
     SkPaint cleaned;
     if (paint) {
@@ -1912,13 +1875,6 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
     this->drawImageLattice(image, lat, dst, filter, paint);
 }
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
-void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                             const SkPaint* paint) {
-    this->drawImageNine(image, center, dst, paint_to_filter(paint), paint);
-}
-#endif
-
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                 SkFilterMode filter, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -1943,42 +1899,6 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
-void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
-                                const SkPaint* paint) {
-    this->drawImageLattice(image, lattice, dst, paint_to_filter(paint), paint);
-}
-#endif
-
-static sk_sp<SkImage> bitmap_as_image(const SkBitmap& bitmap) {
-    if (bitmap.drawsNothing()) {
-        return nullptr;
-    }
-    return bitmap.asImage();
-}
-
-void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
-    this->drawImage(bitmap_as_image(bitmap), dx, dy,
-                    paint_to_sampling(paint, this->recordingContext()), paint);
-}
-
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
-                              const SkPaint* paint, SrcRectConstraint constraint) {
-    this->drawImageRect(bitmap_as_image(bitmap), src, dst,
-                        paint_to_sampling(paint, this->recordingContext()), paint, constraint);
-}
-
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
-                              const SkPaint* paint, SrcRectConstraint constraint) {
-    this->drawBitmapRect(bitmap, SkRect::Make(isrc), dst, paint, constraint);
-}
-
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
-                              SrcRectConstraint constraint) {
-    this->drawBitmapRect(bitmap, SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst, paint,
-                         constraint);
-}
-
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                          const SkColor colors[], int count, SkBlendMode mode,
                          const SkSamplingOptions& sampling, const SkRect* cull,
@@ -1992,15 +1912,6 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
     SkASSERT(tex);
     this->onDrawAtlas2(atlas, xform, tex, colors, count, mode, sampling, cull, paint);
 }
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
-void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                         const SkColor colors[], int count, SkBlendMode mode,
-                         const SkRect* cull, const SkPaint* paint) {
-    this->drawAtlas(atlas, xform, tex, colors, count, mode,
-                    paint_to_sampling(paint, this->recordingContext()), cull, paint);
-}
-#endif
 
 void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2028,18 +1939,6 @@ void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint cli
     // Make sure the rect is sorted before passing it along
     this->onDrawEdgeAAQuad(rect.makeSorted(), clip, aaFlags, color, mode);
 }
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_QUALITY_APIS
-void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
-                                               const SkPoint dstClips[],
-                                               const SkMatrix preViewMatrices[],
-                                               const SkPaint* paint,
-                                               SrcRectConstraint constraint) {
-    this->experimental_DrawEdgeAAImageSet(imageSet, cnt, dstClips, preViewMatrices,
-                                          paint_to_sampling(paint, this->recordingContext()),
-                                          paint, constraint);
-}
-#endif
 
 void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
                                                const SkPoint dstClips[],
