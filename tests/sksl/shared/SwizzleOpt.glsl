@@ -10,26 +10,26 @@ float fn(vec4 v) {
 }
 vec4 main() {
     vec4 v = testInputs;
-    v = v;
-    v = vec4(0.0, v.zyx);
-    v = vec4(0.0, 0.0, v.xw);
-    v = vec4(1.0, 1.0, v.wx);
-    v = vec4(v.zy, 1.0, 1.0);
-    v = v;
-    v = vec4(v.xx, 1.0, 1.0);
-    v = v.wzwz;
+    v = v.xyzw;
+    v = vec4(v.xyz, float(0)).wzyx;
+    v = vec3(v.xyzw.xw, float(0)).zzxy;
+    v = vec3(vec3(v.xyzw.xxxw.xw, float(0)).zzxy.wz, float(1)).zzxy;
+    v = vec3(v.wzyw.yz, float(1)).xyzz;
+    v = v.wzyx.wzyx;
+    v = vec4(v.xxxx.zz, 1.0, 1.0);
+    v = v.zw.yxyx;
     v = vec3(fn(v), 123.0, 456.0).yyzz;
-    v = vec3(fn(v), 123.0, 456.0).yyzz;
-    v = vec4(123.0, 456.0, 456.0, fn(v));
-    v = vec4(123.0, 456.0, 456.0, fn(v));
+    v = vec3(fn(v), vec2(123.0, 456.0)).yyzz;
+    v = vec3(fn(v), 123.0, 456.0).yzzx;
+    v = vec3(fn(v), vec2(123.0, 456.0)).yzzx;
     v = vec3(fn(v), 123.0, 456.0).yxxz;
-    v = vec3(fn(v), 123.0, 456.0).yxxz;
-    v = vec4(1.0, 1.0, 2.0, 3.0);
-    v = vec4(colorRed.xyz, 1.0);
-    v = vec4(colorRed.x, 1.0, colorRed.yz);
+    v = vec3(fn(v), vec2(123.0, 456.0)).yxxz;
+    v = vec4(1.0, 2.0, 3.0, 4.0).xxyz;
+    v = vec4(1.0, colorRed.xyz).yzwx;
+    v = vec4(1.0, colorRed.xyz).yxzw;
     v.xyzw = v;
     v.wzyx = v;
     v.xyzw.xw = v.yz;
-    v.wzyx.yzw = vec3(v.ww, 1.0);
+    v.wzyx.yzw = vec3(v.ww, float(1));
     return v == vec4(1.0) ? colorGreen : colorRed;
 }

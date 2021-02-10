@@ -1,4 +1,6 @@
-### Compilation failed:
 
-error: 1: 'i' has not been assigned
-1 error
+void array_index() {
+    int x[2];
+    int i;
+    x[i] = 4;
+}

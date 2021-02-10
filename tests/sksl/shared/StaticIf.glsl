@@ -4,7 +4,9 @@ uniform vec4 colorRed;
 uniform vec4 colorGreen;
 vec4 main() {
     vec4 result = colorRed;
-    {
+    float x = 5.0;
+    float y = 10.0;
+    if (x < y) {
         result = colorGreen;
     }
     return result;

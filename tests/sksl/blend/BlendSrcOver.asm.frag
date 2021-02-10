@@ -7,6 +7,7 @@ OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
+OpName %blend_src_over "blend_src_over"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -15,11 +16,13 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
-OpDecorate %16 RelaxedPrecision
-OpDecorate %18 RelaxedPrecision
-OpDecorate %20 RelaxedPrecision
+OpDecorate %19 RelaxedPrecision
 OpDecorate %21 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
+OpDecorate %24 RelaxedPrecision
+OpDecorate %26 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
+OpDecorate %32 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -30,18 +33,33 @@ OpDecorate %23 RelaxedPrecision
 %_ptr_Input_v4float = OpTypePointer Input %v4float
 %src = OpVariable %_ptr_Input_v4float Input
 %dst = OpVariable %_ptr_Input_v4float Input
-%void = OpTypeVoid
-%14 = OpTypeFunction %void
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%14 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v4float
 %float_1 = OpConstant %float 1
-%main = OpFunction %void None %14
-%15 = OpLabel
-%16 = OpLoad %v4float %src
-%18 = OpLoad %v4float %src
-%19 = OpCompositeExtract %float %18 3
-%20 = OpFSub %float %float_1 %19
-%21 = OpLoad %v4float %dst
-%22 = OpVectorTimesScalar %v4float %21 %20
-%23 = OpFAdd %v4float %16 %22
-OpStore %sk_FragColor %23
+%void = OpTypeVoid
+%28 = OpTypeFunction %void
+%blend_src_over = OpFunction %v4float None %14
+%16 = OpFunctionParameter %_ptr_Function_v4float
+%17 = OpFunctionParameter %_ptr_Function_v4float
+%18 = OpLabel
+%19 = OpLoad %v4float %16
+%21 = OpLoad %v4float %16
+%22 = OpCompositeExtract %float %21 3
+%23 = OpFSub %float %float_1 %22
+%24 = OpLoad %v4float %17
+%25 = OpVectorTimesScalar %v4float %24 %23
+%26 = OpFAdd %v4float %19 %25
+OpReturnValue %26
+OpFunctionEnd
+%main = OpFunction %void None %28
+%29 = OpLabel
+%31 = OpVariable %_ptr_Function_v4float Function
+%33 = OpVariable %_ptr_Function_v4float Function
+%30 = OpLoad %v4float %src
+OpStore %31 %30
+%32 = OpLoad %v4float %dst
+OpStore %33 %32
+%34 = OpFunctionCall %v4float %blend_src_over %31 %33
+OpStore %sk_FragColor %34
 OpReturn
 OpFunctionEnd

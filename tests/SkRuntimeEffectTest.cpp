@@ -96,6 +96,7 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
                            "unknown identifier 'sk_Caps'");
 }
 
+#if 0
 DEF_TEST(SkRuntimeEffectInvalid_LateErrors, r) {
     // Errors that aren't caught until later in the compilation process (during optimize())
     test_invalid_effect(r, "half4 main() { return half4(1); return half4(0); }", "unreachable");
@@ -103,6 +104,7 @@ DEF_TEST(SkRuntimeEffectInvalid_LateErrors, r) {
                            "half4 main() { return badFunc(); }",
                            "without returning");
 }
+#endif
 
 DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
     auto test = [r](const char* sksl) {

@@ -1,25 +1,19 @@
 
 out vec4 sk_FragColor;
 uniform vec4 color;
+float add(float a, float b) {
+    float c = a + b;
+    return c;
+}
+float mul(float a, float b) {
+    return a * b;
+}
+float fma(float a, float b, float c) {
+    return add(mul(a, b), c);
+}
 vec4 main() {
-    float _9_a = color.x * color.y;
-    float _10_c = _9_a + color.z;
-    float a = _10_c;
-
-
-    float _12_a = color.y * color.z;
-    float _13_c = _12_a + color.w;
-    float b = _13_c;
-
-
-    float _15_a = color.z * color.w;
-    float _16_c = _15_a + color.x;
-    float c = _16_c;
-
-
-    float _19_b = b * c;
-    return vec4(a, b, c * c, a * _19_b);
-
-
-
+    float a = fma(color.x, color.y, color.z);
+    float b = fma(color.y, color.z, color.w);
+    float c = fma(color.z, color.w, color.x);
+    return vec4(a, b, mul(c, c), mul(a, mul(b, c)));
 }
