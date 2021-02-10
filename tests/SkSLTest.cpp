@@ -65,6 +65,11 @@ static void test_one_permutation(skiatest::Reporter* r,
                                                                   4, 5, 6,
                                                                   7, 8, 9});
     set_uniform(&builder, "unknownInput",     1.0f);
+    set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
+                                                                  3, 4});
+    set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
+                                                                  4, 5, 6,
+                                                                  7, 8, 9});
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
@@ -156,6 +161,7 @@ SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl"
 SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
 SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
+SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl")
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")

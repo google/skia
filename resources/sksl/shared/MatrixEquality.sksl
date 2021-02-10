@@ -1,0 +1,16 @@
+uniform half4 colorGreen, colorRed;
+uniform half2x2 testMatrix2x2;
+uniform half3x3 testMatrix3x3;
+
+bool test_equality() {
+    bool ok = true;
+    ok = ok && testMatrix2x2 == half2x2(1,2,3,4);
+    ok = ok && testMatrix3x3 == half3x3(1,2,3,4,5,6,7,8,9);
+    ok = ok && testMatrix2x2 != half2x2(100);
+    ok = ok && testMatrix3x3 != half3x3(9,8,7,6,5,4,3,2,1);
+    return ok;
+}
+
+half4 main() {
+    return test_equality() ? colorGreen : colorRed;
+}
