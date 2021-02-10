@@ -15,8 +15,8 @@ vec4 main() {
     s.i = s.j;
     s.j = s.i;
     float a[2];
-    a[0] = 0.0;
-    a[1] = 1.0;
+    a[0] = 1.0;
+    a[1] = 0.0;
     a[1] = a[0];
-    return vec4(x.w, s.i / s.j, a[0], a[1]);
+    return vec4(x.w, s.i / s.j, a[0] - a[1], a[0] * a[1]);
 }
