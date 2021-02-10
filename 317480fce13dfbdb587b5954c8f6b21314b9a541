@@ -196,6 +196,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c5496fcb_bd31459c",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-10T16:33:39Z",
+      "side": 1,
+      "message": "I suppose, but could it be something at least a bit more suggestive like ptrdiff_t (which is essentially signed size_t)? \u0027int\u0027 is such an arbitrary and often wrong sized integer type for the size of a memory allocation. In fact, I would prefer the API take size_t and then do all the release asserts when narrowing to ptrdiff_t internally. This is essentially what Android does as well (any malloc larger than the positive range of ptrdiff_t will just crash, not even return NULL like if it was just a big unsatisfiable request).",
+      "parentUuid": "a7484d0a_297cf384",
+      "range": {
+        "startLine": 43,
+        "startChar": 30,
+        "endLine": 43,
+        "endChar": 33
+      },
+      "revId": "317480fce13dfbdb587b5954c8f6b21314b9a541",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "05ec5414_d9a2d2aa",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 2

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2644064f_87e8d3af",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-10T16:33:39Z",
+      "side": 1,
+      "message": "It seems the generic minimum size is \u0027(kMaxAlignment - 1) + sizeof(Block) + requestedSize\u0027 since (working from the end of the block) this will need to align Block to kMaxAlignment, wasting up to \u0027kMaxAlignment - 1\u0027 bytes to do so, then have requestedSize bytes left over at the beginning of the block. This could also be written as \u0027requestedSize + sizeof(Block) + (kMaxAlignment - 1)\u0027 to be in low-to-high memory order, but it\u0027s a little less descriptive that way.\n\nFor the char* passed in from the constructor the pointer and size are passed directly, so no need for slop (no need to calculate the minimum size, could just check where things will end up since the alignment of the end is known). The Storage type knows requestedSize but not what the beginning or end will be (which may be of any alignment) so needs this full pessimistic calculation. For internal use when calling \u0027new\u0027 the base is alignof(max_align_t) which may be smaller than kMaxAlignment which is what this method currently tries to handle.",
+      "revId": "339bcfc4e547fe2af35ad172946cad5b5415484d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
