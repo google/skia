@@ -21829,8 +21829,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -21902,8 +21902,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -21975,8 +21975,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -23391,8 +23391,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -23461,8 +23461,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -23533,8 +23533,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -23605,8 +23605,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -23677,8 +23677,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
@@ -23749,8 +23749,8 @@
           "node/node/bin"
         ]
       },
-      "execution_timeout_ns": 1200000000000,
-      "io_timeout_ns": 1200000000000,
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
       "isolate": "perf_puppeteer.isolate",
       "outputs": [
         "perf"
