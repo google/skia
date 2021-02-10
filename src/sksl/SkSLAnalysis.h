@@ -71,6 +71,19 @@ struct Analysis {
     // - myStruct.myArrayField[7].xyz
     static bool IsTrivialExpression(const Expression& expr);
 
+    /**
+     * Returns true if both expression trees are the same. The trees are expected to represent an
+     * lvalue. At present, this is only used to check for trees that can plausibly terminate in a
+     * variable, so some basic candidates like `FloatLiteral` are missing.
+     */
+    static bool IsMatchingExpressionTree(const Expression& left, const Expression& right);
+
+    /**
+     * Ensures that 'loop' meets the strict requirements of The OpenGL ES Shading Language 1.00,
+     * Appendix A, Section 4.
+     * Information about the loop's structure are placed in outLoopInfo (if not nullptr).
+     * If the function returns false, specific reasons are reported via errors (if not nullptr).
+     */
     struct UnrollableLoopInfo {
         const Variable* fIndex;
         double fStart;
@@ -78,10 +91,6 @@ struct Analysis {
         int fCount;
     };
 
-    // Ensures that 'loop' meets the strict requirements of The OpenGL ES Shading Language 1.00,
-    // Appendix A, Section 4.
-    // Information about the loop's structure are placed in outLoopInfo (if not nullptr).
-    // If the function returns false, specific reasons are reported via errors (if not nullptr).
     static bool ForLoopIsValidForES2(const ForStatement& loop,
                                      UnrollableLoopInfo* outLoopInfo,
                                      ErrorReporter* errors);
