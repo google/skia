@@ -212,11 +212,8 @@ void GrUniformDataManager::set4iv(UniformHandle u,
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(int32_t) == 4);
-    for (int i = 0; i < arrayCount; ++i) {
-        const int32_t* curVec = &v[4 * i];
-        memcpy(buffer, curVec, 4 * sizeof(int32_t));
-        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
-    }
+    SkASSERT(sizeof(float) == 4);
+    memcpy(buffer, v, arrayCount * 4 * sizeof(int32_t));
 }
 
 void GrUniformDataManager::set4f(UniformHandle u,
@@ -251,9 +248,7 @@ void GrUniformDataManager::setMatrix2f(UniformHandle u, const float matrix[]) co
     this->setMatrices<2>(u, 1, matrix);
 }
 
-void GrUniformDataManager::setMatrix2fv(UniformHandle u,
-                                                int arrayCount,
-                                                const float m[]) const {
+void GrUniformDataManager::setMatrix2fv(UniformHandle u, int arrayCount, const float m[]) const {
     this->setMatrices<2>(u, arrayCount, m);
 }
 
@@ -261,9 +256,7 @@ void GrUniformDataManager::setMatrix3f(UniformHandle u, const float matrix[]) co
     this->setMatrices<3>(u, 1, matrix);
 }
 
-void GrUniformDataManager::setMatrix3fv(UniformHandle u,
-                                                int arrayCount,
-                                                const float m[]) const {
+void GrUniformDataManager::setMatrix3fv(UniformHandle u, int arrayCount, const float m[]) const {
     this->setMatrices<3>(u, arrayCount, m);
 }
 
@@ -271,17 +264,15 @@ void GrUniformDataManager::setMatrix4f(UniformHandle u, const float matrix[]) co
     this->setMatrices<4>(u, 1, matrix);
 }
 
-void GrUniformDataManager::setMatrix4fv(UniformHandle u,
-                                                int arrayCount,
-                                                const float m[]) const {
+void GrUniformDataManager::setMatrix4fv(UniformHandle u, int arrayCount, const float m[]) const {
     this->setMatrices<4>(u, arrayCount, m);
 }
 
 template<int N> struct set_uniform_matrix;
 
 template<int N> inline void GrUniformDataManager::setMatrices(UniformHandle u,
-                                                                      int arrayCount,
-                                                                     const float matrices[]) const {
+                                                              int arrayCount,
+                                                              const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat2x2_GrSLType + (N - 2) ||
              uni.fType == kHalf2x2_GrSLType + (N - 2));
