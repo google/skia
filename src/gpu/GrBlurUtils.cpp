@@ -460,7 +460,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
 
     if (origShape.style().applies()) {
         SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
-        if (0 == styleScale) {
+        if (styleScale == 0) {
             return;
         }
 
