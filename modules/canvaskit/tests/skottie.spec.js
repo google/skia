@@ -97,7 +97,7 @@ describe('Skottie behavior', () => {
             }
         }
         for (let i = 0; i < 20; i++) {
-            var name = 'aud_' + i + '.mp3';
+            var name = 'audio_' + i;
             mockSoundMap.setPlayer(name, new mockPlayer(name));
         }
         fetch('/assets/audio_external.json')
