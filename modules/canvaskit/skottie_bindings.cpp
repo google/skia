@@ -70,9 +70,9 @@ public:
     }
 
     sk_sp<skresources::ExternalTrackAsset> loadAudioAsset(const char[] /* path */,
-                                                          const char name[],
-                                                          const char[] /*id*/) override {
-        emscripten::val player = this->findSoundAsset(name);
+                                                          const char[] /* name */,
+                                                          const char id[]) override {
+        emscripten::val player = this->findSoundAsset(id);
         if (player.as<bool>()) {
             return sk_make_sp<WebTrack>(std::move(player));
         }

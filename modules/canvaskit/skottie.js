@@ -8,6 +8,8 @@
 // prop_filter_prefix is an optional string acting as a name filter for selecting
 // "interesting" Lottie properties (surfaced in the embedded player controls)
 
+// soundMap is an optional object that maps string names to AudioPlayers
+// AudioPlayers manage a single audio layer with a seek function
 CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soundMap) {
   if (!CanvasKit._MakeManagedAnimation) {
     throw 'Not compiled with MakeManagedAnimation';
