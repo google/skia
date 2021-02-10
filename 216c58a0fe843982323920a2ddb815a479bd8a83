@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abcd8f0a_af9529b1",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-10T23:35:43Z",
+      "side": 1,
+      "message": "another easy evocative option is \u0027*!\u0027   :)",
+      "range": {
+        "startLine": 49,
+        "startChar": 54,
+        "endLine": 49,
+        "endChar": 56
+      },
+      "revId": "216c58a0fe843982323920a2ddb815a479bd8a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
