@@ -415,6 +415,6 @@ DEF_GPUTEST(Programs, reporter, options) {
     GrContextOptions opts = options;
     opts.fSuppressPrints = true;
     sk_gpu_test::GrContextFactory debugFactory(opts);
-    skiatest::RunWithGPUTestContexts(test_programs, &skiatest::IsRenderingGLOrMetalContextType,
-                                     reporter, opts);
+    skiatest::RunWithGPUTestContexts(
+            test_programs, &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, opts);
 }
