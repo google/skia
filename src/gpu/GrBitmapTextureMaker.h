@@ -19,7 +19,7 @@ class GrBitmapTextureMaker final : public GrTextureMaker {
 public:
     GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, GrImageTexGenPolicy);
 
-    // Always uncached-budgeted. It doesn't make sense to have kApprox cached textures. Moreover, we
+    // Always uncached-budgeted. It doesn't make sense to have kApprox cached textures. Moreover,we
     // create kApprox textures intermediate buffers and those ought to be budgeted.
     GrBitmapTextureMaker(GrRecordingContext*, const SkBitmap&, SkBackingFit);
 
