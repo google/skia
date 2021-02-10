@@ -7,7 +7,7 @@ struct A {
 A a1;
 struct B {
     float x;
-    float[2] y;
+    float y[2];
     layout (binding = 1) A z;
 };
 B b1;
