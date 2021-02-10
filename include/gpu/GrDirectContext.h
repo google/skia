@@ -403,7 +403,7 @@ public:
     // Returns the gpu memory size of the the texture that backs the passed in SkImage. Returns 0 if
     // the SkImage is not texture backed. For external format textures this will also return 0 as we
     // cannot determine the correct size.
-    static size_t ComputeImageSize(sk_sp<SkImage> image, GrMipmapped, bool useNextPow2 = false);
+    static size_t ComputeImageSize(sk_sp<SkImage> image, GrMipmapped);
 
     /**
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
