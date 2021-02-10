@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkImageSource.h"
 #include "src/effects/imagefilters/SkLightingImageFilter.h"
 #include "src/effects/imagefilters/SkMagnifierImageFilter.h"
 #include "src/effects/imagefilters/SkMatrixConvolutionImageFilter.h"
@@ -30,7 +29,6 @@ constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
 
 void SkImageFilters::RegisterFlattenables() {
     SkDilateImageFilter::RegisterFlattenables();
-    SkImageSource::RegisterFlattenables();
     SkLightingImageFilter::RegisterFlattenables();
     SkMagnifierImageFilter::RegisterFlattenables();
     SkMatrixConvolutionImageFilter::RegisterFlattenables();
@@ -42,12 +40,6 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::Image(
-        sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
-        SkFilterQuality filterQuality) {
-    return SkImageSource::Make(std::move(image), srcRect, dstRect, filterQuality);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::Magnifier(
         const SkRect& srcRect, SkScalar inset, sk_sp<SkImageFilter> input,

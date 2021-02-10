@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/imagefilters/SkImageSource.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkString.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -18,10 +17,10 @@
 
 namespace {
 
-class SkImageSourceImpl final : public SkImageFilter_Base {
+class SkImageImageFilter final : public SkImageFilter_Base {
 public:
-    SkImageSourceImpl(sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
-                      SkFilterQuality filterQuality)
+    SkImageImageFilter(sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
+                       SkFilterQuality filterQuality)
             : INHERITED(nullptr, 0, nullptr)
             , fImage(std::move(image))
             , fSrcRect(srcRect)
@@ -39,8 +38,8 @@ protected:
                                MapDirection, const SkIRect* inputRect) const override;
 
 private:
-    friend void SkImageSource::RegisterFlattenables();
-    SK_FLATTENABLE_HOOKS(SkImageSourceImpl)
+    friend void ::SkRegisterImageImageFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkImageImageFilter)
 
     sk_sp<SkImage>   fImage;
     SkRect           fSrcRect, fDstRect;
@@ -51,32 +50,25 @@ private:
 
 } // end namespace
 
-sk_sp<SkImageFilter> SkImageSource::Make(sk_sp<SkImage> image) {
-    SkRect rect = image ? SkRect::MakeIWH(image->width(), image->height()) : SkRect::MakeEmpty();
-    return SkImageSource::Make(std::move(image), rect, rect, kHigh_SkFilterQuality);
-}
-
-sk_sp<SkImageFilter> SkImageSource::Make(sk_sp<SkImage> image,
-                                         const SkRect& srcRect,
-                                         const SkRect& dstRect,
-                                         SkFilterQuality filterQuality) {
+sk_sp<SkImageFilter> SkImageFilters::Image(sk_sp<SkImage> image, const SkRect& srcRect,
+                                           const SkRect& dstRect, SkFilterQuality filterQuality) {
     if (!image || srcRect.width() <= 0.0f || srcRect.height() <= 0.0f) {
         return nullptr;
     }
 
-    return sk_sp<SkImageFilter>(new SkImageSourceImpl(
+    return sk_sp<SkImageFilter>(new SkImageImageFilter(
             std::move(image), srcRect, dstRect, filterQuality));
 }
 
-void SkImageSource::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkImageSourceImpl);
+void SkRegisterImageImageFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkImageImageFilter);
     // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
-    SkFlattenable::Register("SkImageSourceImpl", SkImageSourceImpl::CreateProc);
+    SkFlattenable::Register("SkImageSourceImpl", SkImageImageFilter::CreateProc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkImageSourceImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkImageImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkFilterQuality filterQuality = buffer.checkFilterQuality();
 
     SkRect src, dst;
@@ -88,18 +80,18 @@ sk_sp<SkFlattenable> SkImageSourceImpl::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return SkImageSource::Make(std::move(image), src, dst, filterQuality);
+    return SkImageFilters::Image(std::move(image), src, dst, filterQuality);
 }
 
-void SkImageSourceImpl::flatten(SkWriteBuffer& buffer) const {
+void SkImageImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fFilterQuality);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
     buffer.writeImage(fImage.get());
 }
 
-sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
-                                                       SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkImageImageFilter::onFilterImage(const Context& ctx,
+                                                        SkIPoint* offset) const {
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
 
@@ -157,13 +149,13 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
     return surf->makeImageSnapshot();
 }
 
-SkRect SkImageSourceImpl::computeFastBounds(const SkRect& src) const {
+SkRect SkImageImageFilter::computeFastBounds(const SkRect& src) const {
     return fDstRect;
 }
 
-SkIRect SkImageSourceImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                              MapDirection direction,
-                                              const SkIRect* inputRect) const {
+SkIRect SkImageImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                               MapDirection direction,
+                                               const SkIRect* inputRect) const {
     if (kReverse_MapDirection == direction) {
         return INHERITED::onFilterNodeBounds(src, ctm, direction, inputRect);
     }
