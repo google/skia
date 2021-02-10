@@ -1861,30 +1861,6 @@ static bool fillable(const SkRect& r) {
     return SkScalarIsFinite(w) && w > 0 && SkScalarIsFinite(h) && h > 0;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWIMAGE_NOSAMPLING
-void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    this->drawImage(image, x, y, paint_to_sampling(paint, this->recordingContext()), paint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint constraint) {
-    this->drawImageRect(image, src, dst, paint_to_sampling(paint, this->recordingContext()),
-                        paint, constraint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint constraint) {
-    RETURN_ON_NULL(image);
-    this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint) {
-    RETURN_ON_NULL(image);
-    this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
-                        kFast_SrcRectConstraint);
-}
-#endif
-
 static SkPaint clean_paint_for_lattice(const SkPaint* paint) {
     SkPaint cleaned;
     if (paint) {
