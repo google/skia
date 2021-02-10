@@ -16,6 +16,24 @@
       "message": "This all seems easier to reason about like\n\n    \nGrBagOfBytes::GrBagOfBytes(char* bytes, size_t size, size_t firstHeapAllocation)\n        : fFibProgression(size, firstHeapAllocation), fEndByte(nullptr), fCapacity(0) {\n    SkASSERT_RELEASE(size \u003c kMaxByteSize);\n    SkASSERT_RELEASE(firstHeapAllocation \u003c kMaxByteSize);\n\n    std::size_t space \u003d size;\n    void* ptr \u003d bytes;\n    if (bytes \u0026\u0026 std::align(kMaxAlignment, sizeof(Block), ptr, space)) {\n        this-\u003esetupBytesAndCapacity(bytes, size);\n        new (fEndByte) Block(nullptr, nullptr);\n    }\n}\n\nIs there a good reason not to just use std::align and let the Block just be placed as the first allocation? std::align is already written and can use secret sauce around overflow and pointers and whatnot. Then Block doesn\u0027t need full alignment for things to work and we don\u0027t have to make assumptions about doing arithmetic on uintptr_t (technically I\u0027m not sure if it is defined).",
       "revId": "8a8b90d2078e343e5c801fdaa9c1ab090f9536de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09c801d2_5f9b7b49",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1525,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-10T22:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70c62219_715ce1a2",
+      "revId": "8a8b90d2078e343e5c801fdaa9c1ab090f9536de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
