@@ -217,7 +217,10 @@ bool GrDrawingManager::flush(
 
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
         int numRenderTasksExecuted = 0;
-        while (alloc.assign(&startIndex, &stopIndex, &error)) {
+        if (alloc.assign(&startIndex, &stopIndex, &error)) {
+            // TODO: If this always-execute-everything approach works out, remove the startIndex &
+            // stopIndex from the GrResourceProvider API and simplify.
+            SkASSERT(startIndex == 0 && stopIndex == fDAG.count());
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
                     GrRenderTask* renderTask = fDAG[i].get();
