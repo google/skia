@@ -306,34 +306,6 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-bool GrResourceAllocator::onOpsTaskBoundary() const {
-    if (fIntvlList.empty()) {
-        SkASSERT(fCurOpsTaskIndex+1 <= fNumOpsTasks);
-        // Although technically on an opsTask boundary there is no need to force an
-        // intermediate flush here
-        return false;
-    }
-
-    const Interval* tmp = fIntvlList.peekHead();
-    return fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= tmp->start();
-}
-
-void GrResourceAllocator::forceIntermediateFlush(int* stopIndex) {
-    *stopIndex = fCurOpsTaskIndex+1;
-
-    // This is interrupting the allocation of resources for this flush. We need to
-    // proactively clear the active interval list of any intervals that aren't
-    // guaranteed to survive the partial flush lest they become zombies (i.e.,
-    // holding a deleted surface proxy).
-    const Interval* tmp = fIntvlList.peekHead();
-    SkASSERT(fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= tmp->start());
-
-    fCurOpsTaskIndex++;
-    SkASSERT(fCurOpsTaskIndex < fNumOpsTasks);
-
-    this->expire(tmp->start());
-}
-
 bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
     SkASSERT(outError);
     *outError = fLazyInstantiationError ? AssignError::kFailedProxyInstantiation
@@ -381,14 +353,6 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         if (cur->proxy()->isInstantiated()) {
             fActiveIntvls.insertByIncreasingEnd(cur);
 
-            if (fResourceProvider->overBudget()) {
-                // Only force intermediate draws on opsTask boundaries
-                if (this->onOpsTaskBoundary()) {
-                    this->forceIntermediateFlush(stopIndex);
-                    return true;
-                }
-            }
-
             continue;
         }
 
@@ -421,14 +385,6 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         }
 
         fActiveIntvls.insertByIncreasingEnd(cur);
-
-        if (fResourceProvider->overBudget()) {
-            // Only force intermediate draws on opsTask boundaries
-            if (this->onOpsTaskBoundary()) {
-                this->forceIntermediateFlush(stopIndex);
-                return true;
-            }
-        }
     }
 
     // expire all the remaining intervals to drain the active interval list

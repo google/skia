@@ -116,9 +116,6 @@ private:
     // Remove dead intervals from the active list
     void expire(unsigned int curIndex);
 
-    bool onOpsTaskBoundary() const;
-    void forceIntermediateFlush(int* stopIndex);
-
     // These two methods wrap the interactions with the free pool
     void recycleSurface(sk_sp<GrSurface> surface);
     sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy);
