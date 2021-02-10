@@ -913,6 +913,49 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
     return true;
 }
 
+bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
+                                          SkIRect rect,
+                                          GrColorType srcColorType,
+                                          GrColorType dstColorType,
+                                          sk_sp<GrGpuBuffer> src,
+                                          size_t offset,
+                                          size_t rowBytes) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+
+    this->closeActiveOpsTask();
+    const GrCaps& caps = *fContext->priv().caps();
+
+    // On platforms that prefer flushes over VRAM use (i.e., ANGLE) we're better off forcing a
+    // complete flush here.
+    if (!caps.preferVRAMUseOverFlushes()) {
+        this->flushSurfaces(SkSpan<GrSurfaceProxy*>{},
+                            SkSurface::BackendSurfaceAccess::kNoAccess,
+                            GrFlushInfo{},
+                            nullptr);
+    }
+
+    GrRenderTask* task = this->appendTask(GrWritePixelsTask::Make(this,
+                                                                  std::move(dst),
+                                                                  rect,
+                                                                  srcColorType,
+                                                                  dstColorType,
+                                                                  std::move(src),
+                                                                  offset,
+                                                                  rowBytes));
+    if (!task) {
+        return false;
+    }
+
+    task->makeClosed(caps);
+
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpsTask);
+    SkDEBUGCODE(this->validate());
+    return true;
+}
+
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.
