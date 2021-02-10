@@ -39,6 +39,30 @@
       },
       "revId": "55529350a4e9e70131e5f59eb799692beb9098e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a560d5b2_3a83f331",
+        "filename": "tests/sksl/shared/Assignment.glsl",
+        "patchSetId": 5
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-10T21:52:21Z",
+      "side": 1,
+      "message": "Fixed in PS7.",
+      "parentUuid": "aafd1021_60fdca47",
+      "range": {
+        "startLine": 6,
+        "startChar": 4,
+        "endLine": 6,
+        "endChar": 13
+      },
+      "revId": "55529350a4e9e70131e5f59eb799692beb9098e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
