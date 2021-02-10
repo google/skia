@@ -21,37 +21,31 @@ class GrShape;
 class GrStyledShape;
 class GrRecordingContext;
 class GrTextureProxy;
-class SkTaskGroup;
 
 /**
  * The GrSWMaskHelper helps generate clip masks using the software rendering
  * path. It is intended to be used as:
  *
- *   auto data = copy_required_drawing_data();
- *   GrSurfaceProxyView proxy
- *           = GrSWMaskHelper::MakeTexture(bounds,
- *                                         context,
- *                                         SkBackingFit::kApprox/kExact,
- *                                         [data{std::move(data)}](GrSWMaskHelper* helper) {
- *       // draw one or more paths/rects specifying the required boolean ops
- *       helper->drawRect(data.rect(), ...);
- *   });
+ *   GrSWMaskHelper helper(context);
+ *   helper.init(...);
+ *
+ *      draw one or more paths/rects specifying the required boolean ops
+ *
+ *   toTextureView();   // to get it from the internal bitmap to the GPU
  *
  * The result of this process will be the final mask (on the GPU) in the
  * upper left hand corner of the texture.
  */
-class GrSWMaskHelper : public SkNVRefCnt<GrSWMaskHelper> {
+class GrSWMaskHelper : SkNoncopyable {
 public:
-    using DrawFunc = std::function<void(GrSWMaskHelper*)>;
+    GrSWMaskHelper(SkAutoPixmapStorage* pixels = nullptr)
+            : fPixels(pixels ? pixels : &fPixelsStorage) { }
 
-    // Make a texture by drawing a software mask. If the context has a task group, the draw will be
-    // done async in that task group, and a lazy proxy will be returned to wait & upload it.
-    // Otherwise the drawing is done immediately.
-    // NOTE: The draw fn is async – it should not capture by reference.
-    static GrSurfaceProxyView MakeTexture(SkIRect bounds,
-                                          GrRecordingContext*,
-                                          SkBackingFit,
-                                          DrawFunc&&);
+    // set up the internal state in preparation for draws. Since many masks
+    // may be accumulated in the helper during creation, "resultBounds"
+    // allows the caller to specify the region of interest - to limit the
+    // amount of work.
+    bool init(const SkIRect& resultBounds);
 
     // Draw a single rect into the accumulation bitmap using the specified op
     void drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
@@ -63,38 +57,24 @@ public:
     // Draw a single path into the accumuation bitmap using the specified op
     void drawShape(const GrStyledShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA,
                    uint8_t alpha);
-
     // Like the GrStyledShape variant, but assumes a simple fill style
     void drawShape(const GrShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
+    GrSurfaceProxyView toTextureView(GrRecordingContext*, SkBackingFit fit);
+
     // Reset the internal bitmap
     void clear(uint8_t alpha) {
-        fBitmap.pixmap().erase(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
+        fPixels->erase(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
     }
 
 private:
-    GrSWMaskHelper(const SkIRect& resultBounds);
+    SkVector             fTranslate;
+    SkAutoPixmapStorage* fPixels;
+    SkAutoPixmapStorage  fPixelsStorage;
+    SkDraw               fDraw;
+    SkRasterClip         fRasterClip;
 
-    GrSWMaskHelper(const GrSWMaskHelper&) = delete;
-    GrSWMaskHelper& operator=(const GrSWMaskHelper&) = delete;
-
-    GrSurfaceProxyView nonThreadedExecute(GrRecordingContext*,
-                                          SkBackingFit,
-                                          const DrawFunc&);
-
-    // `this` must be heap-allocated. Task & proxy take on ownership; do not unref.
-    GrSurfaceProxyView threadedExecute(SkTaskGroup*,
-                                       GrRecordingContext*,
-                                       SkBackingFit,
-                                       DrawFunc&&);
-
-    bool allocate();
-
-    SkVector     fTranslate;
-    SkBitmap     fBitmap;
-    SkDraw       fDraw;
-    SkRasterClip fRasterClip;
-    SkSemaphore  fSemaphore;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif // GrSWMaskHelper_DEFINED

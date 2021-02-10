@@ -380,7 +380,7 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
 namespace {
 
 /**
- * Payload class for use with GrSWMaskHelper. The clip mask code renders multiple
+ * Payload class for use with GrTDeferredProxyUploader. The clip mask code renders multiple
  * elements, each storing their own AA setting (and already transformed into device space). This
  * stores all of the information needed by the worker thread to draw all clip elements (see below,
  * in createSoftwareClipMask).
@@ -468,17 +468,61 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
     // left corner of the resulting rect to the top left of the texture.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(reducedClip.width(), reducedClip.height());
 
-    std::shared_ptr<ClipMaskData> data = std::make_shared<ClipMaskData>(reducedClip);
-    auto view = GrSWMaskHelper::MakeTexture(maskSpaceIBounds,
-                                            context,
-                                            SkBackingFit::kApprox,
-                                            [data{std::move(data)}](GrSWMaskHelper* helper) {
-        TRACE_EVENT0("skia.gpu", "SW Clip Mask Render");
-        draw_clip_elements_to_mask_helper(*helper,
-                                          data->elements(),
-                                          data->scissor(),
-                                          data->initialState());
-    });
+    SkTaskGroup* taskGroup = nullptr;
+    if (auto direct = context->asDirectContext()) {
+        taskGroup = direct->priv().getTaskGroup();
+    }
+
+    GrSurfaceProxyView view;
+    if (taskGroup && surfaceDrawContext) {
+        const GrCaps* caps = context->priv().caps();
+        // Create our texture proxy
+        GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                               GrRenderable::kNo);
+
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
+
+        // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
+        // to ops), so it can't have any pending IO.
+        auto proxy = proxyProvider->createProxy(format,
+                                                maskSpaceIBounds.size(),
+                                                GrRenderable::kNo,
+                                                1,
+                                                GrMipmapped::kNo,
+                                                SkBackingFit::kApprox,
+                                                SkBudgeted::kYes,
+                                                GrProtected::kNo);
+
+        auto uploader = std::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
+        GrTDeferredProxyUploader<ClipMaskData>* uploaderRaw = uploader.get();
+        auto drawAndUploadMask = [uploaderRaw, maskSpaceIBounds] {
+            TRACE_EVENT0("skia.gpu", "Threaded SW Clip Mask Render");
+            GrSWMaskHelper helper(uploaderRaw->getPixels());
+            if (helper.init(maskSpaceIBounds)) {
+                draw_clip_elements_to_mask_helper(helper, uploaderRaw->data().elements(),
+                                                  uploaderRaw->data().scissor(),
+                                                  uploaderRaw->data().initialState());
+            } else {
+                SkDEBUGFAIL("Unable to allocate SW clip mask.");
+            }
+            uploaderRaw->signalAndFreeData();
+        };
+
+        taskGroup->add(std::move(drawAndUploadMask));
+        proxy->texPriv().setDeferredUploader(std::move(uploader));
+
+        view = {std::move(proxy), kMaskOrigin, swizzle};
+    } else {
+        GrSWMaskHelper helper;
+        if (!helper.init(maskSpaceIBounds)) {
+            return {};
+        }
+
+        draw_clip_elements_to_mask_helper(helper, reducedClip.maskElements(), reducedClip.scissor(),
+                                          reducedClip.initialState());
+
+        view = helper.toTextureView(context, SkBackingFit::kApprox);
+    }
 
     SkASSERT(view);
     SkASSERT(view.origin() == kMaskOrigin);
