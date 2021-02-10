@@ -249,61 +249,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
     context->setResourceCacheLimit(maxBytes);
 }
 
-// Set up so there are two opsTasks that need to be flushed but the resource allocator thinks
-// it is over budget. The two opsTasks should be flushed separately and the opsTask indices
-// returned from assign should be correct.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    const GrCaps* caps = context->priv().caps();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
-
-    size_t origMaxBytes = context->getResourceCacheLimit();
-
-    // Force the resource allocator to always believe it is over budget
-    context->setResourceCacheLimit(0);
-
-    const ProxyParams params = {
-            64, GrRenderable::kNo, GrColorType::kRGBA_8888, SkBackingFit::kExact,
-            1,  SkBudgeted::kYes};
-
-    {
-        sk_sp<GrSurfaceProxy> p1 = make_deferred(proxyProvider, caps, params);
-        sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, params);
-        sk_sp<GrSurfaceProxy> p3 = make_deferred(proxyProvider, caps, params);
-        sk_sp<GrSurfaceProxy> p4 = make_deferred(proxyProvider, caps, params);
-
-        GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, 2));
-
-        alloc.addInterval(p1.get(), 0, 0, GrResourceAllocator::ActualUse::kYes);
-        alloc.incOps();
-        alloc.addInterval(p2.get(), 1, 1, GrResourceAllocator::ActualUse::kYes);
-        alloc.incOps();
-        alloc.markEndOfOpsTask(0);
-
-        alloc.addInterval(p3.get(), 2, 2, GrResourceAllocator::ActualUse::kYes);
-        alloc.incOps();
-        alloc.addInterval(p4.get(), 3, 3, GrResourceAllocator::ActualUse::kYes);
-        alloc.incOps();
-        alloc.markEndOfOpsTask(1);
-
-        int startIndex, stopIndex;
-        GrResourceAllocator::AssignError error;
-
-        alloc.determineRecyclability();
-
-        alloc.assign(&startIndex, &stopIndex, &error);
-        REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
-        REPORTER_ASSERT(reporter, 0 == startIndex && 1 == stopIndex);
-
-        alloc.assign(&startIndex, &stopIndex, &error);
-        REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
-        REPORTER_ASSERT(reporter, 1 == startIndex && 2 == stopIndex);
-    }
-
-    context->setResourceCacheLimit(origMaxBytes);
-}
-
 // This test is used to make sure we are tracking the current task index during the assign call in
 // the GrResourceAllocator. Specifically we can fall behind if we have intervals that don't
 // use the allocator. In this case we need to possibly increment the fCurOpsTaskIndex multiple times
@@ -383,11 +328,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
     // The original bug in the allocator here would return a stopIndex of 2 since it would have only
     // incremented its fCurOpsTaskIndex once instead of the needed two times to skip the first two
     // unused intervals.
-    REPORTER_ASSERT(reporter, 0 == startIndex && 3 == stopIndex);
-
-    alloc.assign(&startIndex, &stopIndex, &error);
-    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
-    REPORTER_ASSERT(reporter, 3 == startIndex && 4 == stopIndex);
+    REPORTER_ASSERT(reporter, 0 == startIndex && 4 == stopIndex);
 
     context->setResourceCacheLimit(origMaxBytes);
 }
