@@ -52,6 +52,24 @@
       "parentUuid": "4a223d04_98e3dc8f",
       "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a0717b0_c3169c33",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2021-02-10T09:34:54Z",
+      "side": 0,
+      "message": "Thanks for the insights!\n\nThen that does not mean it is a bug in linker, right?\n\nIs there any way to force emiting the symbol, so non C++17 code using it can still link?",
+      "parentUuid": "62485355_fa404505",
+      "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
