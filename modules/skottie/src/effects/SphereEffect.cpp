@@ -24,7 +24,7 @@ namespace  {
 // This shader maps its child shader onto a sphere.  To simplify things, we set it up such that:
 //
 //   - the sphere is centered at origin and has r == 1
-//   - the eye is positioned at (0,0,cam_z), where cam_z is chosen to visually match AE
+//   - the eye is positioned at (0,0,eye_z), where eye_z is chosen to visually match AE
 //   - the POI for a given pixel is on the z = 0 plane (x,y,0)
 //   - we're only rendering inside the projected circle, which guarantees a quadratic solution
 //
@@ -35,13 +35,13 @@ namespace  {
 //   2) rotate the normal
 //   3) UV-map the sphere
 //   4) scale uv to source size and sample
+//   5) apply lighting model
 //
 // Note: the current implementation uses two passes for two-side ("full") rendering, on the
 //       assumption that in practice most textures are opaque and two-side mode is infrequent;
 //       if this proves to be problematic, we could expand the implementation to blend both sides
 //       in one pass.
 //
-// TODO: lighting
 static constexpr char gSphereSkSL[] = R"(
     uniform shader  child;
 
@@ -49,40 +49,96 @@ static constexpr char gSphereSkSL[] = R"(
     uniform half2   child_scale;
     uniform half    side_select;
 
-    half3 to_sphere(half2 xy) {
-        half cam_z  = 5.5,
-             cam_z2 = cam_z*cam_z;
-        half3   RAY = half3(xy, -cam_z);
+    // apply_light()
+    %s
 
-        half a = dot(RAY, RAY),
-             b = -2*cam_z2,
-             c = cam_z2 - 1,
+    half3 to_sphere(half3 EYE) {
+        half eye_z2 = EYE.z*EYE.z;
+
+        half a = dot(EYE, EYE),
+             b = -2*eye_z2,
+             c = eye_z2 - 1,
              t = (-b + side_select*sqrt(b*b - 4*a*c))/(2*a);
 
-        return half3(0, 0, cam_z) + RAY*t;
+        return half3(0, 0, -EYE.z) + EYE*t;
     }
 
     half4 main(float2 xy) {
-        half3 N = rot_matrix*to_sphere(xy);
+        half3 EYE = half3(xy, -5.5),
+                N = to_sphere(EYE),
+               RN = rot_matrix*N;
 
         half kRPI = 1/3.1415927;
 
         half2 UV = half2(
-            0.5 + kRPI * 0.5 * atan(N.x, N.z),
-            0.5 + kRPI * asin(N.y)
+            0.5 + kRPI * 0.5 * atan(RN.x, RN.z),
+            0.5 + kRPI * asin(RN.y)
         );
 
-        return sample(child, UV*child_scale);
+        return apply_light(EYE, N, sample(child, UV*child_scale));
     }
 )";
 
-static sk_sp<SkRuntimeEffect> sphere_effect_singleton() {
-    static const SkRuntimeEffect* effect =
-            SkRuntimeEffect::Make(SkString(gSphereSkSL), /*options=*/{}).effect.release();
-    if (0 && !effect) {
-        printf("!!! %s\n",
-               SkRuntimeEffect::Make(SkString(gSphereSkSL), /*options=*/{}).errorText.c_str());
+// CC Sphere uses a Phong-like lighting model:
+//
+//   - "ambient" controls the intensity of the texture color
+//   - "diffuse" controls a multiplicative mix of texture and light color
+//   - "specular" controls a light color specular component
+//   - "roughness" is the specular exponent reciprocal
+//   - "light intensity" modulates the diffuse and specular components (but not ambient)
+//   - "light height" and "light direction" specify the light source position in spherical coords
+//
+// Implementation-wise, light intensity/height/direction are all combined into l_vec.
+// For efficiency, we fall back to a stripped-down shader (ambient-only) when the diffuse & specular
+// components are not used.
+//
+// TODO: "metal" and "reflective" parameters are ignored.
+static constexpr char gBasicLightSkSL[] = R"(
+    uniform half  l_coeff_ambient;
+
+    half4 apply_light(half3 EYE, half3 N, half4 c) {
+        c.rgb *= l_coeff_ambient;
+        return c;
     }
+)";
+
+static constexpr char gFancyLightSkSL[] = R"(
+    uniform half3 l_vec;
+    uniform half3 l_color;
+    uniform half  l_coeff_ambient;
+    uniform half  l_coeff_diffuse;
+    uniform half  l_coeff_specular;
+    uniform half  l_specular_exp;
+
+    half4 apply_light(half3 EYE, half3 N, half4 c) {
+        half3 LR = reflect(-l_vec*side_select, N);
+        half s_base = dot(normalize(EYE), LR),
+
+        a = l_coeff_ambient,
+        d = l_coeff_diffuse  * max(dot(l_vec, N), 0),
+        s = l_coeff_specular * saturate(pow(s_base, l_specular_exp));
+
+        c.rgb = (a + d*l_color)*c.rgb + s*l_color;
+
+        return c;
+    }
+)";
+
+static sk_sp<SkRuntimeEffect> sphere_fancylight_effect() {
+    static const SkRuntimeEffect* effect =
+        SkRuntimeEffect::Make(SkStringPrintf(gSphereSkSL, gFancyLightSkSL), {}).effect.release();
+    if (0 && !effect) {
+        printf("!!! %s\n", SkRuntimeEffect::Make(SkStringPrintf(gSphereSkSL, gFancyLightSkSL),
+                                                 {}).errorText.c_str());
+    }
+    SkASSERT(effect);
+
+    return sk_ref_sp(effect);
+}
+
+static sk_sp<SkRuntimeEffect> sphere_basiclight_effect() {
+    static const SkRuntimeEffect* effect =
+        SkRuntimeEffect::Make(SkStringPrintf(gSphereSkSL, gBasicLightSkSL), {}).effect.release();
     SkASSERT(effect);
 
     return sk_ref_sp(effect);
@@ -105,6 +161,13 @@ public:
     SG_ATTRIBUTE(Rotation, SkM44     , fRot   )
     SG_ATTRIBUTE(Side    , RenderSide, fSide  )
 
+    SG_ATTRIBUTE(LightVec     , SkV3 , fLightVec     )
+    SG_ATTRIBUTE(LightColor   , SkV3 , fLightColor   )
+    SG_ATTRIBUTE(AmbientLight , float, fAmbientLight )
+    SG_ATTRIBUTE(DiffuseLight , float, fDiffuseLight )
+    SG_ATTRIBUTE(SpecularLight, float, fSpecularLight)
+    SG_ATTRIBUTE(SpecularExp  , float, fSpecularExp  )
+
 private:
     sk_sp<SkShader> contentShader() {
         if (!fContentShader || this->hasChildrenInval()) {
@@ -123,7 +186,12 @@ private:
     }
 
     sk_sp<SkShader> buildEffectShader(float selector) {
-        SkRuntimeShaderBuilder builder(sphere_effect_singleton());
+        const auto has_fancy_light =
+                fLightVec.length() > 0 && (fDiffuseLight > 0 || fSpecularLight > 0);
+
+        SkRuntimeShaderBuilder builder(has_fancy_light
+                                           ? sphere_fancylight_effect()
+                                           : sphere_basiclight_effect());
 
         builder.child  ("child")       = this->contentShader();
         builder.uniform("child_scale") = fChildSize;
@@ -133,6 +201,16 @@ private:
             fRot.rc(1,0), fRot.rc(1,1), fRot.rc(1,2),
             fRot.rc(2,0), fRot.rc(2,1), fRot.rc(2,2),
         };
+
+        builder.uniform("l_coeff_ambient")  = fAmbientLight;
+
+        if (has_fancy_light) {
+            builder.uniform("l_vec")            = fLightVec * -selector;
+            builder.uniform("l_color")          = fLightColor;
+            builder.uniform("l_coeff_diffuse")  = fDiffuseLight;
+            builder.uniform("l_coeff_specular") = fSpecularLight;
+            builder.uniform("l_specular_exp")   = fSpecularExp;
+        }
 
         const auto lm = SkMatrix::Translate(fCenter.fX, fCenter.fY) *
                         SkMatrix::Scale(fRadius, fRadius);
@@ -187,6 +265,13 @@ private:
     float      fRadius = 0;
     RenderSide fSide   = RenderSide::kFull;
 
+    SkV3       fLightVec      = {0,0,1},
+               fLightColor    = {1,1,1};
+    float      fAmbientLight  = 1,
+               fDiffuseLight  = 0,
+               fSpecularLight = 0,
+               fSpecularExp   = 0;
+
     using INHERITED = sksg::CustomRenderNode;
 };
 
@@ -198,17 +283,27 @@ public:
         : INHERITED(std::move(node))
     {
         enum : size_t {
-            // kRotGrp_Index = 0,
-                 kRotX_Index = 1,
-                 kRotY_Index = 2,
-                 kRotZ_Index = 3,
-             kRotOrder_Index = 4,
-            // ???           = 5,
-               kRadius_Index = 6,
-               kOffset_Index = 7,
-               kRender_Index = 8,
+            //      kRotGrp_Index =  0,
+                      kRotX_Index =  1,
+                      kRotY_Index =  2,
+                      kRotZ_Index =  3,
+                  kRotOrder_Index =  4,
+            // ???                =  5,
+                    kRadius_Index =  6,
+                    kOffset_Index =  7,
+                    kRender_Index =  8,
 
-            // TODO: Light params
+            //       kLight_Index =  9,
+            kLightIntensity_Index = 10,
+                kLightColor_Index = 11,
+               kLightHeight_Index = 12,
+            kLightDirection_Index = 13,
+            // ???                = 14,
+            //     kShading_Index = 15,
+                   kAmbient_Index = 16,
+                   kDiffuse_Index = 17,
+                  kSpecular_Index = 18,
+                 kRoughness_Index = 19,
         };
 
         EffectBinder(jprops, *abuilder, this)
@@ -218,7 +313,16 @@ public:
             .bind(    kRotY_Index, fRotY    )
             .bind(    kRotZ_Index, fRotZ    )
             .bind(kRotOrder_Index, fRotOrder)
-            .bind(  kRender_Index, fRender  );
+            .bind(  kRender_Index, fRender  )
+
+            .bind(kLightIntensity_Index, fLightIntensity)
+            .bind(    kLightColor_Index, fLightColor    )
+            .bind(   kLightHeight_Index, fLightHeight   )
+            .bind(kLightDirection_Index, fLightDirection)
+            .bind(       kAmbient_Index, fAmbient       )
+            .bind(       kDiffuse_Index, fDiffuse       )
+            .bind(      kSpecular_Index, fSpecular      )
+            .bind(     kRoughness_Index, fRoughness     );
     }
 
 private:
@@ -251,12 +355,37 @@ private:
             SkUNREACHABLE;
         };
 
+        const auto light_vec = [](float height, float direction) {
+            float z = std::sin(height * SK_ScalarPI / 2),
+                  r = std::sqrt(1 - z*z),
+                  x = std::cos(direction) * r,
+                  y = std::sin(direction) * r;
+
+            return SkV3{x,y,z};
+        };
+
         const auto& sph = this->node();
 
         sph->setCenter({fOffset.x, fOffset.y});
         sph->setRadius(fRadius);
         sph->setSide(side(fRender));
         sph->setRotation(rotation(fRotOrder, fRotX, fRotY, fRotZ));
+
+        sph->setAmbientLight (SkTPin(fAmbient * 0.01f, 0.0f, 2.0f));
+
+        const auto intensity = SkTPin(fLightIntensity * 0.01f,  0.0f, 10.0f);
+        sph->setDiffuseLight (SkTPin(fDiffuse * 0.01f, 0.0f, 1.0f) * intensity);
+        sph->setSpecularLight(SkTPin(fSpecular* 0.01f, 0.0f, 1.0f) * intensity);
+
+        sph->setLightVec(light_vec(
+            SkTPin(fLightHeight    * 0.01f, -1.0f,  1.0f),
+            SkDegreesToRadians(fLightDirection - 90)
+        ));
+
+        const auto lc = static_cast<SkColor4f>(fLightColor);
+        sph->setLightColor({lc.fR, lc.fG, lc.fB});
+
+        sph->setSpecularExp(1/SkTPin(fRoughness, 0.001f, 0.5f));
     }
 
     Vec2Value   fOffset   = {0,0};
@@ -266,6 +395,15 @@ private:
                 fRotZ     = 0,
                 fRotOrder = 1,
                 fRender   = 1;
+
+    VectorValue fLightColor;
+    ScalarValue fLightIntensity =   0,
+                fLightHeight    =   0,
+                fLightDirection =   0,
+                fAmbient        = 100,
+                fDiffuse        =   0,
+                fSpecular       =   0,
+                fRoughness      =   0.5f;
 
     using INHERITED = DiscardableAdapterBase<SphereAdapter, SphereNode>;
 };
