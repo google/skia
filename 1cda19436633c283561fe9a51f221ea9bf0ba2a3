@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd78d3e0_4ec31d28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2021-02-10T00:04:26Z",
+      "side": 1,
+      "message": "This CL broke Android roll, because API is still in use by Android:\nstatic jlong RuntimeShader_createShaderBuilder(JNIEnv* env, jobject, jstring sksl) {\n    ScopedUtfChars strSksl(env, sksl);\n    auto result \u003d SkRuntimeEffect::Make(SkString(strSksl.c_str()));\n    sk_sp\u003cSkRuntimeEffect\u003e effect \u003d std::get\u003c0\u003e(result);\n    if (effect.get() \u003d\u003d nullptr) {\n        const auto\u0026 err \u003d std::get\u003c1\u003e(result);\n        doThrowIAE(env, err.c_str());\n        return 0;\n    }\n    return reinterpret_cast\u003cjlong\u003e(new SkRuntimeShaderBuilder(std::move(effect)));\n}",
+      "revId": "1cda19436633c283561fe9a51f221ea9bf0ba2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
