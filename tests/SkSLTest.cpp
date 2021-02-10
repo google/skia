@@ -59,6 +59,11 @@ static void test_one_permutation(skiatest::Reporter* r,
     set_uniform(&builder, "colorBlue",        SkV4{0, 0, 1, 1});
     set_uniform(&builder, "colorWhite",       SkV4{1, 1, 1, 1});
     set_uniform(&builder, "testInputs",       SkV4{-1.25, 0, 0.75, 2.25});
+    set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
+                                                                  3, 4});
+    set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
+                                                                  4, 5, 6,
+                                                                  7, 8, 9});
     set_uniform(&builder, "unknownInput",     1.0f);
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
