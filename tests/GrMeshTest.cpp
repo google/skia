@@ -355,11 +355,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          if (indexed) {
                              int baseIndex = 1 + y * 6;
                              indexedIndirectWriter.writeIndexed(6, baseIndex, kBoxCountX,
-                                                                y * kBoxCountX, baseVertex,
-                                                                *dContext->priv().caps());
+                                                                y * kBoxCountX, baseVertex);
                          } else {
-                             indirectWriter.write(kBoxCountX, y * kBoxCountX, 4, baseVertex,
-                                                  *dContext->priv().caps());
+                             indirectWriter.write(kBoxCountX, y * kBoxCountX, 4, baseVertex);
                          }
                      }
                  },

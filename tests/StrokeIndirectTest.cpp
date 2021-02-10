@@ -435,17 +435,15 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r, GrMockOpT
     GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
     float tolerance = test_tolerance(stroke.getJoin());
     for (int i = 0; i < fDrawIndirectCount; ++i) {
-        // TODO: SkASSERT(caps.drawIndirectCmdSignature() == standard);
-        auto [vertexCount, instanceCount, baseVertex, baseInstance] = *indirect++;
         int numExtraEdgesInJoin = (stroke.getJoin() == SkPaint::kMiter_Join) ? 4 : 3;
-        int numStrokeEdges = vertexCount/2 - numExtraEdgesInJoin;
+        int numStrokeEdges = indirect->fVertexCount/2 - numExtraEdgesInJoin;
         int numSegments = numStrokeEdges - 1;
         bool isPow2 = !(numSegments & (numSegments - 1));
         REPORTER_ASSERT(r, isPow2);
         int resolveLevel = sk_float_nextlog2(numSegments);
         REPORTER_ASSERT(r, 1 << resolveLevel == numSegments);
-        for (unsigned j = 0; j < instanceCount; ++j) {
-            SkASSERT(fabsf(instance->fNumTotalEdges) == vertexCount/2);
+        for (unsigned j = 0; j < indirect->fInstanceCount; ++j) {
+            SkASSERT(fabsf(instance->fNumTotalEdges) == indirect->fVertexCount/2);
             const SkPoint* p = instance->fPts;
             float numParametricSegments = GrWangsFormula::cubic(
                     tolerances.fParametricIntolerance, p);
@@ -478,5 +476,6 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r, GrMockOpT
             }
             ++instance;
         }
+        ++indirect;
     }
 }
