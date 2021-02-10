@@ -131,7 +131,7 @@ public:
             : fReporter(r), fSurface(std::move(surface)) {}
 
     void build(const char* src) {
-        auto[effect, errorText] = SkRuntimeEffect::Make(SkString(src));
+        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(src));
         if (!effect) {
             REPORT_FAILURE(fReporter, "effect",
                            SkStringPrintf("Effect didn't compile: %s", errorText.c_str()));
@@ -322,7 +322,7 @@ DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
         half4 main() { return half4(x); }
     )";
 
-    sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(kSource)));
+    sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::Make(SkString(kSource)).effect;
     REPORTER_ASSERT(r, effect);
 
     // Test passes if this sequence doesn't assert.  skbug.com/10667
@@ -341,7 +341,7 @@ DEF_TEST(SkRuntimeShaderBuilderSetUniforms, r) {
         half4 main() { return half4(x); }
     )";
 
-    sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(kSource)));
+    sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::Make(SkString(kSource)).effect;
     REPORTER_ASSERT(r, effect);
 
     SkRuntimeShaderBuilder b(std::move(effect));
