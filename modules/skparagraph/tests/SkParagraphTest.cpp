@@ -5869,3 +5869,33 @@ DEF_TEST(SkParagraph_RTLGlyphPositions, reporter) {
 //           0.0f, res1.position, res1.affinity == Affinity::kUpstream ? "U" : "D",
 //           500.0f, res2.position, res2.affinity == Affinity::kUpstream ? "U" : "D");
 }
+
+DEF_TEST(SkParagraph_RTLGlyphPositionsInEmptyLines, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RTLGlyphPositionsInEmptyLines");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto") });
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText("בבבב\n\nאאאא");
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(500);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto height = paragraph->getHeight();
+    auto res1 = paragraph->getGlyphPositionAtCoordinate(0, 0);
+    REPORTER_ASSERT(reporter, res1.position == 5 && res1.affinity == Affinity::kUpstream);
+    auto res2 = paragraph->getGlyphPositionAtCoordinate(0, height / 2);
+    REPORTER_ASSERT(reporter, res2.position == 5 && res2.affinity == Affinity::kDownstream);
+    auto res3 = paragraph->getGlyphPositionAtCoordinate(0, height);
+    REPORTER_ASSERT(reporter, res3.position == 10 && res3.affinity == Affinity::kUpstream);
+}

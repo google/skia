@@ -3390,17 +3390,26 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(TextDirection::kRtl);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto") });
         text_style.setFontSize(20);
         text_style.setColor(SK_ColorBLACK);
         builder.pushStyle(text_style);
-        builder.addText(" ");
+        builder.addText("בבבב\n\nאאאא");
         builder.pop();
         auto paragraph = builder.Build();
-        paragraph->layout(0);
+        paragraph->layout(width());
         paragraph->paint(canvas, 0, 0);
+
+        auto height = paragraph->getHeight();
+        auto res1 = paragraph->getGlyphPositionAtCoordinate(0,0);
+        auto res2 = paragraph->getGlyphPositionAtCoordinate(0,height / 2);
+        auto res3 = paragraph->getGlyphPositionAtCoordinate(0,height);
+        SkDebugf("res1: %d %s\n", res1.position, res1.affinity == Affinity::kDownstream ? "D" : "U");
+        SkDebugf("res2: %d %s\n", res2.position, res2.affinity == Affinity::kDownstream ? "D" : "U");
+        SkDebugf("res3: %d %s\n", res3.position, res3.affinity == Affinity::kDownstream ? "D" : "U");
     }
 
 private:
