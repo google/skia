@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43f69acb_8beef8f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-10T20:38:09Z",
+      "side": 1,
+      "message": "This shader code split has got me thinking again about that idea we had of things which are ambiguously uniforms or constants... it\u0027d be neat to have just one (\"fancy\") shader body and let the machinery specialize it down to the simple fast version through constant propagation after pinning those uniform parameters down as constants.",
+      "revId": "36cbb5d26c95e54f5c4c8240d24d2fa7e1c2ac22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
