@@ -490,5 +490,6 @@ void SkRegisterBlurImageFilterFlattenable();
 void SkRegisterColorFilterImageFilterFlattenable();
 void SkRegisterComposeImageFilterFlattenable();
 void SkRegisterDisplacementMapImageFilterFlattenable();
+void SkRegisterDropShadowImageFilterFlattenable();
 
 #endif // SkImageFilter_Base_DEFINED

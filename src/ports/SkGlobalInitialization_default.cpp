@@ -123,6 +123,7 @@
         SkRegisterColorFilterImageFilterFlattenable();
         SkRegisterComposeImageFilterFlattenable();
         SkRegisterDisplacementMapImageFilterFlattenable();
+        SkRegisterDropShadowImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }
