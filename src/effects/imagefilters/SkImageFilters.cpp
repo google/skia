@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkDropShadowImageFilter.h"
 #include "src/effects/imagefilters/SkImageSource.h"
 #include "src/effects/imagefilters/SkLightingImageFilter.h"
 #include "src/effects/imagefilters/SkMagnifierImageFilter.h"
@@ -27,7 +26,6 @@
 
 void SkImageFilters::RegisterFlattenables() {
     SkDilateImageFilter::RegisterFlattenables();
-    SkDropShadowImageFilter::RegisterFlattenables();
     SkImageSource::RegisterFlattenables();
     SkLightingImageFilter::RegisterFlattenables();
     SkMagnifierImageFilter::RegisterFlattenables();
@@ -40,27 +38,6 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::DropShadow(
-        SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor color,
-        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    // TODO (michaelludwig) - Once SkDropShadowImageFilter is fully hidden, this can be updated to
-    // pass a constant bool into the internal factory.
-    return SkDropShadowImageFilter::Make(
-            dx, dy, sigmaX, sigmaY, color,
-            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-            std::move(input), cropRect);
-}
-
-sk_sp<SkImageFilter> SkImageFilters::DropShadowOnly(
-        SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor color,
-        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    // TODO (michaelludwig) - Once SkDropShadowImageFilter is fully hidden, this can be updated to
-    // pass a constant bool into the internal factory.
-    return SkDropShadowImageFilter::Make(dx, dy, sigmaX, sigmaY, color,
-                                         SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode,
-                                         std::move(input), cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::Image(
         sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
