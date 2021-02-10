@@ -289,7 +289,6 @@ void GrOpsRenderPass::drawIndirect(const GrBuffer* drawIndirectBuffer, size_t bu
         auto* cmds = reinterpret_cast<const GrDrawIndirectCommand*>(
                 cpuIndirectBuffer->data() + bufferOffset);
         for (int i = 0; i < drawCount; ++i) {
-            // TODO: SkASSERT(caps.drawIndirectSignature() == standard);
             auto [vertexCount, instanceCount, baseVertex, baseInstance] = cmds[i];
             this->onDrawInstanced(instanceCount, baseInstance, vertexCount, baseVertex);
         }
@@ -317,7 +316,6 @@ void GrOpsRenderPass::drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, si
         auto* cmds = reinterpret_cast<const GrDrawIndexedIndirectCommand*>(
                 cpuIndirectBuffer->data() + bufferOffset);
         for (int i = 0; i < drawCount; ++i) {
-            // TODO: SkASSERT(caps.drawIndirectSignature() == standard);
             auto [indexCount, instanceCount, baseIndex, baseVertex, baseInstance] = cmds[i];
             this->onDrawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance,
                                          baseVertex);

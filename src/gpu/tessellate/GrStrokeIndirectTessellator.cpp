@@ -614,8 +614,6 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
         return;
     }
 
-    const GrCaps& caps = target->caps();
-
     // Allocate enough indirect commands for every resolve level. We will putBack the unused ones
     // at the end.
     GrDrawIndirectWriter indirectWriter = target->makeDrawIndirectSpace(kMaxResolveLevel + 1,
@@ -649,7 +647,7 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
         if (fResolveLevelCounts[i]) {
             int numEdges = numExtraEdgesInJoin + num_edges_in_resolve_level(i);
             indirectWriter.write(fResolveLevelCounts[i], baseInstance + currentInstanceIdx,
-                                 numEdges * 2, 0, caps);
+                                 numEdges * 2, 0);
             ++fDrawIndirectCount;
             numEdgesPerResolveLevel[i] = numEdges;
             instanceWriters[i] = baseWriter.makeOffset(instanceStride * currentInstanceIdx);

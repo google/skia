@@ -286,7 +286,6 @@ void GrGLOpsRenderPass::multiDrawArraysANGLEOrWebGL(const GrBuffer* drawIndirect
     while (drawCount) {
         int countInBatch = std::min(drawCount, kMaxDrawCountPerBatch);
         for (int i = 0; i < countInBatch; ++i) {
-            // TODO: SkASSERT(caps.drawIndirectSignature() == standard);
             auto [vertexCount, instanceCount, baseVertex, baseInstance] = cmds[i];
             fFirsts[i] = baseVertex;
             fCounts[i] = vertexCount;
@@ -360,7 +359,6 @@ void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndire
     while (drawCount) {
         int countInBatch = std::min(drawCount, kMaxDrawCountPerBatch);
         for (int i = 0; i < countInBatch; ++i) {
-            // TODO: SkASSERT(caps.drawIndirectSignature() == standard);
             auto [indexCount, instanceCount, baseIndex, baseVertex, baseInstance] = cmds[i];
             fCounts[i] = indexCount;
             fIndices[i] = this->offsetForBaseIndex(baseIndex);
