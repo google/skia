@@ -111,6 +111,30 @@
       },
       "revId": "5d5b78b94f7c9e215c45547d07ab9042e2d5a6ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6cdbd3a_5c422ae6",
+        "filename": "src/gpu/GrUniformDataManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-10T19:42:36Z",
+      "side": 1,
+      "message": "If this is acceptable, I\u0027ll remove the runtime checks from D3D and Vulkan in another CL.",
+      "parentUuid": "27c3849c_2d3210df",
+      "range": {
+        "startLine": 214,
+        "startChar": 1,
+        "endLine": 215,
+        "endChar": 33
+      },
+      "revId": "5d5b78b94f7c9e215c45547d07ab9042e2d5a6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
