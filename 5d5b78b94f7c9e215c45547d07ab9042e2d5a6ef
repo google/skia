@@ -63,6 +63,30 @@
       },
       "revId": "5d5b78b94f7c9e215c45547d07ab9042e2d5a6ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "933e65f1_8ba5b344",
+        "filename": "src/gpu/GrUniformDataManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-10T19:02:07Z",
+      "side": 1,
+      "message": "My guess is that the intent was that set.*f[v] methods would assert that float is 4 bytes and set.*i[v] would assert that int32_t is 4 bytes but some copy paste issues put some float asserts in \"i\" methods.",
+      "parentUuid": "63c0d605_3bed0d57",
+      "range": {
+        "startLine": 214,
+        "startChar": 1,
+        "endLine": 215,
+        "endChar": 33
+      },
+      "revId": "5d5b78b94f7c9e215c45547d07ab9042e2d5a6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
