@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70baeaa2_08147eea",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-10T18:15:03Z",
+      "side": 1,
+      "message": "Yeah, that gets us back to inlining.",
+      "parentUuid": "05718ed3_67a86277",
+      "range": {
+        "startLine": 438,
+        "startChar": 0,
+        "endLine": 440,
+        "endChar": 17
+      },
+      "revId": "c4855819fe2d8777f931676603cf4ec9de2c9199",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2c106110_362736a6",
