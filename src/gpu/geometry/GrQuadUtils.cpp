@@ -717,7 +717,23 @@ V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4
 }
 
 int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEdgeDistances,
+<<<<<<< HEAD   (5a43ef [infra] Switch from isolate to RBE-CAS)
                                                              V4f* x2d, V4f* y2d) const {
+=======
+                                                             V4f* x2d, V4f* y2d,
+                                                             M4f* aaMask) const {
+    // If the original points form a line in the 2D projection then give up on antialiasing.
+    for (int i = 0; i < 4; ++i) {
+        V4f d = (*x2d)*fA[i] + (*y2d)*fB[i] + fC[i];
+        if (all(abs(d) < kDistTolerance)) {
+            *aaMask = M4f(0);
+            return 4;
+        }
+    }
+
+    *aaMask = signedEdgeDistances != 0.f;
+
+>>>>>>> CHANGE (25f6bc Drop AA on quads that are extremely thin before AA insetting)
     // Move the edge by the signed edge adjustment.
     V4f oc = fC + signedEdgeDistances;
 
