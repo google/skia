@@ -749,7 +749,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	// serialization.
 	badSerializeGMs = append(badSerializeGMs, "analytic_antialias_convex")
 
-
 	for _, test := range badSerializeGMs {
 		skip("serialize-8888", "gm", "_", test)
 	}
@@ -786,7 +785,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		"async_rescale_and_read_dog_down",
 		"async_rescale_and_read_rose",
 		"async_rescale_and_read_no_bleed",
-		"async_rescale_and_read_alpha_type",} {
+		"async_rescale_and_read_alpha_type"} {
 		skip("pic-8888", "gm", "_", test)
 		skip("serialize-8888", "gm", "_", test)
 
@@ -850,6 +849,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(glMsaaConfig, "gm", "_", "imageblurtiled")
 			skip(glMsaaConfig, "gm", "_", "imagefiltersbase")
 		}
+	}
+
+	if b.matchGpu("Adreno[56][0-9][0-9]") { // skia:11308 - disable on Adreno 5xx/6xx
+		skip("_", "tests", "_", "SkSLMatrixEquality_GPU")
 	}
 
 	match := []string{}
