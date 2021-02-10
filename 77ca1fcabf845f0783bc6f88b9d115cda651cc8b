@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fb2f83c_fe1d6088",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-10T17:31:26Z",
+      "side": 1,
+      "message": "It does seem like this should be being caught at the SkCanvas level.",
+      "revId": "77ca1fcabf845f0783bc6f88b9d115cda651cc8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
