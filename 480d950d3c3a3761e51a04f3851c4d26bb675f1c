@@ -70,6 +70,24 @@
       "parentUuid": "62485355_fa404505",
       "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76191cd9_1c087f86",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 12704
+      },
+      "writtenOn": "2021-02-10T12:53:34Z",
+      "side": 0,
+      "message": "\u003e Thanks for the insights!\n\u003e \n\u003e Then that does not mean it is a bug in linker, right?\nI think so. For me \"nm -C\" doesn\u0027t show a kNoCropRect symbol in SkImageFilters.o\n\u003e \n\u003e Is there any way to force emiting the symbol, so non C++17 code using it can still link?\nThe only fixes I know of are to compile with C++14 or modify the code as you did.",
+      "parentUuid": "8a0717b0_c3169c33",
+      "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
