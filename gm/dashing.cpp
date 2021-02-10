@@ -510,6 +510,45 @@ DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
     canvas->drawRect(SkRect::MakeXYWH(-10000, 100, 20000, 20), p);
 }
 
+DEF_SIMPLE_GM(dashbigrects, canvas, 256, 256) {
+    SkRandom rand;
+
+    constexpr int kHalfStrokeWidth = 8;
+    constexpr int kOnOffInterval = 2*kHalfStrokeWidth;
+
+    canvas->clear(SkColors::kBlack);
+
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStroke(true);
+    p.setStrokeWidth(2*kHalfStrokeWidth);
+    p.setStrokeCap(SkPaint::kButt_Cap);
+
+    constexpr SkScalar intervals[] = { kOnOffInterval, kOnOffInterval };
+    p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
+
+    constexpr float gWidthHeights[] = {
+        1000000000.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        1000000.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        1000.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        100.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        10.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        9.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        8.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        7.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        6.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        5.0f * kOnOffInterval + kOnOffInterval/2.0f,
+        4.0f * kOnOffInterval + kOnOffInterval/2.0f,
+    };
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gWidthHeights); ++i) {
+        p.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
+
+        int offset = 2 * i * kHalfStrokeWidth + kHalfStrokeWidth;
+        canvas->drawRect(SkRect::MakeXYWH(offset, offset, gWidthHeights[i], gWidthHeights[i]), p);
+    }
+}
+
 DEF_SIMPLE_GM(longwavyline, canvas, 512, 512) {
     SkPaint p;
     p.setAntiAlias(true);
