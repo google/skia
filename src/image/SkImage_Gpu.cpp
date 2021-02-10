@@ -340,7 +340,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
     if (!dContext) {
         return nullptr;
     }
-    if (!dContext->priv().caps()->mipmapSupport()) {
+    if (!dContext->priv().caps()->mipmapSupport() || this->dimensions().area() <= 1) {
         mipmapped = GrMipmapped::kNo;
     }
 
