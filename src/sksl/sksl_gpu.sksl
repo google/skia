@@ -342,6 +342,12 @@ half _guarded_divide(half n, half d) {
             : n/d;
 }
 
+half3 _guarded_divide(half3 n, half d) {
+    return sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
+            ? n/(d + 0.00000001)
+            : n/d;
+}
+
 half _color_dodge_component(half2 s, half2 d) {
     if (d.x == 0) {
         return s.x*(1 - d.y);
@@ -427,11 +433,13 @@ half3 _blend_set_color_luminance(half3 hueSatColor, half alpha, half3 lumColor) 
     half minComp = min(min(result.r, result.g), result.b);
     half maxComp = max(max(result.r, result.g), result.b);
     if (minComp < 0 && lum != minComp) {
-        result = lum + (result - lum) * lum/(lum - minComp);
+        result = lum + (result - lum) * _guarded_divide(lum, (lum - minComp));
     }
-    return (maxComp > alpha && maxComp != lum)
-        ? lum + ((result - lum) * (alpha - lum))/(maxComp - lum)
-        : result;
+    if (maxComp > alpha && maxComp != lum) {
+        return lum + _guarded_divide((result - lum) * (alpha - lum), (maxComp - lum));
+    } else {
+        return result;
+    }
 }
 
 half _blend_color_saturation(half3 color) {
@@ -439,9 +447,13 @@ half _blend_color_saturation(half3 color) {
 }
 
 half3 _blend_set_color_saturation_helper(half3 minMidMax, half sat) {
-    return (minMidMax.r < minMidMax.b)
-            ? half3(0, sat*(minMidMax.g - minMidMax.r)/(minMidMax.b - minMidMax.r), sat)
-            : half3(0);
+    if (minMidMax.r < minMidMax.b) {
+        return half3(0,
+                    _guarded_divide(sat*(minMidMax.g - minMidMax.r), (minMidMax.b - minMidMax.r)),
+                    sat);
+    } else {
+        return half3(0);
+    }
 }
 
 half3 _blend_set_color_saturation(half3 hueLumColor, half3 satColor) {
