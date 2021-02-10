@@ -140,8 +140,8 @@ public:
                               const AnimationBuilder& abuilder,
                               sk_sp<sksg::RenderNode> layer)
         : INHERITED(sksg::ExternalColorFilter::Make(std::move(layer)))
-        , fBrightnessEffect(SkRuntimeEffect::Make(SkString(BRIGHTNESS_EFFECT)).effect)
-        , fContrastEffect(SkRuntimeEffect::Make(SkString(CONTRAST_EFFECT)).effect) {
+        , fBrightnessEffect(std::get<0>(SkRuntimeEffect::Make(SkString(BRIGHTNESS_EFFECT))))
+        , fContrastEffect(std::get<0>(SkRuntimeEffect::Make(SkString(CONTRAST_EFFECT)))) {
         SkASSERT(fBrightnessEffect);
         SkASSERT(fContrastEffect);
 
