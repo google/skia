@@ -684,6 +684,11 @@ namespace skvm {
         F32 mul(F32 x, float y) { return mul(x, splat(y)); }
         F32 mul(float x, F32 y) { return mul(splat(x), y); }
 
+        // mul(), but allowing optimizations not strictly legal under IEEE-754 rules.
+        F32 fast_mul(F32, F32);
+        F32 fast_mul(F32 x, float y) { return fast_mul(x, splat(y)); }
+        F32 fast_mul(float x, F32 y) { return fast_mul(splat(x), y); }
+
         F32 div(F32, F32);
         F32 div(float x, F32 y) { return div(splat(x), y); }
 
@@ -1059,6 +1064,10 @@ namespace skvm {
     SI F32 operator*(F32   x, F32   y) { return x->mul(x,y); }
     SI F32 operator*(F32   x, float y) { return x->mul(x,y); }
     SI F32 operator*(float x, F32   y) { return y->mul(x,y); }
+
+    SI F32 fast_mul(F32   x, F32   y) { return x->fast_mul(x,y); }
+    SI F32 fast_mul(F32   x, float y) { return x->fast_mul(x,y); }
+    SI F32 fast_mul(float x, F32   y) { return y->fast_mul(x,y); }
 
     SI F32 operator/(F32   x, F32  y) { return x->div(x,y); }
     SI F32 operator/(float x, F32  y) { return y->div(x,y); }

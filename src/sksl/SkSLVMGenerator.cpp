@@ -44,6 +44,15 @@
 #include <algorithm>
 #include <unordered_map>
 
+namespace {
+    // sksl allows the optimizations of fast_mul(), so we want to use that most of the time.
+    // This little sneaky snippet of code lets us use ** as a fast multiply infix operator.
+    struct FastF32 { skvm::F32 val; };
+    static FastF32 operator*(skvm::F32 y) { return {y}; }
+    static skvm::F32 operator*(skvm::F32 x, FastF32 y) { return fast_mul(x, y.val); }
+    static skvm::F32 operator*(float     x, FastF32 y) { return fast_mul(x, y.val); }
+}
+
 namespace SkSL {
 
 namespace {
@@ -656,7 +665,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             return binary([](skvm::F32 x, skvm::F32 y) { return x - y; },
                           [](skvm::I32 x, skvm::I32 y) { return x - y; });
         case Token::Kind::TK_STAR:
-            return binary([](skvm::F32 x, skvm::F32 y) { return x * y; },
+            return binary([](skvm::F32 x, skvm::F32 y) { return x ** y; },
                           [](skvm::I32 x, skvm::I32 y) { return x * y; });
         case Token::Kind::TK_SLASH:
             // Minimum spec (GLSL ES 1.0) has very loose requirements for integer operations.
@@ -875,10 +884,10 @@ Value SkVMGenerator::writeMatrixInverse2x2(const Value& m) {
     skvm::F32 idet = 1.0f / (a*d - b*c);
 
     Value result(m.slots());
-    result[0] = ( d * idet);
-    result[1] = (-b * idet);
-    result[2] = (-c * idet);
-    result[3] = ( a * idet);
+    result[0] = ( d ** idet);
+    result[1] = (-b ** idet);
+    result[2] = (-c ** idet);
+    result[3] = ( a ** idet);
     return result;
 }
 
@@ -891,15 +900,15 @@ Value SkVMGenerator::writeMatrixInverse3x3(const Value& m) {
                              a11*a23*a32 - a12*a21*a33 - a13*a22*a31);
 
     Value result(m.slots());
-    result[0] = ((a22*a33 - a23*a32) * idet);
-    result[1] = ((a23*a31 - a21*a33) * idet);
-    result[2] = ((a21*a32 - a22*a31) * idet);
-    result[3] = ((a13*a32 - a12*a33) * idet);
-    result[4] = ((a11*a33 - a13*a31) * idet);
-    result[5] = ((a12*a31 - a11*a32) * idet);
-    result[6] = ((a12*a23 - a13*a22) * idet);
-    result[7] = ((a13*a21 - a11*a23) * idet);
-    result[8] = ((a11*a22 - a12*a21) * idet);
+    result[0] = ((a22**a33 - a23**a32) ** idet);
+    result[1] = ((a23**a31 - a21**a33) ** idet);
+    result[2] = ((a21**a32 - a22**a31) ** idet);
+    result[3] = ((a13**a32 - a12**a33) ** idet);
+    result[4] = ((a11**a33 - a13**a31) ** idet);
+    result[5] = ((a12**a31 - a11**a32) ** idet);
+    result[6] = ((a12**a23 - a13**a22) ** idet);
+    result[7] = ((a13**a21 - a11**a23) ** idet);
+    result[8] = ((a11**a22 - a12**a21) ** idet);
     return result;
 }
 
@@ -910,20 +919,20 @@ Value SkVMGenerator::writeMatrixInverse4x4(const Value& m) {
               a02 = f32(m[2]), a12 = f32(m[6]), a22 = f32(m[10]), a32 = f32(m[14]),
               a03 = f32(m[3]), a13 = f32(m[7]), a23 = f32(m[11]), a33 = f32(m[15]);
 
-    skvm::F32 b00 = a00*a11 - a01*a10,
-              b01 = a00*a12 - a02*a10,
-              b02 = a00*a13 - a03*a10,
-              b03 = a01*a12 - a02*a11,
-              b04 = a01*a13 - a03*a11,
-              b05 = a02*a13 - a03*a12,
-              b06 = a20*a31 - a21*a30,
-              b07 = a20*a32 - a22*a30,
-              b08 = a20*a33 - a23*a30,
-              b09 = a21*a32 - a22*a31,
-              b10 = a21*a33 - a23*a31,
-              b11 = a22*a33 - a23*a32;
+    skvm::F32 b00 = a00**a11 - a01**a10,
+              b01 = a00**a12 - a02**a10,
+              b02 = a00**a13 - a03**a10,
+              b03 = a01**a12 - a02**a11,
+              b04 = a01**a13 - a03**a11,
+              b05 = a02**a13 - a03**a12,
+              b06 = a20**a31 - a21**a30,
+              b07 = a20**a32 - a22**a30,
+              b08 = a20**a33 - a23**a30,
+              b09 = a21**a32 - a22**a31,
+              b10 = a21**a33 - a23**a31,
+              b11 = a22**a33 - a23**a32;
 
-    skvm::F32 idet = 1.0f / (b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06);
+    skvm::F32 idet = 1.0f / (b00**b11 - b01**b10 + b02**b09 + b03**b08 - b04**b07 + b05**b06);
 
     b00 *= idet;
     b01 *= idet;
@@ -989,11 +998,11 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             } else {
                 // matrix sampling
                 SkASSERT(arg.slots() == 9);
-                skvm::F32 x = f32(arg[0])*coord.x + f32(arg[3])*coord.y + f32(arg[6]),
-                          y = f32(arg[1])*coord.x + f32(arg[4])*coord.y + f32(arg[7]),
-                          w = f32(arg[2])*coord.x + f32(arg[5])*coord.y + f32(arg[8]);
-                x = x * (1.0f / w);
-                y = y * (1.0f / w);
+                skvm::F32 x = f32(arg[0])**coord.x + f32(arg[3])**coord.y + f32(arg[6]),
+                          y = f32(arg[1])**coord.x + f32(arg[4])**coord.y + f32(arg[7]),
+                          w = f32(arg[2])**coord.x + f32(arg[5])**coord.y + f32(arg[8]);
+                x = x ** (1.0f / w);
+                y = y ** (1.0f / w);
                 coord = {x, y};
             }
         }
@@ -1110,7 +1119,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         case Intrinsic::kSmoothstep:
             return ternary([](skvm::F32 edge0, skvm::F32 edge1, skvm::F32 x) {
                 skvm::F32 t = skvm::clamp01((x - edge0) / (edge1 - edge0));
-                return t * t * (3 - 2 * t);
+                return t ** t ** (3 - 2 ** t);
             });
 
         case Intrinsic::kLength: return skvm::sqrt(dot(args[0], args[0]));
@@ -1123,14 +1132,14 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             skvm::F32 ax = f32(args[0][0]), ay = f32(args[0][1]), az = f32(args[0][2]),
                       bx = f32(args[1][0]), by = f32(args[1][1]), bz = f32(args[1][2]);
             Value result(3);
-            result[0] = ay*bz - az*by;
-            result[1] = az*bx - ax*bz;
-            result[2] = ax*by - ay*bx;
+            result[0] = ay**bz - az**by;
+            result[1] = az**bx - ax**bz;
+            result[2] = ax**by - ay**bx;
             return result;
         }
         case Intrinsic::kNormalize: {
             skvm::F32 invLen = 1.0f / skvm::sqrt(dot(args[0], args[0]));
-            return unary(args[0], [&](skvm::F32 x) { return x * invLen; });
+            return unary(args[0], [&](skvm::F32 x) { return x ** invLen; });
         }
         case Intrinsic::kFaceforward: {
             const Value &N    = args[0],
@@ -1146,7 +1155,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
 
             skvm::F32 dotNI = dot(N, I);
             return binary([&](skvm::F32 i, skvm::F32 n) {
-                return i - 2*dotNI*n;
+                return i - 2**dotNI**n;
             });
         }
         case Intrinsic::kRefract: {
@@ -1155,14 +1164,14 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             skvm::F32   eta = f32(args[2]);
 
             skvm::F32 dotNI = dot(N, I),
-                      k     = 1 - eta*eta*(1 - dotNI*dotNI);
+                      k     = 1 - eta**eta**(1 - dotNI**dotNI);
             return binary([&](skvm::F32 i, skvm::F32 n) {
-                return select(k<0, 0.0f, eta*i - (eta*dotNI + sqrt(k))*n);
+                return select(k<0, 0.0f, eta**i - (eta**dotNI + sqrt(k))**n);
             });
         }
 
         case Intrinsic::kMatrixCompMult:
-            return binary([](skvm::F32 x, skvm::F32 y) { return x * y; });
+            return binary([](skvm::F32 x, skvm::F32 y) { return x ** y; });
         case Intrinsic::kInverse: {
             switch (args[0].slots()) {
                 case  4: return this->writeMatrixInverse2x2(args[0]);

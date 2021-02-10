@@ -670,6 +670,11 @@ namespace skvm {
         return {this, this->push(Op::mul_f32, x.id, y.id)};
     }
 
+    F32 Builder::fast_mul(F32 x, F32 y) {
+        if (this->isImm(x.id, 0.0f) || this->isImm(y.id, 0.0f)) { return splat(0.0f); }
+        return mul(x,y);
+    }
+
     F32 Builder::div(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X/Y); }
         if (this->isImm(y.id, 1.0f)) { return x; }  // x/1 == x

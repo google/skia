@@ -1,35 +1,24 @@
-12 registers, 33 instructions:
+8 registers, 22 instructions:
 0	r0 = uniform32 ptr0 0
 1	r1 = uniform32 ptr0 C
-2	r2 = splat 0 (0)
-3	r3 = splat 3F800000 (1)
-4	r4 = mul_f32 r2 r0
-5	r5 = splat 1 (1.4012985e-45)
-6	r6 = splat 2 (2.8025969e-45)
-7	r7 = splat 3 (4.2038954e-45)
+2	r0 = trunc r0
+3	r1 = mul_i32 r0 r1
+4	r0 = splat 1 (1.4012985e-45)
+5	r2 = splat 2 (2.8025969e-45)
+6	r3 = splat 3 (4.2038954e-45)
 loop:
-8	    r8 = index
-9	    r9 = add_f32 r8 r4
-10	    r8 = mul_f32 r2 r8
-11	    r10 = add_f32 r8 r0
-12	    r8 = add_f32 r8 r4
-13	    r8 = add_f32 r8 r3
-14	    r8 = div_f32 r3 r8
-15	    r9 = mul_f32 r9 r8
-16	    r8 = mul_f32 r10 r8
-17	    r9 = trunc r9
-18	    r8 = trunc r8
-19	    r8 = mul_i32 r8 r1
-20	    r8 = add_i32 r9 r8
-21	    r8 = shl_i32 r8 2
-22	    r9 = gather32 ptr0 4 r8
-23	    r10 = add_i32 r8 r5
-24	    r10 = gather32 ptr0 4 r10
-25	    r11 = add_i32 r8 r6
-26	    r11 = gather32 ptr0 4 r11
-27	    r8 = add_i32 r8 r7
-28	    r8 = gather32 ptr0 4 r8
-29	    store32 ptr1 r9
-30	    store32 ptr2 r10
-31	    store32 ptr3 r11
-32	    store32 ptr4 r8
+7	    r4 = index
+8	    r4 = trunc r4
+9	    r4 = add_i32 r4 r1
+10	    r4 = shl_i32 r4 2
+11	    r5 = gather32 ptr0 4 r4
+12	    r6 = add_i32 r4 r0
+13	    r6 = gather32 ptr0 4 r6
+14	    r7 = add_i32 r4 r2
+15	    r7 = gather32 ptr0 4 r7
+16	    r4 = add_i32 r4 r3
+17	    r4 = gather32 ptr0 4 r4
+18	    store32 ptr1 r5
+19	    store32 ptr2 r6
+20	    store32 ptr3 r7
+21	    store32 ptr4 r4
