@@ -92,6 +92,8 @@ public:
        this->definitions().append(";\n");
     }
 
+    void definitionAppend(const char* str) { this->definitions().append(str); }
+
     void declareGlobal(const GrShaderVar&);
 
     // Generates a unique variable name for holding the result of a temporary expression when it's

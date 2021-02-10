@@ -130,7 +130,7 @@ SKSL_TEST(SkSLBoolFolding,                     "folding/BoolFolding.sksl")
 SKSL_TEST(SkSLIntFoldingES2,                   "folding/IntFoldingES2.sksl")
 SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
 SKSL_TEST(SkSLMatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
-SKSL_TEST_CPU(SkSLSelfAssignment,              "folding/SelfAssignment.sksl")
+SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,             "folding/VectorVectorFolding.sksl")
@@ -173,6 +173,7 @@ SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(SkSLScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
 SKSL_TEST(SkSLStackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(SkSLStaticIf,                        "shared/StaticIf.sksl")
+SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(SkSLSwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(SkSLSwizzleConstants,                "shared/SwizzleConstants.sksl")
@@ -189,12 +190,6 @@ SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.
 // (This was done to prevent recursion, as required by ES2.)
 SKSL_TEST(SkSLFunctionPrototype,               "shared/FunctionPrototype.sksl")
-*/
-
-/*
-TODO(skia:10939): enable this test when Runtime Effects supports structs in function signatures
-SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
-SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 */
 
 /*

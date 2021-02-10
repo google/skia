@@ -5,8 +5,8 @@ uniform int ui;
 uniform vec4 uh4;
 uniform bool b;
 struct S {
-    vec4[1] ah4;
-    float[1] ah;
+    vec4 ah4[1];
+    float ah[1];
     vec4 h4;
     float h;
 };

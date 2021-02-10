@@ -24,6 +24,7 @@ namespace PipelineStage {
 
         virtual String getMangledName(const char* name) { return name; }
         virtual void   defineFunction(const char* declaration, const char* body, bool isMain) = 0;
+        virtual void   defineStruct(const char* definition) = 0;
 
         virtual String declareUniform(const VarDeclaration*) = 0;
         virtual String sampleChild(int index, String coords) = 0;

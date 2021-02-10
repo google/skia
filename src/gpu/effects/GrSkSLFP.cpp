@@ -83,6 +83,10 @@ public:
                 }
             }
 
+            void defineStruct(const char* definition) override {
+                fArgs.fFragBuilder->definitionAppend(definition);
+            }
+
             String sampleChild(int index, String coords) override {
                 return String(fSelf->invokeChild(index, fArgs, coords).c_str());
             }

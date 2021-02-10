@@ -1,6 +1,12 @@
 
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
+struct S {
+    float f;
+    float af[5];
+    vec4 h4;
+    vec4 ah4[5];
+};
 vec4 main() {
     ivec4 i4;
     i4 = ivec4(1, 2, 3, 4);
@@ -16,9 +22,19 @@ vec4 main() {
     vec4 af4[1];
     af4[0].x = 0.0;
     af4[0].ywxz = vec4(1.0);
+    S s;
+    s.f = 0.0;
+    s.af[1] = 0.0;
+    s.h4.zxy = vec3(9.0);
+    s.ah4[2].yw = vec2(5.0);
     ai[0] += ai4[0].x;
+    s.f = 1.0;
+    s.af[0] = 2.0;
+    s.h4 = vec4(1.0);
+    s.ah4[0] = vec4(2.0);
     af4[0] *= ah2x4[0][0].x;
     i4.y *= 0;
     x.y *= 0.0;
+    s.f *= 0.0;
     return colorGreen;
 }

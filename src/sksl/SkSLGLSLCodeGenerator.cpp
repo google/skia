@@ -82,7 +82,7 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
     return fProgram.fCaps->usesPrecisionModifiers();
 }
 
-// Returns the name of the type with array dimensions, e.g. `float[2][4]`.
+// Returns the name of the type with array dimensions, e.g. `float[2]`.
 String GLSLCodeGenerator::getTypeName(const Type& type) {
     switch (type.typeKind()) {
         case Type::TypeKind::kVector: {
@@ -165,10 +165,13 @@ void GLSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     for (const auto& f : type.fields()) {
         this->writeModifiers(f.fModifiers, false);
         this->writeTypePrecision(*f.fType);
-        // sizes (which must be static in structs) are part of the type name here
-        this->writeType(*f.fType);
+        const Type& baseType = f.fType->isArray() ? f.fType->componentType() : *f.fType;
+        this->writeType(baseType);
         this->write(" ");
         this->write(f.fName);
+        if (f.fType->isArray()) {
+            this->write("[" + to_string(f.fType->columns()) + "]");
+        }
         this->writeLine(";");
     }
     fIndentation--;
@@ -1188,6 +1191,7 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
                 return "";
             case Type::TypeKind::kVector: // fall through
             case Type::TypeKind::kMatrix:
+            case Type::TypeKind::kArray:
                 return this->getTypePrecision(type.componentType());
             default:
                 break;
