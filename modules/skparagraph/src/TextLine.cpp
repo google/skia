@@ -1137,7 +1137,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
     if (SkScalarNearlyZero(this->width())) {
         // TODO: this is one of the flutter changes that have to go away eventually
         //  Empty line is a special case in txtlib
-        auto utf16Index = fOwner->getUTF16Index(this->fClusterRange.end);
+        auto utf16Index = fOwner->getUTF16Index(this->fTextRange.end);
         return { SkToS32(utf16Index) , kDownstream };
     }
 

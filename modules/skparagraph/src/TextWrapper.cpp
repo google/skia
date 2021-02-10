@@ -405,10 +405,12 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             // Make sure font metrics are not less than the strut
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
         }
-        TextRange empty(fEndLine.breakCluster()->textRange().start, fEndLine.breakCluster()->textRange().start);
-        TextRange hardBreak(fEndLine.breakCluster()->textRange().end, fEndLine.breakCluster()->textRange().end);
+
         ClusterRange clusters(fEndLine.breakCluster() - start, fEndLine.endCluster() - start);
-        addLine(empty, hardBreak, clusters, clusters,
+        addLine(fEndLine.breakCluster()->textRange(),
+                fEndLine.endCluster()->textRange(),
+                clusters,
+                clusters,
                 0,
                 0,
                 0,
