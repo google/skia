@@ -121,7 +121,6 @@ extern bool IsMetalContextType(GrContextFactoryContextType);
 extern bool IsDawnContextType(GrContextFactoryContextType);
 extern bool IsDirect3DContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
-extern bool IsRenderingGLOrMetalContextType(GrContextFactoryContextType);
 extern bool IsMockContextType(GrContextFactoryContextType);
 void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*, Reporter*,
                             const GrContextOptions&);
