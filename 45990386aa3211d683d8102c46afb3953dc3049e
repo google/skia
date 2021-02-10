@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62086f96_9040ded0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-10T20:10:08Z",
+      "side": 1,
+      "message": "Love it!",
+      "revId": "45990386aa3211d683d8102c46afb3953dc3049e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f493f6bb_4cbff7f9",
+        "filename": "tools/skpbench/_hardware_android.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-10T20:10:08Z",
+      "side": 1,
+      "message": "nit: Could this be a Bash if/fi? Then I suppose this method could be \"lock_gpu\" or \"attempt_lock_gpu\" or whatever, and the bash has sets if if/fi for every gpu we know how to lock?",
+      "range": {
+        "startLine": 139,
+        "startChar": 4,
+        "endLine": 139,
+        "endChar": 31
+      },
+      "revId": "45990386aa3211d683d8102c46afb3953dc3049e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
