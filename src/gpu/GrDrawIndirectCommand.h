@@ -34,7 +34,11 @@ public:
         return *this;
     }
 
+    bool operator==(const GrDrawIndirectWriter& that) { return fData == that.fData; }
+
     bool isValid() const { return fData != nullptr; }
+
+    GrDrawIndirectWriter makeOffset(int drawCount) const { return {fData + drawCount}; }
 
     inline void write(uint32_t instanceCount, uint32_t baseInstance, uint32_t vertexCount,
                       uint32_t baseVertex, const GrCaps&) {
@@ -65,7 +69,11 @@ public:
         return *this;
     }
 
+    bool operator==(const GrDrawIndexedIndirectWriter& that) { return fData == that.fData; }
+
     bool isValid() const { return fData != nullptr; }
+
+    GrDrawIndexedIndirectWriter makeOffset(int drawCount) const { return {fData + drawCount}; }
 
     inline void writeIndexed(uint32_t indexCount, uint32_t baseIndex, uint32_t instanceCount,
                              uint32_t baseInstance, uint32_t baseVertex, const GrCaps&) {
