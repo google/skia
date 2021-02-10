@@ -34,6 +34,47 @@
       "parentUuid": "623bb2ed_8b875dd4",
       "revId": "c8e7f737ca11609564c28ada0d75bbd72ddf6d03",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "876d14f7_9147efc4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-10T16:25:17Z",
+      "side": 1,
+      "message": "Is your `skia_compile_processors` enabled?",
+      "parentUuid": "11d08579_5d63b2f4",
+      "revId": "c8e7f737ca11609564c28ada0d75bbd72ddf6d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19345f86_f041c41f",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-10T16:25:17Z",
+      "side": 1,
+      "message": "Are we planning on supporting enums? (It\u0027s unlikely that users will expect support for an SkSL-specific idiom, but I guess there\u0027s no reason not to.)",
+      "range": {
+        "startLine": 366,
+        "startChar": 44,
+        "endLine": 366,
+        "endChar": 47
+      },
+      "revId": "c8e7f737ca11609564c28ada0d75bbd72ddf6d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
