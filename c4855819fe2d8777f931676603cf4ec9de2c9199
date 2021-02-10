@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22e3d2f8_fa0a4cdc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-10T17:36:52Z",
+      "side": 1,
+      "message": "This CL is currently derived from a revert of Michael\u0027s (for testing purposes). It does fix the ANGLE issue (as I expected), so I\u0027d like to rebase this against master and land it separately.",
+      "revId": "c4855819fe2d8777f931676603cf4ec9de2c9199",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
