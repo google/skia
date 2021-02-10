@@ -240,6 +240,12 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
+	if (b.model("Pixel5")) {
+		// skia:11152
+		match = append(match, "~_playback_", "~perlin", "~rect", "~poly", "~read",
+                       "~write", "~shapes", "~path", "~premul", "~quick", "~oval",
+                       "~shape")
+	}
 
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
