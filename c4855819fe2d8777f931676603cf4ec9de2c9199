@@ -16,6 +16,52 @@
       "message": "This CL is currently derived from a revert of Michael\u0027s (for testing purposes). It does fix the ANGLE issue (as I expected), so I\u0027d like to rebase this against master and land it separately.",
       "revId": "c4855819fe2d8777f931676603cf4ec9de2c9199",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05718ed3_67a86277",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-10T17:47:43Z",
+      "side": 1,
+      "message": "Could you please try rephrasing this as\n\n if (maxComp \u003e alpha \u0026\u0026 maxComp !\u003d lum) {\n   return lum + _guarded_divide((result - lum) * (alpha - lum), (maxComp - lum));\n } else {\n   return result;\n }\n\nAnd see if the output is better or worse?\nOur inliner can\u0027t process ternary-result expressions (since we can only evaluate/take side-effects from one side).\nIn an ideal world I think we would calculate _123_guarded_divide into a temp variable instead of performing a function call. Not sure if we will also eat more temp variables for the N and D inputs.",
+      "range": {
+        "startLine": 438,
+        "startChar": 0,
+        "endLine": 440,
+        "endChar": 17
+      },
+      "revId": "c4855819fe2d8777f931676603cf4ec9de2c9199",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c106110_362736a6",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-10T17:47:43Z",
+      "side": 1,
+      "message": "Same as above?",
+      "range": {
+        "startLine": 448,
+        "startChar": 4,
+        "endLine": 452,
+        "endChar": 23
+      },
+      "revId": "c4855819fe2d8777f931676603cf4ec9de2c9199",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
