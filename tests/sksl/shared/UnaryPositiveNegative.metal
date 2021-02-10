@@ -18,7 +18,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float2 x = _uniforms.colorWhite.xy;
-    x = x;
     x = -x;
     _out.sk_FragColor = all(x == float2(-1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;

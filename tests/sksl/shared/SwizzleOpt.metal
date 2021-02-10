@@ -23,12 +23,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float4 v = _uniforms.testInputs;
-    v = v;
     v = float4(0.0, v.zyx);
     v = float4(0.0, 0.0, v.xw);
     v = float4(1.0, 1.0, v.wx);
     v = float4(v.zy, 1.0, 1.0);
-    v = v;
     v = float4(v.xx, 1.0, 1.0);
     v = v.wzwz;
     v = float3(fn(v), 123.0, 456.0).yyzz;

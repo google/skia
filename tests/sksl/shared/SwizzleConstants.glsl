@@ -16,7 +16,6 @@ vec4 main() {
     v = vec4(1.0, v.yz, 1.0);
     v = vec4(0.0, v.y, 1.0, 1.0);
     v = vec4(1.0, 1.0, v.z, 1.0);
-    v = v;
     v = vec4(v.xyz, 1.0);
     v = vec4(v.xy, 0.0, v.w);
     v = vec4(v.xy, 1.0, 0.0);

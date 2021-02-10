@@ -10,12 +10,10 @@ float fn(vec4 v) {
 }
 vec4 main() {
     vec4 v = testInputs;
-    v = v;
     v = vec4(0.0, v.zyx);
     v = vec4(0.0, 0.0, v.xw);
     v = vec4(1.0, 1.0, v.wx);
     v = vec4(v.zy, 1.0, 1.0);
-    v = v;
     v = vec4(v.xx, 1.0, 1.0);
     v = v.wzwz;
     v = vec3(fn(v), 123.0, 456.0).yyzz;

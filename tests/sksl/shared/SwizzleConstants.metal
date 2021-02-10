@@ -29,7 +29,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     v = float4(1.0, v.yz, 1.0);
     v = float4(0.0, v.y, 1.0, 1.0);
     v = float4(1.0, 1.0, v.z, 1.0);
-    v = v;
     v = float4(v.xyz, 1.0);
     v = float4(v.xy, 0.0, v.w);
     v = float4(v.xy, 1.0, 0.0);
