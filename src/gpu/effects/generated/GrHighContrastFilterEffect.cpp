@@ -56,7 +56,7 @@ half4 inColor = %s;
 half4 color = half4(inColor.xyz / max(inColor.w, 9.9999997473787516e-05), inColor.w);
 
 @if (%s) {
-    color.xyz = color.xyz * color.xyz;
+    color.xyz *= color.xyz;
 }
 @if (%s) {
     color = half4(half3(dot(color.xyz, half3(0.2125999927520752, 0.71520000696182251, 0.072200000286102295))), 0.0);

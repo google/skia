@@ -478,6 +478,40 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
             IsTrivialExpression(*expr.as<IndexExpression>().base()));
 }
 
+bool Analysis::IsMatchingExpressionTree(const Expression& left, const Expression& right) {
+    if (left.kind() != right.kind() || left.type() != right.type()) {
+        return false;
+    }
+
+    switch (left.kind()) {
+        case Expression::Kind::kIntLiteral:
+            return left.as<IntLiteral>().value() == right.as<IntLiteral>().value();
+
+        case Expression::Kind::kFieldAccess:
+            return left.as<FieldAccess>().fieldIndex() == right.as<FieldAccess>().fieldIndex() &&
+                   IsMatchingExpressionTree(*left.as<FieldAccess>().base(),
+                                            *right.as<FieldAccess>().base());
+
+        case Expression::Kind::kIndex:
+            return IsMatchingExpressionTree(*left.as<IndexExpression>().index(),
+                                            *right.as<IndexExpression>().index()) &&
+                   IsMatchingExpressionTree(*left.as<IndexExpression>().base(),
+                                            *right.as<IndexExpression>().base());
+
+        case Expression::Kind::kSwizzle:
+            return left.as<Swizzle>().components() == right.as<Swizzle>().components() &&
+                   IsMatchingExpressionTree(*left.as<Swizzle>().base(),
+                                            *right.as<Swizzle>().base());
+
+        case Expression::Kind::kVariableReference:
+            return left.as<VariableReference>().variable() ==
+                   right.as<VariableReference>().variable();
+
+        default:
+            return false;
+    }
+}
+
 static const char* invalid_for_ES2(const ForStatement& loop,
                                    Analysis::UnrollableLoopInfo& loopInfo) {
     auto getConstant = [&](const std::unique_ptr<Expression>& expr, double* val) {

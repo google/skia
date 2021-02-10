@@ -41,32 +41,23 @@ bool BinaryExpression::IsVariableReferenceWritable(const Expression& expr) {
 }
 
 static std::unique_ptr<Expression> make_compound_assignment(const BinaryExpression& expr) {
-    // Check for expressions of the form `var = binary-expression`.
-    if (expr.getOperator() != Token::Kind::TK_EQ ||
-        !expr.left()->is<VariableReference>() ||
-        !expr.right()->is<BinaryExpression>()) {
+    // Check for expressions of the form `(expr) = binary-expression`.
+    if (expr.getOperator() != Token::Kind::TK_EQ || !expr.right()->is<BinaryExpression>()) {
         return nullptr;
     }
 
-    // Check that the right side is a binary expression of the form `var OP expr` where OP is not an
-    // assignment operator.
+    // Check that the right-side op is not currently assignment, but does have an assignment form.
     const BinaryExpression& rightExpr = expr.right()->as<BinaryExpression>();
     Token::Kind rightOp = rightExpr.getOperator();
-    if (!rightExpr.left()->is<VariableReference>() || Operators::IsAssignment(rightOp)) {
-        return nullptr;
-    }
-
-    // Check that the op has an assignment form. Not all ops do. (For instance, && but no &&=.)
     Token::Kind assignmentOp = Operators::AddAssignment(rightOp);
-    if (assignmentOp == Token::Kind::TK_INVALID) {
+    if (Operators::IsAssignment(rightOp) || assignmentOp == Token::Kind::TK_INVALID) {
         return nullptr;
     }
 
-    // Now we've established that our expression is of the form `var = var' OP expr`. But we also
-    // need to confirm that `var` is actually the same variable in both places. That is, we must
-    // make sure we have `x = x OP expr`, and not `x = y OP expr`.
-    if (expr.left()->as<VariableReference>().variable() !=
-        rightExpr.left()->as<VariableReference>().variable()) {
+    // Now we've established that our expression is of the form `exprA = exprB OP exprC` and there
+    // is a suitable compound OP we can use. Finally, we need to confirm that `exprA` and `exprB`
+    // are actually equivalent expression trees (same variable reference/field access/array index).
+    if (!Analysis::IsMatchingExpressionTree(*expr.left(), *rightExpr.left())) {
         return nullptr;
     }
 
