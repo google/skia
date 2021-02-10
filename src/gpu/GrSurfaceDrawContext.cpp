@@ -1839,6 +1839,9 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     }
 
     SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
+    if (styleScale == 0.0f) {
+        return;
+    }
 
     if (!pr && shape.style().pathEffect()) {
         // It didn't work above, so try again with the path effect applied.
