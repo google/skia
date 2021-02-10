@@ -656,7 +656,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             return binary([](skvm::F32 x, skvm::F32 y) { return x - y; },
                           [](skvm::I32 x, skvm::I32 y) { return x - y; });
         case Token::Kind::TK_STAR:
-            return binary([](skvm::F32 x, skvm::F32 y) { return x * y; },
+            return binary([](skvm::F32 x, skvm::F32 y) { return fast_mul(x,y); },
                           [](skvm::I32 x, skvm::I32 y) { return x * y; });
         case Token::Kind::TK_SLASH:
             // Minimum spec (GLSL ES 1.0) has very loose requirements for integer operations.
@@ -866,6 +866,7 @@ Value SkVMGenerator::writeVariableExpression(const VariableReference& expr) {
     return val;
 }
 
+// TODO: use fast_mul()?
 Value SkVMGenerator::writeMatrixInverse2x2(const Value& m) {
     SkASSERT(m.slots() == 4);
     skvm::F32 a = f32(m[0]),
@@ -882,6 +883,7 @@ Value SkVMGenerator::writeMatrixInverse2x2(const Value& m) {
     return result;
 }
 
+// TODO: use fast_mul()?
 Value SkVMGenerator::writeMatrixInverse3x3(const Value& m) {
     SkASSERT(m.slots() == 9);
     skvm::F32 a11 = f32(m[0]), a12 = f32(m[3]), a13 = f32(m[6]),
@@ -903,6 +905,7 @@ Value SkVMGenerator::writeMatrixInverse3x3(const Value& m) {
     return result;
 }
 
+// TODO: use fast_mul()?
 Value SkVMGenerator::writeMatrixInverse4x4(const Value& m) {
     SkASSERT(m.slots() == 16);
     skvm::F32 a00 = f32(m[0]), a10 = f32(m[4]), a20 = f32(m[ 8]), a30 = f32(m[12]),
@@ -988,6 +991,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 coord = {f32(arg[0]), f32(arg[1])};
             } else {
                 // matrix sampling
+                // TODO: use fast_mul()?
                 SkASSERT(arg.slots() == 9);
                 skvm::F32 x = f32(arg[0])*coord.x + f32(arg[3])*coord.y + f32(arg[6]),
                           y = f32(arg[1])*coord.x + f32(arg[4])*coord.y + f32(arg[7]),
@@ -1110,6 +1114,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         case Intrinsic::kSmoothstep:
             return ternary([](skvm::F32 edge0, skvm::F32 edge1, skvm::F32 x) {
                 skvm::F32 t = skvm::clamp01((x - edge0) / (edge1 - edge0));
+                // TODO: use fast_mul()?
                 return t * t * (3 - 2 * t);
             });
 
@@ -1123,6 +1128,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             skvm::F32 ax = f32(args[0][0]), ay = f32(args[0][1]), az = f32(args[0][2]),
                       bx = f32(args[1][0]), by = f32(args[1][1]), bz = f32(args[1][2]);
             Value result(3);
+            // TODO: use fast_mul()?
             result[0] = ay*bz - az*by;
             result[1] = az*bx - ax*bz;
             result[2] = ax*by - ay*bx;
@@ -1130,6 +1136,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         }
         case Intrinsic::kNormalize: {
             skvm::F32 invLen = 1.0f / skvm::sqrt(dot(args[0], args[0]));
+            // TODO: use fast_mul()?
             return unary(args[0], [&](skvm::F32 x) { return x * invLen; });
         }
         case Intrinsic::kFaceforward: {
@@ -1146,6 +1153,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
 
             skvm::F32 dotNI = dot(N, I);
             return binary([&](skvm::F32 i, skvm::F32 n) {
+                // TODO: use fast_mul()?
                 return i - 2*dotNI*n;
             });
         }
@@ -1154,6 +1162,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
                         &N  = args[1];
             skvm::F32   eta = f32(args[2]);
 
+            // TODO: use fast_mul()?
             skvm::F32 dotNI = dot(N, I),
                       k     = 1 - eta*eta*(1 - dotNI*dotNI);
             return binary([&](skvm::F32 i, skvm::F32 n) {
@@ -1162,6 +1171,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         }
 
         case Intrinsic::kMatrixCompMult:
+            // TODO: use fast_mul()?
             return binary([](skvm::F32 x, skvm::F32 y) { return x * y; });
         case Intrinsic::kInverse: {
             switch (args[0].slots()) {

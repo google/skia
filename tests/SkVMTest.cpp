@@ -2505,3 +2505,36 @@ DEF_TEST(SkVM_dont_dedup_stores, r) {
         }
     });
 }
+
+DEF_TEST(SkVM_fast_mul, r) {
+    skvm::Builder b;
+    {
+        skvm::Ptr src = b.varying<float>(),
+                 fast = b.varying<float>(),
+                 slow = b.varying<float>();
+        skvm::F32 x = b.loadF(src);
+        b.storeF(fast, fast_mul(0.0f, x));
+        b.storeF(slow, 0.0f * x);
+    }
+    test_jit_and_interpreter(b, [&](const skvm::Program& program){
+        const uint32_t bits[] = {
+            0x0000'0000, 0x8000'0000, //±0
+            0x3f80'0000, 0xbf80'0000, //±1
+            0x7f80'0000, 0xff80'0000, //±inf
+            0x7f80'0001, 0xff80'0001, //±NaN
+        };
+        float fast[8],
+              slow[8];
+        program.eval(8,bits,fast,slow);
+
+        for (int i = 0; i < 8; i++) {
+            REPORTER_ASSERT(r, fast[i] == 0.0f);
+
+            if (i < 4) {
+                REPORTER_ASSERT(r, slow[i] == 0.0f);
+            } else {
+                REPORTER_ASSERT(r, isnan(slow[i]));
+            }
+        }
+    });
+}
