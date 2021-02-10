@@ -91,6 +91,7 @@ gm_sources = [
   "$_gm/colormatrix.cpp",
   "$_gm/colorspace.cpp",
   "$_gm/colorwheel.cpp",
+  "$_gm/colrv1.cpp",
   "$_gm/complexclip.cpp",
   "$_gm/complexclip2.cpp",
   "$_gm/complexclip3.cpp",
