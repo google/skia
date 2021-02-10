@@ -273,9 +273,6 @@ bool IsGLContextType(ContextType ct) {
 bool IsRenderingGLContextType(ContextType ct) {
     return IsGLContextType(ct) && sk_gpu_test::GrContextFactory::IsRenderingContext(ct);
 }
-bool IsRenderingGLOrMetalContextType(ContextType ct) {
-    return IsRenderingGLContextType(ct);
-}
 bool IsMockContextType(ContextType ct) {
     return ct == ContextType::kMock_ContextType;
 }
