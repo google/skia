@@ -68,6 +68,24 @@
       "message": "So this is a workaround for a bug in Gold?  The code as written is correct, but Gold has a bug preventing it from linking?\n\nI did not realize Chromium was using Gold.  Can you link to one of the build.chromium.org waterfall bots that\u0027s using it?\n\nI don\u0027t think I understand how this can both simultaneously be working and require a workaround.",
       "revId": "2cd170c096a862d18113e658390d0a036346b11e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcd0952b_bbec3ade",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2021-02-10T08:33:27Z",
+      "side": 1,
+      "message": "Official builds of Chromium do not use Gold nor GCC. They are using Clang and LLD.\n\nNowadays, Chromium supports only Clang as a toolchain for the buildbots. Though, it accepts fixes for GCC as needed (no compromise to keep it working so no bots for that, but also best effort in case contributors provide fixes).\n\nMy understanding is that it is a bug in GOLD. As far as I know, the declaration in .cpp should be enough to make the object available for linker, so I am assuming it is a problem in GOLD (and the old GNU ld.bfd linker resolves that properly).",
+      "parentUuid": "58d858f3_6e15b05d",
+      "revId": "2cd170c096a862d18113e658390d0a036346b11e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
