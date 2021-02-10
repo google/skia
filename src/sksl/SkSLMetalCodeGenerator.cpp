@@ -1186,7 +1186,7 @@ void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
 
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
-    String key = "TimesEqual" + this->typeName(left) + ":" + this->typeName(right);
+    String key = "TimesEqual" + this->typeName(left) + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1196,50 +1196,6 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
                                "}\n",
                                this->typeName(result).c_str(), this->typeName(left).c_str(),
                                this->typeName(right).c_str());
-    }
-}
-
-void MetalCodeGenerator::writeMatrixEqualityHelper(const Type& left, const Type& right) {
-    SkASSERTF(left.rows() == right.rows() && left.columns() == right.columns(), "left=%s, right=%s",
-              left.description().c_str(), right.description().c_str());
-
-    String key = "Equality" + this->typeName(left) + ":" + this->typeName(right);
-
-    auto [iter, wasInserted] = fHelpers.insert(key);
-    if (wasInserted) {
-        fExtraFunctions.printf(
-                "thread bool operator==(const %s left, const %s right) {\n"
-                "    return",
-                this->typeName(left).c_str(), this->typeName(right).c_str());
-
-        for (int index=0; index<left.columns(); ++index) {
-            fExtraFunctions.printf("%s all(left[%d] == right[%d])",
-                                   index == 0 ? "" : " &&", index, index);
-        }
-        fExtraFunctions.printf(";\n"
-                               "}\n");
-    }
-}
-
-void MetalCodeGenerator::writeMatrixInequalityHelper(const Type& left, const Type& right) {
-    SkASSERTF(left.rows() == right.rows() && left.columns() == right.columns(), "left=%s, right=%s",
-              left.description().c_str(), right.description().c_str());
-
-    String key = "Inequality" + this->typeName(left) + ":" + this->typeName(right);
-
-    auto [iter, wasInserted] = fHelpers.insert(key);
-    if (wasInserted) {
-        fExtraFunctions.printf(
-                "thread bool operator!=(const %s left, const %s right) {\n"
-                "    return",
-                this->typeName(left).c_str(), this->typeName(right).c_str());
-
-        for (int index=0; index<left.columns(); ++index) {
-            fExtraFunctions.printf("%s any(left[%d] != right[%d])",
-                                   index == 0 ? "" : " ||", index, index);
-        }
-        fExtraFunctions.printf(";\n"
-                               "}\n");
     }
 }
 
@@ -1271,14 +1227,8 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (needParens) {
         this->write("(");
     }
-    if (leftType.isMatrix() && rightType.isMatrix()) {
-        if (op == Token::Kind::TK_STAREQ) {
-            this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
-        } else if (op == Token::Kind::TK_EQEQ) {
-            this->writeMatrixEqualityHelper(leftType, rightType);
-        } else if (op == Token::Kind::TK_NEQ) {
-            this->writeMatrixInequalityHelper(leftType, rightType);
-        }
+    if (op == Token::Kind::TK_STAREQ && leftType.isMatrix() && rightType.isMatrix()) {
+        this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
     this->writeExpression(left, precedence);
     if (op != Token::Kind::TK_EQ && Operators::IsAssignment(op) &&
