@@ -143,6 +143,8 @@ func setup(ctx context.Context, benchmarkPath, nodeBinPath string) error {
 var cpuSkiplist = []string{
 	// When the SKPs were generated on Sept 27 2020, this started to timeout on CPU
 	"desk_carsvg.skp",
+	// This started timing out the week of Feb 10, 2021 on CPU.
+	"desk_micrographygirlsvg.skp",
 }
 var gpuSkiplist = []string{}
 

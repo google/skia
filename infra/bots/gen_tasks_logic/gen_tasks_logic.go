@@ -1473,7 +1473,7 @@ func (b *jobBuilder) puppeteer() {
 		b.cipd(CIPD_PKG_LUCI_AUTH)
 		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName)
 		b.output(OUTPUT_PERF)
-		b.timeout(20 * time.Minute)
+		b.timeout(60 * time.Minute)
 		b.isolate("perf_puppeteer.isolate")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 
