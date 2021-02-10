@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17200652_8ed7040b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-10T18:46:01Z",
+      "side": 1,
+      "message": "PS5 fixes structs-containing-arrays (already tested by Assignment.sksl, which found the bug)",
+      "revId": "55529350a4e9e70131e5f59eb799692beb9098e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
