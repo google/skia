@@ -79,13 +79,9 @@ public:
     }
 #endif
 
-    // if false, this node should not be subject to constant propagation. This happens with
-    // compound assignment (i.e. x *= 2), in which the value x is used as an rvalue for
-    // multiplication by 2 and then as an lvalue for assignment purposes. Since there is only
-    // one "x" node, replacing it with a constant would break the assignment and we suppress
-    // it. Down the road, we should handle this more elegantly by substituting a regular
-    // assignment if the target is constant (i.e. x = 1; x *= 2; should become x = 1; x = 1 * 2;
-    // and then collapse down to a simple x = 2;).
+    // If false, this node should not be subject to constant propagation. This happens with
+    // expressions where a VariableReference is used as both an rvalue and lvalue, such as `x++`.
+    // Since there is only one `x` node, replacing it with a constant would generate invalid code.
     bool fConstantPropagation;
 
 private:

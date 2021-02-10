@@ -2,11 +2,6 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 vec4 main() {
-    ivec4 i4;
-    i4 = ivec4(1, 2, 3, 4);
-    vec4 x;
-    x.w = 0.0;
-    x.yx = vec2(0.0);
     int ai[1];
     ai[0] = 0;
     ivec4 ai4[1];
@@ -18,7 +13,5 @@ vec4 main() {
     af4[0].ywxz = vec4(1.0);
     ai[0] += ai4[0].x;
     af4[0] *= ah2x4[0][0].x;
-    i4.y *= 0;
-    x.y *= 0.0;
     return colorGreen;
 }

@@ -2049,15 +2049,43 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
-    std::unique_ptr<Expression> result;
+
+    // If the expression can be simplified by the constant-folder, do that.
     if (!ConstantFolder::ErrorOnDivideByZero(fContext, offset, op, *right)) {
-        result = ConstantFolder::Simplify(fContext, offset, *left, op, *right);
+        std::unique_ptr<Expression> fold = ConstantFolder::Simplify(fContext, offset,
+                                                                    *left, op, *right);
+        if (fold) {
+            return fold;
+        }
     }
-    if (!result) {
-        result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
-                                                    resultType);
+
+    // We expand `x *= y` to `x = x * y` at IR generation time to simplify future constant folding.
+    // (It's easier to constant-fold `x = x + 2` into `x = 4` because `x + 2` is separable.)
+    // We collapse it later.
+    if (!this->strictES2Mode() &&
+        isAssignment && op != Token::Kind::TK_EQ &&
+        Analysis::IsTrivialExpression(*left)) {
+        // Synthesize `x * y` from `x *= y`.
+        std::unique_ptr<Expression> leftClone = left->clone();
+        Analysis::UpdateRefKind(leftClone.get(), VariableRefKind::kRead);
+        auto binaryOp = std::make_unique<BinaryExpression>(right->fOffset,
+                                                           std::move(leftClone),
+                                                           Operators::RemoveAssignment(op),
+                                                           std::move(right),
+                                                           resultType);
+
+        // Synthesize `x = (x * y)`.
+        Analysis::UpdateRefKind(left.get(), VariableRefKind::kWrite);
+        return std::make_unique<BinaryExpression>(offset,
+                                                  std::move(left),
+                                                  Token::Kind::TK_EQ,
+                                                  std::move(binaryOp),
+                                                  resultType);
     }
-    return result;
+
+    // Emit the binary expression as it we found it.
+    return std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
+                                              resultType);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(

@@ -839,30 +839,6 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         }
                     }
                     break;
-                case Token::Kind::TK_PLUSEQ:
-                    if (is_constant(right, 0)) {
-                        Analysis::UpdateRefKind(&left, RefKind::kRead);
-                        delete_right(&b, iter, optimizationContext);
-                    }
-                    break;
-                case Token::Kind::TK_MINUSEQ:
-                    if (is_constant(right, 0)) {
-                        Analysis::UpdateRefKind(&left, RefKind::kRead);
-                        delete_right(&b, iter, optimizationContext);
-                    }
-                    break;
-                case Token::Kind::TK_STAREQ:
-                    if (is_constant(right, 1)) {
-                        Analysis::UpdateRefKind(&left, RefKind::kRead);
-                        delete_right(&b, iter, optimizationContext);
-                    }
-                    break;
-                case Token::Kind::TK_SLASHEQ:
-                    if (is_constant(right, 1)) {
-                        Analysis::UpdateRefKind(&left, RefKind::kRead);
-                        delete_right(&b, iter, optimizationContext);
-                    }
-                    break;
                 default:
                     break;
             }

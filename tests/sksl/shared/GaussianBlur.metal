@@ -52,7 +52,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTexture
     float2 _9_coord = _in.vLocalCoord_Stage0 - 12.0 * _globals._anonInterface0->uIncrement_Stage1_c0;
     float2 _10_coordSampled = float2(0.0, 0.0);
     _10_coordSampled = _9_coord;
-    _8_output += MatrixEffect_Stage1_c0_c0(_globals, float4(1.0), _10_coordSampled) * _globals._anonInterface0->uKernel_Stage1_c0[0].x;
+    _8_output = MatrixEffect_Stage1_c0_c0(_globals, float4(1.0), _10_coordSampled) * _globals._anonInterface0->uKernel_Stage1_c0[0].x;
     _9_coord += _globals._anonInterface0->uIncrement_Stage1_c0;
     _10_coordSampled = _9_coord;
     _8_output += MatrixEffect_Stage1_c0_c0(_globals, float4(1.0), _10_coordSampled) * _globals._anonInterface0->uKernel_Stage1_c0[0].y;
@@ -126,6 +126,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTexture
     _10_coordSampled = _9_coord;
     _8_output += MatrixEffect_Stage1_c0_c0(_globals, float4(1.0), _10_coordSampled) * _globals._anonInterface0->uKernel_Stage1_c0[6].x;
     _9_coord += _globals._anonInterface0->uIncrement_Stage1_c0;
+    _8_output *= float4(1.0);
     output_Stage1 = _8_output;
 
     {
