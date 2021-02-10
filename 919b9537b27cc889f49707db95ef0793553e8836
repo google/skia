@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09b309b1_0f8d5a10",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-10T14:08:40Z",
+      "side": 1,
+      "message": "I have verified that the problems with the new GM (i.e., skbug.com/11307 and the drift in the dashing in 8888) pre-existed this CL.",
+      "revId": "919b9537b27cc889f49707db95ef0793553e8836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
