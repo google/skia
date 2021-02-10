@@ -31,8 +31,22 @@ DEF_TEST(SkSLSPIRVTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+uniform half4 colorGreen, colorRed;
+
+half2 tricky(half x, half y, inout half2 color, half z) {
+    color.xy = color.yx;
+    return half2(x + y, z);
+}
+
+void func(inout half4 color) {
+    half2 t = tricky(1, 2, color.rb, 5);
+    color.ga = t;
+}
+
+half4 main() {
+    half4 result = half4(0, 1, 2, 3);
+    func(result);
+    return result == half4(2, 3, 0, 5) ? colorGreen : colorRed;
+}
          )__SkSL__");
 }
