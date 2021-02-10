@@ -34,6 +34,24 @@
       "parentUuid": "9cdaa7e6_84146a65",
       "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62485355_fa404505",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 12704
+      },
+      "writtenOn": "2021-02-10T09:24:50Z",
+      "side": 0,
+      "message": "Maybe to explain a bit more. Pre C++17 the instantiation was necessary and the compiler emitted a linker symbol. With C++17 the instantiation is obsolete, but still allowed. Compiler is free to ignore it. Clang still emits the linker symbol. However, GCC ignores it. Since Skia is compiled with C++17, GCC does not emit a linker symbol and therefore linking fails with undefined references. This is by the way independent of gold/bfd/lld. For demonstration see https://godbolt.org/z/ahddMv",
+      "parentUuid": "4a223d04_98e3dc8f",
+      "revId": "480d950d3c3a3761e51a04f3851c4d26bb675f1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
