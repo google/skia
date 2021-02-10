@@ -420,6 +420,10 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                             fOutput += String(decl) + "{" + body + "}";
                         }
 
+                        void defineStruct(const char* definition) override {
+                            fOutput += definition;
+                        }
+
                         String sampleChild(int index, String coords) override {
                             return String::printf("sample(%s%s%s)", fChildNames[index].c_str(),
                                                   coords.empty() ? "" : ", ", coords.c_str());
