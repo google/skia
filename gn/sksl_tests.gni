@@ -300,6 +300,7 @@ sksl_shared_tests = [
   "/sksl/shared/ArrayConstructors.sksl",
   "/sksl/shared/ArrayIndexTypes.sksl",
   "/sksl/shared/ArrayTypes.sksl",
+  "/sksl/shared/ArraysInFunctions.sksl",
   "/sksl/shared/Assignment.sksl",
   "/sksl/shared/Caps.sksl",
   "/sksl/shared/CastsRoundTowardZero.sksl",

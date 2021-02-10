@@ -144,6 +144,7 @@ SKSL_TEST(SkSLIntrinsicMixFloat,               "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLArrayTypes,                      "shared/ArrayTypes.sksl")
+SKSL_TEST(SkSLArraysInFunctions,               "shared/ArraysInFunctions.sksl")
 SKSL_TEST(SkSLAssignment,                      "shared/Assignment.sksl")
 SKSL_TEST(SkSLCastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
 SKSL_TEST(SkSLCommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
