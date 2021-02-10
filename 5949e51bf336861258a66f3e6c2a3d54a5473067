@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b088868_67f9e5e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2021-02-10T02:23:32Z",
+      "side": 1,
+      "message": "Gentle ping.\n\nFWIW, I\u0027ve read over the original `Raster Tragedy`, and your `Raster Tragedy in Skia` documents.\n\nI think we\u0027re in agreement that the contrast \u0026 gamma hacks aren\u0027t going anywhere until we all get much better monitors, and that currently on Windows we render text a little too light (for most users, at least)... so something needs to be done.\n\nSo now we just need to agree on what form that \u0027something\u0027 should take. 😊\n\nDo you have any thoughts on this specific change (updating the contrast formula)?  Putting the flag in SkSurfaceProps just seemed an expedient way to pass it from Chrome to Skia, and I would expect that part of the change to go away once experimentation is complete and we collectively decide to either use the new formula (on Windows, or perhaps all platforms) or revert to the old one.  But if you have other suggestions for passing the flag, please let me know.\n\nThanks!",
+      "revId": "5949e51bf336861258a66f3e6c2a3d54a5473067",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
