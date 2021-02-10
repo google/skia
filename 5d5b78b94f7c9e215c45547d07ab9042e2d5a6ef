@@ -39,6 +39,30 @@
       },
       "revId": "5d5b78b94f7c9e215c45547d07ab9042e2d5a6ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63c0d605_3bed0d57",
+        "filename": "src/gpu/GrUniformDataManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-10T18:58:05Z",
+      "side": 1,
+      "message": "I don\u0027t know -- it\u0027s all through the code that way. I guess because the uniform data is expecting 32-bit floats and the spec doesn\u0027t require them to be 32 bits. I can\u0027t imagine us running in any situation where it wasn\u0027t though.\n\nAnd int32_t should always be 32 bits, by definition.",
+      "parentUuid": "759b1d8a_8291148f",
+      "range": {
+        "startLine": 214,
+        "startChar": 1,
+        "endLine": 215,
+        "endChar": 33
+      },
+      "revId": "5d5b78b94f7c9e215c45547d07ab9042e2d5a6ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
