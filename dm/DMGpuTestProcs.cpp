@@ -33,10 +33,6 @@ bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType type) {
 bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
 }
-bool IsRenderingGLOrMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return (IsGLContextType(type) || IsMetalContextType(type)) &&
-           GrContextFactory::IsRenderingContext(type);
-}
 bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return type == GrContextFactory::kMock_ContextType;
 }
