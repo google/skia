@@ -103,6 +103,29 @@
       "message": "Looks like there\u0027s a merge conflict, so may need to sync back up to HEAD?",
       "revId": "2cd170c096a862d18113e658390d0a036346b11e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ca73f7b_aeb61b5a",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-10T14:00:14Z",
+      "side": 1,
+      "message": "nit: I\u0027ve used \u0027skif\u0027 for internal-related image filter namespace in other places. Can we use that here, too?",
+      "range": {
+        "startLine": 26,
+        "startChar": 10,
+        "endLine": 26,
+        "endChar": 27
+      },
+      "revId": "2cd170c096a862d18113e658390d0a036346b11e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
