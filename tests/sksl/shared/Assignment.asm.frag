@@ -15,6 +15,12 @@ OpName %ai "ai"
 OpName %ai4 "ai4"
 OpName %ah2x4 "ah2x4"
 OpName %af4 "af4"
+OpName %S "S"
+OpMemberName %S 0 "f"
+OpMemberName %S 1 "af"
+OpMemberName %S 2 "h4"
+OpMemberName %S 3 "ah4"
+OpName %s "s"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -34,10 +40,20 @@ OpDecorate %64 RelaxedPrecision
 OpDecorate %65 RelaxedPrecision
 OpDecorate %62 RelaxedPrecision
 OpDecorate %_arr_v4float_int_1 ArrayStride 16
-OpDecorate %87 RelaxedPrecision
-OpDecorate %94 RelaxedPrecision
-OpDecorate %95 RelaxedPrecision
-OpDecorate %98 RelaxedPrecision
+OpDecorate %_arr_float_int_5 ArrayStride 16
+OpDecorate %_arr_v4float_int_5 ArrayStride 16
+OpMemberDecorate %S 0 Offset 0
+OpMemberDecorate %S 1 Offset 16
+OpMemberDecorate %S 2 Offset 96
+OpMemberDecorate %S 2 RelaxedPrecision
+OpMemberDecorate %S 3 Offset 112
+OpMemberDecorate %S 3 RelaxedPrecision
+OpDecorate %88 RelaxedPrecision
+OpDecorate %92 RelaxedPrecision
+OpDecorate %108 RelaxedPrecision
+OpDecorate %115 RelaxedPrecision
+OpDecorate %116 RelaxedPrecision
+OpDecorate %122 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -87,6 +103,14 @@ OpDecorate %98 RelaxedPrecision
 %_arr_v4float_int_1 = OpTypeArray %v4float %int_1
 %_ptr_Function__arr_v4float_int_1 = OpTypePointer Function %_arr_v4float_int_1
 %73 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%int_5 = OpConstant %int 5
+%_arr_float_int_5 = OpTypeArray %float %int_5
+%_arr_v4float_int_5 = OpTypeArray %v4float %int_5
+%S = OpTypeStruct %float %_arr_float_int_5 %v4float %_arr_v4float_int_5
+%_ptr_Function_S = OpTypePointer Function %S
+%85 = OpConstantComposite %v3float %float_9 %float_9 %float_9
+%89 = OpConstantComposite %v2float %float_5 %float_5
+%102 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
 %_ptr_Function_v3float = OpTypePointer Function %v3float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %_entrypoint = OpFunction %void None %15
@@ -103,6 +127,7 @@ OpFunctionEnd
 %ai4 = OpVariable %_ptr_Function__arr_v4int_int_1 Function
 %ah2x4 = OpVariable %_ptr_Function__arr_mat3v3float_int_1 Function
 %af4 = OpVariable %_ptr_Function__arr_v4float_int_1 Function
+%s = OpVariable %_ptr_Function_S Function
 OpStore %i4 %28
 %32 = OpAccessChain %_ptr_Function_float %x %int_3
 OpStore %32 %float_0
@@ -126,29 +151,53 @@ OpStore %72 %float_0
 %75 = OpLoad %v4float %74
 %76 = OpVectorShuffle %v4float %75 %73 6 4 7 5
 OpStore %74 %76
-%77 = OpAccessChain %_ptr_Function_int %ai %int_0
-%78 = OpLoad %int %77
-%79 = OpAccessChain %_ptr_Function_v4int %ai4 %int_0
-%80 = OpLoad %v4int %79
-%81 = OpCompositeExtract %int %80 0
-%82 = OpIAdd %int %78 %81
-OpStore %77 %82
-%83 = OpAccessChain %_ptr_Function_v4float %af4 %int_0
-%84 = OpLoad %v4float %83
-%85 = OpAccessChain %_ptr_Function_v3float %ah2x4 %int_0 %int_0
-%87 = OpLoad %v3float %85
-%88 = OpCompositeExtract %float %87 0
-%89 = OpVectorTimesScalar %v4float %84 %88
-OpStore %83 %89
-%90 = OpAccessChain %_ptr_Function_int %i4 %int_1
-%91 = OpLoad %int %90
-%92 = OpIMul %int %91 %int_0
+%83 = OpAccessChain %_ptr_Function_float %s %int_0
+OpStore %83 %float_0
+%84 = OpAccessChain %_ptr_Function_float %s %int_1 %int_1
+OpStore %84 %float_0
+%86 = OpAccessChain %_ptr_Function_v4float %s %int_2
+%87 = OpLoad %v4float %86
+%88 = OpVectorShuffle %v4float %87 %85 5 6 4 3
+OpStore %86 %88
+%90 = OpAccessChain %_ptr_Function_v4float %s %int_3 %int_2
+%91 = OpLoad %v4float %90
+%92 = OpVectorShuffle %v4float %91 %89 0 4 2 5
 OpStore %90 %92
-%93 = OpAccessChain %_ptr_Function_float %x %int_1
-%94 = OpLoad %float %93
-%95 = OpFMul %float %94 %float_0
-OpStore %93 %95
-%96 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%98 = OpLoad %v4float %96
-OpReturnValue %98
+%93 = OpAccessChain %_ptr_Function_int %ai %int_0
+%94 = OpLoad %int %93
+%95 = OpAccessChain %_ptr_Function_v4int %ai4 %int_0
+%96 = OpLoad %v4int %95
+%97 = OpCompositeExtract %int %96 0
+%98 = OpIAdd %int %94 %97
+OpStore %93 %98
+%99 = OpAccessChain %_ptr_Function_float %s %int_0
+OpStore %99 %float_1
+%100 = OpAccessChain %_ptr_Function_float %s %int_1 %int_0
+OpStore %100 %float_2
+%101 = OpAccessChain %_ptr_Function_v4float %s %int_2
+OpStore %101 %73
+%103 = OpAccessChain %_ptr_Function_v4float %s %int_3 %int_0
+OpStore %103 %102
+%104 = OpAccessChain %_ptr_Function_v4float %af4 %int_0
+%105 = OpLoad %v4float %104
+%106 = OpAccessChain %_ptr_Function_v3float %ah2x4 %int_0 %int_0
+%108 = OpLoad %v3float %106
+%109 = OpCompositeExtract %float %108 0
+%110 = OpVectorTimesScalar %v4float %105 %109
+OpStore %104 %110
+%111 = OpAccessChain %_ptr_Function_int %i4 %int_1
+%112 = OpLoad %int %111
+%113 = OpIMul %int %112 %int_0
+OpStore %111 %113
+%114 = OpAccessChain %_ptr_Function_float %x %int_1
+%115 = OpLoad %float %114
+%116 = OpFMul %float %115 %float_0
+OpStore %114 %116
+%117 = OpAccessChain %_ptr_Function_float %s %int_0
+%118 = OpLoad %float %117
+%119 = OpFMul %float %118 %float_0
+OpStore %117 %119
+%120 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%122 = OpLoad %v4float %120
+OpReturnValue %122
 OpFunctionEnd

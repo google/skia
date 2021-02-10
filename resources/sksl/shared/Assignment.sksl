@@ -1,12 +1,11 @@
 uniform half4 colorGreen;
 
-// TODO(skia:10939): Structs not working in Runtime Effects yet
-//struct S {
-//    float f;
-//    float af[5];
-//    half4 h4;
-//    half4 ah4[5];
-//};
+struct S {
+    float f;
+    float af[5];
+    half4 h4;
+    half4 ah4[5];
+};
 
 half4 main() {
     /* assign to scalar */               int i; i = 0;
@@ -18,11 +17,10 @@ half4 main() {
     /* assign to array of matrix */      half3x3 ah2x4[1]; ah2x4[0] = half3x3(1,2,3,4,5,6,7,8,9);
     /* assign to array swizzle */        float4 af4[1]; af4[0].x = 0; af4[0].ywxz = float4(1);
 
-// TODO(skia:10939): Structs not working in Runtime Effects yet
-//  /* assign to struct variable */      S s; s.f = 0;
-//  /* assign to struct array */         s.af[1] = 0;
-//  /* assign to struct swizzle */       s.h4.zxy = half3(9);
-//  /* assign to struct array swizzle */ s.ah4[2].yw = half2(5);
+    /* assign to struct variable */      S s; s.f = 0;
+    /* assign to struct array */         s.af[1] = 0;
+    /* assign to struct swizzle */       s.h4.zxy = half3(9);
+    /* assign to struct array swizzle */ s.ah4[2].yw = half2(5);
 
 // Not allowed in ES2
 //  /* assign to array idx by lookup */  ai[0] = 0; ai[ai[0]] = 0;
@@ -30,14 +28,14 @@ half4 main() {
 // Not allowed natively in GLSL, but SkSL will turn these into valid GLSL expressions.
     /* assign to folded ternary */       half l, r; (true ? l : r) = 0;
     /* assign to unary plus */           +ai[0] += +ai4[0][0];
-// TODO(skia:10939): Structs not working in Runtime Effects yet
-//  /* assign to struct unary plus */    +s.f = 1; +s.af[0] = 2;
-//                                       +s.h4 = half4(1); +s.ah4[0] = half4(2);
+    /* assign to struct unary plus */    +s.f = 1; +s.af[0] = 2;
+                                         +s.h4 = half4(1); +s.ah4[0] = half4(2);
 
     // Keep these variables alive
     af4[0] *= float(ah2x4[0][0][0]);
     i4.y *= i;
     x.y *= l;
+    s.f *= l;
 
     return colorGreen;
 }

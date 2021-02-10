@@ -166,6 +166,7 @@ SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(SkSLScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
 SKSL_TEST(SkSLStackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(SkSLStaticIf,                        "shared/StaticIf.sksl")
+SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(SkSLSwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(SkSLSwizzleConstants,                "shared/SwizzleConstants.sksl")
@@ -182,11 +183,6 @@ SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.
 // (This was done to prevent recursion, as required by ES2.)
 SKSL_TEST(SkSLFunctionPrototype,       "shared/FunctionPrototype.sksl")
-*/
-
-/*
-TODO(skia:10939): enable this test when Runtime Effects supports structs in function signatures
-SKSL_TEST(SkSLStructsInFunctions,      "shared/StructsInFunctions.sksl")
 */
 
 /*
