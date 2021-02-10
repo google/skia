@@ -47,4 +47,4 @@ Client code search
 There is an [internal tool for
 Googlers](https://goto.google.com/skia-client-search) to make it easier to
 search the repos of Skia clients, e.g. Chromium, Android, and Mozilla. If you
-use it and have suggestions, please let dogben know.
+use it and have suggestions, please let brianosman know.
