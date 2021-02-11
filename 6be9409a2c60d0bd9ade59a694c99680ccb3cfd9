@@ -33,6 +33,24 @@
       "message": "The impl is very clear reading. Since this is a sandwich, could we also/alternatively offer each direction as its own ColorFilter, so that clients could make their own sandwich? Somewhat asking just to better understand the possibilities.",
       "revId": "6be9409a2c60d0bd9ade59a694c99680ccb3cfd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6709902c_b9a26efb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T18:49:50Z",
+      "side": 1,
+      "message": "Yeah, we definitely could do that, and I considered that here, but I\u0027ve yet to think of any situation where transforming from A -\u003e B -\u003e C where A!\u003dC would make any sense.  I think the sandwich will prevent more accidental errors than interesting use cases.\n\nI could see maybe hypothetically someone might want to write effects that work as if A -\u003e B -\u003e C -\u003e A, where B -\u003e C happens all inside the effect itself.  But I haven\u0027t run into one of those yet.  Tying the input and output formats actually kind of makes writing shaders easier, and that\u0027s how things work today, just with a fixed \u0027A\u0027 instead of user-defined \u0027B\u0027.",
+      "parentUuid": "a5733aa3_e9bcc904",
+      "revId": "6be9409a2c60d0bd9ade59a694c99680ccb3cfd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
