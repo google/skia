@@ -70,6 +70,30 @@
       },
       "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7a45353_f168938c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T18:38:52Z",
+      "side": 1,
+      "message": "I think I was confused.\n\nI had been thinking, well now we won\u0027t clamp when fIsOpaque.\nBut that\u0027s okay.  When fIsOpaque, set force alpha to 1, and then clamping to [0,alpha] is the same as clamping to [0,1], so if the pixel format handles that, I think we\u0027re cool?\n\nBut is F16Norm a problem?",
+      "parentUuid": "d867b27d_4a070caa",
+      "range": {
+        "startLine": 547,
+        "startChar": 50,
+        "endLine": 547,
+        "endChar": 96
+      },
+      "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
