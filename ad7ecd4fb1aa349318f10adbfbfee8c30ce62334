@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b523b41_fef54a5d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T18:33:04Z",
+      "side": 1,
+      "message": "Doesn\u0027t this mean we no longer clamp alpha to [0,1]?",
+      "range": {
+        "startLine": 547,
+        "startChar": 50,
+        "endLine": 547,
+        "endChar": 96
+      },
+      "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
