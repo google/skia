@@ -84,6 +84,11 @@ public:
     DSLExpression a();
 
     /**
+     * Creates an SkSL struct field access expression.
+     */
+    DSLExpression field(const char* name);
+
+    /**
      * Creates an SkSL array index expression.
      */
     DSLExpression operator[](DSLExpression index);
