@@ -87,12 +87,9 @@ public:
 
     static Result Make(SkString sksl, const Options& options);
 
-    // Older/deprecated version of the Make() API:
-    using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
-    static EffectResult Make(SkString sksl) {
-        Result result = Make(sksl, Options{});
-        return EffectResult{std::move(result.effect), std::move(result.errorText)};
-    }
+    // We can't use a default argument for `options` due to a bug in Clang.
+    // https://bugs.llvm.org/show_bug.cgi?id=36684
+    static Result Make(SkString sksl) { return Make(std::move(sksl), Options{}); }
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
