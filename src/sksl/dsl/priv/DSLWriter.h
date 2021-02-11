@@ -128,7 +128,9 @@ public:
     static DSLExpression Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs);
 
     static DSLExpression ConvertBinary(std::unique_ptr<Expression> left, Token::Kind op,
-                                std::unique_ptr<Expression> right);
+                                       std::unique_ptr<Expression> right);
+
+    static DSLExpression ConvertField(std::unique_ptr<Expression> base, const char* name);
 
     static DSLExpression ConvertIndex(std::unique_ptr<Expression> base,
                                       std::unique_ptr<Expression> index);

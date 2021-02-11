@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
+#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 
 #include <cstdint>
@@ -19,6 +20,7 @@ class Type;
 namespace dsl {
 
 class DSLExpression;
+class DSLField;
 
 enum TypeConstant : uint8_t {
     kBool,
@@ -60,6 +62,7 @@ private:
     TypeConstant fTypeConstant;
 
     friend DSLType Array(const DSLType& base, int count);
+    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
     friend class DSLFunction;
     friend class DSLVar;
 };
@@ -85,6 +88,34 @@ TYPE(Short)
 #undef TYPE
 
 DSLType Array(const DSLType& base, int count);
+
+class DSLField {
+public:
+    DSLField(const DSLType type, const char* name)
+        : DSLField(DSLModifiers(), type, name) {}
+
+private:
+    DSLField(DSLModifiers modifiers, const DSLType type, const char* name)
+        : fModifiers(modifiers)
+        , fType(type)
+        , fName(name) {}
+
+    DSLModifiers fModifiers;
+    const DSLType fType;
+    const char* fName;
+
+    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
+};
+
+DSLType Struct(const char* name, SkTArray<DSLField> fields);
+
+template<typename... Field>
+DSLType Struct(const char* name, Field... fields) {
+    SkTArray<DSLField> fieldTypes;
+    fieldTypes.reserve_back(sizeof...(fields));
+    (fieldTypes.push_back(std::move(fields)), ...);
+    return Struct(name, std::move(fieldTypes));
+}
 
 } // namespace dsl
 
