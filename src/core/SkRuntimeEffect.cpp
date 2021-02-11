@@ -539,8 +539,20 @@ public:
             fp->addChild(std::move(childFP));
         }
         std::unique_ptr<GrFragmentProcessor> result = std::move(fp);
+        // If the shader was created with isOpaque = true, we *force* that result here.
+        // CPU does the same thing (in SkShaderBase::program).
+        if (fIsOpaque) {
+            result = GrFragmentProcessor::SwizzleOutput(std::move(result), GrSwizzle::RGB1());
+        }
         result = GrMatrixEffect::Make(matrix, std::move(result));
-        if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
+        // Three cases of GrClampType to think about:
+        //   kAuto   - Normalized fixed-point. If fIsOpaque, then A is 1 (above), and the format's
+        //             range ensures RGB must be no larger. If !fIsOpaque, we clamp here.
+        //   kManual - Normalized floating point. Whether or not we set A above, the format's range
+        //             means we need to clamp RGB.
+        //   kNone   - Unclamped floating point. No clamping is done, ever.
+        GrClampType clampType = GrColorTypeClampType(args.fDstColorInfo->colorType());
+        if (clampType == GrClampType::kManual || (clampType == GrClampType::kAuto && !fIsOpaque)) {
             return GrFragmentProcessor::ClampPremulOutput(std::move(result));
         } else {
             return result;
