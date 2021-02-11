@@ -68,7 +68,7 @@ class GrResourceProvider;
 class GrResourceAllocator {
 public:
     GrResourceAllocator(GrResourceProvider* resourceProvider SkDEBUGCODE(, int numOpsTasks))
-            : fResourceProvider(resourceProvider) SkDEBUGCODE(, fNumOpsTasks(numOpsTasks)) {}
+            : fResourceProvider(resourceProvider) {}
 
     ~GrResourceAllocator();
 
@@ -95,16 +95,9 @@ public:
         kFailedProxyInstantiation
     };
 
-    // Returns true when the opsTasks from 'startIndex' to 'stopIndex' should be executed;
-    // false when nothing remains to be executed.
     // If any proxy fails to instantiate, the AssignError will be set to kFailedProxyInstantiation.
     // If this happens, the caller should remove all ops which reference an uninstantiated proxy.
-    // This is used to execute a portion of the queued opsTasks in order to reduce the total
-    // amount of GPU resources required.
-    bool assign(int* startIndex, int* stopIndex, AssignError* outError);
-
-    void determineRecyclability();
-    void markEndOfOpsTask(int opsTaskIndex);
+    void assign(AssignError* outError);
 
 #if GR_ALLOCATION_SPEW
     void dumpIntervals();
@@ -119,6 +112,8 @@ private:
     // These two methods wrap the interactions with the free pool
     void recycleSurface(sk_sp<GrSurface> surface);
     sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy);
+
+    void determineRecyclability();
 
     struct FreePoolTraits {
         static const GrScratchKey& GetKey(const GrSurface& s) {
@@ -206,6 +201,7 @@ private:
         static uint32_t Hash(const uint32_t& key) { return key; }
 
     private:
+        // TODO: Do we really need this variable?
         sk_sp<GrSurface> fAssignedSurface;
         GrSurfaceProxy*  fProxy;
         uint32_t         fProxyID; // This is here b.c. DynamicHash requires a ref to the key
@@ -259,9 +255,6 @@ private:
     IntervalList                 fActiveIntvls;      // List of live intervals during assignment
                                                      // (sorted by increasing end)
     unsigned int                 fNumOps = 0;
-    SkTArray<unsigned int>       fEndOfOpsTaskOpIndices;
-    int                          fCurOpsTaskIndex = 0;
-    SkDEBUGCODE(const int        fNumOpsTasks = -1;)
 
     SkDEBUGCODE(bool             fAssigned = false;)
 

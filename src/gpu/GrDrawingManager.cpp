@@ -60,7 +60,7 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
 
 GrDrawingManager::~GrDrawingManager() {
     this->closeAllTasks();
-    this->removeRenderTasks(0, fDAG.count());
+    this->removeRenderTasks();
 }
 
 bool GrDrawingManager::wasAbandoned() const {
@@ -202,58 +202,38 @@ bool GrDrawingManager::flush(
     }
 #endif
 
-    int startIndex, stopIndex;
     bool flushed = false;
 
     {
         GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, fDAG.count()));
-        for (int i = 0; i < fDAG.count(); ++i) {
-            if (fDAG[i]) {
-                fDAG[i]->gatherProxyIntervals(&alloc);
-            }
-            alloc.markEndOfOpsTask(i);
+        for (const auto& task : fDAG) {
+            SkASSERT(task);
+            task->gatherProxyIntervals(&alloc);
         }
-        alloc.determineRecyclability();
 
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
-        int numRenderTasksExecuted = 0;
-        if (alloc.assign(&startIndex, &stopIndex, &error)) {
-            // TODO: If this always-execute-everything approach works out, remove the startIndex &
-            // stopIndex from the GrResourceProvider API and simplify.
-            SkASSERT(startIndex == 0 && stopIndex == fDAG.count());
-            if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
-                for (int i = startIndex; i < stopIndex; ++i) {
-                    GrRenderTask* renderTask = fDAG[i].get();
-                    if (!renderTask) {
-                        continue;
-                    }
-                    if (!renderTask->isInstantiated()) {
-                        // No need to call the renderTask's handleInternalAllocationFailure
-                        // since we will already skip executing the renderTask since it is not
-                        // instantiated.
-                        continue;
-                    }
-                    renderTask->handleInternalAllocationFailure();
+        alloc.assign(&error);
+        if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
+            for (const auto& renderTask : fDAG) {
+                SkASSERT(renderTask);
+                if (!renderTask->isInstantiated()) {
+                    // No need to call the renderTask's handleInternalAllocationFailure
+                    // since we will already skip executing the renderTask since it is not
+                    // instantiated.
+                    continue;
                 }
-                this->removeRenderTasks(startIndex, stopIndex);
+                // TODO: If we're going to remove all the render tasks do we really need this call?
+                renderTask->handleInternalAllocationFailure();
             }
+            this->removeRenderTasks();
+        }
 
-            if (this->executeRenderTasks(
-                    startIndex, stopIndex, &flushState, &numRenderTasksExecuted)) {
-                flushed = true;
-            }
+        if (this->executeRenderTasks(&flushState)) {
+            flushed = true;
         }
     }
 
-#ifdef SK_DEBUG
-    for (const auto& task : fDAG) {
-        // All render tasks should have been cleared out by now – we only reset the array below to
-        // reclaim storage.
-        SkASSERT(!task);
-    }
-#endif
-    fLastRenderTasks.reset();
-    fDAG.reset();
+    SkASSERT(fDAG.empty());
 
 #ifdef SK_DEBUG
     // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
@@ -297,14 +277,10 @@ bool GrDrawingManager::submitToGpu(bool syncToCpu) {
     return gpu->submitToGpu(syncToCpu);
 }
 
-bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState* flushState,
-                                          int* numRenderTasksExecuted) {
-    SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.count());
-
+bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
 #if GR_FLUSH_TIME_OP_SPEW
-    SkDebugf("Flushing opsTask: %d to %d out of [%d, %d]\n",
-                            startIndex, stopIndex, 0, fDAG.count());
-    for (int i = startIndex; i < stopIndex; ++i) {
+    SkDebugf("Flushing %d opsTasks\n", fDAG.count());
+    for (int i = 0; i < fDAG.count(); ++i) {
         if (fDAG[i]) {
             SkString label;
             label.printf("task %d/%d", i, fDAG.count());
@@ -315,8 +291,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
     bool anyRenderTasksExecuted = false;
 
-    for (int i = startIndex; i < stopIndex; ++i) {
-        GrRenderTask* renderTask = fDAG[i].get();
+    for (const auto& renderTask : fDAG) {
         if (!renderTask || !renderTask->isInstantiated()) {
              continue;
         }
@@ -335,6 +310,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     // put a cap on the number of oplists we will execute before flushing to the GPU to relieve some
     // memory pressure.
     static constexpr int kMaxRenderTasksBeforeFlush = 100;
+    int numRenderTasksExecuted = 0;
 
     // Execute the onFlush renderTasks first, if any.
     for (sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
@@ -344,28 +320,26 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         SkASSERT(onFlushRenderTask->unique());
         onFlushRenderTask->disown(this);
         onFlushRenderTask = nullptr;
-        (*numRenderTasksExecuted)++;
-        if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+        if (++numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
             flushState->gpu()->submitToGpu(false);
-            *numRenderTasksExecuted = 0;
+            numRenderTasksExecuted = 0;
         }
     }
     fOnFlushRenderTasks.reset();
 
     // Execute the normal op lists.
-    for (int i = startIndex; i < stopIndex; ++i) {
-        GrRenderTask* renderTask = fDAG[i].get();
-        if (!renderTask || !renderTask->isInstantiated()) {
+    for (const auto& renderTask : fDAG) {
+        SkASSERT(renderTask);
+        if (!renderTask->isInstantiated()) {
             continue;
         }
 
         if (renderTask->execute(flushState)) {
             anyRenderTasksExecuted = true;
         }
-        (*numRenderTasksExecuted)++;
-        if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+        if (++numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
             flushState->gpu()->submitToGpu(false);
-            *numRenderTasksExecuted = 0;
+            numRenderTasksExecuted = 0;
         }
     }
 
@@ -377,17 +351,14 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     // resources are the last to be purged by the resource cache.
     flushState->reset();
 
-    this->removeRenderTasks(startIndex, stopIndex);
+    this->removeRenderTasks();
 
     return anyRenderTasksExecuted;
 }
 
-void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
-    for (int i = startIndex; i < stopIndex; ++i) {
-        GrRenderTask* task = fDAG[i].get();
-        if (!task) {
-            continue;
-        }
+void GrDrawingManager::removeRenderTasks() {
+    for (const auto& task : fDAG) {
+        SkASSERT(task);
         if (!task->unique() || task->requiresExplicitCleanup()) {
             // TODO: Eventually uniqueness should be guaranteed: http://skbug.com/7111.
             // DDLs, however, will always require an explicit notification for when they
@@ -395,12 +366,9 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
             task->endFlush(this);
         }
         task->disown(this);
-
-        // This doesn't cleanup any referring pointers (e.g. dependency pointers in the DAG).
-        // It works right now bc this is only called after the topological sort is complete
-        // (so the dangling pointers aren't used).
-        fDAG[i] = nullptr;
     }
+    fDAG.reset();
+    fLastRenderTasks.reset();
 }
 
 void GrDrawingManager::sortTasks() {
