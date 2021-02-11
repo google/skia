@@ -51,6 +51,24 @@
       "parentUuid": "f2b8de87_cb64821a",
       "revId": "6ba93a2678b82fe9bff6f6d0c707911a7d40c432",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "236c5c26_d1642a80",
+        "filename": "modules/skottie/src/effects/ThresholdEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T15:11:34Z",
+      "side": 1,
+      "message": "yeah, it\u0027s pretty mindblowing to swizzle scalars, but turns out super handy for just this sort of thing.",
+      "parentUuid": "344c4ea3_4fd9998d",
+      "revId": "6ba93a2678b82fe9bff6f6d0c707911a7d40c432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
