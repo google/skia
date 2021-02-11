@@ -16,6 +16,24 @@
       "message": "Consider when assumedAlignment \u003c\u003d maxAlignment. Align the requestedSize up to assumedAlignment (since assumedAlignment \u003c\u003d maxAlignment the Block cannot start on any of these locations, so return them to be useful). Now the Block will start at one of the following (maxAlignment/assumedAlignment) sized chunk boundaries which follow. There will need to be (maxAlignment/assumedAlignment - 1) of these to ensure that one of them will be at maxAlignment (which means adding maxAlignment - assumedAlignment). Then the blockSize needs to be added to that, so that if the Block ends up on the last one of these that it will have enough space.\n\nWhen assumedAlignment \u003e\u003d maxAlignment the memory will already sufficiently aligned, so just align the requestedSize up to maxAlignment and add the blockSize.\n\nSo I think this works out to\n    \n    if (assumedAlignment \u003c maxAlignment) {\n        minimumSize \u003d alignUp(requestedSize, assumedAlignment)\n                    + maxAlignment - assumedAlignment\n                    + blockSize;\n    } else {\n        minimumSize \u003d alignUp(requestedSize, maxAlignment)\n                    + blockSize;\n    }\n\nNote this is equivalent to\n\n    minAlignment \u003d std::min(assumedAlignment, maxAlignment);\n    minimumSize \u003d alignUp(requestedSize, minAlignment)\n                + maxAlignment - minAlignment\n                + blockSize;\n\nReasoning this way I don\u0027t have to worry about whether or not blockSize will fit at the maxAlignment found.",
       "revId": "28dafbc1c64e43a6dc7a206a73bb308b686a8afa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15c816d9_fd8524cd",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T21:30:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "851c02ec_69b1fbd8",
+      "revId": "28dafbc1c64e43a6dc7a206a73bb308b686a8afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
