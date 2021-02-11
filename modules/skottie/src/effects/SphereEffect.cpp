@@ -112,7 +112,7 @@ static constexpr char gFancyLightSkSL[] = R"(
 
     half4 apply_light(half3 EYE, half3 N, half4 c) {
         half3 LR = reflect(-l_vec*side_select, N);
-        half s_base = dot(normalize(EYE), LR),
+        half s_base = max(dot(normalize(EYE), LR), 0),
 
         a = l_coeff_ambient,
         d = l_coeff_diffuse  * max(dot(l_vec, N), 0),
