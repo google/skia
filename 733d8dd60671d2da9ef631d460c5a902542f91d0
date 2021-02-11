@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c008a49e_64dc7b57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-11T20:20:03Z",
+      "side": 1,
+      "message": "I considered adding a field(int) variant, so we didn\u0027t have to go by name... but I figured it was probably better to not worry about overcomplicating things for something that\u0027s going to be used so infrequently.\n\nOf course amenable to revisiting if we think it\u0027s worthwhile.",
+      "parentUuid": "0d69c741_50c23925",
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dfd07878_112bb997",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-02-11T19:58:55Z",
       "side": 1,
       "message": "reserve(fields.size())",
+      "range": {
+        "startLine": 157,
+        "startChar": 35,
+        "endLine": 157,
+        "endChar": 45
+      },
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09808014_049c38df",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-11T20:20:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfd07878_112bb997",
       "range": {
         "startLine": 157,
         "startChar": 35,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e771f193_04d2952b",
+        "filename": "src/sksl/dsl/DSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-11T20:20:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46ea4d4f_aeec02d5",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 33
+      },
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "27446a49_bea2cc8f",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-02-11T19:58:55Z",
       "side": 1,
       "message": "Let\u0027s test arrays as a struct field; those have been a trouble spot recently.",
+      "range": {
+        "startLine": 1335,
+        "startChar": 8,
+        "endLine": 1335,
+        "endChar": 13
+      },
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9e4b109_bfa9bf73",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1335,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-11T20:20:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27446a49_bea2cc8f",
       "range": {
         "startLine": 1335,
         "startChar": 8,
