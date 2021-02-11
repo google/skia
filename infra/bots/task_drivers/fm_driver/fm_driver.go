@@ -180,14 +180,6 @@ func main() {
 		}()
 	}
 
-	type Work struct {
-		Ctx      context.Context
-		WG       *sync.WaitGroup
-		Failures *int32
-		Sources  []string // Passed to FM -s: names of gms/tests, paths to images, .skps, etc.
-		Flags    []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
-	}
-
 	var worker func(context.Context, []string, []string) int
 	worker = func(ctx context.Context, sources, flags []string) (failures int) {
 		stdout := &bytes.Buffer{}
@@ -263,6 +255,13 @@ func main() {
 		return
 	}
 
+	type Work struct {
+		Ctx      context.Context
+		WG       *sync.WaitGroup
+		Failures *int32
+		Sources  []string // Passed to FM -s: names of gms/tests, paths to images, .skps, etc.
+		Flags    []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
+	}
 	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
 
 	for i := 0; i < runtime.NumCPU(); i++ {
@@ -301,7 +300,8 @@ func main() {
 
 		// For organizational purposes, create a step representing this call to kickoff(),
 		// with each batch of sources nested inside.
-		ctx := startStep(ctx, td.Props(strings.Join(flags, " ")))
+		ctx := startStep(ctx,
+			td.Props(fmt.Sprintf("%s, %s…", strings.Join(flags, " "), sources[0])))
 		pendingBatches := &sync.WaitGroup{}
 		failures := new(int32)
 
