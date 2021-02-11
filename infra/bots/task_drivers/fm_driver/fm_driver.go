@@ -181,16 +181,15 @@ func main() {
 	}
 
 	type Work struct {
-		Ctx     context.Context
-		WG      *sync.WaitGroup
-		Sources []string // Passed to FM -s: names of gms/tests, paths to image files, .skps, etc.
-		Flags   []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
+		Ctx      context.Context
+		WG       *sync.WaitGroup
+		Failures *int32
+		Sources  []string // Passed to FM -s: names of gms/tests, paths to images, .skps, etc.
+		Flags    []string // Other flags to pass to FM: --ct 565, --msaa 16, etc.
 	}
 
-	var failures int32 = 0
-
-	var worker func(context.Context, []string, []string)
-	worker = func(ctx context.Context, sources, flags []string) {
+	var worker func(context.Context, []string, []string) int
+	worker = func(ctx context.Context, sources, flags []string) (failures int) {
 		stdout := &bytes.Buffer{}
 		stderr := &bytes.Buffer{}
 		cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
@@ -229,14 +228,14 @@ func main() {
 			}
 
 			for _, s := range reruns {
-				worker(ctx, []string{s}, flags)
+				failures += worker(ctx, []string{s}, flags)
 			}
 			return
 		}
 
 		// If an individual run failed, nothing more to do but fail.
 		if err != nil {
-			atomic.AddInt32(&failures, 1)
+			failures += 1
 
 			lines := []string{}
 			scanner := bufio.NewScanner(stderr)
@@ -261,6 +260,7 @@ func main() {
 				exec.DebugString(cmd),
 				unknownHash)
 		}
+		return
 	}
 
 	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
@@ -274,7 +274,9 @@ func main() {
 					// with the batch call to FM and any individual reruns all nested inside.
 					ctx := startStep(w.Ctx, td.Props(strings.Join(w.Sources, " ")))
 					defer endStep(ctx)
-					worker(ctx, w.Sources, w.Flags)
+					if failures := worker(ctx, w.Sources, w.Flags); failures > 0 {
+						atomic.AddInt32(w.Failures, int32(failures))
+					}
 				}()
 			}
 		}()
@@ -282,6 +284,8 @@ func main() {
 
 	// Get some work going, first breaking it into batches to increase our parallelism.
 	pendingKickoffs := &sync.WaitGroup{}
+	var totalFailures int32 = 0
+
 	kickoff := func(sources, flags []string) {
 		if len(sources) == 0 {
 			return // A blank or commented job line from -script or the command line.
@@ -299,6 +303,7 @@ func main() {
 		// with each batch of sources nested inside.
 		ctx := startStep(ctx, td.Props(strings.Join(flags, " ")))
 		pendingBatches := &sync.WaitGroup{}
+		failures := new(int32)
 
 		// Arbitrary, nice to scale ~= cores.
 		approxNumBatches := runtime.NumCPU()
@@ -308,13 +313,19 @@ func main() {
 
 		util.ChunkIter(len(sources), batchSize, func(start, end int) error {
 			pendingBatches.Add(1)
-			queue <- Work{ctx, pendingBatches, sources[start:end], flags}
+			queue <- Work{ctx, pendingBatches, failures, sources[start:end], flags}
 			return nil
 		})
 
 		// When the batches for this kickoff() are all done, this kickoff() is done.
 		go func() {
 			pendingBatches.Wait()
+			if *failures > 0 {
+				atomic.AddInt32(&totalFailures, *failures)
+				if !*local { // Uninteresting to see on local runs.
+					failStep(ctx, fmt.Errorf("%v runs failed\n", *failures))
+				}
+			}
 			endStep(ctx)
 			pendingKickoffs.Done()
 		}()
@@ -441,7 +452,7 @@ func main() {
 	}
 
 	pendingKickoffs.Wait()
-	if failures > 0 {
-		fatal(ctx, fmt.Errorf("%v runs of %v failed after retries.\n", failures, fm))
+	if totalFailures > 0 {
+		fatal(ctx, fmt.Errorf("%v runs of %v failed after retries.\n", totalFailures, fm))
 	}
 }
