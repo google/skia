@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6cdf730e_5bf75cea",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2900,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-11T19:34:17Z",
+      "side": 1,
+      "message": "Do you think we should put \n  SkASSERT(!fIsBuiltinCode);\n\n?\nAlternatively, you could add that check into the if statement?",
+      "range": {
+        "startLine": 2900,
+        "startChar": 8,
+        "endLine": 2900,
+        "endChar": 12
+      },
+      "revId": "1bd0e65e9d98abd804d26d43c4b224fc70be9add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
