@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d69c741_50c23925",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-11T19:58:55Z",
+      "side": 1,
+      "message": "Wish we didn\u0027t need to look up struct fields by name every time, but that\u0027s a small nit and isn\u0027t something we necessarily need to address yet. (And it\u0027s no worse than what we have today!)",
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfd07878_112bb997",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-11T19:58:55Z",
+      "side": 1,
+      "message": "reserve(fields.size())",
+      "range": {
+        "startLine": 157,
+        "startChar": 35,
+        "endLine": 157,
+        "endChar": 45
+      },
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46ea4d4f_aeec02d5",
+        "filename": "src/sksl/dsl/DSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-11T19:58:55Z",
+      "side": 1,
+      "message": "reserve_back(sizeof...(fields))",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 33
+      },
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27446a49_bea2cc8f",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1335,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-11T19:58:55Z",
+      "side": 1,
+      "message": "Let\u0027s test arrays as a struct field; those have been a trouble spot recently.",
+      "range": {
+        "startLine": 1335,
+        "startChar": 8,
+        "endLine": 1335,
+        "endChar": 13
+      },
+      "revId": "733d8dd60671d2da9ef631d460c5a902542f91d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
