@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f49d7750_aea0c094",
+        "filename": "resources/sksl/errors/StaticSwitchTest.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-11T21:48:51Z",
+      "side": 0,
+      "message": "These static-switch checks happen at the end of optimization now; the error stopped happening because the function was actually dead-stripped entirely. (It\u0027s legitimately unreferenced.) Renamed it to main() to make it live code again.",
+      "range": {
+        "startLine": 1,
+        "startChar": 5,
+        "endLine": 1,
+        "endChar": 39
+      },
+      "revId": "d6a5f449d88d779d88f1a5b6b9865caa9f1df640",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
