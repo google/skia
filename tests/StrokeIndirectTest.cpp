@@ -239,7 +239,8 @@ static bool check_first_resolve_levels(skiatest::Reporter* r,
                                        int8_t** nextResolveLevel, float tolerance) {
     for (float numSegments : firstNumSegments) {
         if (numSegments < 0) {
-            REPORTER_ASSERT(r, *(*nextResolveLevel)++ == (int)numSegments);
+            int8_t val = *(*nextResolveLevel)++;
+            REPORTER_ASSERT(r, val == (int)numSegments);
             continue;
         }
         // The first stroke's resolve levels aren't  written out until the end of
@@ -268,6 +269,9 @@ void GrStrokeIndirectTessellator::verifyResolveLevels(skiatest::Reporter* r,
                                                       const SkPath& path,
                                                       const SkStrokeRec& stroke) {
     GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
+    int8_t resolveLevelForCircles = SkTPin<float>(
+            sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI),
+            1, kMaxResolveLevel);
     float tolerance = test_tolerance(stroke.getJoin());
     int8_t* nextResolveLevel = fResolveLevels;
     auto iterate = SkPathPriv::Iterate(path);
@@ -316,11 +320,11 @@ void GrStrokeIndirectTessellator::verifyResolveLevels(skiatest::Reporter* r,
                 SkVector b = pts[2] - pts[1];
                 bool hasCusp = (a.cross(b) == 0 && a.dot(b) < 0);
                 if (hasCusp) {
-                    // The quad has a cusp. Make sure we wrote out a -1 to signal that.
+                    // The quad has a cusp. Make sure we wrote out a -resolveLevelForCircles.
                     if (isFirstStroke) {
-                        firstNumSegments.push_back(-1);
+                        firstNumSegments.push_back(-resolveLevelForCircles);
                     } else {
-                        REPORTER_ASSERT(r, *nextResolveLevel++ == -1);
+                        REPORTER_ASSERT(r, *nextResolveLevel++ == -resolveLevelForCircles);
                     }
                 }
                 float numParametricSegments = (hasCusp) ? 0 : GrWangsFormula::quadratic(
@@ -354,7 +358,8 @@ void GrStrokeIndirectTessellator::verifyResolveLevels(skiatest::Reporter* r,
                 n = GrPathUtils::findCubicConvex180Chops(pts, T, &areCusps);
                 SkChopCubicAt(pts, chops, T, n);
                 if (n > 0) {
-                    int signal = -((n << 1) | (int)areCusps);
+                    int cuspResolveLevel = (areCusps) ? resolveLevelForCircles : 0;
+                    int signal = -((n << 4) | cuspResolveLevel);
                     if (isFirstStroke) {
                         firstNumSegments.push_back((float)signal);
                     } else {

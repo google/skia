@@ -52,10 +52,6 @@ private:
     float* fChopTs = nullptr;
     SkDEBUGCODE(int fChopTsArrayCount = 0;)
 
-    // A "circle" is a stroke-width circle drawn as a 180-degree point stroke. We draw them at cusp
-    // points on curves and for round caps.
-    int8_t fResolveLevelForCircles;
-
     // GPU buffers for drawing.
     sk_sp<const GrBuffer> fDrawIndirectBuffer;
     sk_sp<const GrBuffer> fInstanceBuffer;
