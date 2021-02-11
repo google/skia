@@ -94,6 +94,30 @@
       },
       "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e16d6056_7c7bd349",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T18:39:34Z",
+      "side": 1,
+      "message": "\u003e When fIsOpaque, set force alpha to 1...\nWhen fIsOpaque, we force alpha to 1...",
+      "parentUuid": "c7a45353_f168938c",
+      "range": {
+        "startLine": 547,
+        "startChar": 50,
+        "endLine": 547,
+        "endChar": 96
+      },
+      "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
