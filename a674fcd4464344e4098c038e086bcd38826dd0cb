@@ -16,6 +16,24 @@
       "message": "Added a comment to explain the rationale here.",
       "revId": "a674fcd4464344e4098c038e086bcd38826dd0cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48bf595b_ac9b10ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T19:59:55Z",
+      "side": 1,
+      "message": "Thanks, this is super helpful.",
+      "parentUuid": "c85ad556_80a4e1b3",
+      "revId": "a674fcd4464344e4098c038e086bcd38826dd0cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
