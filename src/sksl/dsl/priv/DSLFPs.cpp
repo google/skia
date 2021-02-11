@@ -24,6 +24,10 @@ void EndFragmentProcessor() {
     DSLWriter::EndFragmentProcessor();
 }
 
+GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var) {
+    return DSLWriter::VarUniformHandle(var);
+}
+
 } // namespace dsl
 
 } // namespace SkSL

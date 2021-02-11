@@ -32,11 +32,21 @@ public:
             void emitCode(EmitArgs& args) override {
                 using namespace SkSL::dsl;
                 StartFragmentProcessor(this, &args);
+                Var blueAlpha(kUniform_Modifier, kHalf2);
+                fBlueAlphaUniform = VarUniformHandle(blueAlpha);
                 Var coords(kFloat4);
                 args.fFragBuilder->codeAppend(Declare(coords, sk_FragCoord()));
-                args.fFragBuilder->codeAppend(Return(Half4(Swizzle(coords, X, Y) / 100, 0, 1)));
+                args.fFragBuilder->codeAppend(Return(Half4(Swizzle(coords, X, Y) / 100,
+                                                           blueAlpha)));
                 EndFragmentProcessor();
             }
+
+            void onSetData(const GrGLSLProgramDataManager& pdman,
+                           const GrFragmentProcessor& effect) override {
+                pdman.set2f(fBlueAlphaUniform, 0.0, 1.0);
+            }
+
+            GrGLSLProgramDataManager::UniformHandle fBlueAlphaUniform;
         };
         return new Impl;
     }

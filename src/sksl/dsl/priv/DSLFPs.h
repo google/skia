@@ -23,6 +23,8 @@ void StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
 
 void EndFragmentProcessor();
 
+GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var);
+
 } // namespace dsl
 
 } // namespace SkSL

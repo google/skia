@@ -1309,23 +1309,23 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     Var v3(kOut_Modifier, kInt, "v3");
     REPORTER_ASSERT(r, DSLWriter::Var(v3).modifiers().fFlags == SkSL::Modifiers::kOut_Flag);
 
-    Var v4(kUniform_Modifier, kInt, "v4");
-    REPORTER_ASSERT(r, DSLWriter::Var(v4).modifiers().fFlags == SkSL::Modifiers::kUniform_Flag);
+    Var v4(kFlat_Modifier, kInt, "v4");
+    REPORTER_ASSERT(r, DSLWriter::Var(v4).modifiers().fFlags == SkSL::Modifiers::kFlat_Flag);
 
-    Var v5(kFlat_Modifier, kInt, "v5");
-    REPORTER_ASSERT(r, DSLWriter::Var(v5).modifiers().fFlags == SkSL::Modifiers::kFlat_Flag);
-
-    Var v6(kNoPerspective_Modifier, kInt, "v6");
-    REPORTER_ASSERT(r, DSLWriter::Var(v6).modifiers().fFlags ==
+    Var v5(kNoPerspective_Modifier, kInt, "v5");
+    REPORTER_ASSERT(r, DSLWriter::Var(v5).modifiers().fFlags ==
                        SkSL::Modifiers::kNoPerspective_Flag);
 
-    Var v7(kIn_Modifier | kOut_Modifier, kInt, "v7");
+    Var v6(kIn_Modifier | kOut_Modifier, kInt, "v6");
+    REPORTER_ASSERT(r, DSLWriter::Var(v6).modifiers().fFlags ==
+                       (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
+
+    Var v7(kInOut_Modifier, kInt, "v7");
     REPORTER_ASSERT(r, DSLWriter::Var(v7).modifiers().fFlags ==
                        (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
 
-    Var v8(kInOut_Modifier, kInt, "v8");
-    REPORTER_ASSERT(r, DSLWriter::Var(v8).modifiers().fFlags ==
-                       (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
+    Var v8(kUniform_Modifier, kInt, "v8");
+    REPORTER_ASSERT(r, DSLWriter::Var(v8).modifiers().fFlags == SkSL::Modifiers::kUniform_Flag);
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
