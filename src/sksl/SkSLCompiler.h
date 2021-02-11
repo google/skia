@@ -78,14 +78,6 @@ public:
     static constexpr const char* RTADJUST_NAME  = "sk_RTAdjust";
     static constexpr const char* PERVERTEX_NAME = "sk_PerVertex";
 
-    enum Flags {
-        kNone_Flags = 0,
-        // permits static if/switch statements to be used with non-constant tests. This is used when
-        // producing H and CPP code; the static tests don't have to have constant values *yet*, but
-        // the generated code will contain a static test which then does have to be a constant.
-        kPermitInvalidStaticTests_Flag = 1,
-    };
-
     struct OptimizationContext {
         // nodes we have already reported errors for and should not error on again
         std::unordered_set<const IRNode*> fSilences;
@@ -99,7 +91,7 @@ public:
         StatementArray fOwnedStatements;
     };
 
-    Compiler(const ShaderCapsClass* caps, Flags flags = kNone_Flags);
+    Compiler(const ShaderCapsClass* caps);
 
     ~Compiler() override;
 
@@ -244,7 +236,6 @@ private:
 
     Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
-    int fFlags;
 
     const String* fSource;
     int fErrorCount;
