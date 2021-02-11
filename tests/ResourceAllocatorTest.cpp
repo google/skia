@@ -67,13 +67,9 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     alloc.incOps();
     alloc.addInterval(p2.get(), 1, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
-    alloc.markEndOfOpsTask(0);
 
-    alloc.determineRecyclability();
-
-    int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
+    alloc.assign(&error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
@@ -98,13 +94,9 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 
     alloc.addInterval(p1.get(), 0, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.addInterval(p2.get(), 3, 5, GrResourceAllocator::ActualUse::kYes);
-    alloc.markEndOfOpsTask(0);
 
-    alloc.determineRecyclability();
-
-    int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
+    alloc.assign(&error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
@@ -248,88 +240,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
 
     context->setResourceCacheLimit(maxBytes);
 }
-
-// This test is used to make sure we are tracking the current task index during the assign call in
-// the GrResourceAllocator. Specifically we can fall behind if we have intervals that don't
-// use the allocator. In this case we need to possibly increment the fCurOpsTaskIndex multiple times
-// to get in back in sync. We had a bug where we'd only every increment the index by one,
-// http://crbug.com/996610.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
-                                   reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    const GrCaps* caps = context->priv().caps();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
-
-    size_t origMaxBytes = context->getResourceCacheLimit();
-
-    // Force the resource allocator to always believe it is over budget
-    context->setResourceCacheLimit(0);
-
-    ProxyParams params;
-    params.fFit = SkBackingFit::kExact;
-    params.fColorType = GrColorType::kRGBA_8888;
-    params.fRenderable = GrRenderable::kYes;
-    params.fSampleCnt = 1;
-    params.fSize = 100;
-    params.fBudgeted = SkBudgeted::kYes;
-
-    sk_sp<GrSurfaceProxy> proxy1 = make_deferred(proxyProvider, caps, params);
-    if (!proxy1) {
-        return;
-    }
-    sk_sp<GrSurfaceProxy> proxy2 = make_deferred(proxyProvider, caps, params);
-    if (!proxy2) {
-        return;
-    }
-
-    // Wrapped proxy that will be ignored by the resourceAllocator. We use this to try and get the
-    // resource allocator fCurOpsTaskIndex to fall behind what it really should be.
-    sk_sp<GrSurfaceProxy> proxyWrapped = make_backend(context, params);
-    if (!proxyWrapped) {
-        return;
-    }
-
-    // Same as above, but we actually need to have at least two intervals that don't go through the
-    // resource allocator to expose the index bug.
-    sk_sp<GrSurfaceProxy> proxyWrapped2 = make_backend(context, params);
-    if (!proxyWrapped2) {
-        return;
-    }
-
-    GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, 4));
-
-    alloc.addInterval(proxyWrapped.get(), 0, 0, GrResourceAllocator::ActualUse::kYes);
-    alloc.incOps();
-    alloc.markEndOfOpsTask(0);
-
-    alloc.addInterval(proxyWrapped2.get(), 1, 1, GrResourceAllocator::ActualUse::kYes);
-    alloc.incOps();
-    alloc.markEndOfOpsTask(1);
-
-    alloc.addInterval(proxy1.get(), 2, 2, GrResourceAllocator::ActualUse::kYes);
-    alloc.incOps();
-    alloc.markEndOfOpsTask(2);
-
-    // We want to force the resource allocator to do a intermediateFlush for the previous interval.
-    // But if it is the resource allocator is at the of its list of intervals it skips the
-    // intermediate flush call, so we add another interval here so it is not skipped.
-    alloc.addInterval(proxy2.get(), 3, 3, GrResourceAllocator::ActualUse::kYes);
-    alloc.incOps();
-    alloc.markEndOfOpsTask(3);
-
-    int startIndex, stopIndex;
-    GrResourceAllocator::AssignError error;
-
-    alloc.determineRecyclability();
-
-    alloc.assign(&startIndex, &stopIndex, &error);
-    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
-    // The original bug in the allocator here would return a stopIndex of 2 since it would have only
-    // incremented its fCurOpsTaskIndex once instead of the needed two times to skip the first two
-    // unused intervals.
-    REPORTER_ASSERT(reporter, 0 == startIndex && 4 == stopIndex);
-
-    context->setResourceCacheLimit(origMaxBytes);
-}
-
