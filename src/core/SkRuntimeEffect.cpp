@@ -539,8 +539,12 @@ public:
             fp->addChild(std::move(childFP));
         }
         std::unique_ptr<GrFragmentProcessor> result = std::move(fp);
+        if (fIsOpaque) {
+            result = GrFragmentProcessor::SwizzleOutput(std::move(result), GrSwizzle::RGB1());
+        }
         result = GrMatrixEffect::Make(matrix, std::move(result));
-        if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
+        GrClampType clampType = GrColorTypeClampType(args.fDstColorInfo->colorType());
+        if (clampType == GrClampType::kManual || (clampType == GrClampType::kAuto && !fIsOpaque)) {
             return GrFragmentProcessor::ClampPremulOutput(std::move(result));
         } else {
             return result;
