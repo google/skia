@@ -126,6 +126,30 @@
       },
       "revId": "2cd170c096a862d18113e658390d0a036346b11e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4ca5db9_6af5afde",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2021-02-11T11:19:00Z",
+      "side": 1,
+      "message": "Sure, I will update the patch accordingly.",
+      "parentUuid": "0ca73f7b_aeb61b5a",
+      "range": {
+        "startLine": 26,
+        "startChar": 10,
+        "endLine": 26,
+        "endChar": 27
+      },
+      "revId": "2cd170c096a862d18113e658390d0a036346b11e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
