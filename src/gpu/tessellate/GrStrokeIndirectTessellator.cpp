@@ -64,6 +64,8 @@ template<int N> SK_ALWAYS_INLINE vec<N> unchecked_mix(vec<N> a, vec<N> b, vec<N>
 // in batches.
 class ResolveLevelCounter {
 public:
+    constexpr static int8_t kMaxResolveLevel = GrStrokeIndirectTessellator::kMaxResolveLevel;
+
     ResolveLevelCounter(const SkStrokeRec& stroke, GrStrokeTessellateShader::Tolerances tolerances,
                         int* resolveLevelCounts) :
 #if USE_SIMD
@@ -72,10 +74,22 @@ public:
 #endif
             fIsRoundJoin(stroke.getJoin() == SkPaint::kRound_Join),
             fTolerances(tolerances),
+            fResolveLevelForCircles(SkTPin<float>(
+                    sk_float_nextlog2(fTolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI),
+                    1, kMaxResolveLevel)),
             fResolveLevelCounts(resolveLevelCounts) {
     }
 
     bool isRoundJoin() const { return fIsRoundJoin; }
+
+    // Accounts for 180-degree point strokes, which render as circles with diameters equal to the
+    // stroke width. We draw circles at cusp points on curves and for round caps.
+    //
+    // Returns the resolveLevel to use when drawing these circles.
+    int8_t countCircles(int numCircles) {
+        fResolveLevelCounts[fResolveLevelForCircles] += numCircles;
+        return fResolveLevelForCircles;
+    }
 
 #if !USE_SIMD
     bool SK_WARN_UNUSED_RESULT countLine(const SkPoint pts[2], SkPoint lastControlPoint,
@@ -130,7 +144,7 @@ private:
         float numCombinedSegments =
                 fTolerances.fNumRadialSegmentsPerRadian * rotation + numParametricSegments;
         int8_t resolveLevel = sk_float_nextlog2(numCombinedSegments);
-        resolveLevel = std::min(resolveLevel, GrStrokeIndirectTessellator::kMaxResolveLevel);
+        resolveLevel = std::min(resolveLevel, kMaxResolveLevel);
         ++fResolveLevelCounts[(*resolveLevelPtr = resolveLevel)];
     }
 
@@ -386,7 +400,7 @@ private:
         bits += (1u << 23) - 1u;  // Increment the exponent for non-powers-of-2.
         // This will make negative values, denorms, and negative exponents all < 0.
         auto exp = (skvx::bit_pun<ivec<N>>(bits) >> 23) - 127;
-        auto level = skvx::pin<N,int>(exp, 0, GrStrokeIndirectTessellator::kMaxResolveLevel);
+        auto level = skvx::pin<N,int>(exp, 0, kMaxResolveLevel);
 
         switch (count) {
             default: SkUNREACHABLE;
@@ -411,6 +425,7 @@ private:
 #endif
     const bool fIsRoundJoin;
     const GrStrokeTessellateShader::Tolerances fTolerances;
+    const int fResolveLevelForCircles;
     int* const fResolveLevelCounts;
 };
 
@@ -428,8 +443,8 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
     //
     //   * 3 segments per verb (from two chops)
     //   * Plus 1 extra resolveLevel per verb that says how many chops it needs
-    //   * Plus 2 final resolveLevels for square caps at the very end not initiated by a "kMoveTo".
-    //
+    //   * Plus 2 final resolveLevels for square or round caps at the very end not initiated by a
+    //     "kMoveTo".
     int resolveLevelAllocCount = totalCombinedVerbCnt * (3 + 1) + 2;
     fResolveLevels = alloc->makeArrayDefault<int8_t>(resolveLevelAllocCount);
     int8_t* nextResolveLevel = fResolveLevels;
@@ -440,8 +455,6 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
     float* nextChopTs = fChopTs;
 
     auto tolerances = GrStrokeTessellateShader::Tolerances::MakePreTransform(viewMatrix, stroke);
-    fResolveLevelForCircles =
-            std::max(sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI), 1);
     ResolveLevelCounter counter(stroke, tolerances, fResolveLevelCounts);
 
     SkPoint lastControlPoint = {0,0};
@@ -509,11 +522,11 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
                     SkVector b = pts[2] - pts[1];
                     if (a.cross(b) == 0 && a.dot(b) < 0) {
                         // The curve has a cusp. Draw two lines and a circle instead of a quad.
-                        *nextResolveLevel++ = -1;  // -1 signals a cusp.
+                        int8_t cuspResolveLevel = counter.countCircles(1);
+                        *nextResolveLevel++ = -cuspResolveLevel;  // Negative signals a cusp.
                         if (counter.countLine(pts, lastControlPoint, nextResolveLevel)) {
                             ++nextResolveLevel;
                         }
-                        ++fResolveLevelCounts[fResolveLevelForCircles];  // Circle instance.
                         ++fResolveLevelCounts[0];  // Second line instance.
                         fTotalInstanceCount += 3;
                     } else {
@@ -523,10 +536,11 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
                     break;
                 }
                 case Verb::kCubic: {
+                    int8_t cuspResolveLevel = 0;
                     bool areCusps = false;
                     int numChops = GrPathUtils::findCubicConvex180Chops(pts, nextChopTs, &areCusps);
                     if (areCusps && numChops > 0) {
-                        fResolveLevelCounts[fResolveLevelForCircles] += numChops;
+                        cuspResolveLevel = counter.countCircles(numChops);
                         fTotalInstanceCount += numChops;
                     }
                     if (numChops == 0) {
@@ -534,14 +548,18 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
                     } else if (numChops == 1) {
                         // A negative resolveLevel indicates how many chops the curve needs, and
                         // whether they are cusps.
-                        *nextResolveLevel++ = -((1 << 1) | (int)areCusps);
+                        static_assert(kMaxResolveLevel <= 0xf);
+                        SkASSERT(cuspResolveLevel <= 0xf);
+                        *nextResolveLevel++ = -((1 << 4) | cuspResolveLevel);
                         counter.countChoppedCubic(pts, nextChopTs[0], lastControlPoint,
                                                   nextResolveLevel);
                     } else {
                         SkASSERT(numChops == 2);
                         // A negative resolveLevel indicates how many chops the curve needs, and
                         // whether they are cusps.
-                        *nextResolveLevel++ = -((2 << 1) | (int)areCusps);
+                        static_assert(kMaxResolveLevel <= 0xf);
+                        SkASSERT(cuspResolveLevel <= 0xf);
+                        *nextResolveLevel++ = -((2 << 4) | cuspResolveLevel);
                         SkPoint pts_[10];
                         SkChopCubicAt(pts, pts_, nextChopTs, 2);
                         counter.countCubic(pts_, lastControlPoint, nextResolveLevel);
@@ -555,7 +573,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
                 }
                 case Verb::kCircle:
                     // The iterator implements round caps as circles.
-                    ++fResolveLevelCounts[fResolveLevelForCircles];
+                    *nextResolveLevel++ = counter.countCircles(1);
                     ++fTotalInstanceCount;
                     break;
                 case Verb::kMoveWithinContour:
@@ -666,9 +684,6 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     SkASSERT(fDrawIndirectCount);
     target->putBackIndirectDraws(kMaxResolveLevel + 1 - fDrawIndirectCount);
 
-    GrVertexWriter* instanceWriterForCircles = &instanceWriters[fResolveLevelForCircles];
-    float numEdgesForCircles = numEdgesPerResolveLevel[fResolveLevelForCircles];
-
     SkPoint scratchBuffer[4 + 10];
     SkPoint* scratch = scratchBuffer;
 
@@ -692,7 +707,9 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
             Verb verb = iter.verb();
             switch (verb) {
                 case Verb::kCircle:
-                    this->writeCircleInstance(instanceWriterForCircles, pts[0], numEdgesForCircles);
+                    resolveLevel = *nextResolveLevel++;
+                    this->writeCircleInstance(&instanceWriters[resolveLevel], pts[0],
+                                              numEdgesPerResolveLevel[resolveLevel]);
                     [[fallthrough]];
                 case Verb::kMoveWithinContour:
                     // The next verb won't be joined to anything.
@@ -722,16 +739,16 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                     resolveLevel = *nextResolveLevel++;
                     if (resolveLevel < 0) {
                         // The curve has a cusp. Draw two lines and a circle instead of a quad.
-                        SkASSERT(resolveLevel == -1);
+                        int8_t cuspResolveLevel = -resolveLevel;
                         float cuspT = SkFindQuadMidTangent(pts);
                         SkPoint cusp = SkEvalQuadAt(pts, cuspT);
-                        resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
                         numChops = 1;
                         scratch[0] = scratch[1] = pts[0];
                         scratch[2] = scratch[3] = scratch[4] = cusp;
                         scratch[5] = scratch[6] = pts[2];
-                        this->writeCircleInstance(instanceWriterForCircles, cusp,
-                                                  numEdgesForCircles);
+                        this->writeCircleInstance(&instanceWriters[cuspResolveLevel], cusp,
+                                                  numEdgesPerResolveLevel[cuspResolveLevel]);
+                        resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
                     } else {
                         GrPathUtils::convertQuadToCubic(pts, scratch);
                     }
@@ -741,18 +758,18 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                     resolveLevel = *nextResolveLevel++;
                     if (resolveLevel < 0) {
                         // The curve has a cusp. Draw two lines and a cusp instead of a conic.
-                        SkASSERT(resolveLevel == -1);
+                        int8_t cuspResolveLevel = -resolveLevel;
                         SkPoint cusp;
                         SkConic conic(pts, iter.w());
                         float cuspT = conic.findMidTangent();
                         conic.evalAt(cuspT, &cusp);
-                        resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
                         numChops = 1;
                         scratch[0] = scratch[1] = pts[0];
                         scratch[2] = scratch[3] = scratch[4] = cusp;
                         scratch[5] = scratch[6] = pts[2];
-                        this->writeCircleInstance(instanceWriterForCircles, cusp,
-                                                  numEdgesForCircles);
+                        this->writeCircleInstance(&instanceWriters[cuspResolveLevel], cusp,
+                                                  numEdgesPerResolveLevel[cuspResolveLevel]);
+                        resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
                     } else {
                         GrPathShader::WriteConicPatch(pts, iter.w(), scratch);
                     }
@@ -763,14 +780,16 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                     if (resolveLevel < 0) {
                         // A negative resolveLevel indicates how many chops the curve needs, and
                         // whether they are cusps.
-                        numChops = -resolveLevel >> 1;
+                        numChops = -resolveLevel >> 4;
                         SkChopCubicAt(pts, scratch, nextChopTs, numChops);
                         nextChopTs += numChops;
                         pts_ = scratch;
-                        if (-resolveLevel & 1) {  // Are the chop points cusps?
+                        // Are the chop points cusps?
+                        if (int8_t cuspResolveLevel = (-resolveLevel & 0xf)) {
                             for (int i = 1; i <= numChops; ++i) {
-                                this->writeCircleInstance(instanceWriterForCircles, pts_[i*3],
-                                                          numEdgesForCircles);
+                                this->writeCircleInstance(
+                                        &instanceWriters[cuspResolveLevel], pts_[i*3],
+                                        numEdgesPerResolveLevel[cuspResolveLevel]);
                             }
                         }
                         resolveLevel = *nextResolveLevel++;
