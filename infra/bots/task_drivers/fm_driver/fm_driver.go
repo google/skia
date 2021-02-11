@@ -24,6 +24,8 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
+var ChildrenFailedErr = fmt.Errorf("children failed")
+
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -45,7 +47,9 @@ func main() {
 	startStep := func(ctx context.Context, _ *td.StepProperties) context.Context { return ctx }
 	endStep := func(_ context.Context) {}
 	failStep := func(_ context.Context, err error) error {
-		fmt.Fprintln(os.Stderr, err)
+		if err != ChildrenFailedErr {  // Not interesting to see on the command line.
+			fmt.Fprintln(os.Stderr, err)
+		}
 		return err
 	}
 	fatal := func(ctx context.Context, err error) {
@@ -189,8 +193,8 @@ func main() {
 
 	var failures int32 = 0
 
-	var worker func(context.Context, []string, []string)
-	worker = func(ctx context.Context, sources, flags []string) {
+	var worker func(context.Context, []string, []string) bool
+	worker = func(ctx context.Context, sources, flags []string) bool {
 		stdout := &bytes.Buffer{}
 		stderr := &bytes.Buffer{}
 		cmd := &exec.Command{Name: fm, Stdout: stdout, Stderr: stderr}
@@ -228,10 +232,14 @@ func main() {
 				reruns = sourcesWithUnknownHashes
 			}
 
+			allOk := true
 			for _, s := range reruns {
-				worker(ctx, []string{s}, flags)
+				if !worker(ctx, []string{s}, flags) {
+					allOk = false
+					// Don't break... we want to see if any of the others fail too.
+				}
 			}
-			return
+			return allOk
 		}
 
 		// If an individual run failed, nothing more to do but fail.
@@ -251,7 +259,7 @@ func main() {
 				exec.DebugString(cmd),
 				strings.Join(lines, "\n\t")))
 
-			return
+			return false
 		}
 
 		// If an individual run succeeded but produced an unknown hash, TODO upload .png to Gold.
@@ -261,6 +269,7 @@ func main() {
 				exec.DebugString(cmd),
 				unknownHash)
 		}
+		return true
 	}
 
 	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
@@ -274,7 +283,9 @@ func main() {
 					// with the batch call to FM and any individual reruns all nested inside.
 					ctx := startStep(w.Ctx, td.Props(strings.Join(w.Sources, " ")))
 					defer endStep(ctx)
-					worker(ctx, w.Sources, w.Flags)
+					if !worker(ctx, w.Sources, w.Flags) {
+						failStep(w.Ctx, ChildrenFailedErr)
+					}
 				}()
 			}
 		}()
