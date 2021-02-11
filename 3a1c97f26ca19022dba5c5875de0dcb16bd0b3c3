@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "933ba9d5_aa5b2f1f",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T22:04:45Z",
+      "side": 1,
+      "message": "Yeah. This is a hold over from SkArenaAlloc. Fixed.",
+      "parentUuid": "99ba0d82_459d4c5e",
+      "range": {
+        "startLine": 1553,
+        "startChar": 28,
+        "endLine": 1553,
+        "endChar": 50
+      },
+      "revId": "3a1c97f26ca19022dba5c5875de0dcb16bd0b3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0a99fe7e_00530f23",
@@ -41,6 +65,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30525e2d_df4c23d3",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1581,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T22:04:45Z",
+      "side": 1,
+      "message": "No. The \n\nfCapacity \u003d fCapacity \u0026 -alignment\n\nis needed. Where it is used in allocateBytes, after the call returns allocateBytes assumes that fCapacity has the proper alignment.",
+      "parentUuid": "0a99fe7e_00530f23",
+      "revId": "3a1c97f26ca19022dba5c5875de0dcb16bd0b3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3fc08e5a_08b74bf0",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-02-11T21:48:50Z",
       "side": 1,
       "message": "Maybe better as \"a pointer to memory\". \"the number of bytes\" sounds like this is returning a count.",
+      "range": {
+        "startLine": 98,
+        "startChar": 15,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "3a1c97f26ca19022dba5c5875de0dcb16bd0b3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a06b5bf_618e7bae",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T22:04:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fc08e5a_08b74bf0",
       "range": {
         "startLine": 98,
         "startChar": 15,
