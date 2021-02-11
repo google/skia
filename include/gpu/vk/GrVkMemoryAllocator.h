@@ -35,23 +35,6 @@ public:
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AllocationPropertyFlags);
 
     enum class BufferUsage {
-#ifdef SK_USE_LEGACY_VK_ALLOCATOR_USAGE_NAMES
-        // Buffers that will only be accessed from the device (large const buffers). Will always be
-        // in device local memory.
-        kGpuOnly,
-        // DEPRECATED: Depending on the direction of transfer buffers they should use
-        // kCpuWritesGpuReads or kGpuWritesCpuReads instead.
-        // Buffers that will be accessed on the host and copied to and from a GPU resource (transfer
-        // buffers). Will always be mappable and coherent memory.
-        kCpuOnly,
-        // Buffers that typically will be updated multiple times by the host and read on the gpu
-        // (e.g. uniform or vertex buffers). Will always be mappable memory, and will prefer to be
-        // in device local memory.
-        kCpuWritesGpuReads,
-        // Buffers which are typically writted to by the GPU and then read on the host. Will always
-        // be mappable memory, and will prefer cached memory.
-        kGpuWritesCpuReads,
-#else
         // Buffers that will only be accessed from the device (large const buffers). Will always be
         // in device local memory.
         kGpuOnly,
@@ -67,7 +50,6 @@ public:
         // Buffers which are typically writted to by the GPU and then read on the host. Will always
         // be mappable memory, and will prefer cached memory.
         kTransfersFromGpuToCpu,
-#endif
     };
 
     // DEPRECATED: Use and implement allocateImageMemory instead
