@@ -193,36 +193,40 @@ func main() {
 		// Run our FM command.
 		err := exec.Run(ctx, cmd)
 
-		// On success, scan stdout for any unknown hashes if we're planning to upload to Gold.
-		sourcesWithUnknownHashes := []string{}
+		// We'll rerun any source individually that didn't produce a known hash, i.e.
+		// sources that crash, produce unknown hashes, or that an crash prevented from running.
 		unknownHash := ""
-		if err == nil && *gold {
+		{
+			// Start assuming we'll need to rerun everything.
+			reruns := map[string]bool{}
+			for _, name := range sources {
+				reruns[name] = true
+			}
+
+			// Scan stdout for lines like "<name> skipped" or "<name> <hash> ??ms"
+			// and exempt those sources from reruns if they were skipped or their hash is known.
 			scanner := bufio.NewScanner(stdout)
 			for scanner.Scan() {
-				if parts := strings.Fields(scanner.Text()); len(parts) == 3 {
-					name, md5 := parts[0], parts[1]
-					if !known[md5] {
-						sourcesWithUnknownHashes = append(sourcesWithUnknownHashes, name)
-						unknownHash = md5
+				if parts := strings.Fields(scanner.Text()); len(parts) >= 2 {
+					name, outcome := parts[0], parts[1]
+					if *gold && outcome != "skipped" && !known[outcome] {
+						unknownHash = outcome
+					} else {
+						delete(reruns, name)
 					}
 				}
 			}
 			if err := scanner.Err(); err != nil {
 				fatal(ctx, err)
 			}
-		}
 
-		// If a batch failed or produced any unknown hashes, isolate with individual reruns.
-		if len(sources) > 1 && (err != nil || len(sourcesWithUnknownHashes) > 0) {
-			reruns := sources
-			if err == nil {
-				reruns = sourcesWithUnknownHashes
+			// Only rerun sources from a batch (or we'd rerun failures over and over and over).
+			if len(sources) > 1 {
+				for name, _ := range reruns {
+					failures += worker(ctx, []string{name}, flags)
+				}
+				return
 			}
-
-			for _, s := range reruns {
-				failures += worker(ctx, []string{s}, flags)
-			}
-			return
 		}
 
 		// If an individual run failed, nothing more to do but fail.
