@@ -130,6 +130,9 @@ public:
     // True for images instantiated in GPU memory
     virtual bool onIsTextureBacked() const { return false; }
 
+    // Amount of texture memory used by texture-backed images.
+    virtual size_t onTextureSize() const { return 0; }
+
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.
     virtual void notifyAddedToRasterCache() const {

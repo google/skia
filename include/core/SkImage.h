@@ -651,6 +651,11 @@ public:
     */
     bool isTextureBacked() const;
 
+    /** Returns an approximation of the amount of texture memory used by the image. Returns
+        zero if the image is not texture backed or if the texture has an external format.
+     */
+    size_t textureSize() const;
+
     /** Returns true if SkImage can be drawn on either raster surface or GPU surface.
         If context is nullptr, tests if SkImage draws on raster surface;
         otherwise, tests if SkImage draws on GPU surface associated with context.

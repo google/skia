@@ -143,6 +143,17 @@ bool SkImage_GpuYUVA::onHasMipmaps() const {
 
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
 
+size_t SkImage_GpuYUVA::onTextureSize() const {
+    if (fRGBView) {
+        return fRGBView.asTextureProxy()->gpuMemorySize();
+    }
+    size_t size = 0;
+    for (int i = 0; i < fYUVAProxies.numPlanes(); ++i) {
+        size += fYUVAProxies.proxy(i)->gpuMemorySize();
+    }
+    return size;
+}
+
 sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(SkColorType,
                                                              sk_sp<SkColorSpace> targetCS,
                                                              GrDirectContext* direct) const {
