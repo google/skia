@@ -488,7 +488,7 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     buffer.readString(&sksl);
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
 
-    auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    auto effect = SkRuntimeEffect::Make(std::move(sksl)).effect;
     if (!buffer.validate(effect != nullptr)) {
         return nullptr;
     }
@@ -659,7 +659,7 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
-    auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    auto effect = SkRuntimeEffect::Make(std::move(sksl)).effect;
     if (!buffer.validate(effect != nullptr)) {
         return nullptr;
     }
