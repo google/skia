@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ac1f012_74658412",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T16:20:23Z",
+      "side": 1,
+      "message": "Yes. I think this is a better way of naming the functions. Done",
+      "parentUuid": "0fefb143_2e12ab2f",
+      "range": {
+        "startLine": 55,
+        "startChar": 25,
+        "endLine": 55,
+        "endChar": 57
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fea90b10_1aafe50b",
@@ -41,6 +65,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8680d3d_d51ec639",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T16:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fea90b10_1aafe50b",
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91365e90_6966f9bc",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-02-11T03:15:38Z",
       "side": 1,
       "message": "Why not\n\n    return (a \u003c b) ? b - a : 0;",
+      "range": {
+        "startLine": 58,
+        "startChar": 44,
+        "endLine": 58,
+        "endChar": 90
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8c384b9_02326b5e",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T16:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91365e90_6966f9bc",
       "range": {
         "startLine": 58,
         "startChar": 44,
@@ -87,6 +153,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "35f9f26d_b1a9a76d",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T16:20:23Z",
+      "side": 1,
+      "message": "I like the explanation in your second paragraph a lot. I\u0027m going to restructure the code to use this insight.",
+      "parentUuid": "59f3cdc8_3db19f26",
+      "range": {
+        "startLine": 59,
+        "startChar": 18,
+        "endLine": 59,
+        "endChar": 36
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19c00ef6_6a76c735",
@@ -100,6 +190,30 @@
       "writtenOn": "2021-02-11T03:15:38Z",
       "side": 1,
       "message": "ensure. I think this comment assures the user that doing this is the right thing.",
+      "range": {
+        "startLine": 63,
+        "startChar": 64,
+        "endLine": 63,
+        "endChar": 70
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bcaa147_8395ad79",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T16:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19c00ef6_6a76c735",
       "range": {
         "startLine": 63,
         "startChar": 64,
@@ -127,6 +241,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cde363cd_6b51e144",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T16:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9d08b04_fbd2359c",
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9eecd7c8_0f40fc3e",
@@ -140,6 +272,24 @@
       "writtenOn": "2021-02-11T03:15:38Z",
       "side": 1,
       "message": "Not that it matters much, but this could be\n\n    int size \u003d n ? n * sizeof(T) : 1;\n\nSo that a unique address is returned for the 0 requested Ts but it\u0027s just 1 byte.",
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7f8dac0_93815424",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-11T16:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9eecd7c8_0f40fc3e",
       "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
