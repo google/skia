@@ -2896,6 +2896,9 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     StringFragment field = fieldNode.getString();
     const Type& baseType = base->type();
     if (baseType == *fContext.fTypes.fSkCaps) {
+        if (fSettings->fReplaceSettings && !fIsBuiltinCode) {
+            return this->valueForSetting(fieldNode.fOffset, field);
+        }
         const Type* type = this->typeForSetting(fieldNode.fOffset, field);
         if (!type) {
             return nullptr;
