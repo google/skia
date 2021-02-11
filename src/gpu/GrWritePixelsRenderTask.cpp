@@ -10,7 +10,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
-    //
 
 sk_sp<GrRenderTask> GrWritePixelsTask::Make(GrDrawingManager* dm,
                                             sk_sp<GrSurfaceProxy> dst,
@@ -42,7 +41,6 @@ GrWritePixelsTask::GrWritePixelsTask(GrDrawingManager* dm,
         , fSrcColorType(srcColorType)
         , fDstColorType(dstColorType)
         , fStorage(std::move(pixelStorage)) {
-    SkASSERT(fStorage);
     this->addTarget(dm, std::move(dst));
     fLevels.reset(levelCount);
     std::copy_n(texels, levelCount, fLevels.get());
