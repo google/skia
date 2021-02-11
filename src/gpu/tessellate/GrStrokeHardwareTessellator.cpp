@@ -169,6 +169,9 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
         }
     }
 
+    fTarget->putBackVertices(fCurrChunkPatchCapacity - fPatchChunks.back().fPatchCount,
+                             GrStrokeTessellateShader::kTessellationPatchBaseStride);
+
     fTarget = nullptr;
     fViewMatrix = nullptr;
 }
