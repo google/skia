@@ -33,6 +33,24 @@
       "message": "Might be nice as \n\n     ...\n     bw \u003d step(t,lum);\n return bw.xxx1 * c.a;\n\nto keep all the alpha/premul stuff in one spot, reflecting the mirror unpremul() at the start?",
       "revId": "6ba93a2678b82fe9bff6f6d0c707911a7d40c432",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "344c4ea3_4fd9998d",
+        "filename": "modules/skottie/src/effects/ThresholdEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-11T15:02:27Z",
+      "side": 1,
+      "message": "🤯 I had no idea you can vectorize like that, it reads like magic - very nice!",
+      "parentUuid": "f2b8de87_cb64821a",
+      "revId": "6ba93a2678b82fe9bff6f6d0c707911a7d40c432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
