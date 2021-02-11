@@ -71,6 +71,10 @@ void DSLWriter::EndFragmentProcessor() {
     instance.fStack.pop();
     IRGenerator().popSymbolTable();
 }
+
+GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLVar& var) {
+    return var.uniformHandle();
+}
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
