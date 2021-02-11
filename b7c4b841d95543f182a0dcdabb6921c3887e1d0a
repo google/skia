@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "420e74df_ced09a7e",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-11T15:52:49Z",
+      "side": 1,
+      "message": "can this be a static?",
+      "range": {
+        "startLine": 718,
+        "startChar": 4,
+        "endLine": 718,
+        "endChar": 10
+      },
+      "revId": "b7c4b841d95543f182a0dcdabb6921c3887e1d0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
