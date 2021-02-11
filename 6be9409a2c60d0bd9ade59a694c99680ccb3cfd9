@@ -16,6 +16,23 @@
       "message": "Any thoughts?  I think this is good to go.",
       "revId": "6be9409a2c60d0bd9ade59a694c99680ccb3cfd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5733aa3_e9bcc904",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-11T18:44:03Z",
+      "side": 1,
+      "message": "The impl is very clear reading. Since this is a sandwich, could we also/alternatively offer each direction as its own ColorFilter, so that clients could make their own sandwich? Somewhat asking just to better understand the possibilities.",
+      "revId": "6be9409a2c60d0bd9ade59a694c99680ccb3cfd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
