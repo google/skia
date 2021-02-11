@@ -498,7 +498,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
     bool convert = premul || unpremul || needColorConversion || makeTight ||
                    (src.colorType() != allowedColorType) || flip;
 
-    if (convert || !src.ownsPixels()) {
+    if (convert) {
         GrImageInfo tmpInfo(allowedColorType,
                             this->colorInfo().alphaType(),
                             this->colorInfo().refColorSpace(),
@@ -514,7 +514,8 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
     GrMipLevel level;
     level.fPixels = src.addr();
     level.fRowBytes = src.rowBytes();
-    return dContext->priv().drawingManager()->newWritePixelsTask(
+    SkDebugf("making task...\n");
+    bool result = dContext->priv().drawingManager()->newWritePixelsTask(
             this->asSurfaceProxyRef(),
             SkIRect::MakePtSize(pt, src.dimensions()),
             src.colorType(),
@@ -522,6 +523,15 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
             &level,
             1,
             src.pixelStorage());
+    SkDebugf("done making task\n");
+    if (result && !src.ownsPixels()) {
+        // If the pixmap doesn't own its pixels then we must flush so that they are pushed to
+        // the GPU driver before we return.
+        SkDebugf("Flushing after task...\n");
+        dContext->priv().flushSurface(dstProxy);
+        SkDebugf("done flush\n");
+    }
+    return result;
 }
 
 void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
@@ -741,6 +751,7 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
     auto transferResult = this->transferPixels(SkColorTypeToGrColorType(colorType), rect);
 
     if (!transferResult.fTransferBuffer) {
+        SkDebugf("Read pixels fallback!\n");
         auto ii = SkImageInfo::Make(rect.size(), colorType, this->colorInfo().alphaType(),
                                     this->colorInfo().refColorSpace());
         auto result = std::make_unique<AsyncReadResult>(0);

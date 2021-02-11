@@ -32,12 +32,15 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
         sk_sp<GrGpuBuffer> newBuffer = resourceProvider->createBuffer(
             bufferSize, GrGpuBufferType::kXferCpuToGpu, kDynamic_GrAccessPattern, nullptr);
         if (!newBuffer) {
+            SkDebugf("no buffer.\n");
             return {}; // invalid slice
         }
         void* mapPtr = newBuffer->map();
         if (!mapPtr) {
+            SkDebugf("no map.\n");
             return {}; // invalid slice
         }
+        SkDebugf("new buffer: %d\n", newBuffer->uniqueID().asUInt());
         fBuffers.emplace_back(std::move(newBuffer), mapPtr);
         buffer = &fBuffers.back();
         offset = 0;
@@ -54,7 +57,9 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
 void GrStagingBufferManager::detachBuffers() {
     for (size_t i = 0; i < fBuffers.size(); ++i) {
         fBuffers[i].fBuffer->unmap();
+        SkDebugf("unmapped buffer: %d ...\n", fBuffers[i].fBuffer->uniqueID().asUInt());
         fGpu->takeOwnershipOfBuffer(std::move(fBuffers[i].fBuffer));
+        SkDebugf("gpu took ownership\n");
     }
     fBuffers.clear();
 }

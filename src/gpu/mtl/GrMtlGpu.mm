@@ -200,6 +200,7 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
 
 GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
     if (!fCurrentCmdBuffer) {
+        SkDebugf("new command buffer\n");
         // Create a new command buffer for the next submit
         fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
     }
@@ -237,12 +238,14 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(fCurrentCmdBuffer);
 
     if (!fCurrentCmdBuffer->commit(sync == SyncQueue::kForce_SyncQueue)) {
+        SkDebugf("failed commit\n");
         return false;
     }
 
     // We don't create a new command buffer here because we may end up using it
     // in the next frame, and that confuses the GPU debugger. Instead we
     // create when we next need one.
+    SkDebugf("nulling out cmd buffer after commit\n");
     fCurrentCmdBuffer = nullptr;
 
     // If the freeing of any resources held by a finished command buffer causes us to send
@@ -381,6 +384,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
             combinedBufferSize, alignment);
     if (!slice.fBuffer) {
+        SkDebugf("no buffer!\n");
         return false;
     }
     char* bufferData = (char*)slice.fOffsetMapPtr;
@@ -391,6 +395,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     int layerHeight = tex->height();
     MTLOrigin origin = MTLOriginMake(left, top, 0);
 
+    SkDebugf("grabbing command buffer for blit\n");
     id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texels[currentMipLevel].fPixels) {

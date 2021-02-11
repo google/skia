@@ -654,6 +654,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
 }
 
 bool GrGpu::submitToGpu(bool syncCpu) {
+    SkDebugf("submit to gpu\n");
     this->stats()->incNumSubmitToGpus();
 
     if (auto manager = this->stagingBufferManager()) {
