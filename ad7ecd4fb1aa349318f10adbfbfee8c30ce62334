@@ -46,6 +46,30 @@
       },
       "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d867b27d_4a070caa",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-11T18:34:51Z",
+      "side": 1,
+      "message": "GrClampType::Auto is for normalized fixed-point formats, though yeah - this would allow unclamped alpha to leak to subsequent shaders or filters.",
+      "parentUuid": "3b523b41_fef54a5d",
+      "range": {
+        "startLine": 547,
+        "startChar": 50,
+        "endLine": 547,
+        "endChar": 96
+      },
+      "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
