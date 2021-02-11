@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71c6fa6d_e9ab8f12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-11T08:37:33Z",
+      "side": 1,
+      "message": "Derp. This is why tessellation was so slow on the M1. We were dedicating an entire pool buffer to each path.",
+      "revId": "b110a6efbdbfac1787ff3ab5e8f79f3a7fb76d47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
