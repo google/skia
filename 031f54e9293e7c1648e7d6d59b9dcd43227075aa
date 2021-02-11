@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab124479_59c8021b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-11T14:59:14Z",
+      "side": 1,
+      "message": "AFAICT the mip map param to ComputeImageSize in Chrome always consistent with whether the image in question was created with mip maps, so seems unnecessary. Changing all usages in Chrome to this seems to pass all unit tests.",
+      "revId": "031f54e9293e7c1648e7d6d59b9dcd43227075aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
