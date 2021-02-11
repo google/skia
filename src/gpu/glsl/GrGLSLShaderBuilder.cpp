@@ -13,6 +13,8 @@
 #include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/dsl/DSL.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
 
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
@@ -85,6 +87,14 @@ void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
                                                 bool forceInline) {
     this->appendFunctionDecl(returnType, mangledName, args, forceInline);
     this->functions().append(";\n");
+}
+
+void GrGLSLShaderBuilder::codeAppend(SkSL::dsl::Statement stmt) {
+    SkASSERT(SkSL::dsl::DSLWriter::CurrentProcessor());
+    std::unique_ptr<SkSL::Statement> skslStmt = stmt.release();
+    if (skslStmt) {
+        this->codeAppend(skslStmt->description().c_str());
+    }
 }
 
 static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
