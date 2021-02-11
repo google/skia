@@ -22,6 +22,30 @@
       },
       "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82afad5c_3dc3a94f",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T18:34:04Z",
+      "side": 1,
+      "message": "Oh, duh.  We made alpha 1...",
+      "parentUuid": "3b523b41_fef54a5d",
+      "range": {
+        "startLine": 547,
+        "startChar": 50,
+        "endLine": 547,
+        "endChar": 96
+      },
+      "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
