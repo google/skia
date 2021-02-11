@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b896b4b_ad79c130",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-11T00:34:59Z",
+      "side": 1,
+      "message": "I thought I +1\u0027d this!\n\nIt\u0027s kind of hard to see a diff in gold, but that\u0027s because we usually use more segments than we need anyway with indirect draws. It\u0027s even more important to get this formula in for tessellation.",
+      "revId": "b03029011e37dc27cdef34fa313f24a3c79c2081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
