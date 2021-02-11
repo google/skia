@@ -408,15 +408,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fPreferFullscreenClears = true;
     }
 
-    // TODO: Once we are confident we've removed all the reads of vertex and index buffers remove
-    // using this.
-    if (kQualcomm_VkVendor == properties.vendorID || kARM_VkVendor == properties.vendorID) {
-        // On Qualcomm and ARM mapping a gpu buffer and doing both reads and writes to it is slow.
-        // Thus for index and vertex buffers we will force to use a cpu side buffer and then copy
-        // the whole buffer up to the gpu.
-        fBufferMapThreshold = SK_MaxS32;
-    }
-
     if (properties.vendorID == kNvidia_VkVendor || properties.vendorID == kAMD_VkVendor) {
         // On discrete GPUs it can be faster to read gpu only memory compared to memory that is also
         // mappable on the host.

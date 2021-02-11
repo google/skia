@@ -107,8 +107,7 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
             break;
         case GrGpuBufferType::kXferCpuToGpu:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-            // TODO: After done with all the renaming will move this to kTransfersFromCpuToGpu
-            allocUsage = BufferUsage::kCpuWritesGpuReads;
+            allocUsage = BufferUsage::kTransfersFromCpuToGpu;
             break;
         case GrGpuBufferType::kXferGpuToCpu:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
