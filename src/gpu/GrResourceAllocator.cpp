@@ -49,19 +49,6 @@ void GrResourceAllocator::determineRecyclability() {
     }
 }
 
-void GrResourceAllocator::markEndOfOpsTask(int opsTaskIndex) {
-    SkASSERT(!fAssigned);      // We shouldn't be adding any opsTasks after (or during) assignment
-
-    SkASSERT(fEndOfOpsTaskOpIndices.count() == opsTaskIndex);
-    if (!fEndOfOpsTaskOpIndices.empty()) {
-        SkASSERT(fEndOfOpsTaskOpIndices.back() < this->curOp());
-    }
-
-    // This is the first op index of the next opsTask
-    fEndOfOpsTaskOpIndices.push_back(this->curOp());
-    SkASSERT(fEndOfOpsTaskOpIndices.count() <= fNumOpsTasks);
-}
-
 GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(fIntvlList.empty());
     SkASSERT(fActiveIntvls.empty());
@@ -306,48 +293,28 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
+void GrResourceAllocator::assign(AssignError* outError) {
     SkASSERT(outError);
     *outError = fLazyInstantiationError ? AssignError::kFailedProxyInstantiation
                                         : AssignError::kNoError;
 
-    SkASSERT(fNumOpsTasks == fEndOfOpsTaskOpIndices.count());
-
     fIntvlHash.reset(); // we don't need the interval hash anymore
-
-    if (fCurOpsTaskIndex >= fEndOfOpsTaskOpIndices.count()) {
-        return false; // nothing to render
-    }
-
-    *startIndex = fCurOpsTaskIndex;
-    *stopIndex = fEndOfOpsTaskOpIndices.count();
-
-    if (fIntvlList.empty()) {
-        fCurOpsTaskIndex = fEndOfOpsTaskOpIndices.count();
-        return true;          // no resources to assign
-    }
-
-#if GR_ALLOCATION_SPEW
-    SkDebugf("assigning opsTasks %d through %d out of %d numOpsTasks\n",
-             *startIndex, *stopIndex, fNumOpsTasks);
-    SkDebugf("EndOfOpsTaskIndices: ");
-    for (int i = 0; i < fEndOfOpsTaskOpIndices.count(); ++i) {
-        SkDebugf("%d ", fEndOfOpsTaskOpIndices[i]);
-    }
-    SkDebugf("\n");
-#endif
 
     SkDEBUGCODE(fAssigned = true;)
 
+    if (fIntvlList.empty()) {
+        return;          // no resources to assign
+    }
+
 #if GR_ALLOCATION_SPEW
+    SkDebugf("assigning %d ops\n", fNumOps);
     this->dumpIntervals();
 #endif
-    while (Interval* cur = fIntvlList.popHead()) {
-        while (fEndOfOpsTaskOpIndices[fCurOpsTaskIndex] <= cur->start()) {
-            fCurOpsTaskIndex++;
-            SkASSERT(fCurOpsTaskIndex < fNumOpsTasks);
-        }
 
+    // TODO: Can this be done inline during the main iteration?
+    this->determineRecyclability();
+
+    while (Interval* cur = fIntvlList.popHead()) {
         this->expire(cur->start());
 
         if (cur->proxy()->isInstantiated()) {
@@ -389,7 +356,6 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
     // expire all the remaining intervals to drain the active interval list
     this->expire(std::numeric_limits<unsigned int>::max());
-    return true;
 }
 
 #if GR_ALLOCATION_SPEW

@@ -149,10 +149,9 @@ private:
     void closeActiveOpsTask();
 
     // return true if any GrRenderTasks were actually executed; false otherwise
-    bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
-                            int* numRenderTasksExecuted);
+    bool executeRenderTasks(GrOpFlushState*);
 
-    void removeRenderTasks(int startIndex, int stopIndex);
+    void removeRenderTasks();
 
     void sortTasks();
     void reorderTasks();
