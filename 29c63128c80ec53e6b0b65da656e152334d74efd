@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c2035fa_bc50ae9d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-11T15:11:21Z",
+      "side": 1,
+      "message": "Also tried the transfer buffer approach and will continue to pursue it but 1) won\u0027t work for canvas2d in browser because we see a GL interface without transfer buffers and 2) seems it might not be implemented correctly on some backends as I saw unit test failures on non-GL bots.",
+      "revId": "29c63128c80ec53e6b0b65da656e152334d74efd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
