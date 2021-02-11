@@ -71,6 +71,12 @@ private:
                                                            sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachRadialWipeEffect        (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachShiftChannelsEffect     (const skjson::ArrayValue&,
+                                                           sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachSphereEffect            (const skjson::ArrayValue&,
+                                                           sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachThresholdEffect         (const skjson::ArrayValue&,
+                                                           sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachTintEffect              (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachTransformEffect         (const skjson::ArrayValue&,
@@ -78,10 +84,6 @@ private:
     sk_sp<sksg::RenderNode> attachTritoneEffect           (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachVenetianBlindsEffect    (const skjson::ArrayValue&,
-                                                           sk_sp<sksg::RenderNode>) const;
-    sk_sp<sksg::RenderNode> attachShiftChannelsEffect     (const skjson::ArrayValue&,
-                                                           sk_sp<sksg::RenderNode>) const;
-    sk_sp<sksg::RenderNode> attachSphereEffect            (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
 
     sk_sp<sksg::RenderNode> attachDropShadowStyle(const skjson::ObjectValue&,

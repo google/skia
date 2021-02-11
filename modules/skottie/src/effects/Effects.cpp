@@ -47,6 +47,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         { "ADBE Radial Wipe"            , &EffectBuilder::attachRadialWipeEffect         },
         { "ADBE Ramp"                   , &EffectBuilder::attachGradientEffect           },
         { "ADBE Shift Channels"         , &EffectBuilder::attachShiftChannelsEffect      },
+        { "ADBE Threshold2"             , &EffectBuilder::attachThresholdEffect          },
         { "ADBE Tile"                   , &EffectBuilder::attachMotionTileEffect         },
         { "ADBE Tint"                   , &EffectBuilder::attachTintEffect               },
         { "ADBE Tritone"                , &EffectBuilder::attachTritoneEffect            },
