@@ -22,6 +22,30 @@
       },
       "revId": "b7c4b841d95543f182a0dcdabb6921c3887e1d0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b1ab9a5_0b999f56",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-11T17:54:24Z",
+      "side": 1,
+      "message": "It can be here, but in the next couple of CLs it won\u0027t be static anymore because I am adding \"dynamic\" attribs per instance like stroke width and color",
+      "parentUuid": "420e74df_ced09a7e",
+      "range": {
+        "startLine": 718,
+        "startChar": 4,
+        "endLine": 718,
+        "endChar": 10
+      },
+      "revId": "b7c4b841d95543f182a0dcdabb6921c3887e1d0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
