@@ -281,6 +281,7 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     Program::Settings settings;
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
+    settings.fReplaceSettings = false;
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule,
