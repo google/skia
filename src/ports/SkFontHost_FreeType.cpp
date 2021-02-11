@@ -1237,27 +1237,92 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         FT_LayerIterator layerIterator = { 0, 0, nullptr };
         FT_UInt layerGlyphIndex;
         FT_UInt layerColorIndex;
-        while (FT_Get_Color_Glyph_Layer(fFace, glyph->getGlyphID(),
-                                        &layerGlyphIndex, &layerColorIndex, &layerIterator))
-        {
-            haveLayers = true;
-            err = FT_Load_Glyph(fFace, layerGlyphIndex,
-                                fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
-            if (err != 0) {
-                glyph->zeroMetrics();
-                return;
-            }
-            emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
 
-            if (0 < fFace->glyph->outline.n_contours) {
-                FT_BBox bbox;
-                getBBoxForCurrentGlyph(glyph, &bbox, true);
+#ifdef TT_SUPPORT_COLRV1
+        FT_OpaquePaint opaqueLayerPaint;
+        opaqueLayerPaint.p = nullptr;
+        if (FT_Get_Color_Glyph_Paint(fFace, glyph->getGlyphID(),
+                                     FT_COLOR_INCLUDE_ROOT_TRANSFORM, &opaqueLayerPaint)) {
+          haveLayers = true;
 
-                // Union
-                bounds.xMin = std::min(bbox.xMin, bounds.xMin);
-                bounds.yMin = std::min(bbox.yMin, bounds.yMin);
-                bounds.xMax = std::max(bbox.xMax, bounds.xMax);
-                bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+          // COLRv1 glyphs define a placeholder glyph in the glyf table that
+          // defines the extrema of the glyph. If this placeholder glyph
+          // contains only two points and FreeType applies the transform first -
+          // as configured by setupSize() - then we get a transformed bounding
+          // box that is too small as it only needs to fit the two points. To
+          // fix that, create a temporary contour consisting of all four corners
+          // of an imaginary rectangle enclosing those two points, then
+          // transform that and perform the bounding box computations on this
+          // one.
+
+          FT_Set_Transform(fFace, nullptr, nullptr);
+
+          err = FT_Load_Glyph(fFace, glyph->getGlyphID(),
+                              fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+          if (err != 0 || fFace->glyph->outline.n_contours == 0) {
+            glyph->zeroMetrics();
+            return;
+          }
+          emboldenIfNeeded(fFace, fFace->glyph, glyph->getGlyphID());
+
+          FT_BBox bbox_untransformed;
+          FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox_untransformed);
+
+          FT_Outline bboxOutline;
+          err = FT_Outline_New(gFTLibrary->library(), 4, 0, &bboxOutline);
+          if (err != 0) {
+            glyph->zeroMetrics();
+            return;
+          }
+
+          // Compose a rectangle contour by setting the four corners.
+          bboxOutline.points[0].x = bbox_untransformed.xMin;
+          bboxOutline.points[0].y = bbox_untransformed.yMin;
+
+          bboxOutline.points[1].x = bbox_untransformed.xMin;
+          bboxOutline.points[1].y = bbox_untransformed.yMax;
+
+          bboxOutline.points[2].x = bbox_untransformed.xMax;
+          bboxOutline.points[2].y = bbox_untransformed.yMax;
+
+          bboxOutline.points[3].x = bbox_untransformed.xMax;
+          bboxOutline.points[3].y = bbox_untransformed.yMin;
+
+          FT_Outline_Transform(&bboxOutline, &fMatrix22);
+
+          FT_Outline faceOutline = fFace->glyph->outline;
+          fFace->glyph->outline = bboxOutline;
+          // Retrieve from temporarily replaced transformed rectangle outline.
+          getBBoxForCurrentGlyph(glyph, &bounds, true);
+          fFace->glyph->outline = faceOutline;
+          FT_Outline_Done(gFTLibrary->library(), &bboxOutline);
+
+        }
+#endif // #TT_SUPPORT_COLRV1
+
+        if (!haveLayers) {
+            // For COLRv0 compute the glyph bounding box from the union of layer bounding boxes.
+            while (FT_Get_Color_Glyph_Layer(fFace, glyph->getGlyphID(), &layerGlyphIndex,
+                                            &layerColorIndex, &layerIterator)) {
+                haveLayers = true;
+                err = FT_Load_Glyph(fFace, layerGlyphIndex,
+                                    fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+                if (err != 0) {
+                    glyph->zeroMetrics();
+                    return;
+                }
+                emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
+
+                if (0 < fFace->glyph->outline.n_contours) {
+                    FT_BBox bbox;
+                    getBBoxForCurrentGlyph(glyph, &bbox, true);
+
+                    // Union
+                    bounds.xMin = std::min(bbox.xMin, bounds.xMin);
+                    bounds.yMin = std::min(bbox.yMin, bounds.yMin);
+                    bounds.xMax = std::max(bbox.xMax, bounds.xMax);
+                    bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+                }
             }
         }
 
