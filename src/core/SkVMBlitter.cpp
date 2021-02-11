@@ -152,6 +152,12 @@ namespace {
                 // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
                 // We'll fold the hash of their IDs in order to disambiguate.
                 const skvm::Val outputs[] = { c.r.id, c.g.id, c.b.id, c.a.id };
+                if (float a; p.allImm(c.a.id, &a) && a == 1.0f) {
+                    SkASSERT(sb->isOpaque());
+                }
+                if (float r,g,b,a; p.allImm(c.r.id,&r, c.g.id,&g, c.b.id,&b, c.a.id,&a)) {
+                    SkASSERT(sb->isConstant());
+                }
                 hash ^= SkOpts::hash(outputs, sizeof(outputs));
             } else {
                 *ok = false;
