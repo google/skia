@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLCPPCodeGenerator.h"
@@ -1569,6 +1570,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
         String text,
         const Program::Settings& settings,
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
+    ATRACE_ANDROID_FRAMEWORK("SkSL::Compiler::convertProgram");
+
     SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
 
     // Loading and optimizing our base module might reset the inliner, so do that first,
@@ -1840,6 +1843,7 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 }
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
+    ATRACE_ANDROID_FRAMEWORK("SkSL::Compiler::toGLSL");
     AutoSource as(this, program.fSource.get());
     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();

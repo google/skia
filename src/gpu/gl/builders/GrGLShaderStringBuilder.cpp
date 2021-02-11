@@ -57,6 +57,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const SkSL::String& glsl,
                                     GrGpu::Stats* stats,
                                     GrContextOptions::ShaderErrorHandler* errorHandler) {
+    ATRACE_ANDROID_FRAMEWORK_ALWAYS("driver_compile_shader");
     const GrGLInterface* gli = glCtx.glInterface();
 
     // Specify GLSL source to the driver.
@@ -75,6 +76,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     bool checkCompiled = !glCtx.caps()->skipErrorChecks();
 
     if (checkCompiled) {
+        ATRACE_ANDROID_FRAMEWORK("checkCompiled");
         GrGLint compiled = GR_GL_INIT_ZERO;
         GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));
 
