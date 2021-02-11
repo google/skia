@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77ea16b6_8e1c1c8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 52
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T18:31:23Z",
+      "side": 1,
+      "message": "Not sure at the moment exactly how the specification and the sample font work, but what happens when using this font with a non-colrv1 aware font parser? I think I would have expected the system FreeType NativeFont bot (using an older FreeType) to have drawn something, much like how colrv0 worked. It seems like we should try testing (or at least considering) colrv1 to colorv0 to glyf fallback?",
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bc6abcd_06647d1a",
+        "filename": "gm/colrv1.cpp",
+        "patchSetId": 52
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T18:31:23Z",
+      "side": 1,
+      "message": "DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8aa1e439_32bc0abf",
+        "filename": "gm/colrv1.cpp",
+        "patchSetId": 52
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T18:31:23Z",
+      "side": 1,
+      "message": "Skia likes braces. Also, I think this should be a skip\n\n    *errorMsg \u003d \"Did not recognize colrv1 font format\";\n    return DrawResult::kSkip;",
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0bf240f_4d11be38",
+        "filename": "gm/colrv1.cpp",
+        "patchSetId": 52
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T18:31:23Z",
+      "side": 1,
+      "message": "return DrawResult::kOk;",
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
