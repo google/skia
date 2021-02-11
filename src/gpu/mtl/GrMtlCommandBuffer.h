@@ -37,7 +37,7 @@ public:
                                                         GrMtlOpsRenderPass* opsRenderPass);
 
     void addCompletedHandler(MTLCommandBufferHandler block) {
-        [fCmdBuffer addCompletedHandler:block];
+        [*fCmdBuffer addCompletedHandler:block];
     }
 
     void addGrBuffer(sk_sp<const GrBuffer> buffer) {
@@ -48,31 +48,28 @@ public:
     void encodeWaitForEvent(id<MTLEvent>, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
 
     void waitUntilCompleted() {
-        [fCmdBuffer waitUntilCompleted];
+        [*fCmdBuffer waitUntilCompleted];
     }
     bool isCompleted() {
-        return fCmdBuffer.status == MTLCommandBufferStatusCompleted ||
-               fCmdBuffer.status == MTLCommandBufferStatusError;
+        return (*fCmdBuffer).status == MTLCommandBufferStatusCompleted ||
+               (*fCmdBuffer).status == MTLCommandBufferStatusError;
     }
     void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
 
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
-    GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
-        : fCmdBuffer(cmdBuffer)
-        , fActiveBlitCommandEncoder(nil)
-        , fActiveRenderCommandEncoder(nil)
-        , fPreviousRenderPassDescriptor(nil)
+    GrMtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer)
+        : fCmdBuffer(std::move(cmdBuffer))
         , fHasWork(false) {}
 
     void endAllEncoding();
 
-    id<MTLCommandBuffer>        fCmdBuffer;
-    id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;
-    id<MTLRenderCommandEncoder> fActiveRenderCommandEncoder;
-    MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
-    bool                        fHasWork;
+    sk_cfp<id<MTLCommandBuffer>>        fCmdBuffer;
+    sk_cfp<id<MTLBlitCommandEncoder>>   fActiveBlitCommandEncoder;
+    sk_cfp<id<MTLRenderCommandEncoder>> fActiveRenderCommandEncoder;
+    sk_cfp<MTLRenderPassDescriptor*>    fPreviousRenderPassDescriptor;
+    bool fHasWork;
 
     SkTArray<sk_sp<GrRefCntedCallback>> fFinishedCallbacks;
 
