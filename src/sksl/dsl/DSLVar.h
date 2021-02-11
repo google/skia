@@ -65,6 +65,10 @@ public:
         return DSLExpression(*this).a();
     }
 
+    DSLExpression field(const char* name) {
+        return DSLExpression(*this).field(name);
+    }
+
     DSLExpression operator=(const DSLVar& var) {
         return this->operator=(DSLExpression(var));
     }

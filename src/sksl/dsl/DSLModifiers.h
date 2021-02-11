@@ -8,10 +8,15 @@
 #ifndef SKSL_DSL_MODIFIERS
 #define SKSL_DSL_MODIFIERS
 
+#include "include/private/SkTArray.h"
 #include "src/sksl/ir/SkSLModifiers.h"
+
 namespace SkSL {
 
 namespace dsl {
+
+class DSLField;
+class DSLType;
 
 enum Modifier {
     kNo_Modifier            =       0,
@@ -35,6 +40,7 @@ public:
 private:
     SkSL::Modifiers fModifiers;
 
+    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
     friend class DSLVar;
 };
 

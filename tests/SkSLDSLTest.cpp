@@ -1327,3 +1327,36 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     REPORTER_ASSERT(r, DSLWriter::Var(v8).modifiers().fFlags ==
                        (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+
+    DSLType simpleStruct = Struct("SimpleStruct",
+        Field(kFloat, "x"),
+        Field(kBool, "b"),
+        Field(Array(kFloat, 3), "a")
+    );
+    DSLVar result(simpleStruct, "result");
+    DSLFunction(simpleStruct, "returnStruct").define(
+        Declare(result),
+        result.field("x") = 123,
+        result.field("b") = result.field("x") > 0,
+        result.field("a")[0] = result.field("x"),
+        Return(result)
+    );
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(*DSLWriter::ProgramElements()[0],
+            "struct SimpleStruct { float x; bool b; float[3] a; };"));
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(*DSLWriter::ProgramElements()[1],
+            "SimpleStruct returnStruct() { SimpleStruct result; (result.x = 123.0);"
+            "(result.b = (result.x > 0.0)); (result.a[0] = result.x); return result; }"));
+
+    DSLWriter::ProgramElements().clear();
+    Struct("NestedStruct",
+        Field(kInt, "x"),
+        Field(simpleStruct, "simple")
+    );
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+    REPORTER_ASSERT(r, whitespace_insensitive_compare(*DSLWriter::ProgramElements()[0],
+            "struct NestedStruct { int x; SimpleStruct simple; };"));
+}

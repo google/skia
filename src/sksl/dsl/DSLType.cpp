@@ -9,6 +9,7 @@
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 
 namespace SkSL {
 
@@ -150,6 +151,20 @@ TYPE(Short)
 DSLType Array(const DSLType& base, int count) {
     SkASSERT(count >= 1);
     return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
+}
+
+DSLType Struct(const char* name, SkTArray<DSLField> fields) {
+    std::vector<SkSL::Type::Field> skslFields;
+    skslFields.reserve(fields.count());
+    for (const DSLField& field : fields) {
+        skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &field.fType.skslType());
+    }
+    const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(/*offset=*/-1,
+                                                                                  name,
+                                                                                  skslFields));
+    DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*offset=*/-1,
+                                                                                    *result));
+    return result;
 }
 
 } // namespace dsl

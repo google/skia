@@ -17,6 +17,7 @@ namespace dsl {
 using Block = DSLBlock;
 using Case = DSLCase;
 using Expression = DSLExpression;
+using Field = DSLField;
 using Function = DSLFunction;
 using Modifiers = DSLModifiers;
 using Statement = DSLStatement;
