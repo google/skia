@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "524afce6_41f6671a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2021-02-11T11:21:45Z",
+      "side": 1,
+      "message": "Oops, apparently I don\u0027t have permissions to submit to Skia CQ.",
+      "revId": "fe982b58eaf3f1bb4765b74a6747fc95fa6619bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
