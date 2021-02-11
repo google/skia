@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d331cbf4_36928650",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-11T20:59:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61f9bf69_3da9622b",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 64
+      },
+      "revId": "d4b02dd6d1686060014cb0b1a48600d62177b760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d573dc05_a63a5528",
@@ -88,6 +112,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c8c707b_f163db17",
+        "filename": "src/sksl/dsl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-11T20:59:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "235057f5_3d87cd01",
+      "revId": "d4b02dd6d1686060014cb0b1a48600d62177b760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95d932bf_9fd74d71",
@@ -101,6 +143,30 @@
       "writtenOn": "2021-02-01T14:53:10Z",
       "side": 1,
       "message": "It generates an error, right? Maybe we can have an expect-error test here?",
+      "range": {
+        "startLine": 1215,
+        "startChar": 7,
+        "endLine": 1215,
+        "endChar": 77
+      },
+      "revId": "d4b02dd6d1686060014cb0b1a48600d62177b760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1273f2ef_c106e782",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-11T20:59:50Z",
+      "side": 1,
+      "message": "Fixed to actually work and test added.",
+      "parentUuid": "95d932bf_9fd74d71",
       "range": {
         "startLine": 1215,
         "startChar": 7,
