@@ -214,6 +214,8 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrDirectContext* direc
 
 bool SkImage::isTextureBacked() const { return as_IB(this)->onIsTextureBacked(); }
 
+size_t SkImage::textureSize() const { return as_IB(this)->onTextureSize(); }
+
 GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
                                             GrSurfaceOrigin* origin) const {
     return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);

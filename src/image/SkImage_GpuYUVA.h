@@ -44,6 +44,8 @@ public:
         return true;
     }
 
+    size_t onTextureSize() const override;
+
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const final;
 
