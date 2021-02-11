@@ -32,10 +32,12 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
         sk_sp<GrGpuBuffer> newBuffer = resourceProvider->createBuffer(
             bufferSize, GrGpuBufferType::kXferCpuToGpu, kDynamic_GrAccessPattern, nullptr);
         if (!newBuffer) {
+            SkDebugf("no buffer.\n");
             return {}; // invalid slice
         }
         void* mapPtr = newBuffer->map();
         if (!mapPtr) {
+            SkDebugf("no map.\n");
             return {}; // invalid slice
         }
         fBuffers.emplace_back(std::move(newBuffer), mapPtr);
