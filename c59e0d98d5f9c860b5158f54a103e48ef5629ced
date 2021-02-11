@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fefb143_2e12ab2f",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T03:15:38Z",
+      "side": 1,
+      "message": "Since there are two of these and it\u0027s split up so that we can test 32 and 64 bit versions, maybe this should be MinimumSizeWithOverhead and the MinimumSizeWithOverhead above is more like PlatformMinimumSizeWithOverhead? It would just be nice to make it clear the the one above is a specialization of this one.",
+      "range": {
+        "startLine": 55,
+        "startChar": 25,
+        "endLine": 55,
+        "endChar": 57
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fea90b10_1aafe50b",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T03:15:38Z",
+      "side": 1,
+      "message": "This seems like a good place to assert that all the alignments are powers of 2 (just to make the pre-condition explicit). (SkIsPow2)",
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91365e90_6966f9bc",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T03:15:38Z",
+      "side": 1,
+      "message": "Why not\n\n    return (a \u003c b) ? b - a : 0;",
+      "range": {
+        "startLine": 58,
+        "startChar": 44,
+        "endLine": 58,
+        "endChar": 90
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59f3cdc8_3db19f26",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T03:15:38Z",
+      "side": 1,
+      "message": "Maybe name this maxTrailingBytes or something?\n\nWe know alignof(Block) \u003c\u003d maxAlignment. The idea is that the memory can be thought of as being in chunks of size assumedAlignment (because the code below aligns size up to a multiple of assumedAlignment).\n\nWhen assumedAlignment \u003c\u003d maxAlignment a Block can be placed once every (maxAlignment / assumedAlignment) chunks . This means that at most (maxAlignment / assumedAlignment) - 1 chunks could go unused. Going from units of chunks to bytes means multiplying by assumedAlignment (the size of a chunk in bytes) which gives (maxAlignment - assumedAlignment).\n\nWhen maxAlignment \u003c assumedAlignment it is only necessary to align up to maxAlignment since the base will already be over aligned. There doesn\u0027t seem much use in this over aligning since it can\u0027t be made to work (the over alignment is lost after basing calculation off the Block position which won\u0027t be as aligned). It is interesting that this calculation handles the over alignment case but the minimum size calculation does not.",
+      "range": {
+        "startLine": 59,
+        "startChar": 18,
+        "endLine": 59,
+        "endChar": 36
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19c00ef6_6a76c735",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T03:15:38Z",
+      "side": 1,
+      "message": "ensure. I think this comment assures the user that doing this is the right thing.",
+      "range": {
+        "startLine": 63,
+        "startChar": 64,
+        "endLine": 63,
+        "endChar": 70
+      },
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9d08b04_fbd2359c",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T03:15:38Z",
+      "side": 1,
+      "message": "requestedSize bytes are available before a Block placed at the last kMaxAlignement address where it will fit.",
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9eecd7c8_0f40fc3e",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T03:15:38Z",
+      "side": 1,
+      "message": "Not that it matters much, but this could be\n\n    int size \u003d n ? n * sizeof(T) : 1;\n\nSo that a unique address is returned for the 0 requested Ts but it\u0027s just 1 byte.",
+      "revId": "c59e0d98d5f9c860b5158f54a103e48ef5629ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
