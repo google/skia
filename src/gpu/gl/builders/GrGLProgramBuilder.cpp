@@ -442,11 +442,14 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         }
         this->bindProgramResourceLocations(programID);
 
-        GL_CALL(LinkProgram(programID));
-        if (checkLinked) {
-            if (!this->checkLinkStatus(programID, errorHandler, sksl, glsl)) {
-                cleanup_program(fGpu, programID, shadersToDelete);
-                return nullptr;
+        {
+            ATRACE_ANDROID_FRAMEWORK_ALWAYS("driver_link_program");
+            GL_CALL(LinkProgram(programID));
+            if (checkLinked) {
+                if (!this->checkLinkStatus(programID, errorHandler, sksl, glsl)) {
+                    cleanup_program(fGpu, programID, shadersToDelete);
+                    return nullptr;
+                }
             }
         }
     }
