@@ -151,6 +151,10 @@ struct Program {
         bool fValidateSPIRV = true;
         // If true, any synthetic uniforms must use push constant syntax
         bool fUsePushConstants = false;
+        // Permits static if/switch statements to be used with non-constant tests. This is used when
+        // producing H and CPP code; the static tests don't have to have constant values *yet*, but
+        // the generated code will contain a static test which then does have to be a constant.
+        bool fPermitInvalidStaticTests = false;
     };
 
     struct Inputs {

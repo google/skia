@@ -84,11 +84,10 @@ public:
     const String* fOldSource;
 };
 
-Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
+Compiler::Compiler(const ShaderCapsClass* caps)
         : fContext(std::make_shared<Context>(/*errors=*/*this))
         , fCaps(caps)
         , fInliner(fContext.get())
-        , fFlags(flags)
         , fErrorCount(0) {
     SkASSERT(fCaps);
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
@@ -1411,12 +1410,13 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             found = true;
                             break;
                         } else {
-                            if (s.isStatic() && !(fFlags & kPermitInvalidStaticTests_Flag) &&
-                                optimizationContext->fSilences.find(&s) ==
-                                optimizationContext->fSilences.end()) {
-                                this->error(s.fOffset,
-                                            "static switch contains non-static conditional break");
-                                optimizationContext->fSilences.insert(&s);
+                            if (s.isStatic() &&
+                                !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+                                auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
+                                if (didInsert) {
+                                    this->error(s.fOffset, "static switch contains non-static "
+                                                           "conditional break");
+                                }
                             }
                             return; // can't simplify
                         }
@@ -1429,12 +1429,13 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock), usage);
                         } else {
-                            if (s.isStatic() && !(fFlags & kPermitInvalidStaticTests_Flag) &&
-                                optimizationContext->fSilences.find(&s) ==
-                                optimizationContext->fSilences.end()) {
-                                this->error(s.fOffset,
-                                            "static switch contains non-static conditional break");
-                                optimizationContext->fSilences.insert(&s);
+                            if (s.isStatic() &&
+                                !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+                                auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
+                                if (didInsert) {
+                                    this->error(s.fOffset, "static switch contains non-static "
+                                                           "conditional break");
+                                }
                             }
                             return; // can't simplify
                         }
@@ -1560,16 +1561,16 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
                 switch (s.kind()) {
                     case Statement::Kind::kIf:
                         if (s.as<IfStatement>().isStatic() &&
-                            !(fFlags & kPermitInvalidStaticTests_Flag)) {
+                            !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
                             this->error(s.fOffset, "static if has non-static test");
                         }
                         ++iter;
                         break;
                     case Statement::Kind::kSwitch:
                         if (s.as<SwitchStatement>().isStatic() &&
-                            !(fFlags & kPermitInvalidStaticTests_Flag) &&
+                            !fIRGenerator->fSettings->fPermitInvalidStaticTests &&
                             optimizationContext.fSilences.find(&s) ==
-                            optimizationContext.fSilences.end()) {
+                                    optimizationContext.fSilences.end()) {
                             this->error(s.fOffset, "static switch has non-static test");
                         }
                         ++iter;

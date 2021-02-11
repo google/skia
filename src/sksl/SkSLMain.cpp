@@ -313,9 +313,9 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         puts(errorText);
     };
 
-    auto compileProgram = [&](SkSL::Compiler::Flags flags, const auto& writeFn) -> ResultCode {
+    auto compileProgram = [&](const auto& writeFn) -> ResultCode {
         SkSL::FileOutputStream out(outputPath);
-        SkSL::Compiler compiler(caps, flags);
+        SkSL::Compiler compiler(caps);
         if (!out.isValid()) {
             printf("error writing '%s'\n", outputPath.c_str());
             return ResultCode::kOutputError;
@@ -334,14 +334,12 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
 
     if (outputPath.endsWith(".spirv")) {
         return compileProgram(
-                SkSL::Compiler::kNone_Flags,
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toSPIRV(program, out);
                 });
     } else if (outputPath.endsWith(".asm.frag") || outputPath.endsWith(".asm.vert") ||
                outputPath.endsWith(".asm.geom")) {
         return compileProgram(
-                SkSL::Compiler::kNone_Flags,
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     // Compile program to SPIR-V assembly in a string-stream.
                     SkSL::StringStream assembly;
@@ -362,33 +360,30 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 });
     } else if (outputPath.endsWith(".glsl")) {
         return compileProgram(
-                SkSL::Compiler::kNone_Flags,
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toGLSL(program, out);
                 });
     } else if (outputPath.endsWith(".metal")) {
         return compileProgram(
-                SkSL::Compiler::kNone_Flags,
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toMetal(program, out);
                 });
     } else if (outputPath.endsWith(".h")) {
         settings.fReplaceSettings = false;
+        settings.fPermitInvalidStaticTests = true;
         return compileProgram(
-                SkSL::Compiler::kPermitInvalidStaticTests_Flag,
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toH(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
                 });
     } else if (outputPath.endsWith(".cpp")) {
         settings.fReplaceSettings = false;
+        settings.fPermitInvalidStaticTests = true;
         return compileProgram(
-                SkSL::Compiler::kPermitInvalidStaticTests_Flag,
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toCPP(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
                 });
     } else if (outputPath.endsWith(".skvm")) {
         return compileProgram(
-                SkSL::Compiler::kNone_Flags,
                 [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder)) {
@@ -400,7 +395,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     return true;
                 });
     } else if (outputPath.endsWith(".stage")) {
-        return compileProgram(SkSL::Compiler::kNone_Flags,
+        return compileProgram(
                 [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     class Callbacks : public SkSL::PipelineStage::Callbacks {
                     public:
