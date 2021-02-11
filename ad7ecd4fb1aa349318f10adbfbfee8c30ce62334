@@ -142,6 +142,30 @@
       },
       "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "caaa5d61_5105a8e0",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T19:10:09Z",
+      "side": 1,
+      "message": "Oh ok, all good here then I think?  The pixel format will clamp the kAuto/fIsOpaque cases, and kManual and kAuto/!fIsOpaque carry on as normal.\n\nCome to think of it, maybe let\u0027s leave future me a note?  I\u0027m sure I\u0027ll get confused about this in about three weeks.",
+      "parentUuid": "8ec647fb_da99637b",
+      "range": {
+        "startLine": 547,
+        "startChar": 50,
+        "endLine": 547,
+        "endChar": 96
+      },
+      "revId": "ad7ecd4fb1aa349318f10adbfbfee8c30ce62334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
