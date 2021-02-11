@@ -18,6 +18,41 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aeb5a0ad_d98363cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 52
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-11T19:05:43Z",
+      "side": 1,
+      "message": "Yes, at the moment we don\u0027t have any backwards compatible formats in the font. It\u0027s a COLRv1 font \"only\", i.e. it doesn\u0027t have anything meaningful in glyf for the glyfs I specify, and it does not have COLRv0 information. \n\nI filed https://bugs.chromium.org/p/skia/issues/detail?id\u003d11316 to keep track of this, I hope it captures what you had in mind.",
+      "parentUuid": "77ea16b6_8e1c1c8c",
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f234bbbc_f6c72a2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 52
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-11T19:05:43Z",
+      "side": 1,
+      "message": "Thanks for the review, gm updated with error message.",
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8bc6abcd_06647d1a",
@@ -31,6 +66,30 @@
       "writtenOn": "2021-02-11T18:31:23Z",
       "side": 1,
       "message": "DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1d1f7f3_8eb93685",
+        "filename": "gm/colrv1.cpp",
+        "patchSetId": 52
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-11T19:05:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bc6abcd_06647d1a",
       "range": {
         "startLine": 55,
         "startChar": 4,
@@ -58,6 +117,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "692ef0ee_3b59e924",
+        "filename": "gm/colrv1.cpp",
+        "patchSetId": 52
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-11T19:05:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8aa1e439_32bc0abf",
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c0bf240f_4d11be38",
@@ -71,6 +148,24 @@
       "writtenOn": "2021-02-11T18:31:23Z",
       "side": 1,
       "message": "return DrawResult::kOk;",
+      "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96416e79_c0dcc97f",
+        "filename": "gm/colrv1.cpp",
+        "patchSetId": 52
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-11T19:05:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0bf240f_4d11be38",
       "revId": "1154ca6bf5518b8b8c84de9b574e3ec7cdba5464",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
