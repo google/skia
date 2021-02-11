@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "29680f3e_504db706",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-11T01:12:31Z",
+      "side": 1,
+      "message": "Yeah, I tried really hard to figure out how to locally shadow operator*() in this file.",
+      "parentUuid": "fa073288_4ae04f43",
+      "revId": "216c58a0fe843982323920a2ddb815a479bd8a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "abcd8f0a_af9529b1",
