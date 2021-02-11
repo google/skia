@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa073288_4ae04f43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-11T00:59:38Z",
+      "side": 1,
+      "message": "I was going to say that the operator trickiness was unnecessary, but then I saw how many places we use it ... so yeah.",
+      "revId": "216c58a0fe843982323920a2ddb815a479bd8a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "abcd8f0a_af9529b1",
