@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99ba0d82_459d4c5e",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T21:48:50Z",
+      "side": 1,
+      "message": "Were these size_t at some point? Currently these are \u0027int\u0027 already?",
+      "range": {
+        "startLine": 1553,
+        "startChar": 28,
+        "endLine": 1553,
+        "endChar": 50
+      },
+      "revId": "3a1c97f26ca19022dba5c5875de0dcb16bd0b3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a99fe7e_00530f23",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1581,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T21:48:50Z",
+      "side": 1,
+      "message": "It seems like these last two lines are just for the assert? Should it all be in the assert?\n\n    SkASSERT(fCapacity \u0026 -alignment \u003e\u003d requestedSize);\n\nI suppose most of the time the compiler might be able to optimize this and the same operation in allocateBytes, but as a reader of this code it\u0027s odd that \u0027fCapacity \u003d fCapacity \u0026 -alignment\u0027 is being done here. I suppose that would make the \u0027alignment\u0027 parameter debug only as well?",
+      "revId": "3a1c97f26ca19022dba5c5875de0dcb16bd0b3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fc08e5a_08b74bf0",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-11T21:48:50Z",
+      "side": 1,
+      "message": "Maybe better as \"a pointer to memory\". \"the number of bytes\" sounds like this is returning a count.",
+      "range": {
+        "startLine": 98,
+        "startChar": 15,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "3a1c97f26ca19022dba5c5875de0dcb16bd0b3c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
