@@ -172,6 +172,14 @@ private:
 
     ASTNode::ID declaration();
 
+    struct VarDeclarationsPrefix {
+        Modifiers modifiers;
+        ASTNode::ID type;
+        Token name;
+    };
+
+    bool varDeclarationsPrefix(VarDeclarationsPrefix* prefixData);
+
     ASTNode::ID varDeclarationsOrExpressionStatement();
 
     ASTNode::ID varDeclarations();

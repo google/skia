@@ -1,1 +1,1 @@
-void main() { float x[2][2]; }  // TODO(skia:11287): improve error message
+void main() { float x[2][2]; }
