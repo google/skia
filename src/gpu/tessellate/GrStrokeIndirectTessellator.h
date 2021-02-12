@@ -22,11 +22,11 @@ public:
     // become an issue if we try to draw a stroke with an astronomically wide width.
     constexpr static int8_t kMaxResolveLevel = 15;
 
-    GrStrokeIndirectTessellator(const SkMatrix&, const GrSTArenaList<SkPath>&,
-                                const SkStrokeRec&, int totalCombinedVerbCnt, SkArenaAlloc*);
+    GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix&, const GrSTArenaList<PathStroke>&,
+                                int totalCombinedVerbCnt, SkArenaAlloc*);
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<SkPath>&,
-                 const SkStrokeRec&, int totalCombinedVerbCnt) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<PathStroke>&,
+                 int totalCombinedVerbCnt) override;
 
     void draw(GrOpFlushState*) const override;
 
@@ -47,6 +47,8 @@ private:
     // Stores the in-order chop locations for all chops indicated by fResolveLevels.
     float* fChopTs = nullptr;
     SkDEBUGCODE(int fChopTsArrayCount = 0;)
+
+    int fMaxNumExtraEdgesInJoin = 0;
 
     // GPU buffers for drawing.
     sk_sp<const GrBuffer> fDrawIndirectBuffer;

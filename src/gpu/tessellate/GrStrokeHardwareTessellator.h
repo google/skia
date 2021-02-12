@@ -8,6 +8,7 @@
 #ifndef GrStrokeHardwareTessellator_DEFINED
 #define GrStrokeHardwareTessellator_DEFINED
 
+#include <tuple>
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
@@ -18,14 +19,22 @@
 // MSAA if antialiasing is desired.
 class GrStrokeHardwareTessellator : public GrStrokeTessellator {
 public:
-    GrStrokeHardwareTessellator(const GrShaderCaps&, const SkMatrix&, const SkStrokeRec& stroke);
+    GrStrokeHardwareTessellator(ShaderFlags shaderFlags, const GrShaderCaps& shaderCaps)
+            : GrStrokeTessellator(shaderFlags)
+            , fPatchStride(GrStrokeTessellateShader::PatchStride(fShaderFlags))
+            // Subtract 2 because the tessellation shader chops every cubic at two locations, and
+            // each chop has the potential to introduce an extra segment.
+            , fMaxTessellationSegments(shaderCaps.maxTessellationSegments() - 2) {
+    }
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<SkPath>&,
-                 const SkStrokeRec&, int totalCombinedVerbCnt) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<PathStroke>&,
+                 int totalCombinedVerbCnt) override;
 
     void draw(GrOpFlushState*) const override;
 
 private:
+    using Tolerances = GrStrokeTessellateShader::Tolerances;
+
     enum class JoinType {
         kFromStroke,  // The shader will use the join type defined in our fStrokeRec.
         kBowtie,  // Double sided round join.
@@ -37,6 +46,10 @@ private:
         kUnknown,
         kYes
     };
+
+    // Updates our internal tolerances for determining how much subdivision to do. We need to ensure
+    // every curve we emit requires no more segments than fMaxTessellationSegments.
+    void updateTolerances(Tolerances, SkPaint::Join strokeJoin);
 
     void moveTo(SkPoint);
     void moveTo(SkPoint, SkPoint lastControlPoint);
@@ -60,26 +73,27 @@ private:
     void cap();
     void emitPatch(JoinType prevJoinType, const SkPoint pts[4], SkPoint endPt);
     void emitJoinPatch(JoinType, SkPoint nextControlPoint);
+    void emitDynamicAttribs();
     bool reservePatch();
     void allocPatchChunkAtLeast(int minPatchAllocCount);
 
+    // Size in bytes of a tessellation patch with our shader flags.
+    const size_t fPatchStride;
+
     // The maximum number of tessellation segments the hardware can emit for a single patch.
     const int fMaxTessellationSegments;
-    const SkStrokeRec fStroke;
 
-    // Tolerances the tessellation shader will use for determining how much subdivision to do. We
-    // need to ensure every curve we emit doesn't require more than fMaxTessellationSegments.
-    GrStrokeTessellateShader::Tolerances fTolerances;
-
-    // The target and view matrix will only be non-null during prepare() and its callees.
+    // These will only be valid during prepare() and its callees.
     GrMeshDrawOp::Target* fTarget = nullptr;
     const SkMatrix* fViewMatrix = nullptr;
+    const SkStrokeRec* fStroke = nullptr;
 
     // These values contain worst-case numbers of parametric segments, raised to the 4th power, that
     // our hardware can support for the current stroke radius. They assume curve rotations of 180
     // and 360 degrees respectively. These are used for "quick accepts" that allow us to send almost
     // all curves directly to the hardware without having to chop. We raise to the 4th power because
     // the "pow4" variants of Wang's formula are the quickest to evaluate.
+    GrStrokeTessellateShader::Tolerances fTolerances;
     float fMaxParametricSegments180_pow4;
     float fMaxParametricSegments360_pow4;
     float fMaxParametricSegments180_pow4_withJoin;
@@ -109,6 +123,9 @@ private:
     SkPoint fCurrContourFirstControlPoint;
     SkPoint fLastControlPoint;
     SkPoint fCurrentPoint;
+
+    // Current dynamic state.
+    GrStrokeTessellateShader::DynamicStroke fDynamicStroke;
 
     friend class GrOp;  // For ctor.
 

@@ -34,6 +34,7 @@ static sk_sp<GrDirectContext> make_mock_context() {
 
 static void test_stroke(skiatest::Reporter* r, GrDirectContext* ctx, GrMockOpTarget* target,
                         const SkPath& path, SkRandom& rand) {
+    using PathStroke = GrStrokeTessellator::PathStroke;
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(.1f);
     for (auto join : {SkPaint::kMiter_Join, SkPaint::kRound_Join}) {
@@ -41,10 +42,11 @@ static void test_stroke(skiatest::Reporter* r, GrDirectContext* ctx, GrMockOpTar
         for (int i = 0; i < 16; ++i) {
             float scale = ldexpf(rand.nextF() + 1, i);
             auto matrix = SkMatrix::Scale(scale, scale);
-            GrStrokeIndirectTessellator tessellator(matrix, path, stroke, path.countVerbs(),
-                                                    target->allocator());
+            GrStrokeIndirectTessellator tessellator(GrStrokeTessellateShader::ShaderFlags::kNone,
+                                                    matrix, PathStroke(path, stroke),
+                                                    path.countVerbs(), target->allocator());
             tessellator.verifyResolveLevels(r, target, matrix, path, stroke);
-            tessellator.prepare(target, matrix, path, stroke, path.countVerbs());
+            tessellator.prepare(target, matrix, PathStroke(path, stroke), path.countVerbs());
             tessellator.verifyBuffers(r, target, matrix, stroke);
         }
     }
