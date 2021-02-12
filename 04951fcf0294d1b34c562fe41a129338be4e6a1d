@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "be671c37_029c4973",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-02-12T21:48:36Z",
+      "side": 1,
+      "message": "\u003e Does this particular trace add more granularity than what we can infer from \"cache_miss\"?\n\nYes. I have only looked at one trace (with a few cache_misses), but it tends to be a much shorter time.\n\n\u003e  Seeing how much time is spent in the GL driver is something I think we would like to see all the time.\n\nSounds good to me. Brian, does the amount of time spent in the GL driver map well to this method?\n\n\u003e However, the details of what skia method you are in should be reserved for  ATRACE_ANDROID_FRAMEWORK() tracing.\n\nAck.\n\n\u003e \n\u003e If this is the part that sends the GLSL to the driver compiler then something like \"compile_gl_program\" would be more descriptive.\n\nIt looks like compilation is on line 74, if we want to focus on just that piece.\n\nWhat I find interesting from looking at a trace (attached to https://buganizer.corp.google.com/issues/179848728#comment16), it looks like there\u0027s a substantial (relative to cache_miss) amount of time spent in between Compiler::toGLSL and this method. Should we be tracking anything there? (Admittedly, these shader_compiles still are only taking 16 ms at the most.)",
+      "parentUuid": "319703f5_c174e406",
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e77c669c_a79fd0e0",
         "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
         "patchSetId": 2
@@ -67,6 +85,30 @@
       "writtenOn": "2021-02-12T19:22:18Z",
       "side": 1,
       "message": "Unless this is useful generally I would suggest that this isn\u0027t an \"always\" trace.",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 39
+      },
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d222bf4b_6577560f",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-02-12T21:48:36Z",
+      "side": 1,
+      "message": "Generally I\u0027m trying to make shader_compile more useful. From Brian:\n\n\"It might be interesting to put a trace inside the if (checkCompiled) { ... } scope of that function, too. It should be fast, but chrome skips that (for example) because of cross-process latency to read-back the result. (Shouldn\u0027t be an issue on Android...).\"\n\nI changed these to ALWAYS because the bug has an attached trace where they wanted more information. If we had had these in place already, that trace would\u0027ve contained the info that we think we might want. If I could reproduce the issue locally, I would turn on Skia tracing and get the extra information. Since I couldn\u0027t, I thought it would be more useful for us to get traces  that had the extra info. (Maybe another answer is that if this case is not reproducible then we shouldn\u0027t worry too much about it?)\n\nThe downsides to making it ALWAYS are (1) potential noise with more events and (2) slight performance impact (?). (Anything else I\u0027ve missed?)\n\nLet me know your preference.",
+      "parentUuid": "e77c669c_a79fd0e0",
       "range": {
         "startLine": 79,
         "startChar": 8,
