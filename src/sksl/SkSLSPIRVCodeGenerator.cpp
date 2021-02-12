@@ -1940,28 +1940,6 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                                        swizzle.base()->type(), type, precision);
             }
         }
-        case Expression::Kind::kTernary: {
-            const TernaryExpression& t = expr.as<TernaryExpression>();
-            SpvId test = this->writeExpression(*t.test(), out);
-            SpvId end = this->nextId();
-            SpvId ifTrueLabel = this->nextId();
-            SpvId ifFalseLabel = this->nextId();
-            this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
-            this->writeInstruction(SpvOpBranchConditional, test, ifTrueLabel, ifFalseLabel, out);
-            this->writeLabel(ifTrueLabel, out);
-            SpvId ifTrue = this->getLValue(*t.ifTrue(), out)->getPointer();
-            SkASSERT(ifTrue != (SpvId) -1);
-            this->writeInstruction(SpvOpBranch, end, out);
-            ifTrueLabel = fCurrentBlock;
-            SpvId ifFalse = this->getLValue(*t.ifFalse(), out)->getPointer();
-            SkASSERT(ifFalse != (SpvId) -1);
-            ifFalseLabel = fCurrentBlock;
-            this->writeInstruction(SpvOpBranch, end, out);
-            SpvId result = this->nextId();
-            this->writeInstruction(SpvOpPhi, this->getType(*fContext.fTypes.fBool), result, ifTrue,
-                                   ifTrueLabel, ifFalse, ifFalseLabel, out);
-            return std::make_unique<PointerLValue>(*this, result, this->getType(type), precision);
-        }
         default: {
             // expr isn't actually an lvalue, create a dummy variable for it. This case happens due
             // to the need to store values in temporary variables during function calls (see
