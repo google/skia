@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe4e916b_72ae6be7",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-12T15:55:35Z",
+      "side": 1,
+      "message": "can we use more generic names?  I don\u0027t expect an android person looking at this trace to have any idea what GrGL is.",
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
