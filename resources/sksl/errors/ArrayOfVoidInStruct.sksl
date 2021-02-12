@@ -1,0 +1,7 @@
+// Expect 3 errors
+
+struct S {
+    void a[2];
+    void[2] b;
+    void[2] c[2];
+};

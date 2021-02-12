@@ -1,0 +1,1 @@
+struct S { float[2] x[2]; };  // TODO(skia:11322): flag this as an error
