@@ -1648,6 +1648,11 @@ void Compiler::verifyStaticTests(const Program& program) {
             return INHERITED::visitStatement(stmt);
         }
 
+        bool visitExpression(const Expression&) override {
+            // We aren't looking for anything inside an Expression, so skip them entirely.
+            return false;
+        }
+
     private:
         using INHERITED = ProgramVisitor;
         ErrorReporter* fReporter;
