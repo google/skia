@@ -16,6 +16,24 @@
       "message": "Do we also want to test\n\n  void main() { float[2][2] x; }\n\n... and similar in the other contexts?",
       "revId": "d89dd25ac21d7240f2f18615bfdccfa318053d66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c646fb20_93e08201",
+        "filename": "resources/sksl/errors/ArrayTooManyDimensionsInFuncBody.sksl",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-12T22:02:58Z",
+      "side": 1,
+      "message": "Since these are parser failures, each one needs a separate test file, so I\u0027m trying not to go overboard on it since the costs there really start to add up. But I could do ArrayTooManyDimensionsOnType or something just to have some coverage?",
+      "parentUuid": "678f5102_cb9cb765",
+      "revId": "d89dd25ac21d7240f2f18615bfdccfa318053d66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
