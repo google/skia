@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b1feec3_3c25b420",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T14:06:34Z",
+      "side": 1,
+      "message": "nit: Can we just replace this version, if the return type is the same?",
+      "revId": "e004830a4aa3d0f0804c084f075b493c1ad7de23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
