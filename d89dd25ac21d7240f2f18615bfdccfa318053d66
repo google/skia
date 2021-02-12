@@ -52,6 +52,24 @@
       "parentUuid": "c646fb20_93e08201",
       "revId": "d89dd25ac21d7240f2f18615bfdccfa318053d66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00a7a9cb_bf5d8f44",
+        "filename": "resources/sksl/errors/ArrayTooManyDimensionsInFuncBody.sksl",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T22:11:32Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "013588f0_4c19bdf7",
+      "revId": "d89dd25ac21d7240f2f18615bfdccfa318053d66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
