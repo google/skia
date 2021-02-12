@@ -452,6 +452,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
         fStats.incTextureUploads();
+        SkDebugf("did write pixels\n");
         return true;
     }
     return false;
@@ -663,7 +664,7 @@ bool GrGpu::submitToGpu(bool syncCpu) {
     if (auto uniformsBuffer = this->uniformsRingBuffer()) {
         uniformsBuffer->startSubmit(this);
     }
-
+    SkDebugf("GrGpu::submitToGpu\n");
     bool submitted = this->onSubmitToGpu(syncCpu);
 
     this->callSubmittedProcs(submitted);

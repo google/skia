@@ -294,6 +294,7 @@ bool GrDrawingManager::submitToGpu(bool syncToCpu) {
         return false; // Can't submit while DDL recording
     }
     GrGpu* gpu = direct->priv().getGpu();
+    SkDebugf("GrDrawingManager::submitToGpu\n");
     return gpu->submitToGpu(syncToCpu);
 }
 
@@ -346,6 +347,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         onFlushRenderTask = nullptr;
         (*numRenderTasksExecuted)++;
         if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+            SkDebugf("GrDrawingManager::executeRenderTasks max onFlush tasks!\n");
             flushState->gpu()->submitToGpu(false);
             *numRenderTasksExecuted = 0;
         }
@@ -364,6 +366,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
         }
         (*numRenderTasksExecuted)++;
         if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+            SkDebugf("GrDrawingManager::executeRenderTasks max yegular tasks!\n");
             flushState->gpu()->submitToGpu(false);
             *numRenderTasksExecuted = 0;
         }
@@ -512,6 +515,7 @@ static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
         if (rtProxy->isMSAADirty()) {
             SkASSERT(rtProxy->peekRenderTarget());
             gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect());
+            SkDebugf("resolve_and_mipmap doing that submit!\n");
             gpu->submitToGpu(false);
             rtProxy->markMSAAResolved();
         }
@@ -983,6 +987,7 @@ void GrDrawingManager::flushIfNecessary() {
     auto resourceCache = direct->priv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
         if (this->flush({}, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr)) {
+            SkDebugf("GrDrawingManager::flushIfNecessary() is submitting\n");
             this->submitToGpu(false);
         }
         resourceCache->purgeAsNeeded();

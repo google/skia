@@ -392,7 +392,7 @@ bool GrDirectContext::submit(bool syncCpu) {
     if (!fGpu) {
         return false;
     }
-
+    SkDebugf("GrDirectContext::submit\n");
     return fGpu->submitToGpu(syncCpu);
 }
 
