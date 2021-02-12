@@ -30,13 +30,7 @@ using InvertStyle = SkHighContrastConfig::InvertStyle;
 
 class SkHighContrast_Filter : public SkColorFilterBase {
 public:
-    SkHighContrast_Filter(const SkHighContrastConfig& config) {
-        fConfig = config;
-        // Clamp contrast to just inside -1 to 1 to avoid division by zero.
-        fConfig.fContrast = SkTPin(fConfig.fContrast,
-                                   -1.0f + FLT_EPSILON,
-                                   1.0f - FLT_EPSILON);
-    }
+    SkHighContrast_Filter(const SkHighContrastConfig& config) : fConfig(config) {}
 
     ~SkHighContrast_Filter() override {}
 
@@ -204,10 +198,18 @@ sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
     return SkHighContrastFilter::Make(config);
 }
 
-sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
-    if (!config.isValid()) {
+sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& userConfig) {
+    if (!userConfig.isValid()) {
         return nullptr;
     }
+
+    // A contrast setting of exactly +1 would divide by zero (1+c)/(1-c), so pull in to +1-ε.
+    // I'm not exactly sure why we've historically pinned -1 up to -1+ε, maybe just symmetry?
+    SkHighContrastConfig config = userConfig;
+    config.fContrast = SkTPin(config.fContrast,
+                              -1.0f + FLT_EPSILON,
+                              +1.0f - FLT_EPSILON);
+
 #if defined(SK_SUPPORT_LEGACY_RUNTIME_EFFECTS)
     return sk_make_sp<SkHighContrast_Filter>(config);
 #else
