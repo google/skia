@@ -343,6 +343,7 @@
       "--internalSamples",
       "4",
       "-v5",
+      "--reduceOpsTaskSplitting",
       "--adb",
       "--adb_binary",
       "adb.1.0.35",
