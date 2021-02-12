@@ -1,0 +1,12 @@
+// Expect 8 errors
+
+void a[2];
+void[2] b;
+void[2] c[2];
+
+void funcD(void d[2]) {}
+void funcE(void[2] e) {}
+void funcF() { void f[2]; }
+void funcG() { void[2] g; }
+void funcH() { void[2] h[2]; }
+
