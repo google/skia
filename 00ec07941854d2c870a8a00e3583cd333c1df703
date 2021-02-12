@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bd70be4_17dc894d",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T14:23:34Z",
+      "side": 1,
+      "message": "Fixing things to match GLSL semantics would mean *always* using a temp variable here, right? Seems like we should just do that - it\u0027ll make the code simpler, and fix another bug? (We can save that for a follow-up, but I\u0027d suggest that when we do it, use the same pattern for all calls - including intrinsics - hopefully we can reuse some code/pattern?)",
+      "revId": "00ec07941854d2c870a8a00e3583cd333c1df703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31858c73_7ba6c648",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1943,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T14:23:34Z",
+      "side": 1,
+      "message": "Can this ever happen? I keep seeing conflicting comments and code throughout SkSL about our handling of assignable ternaries. The most recent thing I saw indicated that if the condition is literal, we\u0027ll bake the ternary down at IR conversion time. Other than that case, I thought we didn\u0027t allow them - most of our backends don\u0027t support them.",
+      "revId": "00ec07941854d2c870a8a00e3583cd333c1df703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
