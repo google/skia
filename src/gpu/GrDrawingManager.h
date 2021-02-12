@@ -94,6 +94,15 @@ public:
                             const GrMipLevel[],
                             int levelCount,
                             sk_sp<SkData> storage);
+    // Like the above but the src is a GrGpuBuffer. The dst must be a texture and only the base
+    // level is supported.
+    bool newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
+                            SkIRect rect,
+                            GrColorType srcColorType,
+                            GrColorType dstColorType,
+                            sk_sp<GrGpuBuffer> src,
+                            size_t offset,
+                            size_t rowBytes);
 
     GrRecordingContext* getContext() { return fContext; }
 

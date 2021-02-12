@@ -488,29 +488,63 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         return true;
     }
 
-    GrColorType allowedColorType =
-            caps->supportedWritePixelsColorType(this->colorInfo().colorType(),
-                                                dstProxy->backendFormat(),
-                                                src.colorType()).fColorType;
+    auto [allowedColorType, xferOffset] = caps->supportedWritePixelsColorType(
+            this->colorInfo().colorType(),
+            dstProxy->backendFormat(),
+            src.colorType());
     bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
     bool makeTight = !caps->writePixelsRowBytesSupport() &&
                      src.rowBytes() != src.info().minRowBytes();
     bool convert = premul || unpremul || needColorConversion || makeTight ||
                    (src.colorType() != allowedColorType) || flip;
-
-    if (convert || !src.ownsPixels()) {
+    bool shouldUseBuffer = xferOffset && (caps->mapBufferFlags() & GrCaps::kCanMap_MapFlag);
+    sk_sp<GrGpuBuffer> buffer;
+    if (convert || shouldUseBuffer) {
         GrImageInfo tmpInfo(allowedColorType,
                             this->colorInfo().alphaType(),
                             this->colorInfo().refColorSpace(),
                             src.dimensions());
-        GrPixmap tmp = GrPixmap::Allocate(tmpInfo);
-
-        SkAssertResult(GrConvertPixels(tmp, src, flip));
-
-        src = tmp;
-        pt.fY = flip ? dstSurface->height() - pt.fY - tmpInfo.height() : pt.fY;
+        GrPixmap tmp;
+        if (shouldUseBuffer) {
+            size_t rb = tmpInfo.minRowBytes();
+            size_t size = tmpInfo.height()*rb;
+            // TODO: elevate GrStagingBufferManager to resource provider to use fewer buffers and
+            // amortize map/unmap cost.
+            buffer = dContext->priv().resourceProvider()->createBuffer(
+                    size,
+                    GrGpuBufferType::kXferCpuToGpu,
+                    kDynamic_GrAccessPattern);
+            if (buffer) {
+                if (void* map = buffer->map()) {
+                    tmp = GrPixmap(tmpInfo, map, rb);
+                } else {
+                    buffer.reset();
+                }
+            }
+        }
+        if (!tmp.hasPixels() && convert) {
+            tmp = GrPixmap::Allocate(tmpInfo);
+        }
+        if (tmp.hasPixels()) {
+            SkAssertResult(GrConvertPixels(tmp, src, flip));
+            src = tmp;
+            pt.fY = flip ? dstSurface->height() - pt.fY - tmpInfo.height() : pt.fY;
+            if (buffer) {
+                buffer->unmap();
+            }
+        }
     }
 
+    if (buffer) {
+        return dContext->priv().drawingManager()->newWritePixelsTask(
+                this->asSurfaceProxyRef(),
+                SkIRect::MakePtSize(pt, src.dimensions()),
+                src.colorType(),
+                dstColorType,
+                std::move(buffer),
+                0,
+                src.rowBytes());
+    }
     GrMipLevel level;
     level.fPixels = src.addr();
     level.fRowBytes = src.rowBytes();

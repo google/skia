@@ -30,6 +30,27 @@ sk_sp<GrRenderTask> GrWritePixelsTask::Make(GrDrawingManager* dm,
                                                      std::move(pixelStorage)));
 }
 
+sk_sp<GrRenderTask> GrWritePixelsTask::Make(GrDrawingManager* dm,
+                                            sk_sp<GrSurfaceProxy> dst,
+                                            SkIRect rect,
+                                            GrColorType srcColorType,
+                                            GrColorType dstColorType,
+                                            sk_sp<GrGpuBuffer> srcBuffer,
+                                            size_t srcOffsets,
+                                            size_t rowBytes) {
+    if (!dst->asTextureProxy()) {
+        return nullptr;
+    }
+    return sk_sp<GrRenderTask>(new GrWritePixelsTask(dm,
+                                                     std::move(dst),
+                                                     rect,
+                                                     srcColorType,
+                                                     dstColorType,
+                                                     std::move(srcBuffer),
+                                                     srcOffsets,
+                                                     rowBytes));
+}
+
 GrWritePixelsTask::GrWritePixelsTask(GrDrawingManager* dm,
                                      sk_sp<GrSurfaceProxy> dst,
                                      SkIRect rect,
@@ -46,6 +67,24 @@ GrWritePixelsTask::GrWritePixelsTask(GrDrawingManager* dm,
     this->addTarget(dm, std::move(dst));
     fLevels.reset(levelCount);
     std::copy_n(texels, levelCount, fLevels.get());
+}
+
+GrWritePixelsTask::GrWritePixelsTask(GrDrawingManager* dm,
+                                     sk_sp<GrSurfaceProxy> dst,
+                                     SkIRect rect,
+                                     GrColorType srcColorType,
+                                     GrColorType dstColorType,
+                                     sk_sp<GrGpuBuffer> srcBuffer,
+                                     size_t srcOffsets,
+                                     size_t rowBytes)
+        : fRect(rect)
+        , fSrcColorType(srcColorType)
+        , fDstColorType(dstColorType)
+        , fSrcBuffer(std::move(srcBuffer)) {
+    this->addTarget(dm, std::move(dst));
+    fLevels.reset(1);
+    fLevels[0].fPixels = reinterpret_cast<void*>(srcOffsets);
+    fLevels[0].fRowBytes = rowBytes;
 }
 
 void GrWritePixelsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
@@ -66,13 +105,28 @@ bool GrWritePixelsTask::onExecute(GrOpFlushState* flushState) {
         return false;
     }
     GrSurface* dstSurface = dstProxy->peekSurface();
-    return flushState->gpu()->writePixels(dstSurface,
-                                          fRect.fLeft,
-                                          fRect.fTop,
-                                          fRect.width(),
-                                          fRect.height(),
-                                          fDstColorType,
-                                          fSrcColorType,
-                                          fLevels.get(),
-                                          fLevels.count());
+    if (fSrcBuffer) {
+        auto offset = reinterpret_cast<size_t>(fLevels[0].fPixels);
+        SkASSERT(dstSurface->asTexture());
+        return flushState->gpu()->transferPixelsTo(dstSurface->asTexture(),
+                                                   fRect.fLeft,
+                                                   fRect.fTop,
+                                                   fRect.width(),
+                                                   fRect.height(),
+                                                   fDstColorType,
+                                                   fSrcColorType,
+                                                   fSrcBuffer,
+                                                   offset,
+                                                   fLevels[0].fRowBytes);
+    } else {
+        return flushState->gpu()->writePixels(dstSurface,
+                                              fRect.fLeft,
+                                              fRect.fTop,
+                                              fRect.width(),
+                                              fRect.height(),
+                                              fDstColorType,
+                                              fSrcColorType,
+                                              fLevels.get(),
+                                              fLevels.count());
+    }
 }
