@@ -267,7 +267,7 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(const AST
     }
 }
 
-int IRGenerator::convertArraySize(int offset, const ASTNode& s) {
+int IRGenerator::convertArraySize(const Type& type, int offset, const ASTNode& s) {
     if (!s) {
         this->errorReporter().error(offset, "array must have a size");
         return 0;
@@ -276,12 +276,21 @@ int IRGenerator::convertArraySize(int offset, const ASTNode& s) {
     if (!size) {
         return 0;
     }
-    return this->convertArraySize(std::move(size));
+    return this->convertArraySize(type, std::move(size));
 }
 
-int IRGenerator::convertArraySize(std::unique_ptr<Expression> size) {
+int IRGenerator::convertArraySize(const Type& type, std::unique_ptr<Expression> size) {
     size = this->coerce(std::move(size), *fContext.fTypes.fInt);
     if (!size) {
+        return 0;
+    }
+    if (type == *fContext.fTypes.fVoid) {
+        this->errorReporter().error(size->fOffset, "type 'void' may not be used in an array");
+        return 0;
+    }
+    if (type.isOpaque()) {
+        this->errorReporter().error(
+                size->fOffset, "opaque type '" + type.name() + "' may not be used in an array");
         return 0;
     }
     if (!size->is<IntLiteral>()) {
@@ -421,13 +430,11 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
     const Type* type = baseType;
     int arraySizeValue = 0;
     if (isArray) {
-        if (type->isOpaque()) {
-            this->errorReporter().error(
-                    offset,
-                    "opaque type '" + type->name() + "' may not be used in an array");
-        }
         SkASSERT(arraySize);
-        arraySizeValue = this->convertArraySize(std::move(arraySize));
+        arraySizeValue = this->convertArraySize(*type, std::move(arraySize));
+        if (!arraySizeValue) {
+            return {};
+        }
         type = fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
     auto var = std::make_unique<Variable>(offset, fModifiers->addToPool(modifiers),
@@ -1145,7 +1152,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             return;
         }
         if (pd.fIsArray) {
-            int arraySize = this->convertArraySize(param.fOffset, *paramIter++);
+            int arraySize = this->convertArraySize(*type, param.fOffset, *paramIter++);
             if (!arraySize) {
                 return;
             }
@@ -1405,7 +1412,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             // convertArraySize rejects unsized arrays. This is the one place we allow those, but
             // we've already checked for that, so this is verifying the other aspects (constant,
             // positive, not too large).
-            arraySize = this->convertArraySize(size.fOffset, size);
+            arraySize = this->convertArraySize(*type, size.fOffset, size);
             if (!arraySize) {
                 return nullptr;
             }
@@ -1531,30 +1538,18 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     }
     const Type* result = &symbol->as<Type>();
     const bool isArray = (type.begin() != type.end());
-    if (*result == *fContext.fTypes.fVoid) {
-        if (!allowVoid) {
-            this->errorReporter().error(type.fOffset,
-                                        "type '" + name + "' not allowed in this context");
-            return nullptr;
-        }
-        if (isArray) {
-            this->errorReporter().error(type.fOffset,
-                                        "type '" + name + "' may not be used in an array");
-            return nullptr;
-        }
+    if (*result == *fContext.fTypes.fVoid && !allowVoid) {
+        this->errorReporter().error(type.fOffset,
+                                    "type '" + name + "' not allowed in this context");
+        return nullptr;
     }
     if (!fIsBuiltinCode && this->typeContainsPrivateFields(*result)) {
         this->errorReporter().error(type.fOffset, "type '" + name + "' is private");
         return nullptr;
     }
-    if (isArray && result->isOpaque()) {
-        this->errorReporter().error(type.fOffset,
-                                    "opaque type '" + name + "' may not be used in an array");
-        return nullptr;
-    }
     if (isArray) {
         auto iter = type.begin();
-        int arraySize = this->convertArraySize(type.fOffset, *iter);
+        int arraySize = this->convertArraySize(*result, type.fOffset, *iter);
         if (!arraySize) {
             return nullptr;
         }
@@ -2802,11 +2797,11 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
             this->errorReporter().error(index.fOffset, "array must have a size");
             return nullptr;
         }
-        int arraySize = this->convertArraySize(index.fOffset, *iter);
+        const Type* type = &base->as<TypeReference>().value();
+        int arraySize = this->convertArraySize(*type, index.fOffset, *iter);
         if (!arraySize) {
             return nullptr;
         }
-        const Type* type = &base->as<TypeReference>().value();
         type = fSymbolTable->addArrayDimension(type, arraySize);
         return std::make_unique<TypeReference>(fContext, base->fOffset, type);
     }

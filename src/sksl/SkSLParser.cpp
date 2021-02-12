@@ -313,6 +313,12 @@ bool Parser::isType(StringFragment name) {
     return s && s->is<Type>();
 }
 
+bool Parser::isArrayType(ASTNode::ID type) {
+    const ASTNode& node = this->getNode(type);
+    SkASSERT(node.fKind == ASTNode::Kind::kType);
+    return node.begin() != node.end();
+}
+
 /* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? |
    DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
 ASTNode::ID Parser::directive() {
@@ -667,9 +673,9 @@ ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFr
     this->addChild(result, this->createNode(offset, ASTNode::Kind::kModifiers, mods));
     getNode(result).addChild(type);
 
-    auto parseArrayDimensions = [this](ASTNode::ID currentVar, ASTNode::VarData* vd) -> bool {
+    auto parseArrayDimensions = [&](ASTNode::ID currentVar, ASTNode::VarData* vd) -> bool {
         while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-            if (vd->fIsArray) {
+            if (vd->fIsArray || this->isArrayType(type)) {
                 this->error(this->peek(), "multi-dimensional arrays are not supported");
                 return false;
             }
@@ -753,7 +759,7 @@ ASTNode::ID Parser::parameter() {
     ASTNode::ParameterData pd(modifiers, this->text(name), 0);
     getNode(result).addChild(type);
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-        if (pd.fIsArray) {
+        if (pd.fIsArray || this->isArrayType(type)) {
             this->error(this->peek(), "multi-dimensional arrays are not supported");
             return ASTNode::ID::Invalid();
         }
