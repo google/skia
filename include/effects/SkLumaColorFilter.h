@@ -9,9 +9,6 @@
 #define SkLumaColorFilter_DEFINED
 
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkRefCnt.h"
-
-class SkRasterPipeline;
 
 /**
  *  SkLumaColorFilter multiplies the luma of its input into the alpha channel,
@@ -30,14 +27,8 @@ class SkRasterPipeline;
  *  not luminance, a dot-product of linear color channels.  So at least
  *  SkLumaColorFilter and feColorMatrix+luminanceToAlpha agree there.)
  */
-class SK_API SkLumaColorFilter {
-public:
+struct SK_API SkLumaColorFilter {
     static sk_sp<SkColorFilter> Make();
-
-private:
-    friend class SkFlattenable;
-
-    static void RegisterFlattenable();
 };
 
 #endif
