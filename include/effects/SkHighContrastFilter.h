@@ -40,10 +40,10 @@ struct SkHighContrastConfig {
 
     // Returns true if all of the fields are set within the valid range.
     bool isValid() const {
-        return fInvertStyle >= InvertStyle::kNoInvert &&
-            fInvertStyle <= InvertStyle::kInvertLightness &&
-            fContrast >= -1.0 &&
-            fContrast <= 1.0;
+        return fInvertStyle >= InvertStyle::kNoInvert
+            && fInvertStyle <= InvertStyle::kLast
+            && fContrast > -1.0f
+            && fContrast < +1.0f;
     }
 
     // If true, the color will be converted to grayscale.
@@ -53,7 +53,7 @@ struct SkHighContrastConfig {
     InvertStyle fInvertStyle;
 
     // After grayscale and inverting, the contrast can be adjusted linearly.
-    // The valid range is -1.0 through 1.0, where 0.0 is no adjustment.
+    // The valid range is (-1.0,+1.0), where 0.0 is no adjustment.
     SkScalar  fContrast;
 };
 
@@ -70,7 +70,7 @@ struct SkHighContrastConfig {
  *
  * Calling SkHighContrastFilter::Make will return nullptr if the config is
  * not valid, e.g. if you try to call it with a contrast outside the range of
- * -1.0 to 1.0.
+ * (-1.0,+1.0), with -1 or +1 themselves not valid.
  */
 
 class SK_API SkHighContrastFilter {
