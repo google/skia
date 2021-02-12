@@ -626,6 +626,11 @@ ASTNode::ID Parser::structDeclaration() {
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return ASTNode::ID::Invalid();
     }
+    if (fields.empty()) {
+        this->error(name.fOffset,
+                    "struct '" + this->text(name) + "' must contain at least one field");
+        return ASTNode::ID::Invalid();
+    }
     std::unique_ptr<Type> newType = Type::MakeStructType(name.fOffset, this->text(name), fields);
     if (struct_is_too_deeply_nested(*newType, kMaxStructDepth)) {
         this->error(name.fOffset, "struct '" + this->text(name) + "' is too deeply nested");

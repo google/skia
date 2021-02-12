@@ -11,6 +11,7 @@ void functionBoth() {
 }
 
 struct S {
+    float x;
 } s;
 
 void structLeft() {
