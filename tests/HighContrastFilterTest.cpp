@@ -82,9 +82,11 @@ DEF_TEST(HighContrastFilter_InvalidInputs, reporter) {
     filter = SkHighContrastFilter::Make(config);
     REPORTER_ASSERT(reporter, filter);
 
-    // Invalid contrast
-    config.fContrast = 1.1f;
-    REPORTER_ASSERT(reporter, !config.isValid());
-    filter = SkHighContrastFilter::Make(config);
-    REPORTER_ASSERT(reporter, !filter);
+    // Invalid contrast values
+    for (float contrast : {1.1f, +1.0f, -1.0f}) {
+        config.fContrast = contrast;
+        REPORTER_ASSERT(reporter, !config.isValid());
+        filter = SkHighContrastFilter::Make(config);
+        REPORTER_ASSERT(reporter, !filter);
+    }
 }
