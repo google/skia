@@ -981,11 +981,9 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             refImg.reset(nullptr); // force a release of the image
 
             otherTestContext->makeCurrent();
-            surface->flushAndSubmit();
-
-            // This is specifically here for vulkan to guarantee the command buffer will finish
+            // Sync is specifically here for vulkan to guarantee the command buffer will finish
             // which is when we call the ReleaseProc.
-            otherCtx->priv().getGpu()->testingOnly_flushGpuAndSync();
+            surface->flushAndSubmit(true);
         }
 
         // Case #6: Verify that only one context can be using the image at a time

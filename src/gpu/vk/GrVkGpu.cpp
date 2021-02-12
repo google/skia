@@ -2045,10 +2045,6 @@ void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& 
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
     }
 }
-
-void GrVkGpu::testingOnly_flushGpuAndSync() {
-    SkAssertResult(this->submitCommandBuffer(kForce_SyncQueue));
-}
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
