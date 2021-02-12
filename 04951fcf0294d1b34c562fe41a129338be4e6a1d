@@ -16,6 +16,47 @@
       "message": "can we use more generic names?  I don\u0027t expect an android person looking at this trace to have any idea what GrGL is.",
       "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5923436c_47bbaeef",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-02-12T17:39:42Z",
+      "side": 1,
+      "message": "What do you suggest instead? CompileAndAttachShader? What I like about using the exact name in theory is that it should make it easy to find using code search. That said, \"CompileAndAttachShader\" only turns up this or code around it, so it should be close enough. Your comment sounds like it might apply to the other trace names here, too. Should those change, and if so, to what?",
+      "parentUuid": "fe4e916b_72ae6be7",
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24a14de2_7cb76c8e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1737,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-02-12T17:39:42Z",
+      "side": 1,
+      "message": "How about these names? I was tempted to change them to \"SkSL::Compiler::...\", but Derek, it sounds like you might want to go in the other direction? (Or are happy as is?)",
+      "range": {
+        "startLine": 1737,
+        "startChar": 37,
+        "endLine": 1737,
+        "endChar": 61
+      },
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
