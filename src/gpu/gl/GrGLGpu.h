@@ -158,8 +158,6 @@ public:
     const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
 
     void resetShaderCacheForTesting() const override { fProgramCache->reset(); }
-
-    void testingOnly_flushGpuAndSync() override;
 #endif
 
     void submit(GrOpsRenderPass* renderPass) override;

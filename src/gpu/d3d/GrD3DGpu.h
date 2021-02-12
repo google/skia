@@ -67,8 +67,6 @@ public:
                                                                GrProtected) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
-    void testingOnly_flushGpuAndSync() override;
-
     void testingOnly_startCapture() override;
     void testingOnly_endCapture() override;
 
