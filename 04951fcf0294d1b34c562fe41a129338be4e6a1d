@@ -38,6 +38,47 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "319703f5_c174e406",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-12T19:22:18Z",
+      "side": 1,
+      "message": "currently in the trace you see \"shader_compile\" and if it isn\u0027t caches then \"cache_miss\" as the child trace that dominates the time.  I\u0027m hoping whatever we add makes sense in the context of \"cache_miss\".  \n\nDoes this particular trace add more granularity than what we can infer from \"cache_miss\"?  Seeing how much time is spent in the GL driver is something I think we would like to see all the time.  However, the details of what skia method you are in should be reserved for  ATRACE_ANDROID_FRAMEWORK() tracing.\n\nIf this is the part that sends the GLSL to the driver compiler then something like \"compile_gl_program\" would be more descriptive.",
+      "parentUuid": "5923436c_47bbaeef",
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e77c669c_a79fd0e0",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-12T19:22:18Z",
+      "side": 1,
+      "message": "Unless this is useful generally I would suggest that this isn\u0027t an \"always\" trace.",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 39
+      },
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "24a14de2_7cb76c8e",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
@@ -49,6 +90,30 @@
       "writtenOn": "2021-02-12T17:39:42Z",
       "side": 1,
       "message": "How about these names? I was tempted to change them to \"SkSL::Compiler::...\", but Derek, it sounds like you might want to go in the other direction? (Or are happy as is?)",
+      "range": {
+        "startLine": 1737,
+        "startChar": 37,
+        "endLine": 1737,
+        "endChar": 61
+      },
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a986ce4d_a1f3b123",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1737,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-12T19:22:18Z",
+      "side": 1,
+      "message": "I like this, but not sure if it should be an always thing.",
+      "parentUuid": "24a14de2_7cb76c8e",
       "range": {
         "startLine": 1737,
         "startChar": 37,
