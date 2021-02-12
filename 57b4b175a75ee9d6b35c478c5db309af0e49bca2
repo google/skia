@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d001dfe_988f2ee3",
+        "filename": "src/sksl/ir/SkSLCodeStringExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-12T17:23:33Z",
+      "side": 1,
+      "message": "Including a comment like this will just guarantee that the class is never deleted ;)\nSeriously, unless we have a TODO and a plan, I think we\u0027re better off not making any promises.",
+      "range": {
+        "startLine": 18,
+        "startChar": 34,
+        "endLine": 19,
+        "endChar": 37
+      },
+      "revId": "57b4b175a75ee9d6b35c478c5db309af0e49bca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
