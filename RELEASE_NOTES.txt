@@ -105,6 +105,10 @@ Milestone 89
   * Added dither control to the SkImageFilters::Shader factory.
     https://review.skia.org/338156
 
+  * Remove use of ARC from Metal backend. Updates sk_cf_obj to add more
+    functionality matching other internal smart pointer types.
+    https://review.skia.org/311113
+
   * Add MTLBinaryArchive parameter to GrMtlBackendContext. This allows
     Skia to cache PipelineStates in the given archive for faster
     shader compiles on future runs. The client must handle loading and
