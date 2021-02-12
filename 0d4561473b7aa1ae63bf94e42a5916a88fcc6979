@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbb07c49_ae6d9f9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9218
+      },
+      "writtenOn": "2021-02-12T08:39:29Z",
+      "side": 1,
+      "message": "Hi @Ken and @Brian, any thoughts?\nThe attempting to expand hw video frame direct uploading to more platforms is blocked by the trybot conformance test failures on linux validating cmd decoder [1]. The root cause is related to the misalignment between Skia and validating cmd decoder regarding texture formats. Taking GL_RGB565 for example, we create a WebGL texture of the format first, and then use Skia to convert video frame to this dest texture, based on which a SkSurface is later created using  SkSurface::MakeFromBackendTexture. We expect it returns false if the GL_RGB565 is not supported by Skia [2], so that we still have a chance to fallback to the normal path. Currently Skia in the renderer process runs on the ES2 context. According to the ES2 spec section 3.7.1, no sized formats like GL_RGB565 are valid for texture use. So it didn\u0027t return false as expected here, and this error was then caught by the validating cmd decoder. I have another CL[3] relaxing the validating cmd decoder to mute the bots errors.\n\n\n[1]: https://chromium-review.googlesource.com/c/chromium/src/+/2681952\n[2]: https://source.chromium.org/chromium/chromium/src/+/master:media/renderers/video_frame_yuv_converter.cc;drc\u003d2ac64302ae161cd6b5e4b1254497bdf5fd6d3415;l\u003d524 \n[3]: https://chromium-review.googlesource.com/c/chromium/src/+/2679458/4/gpu/command_buffer/service/texture_manager.cc",
+      "revId": "0d4561473b7aa1ae63bf94e42a5916a88fcc6979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
