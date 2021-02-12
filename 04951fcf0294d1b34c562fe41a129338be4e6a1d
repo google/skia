@@ -74,6 +74,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "69b54319_d31537d9",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T22:04:40Z",
+      "side": 1,
+      "message": "For a typical draw, there will be three major chunks of time in the driver. Two calls to this function (which is essentially all driver work compiling each of the two shaders - vertex and fragment). Then a call to LinkProgram (which you have instrumented elsewhere). From previous tracing for flutter, I\u0027ve seen the work split up among those locations differently depending on gpu vendor, etc...\n\nThis function could certainly be summarized as \"driver_compile_shader\", and then call the other one \"driver_link_program\". (A program is ~two shaders).",
+      "parentUuid": "be671c37_029c4973",
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e77c669c_a79fd0e0",
         "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
         "patchSetId": 2
@@ -109,6 +127,30 @@
       "side": 1,
       "message": "Generally I\u0027m trying to make shader_compile more useful. From Brian:\n\n\"It might be interesting to put a trace inside the if (checkCompiled) { ... } scope of that function, too. It should be fast, but chrome skips that (for example) because of cross-process latency to read-back the result. (Shouldn\u0027t be an issue on Android...).\"\n\nI changed these to ALWAYS because the bug has an attached trace where they wanted more information. If we had had these in place already, that trace would\u0027ve contained the info that we think we might want. If I could reproduce the issue locally, I would turn on Skia tracing and get the extra information. Since I couldn\u0027t, I thought it would be more useful for us to get traces  that had the extra info. (Maybe another answer is that if this case is not reproducible then we shouldn\u0027t worry too much about it?)\n\nThe downsides to making it ALWAYS are (1) potential noise with more events and (2) slight performance impact (?). (Anything else I\u0027ve missed?)\n\nLet me know your preference.",
       "parentUuid": "e77c669c_a79fd0e0",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 39
+      },
+      "revId": "04951fcf0294d1b34c562fe41a129338be4e6a1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b780baea_d2822663",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T22:04:40Z",
+      "side": 1,
+      "message": "It\u0027s likely that it doesn\u0027t make much difference in the grand scheme of things, so you can probably make this one not always, to cut down on noise.",
+      "parentUuid": "d222bf4b_6577560f",
       "range": {
         "startLine": 79,
         "startChar": 8,
