@@ -3864,10 +3864,6 @@ void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& 
         }
     }
 }
-
-void GrGLGpu::testingOnly_flushGpuAndSync() {
-    GL_CALL(Finish());
-}
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

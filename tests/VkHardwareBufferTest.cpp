@@ -440,7 +440,7 @@ public:
             return;
         }
 
-        fDirectContext->priv().getGpu()->testingOnly_flushGpuAndSync();
+        fDirectContext->submit(true);
     }
 
     bool flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter, sk_sp<SkSurface>) override;

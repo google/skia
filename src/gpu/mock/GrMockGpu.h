@@ -192,8 +192,6 @@ private:
                                                                int sampleCnt,
                                                                GrProtected) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
-
-    void testingOnly_flushGpuAndSync() override {}
 #endif
 
     const GrMockOptions fMockOptions;

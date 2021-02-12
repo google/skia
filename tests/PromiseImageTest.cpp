@@ -129,7 +129,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     const int kHeight = 10;
 
     auto ctx = ctxInfo.directContext();
-    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex = ctx->createBackendTexture(
             kWidth, kHeight, kRGBA_8888_SkColorType,
@@ -164,15 +163,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     // We still own the image so we should not have called Release or Done.
     check_only_fulfilled(reporter, promiseChecker);
 
-    gpu->testingOnly_flushGpuAndSync();
+    ctx->submit(true);
     check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
     canvas->drawImage(refImg, 0, 0);
 
-    surface->flushAndSubmit();
+    surface->flushAndSubmit(true);
 
-    gpu->testingOnly_flushGpuAndSync();
     // Image should still be fulfilled from the first time we drew/flushed it.
     check_only_fulfilled(reporter, promiseChecker);
 
@@ -189,7 +187,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     // Flushing should have called Release. Depending on the backend and timing it may have called
     // done.
     check_all_flushed_but_not_synced(reporter, promiseChecker, ctx->backend());
-    gpu->testingOnly_flushGpuAndSync();
+    ctx->submit(true);
     // Now Done should definitely have been called.
     check_all_done(reporter, promiseChecker);
 
@@ -341,8 +339,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     surface->flushAndSubmit();
     // Must call these to ensure that all callbacks are performed before the checker is destroyed.
     image.reset();
-    dContext->flushAndSubmit();
-    dContext->priv().getGpu()->testingOnly_flushGpuAndSync();
+    dContext->flushAndSubmit(true);
 
     dContext->deleteBackendTexture(backendTex);
 }

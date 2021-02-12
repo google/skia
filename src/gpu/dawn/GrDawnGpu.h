@@ -54,8 +54,6 @@ public:
                                                                int sampleCnt,
                                                                GrProtected) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
-
-    void testingOnly_flushGpuAndSync() override;
 #endif
 
     sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(const GrRenderTarget*,

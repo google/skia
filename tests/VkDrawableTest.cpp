@@ -172,7 +172,7 @@ public:
         // on before releasing the GrVkSecondaryCBDrawContext resources. To simulate that for this
         // test (and since we are running single threaded anyways), we will just force a sync of
         // the gpu and cpu here.
-        td->fDContext->priv().getGpu()->testingOnly_flushGpuAndSync();
+        td->fDContext->submit(true);
 
         td->fDrawContext->releaseResources();
         // We release the context here manually to test that we waited long enough before

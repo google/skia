@@ -1242,14 +1242,10 @@ void GrD3DGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
 
     GrD3DTextureResourceInfo info;
     if (rt.getD3DTextureResourceInfo(&info)) {
-        this->testingOnly_flushGpuAndSync();
+        this->submitToGpu(true);
         // Nothing else to do here, will get cleaned up when the GrBackendRenderTarget
         // is deleted.
     }
-}
-
-void GrD3DGpu::testingOnly_flushGpuAndSync() {
-    SkAssertResult(this->submitDirectCommandList(SyncQueue::kForce));
 }
 
 void GrD3DGpu::testingOnly_startCapture() {

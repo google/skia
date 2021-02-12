@@ -600,7 +600,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
                 dContext->flushAndSubmit();
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
-                dContext->priv().getGpu()->testingOnly_flushGpuAndSync();
+                dContext->submit(true);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
@@ -619,8 +619,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                  SkMatrix::I(),
                                  nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
-                dContext->flushAndSubmit();
-                dContext->priv().getGpu()->testingOnly_flushGpuAndSync();
+                dContext->flushAndSubmit(true);
                 // Now that the draw is fully consumed by the GPU, the texture should be idle.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) != idleIDs.end());
 

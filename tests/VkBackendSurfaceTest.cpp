@@ -179,7 +179,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo)
     REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == vkGpu->queueIndex());
 
     image.reset();
-    gpu->testingOnly_flushGpuAndSync();
+    dContext->submit(true);
     dContext->deleteBackendTexture(backendTex);
 }
 #endif

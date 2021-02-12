@@ -521,10 +521,6 @@ void GrDawnGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget
     }
 }
 
-void GrDawnGpu::testingOnly_flushGpuAndSync() {
-    this->submitToGpu(true);
-}
-
 #endif
 
 void GrDawnGpu::addFinishedProc(GrGpuFinishedProc finishedProc,

@@ -706,12 +706,6 @@ public:
     virtual void resetShaderCacheForTesting() const {}
 
     /**
-     * Flushes all work to the gpu and forces the GPU to wait until all the gpu work has completed.
-     * This is for testing purposes only.
-     */
-    virtual void testingOnly_flushGpuAndSync() = 0;
-
-    /**
      * Inserted as a pair around a block of code to do a GPU frame capture.
      * Currently only works with the Metal backend.
      */
