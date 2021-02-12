@@ -1171,14 +1171,14 @@ static bool contains_conditional_break(Statement& stmt) {
         bool visitStatement(const Statement& stmt) override {
             switch (stmt.kind()) {
                 case Statement::Kind::kBlock:
-                    return this->INHERITED::visitStatement(stmt);
+                    return INHERITED::visitStatement(stmt);
 
                 case Statement::Kind::kBreak:
                     return fInConditional > 0;
 
                 case Statement::Kind::kIf: {
                     ++fInConditional;
-                    bool result = this->INHERITED::visitStatement(stmt);
+                    bool result = INHERITED::visitStatement(stmt);
                     --fInConditional;
                     return result;
                 }
@@ -1203,7 +1203,7 @@ static bool contains_unconditional_break(Statement& stmt) {
         bool visitStatement(const Statement& stmt) override {
             switch (stmt.kind()) {
                 case Statement::Kind::kBlock:
-                    return this->INHERITED::visitStatement(stmt);
+                    return INHERITED::visitStatement(stmt);
 
                 case Statement::Kind::kBreak:
                     return true;
@@ -1552,39 +1552,6 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     } while (optimizationContext.fUpdated);
     SkASSERT(!optimizationContext.fNeedsRescan);
 
-    // verify static ifs & switches, clean up dead variable decls
-    for (BasicBlock& b : cfg.fBlocks) {
-        for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() &&
-             !optimizationContext.fNeedsRescan;) {
-            if (iter->isStatement()) {
-                const Statement& s = **iter->statement();
-                switch (s.kind()) {
-                    case Statement::Kind::kIf:
-                        if (s.as<IfStatement>().isStatic() &&
-                            !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
-                            this->error(s.fOffset, "static if has non-static test");
-                        }
-                        ++iter;
-                        break;
-                    case Statement::Kind::kSwitch:
-                        if (s.as<SwitchStatement>().isStatic() &&
-                            !fIRGenerator->fSettings->fPermitInvalidStaticTests &&
-                            optimizationContext.fSilences.find(&s) ==
-                                    optimizationContext.fSilences.end()) {
-                            this->error(s.fOffset, "static switch has non-static test");
-                        }
-                        ++iter;
-                        break;
-                    default:
-                        ++iter;
-                        break;
-                }
-            } else {
-                ++iter;
-            }
-        }
-    }
-
     // check for missing return
     if (f.declaration().returnType() != *fContext->fTypes.fVoid) {
         if (cfg.fBlocks[cfg.fExit].fIsReachable) {
@@ -1650,6 +1617,52 @@ std::unique_ptr<Program> Compiler::convertProgram(
         program->fPool->detachFromThread();
     }
     return success ? std::move(program) : nullptr;
+}
+
+void Compiler::verifyStaticTests(const Program& program) {
+    class StaticTestVerifier : public ProgramVisitor {
+    public:
+        StaticTestVerifier(ErrorReporter* r) : fReporter(r) {}
+
+        using ProgramVisitor::visitProgramElement;
+
+        bool visitStatement(const Statement& stmt) override {
+            switch (stmt.kind()) {
+                case Statement::Kind::kIf:
+                    if (stmt.as<IfStatement>().isStatic()) {
+                        fReporter->error(stmt.fOffset, "static if has non-static test");
+                    }
+                    break;
+
+                case Statement::Kind::kSwitch:
+                    if (stmt.as<SwitchStatement>().isStatic()) {
+                        fReporter->error(stmt.fOffset, "static switch has non-static test");
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            return INHERITED::visitStatement(stmt);
+        }
+
+    private:
+        using INHERITED = ProgramVisitor;
+        ErrorReporter* fReporter;
+    };
+
+    // If invalid static tests are permitted, we don't need to check anything.
+    if (fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+        return;
+    }
+
+    // Check all of the program's owned elements. (Built-in elements are assumed to be valid.)
+    StaticTestVerifier visitor{this};
+    for (const std::unique_ptr<ProgramElement>& element : program.ownedElements()) {
+        if (element->is<FunctionDefinition>()) {
+            visitor.visitProgramElement(*element);
+        }
+    }
 }
 
 bool Compiler::optimize(LoadedModule& module) {
@@ -1757,6 +1770,11 @@ bool Compiler::optimize(Program& program) {
             break;
         }
     }
+
+    if (fErrorCount == 0) {
+        this->verifyStaticTests(program);
+    }
+
     return fErrorCount == 0;
 }
 

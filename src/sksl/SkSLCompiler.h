@@ -181,6 +181,9 @@ private:
     void scanCFG(CFG* cfg, BlockId block, SkBitSet* processedSet);
     void computeDataFlow(CFG* cfg);
 
+    /** Verifies that @if and @switch statements were actually optimized away. */
+    void verifyStaticTests(const Program& program);
+
     /**
      * Simplifies the expression pointed to by iter (in both the IR and CFG structures), if
      * possible.
