@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bc7106e_94d3879a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T15:02:52Z",
+      "side": 1,
+      "message": "I\u0027d lean towards keeping the pinning behavior. I\u0027ve traced the source of the contrast as far back as a command-line-switch called dark-mode-settings, and chromium is only pinning it to [-1,1]. (I couldn\u0027t quite see if there was another code path, or if there\u0027s just no documentation/mentions of that setting on the web). In any case, if someone is using the most extreme contrast settings today, this would make it stop working entirely, right?",
+      "revId": "d665264839a3f8b2fa98fdf3c5e6458e8bd58ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
