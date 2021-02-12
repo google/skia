@@ -2014,9 +2014,15 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
             }
         } else if (GR_IS_GR_GL_ES(standard)) {
-            info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
+            info.fFlags = msaaRenderFlags;
+            if (version >= GR_GL_VER(3, 0)) {
+                info.fFlags |= FormatInfo::kTexturable_Flag
+            }
         } else if (GR_IS_GR_WEBGL(standard)) {
-            info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
+            info.fFlags = msaaRenderFlags;
+            if (version >= GR_GL_VER(2, 0)) {
+                info.fFlags |= FormatInfo::kTexturable_Flag
+            }
         }
         // 565 is not a sized internal format on desktop GL. So on desktop with
         // 565 we always use an unsized internal format to let the system pick
@@ -2025,7 +2031,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         //
         // TODO: As of 4.2, regular GL supports 565. This logic is due for an
         // update.
-        if (texStorageSupported && GR_IS_GR_GL_ES(standard)) {
+        if (texStorageSupported && GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0)) {
             info.fFlags |= FormatInfo::kUseTexStorage_Flag;
             info.fInternalFormatForTexImageOrStorage = GR_GL_RGB565;
         } else {
@@ -2394,8 +2400,8 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fDefaultExternalFormat = GR_GL_RGB;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         info.fDefaultColorType = GrColorType::kRGB_888;
-        info.fFlags = FormatInfo::kTexturable_Flag;
         if (GR_IS_GR_GL(standard)) {
+            info.fFlags = FormatInfo::kTexturable_Flag;
             // Even in OpenGL 4.6 GL_RGB8 is required to be color renderable but not required to be
             // a supported render buffer format. Since we usually use render buffers for MSAA on
             // non-ES GL we don't support MSAA for GL_RGB8. On 4.2+ we could check using
@@ -2405,11 +2411,17 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             // buffer but we don't support that just for simplicity's sake.
             info.fFlags |= nonMSAARenderFlags;
         } else if (GR_IS_GR_GL_ES(standard)) {
+            if (version >= GR_GL_VER(3, 0)) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
             // 3.0 and the extension support this as a render buffer format.
             if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_OES_rgb8_rgba8")) {
                 info.fFlags |= msaaRenderFlags;
             }
         } else if (GR_IS_GR_WEBGL(standard)) {
+            if (version >= GR_GL_VER(2, 0)) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
             // WebGL seems to support RBG8
             info.fFlags |= msaaRenderFlags;
         }
@@ -2637,14 +2649,20 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fDefaultExternalFormat = GR_GL_RGBA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
         info.fDefaultColorType = GrColorType::kABGR_4444;
-        info.fFlags = FormatInfo::kTexturable_Flag;
         if (GR_IS_GR_GL(standard)) {
+            info.fFlags = FormatInfo::kTexturable_Flag;
             if (version >= GR_GL_VER(4, 2)) {
                 info.fFlags |= msaaRenderFlags;
             }
         } else if (GR_IS_GR_GL_ES(standard)) {
+            if (version >= GR_GL_VER(3, 0)) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
             info.fFlags |= msaaRenderFlags;
         } else if (GR_IS_GR_WEBGL(standard)) {
+            if (version >= GR_GL_VER(2, 0)) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
             info.fFlags |= msaaRenderFlags;
         }
         if (texStorageSupported) {
