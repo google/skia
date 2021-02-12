@@ -19,6 +19,8 @@
 #include "tools/ToolUtils.h"
 #include <vector>
 
+using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
+
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
 constexpr static int kNumCubicsInChalkboard = 47182;
 
@@ -227,9 +229,9 @@ private:
         }
         for (int i = 0; i < loops; ++i) {
             SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
-            GrStrokeHardwareTessellator tessellator(*fTarget->caps().shaderCaps(), matrix,
-                                                    fStrokeRec);
-            tessellator.prepare(fTarget.get(), matrix, fPath, fStrokeRec, fPath.countVerbs());
+            GrStrokeHardwareTessellator tessellator(ShaderFlags::kNone,
+                                                    *fTarget->caps().shaderCaps());
+            tessellator.prepare(fTarget.get(), matrix, {fPath, fStrokeRec}, fPath.countVerbs());
         }
     }
 
@@ -267,9 +269,10 @@ private:
         }
         for (int i = 0; i < loops; ++i) {
             for (const SkPath& path : fPaths) {
-                GrStrokeIndirectTessellator tessellator(SkMatrix::I(), path, fStrokeRec,
-                                                        path.countVerbs(), fTarget->allocator());
-                tessellator.prepare(fTarget.get(), SkMatrix::I(), path, fStrokeRec,
+                GrStrokeIndirectTessellator tessellator(ShaderFlags::kNone, SkMatrix::I(),
+                                                        {path, fStrokeRec}, path.countVerbs(),
+                                                        fTarget->allocator());
+                tessellator.prepare(fTarget.get(), SkMatrix::I(), {path, fStrokeRec},
                                     path.countVerbs());
             }
             fTarget->resetAllocator();
