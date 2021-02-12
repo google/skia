@@ -35,9 +35,9 @@ float cosine_between_vectors(float2 a, float2 b) {
 // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the miter
 // limit and need to revert to a bevel join.
 static const char* kMiterExtentFn = R"(
-float miter_extent(float cosTheta, float miterLimitInvPow2) {
+float miter_extent(float cosTheta, float miterLimit) {
     float x = fma(cosTheta, .5, .5);
-    return (x >= miterLimitInvPow2) ? inversesqrt(x) : sqrt(x);
+    return (x * miterLimit * miterLimit >= 1.0) ? inversesqrt(x) : sqrt(x);
 })";
 
 static const char* kLengthPow2Fn = R"(
@@ -59,7 +59,6 @@ float4 unchecked_mix(float4 a, float4 b, float4 t) {
     return fma(b - a, t, a);
 })";
 
-
 // Calculates the number of evenly spaced (in the parametric sense) segments to chop a cubic into.
 // (See GrWangsFormula::cubic() for more documentation on this formula.) The final tessellated strip
 // will be a composition of these parametric segments as well as radial segments.
@@ -80,13 +79,19 @@ static void append_wangs_formula_fn(SkString* code, bool hasConics) {
     })");
 }
 
+static float get_join_type(const SkStrokeRec& stroke) {
+    switch (stroke.getJoin()) {
+        case SkPaint::kRound_Join: return -1;
+        case SkPaint::kBevel_Join: return 0;
+        case SkPaint::kMiter_Join: SkASSERT(stroke.getMiter() >= 0); return stroke.getMiter();
+    }
+    SkUNREACHABLE;
+}
+
 class GrStrokeTessellateShader::TessellationImpl : public GrGLSLGeometryProcessor {
 public:
-    const char* getTessArgs1UniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fTessArgs1Uniform);
-    }
-    const char* getTessArgs2UniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fTessArgs2Uniform);
+    const char* getTessArgsUniformName(const GrGLSLUniformHandler& uniformHandler) const {
+        return uniformHandler.getUniformCStr(fTessArgsUniform);
     }
     const char* getTranslateUniformName(const GrGLSLUniformHandler& uniformHandler) const {
         return uniformHandler.getUniformCStr(fTranslateUniform);
@@ -103,23 +108,15 @@ private:
 
         args.fVaryingHandler->emitAttributes(shader);
 
-        // uNumSegmentsInJoin, uParametricIntolerance, uNumRadialSegmentsPerRadian,
-        // uMiterLimitInvPow2.
-        const char* tessArgs1Name;
-        fTessArgs1Uniform = uniHandler->addUniform(nullptr,
-                                                   kVertex_GrShaderFlag | kTessControl_GrShaderFlag,
-                                                   kFloat4_GrSLType, "tessArgs1", &tessArgs1Name);
-        v->codeAppendf("float uNumSegmentsInJoin = %s.x;\n", tessArgs1Name);
-        v->codeAppendf("float uNumRadialSegmentsPerRadian = %s.z;\n", tessArgs1Name);
-        v->codeAppendf("float uMiterLimitInvPow2 = %s.w;\n", tessArgs1Name);
-
-        // uJoinTolerancePow2, uStrokeRadius.
-        const char* tessArgs2Name;
-        fTessArgs2Uniform = uniHandler->addUniform(nullptr,
-                                                   kVertex_GrShaderFlag | kTessEvaluation_GrShaderFlag,
-                                                   kFloat2_GrSLType,
-                                                   "tessArgs2", &tessArgs2Name);
-        v->codeAppendf("float uJoinTolerancePow2 = %s.x;\n", tessArgs2Name);
+        // uParametricIntolerance, uNumRadialSegmentsPerRadian, uJoinType, uStrokeRadius.
+        const char* tessArgsName;
+        fTessArgsUniform = uniHandler->addUniform(nullptr,
+                                                  kVertex_GrShaderFlag |
+                                                  kTessControl_GrShaderFlag |
+                                                  kTessEvaluation_GrShaderFlag,
+                                                  kFloat4_GrSLType, "tessArgs", &tessArgsName);
+        v->codeAppendf("float uNumRadialSegmentsPerRadian = %s.y;\n", tessArgsName);
+        v->codeAppendf("float uJoinType = %s.z;\n", tessArgsName);
 
         if (!shader.viewMatrix().isIdentity()) {
             fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
@@ -151,7 +148,7 @@ private:
         v->defineConstantf("float", "kParametricEpsilon", "1.0 / (%i * 128)",
                            args.fShaderCaps->maxTessellationSegments());  // 1/128 of a segment.
 
-        // [numJoinSegments, innerJoinRadiusMultiplier, prevJoinTangent.xy]
+        // [numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent.xy]
         v->declareGlobal(GrShaderVar("vsJoinArgs0", kFloat4_GrSLType, TypeModifier::Out));
 
         // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
@@ -222,30 +219,30 @@ private:
         if (cross(prevJoinTangent, tan0) < 0) {
             joinRotation = -joinRotation;
         }
-        float numJoinSegments = ceil(abs(joinRotation) * uNumRadialSegmentsPerRadian);
-        if (numJoinSegments != 0 && uNumSegmentsInJoin != 0) {
-            // Non-empty bevel or miter joins have a fixed number of segments.
-            numJoinSegments = uNumSegmentsInJoin;
+        float joinRadialSegments = abs(joinRotation) * uNumRadialSegmentsPerRadian;
+        float numSegmentsInJoin = (joinRadialSegments != 0 /*Is the join non-empty?*/ &&
+                                   uJoinType >= 0 /*Is the join not a round type?*/)
+                ? sign(uJoinType) + 1  // Non-empty bevel joins have 1 segment and miters have 2.
+                : ceil(joinRadialSegments);  // Otherwise round up the number of radial segments.
+
+        // Extends the middle join edge to the miter point.
+        float innerJoinRadiusMultiplier = 1;
+        if (uJoinType > 0 /*Is the join a miter type?*/) {
+            innerJoinRadiusMultiplier = miter_extent(cosTheta, uJoinType/*miterLimit*/);
         }
 
-        // Extends the middle join edge when using miter joins.
-        float innerJoinRadiusMultiplier = 1.0;
-        if (uNumSegmentsInJoin == 2.0) {
-            innerJoinRadiusMultiplier = miter_extent(cosTheta, uMiterLimitInvPow2);
-        }
-
-        // Clamps join geometry to the outer side of the join.
+        // Clamps join geometry to the exterior side of the junction.
         float2 joinOutsetClamp = float2(-1, 1);
-        if (length_pow2(normalize(tan0) - normalize(prevJoinTangent)) > uJoinTolerancePow2) {
-            // Clamp the join to the exterior side of its junction. We only do this if the join
-            // angle is large enough to guarantee there won't be cracks on the interior side of
-            // the junction.
-            joinOutsetClamp = (joinRotation > 0.0) ? float2(-1, 0) : float2(0, 1);
+        if (joinRadialSegments > .1 /*Does the join rotate more than 1/10 of a segment?*/) {
+            // Only clamp if the join angle is large enough to guarantee there won't be cracks on
+            // the interior side.
+            joinOutsetClamp = (joinRotation > 0) ? float2(-1, 0) : float2(0, 1);
         }
 
         // Pack join args for the tessellation control stage.
-        vsJoinArgs0 = float4(numJoinSegments, innerJoinRadiusMultiplier, prevJoinTangent);
-        vsJoinArgs1 = float4(atan2(prevJoinTangent), joinRotation/numJoinSegments, joinOutsetClamp);
+        vsJoinArgs0 = float4(numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent);
+        vsJoinArgs1 = float4(atan2(prevJoinTangent), joinRotation / numSegmentsInJoin,
+                             joinOutsetClamp);
 
         // Now find where to chop the curve so the resulting sub-curves are convex and do not rotate
         // more than 180 degrees. We don't need to worry about cusps because the caller chops those
@@ -374,18 +371,6 @@ private:
                  const GrPrimitiveProcessor& primProc) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
         const auto& stroke = shader.fStroke;
-        float numSegmentsInJoin;
-        switch (stroke.getJoin()) {
-            case SkPaint::kBevel_Join:
-                numSegmentsInJoin = 1;
-                break;
-            case SkPaint::kMiter_Join:
-                numSegmentsInJoin = (stroke.getMiter() > 0) ? 2 : 1;
-                break;
-            case SkPaint::kRound_Join:
-                numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
-                break;
-        }
         Tolerances tolerances;
         if (!stroke.isHairlineStyle()) {
             tolerances.set(shader.viewMatrix().getMaxScale(), stroke.getWidth());
@@ -394,16 +379,11 @@ private:
             // identity viewMatrix and a strokeWidth of 1.
             tolerances.set(1, 1);
         }
-        float miterLimit = shader.fStroke.getMiter();
-        pdman.set4f(fTessArgs1Uniform,
-                    numSegmentsInJoin,  // uNumSegmentsInJoin
+        float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
+        pdman.set4f(fTessArgsUniform,
                     tolerances.fParametricIntolerance,  // uParametricIntolerance
                     tolerances.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
-                    1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2
-        float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
-        float joinTolerance = 1 / (strokeRadius * tolerances.fParametricIntolerance);
-        pdman.set2f(fTessArgs2Uniform,
-                    joinTolerance * joinTolerance,  // uJoinTolerancePow2
+                    get_join_type(shader.fStroke),  // uJoinType
                     strokeRadius);  // uStrokeRadius
         const SkMatrix& m = shader.viewMatrix();
         if (!m.isIdentity()) {
@@ -414,8 +394,7 @@ private:
         pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
     }
 
-    GrGLSLUniformHandler::UniformHandle fTessArgs1Uniform;
-    GrGLSLUniformHandler::UniformHandle fTessArgs2Uniform;
+    GrGLSLUniformHandler::UniformHandle fTessArgsUniform;
     GrGLSLUniformHandler::UniformHandle fTranslateUniform;
     GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
@@ -441,10 +420,10 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     code.appendf("#define MAX_TESSELLATION_SEGMENTS %i.0\n",
                  shaderCaps.maxTessellationSegments());
 
-    const char* tessArgs1Name = impl->getTessArgs1UniformName(uniformHandler);
-    code.appendf("uniform vec4 %s;\n", tessArgs1Name);
-    code.appendf("#define uParametricIntolerance %s.y\n", tessArgs1Name);
-    code.appendf("#define uNumRadialSegmentsPerRadian %s.z\n", tessArgs1Name);
+    const char* tessArgsName = impl->getTessArgsUniformName(uniformHandler);
+    code.appendf("uniform vec4 %s;\n", tessArgsName);
+    code.appendf("#define uParametricIntolerance %s.x\n", tessArgsName);
+    code.appendf("#define uNumRadialSegmentsPerRadian %s.y\n", tessArgsName);
 
     code.appendf("#define cross cross2d\n");  // GLSL already has a function named "cross".
 
@@ -459,7 +438,8 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     in vec4 vsTans01[];
     in vec4 vsTans23[];
 
-    patch out vec4 tcsJoinArgs0; // [numJoinSegments, innerJoinRadiusMultiplier, prevJoinTangent.xy]
+    // [numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent.xy]
+    patch out vec4 tcsJoinArgs0;
     patch out vec4 tcsJoinArgs1;  // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
     patch out vec4 tcsEndPtEndTan;
     out vec4 tcsPts01[];
@@ -771,9 +751,9 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
                  SkNextLog2(shaderCaps.maxTessellationSegments()));
     code.appendf("#define PI 3.141592653589793238\n");
 
-    const char* tessArgs2Name = impl->getTessArgs2UniformName(uniformHandler);
-    code.appendf("uniform vec2 %s;\n", tessArgs2Name);
-    code.appendf("#define uStrokeRadius %s.y\n", tessArgs2Name);
+    const char* tessArgsName = impl->getTessArgsUniformName(uniformHandler);
+    code.appendf("uniform vec4 %s;\n", tessArgsName);
+    code.appendf("#define uStrokeRadius %s.w\n", tessArgsName);
 
     if (!this->viewMatrix().isIdentity()) {
         const char* translateName = impl->getTranslateUniformName(uniformHandler);
@@ -789,7 +769,8 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     }
 
     code.append(R"(
-    patch in vec4 tcsJoinArgs0;  // [numJoinSegments, innerJoinRadiusMultiplier, prevJoinTangent.xy]
+    // [numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent.xy]
+    patch in vec4 tcsJoinArgs0;
     patch in vec4 tcsJoinArgs1;  // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
     patch in vec4 tcsEndPtEndTan;
     in vec4 tcsPts01[];
@@ -807,8 +788,8 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         // run orthogonal to the curve and make a strip of "numTotalCombinedSegments" quads.
         // Determine which discrete edge belongs to this invocation. An edge can either come from a
         // parametric segment or a radial one.
-        float numJoinSegments = tcsJoinArgs0.x;
-        float numTotalCombinedSegments = numJoinSegments + tcsTessArgs[0].x + tcsTessArgs[1].x +
+        float numSegmentsInJoin = tcsJoinArgs0.x;
+        float numTotalCombinedSegments = numSegmentsInJoin + tcsTessArgs[0].x + tcsTessArgs[1].x +
                                          tcsTessArgs[2].x;
         float totalEdgeID = round(gl_TessCoord.x * numTotalCombinedSegments);
 
@@ -820,14 +801,14 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         vec3 tessellationArgs;
         float strokeRadius = uStrokeRadius;
         vec2 strokeOutsetClamp = vec2(-1, 1);
-        if (localEdgeID < numJoinSegments || numJoinSegments == numTotalCombinedSegments) {
+        if (localEdgeID < numSegmentsInJoin || numSegmentsInJoin == numTotalCombinedSegments) {
             // Our edge belongs to the join preceding the curve.
             P = mat4x2(tcsPts01[0].xyxy, tcsPts01[0].xyxy);
             tan0 = tcsJoinArgs0.zw;
             tessellationArgs = vec3(1, tcsJoinArgs1.xy);
             strokeRadius *= (localEdgeID == 1.0) ? tcsJoinArgs0.y : 1.0;
             strokeOutsetClamp = tcsJoinArgs1.zw;
-        } else if ((localEdgeID -= numJoinSegments) < tcsTessArgs[0].x) {
+        } else if ((localEdgeID -= numSegmentsInJoin) < tcsTessArgs[0].x) {
             // Our edge belongs to the first curve section.
             P = mat4x2(tcsPts01[0], tcsPt2Tan0[0].xy, tcsPts01[1].xy);
             tan0 = tcsPt2Tan0[0].zw;
@@ -929,7 +910,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
                 nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "tessControlArgs", &tessArgsName);
         args.fVertBuilder->codeAppendf("float uParametricIntolerance = %s.x;\n", tessArgsName);
         args.fVertBuilder->codeAppendf("float uNumRadialSegmentsPerRadian = %s.y;\n", tessArgsName);
-        args.fVertBuilder->codeAppendf("float uMiterLimitInvPow2 = %s.z;\n", tessArgsName);
+        args.fVertBuilder->codeAppendf("float uMiterLimit = %s.z;\n", tessArgsName);
         args.fVertBuilder->codeAppendf("float uStrokeRadius = %s.w;\n", tessArgsName);
 
         // View matrix uniforms.
@@ -1080,7 +1061,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             args.fVertBuilder->codeAppend(R"(
             // Vertices #4 and #5 belong to the edge of the join that extends to the miter point.
             if ((sk_VertexID | 1) == (4 | 5)) {
-                outset *= miter_extent(cosTheta, uMiterLimitInvPow2);
+                outset *= miter_extent(cosTheta, uMiterLimit);
             })");
         }
 
@@ -1148,11 +1129,10 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             // identity viewMatrix and a strokeWidth of 1.
             tolerances.set(1, 1);
         }
-        float miterLimit = stroke.getMiter();
         pdman.set4f(fTessControlArgsUniform,
                     tolerances.fParametricIntolerance,  // uParametricIntolerance
                     tolerances.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
-                    1 / (miterLimit * miterLimit),  // uMiterLimitInvPow2
+                    shader.fStroke.getMiter(),  // uMiterLimit
                     (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5);  // uStrokeRadius
 
         // Set up the view matrix, if any.
