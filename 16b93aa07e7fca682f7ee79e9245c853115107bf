@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06eaaccc_4b46d7b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-12T13:49:39Z",
+      "side": 1,
+      "message": "Bot failure was from \"no space left on device\", so submitting manually.",
+      "revId": "16b93aa07e7fca682f7ee79e9245c853115107bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
