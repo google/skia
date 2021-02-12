@@ -76,11 +76,13 @@ DEF_TEST(HighContrastFilter_InvalidInputs, reporter) {
     REPORTER_ASSERT(reporter, !filter);
 
     // Valid contrast
-    config.fInvertStyle = SkHighContrastConfig::InvertStyle::kInvertBrightness;
-    config.fContrast = 0.5f;
-    REPORTER_ASSERT(reporter, config.isValid());
-    filter = SkHighContrastFilter::Make(config);
-    REPORTER_ASSERT(reporter, filter);
+    for (float contrast : {0.5f, +1.0f, -1.0f}) {
+        config.fInvertStyle = SkHighContrastConfig::InvertStyle::kInvertBrightness;
+        config.fContrast = contrast;
+        REPORTER_ASSERT(reporter, config.isValid());
+        filter = SkHighContrastFilter::Make(config);
+        REPORTER_ASSERT(reporter, filter);
+    }
 
     // Invalid contrast
     config.fContrast = 1.1f;
