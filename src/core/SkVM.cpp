@@ -676,7 +676,7 @@ namespace skvm {
     }
 
     F32 Builder::div(F32 x, F32 y) {
-        if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X/Y); }
+        if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(sk_ieee_float_divide(X,Y)); }
         if (this->isImm(y.id, 1.0f)) { return x; }  // x/1 == x
         return {this, this->push(Op::div_f32, x.id, y.id)};
     }
