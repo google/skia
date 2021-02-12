@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "533ee51d_a5683df1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T17:31:36Z",
+      "side": 1,
+      "message": "Is this at the right abstraction level? I guess we need something like this in FPs, but for runtime effects, sample() needs to operate on a variable that actually represents the child shader. Maybe that\u0027s just a completely separate concept, and this will only be private API?",
+      "revId": "57b4b175a75ee9d6b35c478c5db309af0e49bca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1d001dfe_988f2ee3",
