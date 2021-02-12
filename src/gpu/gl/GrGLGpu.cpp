@@ -1653,6 +1653,8 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
                                                         dimensions.width(), dimensions.height()));
             success = (error == GR_GL_NO_ERROR);
         } else {
+            // glTexImage2D will interpret the pointer param as a PBO offset if 0 is not bound.
+            this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
             GrGLenum externalFormat, externalType;
             this->glCaps().getTexImageExternalFormatAndType(format, &externalFormat, &externalType);
             GrGLenum error = GR_GL_NO_ERROR;
