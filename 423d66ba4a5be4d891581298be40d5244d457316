@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90630bcd_5200ebcb",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-12T19:34:13Z",
+      "side": 1,
+      "message": "Consider including the struct name (like the error below this one)?\n\n    \"struct \u0027\" + this-\u003etext(name) + \"\u0027 is ...",
+      "range": {
+        "startLine": 630,
+        "startChar": 35,
+        "endLine": 630,
+        "endChar": 46
+      },
+      "revId": "423d66ba4a5be4d891581298be40d5244d457316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
