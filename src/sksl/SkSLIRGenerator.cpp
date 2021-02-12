@@ -425,10 +425,16 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
             this->errorReporter().error(
                     offset,
                     "opaque type '" + type->name() + "' may not be used in an array");
+        } else if (type->isArray()) {
+            // The parser already rejects multi-dimensional array declarations like `float x[2][2]`
+            // or `float[2][2] x`, but it isn't clever enough to catch `float[2] x[2]`, so we need
+            // to detect that here.
+            this->errorReporter().error(offset, "multi-dimensional arrays are not supported");
+        } else {
+            SkASSERT(arraySize);
+            arraySizeValue = this->convertArraySize(std::move(arraySize));
+            type = fSymbolTable->addArrayDimension(type, arraySizeValue);
         }
-        SkASSERT(arraySize);
-        arraySizeValue = this->convertArraySize(std::move(arraySize));
-        type = fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
     auto var = std::make_unique<Variable>(offset, fModifiers->addToPool(modifiers),
                                           name, type, fIsBuiltinCode, storage);
