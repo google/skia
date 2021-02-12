@@ -25,12 +25,12 @@ public:
     ~GrMtlAttachment() override;
 
     GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMtl(fView.pixelFormat);
+        return GrBackendFormat::MakeMtl((*fView).pixelFormat);
     }
 
-    MTLPixelFormat mtlFormat() const { return fView.pixelFormat; }
+    MTLPixelFormat mtlFormat() const { return (*fView).pixelFormat; }
 
-    id<MTLTexture> view() const { return fView; }
+    id<MTLTexture> view() const { return fView.get(); }
 
 protected:
     void onRelease() override;
@@ -44,7 +44,7 @@ private:
 
     GrMtlGpu* getMtlGpu() const;
 
-    id<MTLTexture> fView;
+    sk_cfp<id<MTLTexture>> fView;
 };
 
 #endif
