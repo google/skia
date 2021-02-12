@@ -1,4 +1,4 @@
-struct Foo {} bar;
+struct Foo { float x; } bar;
 
 void preincrement_matrix()  { float4x4 x = float4x4(1); ++x; }
 void predecrement_vector()  { float3 x = float3(1); --x; }
