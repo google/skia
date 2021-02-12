@@ -30,13 +30,7 @@ using InvertStyle = SkHighContrastConfig::InvertStyle;
 
 class SkHighContrast_Filter : public SkColorFilterBase {
 public:
-    SkHighContrast_Filter(const SkHighContrastConfig& config) {
-        fConfig = config;
-        // Clamp contrast to just inside -1 to 1 to avoid division by zero.
-        fConfig.fContrast = SkTPin(fConfig.fContrast,
-                                   -1.0f + FLT_EPSILON,
-                                   1.0f - FLT_EPSILON);
-    }
+    SkHighContrast_Filter(const SkHighContrastConfig& config) : fConfig(config) {}
 
     ~SkHighContrast_Filter() override {}
 
@@ -204,7 +198,12 @@ sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
     return SkHighContrastFilter::Make(config);
 }
 
-sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
+sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& userConfig) {
+    // Clamp contrast to just inside -1 to 1 to avoid division by zero.
+    SkHighContrastConfig config = userConfig;
+    config.fContrast = SkTPin(config.fContrast,
+                              -1.0f + FLT_EPSILON,
+                              +1.0f - FLT_EPSILON);
     if (!config.isValid()) {
         return nullptr;
     }
