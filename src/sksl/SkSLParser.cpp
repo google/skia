@@ -534,9 +534,9 @@ ASTNode::ID Parser::varDeclarationsOrExpressionStatement() {
         // occasionally the type is part of a constructor, and these are actually expression-
         // statements in disguise. First, attempt the common case: parse it as a vardecl.
         Checkpoint checkpoint(this);
-        ASTNode::ID node = this->varDeclarations();
-        if (node) {
-            return node;
+        VarDeclarationsPrefix prefix;
+        if (this->varDeclarationsPrefix(&prefix)) {
+            return this->varDeclarationEnd(prefix.modifiers, prefix.type, this->text(prefix.name));
         }
 
         // If this statement wasn't actually a vardecl after all, rewind and try parsing it as an
@@ -547,19 +547,24 @@ ASTNode::ID Parser::varDeclarationsOrExpressionStatement() {
     return this->expressionStatement();
 }
 
+// Helper function for varDeclarations(). If this function succeeds, we assume that the rest of the
+// statement is a variable-declaration statement, not an expression-statement.
+bool Parser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
+    prefixData->modifiers = this->modifiers();
+    prefixData->type = this->type();
+    if (!prefixData->type) {
+        return false;
+    }
+    return this->expectIdentifier(&prefixData->name);
+}
+
 /* modifiers type IDENTIFIER varDeclarationEnd */
 ASTNode::ID Parser::varDeclarations() {
-    Checkpoint checkpoint(this);
-    Modifiers modifiers = this->modifiers();
-    ASTNode::ID type = this->type();
-    if (!type) {
+    VarDeclarationsPrefix prefix;
+    if (!this->varDeclarationsPrefix(&prefix)) {
         return ASTNode::ID::Invalid();
     }
-    Token name;
-    if (!this->expectIdentifier(&name)) {
-        return ASTNode::ID::Invalid();
-    }
-    return this->varDeclarationEnd(modifiers, type, this->text(name));
+    return this->varDeclarationEnd(prefix.modifiers, prefix.type, this->text(prefix.name));
 }
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
