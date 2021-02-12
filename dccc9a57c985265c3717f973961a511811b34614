@@ -22,6 +22,30 @@
       },
       "revId": "dccc9a57c985265c3717f973961a511811b34614",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08900f19_ead9788d",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-12T16:15:18Z",
+      "side": 1,
+      "message": "No. I put in the std::max because I saw SkStrokeRec doesn\u0027t sanitize the value it gets for setMiter. But now I see SkPaint does make sure it\u0027s \u003e\u003d 0. I switched to an assert. Negative miter is undefined anyway.",
+      "parentUuid": "8c533e84_f8cadc52",
+      "range": {
+        "startLine": 86,
+        "startChar": 58,
+        "endLine": 86,
+        "endChar": 66
+      },
+      "revId": "dccc9a57c985265c3717f973961a511811b34614",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
