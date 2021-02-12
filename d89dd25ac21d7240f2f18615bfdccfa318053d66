@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "678f5102_cb9cb765",
+        "filename": "resources/sksl/errors/ArrayTooManyDimensionsInFuncBody.sksl",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-12T21:59:50Z",
+      "side": 1,
+      "message": "Do we also want to test\n\n  void main() { float[2][2] x; }\n\n... and similar in the other contexts?",
+      "revId": "d89dd25ac21d7240f2f18615bfdccfa318053d66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
