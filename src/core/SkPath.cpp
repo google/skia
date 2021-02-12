@@ -1652,24 +1652,12 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
         // However, some transformations are thought to be safe:
         //    axis-aligned values under scale/translate.
         //
-        // See skbug.com/8606
-        // If we can land a robust convex scan-converter, we may be able to relax/remove this
-        // check, and keep convex paths marked as such after a general transform...
-        //
-#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
-        if (matrix.isScaleTranslate() && SkPathPriv::IsAxisAligned(*this)) {
-            dst->setConvexity(convexity);
-        } else {
-            dst->setConvexity(SkPathConvexity::kUnknown);
-        }
-#else
         if (convexity == SkPathConvexity::kConvex &&
             (!matrix.isScaleTranslate() || !SkPathPriv::IsAxisAligned(*this))) {
             // Not safe to still assume we're convex...
             convexity = SkPathConvexity::kUnknown;
         }
         dst->setConvexity(convexity);
-#endif
 
         if (this->getFirstDirection() == SkPathFirstDirection::kUnknown) {
             dst->setFirstDirection(SkPathFirstDirection::kUnknown);
@@ -2093,22 +2081,6 @@ enum DirChange {
     kInvalid_DirChange
 };
 
-#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
-static bool almost_equal(SkScalar compA, SkScalar compB) {
-    // The error epsilon was empirically derived; worse case round rects
-    // with a mid point outset by 2x float epsilon in tests had an error
-    // of 12.
-    const int epsilon = 16;
-    if (!SkScalarIsFinite(compA) || !SkScalarIsFinite(compB)) {
-        return false;
-    }
-    // no need to check for small numbers because SkPath::Iter has removed degenerate values
-    int aBits = SkFloatAs2sCompliment(compA);
-    int bBits = SkFloatAs2sCompliment(compB);
-    return aBits < bBits + epsilon && bBits < aBits + epsilon;
-}
-#endif
-
 // only valid for a single contour
 struct Convexicator {
 
@@ -2189,24 +2161,9 @@ private:
         if (!SkScalarIsFinite(cross)) {
                 return kUnknown_DirChange;
         }
-#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
-        SkScalar smallest = std::min(fCurrPt.fX, std::min(fCurrPt.fY, std::min(fLastPt.fX, fLastPt.fY)));
-        SkScalar largest = std::max(fCurrPt.fX, std::max(fCurrPt.fY, std::max(fLastPt.fX, fLastPt.fY)));
-        largest = std::max(largest, -smallest);
-
-        if (almost_equal(largest, largest + cross)) {
-            constexpr SkScalar nearlyZeroSqd = SK_ScalarNearlyZero * SK_ScalarNearlyZero;
-            if (SkScalarNearlyZero(SkPointPriv::LengthSqd(fLastVec), nearlyZeroSqd) ||
-                SkScalarNearlyZero(SkPointPriv::LengthSqd(curVec), nearlyZeroSqd)) {
-                return kUnknown_DirChange;
-            }
-            return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
-        }
-#else
         if (cross == 0) {
             return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
         }
-#endif
         return 1 == SkScalarSignAsInt(cross) ? kRight_DirChange : kLeft_DirChange;
     }
 
@@ -3860,10 +3817,6 @@ int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
 }
 
 bool SkPathPriv::IsAxisAligned(const SkPath& path) {
-#ifdef SK_SUPPORT_LEGACY_CONVEXITY_DIRECTION_CHANGE
-    SkRect tmp;
-    return (path.fPathRef->fIsRRect | path.fPathRef->fIsOval) || path.isRect(&tmp);
-#else
     // Conservative (quick) test to see if all segments are axis-aligned.
     // Multiple contours might give a false-negative, but for speed, we ignore that
     // and just look at the raw points.
@@ -3877,5 +3830,4 @@ bool SkPathPriv::IsAxisAligned(const SkPath& path) {
         }
     }
     return true;
-#endif
 }
