@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a53e6a1_ea7a1e19",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-12T14:38:40Z",
+      "side": 1,
+      "message": "Yes, I agree, and had actually implemented that logic here earlier in the CL\u0027s lifetime (see PS1). \n\nI backed it out because doing it right involves fixing the intrinsic calls as well, so now we\u0027re factoring the logic out into a separate sharable place. Plus we should add tests for these intrinsics (since obviously it wasn\u0027t tested before). So the scope goes up quite a bit once you factor that in. I decided we needed to fix the regression I introduced last week in this CL now, rather than let the error linger, and mark the extra work with a TODO.",
+      "parentUuid": "2bd70be4_17dc894d",
+      "revId": "00ec07941854d2c870a8a00e3583cd333c1df703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31858c73_7ba6c648",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-02-12T14:23:34Z",
       "side": 1,
       "message": "Can this ever happen? I keep seeing conflicting comments and code throughout SkSL about our handling of assignable ternaries. The most recent thing I saw indicated that if the condition is literal, we\u0027ll bake the ternary down at IR conversion time. Other than that case, I thought we didn\u0027t allow them - most of our backends don\u0027t support them.",
+      "revId": "00ec07941854d2c870a8a00e3583cd333c1df703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d04322bd_16499adc",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1943,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-12T14:38:40Z",
+      "side": 1,
+      "message": "Ternaries are not assignable in SkSL. This is probably dead code. I just verified that if we attempt to use a ternary as an Lvalue, we get\n\n\"error: 5: cannot assign to this expression\"\n\nUnlike GLSL, SkSL DOES allow ternaries to be assigned to if the ternary can be constant-folded away at IR generation time, and we have tests verifying that this works. This appears to be an intentional feature, along the lines of @if.",
+      "parentUuid": "31858c73_7ba6c648",
       "revId": "00ec07941854d2c870a8a00e3583cd333c1df703",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
