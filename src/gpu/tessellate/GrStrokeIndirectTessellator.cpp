@@ -444,6 +444,8 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
         const GrSTArenaList<PathStroke>& pathStrokeList, int totalCombinedVerbCnt,
         SkArenaAlloc* alloc)
         : GrStrokeTessellator(shaderFlags) {
+    // We can't combine colors because our log2 binning draws things out of order.
+    SkASSERT(!(fShaderFlags & ShaderFlags::kDynamicColor));
     SkASSERT(!fTotalInstanceCount);
     SkASSERT(!fResolveLevels);
     SkASSERT(!fResolveLevelArrayCount);
@@ -468,7 +470,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
 
     float lastStrokeWidth = -1;
     SkPoint lastControlPoint = {0,0};
-    for (const auto& [path, stroke] : pathStrokeList) {
+    for (const auto& [path, stroke, _/*color*/] : pathStrokeList) {
         SkASSERT(stroke.getWidth() >= 0);  // Otherwise we can't initialize lastStrokeWidth=-1.
         if (stroke.getWidth() != lastStrokeWidth ||
             (stroke.getJoin() == SkPaint::kRound_Join) != counter.isRoundJoin()) {
@@ -778,7 +780,7 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     int8_t resolveLevel;
 
     // Now write out each instance to its resolveLevel's designated location in the instance buffer.
-    for (const auto& [path, stroke] : pathStrokeList) {
+    for (const auto& [path, stroke, _/*color*/] : pathStrokeList) {
         bool isRoundJoin = (stroke.getJoin() == SkPaint::kRound_Join);
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             binningWriter.updateDynamicStroke(stroke);
