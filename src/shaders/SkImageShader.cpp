@@ -577,11 +577,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     }
     matrix.normalizePerspective();
 
-    if (sampling.useCubic &&
-        SkMatrixPriv::AdjustHighQualityFilterLevel(matrix, true) != kHigh_SkFilterQuality)
-    {
-        sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
-    }
+    SkASSERT(!sampling.useCubic || sampling.mipmap == SkMipmapMode::kNone);
     auto* access = SkMipmapAccessor::Make(alloc, fImage.get(), matrix, sampling.mipmap);
     if (!access) {
         return false;

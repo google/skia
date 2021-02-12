@@ -24,7 +24,6 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkPaintPriv.h"
@@ -471,18 +470,7 @@ GrInterpretSamplingOptions(SkISize imageDims,
 
     if (sampling.useCubic) {
         SkASSERT(GrValidCubicResampler(sampling.cubic));
-        if (allowFilterQualityReduction) {
-            SkMatrix matrix;
-            matrix.setConcat(viewM, localM);
-            switch (SkMatrixPriv::AdjustHighQualityFilterLevel(matrix)) {
-                case kNone_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , kInvalidCubicResampler};
-                case kLow_SkFilterQuality:    return {Filter::kLinear , MipmapMode::kNone  , kInvalidCubicResampler};
-                case kMedium_SkFilterQuality: return {Filter::kLinear , MipmapMode::kLinear, kInvalidCubicResampler};
-                case kHigh_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , sampling.cubic};
-            }
-        } else {
-            return {Filter::kNearest, MipmapMode::kNone, sampling.cubic};
-        }
+        return {Filter::kNearest, MipmapMode::kNone, sampling.cubic};
     }
 
     Filter     f = sampling.filter;
