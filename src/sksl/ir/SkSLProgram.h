@@ -296,7 +296,7 @@ struct Program {
 
     // Can be used to iterate over *just* the elements owned by the Program, not shared builtins.
     // The iterator's value type is 'std::unique_ptr<ProgramElement>', and mutation is allowed.
-    const std::vector<std::unique_ptr<ProgramElement>>& ownedElements() { return fElements; }
+    const std::vector<std::unique_ptr<ProgramElement>>& ownedElements() const { return fElements; }
 
     Kind fKind;
     std::unique_ptr<String> fSource;
