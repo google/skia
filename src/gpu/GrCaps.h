@@ -275,7 +275,8 @@ public:
     struct SupportedWrite {
         GrColorType fColorType;
         // If the write is occurring using GrGpu::transferPixelsTo then this provides the
-        // minimum alignment of the offset into the transfer buffer.
+        // minimum alignment of the offset into the transfer buffer. 0 indicates transfers are
+        // not allowed for this format.
         size_t fOffsetAlignmentForTransferBuffer;
     };
 

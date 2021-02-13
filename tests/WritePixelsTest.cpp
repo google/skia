@@ -399,6 +399,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                 surface->writePixels(bmp, rect.fLeft, rect.fTop);
 
                 uint32_t idAfter = surface->generationID();
+                SkDebugf("%d %d %d\n", (int)(r), tightBmp, (int)c);
                 REPORTER_ASSERT(reporter, check_write(reporter, surface, surfaceInfo.alphaType(),
                                                       bmp, rect.fLeft, rect.fTop));
 
@@ -435,6 +436,7 @@ static void test_write_pixels(skiatest::Reporter* reporter,
                               int sampleCnt) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
+        SkDebugf("o:%d\n", origin);
         sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(rContext,
                                                              SkBudgeted::kNo, ii, sampleCnt,
                                                              origin, nullptr));
