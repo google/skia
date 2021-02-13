@@ -472,6 +472,7 @@ sksl_inliner_tests = [
   "/sksl/inliner/InlineWithUnmodifiedArgument.sksl",
   "/sksl/inliner/InlineWithUnnecessaryBlocks.sksl",
   "/sksl/inliner/InlinerAvoidsVariableNameOverlap.sksl",
+  "/sksl/inliner/InlinerHonorsGLSLOutParamSemantics.sksl",
   "/sksl/inliner/InlinerManglesNames.sksl",
   "/sksl/inliner/InlinerWrapsEarlyReturnsWithForLoop.sksl",
   "/sksl/inliner/InlinerWrapsSwitchWithReturnInsideWithForLoop.sksl",
