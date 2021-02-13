@@ -108,7 +108,8 @@ protected:
             SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
             SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
             sk_sp<SkImageFilter> source(
-                SkImageFilters::Image(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
+                SkImageFilters::Image(std::move(image), inRect, outRect,
+                                      SkSamplingOptions({1/3.0f, 1/3.0f})));
             canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
             this->draw(canvas, srcRect, deviceSize, samplings[3], std::move(source));
         }
