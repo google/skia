@@ -28,6 +28,8 @@ void out_bool2(out bool2 v) { v = bool2(false); }
 void out_bool3(out bool3 v) { v = bool3(true);  }
 void out_bool4(out bool4 v) { v = bool4(false); }
 
+void out_pair(out half v1, out half v2) { v1 = 1; v2 = 2; }
+
 void main() {
     half     h;    out_half (h);
     half2    h2;   out_half2(h2);
@@ -37,6 +39,13 @@ void main() {
                    out_half2(h3.xz);
                    out_half4(h4.zwxy);
     sk_FragColor = half4(h, h2.x, h3.x, h4.x);
+
+    half     h1;
+    out_pair(h, h1);
+    out_pair(h, h);
+    out_pair(h2.x, h2.y);
+    out_pair(h2.x, h2.x);
+    out_pair(h2.x, h3.x);
 
     half2x2  h2x2; out_half2x2(h2x2);
     half3x3  h3x3; out_half3x3(h3x3);
