@@ -14,6 +14,8 @@
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
+using DynamicStroke = GrStrokeTessellateShader::DynamicStroke;
+
 GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
                                            const SkPath& path, const SkStrokeRec& stroke,
                                            GrPaint&& paint)
@@ -73,7 +75,6 @@ GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
 
 GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* alloc,
                                                               const GrCaps& caps) {
-    using DynamicStroke = GrStrokeTessellateShader::DynamicStroke;
     SkASSERT(grOp->classID() == this->classID());
     auto* op = static_cast<GrStrokeTessellateOp*>(grOp);
 
@@ -100,18 +101,23 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkAren
     }
 
     // Don't actually enable new dynamic state on ops that already have lots of verbs.
-    auto dynamicStatesMask = (uint32_t)(ShaderFlags::kDynamicStroke | ShaderFlags::kDynamicColor);
-    if (auto dynamicStates = (uint32_t)combinedFlags & dynamicStatesMask) {
-        if (!this->shouldUseDynamicStates((ShaderFlags)dynamicStates) ||
-            !op->shouldUseDynamicStates((ShaderFlags)dynamicStates)) {
+    constexpr static GrTFlagsMask<ShaderFlags> kDynamicStatesMask(ShaderFlags::kDynamicStroke |
+                                                                  ShaderFlags::kDynamicColor);
+    ShaderFlags neededDynamicStates = combinedFlags & kDynamicStatesMask;
+    if (neededDynamicStates != ShaderFlags::kNone) {
+        if (!this->shouldUseDynamicStates(neededDynamicStates) ||
+            !op->shouldUseDynamicStates(neededDynamicStates)) {
             return CombineResult::kCannotCombine;
         }
     }
 
-    // The indirect tessellator can't combine colors because its log2 binning draws things out of
-    // order. Only enable dynamic color if we have hardware tessellation.
-    if ((combinedFlags & ShaderFlags::kDynamicColor) && !this->canUseHardwareTessellation(caps)) {
-        return CombineResult::kCannotCombine;
+    // The indirect tessellator can't combine overlapping, mismatched colors because the log2
+    // binning draws things out of order. But we can still chain them together and generate a single
+    // long list of indirect draws.
+    if ((combinedFlags & ShaderFlags::kDynamicColor) &&
+        !this->canUseHardwareTessellation(caps) &&
+        this->bounds().intersects(op->bounds())) {
+        return CombineResult::kMayChain;
     }
 
     fPathStrokeList.concat(std::move(op->fPathStrokeList), alloc);
@@ -156,12 +162,40 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
     GrStrokeTessellateShader::Mode shaderMode;
     if (this->canUseHardwareTessellation(caps) &&
         ((fShaderFlags & ShaderFlags::kDynamicColor) || fTotalCombinedVerbCnt > 50)) {
-        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, *caps.shaderCaps());
+        SkASSERT(!this->nextInChain());  // We never chain when hw tessellation is an option.
+        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags,
+                                                                std::move(fPathStrokeList),
+                                                                fTotalCombinedVerbCnt,
+                                                                *caps.shaderCaps());
         shaderMode = GrStrokeTessellateShader::Mode::kTessellation;
     } else {
-        fTessellator = arena->make<GrStrokeIndirectTessellator>(fShaderFlags, fViewMatrix,
-                                                                fPathStrokeList,
-                                                                fTotalCombinedVerbCnt, arena);
+        if (this->nextInChain()) {
+            // We are a chained list of indirect stroke ops. The only reason we would have chained
+            // is if everything was a match except color.
+            fShaderFlags |= ShaderFlags::kDynamicColor;
+            // Collect any other shader flags in the chain.
+            const SkStrokeRec& headStroke = this->headStroke();
+            for (GrStrokeTessellateOp* op = this->nextInChain(); op; op = op->nextInChain()) {
+                fShaderFlags |= op->fShaderFlags;
+                if (!(fShaderFlags & ShaderFlags::kDynamicStroke) &&
+                    !DynamicStroke::StrokesHaveEqualDynamicState(headStroke, op->headStroke())) {
+                    fShaderFlags |= ShaderFlags::kDynamicStroke;
+                }
+            }
+        }
+        auto* headTessellator = arena->make<GrStrokeIndirectTessellator>(
+                fShaderFlags, fViewMatrix, std::move(fPathStrokeList), fTotalCombinedVerbCnt,
+                arena);
+        // Make a tessellator for every chained op after us. These will all append to the head
+        // tessellator's shared indirect draw list during prepare().
+        for (GrStrokeTessellateOp* op = this->nextInChain(); op; op = op->nextInChain()) {
+            SkASSERT(fViewMatrix == op->fViewMatrix);
+            auto* chainedTessellator = arena->make<GrStrokeIndirectTessellator>(
+                    fShaderFlags, fViewMatrix, std::move(op->fPathStrokeList),
+                    op->fTotalCombinedVerbCnt, arena);
+            headTessellator->addToChain(chainedTessellator);
+        }
+        fTessellator = headTessellator;
         shaderMode = GrStrokeTessellateShader::Mode::kIndirect;
     }
 
@@ -217,11 +251,10 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
                                     flushState->detachAppliedClip());
     }
     SkASSERT(fTessellator);
-    fTessellator->prepare(flushState, fViewMatrix, fPathStrokeList, fTotalCombinedVerbCnt);
+    fTessellator->prepare(flushState, fViewMatrix);
 }
 
 void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    SkASSERT(chainBounds == this->bounds());
     if (fStencilProgram) {
         flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
         flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
