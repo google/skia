@@ -67,8 +67,6 @@
 
 #endif
 
-bool gSkSLAllowOptimization = true;
-
 namespace SkSL {
 
 using RefKind = VariableReference::RefKind;
@@ -1608,7 +1606,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
     bool success = false;
     if (fErrorCount) {
         // Do not return programs that failed to compile.
-    } else if (settings.fOptimize && gSkSLAllowOptimization && !this->optimize(*program)) {
+    } else if (settings.fOptimize && !this->optimize(*program)) {
         // Do not return programs that failed to optimize.
     } else {
         // We have a successful program!

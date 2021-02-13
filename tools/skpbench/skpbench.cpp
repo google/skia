@@ -88,8 +88,6 @@ static const char resultFormat[] =
 
 static constexpr int kNumFlushesToPrimeCache = 3;
 
-extern bool gSkSLAllowOptimization;
-
 struct Sample {
     using duration = std::chrono::nanoseconds;
 
@@ -497,8 +495,6 @@ int main(int argc, char** argv) {
     if (FLAGS_duration <= 0) {
         exit(0); // This can be used to print the header and quit.
     }
-
-    gSkSLAllowOptimization = false;  // Temporary experiment
 
     // Parse the config.
     const SkCommandLineConfigGpu* config = nullptr; // Initialize for spurious warning.
