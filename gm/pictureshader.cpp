@@ -226,6 +226,7 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     canvas->drawPaint(p);
 }
 
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
 /*
     Test picture-shader's filtering (after the tile is created.
     The GM draws a 2x2 grid of tiled images (circle, square, X)
@@ -287,3 +288,4 @@ DEF_SIMPLE_GM(picture_shader_filter, canvas, 230, 230) {
         canvas->drawRect({0, 0, 300, 300}, paint);
     }
 }
+#endif

@@ -277,10 +277,7 @@ public:
 
         builder.child("input")        = fMandrill->makeShader(sampling);
 
-        // TODO: Move filter quality to the shader itself. We need to enforce at least kLow here
-        // so that we bilerp the color cube image.
         SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
 
         // TODO: Should we add SkImage::makeNormalizedShader() to handle this automatically?
         SkMatrix normalize = SkMatrix::Scale(1.0f / (kSize * kSize), 1.0f / kSize);
