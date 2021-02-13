@@ -663,22 +663,16 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
     // them.
     VariableRewriteMap varMap;
-    std::vector<int> argsToCopyBack;
     for (int i = 0; i < (int) arguments.size(); ++i) {
-        const Variable* param = function.declaration().parameters()[i];
-        bool isOutParam = param->modifiers().fFlags & Modifiers::kOut_Flag;
-
         // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
+        const Variable* param = function.declaration().parameters()[i];
         if (Analysis::IsTrivialExpression(*arguments[i])) {
-            // ... and it's an `out` param, or it isn't written to within the inline function...
-            if (isOutParam || !Analysis::StatementWritesToVariable(*function.body(), *param)) {
+            // ... and isn't written to within the inline function...
+            if (!Analysis::StatementWritesToVariable(*function.body(), *param)) {
                 // ... we don't need to copy it at all! We can just use the existing expression.
                 varMap[param] = arguments[i]->clone();
                 continue;
             }
-        }
-        if (isOutParam) {
-            argsToCopyBack.push_back(i);
         }
         InlineVariable var = this->makeInlineVariable(param->name(), &arguments[i]->type(),
                                                       symbolTable.get(), param->modifiers(),
@@ -737,24 +731,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlineStatements = &inlinedBody.children();
     }
 
-    inlineStatements->reserve_back(body.children().size() + argsToCopyBack.size());
+    inlineStatements->reserve_back(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineStatements->push_back(this->inlineStatement(offset, &varMap, symbolTable.get(),
                                                           &resultExpr, returnComplexity, *stmt,
                                                           caller->isBuiltin()));
-    }
-
-    // Copy back the values of `out` parameters into their real destinations.
-    for (int i : argsToCopyBack) {
-        const Variable* p = function.declaration().parameters()[i];
-        SkASSERT(varMap.find(p) != varMap.end());
-        inlineStatements->push_back(
-                std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
-                        offset,
-                        clone_with_ref_kind(*arguments[i], VariableReference::RefKind::kWrite),
-                        Token::Kind::TK_EQ,
-                        std::move(varMap[p]),
-                        &arguments[i]->type())));
     }
 
     if (resultExpr != nullptr) {
@@ -787,6 +768,13 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
     if (functionDef == nullptr) {
         // Can't inline something if we don't actually have its definition.
         return false;
+    }
+
+    // We don't allow inlining a function with out parameters. (See skia:11326 for rationale.)
+    for (const Variable* param : functionDef->declaration().parameters()) {
+        if (param->modifiers().fFlags & Modifiers::Flag::kOut_Flag) {
+            return false;
+        }
     }
 
     // We don't have any mechanism to simulate early returns within a construct that supports
