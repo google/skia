@@ -23,7 +23,7 @@ class SkPath;
 class SkPathEffect;
 class SkShader;
 
-// WIP to eventually remove filter-quality
+// Move to clients when they are ready -- aid in deprecating the enum
 #define SK_SUPPORT_LEGACY_SETFILTERQUALITY
 
 /** \class SkPaint
@@ -192,9 +192,6 @@ public:
     */
     void setDither(bool dither) { fBitfields.fDither = static_cast<unsigned>(dither); }
 
-#ifndef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-private:
-#endif
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
     */
@@ -202,6 +199,9 @@ private:
         return (SkFilterQuality)fBitfields.fFilterQuality;
     }
 
+#ifndef SK_SUPPORT_LEGACY_SETFILTERQUALITY
+private:
+#endif
     /** Sets SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
         Does not check to see if quality is valid.
