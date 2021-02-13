@@ -21,8 +21,6 @@ class GrStrokeTessellator {
 public:
     using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
 
-    GrStrokeTessellator(ShaderFlags shaderFlags) : fShaderFlags(shaderFlags) {}
-
     struct PathStroke {
         PathStroke(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)
                 : fPath(path), fStroke(stroke), fColor(color) {}
@@ -31,9 +29,11 @@ public:
         SkPMColor4f fColor;
     };
 
+    GrStrokeTessellator(ShaderFlags shaderFlags, GrSTArenaList<PathStroke>&& pathStrokeList)
+            : fShaderFlags(shaderFlags), fPathStrokeList(std::move(pathStrokeList)) {}
+
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<PathStroke>&,
-                         int totalCombinedVerbCnt) = 0;
+    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix&) = 0;
 
     // Issues draw calls for the tessellated stroke. The caller is responsible for binding its
     // desired pipeline ahead of time.
@@ -43,6 +43,7 @@ public:
 
 protected:
     const ShaderFlags fShaderFlags;
+    const GrSTArenaList<PathStroke> fPathStrokeList;
 };
 
 // Renders strokes by linearizing them into sorted "parametric" and "radial" edges. See
@@ -58,15 +59,18 @@ private:
 
     SkStrokeRec& headStroke() { return fPathStrokeList.head().fStroke; }
     SkPMColor4f& headColor() { return fPathStrokeList.head().fColor; }
+    GrStrokeTessellateOp* nextInChain() const {
+        return static_cast<GrStrokeTessellateOp*>(this->GrDrawOp::nextInChain());
+    }
 
     // Returns whether it is a good tradeoff to use the dynamic states flagged in the given
     // bitfield. Dynamic states improve batching, but if they aren't already enabled, they come at
     // the cost of having to write out more data with each patch or instance.
-    bool shouldUseDynamicStates(ShaderFlags dynamicStates) const {
+    bool shouldUseDynamicStates(ShaderFlags neededDynamicStates) const {
         // Use the dynamic states if either (1) they are all already enabled anyway, or (2) we don't
         // have many verbs.
         constexpr static int kMaxVerbsToEnableDynamicState = 50;
-        bool anyStateDisabled = (bool)(~fShaderFlags & dynamicStates);
+        bool anyStateDisabled = (bool)(~fShaderFlags & neededDynamicStates);
         bool allStatesEnabled = !anyStateDisabled;
         return allStatesEnabled || (fTotalCombinedVerbCnt <= kMaxVerbsToEnableDynamicState);
     }

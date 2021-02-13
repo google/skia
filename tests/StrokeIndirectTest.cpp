@@ -45,8 +45,7 @@ static void test_stroke(skiatest::Reporter* r, GrDirectContext* ctx, GrMockOpTar
                                                     matrix, {path, stroke, SK_PMColor4fWHITE},
                                                     path.countVerbs(), target->allocator());
             tessellator.verifyResolveLevels(r, target, matrix, path, stroke);
-            tessellator.prepare(target, matrix, {path, stroke, SK_PMColor4fWHITE},
-                                path.countVerbs());
+            tessellator.prepare(target, matrix);
             tessellator.verifyBuffers(r, target, matrix, stroke);
         }
     }
@@ -441,7 +440,7 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r, GrMockOpT
     auto* indirect = static_cast<const GrDrawIndirectCommand*>(target->peekStaticIndirectData());
     GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
     float tolerance = test_tolerance(stroke.getJoin());
-    for (int i = 0; i < fDrawIndirectCount; ++i) {
+    for (int i = 0; i < fChainedDrawIndirectCount; ++i) {
         int numExtraEdgesInJoin = (stroke.getJoin() == SkPaint::kMiter_Join) ? 4 : 3;
         int numStrokeEdges = indirect->fVertexCount/2 - numExtraEdgesInJoin;
         int numSegments = numStrokeEdges - 1;
