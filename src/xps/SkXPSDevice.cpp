@@ -319,7 +319,7 @@ bool SkXPSDevice::endSheet() {
 
 static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
     //The CreateFontPackage API is only supported on desktop, not in UWP
-    #ifdef SK_WINUWP
+    #if defined(SK_WINUWP)
     return E_NOTIMPL;
     #else
     //CreateFontPackage wants unsigned short.

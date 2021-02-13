@@ -96,7 +96,7 @@ config("skia_private") {
 
 config("skia_winuwp") {
   if (skia_enable_winuwp) {
-    defines = [ "WINUWP" ]
+    defines = [ "SK_WINUWP" ]
   }
 }
 
