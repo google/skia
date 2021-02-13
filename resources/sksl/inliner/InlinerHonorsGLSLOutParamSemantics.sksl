@@ -1,0 +1,12 @@
+uniform half4 colorGreen, colorRed;
+
+bool out_params_are_distinct(out half x, out half y) {
+    x = 1;
+    y = 2;
+    return x == 1 && y == 2;
+}
+
+half4 main() {
+    half x = 0;
+    return out_params_are_distinct(x, x) ? colorGreen : colorRed;
+}
