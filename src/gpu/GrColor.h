@@ -92,13 +92,19 @@ static inline uint64_t SkPMColor4f_toFP16(const SkPMColor4f& color) {
  */
 class GrVertexColor {
 public:
-    explicit GrVertexColor(const SkPMColor4f& color, bool wideColor)
-            : fWideColor(wideColor) {
+    GrVertexColor() = default;
+
+    explicit GrVertexColor(const SkPMColor4f& color, bool wideColor) {
+        this->set(color, wideColor);
+    }
+
+    void set(const SkPMColor4f& color, bool wideColor) {
         if (wideColor) {
             memcpy(fColor, color.vec(), sizeof(fColor));
         } else {
             fColor[0] = color.toBytes_RGBA();
         }
+        fWideColor = wideColor;
     }
 
     size_t size() const { return fWideColor ? 16 : 4; }
