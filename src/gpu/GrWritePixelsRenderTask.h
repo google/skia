@@ -21,6 +21,15 @@ public:
                                     int levelCount,
                                     sk_sp<SkData> pixelStorage);
 
+    static sk_sp<GrRenderTask> Make(GrDrawingManager*,
+                                    sk_sp<GrSurfaceProxy>,
+                                    SkIRect,
+                                    GrColorType srcColorType,
+                                    GrColorType dstColorType,
+                                    sk_sp<GrGpuBuffer> srcBuffer,
+                                    size_t srcOffsets,
+                                    size_t rowBytes);
+
 private:
     GrWritePixelsTask(GrDrawingManager*,
                       sk_sp<GrSurfaceProxy> dst,
@@ -30,6 +39,15 @@ private:
                       const GrMipLevel[],
                       int levelCount,
                       sk_sp<SkData> pixelStorage);
+
+    GrWritePixelsTask(GrDrawingManager*,
+                      sk_sp<GrSurfaceProxy> dst,
+                      SkIRect,
+                      GrColorType srcColorType,
+                      GrColorType dstColorType,
+                      sk_sp<GrGpuBuffer> srcBuffer,
+                      size_t srcOffsets,
+                      size_t rowBytes);
 
     bool onIsUsed(GrSurfaceProxy* proxy) const override { return false; }
     // If instantiation failed, at flush time we simply will skip doing the write.
@@ -50,6 +68,7 @@ private:
     GrColorType fDstColorType;
     SkAutoSTArray<16, GrMipLevel> fLevels;
     sk_sp<SkData> fStorage;
+    sk_sp<GrGpuBuffer> fSrcBuffer;
 };
 
 #endif
