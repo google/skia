@@ -229,10 +229,10 @@ private:
         }
         for (int i = 0; i < loops; ++i) {
             SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
-            GrStrokeHardwareTessellator tessellator(ShaderFlags::kNone,
+            GrStrokeHardwareTessellator tessellator(ShaderFlags::kNone, {fPath, fStrokeRec,
+                                                    SK_PMColor4fWHITE}, fPath.countVerbs(),
                                                     *fTarget->caps().shaderCaps());
-            tessellator.prepare(fTarget.get(), matrix, {fPath, fStrokeRec, SK_PMColor4fWHITE},
-                                fPath.countVerbs());
+            tessellator.prepare(fTarget.get(), matrix);
         }
     }
 
@@ -273,8 +273,7 @@ private:
                 GrStrokeIndirectTessellator tessellator(ShaderFlags::kNone, SkMatrix::I(),
                                                         {path, fStrokeRec, SK_PMColor4fWHITE},
                                                         path.countVerbs(), fTarget->allocator());
-                tessellator.prepare(fTarget.get(), SkMatrix::I(),
-                                    {path, fStrokeRec, SK_PMColor4fWHITE}, path.countVerbs());
+                tessellator.prepare(fTarget.get(), SkMatrix::I());
             }
             fTarget->resetAllocator();
         }
