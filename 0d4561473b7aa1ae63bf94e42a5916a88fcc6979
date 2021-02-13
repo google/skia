@@ -62,6 +62,30 @@
       },
       "revId": "0d4561473b7aa1ae63bf94e42a5916a88fcc6979",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe680c80_a26831a4",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2036,
+      "author": {
+        "id": 9218
+      },
+      "writtenOn": "2021-02-13T03:22:20Z",
+      "side": 1,
+      "message": "Thanks Brian for the clarification.\nIt seems that Skia thinks the internal sized format GL_RGB565 is implicitly supported from external \u003cformat -- GL_RGB\u003e and \u003ctype -- GL_UNSIGNED_SHORT_5_6_5\u003e, while the validating cmd decoder strictly believes it\u0027s not allowed.\nI think they both aren\u0027t wrong. Personally I prefer to relax the validating cmd decoder for this.",
+      "parentUuid": "1dfa846d_0c98ce1a",
+      "range": {
+        "startLine": 2035,
+        "startChar": 0,
+        "endLine": 2036,
+        "endChar": 68
+      },
+      "revId": "0d4561473b7aa1ae63bf94e42a5916a88fcc6979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
