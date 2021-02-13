@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da110a42_00e25f81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-13T18:43:13Z",
+      "side": 1,
+      "message": "Haha, InlinerHonorsGLSLOutParamSemantics fails on Vulkan anyway because of \nskia:11052: SkSL: SPIR-V does not honor `out` param semantics\n\n*sigh*",
+      "revId": "913ad1d24646f26dc821583fcfcc369e58c11517",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
