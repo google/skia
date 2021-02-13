@@ -897,7 +897,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                           height,
                           externalFormat, externalType,
                           pixels));
-
+    GL_CALL(Flush());
     if (restoreGLRowLength) {
         GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
@@ -1066,6 +1066,7 @@ bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
     // TODO: Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
 
+    this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
     if (useTexStorage) {
         // We never resize or change formats of textures.
         GrGLenum error = GL_ALLOC_CALL(TexStorage2D(target, numMipLevels, internalFormat,
@@ -1099,7 +1100,7 @@ bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
         }
     } else {
         size_t offset = 0;
-
+        this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
         for (int level = 0; level < numMipLevels; ++level) {
             size_t levelDataSize = SkCompressedDataSize(compressionType, dimensions,
                                                         nullptr, false);
@@ -1653,6 +1654,7 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
                                                         dimensions.width(), dimensions.height()));
             success = (error == GR_GL_NO_ERROR);
         } else {
+            this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
             GrGLenum externalFormat, externalType;
             this->glCaps().getTexImageExternalFormatAndType(format, &externalFormat, &externalType);
             GrGLenum error = GR_GL_NO_ERROR;
@@ -1666,6 +1668,9 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
                                                      nullptr));
                 }
                 success = (error == GR_GL_NO_ERROR);
+                if (!success) {
+                    SkDebugf("Failed texture creation: %d\n", error);
+                }
             }
         }
     }
