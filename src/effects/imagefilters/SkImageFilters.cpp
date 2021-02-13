@@ -87,8 +87,17 @@ sk_sp<SkImageFilter> SkImageFilters::DropShadowOnly(
 
 sk_sp<SkImageFilter> SkImageFilters::Image(
         sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
-        SkFilterQuality filterQuality) {
-    return SkImageSource::Make(std::move(image), srcRect, dstRect, filterQuality);
+        const SkSamplingOptions& sampling) {
+    return SkImageSource::Make(std::move(image), srcRect, dstRect, sampling);
+}
+
+sk_sp<SkImageFilter> SkImageFilters::Image(sk_sp<SkImage> image,
+                                           const SkSamplingOptions& sampling) {
+    if (image) {
+        auto r = SkRect::MakeIWH(image->width(), image->height());
+        return Image(std::move(image), r, r, sampling);
+    }
+    return nullptr;
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Magnifier(

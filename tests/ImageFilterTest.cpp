@@ -1981,7 +1981,9 @@ DEF_TEST(ImageSourceBounds, reporter) {
     // Specified src and dst rects.
     SkRect src(SkRect::MakeXYWH(0.5, 0.5, 100.5, 100.5));
     SkRect dst(SkRect::MakeXYWH(-10.5, -10.5, 120.5, 120.5));
-    sk_sp<SkImageFilter> source2(SkImageFilters::Image(image, src, dst, kMedium_SkFilterQuality));
+    sk_sp<SkImageFilter> source2(SkImageFilters::Image(image, src, dst,
+                                                       SkSamplingOptions(SkFilterMode::kLinear,
+                                                                         SkMipmapMode::kLinear)));
     REPORTER_ASSERT(reporter,
                     dst.roundOut() == source2->filterBounds(input, SkMatrix::I(),
                                                             SkImageFilter::kForward_MapDirection,
