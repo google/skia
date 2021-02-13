@@ -232,6 +232,11 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     SkASSERT(outVars.size() == arguments.size());
     SkASSERT(outVars.size() == function.parameters().size());
 
+    // We need to detect cases where the caller passes the same variable as an out-param more than
+    // once, and avoid reusing the variable name. (In those cases we can actually just ignore the
+    // redundant input parameter entirely, and not give it any name.)
+    std::unordered_set<const Variable*> writtenVars;
+
     for (int index = 0; index < arguments.count(); ++index) {
         this->write(separator);
         separator = ", ";
@@ -246,10 +251,13 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
             this->write("&");
         }
         if (outVars[index]) {
-            this->write(" ");
-            fIgnoreVariableReferenceModifiers = true;
-            this->writeVariableReference(*outVars[index]);
-            fIgnoreVariableReferenceModifiers = false;
+            auto [iter, didInsert] = writtenVars.insert(outVars[index]->variable());
+            if (didInsert) {
+                this->write(" ");
+                fIgnoreVariableReferenceModifiers = true;
+                this->writeVariableReference(*outVars[index]);
+                fIgnoreVariableReferenceModifiers = false;
+            }
         } else {
             this->write(" _var");
             this->write(to_string(index));
