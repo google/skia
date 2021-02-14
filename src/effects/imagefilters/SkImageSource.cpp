@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
@@ -21,12 +22,12 @@ namespace {
 class SkImageSourceImpl final : public SkImageFilter_Base {
 public:
     SkImageSourceImpl(sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
-                      SkFilterQuality filterQuality)
+                      const SkSamplingOptions& sampling)
             : INHERITED(nullptr, 0, nullptr)
             , fImage(std::move(image))
             , fSrcRect(srcRect)
             , fDstRect(dstRect)
-            , fFilterQuality(filterQuality) {}
+            , fSampling(sampling) {}
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
@@ -42,30 +43,25 @@ private:
     friend void SkImageSource::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkImageSourceImpl)
 
-    sk_sp<SkImage>   fImage;
-    SkRect           fSrcRect, fDstRect;
-    SkFilterQuality  fFilterQuality;
+    sk_sp<SkImage>    fImage;
+    SkRect            fSrcRect, fDstRect;
+    SkSamplingOptions fSampling;
 
     using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
 
-sk_sp<SkImageFilter> SkImageSource::Make(sk_sp<SkImage> image) {
-    SkRect rect = image ? SkRect::MakeIWH(image->width(), image->height()) : SkRect::MakeEmpty();
-    return SkImageSource::Make(std::move(image), rect, rect, kHigh_SkFilterQuality);
-}
-
 sk_sp<SkImageFilter> SkImageSource::Make(sk_sp<SkImage> image,
                                          const SkRect& srcRect,
                                          const SkRect& dstRect,
-                                         SkFilterQuality filterQuality) {
+                                         const SkSamplingOptions& sampling) {
     if (!image || srcRect.width() <= 0.0f || srcRect.height() <= 0.0f) {
         return nullptr;
     }
 
     return sk_sp<SkImageFilter>(new SkImageSourceImpl(
-            std::move(image), srcRect, dstRect, filterQuality));
+            std::move(image), srcRect, dstRect, sampling));
 }
 
 void SkImageSource::RegisterFlattenables() {
@@ -77,7 +73,13 @@ void SkImageSource::RegisterFlattenables() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkImageSourceImpl::CreateProc(SkReadBuffer& buffer) {
-    SkFilterQuality filterQuality = buffer.checkFilterQuality();
+    SkSamplingOptions sampling;
+    if (buffer.isVersionLT(SkPicturePriv::kImageFilterImageSampling_Version)) {
+        sampling = SkSamplingOptions(buffer.checkFilterQuality(),
+                                     SkSamplingOptions::kMedium_asMipmapLinear);
+    } else {
+        sampling = buffer.readSampling();
+    }
 
     SkRect src, dst;
     buffer.readRect(&src);
@@ -88,11 +90,11 @@ sk_sp<SkFlattenable> SkImageSourceImpl::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return SkImageSource::Make(std::move(image), src, dst, filterQuality);
+    return SkImageSource::Make(std::move(image), src, dst, sampling);
 }
 
 void SkImageSourceImpl::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(fFilterQuality);
+    SkSamplingPriv::Write(buffer, fSampling);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
     buffer.writeImage(fImage.get());
@@ -140,12 +142,9 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
     dstRect.offset(-SkIntToScalar(dstIRect.fLeft), -SkIntToScalar(dstIRect.fTop));
     paint.setBlendMode(SkBlendMode::kSrc);
 
-    // TODO: take sampling explicitly, rather than filter-quality
-    SkSamplingOptions sampling(fFilterQuality, canvas->recordingContext() ?
-                               SkSamplingOptions::kMedium_asMipmapLinear :
-                               SkSamplingOptions::kMedium_asMipmapNearest);
     // FIXME: this probably shouldn't be necessary, but drawImageRect asserts
-    // None filtering when it's translate-only
+    SkSamplingOptions sampling = fSampling;
+    // None filtering when it's translate-only (even for cubicresampling? <reed>)
     if (fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height()) {
         sampling = SkSamplingOptions();
     }

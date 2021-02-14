@@ -27,7 +27,8 @@ namespace skiagm {
 // is shifted for high quality mode between cpu and gpu.
 class ImageSourceGM : public GM {
 public:
-    ImageSourceGM(const char* suffix, SkFilterQuality filter) : fSuffix(suffix), fFilter(filter) {
+    ImageSourceGM(const char* suffix, const SkSamplingOptions& sampling)
+        : fSuffix(suffix), fSampling(sampling) {
         this->setBGColor(0xFFFFFFFF);
     }
 
@@ -77,7 +78,7 @@ protected:
         const SkRect dstRect = SkRect::MakeLTRB(0.75f, 0.75f, 225.75f, 225.75f);
 
         SkPaint p;
-        p.setImageFilter(SkImageFilters::Image(fImage, srcRect, dstRect, fFilter));
+        p.setImageFilter(SkImageFilters::Image(fImage, srcRect, dstRect, fSampling));
 
         canvas->saveLayer(nullptr, &p);
         canvas->restore();
@@ -86,17 +87,18 @@ protected:
 private:
     static constexpr int kImageSize = 503;
 
-    SkString fSuffix;
-    SkFilterQuality fFilter;
-    sk_sp<SkImage>  fImage;
+    SkString          fSuffix;
+    SkSamplingOptions fSampling;
+    sk_sp<SkImage>    fImage;
 
     using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ImageSourceGM("none", kNone_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("low", kLow_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("med", kMedium_SkFilterQuality);)
-DEF_GM(return new ImageSourceGM("high", kHigh_SkFilterQuality);)
+DEF_GM(return new ImageSourceGM("none", SkSamplingOptions());)
+DEF_GM(return new ImageSourceGM("low", SkSamplingOptions(SkFilterMode::kLinear));)
+DEF_GM(return new ImageSourceGM("med", SkSamplingOptions(SkFilterMode::kLinear,
+                                                         SkMipmapMode::kLinear));)
+DEF_GM(return new ImageSourceGM("high", SkSamplingOptions({1/3.0f, 1/3.0f}));)
 }  // namespace skiagm

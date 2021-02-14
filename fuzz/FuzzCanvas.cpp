@@ -630,7 +630,8 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             SkFilterQuality filterQuality;
             fuzz->next(&srcRect, &dstRect);
             fuzz->nextEnum(&filterQuality, SkFilterQuality::kLast_SkFilterQuality);
-            return SkImageFilters::Image(std::move(image), srcRect, dstRect, filterQuality);
+            return SkImageFilters::Image(std::move(image), srcRect, dstRect,
+                                         SkSamplingOptions(filterQuality));
         }
         case 11:
             return make_fuzz_lighting_imagefilter(fuzz, depth - 1);
