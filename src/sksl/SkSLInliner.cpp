@@ -504,7 +504,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                     std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                             offset,
                             clone_with_ref_kind(**resultExpr, VariableReference::RefKind::kWrite),
-                            Token::Kind::TK_EQ,
+                            Operator{Token::Kind::TK_EQ},
                             expr(r.expression()),
                             (*resultExpr)->type().clone(symbolTableForStatement)));
 
@@ -710,7 +710,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         std::unique_ptr<Expression> test = std::make_unique<BinaryExpression>(
                 /*offset=*/-1,
                 std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol),
-                Token::Kind::TK_LT,
+                Operator{Token::Kind::TK_LT},
                 std::make_unique<IntLiteral>(/*offset=*/-1, /*value=*/1, intType),
                 fContext->fTypes.fBool.get());
 
@@ -718,7 +718,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         std::unique_ptr<Expression> increment = std::make_unique<PostfixExpression>(
                 std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol,
                                                     VariableReference::RefKind::kReadWrite),
-                Token::Kind::TK_PLUSPLUS);
+                Operator{Token::Kind::TK_PLUSPLUS});
 
         // {...}
         auto innerBlock = std::make_unique<Block>(offset, StatementArray{},
@@ -752,7 +752,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                         offset,
                         clone_with_ref_kind(*arguments[i], VariableReference::RefKind::kWrite),
-                        Token::Kind::TK_EQ,
+                        Operator{Token::Kind::TK_EQ},
                         std::move(varMap[p]),
                         &arguments[i]->type())));
     }
@@ -1004,9 +1004,9 @@ public:
                 // It is illegal for side-effects from x() or y() to occur. The simplest way to
                 // enforce that rule is to avoid inlining the right side entirely. However, it is
                 // safe for other types of binary expression to inline both sides.
-                Token::Kind op = binaryExpr.getOperator();
-                bool shortCircuitable = (op == Token::Kind::TK_LOGICALAND ||
-                                         op == Token::Kind::TK_LOGICALOR);
+                Operator op = binaryExpr.getOperator();
+                bool shortCircuitable = (op.kind() == Token::Kind::TK_LOGICALAND ||
+                                         op.kind() == Token::Kind::TK_LOGICALOR);
                 if (!shortCircuitable) {
                     this->visitExpression(&binaryExpr.right());
                 }

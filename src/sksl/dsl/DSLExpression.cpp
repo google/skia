@@ -108,7 +108,8 @@ DSLExpression DSLExpression::field(const char* name) {
 }
 
 DSLExpression DSLExpression::operator=(DSLExpression right) {
-    return DSLWriter::ConvertBinary(this->release(), SkSL::Token::Kind::TK_EQ, right.release());
+    return DSLWriter::ConvertBinary(this->release(), Operator{SkSL::Token::Kind::TK_EQ},
+                                    right.release());
 }
 
 DSLExpression DSLExpression::operator[](DSLExpression right) {
@@ -116,18 +117,19 @@ DSLExpression DSLExpression::operator[](DSLExpression right) {
 }
 
 #define OP(op, token)                                                                              \
-DSLExpression operator op(DSLExpression left, DSLExpression right) {                               \
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());    \
-}
+    DSLExpression operator op(DSLExpression left, DSLExpression right) {                           \
+        return DSLWriter::ConvertBinary(left.release(), Operator{SkSL::Token::Kind::token},        \
+                                        right.release());                                          \
+    }
 
 #define PREFIXOP(op, token)                                                                        \
 DSLExpression operator op(DSLExpression expr) {                                                    \
-    return DSLWriter::ConvertPrefix(SkSL::Token::Kind::token, expr.release());                     \
+    return DSLWriter::ConvertPrefix(Operator{SkSL::Token::Kind::token}, expr.release());           \
 }
 
 #define POSTFIXOP(op, token)                                                                       \
 DSLExpression operator op(DSLExpression expr, int) {                                               \
-    return DSLWriter::ConvertPostfix(expr.release(), SkSL::Token::Kind::token);                    \
+    return DSLWriter::ConvertPostfix(expr.release(), Operator{SkSL::Token::Kind::token});          \
 }
 
 OP(+, TK_PLUS)
@@ -167,7 +169,8 @@ PREFIXOP(--, TK_MINUSMINUS)
 POSTFIXOP(--, TK_MINUSMINUS)
 
 DSLExpression operator,(DSLExpression left, DSLExpression right) {
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_COMMA, right.release());
+    return DSLWriter::ConvertBinary(left.release(), Operator{SkSL::Token::Kind::TK_COMMA},
+                                    right.release());
 }
 
 std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Type& type) {

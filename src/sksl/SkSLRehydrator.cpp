@@ -454,8 +454,8 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> right = this->expression();
             const Type* type = this->type();
-            return std::make_unique<BinaryExpression>(-1, std::move(left), op, std::move(right),
-                                                      type);
+            return std::make_unique<BinaryExpression>(-1, std::move(left), Operator{op},
+                                                      std::move(right), type);
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
@@ -508,12 +508,12 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return std::make_unique<PostfixExpression>(std::move(operand), op);
+            return std::make_unique<PostfixExpression>(std::move(operand), Operator{op});
         }
         case Rehydrator::kPrefix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return std::make_unique<PrefixExpression>(op, std::move(operand));
+            return std::make_unique<PrefixExpression>(Operator{op}, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
             StringFragment name = this->readString();
