@@ -89,8 +89,8 @@ DSLExpression DSLVar::operator[](DSLExpression&& index) {
 }
 
 DSLExpression DSLVar::operator=(DSLExpression expr) {
-    return DSLWriter::ConvertBinary(DSLExpression(*this).release(), SkSL::Token::Kind::TK_EQ,
-                                    expr.release());
+    return DSLWriter::ConvertBinary(DSLExpression(*this).release(),
+                                    Operator{SkSL::Token::Kind::TK_EQ}, expr.release());
 }
 
 } // namespace dsl

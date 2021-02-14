@@ -11,7 +11,9 @@
 #include "src/sksl/SkSLLexer.h"
 
 namespace SkSL {
-namespace Operators {
+
+struct Operator {
+    using Kind = Token::Kind;
 
     enum class Precedence {
         kParentheses    =  1,
@@ -34,18 +36,22 @@ namespace Operators {
         kTopLevel       = kSequence
     };
 
-    Precedence GetBinaryPrecedence(Token::Kind op);
+    Token::Kind kind() const { return fKind; }
 
-    const char* OperatorName(Token::Kind op);
+    Precedence getBinaryPrecedence() const;
+
+    const char* operatorName() const;
 
     // Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
-    bool IsAssignment(Token::Kind op);
+    bool isAssignment() const;
 
     // Given a compound assignment operator, returns the non-assignment version of the operator
     // (e.g. '+=' becomes '+')
-    Token::Kind RemoveAssignment(Token::Kind op);
+    Operator removeAssignment() const;
 
-}  // namespace Operators
+    Kind fKind;
+};
+
 }  // namespace SkSL
 
 #endif

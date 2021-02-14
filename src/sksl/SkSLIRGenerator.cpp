@@ -885,13 +885,13 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     auto test = std::make_unique<BinaryExpression>(
             /*offset=*/-1,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx),
-            Token::Kind::TK_LT,
+            Operator{Token::Kind::TK_LT},
             std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations),
             fContext.fTypes.fBool.get());
     auto next = std::make_unique<PostfixExpression>(
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
                                                 VariableReference::RefKind::kReadWrite),
-            Token::Kind::TK_PLUSPLUS);
+            Operator{Token::Kind::TK_PLUSPLUS});
     ASTNode endPrimitiveID(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier, "EndPrimitive");
     std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
     SkASSERT(endPrimitive);
@@ -908,7 +908,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             /*offset=*/-1,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
                                                 VariableReference::RefKind::kWrite),
-            Token::Kind::TK_EQ,
+            Operator{Token::Kind::TK_EQ},
             std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0),
             fContext.fTypes.fInt.get());
     auto initializer = std::make_unique<ExpressionStatement>(std::move(assignment));
@@ -934,10 +934,12 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     //                      sk_Position.w);
     SkASSERT(skPerVertex && fRTAdjust);
     auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
-        return std::make_unique<VariableReference>(-1, var, VariableReference::RefKind::kRead);
+        return std::make_unique<VariableReference>(/*offset=*/-1, var,
+                                                   VariableReference::RefKind::kRead);
     };
     auto WRef = [](const Variable* var) -> std::unique_ptr<Expression> {
-        return std::make_unique<VariableReference>(-1, var, VariableReference::RefKind::kWrite);
+        return std::make_unique<VariableReference>(/*offset=*/-1, var,
+                                                   VariableReference::RefKind::kWrite);
     };
     auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
         return std::make_unique<FieldAccess>(Ref(var), idx,
@@ -957,8 +959,8 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     };
     auto Op = [&](std::unique_ptr<Expression> left, Token::Kind op,
                   std::unique_ptr<Expression> right) -> std::unique_ptr<Expression> {
-        return std::make_unique<BinaryExpression>(-1, std::move(left), op, std::move(right),
-                                                  fContext.fTypes.fFloat2.get());
+        return std::make_unique<BinaryExpression>(/*offset=*/-1, std::move(left), Operator{op},
+                                                  std::move(right), fContext.fTypes.fFloat2.get());
     };
 
     static const ComponentArray kXYIndices{0, 1};
@@ -1720,8 +1722,8 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     return this->convertConstructor(offset, type.scalarTypeForLiteral(), std::move(args));
 }
 
-static bool is_matrix_multiply(const Type& left, Token::Kind op, const Type& right) {
-    if (op != Token::Kind::TK_STAR && op != Token::Kind::TK_STAREQ) {
+static bool is_matrix_multiply(const Type& left, Operator op, const Type& right) {
+    if (op.kind() != Token::Kind::TK_STAR && op.kind() != Token::Kind::TK_STAREQ) {
         return false;
     }
     if (left.isMatrix()) {
@@ -1733,8 +1735,8 @@ static bool is_matrix_multiply(const Type& left, Token::Kind op, const Type& rig
 /**
  * Defines the set of logical (comparison) operators.
  */
-static bool op_is_logical(Token::Kind op) {
-    switch (op) {
+static bool op_is_logical(Operator op) {
+    switch (op.kind()) {
         case Token::Kind::TK_LT:
         case Token::Kind::TK_GT:
         case Token::Kind::TK_LTEQ:
@@ -1748,8 +1750,8 @@ static bool op_is_logical(Token::Kind op) {
 /**
  * Defines the set of operators which are only valid on integral types.
  */
-static bool op_only_valid_for_integral_types(Token::Kind op) {
-    switch (op) {
+static bool op_only_valid_for_integral_types(Operator op) {
+    switch (op.kind()) {
         case Token::Kind::TK_SHL:
         case Token::Kind::TK_SHR:
         case Token::Kind::TK_BITWISEAND:
@@ -1771,8 +1773,8 @@ static bool op_only_valid_for_integral_types(Token::Kind op) {
 /**
  * Defines the set of operators which perform vector/matrix math.
  */
-static bool op_valid_for_matrix_or_vector(Token::Kind op) {
-    switch (op) {
+static bool op_valid_for_matrix_or_vector(Operator op) {
+    switch (op.kind()) {
         case Token::Kind::TK_PLUS:
         case Token::Kind::TK_MINUS:
         case Token::Kind::TK_STAR:
@@ -1805,7 +1807,7 @@ static bool op_valid_for_matrix_or_vector(Token::Kind op) {
  * This is not a coincidence: It's because ES2 doesn't require 'int' to be anything but syntactic
  * sugar for floats with truncation after each operation).
  */
-static bool op_allowed_in_strict_es2_mode(Token::Kind op) {
+static bool op_allowed_in_strict_es2_mode(Operator op) {
     return !op_only_valid_for_integral_types(op);
 }
 
@@ -1815,13 +1817,13 @@ static bool op_allowed_in_strict_es2_mode(Token::Kind op) {
  */
 static bool determine_binary_type(const Context& context,
                                   bool allowNarrowing,
-                                  Token::Kind op,
+                                  Operator op,
                                   const Type& left,
                                   const Type& right,
                                   const Type** outLeftType,
                                   const Type** outRightType,
                                   const Type** outResultType) {
-    switch (op) {
+    switch (op.kind()) {
         case Token::Kind::TK_EQ:  // left = right
             *outLeftType = &left;
             *outRightType = &left;
@@ -1876,7 +1878,7 @@ static bool determine_binary_type(const Context& context,
         return false;
     }
 
-    bool isAssignment = Operators::IsAssignment(op);
+    bool isAssignment = op.isAssignment();
     if (is_matrix_multiply(left, op, right)) {  // left * right
         // Determine final component type.
         if (!determine_binary_type(context, allowNarrowing, op,
@@ -1975,7 +1977,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     if (!left) {
         return nullptr;
     }
-    Token::Kind op = expression.getToken().fKind;
+    Operator op{expression.getToken().fKind};
     std::unique_ptr<Expression> right = this->convertExpression(*(iter++));
     if (!right) {
         return nullptr;
@@ -1985,7 +1987,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
 
 std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                                                                 std::unique_ptr<Expression> left,
-                                                                Token::Kind op,
+                                                                Operator op,
                                                                 std::unique_ptr<Expression> right) {
     if (!left || !right) {
         return nullptr;
@@ -2008,11 +2010,11 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     }
     if (this->strictES2Mode() && !op_allowed_in_strict_es2_mode(op)) {
         this->errorReporter().error(
-                offset, String("operator '") + Operators::OperatorName(op) + "' is not allowed");
+                offset, String("operator '") + op.operatorName() + "' is not allowed");
         return nullptr;
     }
-    bool isAssignment = Operators::IsAssignment(op);
-    if (isAssignment && !this->setRefKind(*left, op != Token::Kind::TK_EQ
+    bool isAssignment = op.isAssignment();
+    if (isAssignment && !this->setRefKind(*left, op.kind() != Token::Kind::TK_EQ
                                                  ? VariableReference::RefKind::kReadWrite
                                                  : VariableReference::RefKind::kWrite)) {
         return nullptr;
@@ -2020,7 +2022,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
         this->errorReporter().error(
-                offset, String("type mismatch: '") + Operators::OperatorName(op) +
+                offset, String("type mismatch: '") + op.operatorName() +
                                 "' cannot operate on '" + left->type().displayName() + "', '" +
                                 right->type().displayName() + "'");
         return nullptr;
@@ -2058,7 +2060,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
     const Type* falseType;
     const Type* resultType;
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions,
-                               Token::Kind::TK_EQEQ, ifTrue->type(), ifFalse->type(),
+                               Operator{Token::Kind::TK_EQEQ}, ifTrue->type(), ifFalse->type(),
                                &trueType, &falseType, &resultType) ||
         trueType != falseType) {
         this->errorReporter().error(offset, "ternary operator result mismatch: '" +
@@ -2441,13 +2443,13 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
     if (!base) {
         return nullptr;
     }
-    return this->convertPrefixExpression(expression.getToken().fKind, std::move(base));
+    return this->convertPrefixExpression(Operator{expression.getToken().fKind}, std::move(base));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
+std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Operator op,
                                                                  std::unique_ptr<Expression> base) {
     const Type& baseType = base->type();
-    switch (op) {
+    switch (op.kind()) {
         case Token::Kind::TK_PLUS:
             if (!baseType.componentType().isNumber()) {
                 this->errorReporter().error(
@@ -2472,12 +2474,13 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
                                                       -base->as<FloatLiteral>().value(),
                                                       &base->type());
             }
-            return std::make_unique<PrefixExpression>(Token::Kind::TK_MINUS, std::move(base));
+            return std::make_unique<PrefixExpression>(Operator{Token::Kind::TK_MINUS},
+                                                      std::move(base));
 
         case Token::Kind::TK_PLUSPLUS:
             if (!baseType.isNumber()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Operators::OperatorName(op) +
+                                            String("'") + op.operatorName() +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2488,7 +2491,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Operators::OperatorName(op) +
+                                            String("'") + op.operatorName() +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2499,7 +2502,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Operators::OperatorName(op) +
+                                            String("'") + op.operatorName() +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2512,14 +2515,14 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Token::Kind op,
         case Token::Kind::TK_BITWISENOT:
             if (this->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
-                this->errorReporter().error(base->fOffset,
-                              String("operator '") + Operators::OperatorName(op) +
-                              "' is not allowed");
+                this->errorReporter().error(
+                        base->fOffset,
+                        String("operator '") + op.operatorName() + "' is not allowed");
                 return nullptr;
             }
             if (!baseType.isInteger()) {
                 this->errorReporter().error(base->fOffset,
-                                            String("'") + Operators::OperatorName(op) +
+                                            String("'") + op.operatorName() +
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -2918,15 +2921,15 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode&
     if (!base) {
         return nullptr;
     }
-    return this->convertPostfixExpression(std::move(base), expression.getToken().fKind);
+    return this->convertPostfixExpression(std::move(base), Operator{expression.getToken().fKind});
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_ptr<Expression> base,
-                                                                  Token::Kind op) {
+                                                                  Operator op) {
     const Type& baseType = base->type();
     if (!baseType.isNumber()) {
         this->errorReporter().error(base->fOffset,
-                                    "'" + String(Operators::OperatorName(op)) +
+                                    "'" + String(op.operatorName()) +
                                     "' cannot operate on '" + baseType.displayName() + "'");
         return nullptr;
     }
