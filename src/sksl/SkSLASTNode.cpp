@@ -17,7 +17,7 @@ String ASTNode::description() const {
         case Kind::kNull: return "";
         case Kind::kBinary:
             return "(" + this->begin()->description() + " " +
-                               Operators::OperatorName(getToken().fKind) + " " +
+                               Operator{getToken().fKind}.operatorName() + " " +
                                (this->begin() + 1)->description() + ")";
         case Kind::kBlock: {
             String result = "{\n";
@@ -162,9 +162,9 @@ String ASTNode::description() const {
             return result;
         }
         case Kind::kPostfix:
-            return this->begin()->description() + Operators::OperatorName(getToken().fKind);
+            return this->begin()->description() + Operator{getToken().fKind}.operatorName();
         case Kind::kPrefix:
-            return Operators::OperatorName(getToken().fKind) + this->begin()->description();
+            return Operator{getToken().fKind}.operatorName() + this->begin()->description();
         case Kind::kReturn:
             if (this->begin() != this->end()) {
                 return "return " + this->begin()->description() + ";";

@@ -116,9 +116,9 @@ DSLExpression DSLExpression::operator[](DSLExpression right) {
 }
 
 #define OP(op, token)                                                                              \
-DSLExpression operator op(DSLExpression left, DSLExpression right) {                               \
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());    \
-}
+    DSLExpression operator op(DSLExpression left, DSLExpression right) {                           \
+        return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());\
+    }
 
 #define PREFIXOP(op, token)                                                                        \
 DSLExpression operator op(DSLExpression expr) {                                                    \
