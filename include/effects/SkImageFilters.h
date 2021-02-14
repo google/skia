@@ -19,6 +19,10 @@
 
 #include <cstddef>
 
+#ifndef SK_SUPPORT_LEGACY_IMAGEFILTER_IMAGE
+#define SK_SUPPORT_LEGACY_IMAGEFILTER_IMAGE
+#endif
+
 class SkColorFilter;
 class SkPaint;
 class SkRegion;
@@ -185,24 +189,37 @@ public:
     /**
      *  Create a filter that draws the 'srcRect' portion of image into 'dstRect' using the given
      *  filter quality. Similar to SkCanvas::drawImageRect. Returns null if 'image' is null.
-     *  @param image         The image that is output by the filter, subset by 'srcRect'.
-     *  @param srcRect       The source pixels sampled into 'dstRect'
-     *  @param dstRect       The local rectangle to draw the image into.
-     *  @param filterQuality The filter quality that is used when sampling the image.
+     *  @param image    The image that is output by the filter, subset by 'srcRect'.
+     *  @param srcRect  The source pixels sampled into 'dstRect'
+     *  @param dstRect  The local rectangle to draw the image into.
+     *  @param sampling The sampling to use when drawing the image.
      */
     static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkRect& srcRect,
-                                      const SkRect& dstRect, SkFilterQuality filterQuality);
+                                      const SkRect& dstRect, const SkSamplingOptions& sampling);
+
     /**
-     *  Create a filter that produces the image contents.
-     *  @param image The image that is output by the filter.
+     *  Create a filter that draws the image using the given sampling.
+     *  Similar to SkCanvas::drawImage. Returns null if 'image' is null.
+     *  @param image    The image that is output by the filter.
+     *  @param sampling The sampling to use when drawing the image.
+     */
+    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkSamplingOptions& sampling);
+
+    /**
+     *  Create a filter that draws the image using Mitchel cubic resampling.
+     *  @param image    The image that is output by the filter.
      */
     static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image) {
-        // Defaults to kHigh_SkFilterQuality because the dstRect of the image filter will be mapped
-        // by the layer matrix set during filtering. If that has a scale factor, then the image
-        // will not be drawn at a 1-to-1 pixel scale, even that is what this appears to create here.
-        SkRect r = image ? SkRect::MakeWH(image->width(), image->height()) : SkRect::MakeEmpty();
-        return Image(std::move(image), r, r, kHigh_SkFilterQuality);
+        return Image(std::move(image), SkSamplingOptions({1/3.0f, 1/3.0f}));
     }
+
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_IMAGE
+    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkRect& srcRect,
+                                      const SkRect& dstRect, SkFilterQuality filterQuality) {
+        SkSamplingOptions sampling(filterQuality, SkSamplingOptions::kMedium_asMipmapLinear);
+        return Image(std::move(image), srcRect, dstRect, sampling);
+    }
+#endif
 
     /**
      *  Create a filter that mimics a zoom/magnifying lens effect.
