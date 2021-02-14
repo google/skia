@@ -183,8 +183,6 @@ DEF_TEST(Paint_getHash, r) {
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
 
-#include "include/effects/SkColorMatrixFilter.h"
-
 DEF_TEST(Paint_nothingToDraw, r) {
     SkPaint paint;
 
@@ -195,18 +193,6 @@ DEF_TEST(Paint_nothingToDraw, r) {
     paint.setAlpha(0xFF);
     paint.setBlendMode(SkBlendMode::kDst);
     REPORTER_ASSERT(r, paint.nothingToDraw());
-
-    paint.setAlpha(0);
-    paint.setBlendMode(SkBlendMode::kSrcOver);
-
-    SkColorMatrix cm;
-    cm.setIdentity();   // does not change alpha
-    paint.setColorFilter(SkColorFilters::Matrix(cm));
-    REPORTER_ASSERT(r, paint.nothingToDraw());
-
-    cm.postTranslate(0, 0, 0, 1.0f/255);    // wacks alpha
-    paint.setColorFilter(SkColorFilters::Matrix(cm));
-    REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
 
 DEF_TEST(Font_getpos, r) {
