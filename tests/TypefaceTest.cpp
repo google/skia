@@ -218,9 +218,7 @@ DEF_TEST(TypefaceAxes, reporter) {
                 // Convert to fixed for "almost equal".
                 SkFixed fixedRead = SkScalarToFixed(actual[actualIdx].value);
                 SkFixed fixedOriginal = SkScalarToFixed(expected.coordinates[expectedIdx].value);
-                if (!(SkTAbs(fixedRead - fixedOriginal) < 2 || // variation set correctly
-                      SkTAbs(fixedRead - SK_Fixed1    ) < 2) ) // variation remained default
-                {
+                if (!(SkTAbs(fixedRead - fixedOriginal) < 2)) {
                     continue;
                 }
 
@@ -295,6 +293,12 @@ DEF_TEST(TypefaceAxes, reporter) {
         params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
         test(typeface.get(), Variation{&position[1], 1}, -1);
+
+        if (typeface) {
+            // Cloning without specifying any parameters should produce an equivalent variation.
+            sk_sp<SkTypeface> clone = typeface->makeClone(SkFontArguments());
+            test(clone.get(), Variation{&position[1], 1}, -1);
+        }
     }
 }
 
