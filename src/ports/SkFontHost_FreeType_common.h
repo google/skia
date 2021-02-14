@@ -77,7 +77,8 @@ public:
             AxisDefinitions axisDefinitions,
             const SkFontArguments::VariationPosition position,
             SkFixed* axisValues,
-            const SkString& name);
+            const SkString& name,
+            const SkFontArguments::VariationPosition::Coordinate* currentPosition = nullptr);
         static bool GetAxes(FT_Face face, AxisDefinitions* axes);
 
     private:

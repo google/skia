@@ -749,6 +749,64 @@ std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContext(
             sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
 }
 
+/** Copy the design variation coordinates into 'coordinates'.
+ *
+ *  @param coordinates the buffer into which to write the design variation coordinates.
+ *  @param coordinateCount the number of entries available through 'coordinates'.
+ *
+ *  @return The number of axes, or -1 if there is an error.
+ *  If 'coordinates != nullptr' and 'coordinateCount >= numAxes' then 'coordinates' will be
+ *  filled with the variation coordinates describing the position of this typeface in design
+ *  variation space. It is possible the number of axes can be retrieved but actual position
+ *  cannot.
+ */
+static int GetVariationDesignPosition(AutoFTAccess& fta,
+    SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount)
+{
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+
+    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+        return 0;
+    }
+
+    FT_MM_Var* variations = nullptr;
+    if (FT_Get_MM_Var(face, &variations)) {
+        return -1;
+    }
+    SkAutoFree autoFreeVariations(variations);
+
+    if (!coordinates || coordinateCount < SkToInt(variations->num_axis)) {
+        return variations->num_axis;
+    }
+
+    SkAutoSTMalloc<4, FT_Fixed> coords(variations->num_axis);
+    // FT_Get_{MM,Var}_{Blend,Design}_Coordinates were added in FreeType 2.7.1.
+    if (gFTLibrary->fGetVarDesignCoordinates &&
+        !gFTLibrary->fGetVarDesignCoordinates(face, variations->num_axis, coords.get()))
+    {
+        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
+            coordinates[i].axis = variations->axis[i].tag;
+            coordinates[i].value = SkFixedToScalar(coords[i]);
+        }
+    } else if (static_cast<FT_UInt>(fta.getAxesCount()) == variations->num_axis) {
+        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
+            coordinates[i].axis = variations->axis[i].tag;
+            coordinates[i].value = SkFixedToScalar(fta.getAxes()[i]);
+        }
+    } else if (fta.isNamedVariationSpecified()) {
+        // The font has axes, they cannot be retrieved, and some named axis was specified.
+        return -1;
+    } else {
+        // The font has axes, they cannot be retrieved, but no named instance was specified.
+        return 0;
+    }
+
+    return variations->num_axis;
+}
+
 std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArguments& args) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
@@ -760,15 +818,18 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
     if (!Scanner::GetAxes(face, &axisDefinitions)) {
         return nullptr;
     }
+    int axisCount = axisDefinitions.count();
+
+    SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> currentPosition(axisCount);
+    int currentAxisCount = GetVariationDesignPosition(fta, currentPosition, axisCount);
 
     SkString name;
-    SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
-    Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
-                               axisValues, name);
+    SkAutoSTMalloc<4, SkFixed> axisValues(axisCount);
+    Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(), axisValues, name,
+                               currentAxisCount == axisCount ? currentPosition.get() : nullptr);
     int ttcIndex;
     std::unique_ptr<SkStreamAsset> stream = this->openStream(&ttcIndex);
-    return std::make_unique<SkFontData>(std::move(stream), ttcIndex, axisValues.get(),
-                                          axisDefinitions.count());
+    return std::make_unique<SkFontData>(std::move(stream), ttcIndex, axisValues.get(), axisCount);
 }
 
 void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
@@ -1753,48 +1814,7 @@ int SkTypeface_FreeType::onGetVariationDesignPosition(
     SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {
     AutoFTAccess fta(this);
-    FT_Face face = fta.face();
-    if (!face) {
-        return -1;
-    }
-
-    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
-        return 0;
-    }
-
-    FT_MM_Var* variations = nullptr;
-    if (FT_Get_MM_Var(face, &variations)) {
-        return -1;
-    }
-    SkAutoFree autoFreeVariations(variations);
-
-    if (!coordinates || coordinateCount < SkToInt(variations->num_axis)) {
-        return variations->num_axis;
-    }
-
-    SkAutoSTMalloc<4, FT_Fixed> coords(variations->num_axis);
-    // FT_Get_{MM,Var}_{Blend,Design}_Coordinates were added in FreeType 2.7.1.
-    if (gFTLibrary->fGetVarDesignCoordinates &&
-        !gFTLibrary->fGetVarDesignCoordinates(face, variations->num_axis, coords.get()))
-    {
-        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
-            coordinates[i].axis = variations->axis[i].tag;
-            coordinates[i].value = SkFixedToScalar(coords[i]);
-        }
-    } else if (static_cast<FT_UInt>(fta.getAxesCount()) == variations->num_axis) {
-        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
-            coordinates[i].axis = variations->axis[i].tag;
-            coordinates[i].value = SkFixedToScalar(fta.getAxes()[i]);
-        }
-    } else if (fta.isNamedVariationSpecified()) {
-        // The font has axes, they cannot be retrieved, and some named axis was specified.
-        return -1;
-    } else {
-        // The font has axes, they cannot be retrieved, but no named instance was specified.
-        return 0;
-    }
-
-    return variations->num_axis;
+    return GetVariationDesignPosition(fta, coordinates, coordinateCount);
 }
 
 int SkTypeface_FreeType::onGetVariationDesignParameters(
@@ -2108,13 +2128,30 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
     AxisDefinitions axisDefinitions,
     const SkFontArguments::VariationPosition position,
     SkFixed* axisValues,
-    const SkString& name)
+    const SkString& name,
+    const SkFontArguments::VariationPosition::Coordinate* current)
 {
     for (int i = 0; i < axisDefinitions.count(); ++i) {
         const Scanner::AxisDefinition& axisDefinition = axisDefinitions[i];
         const SkScalar axisMin = SkFixedToScalar(axisDefinition.fMinimum);
         const SkScalar axisMax = SkFixedToScalar(axisDefinition.fMaximum);
+
+        // Start with the default value.
         axisValues[i] = axisDefinition.fDefault;
+
+        // Then the current value.
+        if (current) {
+            for (int j = 0; j < axisDefinitions.count(); ++j) {
+                const auto& coordinate = current[j];
+                if (axisDefinition.fTag == coordinate.axis) {
+                    const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);
+                    axisValues[i] = SkScalarToFixed(axisValue);
+                    break;
+                }
+            }
+        }
+
+        // Then the requested value.
         // The position may be over specified. If there are multiple values for a given axis,
         // use the last one since that's what css-fonts-4 requires.
         for (int j = position.coordinateCount; j --> 0;) {
