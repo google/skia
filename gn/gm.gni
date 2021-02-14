@@ -191,6 +191,7 @@ gm_sources = [
   "$_gm/giantbitmap.cpp",
   "$_gm/glyph_pos.cpp",
   "$_gm/gm.cpp",
+  "$_gm/gm.h",
   "$_gm/gpu_blur_utils.cpp",
   "$_gm/gradient_dirty_laundry.cpp",
   "$_gm/gradient_matrix.cpp",

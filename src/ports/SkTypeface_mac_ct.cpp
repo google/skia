@@ -1116,6 +1116,9 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
     }
     CFIndex axisCount = CFArrayGetCount(ctAxes.get());
 
+    // On 10.12 and later, this only returns non-default variations.
+    SkUniqueCFRef<CFDictionaryRef> ctVariation(CTFontCopyVariation(ct));
+
     const SkFontArguments::VariationPosition position = args.getVariationDesignPosition();
 
     SkUniqueCFRef<CFMutableDictionaryRef> dict(
@@ -1151,13 +1154,25 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
             return CTFontVariation();
         }
 
+        // Start with the default value.
         double value = defDouble;
+
+        // Then the current value.
+        if (ctVariation) {
+            CFTypeRef currentValue = CFDictionaryGetValue(ctVariation.get(), tagNumber);
+            if (currentValue) {
+                if (!SkCFNumberDynamicCast(currentValue, &value, nullptr, "Variation value")) {
+                    return CTFontVariation();
+                }
+            }
+        }
+
+        // Then the requested value.
         // The position may be over specified. If there are multiple values for a given axis,
         // use the last one since that's what css-fonts-4 requires.
         for (int j = position.coordinateCount; j --> 0;) {
             if (position.coordinates[j].axis == tagLong) {
-                value = SkTPin(SkScalarToDouble(position.coordinates[j].value),
-                               minDouble, maxDouble);
+                value = SkTPin<double>(position.coordinates[j].value, minDouble, maxDouble);
                 if (tagLong == opszTag) {
                     opsz.isSet = true;
                 }
