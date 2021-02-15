@@ -19,10 +19,6 @@
 
 #include <cstddef>
 
-#ifndef SK_SUPPORT_LEGACY_IMAGEFILTER_IMAGE
-#define SK_SUPPORT_LEGACY_IMAGEFILTER_IMAGE
-#endif
-
 class SkColorFilter;
 class SkPaint;
 class SkRegion;
