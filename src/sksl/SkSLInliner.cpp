@@ -1004,9 +1004,9 @@ public:
                 // It is illegal for side-effects from x() or y() to occur. The simplest way to
                 // enforce that rule is to avoid inlining the right side entirely. However, it is
                 // safe for other types of binary expression to inline both sides.
-                Token::Kind op = binaryExpr.getOperator();
-                bool shortCircuitable = (op == Token::Kind::TK_LOGICALAND ||
-                                         op == Token::Kind::TK_LOGICALOR);
+                Operator op = binaryExpr.getOperator();
+                bool shortCircuitable = (op.kind() == Token::Kind::TK_LOGICALAND ||
+                                         op.kind() == Token::Kind::TK_LOGICALOR);
                 if (!shortCircuitable) {
                     this->visitExpression(&binaryExpr.right());
                 }

@@ -49,14 +49,14 @@ class BinaryExpression final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kBinary;
 
-    BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
+    BinaryExpression(int offset, std::unique_ptr<Expression> left, Operator op,
                      std::unique_ptr<Expression> right, const Type* type)
     : INHERITED(offset, kExpressionKind, type)
     , fLeft(std::move(left))
     , fOperator(op)
     , fRight(std::move(right)) {
         // If we are assigning to a VariableReference, ensure that it is set to Write or ReadWrite
-        SkASSERT(!Operators::IsAssignment(op) || check_ref(*this->left()));
+        SkASSERT(!op.isAssignment() || check_ref(*this->left()));
     }
 
     std::unique_ptr<Expression>& left() {
@@ -75,7 +75,7 @@ public:
         return fRight;
     }
 
-    Token::Kind getOperator() const {
+    Operator getOperator() const {
         return fOperator;
     }
 
@@ -90,7 +90,7 @@ public:
     }
 
     bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects && Operators::IsAssignment(this->getOperator())) {
+        if (property == Property::kSideEffects && this->getOperator().isAssignment()) {
             return true;
         }
         return this->left()->hasProperty(property) || this->right()->hasProperty(property);
@@ -106,13 +106,13 @@ public:
 
     String description() const override {
         return "(" + this->left()->description() + " " +
-               Operators::OperatorName(this->getOperator()) + " " + this->right()->description() +
+               this->getOperator().operatorName() + " " + this->right()->description() +
                ")";
     }
 
 private:
     std::unique_ptr<Expression> fLeft;
-    Token::Kind fOperator;
+    Operator fOperator;
     std::unique_ptr<Expression> fRight;
 
     using INHERITED = Expression;

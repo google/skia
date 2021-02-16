@@ -9,6 +9,7 @@
 #define SKSL_DSLWRITER
 
 #include "src/sksl/SkSLMangler.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -133,7 +134,7 @@ public:
 
     static DSLExpression Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs);
 
-    static DSLExpression ConvertBinary(std::unique_ptr<Expression> left, Token::Kind op,
+    static DSLExpression ConvertBinary(std::unique_ptr<Expression> left, Operator op,
                                        std::unique_ptr<Expression> right);
 
     static DSLExpression ConvertField(std::unique_ptr<Expression> base, const char* name);
@@ -141,9 +142,9 @@ public:
     static DSLExpression ConvertIndex(std::unique_ptr<Expression> base,
                                       std::unique_ptr<Expression> index);
 
-    static DSLExpression ConvertPostfix(std::unique_ptr<Expression> expr, Token::Kind op);
+    static DSLExpression ConvertPostfix(std::unique_ptr<Expression> expr, Operator op);
 
-    static DSLExpression ConvertPrefix(Token::Kind op, std::unique_ptr<Expression> expr);
+    static DSLExpression ConvertPrefix(Operator op, std::unique_ptr<Expression> expr);
 
     static DSLStatement ConvertSwitch(std::unique_ptr<Expression> value,
                                       ExpressionArray caseValues,
