@@ -243,6 +243,8 @@ public:
     void setPlaceholder() { fIsPlaceholder = true; }
 
 private:
+    static const std::vector<SkString> kDefaultFontFamilies;
+
     Decoration fDecoration = {
             TextDecoration::kNoDecoration,
             // TODO: switch back to kGaps when (if) switching flutter to skparagraph
@@ -255,7 +257,8 @@ private:
 
     SkFontStyle fFontStyle;
 
-    std::vector<SkString> fFontFamilies = { SkString(DEFAULT_FONT_FAMILY) };
+    std::vector<SkString> fFontFamilies = kDefaultFontFamilies;
+
     SkScalar fFontSize = 14.0;
     SkScalar fHeight = 1.0;
     bool fHeightOverride = false;
