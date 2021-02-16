@@ -1,5 +1,5 @@
 ### Compilation failed:
 
-error: 3: expected '(' to begin constructor invocation
-error: 4: expected '(' to begin function call
+error: 3: expected 'int', but found '<INVALID>'
+error: 4: expected 'int', but found '<INVALID>'
 2 errors

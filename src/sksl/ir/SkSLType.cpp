@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLType.h"
 
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -237,6 +238,36 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
             SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());
             return nullptr;
     }
+}
+
+std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> expr,
+                                                   const Context& context) const {
+    if (!expr) {
+        return nullptr;
+    }
+    if (expr->type() == *this) {
+        return expr;
+    }
+
+    int offset = expr->fOffset;
+    if (expr->kind() == Expression::Kind::kFunctionReference ||
+        expr->kind() == Expression::Kind::kTypeReference ||
+        expr->kind() == Expression::Kind::kFunctionCall ||
+        expr->type() == *context.fTypes.fVoid ||
+        expr->type() == *context.fTypes.fInvalid ||
+        !expr->coercionCost(*this).isPossible(context.fSettings->fAllowNarrowingConversions)) {
+
+        context.fErrors.error(offset, "expected '" + this->displayName() + "', but found '" +
+                                      expr->type().displayName() + "'");
+        return nullptr;
+    }
+
+    ExpressionArray args;
+    args.push_back(std::move(expr));
+    if (!this->isScalar()) {
+        return Constructor::Make(context, offset, *this, std::move(args));
+    }
+    return Constructor::Make(context, offset, this->scalarTypeForLiteral(), std::move(args));
 }
 
 }  // namespace SkSL

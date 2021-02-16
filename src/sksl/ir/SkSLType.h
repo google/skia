@@ -364,6 +364,12 @@ public:
      */
     const Type& toCompound(const Context& context, int columns, int rows) const;
 
+    /**
+     * Coerces the passed-in expression to this type, or reports an error if it is non-coercible.
+     */
+    std::unique_ptr<Expression> coerceExpression(std::unique_ptr<Expression> expr,
+                                                 const Context& context) const;
+
 private:
     friend class BuiltinTypes;
 

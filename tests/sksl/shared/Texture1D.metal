@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: Unsupported texture dimensions
+error: 4: expected 'float4', but found 'half4'
 1 error
