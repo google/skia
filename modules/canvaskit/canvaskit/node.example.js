@@ -77,17 +77,16 @@ function fancyAPI(CanvasKit) {
 
   surface.flush();
 
-  const img = surface.makeImageSnapshot()
+  const img = surface.makeImageSnapshot();
   if (!img) {
     console.error('no snapshot');
     return;
   }
-  const png = img.encodeToData()
-  if (!png) {
+  const pngBytes = img.encodeToBytes();
+  if (!pngBytes) {
     console.error('encoding failure');
     return
   }
-  const pngBytes = CanvasKit.getDataBytes(png);
   // See https://stackoverflow.com/a/12713326
   let b64encoded = Buffer.from(pngBytes).toString('base64');
   console.log(`<img src="data:image/png;base64,${b64encoded}" />`);
