@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "623589dc_315e18c0",
+        "filename": "src/sksl/ir/SkSLCodeStringExpression.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-16T16:55:26Z",
+      "side": 1,
+      "message": "very very tiny nit: It\u0027s easier to find TODOs later if we follow http://go/todo-style\n\nTODO(skia:11330): Remove SkSLCodeStringExpression",
+      "range": {
+        "startLine": 19,
+        "startChar": 38,
+        "endLine": 19,
+        "endChar": 56
+      },
+      "revId": "ca201b24523283db46acfd61cb454d6de60b0928",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
