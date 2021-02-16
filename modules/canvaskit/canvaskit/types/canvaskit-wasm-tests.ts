@@ -254,9 +254,8 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
       colorSpace: CK.ColorSpace.SRGB
     }, Uint8Array.of(255, 0, 0, 250), 4);
     if (!img) return;
-    const dOne = img.encodeToData(); // $ExpectType Data
-    const dTwo = img.encodeToDataWithFormat(CK.ImageFormat.JPEG, 97);
-    const bytes = CK.getDataBytes(dTwo); // $ExpectType Uint8Array
+    const dOne = img.encodeToBytes(); // $ExpectType Uint8Array | null
+    const dTwo = img.encodeToBytes(CK.ImageFormat.JPEG, 97);
     const h = img.height();
     const w = img.width();
     const s1 = img.makeShaderCubic(CK.TileMode.Decal, CK.TileMode.Repeat, 1 / 3, 1 / 3); // $ExpectType Shader
@@ -640,9 +639,8 @@ function pictureTests(CK: CanvasKit) {
     const recorder = new CK.PictureRecorder(); // $ExpectType PictureRecorder
     const canvas = recorder.beginRecording(CK.LTRBRect(0, 0, 100, 100));  // $ExpectType Canvas
     const pic = recorder.finishRecordingAsPicture(); // $ExpectType SkPicture
-    const data = pic.serialize(); // $ExpectType Data
-    const bytes = CK.getDataBytes(data);
-    const pic2 = CK.MakePicture(bytes);
+    const bytes = pic.serialize(); // $ExpectType Uint8Array | null
+    const pic2 = CK.MakePicture(bytes!);
 }
 
 function rectangleTests(CK: CanvasKit) {
