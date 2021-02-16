@@ -68,6 +68,24 @@
       "message": "We can decide to land this, but I think it is fragile. Having two value for the same idea, and the new one not matching any of our other enums, is just risky (that someone will remove it in the future).\n\nI wonder if chrome can be more accommodating for different conventions, esp. given that it uses code from third_party (which have their own naming conventions). Alternatively, you can make a clone of this enum (perhaps inside paint_flags.h), and in that one you can name things however you wish!\n\nIf none of these suggestions seem doable, we can land this, but it doesn\u0027t feel great.\n",
       "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7bc773b_638bee5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2021-02-16T03:47:49Z",
+      "side": 1,
+      "message": "As proposed in the related chromium review,\nhttps://chromium-review.googlesource.com/c/chromium/src/+/2683715. I need to add \u003d0, \u003d1, etc, to ensure that the enums are not reordered or changed. \n\nreference:\nhttps://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/include/core/SkFilterQuality.h;drc\u003d2ac64302ae161cd6b5e4b1254497bdf5fd6d3415;l\u003d17",
+      "parentUuid": "6667e24f_eb1ceb06",
+      "revId": "4afd4dbb6d7fc783b0c3a1cc53a8cadcee5009a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
