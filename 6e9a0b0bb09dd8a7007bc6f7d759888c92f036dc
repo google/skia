@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d1a0cdc_5177cae5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-16T15:13:23Z",
+      "side": 1,
+      "message": "This lgtm. One thing that sticks out (but probably doesn\u0027t matter much) - having kWideColor in ShaderFlags means it\u0027s part of the key, but it doesn\u0027t need to be, right? (On some backends it will be, because the vertex attribs will be different, but that\u0027s handled automatically). On GL at least, there\u0027s no difference in the generated shaders?",
+      "revId": "6e9a0b0bb09dd8a7007bc6f7d759888c92f036dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
