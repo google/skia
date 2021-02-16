@@ -134,11 +134,14 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
     for (int i = 0; i < count; ++i) {
         canvas->save();
         SkRRect rr = SkRRect::MakeRectXY(r.makeOffset(dx, dy), 20, 20);
-        canvas->clipRRect(rr, true);
-        canvas->saveLayer(SkCanvas::SaveLayerRec(&rr.getBounds(), nullptr, filters[i].get(), 0));
-        canvas->drawColor(0x40FFFFFF);
-        canvas->restore();
-        canvas->restore();
+
+        if (filters[i]) {
+            canvas->clipRRect(rr, true);
+            canvas->saveLayer(SkCanvas::SaveLayerRec(&rr.getBounds(), nullptr, filters[i].get(), 0));
+            canvas->drawColor(0x40FFFFFF);
+            canvas->restore();
+            canvas->restore();
+        }
 
         if (0 == dx) {
             dx = offset;
@@ -161,20 +164,20 @@ protected:
         sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
         const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
         sk_sp<SkImageFilter> filters[] = {
-            SkImageFilters::Blur(10, 10, nullptr),
+            nullptr, //SkImageFilters::Blur(10, 10, nullptr),
             SkImageFilters::Dilate(8, 8, nullptr),
-            SkImageFilters::MatrixConvolution({ 3, 3 }, kernel, 1, 0, { 0, 0 },
-                                              SkTileMode::kDecal, true, nullptr),
-            SkImageFilters::ColorFilter(std::move(cf), nullptr),
+//            SkImageFilters::MatrixConvolution({ 3, 3 }, kernel, 1, 0, { 0, 0 },
+//                                              SkTileMode::kDecal, true, nullptr),
+//            SkImageFilters::ColorFilter(std::move(cf), nullptr),
         };
 
         const struct {
             SkScalar    fSx, fSy, fTx, fTy;
         } xforms[] = {
             { 1, 1, 0, 0 },
-            { 0.5f, 0.5f, 530, 0 },
-            { 0.25f, 0.25f, 530, 275 },
-            { 0.125f, 0.125f, 530, 420 },
+//            { 0.5f, 0.5f, 530, 0 },
+//            { 0.25f, 0.25f, 530, 275 },
+//            { 0.125f, 0.125f, 530, 420 },
         };
 
         SkSamplingOptions sampling(SkFilterMode::kLinear,

@@ -138,8 +138,10 @@ static sk_sp<SkImage> make_reference_image(GrDirectContext* context,
         return nullptr;
     }
 
+
+    SkISize dims = view.proxy()->backingStoreDimensions();
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, std::move(view),
-                                   ii.colorType(), kOpaque_SkAlphaType, nullptr);
+                                   ii.colorType(), kOpaque_SkAlphaType, nullptr, dims);
 }
 
 // Here we're converting from a matrix that is intended for UVs to a matrix that is intended

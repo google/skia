@@ -686,9 +686,16 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
 
     SkASSERT(sdc->asSurfaceProxy());
 
+//    SkIRect subset = subset1;
+//    if (sdc->asSurfaceProxy()->isDDLTarget()) {
+//         subset.offset(10, 30);
+//    }
+
     SkIRect finalSubset = subset;
     GrSurfaceProxyView view = sdc->readSurfaceView();
     if (forceCopy || !view.asTextureProxy()) {
+         // There is an explicit offset in GrCopyRenderTask::onExecute to make this work
+
         // When the device doesn't have a texture, or a copy is requested, we create a temporary
         // texture that matches the device contents
         view = GrSurfaceProxyView::Copy(fContext.get(),
@@ -703,6 +710,9 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
         // Since this copied only the requested subset, the special image wrapping the proxy no
         // longer needs the original subset.
         finalSubset = SkIRect::MakeSize(view.dimensions());
+    } else if (sdc->asSurfaceProxy()->isDDLTarget()) {
+        finalSubset.offset(10, 30);
+        // $$
     }
 
     GrColorType ct = SkColorTypeToGrColorType(this->imageInfo().colorType());

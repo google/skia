@@ -166,14 +166,18 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
     // This represents the translation from 'dstRenderTargetContext' coords to 'srcView' coords.
     auto rtcToSrcOffset = dstBounds.topLeft();
 
-    auto srcBackingBounds = SkIRect::MakeSize(srcView.proxy()->backingStoreDimensions());
     // We've implemented splitting the dst bounds up into areas that do and do not need to
     // use shader based tiling but only for some modes...
     bool canSplit = mode == SkTileMode::kDecal || mode == SkTileMode::kClamp;
     // ...but it's not worth doing the splitting if we'll get HW tiling instead of shader tiling.
-    bool canHWTile =
-            srcBounds.contains(srcBackingBounds) &&
-            !(mode == SkTileMode::kDecal && !context->priv().caps()->clampToBorderSupport());
+    bool canHWTile = false;
+    if (!srcView.proxy()->isDDLTarget()) {
+        auto srcBackingBounds = SkIRect::MakeSize(srcView.proxy()->backingStoreDimensions());
+
+         canHWTile = srcBounds.contains(srcBackingBounds) &&
+                       !(mode == SkTileMode::kDecal &&
+                         !context->priv().caps()->clampToBorderSupport());
+    }
     if (!canSplit || canHWTile) {
         auto dstRect = SkIRect::MakeSize(dstBounds.size());
         convolve_gaussian_1d(dstRenderTargetContext.get(), std::move(srcView), srcBounds,

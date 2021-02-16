@@ -28,7 +28,7 @@ R"SkSL(return half4(1.0);
 );
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& varName, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& varName, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
         UniformHandle& calculated = calculatedVar;
         (void) calculated;
         const GrSectionSetData& _outer = _proc.cast<GrSectionSetData>();

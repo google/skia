@@ -450,7 +450,7 @@ private:
                                                color,
                                                coverage,
                                                localCoords,
-                                               this->viewMatrix());
+                                               this->viewMatrix1());
         }
 
         SkASSERT(gp->vertexStride() == sizeof(SkPoint));
@@ -502,7 +502,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        if (!SkMatrixPriv::CheapEqual(this->viewMatrix(), that->viewMatrix())) {
+        if (!SkMatrixPriv::CheapEqual(this->viewMatrix1(), that->viewMatrix1())) {
             return CombineResult::kCannotCombine;
         }
 
@@ -528,7 +528,7 @@ private:
 
     const SkPMColor4f& color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }
-    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    const SkMatrix& viewMatrix1() const { return fViewMatrix; }
     bool isHairline() const { return fIsHairline; }
 
     struct PathData {
@@ -646,9 +646,14 @@ bool GrDefaultPathRenderer::internalDrawPath(GrSurfaceDrawContext* surfaceDrawCo
     SkScalar tol = GrPathUtils::kDefaultTolerance;
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, path.getBounds());
 
+    SkISize dims= surfaceDrawContext->asRenderTargetProxy()->dimensions();
+    if (!surfaceDrawContext->asRenderTargetProxy()->isDDLTarget()) {
+        dims = surfaceDrawContext->asRenderTargetProxy()->backingStoreDimensions();
+    }
+
     SkRect devBounds;
-    GetPathDevBounds(path, surfaceDrawContext->asRenderTargetProxy()->backingStoreDimensions(),
-                     viewMatrix, &devBounds);
+    GetPathDevBounds(path, dims, viewMatrix, &devBounds);
+    //    if (path.isInverseFillType()) {
 
     for (int p = 0; p < passCount; ++p) {
         if (lastPassIsBounds && (p == passCount-1)) {

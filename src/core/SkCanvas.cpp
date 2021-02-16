@@ -812,6 +812,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
         auto special = src->snapSpecial(snapBounds);
         if (special) {
+            // $$ - this is where an offset should occur - in the read
             // The image is drawn at 1-1 scale with integer translation, so no filtering is needed.
             dst->drawSpecial(special.get(), SkMatrix::I(), SkSamplingOptions(), SkPaint());
         }

@@ -67,7 +67,7 @@ R"SkSL(return ((((((int4(%s(1)) , %s(int2(1)).xxxx) , %s(int3(1)).xxxx) , %s(int
 , test_i_name.c_str(), test_i2_name.c_str(), test_i3_name.c_str(), test_i4_name.c_str(), test_h3x3_name.c_str(), test_f2x2_name.c_str());
     }
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc, SkIPoint viewportOffset) override {
     }
 };
 GrGLSLFragmentProcessor* GrGrSLTypesAreSupported::onCreateGLSLInstance() const {

@@ -73,7 +73,7 @@ public:
     GrGLenum bindBuffer(GrGpuBufferType type, const GrBuffer*);
 
     // Flushes state from GrProgramInfo to GL. Returns false if the state couldn't be set.
-    bool flushGLState(GrRenderTarget*, const GrProgramInfo&);
+    bool flushGLState(GrRenderTarget*, const GrProgramInfo&, SkIPoint viewportOffset);
     void flushScissorRect(const SkIRect& scissor, int rtHeight, GrSurfaceOrigin);
 
     // The flushRenderTarget methods will all set the initial viewport to the full extent of the
@@ -408,7 +408,10 @@ private:
     }
     void flushScissorTest(GrScissorTest);
 
-    void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*, GrSurfaceOrigin);
+    void flushWindowRectangles(const GrWindowRectsState&,
+                               const GrGLRenderTarget*,
+                               GrSurfaceOrigin,
+                               SkIPoint viewportOffset);
     void disableWindowRectangles();
 
     int numTextureUnits() const { return this->caps()->shaderCaps()->maxFragmentSamplers(); }
@@ -535,7 +538,7 @@ private:
 
     GrGLuint                    fStencilClearFBOID;
 
-    // last scissor / viewport scissor state seen by the GL.
+    // last scissor / window-rectangles / viewport state seen by GL.
     struct {
         TriState fEnabled;
         GrNativeRect fRect;

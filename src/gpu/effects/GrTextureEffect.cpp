@@ -117,7 +117,8 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         return r;
     };
 
-    SkISize dim = proxy.isFullyLazy() ? SkISize{-1, -1} : proxy.backingStoreDimensions();
+    SkISize dim = proxy.isFullyLazy() || proxy.isDDLTarget() ? SkISize{-1, -1}
+                                                             : proxy.backingStoreDimensions();
 
     Span subsetX{subset.fLeft, subset.fRight};
     auto domainX = domain ? Span{domain->fLeft, domain->fRight}
@@ -155,7 +156,7 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
     SkMatrix combined = preMatrix;
     bool canNormalize = view.proxy()->backendFormat().textureType() != GrTextureType::kRectangle;
     if (canNormalize) {
-        if (view.proxy()->isFullyLazy()) {
+        if (view.proxy()->isFullyLazy() || view.proxy()->isDDLTarget()) {
             *outLazyProxyNormalization = true;
         } else {
             SkMatrixPriv::PostIDiv(&combined, view.proxy()->backingStoreDimensions().fWidth,
@@ -167,7 +168,7 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
     }
     if (view.origin() == kBottomLeft_GrSurfaceOrigin) {
         if (canNormalize) {
-            if (!view.proxy()->isFullyLazy()) {
+            if (!view.proxy()->isFullyLazy() && !view.proxy()->isDDLTarget()) {
                 // combined.postScale(1,-1);
                 // combined.postTranslate(0,1);
                 combined.set(SkMatrix::kMSkewY,
@@ -333,6 +334,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
             fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
                                                         kFloat4_GrSLType, "norm", &norm);
             SkString coordString = SkStringPrintf("%s * %s.zw", args.fSampleCoord, norm);
+//            SkString coordString = SkStringPrintf("%s", args.fSampleCoord);
             fb->appendTextureLookup(fSamplerHandle, coordString.c_str());
         } else {
             fb->appendTextureLookup(fSamplerHandle, args.fSampleCoord);
@@ -456,6 +458,9 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
             SkString normCoord;
             if (norm) {
                 normCoord.printf("(%s) * %s.zw", coord, norm);
+                //normCoord = coord;
+//                result.appendf("half4(%s, 0.0, 0.0)", normCoord.c_str());
+//                return result;
             } else {
                 normCoord = coord;
             }
@@ -714,24 +719,33 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 }
 
 void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
-                                      const GrFragmentProcessor& fp) {
+                                      const GrFragmentProcessor& fp,
+                                      SkIPoint viewportOffset) {
     const auto& te = fp.cast<GrTextureEffect>();
 
     const float w = te.texture()->width();
     const float h = te.texture()->height();
-    const auto& s = te.fSubset;
-    const auto& c = te.fClamp;
+    auto s = te.fSubset;
+    auto c = te.fClamp;
+
+    if (te.fView.asTextureProxy()->isDDLTarget()) {
+        //s.offset(viewportOffset.fX, viewportOffset.fY);
+        //c.offset(viewportOffset.fX, viewportOffset.fY);
+        int i = 0;
+    }
 
     auto type = te.texture()->textureType();
 
     float norm[4] = {w, h, 1.f/w, 1.f/h};
 
     if (fNormUni.isValid()) {
+//        SkDebugf("^^^^^^^^^^^^^^^^^^^^^^ norming to %.2f %.2f %.2f %.2f\n", norm[0], norm[1], norm[2], norm[3]);
+
         pdm.set4fv(fNormUni, 1, norm);
         SkASSERT(type != GrTextureType::kRectangle);
     }
 
-    auto pushRect = [&](float rect[4], UniformHandle uni) {
+    auto pushRect = [&](float rect[4], UniformHandle uni, const char* label) {
         if (te.view().origin() == kBottomLeft_GrSurfaceOrigin) {
             rect[1] = h - rect[1];
             rect[3] = h - rect[3];
@@ -743,16 +757,21 @@ void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
             rect[1] *= norm[3];
             rect[3] *= norm[3];
         }
+//        rect[0] = 0;
+//        rect[1] = 0;
+//        rect[2] = w;
+//        rect[3] = h;
+//        SkDebugf("+++++++++++++++++++++++ pushing %s %.2f %.2f %.2f %.2f\n", label, rect[0], rect[1], rect[2], rect[3]);
         pdm.set4fv(uni, 1, rect);
     };
 
     if (fSubsetUni.isValid()) {
         float subset[] = {s.fLeft, s.fTop, s.fRight, s.fBottom};
-        pushRect(subset, fSubsetUni);
+        pushRect(subset, fSubsetUni, "subset");
     }
     if (fClampUni.isValid()) {
         float subset[] = {c.fLeft, c.fTop, c.fRight, c.fBottom};
-        pushRect(subset, fClampUni);
+        pushRect(subset, fClampUni, "clamp");
     }
     if (fBorderUni.isValid()) {
         pdm.set4fv(fBorderUni, 1, te.fBorder);

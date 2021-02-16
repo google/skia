@@ -32,7 +32,7 @@ public:
     GrAppliedHardClip(const SkISize& rtDims) : fScissorState(rtDims) {}
     GrAppliedHardClip(const SkISize& logicalRTDims, const SkISize& backingStoreDims)
             : fScissorState(backingStoreDims) {
-        fScissorState.set(SkIRect::MakeSize(logicalRTDims));
+        fScissorState.set1(SkIRect::MakeSize(logicalRTDims));
     }
 
     GrAppliedHardClip(GrAppliedHardClip&& that) = default;
@@ -53,7 +53,7 @@ public:
     }
 
     void setScissor(const SkIRect& irect) {
-        fScissorState.set(irect);
+        fScissorState.set1(irect);
     }
 
     void addWindowRectangles(const GrWindowRectsState& windowState) {
@@ -81,6 +81,24 @@ public:
                fStencilStackID == that.fStencilStackID;
     }
     bool operator!=(const GrAppliedHardClip& that) const { return !(*this == that); }
+
+    static SkString ToStr(const SkRect& r) {
+        return SkStringPrintf("[L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
+                              r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
+
+    static SkString ToStr(const SkIRect& r) {
+        return SkStringPrintf("[L: %d, T: %d, R: %d, B: %d]",
+                              r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
+
+    SkString dumpInfo() const {
+        return SkStringPrintf("scissor: %s rtDim %dx%d rect %s",
+                              fScissorState.enabled() ? "enabled" : "disabled",
+                              fScissorState.rtDimensions().width(),
+                              fScissorState.rtDimensions().height(),
+                              fScissorState.enabled() ? ToStr(fScissorState.rect()).c_str() : "");
+    }
 
 private:
     GrScissorState             fScissorState;
@@ -150,6 +168,10 @@ public:
         if (fCoverageFP != nullptr) {
             fCoverageFP->visitProxies(func);
         }
+    }
+
+    SkString dumpInfo() const {
+        return fHardClip.dumpInfo();
     }
 
 private:

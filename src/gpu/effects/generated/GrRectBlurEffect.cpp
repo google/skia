@@ -28,8 +28,8 @@ public:
         (void)rect;
         auto applyInvVM = _outer.applyInvVM;
         (void)applyInvVM;
-        auto invVM = _outer.invVM;
-        (void)invVM;
+        auto invVM1 = _outer.invVM1;
+        (void)invVM1;
         auto isFast = _outer.isFast;
         (void)isFast;
         highPrecision = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
@@ -122,16 +122,22 @@ return (%s * xCoverage) * yCoverage;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
         {
             if (invVMVar.isValid()) {
                 static_assert(1 == 1);
-                pdman.setSkMatrix(invVMVar, (_outer.invVM));
+                SkMatrix tmp = _outer.invVM1;
+                tmp.preTranslate(-viewportOffset.fX, -viewportOffset.fY);
+                pdman.setSkMatrix(invVMVar, tmp);
             }
         }
         auto rect = _outer.rect;
         (void)rect;
+        if (!invVMVar.isValid()) {
+            rect.offset(viewportOffset.fX, viewportOffset.fY);
+        }
         UniformHandle& rectF = rectFVar;
         (void)rectF;
         UniformHandle& rectH = rectHVar;
@@ -168,7 +174,7 @@ bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     (void)that;
     if (rect != that.rect) return false;
     if (applyInvVM != that.applyInvVM) return false;
-    if (invVM != that.invVM) return false;
+    if (invVM1 != that.invVM1) return false;
     if (isFast != that.isFast) return false;
     return true;
 }
@@ -176,7 +182,7 @@ GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
         : INHERITED(kGrRectBlurEffect_ClassID, src.optimizationFlags())
         , rect(src.rect)
         , applyInvVM(src.applyInvVM)
-        , invVM(src.invVM)
+        , invVM1(src.invVM1)
         , isFast(src.isFast) {
     this->cloneAndRegisterAllChildProcessors(src);
 }
@@ -189,8 +195,8 @@ SkString GrRectBlurEffect::onDumpInfo() const {
             "(rect=float4(%f, %f, %f, %f), applyInvVM=%s, invVM=float3x3(%f, %f, %f, %f, %f, %f, "
             "%f, %f, %f), isFast=%s)",
             rect.left(), rect.top(), rect.right(), rect.bottom(), (applyInvVM ? "true" : "false"),
-            invVM.rc(0, 0), invVM.rc(1, 0), invVM.rc(2, 0), invVM.rc(0, 1), invVM.rc(1, 1),
-            invVM.rc(2, 1), invVM.rc(0, 2), invVM.rc(1, 2), invVM.rc(2, 2),
+            invVM1.rc(0, 0), invVM1.rc(1, 0), invVM1.rc(2, 0), invVM1.rc(0, 1), invVM1.rc(1, 1),
+            invVM1.rc(2, 1), invVM1.rc(0, 2), invVM1.rc(1, 2), invVM1.rc(2, 2),
             (isFast ? "true" : "false"));
 }
 #endif

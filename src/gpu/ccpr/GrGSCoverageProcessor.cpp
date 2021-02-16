@@ -23,7 +23,9 @@ protected:
 
     virtual bool hasCoverage(const GrGSCoverageProcessor& proc) const { return false; }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor&,
+                 SkIPoint viewportOffset) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrGSCoverageProcessor& proc = args.fGP.cast<GrGSCoverageProcessor>();

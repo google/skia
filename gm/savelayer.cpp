@@ -49,6 +49,7 @@
 DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->drawImage(GetResourceAsImage("images/mandrill_256.png"), 0, 0);
 
+#if 1
     SkCanvas::SaveLayerRec rec;
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kPlus);
@@ -58,6 +59,7 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     paint.setBlendMode(SkBlendMode::kClear);
     canvas->drawCircle(128, 128, 96, paint);
     canvas->restore();
+#endif
 };
 
 DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
@@ -154,7 +156,10 @@ static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob, bool useDrawBehi
     for (int i = 0; i < 8; ++i) {
         SkColor c = rand.nextU();   // ensure we're opaque
         c = (c & 0xFFFFFF) | 0x80000000;
-        draw_cell(canvas, blob, c, w, h, useDrawBehind);
+        //if (i == 4 || i == 5)
+        {
+            draw_cell(canvas, blob, c, w, h, useDrawBehind);
+        }
         canvas->translate(0, h);
     }
 }

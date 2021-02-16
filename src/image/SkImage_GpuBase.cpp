@@ -160,10 +160,12 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct),
+    SkISize dims = copyView.proxy()->backingStoreDimensions();
+
+return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct),
                                    kNeedNewImageUniqueID,
                                    std::move(copyView),
-                                   this->imageInfo().colorInfo());
+                                   this->imageInfo().colorInfo(), dims);
 }
 
 bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,

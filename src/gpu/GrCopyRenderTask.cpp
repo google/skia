@@ -75,7 +75,12 @@ bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
     }
     GrSurface* srcSurface = fSrc->peekSurface();
     GrSurface* dstSurface = dstProxy->peekSurface();
-    SkIRect srcRect = GrNativeRect::MakeIRectRelativeTo(fOrigin, srcSurface->height(), fSrcRect);
+
+    SkIRect srcRect1 = fSrcRect;
+    if (fSrc->isDDLTarget()) {
+        srcRect1.offset(10, 30);
+    }
+    SkIRect srcRect = GrNativeRect::MakeIRectRelativeTo(fOrigin, srcSurface->height(), srcRect1);
     SkIPoint dstPoint = fDstPoint;
     if (fOrigin == kBottomLeft_GrSurfaceOrigin) {
         dstPoint.fY = dstSurface->height() - dstPoint.fY - srcRect.height();

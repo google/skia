@@ -23,18 +23,19 @@ class SkBitmap;
 class SkImage_Gpu final : public SkImage_GpuBase {
 public:
     SkImage_Gpu(sk_sp<GrImageContext>, uint32_t uniqueID, GrSurfaceProxyView, SkColorType,
-                SkAlphaType, sk_sp<SkColorSpace>);
+                SkAlphaType, sk_sp<SkColorSpace>, SkISize magicSize);
     SkImage_Gpu(sk_sp<GrImageContext> context,
                 uint32_t uniqueID,
                 GrSurfaceProxyView view,
-                SkColorInfo info)
+                SkColorInfo info,
+                SkISize magicSize)
             : SkImage_Gpu(std::move(context),
                           uniqueID,
                           std::move(view),
                           info.colorType(),
                           info.alphaType(),
-                          info.refColorSpace()) {}
-
+                          info.refColorSpace(),
+                          magicSize) {}
     ~SkImage_Gpu() override;
 
     bool onHasMipmaps() const override {

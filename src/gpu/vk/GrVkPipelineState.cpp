@@ -69,19 +69,19 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                            GrVkCommandBuffer* commandBuffer) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
-    fGeometryProcessor->setData(fDataManager, programInfo.primProc());
+    SkIPoint offset;
+    GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
+
+    fGeometryProcessor->setData(fDataManager, programInfo.primProc(), offset);
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& pipelineFP = programInfo.pipeline().getFragmentProcessor(i);
         auto& baseGLSLFP = *fFragmentProcessors[i];
         for (auto [fp, glslFP] : GrGLSLFragmentProcessor::ParallelRange(pipelineFP, baseGLSLFP)) {
-            glslFP.setData(fDataManager, fp);
+            glslFP.setData(fDataManager, fp, offset);
         }
     }
 
     {
-        SkIPoint offset;
-        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
-
         fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
                                 dstTexture, offset);
     }

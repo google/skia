@@ -42,7 +42,8 @@ public:
             }
 
             void onSetData(const GrGLSLProgramDataManager& pdman,
-                           const GrFragmentProcessor& effect) override {
+                           const GrFragmentProcessor& effect,
+                           SkIPoint viewportOffset) override {
                 pdman.set2f(fBlueAlphaUniform, 0.0, 1.0);
             }
 

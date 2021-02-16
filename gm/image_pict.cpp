@@ -308,6 +308,9 @@ protected:
             draw_placeholder(canvas, x, y, image->width(), image->height());
             return;
         }
+
+        SkISize dims = view.proxy()->backingStoreDimensions();
+
         SkColorInfo colorInfo(GrColorTypeToSkColorType(ct),
                               image->alphaType(),
                               image->refColorSpace());
@@ -315,7 +318,7 @@ protected:
         sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
                                                 image->uniqueID(),
                                                 std::move(view),
-                                                std::move(colorInfo)));
+                                                std::move(colorInfo), dims));
         canvas->drawImage(texImage.get(), x, y);
     }
 

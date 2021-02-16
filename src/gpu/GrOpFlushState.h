@@ -113,6 +113,20 @@ public:
         return fSampledProxies;
     }
 
+    // During flushing a single proxy can be singled out as incurring an offset to any of its
+    // viewports and scissors. This is used to offset all the renderTasks within a DDL that
+    // target the final destination.
+    void setViewportOffset(GrRenderTargetProxy* viewportOffsetTarget, SkIPoint viewportOffset) {
+        fViewportOffsetTarget = viewportOffsetTarget;
+        fViewportOffset = viewportOffset;
+    }
+
+    GrRenderTargetProxy* viewportOffsetTarget() { return fViewportOffsetTarget; }
+    const SkIPoint& viewportOffset() const {
+        SkASSERT(fViewportOffsetTarget);
+        return fViewportOffset;
+    }
+
     /** Overrides of GrDeferredUploadTarget. */
 
     const GrTokenTracker* tokenTracker() final { return fTokenTracker; }
@@ -214,6 +228,9 @@ public:
     void setScissorRect(const SkIRect& scissorRect) {
         fOpsRenderPass->setScissorRect(scissorRect);
     }
+    void setViewport_unused(const SkIRect& viewport) {
+        fOpsRenderPass->setViewport_unused(viewport);
+    }
     void bindTextures(const GrPrimitiveProcessor& primProc,
                       const GrSurfaceProxy* const primProcTextures[], const GrPipeline& pipeline) {
         fOpsRenderPass->bindTextures(primProc, primProcTextures, pipeline);
@@ -300,6 +317,9 @@ private:
     // Info about the op that is currently preparing or executing using the flush state or null if
     // an op is not currently preparing of executing.
     OpArgs* fOpArgs = nullptr;
+
+    GrRenderTargetProxy* fViewportOffsetTarget = nullptr;
+    SkIPoint fViewportOffset = { 0, 0 };  // only valid when fViewportOffsetTarget is set
 
     // This field is only transiently set during flush. Each GrOpsTask will set it to point to an
     // array of proxies it uses before call onPrepare and onExecute.
