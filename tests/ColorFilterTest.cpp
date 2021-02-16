@@ -8,8 +8,10 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkColorMatrix.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkReadBuffer.h"
@@ -88,5 +90,40 @@ DEF_TEST(ColorFilter, reporter) {
             REPORTER_ASSERT(reporter, c2 == expectedColor);
             REPORTER_ASSERT(reporter, m2 == expectedMode);
         }
+    }
+}
+
+DEF_TEST(WorkingFormatFilterFlags, r) {
+    {
+        // A matrix with final row 0,0,0,1,0 shouldn't change alpha.
+        sk_sp<SkColorFilter> cf = SkColorFilters::Matrix({1,0,0,0,0,
+                                                          0,1,0,0,0,
+                                                          0,0,1,0,0,
+                                                          0,0,0,1,0});
+        REPORTER_ASSERT(r, cf->isAlphaUnchanged());
+
+        // No working format change will itself change alpha.
+        SkAlphaType unpremul = kUnpremul_SkAlphaType;
+        cf = SkColorFilters::WithWorkingFormat(std::move(cf),
+                                               &SkNamedTransferFn::kLinear,
+                                               &SkNamedGamut::kDisplayP3,
+                                               &unpremul);
+        REPORTER_ASSERT(r, cf->isAlphaUnchanged());
+    }
+
+    {
+        // Here's a matrix that definitely does change alpha.
+        sk_sp<SkColorFilter> cf = SkColorFilters::Matrix({1,0,0,0,0,
+                                                          0,1,0,0,0,
+                                                          0,0,1,0,0,
+                                                          0,0,0,0,1});
+        REPORTER_ASSERT(r, !cf->isAlphaUnchanged());
+
+        SkAlphaType unpremul = kUnpremul_SkAlphaType;
+        cf = SkColorFilters::WithWorkingFormat(std::move(cf),
+                                               &SkNamedTransferFn::kLinear,
+                                               &SkNamedGamut::kDisplayP3,
+                                               &unpremul);
+        REPORTER_ASSERT(r, !cf->isAlphaUnchanged());
     }
 }
