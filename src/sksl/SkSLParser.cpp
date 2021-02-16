@@ -1610,7 +1610,8 @@ ASTNode::ID Parser::expression() {
         if (!right) {
             return ASTNode::ID::Invalid();
         }
-        ASTNode::ID newResult = this->createNode(t.fOffset, ASTNode::Kind::kBinary, std::move(t));
+        ASTNode::ID newResult = this->createNode(t.fOffset, ASTNode::Kind::kBinary,
+                                                 Operator(t.fKind));
         getNode(newResult).addChild(result);
         getNode(newResult).addChild(right);
         result = newResult;
@@ -1650,7 +1651,7 @@ ASTNode::ID Parser::assignmentExpression() {
                     return ASTNode::ID::Invalid();
                 }
                 ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, std::move(t));
+                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
                 getNode(newResult).addChild(result);
                 getNode(newResult).addChild(right);
                 result = newResult;
@@ -1710,7 +1711,7 @@ ASTNode::ID Parser::logicalOrExpression() {
             return ASTNode::ID::Invalid();
         }
         ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 std::move(t));
+                                                 Operator(t.fKind));
         getNode(newResult).addChild(result);
         getNode(newResult).addChild(right);
         result = newResult;
@@ -1735,7 +1736,7 @@ ASTNode::ID Parser::logicalXorExpression() {
             return ASTNode::ID::Invalid();
         }
         ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 std::move(t));
+                                                 Operator(t.fKind));
         getNode(newResult).addChild(result);
         getNode(newResult).addChild(right);
         result = newResult;
@@ -1760,7 +1761,7 @@ ASTNode::ID Parser::logicalAndExpression() {
             return ASTNode::ID::Invalid();
         }
         ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 std::move(t));
+                                                 Operator(t.fKind));
         getNode(newResult).addChild(result);
         getNode(newResult).addChild(right);
         result = newResult;
@@ -1784,8 +1785,8 @@ ASTNode::ID Parser::bitwiseOrExpression() {
         if (!right) {
             return ASTNode::ID::Invalid();
         }
-        ASTNode::ID newResult =
-                this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary, std::move(t));
+        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
+                                                 Operator(t.fKind));
         getNode(newResult).addChild(result);
         getNode(newResult).addChild(right);
         result = newResult;
@@ -1809,7 +1810,8 @@ ASTNode::ID Parser::bitwiseXorExpression() {
         if (!right) {
             return ASTNode::ID::Invalid();
         }
-        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary, std::move(t));
+        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
+                                                 Operator(t.fKind));
         getNode(newResult).addChild(result);
         getNode(newResult).addChild(right);
         result = newResult;
@@ -1834,7 +1836,7 @@ ASTNode::ID Parser::bitwiseAndExpression() {
             return ASTNode::ID::Invalid();
         }
         ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 std::move(t));
+                                                 Operator(t.fKind));
         getNode(newResult).addChild(result);
         getNode(newResult).addChild(right);
         result = newResult;
@@ -1862,7 +1864,7 @@ ASTNode::ID Parser::equalityExpression() {
                     return ASTNode::ID::Invalid();
                 }
                 ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, std::move(t));
+                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
                 getNode(newResult).addChild(result);
                 getNode(newResult).addChild(right);
                 result = newResult;
@@ -1896,7 +1898,7 @@ ASTNode::ID Parser::relationalExpression() {
                     return ASTNode::ID::Invalid();
                 }
                 ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, std::move(t));
+                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
                 getNode(newResult).addChild(result);
                 getNode(newResult).addChild(right);
                 result = newResult;
@@ -1928,7 +1930,7 @@ ASTNode::ID Parser::shiftExpression() {
                     return ASTNode::ID::Invalid();
                 }
                 ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, std::move(t));
+                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
                 getNode(newResult).addChild(result);
                 getNode(newResult).addChild(right);
                 result = newResult;
@@ -1960,7 +1962,7 @@ ASTNode::ID Parser::additiveExpression() {
                     return ASTNode::ID::Invalid();
                 }
                 ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, std::move(t));
+                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
                 getNode(newResult).addChild(result);
                 getNode(newResult).addChild(right);
                 result = newResult;
@@ -1993,7 +1995,7 @@ ASTNode::ID Parser::multiplicativeExpression() {
                     return ASTNode::ID::Invalid();
                 }
                 ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, std::move(t));
+                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
                 getNode(newResult).addChild(result);
                 getNode(newResult).addChild(right);
                 result = newResult;
@@ -2023,7 +2025,8 @@ ASTNode::ID Parser::unaryExpression() {
             if (!expr) {
                 return ASTNode::ID::Invalid();
             }
-            ASTNode::ID result = this->createNode(t.fOffset, ASTNode::Kind::kPrefix, std::move(t));
+            ASTNode::ID result = this->createNode(t.fOffset, ASTNode::Kind::kPrefix,
+                                                  Operator(t.fKind));
             getNode(result).addChild(expr);
             return result;
         }
@@ -2160,7 +2163,8 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
         }
         case Token::Kind::TK_PLUSPLUS: // fall through
         case Token::Kind::TK_MINUSMINUS: {
-            ASTNode::ID result = this->createNode(next.fOffset, ASTNode::Kind::kPostfix, next);
+            ASTNode::ID result = this->createNode(next.fOffset, ASTNode::Kind::kPostfix,
+                                                  Operator(next.fKind));
             getNode(result).addChild(base);
             return result;
         }
