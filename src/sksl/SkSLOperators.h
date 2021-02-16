@@ -11,7 +11,13 @@
 #include "src/sksl/SkSLLexer.h"
 
 namespace SkSL {
-namespace Operators {
+
+class Operator {
+public:
+    using Kind = Token::Kind;
+
+    // Allow implicit conversion from Token::Kind, since this is just a utility wrapper on top.
+    Operator(Token::Kind t) : fKind(t) {}
 
     enum class Precedence {
         kParentheses    =  1,
@@ -34,18 +40,51 @@ namespace Operators {
         kTopLevel       = kSequence
     };
 
-    Precedence GetBinaryPrecedence(Token::Kind op);
+    Token::Kind kind() const { return fKind; }
 
-    const char* OperatorName(Token::Kind op);
+    Precedence getBinaryPrecedence() const;
+
+    const char* operatorName() const;
 
     // Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
-    bool IsAssignment(Token::Kind op);
+    bool isAssignment() const;
 
     // Given a compound assignment operator, returns the non-assignment version of the operator
     // (e.g. '+=' becomes '+')
-    Token::Kind RemoveAssignment(Token::Kind op);
+    Operator removeAssignment() const;
 
-}  // namespace Operators
+    /**
+     * Defines the set of logical (comparison) operators:
+     *     <  <=  >  >=
+     */
+    bool isLogical() const;
+
+    /**
+     * Defines the set of operators which are only valid on integral types:
+     *   <<  <<=  >>  >>=  &  &=  |  |=  ^  ^=  %  %=
+     */
+    bool isOnlyValidForIntegralTypes() const;
+
+    /**
+     * Defines the set of operators which perform vector/matrix math.
+     *   +  +=  -  -=  *  *=  /  /=  %  %=  <<  <<=  >>  >>=  &  &=  |  |=  ^  ^=
+     */
+    bool isValidForMatrixOrVector() const;
+
+    /*
+     * Defines the set of operators allowed by The OpenGL ES Shading Language 1.00, Section 5.1.
+     * The set of illegal (reserved) operators are the ones that only make sense with integral
+     * types. This is not a coincidence: It's because ES2 doesn't require 'int' to be anything but
+     * syntactic sugar for floats with truncation after each operation.
+     */
+    bool isAllowedInStrictES2Mode() const {
+        return !this->isOnlyValidForIntegralTypes();
+    }
+
+private:
+    Kind fKind;
+};
+
 }  // namespace SkSL
 
 #endif

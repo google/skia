@@ -21,12 +21,12 @@ class PostfixExpression final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kPostfix;
 
-    PostfixExpression(std::unique_ptr<Expression> operand, Token::Kind op)
+    PostfixExpression(std::unique_ptr<Expression> operand, Operator op)
         : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
         , fOperand(std::move(operand))
         , fOperator(op) {}
 
-    Token::Kind getOperator() const {
+    Operator getOperator() const {
         return fOperator;
     }
 
@@ -51,12 +51,12 @@ public:
     }
 
     String description() const override {
-        return this->operand()->description() + Operators::OperatorName(this->getOperator());
+        return this->operand()->description() + this->getOperator().operatorName();
     }
 
 private:
     std::unique_ptr<Expression> fOperand;
-    Token::Kind fOperator;
+    Operator fOperator;
 
     using INHERITED = Expression;
 };
