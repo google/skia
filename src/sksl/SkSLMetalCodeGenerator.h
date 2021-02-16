@@ -68,7 +68,7 @@ public:
     bool generateCode() override;
 
 protected:
-    using Precedence = Operators::Precedence;
+    using Precedence = Operator::Precedence;
 
     typedef int Requirements;
     static constexpr Requirements kNo_Requirements       = 0;
@@ -109,7 +109,7 @@ protected:
         kTexture_IntrinsicKind,
     };
 
-    static const char* OperatorName(Token::Kind op);
+    static const char* OperatorName(Operator op);
 
     class GlobalStructVisitor;
     void visitGlobalStruct(GlobalStructVisitor* visitor);

@@ -119,9 +119,9 @@ void DefinitionMap::addDefinitions(const Context& context, const BasicBlock::Nod
         switch (expr->kind()) {
             case Expression::Kind::kBinary: {
                 BinaryExpression* b = &expr->as<BinaryExpression>();
-                if (b->getOperator() == Token::Kind::TK_EQ) {
+                if (b->getOperator().kind() == Token::Kind::TK_EQ) {
                     this->addDefinition(context, b->left().get(), &b->right());
-                } else if (Operators::IsAssignment(b->getOperator())) {
+                } else if (b->getOperator().isAssignment()) {
                     this->addDefinition(
                             context, b->left().get(),
                             (std::unique_ptr<Expression>*)&context.fDefined_Expression);
@@ -142,8 +142,8 @@ void DefinitionMap::addDefinitions(const Context& context, const BasicBlock::Nod
             }
             case Expression::Kind::kPrefix: {
                 const PrefixExpression* p = &expr->as<PrefixExpression>();
-                if (p->getOperator() == Token::Kind::TK_MINUSMINUS ||
-                    p->getOperator() == Token::Kind::TK_PLUSPLUS) {
+                if (p->getOperator().kind() == Token::Kind::TK_MINUSMINUS ||
+                    p->getOperator().kind() == Token::Kind::TK_PLUSPLUS) {
                     this->addDefinition(
                             context, p->operand().get(),
                             (std::unique_ptr<Expression>*)&context.fDefined_Expression);
@@ -152,8 +152,8 @@ void DefinitionMap::addDefinitions(const Context& context, const BasicBlock::Nod
             }
             case Expression::Kind::kPostfix: {
                 const PostfixExpression* p = &expr->as<PostfixExpression>();
-                if (p->getOperator() == Token::Kind::TK_MINUSMINUS ||
-                    p->getOperator() == Token::Kind::TK_PLUSPLUS) {
+                if (p->getOperator().kind() == Token::Kind::TK_MINUSMINUS ||
+                    p->getOperator().kind() == Token::Kind::TK_PLUSPLUS) {
                     this->addDefinition(
                             context, p->operand().get(),
                             (std::unique_ptr<Expression>*)&context.fDefined_Expression);

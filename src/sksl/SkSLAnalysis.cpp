@@ -538,7 +538,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
         return "expected loop index on left hand side of condition";
     }
     // relational_operator is one of: > >= < <= == or !=
-    switch (cond.getOperator()) {
+    switch (cond.getOperator().kind()) {
         case Token::Kind::TK_GT:
         case Token::Kind::TK_GTEQ:
         case Token::Kind::TK_LT:
@@ -575,7 +575,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
             if (!getConstant(next.right(), &loopInfo.fDelta)) {
                 return "loop index must be modified by a constant expression";
             }
-            switch (next.getOperator()) {
+            switch (next.getOperator().kind()) {
                 case Token::Kind::TK_PLUSEQ:                                      break;
                 case Token::Kind::TK_MINUSEQ: loopInfo.fDelta = -loopInfo.fDelta; break;
                 default:
@@ -587,7 +587,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
             if (!is_loop_index(next.operand())) {
                 return "expected loop index in loop expression";
             }
-            switch (next.getOperator()) {
+            switch (next.getOperator().kind()) {
                 case Token::Kind::TK_PLUSPLUS:   loopInfo.fDelta =  1; break;
                 case Token::Kind::TK_MINUSMINUS: loopInfo.fDelta = -1; break;
                 default:
@@ -599,7 +599,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
             if (!is_loop_index(next.operand())) {
                 return "expected loop index in loop expression";
             }
-            switch (next.getOperator()) {
+            switch (next.getOperator().kind()) {
                 case Token::Kind::TK_PLUSPLUS:   loopInfo.fDelta =  1; break;
                 case Token::Kind::TK_MINUSMINUS: loopInfo.fDelta = -1; break;
                 default:
@@ -624,7 +624,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
 
     double val = loopInfo.fStart;
     auto evalCond = [&]() {
-        switch (cond.getOperator()) {
+        switch (cond.getOperator().kind()) {
             case Token::Kind::TK_GT:   return val >  loopEnd;
             case Token::Kind::TK_GTEQ: return val >= loopEnd;
             case Token::Kind::TK_LT:   return val <  loopEnd;

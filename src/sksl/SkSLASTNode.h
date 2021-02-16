@@ -9,6 +9,7 @@
 #define SKSL_ASTNODE
 
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
@@ -53,7 +54,7 @@ struct ASTNode {
     };
 
     enum class Kind {
-        // data: operator(Token), children: left, right
+        // data: operator, children: left, right
         kBinary,
         // children: statements
         kBlock,
@@ -97,9 +98,9 @@ struct ASTNode {
         kNull,
         // data: ParameterData, children: type, arraySize1, arraySize2, ..., value?
         kParameter,
-        // data: operator(Token), children: operand
+        // data: operator, children: operand
         kPostfix,
-        // data: operator(Token), children: operand
+        // data: operator, children: operand
         kPrefix,
         // children: value
         kReturn,
@@ -250,7 +251,7 @@ struct ASTNode {
     };
 
     struct NodeData {
-        char fBytes[std::max({sizeof(Token),
+        char fBytes[std::max({sizeof(Token::Kind),
                               sizeof(StringFragment),
                               sizeof(bool),
                               sizeof(SKSL_INT),
@@ -263,7 +264,7 @@ struct ASTNode {
                               sizeof(SectionData)})];
 
         enum class Kind {
-            kToken,
+            kOperator,
             kStringFragment,
             kBool,
             kInt,
@@ -278,8 +279,9 @@ struct ASTNode {
 
         NodeData() = default;
 
-        NodeData(Token data)
-            : fKind(Kind::kToken) {
+        NodeData(Operator op)
+            : fKind(Kind::kOperator) {
+            Token::Kind data = op.kind();
             memcpy(fBytes, &data, sizeof(data));
         }
 
@@ -341,12 +343,13 @@ struct ASTNode {
     ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind)
         : fNodes(nodes)
         , fOffset(offset)
-            , fKind(kind) {
+        , fKind(kind) {
+
         switch (kind) {
             case Kind::kBinary:
             case Kind::kPostfix:
             case Kind::kPrefix:
-                fData.fKind = NodeData::Kind::kToken;
+                fData.fKind = NodeData::Kind::kOperator;
                 break;
 
             case Kind::kBool:
@@ -398,9 +401,9 @@ struct ASTNode {
         }
     }
 
-    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, Token t)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, Operator op)
         : fNodes(nodes)
-        , fData(t)
+        , fData(op)
         , fOffset(offset)
         , fKind(kind) {}
 
@@ -450,11 +453,11 @@ struct ASTNode {
         return fKind != Kind::kNull;
     }
 
-    Token getToken() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kToken);
-        Token result;
-        memcpy(&result, fData.fBytes, sizeof(result));
-        return result;
+    Operator getOperator() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kOperator);
+        Token::Kind tokenKind;
+        memcpy(&tokenKind, fData.fBytes, sizeof(tokenKind));
+        return Operator{tokenKind};
     }
 
     bool getBool() const {

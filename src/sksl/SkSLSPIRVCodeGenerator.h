@@ -307,7 +307,7 @@ private:
     SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
                                SpvOp_ ifUInt, OutputStream& out);
 
-    SpvId writeBinaryExpression(const Type& leftType, SpvId lhs, Token::Kind op,
+    SpvId writeBinaryExpression(const Type& leftType, SpvId lhs, Operator op,
                                 const Type& rightType, SpvId rhs, const Type& resultType,
                                 OutputStream& out);
 
