@@ -197,7 +197,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
     switch (expr->kind()) {
         case Expression::Kind::kBinary: {
             BinaryExpression& b = expr->as<BinaryExpression>();
-            if (b.getOperator() == Token::Kind::TK_EQ) {
+            if (b.getOperator().kind() == Token::Kind::TK_EQ) {
                 if (!this->tryRemoveLValueBefore(iter, b.left().get())) {
                     return false;
                 }
@@ -349,8 +349,8 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
     switch ((*e)->kind()) {
         case Expression::Kind::kBinary: {
             BinaryExpression& b = e->get()->as<BinaryExpression>();
-            Token::Kind op = b.getOperator();
-            switch (op) {
+            Operator op = b.getOperator();
+            switch (op.kind()) {
                 case Token::Kind::TK_LOGICALAND: // fall through
                 case Token::Kind::TK_LOGICALOR: {
                     // this isn't as precise as it could be -- we don't bother to track that if we
@@ -374,8 +374,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                     break;
                 }
                 default:
-                    this->addExpression(cfg, &b.left(),
-                                        !Operators::IsAssignment(b.getOperator()));
+                    this->addExpression(cfg, &b.left(), !b.getOperator().isAssignment());
                     this->addExpression(cfg, &b.right(), constantPropagate);
                     cfg.currentBlock().fNodes.push_back(
                             BasicBlock::MakeExpression(e, constantPropagate));
@@ -421,9 +420,10 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         }
         case Expression::Kind::kPrefix: {
             PrefixExpression& p = e->get()->as<PrefixExpression>();
-            this->addExpression(cfg, &p.operand(), constantPropagate &&
-                                                  p.getOperator() != Token::Kind::TK_PLUSPLUS &&
-                                                  p.getOperator() != Token::Kind::TK_MINUSMINUS);
+            this->addExpression(cfg, &p.operand(),
+                                constantPropagate &&
+                                p.getOperator().kind() != Token::Kind::TK_PLUSPLUS &&
+                                p.getOperator().kind() != Token::Kind::TK_MINUSMINUS);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         }

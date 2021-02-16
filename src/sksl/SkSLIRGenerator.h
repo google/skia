@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -185,9 +186,9 @@ private:
     int convertArraySize(const Type& type, int offset, const ASTNode& s);
     int convertArraySize(const Type& type, std::unique_ptr<Expression> s);
     bool containsConstantZero(Expression& expr);
-    bool dividesByZero(Token::Kind op, Expression& right);
+    bool dividesByZero(Operator op, Expression& right);
     std::unique_ptr<Expression> convertBinaryExpression(std::unique_ptr<Expression> left,
-                                                        Token::Kind op,
+                                                        Operator op,
                                                         std::unique_ptr<Expression> right);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
@@ -245,9 +246,9 @@ private:
     std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
                                              std::unique_ptr<Expression> index);
     std::unique_ptr<Expression> convertPostfixExpression(std::unique_ptr<Expression> base,
-                                                         Token::Kind op);
+                                                         Operator op);
     std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertPrefixExpression(Token::Kind op,
+    std::unique_ptr<Expression> convertPrefixExpression(Operator op,
                                                         std::unique_ptr<Expression> base);
     std::unique_ptr<Expression> convertScopeExpression(const ASTNode& expression);
     std::unique_ptr<StructDefinition> convertStructDefinition(const ASTNode& expression);

@@ -61,7 +61,7 @@ public:
     bool generateCode() override;
 
 protected:
-    using Precedence = Operators::Precedence;
+    using Precedence = Operator::Precedence;
 
     void write(const char* s);
 

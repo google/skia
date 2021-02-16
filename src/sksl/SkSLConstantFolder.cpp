@@ -24,17 +24,17 @@
 namespace SkSL {
 
 static std::unique_ptr<Expression> eliminate_no_op_boolean(const Expression& left,
-                                                           Token::Kind op,
+                                                           Operator op,
                                                            const Expression& right) {
     SkASSERT(right.is<BoolLiteral>());
     bool rightVal = right.as<BoolLiteral>().value();
 
     // Detect no-op Boolean expressions and optimize them away.
-    if ((op == Token::Kind::TK_LOGICALAND && rightVal)  ||  // (expr && true)  -> (expr)
-        (op == Token::Kind::TK_LOGICALOR  && !rightVal) ||  // (expr || false) -> (expr)
-        (op == Token::Kind::TK_LOGICALXOR && !rightVal) ||  // (expr ^^ false) -> (expr)
-        (op == Token::Kind::TK_EQEQ       && rightVal)  ||  // (expr == true)  -> (expr)
-        (op == Token::Kind::TK_NEQ        && !rightVal)) {  // (expr != false) -> (expr)
+    if ((op.kind() == Token::Kind::TK_LOGICALAND && rightVal)  ||  // (expr && true)  -> (expr)
+        (op.kind() == Token::Kind::TK_LOGICALOR  && !rightVal) ||  // (expr || false) -> (expr)
+        (op.kind() == Token::Kind::TK_LOGICALXOR && !rightVal) ||  // (expr ^^ false) -> (expr)
+        (op.kind() == Token::Kind::TK_EQEQ       && rightVal)  ||  // (expr == true)  -> (expr)
+        (op.kind() == Token::Kind::TK_NEQ        && !rightVal)) {  // (expr != false) -> (expr)
 
         return left.clone();
     }
@@ -43,14 +43,14 @@ static std::unique_ptr<Expression> eliminate_no_op_boolean(const Expression& lef
 }
 
 static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
-                                                         Token::Kind op,
+                                                         Operator op,
                                                          const Expression& right) {
     SkASSERT(left.is<BoolLiteral>());
     bool leftVal = left.as<BoolLiteral>().value();
 
     // When the literal is on the left, we can sometimes eliminate the other expression entirely.
-    if ((op == Token::Kind::TK_LOGICALAND && !leftVal) ||  // (false && expr) -> (false)
-        (op == Token::Kind::TK_LOGICALOR  && leftVal)) {   // (true  || expr) -> (true)
+    if ((op.kind() == Token::Kind::TK_LOGICALAND && !leftVal) ||  // (false && expr) -> (false)
+        (op.kind() == Token::Kind::TK_LOGICALOR  && leftVal)) {   // (true  || expr) -> (true)
 
         return left.clone();
     }
@@ -67,15 +67,15 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
 template <typename T, typename U = T>
 static std::unique_ptr<Expression> simplify_vector(const Context& context,
                                                    const Expression& left,
-                                                   Token::Kind op,
+                                                   Operator op,
                                                    const Expression& right) {
     SkASSERT(left.type().isVector());
     SkASSERT(left.type() == right.type());
     const Type& type = left.type();
 
     // Handle boolean operations: == !=
-    if (op == Token::Kind::TK_EQEQ || op == Token::Kind::TK_NEQ) {
-        bool equality = (op == Token::Kind::TK_EQEQ);
+    if (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ) {
+        bool equality = (op.kind() == Token::Kind::TK_EQEQ);
 
         switch (left.compareConstant(right)) {
             case Expression::ComparisonResult::kNotEqual:
@@ -102,7 +102,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         return std::make_unique<Constructor>(left.fOffset, &type, std::move(args));
     };
 
-    switch (op) {
+    switch (op.kind()) {
         case Token::Kind::TK_PLUS:  return vectorComponentwiseFold([](U a, U b) { return a + b; });
         case Token::Kind::TK_MINUS: return vectorComponentwiseFold([](U a, U b) { return a - b; });
         case Token::Kind::TK_STAR:  return vectorComponentwiseFold([](U a, U b) { return a * b; });
@@ -167,9 +167,9 @@ static bool contains_constant_zero(const Expression& expr) {
            (ConstantFolder::GetConstantFloat(expr, &floatValue) && floatValue == 0.0f);
 }
 
-bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int offset, Token::Kind op,
+bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int offset, Operator op,
                                          const Expression& right) {
-    switch (op) {
+    switch (op.kind()) {
         case Token::Kind::TK_SLASH:
         case Token::Kind::TK_SLASHEQ:
         case Token::Kind::TK_PERCENT:
@@ -187,11 +187,11 @@ bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int offset, Tok
 std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                                      int offset,
                                                      const Expression& left,
-                                                     Token::Kind op,
+                                                     Operator op,
                                                      const Expression& right) {
     // If this is the comma operator, the left side is evaluated but not otherwise used in any way.
     // So if the left side has no side effects, it can just be eliminated entirely.
-    if (op == Token::Kind::TK_COMMA && !left.hasSideEffects()) {
+    if (op.kind() == Token::Kind::TK_COMMA && !left.hasSideEffects()) {
         return right.clone();
     }
 
@@ -200,7 +200,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         bool leftVal  = left.as<BoolLiteral>().value();
         bool rightVal = right.as<BoolLiteral>().value();
         bool result;
-        switch (op) {
+        switch (op.kind()) {
             case Token::Kind::TK_LOGICALAND: result = leftVal && rightVal; break;
             case Token::Kind::TK_LOGICALOR:  result = leftVal || rightVal; break;
             case Token::Kind::TK_LOGICALXOR: result = leftVal ^  rightVal; break;
@@ -249,7 +249,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     if (left.is<IntLiteral>() && right.is<IntLiteral>()) {
         SKSL_INT leftVal  = left.as<IntLiteral>().value();
         SKSL_INT rightVal = right.as<IntLiteral>().value();
-        switch (op) {
+        switch (op.kind()) {
             case Token::Kind::TK_PLUS:       return URESULT(Int, +);
             case Token::Kind::TK_MINUS:      return URESULT(Int, -);
             case Token::Kind::TK_STAR:       return URESULT(Int, *);
@@ -298,7 +298,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     if (left.is<FloatLiteral>() && right.is<FloatLiteral>()) {
         SKSL_FLOAT leftVal  = left.as<FloatLiteral>().value();
         SKSL_FLOAT rightVal = right.as<FloatLiteral>().value();
-        switch (op) {
+        switch (op.kind()) {
             case Token::Kind::TK_PLUS:  return RESULT(Float, +);
             case Token::Kind::TK_MINUS: return RESULT(Float, -);
             case Token::Kind::TK_STAR:  return RESULT(Float, *);
@@ -354,7 +354,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Perform constant folding on pairs of matrices.
     if (leftType.isMatrix() && rightType.isMatrix()) {
         bool equality;
-        switch (op) {
+        switch (op.kind()) {
             case Token::Kind::TK_EQEQ:
                 equality = true;
                 break;
