@@ -16,6 +16,23 @@
       "message": "Mike: could you review this patch again? thank you.",
       "revId": "a66796cec64de1a1bdfb7a6576462cbdce44a2bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93b32a2a_a906946c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-16T14:13:58Z",
+      "side": 1,
+      "message": "... might change the CL desc to match what is actually changing -- the \u003d 0, \u003d 1, ...",
+      "revId": "a66796cec64de1a1bdfb7a6576462cbdce44a2bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
