@@ -9,6 +9,7 @@
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkTPin.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 
 sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& userConfig) {
     if (!userConfig.isValid()) {
@@ -26,38 +27,10 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& user
     SkString code{
         "uniform shader input;"
         "uniform half M;"
-
-        //This is straight out of GrHSLToRGBFilterEffect.fp.
-        "half3 hsl_to_rgb(half3 hsl) {"
-            "half  C = (1 - abs(2 * hsl.z - 1)) * hsl.y;"
-            "half3 p = hsl.xxx + half3(0, 2/3.0, 1/3.0);"
-            "half3 q = saturate(abs(fract(p) * 6 - 3) - 1);"
-            "return (q - 0.5) * C + hsl.z;"
-        "}"
-
-        // This is mostly from skvm's rgb->hsl code, with some GPU-related finesse pulled from
-        // GrHighContrastFilterEffect.fp, see next comment.
-        "half3 rgb_to_hsl(half3 c) {"
-            "half mx = max(max(c.r,c.g),c.b),"
-            "     mn = min(min(c.r,c.g),c.b),"
-            "      d = mx-mn,                "
-            "   invd = 1.0 / d,              "
-            " g_lt_b = c.g < c.b ? 6.0 : 0.0;"
-
-            // We'd prefer to write these tests like `mx == c.r`, but on some GPUs max(x,y) is
-            // not always equal to either x or y.  So we use long form, c.r >= c.g && c.r >= c.b.
-            "half h = (1/6.0) * (mx == mn                 ? 0.0 :"
-            "     /*mx==c.r*/    c.r >= c.g && c.r >= c.b ? invd * (c.g - c.b) + g_lt_b :"
-            "     /*mx==c.g*/    c.g >= c.b               ? invd * (c.b - c.r) + 2.0  "
-            "     /*mx==c.b*/                             : invd * (c.r - c.g) + 4.0);"
-
-            "half sum = mx+mn,"
-            "       l = sum * 0.5,"
-            "       s = mx == mn ? 0.0"
-            "                    : d / (l > 0.5 ? 2.0 - sum : sum);"
-            "return half3(h,s,l);"
-        "}"
     };
+
+    code += kRGB_to_HSL_sksl;
+    code += kHSL_to_RGB_sksl;
 
     code += "half4 main() {";
     if (true) {
