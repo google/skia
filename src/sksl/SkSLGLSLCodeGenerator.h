@@ -56,7 +56,7 @@ public:
     : INHERITED(program, errors, out)
     , fLineEnding("\n")
     , fContext(*context)
-    , fProgramKind(program->fKind) {}
+    , fProgramKind(program->fSettings.fProgramKind) {}
 
     bool generateCode() override;
 

@@ -86,13 +86,11 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
 
 id<MTLLibrary> GrMtlPipelineStateBuilder::generateMtlShaderLibrary(
         const SkSL::String& shader,
-        SkSL::ProgramKind kind,
         const SkSL::Program::Settings& settings,
         SkSL::String* msl,
         SkSL::Program::Inputs* inputs,
         GrContextOptions::ShaderErrorHandler* errorHandler) {
-    id<MTLLibrary> shaderLibrary = GrGenerateMtlShaderLibrary(fGpu, shader,
-                                                              kind, settings, msl, inputs,
+    id<MTLLibrary> shaderLibrary = GrGenerateMtlShaderLibrary(fGpu, shader, settings, msl, inputs,
                                                               errorHandler);
     if (shaderLibrary != nil && inputs->fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
@@ -431,16 +429,16 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
             }
         }
 
+        settings.fProgramKind = SkSL::ProgramKind::kVertex;
         shaderLibraries[kVertex_GrShaderType] = this->generateMtlShaderLibrary(
                                                      *sksl[kVertex_GrShaderType],
-                                                     SkSL::ProgramKind::kVertex,
                                                      settings,
                                                      &shaders[kVertex_GrShaderType],
                                                      &inputs[kVertex_GrShaderType],
                                                      errorHandler);
+        settings.fProgramKind = SkSL::ProgramKind::kFragment;
         shaderLibraries[kFragment_GrShaderType] = this->generateMtlShaderLibrary(
                                                        *sksl[kFragment_GrShaderType],
-                                                       SkSL::ProgramKind::kFragment,
                                                        settings,
                                                        &shaders[kFragment_GrShaderType],
                                                        &inputs[kFragment_GrShaderType],

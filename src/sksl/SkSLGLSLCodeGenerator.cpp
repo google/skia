@@ -1547,7 +1547,7 @@ bool GLSLCodeGenerator::generateCode() {
 
     if (!fProgram.fCaps->canUseFragCoord()) {
         Layout layout;
-        switch (fProgram.fKind) {
+        switch (fProgram.fSettings.fProgramKind) {
             case ProgramKind::kVertex: {
                 Modifiers modifiers(layout, Modifiers::kOut_Flag);
                 this->writeModifiers(modifiers, true);

@@ -281,11 +281,12 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
     settings.fReplaceSettings = false;
+    settings.fProgramKind = kind;
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, baseModule,
-                                         /*isBuiltinCode=*/true, source->c_str(), source->length(),
+            fIRGenerator->convertProgram(&settings, baseModule, /*isBuiltinCode=*/true,
+                                         source->c_str(), source->length(),
                                          /*externalFunctions=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
@@ -1565,15 +1566,14 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(
-        ProgramKind kind,
         String text,
         const Program::Settings& settings,
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
-    SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
+    SkASSERT(!externalFunctions || (settings.fProgramKind == ProgramKind::kGeneric));
 
     // Loading and optimizing our base module might reset the inliner, so do that first,
     // *then* configure the inliner with the settings for this program.
-    const ParsedModule& baseModule = this->moduleForProgramKind(kind);
+    const ParsedModule& baseModule = this->moduleForProgramKind(settings.fProgramKind);
 
     fErrorText = "";
     fErrorCount = 0;
@@ -1591,10 +1591,9 @@ std::unique_ptr<Program> Compiler::convertProgram(
         pool->attachToThread();
     }
     IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
+            fIRGenerator->convertProgram(&settings, baseModule, /*isBuiltinCode=*/false,
                                          textPtr->c_str(), textPtr->size(), externalFunctions);
-    auto program = std::make_unique<Program>(kind,
-                                             std::move(textPtr),
+    auto program = std::make_unique<Program>(std::move(textPtr),
                                              settings,
                                              fCaps,
                                              fContext,
@@ -1674,7 +1673,7 @@ void Compiler::verifyStaticTests(const Program& program) {
 bool Compiler::optimize(LoadedModule& module) {
     SkASSERT(!fErrorCount);
     Program::Settings settings;
-    fIRGenerator->fKind = module.fKind;
+    settings.fProgramKind = module.fKind;
     fIRGenerator->fSettings = &settings;
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
@@ -1702,7 +1701,6 @@ bool Compiler::optimize(LoadedModule& module) {
 
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
-    fIRGenerator->fKind = program.fKind;
     fIRGenerator->fSettings = &program.fSettings;
     ProgramUsage* usage = program.fUsage.get();
 
@@ -1746,7 +1744,7 @@ bool Compiler::optimize(Program& program) {
                     program.fSharedElements.end());
         }
 
-        if (program.fKind != ProgramKind::kFragmentProcessor) {
+        if (program.fSettings.fProgramKind != ProgramKind::kFragmentProcessor) {
             // Remove declarations of dead global variables
             auto isDeadVariable = [&](const ProgramElement* element) {
                 if (!element->is<GlobalVarDeclaration>()) {
