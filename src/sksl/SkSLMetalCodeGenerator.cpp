@@ -1451,7 +1451,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
     fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals._anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
     if ("main" == f.name()) {
-        switch (fProgram.fKind) {
+        switch (fProgram.fSettings.fProgramKind) {
             case ProgramKind::kFragment:
                 this->write("fragment Outputs fragmentMain");
                 break;
@@ -1508,14 +1508,14 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 this->write(")]]");
             }
         }
-        if (fProgram.fKind == ProgramKind::kFragment) {
+        if (fProgram.fSettings.fProgramKind == ProgramKind::kFragment) {
             if (fProgram.fInputs.fRTHeight && fInterfaceBlockNameMap.empty()) {
                 this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
                 fRTHeightName = "_anonInterface0.u_skRTHeight";
             }
             this->write(", bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
-        } else if (fProgram.fKind == ProgramKind::kVertex) {
+        } else if (fProgram.fSettings.fProgramKind == ProgramKind::kVertex) {
             this->write(", uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]");
         }
         separator = ", ";
@@ -1870,7 +1870,7 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
 void MetalCodeGenerator::writeReturnStatementFromMain() {
     // main functions in Metal return a magic _out parameter that doesn't exist in SkSL.
-    switch (fProgram.fKind) {
+    switch (fProgram.fSettings.fProgramKind) {
         case ProgramKind::kFragment:
             this->write("return _out;");
             break;
@@ -1954,10 +1954,10 @@ void MetalCodeGenerator::writeInputStruct() {
                 this->write(" ");
                 this->writeName(var.name());
                 if (-1 != var.modifiers().fLayout.fLocation) {
-                    if (fProgram.fKind == ProgramKind::kVertex) {
+                    if (fProgram.fSettings.fProgramKind == ProgramKind::kVertex) {
                         this->write("  [[attribute(" +
                                     to_string(var.modifiers().fLayout.fLocation) + ")]]");
-                    } else if (fProgram.fKind == ProgramKind::kFragment) {
+                    } else if (fProgram.fSettings.fProgramKind == ProgramKind::kFragment) {
                         this->write("  [[user(locn" +
                                     to_string(var.modifiers().fLayout.fLocation) + ")]]");
                     }
@@ -1971,9 +1971,9 @@ void MetalCodeGenerator::writeInputStruct() {
 
 void MetalCodeGenerator::writeOutputStruct() {
     this->write("struct Outputs {\n");
-    if (fProgram.fKind == ProgramKind::kVertex) {
+    if (fProgram.fSettings.fProgramKind == ProgramKind::kVertex) {
         this->write("    float4 sk_Position [[position]];\n");
-    } else if (fProgram.fKind == ProgramKind::kFragment) {
+    } else if (fProgram.fSettings.fProgramKind == ProgramKind::kFragment) {
         this->write("    float4 sk_FragColor [[color(0)]];\n");
     }
     for (const ProgramElement* e : fProgram.elements()) {
@@ -1991,9 +1991,9 @@ void MetalCodeGenerator::writeOutputStruct() {
                 if (location < 0) {
                     fErrors.error(var.fOffset,
                                   "Metal out variables must have 'layout(location=...)'");
-                } else if (fProgram.fKind == ProgramKind::kVertex) {
+                } else if (fProgram.fSettings.fProgramKind == ProgramKind::kVertex) {
                     this->write(" [[user(locn" + to_string(location) + ")]]");
-                } else if (fProgram.fKind == ProgramKind::kFragment) {
+                } else if (fProgram.fSettings.fProgramKind == ProgramKind::kFragment) {
                     this->write(" [[color(" + to_string(location) + ")");
                     int colorIndex = var.modifiers().fLayout.fIndex;
                     if (colorIndex) {
@@ -2005,7 +2005,7 @@ void MetalCodeGenerator::writeOutputStruct() {
             }
         }
     }
-    if (fProgram.fKind == ProgramKind::kVertex) {
+    if (fProgram.fSettings.fProgramKind == ProgramKind::kVertex) {
         this->write("    float sk_PointSize [[point_size]];\n");
     }
     this->write("};\n");
@@ -2358,8 +2358,6 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
 }
 
 bool MetalCodeGenerator::generateCode() {
-    fProgramKind = fProgram.fKind;
-
     StringStream header;
     {
         AutoOutputStream outputToHeader(this, &header, &fIndentation);

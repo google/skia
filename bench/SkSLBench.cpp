@@ -61,6 +61,7 @@ public:
         , fCaps(GrContextOptions(), GrMockOptions())
         , fCompiler(fCaps.shaderCaps())
         , fOutput(output) {
+            fSettings.fProgramKind = SkSL::ProgramKind::kFragment;
             fSettings.fOptimize = optimize;
             // The test programs we compile don't follow Vulkan rules and thus produce invalid
             // SPIR-V. This is harmless, so long as we don't try to validate them.
@@ -78,10 +79,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
-            std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(
-                                                                      SkSL::ProgramKind::kFragment,
-                                                                      fSrc,
-                                                                      fSettings);
+            std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(fSrc, fSettings);
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
             }
