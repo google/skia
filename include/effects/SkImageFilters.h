@@ -209,14 +209,6 @@ public:
         return Image(std::move(image), SkSamplingOptions({1/3.0f, 1/3.0f}));
     }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_IMAGE
-    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkRect& srcRect,
-                                      const SkRect& dstRect, SkFilterQuality filterQuality) {
-        SkSamplingOptions sampling(filterQuality, SkSamplingOptions::kMedium_asMipmapLinear);
-        return Image(std::move(image), srcRect, dstRect, sampling);
-    }
-#endif
-
     /**
      *  Create a filter that mimics a zoom/magnifying lens effect.
      *  @param srcRect
