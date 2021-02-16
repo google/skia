@@ -29,6 +29,7 @@ public:
     enum class Kind {
         kBinary = (int) Statement::Kind::kLast + 1,
         kBoolLiteral,
+        kCodeString,
         kConstructor,
         kDefined,
         kExternalFunctionCall,

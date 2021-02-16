@@ -109,6 +109,8 @@ private:
 
     std::unique_ptr<SkSL::Expression> fExpression;
 
+    friend DSLExpression SampleChild(int index, DSLExpression coords);
+
     template<class... Cases>
     friend DSLStatement Switch(DSLExpression value, Cases... cases);
 

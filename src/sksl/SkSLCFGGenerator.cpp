@@ -381,6 +381,9 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             }
             break;
         }
+        case Expression::Kind::kCodeString:
+            SkDEBUGFAIL("shouldn't be able to receive kCodeString here");
+            break;
         case Expression::Kind::kConstructor: {
             Constructor& c = e->get()->as<Constructor>();
             for (auto& arg : c.arguments()) {
