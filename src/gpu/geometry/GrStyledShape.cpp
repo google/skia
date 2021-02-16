@@ -42,8 +42,7 @@ static bool is_inverted(bool originalIsInverted, GrStyledShape::FillInversion in
     return false;
 }
 
-GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInversion inversion,
-                                        SimplifyStroke simplifyStroke) {
+GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInversion inversion) {
     bool newIsInverted = is_inverted(original.fShape.inverted(), inversion);
     if (original.style().isSimpleFill() && newIsInverted == original.fShape.inverted()) {
         // By returning the original rather than falling through we can preserve any inherited style
@@ -64,7 +63,7 @@ GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInver
         // Going from a non-filled style to fill may allow additional simplifications (e.g.
         // closing an open rect that wasn't closed in the original shape because it had
         // stroke style).
-        result.simplify(simplifyStroke);
+        result.simplify();
         // The above simplify() call only sets simplified to true if its geometry was changed,
         // since it already sees its style as a simple fill. Since the original style was not a
         // simple fill, MakeFilled always simplifies.
@@ -306,11 +305,13 @@ void GrStyledShape::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) c
 
 GrStyledShape GrStyledShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
                                      SkScalar sweepAngleDegrees, bool useCenter,
-                                     const GrStyle& style, SimplifyStroke simplifyStroke) {
+                                     const GrStyle& style, DoSimplify doSimplify) {
     GrStyledShape result;
     result.fShape.setArc({oval.makeSorted(), startAngleDegrees, sweepAngleDegrees, useCenter});
     result.fStyle = style;
-    result.simplify(simplifyStroke);
+    if (doSimplify == DoSimplify::kYes) {
+        result.simplify();
+    }
     return result;
 }
 
@@ -417,7 +418,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
     } else if (parent.fShape.isPath() && !parent.fShape.path().isVolatile()) {
         fInheritedPathForListeners.set(parent.fShape.path());
     }
-    this->simplify(SimplifyStroke::kYes);
+    this->simplify();
     this->setInheritedKey(*parentForKey, apply, scale);
 }
 
@@ -579,7 +580,7 @@ private:
     bool fInverted;
 };
 
-void GrStyledShape::simplify(SimplifyStroke simplifyStroke) {
+void GrStyledShape::simplify() {
     AutoRestoreInverseness ari(&fShape, fStyle);
 
     unsigned simplifyFlags = 0;
@@ -621,11 +622,8 @@ void GrStyledShape::simplify(SimplifyStroke simplifyStroke) {
         // original path. This prevents attaching genID listeners to temporary paths created when
         // drawing simple shapes.
         fInheritedPathForListeners.reset();
-
-        if (simplifyStroke == SimplifyStroke::kYes) {
-            // Further simplifications to the shape based on the style
-            this->simplifyStroke();
-        }
+        // Further simplifications to the shape based on the style
+        this->simplifyStroke();
     }
 }
 

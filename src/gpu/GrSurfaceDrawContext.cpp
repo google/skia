@@ -77,7 +77,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using SimplifyStroke = GrStyledShape::SimplifyStroke;
+using DoSimplify = GrStyledShape::DoSimplify;
 
 class AutoCheckFlush {
 public:
@@ -723,7 +723,7 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
     }
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrStyledShape(rect, *style, SimplifyStroke::kNo));
+                                     GrStyledShape(rect, *style, DoSimplify::kNo));
 }
 
 void GrSurfaceDrawContext::drawQuadSet(const GrClip* clip,
@@ -1017,7 +1017,7 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
 
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrStyledShape(rrect, style, SimplifyStroke::kNo));
+                                     GrStyledShape(rrect, style, DoSimplify::kNo));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1344,7 +1344,8 @@ void GrSurfaceDrawContext::drawDRRect(const GrClip* clip,
     path.addRRect(inner);
     path.addRRect(outer);
     path.setFillType(SkPathFillType::kEvenOdd);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrStyledShape(path));
+    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
+                                     GrStyledShape(path, DoSimplify::kNo));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1443,7 +1444,7 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
                                      GrStyledShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2,
-                                                   false, style, SimplifyStroke::kNo));
+                                                   false, style, DoSimplify::kNo));
 }
 
 void GrSurfaceDrawContext::drawArc(const GrClip* clip,
@@ -1482,7 +1483,7 @@ void GrSurfaceDrawContext::drawArc(const GrClip* clip,
     }
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
                                      GrStyledShape::MakeArc(oval, startAngle, sweepAngle, useCenter,
-                                                            style, SimplifyStroke::kNo));
+                                                            style, DoSimplify::kNo));
 }
 
 void GrSurfaceDrawContext::drawImageLattice(const GrClip* clip,
@@ -1560,7 +1561,7 @@ void GrSurfaceDrawContext::drawPath(const GrClip* clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "drawPath", fContext);
 
-    GrStyledShape shape(path, style, SimplifyStroke::kNo);
+    GrStyledShape shape(path, style, DoSimplify::kNo);
     this->drawShape(clip, std::move(paint), aa, viewMatrix, std::move(shape));
 }
 
@@ -1818,7 +1819,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
 
     if (!pr) {
         // The shape isn't a stroke that can be drawn directly. Simplify if possible.
-        shape.simplifyStroke();
+        shape.simplify();
 
         if (shape.isEmpty() && !shape.inverseFilled()) {
             return;
