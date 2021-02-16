@@ -16,6 +16,52 @@
       "message": "Honest opinions",
       "revId": "6190511a725660a2559fae31a0f13083477d0491",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0209c677_f5b9ae63",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-16T15:34:18Z",
+      "side": 1,
+      "message": "nit: Here, it\u0027s making it seem like we\u0027re storing an instance of Operator in fBytes...",
+      "range": {
+        "startLine": 254,
+        "startChar": 30,
+        "endLine": 254,
+        "endChar": 47
+      },
+      "revId": "6190511a725660a2559fae31a0f13083477d0491",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70c7ead1_e9eaeeda",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-16T15:34:18Z",
+      "side": 1,
+      "message": "... but here, we\u0027re acting as if we stored a Token::Kind, and then construct an Operator when we return. That works, because they\u0027re the same size, but if we wanted Operator to be a separate enum (or otherwise a different size), we should make these two bits of code consistent.",
+      "range": {
+        "startLine": 457,
+        "startChar": 0,
+        "endLine": 459,
+        "endChar": 35
+      },
+      "revId": "6190511a725660a2559fae31a0f13083477d0491",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
