@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5e6392c_e78fb26b",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-16T16:43:51Z",
+      "side": 1,
+      "message": "A comment on what the return values mean would be helpful.",
+      "range": {
+        "startLine": 752,
+        "startChar": 7,
+        "endLine": 752,
+        "endChar": 10
+      },
+      "revId": "bd1ab11f8ef578982b38c195315abad8912c78b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
