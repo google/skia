@@ -6,6 +6,8 @@
 namespace skia {
 namespace textlayout {
 
+const std::vector<SkString> TextStyle::kDefaultFontFamilies = { SkString(DEFAULT_FONT_FAMILY) };
+
 TextStyle::TextStyle(const TextStyle& other, bool placeholder) {
     fColor = other.fColor;
     fFontSize = other.fFontSize;
