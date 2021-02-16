@@ -16,6 +16,24 @@
       "message": "This lgtm. One thing that sticks out (but probably doesn\u0027t matter much) - having kWideColor in ShaderFlags means it\u0027s part of the key, but it doesn\u0027t need to be, right? (On some backends it will be, because the vertex attribs will be different, but that\u0027s handled automatically). On GL at least, there\u0027s no difference in the generated shaders?",
       "revId": "6e9a0b0bb09dd8a7007bc6f7d759888c92f036dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "827e04ba_b5ba909c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-16T16:34:48Z",
+      "side": 1,
+      "message": "Ok, good to know. I assumed it was needed in the key for vertex attribs. So I can just remove it entirely then, from the GrGeometryProcessor key?",
+      "parentUuid": "8d1a0cdc_5177cae5",
+      "revId": "6e9a0b0bb09dd8a7007bc6f7d759888c92f036dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
