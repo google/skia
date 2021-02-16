@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdfcfa8a_95f784ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-16T17:44:47Z",
+      "side": 1,
+      "message": "Oh, good catch. 😶\n\nHow is this related to issue 10968?",
+      "revId": "45392af861501ebe2be14051593a2d9300cb55c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
