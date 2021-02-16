@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82b7992a_946a9eaf",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1550,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-16T20:20:54Z",
+      "side": 1,
+      "message": "Done\n\n(Interestingly, MetalCodeGenerator had this same anti-pattern and I noticed it happening there)",
+      "parentUuid": "e8fd585b_1ee235cd",
+      "revId": "38273d747662434d19c040ace89e4728e42d7d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7adec4a4_31b836ab",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-02-16T20:10:23Z",
       "side": 1,
       "message": "I was about to point out that we don\u0027t need fProgramKind, because we can get to it via fProgram.fSettings.fProgramKind...",
+      "revId": "38273d747662434d19c040ace89e4728e42d7d21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66f90b37_149b7a4f",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-16T20:20:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7adec4a4_31b836ab",
       "revId": "38273d747662434d19c040ace89e4728e42d7d21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
