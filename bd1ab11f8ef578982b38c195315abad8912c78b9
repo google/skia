@@ -22,6 +22,30 @@
       },
       "revId": "bd1ab11f8ef578982b38c195315abad8912c78b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4aa9dea_8b383e15",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-16T17:10:57Z",
+      "side": 1,
+      "message": "Ah, yes, this used to be the body of SkTypeface_FreeType::onGetVariationDesignPosition which has the return value documented by SkTypeface::getVariationDesignPosition. Has to pull this out so that SkTypeface_FreeType::cloneFontData could call this code without re-entering the AutoFTAccess mutex.",
+      "parentUuid": "b5e6392c_e78fb26b",
+      "range": {
+        "startLine": 752,
+        "startChar": 7,
+        "endLine": 752,
+        "endChar": 10
+      },
+      "revId": "bd1ab11f8ef578982b38c195315abad8912c78b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
