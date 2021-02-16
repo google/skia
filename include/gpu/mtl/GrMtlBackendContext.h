@@ -13,9 +13,9 @@
 // The BackendContext contains all of the base Metal objects needed by the GrMtlGpu. The assumption
 // is that the client will set these up and pass them to the GrMtlGpu constructor.
 struct SK_API GrMtlBackendContext {
-    sk_cf_obj<GrMTLHandle> fDevice;
-    sk_cf_obj<GrMTLHandle> fQueue;
-    sk_cf_obj<GrMTLHandle> fBinaryArchive;
+    sk_cfp<GrMTLHandle> fDevice;
+    sk_cfp<GrMTLHandle> fQueue;
+    sk_cfp<GrMTLHandle> fBinaryArchive;
 };
 
 #endif

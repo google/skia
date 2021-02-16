@@ -82,8 +82,8 @@ void MetalWindowContext::initializeContext() {
 #endif
 
     GrMtlBackendContext backendContext = {};
-    backendContext.fDevice.retain((__bridge GrMTLHandle)fDevice);
-    backendContext.fQueue.retain((__bridge GrMTLHandle)fQueue);
+    backendContext.fDevice.retain((GrMTLHandle)fDevice);
+    backendContext.fQueue.retain((GrMTLHandle)fQueue);
 #if GR_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, *)) {
         backendContext.fBinaryArchive.retain((__bridge GrMTLHandle)fPipelineArchive);
@@ -114,6 +114,8 @@ void MetalWindowContext::destroyContext() {
         [fPipelineArchive release];
     }
 #endif
+
+
     [fQueue release];
     [fDevice release];
 }
