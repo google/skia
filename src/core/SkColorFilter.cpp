@@ -380,6 +380,8 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
                  : c;
     }
 
+    uint32_t onGetFlags() const override { return fChild->getFlags(); }
+
     SK_FLATTENABLE_HOOKS(SkWorkingFormatColorFilter)
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fChild.get());
