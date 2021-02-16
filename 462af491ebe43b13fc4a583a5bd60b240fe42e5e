@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef83acb0_6d9a230f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-16T17:28:58Z",
+      "side": 1,
+      "message": "The markers as of PS3 look good to me - good balance of key items (with descriptive names) in the _ALWAYS markers, and slightly more detailed info in the optional markers.",
+      "revId": "462af491ebe43b13fc4a583a5bd60b240fe42e5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
