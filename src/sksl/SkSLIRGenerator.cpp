@@ -1137,6 +1137,19 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
     Finalizer(this, &f.declaration()).visitStatement(*f.body());
 }
 
+static bool type_is_or_contains_array(const Type* type) {
+    if (type->isStruct()) {
+        for (const auto& f : type->fields()) {
+            if (type_is_or_contains_array(f.fType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    return type->isArray();
+}
+
 void IRGenerator::convertFunction(const ASTNode& f) {
     AutoClear clear(&fReferencedIntrinsics);
     auto iter = f.begin();
@@ -1147,6 +1160,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (returnType->isArray()) {
         this->errorReporter().error(
                 f.fOffset, "functions may not return type '" + returnType->displayName() + "'");
+        return;
+    }
+    if (this->strictES2Mode() && type_is_or_contains_array(returnType)) {
+        this->errorReporter().error(f.fOffset,
+                                    "functions may not return structs containing arrays");
         return;
     }
     if (!fIsBuiltinCode && *returnType != *fContext.fTypes.fVoid &&
@@ -1969,6 +1987,13 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (isAssignment && leftType->componentType().isOpaque()) {
         this->errorReporter().error(offset, "assignments to opaque type '" +
                                             left->type().displayName() + "' are not permitted");
+    }
+    if (this->strictES2Mode() && type_is_or_contains_array(leftType)) {
+        this->errorReporter().error(
+                offset,
+                String("operator '") + op.operatorName() +
+                        "' can not operate on arrays (or structs containing arrays)");
+        return nullptr;
     }
     left = this->coerce(std::move(left), *leftType);
     right = this->coerce(std::move(right), *rightType);

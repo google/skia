@@ -1,0 +1,26 @@
+// Unlike later versions, GLSL ES 1.0 does not allow assignment or equality operators to be used
+// with arrays. They also can not be used with structs containing arrays. A related consequence is
+// that functions can not return arrays, or structs containing arrays.
+
+// Expect 11 errors
+
+struct S { int x[1]; };  // For "simple" case
+struct T { S s; };       // For trickier, nested case
+
+S s1, s2;
+T t1, t2;
+int a1[1]; int a2[1];
+
+void assign_array()                  { a1 = a2; }
+void assign_array_in_struct()        { s1 = s2; }
+void assign_array_in_nested_struct() { t1 = t2; }
+
+S return_array_in_struct()        { return s1; }
+T return_array_in_nested_struct() { return t1; }
+
+bool equals_array()            { return a1 == a2; }
+bool notequals_array()         { return a1 != a2; }
+bool equals_struct()           { return s1 == s2; }
+bool notequals_struct()        { return s1 != s2; }
+bool equals_nested_struct()    { return t1 == t2; }
+bool notequals_nested_struct() { return t1 != t2; }
