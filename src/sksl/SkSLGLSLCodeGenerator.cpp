@@ -873,7 +873,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
-    bool positionWorkaround = fProgramKind == Program::Kind::kVertex_Kind &&
+    bool positionWorkaround = fProgramKind == ProgramKind::kVertex &&
                               op.isAssignment() &&
                               left.is<FieldAccess>() &&
                               is_sk_position(left.as<FieldAccess>()) &&
@@ -1082,8 +1082,8 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
         if (globalContext &&
             fProgram.fCaps->generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
-            this->write(fProgramKind == Program::kVertex_Kind ? "attribute "
-                                                              : "varying ");
+            this->write(fProgramKind == ProgramKind::kVertex ? "attribute "
+                                                             : "varying ");
         } else {
             this->write("in ");
         }
@@ -1517,7 +1517,7 @@ void GLSLCodeGenerator::writeInputVars() {
 
 bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
-    if (Program::kGeometry_Kind == fProgramKind &&
+    if (ProgramKind::kGeometry == fProgramKind &&
         fProgram.fCaps->geometryShaderExtensionString()) {
         this->writeExtension(fProgram.fCaps->geometryShaderExtensionString());
     }
@@ -1548,7 +1548,7 @@ bool GLSLCodeGenerator::generateCode() {
     if (!fProgram.fCaps->canUseFragCoord()) {
         Layout layout;
         switch (fProgram.fKind) {
-            case Program::kVertex_Kind: {
+            case ProgramKind::kVertex: {
                 Modifiers modifiers(layout, Modifiers::kOut_Flag);
                 this->writeModifiers(modifiers, true);
                 if (this->usesPrecisionModifiers()) {
@@ -1557,7 +1557,7 @@ bool GLSLCodeGenerator::generateCode() {
                 this->write("vec4 sk_FragCoord_Workaround;\n");
                 break;
             }
-            case Program::kFragment_Kind: {
+            case ProgramKind::kFragment: {
                 Modifiers modifiers(layout, Modifiers::kIn_Flag);
                 this->writeModifiers(modifiers, true);
                 if (this->usesPrecisionModifiers()) {

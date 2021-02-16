@@ -289,7 +289,7 @@ protected:
     const Context& fContext;
     String fFunctionHeader;
     StringStream fExtraFunctions;
-    Program::Kind fProgramKind;
+    ProgramKind fProgramKind;
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;

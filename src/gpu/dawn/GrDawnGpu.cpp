@@ -704,7 +704,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         "    texCoord = texCoords[sk_VertexID];\n"
         "}\n";
     SkSL::String vsSPIRV =
-        this->SkSLToSPIRV(vs, SkSL::Program::kVertex_Kind, false, 0, nullptr);
+        this->SkSLToSPIRV(vs, SkSL::ProgramKind::kVertex, false, 0, nullptr);
 
     const char* fs =
         "layout(set = 0, binding = 0) uniform sampler samp;\n"
@@ -714,7 +714,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         "    sk_FragColor = sample(makeSampler2D(tex, samp), texCoord);\n"
         "}\n";
     SkSL::String fsSPIRV =
-        this->SkSLToSPIRV(fs, SkSL::Program::kFragment_Kind, false, 0, nullptr);
+        this->SkSLToSPIRV(fs, SkSL::ProgramKind::kFragment, false, 0, nullptr);
 
     wgpu::ProgrammableStageDescriptor vsDesc;
     vsDesc.module = this->createShaderModule(vsSPIRV);
@@ -925,7 +925,7 @@ void GrDawnGpu::moveStagingBuffersToBusyAndMapAsync() {
     fSubmittedStagingBuffers.clear();
 }
 
-SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString, SkSL::Program::Kind kind, bool flipY,
+SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString, SkSL::ProgramKind kind, bool flipY,
                                     uint32_t rtHeightOffset, SkSL::Program::Inputs* inputs) {
     SkSL::Program::Settings settings;
     settings.fFlipY = flipY;

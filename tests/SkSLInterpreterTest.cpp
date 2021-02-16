@@ -23,7 +23,7 @@ struct ProgramBuilder {
         // For convenience, so we can test functions other than (and not called by) main.
         settings.fRemoveDeadFunctions = false;
 
-        fProgram = fCompiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
+        fProgram = fCompiler.convertProgram(SkSL::ProgramKind::kGeneric, SkSL::String(src),
                                             settings);
         if (!fProgram) {
             ERRORF(r, "Program failed to compile:\n%s\n%s\n", src, fCompiler.errorText().c_str());
@@ -626,7 +626,7 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
     GrShaderCaps caps(GrContextOptions{});
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
-    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+    auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
                                            SkSL::String(src), settings);
     REPORTER_ASSERT(r, !program);
 }
@@ -906,7 +906,7 @@ DEF_TEST(SkSLInterpreterExternalFunction, r) {
     std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
     externalFunctions.push_back(std::make_unique<ExternalSqrt>("external", compiler));
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::Program::kGeneric_Kind, SkSL::String(src), settings, &externalFunctions);
+            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings, &externalFunctions);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
@@ -964,7 +964,7 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
 
     externalFunctions.push_back(std::make_unique<ExternalTable>("table", compiler, &u));
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::Program::kGeneric_Kind, SkSL::String(src), settings, &externalFunctions);
+            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings, &externalFunctions);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");

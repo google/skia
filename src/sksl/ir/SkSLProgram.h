@@ -59,103 +59,71 @@ public:
 };
 
 /**
+ * Holds the compiler settings for a program.
+ */
+struct ProgramSettings {
+    // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
+    // must be flipped.
+    bool fFlipY = false;
+    // If true the destination fragment color is read sk_FragColor. It must be declared inout.
+    bool fFragColorIsInOut = false;
+    // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
+    // constant equivalents during compilation
+    bool fReplaceSettings = true;
+    // if true, all halfs are forced to be floats
+    bool fForceHighPrecision = false;
+    // if true, add -0.5 bias to LOD of all texture lookups
+    bool fSharpenTextures = false;
+    // if the program needs to create an RTHeight uniform, this is its offset in the uniform
+    // buffer
+    int fRTHeightOffset = -1;
+    // if the program needs to create an RTHeight uniform and is creating spriv, this is the
+    // binding and set number of the uniform buffer.
+    int fRTHeightBinding = -1;
+    int fRTHeightSet = -1;
+    // If layout(set=S, binding=B) is not specified for a uniform, these values will be used.
+    // At present, zero is always used by our backends.
+    int fDefaultUniformSet = 0;
+    int fDefaultUniformBinding = 0;
+    // If true, remove any uncalled functions other than main(). Note that a function which
+    // starts out being used may end up being uncalled after optimization.
+    bool fRemoveDeadFunctions = true;
+    // Sets an upper limit on the acceptable amount of code growth from inlining.
+    // A value of zero will disable the inliner entirely.
+    int fInlineThreshold = SkSL::kDefaultInlineThreshold;
+    // true to enable optimization passes
+    bool fOptimize = true;
+    // If true, implicit conversions to lower precision numeric types are allowed
+    // (eg, float to half)
+    bool fAllowNarrowingConversions = false;
+    // If true, then Debug code will run SPIR-V output through the validator to ensure its
+    // correctness
+    bool fValidateSPIRV = true;
+    // If true, any synthetic uniforms must use push constant syntax
+    bool fUsePushConstants = false;
+    // Permits static if/switch statements to be used with non-constant tests. This is used when
+    // producing H and CPP code; the static tests don't have to have constant values *yet*, but
+    // the generated code will contain a static test which then does have to be a constant.
+    bool fPermitInvalidStaticTests = false;
+};
+
+/**
+ * SkSL supports several different program kinds.
+ */
+enum class ProgramKind : int8_t {
+    kFragment,
+    kVertex,
+    kGeometry,
+    kFragmentProcessor,
+    kRuntimeEffect,
+    kGeneric,
+};
+
+/**
  * Represents a fully-digested program, ready for code generation.
  */
 struct Program {
-    struct Settings {
-        struct Value {
-            Value(bool b)
-            : fKind(kBool_Kind)
-            , fValue(b) {}
-
-            Value(int i)
-            : fKind(kInt_Kind)
-            , fValue(i) {}
-
-            Value(unsigned int i)
-            : fKind(kInt_Kind)
-            , fValue(i) {}
-
-            Value(float f)
-            : fKind(kFloat_Kind)
-            , fValueF(f) {}
-
-            std::unique_ptr<Expression> literal(const Context& context, int offset) const {
-                switch (fKind) {
-                    case Program::Settings::Value::kBool_Kind:
-                        return std::unique_ptr<Expression>(new BoolLiteral(context,
-                                                                           offset,
-                                                                           fValue));
-                    case Program::Settings::Value::kInt_Kind:
-                        return std::unique_ptr<Expression>(new IntLiteral(context,
-                                                                          offset,
-                                                                          fValue));
-                    case Program::Settings::Value::kFloat_Kind:
-                        return std::unique_ptr<Expression>(new FloatLiteral(context,
-                                                                            offset,
-                                                                            fValueF));
-                    default:
-                        SkASSERT(false);
-                        return nullptr;
-                }
-            }
-
-            enum {
-                kBool_Kind,
-                kInt_Kind,
-                kFloat_Kind,
-            } fKind;
-
-            union {
-                int   fValue;  // for kBool_Kind and kInt_Kind
-                float fValueF; // for kFloat_Kind
-            };
-        };
-
-        // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
-        // must be flipped.
-        bool fFlipY = false;
-        // If true the destination fragment color is read sk_FragColor. It must be declared inout.
-        bool fFragColorIsInOut = false;
-        // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
-        // constant equivalents during compilation
-        bool fReplaceSettings = true;
-        // if true, all halfs are forced to be floats
-        bool fForceHighPrecision = false;
-        // if true, add -0.5 bias to LOD of all texture lookups
-        bool fSharpenTextures = false;
-        // if the program needs to create an RTHeight uniform, this is its offset in the uniform
-        // buffer
-        int fRTHeightOffset = -1;
-        // if the program needs to create an RTHeight uniform and is creating spriv, this is the
-        // binding and set number of the uniform buffer.
-        int fRTHeightBinding = -1;
-        int fRTHeightSet = -1;
-        // If layout(set=S, binding=B) is not specified for a uniform, these values will be used.
-        // At present, zero is always used by our backends.
-        int fDefaultUniformSet = 0;
-        int fDefaultUniformBinding = 0;
-        // If true, remove any uncalled functions other than main(). Note that a function which
-        // starts out being used may end up being uncalled after optimization.
-        bool fRemoveDeadFunctions = true;
-        // Sets an upper limit on the acceptable amount of code growth from inlining.
-        // A value of zero will disable the inliner entirely.
-        int fInlineThreshold = SkSL::kDefaultInlineThreshold;
-        // true to enable optimization passes
-        bool fOptimize = true;
-        // If true, implicit conversions to lower precision numeric types are allowed
-        // (eg, float to half)
-        bool fAllowNarrowingConversions = false;
-        // If true, then Debug code will run SPIR-V output through the validator to ensure its
-        // correctness
-        bool fValidateSPIRV = true;
-        // If true, any synthetic uniforms must use push constant syntax
-        bool fUsePushConstants = false;
-        // Permits static if/switch statements to be used with non-constant tests. This is used when
-        // producing H and CPP code; the static tests don't have to have constant values *yet*, but
-        // the generated code will contain a static test which then does have to be a constant.
-        bool fPermitInvalidStaticTests = false;
-    };
+    using Settings = ProgramSettings;
 
     struct Inputs {
         // if true, this program requires the render target width uniform to be defined
@@ -179,16 +147,7 @@ struct Program {
         }
     };
 
-    enum Kind {
-        kFragment_Kind,
-        kVertex_Kind,
-        kGeometry_Kind,
-        kFragmentProcessor_Kind,
-        kRuntimeEffect_Kind,
-        kGeneric_Kind,
-    };
-
-    Program(Kind kind,
+    Program(ProgramKind kind,
             std::unique_ptr<String> source,
             Settings settings,
             const ShaderCapsClass* caps,
@@ -298,7 +257,7 @@ struct Program {
     // The iterator's value type is 'std::unique_ptr<ProgramElement>', and mutation is allowed.
     const std::vector<std::unique_ptr<ProgramElement>>& ownedElements() const { return fElements; }
 
-    Kind fKind;
+    ProgramKind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
     const ShaderCapsClass* fCaps;

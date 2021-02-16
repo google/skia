@@ -181,7 +181,7 @@ protected:
     StringStream fGlobals;
     StringStream fExtraFunctions;
     String fFunctionHeader;
-    Program::Kind fProgramKind;
+    ProgramKind fProgramKind;
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;

@@ -201,7 +201,7 @@ private:
 
     SpvId writeFunction(const FunctionDefinition& f, OutputStream& out);
 
-    void writeGlobalVar(Program::Kind kind, const VarDeclaration& v);
+    void writeGlobalVar(ProgramKind kind, const VarDeclaration& v);
 
     void writeVarDeclaration(const VarDeclaration& var, OutputStream& out);
 

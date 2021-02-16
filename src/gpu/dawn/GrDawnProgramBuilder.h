@@ -93,7 +93,7 @@ private:
                          GrRenderTarget*,
                          const GrProgramInfo&,
                          GrProgramDesc*);
-    wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
+    wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::ProgramKind,
                                           bool flipY, SkSL::Program::Inputs* inputs);
     GrDawnGpu*             fGpu;
     GrSPIRVVaryingHandler   fVaryingHandler;

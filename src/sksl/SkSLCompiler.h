@@ -55,7 +55,7 @@ class IRIntrinsicMap;
 class ProgramUsage;
 
 struct LoadedModule {
-    Program::Kind                                fKind;
+    ProgramKind                                  fKind;
     std::shared_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
 };
@@ -103,7 +103,7 @@ public:
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
     std::unique_ptr<Program> convertProgram(
-            Program::Kind kind,
+            ProgramKind kind,
             String text,
             const Program::Settings& settings,
             const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions = nullptr);
@@ -160,14 +160,14 @@ public:
         return ModuleData{/*fPath=*/nullptr, data, size};
     }
 
-    LoadedModule loadModule(Program::Kind kind, ModuleData data, std::shared_ptr<SymbolTable> base);
-    ParsedModule parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base);
+    LoadedModule loadModule(ProgramKind kind, ModuleData data, std::shared_ptr<SymbolTable> base);
+    ParsedModule parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base);
 
     IRGenerator& irGenerator() {
         return *fIRGenerator;
     }
 
-    const ParsedModule& moduleForProgramKind(Program::Kind kind);
+    const ParsedModule& moduleForProgramKind(ProgramKind kind);
 
 private:
     const ParsedModule& loadGPUModule();

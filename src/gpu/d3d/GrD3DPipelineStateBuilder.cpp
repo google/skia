@@ -72,16 +72,16 @@ void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outp
 
 static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
                                            const SkSL::String& hlsl,
-                                           SkSL::Program::Kind kind) {
+                                           SkSL::ProgramKind kind) {
     const char* compileTarget = nullptr;
     switch (kind) {
-        case SkSL::Program::kVertex_Kind:
+        case SkSL::ProgramKind::kVertex:
             compileTarget = "vs_5_1";
             break;
-        case SkSL::Program::kGeometry_Kind:
+        case SkSL::ProgramKind::kGeometry:
             compileTarget = "gs_5_1";
             break;
-        case SkSL::Program::kFragment_Kind:
+        case SkSL::ProgramKind::kFragment:
             compileTarget = "ps_5_1";
             break;
         default:
@@ -116,7 +116,7 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
         return false;
     }
 
-    auto compile = [&](SkSL::Program::Kind kind, GrShaderType shaderType) {
+    auto compile = [&](SkSL::ProgramKind kind, GrShaderType shaderType) {
         if (inputs[shaderType].fRTHeight) {
             this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
         }
@@ -124,14 +124,14 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
         return shaders[shaderType].get();
     };
 
-    return compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) &&
-           compile(SkSL::Program::kFragment_Kind, kFragment_GrShaderType) &&
+    return compile(SkSL::ProgramKind::kVertex, kVertex_GrShaderType) &&
+           compile(SkSL::ProgramKind::kFragment, kFragment_GrShaderType) &&
            (hlsl[kGeometry_GrShaderType].empty() ||
-            compile(SkSL::Program::kGeometry_Kind, kGeometry_GrShaderType));
+            compile(SkSL::ProgramKind::kGeometry, kGeometry_GrShaderType));
 }
 
 gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
-        SkSL::Program::Kind kind,
+        SkSL::ProgramKind kind,
         const SkSL::String& sksl,
         const SkSL::Program::Settings& settings,
         SkSL::Program::Inputs* outInputs,
@@ -601,19 +601,19 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
             }
         }
 
-        auto compile = [&](SkSL::Program::Kind kind, GrShaderType shaderType) {
+        auto compile = [&](SkSL::ProgramKind kind, GrShaderType shaderType) {
             shaders[shaderType] = this->compileD3DProgram(kind, *sksl[shaderType], settings,
                                                           &inputs[shaderType], &hlsl[shaderType]);
             return shaders[shaderType].get();
         };
 
-        if (!compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) ||
-            !compile(SkSL::Program::kFragment_Kind, kFragment_GrShaderType)) {
+        if (!compile(SkSL::ProgramKind::kVertex, kVertex_GrShaderType) ||
+            !compile(SkSL::ProgramKind::kFragment, kFragment_GrShaderType)) {
             return nullptr;
         }
 
         if (primProc.willUseGeoShader()) {
-            if (!compile(SkSL::Program::kGeometry_Kind, kGeometry_GrShaderType)) {
+            if (!compile(SkSL::ProgramKind::kGeometry, kGeometry_GrShaderType)) {
                 return nullptr;
             }
         }

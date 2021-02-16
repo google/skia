@@ -17,6 +17,9 @@
 
 namespace SkSL {
 
+struct ProgramSettings;
+enum class ProgramKind : int8_t;
+
 /**
  * Contains compiler-wide objects, which currently means the core types.
  */

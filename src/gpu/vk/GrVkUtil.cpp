@@ -74,15 +74,15 @@ bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSam
     }
 }
 
-SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) {
+SkSL::ProgramKind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) {
     if (VK_SHADER_STAGE_VERTEX_BIT == stage) {
-        return SkSL::Program::kVertex_Kind;
+        return SkSL::ProgramKind::kVertex;
     }
     if (VK_SHADER_STAGE_GEOMETRY_BIT == stage) {
-        return SkSL::Program::kGeometry_Kind;
+        return SkSL::ProgramKind::kGeometry;
     }
     SkASSERT(VK_SHADER_STAGE_FRAGMENT_BIT == stage);
-    return SkSL::Program::kFragment_Kind;
+    return SkSL::ProgramKind::kFragment;
 }
 
 bool GrCompileVkShaderModule(GrVkGpu* gpu,

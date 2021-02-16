@@ -70,7 +70,7 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture);
  */
 id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
                                           const SkSL::String& sksl,
-                                          SkSL::Program::Kind kind,
+                                          SkSL::ProgramKind kind,
                                           const SkSL::Program::Settings& settings,
                                           SkSL::String* msl,
                                           SkSL::Program::Inputs* outInputs,

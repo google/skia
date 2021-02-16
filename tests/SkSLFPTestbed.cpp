@@ -16,7 +16,7 @@ static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* sr
     SkSL::Compiler compiler(&caps);
     SkSL::StringStream output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                             SkSL::Program::kFragmentProcessor_Kind,
+                                                             SkSL::ProgramKind::kFragmentProcessor,
                                                              SkSL::String(src),
                                                              settings);
     if (!program) {

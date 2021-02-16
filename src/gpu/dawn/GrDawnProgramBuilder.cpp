@@ -277,9 +277,9 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 
     SkSL::Program::Inputs vertInputs, fragInputs;
     bool flipY = programInfo.origin() != kTopLeft_GrSurfaceOrigin;
-    auto vsModule = builder.createShaderModule(builder.fVS, SkSL::Program::kVertex_Kind, flipY,
+    auto vsModule = builder.createShaderModule(builder.fVS, SkSL::ProgramKind::kVertex, flipY,
                                                &vertInputs);
-    auto fsModule = builder.createShaderModule(builder.fFS, SkSL::Program::kFragment_Kind, flipY,
+    auto fsModule = builder.createShaderModule(builder.fFS, SkSL::ProgramKind::kFragment, flipY,
                                                &fragInputs);
     GrSPIRVUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
     uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
@@ -426,7 +426,7 @@ GrDawnProgramBuilder::GrDawnProgramBuilder(GrDawnGpu* gpu,
 }
 
 wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBuilder& builder,
-                                                            SkSL::Program::Kind kind,
+                                                            SkSL::ProgramKind kind,
                                                             bool flipY,
                                                             SkSL::Program::Inputs* inputs) {
     wgpu::Device device = fGpu->device();

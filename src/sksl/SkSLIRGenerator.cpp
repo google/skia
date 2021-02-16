@@ -78,9 +78,9 @@ public:
     std::shared_ptr<SymbolTable> fPrevious;
 };
 
-static void fill_caps(const SkSL::ShaderCapsClass& caps,
-                      std::unordered_map<String, Program::Settings::Value>* capsMap) {
-#define CAP(name) capsMap->insert({String(#name), Program::Settings::Value(caps.name())})
+void IRGenerator::FillCapsMap(const SkSL::ShaderCapsClass& caps,
+                              std::unordered_map<String, CapsValue>* capsMap) {
+#define CAP(name) capsMap->insert({String(#name), CapsValue(caps.name())})
     CAP(fbFetchSupport);
     CAP(fbFetchNeedsCustomOutput);
     CAP(flatInterpolationSupport);
@@ -101,15 +101,33 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
 #undef CAP
 }
 
+std::unique_ptr<Expression> IRGenerator::CapsValue::literal(const Context& context,
+                                                            int offset) const {
+    switch (fKind) {
+        case kBool_Kind:
+            return std::make_unique<BoolLiteral>(context, offset, fValue);
+
+        case kInt_Kind:
+            return std::make_unique<IntLiteral>(context, offset, fValue);
+
+        case kFloat_Kind:
+            return std::make_unique<FloatLiteral>(context, offset, fValueF);
+
+        default:
+            SkDEBUGFAILF("unrecognized caps kind: %d", fKind);
+            return nullptr;
+    }
+}
+
 IRGenerator::IRGenerator(const Context* context,
                          const ShaderCapsClass* caps)
         : fContext(*context)
         , fCaps(caps)
         , fModifiers(new ModifiersPool()) {
     if (fCaps) {
-        fill_caps(*fCaps, &fCapsMap);
+        FillCapsMap(*fCaps, &fCapsMap);
     } else {
-        fCapsMap.insert({String("integerSupport"), Program::Settings::Value(true)});
+        fCapsMap.insert({String("integerSupport"), CapsValue(true)});
     }
 
 }
@@ -156,9 +174,9 @@ bool IRGenerator::detectVarDeclarationWithoutScope(const Statement& stmt) {
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
-    if (fKind != Program::kFragment_Kind &&
-        fKind != Program::kVertex_Kind &&
-        fKind != Program::kGeometry_Kind) {
+    if (fKind != ProgramKind::kFragment &&
+        fKind != ProgramKind::kVertex &&
+        fKind != ProgramKind::kGeometry) {
         this->errorReporter().error(offset, "extensions are not allowed here");
         return nullptr;
     }
@@ -202,7 +220,7 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
         default:
             // it's an expression
             std::unique_ptr<Statement> result = this->convertExpressionStatement(statement);
-            if (fRTAdjust && fKind == Program::kGeometry_Kind) {
+            if (fRTAdjust && fKind == ProgramKind::kGeometry) {
                 SkASSERT(result->kind() == Statement::Kind::kExpression);
                 Expression& expr = *result->as<ExpressionStatement>().expression();
                 if (expr.kind() == Expression::Kind::kFunctionCall) {
@@ -320,7 +338,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                 offset,
                 "variables of type '" + baseType->displayName() + "' must be global");
     }
-    if (fKind != Program::kFragmentProcessor_Kind) {
+    if (fKind != ProgramKind::kFragmentProcessor) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) && baseType->isMatrix()) {
             this->errorReporter().error(offset, "'in' variables may not have matrix type");
         }
@@ -347,7 +365,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                                         "'key' is only permitted within fragment processors");
         }
     }
-    if (fKind == Program::kRuntimeEffect_Kind) {
+    if (fKind == ProgramKind::kRuntimeEffect) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
             *baseType != *fContext.fTypes.fFragmentProcessor) {
             this->errorReporter().error(offset,
@@ -358,7 +376,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         this->errorReporter().error(offset, "'key' is not permitted on 'uniform' variables");
     }
     if (modifiers.fLayout.fMarker.fLength) {
-        if (fKind != Program::kRuntimeEffect_Kind) {
+        if (fKind != ProgramKind::kRuntimeEffect) {
             this->errorReporter().error(offset,
                                         "'marker' is only permitted in runtime effects");
         }
@@ -372,7 +390,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         }
     }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
-        if (fKind != Program::kRuntimeEffect_Kind) {
+        if (fKind != ProgramKind::kRuntimeEffect) {
             this->errorReporter().error(offset,
                                         "'srgb_unpremul' is only permitted in runtime effects");
         }
@@ -392,7 +410,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         }
     }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
-        if (fKind != Program::kRuntimeEffect_Kind) {
+        if (fKind != ProgramKind::kRuntimeEffect) {
             this->errorReporter().error(offset, "'varying' is only permitted in runtime effects");
         }
         if (!baseType->isFloat() &&
@@ -422,7 +440,7 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
                                                               std::unique_ptr<Expression> value,
                                                               Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
-        (modifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
+        (modifiers.fFlags & Modifiers::kOut_Flag) && fKind == ProgramKind::kFragment &&
         name != "sk_FragColor") {
         this->errorReporter().error(offset,
                                     "out location=0, index=0 is reserved for sk_FragColor");
@@ -522,9 +540,9 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
 }
 
 std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(const ASTNode& m) {
-    if (fKind != Program::kFragment_Kind &&
-        fKind != Program::kVertex_Kind &&
-        fKind != Program::kGeometry_Kind) {
+    if (fKind != ProgramKind::kFragment &&
+        fKind != ProgramKind::kVertex &&
+        fKind != ProgramKind::kGeometry) {
         this->errorReporter().error(m.fOffset, "layout qualifiers are not allowed here");
         return nullptr;
     }
@@ -532,7 +550,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
     SkASSERT(m.fKind == ASTNode::Kind::kModifiers);
     Modifiers modifiers = m.getModifiers();
     if (modifiers.fLayout.fInvocations != -1) {
-        if (fKind != Program::kGeometry_Kind) {
+        if (fKind != ProgramKind::kGeometry) {
             this->errorReporter().error(m.fOffset,
                                         "'invocations' is only legal in geometry shaders");
             return nullptr;
@@ -858,7 +876,7 @@ std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
 
 std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDiscard);
-    if (fKind != Program::kFragment_Kind && fKind != Program::kFragmentProcessor_Kind) {
+    if (fKind != ProgramKind::kFragment && fKind != ProgramKind::kFragmentProcessor) {
         this->errorReporter().error(d.fOffset,
                                     "discard statement is only permitted in fragment shaders");
         return nullptr;
@@ -1052,7 +1070,7 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
                     // normalization, so SkASSERT that we aren't doing that. It is of course
                     // possible to fix this by adding a normalization before each return, but it
                     // will probably never actually be necessary.
-                    SkASSERT(fIRGenerator->fKind != Program::kVertex_Kind ||
+                    SkASSERT(fIRGenerator->fKind != ProgramKind::kVertex ||
                              !fIRGenerator->fRTAdjust ||
                              fFunction->name() != "main");
                     ReturnStatement& r = stmt.as<ReturnStatement>();
@@ -1170,8 +1188,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         Modifiers m = pd.fModifiers;
-        if (funcData.fName == "main" && (fKind == Program::kRuntimeEffect_Kind ||
-                                         fKind == Program::kFragmentProcessor_Kind)) {
+        if (funcData.fName == "main" && (fKind == ProgramKind::kRuntimeEffect ||
+                                         fKind == ProgramKind::kFragmentProcessor)) {
             if (i == 0) {
                 // We verify that the type is correct later, for now, if there is a parameter to
                 // a .fp or runtime-effect main(), it's supposed to be the coords:
@@ -1193,7 +1211,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 
     if (funcData.fName == "main") {
         switch (fKind) {
-            case Program::kRuntimeEffect_Kind: {
+            case ProgramKind::kRuntimeEffect: {
                 // (half4|float4) main()  -or-  (half4|float4) main(float2)
                 if (*returnType != *fContext.fTypes.fHalf4 &&
                     *returnType != *fContext.fTypes.fFloat4) {
@@ -1210,7 +1228,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 }
                 break;
             }
-            case Program::kFragmentProcessor_Kind: {
+            case ProgramKind::kFragmentProcessor: {
                 if (*returnType != *fContext.fTypes.fHalf4) {
                     this->errorReporter().error(f.fOffset, ".fp 'main' must return 'half4'");
                     return;
@@ -1224,7 +1242,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 }
                 break;
             }
-            case Program::kGeneric_Kind:
+            case ProgramKind::kGeneric:
                 break;
             default:
                 if (parameters.size()) {
@@ -1330,7 +1348,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (needInvocationIDWorkaround) {
             body = this->applyInvocationIDWorkaround(std::move(body));
         }
-        if (Program::kVertex_Kind == fKind && funcData.fName == "main" && fRTAdjust) {
+        if (ProgramKind::kVertex == fKind && funcData.fName == "main" && fRTAdjust) {
             body->children().push_back(this->getNormalizeSkPositionCode());
         }
         auto result = std::make_unique<FunctionDefinition>(
@@ -1360,9 +1378,9 @@ std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const AST
 }
 
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
-    if (fKind != Program::kFragment_Kind &&
-        fKind != Program::kVertex_Kind &&
-        fKind != Program::kGeometry_Kind) {
+    if (fKind != ProgramKind::kFragment &&
+        fKind != ProgramKind::kVertex &&
+        fKind != ProgramKind::kGeometry) {
         this->errorReporter().error(intf.fOffset, "interface block is not allowed here");
         return nullptr;
     }
@@ -1631,7 +1649,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
                     }
 #endif
             }
-            if (fKind == Program::kFragmentProcessor_Kind &&
+            if (fKind == ProgramKind::kFragmentProcessor &&
                 (modifiers.fFlags & Modifiers::kIn_Flag) &&
                 !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
                 !modifiers.fLayout.fKey &&
@@ -1686,7 +1704,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
 }
 
 std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
-    if (fKind != Program::kFragmentProcessor_Kind) {
+    if (fKind != ProgramKind::kFragmentProcessor) {
         this->errorReporter().error(s.fOffset, "syntax error");
         return nullptr;
     }
@@ -2640,9 +2658,9 @@ const Type* IRGenerator::typeForSetting(int offset, String name) const {
         return nullptr;
     }
     switch (found->second.fKind) {
-        case Program::Settings::Value::kBool_Kind:  return fContext.fTypes.fBool.get();
-        case Program::Settings::Value::kFloat_Kind: return fContext.fTypes.fFloat.get();
-        case Program::Settings::Value::kInt_Kind:   return fContext.fTypes.fInt.get();
+        case CapsValue::kBool_Kind:  return fContext.fTypes.fBool.get();
+        case CapsValue::kFloat_Kind: return fContext.fTypes.fFloat.get();
+        case CapsValue::kInt_Kind:   return fContext.fTypes.fInt.get();
     }
     SkUNREACHABLE;
     return nullptr;
@@ -2947,7 +2965,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
     }
 
     switch (fKind) {
-        case Program::kFragment_Kind:
+        case ProgramKind::kFragment:
             // Vulkan requires certain builtin variables be present, even if they're unused. At one
             // time, validation errors would result if sk_Clockwise was missing. Now, it's just
             // (Adreno) driver bugs that drop or corrupt draws if they're missing.
@@ -2962,7 +2980,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
 }
 
 IRGenerator::IRBundle IRGenerator::convertProgram(
-        Program::Kind kind,
+        ProgramKind kind,
         const Program::Settings* settings,
         const ParsedModule& base,
         bool isBuiltinCode,
@@ -2992,7 +3010,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
 
     AutoSymbolTable table(this);
 
-    if (kind == Program::kGeometry_Kind && !fIsBuiltinCode) {
+    if (kind == ProgramKind::kGeometry && !fIsBuiltinCode) {
         // Declare sk_InvocationID programmatically. With invocations support, it's an 'in' builtin.
         // If we're applying the workaround, then it's a plain global.
         bool workaround = fCaps && !fCaps->gsInvocationsSupport();

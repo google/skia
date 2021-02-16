@@ -86,7 +86,7 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
 
 id<MTLLibrary> GrMtlPipelineStateBuilder::generateMtlShaderLibrary(
         const SkSL::String& shader,
-        SkSL::Program::Kind kind,
+        SkSL::ProgramKind kind,
         const SkSL::Program::Settings& settings,
         SkSL::String* msl,
         SkSL::Program::Inputs* inputs,
@@ -433,14 +433,14 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
 
         shaderLibraries[kVertex_GrShaderType] = this->generateMtlShaderLibrary(
                                                      *sksl[kVertex_GrShaderType],
-                                                     SkSL::Program::kVertex_Kind,
+                                                     SkSL::ProgramKind::kVertex,
                                                      settings,
                                                      &shaders[kVertex_GrShaderType],
                                                      &inputs[kVertex_GrShaderType],
                                                      errorHandler);
         shaderLibraries[kFragment_GrShaderType] = this->generateMtlShaderLibrary(
                                                        *sksl[kFragment_GrShaderType],
-                                                       SkSL::Program::kFragment_Kind,
+                                                       SkSL::ProgramKind::kFragment,
                                                        settings,
                                                        &shaders[kFragment_GrShaderType],
                                                        &inputs[kFragment_GrShaderType],

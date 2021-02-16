@@ -334,7 +334,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 settings.fForceHighPrecision = true;
             }
             std::unique_ptr<SkSL::Program> fs = GrSkSLtoGLSL(this->gpu(),
-                                                             SkSL::Program::kFragment_Kind,
+                                                             SkSL::ProgramKind::kFragment,
                                                              *sksl[kFragment_GrShaderType],
                                                              settings,
                                                              &glsl[kFragment_GrShaderType],
@@ -359,7 +359,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         if (glsl[kVertex_GrShaderType].empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(this->gpu(),
-                                                             SkSL::Program::kVertex_Kind,
+                                                             SkSL::ProgramKind::kVertex,
                                                              *sksl[kVertex_GrShaderType],
                                                              settings,
                                                              &glsl[kVertex_GrShaderType],
@@ -423,7 +423,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 // Don't have cached GLSL, need to compile SkSL->GLSL
                 std::unique_ptr<SkSL::Program> gs;
                 gs = GrSkSLtoGLSL(this->gpu(),
-                                  SkSL::Program::kGeometry_Kind,
+                                  SkSL::ProgramKind::kGeometry,
                                   *sksl[kGeometry_GrShaderType],
                                   settings,
                                   &glsl[kGeometry_GrShaderType],
@@ -603,7 +603,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
 
     SkTDArray<GrGLuint> shadersToDelete;
 
-    auto compileShader = [&](SkSL::Program::Kind kind, const SkSL::String& sksl, GrGLenum type) {
+    auto compileShader = [&](SkSL::ProgramKind kind, const SkSL::String& sksl, GrGLenum type) {
         SkSL::String glsl;
         auto program = GrSkSLtoGLSL(gpu, kind, sksl, settings, &glsl, errorHandler);
         if (!program) {
@@ -619,14 +619,14 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
         }
     };
 
-    if (!compileShader(SkSL::Program::kFragment_Kind,
+    if (!compileShader(SkSL::ProgramKind::kFragment,
                        shaders[kFragment_GrShaderType],
                        GR_GL_FRAGMENT_SHADER) ||
-        !compileShader(SkSL::Program::kVertex_Kind,
+        !compileShader(SkSL::ProgramKind::kVertex,
                        shaders[kVertex_GrShaderType],
                        GR_GL_VERTEX_SHADER) ||
         (!shaders[kGeometry_GrShaderType].empty() &&
-         !compileShader(SkSL::Program::kGeometry_Kind,
+         !compileShader(SkSL::ProgramKind::kGeometry,
                        shaders[kGeometry_GrShaderType],
                        GR_GL_GEOMETRY_SHADER))) {
         cleanup_program(gpu, programID, shadersToDelete);
