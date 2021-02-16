@@ -16,6 +16,24 @@
       "message": "Note that we should probably also have a variable sample font, just to make sure we\u0027re exercising that code.",
       "revId": "fc48f2b5f67dbffad2fd6efbcd40a9bf83bff7f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39893419_e30d2ad7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-16T17:49:14Z",
+      "side": 1,
+      "message": "Yes, once we get there. Variation support not yet implemented in FT. We changed the currently used formats to not support variations and moved variations to new formats that do use variation indices. The goal was to save space in an uncompressed COLRv1 font, e.g. for using it as system font in Android.",
+      "parentUuid": "9a1d770d_5be3af7a",
+      "revId": "fc48f2b5f67dbffad2fd6efbcd40a9bf83bff7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
