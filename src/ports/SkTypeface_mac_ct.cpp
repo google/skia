@@ -1117,14 +1117,15 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
     CFIndex axisCount = CFArrayGetCount(ctAxes.get());
 
     // On 10.12 and later, this only returns non-default variations.
-    SkUniqueCFRef<CFDictionaryRef> ctVariation(CTFontCopyVariation(ct));
+    SkUniqueCFRef<CFDictionaryRef> oldCtVariation(CTFontCopyVariation(ct));
 
     const SkFontArguments::VariationPosition position = args.getVariationDesignPosition();
 
-    SkUniqueCFRef<CFMutableDictionaryRef> dict(
+    SkUniqueCFRef<CFMutableDictionaryRef> newCtVariation(
             CFDictionaryCreateMutable(kCFAllocatorDefault, axisCount,
                                       &kCFTypeDictionaryKeyCallBacks,
                                       &kCFTypeDictionaryValueCallBacks));
+    SkUniqueCFRef<CFMutableDictionaryRef> wrongOpszVariation;
 
     for (int i = 0; i < axisCount; ++i) {
         CFDictionaryRef axisInfoDict;
@@ -1158,12 +1159,16 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
         double value = defDouble;
 
         // Then the current value.
-        if (ctVariation) {
-            CFTypeRef currentValue = CFDictionaryGetValue(ctVariation.get(), tagNumber);
-            if (currentValue) {
-                if (!SkCFNumberDynamicCast(currentValue, &value, nullptr, "Variation value")) {
+        bool haveCurrentDouble = false;
+        double currentDouble = 0;
+        if (oldCtVariation) {
+            CFTypeRef currentNumber = CFDictionaryGetValue(oldCtVariation.get(), tagNumber);
+            if (currentNumber) {
+                if (!SkCFNumberDynamicCast(currentNumber, &value, nullptr, "Variation value")) {
                     return CTFontVariation();
                 }
+                currentDouble = value;
+                haveCurrentDouble = true;
             }
         }
 
@@ -1181,28 +1186,66 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
         }
         if (tagLong == opszTag) {
             opsz.value = value;
+            if (haveCurrentDouble && value == currentDouble) {
+                // Calculate a value strictly in range but different from currentValue.
+                double wrongOpszDouble = ((maxDouble - minDouble) / 2.0) + minDouble;
+                if (wrongOpszDouble == currentDouble) {
+                    wrongOpszDouble = ((maxDouble - minDouble) / 4.0) + minDouble;
+                }
+                wrongOpszVariation.reset(
+                    CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                              &kCFTypeDictionaryKeyCallBacks,
+                                              &kCFTypeDictionaryValueCallBacks));
+                SkUniqueCFRef<CFNumberRef> wrongOpszNumber(
+                    CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &wrongOpszDouble));
+                CFDictionarySetValue(wrongOpszVariation.get(), tagNumber, wrongOpszNumber.get());
+            }
         }
         SkUniqueCFRef<CFNumberRef> valueNumber(
             CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &value));
-        CFDictionaryAddValue(dict.get(), tagNumber, valueNumber.get());
+        CFDictionaryAddValue(newCtVariation.get(), tagNumber, valueNumber.get());
     }
-    return { SkUniqueCFRef<CFDictionaryRef>(std::move(dict)), opsz };
+    return { SkUniqueCFRef<CFDictionaryRef>(std::move(newCtVariation)),
+             SkUniqueCFRef<CFDictionaryRef>(std::move(wrongOpszVariation)),
+             opsz };
 }
 
 sk_sp<SkTypeface> SkTypeface_Mac::onMakeClone(const SkFontArguments& args) const {
     CTFontVariation ctVariation = SkCTVariationFromSkFontArguments(fFontRef.get(), args);
 
     SkUniqueCFRef<CTFontRef> ctVariant;
-    if (ctVariation.dict) {
+    if (ctVariation.variation) {
         SkUniqueCFRef<CFMutableDictionaryRef> attributes(
                 CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                                           &kCFTypeDictionaryKeyCallBacks,
                                           &kCFTypeDictionaryValueCallBacks));
-        CFDictionaryAddValue(attributes.get(),
-                             kCTFontVariationAttribute, ctVariation.dict.get());
+
+        CTFontRef ctFont = fFontRef.get();
+        SkUniqueCFRef<CTFontRef> wrongOpszFont;
+        if (ctVariation.wrongOpszVariation) {
+            // On macOS 11 cloning a system font with an opsz axis and not changing the
+            // value of the opsz axis (either by setting it to the same value or not
+            // specifying it at all) when setting a variation causes the variation to
+            // be set but the cloned font will still compare CFEqual to the original
+            // font. Work around this by setting the opsz to something which isn't the
+            // desired value before setting the entire desired variation.
+            //
+            // A similar issue occurs with fonts from data on macOS 10.15 and the same
+            // work around seems to apply. This is less noticeable though since CFEqual
+            // isn't used on these fonts.
+            CFDictionarySetValue(attributes.get(),
+                                 kCTFontVariationAttribute, ctVariation.wrongOpszVariation.get());
+            SkUniqueCFRef<CTFontDescriptorRef> varDesc(
+                CTFontDescriptorCreateWithAttributes(attributes.get()));
+            wrongOpszFont.reset(CTFontCreateCopyWithAttributes(ctFont, 0, nullptr, varDesc.get()));
+            ctFont = wrongOpszFont.get();
+        }
+
+        CFDictionarySetValue(attributes.get(),
+                             kCTFontVariationAttribute, ctVariation.variation.get());
         SkUniqueCFRef<CTFontDescriptorRef> varDesc(
                 CTFontDescriptorCreateWithAttributes(attributes.get()));
-        ctVariant.reset(CTFontCreateCopyWithAttributes(fFontRef.get(), 0, nullptr, varDesc.get()));
+        ctVariant.reset(CTFontCreateCopyWithAttributes(ctFont, 0, nullptr, varDesc.get()));
     } else {
         ctVariant.reset((CTFontRef)CFRetain(fFontRef.get()));
     }
