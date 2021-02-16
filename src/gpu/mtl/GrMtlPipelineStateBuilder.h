@@ -16,6 +16,8 @@
 
 #import <Metal/Metal.h>
 
+#include "include/ports/SkCFObject.h"
+
 class GrProgramDesc;
 class GrProgramInfo;
 class GrMtlCaps;
@@ -51,13 +53,13 @@ private:
 
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
-    id<MTLLibrary> generateMtlShaderLibrary(const SkSL::String& sksl,
+    sk_cfp<id<MTLLibrary>> generateMtlShaderLibrary(const SkSL::String& sksl,
                                             SkSL::Program::Kind kind,
                                             const SkSL::Program::Settings& settings,
                                             SkSL::String* msl,
                                             SkSL::Program::Inputs* inputs,
                                             GrContextOptions::ShaderErrorHandler* errorHandler);
-    id<MTLLibrary> compileMtlShaderLibrary(const SkSL::String& shader,
+    sk_cfp<id<MTLLibrary>> compileMtlShaderLibrary(const SkSL::String& shader,
                                            SkSL::Program::Inputs inputs,
                                            GrContextOptions::ShaderErrorHandler* errorHandler);
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],

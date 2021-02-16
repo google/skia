@@ -10,10 +10,6 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  SkISize dimensions,
                                  UsageFlags supportedUsages,
@@ -51,12 +47,12 @@ GrMtlAttachment::~GrMtlAttachment() {
 }
 
 void GrMtlAttachment::onRelease() {
-    fView = nullptr;
+    fView = nil;
     GrAttachment::onRelease();
 }
 
 void GrMtlAttachment::onAbandon() {
-    fView = nullptr;
+    fView = nil;
     GrAttachment::onAbandon();
 }
 
