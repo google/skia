@@ -50,7 +50,8 @@ struct OpszVariation {
 };
 
 struct CTFontVariation {
-    SkUniqueCFRef<CFDictionaryRef> dict;
+    SkUniqueCFRef<CFDictionaryRef> variation;
+    SkUniqueCFRef<CFDictionaryRef> wrongOpszVariation;
     OpszVariation opsz;
 };
 
