@@ -65,7 +65,6 @@ var CanvasKit = {
   getColorComponents: function() {},
   getDecodeCacheLimitBytes: function() {},
   getDecodeCacheUsageBytes: function() {},
-  getDataBytes: function() {},
   multiplyByAlpha: function() {},
   parseColorString: function() {},
   setCurrentContext: function() {},
@@ -390,6 +389,7 @@ var CanvasKit = {
 
   Image: {
     // public API (from C++ bindings)
+    encodeToBytes: function() {},
     getColorSpace: function() {},
     getImageInfo: function() {},
     makeCopyWithDefaultMipmaps: function() {},
@@ -397,13 +397,10 @@ var CanvasKit = {
     width: function() {},
 
     prototype: {
-      encodeToData: function() {},
       makeShaderCubic: function() {},
       makeShaderOptions: function() {},
     },
     // private API
-    _encodeToData: function() {},
-    _encodeToDataWithFormat: function() {},
     _makeShaderCubic: function() {},
     _makeShaderOptions: function() {},
   },
