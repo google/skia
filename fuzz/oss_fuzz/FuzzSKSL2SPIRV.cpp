@@ -15,8 +15,8 @@ bool FuzzSKSL2SPIRV(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler(caps.get());
     SkSL::String output;
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kFragment;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                    SkSL::ProgramKind::kFragment,
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
                                                     settings);

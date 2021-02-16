@@ -135,11 +135,11 @@ static bool init_uniform_type(const SkSL::Context& ctx,
 SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kRuntimeEffect;
     settings.fInlineThreshold = options.inlineThreshold;
     settings.fAllowNarrowingConversions = true;
-    auto program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
-                                            SkSL::String(sksl.c_str(), sksl.size()),
-                                            settings);
+    auto program = compiler->convertProgram(SkSL::String(sksl.c_str(), sksl.size()), settings);
+
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}

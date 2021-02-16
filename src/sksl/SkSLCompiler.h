@@ -103,7 +103,6 @@ public:
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
     std::unique_ptr<Program> convertProgram(
-            ProgramKind kind,
             String text,
             const Program::Settings& settings,
             const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions = nullptr);
