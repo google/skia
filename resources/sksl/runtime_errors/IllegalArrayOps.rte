@@ -1,0 +1,38 @@
+// GLSL ES 1.0 does not allow *any* operators other than subscripting to be used with arrays,
+// or with structs containing arrays. SkSL (and later versions of GLSL) allow assignment and
+// equality for those types. This file tests operators that would be legal, but should be flagged
+// as errors. A related consequence (also tested here) is that functions can not return arrays,
+// or structs containing arrays.
+
+// Expect 17 errors
+
+struct S { int x[1]; };  // For "simple" case
+struct T { S s; };       // For trickier, nested case
+
+S s1, s2;
+T t1, t2;
+int a1[1]; int a2[1];
+
+void assign_A() { a1 = a2; }
+void assign_S() { s1 = s2; }
+void assign_T() { t1 = t2; }
+
+// Note: No way to even write return_A()
+S return_S() { return s1; }
+T return_T() { return t1; }
+
+bool equals_A()    { return a1 == a2; }
+bool equals_S()    { return s1 == s2; }
+bool equals_T()    { return t1 == t2; }
+
+bool notequals_A() { return a1 != a2; }
+bool notequals_S() { return s1 != s2; }
+bool notequals_T() { return t1 != t2; }
+
+void sequence_A() { a1, a2; }
+void sequence_S() { s1, s2; }
+void sequence_T() { t1, t2; }
+
+int ternary_A(bool b) { return (b ? a1 : a2)    [0]; }
+int ternary_S(bool b) { return (b ? s1 : s2)  .x[0]; }
+int ternary_T(bool b) { return (b ? t1 : t2).s.x[0]; }

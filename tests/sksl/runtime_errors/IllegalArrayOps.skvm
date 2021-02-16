@@ -1,0 +1,20 @@
+### Compilation failed:
+
+error: 16: operator '=' can not operate on arrays (or structs containing arrays)
+error: 17: operator '=' can not operate on arrays (or structs containing arrays)
+error: 18: operator '=' can not operate on arrays (or structs containing arrays)
+error: 21: functions may not return structs containing arrays
+error: 22: functions may not return structs containing arrays
+error: 24: operator '==' can not operate on arrays (or structs containing arrays)
+error: 25: operator '==' can not operate on arrays (or structs containing arrays)
+error: 26: operator '==' can not operate on arrays (or structs containing arrays)
+error: 28: operator '!=' can not operate on arrays (or structs containing arrays)
+error: 29: operator '!=' can not operate on arrays (or structs containing arrays)
+error: 30: operator '!=' can not operate on arrays (or structs containing arrays)
+error: 32: operator ',' can not operate on arrays (or structs containing arrays)
+error: 33: operator ',' can not operate on arrays (or structs containing arrays)
+error: 34: operator ',' can not operate on arrays (or structs containing arrays)
+error: 36: ternary operator result may not be an array (or struct containing an array)
+error: 37: ternary operator result may not be an array (or struct containing an array)
+error: 38: ternary operator result may not be an array (or struct containing an array)
+17 errors
