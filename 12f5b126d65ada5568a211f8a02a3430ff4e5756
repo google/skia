@@ -16,6 +16,24 @@
       "message": "Interestingly, the GLSL spec also explicitly states that arguments to \u0027out\u0027 params are not copied to the formal parameter (which makes sense), but I\u0027m not sure how careful we are about that? It\u0027s hard to test, because if we get it right, it\u0027s use of an uninitialized value...",
       "revId": "12f5b126d65ada5568a211f8a02a3430ff4e5756",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fc7c05e_bc7171e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-16T14:28:34Z",
+      "side": 1,
+      "message": "Looking in the docs...\n\n\"• Not writing to an out parameter in a function leaves that parameter undefined when the call returns.\"\n\n\"• The keyword out is used as a qualifier to denote a parameter is to be copied out, but not copied in. This should be used whenever possible to avoid unnecessarily copying parameters in.\"\n\nIt\u0027s not an error in GLSL to reference an undefined value, and an undefined value could hold anything, so in GLSL it seems like you just couldn\u0027t test this 100% effectively. That is, you could write a test, but if it failed, you wouldn\u0027t have proven anything (the argument\u0027s value could be there by coincidence, or because it was fastest to leave it there).\n\nIn SkSL we emit an error when accessing unassigned variables, so maybe we could write an error test?",
+      "parentUuid": "3f57e4e9_83bd95df",
+      "revId": "12f5b126d65ada5568a211f8a02a3430ff4e5756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
