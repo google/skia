@@ -431,7 +431,7 @@ static bool is_dead(const Expression& lvalue, ProgramUsage* usage) {
  * to a dead target and lack of side effects on the left hand side.
  */
 static bool dead_assignment(const BinaryExpression& b, ProgramUsage* usage) {
-    if (!Operators::IsAssignment(b.getOperator())) {
+    if (!b.getOperator().isAssignment()) {
         return false;
     }
     return is_dead(*b.left(), usage);
@@ -477,7 +477,7 @@ static bool is_matching_expression_tree(const Expression& left, const Expression
 }
 
 static bool self_assignment(const BinaryExpression& b) {
-    return b.getOperator() == Token::Kind::TK_EQ &&
+    return b.getOperator().kind() == Token::Kind::TK_EQ &&
            is_matching_expression_tree(*b.left(), *b.right());
 }
 
@@ -576,7 +576,7 @@ static void delete_left(BasicBlock* b,
     std::unique_ptr<Expression>& rightPointer = bin.right();
     SkASSERT(!left.hasSideEffects());
     bool result;
-    if (bin.getOperator() == Token::Kind::TK_EQ) {
+    if (bin.getOperator().kind() == Token::Kind::TK_EQ) {
         result = b->tryRemoveLValueBefore(iter, &left);
     } else {
         result = b->tryRemoveExpressionBefore(iter, &left);
@@ -764,7 +764,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 (!rightType.isScalar() && !rightType.isVector())) {
                 break;
             }
-            switch (bin->getOperator()) {
+            switch (bin->getOperator().kind()) {
                 case Token::Kind::TK_STAR:
                     if (is_constant(left, 1)) {
                         if (leftType.isVector() && rightType.isScalar()) {

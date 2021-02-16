@@ -529,8 +529,8 @@ size_t SkVMGenerator::getSlot(const Variable& v) {
 Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     const Expression& left = *b.left();
     const Expression& right = *b.right();
-    Token::Kind op = b.getOperator();
-    if (op == Token::Kind::TK_EQ) {
+    Operator op = b.getOperator();
+    if (op.kind() == Token::Kind::TK_EQ) {
         return this->writeStore(left, this->writeExpression(right));
     }
 
@@ -538,14 +538,14 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     const Type& rType = right.type();
     bool lVecOrMtx = (lType.isVector() || lType.isMatrix());
     bool rVecOrMtx = (rType.isVector() || rType.isMatrix());
-    bool isAssignment = Operators::IsAssignment(op);
+    bool isAssignment = op.isAssignment();
     if (isAssignment) {
-        op = Operators::RemoveAssignment(op);
+        op = op.removeAssignment();
     }
     Type::NumberKind nk = base_number_kind(lType);
 
     // A few ops require special treatment:
-    switch (op) {
+    switch (op.kind()) {
         case Token::Kind::TK_LOGICALAND: {
             SkASSERT(!isAssignment);
             SkASSERT(nk == Type::NumberKind::kBoolean);
@@ -576,7 +576,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
           rVal = this->writeExpression(right);
 
     // Special case for M*V, V*M, M*M (but not V*V!)
-    if (op == Token::Kind::TK_STAR
+    if (op.kind() == Token::Kind::TK_STAR
         && lVecOrMtx && rVecOrMtx && !(lType.isVector() && rType.isVector())) {
         int rCols = rType.columns(),
             rRows = rType.rows(),
@@ -624,7 +624,7 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
         return skvm::F32{};
     };
 
-    switch (op) {
+    switch (op.kind()) {
         case Token::Kind::TK_EQEQ: {
             SkASSERT(!isAssignment);
             Value cmp = binary([](skvm::F32 x, skvm::F32 y) { return x == y; },
@@ -1311,10 +1311,10 @@ Value SkVMGenerator::writeExternalFunctionCall(const ExternalFunctionCall& c) {
 Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
     Value val = this->writeExpression(*p.operand());
 
-    switch (p.getOperator()) {
+    switch (p.getOperator().kind()) {
         case Token::Kind::TK_PLUSPLUS:
         case Token::Kind::TK_MINUSMINUS: {
-            bool incr = p.getOperator() == Token::Kind::TK_PLUSPLUS;
+            bool incr = p.getOperator().kind() == Token::Kind::TK_PLUSPLUS;
 
             switch (base_number_kind(p.type())) {
                 case Type::NumberKind::kFloat:
@@ -1350,13 +1350,13 @@ Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
 }
 
 Value SkVMGenerator::writePostfixExpression(const PostfixExpression& p) {
-    switch (p.getOperator()) {
+    switch (p.getOperator().kind()) {
         case Token::Kind::TK_PLUSPLUS:
         case Token::Kind::TK_MINUSMINUS: {
             Value old = this->writeExpression(*p.operand()),
                   val = old;
             SkASSERT(val.slots() == 1);
-            bool incr = p.getOperator() == Token::Kind::TK_PLUSPLUS;
+            bool incr = p.getOperator().kind() == Token::Kind::TK_PLUSPLUS;
 
             switch (base_number_kind(p.type())) {
                 case Type::NumberKind::kFloat:

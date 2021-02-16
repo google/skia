@@ -22,10 +22,10 @@
 
 namespace SkSL {
 
-const char* MetalCodeGenerator::OperatorName(Token::Kind op) {
-    switch (op) {
+const char* MetalCodeGenerator::OperatorName(Operator op) {
+    switch (op.kind()) {
         case Token::Kind::TK_LOGICALXOR:  return "!=";
-        default:                          return Operators::OperatorName(op);
+        default:                          return op.operatorName();
     }
 }
 
@@ -1257,10 +1257,10 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     const Expression& right = *b.right();
     const Type& leftType = left.type();
     const Type& rightType = right.type();
-    Token::Kind op = b.getOperator();
-    Precedence precedence = Operators::GetBinaryPrecedence(b.getOperator());
+    Operator op = b.getOperator();
+    Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
-    switch (op) {
+    switch (op.kind()) {
         case Token::Kind::TK_EQEQ:
             if (leftType.isVector()) {
                 this->write("all");
@@ -1280,16 +1280,16 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write("(");
     }
     if (leftType.isMatrix() && rightType.isMatrix()) {
-        if (op == Token::Kind::TK_STAREQ) {
+        if (op.kind() == Token::Kind::TK_STAREQ) {
             this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
-        } else if (op == Token::Kind::TK_EQEQ) {
+        } else if (op.kind() == Token::Kind::TK_EQEQ) {
             this->writeMatrixEqualityHelper(leftType, rightType);
-        } else if (op == Token::Kind::TK_NEQ) {
+        } else if (op.kind() == Token::Kind::TK_NEQ) {
             this->writeMatrixInequalityHelper(leftType, rightType);
         }
     }
     this->writeExpression(left, precedence);
-    if (op != Token::Kind::TK_EQ && Operators::IsAssignment(op) &&
+    if (op.kind() != Token::Kind::TK_EQ && op.isAssignment() &&
         left.kind() == Expression::Kind::kSwizzle && !left.hasSideEffects()) {
         // This doesn't compile in Metal:
         // float4 x = float4(1);
