@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a1d770d_5be3af7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-16T17:01:31Z",
+      "side": 1,
+      "message": "Note that we should probably also have a variable sample font, just to make sure we\u0027re exercising that code.",
+      "revId": "fc48f2b5f67dbffad2fd6efbcd40a9bf83bff7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
