@@ -20,16 +20,15 @@ CanvasKitInit({
   let ctx = canvas.getContext('2d');
   ctx.font = '30px Roboto';
   ctx.rotate(.1);
-  let text = ctx.measureText('Awesome');
   ctx.fillText('Awesome ', 50, 100);
-  ctx.strokeText('Groovy!', 60+text.width, 100);
+  ctx.strokeText('Groovy!', 250, 100);
 
   // Draw line under Awesome
   ctx.strokeStyle = 'rgba(125,0,0,0.5)';
   ctx.beginPath();
   ctx.lineWidth = 6;
   ctx.lineTo(50, 102);
-  ctx.lineTo(50 + text.width, 102);
+  ctx.lineTo(250, 102);
   ctx.stroke();
 
   // squished vertically
@@ -77,17 +76,16 @@ function fancyAPI(CanvasKit) {
 
   surface.flush();
 
-  const img = surface.makeImageSnapshot()
+  const img = surface.makeImageSnapshot();
   if (!img) {
     console.error('no snapshot');
     return;
   }
-  const png = img.encodeToData()
-  if (!png) {
+  const pngBytes = img.encodeToBytes();
+  if (!pngBytes) {
     console.error('encoding failure');
     return
   }
-  const pngBytes = CanvasKit.getDataBytes(png);
   // See https://stackoverflow.com/a/12713326
   let b64encoded = Buffer.from(pngBytes).toString('base64');
   console.log(`<img src="data:image/png;base64,${b64encoded}" />`);

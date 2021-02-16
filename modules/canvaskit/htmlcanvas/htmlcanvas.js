@@ -4,7 +4,7 @@ CanvasKit.MakeCanvas = function(width, height) {
     return new HTMLCanvas(surf);
   }
   return null;
-}
+};
 
 function HTMLCanvas(skSurface) {
   this._surface = skSurface;
@@ -20,7 +20,7 @@ function HTMLCanvas(skSurface) {
     }
     this._toCleanup.push(img);
     return img;
-  }
+  };
 
   this.loadFont = function(buffer, descriptors) {
     var newFont = this._fontmgr.MakeTypefaceFromData(buffer);
@@ -30,13 +30,13 @@ function HTMLCanvas(skSurface) {
     }
     this._toCleanup.push(newFont);
     addToFontCache(newFont, descriptors);
-  }
+  };
 
   this.makePath2D = function(path) {
     var p2d = new Path2D(path);
     this._toCleanup.push(p2d._getPath());
     return p2d;
-  }
+  };
 
   // A normal <canvas> requires that clients call getContext
   this.getContext = function(type) {
@@ -44,7 +44,7 @@ function HTMLCanvas(skSurface) {
       return this._context;
     }
     return null;
-  }
+  };
 
   this.toDataURL = function(codec, quality) {
     // TODO(kjlubick): maybe support other codecs (webp?)
@@ -56,20 +56,20 @@ function HTMLCanvas(skSurface) {
       Debug('no snapshot');
       return;
     }
-    var codec = codec || 'image/png';
+    codec = codec || 'image/png';
     var format = CanvasKit.ImageFormat.PNG;
     if (codec === 'image/jpeg') {
       format = CanvasKit.ImageFormat.JPEG;
     }
-    var quality = quality || 0.92;
-    var skimg = img.encodeToData(format, quality);
-    if (!skimg) {
+    quality = quality || 0.92;
+    var imgBytes = img.encodeToBytes(format, quality);
+    if (!imgBytes) {
       Debug('encoding failure');
       return
     }
-    var imgBytes = CanvasKit.getDataBytes(skimg);
+    img.delete();
     return 'data:' + codec + ';base64,' + toBase64String(imgBytes);
-  }
+  };
 
   this.dispose = function() {
     this._context._dispose();

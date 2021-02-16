@@ -603,11 +603,6 @@ bool ApplyStroke(SkPath& path, StrokeOpts opts) {
     return p.getFillPath(path, &path, nullptr, opts.precision);
 }
 
-// to map from raw memory to a uint8array
-Uint8Array getSkDataBytes(const SkData *data) {
-    return Uint8Array(typed_memory_view(data->size(), data->bytes()));
-}
-
 // Text Shaping abstraction
 
 #ifndef SK_NO_FONTS
@@ -724,10 +719,6 @@ namespace emscripten {
         }
 
         template<>
-        void raw_destructor<SkData>(SkData *ptr) {
-        }
-
-        template<>
         void raw_destructor<SkVertices>(SkVertices *ptr) {
         }
 
@@ -741,6 +732,16 @@ namespace emscripten {
         }
 #endif
     }
+}
+
+// toBytes returns a Uint8Array that has a copy of the data in the given SkData.
+Uint8Array toBytes(sk_sp<SkData> data) {
+    // By making the copy using the JS transliteration, we don't risk the SkData object being
+    // cleaned up before we make the copy.
+    return emscripten::val(
+        // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#memory-views
+        typed_memory_view(data->size(), data->bytes())
+    ).call<Uint8Array>("slice"); // slice with no args makes a copy of the memory view.
 }
 
 // Some signatures below have uintptr_t instead of a pointer to a primitive
@@ -787,8 +788,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgData, length);
         return SkImage::MakeFromEncoded(std::move(bytes));
     }), allow_raw_pointers());
-
-    function("getDataBytes", &getSkDataBytes, allow_raw_pointers());
 
     // These won't be called directly, there are corresponding JS helpers to deal with arrays.
     function("_MakeImage", optional_override([](SimpleImageInfo ii,
@@ -1172,11 +1171,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("isClosed", &SkContourMeasure::isClosed)
         .function("length", &SkContourMeasure::length);
 
-    // TODO(kjlubick) Don't expose SkData - just expose ways to get the bytes.
-    class_<SkData>("Data")
-        .smart_ptr<sk_sp<SkData>>("sk_sp<Data>>")
-        .function("size", &SkData::size);
-
 #ifndef SK_NO_FONTS
     class_<SkFont>("Font")
         .constructor<>()
@@ -1308,8 +1302,21 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return result;
         }))
         .function("height", &SkImage::height)
-        .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
-        .function("_encodeToDataWithFormat", select_overload<sk_sp<SkData>(SkEncodedImageFormat encodedImageFormat, int quality)const>(&SkImage::encodeToData))
+        .function("encodeToBytes", optional_override([](sk_sp<SkImage> self) -> Uint8Array {
+            sk_sp<SkData> data = self->encodeToData();
+            if (!data) {
+                return emscripten::val::null();
+            }
+            return toBytes(data);
+        }))
+       .function("encodeToBytes", optional_override([](sk_sp<SkImage> self,
+                                            SkEncodedImageFormat fmt, int quality) -> Uint8Array {
+            sk_sp<SkData> data = self->encodeToData(fmt, quality);
+            if (!data) {
+                return emscripten::val::null();
+            }
+            return toBytes(data);
+        }))
         .function("makeCopyWithDefaultMipmaps", optional_override([](sk_sp<SkImage> self)->sk_sp<SkImage> {
             return self->withDefaultMipmaps();
         }))
@@ -1353,7 +1360,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .class_function("_MakeMatrixTransform", optional_override([](uintptr_t /* SkScalar*  */ mPtr, SkFilterQuality fq,
                                                                    sk_sp<SkImageFilter> input)->sk_sp<SkImageFilter> {
             OptionalMatrix matr(mPtr);
-            // TODO: pass in sampling directly from client
+            // TODO(kjlubick): pass in sampling directly from client
             auto sampling = SkSamplingOptions(fq, SkSamplingOptions::kMedium_asMipmapLinear);
             return SkImageFilters::MatrixTransform(matr, sampling, input);
         }));
@@ -1561,10 +1568,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // The serialized format of an SkPicture (informally called an "skp"), is not something
         // that clients should ever rely on.  The format may change at anytime and no promises
         // are made for backwards or forward compatibility.
-        .function("serialize", optional_override([](SkPicture& self) -> sk_sp<SkData> {
+        .function("serialize", optional_override([](SkPicture& self) -> Uint8Array {
             // Emscripten doesn't play well with optional arguments, which we don't
             // want to expose anyway.
-            return self.serialize();
+            sk_sp<SkData> data = self.serialize();
+            if (!data) {
+                return emscripten::val::null();
+            }
+            return toBytes(data);
         }), allow_raw_pointers())
 #endif
     ;

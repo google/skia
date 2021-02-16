@@ -399,12 +399,6 @@ export interface CanvasKit {
      */
     MakeParticles(json: string, assets?: Record<string, ArrayBuffer>): Particles;
 
-    /**
-     * Returns the underlying data from Data as a Uint8Array.
-     * @param data
-     */
-    getDataBytes(data: Data): Uint8Array;
-
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
     readonly ImageData: ImageDataConstructor;
     readonly ParagraphStyle: ParagraphStyleConstructor;
@@ -1485,16 +1479,6 @@ export interface ContourMeasure extends EmbindObject<ContourMeasure> {
 }
 
 /**
- * Represents a blob of memory. See Data.h for more on this class.
- */
-export interface Data extends EmbindObject<Data> {
-    /**
-     * Return the number of bytes in this container.
-     */
-    size(): number;
-}
-
-/**
  * See SkFont.h for more on this class.
  */
 export interface Font extends EmbindObject<Font> {
@@ -1652,17 +1636,13 @@ export interface FontMgr extends EmbindObject<FontMgr> {
  */
 export interface Image extends EmbindObject<Image> {
     /**
-     * Encodes this image's pixels to PNG and returns them. Must be built with the PNG codec.
-     */
-    encodeToData(): Data;
-
-    /**
      * Encodes this image's pixels to the specified format and returns them. Must be built with
-     * the specified codec.
-     * @param fmt
+     * the specified codec. If the options are unspecified, sensible defaults will be
+     * chosen.
+     * @param fmt - PNG is the default value.
      * @param quality - a value from 0 to 100; 100 is the least lossy. May be ignored.
      */
-    encodeToDataWithFormat(fmt: EncodedImageFormat, quality: number): Data;
+    encodeToBytes(fmt?: EncodedImageFormat, quality?: number): Uint8Array | null;
 
     /**
      * Returns the color space associated with this object.
@@ -2365,7 +2345,7 @@ export interface SkPicture extends EmbindObject<SkPicture> {
      * Returns the serialized format of this SkPicture. The format may change at anytime and
      * no promises are made for backwards or forward compatibility.
      */
-    serialize(): Data;
+    serialize(): Uint8Array | null;
 }
 
 export interface PictureRecorder extends EmbindObject<PictureRecorder> {

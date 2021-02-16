@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking
+ - `CanvasKit.getDataBytes` has been removed, as has the Data type. The 2 APIS that returned
+   Data now return Uint8Array containing the bytes directly. These are `Image.encodeToData`
+   (now named `Image.encodeToBytes`) and `SkPicture.serialize`. These APIs return null if
+   the encoding or serialization failed.
+
+### Type Changes (index.d.ts)
+ - `Image.encodeToDataWithFormat` was incorrectly documented as its own thing.
+
 ## [0.23.0] - 2021-02-04
 
 ### Added
@@ -130,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.MakePathFromCmds`; Was deprecated in favor of `CanvasKit.Path.MakeFromCmds`.
  - `new CanvasKit.Path(path)` in favor of existing `path.copy()`.
  - Unused internal APIs (_getRasterN32PremulSurface, Drawable)
- - `measureText` from the CanvasContext2D emulation layer du to deprecation of measureText.
+ - `measureText` from the CanvasContext2D emulation layer due to deprecation of measureText.
 
 ### Deprecated
  - `Font.getWidths` in favor of `Font.getGlyphIDs` and `Font.getGlyphWidths`.
