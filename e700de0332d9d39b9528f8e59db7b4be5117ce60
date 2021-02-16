@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43406614_9e8da551",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-16T13:51:08Z",
+      "side": 1,
+      "message": "Just one question is all.",
+      "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18fcf925_8a9386f5",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-16T13:51:08Z",
+      "side": 1,
+      "message": "Does this not need to take a DoSimplify arg? Is it only ever used in situations where we definitely want simplification, or because we\u0027re switching to a filled style, the simplification is mandated?",
+      "range": {
+        "startLine": 130,
+        "startChar": 36,
+        "endLine": 131,
+        "endChar": 76
+      },
+      "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
