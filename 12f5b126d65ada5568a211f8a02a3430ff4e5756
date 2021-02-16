@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f57e4e9_83bd95df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-16T13:43:11Z",
+      "side": 1,
+      "message": "Interestingly, the GLSL spec also explicitly states that arguments to \u0027out\u0027 params are not copied to the formal parameter (which makes sense), but I\u0027m not sure how careful we are about that? It\u0027s hard to test, because if we get it right, it\u0027s use of an uninitialized value...",
+      "revId": "12f5b126d65ada5568a211f8a02a3430ff4e5756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
