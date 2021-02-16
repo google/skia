@@ -39,6 +39,30 @@
       },
       "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71a36589_06d759bd",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-16T16:31:28Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure myself on what it would mean for this method to skip the simplify, so I just decided to leave it. Also, it looks like this method is only called from the test. What would you think about taking it out of the class and just making it a static helper function in GrStyledShapeTest.cpp?",
+      "parentUuid": "18fcf925_8a9386f5",
+      "range": {
+        "startLine": 130,
+        "startChar": 36,
+        "endLine": 131,
+        "endChar": 76
+      },
+      "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
