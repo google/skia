@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "782e65d6_368806d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-16T13:52:10Z",
+      "side": 1,
+      "message": "Looking at this code again - does the out-param-helper handle inout? I don\u0027t see anything that would prevent it from doing what it does with \u0027out\u0027, so the incoming values aren\u0027t passed to the function?",
+      "revId": "044978792835afc8dcc972311c860d79fdb3f159",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
