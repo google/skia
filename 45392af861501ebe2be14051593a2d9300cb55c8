@@ -16,6 +16,24 @@
       "message": "Oh, good catch. 😶\n\nHow is this related to issue 10968?",
       "revId": "45392af861501ebe2be14051593a2d9300cb55c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42f552df_26122511",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-16T19:08:35Z",
+      "side": 1,
+      "message": "It actually isn\u0027t directly related to that issue, I just noticed this issue while playing around with the test case. It does affect the test case ( https://bugs.chromium.org/p/skia/issues/detail?id\u003d10968#c7 ) output though, since with this change if the opsz isn\u0027t set it will be set to the current value instead of the default value, which means the opsz won\u0027t change in that case.",
+      "parentUuid": "cdfcfa8a_95f784ac",
+      "revId": "45392af861501ebe2be14051593a2d9300cb55c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
