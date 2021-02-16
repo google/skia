@@ -161,7 +161,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
         }
 
         auto program =
-                compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, settings, &externalFns);
+                compiler.convertProgram(SkSL::ProgramKind::kGeneric, code, settings, &externalFns);
         if (!program) {
             SkDebugf("%s\n", compiler.errorText().c_str());
             return nullptr;

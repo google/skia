@@ -53,7 +53,7 @@ static const bool gPrintMSL = false;
 
 id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
                                           const SkSL::String& sksl,
-                                          SkSL::Program::Kind programKind,
+                                          SkSL::ProgramKind programKind,
                                           const SkSL::Program::Settings& settings,
                                           SkSL::String* msl,
                                           SkSL::Program::Inputs* outInputs,
