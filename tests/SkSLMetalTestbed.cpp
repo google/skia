@@ -12,7 +12,7 @@
 static void test(skiatest::Reporter* r,
                  const GrShaderCaps& caps,
                  const char* src,
-                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
+                 SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
     SkSL::String output;

@@ -79,7 +79,7 @@ protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
             std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(
-                                                                      SkSL::Program::kFragment_Kind,
+                                                                      SkSL::ProgramKind::kFragment,
                                                                       fSrc,
                                                                       fSettings);
             if (fCompiler.errorCount()) {
@@ -124,8 +124,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        SkSL::ParsedModule module = fCompiler.moduleForProgramKind(
-                                                               SkSL::Program::Kind::kFragment_Kind);
+        SkSL::ParsedModule module = fCompiler.moduleForProgramKind(SkSL::ProgramKind::kFragment);
         fCompiler.irGenerator().setSymbolTable(module.fSymbols);
     }
 
@@ -584,8 +583,8 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         int before = heap_bytes_used();
         GrShaderCaps caps(GrContextOptions{});
         SkSL::Compiler compiler(&caps);
-        compiler.moduleForProgramKind(SkSL::Program::kVertex_Kind);
-        compiler.moduleForProgramKind(SkSL::Program::kFragment_Kind);
+        compiler.moduleForProgramKind(SkSL::ProgramKind::kVertex);
+        compiler.moduleForProgramKind(SkSL::ProgramKind::kFragment);
         int after = heap_bytes_used();
         bench("sksl_compiler_gpu", after - before);
     }
@@ -595,7 +594,7 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         int before = heap_bytes_used();
         GrShaderCaps caps(GrContextOptions{});
         SkSL::Compiler compiler(&caps);
-        compiler.moduleForProgramKind(SkSL::Program::kRuntimeEffect_Kind);
+        compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeEffect);
         int after = heap_bytes_used();
         bench("sksl_compiler_runtimeeffect", after - before);
     }
