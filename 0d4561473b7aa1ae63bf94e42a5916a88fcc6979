@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "93078b32_93380a44",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2021-02-16T03:59:09Z",
+      "side": 1,
+      "message": "Apologies but may I ask for someone else to replace me as reviewer? Suggest zmo or geofflang. Thanks.\n",
+      "revId": "0d4561473b7aa1ae63bf94e42a5916a88fcc6979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e5cbdb8_520b6a4c",
