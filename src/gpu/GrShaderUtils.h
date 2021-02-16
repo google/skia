@@ -29,7 +29,7 @@ inline void PrintLineByLine(const SkSL::String& text) {
 
 GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler();
 
-void PrintShaderBanner(SkSL::Program::Kind programKind);
+void PrintShaderBanner(SkSL::ProgramKind programKind);
 
 }  // namespace GrShaderUtils
 

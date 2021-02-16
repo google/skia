@@ -375,7 +375,7 @@ void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
             this->writeInstruction(SpvOpCapability, (SpvId) i, out);
         }
     }
-    if (fProgram.fKind == Program::kGeometry_Kind) {
+    if (fProgram.fKind == ProgramKind::kGeometry) {
         this->writeInstruction(SpvOpCapability, SpvCapabilityGeometry, out);
     }
     else {
@@ -2884,7 +2884,7 @@ static bool is_dead(const Variable& var, const ProgramUsage* usage) {
     return var.modifiers().fLayout.fBuiltin == SK_SAMPLEMASK_BUILTIN;
 }
 
-void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration& varDecl) {
+void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& varDecl) {
     const Variable& var = varDecl.var();
     // These haven't been implemented in our SPIR-V generator yet and we only currently use them
     // in the OpenGL backend.
@@ -2900,7 +2900,7 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
         return;
     }
     if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
-        kind != Program::kFragment_Kind) {
+        kind != ProgramKind::kFragment) {
         SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
         return;
     }
@@ -3165,7 +3165,7 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
 }
 
 void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out) {
-    SkASSERT(fProgram.fKind == Program::kGeometry_Kind);
+    SkASSERT(fProgram.fKind == ProgramKind::kGeometry);
     int invocations = 1;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<ModifiersDeclaration>()) {
@@ -3408,13 +3408,13 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().fLength + 4) / 4) +
                       (int32_t) interfaceVars.size(), out);
     switch (program.fKind) {
-        case Program::kVertex_Kind:
+        case ProgramKind::kVertex:
             this->writeWord(SpvExecutionModelVertex, out);
             break;
-        case Program::kFragment_Kind:
+        case ProgramKind::kFragment:
             this->writeWord(SpvExecutionModelFragment, out);
             break;
-        case Program::kGeometry_Kind:
+        case ProgramKind::kGeometry:
             this->writeWord(SpvExecutionModelGeometry, out);
             break;
         default:
@@ -3426,10 +3426,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (int var : interfaceVars) {
         this->writeWord(var, out);
     }
-    if (program.fKind == Program::kGeometry_Kind) {
+    if (program.fKind == ProgramKind::kGeometry) {
         this->writeGeometryShaderExecutionMode(entryPoint, out);
     }
-    if (program.fKind == Program::kFragment_Kind) {
+    if (program.fKind == ProgramKind::kFragment) {
         this->writeInstruction(SpvOpExecutionMode,
                                fFunctionMap[main],
                                SpvExecutionModeOriginUpperLeft,

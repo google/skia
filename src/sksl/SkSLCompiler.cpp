@@ -174,14 +174,14 @@ Compiler::~Compiler() {}
 
 const ParsedModule& Compiler::loadGPUModule() {
     if (!fGPUModule.fSymbols) {
-        fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fPrivateModule);
+        fGPUModule = this->parseModule(ProgramKind::kFragment, MODULE_DATA(gpu), fPrivateModule);
     }
     return fGPUModule;
 }
 
 const ParsedModule& Compiler::loadFragmentModule() {
     if (!fFragmentModule.fSymbols) {
-        fFragmentModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(frag),
+        fFragmentModule = this->parseModule(ProgramKind::kFragment, MODULE_DATA(frag),
                                             this->loadGPUModule());
     }
     return fFragmentModule;
@@ -189,7 +189,7 @@ const ParsedModule& Compiler::loadFragmentModule() {
 
 const ParsedModule& Compiler::loadVertexModule() {
     if (!fVertexModule.fSymbols) {
-        fVertexModule = this->parseModule(Program::kVertex_Kind, MODULE_DATA(vert),
+        fVertexModule = this->parseModule(ProgramKind::kVertex, MODULE_DATA(vert),
                                           this->loadGPUModule());
     }
     return fVertexModule;
@@ -197,7 +197,7 @@ const ParsedModule& Compiler::loadVertexModule() {
 
 const ParsedModule& Compiler::loadGeometryModule() {
     if (!fGeometryModule.fSymbols) {
-        fGeometryModule = this->parseModule(Program::kGeometry_Kind, MODULE_DATA(geom),
+        fGeometryModule = this->parseModule(ProgramKind::kGeometry, MODULE_DATA(geom),
                                             this->loadGPUModule());
     }
     return fGeometryModule;
@@ -205,7 +205,7 @@ const ParsedModule& Compiler::loadGeometryModule() {
 
 const ParsedModule& Compiler::loadFPModule() {
     if (!fFPModule.fSymbols) {
-        fFPModule = this->parseModule(Program::kFragmentProcessor_Kind, MODULE_DATA(fp),
+        fFPModule = this->parseModule(ProgramKind::kFragmentProcessor, MODULE_DATA(fp),
                                       this->loadGPUModule());
     }
     return fFPModule;
@@ -213,14 +213,14 @@ const ParsedModule& Compiler::loadFPModule() {
 
 const ParsedModule& Compiler::loadPublicModule() {
     if (!fPublicModule.fSymbols) {
-        fPublicModule = this->parseModule(Program::kGeneric_Kind, MODULE_DATA(public), fRootModule);
+        fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public), fRootModule);
     }
     return fPublicModule;
 }
 
 const ParsedModule& Compiler::loadRuntimeEffectModule() {
     if (!fRuntimeEffectModule.fSymbols) {
-        fRuntimeEffectModule = this->parseModule(Program::kRuntimeEffect_Kind, MODULE_DATA(runtime),
+        fRuntimeEffectModule = this->parseModule(ProgramKind::kRuntimeEffect, MODULE_DATA(runtime),
                                                  this->loadPublicModule());
 
         // Add some aliases to the runtime effect module so that it's friendlier, and more like GLSL
@@ -241,19 +241,19 @@ const ParsedModule& Compiler::loadRuntimeEffectModule() {
     return fRuntimeEffectModule;
 }
 
-const ParsedModule& Compiler::moduleForProgramKind(Program::Kind kind) {
+const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
     switch (kind) {
-        case Program::kVertex_Kind:            return this->loadVertexModule();        break;
-        case Program::kFragment_Kind:          return this->loadFragmentModule();      break;
-        case Program::kGeometry_Kind:          return this->loadGeometryModule();      break;
-        case Program::kFragmentProcessor_Kind: return this->loadFPModule();            break;
-        case Program::kRuntimeEffect_Kind:     return this->loadRuntimeEffectModule(); break;
-        case Program::kGeneric_Kind:           return this->loadPublicModule();        break;
+        case ProgramKind::kVertex:            return this->loadVertexModule();        break;
+        case ProgramKind::kFragment:          return this->loadFragmentModule();      break;
+        case ProgramKind::kGeometry:          return this->loadGeometryModule();      break;
+        case ProgramKind::kFragmentProcessor: return this->loadFPModule();            break;
+        case ProgramKind::kRuntimeEffect:     return this->loadRuntimeEffectModule(); break;
+        case ProgramKind::kGeneric:           return this->loadPublicModule();        break;
     }
     SkUNREACHABLE;
 }
 
-LoadedModule Compiler::loadModule(Program::Kind kind,
+LoadedModule Compiler::loadModule(ProgramKind kind,
                                   ModuleData data,
                                   std::shared_ptr<SymbolTable> base) {
     if (!base) {
@@ -281,6 +281,7 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
     settings.fReplaceSettings = false;
+
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule,
@@ -305,7 +306,7 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     return module;
 }
 
-ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base) {
+ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base) {
     LoadedModule module = this->loadModule(kind, data, base.fSymbols);
     this->optimize(module);
 
@@ -1564,11 +1565,11 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(
-        Program::Kind kind,
+        ProgramKind kind,
         String text,
         const Program::Settings& settings,
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
-    SkASSERT(!externalFunctions || (kind == Program::kGeneric_Kind));
+    SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
 
     // Loading and optimizing our base module might reset the inliner, so do that first,
     // *then* configure the inliner with the settings for this program.
@@ -1745,7 +1746,7 @@ bool Compiler::optimize(Program& program) {
                     program.fSharedElements.end());
         }
 
-        if (program.fKind != Program::kFragmentProcessor_Kind) {
+        if (program.fKind != ProgramKind::kFragmentProcessor) {
             // Remove declarations of dead global variables
             auto isDeadVariable = [&](const ProgramElement* element) {
                 if (!element->is<GlobalVarDeclaration>()) {
