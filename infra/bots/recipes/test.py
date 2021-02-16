@@ -27,6 +27,35 @@ DEPS = [
 
 def test_steps(api):
   """Run the DM test."""
+
+  api.run(api.python.inline, 'Restarting the the device, to see what happens',
+                 program="""
+import os
+import subprocess
+import sys
+import time
+ADB = sys.argv[1]
+ASAN_SETUP = sys.argv[2]
+
+def wait_for_device():
+  while True:
+    time.sleep(5)
+    print 'Waiting for device'
+    if 0 == subprocess.call(['idevicepair', 'validate']):
+      break;
+
+print 'Rebooting device'
+output = subprocess.check_output(['idevicediagnostics', 'restart'])
+print output
+wait_for_device()
+
+""",
+                 args = [],
+                 infra_step=True,
+                 timeout=300,
+                 abort_on_failure=True)
+
+
   do_upload = api.properties.get('do_upload') == 'true'
   images = api.properties.get('images') == 'true'
   lotties = api.properties.get('lotties') == 'true'

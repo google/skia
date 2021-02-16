@@ -16,6 +16,43 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\nASAN_SETUP = sys.argv[2]\n\ndef wait_for_device():\n  while True:\n    time.sleep(5)\n    print 'Waiting for device'\n    if 0 == subprocess.call(['idevicepair', 'validate']):\n      break;\n\nprint 'Rebooting device'\noutput = subprocess.check_output(['idevicediagnostics', 'restart'])\nprint output\nwait_for_device()\n\n"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "Restarting the the device, to see what happens",
+    "timeout": 300,
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@ASAN_SETUP = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@def wait_for_device():@@@",
+      "@@@STEP_LOG_LINE@python.inline@  while True:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(5)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Waiting for device'@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if 0 == subprocess.call(['idevicepair', 'validate']):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      break;@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'Rebooting device'@@@",
+      "@@@STEP_LOG_LINE@python.inline@output = subprocess.check_output(['idevicediagnostics', 'restart'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@print output@@@",
+      "@@@STEP_LOG_LINE@python.inline@wait_for_device()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
