@@ -154,7 +154,10 @@ static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob, bool useDrawBehi
     for (int i = 0; i < 8; ++i) {
         SkColor c = rand.nextU();   // ensure we're opaque
         c = (c & 0xFFFFFF) | 0x80000000;
-        draw_cell(canvas, blob, c, w, h, useDrawBehind);
+        //if (i == 4 || i == 5)
+        {
+            draw_cell(canvas, blob, c, w, h, useDrawBehind);
+        }
         canvas->translate(0, h);
     }
 }

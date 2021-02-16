@@ -290,8 +290,11 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
             int32_t rPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
             int32_t bPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
 
-            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
-                                           {lPad, tPad, rPad, bPad});
+            if ((x == 1 && y == 0)) //  || (x == 1 && y == 1))
+            {
+                fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
+                                               {lPad, tPad, rPad, bPad});
+            }
         }
     }
 }

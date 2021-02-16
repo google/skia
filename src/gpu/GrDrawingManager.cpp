@@ -294,6 +294,58 @@ bool GrDrawingManager::submitToGpu(bool syncToCpu) {
     return gpu->submitToGpu(syncToCpu);
 }
 
+void write_to_png(const char* prefix, int id, const SkBitmap& bm) {
+    static int sID = 0;
+    char filename[256];
+    _snprintf(filename, 256, "c:\\src\\bugs2\\%s-%d.png", prefix, id);
+    filename[255] = '\0';
+
+    SkFILEWStream file(filename);
+    SkAssertResult(file.isValid());
+
+    SkAssertResult(SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100));
+}
+
+void bedazzle_me(GrGpu* gpu, GrRenderTask* renderTask, int id) {
+    //return;
+
+    if (!renderTask || !renderTask->isInstantiated()) {
+        return;
+    }
+
+//    SkDebugf("-------------------------- writing %d\n", id);
+
+    GrSurface* s = nullptr;
+
+    if (renderTask->numTargets()) {
+        s = renderTask->target(0)->peekSurface();
+    } else {
+        s = renderTask->floob();
+    }
+
+    if (s) {
+        SkImageInfo readBackII = SkImageInfo::Make(s->width(), s->height(),
+                                                    kRGBA_8888_SkColorType,
+                                                    kPremul_SkAlphaType);
+
+        SkBitmap readback;
+        readback.allocPixels(readBackII, 0);
+
+        if (gpu->readPixels(s, 0, 0, s->width(), s->height(),
+                            GrColorType::kRGBA_8888,
+                            GrColorType::kRGBA_8888,
+                            readback.getPixels(), readback.rowBytes())) {
+            for (int y = 0; y < readBackII.height(); ++y) {
+                for (int x = 0; x < readBackII.width(); ++x) {
+                    *readback.getAddr32(x, y) |= SK_ColorBLACK;
+                }
+            }
+
+            write_to_png("foo", id, readback);
+        }
+    }
+}
+
 bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState* flushState,
                                           int* numRenderTasksExecuted) {
     SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.count());
@@ -373,6 +425,10 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     // those that are written to in the RenderTasks. This helps to make sure the most recently used
     // resources are the last to be purged by the resource cache.
     flushState->reset();
+
+    for (int i = startIndex; i < stopIndex; ++i) {
+        bedazzle_me(flushState->gpu(), fDAG[i].get(), i);
+    }
 
     this->removeRenderTasks(startIndex, stopIndex);
 

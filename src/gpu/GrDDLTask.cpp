@@ -9,6 +9,7 @@
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
@@ -98,11 +99,21 @@ void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
+GrSurface* GrDDLTask::floob() {
+    return fDDLTarget->peekSurface();
+}
+
+void bedazzle_me(GrGpu* gpu, GrRenderTask* renderTask, int id);
+
 bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
+    static int s_ID = 100;
+
     bool anyCommandsIssued = false;
     for (auto& task : fDDL->priv().renderTasks()) {
         if (task->execute(flushState)) {
             anyCommandsIssued = true;
+
+            bedazzle_me(flushState->gpu(), task.get(), s_ID++);
         }
     }
 
