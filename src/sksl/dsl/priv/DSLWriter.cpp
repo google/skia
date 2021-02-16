@@ -25,7 +25,7 @@ namespace dsl {
 
 DSLWriter::DSLWriter(SkSL::Compiler* compiler)
     : fCompiler(compiler) {
-    SkSL::ParsedModule module = fCompiler->moduleForProgramKind(SkSL::Program::kFragment_Kind);
+    SkSL::ParsedModule module = fCompiler->moduleForProgramKind(SkSL::ProgramKind::kFragment);
     SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
     ir.fSymbolTable = module.fSymbols;
     ir.fSettings = &fSettings;

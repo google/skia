@@ -17,6 +17,9 @@
 
 namespace SkSL {
 
+struct ProgramSettings;
+enum class ProgramKind : int8_t;
+
 /**
  * Contains compiler-wide objects, which currently means the core types.
  */
@@ -29,6 +32,11 @@ public:
 
     // The Context holds a reference to our error reporter.
     ErrorReporter& fErrors;
+
+    // During compilation, the Context holds a reference to our current program's kind and settings.
+    // Outside of compilation, these values are not meaningful and should not be used.
+    ProgramKind fProgramKind;
+    const ProgramSettings* fSettings = nullptr;
 
     // A sentinel expression used to mark that a variable has a value during dataflow analysis (when
     // it could have several different values, or the analyzer is otherwise unable to assign it a
