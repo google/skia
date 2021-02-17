@@ -55,7 +55,8 @@ public:
     using AssetVec = std::vector<std::pair<SkString, sk_sp<SkData>>>;
 
     static sk_sp<SkottieAssetProvider> Make(AssetVec assets, emscripten::val soundMap) {
-        return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider(std::move(assets), std::move(soundMap)));
+        return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider(std::move(assets),
+                                                                    std::move(soundMap)));
     }
 
     sk_sp<skottie::ImageAsset> loadImageAsset(const char[] /* path */,
@@ -120,11 +121,37 @@ private:
     const emscripten::val fSoundMap;
 };
 
+// Wraps a JS object with 'onError' and 'onWarning' methods.
+class JSLogger final : public skottie::Logger {
+public:
+    static sk_sp<JSLogger> Make(emscripten::val logger) {
+        return logger.as<bool>()
+            && logger.hasOwnProperty(kWrnFunc)
+            && logger.hasOwnProperty(kErrFunc)
+                ? sk_sp<JSLogger>(new JSLogger(std::move(logger)))
+                : nullptr;
+    }
+
+private:
+    explicit JSLogger(emscripten::val logger) : fLogger(std::move(logger)) {}
+
+    void log(Level lvl, const char msg[], const char* json) override {
+        const auto* func = lvl == Level::kError ? kErrFunc : kWrnFunc;
+        fLogger.call<void>(func, std::string(msg), std::string(json));
+    }
+
+    static constexpr char kWrnFunc[] = "onWarning",
+                          kErrFunc[] = "onError";
+
+    const emscripten::val fLogger;
+};
+
 class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
                                         sk_sp<skottie::ResourceProvider> rp,
-                                        std::string prop_prefix) {
+                                        std::string prop_prefix,
+                                        emscripten::val logger) {
         auto mgr = std::make_unique<skottie_utils::CustomPropertyManager>(
                         skottie_utils::CustomPropertyManager::Mode::kCollapseProperties,
                         prop_prefix.empty() ? nullptr : prop_prefix.c_str());
@@ -136,6 +163,7 @@ public:
                             .setPropertyObserver(mgr->getPropertyObserver())
                             .setResourceProvider(std::move(rp))
                             .setPrecompInterceptor(std::move(pinterceptor))
+                            .setLogger(JSLogger::Make(std::move(logger)))
                             .make(json.c_str(), json.size());
 
         return animation
@@ -215,10 +243,11 @@ private:
     ManagedAnimation(sk_sp<skottie::Animation> animation,
                      std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr)
         : fAnimation(std::move(animation))
-        , fPropMgr(std::move(propMgr)) {}
+        , fPropMgr(std::move(propMgr))
+    {}
 
-    sk_sp<skottie::Animation>                             fAnimation;
-    std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
+    const sk_sp<skottie::Animation>                             fAnimation;
+    const std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
 };
 
 } // anonymous ns
@@ -298,7 +327,8 @@ EMSCRIPTEN_BINDINGS(Skottie) {
                                                            uintptr_t /* uint8_t**  */ dptr,
                                                            uintptr_t /* size_t*    */ sptr,
                                                            std::string prop_prefix,
-                                                           emscripten::val soundMap)
+                                                           emscripten::val soundMap,
+                                                           emscripten::val logger)
                                                         ->sk_sp<ManagedAnimation> {
         // See the comment in canvaskit_bindings.cpp about the use of uintptr_t
         const auto assetNames = reinterpret_cast<char**   >(nptr);
@@ -316,8 +346,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
 
         return ManagedAnimation::Make(json,
                                       skresources::DataURIResourceProviderProxy::Make(
-                                          SkottieAssetProvider::Make(std::move(assets), std::move(soundMap))),
-                                      prop_prefix);
+                                          SkottieAssetProvider::Make(std::move(assets),
+                                                                     std::move(soundMap))),
+                                      prop_prefix, std::move(logger));
     }));
     constant("managed_skottie", true);
 #endif // SK_INCLUDE_MANAGED_SKOTTIE
