@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b562794_449177cf",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-17T19:03:19Z",
+      "side": 1,
+      "message": "Is it \"This call to getSlot()...\"?  I wasn\u0027t quite sure if by \"This\" we mean the immediate next call or the next 30 lines or so.",
+      "range": {
+        "startLine": 443,
+        "startChar": 15,
+        "endLine": 443,
+        "endChar": 19
+      },
+      "revId": "801d217d7a683c87b6992020cf7d6cee6cc47f3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6a27b96_49c194b5",
+        "filename": "tests/sksl/runtime/GlobalVariables.skvm",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-17T19:03:19Z",
+      "side": 1,
+      "message": "This is that gUninitialized has gone from 0 to actually being calculated as gInitialized + 2, with gInitialized staying as -1?",
+      "revId": "801d217d7a683c87b6992020cf7d6cee6cc47f3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
