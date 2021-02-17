@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "845f5d45_a8490937",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T17:19:58Z",
+      "side": 1,
+      "message": "Nobody else here gets an extra space",
+      "range": {
+        "startLine": 43,
+        "startChar": 20,
+        "endLine": 43,
+        "endChar": 21
+      },
+      "revId": "b9352349e09a0c4c076ab1a9e2959164f909449a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
