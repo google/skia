@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb6521bb_e69f493f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-17T13:49:33Z",
+      "side": 1,
+      "message": "This approach is fine by me, but I have a few questions:\n1) Did you consider having the user provide an error/warning callback? We use this approach for the SkRuntimeEffect https://skia-review.googlesource.com/c/skia/+/365483 Possible upside: less WASM memory use because we don\u0027t have to store those strings.\n2) Why is there the JSON included in the message? Shouldn\u0027t the client be able to tell what JSON caused the bug? I would expect it to be the same JSON I passed into the MakeAnimation, right?",
+      "revId": "7cf8e8c1c34629bc278849a2b582b5f0d24e3648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e244408_fdb27213",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-17T13:49:33Z",
+      "side": 1,
+      "message": "Can we do an assert instead of a log? Even something very loose like a contains would help make sure we are seeing the \"right\" error.\n\nI\u0027m not a fan of logging in tests because it\u0027s not clear if that was an expected error or not.",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 19
+      },
+      "revId": "7cf8e8c1c34629bc278849a2b582b5f0d24e3648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
