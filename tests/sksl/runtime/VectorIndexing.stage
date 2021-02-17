@@ -2,7 +2,7 @@ uniform float4 u1;
 uniform float4 u2;
 uniform float4 u3;
 uniform float4 u4;
-float index_clamped_out_of_bounds()
+float index_clamped_out_of_bounds_0()
 {
 	for (int i = 7;i < 8; i++) 
 	{
@@ -21,5 +21,5 @@ float4 main()
 	{
 		_5_prod *= u3[_6_i < 2 ? 0 : _6_i];
 	}
-	return half4(float4(u1.x, _2_sum, _5_prod, index_clamped_out_of_bounds()));
+	return half4(float4(u1.x, _2_sum, _5_prod, index_clamped_out_of_bounds_0()));
 }

@@ -1,4 +1,4 @@
-int return_loop()
+int return_loop_0()
 {
 	for (int i = 0;i < 10; ++i) 
 	{
@@ -29,5 +29,5 @@ half4 main()
 		}
 		_4_sum += _5_i;
 	}
-	return half4(half4(half(return_loop()), half(_1_sum), half(_4_sum), 1.0));
+	return half4(half4(half(return_loop_0()), half(_1_sum), half(_4_sum), 1.0));
 }

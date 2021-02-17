@@ -401,6 +401,10 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     public:
                         using String = SkSL::String;
 
+                        String getMangledName(const char* name) override {
+                            return String(name) + "_0";
+                        }
+
                         String declareUniform(const SkSL::VarDeclaration* decl) override {
                             fOutput += decl->description();
                             if (decl->var().type().name() == "fragmentProcessor") {

@@ -1,6 +1,7 @@
 /*#pragma settings NoInline*/
 
 float gInitialized = -1.0;
+float gInitializedFromOther = -gInitialized;
 float gUninitialized;
 
 void init_globals() {
@@ -9,5 +10,5 @@ void init_globals() {
 
 float4 main() {
     init_globals();
-    return float4(0, -gInitialized, 0, gUninitialized);
+    return float4(0, gInitializedFromOther, 0, gUninitialized);
 }
