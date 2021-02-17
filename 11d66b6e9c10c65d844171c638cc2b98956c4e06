@@ -16,6 +16,24 @@
       "message": "No real preference. This is probably fine for now. (I also realize that the function being declared here doesn\u0027t exist any more, so I can remove that, and this file can be just snippets).",
       "revId": "11d66b6e9c10c65d844171c638cc2b98956c4e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "deaf44d4_3ee1ba8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-17T16:28:53Z",
+      "side": 1,
+      "message": "ah, a flawless takeover!",
+      "parentUuid": "6f05aeac_535c9934",
+      "revId": "11d66b6e9c10c65d844171c638cc2b98956c4e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
