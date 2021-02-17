@@ -110,7 +110,7 @@ private:
     const char*    fSampleCoords;
     Callbacks*     fCallbacks;
 
-    std::unordered_map<const Variable*, String>            fUniformNames;
+    std::unordered_map<const Variable*, String>            fVariableNames;
     std::unordered_map<const FunctionDeclaration*, String> fFunctionNames;
     std::unordered_map<const Type*, String>                fStructNames;
 
@@ -231,15 +231,16 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
         return index;
     };
 
-    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-        auto it = fUniformNames.find(var);
-        SkASSERT(it != fUniformNames.end());
-        this->write(it->second);
-    } else if (modifiers.fFlags & Modifiers::kVarying_Flag) {
+    if (modifiers.fFlags & Modifiers::kVarying_Flag) {
         this->write("_vtx_attr_");
         this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
     } else {
-        this->write(var->name());
+        auto it = fVariableNames.find(var);
+        if (it != fVariableNames.end()) {
+            this->write(it->second);
+        } else {
+            this->write(var->name());
+        }
     }
 }
 
@@ -331,11 +332,23 @@ void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclar
     const VarDeclaration& decl = g.declaration()->as<VarDeclaration>();
     const Variable& var = decl.var();
 
-    if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
+    if (var.isBuiltin()) {
+        // Don't mangle the name or re-declare this. (eg, sk_FragCoord)
+    } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
         String uniformName = fCallbacks->declareUniform(&decl);
-        fUniformNames.insert({&var, std::move(uniformName)});
+        fVariableNames.insert({&var, std::move(uniformName)});
     } else {
-        // TODO: Handle non-uniform global variable declarations. (skbug.com/11295)
+        String mangledName = fCallbacks->getMangledName(String(var.name()).c_str());
+        String declaration = this->typedVariable(var.type(), StringFragment(mangledName.c_str()));
+        if (decl.value()) {
+            AutoOutputBuffer outputToBuffer(this);
+            this->writeExpression(*decl.value(), Precedence::kTopLevel);
+            declaration += " = ";
+            declaration += outputToBuffer.fBuffer.str();
+        }
+        declaration += ";\n";
+        fCallbacks->declareGlobal(declaration.c_str());
+        fVariableNames.insert({&var, std::move(mangledName)});
     }
 }
 
