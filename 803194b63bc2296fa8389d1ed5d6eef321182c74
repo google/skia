@@ -16,6 +16,52 @@
       "message": "ping!",
       "revId": "803194b63bc2296fa8389d1ed5d6eef321182c74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee115d11_5a5192df",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-17T20:30:32Z",
+      "side": 1,
+      "message": "can we merge these two ifs",
+      "range": {
+        "startLine": 134,
+        "startChar": 1,
+        "endLine": 139,
+        "endChar": 39
+      },
+      "revId": "803194b63bc2296fa8389d1ed5d6eef321182c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5efc3d62_bb1aa841",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1245,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-17T20:30:32Z",
+      "side": 1,
+      "message": "Is the ! here correctly doing the flipping of a bool? Is this not just flipping every bit? So say fShaderFlags \u003d 0x10. Then (fShaderFlags \u0026 kDynamic)-\u003e0x10. Then !(fShaderFlags \u0026 kDynamic)-\u003e0x01? Do you need !SkToBool(fShaderFlags \u0026 kDynamic));",
+      "range": {
+        "startLine": 1245,
+        "startChar": 52,
+        "endLine": 1245,
+        "endChar": 97
+      },
+      "revId": "803194b63bc2296fa8389d1ed5d6eef321182c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
