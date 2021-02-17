@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff7d6b0f_c6b0f40b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-17T17:09:18Z",
+      "side": 1,
+      "message": "This API doesn\u0027t exist any more, it\u0027s handled via Options.",
+      "revId": "73dd083506fd240b4d99981791e612218bc68580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
