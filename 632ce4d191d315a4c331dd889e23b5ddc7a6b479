@@ -22,6 +22,30 @@
       },
       "revId": "632ce4d191d315a4c331dd889e23b5ddc7a6b479",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f89ad03_8d5654d2",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2046,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-17T15:59:31Z",
+      "side": 1,
+      "message": "Reworded to clarify that we\u0027re talking about the result type.",
+      "parentUuid": "39a5189f_c7f263eb",
+      "range": {
+        "startLine": 2046,
+        "startChar": 25,
+        "endLine": 2046,
+        "endChar": 63
+      },
+      "revId": "632ce4d191d315a4c331dd889e23b5ddc7a6b479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
