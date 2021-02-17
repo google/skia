@@ -725,9 +725,9 @@ void direct_2D(SkZip<Mask2DVertex[4],
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         SkScalar dl = leftTop[0] + integralOriginOffset.x(),
-                dt = leftTop[1] + integralOriginOffset.y(),
-                dr = dl + (ar - al),
-                db = dt + (ab - at);
+                 dt = leftTop[1] + integralOriginOffset.y(),
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
 
         quad[0] = {{dl, dt}, color, {al, at}};  // L,T
         quad[1] = {{dl, db}, color, {al, ab}};  // L,B

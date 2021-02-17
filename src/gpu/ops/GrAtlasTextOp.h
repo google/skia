@@ -29,18 +29,30 @@ public:
     static const int kIndicesPerGlyph = 6;
 
     struct Geometry {
+        Geometry(const GrAtlasSubRun& subRun,
+                 const SkMatrix& drawMatrix,
+                 SkPoint drawOrigin,
+                 SkIRect clipRect,
+                 GrTextBlob* blob,
+                 const SkPMColor4f& color)
+            : fSubRun{subRun}
+            , fDrawMatrix{drawMatrix}
+            , fDrawOrigin{drawOrigin}
+            , fClipRect{clipRect}
+            , fBlob{blob}
+            , fColor{color} {}
         void fillVertexData(void* dst, int offset, int count) const;
 
         const GrAtlasSubRun& fSubRun;
-        const SkMatrix       fDrawMatrix;
-        const SkPoint        fDrawOrigin;
-        const SkIRect        fClipRect;
-        GrTextBlob* const    fBlob;  // mutable to make unref call in Op dtor.
+        const SkMatrix fDrawMatrix;
+        const SkPoint fDrawOrigin;
+        const SkIRect fClipRect;
+        GrTextBlob* const fBlob;  // mutable to make unref call in Op dtor.
 
         // Color is updated after processor analysis if it was determined the shader resolves to
         // a constant color that we then evaluate on the CPU.
         // TODO: This can be made const once processor analysis is separated from op creation.
-        SkPMColor4f          fColor;
+        SkPMColor4f fColor;
     };
 
     const char* name() const override { return "AtlasTextOp"; }
@@ -78,6 +90,16 @@ public:
 private:
     friend class GrOp; // for ctor
 
+    struct FlushInfo {
+        sk_sp<const GrBuffer> fVertexBuffer;
+        sk_sp<const GrBuffer> fIndexBuffer;
+        GrGeometryProcessor*  fGeometryProcessor;
+        const GrSurfaceProxy** fPrimProcProxies;
+        int fGlyphsToFlush = 0;
+        int fVertexOffset = 0;
+        int fNumDraws = 0;
+    };
+
     GrAtlasTextOp(MaskType maskType,
                   bool needsTransform,
                   int glyphCount,
@@ -94,16 +116,6 @@ private:
                   uint32_t DFGPFlags,
                   const Geometry& geo,
                   GrPaint&& paint);
-
-    struct FlushInfo {
-        sk_sp<const GrBuffer> fVertexBuffer;
-        sk_sp<const GrBuffer> fIndexBuffer;
-        GrGeometryProcessor*  fGeometryProcessor;
-        const GrSurfaceProxy** fPrimProcProxies;
-        int fGlyphsToFlush = 0;
-        int fVertexOffset = 0;
-        int fNumDraws = 0;
-    };
 
     GrProgramInfo* programInfo() override {
         // TODO [PI]: implement
