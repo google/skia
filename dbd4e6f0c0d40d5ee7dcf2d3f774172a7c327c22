@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3aa26e4b_7938f994",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-17T15:44:14Z",
+      "side": 0,
+      "message": "Was here for GrSLType",
+      "revId": "dbd4e6f0c0d40d5ee7dcf2d3f774172a7c327c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
