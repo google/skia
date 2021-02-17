@@ -412,6 +412,12 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         // On discrete GPUs it can be faster to read gpu only memory compared to memory that is also
         // mappable on the host.
         fGpuOnlyBuffersMorePerformant = true;
+
+        // On discrete GPUs we try to use special DEVICE_LOCAL and HOST_VISIBLE memory for our
+        // cpu write, gpu read buffers. This memory is not ideal to be kept persistently mapped. For
+        // now on these GPUs we just always say to not persistently map even if some GPUs do not
+        // have this special memory. However, most GPUs with updated drivers do expose it.
+        fShouldPersistentlyMapCpuToGpuBuffers = false;
     }
 
     if (kQualcomm_VkVendor == properties.vendorID) {
