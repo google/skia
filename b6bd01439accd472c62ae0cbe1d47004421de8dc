@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b824f918_a0357617",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-17T16:15:19Z",
+      "side": 1,
+      "message": "I\u0027m guessing because we\u0027re already in the destructor. It\u0027s questionable (at best) to be calling codeAppend(*this) from there, right?",
+      "parentUuid": "cf93f9f6_acb48374",
+      "revId": "b6bd01439accd472c62ae0cbe1d47004421de8dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5b8c1473_e35c6e65",
         "filename": "src/sksl/dsl/DSLExpression.cpp",
         "patchSetId": 1
