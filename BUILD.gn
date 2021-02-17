@@ -258,6 +258,7 @@ template("optional") {
                              "*",
                              [
                                "public_defines",
+                               "sources_for_tests",
                                "sources_when_disabled",
                                "configs_to_remove",
                              ])
@@ -265,6 +266,28 @@ template("optional") {
       configs += skia_library_configs
       if (defined(invoker.configs_to_remove)) {
         configs -= invoker.configs_to_remove
+      }
+    }
+    if (defined(invoker.sources_for_tests) && skia_enable_tools) {
+      source_set(target_name + "_tests") {
+        check_includes = false
+        forward_variables_from(invoker,
+                               "*",
+                               [
+                                 "public_defines",
+                                 "sources",
+                                 "sources_for_tests",
+                                 "sources_when_disabled",
+                                 "configs_to_remove",
+                               ])
+        testonly = true
+        sources = invoker.sources_for_tests
+        deps += [ ":test" ]
+        all_dependent_configs = [ ":" + target_name + "_public" ]
+        configs += skia_library_configs
+        if (defined(invoker.configs_to_remove)) {
+          configs -= invoker.configs_to_remove
+        }
       }
     }
   } else {
@@ -279,6 +302,7 @@ template("optional") {
                                "libs",
                                "frameworks",
                                "sources",
+                               "sources_for_tests",
                                "sources_when_disabled",
                                "configs_to_remove",
                              ])
@@ -286,6 +310,10 @@ template("optional") {
         sources = invoker.sources_when_disabled
       }
       configs += skia_library_configs
+    }
+    if (defined(invoker.sources_for_tests)) {
+      source_set(target_name + "_tests") {
+      }
     }
   }
 }
@@ -327,6 +355,7 @@ optional("fontmgr_android") {
     "src/ports/SkFontMgr_android_parser.cpp",
     "src/ports/SkFontMgr_android_parser.h",
   ]
+  sources_for_tests = [ "tests/FontMgrAndroidParserTest.cpp" ]
 }
 optional("fontmgr_android_factory") {
   enabled = skia_enable_fontmgr_android
@@ -399,6 +428,7 @@ optional("fontmgr_fontconfig") {
   public = [ "include/ports/SkFontMgr_fontconfig.h" ]
   deps = [ ":typeface_freetype" ]
   sources = [ "src/ports/SkFontMgr_fontconfig.cpp" ]
+  sources_for_tests = [ "tests/FontMgrFontConfigTest.cpp" ]
 }
 optional("fontmgr_fontconfig_factory") {
   enabled = skia_enable_fontmgr_fontconfig
@@ -1899,6 +1929,23 @@ if (skia_enable_tools) {
     }
   }
 
+  test_lib("test") {
+    sources = [
+      "tests/Test.cpp",
+      "tests/Test.h",
+      "tests/TestUtils.cpp",
+      "tests/TestUtils.h",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+      ":tool_utils",
+    ]
+    public_deps = [
+      ":gpu_tool_utils",  # Test.h #includes headers from this target.
+    ]
+  }
+
   import("gn/tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources
@@ -1911,15 +1958,12 @@ if (skia_enable_tools) {
     if (skia_use_gl) {
       sources += gl_tests_sources
     }
-    if (!skia_enable_fontmgr_android) {
-      sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
-    }
-    if (!skia_enable_fontmgr_fontconfig) {
-      sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
-    }
     deps = [
       ":flags",
+      ":fontmgr_android_tests",
+      ":fontmgr_fontconfig_tests",
       ":skia",
+      ":test",
       ":tool_utils",
       "experimental/skrive:tests",
       "modules/skottie:tests",
@@ -1930,9 +1974,6 @@ if (skia_enable_tools) {
       "//third_party/libpng",
       "//third_party/libwebp",
       "//third_party/zlib",
-    ]
-    public_deps = [
-      ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
   }
 

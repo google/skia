@@ -38,8 +38,8 @@ if (skia_enable_skrive) {
 
         deps = [
           ":skrive",
-          "../..:gpu_tool_utils",
           "../..:skia",
+          "../..:test",
         ]
       }
     }

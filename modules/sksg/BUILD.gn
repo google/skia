@@ -24,13 +24,12 @@ if (defined(is_skia_standalone) && skia_enable_tools) {
 
     configs += [
       "../..:skia_private",
-      "../..:tests_config",  # TODO: refactor to make this nicer
     ]
     sources = [ "tests/SGTest.cpp" ]
     deps = [
       ":sksg",
-      "../..:gpu_tool_utils",  # TODO: refactor to make this nicer
       "../..:skia",
+      "../..:test",
     ]
   }
 

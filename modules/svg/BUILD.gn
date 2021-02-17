@@ -48,14 +48,13 @@ if (skia_enable_svg) {
 
       configs += [
         "../..:skia_private",
-        "../..:tests_config",
       ]
       sources = [ "tests/Text.cpp" ]
 
       deps = [
         ":svg",
-        "../..:gpu_tool_utils",
         "../..:skia",
+        "../..:test",
       ]
     }
   }
