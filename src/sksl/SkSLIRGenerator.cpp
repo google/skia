@@ -472,6 +472,10 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
             this->errorReporter().error(value->fOffset,
                                         "'in' variables cannot use initializer expressions");
         }
+        if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+            this->errorReporter().error(value->fOffset,
+                                        "'uniform' variables cannot use initializer expressions");
+        }
         value = this->coerce(std::move(value), *type);
         if (!value) {
             return {};

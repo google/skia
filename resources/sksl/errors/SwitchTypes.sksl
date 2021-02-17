@@ -1,5 +1,5 @@
-uniform float uf = 1;
-uniform int ui = 1;
+uniform float uf;
+uniform int ui;
 const float cf = 1;
 const int ci = 1;
 int i = 1;
