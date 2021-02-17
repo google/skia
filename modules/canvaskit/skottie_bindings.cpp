@@ -120,6 +120,37 @@ private:
     const emscripten::val fSoundMap;
 };
 
+class Logger final : public skottie::Logger {
+public:
+    JSArray getLogs(Level lvl) const {
+        JSArray js_logs = emscripten::val::array();
+
+        for (const auto& log : fLogs) {
+            if (log.lvl == lvl) {
+                JSObject js_log = emscripten::val::object();
+                js_log.set("message", log.msg);
+                js_log.set("json", log.json);
+                js_logs.call<void>("push", js_log);
+            }
+        }
+
+        return js_logs;
+    }
+
+private:
+    struct Entry {
+        Level       lvl;
+        std::string msg,
+                    json;
+    };
+
+    void log(Level lvl, const char msg[], const char* json) override {
+        fLogs.push_back({lvl, std::string(msg), std::string(json)});
+    }
+
+    std::vector<Entry> fLogs;
+};
+
 class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
@@ -131,15 +162,19 @@ public:
         static constexpr char kInterceptPrefix[] = "__";
         auto pinterceptor =
             sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(rp, kInterceptPrefix);
+        auto logger = sk_make_sp<Logger>();
         auto animation = skottie::Animation::Builder()
                             .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())
                             .setResourceProvider(std::move(rp))
                             .setPrecompInterceptor(std::move(pinterceptor))
+                            .setLogger(logger)
                             .make(json.c_str(), json.size());
 
         return animation
-            ? sk_sp<ManagedAnimation>(new ManagedAnimation(std::move(animation), std::move(mgr)))
+            ? sk_sp<ManagedAnimation>(new ManagedAnimation(std::move(animation),
+                                                           std::move(mgr),
+                                                           std::move(logger)))
             : nullptr;
     }
 
@@ -211,14 +246,26 @@ public:
         return markers;
     }
 
+    JSArray getErrors() const {
+        return fLogger->getLogs(skottie::Logger::Level::kError);
+    }
+
+    JSArray getWarnings() const {
+        return fLogger->getLogs(skottie::Logger::Level::kWarning);
+    }
+
 private:
     ManagedAnimation(sk_sp<skottie::Animation> animation,
-                     std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr)
+                     std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr,
+                     sk_sp<Logger> logger)
         : fAnimation(std::move(animation))
-        , fPropMgr(std::move(propMgr)) {}
+        , fPropMgr(std::move(propMgr))
+        , fLogger(std::move(logger))
+    {}
 
-    sk_sp<skottie::Animation>                             fAnimation;
-    std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
+    const sk_sp<skottie::Animation>                             fAnimation;
+    const std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
+    const sk_sp<Logger>                                         fLogger;
 };
 
 } // anonymous ns
@@ -290,7 +337,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("setOpacity", &ManagedAnimation::setOpacity)
         .function("getMarkers", &ManagedAnimation::getMarkers)
         .function("getColorProps"  , &ManagedAnimation::getColorProps)
-        .function("getOpacityProps", &ManagedAnimation::getOpacityProps);
+        .function("getOpacityProps", &ManagedAnimation::getOpacityProps)
+        .function("getErrors"  , &ManagedAnimation::getErrors)
+        .function("getWarnings", &ManagedAnimation::getWarnings);
 
     function("_MakeManagedAnimation", optional_override([](std::string json,
                                                            size_t assetCount,
