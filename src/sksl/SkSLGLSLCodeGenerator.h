@@ -55,8 +55,7 @@ public:
                       OutputStream* out)
     : INHERITED(program, errors, out)
     , fLineEnding("\n")
-    , fContext(*context)
-    , fProgramKind(program->fKind) {}
+    , fContext(*context) {}
 
     bool generateCode() override;
 
@@ -181,7 +180,6 @@ protected:
     StringStream fGlobals;
     StringStream fExtraFunctions;
     String fFunctionHeader;
-    ProgramKind fProgramKind;
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;

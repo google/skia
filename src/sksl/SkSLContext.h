@@ -17,8 +17,7 @@
 
 namespace SkSL {
 
-struct ProgramSettings;
-enum class ProgramKind : int8_t;
+struct ProgramConfig;
 
 /**
  * Contains compiler-wide objects, which currently means the core types.
@@ -32,6 +31,9 @@ public:
 
     // The Context holds a reference to our error reporter.
     ErrorReporter& fErrors;
+
+    // The Context holds a pointer to the configuration of the program being compiled.
+    ProgramConfig* fConfig = nullptr;
 
     // A sentinel expression used to mark that a variable has a value during dataflow analysis (when
     // it could have several different values, or the analyzer is otherwise unable to assign it a

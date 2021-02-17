@@ -520,7 +520,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 }
                 break;
             case FunctionClass::kDFdy:
-                if (fProgram.fSettings.fFlipY) {
+                if (fProgram.fConfig->fSettings.fFlipY) {
                     // Flipping Y also negates the Y derivatives.
                     this->write("-dFdy");
                     nameWritten = true;
@@ -706,7 +706,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         separator = ", ";
         this->writeExpression(*arg, Precedence::kSequence);
     }
-    if (fProgram.fSettings.fSharpenTextures && isTextureFunctionWithBias) {
+    if (fProgram.fConfig->fSettings.fSharpenTextures && isTextureFunctionWithBias) {
         this->write(", -0.5");
     }
     this->write(")");
@@ -755,7 +755,7 @@ void GLSLCodeGenerator::writeFragCoord() {
     // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
     // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
     // declaration varies in earlier GLSL specs. So it is simpler to omit it.
-    if (!fProgram.fSettings.fFlipY) {
+    if (!fProgram.fConfig->fSettings.fFlipY) {
         this->write("gl_FragCoord");
     } else if (const char* extension = fProgram.fCaps->fragCoordConventionsExtensionString()) {
         if (!fSetupFragPositionGlobal) {
@@ -796,7 +796,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write("u_skRTHeight");
             break;
         case SK_CLOCKWISE_BUILTIN:
-            this->write(fProgram.fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
+            this->write(fProgram.fConfig->fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
             break;
         case SK_SAMPLEMASK_BUILTIN:
             SkASSERT(fProgram.fCaps->sampleMaskSupport());
@@ -873,7 +873,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
-    bool positionWorkaround = fProgramKind == ProgramKind::kVertex &&
+    bool positionWorkaround = fProgram.fConfig->fKind == ProgramKind::kVertex &&
                               op.isAssignment() &&
                               left.is<FieldAccess>() &&
                               is_sk_position(left.as<FieldAccess>()) &&
@@ -1082,8 +1082,8 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
         if (globalContext &&
             fProgram.fCaps->generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
-            this->write(fProgramKind == ProgramKind::kVertex ? "attribute "
-                                                             : "varying ");
+            this->write(fProgram.fConfig->fKind == ProgramKind::kVertex ? "attribute "
+                                                                        : "varying ");
         } else {
             this->write("in ");
         }
@@ -1175,14 +1175,14 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
             case Type::TypeKind::kScalar:
                 if (type == *fContext.fTypes.fShort || type == *fContext.fTypes.fUShort ||
                     type == *fContext.fTypes.fByte || type == *fContext.fTypes.fUByte) {
-                    if (fProgram.fSettings.fForceHighPrecision ||
+                    if (fProgram.fConfig->fSettings.fForceHighPrecision ||
                             fProgram.fCaps->incompleteShortIntPrecision()) {
                         return "highp ";
                     }
                     return "mediump ";
                 }
                 if (type == *fContext.fTypes.fHalf) {
-                    return fProgram.fSettings.fForceHighPrecision ? "highp " : "mediump ";
+                    return fProgram.fConfig->fSettings.fForceHighPrecision ? "highp " : "mediump ";
                 }
                 if (type == *fContext.fTypes.fFloat || type == *fContext.fTypes.fInt ||
                         type == *fContext.fTypes.fUInt) {
@@ -1456,7 +1456,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
                 this->writeLine();
             } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                        fProgram.fCaps->mustDeclareFragmentShaderOutput()) {
-                if (fProgram.fSettings.fFragColorIsInOut) {
+                if (fProgram.fConfig->fSettings.fFragColorIsInOut) {
                     this->write("inout ");
                 } else {
                     this->write("out ");
@@ -1517,7 +1517,7 @@ void GLSLCodeGenerator::writeInputVars() {
 
 bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
-    if (ProgramKind::kGeometry == fProgramKind &&
+    if (fProgram.fConfig->fKind == ProgramKind::kGeometry &&
         fProgram.fCaps->geometryShaderExtensionString()) {
         this->writeExtension(fProgram.fCaps->geometryShaderExtensionString());
     }
@@ -1547,7 +1547,7 @@ bool GLSLCodeGenerator::generateCode() {
 
     if (!fProgram.fCaps->canUseFragCoord()) {
         Layout layout;
-        switch (fProgram.fKind) {
+        switch (fProgram.fConfig->fKind) {
             case ProgramKind::kVertex: {
                 Modifiers modifiers(layout, Modifiers::kOut_Flag);
                 this->writeModifiers(modifiers, true);

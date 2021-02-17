@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCFGGenerator.h"
@@ -19,6 +20,7 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLMetalCodeGenerator.h"
 #include "src/sksl/SkSLOperators.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLSPIRVCodeGenerator.h"
 #include "src/sksl/SkSLSPIRVtoHLSL.h"
@@ -1578,9 +1580,16 @@ std::unique_ptr<Program> Compiler::convertProgram(
     // *then* configure the inliner with the settings for this program.
     const ParsedModule& baseModule = this->moduleForProgramKind(kind);
 
+    // Update our context to point to the program configuration for the duration of compilation.
+    auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
+
+    SkASSERT(!fContext->fConfig);
+    fContext->fConfig = config.get();
+    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
+
     fErrorText = "";
     fErrorCount = 0;
-    fInliner.reset(fIRGenerator->fModifiers.get(), &settings);
+    fInliner.reset(fIRGenerator->fModifiers.get(), &config->fSettings);
 
     // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     std::unique_ptr<String> textPtr(new String(std::move(text)));
@@ -1596,9 +1605,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
                                          textPtr->c_str(), textPtr->size(), externalFunctions);
-    auto program = std::make_unique<Program>(kind,
-                                             std::move(textPtr),
-                                             settings,
+    auto program = std::make_unique<Program>(std::move(textPtr),
+                                             std::move(config),
                                              fCaps,
                                              fContext,
                                              std::move(ir.fElements),
@@ -1676,12 +1684,22 @@ void Compiler::verifyStaticTests(const Program& program) {
 
 bool Compiler::optimize(LoadedModule& module) {
     SkASSERT(!fErrorCount);
-    Program::Settings settings;
-    fIRGenerator->fKind = module.fKind;
-    fIRGenerator->fSettings = &settings;
-    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
-    fInliner.reset(fModifiers.back().get(), &settings);
+    // Create a temporary program configuration with default settings.
+    ProgramConfig config;
+    config.fKind = module.fKind;
+
+    // Update our context to point to this configuration for the duration of compilation.
+    SkASSERT(!fContext->fConfig);
+    fContext->fConfig = &config;
+    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
+
+    // Set this configuration in the IR Generator and Inliner.
+    fIRGenerator->fKind = config.fKind;
+    fIRGenerator->fSettings = &config.fSettings;
+    fInliner.reset(fModifiers.back().get(), &config.fSettings);
+
+    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
     while (fErrorCount == 0) {
         bool madeChanges = false;
@@ -1705,8 +1723,8 @@ bool Compiler::optimize(LoadedModule& module) {
 
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
-    fIRGenerator->fKind = program.fKind;
-    fIRGenerator->fSettings = &program.fSettings;
+    fIRGenerator->fKind = program.fConfig->fKind;
+    fIRGenerator->fSettings = &program.fConfig->fSettings;
     ProgramUsage* usage = program.fUsage.get();
 
     while (fErrorCount == 0) {
@@ -1724,7 +1742,7 @@ bool Compiler::optimize(Program& program) {
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
-        if (program.fSettings.fRemoveDeadFunctions) {
+        if (program.fConfig->fSettings.fRemoveDeadFunctions) {
             auto isDeadFunction = [&](const ProgramElement* element) {
                 if (!element->is<FunctionDefinition>()) {
                     return false;
@@ -1749,7 +1767,7 @@ bool Compiler::optimize(Program& program) {
                     program.fSharedElements.end());
         }
 
-        if (program.fKind != ProgramKind::kFragmentProcessor) {
+        if (program.fConfig->fKind != ProgramKind::kFragmentProcessor) {
             // Remove declarations of dead global variables
             auto isDeadVariable = [&](const ProgramElement* element) {
                 if (!element->is<GlobalVarDeclaration>()) {
@@ -1795,7 +1813,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     AutoSource as(this, program.fSource.get());
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
-    if (result && program.fSettings.fValidateSPIRV) {
+    if (result && program.fConfig->fSettings.fValidateSPIRV) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
         const String& data = buffer.str();
         SkASSERT(0 == data.size() % 4);
