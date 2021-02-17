@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b5434d5_01a5e0bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T16:18:49Z",
+      "side": 1,
+      "message": "Yep, already destroying it. I figured it might actually work... but it smelled bad enough that I changed the signature instead.",
+      "parentUuid": "cf93f9f6_acb48374",
+      "revId": "b6bd01439accd472c62ae0cbe1d47004421de8dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b8c1473_e35c6e65",
@@ -67,6 +85,30 @@
       "writtenOn": "2021-02-17T16:09:00Z",
       "side": 1,
       "message": "tiny nit: accidentally removed whitespace",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 1
+      },
+      "revId": "b6bd01439accd472c62ae0cbe1d47004421de8dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07b93e6d_10d66f5b",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T16:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5b8c1473_e35c6e65",
       "range": {
         "startLine": 79,
         "startChar": 0,
