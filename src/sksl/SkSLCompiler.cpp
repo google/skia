@@ -647,10 +647,13 @@ static void delete_right(BasicBlock* b,
 /**
  * Constructs the specified type using a single argument.
  */
-static std::unique_ptr<Expression> construct(const Type* type, std::unique_ptr<Expression> v) {
+static std::unique_ptr<Expression> construct(const Context& context,
+                                             const Type* type,
+                                             std::unique_ptr<Expression> v) {
     ExpressionArray args;
     args.push_back(std::move(v));
-    std::unique_ptr<Expression> result = std::make_unique<Constructor>(-1, type, std::move(args));
+    std::unique_ptr<Expression> result = Constructor::Make(context, /*offset=*/-1, *type,
+                                                           std::move(args));
     return result;
 }
 
@@ -658,7 +661,8 @@ static std::unique_ptr<Expression> construct(const Type* type, std::unique_ptr<E
  * Used in the implementations of vectorize_left and vectorize_right. Given a vector type and an
  * expression x, deletes the expression pointed to by iter and replaces it with <type>(x).
  */
-static void vectorize(BasicBlock* b,
+static void vectorize(const Context& context,
+                      BasicBlock* b,
                       std::vector<BasicBlock::Node>::iterator* iter,
                       const Type& type,
                       std::unique_ptr<Expression>* otherExpression,
@@ -669,10 +673,10 @@ static void vectorize(BasicBlock* b,
     optimizationContext->fUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     if (!b->tryRemoveExpression(iter)) {
-        *target = construct(&type, std::move(*otherExpression));
+        *target = construct(context, &type, std::move(*otherExpression));
         optimizationContext->fNeedsRescan = true;
     } else {
-        *target = construct(&type, std::move(*otherExpression));
+        *target = construct(context, &type, std::move(*otherExpression));
         if (!b->tryInsertExpression(iter, target)) {
             optimizationContext->fNeedsRescan = true;
         }
@@ -683,26 +687,28 @@ static void vectorize(BasicBlock* b,
  * Given a binary expression of the form x <op> vec<n>(y), deletes the right side and vectorizes the
  * left to yield vec<n>(x).
  */
-static void vectorize_left(BasicBlock* b,
+static void vectorize_left(const Context& context,
+                           BasicBlock* b,
                            std::vector<BasicBlock::Node>::iterator* iter,
                            Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
     // Remove references within RHS. Vectorization of LHS doesn't change reference counts.
     optimizationContext->fUsage->remove(bin.right().get());
-    vectorize(b, iter, bin.right()->type(), &bin.left(), optimizationContext);
+    vectorize(context, b, iter, bin.right()->type(), &bin.left(), optimizationContext);
 }
 
 /**
  * Given a binary expression of the form vec<n>(x) <op> y, deletes the left side and vectorizes the
  * right to yield vec<n>(y).
  */
-static void vectorize_right(BasicBlock* b,
+static void vectorize_right(const Context& context,
+                            BasicBlock* b,
                             std::vector<BasicBlock::Node>::iterator* iter,
                             Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
     // Remove references within LHS. Vectorization of RHS doesn't change reference counts.
     optimizationContext->fUsage->remove(bin.left().get());
-    vectorize(b, iter, bin.left()->type(), &bin.right(), optimizationContext);
+    vectorize(context, b, iter, bin.left()->type(), &bin.right(), optimizationContext);
 }
 
 void Compiler::simplifyExpression(DefinitionMap& definitions,
@@ -778,7 +784,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(left, 1)) {
                         if (leftType.isVector() && rightType.isScalar()) {
                             // float4(1) * x -> float4(x)
-                            vectorize_right(&b, iter, optimizationContext);
+                            vectorize_right(*fContext, &b, iter, optimizationContext);
                         } else {
                             // 1 * x -> x
                             // 1 * float4(x) -> float4(x)
@@ -790,7 +796,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (leftType.isScalar() && rightType.isVector() &&
                             !right.hasSideEffects()) {
                             // 0 * float4(x) -> float4(0)
-                            vectorize_left(&b, iter, optimizationContext);
+                            vectorize_left(*fContext, &b, iter, optimizationContext);
                         } else {
                             // 0 * x -> 0
                             // float4(0) * x -> float4(0)
@@ -803,7 +809,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     else if (is_constant(right, 1)) {
                         if (leftType.isScalar() && rightType.isVector()) {
                             // x * float4(1) -> float4(x)
-                            vectorize_left(&b, iter, optimizationContext);
+                            vectorize_left(*fContext, &b, iter, optimizationContext);
                         } else {
                             // x * 1 -> x
                             // float4(x) * 1 -> float4(x)
@@ -814,7 +820,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     else if (is_constant(right, 0)) {
                         if (leftType.isVector() && rightType.isScalar() && !left.hasSideEffects()) {
                             // float4(x) * 0 -> float4(0)
-                            vectorize_right(&b, iter, optimizationContext);
+                            vectorize_right(*fContext, &b, iter, optimizationContext);
                         } else {
                             // x * 0 -> 0
                             // x * float4(0) -> float4(0)
@@ -829,7 +835,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(left, 0)) {
                         if (leftType.isVector() && rightType.isScalar()) {
                             // float4(0) + x -> float4(x)
-                            vectorize_right(&b, iter, optimizationContext);
+                            vectorize_right(*fContext, &b, iter, optimizationContext);
                         } else {
                             // 0 + x -> x
                             // 0 + float4(x) -> float4(x)
@@ -839,7 +845,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     } else if (is_constant(right, 0)) {
                         if (leftType.isScalar() && rightType.isVector()) {
                             // x + float4(0) -> float4(x)
-                            vectorize_left(&b, iter, optimizationContext);
+                            vectorize_left(*fContext, &b, iter, optimizationContext);
                         } else {
                             // x + 0 -> x
                             // float4(x) + 0 -> float4(x)
@@ -852,7 +858,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(right, 0)) {
                         if (leftType.isScalar() && rightType.isVector()) {
                             // x - float4(0) -> float4(x)
-                            vectorize_left(&b, iter, optimizationContext);
+                            vectorize_left(*fContext, &b, iter, optimizationContext);
                         } else {
                             // x - 0 -> x
                             // float4(x) - 0 -> float4(x)
@@ -865,7 +871,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(right, 1)) {
                         if (leftType.isScalar() && rightType.isVector()) {
                             // x / float4(1) -> float4(x)
-                            vectorize_left(&b, iter, optimizationContext);
+                            vectorize_left(*fContext, &b, iter, optimizationContext);
                         } else {
                             // x / 1 -> x
                             // float4(x) / 1 -> float4(x)
@@ -876,7 +882,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (leftType.isScalar() && rightType.isVector() &&
                             !right.hasSideEffects()) {
                             // 0 / float4(x) -> float4(0)
-                            vectorize_left(&b, iter, optimizationContext);
+                            vectorize_left(*fContext, &b, iter, optimizationContext);
                         } else {
                             // 0 / x -> 0
                             // float4(0) / x -> float4(0)
@@ -954,8 +960,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         }
                         currBit <<= 1;
                     }
-                    std::unique_ptr<Expression> replacement(new Constructor(c.fOffset, &c.type(),
-                                                                            std::move(flattened)));
+                    std::unique_ptr<Expression> replacement =
+                            Constructor::Make(*fContext, c.fOffset, c.type(), std::move(flattened));
                     // We're replacing an expression with a cloned version; we'll need a rescan.
                     // No fUsage change: `float2(float(x), y)` and `float2(x, y)` have equivalent
                     // reference counts.
@@ -1028,8 +1034,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (!replacement) {
                         ExpressionArray newArgs;
                         newArgs.push_back(argument.clone());
-                        replacement = std::make_unique<Constructor>(base.fOffset, &constructorType,
-                                                                    std::move(newArgs));
+                        replacement = Constructor::Make(*fContext, base.fOffset, constructorType,
+                                                        std::move(newArgs));
                     }
 
                     // We're replacing an expression with a cloned version; we'll need a rescan.
@@ -1150,9 +1156,10 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
 
                     // Create a new constructor.
-                    replacement = std::make_unique<Constructor>(
+                    replacement = Constructor::Make(
+                            *fContext,
                             base.fOffset,
-                            &componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
+                            componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
                             std::move(newArgs));
 
                     // Remove references within 'expr', add references within 'replacement.'
