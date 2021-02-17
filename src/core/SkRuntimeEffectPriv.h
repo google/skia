@@ -8,12 +8,6 @@
 #ifndef SkRuntimeEffectPriv_DEFINED
 #define SkRuntimeEffectPriv_DEFINED
 
-/*
- * Controls how much inlining is performed when compiling SkSL for SkRuntimeEffect instances.
- * See also: SkSL::Program::Settings::fInlineThreshold
- */
-void SkRuntimeEffect_SetInlineThreshold(int threshold);
-
 // This is mostly from skvm's rgb->hsl code, with some GPU-related finesse pulled from
 // GrHighContrastFilterEffect.fp, see next comment.
 constexpr char kRGB_to_HSL_sksl[] =

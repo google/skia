@@ -9,7 +9,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 
 #include "fuzz/Fuzz.h"
