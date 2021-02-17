@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "479fa7de_eedc1647",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T23:09:53Z",
+      "side": 1,
+      "message": "NOTE TO SELF: clean this up",
+      "range": {
+        "startLine": 141,
+        "startChar": 39,
+        "endLine": 141,
+        "endChar": 55
+      },
+      "revId": "ba0bae01c2f8111fd14269b47d4da4c1efbb491b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
