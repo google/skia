@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2119d5f8_ec1eaf72",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T19:50:11Z",
+      "side": 1,
+      "message": "Solved with spooky magic!",
+      "parentUuid": "8973d04f_c490849f",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 27
+      },
+      "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c749f59_3eeca9a2",
@@ -61,6 +85,30 @@
       "writtenOn": "2021-02-17T01:57:39Z",
       "side": 1,
       "message": "Isn\u0027t it cooler to do\n\n    Swizzle(sk_FragCoord(), X, Y, ONE)\n\n?",
+      "range": {
+        "startLine": 54,
+        "startChar": 57,
+        "endLine": 56,
+        "endChar": 66
+      },
+      "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d82c930_a139caf7",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T19:50:11Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8c749f59_3eeca9a2",
       "range": {
         "startLine": 54,
         "startChar": 57,
@@ -108,6 +156,30 @@
       "side": 1,
       "message": "For that matter, `Step` is the intrinsic that does _exactly_ this :)",
       "parentUuid": "a42e82ec_ec825ff5",
+      "range": {
+        "startLine": 60,
+        "startChar": 43,
+        "endLine": 60,
+        "endChar": 50
+      },
+      "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db749818_0a660cf7",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T19:50:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecc1d09a_c24f8fb7",
       "range": {
         "startLine": 60,
         "startChar": 43,
