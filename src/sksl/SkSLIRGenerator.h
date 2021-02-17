@@ -121,8 +121,6 @@ public:
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
     IRBundle convertProgram(
-            ProgramKind kind,
-            const Program::Settings* settings,
             const ParsedModule& base,
             bool isBuiltinCode,
             const char* text,
@@ -133,7 +131,8 @@ public:
     const Type* typeForSetting(int offset, String name) const;
     std::unique_ptr<Expression> valueForSetting(int offset, String name) const;
 
-    const Program::Settings* settings() const { return fSettings; }
+    const Program::Settings& settings() const { return fContext.fConfig->fSettings; }
+    ProgramKind programKind() const { return fContext.fConfig->fKind; }
 
     ErrorReporter& errorReporter() const { return fContext.fErrors; }
 
@@ -281,13 +280,12 @@ private:
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).
     bool strictES2Mode() const {
-        return fKind == ProgramKind::kRuntimeEffect || fKind == ProgramKind::kGeneric;
+        return this->programKind() == ProgramKind::kRuntimeEffect ||
+               this->programKind() == ProgramKind::kGeneric;
     }
 
     Program::Inputs fInputs;
-    const Program::Settings* fSettings = nullptr;
     const ShaderCapsClass* fCaps = nullptr;
-    ProgramKind fKind;
 
     std::unique_ptr<ASTFile> fFile;
 
