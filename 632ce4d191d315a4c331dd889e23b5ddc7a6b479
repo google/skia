@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39a5189f_c7f263eb",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2046,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T15:53:03Z",
+      "side": 1,
+      "message": "As a user, my first interpretation would be that it\u0027s talking about the ternary-test, not the ternary result type. Maybe rephrase?",
+      "range": {
+        "startLine": 2046,
+        "startChar": 25,
+        "endLine": 2046,
+        "endChar": 63
+      },
+      "revId": "632ce4d191d315a4c331dd889e23b5ddc7a6b479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
