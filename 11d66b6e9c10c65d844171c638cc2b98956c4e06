@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f05aeac_535c9934",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-17T16:26:54Z",
+      "side": 1,
+      "message": "No real preference. This is probably fine for now. (I also realize that the function being declared here doesn\u0027t exist any more, so I can remove that, and this file can be just snippets).",
+      "revId": "11d66b6e9c10c65d844171c638cc2b98956c4e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
