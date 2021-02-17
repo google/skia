@@ -1582,6 +1582,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fErrorCount = 0;
     fInliner.reset(fIRGenerator->fModifiers.get(), &settings);
 
+    fContext->fConfig = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
+
     // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     std::unique_ptr<String> textPtr(new String(std::move(text)));
     fSource = textPtr.get();
@@ -1596,9 +1598,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
                                          textPtr->c_str(), textPtr->size(), externalFunctions);
-    auto program = std::make_unique<Program>(kind,
-                                             std::move(textPtr),
-                                             settings,
+    auto program = std::make_unique<Program>(std::move(textPtr),
+                                             std::move(fContext->fConfig),
                                              fCaps,
                                              fContext,
                                              std::move(ir.fElements),
@@ -1705,8 +1706,8 @@ bool Compiler::optimize(LoadedModule& module) {
 
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
-    fIRGenerator->fKind = program.fKind;
-    fIRGenerator->fSettings = &program.fSettings;
+    fIRGenerator->fKind = program.fConfig->fKind;
+    fIRGenerator->fSettings = &program.fConfig->fSettings;
     ProgramUsage* usage = program.fUsage.get();
 
     while (fErrorCount == 0) {
@@ -1724,7 +1725,7 @@ bool Compiler::optimize(Program& program) {
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
-        if (program.fSettings.fRemoveDeadFunctions) {
+        if (program.fConfig->fSettings.fRemoveDeadFunctions) {
             auto isDeadFunction = [&](const ProgramElement* element) {
                 if (!element->is<FunctionDefinition>()) {
                     return false;
@@ -1749,7 +1750,7 @@ bool Compiler::optimize(Program& program) {
                     program.fSharedElements.end());
         }
 
-        if (program.fKind != ProgramKind::kFragmentProcessor) {
+        if (program.fConfig->fKind != ProgramKind::kFragmentProcessor) {
             // Remove declarations of dead global variables
             auto isDeadVariable = [&](const ProgramElement* element) {
                 if (!element->is<GlobalVarDeclaration>()) {
@@ -1795,7 +1796,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     AutoSource as(this, program.fSource.get());
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
-    if (result && program.fSettings.fValidateSPIRV) {
+    if (result && program.fConfig->fSettings.fValidateSPIRV) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
         const String& data = buffer.str();
         SkASSERT(0 == data.size() % 4);
