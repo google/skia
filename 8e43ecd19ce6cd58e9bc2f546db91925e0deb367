@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca0d15a6_4a1ce6c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T17:22:04Z",
+      "side": 1,
+      "message": "This is a good change, but one thing I\u0027d observe is that Metal\u0027s `select` call is slightly better than ours. It works when the input is a bvec. That is,\n\nbvec4 x \u003d bvec4(true,false,true,false);\nreturn select(x, float4(1), float4(0)); // --\u003e float4(1, 0, 1, 0)\n\nGLSL\u0027s equivalent is mix(X, Y, genBType)\n\nWe could just use mix in those cases, except it\u0027s not ES2, and we don\u0027t support this version of mix properly in SPIR-V today: \n\nhttp://osscs/chromium/chromium/src/+/master:third_party/skia/tests/sksl/intrinsics/MixBool.asm.frag",
+      "revId": "8e43ecd19ce6cd58e9bc2f546db91925e0deb367",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
