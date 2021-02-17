@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - The Skottie factory (MakeManagedAnimation) now accepts an optional logger object.
+
 ## [0.23.0] - 2021-02-04
 
 ### Added
