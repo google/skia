@@ -47,6 +47,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dec2a3b9_f6e607b5",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-17T19:50:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77869ea2_02eb2659",
+      "range": {
+        "startLine": 1240,
+        "startChar": 85,
+        "endLine": 1241,
+        "endChar": 25
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9bb3f13_566e168b",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-17T19:50:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5474715_e6c861cb",
+      "range": {
+        "startLine": 1241,
+        "startChar": 87,
+        "endLine": 1241,
+        "endChar": 90
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42db52c0_dddea4bb",
@@ -88,6 +136,54 @@
         "startChar": 36,
         "endLine": 1242,
         "endChar": 54
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba3c28a8_65a2e903",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-17T19:50:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22d03e22_9d59fcf2",
+      "range": {
+        "startLine": 1242,
+        "startChar": 36,
+        "endLine": 1242,
+        "endChar": 54
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "787cab41_1a9cad36",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-17T19:50:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42db52c0_dddea4bb",
+      "range": {
+        "startLine": 1242,
+        "startChar": 56,
+        "endLine": 1242,
+        "endChar": 82
       },
       "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
