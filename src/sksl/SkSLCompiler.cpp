@@ -280,16 +280,21 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     }
     const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
     AutoSource as(this, source);
-    Program::Settings settings;
+
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
-    settings.fReplaceSettings = false;
+
+    ProgramConfig config;
+    config.fKind = kind;
+    config.fSettings.fReplaceSettings = false;
+
+    fContext->fConfig = &config;
+    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
-    IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, baseModule,
-                                         /*isBuiltinCode=*/true, source->c_str(), source->length(),
-                                         /*externalFunctions=*/nullptr);
+    IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
+                                                            source->c_str(), source->length(),
+                                                            /*externalFunctions=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
     fIRGenerator->fCanInline = true;
@@ -1415,7 +1420,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             break;
                         } else {
                             if (s.isStatic() &&
-                                !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+                                !fContext->fConfig->fSettings.fPermitInvalidStaticTests) {
                                 auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
                                 if (didInsert) {
                                     this->error(s.fOffset, "static switch contains non-static "
@@ -1434,7 +1439,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             (*iter)->setStatement(std::move(newBlock), usage);
                         } else {
                             if (s.isStatic() &&
-                                !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+                                !fContext->fConfig->fSettings.fPermitInvalidStaticTests) {
                                 auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
                                 if (didInsert) {
                                     this->error(s.fOffset, "static switch contains non-static "
@@ -1589,7 +1594,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     fErrorText = "";
     fErrorCount = 0;
-    fInliner.reset(fIRGenerator->fModifiers.get(), &config->fSettings);
+    fInliner.reset(fIRGenerator->fModifiers.get());
 
     // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     std::unique_ptr<String> textPtr(new String(std::move(text)));
@@ -1602,9 +1607,9 @@ std::unique_ptr<Program> Compiler::convertProgram(
         pool = Pool::Create();
         pool->attachToThread();
     }
-    IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
-                                         textPtr->c_str(), textPtr->size(), externalFunctions);
+    IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
+                                                            textPtr->c_str(), textPtr->size(),
+                                                            externalFunctions);
     auto program = std::make_unique<Program>(std::move(textPtr),
                                              std::move(config),
                                              fCaps,
@@ -1669,7 +1674,7 @@ void Compiler::verifyStaticTests(const Program& program) {
     };
 
     // If invalid static tests are permitted, we don't need to check anything.
-    if (fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+    if (fContext->fConfig->fSettings.fPermitInvalidStaticTests) {
         return;
     }
 
@@ -1694,10 +1699,8 @@ bool Compiler::optimize(LoadedModule& module) {
     fContext->fConfig = &config;
     SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
 
-    // Set this configuration in the IR Generator and Inliner.
-    fIRGenerator->fKind = config.fKind;
-    fIRGenerator->fSettings = &config.fSettings;
-    fInliner.reset(fModifiers.back().get(), &config.fSettings);
+    // Reset the Inliner.
+    fInliner.reset(fModifiers.back().get());
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
@@ -1723,8 +1726,6 @@ bool Compiler::optimize(LoadedModule& module) {
 
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
-    fIRGenerator->fKind = program.fConfig->fKind;
-    fIRGenerator->fSettings = &program.fConfig->fSettings;
     ProgramUsage* usage = program.fUsage.get();
 
     while (fErrorCount == 0) {
