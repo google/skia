@@ -1532,10 +1532,12 @@ int main(int argc, char** argv) {
     }
     gather_gold();
     gather_uninteresting_hashes();
-
+    info("Gathering sources\n");
     if (!gather_srcs()) {
+        info("Failed to gather sources, exiting.\n");
         return 1;
     }
+    info("Gathered sources!");
     // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
     bool defaultConfigs = true;
     for (int i = 0; i < argc; i++) {
@@ -1545,10 +1547,14 @@ int main(int argc, char** argv) {
             break;
         }
     }
+    info("Gathering sinks");
     if (!gather_sinks(grCtxOptions, defaultConfigs)) {
+        info("failed to gather sinks");
         return 1;
     }
+    info("Gathering tests");
     gather_tests();
+    info("Gathered tests");
     gPending = gSrcs->count() * gSinks->count() + gParallelTests->count() + gSerialTests->count();
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
          gSrcs->count(), gSinks->count(), gParallelTests->count() + gSerialTests->count(),
