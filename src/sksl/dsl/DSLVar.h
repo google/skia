@@ -119,6 +119,8 @@ private:
     const SkSL::Variable* fVar = nullptr;
     const char* fName;
 
+    friend DSLVar sk_SampleCoord();
+
     friend class DSLCore;
     friend class DSLExpression;
     friend class DSLWriter;
