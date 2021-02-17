@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9e88ce7_e04646ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-17T16:59:10Z",
+      "side": 1,
+      "message": "This will eventually need a test, but currently waiting on macOS 11 bots (issue 11334). This shouldn\u0027t cause any harm, but seems to fix some issues.",
+      "revId": "ee30b65f5a7ad0138a3a62d54d8b88adfc92557e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
