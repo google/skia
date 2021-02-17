@@ -1,9 +1,12 @@
+float gInitialized_0 = -1.0;
+float gInitializedFromOther_0 = -gInitialized_0;
+float gUninitialized_0;
 void init_globals_0()
 {
-	gUninitialized = gInitialized + 2.0;
+	gUninitialized_0 = gInitialized_0 + 2.0;
 }
 float4 main()
 {
 	init_globals_0();
-	return half4(float4(0.0, gInitializedFromOther, 0.0, gUninitialized));
+	return half4(float4(0.0, gInitializedFromOther_0, 0.0, gUninitialized_0));
 }

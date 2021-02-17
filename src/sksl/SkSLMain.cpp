@@ -423,6 +423,10 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                             fOutput += definition;
                         }
 
+                        void declareGlobal(const char* declaration) override {
+                            fOutput += declaration;
+                        }
+
                         String sampleChild(int index, String coords) override {
                             return String::printf("sample(%s%s%s)", fChildNames[index].c_str(),
                                                   coords.empty() ? "" : ", ", coords.c_str());

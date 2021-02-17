@@ -35,6 +35,7 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
 
         void defineFunction(const char* /*decl*/, const char* /*body*/, bool /*isMain*/) override {}
         void defineStruct(const char* /*definition*/) override {}
+        void declareGlobal(const char* /*declaration*/) override {}
 
         String sampleChild(int index, String coords) override {
             return SkSL::String::printf("sample(%d%s%s)", index, coords.empty() ? "" : ", ",
