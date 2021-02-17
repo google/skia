@@ -49,6 +49,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d2a10ba6_6359fa3e",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T19:11:10Z",
+      "side": 1,
+      "message": "I\u0027m a bit surprised you\u0027re not initializing this to \u0027nullptr\u0027",
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5c1336a0_14edc743",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 10
