@@ -12,13 +12,11 @@
 
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
-
-struct ProgramSettings;
-enum class ProgramKind : int8_t;
 
 /**
  * Contains compiler-wide objects, which currently means the core types.
@@ -32,6 +30,10 @@ public:
 
     // The Context holds a reference to our error reporter.
     ErrorReporter& fErrors;
+
+    // The Context holds the program configuration during IR generation.
+    // The configuration is moved into the Program object once the Program is created.
+    std::unique_ptr<ProgramConfig> fConfig;
 
     // A sentinel expression used to mark that a variable has a value during dataflow analysis (when
     // it could have several different values, or the analyzer is otherwise unable to assign it a
