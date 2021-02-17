@@ -15,8 +15,8 @@ DEPS = [
 
 def test_firebase_steps(api):
   """Test an APK on Firebase Testlab."""
-  wlist_file = api.vars.slave_dir.join('whitelist_devices.json')
-  apk_file = api.vars.slave_dir.join('out','devrel','skqp-universal-debug.apk')
+  wlist_file = api.vars.workdir.join('whitelist_devices.json')
+  apk_file = api.vars.workdir.join('out','devrel','skqp-universal-debug.apk')
   upload_path = 'skia-stephana-test/testing/skqp-universal-debug.apk'
   args = [
     'run_testlab',

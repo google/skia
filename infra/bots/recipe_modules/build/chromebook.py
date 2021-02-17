@@ -9,14 +9,14 @@ def compile_fn(api, checkout_root, out_dir):
   configuration = api.vars.builder_cfg.get('configuration')
   target_arch   = api.vars.builder_cfg.get('target_arch')
 
-  clang_linux = api.vars.slave_dir.join('clang_linux')
+  clang_linux = api.vars.workdir.join('clang_linux')
   # This is a pretty typical arm-linux-gnueabihf sysroot
-  sysroot_dir = api.vars.slave_dir.join('armhf_sysroot')
+  sysroot_dir = api.vars.workdir.join('armhf_sysroot')
 
   if 'arm' == target_arch:
     # This is the extra things needed to link against for the chromebook.
     #  For example, the Mali GL drivers.
-    gl_dir = api.vars.slave_dir.join('chromebook_arm_gles')
+    gl_dir = api.vars.workdir.join('chromebook_arm_gles')
     env = {'LD_LIBRARY_PATH': sysroot_dir.join('lib')}
     extra_asmflags = [
       '--target=armv7a-linux-gnueabihf',
@@ -51,7 +51,7 @@ def compile_fn(api, checkout_root, out_dir):
       '-L%s' % gl_dir.join('lib'),
     ]
   else:
-    gl_dir = api.vars.slave_dir.join('chromebook_x86_64_gles')
+    gl_dir = api.vars.workdir.join('chromebook_x86_64_gles')
     env = {}
     extra_asmflags = []
     extra_cflags = [

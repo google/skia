@@ -26,7 +26,7 @@ def RunSteps(api):
   api.vars.setup()
   checkout_root = api.path['start_dir']
   out_dir = api.vars.swarming_out_dir
-  lottie_files_src = api.vars.slave_dir.join('lottie-samples')
+  lottie_files_src = api.vars.workdir.join('lottie-samples')
   lottie_files_dir = '/tmp/lottie_files'
   # The lottie-web repo is DEP'd in. This links to its build directory
   # to make finding the lottie.min.js easier to reference from inside

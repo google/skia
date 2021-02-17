@@ -28,7 +28,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
     out: target directory for libEGL.so and libGLESv2.so
   """
   swiftshader_opts = ['-DBUILD_TESTS=OFF', '-DWARNINGS_AS_ERRORS=0']
-  cmake_bin = str(api.vars.slave_dir.join('cmake_linux', 'bin'))
+  cmake_bin = str(api.vars.workdir.join('cmake_linux', 'bin'))
   env = {
       'CC': cc,
       'CXX': cxx,
@@ -37,7 +37,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
 
   # Extra flags for MSAN, if necessary.
   if 'MSAN' in extra_tokens:
-    clang_linux = str(api.vars.slave_dir.join('clang_linux'))
+    clang_linux = str(api.vars.workdir.join('clang_linux'))
     libcxx_msan = clang_linux + '/msan'
     msan_cflags = ' '.join([
       '-fsanitize=memory',
@@ -70,9 +70,9 @@ def compile_fn(api, checkout_root, out_dir):
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
-  clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
-  win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
-  moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
+  clang_linux      = str(api.vars.workdir.join('clang_linux'))
+  win_toolchain    = str(api.vars.workdir.join('win_toolchain'))
+  moltenvk         = str(api.vars.workdir.join('moltenvk'))
 
   cc, cxx = None, None
   extra_cflags = []
@@ -88,7 +88,7 @@ def compile_fn(api, checkout_root, out_dir):
     XCODE_BUILD_VERSION = '11c29'
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
-    mac_toolchain_cmd = api.vars.slave_dir.join(
+    mac_toolchain_cmd = api.vars.workdir.join(
         'mac_toolchain', 'mac_toolchain')
     xcode_app_path = api.vars.cache_dir.join('Xcode.app')
     # Copied from
@@ -231,12 +231,12 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_opencl'] = 'true'
     if api.vars.is_linux:
       extra_cflags.append(
-          '-isystem%s' % api.vars.slave_dir.join('opencl_headers'))
+          '-isystem%s' % api.vars.workdir.join('opencl_headers'))
       extra_ldflags.append(
-          '-L%s' % api.vars.slave_dir.join('opencl_ocl_icd_linux'))
+          '-L%s' % api.vars.workdir.join('opencl_ocl_icd_linux'))
     elif 'Win' in os:
       extra_cflags.append(
-          '-imsvc%s' % api.vars.slave_dir.join('opencl_headers'))
+          '-imsvc%s' % api.vars.workdir.join('opencl_headers'))
       extra_ldflags.append(
           '/LIBPATH:%s' %
           skia_dir.join('third_party', 'externals', 'opencl-lib', '3-0', 'lib',
@@ -245,11 +245,11 @@ def compile_fn(api, checkout_root, out_dir):
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*GS9WA.*"'
     # Get mobileprovision via the CIPD package.
-    args['skia_ios_profile'] = '"%s"' % api.vars.slave_dir.join(
+    args['skia_ios_profile'] = '"%s"' % api.vars.workdir.join(
         'provisioning_profile_ios',
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
   if compiler == 'Clang' and 'Win' in os:
-    args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
+    args['clang_win'] = '"%s"' % api.vars.workdir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
 

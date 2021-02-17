@@ -356,7 +356,7 @@ if actual_freq != str(freq):
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
-      asan_setup = self.m.vars.slave_dir.join(
+      asan_setup = self.m.vars.workdir.join(
             'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
             'linux-x86_64', 'lib64', 'clang', '8.0.7', 'bin',
             'asan_device_setup')
@@ -443,7 +443,7 @@ time.sleep(60)
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
       # Remove ASAN.
-      asan_setup = self.m.vars.slave_dir.join(
+      asan_setup = self.m.vars.workdir.join(
             'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
             'linux-x86_64', 'lib64', 'clang', '8.0.2', 'bin',
             'asan_device_setup')
