@@ -87,6 +87,10 @@ public:
                 fArgs.fFragBuilder->definitionAppend(definition);
             }
 
+            void declareGlobal(const char* declaration) override {
+                fArgs.fFragBuilder->definitionAppend(declaration);
+            }
+
             String sampleChild(int index, String coords) override {
                 return String(fSelf->invokeChild(index, fArgs, coords).c_str());
             }
