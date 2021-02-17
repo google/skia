@@ -1,4 +1,4 @@
-float return_loop()
+float return_loop_0()
 {
 	for (float i = 0.0;i < 10.0; ++i) 
 	{
@@ -34,5 +34,5 @@ half4 main()
 	{
 		_7_sum += _8_i;
 	}
-	return half4(half4(half(return_loop()), half(_1_sum), half(_4_sum), half(_7_sum)));
+	return half4(half4(half(return_loop_0()), half(_1_sum), half(_4_sum), half(_7_sum)));
 }
