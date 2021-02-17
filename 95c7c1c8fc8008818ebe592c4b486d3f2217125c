@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5435c2f7_3ea05f02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2021-02-17T22:54:00Z",
+      "side": 1,
+      "message": "Could you help me to submit it? i don\u0027t seem to have the permission.",
+      "revId": "95c7c1c8fc8008818ebe592c4b486d3f2217125c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
