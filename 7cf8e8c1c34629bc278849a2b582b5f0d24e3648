@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebb455ca_dc170d7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-02-17T15:02:05Z",
+      "side": 1,
+      "message": "\u003e This approach is fine by me, but I have a few questions:\n\u003e 1) Did you consider having the user provide an error/warning callback? We use this approach for the SkRuntimeEffect https://skia-review.googlesource.com/c/skia/+/365483 Possible upside: less WASM memory use because we don\u0027t have to store those strings.\n\nI like the idea - I had not considered it mostly because I\u0027m unfamiliar with WASM-\u003eJS callbacks.  I\u0027ll investigate based on that sample.\n\n(my initial concern is related to the growing list of optional arguments for CanvasKit.MakeManagedAnimation; it feels like we\u0027re at the point where all these options should be passed in a dictionary or something)\n\n\u003e 2) Why is there the JSON included in the message? Shouldn\u0027t the client be able to tell what JSON caused the bug? I would expect it to be the same JSON I passed into the MakeAnimation, right?\n\nThat\u0027s not the full JSON, but the minimal fragment that triggered the error/warning.  For large inputs, it\u0027s almost impossible to figure where the issue is based solely on a message - this provides more info to isolate the problem.",
+      "parentUuid": "eb6521bb_e69f493f",
+      "revId": "7cf8e8c1c34629bc278849a2b582b5f0d24e3648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e244408_fdb27213",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-02-17T13:49:33Z",
       "side": 1,
       "message": "Can we do an assert instead of a log? Even something very loose like a contains would help make sure we are seeing the \"right\" error.\n\nI\u0027m not a fan of logging in tests because it\u0027s not clear if that was an expected error or not.",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 19
+      },
+      "revId": "7cf8e8c1c34629bc278849a2b582b5f0d24e3648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d99981da_bd2620a5",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-02-17T15:02:05Z",
+      "side": 1,
+      "message": "Ack, will do.",
+      "parentUuid": "8e244408_fdb27213",
       "range": {
         "startLine": 169,
         "startChar": 12,
