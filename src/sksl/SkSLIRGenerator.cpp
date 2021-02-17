@@ -1741,14 +1741,18 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     if (expr->type() == type) {
         return expr;
     }
-    this->checkValid(*expr);
-    if (expr->type() == *fContext.fTypes.fInvalid) {
-        return nullptr;
-    }
-    int offset = expr->fOffset;
+
+    const int offset = expr->fOffset;
     if (!expr->coercionCost(type).isPossible(this->settings().fAllowNarrowingConversions)) {
-        this->errorReporter().error(offset, "expected '" + type.displayName() + "', but found '" +
-                                                    expr->type().displayName() + "'");
+        if (expr->is<FunctionReference>()) {
+            this->errorReporter().error(offset, "expected '(' to begin function call");
+        } else if (expr->is<TypeReference>()) {
+            this->errorReporter().error(offset, "expected '(' to begin constructor invocation");
+        } else {
+            this->errorReporter().error(offset, "expected '" + type.displayName() +
+                                                "', but found '" + expr->type().displayName() +
+                                                "'");
+        }
         return nullptr;
     }
     ExpressionArray args;
@@ -2914,13 +2918,6 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_pt
 
 void IRGenerator::checkValid(const Expression& expr) {
     switch (expr.kind()) {
-        case Expression::Kind::kFunctionReference:
-            this->errorReporter().error(expr.fOffset, "expected '(' to begin function call");
-            break;
-        case Expression::Kind::kTypeReference:
-            this->errorReporter().error(expr.fOffset,
-                                        "expected '(' to begin constructor invocation");
-            break;
         case Expression::Kind::kFunctionCall: {
             const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
             if (!decl.isBuiltin() && !decl.definition()) {
@@ -2933,6 +2930,7 @@ void IRGenerator::checkValid(const Expression& expr) {
             if (expr.type() == *fContext.fTypes.fInvalid) {
                 this->errorReporter().error(expr.fOffset, "invalid expression");
             }
+            break;
     }
 }
 
