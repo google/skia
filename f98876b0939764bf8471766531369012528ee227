@@ -34,6 +34,24 @@
       "parentUuid": "c06772d7_9473fbd9",
       "revId": "f98876b0939764bf8471766531369012528ee227",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4ce8430_e511ab67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-17T12:44:41Z",
+      "side": 1,
+      "message": "Right, yes, either one. Can we add a test, either visual like systemfont_opsz.cpp  or by querying axes values on the cloned font as DEF_TEST style unit test?",
+      "parentUuid": "8e2790bb_fbe38570",
+      "revId": "f98876b0939764bf8471766531369012528ee227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
