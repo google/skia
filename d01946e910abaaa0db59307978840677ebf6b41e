@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "38b78dda_4cb3eba2",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T18:49:54Z",
+      "side": 1,
+      "message": "rm extra parens ?",
+      "range": {
+        "startLine": 214,
+        "startChar": 18,
+        "endLine": 214,
+        "endChar": 19
+      },
+      "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0fb12b34_02323696",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 1
@@ -31,6 +54,47 @@
       "writtenOn": "2021-02-17T18:13:48Z",
       "side": 1,
       "message": "This extra scope, at this point just limits the lifetime of the GrResourceAllocator. It\u0027s a pretty big object, but I don\u0027t think it\u0027ll matter in practice so maybe junk it. WDYT?",
+      "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3558c99_fd7700df",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T18:49:54Z",
+      "side": 1,
+      "message": "I would just leave it be for now",
+      "parentUuid": "0fb12b34_02323696",
+      "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1bebfad_bac4b984",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T18:49:54Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be a \u0027!\u0027 here ?",
+      "range": {
+        "startLine": 305,
+        "startChar": 14,
+        "endLine": 305,
+        "endChar": 15
+      },
       "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
