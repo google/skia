@@ -17,7 +17,6 @@ import {
     Path,
     PathEffect,
     Shader,
-    ShapedText,
     SkPicture,
     TextBlob,
     Typeface,
@@ -50,7 +49,6 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     runtimeEffectTests(CK);
     skottieTests(CK);
     shaderTests(CK);
-    shapedTextTests(CK);
     surfaceTests(CK);
     textBlobTests(CK);
     vectorTests(CK);
@@ -76,11 +74,10 @@ function animatedImageTests(CK: CanvasKit) {
 // cause errors.
 function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
                      img?: Image, aImg?: AnimatedImage, para?: Paragraph,
-                     skp?: SkPicture, font?: Font, shapedText?: ShapedText,
-                     textBlob?: TextBlob, verts?: Vertices, imageInfo?: ImageInfo,
-                     imgFilter?: ImageFilter) {
+                     skp?: SkPicture, font?: Font, textBlob?: TextBlob, verts?: Vertices,
+                     imageInfo?: ImageInfo, imgFilter?: ImageFilter) {
     if (!canvas || !paint || !path || !img || !aImg || !para || !skp || !font ||
-        !shapedText || !textBlob || !verts || !imageInfo || !imgFilter) {
+        !textBlob || !verts || !imageInfo || !imgFilter) {
         return;
     }
     const someColor = [0.9, 0.8, 0.7, 0.6]; // Making sure arrays are accepted as colors.
@@ -137,7 +134,6 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     const mallocedVector3 = CK.Malloc(Float32Array, 3);
     canvas.drawShadow(path, mallocedVector3, mallocedVector3, 7, someColor, CK.BLUE, 0);
     canvas.drawText('foo', 1, 2, paint, font);
-    canvas.drawText(shapedText, 1, 2, paint, font);
     canvas.drawTextBlob(textBlob, 10, 20, paint);
     canvas.drawVertices(verts, CK.BlendMode.DstOut, paint);
     const matrOne = canvas.findMarkedCTM('thing'); // $ExpectType Float32Array | null
@@ -797,19 +793,6 @@ function shaderTests(CK: CanvasKit) {
     );
     const s12 = CK.Shader.MakeFractalNoise(0.1, 0.05, 2, 0, 80, 80); // $ExpectType Shader
     const s13 = CK.Shader.MakeTurbulence(0.1, 0.05, 2, 0, 80, 80); // $ExpectType Shader
-}
-
-function shapedTextTests(CK: CanvasKit, textFont?: Font) {
-    if (!textFont) return;
-
-    const shaped = new CK.ShapedText({ // $ExpectType ShapedText
-       font: textFont,
-       leftToRight: true,
-       text: 'this is shaped',
-       width: 20,
-    });
-    const bounds = shaped.getBounds();
-    shaped.getBounds(bounds);
 }
 
 function surfaceTests(CK: CanvasKit) {

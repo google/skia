@@ -1,21 +1,16 @@
 CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
 CanvasKit._extraInitializations.push(function() {
 
-  // str can be either a text string or a ShapedText object
   CanvasKit.Canvas.prototype.drawText = function(str, x, y, paint, font) {
-    if (typeof str === 'string') {
-      // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
-      // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
-      var strLen = lengthBytesUTF8(str);
-      // Add 1 for null terminator, which we need when copying/converting, but can ignore
-      // when we call into Skia.
-      var strPtr = CanvasKit._malloc(strLen + 1);
-      stringToUTF8(str, strPtr, strLen + 1);
-      this._drawSimpleText(strPtr, strLen, x, y, font, paint);
-      CanvasKit._free(strPtr);
-    } else {
-      this._drawShapedText(str, x, y, paint);
-    }
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    var strLen = lengthBytesUTF8(str);
+    // Add 1 for null terminator, which we need when copying/converting, but can ignore
+    // when we call into Skia.
+    var strPtr = CanvasKit._malloc(strLen + 1);
+    stringToUTF8(str, strPtr, strLen + 1);
+    this._drawSimpleText(strPtr, strLen, x, y, font, paint);
+    CanvasKit._free(strPtr);
   };
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
@@ -169,19 +164,6 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return font;
-  };
-
-  // Clients can pass in a Float32Array with length 4 to this and the results
-  // will be copied into that array. Otherwise, a new TypedArray will be allocated
-  // and returned.
-  CanvasKit.ShapedText.prototype.getBounds = function(optionalOutputArray) {
-    this._getBounds(_scratchFourFloatsAPtr);
-    var ta = _scratchFourFloatsA['toTypedArray']();
-    if (optionalOutputArray) {
-      optionalOutputArray.set(ta);
-      return optionalOutputArray;
-    }
-    return ta.slice();
   };
 
   CanvasKit.TextBlob.MakeOnPath = function(str, path, font, initialOffset) {

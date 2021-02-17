@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    Data now return Uint8Array containing the bytes directly. These are `Image.encodeToData`
    (now named `Image.encodeToBytes`) and `SkPicture.serialize`. These APIs return null if
    the encoding or serialization failed.
+ - The `ShapedText` type has been removed. Clients who want ShapedText should use the
+   Paragraph APIs.
 
 ### Type Changes (index.d.ts)
  - `Image.encodeToDataWithFormat` was incorrectly documented as its own thing.
