@@ -91,7 +91,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     }
 
     // Handle floating-point arithmetic: + - * /
-    const auto vectorComponentwiseFold = [&](auto foldFn) -> std::unique_ptr<Constructor> {
+    const auto vectorComponentwiseFold = [&](auto foldFn) -> std::unique_ptr<Expression> {
         const Type& componentType = type.componentType();
         ExpressionArray args;
         args.reserve_back(type.columns());
@@ -99,7 +99,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
             U value = foldFn(left.getVecComponent<T>(i), right.getVecComponent<T>(i));
             args.push_back(std::make_unique<Literal<T>>(left.fOffset, value, &componentType));
         }
-        return std::make_unique<Constructor>(left.fOffset, &type, std::move(args));
+        return Constructor::Make(context, left.fOffset, type, std::move(args));
     };
 
     switch (op.kind()) {
