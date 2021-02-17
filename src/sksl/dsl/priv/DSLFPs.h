@@ -23,6 +23,8 @@ void StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
 
 void EndFragmentProcessor();
 
+DSLVar sk_SampleCoord();
+
 DSLExpression SampleChild(int index, DSLExpression coords = DSLExpression());
 
 GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var);
