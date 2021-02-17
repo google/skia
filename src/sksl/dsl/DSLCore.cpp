@@ -155,7 +155,7 @@ public:
         return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
     }
 
-    static DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse) {
+    static DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse) {
         return DSLWriter::IRGenerator().convertTernaryExpression(test.release(), ifTrue.release(),
                                                                  ifFalse.release());
     }
@@ -206,8 +206,8 @@ DSLStatement Return(DSLExpression expr) {
     return DSLCore::Return(std::move(expr));
 }
 
-DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse) {
-    return DSLCore::Ternary(std::move(test), std::move(ifTrue), std::move(ifFalse));
+DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse) {
+    return DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse));
 }
 
 DSLStatement While(DSLExpression test, DSLStatement stmt) {
