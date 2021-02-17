@@ -454,7 +454,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test GPU tessellation path renderer.
 		if b.extraConfig("GpuTess") {
 			configs = []string{glPrefix + "msaa4"}
-			args = append(args, "--pr", "tess")
+			args = append(args, "--hwtess", "--pr", "tess")
 		}
 
 		// Test non-nvpr on NVIDIA.
@@ -482,6 +482,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = suffix(filter(configs, "gl", "vk", "mtl"), "ooprddl")
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
+		}
+		if b.extraConfig("ReduceOpsTaskSplitting") {
+			configs = filter(configs, "gl", "vk", "mtl")
+			args = append(args, "--reduceOpsTaskSplitting", "true")
 		}
 	}
 
@@ -551,6 +555,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("lottie")
 	}
 
+	if b.extraConfig("TSAN") {
+		// skbug.com/10848
+		removeFromArgs("svg")
+	}
+
 	// TODO: ???
 	skip("f16 _ _ dstreadshuffle")
 	skip("glsrgb image _ _")
@@ -570,46 +579,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_ svg _ _")
 		// skbug.com/9171 and 8847
 		skip("_ test _ InitialTextureClear")
-	}
-
-	if b.extraConfig("OOPRDDL") {
-		// This batch all call readpixels
-		skip("_ gm _ async_rescale_and_read_dog_down")
-		skip("_ gm _ async_rescale_and_read_dog_up")
-		skip("_ gm _ async_rescale_and_read_no_bleed")
-		skip("_ gm _ async_rescale_and_read_rose")
-		skip("_ gm _ async_rescale_and_read_text_down")
-		skip("_ gm _ async_rescale_and_read_text_up")
-		skip("_ gm _ async_rescale_and_read_text_up_large")
-		skip("_ gm _ async_rescale_and_read_yuv420_rose")
-		skip("_ gm _ async_yuv_no_scale")
-		skip("_ gm _ drawbitmaprect-subset")
-		skip("_ gm _ drawbitmaprect")
-		skip("_ gm _ image_subset")
-		skip("_ gm _ p3")
-		skip("_ gm _ p3_ovals")
-		skip("_ gm _ readpixels")
-		skip("_ gm _ scale-pixels ")
-		skip("_ gm _ zero_length_paths_aa")
-		skip("_ gm _ zero_length_paths_bw")
-		skip("_ gm _ zero_length_paths_dbl_aa")
-		skip("_ gm _ zero_length_paths_dbl_bw")
-		// This one explicitly rejects DDL recording
-		skip("_ gm _ blurrect_compare")
-		// These two trip up on CCPR behavior
-		skip("_ gm _ preservefillrule_big")
-		skip("_ gm _ preservefillrule_little")
-		// These two rely on munging the resource limits
-		skip("_ gm _ bitmaptiled_fractional_horizontal")
-		skip("_ gm _ bitmaptiled_fractional_vertical")
-		// These two require a direct context
-		skip("_ gm _ new_texture_image ")
-		skip("_ gm _ fontregen ")
-		// This family of gms can be re-enabled once MakeRenderTarget can take a GrRecordingContext
-		skip("_ gm _ gpu_blur_utils")
-		skip("_ gm _ gpu_blur_utils_subset_rect")
-		skip("_ gm _ gpu_blur_utils_subset_ref")
-		skip("_ gm _ gpu_blur_utils_ref")
 	}
 
 	if b.model("Pixel3") {

@@ -68,6 +68,22 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		}
 
 		configs = append(configs, glPrefix, glPrefix+"srgb")
+
+		// glnarrow/glesnarrow tests the case of color converting *all* content
+		// It hangs on the AndroidOne (Mali400)  skia:10669
+		if (!b.gpu("Mali400MP2")) {
+			configs = append(configs, glPrefix+"narrow")
+		}
+
+		// skia:10644 The fake ES2 config is used to compare highest available ES version to
+		// when we're limited to ES2. We could consider adding a MSAA fake config as well.
+		if b.os("Android") && glPrefix == "gles" {
+			// These only support ES2. No point in running twice.
+			if (!b.gpu("Mali400MP2", "Tegra3")) {
+				configs = append(configs, "glesfakev2")
+			}
+		}
+
 		if sampleCount > 0 {
 			configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
 		}
@@ -107,15 +123,18 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		if b.extraConfig("ANGLE") {
 			// Test only ANGLE configs.
-			configs = []string{"angle_d3d11_es2"}
+			configs = []string{"angle_d3d11_es2", "angle_d3d11_es3"}
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
+				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount))
 			}
 			if b.gpu("QuadroP400") {
 				// See skia:7823 and chromium:693090.
 				configs = append(configs, "angle_gl_es2")
+				configs = append(configs, "angle_gl_es3")
 				if sampleCount > 0 {
 					configs = append(configs, fmt.Sprintf("angle_gl_es2_msaa%d", sampleCount))
+					configs = append(configs, fmt.Sprintf("angle_gl_es3_msaa%d", sampleCount))
 				}
 			}
 		}
@@ -184,15 +203,11 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~desk_ynevsvg.skp_1.1")
 		match = append(match, "~desk_nostroke_tiger8svg.skp")
 		match = append(match, "~keymobi_booking_com.skp_1")
-		match = append(match, "~keymobi_booking_com.skp_1_mpd")
 		match = append(match, "~keymobi_cnn_article.skp_1")
-		match = append(match, "~keymobi_cnn_article.skp_1_mpd")
 		match = append(match, "~keymobi_forecast_io.skp_1")
-		match = append(match, "~keymobi_forecast_io.skp_1_mpd")
 		match = append(match, "~keymobi_sfgate.skp_1")
 		match = append(match, "~keymobi_techcrunch_com.skp_1.1")
 		match = append(match, "~keymobi_techcrunch.skp_1.1")
-		match = append(match, "~keymobi_techcrunch.skp_1.1_mpd")
 		match = append(match, "~svgparse_Seal_of_California.svg_1.1")
 		match = append(match, "~svgparse_NewYork-StateSeal.svg_1.1")
 		match = append(match, "~svgparse_Vermont_state_seal.svg_1")
@@ -200,7 +215,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~tabl_pravda.skp_1")
 		match = append(match, "~top25desk_ebay_com.skp_1.1")
 		match = append(match, "~top25desk_ebay.skp_1.1")
-		match = append(match, "~top25desk_ebay.skp_1.1_mpd")
 	}
 	if b.extraConfig("Vulkan") && b.gpu("GTX660") {
 		// skia:8523 skia:9271
