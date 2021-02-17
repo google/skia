@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "578d211b_f128e1f8",
+        "filename": "resources/sksl/errors/SwitchTypes.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T22:03:23Z",
+      "side": 0,
+      "message": "What was I thinking!",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 20
+      },
+      "revId": "6bba1bcdc130089eacc184bbb8b86f4831651433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
