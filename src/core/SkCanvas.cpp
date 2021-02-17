@@ -47,6 +47,8 @@
 #include "src/image/SkSurface_Base.h"
 #include "src/utils/SkPatchUtils.h"
 
+#include "base/logging.h"
+
 #include <memory>
 #include <new>
 
@@ -1937,6 +1939,54 @@ void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint cli
                                            SkBlendMode mode) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     // Make sure the rect is sorted before passing it along
+    auto m = this->getTotalMatrix();
+    SkString draw;
+    draw.append ("\nif (i >= a && i < b) {\n");
+    draw.append ("    canvas->save();\n");
+    draw.appendf("    canvas->concat(SkMatrix::MakeAll(SkBits2Float(0x%08x), SkBits2Float(0x%08x), SkBits2Float(0x%08x),\n"
+                 "                                     SkBits2Float(0x%08x), SkBits2Float(0x%08x), SkBits2Float(0x%08x),\n"
+                 "                                     SkBits2Float(0x%08x), SkBits2Float(0x%08x), SkBits2Float(0x%08x)));\n",
+                 SkFloat2Bits(m.get(0)), SkFloat2Bits(m.get(1)), SkFloat2Bits(m.get(2)),
+                 SkFloat2Bits(m.get(3)), SkFloat2Bits(m.get(4)), SkFloat2Bits(m.get(5)),
+                 SkFloat2Bits(m.get(6)), SkFloat2Bits(m.get(7)), SkFloat2Bits(m.get(8)));
+    draw.appendf("    SkRect rect = {SkBits2Float(0x%08x),\n"
+                 "                   SkBits2Float(0x%08x),\n"
+                 "                   SkBits2Float(0x%08x),\n"
+                 "                   SkBits2Float(0x%08x)};\n",
+                 SkFloat2Bits(rect.fLeft),
+                 SkFloat2Bits(rect.fTop),
+                 SkFloat2Bits(rect.fRight),
+                 SkFloat2Bits(rect.fBottom));
+    SkString clipstr("nullptr");
+    if (clip) {
+        draw.appendf("    SkPoint clip[4] = {{SkBits2Float(0x%08x), SkBits2Float(0x%08x)},\n"
+                     "                       {SkBits2Float(0x%08x), SkBits2Float(0x%08x)},\n"
+                     "                       {SkBits2Float(0x%08x), SkBits2Float(0x%08x)},\n"
+                     "                       {SkBits2Float(0x%08x), SkBits2Float(0x%08x)}};\n",
+                     SkFloat2Bits(clip[0].fX), SkFloat2Bits(clip[0].fY),
+                     SkFloat2Bits(clip[1].fX), SkFloat2Bits(clip[1].fY),
+                     SkFloat2Bits(clip[2].fX), SkFloat2Bits(clip[2].fY),
+                     SkFloat2Bits(clip[3].fX), SkFloat2Bits(clip[3].fY));
+        clipstr = "clip";
+    }
+    draw.appendf("    SkCanvas::QuadAAFlags aaFlags = static_cast<SkCanvas::QuadAAFlags>(0x%08x);\n",
+                 static_cast<int>(aaFlags));
+    draw.appendf("    SkColor4f color = {SkBits2Float(0x%08x),\n"
+                 "                       SkBits2Float(0x%08x),\n"
+                 "                       SkBits2Float(0x%08x),\n"
+                 "                       SkBits2Float(0x%08x)};\n",
+                SkFloat2Bits(color.fR),
+                SkFloat2Bits(color.fG),
+                SkFloat2Bits(color.fB),
+                SkFloat2Bits(color.fA));
+    draw.appendf("    SkBlendMode mode = static_cast<SkBlendMode>(0x%08x);\n",
+                 static_cast<int>(mode));
+    draw.appendf("    canvas->experimental_DrawEdgeAAQuad(rect, %s, aaFlags, color, mode);\n",
+                 clipstr.c_str());
+    draw.append ("    canvas->restore();\n");
+    draw.append ("}\n");
+    draw.append ("++i;\n");
+    LOG(ERROR) << draw.c_str();
     this->onDrawEdgeAAQuad(rect.makeSorted(), clip, aaFlags, color, mode);
 }
 
