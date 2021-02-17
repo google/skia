@@ -59,9 +59,23 @@ public:
 };
 
 /**
+ * SkSL supports several different program kinds.
+ */
+enum class ProgramKind : int8_t {
+    kFragment,
+    kVertex,
+    kGeometry,
+    kFragmentProcessor,
+    kRuntimeEffect,
+    kGeneric,
+};
+
+/**
  * Holds the compiler settings for a program.
  */
 struct ProgramSettings {
+    // The kind of program that is being compiled--vertex, fragment, runtime-effect, etc.
+    ProgramKind fProgramKind;
     // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
     // must be flipped.
     bool fFlipY = false;
@@ -108,18 +122,6 @@ struct ProgramSettings {
 };
 
 /**
- * SkSL supports several different program kinds.
- */
-enum class ProgramKind : int8_t {
-    kFragment,
-    kVertex,
-    kGeometry,
-    kFragmentProcessor,
-    kRuntimeEffect,
-    kGeneric,
-};
-
-/**
  * Represents a fully-digested program, ready for code generation.
  */
 struct Program {
@@ -147,9 +149,8 @@ struct Program {
         }
     };
 
-    Program(ProgramKind kind,
-            std::unique_ptr<String> source,
-            Settings settings,
+    Program(std::unique_ptr<String> source,
+            const Settings& settings,
             const ShaderCapsClass* caps,
             std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
@@ -158,8 +159,7 @@ struct Program {
             std::shared_ptr<SymbolTable> symbols,
             std::unique_ptr<Pool> pool,
             Inputs inputs)
-    : fKind(kind)
-    , fSource(std::move(source))
+    : fSource(std::move(source))
     , fSettings(settings)
     , fCaps(caps)
     , fContext(context)
@@ -257,7 +257,6 @@ struct Program {
     // The iterator's value type is 'std::unique_ptr<ProgramElement>', and mutation is allowed.
     const std::vector<std::unique_ptr<ProgramElement>>& ownedElements() const { return fElements; }
 
-    ProgramKind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
     const ShaderCapsClass* fCaps;

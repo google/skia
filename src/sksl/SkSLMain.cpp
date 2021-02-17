@@ -268,18 +268,18 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         return ResultCode::kInputError;
     }
 
-    SkSL::ProgramKind kind;
+    SkSL::Program::Settings settings;
     const SkSL::String& inputPath = args[1];
     if (inputPath.endsWith(".vert")) {
-        kind = SkSL::ProgramKind::kVertex;
+        settings.fProgramKind = SkSL::ProgramKind::kVertex;
     } else if (inputPath.endsWith(".frag") || inputPath.endsWith(".sksl")) {
-        kind = SkSL::ProgramKind::kFragment;
+        settings.fProgramKind = SkSL::ProgramKind::kFragment;
     } else if (inputPath.endsWith(".geom")) {
-        kind = SkSL::ProgramKind::kGeometry;
+        settings.fProgramKind = SkSL::ProgramKind::kGeometry;
     } else if (inputPath.endsWith(".fp")) {
-        kind = SkSL::ProgramKind::kFragmentProcessor;
+        settings.fProgramKind = SkSL::ProgramKind::kFragmentProcessor;
     } else if (inputPath.endsWith(".rte")) {
-        kind = SkSL::ProgramKind::kRuntimeEffect;
+        settings.fProgramKind = SkSL::ProgramKind::kRuntimeEffect;
     } else {
         printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.rte', or '.sksl'\n");
         return ResultCode::kInputError;
@@ -293,7 +293,6 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         return ResultCode::kInputError;
     }
 
-    SkSL::Program::Settings settings;
     const SkSL::ShaderCapsClass* caps = &SkSL::standaloneCaps;
     if (honorSettings) {
         if (!detect_shader_settings(text, &settings, &caps)) {
@@ -320,7 +319,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
             printf("error writing '%s'\n", outputPath.c_str());
             return ResultCode::kOutputError;
         }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(text, settings);
         if (!program || !writeFn(compiler, *program, out)) {
             emitCompileError(out, compiler.errorText().c_str());
             return ResultCode::kCompileError;
@@ -444,7 +443,8 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
             return ResultCode::kOutputError;
         }
         SkSL::LoadedModule module = compiler.loadModule(
-                kind, SkSL::Compiler::MakeModulePath(inputPath.c_str()), nullptr);
+                settings.fProgramKind, SkSL::Compiler::MakeModulePath(inputPath.c_str()),
+                /*base=*/nullptr);
         SkSL::Dehydrator dehydrator;
         dehydrator.write(*module.fSymbols);
         dehydrator.write(module.fElements);

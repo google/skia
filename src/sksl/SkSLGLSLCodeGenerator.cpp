@@ -873,7 +873,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
-    bool positionWorkaround = fProgramKind == ProgramKind::kVertex &&
+    bool positionWorkaround = fProgram.fSettings.fProgramKind == ProgramKind::kVertex &&
                               op.isAssignment() &&
                               left.is<FieldAccess>() &&
                               is_sk_position(left.as<FieldAccess>()) &&
@@ -1082,8 +1082,8 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
         if (globalContext &&
             fProgram.fCaps->generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
-            this->write(fProgramKind == ProgramKind::kVertex ? "attribute "
-                                                             : "varying ");
+            this->write(fProgram.fSettings.fProgramKind == ProgramKind::kVertex ? "attribute "
+                                                                                : "varying ");
         } else {
             this->write("in ");
         }
@@ -1517,7 +1517,7 @@ void GLSLCodeGenerator::writeInputVars() {
 
 bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
-    if (ProgramKind::kGeometry == fProgramKind &&
+    if (fProgram.fSettings.fProgramKind == ProgramKind::kGeometry &&
         fProgram.fCaps->geometryShaderExtensionString()) {
         this->writeExtension(fProgram.fCaps->geometryShaderExtensionString());
     }
@@ -1547,7 +1547,7 @@ bool GLSLCodeGenerator::generateCode() {
 
     if (!fProgram.fCaps->canUseFragCoord()) {
         Layout layout;
-        switch (fProgram.fKind) {
+        switch (fProgram.fSettings.fProgramKind) {
             case ProgramKind::kVertex: {
                 Modifiers modifiers(layout, Modifiers::kOut_Flag);
                 this->writeModifiers(modifiers, true);

@@ -375,7 +375,7 @@ void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
             this->writeInstruction(SpvOpCapability, (SpvId) i, out);
         }
     }
-    if (fProgram.fKind == ProgramKind::kGeometry) {
+    if (fProgram.fSettings.fProgramKind == ProgramKind::kGeometry) {
         this->writeInstruction(SpvOpCapability, SpvCapabilityGeometry, out);
     }
     else {
@@ -3165,7 +3165,7 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
 }
 
 void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out) {
-    SkASSERT(fProgram.fKind == ProgramKind::kGeometry);
+    SkASSERT(fProgram.fSettings.fProgramKind == ProgramKind::kGeometry);
     int invocations = 1;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<ModifiersDeclaration>()) {
@@ -3367,7 +3367,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     // Emit global variable declarations.
     for (const ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            this->writeGlobalVar(program.fKind,
+            this->writeGlobalVar(program.fSettings.fProgramKind,
                                  e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>());
         }
     }
@@ -3407,7 +3407,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
     this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().fLength + 4) / 4) +
                       (int32_t) interfaceVars.size(), out);
-    switch (program.fKind) {
+    switch (program.fSettings.fProgramKind) {
         case ProgramKind::kVertex:
             this->writeWord(SpvExecutionModelVertex, out);
             break;
@@ -3426,10 +3426,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (int var : interfaceVars) {
         this->writeWord(var, out);
     }
-    if (program.fKind == ProgramKind::kGeometry) {
+    if (program.fSettings.fProgramKind == ProgramKind::kGeometry) {
         this->writeGeometryShaderExecutionMode(entryPoint, out);
     }
-    if (program.fKind == ProgramKind::kFragment) {
+    if (program.fSettings.fProgramKind == ProgramKind::kFragment) {
         this->writeInstruction(SpvOpExecutionMode,
                                fFunctionMap[main],
                                SpvExecutionModeOriginUpperLeft,

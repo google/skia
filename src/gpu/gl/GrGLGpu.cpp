@@ -3061,16 +3061,17 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::String sksl(vshaderTxt.c_str(), vshaderTxt.size());
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kVertex;
     SkSL::String glsl;
-    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kVertex,
-                                                          sksl, settings, &glsl, errorHandler);
+    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, sksl, settings, &glsl,
+                                                          errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
                                                   GR_GL_VERTEX_SHADER, glsl, &fStats, errorHandler);
     SkASSERT(program->fInputs.isEmpty());
 
+    settings.fProgramKind = SkSL::ProgramKind::kFragment;
     sksl.assign(fshaderTxt.c_str(), fshaderTxt.size());
-    program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kFragment, sksl, settings, &glsl,
-                           errorHandler);
+    program = GrSkSLtoGLSL(this, sksl, settings, &glsl, errorHandler);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
                                                   GR_GL_FRAGMENT_SHADER, glsl, &fStats,
                                                   errorHandler);
@@ -3214,16 +3215,17 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::String sksl(vshaderTxt.c_str(), vshaderTxt.size());
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kVertex;
     SkSL::String glsl;
-    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kVertex,
-                                                          sksl, settings, &glsl, errorHandler);
+    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, sksl, settings, &glsl,
+                                                          errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
                                                   GR_GL_VERTEX_SHADER, glsl, &fStats, errorHandler);
     SkASSERT(program->fInputs.isEmpty());
 
+    settings.fProgramKind = SkSL::ProgramKind::kFragment;
     sksl.assign(fshaderTxt.c_str(), fshaderTxt.size());
-    program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kFragment, sksl, settings, &glsl,
-                           errorHandler);
+    program = GrSkSLtoGLSL(this, sksl, settings, &glsl, errorHandler);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
                                                   GR_GL_FRAGMENT_SHADER, glsl, &fStats,
                                                   errorHandler);
