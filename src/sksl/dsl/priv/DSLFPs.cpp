@@ -25,6 +25,10 @@ void EndFragmentProcessor() {
     DSLWriter::EndFragmentProcessor();
 }
 
+DSLVar sk_SampleCoord() {
+    return DSLVar("sk_SampleCoord");
+}
+
 DSLExpression SampleChild(int index, DSLExpression coords) {
     std::unique_ptr<SkSL::Expression> coordsExpr = coords.release();
     SkString code = DSLWriter::CurrentProcessor()->invokeChild(index, *DSLWriter::CurrentEmitArgs(),
