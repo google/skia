@@ -2,7 +2,7 @@
 const worker = new Worker('worker.js');
 
 const canvasKitInitPromise =
-    CanvasKitInit({locateFile: (file) => 'https://particles.skia.org/dist/'+file});
+    CanvasKitInit({locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.23.0/bin/'+file});
 
 const bigImagePromise =
     fetch('https://upload.wikimedia.org/wikipedia/commons/3/30/Large_Gautama_Buddha_statue_in_Buddha_Park_of_Ravangla%2C_Sikkim.jpg')
@@ -63,8 +63,13 @@ Promise.all([
     worker.addEventListener('message', (e) => {
         const decodedBuffer = e.data.decodedArrayBuffer;
         const pixels = new Uint8Array(decodedBuffer);
-        decodedImage = CanvasKit.MakeImage(pixels, e.data.width, e.data.height,
-            CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, CanvasKit.ColorSpace.SRGB);
+        decodedImage = CanvasKit.MakeImage({
+            width: e.data.width,
+            height: e.data.height,
+            alphaType: CanvasKit.AlphaType.Unpremul,
+            colorType: CanvasKit.ColorType.RGBA_8888,
+            colorSpace: CanvasKit.ColorSpace.SRGB
+        }, pixels, 4 * e.data.width);
     });
     document.getElementById('clear-button').addEventListener('click', () => {
         if (decodedImage) {
