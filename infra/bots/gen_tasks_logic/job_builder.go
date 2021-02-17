@@ -59,21 +59,21 @@ func (b *jobBuilder) addTask(name string, fn func(*taskBuilder)) {
 	b.Spec.TaskSpecs = newSpecs
 }
 
-// isolateCIPDAsset generates a task to isolate the given CIPD asset. Returns
+// uploadCIPDAssetToCAS generates a task to isolate the given CIPD asset. Returns
 // the name of the task.
-func (b *jobBuilder) isolateCIPDAsset(asset string) string {
+func (b *jobBuilder) uploadCIPDAssetToCAS(asset string) string {
 	cfg, ok := ISOLATE_ASSET_MAPPING[asset]
 	if !ok {
 		log.Fatalf("No isolate task for asset %q", asset)
 	}
-	b.addTask(cfg.isolateTaskName, func(b *taskBuilder) {
+	b.addTask(cfg.uploadTaskName, func(b *taskBuilder) {
 		b.cipd(b.MustGetCipdPackageFromAsset(asset))
 		b.cmd("/bin/cp", "-rL", cfg.path, "${ISOLATED_OUTDIR}")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.idempotent()
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 	})
-	return cfg.isolateTaskName
+	return cfg.uploadTaskName
 }
 
 // genTasksForJob generates the tasks needed by this job.
@@ -92,8 +92,8 @@ func (b *jobBuilder) genTasksForJob() {
 	// Isolate CIPD assets.
 	if b.matchExtraConfig("Isolate") {
 		for asset, cfg := range ISOLATE_ASSET_MAPPING {
-			if cfg.isolateTaskName == b.Name {
-				b.isolateCIPDAsset(asset)
+			if cfg.uploadTaskName == b.Name {
+				b.uploadCIPDAssetToCAS(asset)
 				return
 			}
 		}
