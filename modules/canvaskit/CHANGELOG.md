@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - The Skottie factory (MakeManagedAnimation) now accepts an optional logger object.
+
 ### Breaking
  - `CanvasKit.getDataBytes` has been removed, as has the Data type. The 2 APIS that returned
    Data now return Uint8Array containing the bytes directly. These are `Image.encodeToData`
