@@ -63,6 +63,30 @@
       },
       "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ad3f9e8_4afb7de1",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-17T01:05:01Z",
+      "side": 1,
+      "message": "If that\u0027s the only place it\u0027s used, I\u0027d be in favor of moving it outside of GrStyledShape to reduce its public API. If it turns out to need a lot of private stuff and it\u0027s awkward to add a friend declaration, then leaving it is also fine.",
+      "parentUuid": "71a36589_06d759bd",
+      "range": {
+        "startLine": 130,
+        "startChar": 36,
+        "endLine": 131,
+        "endChar": 76
+      },
+      "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
