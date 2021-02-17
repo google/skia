@@ -17,8 +17,8 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     SkSL::Compiler compiler(caps.get());
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kRuntimeEffect;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                    SkSL::ProgramKind::kRuntimeEffect,
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
                                                     settings);

@@ -74,17 +74,6 @@ bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSam
     }
 }
 
-SkSL::ProgramKind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) {
-    if (VK_SHADER_STAGE_VERTEX_BIT == stage) {
-        return SkSL::ProgramKind::kVertex;
-    }
-    if (VK_SHADER_STAGE_GEOMETRY_BIT == stage) {
-        return SkSL::ProgramKind::kGeometry;
-    }
-    SkASSERT(VK_SHADER_STAGE_FRAGMENT_BIT == stage);
-    return SkSL::ProgramKind::kFragment;
-}
-
 bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              const SkSL::String& shaderString,
                              VkShaderStageFlagBits stage,
@@ -94,8 +83,8 @@ bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs) {
     auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
-    std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
-            vk_shader_stage_to_skiasl_kind(stage), shaderString, settings);
+    std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(shaderString,
+                                                                                   settings);
     if (!program) {
         errorHandler->compileError(shaderString.c_str(),
                                    gpu->shaderCompiler()->errorText().c_str());

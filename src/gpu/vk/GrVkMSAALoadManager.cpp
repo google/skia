@@ -59,6 +59,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
             "}");
 
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kVertex;
     SkSL::String spirv;
     SkSL::Program::Inputs inputs;
     if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,
@@ -69,6 +70,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
     }
     SkASSERT(inputs.isEmpty());
 
+    settings.fProgramKind = SkSL::ProgramKind::kFragment;
     if (!GrCompileVkShaderModule(gpu, fragShaderText, VK_SHADER_STAGE_FRAGMENT_BIT,
                                  &fFragShaderModule, &fShaderStageInfo[1], settings, &spirv,
                                  &inputs)) {

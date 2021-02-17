@@ -254,6 +254,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
             }
         }
 
+        settings.fProgramKind = SkSL::ProgramKind::kVertex;
         bool success = this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                   *sksl[kVertex_GrShaderType],
                                                   &shaderModules[kVertex_GrShaderType],
@@ -262,6 +263,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                   &shaders[kVertex_GrShaderType],
                                                   &inputs[kVertex_GrShaderType]);
 
+        settings.fProgramKind = SkSL::ProgramKind::kFragment;
         success = success && this->createVkShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
                                                         *sksl[kFragment_GrShaderType],
                                                         &shaderModules[kFragment_GrShaderType],
@@ -271,6 +273,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                         &inputs[kFragment_GrShaderType]);
 
         if (this->primitiveProcessor().willUseGeoShader()) {
+            settings.fProgramKind = SkSL::ProgramKind::kGeometry;
             success = success && this->createVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
                                                             *sksl[kGeometry_GrShaderType],
                                                             &shaderModules[kGeometry_GrShaderType],
