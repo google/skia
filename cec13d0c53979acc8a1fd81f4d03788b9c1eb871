@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3899d64f_d8a4a703",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T19:08:22Z",
+      "side": 1,
+      "message": "Why are we always ditching the \u0027clipRect\u0027 ?",
+      "range": {
+        "startLine": 88,
+        "startChar": 43,
+        "endLine": 88,
+        "endChar": 51
+      },
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97059a35_124dfc26",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T19:08:22Z",
+      "side": 1,
+      "message": "Maybe \u0027geom\u0027 ? \u0027cursor\u0027 seems like a misnomer.",
+      "range": {
+        "startLine": 117,
+        "startChar": 18,
+        "endLine": 117,
+        "endChar": 25
+      },
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c1336a0_14edc743",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1256,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-17T19:08:22Z",
+      "side": 1,
+      "message": "We\u0027re reffing in Geometry::Make too ?",
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
