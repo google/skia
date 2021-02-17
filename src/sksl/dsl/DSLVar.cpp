@@ -22,6 +22,22 @@ namespace dsl {
 
 DSLVar::DSLVar(const char* name)
     : fName(name) {
+#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
+    if (!strcmp(name, "sk_SampleCoord")) {
+        fName = DSLWriter::CurrentEmitArgs()->fSampleCoord;
+        // The actual sk_SampleCoord variable hasn't been created by GrGLSLFPFragmentBuilder yet, so
+        // if we attempt to look it up in the symbol table we'll get null. Since all we really need
+        // is a correctly-named variable with the right type, we just create a placeholder for it.
+        fVar = DSLWriter::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(
+                                  /*offset=*/-1,
+                                  DSLWriter::IRGenerator().fModifiers->addToPool(SkSL::Modifiers()),
+                                  fName,
+                                  DSLWriter::Context().fTypes.fFloat2.get(),
+                                  /*builtin=*/true,
+                                  SkSL::VariableStorage::kGlobal));
+        return;
+    }
+#endif
     const SkSL::Symbol* result = (*DSLWriter::SymbolTable())[fName];
     SkASSERTF(result, "could not find '%s' in symbol table", fName);
     fVar = &result->as<SkSL::Variable>();
