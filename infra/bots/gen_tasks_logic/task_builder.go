@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"time"
 
+	"go.skia.org/infra/go/cipd"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
@@ -83,9 +84,9 @@ func (b *taskBuilder) idempotent() {
 	b.Spec.Idempotent = true
 }
 
-// isolate sets the isolate file used by the task.
-func (b *taskBuilder) isolate(i string) {
-	b.Spec.Isolate = b.relpath(i)
+// cas sets the CasSpec used by the task.
+func (b *taskBuilder) cas(casSpec string) {
+	b.Spec.CasSpec = casSpec
 }
 
 // env appends the given values to the given environment variable for the task.
@@ -165,12 +166,12 @@ func (b *taskBuilder) useIsolatedAssets() bool {
 	return false
 }
 
-// isolateAssetConfig represents a task which copies a CIPD package into
+// uploadAssetCASCfg represents a task which copies a CIPD package into
 // isolate.
-type isolateAssetCfg struct {
-	alwaysIsolate   bool
-	isolateTaskName string
-	path            string
+type uploadAssetCASCfg struct {
+	alwaysIsolate  bool
+	uploadTaskName string
+	path           string
 }
 
 // asset adds the given assets to the task as CIPD packages.
@@ -179,7 +180,7 @@ func (b *taskBuilder) asset(assets ...string) {
 	pkgs := make([]*specs.CipdPackage, 0, len(assets))
 	for _, asset := range assets {
 		if cfg, ok := ISOLATE_ASSET_MAPPING[asset]; ok && (cfg.alwaysIsolate || shouldIsolate) {
-			b.dep(b.isolateCIPDAsset(asset))
+			b.dep(b.uploadCIPDAssetToCAS(asset))
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset(asset))
 		}
@@ -259,15 +260,37 @@ func (b *taskBuilder) getRecipeProps() string {
 	return marshalJson(props)
 }
 
+// cipdPlatform returns the CIPD platform for this task.
+func (b *taskBuilder) cipdPlatform() string {
+	if b.role("Upload") {
+		return cipd.PlatformLinuxAmd64
+	} else if b.matchOs("Win") || b.matchExtraConfig("Win") {
+		if b.matchArch("x86_64") {
+			return cipd.PlatformWindowsAmd64
+		} else {
+			return cipd.PlatformWindows386
+		}
+	} else if b.matchOs("Mac") {
+		return cipd.PlatformMacAmd64
+	} else if b.matchArch("Arm64") {
+		return cipd.PlatformLinuxArm64
+	} else {
+		return cipd.PlatformLinuxAmd64
+	}
+}
+
 // usesPython adds attributes to tasks which use python.
 func (b *taskBuilder) usesPython() {
-	// TODO(borenet): This is hacky and bad.
-	b.cipd(specs.CIPD_PKGS_PYTHON[1])
-	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
-		b.cipd(CIPD_PKG_CPYTHON)
-	} else if b.os("Mac10.15") && b.model("VMware7.1") {
-		b.cipd(CIPD_PKG_CPYTHON)
+	// TODO(borenet): This handling of the Python package is hacky and bad.
+	pythonPkgs := cipd.PkgsPython[b.cipdPlatform()]
+	b.cipd(pythonPkgs[1])
+	if b.os("Mac10.15") && b.model("VMware7.1") {
+		b.cipd(pythonPkgs[0])
 	}
+	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
+		b.cipd(pythonPkgs[0])
+	}
+
 	b.cache(&specs.Cache{
 		Name: "vpython",
 		Path: "cache/vpython",
