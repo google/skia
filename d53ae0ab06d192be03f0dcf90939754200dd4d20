@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d62b0d1_20d30542",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T19:51:22Z",
+      "side": 1,
+      "message": "Out of curiosity, why is there a ctor here? Doesn\u0027t Swizzle(...) return a half3?",
+      "range": {
+        "startLine": 52,
+        "startChar": 33,
+        "endLine": 52,
+        "endChar": 38
+      },
+      "revId": "d53ae0ab06d192be03f0dcf90939754200dd4d20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
