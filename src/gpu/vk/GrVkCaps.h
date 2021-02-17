@@ -171,6 +171,13 @@ public:
     // many times on the gpu.
     bool gpuOnlyBuffersMorePerformant() const { return fGpuOnlyBuffersMorePerformant; }
 
+    // For our CPU write and GPU read buffers (vertex, uniform, etc.), should we keep these buffers
+    // persistently mapped. In general the answer will be yes. The main case we don't do this is
+    // when using special memory that is DEVICE_LOCAL and HOST_VISIBLE on discrete GPUs.
+    bool shouldPersistentlyMapCpuToGpuBuffers() const {
+        return fShouldPersistentlyMapCpuToGpuBuffers;
+    }
+
     // The max draw count that can be passed into indirect draw calls.
     uint32_t  maxDrawIndirectDrawCount() const { return fMaxDrawIndirectDrawCount; }
 
@@ -373,6 +380,7 @@ private:
 
     bool fMustUseCoherentHostVisibleMemory = false;
     bool fGpuOnlyBuffersMorePerformant = false;
+    bool fShouldPersistentlyMapCpuToGpuBuffers = true;
 
     // We default this to 100 since we already cap the max render tasks at 100 before doing a
     // submission in the GrDrawingManager, so we shouldn't be going over 100 secondary command

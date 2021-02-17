@@ -11,25 +11,21 @@
 #include "src/gpu/vk/GrVkUtil.h"
 
 using AllocationPropertyFlags = GrVkMemoryAllocator::AllocationPropertyFlags;
+using BufferUsage = GrVkMemoryAllocator::BufferUsage;
 
 bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
                                           VkBuffer buffer,
-                                          GrVkMemoryAllocator::BufferUsage usage,
+                                          BufferUsage usage,
                                           GrVkAlloc* alloc) {
     GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
     GrVkBackendMemory memory = 0;
 
     AllocationPropertyFlags propFlags;
-    if (usage == GrVkMemoryAllocator::BufferUsage::kCpuWritesGpuReads) {
-        // In general it is always fine (and often better) to keep buffers always mapped.
-        // TODO: According to AMDs guide for the VulkanMemoryAllocator they suggest there are two
-        // cases when keeping it mapped can hurt. The first is when running on Win7 or Win8 (Win 10
-        // is fine). In general, by the time Vulkan ships it is probably less likely to be running
-        // on non Win10 or newer machines. The second use case is if running on an AMD card and you
-        // are using the special GPU local and host mappable memory. However, in general we don't
-        // pick this memory as we've found it slower than using the cached host visible memory. In
-        // the future if we find the need to special case either of these two issues we can add
-        // checks for them here.
+    bool shouldPersistentlyMapCpuToGpu = gpu->vkCaps().shouldPersistentlyMapCpuToGpuBuffers();
+    if (usage == BufferUsage::kTransfersFromCpuToGpu ||
+        (usage == BufferUsage::kCpuWritesGpuReads && shouldPersistentlyMapCpuToGpu)) {
+        // In general it is always fine (and often better) to keep buffers always mapped that we are
+        // writing to on the cpu.
         propFlags = AllocationPropertyFlags::kPersistentlyMapped;
     } else {
         propFlags = AllocationPropertyFlags::kNone;
