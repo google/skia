@@ -52,6 +52,24 @@
       "parentUuid": "8e2790bb_fbe38570",
       "revId": "f98876b0939764bf8471766531369012528ee227",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6092998e_c969b3a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-17T12:58:47Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m trying to figure out the right way to test this. Currently looking at the CoreText only reproduction to make sure there\u0027s nothing else too strange going on.",
+      "parentUuid": "d4ce8430_e511ab67",
+      "revId": "f98876b0939764bf8471766531369012528ee227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
