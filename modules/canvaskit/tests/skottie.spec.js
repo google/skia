@@ -116,4 +116,101 @@ describe('Skottie behavior', () => {
             done();
         });
     });
+
+    it('can get logs', (done) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+
+        const logger = {
+           errors:   [],
+           warnings: [],
+
+           reset: function() { this.errors = []; this.warnings = []; },
+
+           // Logger API
+           onError:   function(err) { this.errors.push(err)   },
+           onWarning: function(wrn) { this.warnings.push(wrn) }
+        };
+
+        {
+            const json = `{
+                "v": "5.2.1",
+                "w": 100,
+                "h": 100,
+                "fr": 10,
+                "ip": 0,
+                "op": 100,
+                "layers": [{
+                    "ty": 3,
+                    "nm": "null",
+                    "ind": 0,
+                    "ip": 0
+                }]
+            }`;
+            const animation = CanvasKit.MakeManagedAnimation(json, null, null, null, logger);
+            expect(animation).toBeTruthy();
+            expect(logger.errors.length).toEqual(0);
+            expect(logger.warnings.length).toEqual(0);
+        }
+
+        {
+            const json = `{
+                "v": "5.2.1",
+                "w": 100,
+                "h": 100,
+                "fr": 10,
+                "ip": 0,
+                "op": 100,
+                "layers": [{
+                    "ty": 2,
+                    "nm": "image",
+                    "ind": 0,
+                    "ip": 0
+                }]
+            }`;
+            const animation = CanvasKit.MakeManagedAnimation(json, null, null, null, logger);
+            expect(animation).toBeTruthy();
+            expect(logger.errors.length).toEqual(1);
+            expect(logger.warnings.length).toEqual(0);
+
+            // Image layer missing refID
+            expect(logger.errors[0].includes('missing ref'));
+            logger.reset();
+        }
+
+        {
+            const json = `{
+                "v": "5.2.1",
+                "w": 100,
+                "h": 100,
+                "fr": 10,
+                "ip": 0,
+                "op": 100,
+                "layers": [{
+                    "ty": 1,
+                    "nm": "solid",
+                    "sw": 100,
+                    "sh": 100,
+                    "sc": "#aabbcc",
+                    "ind": 0,
+                    "ip": 0,
+                    "ef": [{
+                      "mn": "FOO"
+                    }]
+                }]
+            }`;
+            const animation = CanvasKit.MakeManagedAnimation(json, null, null, null, logger);
+            expect(animation).toBeTruthy();
+            expect(logger.errors.length).toEqual(0);
+            expect(logger.warnings.length).toEqual(1);
+
+            // Unsupported effect FOO
+            expect(logger.warnings[0].includes('FOO'));
+            logger.reset();
+        }
+
+        done();
+    });
 });
