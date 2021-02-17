@@ -31,8 +31,6 @@ private:
         SkASSERT(0 == this->numTargets());
         return proxy == fSrcProxy.get();
     }
-    // If fSrcProxy is uninstantiated at flush time we simply will skip doing the transfer.
-    void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {

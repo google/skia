@@ -65,6 +65,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         return;
     }
 
+    // TODO: If the proxy is lazy, just add it into a list regardless if it's readonly.
+    //
+
     // If a proxy is read only it must refer to a texture with specific content that cannot be
     // recycled. We don't need to assign a texture to it and no other proxy can be instantiated
     // with the same texture.
@@ -293,17 +296,13 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-void GrResourceAllocator::assign(AssignError* outError) {
-    SkASSERT(outError);
-    *outError = fLazyInstantiationError ? AssignError::kFailedProxyInstantiation
-                                        : AssignError::kNoError;
-
+bool GrResourceAllocator::assign() {
     fIntvlHash.reset(); // we don't need the interval hash anymore
 
     SkDEBUGCODE(fAssigned = true;)
 
-    if (fIntvlList.empty()) {
-        return;          // no resources to assign
+    if (fIntvlList.empty() || fLazyInstantiationError) {
+        return fLazyInstantiationError;          // no resources to assign
     }
 
 #if GR_ALLOCATION_SPEW
@@ -325,7 +324,7 @@ void GrResourceAllocator::assign(AssignError* outError) {
 
         if (cur->proxy()->isLazy()) {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
-                *outError = AssignError::kFailedProxyInstantiation;
+                return false;
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy())) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
@@ -348,7 +347,7 @@ void GrResourceAllocator::assign(AssignError* outError) {
             cur->assign(std::move(surface));
         } else {
             SkASSERT(!cur->proxy()->isInstantiated());
-            *outError = AssignError::kFailedProxyInstantiation;
+            return false;
         }
 
         fActiveIntvls.insertByIncreasingEnd(cur);
@@ -356,6 +355,7 @@ void GrResourceAllocator::assign(AssignError* outError) {
 
     // expire all the remaining intervals to drain the active interval list
     this->expire(std::numeric_limits<unsigned int>::max());
+    return true;
 }
 
 #if GR_ALLOCATION_SPEW

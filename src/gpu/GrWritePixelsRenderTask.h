@@ -32,8 +32,6 @@ private:
                       sk_sp<SkData> pixelStorage);
 
     bool onIsUsed(GrSurfaceProxy* proxy) const override { return false; }
-    // If instantiation failed, at flush time we simply will skip doing the write.
-    void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override;
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) override;
     bool onExecute(GrOpFlushState*) override;
