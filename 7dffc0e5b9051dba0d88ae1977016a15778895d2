@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d289693_2475a911",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2021-02-17T00:00:17Z",
+      "side": 1,
+      "message": "Based on the newest comments in the chromium cl, https://chromium-review.googlesource.com/c/chromium/src/+/2683715, I think it\u0027s better to use enum histogram instead of Sparse as it is faster. I read the reference mark gave, it seems that we need either kMaxValue or kCount (a manually set last value). It seems to me that I need modify the enum either way. So I added kMaxValue back. I can remove the histogram and this code after our study is finished.\n\nref: https://chromium.googlesource.com/chromium/src.git/+/HEAD/tools/metrics/histograms/README.md#Enum-Histograms",
+      "revId": "7dffc0e5b9051dba0d88ae1977016a15778895d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
