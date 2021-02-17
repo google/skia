@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8973d04f_c490849f",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-17T14:29:31Z",
+      "side": 1,
+      "message": "Seems like today we could do this with codeAppend(Block(Foo, Bar, ...)); Block also supports append (but only one at a time, easy enough to add the multi-statement version). So I could imagine doing everything with local DSL objects, and then adding a single constructed (Block) statement at the end?",
+      "parentUuid": "de42f71d_797f1cb3",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 27
+      },
+      "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8c749f59_3eeca9a2",
         "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
         "patchSetId": 1
@@ -42,6 +66,29 @@
         "startChar": 57,
         "endLine": 56,
         "endChar": 66
+      },
+      "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a42e82ec_ec825ff5",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-17T14:29:31Z",
+      "side": 1,
+      "message": "nit: Not for this CL, but I think Select (even as an alias) will read better. It matches the skvm terminology, and the various shading language docs refer to it as the selection operator. (Metal actually uses `select` as the name of the intrinsic that does this).",
+      "range": {
+        "startLine": 60,
+        "startChar": 43,
+        "endLine": 60,
+        "endChar": 50
       },
       "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
