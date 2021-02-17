@@ -21,9 +21,6 @@ git commit -a -m "dummy commit to make go modules work"
 export GOFLAGS="-mod=readonly"
 go mod download
 go install -v go.skia.org/infra/infra/bots/task_drivers/build_push_docker_image
-go install -v go.skia.org/infra/infra/bots/task_drivers/push_apps_from_skia_image
-go install -v go.skia.org/infra/infra/bots/task_drivers/push_apps_from_skia_wasm_images
-go install -v go.skia.org/infra/infra/bots/task_drivers/push_apps_from_wasm_image
 go install -v go.skia.org/infra/infra/bots/task_drivers/update_go_deps
 
 # Build task drivers from this repo.
