@@ -57,6 +57,23 @@
       "parentUuid": "e9e88ce7_e04646ee",
       "revId": "ee30b65f5a7ad0138a3a62d54d8b88adfc92557e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0dea512a_b445ec1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-17T17:31:40Z",
+      "side": 1,
+      "message": "Thanks for the fix, that\u0027s great, LGTM! Having a DEF_TEST to regression test for this would be a great plus so that we\u0027re prepared when newer bots are brought up.\n",
+      "revId": "ee30b65f5a7ad0138a3a62d54d8b88adfc92557e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
