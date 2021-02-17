@@ -424,8 +424,9 @@ SkVMGenerator::SkVMGenerator(const Program& program,
     size_t fpCount = 0;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
-            const Variable& var = decl.declaration()->as<VarDeclaration>().var();
+            const GlobalVarDeclaration& gvd = e->as<GlobalVarDeclaration>();
+            const VarDeclaration& decl = gvd.declaration()->as<VarDeclaration>();
+            const Variable& var = decl.var();
             SkASSERT(fVariableMap.find(&var) == fVariableMap.end());
 
             // For most variables, fVariableMap stores an index into fSlots, but for fragment
@@ -439,8 +440,10 @@ SkVMGenerator::SkVMGenerator(const Program& program,
             // special types like 'void'. Of those, only fragment processors are legal variables.
             SkASSERT(!var.type().isOpaque());
 
-            size_t nslots = slot_count(var.type());
-            fVariableMap[&var] = fSlots.size();
+            // getSlot() allocates space for the variable's value in fSlots, initializes it to zero,
+            // and populates fVariableMap.
+            size_t slot   = this->getSlot(var),
+                   nslots = slot_count(var.type());
 
             if (int builtin = var.modifiers().fLayout.fBuiltin; builtin >= 0) {
                 // builtin variables are system-defined, with special semantics. The only builtin
@@ -448,10 +451,10 @@ SkVMGenerator::SkVMGenerator(const Program& program,
                 switch (builtin) {
                     case SK_FRAGCOORD_BUILTIN:
                         SkASSERT(nslots == 4);
-                        fSlots.insert(fSlots.end(), {device.x.id,
-                                                     device.y.id,
-                                                     fBuilder->splat(0.0f).id,
-                                                     fBuilder->splat(1.0f).id});
+                        fSlots[slot + 0] = device.x.id;
+                        fSlots[slot + 1] = device.y.id;
+                        fSlots[slot + 2] = fBuilder->splat(0.0f).id;
+                        fSlots[slot + 3] = fBuilder->splat(1.0f).id;
                         break;
                     default:
                         SkDEBUGFAIL("Unsupported builtin");
@@ -459,11 +462,14 @@ SkVMGenerator::SkVMGenerator(const Program& program,
             } else if (is_uniform(var)) {
                 // For uniforms, copy the supplied IDs over
                 SkASSERT(uniformIter + nslots <= uniforms.end());
-                fSlots.insert(fSlots.end(), uniformIter, uniformIter + nslots);
+                std::copy(uniformIter, uniformIter + nslots, fSlots.begin() + slot);
                 uniformIter += nslots;
-            } else {
-                // For other globals, initialize them to zero
-                fSlots.insert(fSlots.end(), nslots, fBuilder->splat(0.0f).id);
+            } else if (decl.value()) {
+                // For other globals, populate with the initializer expression (if there is one)
+                Value val = this->writeExpression(*decl.value());
+                for (size_t i = 0; i < nslots; ++i) {
+                    fSlots[slot + i] = val[i];
+                }
             }
         }
     }
@@ -516,8 +522,6 @@ size_t SkVMGenerator::getSlot(const Variable& v) {
     if (entry != fVariableMap.end()) {
         return entry->second;
     }
-
-    SkASSERT(!is_uniform(v));  // Should have been added at construction time
 
     size_t slot   = fSlots.size(),
            nslots = slot_count(v.type());
