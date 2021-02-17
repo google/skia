@@ -16,6 +16,24 @@
       "message": "Does the test from https://chromium-review.googlesource.com/c/chromium/src/+/2547262 pass with this change?",
       "revId": "f98876b0939764bf8471766531369012528ee227",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e2790bb_fbe38570",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-17T12:08:21Z",
+      "side": 1,
+      "message": "I haven\u0027t tried that exact one one (mostly since it depends on Chromium and building it on my beta track macOS 11 is terribly slow) but it should pass. This change does make systemfont_opsz.cpp (from https://bugs.chromium.org/p/skia/issues/detail?id\u003d10968#c7 ) which is based on that test pass.",
+      "parentUuid": "c06772d7_9473fbd9",
+      "revId": "f98876b0939764bf8471766531369012528ee227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
