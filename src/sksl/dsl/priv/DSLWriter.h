@@ -181,10 +181,10 @@ public:
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
 
 private:
-    SkSL::Program::Settings fSettings;
+    SkSL::ProgramConfig fConfig;
     SkSL::Compiler* fCompiler;
     std::shared_ptr<SkSL::SymbolTable> fOldSymbolTable;
-    const SkSL::Program::Settings* fOldSettings;
+    SkSL::ProgramConfig* fOldConfig;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     ErrorHandler* fErrorHandler = nullptr;
     bool fMangle = true;
