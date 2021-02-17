@@ -1,0 +1,9 @@
+void init_globals()
+{
+	gUninitialized = gInitialized + 2.0;
+}
+float4 main()
+{
+	init_globals();
+	return half4(float4(0.0, -gInitialized, 0.0, gUninitialized));
+}

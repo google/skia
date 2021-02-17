@@ -1,0 +1,13 @@
+/*#pragma settings NoInline*/
+
+float gInitialized = -1.0;
+float gUninitialized;
+
+void init_globals() {
+    gUninitialized = gInitialized + 2;
+}
+
+float4 main() {
+    init_globals();
+    return float4(0, -gInitialized, 0, gUninitialized);
+}
