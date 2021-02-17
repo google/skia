@@ -12,6 +12,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/dsl/priv/DSLFPs.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,34 +40,30 @@ private:
 void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     const GrConvexPolyEffect& cpe = args.fFp.cast<GrConvexPolyEffect>();
 
-    const char *edgeArrayName;
-    fEdgeUniform = args.fUniformHandler->addUniformArray(&cpe,
-                                                         kFragment_GrShaderFlag,
-                                                         kHalf3_GrSLType,
-                                                         "edges",
-                                                         cpe.getEdgeCount(),
-                                                         &edgeArrayName);
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    fragBuilder->codeAppend("half alpha = 1.0;\n");
-    fragBuilder->codeAppend("half edge;\n");
+    using namespace SkSL::dsl;
+    StartFragmentProcessor(this, &args);
+    Var edgeArray(kUniform_Modifier, Array(kHalf3, cpe.getEdgeCount()));
+    fEdgeUniform = VarUniformHandle(edgeArray);
+    Var alpha(kHalf, "alpha");
+    Declare(alpha, 1);
+    Var edge(kHalf, "edge");
+    Declare(edge);
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
-        fragBuilder->codeAppendf("edge = dot(%s[%d], half3(sk_FragCoord.xy1));\n",
-                                 edgeArrayName, i);
+        edge = Dot(edgeArray[i], Half3(Swizzle(sk_FragCoord(), X, Y, ONE)));
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {
-            fragBuilder->codeAppend("edge = saturate(edge);\n");
+            edge = Saturate(edge);
         } else {
-            fragBuilder->codeAppend("edge = edge >= 0.5 ? 1.0 : 0.0;\n");
+            edge = Select(edge >= 0.5, 1.0, 0.0);
         }
-        fragBuilder->codeAppend("alpha *= edge;\n");
+        alpha *= edge;
     }
 
     if (GrProcessorEdgeTypeIsInverseFill(cpe.getEdgeType())) {
-        fragBuilder->codeAppend("alpha = 1.0 - alpha;\n");
+        alpha = 1.0 - alpha;
     }
 
-    SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
-
-    fragBuilder->codeAppendf("return %s * alpha;\n", inputSample.c_str());
+    Return(SampleChild(0) * alpha);
+    EndFragmentProcessor();
 }
 
 void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
