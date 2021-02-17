@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fed11e22_4817381d",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-17T16:39:46Z",
+      "side": 1,
+      "message": "I would suggest emptying the errors and warnings arrays before each test so it\u0027s more clear that this 3rd case adds one warning (but zero errors).",
+      "range": {
+        "startLine": 203,
+        "startChar": 26,
+        "endLine": 203,
+        "endChar": 32
+      },
+      "revId": "4bc0a0acce9974c4706df4686ccf37c0f8ac185c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
