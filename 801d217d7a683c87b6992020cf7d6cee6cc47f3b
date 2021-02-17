@@ -39,6 +39,24 @@
       "message": "This is that gUninitialized has gone from 0 to actually being calculated as gInitialized + 2, with gInitialized staying as -1?",
       "revId": "801d217d7a683c87b6992020cf7d6cee6cc47f3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "496dd764_6e215238",
+        "filename": "tests/sksl/runtime/GlobalVariables.skvm",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-17T19:05:01Z",
+      "side": 1,
+      "message": "Wait, no, I get it...\n\nIt\u0027s gInitialized that\u0027s being fixed, from 0 to -1.  That makes gUninitialized go from 2 down to 1.",
+      "parentUuid": "b6a27b96_49c194b5",
+      "revId": "801d217d7a683c87b6992020cf7d6cee6cc47f3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
