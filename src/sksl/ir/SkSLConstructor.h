@@ -14,6 +14,8 @@
 
 namespace SkSL {
 
+class Type;
+
 /**
  * Represents the construction of a compound type, such as "float2(x, y)".
  *
@@ -27,9 +29,15 @@ class Constructor final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kConstructor;
 
+    // Use Constructor::Make to create constructor expressions.
     Constructor(int offset, const Type* type, ExpressionArray arguments)
         : INHERITED(offset, kExpressionKind, type)
         , fArguments(std::move(arguments)) {}
+
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            int offset,
+                                            const Type& type,
+                                            ExpressionArray args);
 
     ExpressionArray& arguments() {
         return fArguments;
@@ -145,8 +153,22 @@ public:
     bool getConstantBool() const override;
 
 private:
-    template <typename ResultType>
-    ResultType getConstantValue(const Expression& expr) const;
+    static std::unique_ptr<Expression> MakeScalarConstructor(const Context& context,
+                                                             int offset,
+                                                             const Type& type,
+                                                             ExpressionArray args);
+
+    static std::unique_ptr<Expression> MakeCompoundConstructor(const Context& context,
+                                                               int offset,
+                                                               const Type& type,
+                                                               ExpressionArray args);
+
+    static std::unique_ptr<Expression> MakeArrayConstructor(const Context& context,
+                                                            int offset,
+                                                            const Type& type,
+                                                            ExpressionArray args);
+
+    template <typename ResultType> ResultType getConstantValue(const Expression& expr) const;
 
     template <typename ResultType>
     ResultType getInnerVecComponent(const Expression& expr, int position) const;

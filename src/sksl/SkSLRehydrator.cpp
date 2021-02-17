@@ -469,7 +469,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
-            return std::make_unique<Constructor>(-1, type, std::move(args));
+            return Constructor::Make(fContext, /*offset=*/-1, *type, std::move(args));
         }
         case Rehydrator::kFieldAccess_Command: {
             std::unique_ptr<Expression> base = this->expression();
