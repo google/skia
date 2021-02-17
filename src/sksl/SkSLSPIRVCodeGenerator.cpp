@@ -375,7 +375,7 @@ void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
             this->writeInstruction(SpvOpCapability, (SpvId) i, out);
         }
     }
-    if (fProgram.fKind == ProgramKind::kGeometry) {
+    if (fProgram.fConfig->fKind == ProgramKind::kGeometry) {
         this->writeInstruction(SpvOpCapability, SpvCapabilityGeometry, out);
     }
     else {
@@ -960,7 +960,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                        out);
             } else {
                 SkASSERT(arguments.size() == 2);
-                if (fProgram.fSettings.fSharpenTextures) {
+                if (fProgram.fConfig->fSettings.fSharpenTextures) {
                     FloatLiteral lodBias(fContext, -1, -0.5);
                     this->writeInstruction(op, type, result, sampler, uv,
                                            SpvImageOperandsBiasMask,
@@ -1001,7 +1001,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeWord(this->getType(callType), out);
             this->writeWord(result, out);
             this->writeWord(fn, out);
-            if (fProgram.fSettings.fFlipY) {
+            if (fProgram.fConfig->fSettings.fFlipY) {
                 // Flipping Y also negates the Y derivatives.
                 SpvId flipped = this->nextId();
                 this->writeInstruction(SpvOpFNegate, this->getType(callType), flipped, result,
@@ -1961,7 +1961,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
     // Handle the "flipY" setting when reading sk_FragCoord.
     const Variable* variable = ref.variable();
     if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
-        fProgram.fSettings.fFlipY) {
+        fProgram.fConfig->fSettings.fFlipY) {
         // The x component never changes, so just grab it
         SpvId xId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat), xId,
@@ -1972,18 +1972,18 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat),
                                rawYId, result, 1, out);
         SpvId flippedYId = 0;
-        if (fProgram.fSettings.fFlipY) {
+        if (fProgram.fConfig->fSettings.fFlipY) {
             // need to remap to a top-left coordinate system
             if (fRTHeightStructId == (SpvId)-1) {
                 // height variable hasn't been written yet
                 SkASSERT(fRTHeightFieldIndex == (SpvId)-1);
                 std::vector<Type::Field> fields;
-                if (fProgram.fSettings.fRTHeightOffset < 0) {
+                if (fProgram.fConfig->fSettings.fRTHeightOffset < 0) {
                     fErrors.error(ref.fOffset, "RTHeightOffset is negative");
                 }
                 fields.emplace_back(
                         Modifiers(Layout(/*flags=*/0, /*location=*/-1,
-                                         fProgram.fSettings.fRTHeightOffset,
+                                         fProgram.fConfig->fSettings.fRTHeightOffset,
                                          /*binding=*/-1, /*index=*/-1, /*set=*/-1, /*builtin=*/-1,
                                          /*inputAttachmentIndex=*/-1, Layout::Format::kUnspecified,
                                          Layout::kUnspecified_Primitive, /*maxVertices=*/1,
@@ -1994,15 +1994,15 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 StringFragment name("sksl_synthetic_uniforms");
                 std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
                                                                         fields);
-                int binding = fProgram.fSettings.fRTHeightBinding;
+                int binding = fProgram.fConfig->fSettings.fRTHeightBinding;
                 if (binding == -1) {
                     fErrors.error(ref.fOffset, "layout(binding=...) is required in SPIR-V");
                 }
-                int set = fProgram.fSettings.fRTHeightSet;
+                int set = fProgram.fConfig->fSettings.fRTHeightSet;
                 if (set == -1) {
                     fErrors.error(ref.fOffset, "layout(set=...) is required in SPIR-V");
                 }
-                bool usePushConstants = fProgram.fSettings.fUsePushConstants;
+                bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
                 int flags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
                 Modifiers modifiers(
                         Layout(flags, /*location=*/-1, /*offset=*/-1, binding, /*index=*/-1,
@@ -2062,7 +2062,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         this->writeWord(this->getType(*fContext.fTypes.fFloat4), out);
         this->writeWord(adjusted, out);
         this->writeWord(xId, out);
-        if (fProgram.fSettings.fFlipY) {
+        if (fProgram.fConfig->fSettings.fFlipY) {
             this->writeWord(flippedYId, out);
         } else {
             this->writeWord(rawYId, out);
@@ -2075,7 +2075,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
     // Handle the "flipY" setting when reading sk_Clockwise.
     if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
-        !fProgram.fSettings.fFlipY) {
+        !fProgram.fConfig->fSettings.fFlipY) {
         // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia, we use
         // the default convention of "counter-clockwise face is front".
         SpvId inverse = this->nextId();
@@ -2901,7 +2901,7 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
     }
     if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
         kind != ProgramKind::kFragment) {
-        SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
+        SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
         return;
     }
     if (is_dead(var, fProgram.fUsage.get())) {
@@ -2916,7 +2916,7 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
     const Type& type = var.type();
     Layout layout = var.modifiers().fLayout;
     if (layout.fSet < 0 && storageClass == SpvStorageClassUniformConstant) {
-        layout.fSet = fProgram.fSettings.fDefaultUniformSet;
+        layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
     }
     SpvId id = this->nextId();
     fVariableMap[&var] = id;
@@ -3165,7 +3165,7 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
 }
 
 void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out) {
-    SkASSERT(fProgram.fKind == ProgramKind::kGeometry);
+    SkASSERT(fProgram.fConfig->fKind == ProgramKind::kGeometry);
     int invocations = 1;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<ModifiersDeclaration>()) {
@@ -3311,8 +3311,8 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
 
     // Create a global variable to contain this struct.
     Layout layout;
-    layout.fBinding = fProgram.fSettings.fDefaultUniformBinding;
-    layout.fSet     = fProgram.fSettings.fDefaultUniformSet;
+    layout.fBinding = fProgram.fConfig->fSettings.fDefaultUniformBinding;
+    layout.fSet     = fProgram.fConfig->fSettings.fDefaultUniformSet;
     Modifiers modifiers{layout, Modifiers::kUniform_Flag};
 
     fUniformBuffer.fInnerVariable = std::make_unique<Variable>(
@@ -3367,7 +3367,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     // Emit global variable declarations.
     for (const ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            this->writeGlobalVar(program.fKind,
+            this->writeGlobalVar(program.fConfig->fKind,
                                  e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>());
         }
     }
@@ -3407,7 +3407,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
     this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().fLength + 4) / 4) +
                       (int32_t) interfaceVars.size(), out);
-    switch (program.fKind) {
+    switch (program.fConfig->fKind) {
         case ProgramKind::kVertex:
             this->writeWord(SpvExecutionModelVertex, out);
             break;
@@ -3426,10 +3426,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (int var : interfaceVars) {
         this->writeWord(var, out);
     }
-    if (program.fKind == ProgramKind::kGeometry) {
+    if (program.fConfig->fKind == ProgramKind::kGeometry) {
         this->writeGeometryShaderExecutionMode(entryPoint, out);
     }
-    if (program.fKind == ProgramKind::kFragment) {
+    if (program.fConfig->fKind == ProgramKind::kFragment) {
         this->writeInstruction(SpvOpExecutionMode,
                                fFunctionMap[main],
                                SpvExecutionModeOriginUpperLeft,
