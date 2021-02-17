@@ -43,9 +43,9 @@
       "@@@SET_BUILD_PROPERTY@patch_storage@\"gerrit\"@@@",
       "@@@SET_BUILD_PROPERTY@patchset@\"None\"@@@",
       "@@@SET_BUILD_PROPERTY@role@\"Upload\"@@@",
-      "@@@SET_BUILD_PROPERTY@slave_dir@\"[START_DIR]\"@@@",
       "@@@SET_BUILD_PROPERTY@swarming_out_dir@\"[START_DIR]/tmp\"@@@",
-      "@@@SET_BUILD_PROPERTY@tmp_dir@\"[START_DIR]/tmp\"@@@"
+      "@@@SET_BUILD_PROPERTY@tmp_dir@\"[START_DIR]/tmp\"@@@",
+      "@@@SET_BUILD_PROPERTY@workdir@\"[START_DIR]\"@@@"
     ]
   },
   {

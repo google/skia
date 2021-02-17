@@ -10,8 +10,8 @@ def compile_fn(api, checkout_root, out_dir):
   target_arch   = api.vars.builder_cfg.get('target_arch')
 
   # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
-  toolchain_dir = api.vars.slave_dir.join('cast_toolchain', 'armv7a')
-  gles_dir = api.vars.slave_dir.join('chromebook_arm_gles')
+  toolchain_dir = api.vars.workdir.join('cast_toolchain', 'armv7a')
+  gles_dir = api.vars.workdir.join('chromebook_arm_gles')
 
   target  = ['-target', 'armv7a-cros-linux-gnueabihf']
   sysroot = ['--sysroot',

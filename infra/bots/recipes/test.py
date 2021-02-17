@@ -975,7 +975,7 @@ def RunSteps(api):
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.dm'
-    env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
+    env['IOS_MOUNT_POINT'] = api.vars.workdir.join('mnt_iosdevice')
   with api.context(env=env):
     try:
       if 'Chromecast' in api.vars.builder_name:
