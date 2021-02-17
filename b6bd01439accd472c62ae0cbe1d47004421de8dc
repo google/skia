@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf93f9f6_acb48374",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T16:09:00Z",
+      "side": 1,
+      "message": "This is fine but I\u0027m curious, why did GrGLSLShaderBuilder::codeAppend have to change? Can DSLStatements and DSLExpressions not be moved in?",
+      "revId": "b6bd01439accd472c62ae0cbe1d47004421de8dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b8c1473_e35c6e65",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T16:09:00Z",
+      "side": 1,
+      "message": "tiny nit: accidentally removed whitespace",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 1
+      },
+      "revId": "b6bd01439accd472c62ae0cbe1d47004421de8dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
