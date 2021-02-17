@@ -1738,17 +1738,21 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     if (!expr) {
         return nullptr;
     }
+    const int offset = expr->fOffset;
+    if (expr->is<FunctionReference>()) {
+        this->errorReporter().error(offset, "expected '(' to begin function call");
+        return nullptr;
+    }
+    if (expr->is<TypeReference>()) {
+        this->errorReporter().error(offset, "expected '(' to begin constructor invocation");
+        return nullptr;
+    }
     if (expr->type() == type) {
         return expr;
     }
-    this->checkValid(*expr);
-    if (expr->type() == *fContext.fTypes.fInvalid) {
-        return nullptr;
-    }
-    int offset = expr->fOffset;
     if (!expr->coercionCost(type).isPossible(this->settings().fAllowNarrowingConversions)) {
         this->errorReporter().error(offset, "expected '" + type.displayName() + "', but found '" +
-                                                    expr->type().displayName() + "'");
+                                            expr->type().displayName() + "'");
         return nullptr;
     }
     ExpressionArray args;
@@ -2914,13 +2918,6 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_pt
 
 void IRGenerator::checkValid(const Expression& expr) {
     switch (expr.kind()) {
-        case Expression::Kind::kFunctionReference:
-            this->errorReporter().error(expr.fOffset, "expected '(' to begin function call");
-            break;
-        case Expression::Kind::kTypeReference:
-            this->errorReporter().error(expr.fOffset,
-                                        "expected '(' to begin constructor invocation");
-            break;
         case Expression::Kind::kFunctionCall: {
             const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
             if (!decl.isBuiltin() && !decl.definition()) {
@@ -2929,10 +2926,16 @@ void IRGenerator::checkValid(const Expression& expr) {
             }
             break;
         }
+        case Expression::Kind::kFunctionReference:
+        case Expression::Kind::kTypeReference:
+            SkDEBUGFAIL("invalid reference-expression, should have been reported by coerce()");
+            this->errorReporter().error(expr.fOffset, "invalid expression");
+            break;
         default:
             if (expr.type() == *fContext.fTypes.fInvalid) {
                 this->errorReporter().error(expr.fOffset, "invalid expression");
             }
+            break;
     }
 }
 
