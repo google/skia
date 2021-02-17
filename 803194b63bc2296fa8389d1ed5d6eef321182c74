@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da218a64_e1954c2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-17T20:33:38Z",
+      "side": 1,
+      "message": "Just general comment, you are keeping alive both dynamic and not dynamic cases. Is there a benefit for having the not dynamic case? Is the extra code complexing, extra shaders, etc. worth it? From what I can tell the main difference is whether we are passing in the stroke info via vert attribs or uniforms.",
+      "revId": "803194b63bc2296fa8389d1ed5d6eef321182c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ee115d11_5a5192df",
