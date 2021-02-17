@@ -175,6 +175,7 @@ sksl_error_tests = [
   "/sksl/errors/UndeclaredFunction.sksl",
   "/sksl/errors/UndefinedFunction.sksl",
   "/sksl/errors/UndefinedSymbol.sksl",
+  "/sksl/errors/UniformVarWithInitializerExpression.sksl",
   "/sksl/errors/UnknownDivideByZero.sksl",
   "/sksl/errors/Unreachable.sksl",
   "/sksl/errors/UnsupportedGLSLIdentifiers.sksl",
