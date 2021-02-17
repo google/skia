@@ -131,14 +131,12 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
 }
 
 gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
-        SkSL::ProgramKind kind,
         const SkSL::String& sksl,
         const SkSL::Program::Settings& settings,
         SkSL::Program::Inputs* outInputs,
         SkSL::String* outHLSL) {
     auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
-    std::unique_ptr<SkSL::Program> program = fGpu->shaderCompiler()->convertProgram(
-            kind, sksl, settings);
+    std::unique_ptr<SkSL::Program> program = fGpu->shaderCompiler()->convertProgram(sksl, settings);
     if (!program) {
         errorHandler->compileError(sksl.c_str(),
                                    fGpu->shaderCompiler()->errorText().c_str());
@@ -155,7 +153,7 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
 
-    return GrCompileHLSLShader(fGpu, *outHLSL, kind);
+    return GrCompileHLSLShader(fGpu, *outHLSL, settings.fProgramKind);
 }
 
 static DXGI_FORMAT attrib_type_to_format(GrVertexAttribType type) {
@@ -602,7 +600,8 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         }
 
         auto compile = [&](SkSL::ProgramKind kind, GrShaderType shaderType) {
-            shaders[shaderType] = this->compileD3DProgram(kind, *sksl[shaderType], settings,
+            settings.fProgramKind = kind;
+            shaders[shaderType] = this->compileD3DProgram(*sksl[shaderType], settings,
                                                           &inputs[shaderType], &hlsl[shaderType]);
             return shaders[shaderType].get();
         };

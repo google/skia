@@ -49,8 +49,7 @@ private:
 
     bool loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID3DBlob> shaders[]);
 
-    gr_cp<ID3DBlob> compileD3DProgram(SkSL::ProgramKind kind,
-                                      const SkSL::String& sksl,
+    gr_cp<ID3DBlob> compileD3DProgram(const SkSL::String& sksl,
                                       const SkSL::Program::Settings& settings,
                                       SkSL::Program::Inputs* outInputs,
                                       SkSL::String* outHLSL);

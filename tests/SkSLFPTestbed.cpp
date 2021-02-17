@@ -13,12 +13,10 @@
 static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src) {
     SkSL::Program::Settings settings;
     settings.fRemoveDeadFunctions = false;
+    settings.fProgramKind = SkSL::ProgramKind::kFragmentProcessor;
     SkSL::Compiler compiler(&caps);
     SkSL::StringStream output;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                             SkSL::ProgramKind::kFragmentProcessor,
-                                                             SkSL::String(src),
-                                                             settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::String(src), settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         return;

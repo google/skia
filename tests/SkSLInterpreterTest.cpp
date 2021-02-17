@@ -17,14 +17,14 @@ struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)
             : fCaps(GrContextOptions{}), fCompiler(&fCaps) {
         SkSL::Program::Settings settings;
+        settings.fProgramKind = SkSL::ProgramKind::kGeneric;
         // The SkSL inliner is well tested in other contexts. Here, we disable inlining entirely,
         // to stress-test the VM generator's handling of function calls with varying signatures.
         settings.fInlineThreshold = 0;
         // For convenience, so we can test functions other than (and not called by) main.
         settings.fRemoveDeadFunctions = false;
 
-        fProgram = fCompiler.convertProgram(SkSL::ProgramKind::kGeneric, SkSL::String(src),
-                                            settings);
+        fProgram = fCompiler.convertProgram(SkSL::String(src), settings);
         if (!fProgram) {
             ERRORF(r, "Program failed to compile:\n%s\n%s\n", src, fCompiler.errorText().c_str());
         }
@@ -626,8 +626,8 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
     GrShaderCaps caps(GrContextOptions{});
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
-    auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
-                                           SkSL::String(src), settings);
+    settings.fProgramKind = SkSL::ProgramKind::kGeneric;
+    auto program = compiler.convertProgram(SkSL::String(src), settings);
     REPORTER_ASSERT(r, !program);
 }
 
@@ -902,11 +902,12 @@ DEF_TEST(SkSLInterpreterExternalFunction, r) {
     GrShaderCaps caps(GrContextOptions{});
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kGeneric;
     const char* src = "float main() { return external(25); }";
     std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
     externalFunctions.push_back(std::make_unique<ExternalSqrt>("external", compiler));
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings, &externalFunctions);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::String(src), settings,
+                                                                     &externalFunctions);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
@@ -955,6 +956,7 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
     GrShaderCaps caps(GrContextOptions{});
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
+    settings.fProgramKind = SkSL::ProgramKind::kGeneric;
     const char* src =
             "float4 main() { return float4(table(2), table(-1), table(0.4), table(0.6)); }";
     std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
@@ -963,8 +965,8 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
     skvm::Uniforms u(b.uniform(), 0);
 
     externalFunctions.push_back(std::make_unique<ExternalTable>("table", compiler, &u));
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings, &externalFunctions);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::String(src), settings,
+                                                                     &externalFunctions);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");

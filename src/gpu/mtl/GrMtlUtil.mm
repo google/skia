@@ -53,7 +53,6 @@ static const bool gPrintMSL = false;
 
 id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
                                           const SkSL::String& sksl,
-                                          SkSL::ProgramKind programKind,
                                           const SkSL::Program::Settings& settings,
                                           SkSL::String* msl,
                                           SkSL::Program::Inputs* outInputs,
@@ -64,17 +63,14 @@ id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
     const SkSL::String& src = sksl;
 #endif
     SkSL::Compiler* compiler = gpu->shaderCompiler();
-    std::unique_ptr<SkSL::Program> program =
-            gpu->shaderCompiler()->convertProgram(programKind,
-                                                  src,
-                                                  settings);
+    std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(src, settings);
     if (!program || !compiler->toMetal(*program, msl)) {
         errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
         return nil;
     }
 
     if (gPrintSKSL || gPrintMSL) {
-        GrShaderUtils::PrintShaderBanner(programKind);
+        GrShaderUtils::PrintShaderBanner(settings.fProgramKind);
         if (gPrintSKSL) {
             SkDebugf("SKSL:\n");
             GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
