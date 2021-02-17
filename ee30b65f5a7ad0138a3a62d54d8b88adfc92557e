@@ -39,6 +39,24 @@
       "message": "This will eventually need a test, but currently waiting on macOS 11 bots (issue 11334). This shouldn\u0027t cause any harm, but seems to fix some issues.",
       "revId": "ee30b65f5a7ad0138a3a62d54d8b88adfc92557e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9ec9fea_4eba5cdd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-02-17T17:23:04Z",
+      "side": 1,
+      "message": "Are you sending this out for review (asking re status of the CL)? Can we add the test in this CL? It should pass on older bots, too, wouldn\u0027t it, and so then we\u0027d have the regression testing baked in for the future.",
+      "parentUuid": "e9e88ce7_e04646ee",
+      "revId": "ee30b65f5a7ad0138a3a62d54d8b88adfc92557e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
