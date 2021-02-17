@@ -87,6 +87,30 @@
       },
       "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9598b5a_3fa7b6a0",
+        "filename": "src/gpu/geometry/GrStyledShape.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-17T16:19:24Z",
+      "side": 1,
+      "message": "I\u0027ll go ahead and leave it. It does use a lot of private stuff. We can always revisit in a separate CL.",
+      "parentUuid": "0ad3f9e8_4afb7de1",
+      "range": {
+        "startLine": 130,
+        "startChar": 36,
+        "endLine": 131,
+        "endChar": 76
+      },
+      "revId": "e700de0332d9d39b9528f8e59db7b4be5117ce60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
