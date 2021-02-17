@@ -36,9 +36,7 @@ public:
 
     DSLStatement(DSLStatement&&) = default;
 
-    ~DSLStatement() {
-        SkASSERTF(!fStatement, "Statement destroyed without being incorporated into program");
-    }
+    ~DSLStatement();
 
     std::unique_ptr<SkSL::Statement> release() {
         return std::move(fStatement);
@@ -53,6 +51,7 @@ private:
 
     friend class DSLBlock;
     friend class DSLCore;
+    friend class DSLExpression;
     friend class DSLWriter;
 };
 

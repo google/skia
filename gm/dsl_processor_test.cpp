@@ -35,9 +35,8 @@ public:
                 Var blueAlpha(kUniform_Modifier, kHalf2);
                 fBlueAlphaUniform = VarUniformHandle(blueAlpha);
                 Var coords(kFloat4);
-                args.fFragBuilder->codeAppend(Declare(coords, sk_FragCoord()));
-                args.fFragBuilder->codeAppend(Return(Half4(Swizzle(coords, X, Y) / 100,
-                                                           blueAlpha)));
+                Declare(coords, sk_FragCoord());
+                Return(Half4(Swizzle(coords, X, Y) / 100, blueAlpha));
                 EndFragmentProcessor();
             }
 
