@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<title>Image Scaling</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+</style>
+
+<body>
+  <h1>Image Scaling</h1>
+
+  <div class="slidecontainer">
+      <input type="range" min="0" max="1000" value="500" class="slider" id="canvas_scale">
+      <input type="range" min="0" max="1000" value="500" class="slider" id="cubic_B">
+      <input type="range" min="0" max="1000" value="500" class="slider" id="cubic_C">
+  </div>
+
+  <canvas id=draw width=2048 height=2048></canvas>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+
+    const canvas_scale = document.getElementById("canvas_scale");
+    const cubic_B = document.getElementById("cubic_B");
+    const cubic_C = document.getElementById("cubic_C");
+
+  Promise.all([
+      CanvasKitInit({ locateFile: (file) => 'https://particles.skia.org/dist/' + file }),
+      fetch('zone_plate.png')
+   ]).then(([
+      CanvasKit,
+      imageBlob
+  ]) => {
+    const surface = CanvasKit.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+
+    canvas_scale.oninput = function() {
+        surface.requestAnimationFrame(drawFrame);
+    }
+    cubic_B.oninput = function() {
+        surface.requestAnimationFrame(drawFrame);
+    }
+    cubic_C.oninput = function() {
+        surface.requestAnimationFrame(drawFrame);
+    }
+
+    const paint = new CanvasKit.Paint();
+
+    var image = null;
+    imageBlob.arrayBuffer().then((buffer_data) => {
+        image = CanvasKit.MakeImageFromEncoded(buffer_data);
+        surface.requestAnimationFrame(drawFrame);
+    });
+
+    function drawFrame(canvas) {
+
+      if (image) {
+          const scale = canvas_scale.value / 1000.0;
+          canvas.save();
+          canvas.scale(scale, scale);
+          const SPACER = 20;
+          const filters = [CanvasKit.FilterMode.Nearest, CanvasKit.FilterMode.Linear];
+          const mipmaps = [CanvasKit.MipmapMode.None, CanvasKit.MipmapMode.Nearest, CanvasKit.FilterMode.Linear];
+          for (f in filters) {
+              canvas.save();
+              for (m in mipmaps) {
+                  canvas.drawImageOptions(image, 0, 0, f, m, paint);
+                  canvas.translate(image.width() + SPACER, 0);
+              }
+              canvas.restore();
+              canvas.translate(0, image.height() + SPACER);
+          }
+
+          const B = cubic_B.value / 1000.0;
+          const C = cubic_C.value / 1000.0;
+          const cubics = [ [B, C], [1/3.0, 1/3.0], [0, 1/2.0] ];
+          for (var i = 0; i < cubics.length; ++i) {
+              var c = cubics[i];
+              canvas.drawImageCubic(image, 0, 0, c[0], c[1], paint);
+              canvas.translate(image.width() + SPACER, 0);
+          }
+          canvas.restore();
+        }
+    }
+    surface.requestAnimationFrame(drawFrame);
+  });
+
+</script>
