@@ -291,9 +291,8 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
     }
 }
 
-void Inliner::reset(ModifiersPool* modifiers, const Program::Settings* settings) {
+void Inliner::reset(ModifiersPool* modifiers) {
     fModifiers = modifiers;
-    fSettings = settings;
     fMangler.reset();
     fInlinedStatementCounter = 0;
 }
@@ -622,7 +621,6 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // order guarantees. Since we can't use gotos (which are normally used to replace return
     // statements), we wrap the whole function in a loop and use break statements to jump to the
     // end.
-    SkASSERT(fSettings);
     SkASSERT(fContext);
     SkASSERT(call);
     SkASSERT(this->isSafeToInline(call->function().definition()));
@@ -772,10 +770,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 }
 
 bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
-    SkASSERT(fSettings);
-
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
-    if (fSettings->fInlineThreshold <= 0) {
+    if (this->settings().fInlineThreshold <= 0) {
         return false;
     }
 
@@ -1098,7 +1094,7 @@ int Inliner::getFunctionSize(const FunctionDeclaration& funcDecl, FunctionSizeCa
     auto [iter, wasInserted] = cache->insert({&funcDecl, 0});
     if (wasInserted) {
         iter->second = Analysis::NodeCountUpToLimit(*funcDecl.definition(),
-                                                    fSettings->fInlineThreshold);
+                                                    this->settings().fInlineThreshold);
     }
     return iter->second;
 }
@@ -1130,7 +1126,7 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
 
     // If the inline threshold is unlimited, or if we have no candidates left, our candidate list is
     // complete.
-    if (fSettings->fInlineThreshold == INT_MAX || candidates.empty()) {
+    if (this->settings().fInlineThreshold == INT_MAX || candidates.empty()) {
         return;
     }
 
@@ -1138,10 +1134,10 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
     // than `inlineThreshold` nodes. (i.e. if Func() would be inlined six times and its size is
     // 10 nodes, it should be inlined if the inlineThreshold is 60 or higher.)
     FunctionSizeCache functionSizeCache;
-    FunctionSizeCache candidateTotalCost;
+    FunctionSizeCache candTotalCost;
     for (InlineCandidate& candidate : candidates) {
         const FunctionDeclaration& fnDecl = candidate_func(candidate);
-        candidateTotalCost[&fnDecl] += this->getFunctionSize(fnDecl, &functionSizeCache);
+        candTotalCost[&fnDecl] += this->getFunctionSize(fnDecl, &functionSizeCache);
     }
 
     candidates.erase(
@@ -1157,7 +1153,7 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
                                    // If a function is only used once, it's cost-free to inline.
                                    return false;
                                }
-                               if (candidateTotalCost[&fnDecl] <= fSettings->fInlineThreshold) {
+                               if (candTotalCost[&fnDecl] <= this->settings().fInlineThreshold) {
                                    // We won't exceed the inline threshold by inlining this.
                                    return false;
                                }
@@ -1171,7 +1167,7 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
                       std::shared_ptr<SymbolTable> symbols,
                       ProgramUsage* usage) {
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
-    if (fSettings->fInlineThreshold <= 0) {
+    if (this->settings().fInlineThreshold <= 0) {
         return false;
     }
 

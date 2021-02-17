@@ -39,7 +39,7 @@ class Inliner {
 public:
     Inliner(const Context* context) : fContext(context) {}
 
-    void reset(ModifiersPool* modifiers, const Program::Settings*);
+    void reset(ModifiersPool* modifiers);
 
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
     bool analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
@@ -54,6 +54,8 @@ private:
         kScopedReturns,
         kEarlyReturns,
     };
+
+    const Program::Settings& settings() const { return fContext->fConfig->fSettings; }
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                             std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
@@ -113,7 +115,6 @@ private:
 
     const Context* fContext = nullptr;
     ModifiersPool* fModifiers = nullptr;
-    const Program::Settings* fSettings = nullptr;
     Mangler fMangler;
     int fInlinedStatementCounter = 0;
 };
