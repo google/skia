@@ -92,6 +92,30 @@
       },
       "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecc1d09a_c24f8fb7",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-17T14:31:03Z",
+      "side": 1,
+      "message": "For that matter, `Step` is the intrinsic that does _exactly_ this :)",
+      "parentUuid": "a42e82ec_ec825ff5",
+      "range": {
+        "startLine": 60,
+        "startChar": 43,
+        "endLine": 60,
+        "endChar": 50
+      },
+      "revId": "b2fe6ca9fc165b9250f307e0d6b34aa079657855",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
