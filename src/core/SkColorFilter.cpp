@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
@@ -216,109 +217,13 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
     return sk_sp<SkColorFilter>(new SkComposeColorFilter(sk_ref_sp(this), std::move(inner)));
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-class SkSRGBGammaColorFilter : public SkColorFilterBase {
-public:
-    enum class Direction {
-        kLinearToSRGB,
-        kSRGBToLinear,
-    };
-    SkSRGBGammaColorFilter(Direction dir) : fDir(dir), fSteps([&]{
-        // We handle premul/unpremul separately, so here just always upm->upm.
-        if (dir == Direction::kLinearToSRGB) {
-            return SkColorSpaceXformSteps{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
-                                          sk_srgb_singleton(),        kUnpremul_SkAlphaType};
-        } else {
-            return SkColorSpaceXformSteps{sk_srgb_singleton(),        kUnpremul_SkAlphaType,
-                                          sk_srgb_linear_singleton(), kUnpremul_SkAlphaType};
-        }
-    }()) {}
-
-#if SK_SUPPORT_GPU
-    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                   GrRecordingContext* context,
-                                   const GrColorInfo& dstColorInfo) const override {
-        // wish our caller would let us know if our input was opaque...
-        constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
-        switch (fDir) {
-            case Direction::kLinearToSRGB:
-                return GrFPSuccess(GrColorSpaceXformEffect::Make(
-                                       std::move(inputFP),
-                                       sk_srgb_linear_singleton(), alphaType,
-                                       sk_srgb_singleton(),        alphaType));
-            case Direction::kSRGBToLinear:
-                return GrFPSuccess(GrColorSpaceXformEffect::Make(
-                                       std::move(inputFP),
-                                       sk_srgb_singleton(),        alphaType,
-                                       sk_srgb_linear_singleton(), alphaType));
-        }
-        SkUNREACHABLE;
-    }
-#endif
-
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
-        if (!shaderIsOpaque) {
-            rec.fPipeline->append(SkRasterPipeline::unpremul);
-        }
-
-        fSteps.apply(rec.fPipeline);
-
-        if (!shaderIsOpaque) {
-            rec.fPipeline->append(SkRasterPipeline::premul);
-        }
-        return true;
-    }
-
-    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        return premul(fSteps.program(p, uniforms, unpremul(c)));
-    }
-
-    SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
-
-protected:
-    void flatten(SkWriteBuffer& buffer) const override {
-        buffer.write32(static_cast<uint32_t>(fDir));
-    }
-
-private:
-    const Direction fDir;
-    SkColorSpaceXformSteps fSteps;
-
-    friend class SkColorFilter;
-    using INHERITED = SkColorFilterBase;
-};
-
-sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
-    uint32_t dir = buffer.read32();
-    if (!buffer.validate(dir <= 1)) {
-        return nullptr;
-    }
-    return sk_sp<SkFlattenable>(new SkSRGBGammaColorFilter(static_cast<Direction>(dir)));
-}
-
-template <SkSRGBGammaColorFilter::Direction dir>
-sk_sp<SkColorFilter> MakeSRGBGammaCF() {
-    static SkColorFilter* gSingleton = new SkSRGBGammaColorFilter(dir);
-    return sk_ref_sp(gSingleton);
-}
-
-sk_sp<SkColorFilter> SkColorFilters::LinearToSRGBGamma() {
-    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kLinearToSRGB>();
-}
-
-sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
-    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
-}
-
 // This filter assumes its inputs are in Format A and transforms them to format B,
 // pulling each Format property from either custom parameters or the destination surface.
 struct SkColorXformColorFilter : public SkColorFilterBase {
     struct Format {
-        skcms_TransferFunction tf;     bool useDstTF    = true;
-        skcms_Matrix3x3        gamut;  bool useDstGamut = true;
-        SkAlphaType            at;     bool useDstAT    = true;
+        skcms_TransferFunction tf    = SkNamedTransferFn::kSRGB;  bool useDstTF    = true;
+        skcms_Matrix3x3        gamut = SkNamedGamut::kSRGB;       bool useDstGamut = true;
+        SkAlphaType            at    = kPremul_SkAlphaType;       bool useDstAT    = true;
     } fA,fB;
 
     SkColorXformColorFilter(Format A, Format B) : fA(A), fB(B) {}
@@ -408,6 +313,22 @@ sk_sp<SkColorFilter> SkColorFilters::WithWorkingFormat(sk_sp<SkColorFilter>     
     return SkColorFilters::Compose(sk_make_sp<SkColorXformColorFilter>(working,dst),
            SkColorFilters::Compose(child,
                                    sk_make_sp<SkColorXformColorFilter>(dst,working)));
+}
+
+sk_sp<SkColorFilter> SkColorFilters::LinearToSRGBGamma() {
+    SkColorXformColorFilter::Format linear, sRGB;
+    linear.tf = SkNamedTransferFn::kLinear;
+    sRGB.tf   = SkNamedTransferFn::kSRGB;
+    linear.useDstTF = sRGB.useDstTF = false;
+    return sk_make_sp<SkColorXformColorFilter>(linear, sRGB);
+}
+
+sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
+    SkColorXformColorFilter::Format linear, sRGB;
+    linear.tf = SkNamedTransferFn::kLinear;
+    sRGB.tf   = SkNamedTransferFn::kSRGB;
+    linear.useDstTF = sRGB.useDstTF = false;
+    return sk_make_sp<SkColorXformColorFilter>(sRGB, linear);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -558,7 +479,6 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 void SkColorFilterBase::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkComposeColorFilter);
     SK_REGISTER_FLATTENABLE(SkModeColorFilter);
-    SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
     SK_REGISTER_FLATTENABLE(SkMixerColorFilter);
     SK_REGISTER_FLATTENABLE(SkColorXformColorFilter);
 }
