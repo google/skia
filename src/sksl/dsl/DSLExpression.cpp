@@ -19,6 +19,10 @@
 
 #include "math.h"
 
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#endif
+
 namespace SkSL {
 
 namespace dsl {
@@ -63,6 +67,13 @@ DSLExpression::DSLExpression(const DSLVar& var)
                                                         SkSL::VariableReference::RefKind::kRead)) {}
 
 DSLExpression::~DSLExpression() {
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+    if (fExpression && DSLWriter::InFragmentProcessor()) {
+        DSLWriter::CurrentEmitArgs()->fFragBuilder->codeAppend(
+                DSLStatement(this->release()).release());
+        return;
+    }
+#endif
     SkASSERTF(fExpression == nullptr,
               "Expression destroyed without being incorporated into program");
 }

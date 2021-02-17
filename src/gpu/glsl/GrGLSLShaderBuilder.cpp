@@ -89,12 +89,10 @@ void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
     this->functions().append(";\n");
 }
 
-void GrGLSLShaderBuilder::codeAppend(SkSL::dsl::Statement stmt) {
+void GrGLSLShaderBuilder::codeAppend(std::unique_ptr<SkSL::Statement> stmt) {
     SkASSERT(SkSL::dsl::DSLWriter::CurrentProcessor());
-    std::unique_ptr<SkSL::Statement> skslStmt = stmt.release();
-    if (skslStmt) {
-        this->codeAppend(skslStmt->description().c_str());
-    }
+    SkASSERT(stmt);
+    this->codeAppend(stmt->description().c_str());
 }
 
 static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
