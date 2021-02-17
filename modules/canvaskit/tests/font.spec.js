@@ -272,7 +272,7 @@ describe('Font Behavior', () => {
         fontProvider.delete();
     });
 
-    gm('various_font_formats', (canvas, fetchedByteBuffers) => {
+    fgm('various_font_formats', (canvas, fetchedByteBuffers) => {
         const fontMgr = CanvasKit.FontMgr.RefDefault();
         const fontPaint = new CanvasKit.Paint();
         fontPaint.setAntiAlias(true);
@@ -296,7 +296,7 @@ describe('Font Behavior', () => {
         }];
 
         const defaultFont = new CanvasKit.Font(null, 24);
-        canvas.drawText(`The following should be ${inputs.length + 1} lines of text:`, 5, 30, fontPaint, defaultFont);
+        canvas.drawText(`VERY DIFFERENT should be ${inputs.length + 1} lines of text:`, 5, 30, fontPaint, defaultFont);
 
         for (const fontType of inputs) {
             // smoke test that the font bytes loaded.
@@ -357,7 +357,7 @@ describe('Font Behavior', () => {
         fontMgr.delete();
     });
 
-    gm('font_edging', (canvas) => {
+    fgm('font_edging', (canvas) => {
         // Draw a small font scaled up to see the aliasing artifacts.
         canvas.scale(8, 8);
         canvas.clear(CanvasKit.WHITE);
@@ -374,7 +374,7 @@ describe('Font Behavior', () => {
 
         const testFont = new CanvasKit.Font(notoSerif, 20);
 
-        canvas.drawText('SEA', 35, 15, textPaint, testFont);
+        canvas.drawText('DIFF', 35, 15, textPaint, testFont);
         testFont.setEdging(CanvasKit.FontEdging.Alias);
         canvas.drawText('SEA', 35, 35, textPaint, testFont);
         testFont.setEdging(CanvasKit.FontEdging.AntiAlias);
