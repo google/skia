@@ -17585,8 +17585,8 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G920TUVS6FRC1",
-        "device_type:zerofltetmo",
+        "device_os:NRD90M",
+        "device_type:universal7420",
         "os:Android",
         "pool:Skia"
       ],
@@ -17652,8 +17652,8 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G920TUVS6FRC1",
-        "device_type:zerofltetmo",
+        "device_os:NRD90M",
+        "device_type:universal7420",
         "os:Android",
         "pool:Skia"
       ],
@@ -27822,8 +27822,8 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G920TUVS6FRC1",
-        "device_type:zerofltetmo",
+        "device_os:NRD90M",
+        "device_type:universal7420",
         "os:Android",
         "pool:Skia"
       ],
@@ -27889,8 +27889,8 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G920TUVS6FRC1",
-        "device_type:zerofltetmo",
+        "device_os:NRD90M",
+        "device_type:universal7420",
         "os:Android",
         "pool:Skia"
       ],
@@ -27956,8 +27956,8 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G920TUVS6FRC1",
-        "device_type:zerofltetmo",
+        "device_os:NRD90M",
+        "device_type:universal7420",
         "os:Android",
         "pool:Skia"
       ],
@@ -28023,8 +28023,8 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G920TUVS6FRC1",
-        "device_type:zerofltetmo",
+        "device_os:NRD90M",
+        "device_type:universal7420",
         "os:Android",
         "pool:Skia"
       ],
@@ -28090,8 +28090,8 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G920TUVS6FRC1",
-        "device_type:zerofltetmo",
+        "device_os:NRD90M",
+        "device_type:universal7420",
         "os:Android",
         "pool:Skia"
       ],
