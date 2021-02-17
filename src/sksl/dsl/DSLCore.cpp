@@ -28,6 +28,8 @@ void Start(SkSL::Compiler* compiler) {
 }
 
 void End() {
+    SkASSERTF(!DSLWriter::InFragmentProcessor(),
+              "more calls to StartFragmentProcessor than to EndFragmentProcessor");
     DSLWriter::SetInstance(nullptr);
 }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
