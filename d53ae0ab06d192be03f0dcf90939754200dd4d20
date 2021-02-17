@@ -22,6 +22,30 @@
       },
       "revId": "d53ae0ab06d192be03f0dcf90939754200dd4d20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4e61465_473328d6",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T20:13:24Z",
+      "side": 1,
+      "message": "sk_FragCoord is a float4, so that yields a float3 rather than a half3.\n\nBuuuut I realized when looking at this that for some reason it\u0027s not reporting errors when I assign a float value to a half variable, so I guess I\u0027ve got some debugging to do.",
+      "parentUuid": "5d62b0d1_20d30542",
+      "range": {
+        "startLine": 52,
+        "startChar": 33,
+        "endLine": 52,
+        "endChar": 38
+      },
+      "revId": "d53ae0ab06d192be03f0dcf90939754200dd4d20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
