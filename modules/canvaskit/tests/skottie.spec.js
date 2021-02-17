@@ -116,4 +116,90 @@ describe('Skottie behavior', () => {
             done();
         });
     });
+
+    it('can get logs', (done) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+
+        {
+            const json = `{
+                "v": "5.2.1",
+                "w": 100,
+                "h": 100,
+                "fr": 10,
+                "ip": 0,
+                "op": 100,
+                "layers": [{
+                    "ty": 3,
+                    "nm": "null",
+                    "ind": 0,
+                    "ip": 0
+                }]
+            }`;
+            const animation = CanvasKit.MakeManagedAnimation(json);
+            expect(animation).toBeTruthy();
+            expect(animation.getErrors().length).toEqual(0);
+            expect(animation.getWarnings().length).toEqual(0);
+        }
+
+        {
+            const json = `{
+                "v": "5.2.1",
+                "w": 100,
+                "h": 100,
+                "fr": 10,
+                "ip": 0,
+                "op": 100,
+                "layers": [{
+                    "ty": 2,
+                    "nm": "image",
+                    "ind": 0,
+                    "ip": 0
+                }]
+            }`;
+            const animation = CanvasKit.MakeManagedAnimation(json);
+            expect(animation).toBeTruthy();
+            expect(animation.getWarnings().length).toEqual(0);
+
+            // Image layer missing refID
+            const errors = animation.getErrors();
+            expect(errors.length).toEqual(1);
+            console.log(errors[0].message);
+        }
+
+        {
+            const json = `{
+                "v": "5.2.1",
+                "w": 100,
+                "h": 100,
+                "fr": 10,
+                "ip": 0,
+                "op": 100,
+                "layers": [{
+                    "ty": 1,
+                    "nm": "solid",
+                    "sw": 100,
+                    "sh": 100,
+                    "sc": "#aabbcc",
+                    "ind": 0,
+                    "ip": 0,
+                    "ef": [{
+                      "mn": "FOO"
+                    }]
+                }]
+            }`;
+            const animation = CanvasKit.MakeManagedAnimation(json);
+            expect(animation).toBeTruthy();
+            expect(animation.getErrors().length).toEqual(0);
+
+            // Unsupported effect FOO
+            const warnings = animation.getWarnings();
+            expect(warnings.length).toEqual(1);
+            console.log(warnings[0].message);
+        }
+
+        done();
+    });
 });
