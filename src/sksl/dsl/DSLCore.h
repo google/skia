@@ -125,7 +125,7 @@ DSLStatement Switch(DSLExpression value, Cases... cases) {
 /**
  * test ? ifTrue : ifFalse
  */
-DSLExpression Ternary(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse);
+DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse);
 
 /**
  * while (test) stmt;

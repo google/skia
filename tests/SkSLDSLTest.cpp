@@ -1091,6 +1091,23 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
     REPORTER_ASSERT(r, whitespace_insensitive_compare(y, "return true;"));
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Var a(kInt, "a");
+    Expression x = Select(a > 0, 1, -1);
+    REPORTER_ASSERT(r, x.release()->description() == "((a > 0) ? 1 : -1)");
+
+    {
+        ExpectError error(r, "error: expected 'bool', but found 'int'\n");
+        Select(a, 1, -1).release();
+    }
+
+    {
+        ExpectError error(r, "error: ternary operator result mismatch: 'float2', 'float3'\n");
+        Select(a > 0, Float2(1), Float3(1)).release();
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
@@ -1177,23 +1194,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
 
     Expression e13 = Swizzle(a, R, G, B, ONE).r();
     REPORTER_ASSERT(r, e13.release()->description() == "float4(a.xyz, float(1)).x");
-}
-
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLTernary, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var a(kInt, "a");
-    Expression x = Ternary(a > 0, 1, -1);
-    REPORTER_ASSERT(r, x.release()->description() == "((a > 0) ? 1 : -1)");
-
-    {
-        ExpectError error(r, "error: expected 'bool', but found 'int'\n");
-        Ternary(a, 1, -1).release();
-    }
-
-    {
-        ExpectError error(r, "error: ternary operator result mismatch: 'float2', 'float3'\n");
-        Ternary(a > 0, Float2(1), Float3(1)).release();
-    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
