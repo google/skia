@@ -27,9 +27,17 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler)
     : fCompiler(compiler) {
     SkSL::ParsedModule module = fCompiler->moduleForProgramKind(SkSL::ProgramKind::kFragment);
     SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
+    fOldSymbolTable = ir.fSymbolTable;
+    fOldSettings = ir.fSettings;
     ir.fSymbolTable = module.fSymbols;
     ir.fSettings = &fSettings;
     ir.pushSymbolTable();
+}
+
+DSLWriter::~DSLWriter() {
+    SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
+    ir.fSymbolTable = fOldSymbolTable;
+    ir.fSettings = fOldSettings;
 }
 
 SkSL::IRGenerator& DSLWriter::IRGenerator() {
