@@ -22,6 +22,30 @@
       },
       "revId": "a5e31db21c4d68a41c78ba7e7b48dfe165b9eac4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2d3557a_7a9c56ee",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T20:46:47Z",
+      "side": 1,
+      "message": "Nope, that will require some retrofitting.",
+      "parentUuid": "e31eca22_5331bb4b",
+      "range": {
+        "startLine": 29,
+        "startChar": 75,
+        "endLine": 30,
+        "endChar": 60
+      },
+      "revId": "a5e31db21c4d68a41c78ba7e7b48dfe165b9eac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
