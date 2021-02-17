@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fb12b34_02323696",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-17T18:13:48Z",
+      "side": 1,
+      "message": "This extra scope, at this point just limits the lifetime of the GrResourceAllocator. It\u0027s a pretty big object, but I don\u0027t think it\u0027ll matter in practice so maybe junk it. WDYT?",
+      "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
