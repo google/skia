@@ -312,113 +312,102 @@ sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
     return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
 }
 
-struct SkWorkingFormatColorFilter : public SkColorFilterBase {
-    sk_sp<SkColorFilter>   fChild;
-    skcms_TransferFunction fTF;     bool fUseDstTF    = true;
-    skcms_Matrix3x3        fGamut;  bool fUseDstGamut = true;
-    SkAlphaType            fAT;     bool fUseDstAT    = true;
+// This filter assumes its inputs are in Format A and transforms them to format B,
+// pulling each Format property from either custom parameters or the destination surface.
+struct SkColorXformColorFilter : public SkColorFilterBase {
+    struct Format {
+        skcms_TransferFunction tf;     bool useDstTF    = true;
+        skcms_Matrix3x3        gamut;  bool useDstGamut = true;
+        SkAlphaType            at;     bool useDstAT    = true;
+    } fA,fB;
 
-    SkWorkingFormatColorFilter(sk_sp<SkColorFilter>          child,
-                               const skcms_TransferFunction* tf,
-                               const skcms_Matrix3x3*        gamut,
-                               const SkAlphaType*            at) {
-        fChild = std::move(child);
-        if (tf)    { fTF    = *tf;    fUseDstTF    = false; }
-        if (gamut) { fGamut = *gamut; fUseDstGamut = false; }
-        if (at)    { fAT    = *at;    fUseDstAT    = false; }
-    }
+    SkColorXformColorFilter(Format A, Format B) : fA(A), fB(B) {}
 
-
-    sk_sp<SkColorSpace> workingFormat(const sk_sp<SkColorSpace>& dstCS, SkAlphaType* at) const {
-        skcms_TransferFunction tf    = fTF;
-        skcms_Matrix3x3        gamut = fGamut;
-
-        if (fUseDstTF   ) { SkAssertResult(dstCS->isNumericalTransferFn(&tf)); }
-        if (fUseDstGamut) { SkAssertResult(dstCS->toXYZD50             (&gamut)); }
-
-        *at = fUseDstAT ? kPremul_SkAlphaType : fAT;
-        return SkColorSpace::MakeRGB(tf, gamut);
+    static Format Resolve(Format f, SkColorSpace* dstCS, SkAlphaType dstAT) {
+        if (!dstCS) {
+            dstCS = sk_srgb_singleton();
+        }
+        if (f.useDstTF)    { SkAssertResult(dstCS->isNumericalTransferFn(&f.tf)); }
+        if (f.useDstGamut) { SkAssertResult(dstCS->toXYZD50(&f.gamut)); }
+        if (f.useDstAT)    { f.at = dstAT; }
+        return f;
     }
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
-                                   const GrColorInfo& dstColorInfo) const override {
-        sk_sp<SkColorSpace> dstCS = dstColorInfo.refColorSpace();
-        if (!dstCS) { dstCS = SkColorSpace::MakeSRGB(); }
+                                   const GrColorInfo& dst) const override {
+        const Format A = Resolve(fA, dst.colorSpace(), dst.alphaType()),
+                     B = Resolve(fB, dst.colorSpace(), dst.alphaType());
 
-        SkAlphaType workingAT;
-        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
+        GrColorInfo infoA = {dst.colorType(), A.at, SkColorSpace::MakeRGB(A.tf, A.gamut)},
+                    infoB = {dst.colorType(), B.at, SkColorSpace::MakeRGB(B.tf, B.gamut)};
 
-        GrColorInfo dst = {dstColorInfo.colorType(), dstColorInfo.alphaType(), dstCS},
-                working = {dstColorInfo.colorType(), workingAT, workingCS};
-
-        auto [ok, fp] = as_CFB(fChild)->asFragmentProcessor(
-                GrColorSpaceXformEffect::Make(std::move(inputFP), dst,working), context, working);
-
-        return ok ? GrFPSuccess(GrColorSpaceXformEffect::Make(std::move(fp), working,dst))
-                  : GrFPFailure(std::move(fp));
+        return GrFPSuccess(GrColorSpaceXformEffect::Make(std::move(inputFP), infoA,infoB));
     }
 #endif
 
     bool onAppendStages(const SkStageRec&, bool) const override { return false; }
 
-    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* rawDstCS,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        sk_sp<SkColorSpace> dstCS = sk_ref_sp(rawDstCS);
-        if (!dstCS) { dstCS = SkColorSpace::MakeSRGB(); }
+    skvm::Color onProgram(skvm::Builder* p,
+                          skvm::Color c, SkColorSpace* dstCS,
+                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
+        const Format A = Resolve(fA, dstCS, kPremul_SkAlphaType),
+                     B = Resolve(fB, dstCS, kPremul_SkAlphaType);
 
-        SkAlphaType workingAT;
-        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
-
-        SkColorInfo dst = {kUnknown_SkColorType, kPremul_SkAlphaType, dstCS},
-                working = {kUnknown_SkColorType, workingAT, workingCS};
-
-        c = SkColorSpaceXformSteps{dst,working}.program(p, uniforms, c);
-        c = as_CFB(fChild)->program(p, c, working.colorSpace(), uniforms, alloc);
-        return c ? SkColorSpaceXformSteps{working,dst}.program(p, uniforms, c)
-                 : c;
+        SkColorInfo infoA = {kUnknown_SkColorType, A.at, SkColorSpace::MakeRGB(A.tf, A.gamut)},
+                    infoB = {kUnknown_SkColorType, B.at, SkColorSpace::MakeRGB(B.tf, B.gamut)};
+        return SkColorSpaceXformSteps{infoA,infoB}.program(p, uniforms, c);
     }
 
-    uint32_t onGetFlags() const override { return fChild->getFlags(); }
+    uint32_t onGetFlags() const override { return SkColorFilter::kAlphaUnchanged_Flag; }
 
-    SK_FLATTENABLE_HOOKS(SkWorkingFormatColorFilter)
     void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeFlattenable(fChild.get());
-        buffer.writeBool(fUseDstTF);
-        buffer.writeBool(fUseDstGamut);
-        buffer.writeBool(fUseDstAT);
-        if (!fUseDstTF)    { buffer.writeScalarArray(&fTF.g, 7); }
-        if (!fUseDstGamut) { buffer.writeScalarArray(&fGamut.vals[0][0], 9); }
-        if (!fUseDstAT)    { buffer.writeInt(fAT); }
+        auto write_Format = [&](Format f) {
+            buffer.writeBool(f.useDstTF);
+            buffer.writeBool(f.useDstGamut);
+            buffer.writeBool(f.useDstAT);
+            if (!f.useDstTF)    { buffer.writeScalarArray(&f.tf.g, 7); }
+            if (!f.useDstGamut) { buffer.writeScalarArray(&f.gamut.vals[0][0], 9); }
+            if (!f.useDstAT)    { buffer.writeInt(f.at); }
+        };
+        write_Format(fA);
+        write_Format(fB);
     }
+    SK_FLATTENABLE_HOOKS(SkColorXformColorFilter)
 };
 
-sk_sp<SkFlattenable> SkWorkingFormatColorFilter::CreateProc(SkReadBuffer& buffer) {
-    sk_sp<SkColorFilter> child = buffer.readColorFilter();
-    bool useDstTF    = buffer.readBool(),
-         useDstGamut = buffer.readBool(),
-         useDstAT    = buffer.readBool();
+sk_sp<SkFlattenable> SkColorXformColorFilter::CreateProc(SkReadBuffer& buffer) {
+    auto read_Format = [&]() -> Format {
+        Format f;
+        f.useDstTF    = buffer.readBool();
+        f.useDstGamut = buffer.readBool();
+        f.useDstAT    = buffer.readBool();
 
-    skcms_TransferFunction tf;
-    skcms_Matrix3x3        gamut;
-    SkAlphaType            at;
+        if (!f.useDstTF)    { buffer.readScalarArray(&f.tf.g, 7); }
+        if (!f.useDstGamut) { buffer.readScalarArray(&f.gamut.vals[0][0], 9); }
+        if (!f.useDstAT)    { f.at = buffer.read32LE(kLastEnum_SkAlphaType); }
 
-    if (!useDstTF)    { buffer.readScalarArray(&tf.g, 7); }
-    if (!useDstGamut) { buffer.readScalarArray(&gamut.vals[0][0], 9); }
-    if (!useDstAT)    { at = buffer.read32LE(kLastEnum_SkAlphaType); }
-
-    return SkColorFilters::WithWorkingFormat(std::move(child),
-                                             useDstTF    ? nullptr : &tf,
-                                             useDstGamut ? nullptr : &gamut,
-                                             useDstAT    ? nullptr : &at);
+        return f;
+    };
+    Format A = read_Format(),
+           B = read_Format();
+    return sk_make_sp<SkColorXformColorFilter>(A,B);
 }
 
 sk_sp<SkColorFilter> SkColorFilters::WithWorkingFormat(sk_sp<SkColorFilter>          child,
                                                        const skcms_TransferFunction* tf,
                                                        const skcms_Matrix3x3*        gamut,
                                                        const SkAlphaType*            at) {
-    return sk_make_sp<SkWorkingFormatColorFilter>(std::move(child), tf, gamut, at);
+    SkColorXformColorFilter::Format dst, working;
+    if (tf)    { working.tf    = *tf;    working.useDstTF    = false; }
+    if (gamut) { working.gamut = *gamut; working.useDstGamut = false; }
+    if (at)    { working.at    = *at;    working.useDstAT    = false; }
+
+    // input color -> (dst->working) -> child filter -> (working->dst) -> output color
+    return SkColorFilters::Compose(sk_make_sp<SkColorXformColorFilter>(working,dst),
+           SkColorFilters::Compose(child,
+                                   sk_make_sp<SkColorXformColorFilter>(dst,working)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -571,5 +560,5 @@ void SkColorFilterBase::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkModeColorFilter);
     SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
     SK_REGISTER_FLATTENABLE(SkMixerColorFilter);
-    SK_REGISTER_FLATTENABLE(SkWorkingFormatColorFilter);
+    SK_REGISTER_FLATTENABLE(SkColorXformColorFilter);
 }
