@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1cd880b_1ed0cdb3",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-17T21:34:14Z",
+      "side": 1,
+      "message": "Cliprect is only used for the direct drawing case. So for TransformedMaskSubRun and SDFTSubRun the clipRect is empty, and the full clip is used. DirectMaskSubRun uses the clipRect to clip geometrically, and then ignores the full clip.",
+      "parentUuid": "3899d64f_d8a4a703",
+      "range": {
+        "startLine": 88,
+        "startChar": 43,
+        "endLine": 88,
+        "endChar": 51
+      },
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97059a35_124dfc26",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-17T19:08:22Z",
       "side": 1,
       "message": "Maybe \u0027geom\u0027 ? \u0027cursor\u0027 seems like a misnomer.",
+      "range": {
+        "startLine": 117,
+        "startChar": 18,
+        "endLine": 117,
+        "endChar": 25
+      },
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0558627c_7e0817b4",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-17T21:34:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97059a35_124dfc26",
       "range": {
         "startLine": 117,
         "startChar": 18,
@@ -64,6 +112,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b27d9873_71caac6f",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-17T21:34:14Z",
+      "side": 1,
+      "message": "Yes. This is good practice, but it is actually initialized in the constructor.",
+      "parentUuid": "d2a10ba6_6359fa3e",
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5c1336a0_14edc743",
@@ -77,6 +143,24 @@
       "writtenOn": "2021-02-17T19:08:22Z",
       "side": 1,
       "message": "We\u0027re reffing in Geometry::Make too ?",
+      "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef70dae5_29b953ee",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1256,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-17T21:34:14Z",
+      "side": 1,
+      "message": "Yep. That was causing problems. Removed from all the call sites.",
+      "parentUuid": "5c1336a0_14edc743",
       "revId": "cec13d0c53979acc8a1fd81f4d03788b9c1eb871",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
