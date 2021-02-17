@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57d71913_347dd531",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-17T16:36:31Z",
+      "side": 1,
+      "message": "\u003e \u003e This approach is fine by me, but I have a few questions:\n\u003e \u003e 1) Did you consider having the user provide an error/warning callback? We use this approach for the SkRuntimeEffect https://skia-review.googlesource.com/c/skia/+/365483 Possible upside: less WASM memory use because we don\u0027t have to store those strings.\n\u003e \n\u003e I like the idea - I had not considered it mostly because I\u0027m unfamiliar with WASM-\u003eJS callbacks.  I\u0027ll investigate based on that sample.\n\u003e \n\u003e (my initial concern is related to the growing list of optional arguments for CanvasKit.MakeManagedAnimation; it feels like we\u0027re at the point where all these options should be passed in a dictionary or something)\n\nDone.",
+      "parentUuid": "ebb455ca_dc170d7a",
+      "revId": "7cf8e8c1c34629bc278849a2b582b5f0d24e3648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e244408_fdb27213",
@@ -73,6 +91,30 @@
       "side": 1,
       "message": "Ack, will do.",
       "parentUuid": "8e244408_fdb27213",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 19
+      },
+      "revId": "7cf8e8c1c34629bc278849a2b582b5f0d24e3648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0587947_ba19d64e",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-17T16:36:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d99981da_bd2620a5",
       "range": {
         "startLine": 169,
         "startChar": 12,
