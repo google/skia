@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10998610_e0890a14",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-17T21:01:53Z",
+      "side": 1,
+      "message": "I think I know what you\u0027re saying, but this comment is a little confusing. Maybe \"For\nnow on these GPUs we just always say to not persistently map whether or not the driver exposes it.\"",
+      "range": {
+        "startLine": 417,
+        "startChar": 97,
+        "endLine": 419,
+        "endChar": 37
+      },
+      "revId": "1340b1428265807287a88b21265153f43fe7044b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
