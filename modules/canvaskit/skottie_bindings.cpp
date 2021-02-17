@@ -120,6 +120,26 @@ private:
     const emscripten::val fSoundMap;
 };
 
+class Logger final : public skottie::Logger {
+public:
+    JSArray getLogs(Level lvl) const {
+
+    }
+
+private:
+    struct Entry {
+        Level    lvl;
+        SkString msg,
+                 json;
+    };
+
+    void log(Level lvl, const char msg[], const char* json) override {
+        fLogs.push_back({lvl, SkString(msg), SkString(json)});
+    }
+
+    std::vector<Entry> fLogs;
+};
+
 class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
