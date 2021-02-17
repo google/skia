@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77869ea2_02eb2659",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-17T19:40:04Z",
+      "side": 1,
+      "message": "Remove?",
+      "range": {
+        "startLine": 1240,
+        "startChar": 85,
+        "endLine": 1241,
+        "endChar": 25
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5474715_e6c861cb",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-17T19:40:04Z",
+      "side": 1,
+      "message": "no shaping, ltr only, etc.",
+      "range": {
+        "startLine": 1241,
+        "startChar": 87,
+        "endLine": 1241,
+        "endChar": 90
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42db52c0_dddea4bb",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-17T19:40:04Z",
+      "side": 1,
+      "message": "Unsure what this means? A \u0027string\u0027 in this context is WTF-16 I think, I think we want it to be actual UTF-16.",
+      "range": {
+        "startLine": 1242,
+        "startChar": 56,
+        "endLine": 1242,
+        "endChar": 82
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22d03e22_9d59fcf2",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-17T19:40:04Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 1242,
+        "startChar": 36,
+        "endLine": 1242,
+        "endChar": 54
+      },
+      "revId": "f069c7c56a94eb6c9bda01bdd85fc07186e1e418",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
