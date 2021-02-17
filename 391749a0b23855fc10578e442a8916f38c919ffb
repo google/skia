@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c5d8eec_cf3a6e02",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-17T21:25:50Z",
+      "side": 1,
+      "message": "Seemed better as \"candidate\" to me.",
+      "range": {
+        "startLine": 1137,
+        "startChar": 22,
+        "endLine": 1137,
+        "endChar": 35
+      },
+      "revId": "391749a0b23855fc10578e442a8916f38c919ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
