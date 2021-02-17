@@ -280,16 +280,18 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     }
     const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
     AutoSource as(this, source);
-    Program::Settings settings;
+
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
-    settings.fReplaceSettings = false;
+
+    ProgramConfig config;
+    config.fKind = kind;
+    config.fSettings.fReplaceSettings = false;
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
-    IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, baseModule,
-                                         /*isBuiltinCode=*/true, source->c_str(), source->length(),
-                                         /*externalFunctions=*/nullptr);
+    IRGenerator::IRBundle ir = fIRGenerator->convertProgram(
+            &config, baseModule, /*isBuiltinCode=*/true, source->c_str(), source->length(),
+            /*externalFunctions=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
     fIRGenerator->fCanInline = true;
@@ -1415,7 +1417,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             break;
                         } else {
                             if (s.isStatic() &&
-                                !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+                                !fIRGenerator->settings().fPermitInvalidStaticTests) {
                                 auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
                                 if (didInsert) {
                                     this->error(s.fOffset, "static switch contains non-static "
@@ -1434,7 +1436,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             (*iter)->setStatement(std::move(newBlock), usage);
                         } else {
                             if (s.isStatic() &&
-                                !fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+                                !fIRGenerator->settings().fPermitInvalidStaticTests) {
                                 auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
                                 if (didInsert) {
                                     this->error(s.fOffset, "static switch contains non-static "
@@ -1603,7 +1605,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
         pool->attachToThread();
     }
     IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
+            fIRGenerator->convertProgram(config.get(), baseModule, /*isBuiltinCode=*/false,
                                          textPtr->c_str(), textPtr->size(), externalFunctions);
     auto program = std::make_unique<Program>(std::move(textPtr),
                                              std::move(config),
@@ -1669,7 +1671,7 @@ void Compiler::verifyStaticTests(const Program& program) {
     };
 
     // If invalid static tests are permitted, we don't need to check anything.
-    if (fIRGenerator->fSettings->fPermitInvalidStaticTests) {
+    if (fIRGenerator->settings().fPermitInvalidStaticTests) {
         return;
     }
 
@@ -1695,8 +1697,9 @@ bool Compiler::optimize(LoadedModule& module) {
     SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
 
     // Set this configuration in the IR Generator and Inliner.
-    fIRGenerator->fKind = config.fKind;
-    fIRGenerator->fSettings = &config.fSettings;
+    fIRGenerator->fConfig = &config;
+    SK_AT_SCOPE_EXIT(fIRGenerator->fConfig = nullptr);
+
     fInliner.reset(fModifiers.back().get(), &config.fSettings);
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
@@ -1723,8 +1726,10 @@ bool Compiler::optimize(LoadedModule& module) {
 
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
-    fIRGenerator->fKind = program.fConfig->fKind;
-    fIRGenerator->fSettings = &program.fConfig->fSettings;
+
+    fIRGenerator->fConfig = program.fConfig.get();
+    SK_AT_SCOPE_EXIT(fIRGenerator->fConfig = nullptr);
+
     ProgramUsage* usage = program.fUsage.get();
 
     while (fErrorCount == 0) {
