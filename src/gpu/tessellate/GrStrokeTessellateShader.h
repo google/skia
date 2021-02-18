@@ -31,13 +31,13 @@ public:
         kIndirect
     };
 
-    // Size in bytes of a basic tessellation patch without any dynamic attribs like stroke params or
-    // color.
-    constexpr static size_t kTessellationPatchBaseStride = sizeof(SkPoint) * 5;
+    enum class ShaderFlags {
+        kNone          = 0,
+        kHasConics     = 1 << 0,
+        kDynamicStroke = 1 << 1  // Each patch or instance has its own stroke width and join type.
+    };
 
-    // Size in bytes of a basic indirect draw instance without any dynamic attribs like stroke
-    // params or color.
-    constexpr static size_t kIndirectInstanceBaseStride = sizeof(float) * 11;
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
 
     // When using indirect draws, we expect a fixed number of additional edges to be appended onto
     // each instance in order to implement its preceding join. Specifically, each join emits:
@@ -67,16 +67,17 @@ public:
     // These tolerances decide the number of parametric and radial segments the tessellator will
     // linearize curves into. These decisions are made in (pre-viewMatrix) local path space.
     struct Tolerances {
+        // See fParametricIntolerance.
+        constexpr static float CalcParametricIntolerance(float matrixMaxScale) {
+            return matrixMaxScale * GrTessellationPathRenderer::kLinearizationIntolerance;
+        }
         // Returns the equivalent tolerances in (pre-viewMatrix) local path space that the
         // tessellator will use when rendering this stroke.
-        static Tolerances MakePreTransform(const SkMatrix& viewMatrix, const SkStrokeRec& stroke) {
-            std::array<float,2> matrixScales;
-            if (!viewMatrix.getMinMaxScales(matrixScales.data())) {
-                matrixScales.fill(1);
-            }
-            auto [matrixMinScale, matrixMaxScale] = matrixScales;
-            float localStrokeWidth = stroke.getWidth();
-            if (stroke.isHairlineStyle()) {
+        static Tolerances MakePreTransform(const float matrixMinMaxScales[2], float strokeWidth) {
+            float matrixMaxScale = matrixMinMaxScales[1];
+            float localStrokeWidth = strokeWidth;
+            if (localStrokeWidth == 0) {
+                float matrixMinScale = matrixMinMaxScales[0];
                 // If the stroke is hairline then the tessellator will operate in post-transform
                 // space instead. But for the sake of CPU methods that need to conservatively
                 // approximate the number of segments to emit, we use
@@ -95,8 +96,7 @@ public:
             this->set(matrixMaxScale, strokeWidth);
         }
         void set(float matrixMaxScale, float strokeWidth) {
-            fParametricIntolerance =
-                    matrixMaxScale * GrTessellationPathRenderer::kLinearizationIntolerance;
+            fParametricIntolerance = CalcParametricIntolerance(matrixMaxScale);
             fNumRadialSegmentsPerRadian =
                     .5f / acosf(std::max(1 - 2/(fParametricIntolerance * strokeWidth), -1.f));
         }
@@ -111,59 +111,113 @@ public:
         float fNumRadialSegmentsPerRadian;
     };
 
+    // We encode all of a join's information in a single float value:
+    //
+    //     Negative => Round Join
+    //     Zero     => Bevel Join
+    //     Positive => Miter join, and the value is also the miter limit
+    //
+    static float GetJoinType(const SkStrokeRec& stroke) {
+        switch (stroke.getJoin()) {
+            case SkPaint::kRound_Join: return -1;
+            case SkPaint::kBevel_Join: return 0;
+            case SkPaint::kMiter_Join: SkASSERT(stroke.getMiter() >= 0); return stroke.getMiter();
+        }
+        SkUNREACHABLE;
+    }
+
+    // This struct gets written out to each patch or instance if kDynamicStroke is enabled.
+    struct DynamicStroke {
+        static bool StrokesHaveEqualDynamicState(const SkStrokeRec& a, const SkStrokeRec& b) {
+            return a.getWidth() == b.getWidth() && a.getJoin() == b.getJoin() &&
+                   (a.getJoin() != SkPaint::kMiter_Join || a.getMiter() == b.getMiter());
+        }
+        void set(const SkStrokeRec& stroke) {
+            fRadius = stroke.getWidth() * .5f;
+            fJoinType = GetJoinType(stroke);
+        }
+        float fRadius;
+        float fJoinType;  // See GetJoinType().
+    };
+
+    // Size in bytes of a tessellation patch with the given shader flags.
+    static size_t PatchStride(ShaderFlags shaderFlags) {
+        size_t stride = sizeof(SkPoint) * 5;
+        if (shaderFlags & ShaderFlags::kDynamicStroke) {
+            stride += sizeof(DynamicStroke);
+        }
+        return stride;
+    }
+
+    // Size in bytes of an indirect draw instance with the given shader flags.
+    static size_t IndirectInstanceStride(ShaderFlags shaderFlags) {
+        size_t stride = sizeof(float) * 11;
+        if (shaderFlags & ShaderFlags::kDynamicStroke) {
+            stride += sizeof(DynamicStroke);
+        }
+        return stride;
+    }
+
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(Mode mode, bool hasConics, const SkStrokeRec& stroke,
-                             const SkMatrix& viewMatrix, SkPMColor4f color)
+    GrStrokeTessellateShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
+                             const SkStrokeRec& stroke, SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
                            (mode == Mode::kTessellation) ?
                                    GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
                            (mode == Mode::kTessellation) ? 1 : 0)
             , fMode(mode)
-            , fHasConics(hasConics)
+            , fShaderFlags(shaderFlags)
             , fStroke(stroke)
             , fColor(color) {
         if (fMode == Mode::kTessellation) {
-            constexpr static Attribute kTessellationAttribs[] = {
-                    // A join calculates its starting angle using inputPrevCtrlPt.
-                    {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
-                    // inputPts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then
-                    // it's a conic with w=p3.x.
-                    //
-                    // If p0 == inputPrevCtrlPt, then no join is emitted.
-                    //
-                    // inputPts=[p0, p3, p3, p3] is a reserved pattern that means this patch is a
-                    // join only, whose start and end tangents are (p0 - inputPrevCtrlPt) and
-                    // (p3 - p0).
-                    //
-                    // inputPts=[p0, p0, p0, p3] is a reserved pattern that means this patch is a
-                    // "bowtie", or double-sided round join, anchored on p0 and rotating from
-                    // (p0 - inputPrevCtrlPt) to (p3 - p0).
-                    {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                    {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
-            this->setVertexAttributes(kTessellationAttribs, SK_ARRAY_COUNT(kTessellationAttribs));
-            SkASSERT(this->vertexStride() == kTessellationPatchBaseStride);
+            // A join calculates its starting angle using prevCtrlPtAttr.
+            fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+            // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
+            // with w=p3.x.
+            //
+            // If p0 == prevCtrlPtAttr, then no join is emitted.
+            //
+            // pts=[p0, p3, p3, p3] is a reserved pattern that means this patch is a join only,
+            // whose start and end tangents are (p0 - inputPrevCtrlPt) and (p3 - p0).
+            //
+            // pts=[p0, p0, p0, p3] is a reserved pattern that means this patch is a "bowtie", or
+            // double-sided round join, anchored on p0 and rotating from (p0 - prevCtrlPtAttr) to
+            // (p3 - p0).
+            fAttribs.emplace_back("pts01Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+            fAttribs.emplace_back("pts23Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         } else {
-            constexpr static Attribute kIndirectAttribs[] = {
-                    // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's
-                    // a conic with w=p3.x.
-                    //
-                    // An empty stroke (p0==p1==p2==p3) is a special case that denotes a circle, or
-                    // 180-degree point stroke.
-                    {"pts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                    {"pts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                    // "lastControlPoint" and "numTotalEdges" are both packed into these args.
-                    //
-                    // A join calculates its starting angle using "args.xy=lastControlPoint".
-                    //
-                    // "abs(args.z=numTotalEdges)" tells the shader the literal number of edges in
-                    // the triangle strip being rendered (i.e., it should be vertexCount/2). If
-                    // numTotalEdges is negative and the join type is "kRound", it also instructs
-                    // the shader to only allocate one segment the preceding round join.
-                    {"args", kFloat3_GrVertexAttribType, kFloat3_GrSLType}};
-            this->setInstanceAttributes(kIndirectAttribs, SK_ARRAY_COUNT(kIndirectAttribs));
-            SkASSERT(this->instanceStride() == kIndirectInstanceBaseStride);
+            // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
+            // with w=p3.x.
+            //
+            // An empty stroke (p0==p1==p2==p3) is a special case that denotes a circle, or
+            // 180-degree point stroke.
+            fAttribs.emplace_back("pts01Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+            fAttribs.emplace_back("pts23Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+            // "lastControlPoint" and "numTotalEdges" are both packed into argsAttr.
+            //
+            // A join calculates its starting angle using "argsAttr.xy=lastControlPoint".
+            //
+            // "abs(argsAttr.z=numTotalEdges)" tells the shader the literal number of edges in the
+            // triangle strip being rendered (i.e., it should be vertexCount/2). If numTotalEdges is
+            // negative and the join type is "kRound", it also instructs the shader to only allocate
+            // one segment the preceding round join.
+            fAttribs.emplace_back("argsAttr", kFloat3_GrVertexAttribType, kFloat3_GrSLType);
+        }
+        if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+            fAttribs.emplace_back("dynamicStrokeAttr", kFloat2_GrVertexAttribType,
+                                  kFloat2_GrSLType);
+        }
+        if (fMode == Mode::kTessellation) {
+            this->setVertexAttributes(fAttribs.data(), fAttribs.count());
+            SkASSERT(this->vertexStride() == PatchStride(fShaderFlags));
+        } else {
+            this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
+            SkASSERT(this->instanceStride() == IndirectInstanceStride(fShaderFlags));
         }
     }
+
+    bool hasConics() const { return fShaderFlags & ShaderFlags::kHasConics; }
+    bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
 
 private:
     const char* name() const override { return "GrStrokeTessellateShader"; }
@@ -180,12 +234,15 @@ private:
                                          const GrShaderCaps&) const override;
 
     const Mode fMode;
-    const bool fHasConics;
+    const ShaderFlags fShaderFlags;
     const SkStrokeRec fStroke;
     const SkPMColor4f fColor;
+    SkSTArray<4, Attribute> fAttribs;
 
     class TessellationImpl;
     class IndirectImpl;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellateShader::ShaderFlags);
 
 #endif
