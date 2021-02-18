@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkMatrixConvolutionImageFilter.h"
 #include "src/effects/imagefilters/SkMergeImageFilter.h"
 #include "src/effects/imagefilters/SkMorphologyImageFilter.h"
 #include "src/effects/imagefilters/SkOffsetImageFilter.h"
@@ -23,7 +22,6 @@
 
 void SkImageFilters::RegisterFlattenables() {
     SkDilateImageFilter::RegisterFlattenables();
-    SkMatrixConvolutionImageFilter::RegisterFlattenables();
     SkMergeImageFilter::RegisterFlattenables();
     SkOffsetImageFilter::RegisterFlattenables();
     SkPaintImageFilter::RegisterFlattenables();
@@ -32,15 +30,6 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::MatrixConvolution(
-        const SkISize& kernelSize,  const SkScalar kernel[], SkScalar gain, SkScalar bias,
-        const SkIPoint& kernelOffset, SkTileMode tileMode, bool convolveAlpha,
-        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return SkMatrixConvolutionImageFilter::Make(kernelSize, kernel, gain, bias, kernelOffset,
-                                                tileMode, convolveAlpha, std::move(input),
-                                                cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(
         const SkMatrix& transform, const SkSamplingOptions& sampling, sk_sp<SkImageFilter> input) {
