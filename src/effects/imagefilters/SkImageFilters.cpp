@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkOffsetImageFilter.h"
 #include "src/effects/imagefilters/SkPaintImageFilter.h"
 #include "src/effects/imagefilters/SkPictureImageFilter.h"
 #include "src/effects/imagefilters/SkTileImageFilter.h"
@@ -23,7 +22,6 @@
 constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
 
 void SkImageFilters::RegisterFlattenables() {
-    SkOffsetImageFilter::RegisterFlattenables();
     SkPaintImageFilter::RegisterFlattenables();
     SkPictureImageFilter::RegisterFlattenables();
     SkTileImageFilter::RegisterFlattenables();
@@ -45,10 +43,6 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(
 }
 #endif
 
-sk_sp<SkImageFilter> SkImageFilters::Offset(
-        SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return SkOffsetImageFilter::Make(dx, dy, std::move(input), cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::Paint(const SkPaint& paint, const CropRect& cropRect) {
     return SkPaintImageFilter::Make(paint, cropRect);
