@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66968886_ddf18520",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-18T16:30:17Z",
+      "side": 1,
+      "message": "This should live somewhere else, maybe in some shared header? Otherwise, we\u0027re creating another dependency where DSL headers need to include IR headers. At some point, we\u0027re going to need to cleanly cleave those, so that DSL headers can be public, and not include anything from ir (which is presumably going to remain in src).\n\nI know that we\u0027re not there yet (and we have other, similar dependencies), but I\u0027d like to avoid moving away from that goal.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 1
+      },
+      "revId": "4976a45e28444d854eb4ef7f54fcb932a4e5e823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
