@@ -33,11 +33,8 @@ struct Modifiers {
         kRestrict_Flag       = 1 << 10,
         kBuffer_Flag         = 1 << 11,
         kHasSideEffects_Flag = 1 << 12,
-        kPLS_Flag            = 1 << 13,
-        kPLSIn_Flag          = 1 << 14,
-        kPLSOut_Flag         = 1 << 15,
-        kVarying_Flag        = 1 << 16,
-        kInline_Flag         = 1 << 17,
+        kVarying_Flag        = 1 << 13,
+        kInline_Flag         = 1 << 14,
     };
 
     Modifiers()
@@ -82,15 +79,6 @@ struct Modifiers {
         }
         if (fFlags & kHasSideEffects_Flag) {
             result += "sk_has_side_effects ";
-        }
-        if (fFlags & kPLS_Flag) {
-            result += "__pixel_localEXT ";
-        }
-        if (fFlags & kPLSIn_Flag) {
-            result += "__pixel_local_inEXT ";
-        }
-        if (fFlags & kPLSOut_Flag) {
-            result += "__pixel_local_outEXT ";
         }
         if (fFlags & kVarying_Flag) {
             result += "varying ";

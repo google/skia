@@ -420,13 +420,11 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
     }
     int permitted = Modifiers::kConst_Flag;
     if (storage == Variable::Storage::kGlobal) {
-        permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
-                     Modifiers::kFlat_Flag | Modifiers::kVarying_Flag |
-                     Modifiers::kNoPerspective_Flag | Modifiers::kPLS_Flag |
-                     Modifiers::kPLSIn_Flag | Modifiers::kPLSOut_Flag |
-                     Modifiers::kRestrict_Flag | Modifiers::kVolatile_Flag |
-                     Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag |
-                     Modifiers::kCoherent_Flag | Modifiers::kBuffer_Flag;
+        permitted |=
+                Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
+                Modifiers::kFlat_Flag | Modifiers::kVarying_Flag | Modifiers::kNoPerspective_Flag |
+                Modifiers::kRestrict_Flag | Modifiers::kVolatile_Flag | Modifiers::kReadOnly_Flag |
+                Modifiers::kWriteOnly_Flag | Modifiers::kCoherent_Flag | Modifiers::kBuffer_Flag;
     }
     this->checkModifiers(offset, modifiers, permitted);
 }
@@ -1048,9 +1046,6 @@ void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int per
     CHECK(Modifiers::kRestrict_Flag,       "restrict")
     CHECK(Modifiers::kBuffer_Flag,         "buffer")
     CHECK(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects")
-    CHECK(Modifiers::kPLS_Flag,            "__pixel_localEXT")
-    CHECK(Modifiers::kPLSIn_Flag,          "__pixel_local_inEXT")
-    CHECK(Modifiers::kPLSOut_Flag,         "__pixel_local_outEXT")
     CHECK(Modifiers::kVarying_Flag,        "varying")
     CHECK(Modifiers::kInline_Flag,         "inline")
     SkASSERT(flags == 0);

@@ -389,8 +389,7 @@ bool ProgramUsage::isDead(const Variable& v) const {
                              Modifiers::kVarying_Flag))) {
         return false;
     }
-    return !counts.fWrite || (!counts.fRead && !(modifiers.fFlags &
-                                                 (Modifiers::kPLS_Flag | Modifiers::kPLSOut_Flag)));
+    return !counts.fWrite || !counts.fRead;
 }
 
 int ProgramUsage::get(const FunctionDeclaration& f) const {

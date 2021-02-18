@@ -1101,15 +1101,6 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
         this->write("const ");
     }
-    if (modifiers.fFlags & Modifiers::kPLS_Flag) {
-        this->write("__pixel_localEXT ");
-    }
-    if (modifiers.fFlags & Modifiers::kPLSIn_Flag) {
-        this->write("__pixel_local_inEXT ");
-    }
-    if (modifiers.fFlags & Modifiers::kPLSOut_Flag) {
-        this->write("__pixel_local_outEXT ");
-    }
     switch (modifiers.fLayout.fFormat) {
         case Layout::Format::kUnspecified:
             break;
