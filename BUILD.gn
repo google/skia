@@ -92,9 +92,6 @@ config("skia_private") {
   if (skia_use_vma) {
     defines += [ "SK_USE_VMA" ]
   }
-}
-
-config("skia_winuwp") {
   if (skia_enable_winuwp) {
     defines = [ "SK_WINUWP" ]
   }
@@ -254,7 +251,6 @@ template("optional") {
       if (defined(invoker.public_include_dirs)) {
         include_dirs = invoker.public_include_dirs
       }
-      configs = [ ":skia_winuwp" ]
     }
     source_set(target_name) {
       check_includes = false
@@ -270,7 +266,6 @@ template("optional") {
       if (defined(invoker.configs_to_remove)) {
         configs -= invoker.configs_to_remove
       }
-      configs += [ ":skia_winuwp" ]
     }
   } else {
     source_set(target_name) {
@@ -291,7 +286,6 @@ template("optional") {
         sources = invoker.sources_when_disabled
       }
       configs += skia_library_configs
-      configs += [ ":skia_winuwp" ]
     }
   }
 }
