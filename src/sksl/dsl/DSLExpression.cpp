@@ -83,35 +83,35 @@ std::unique_ptr<SkSL::Expression> DSLExpression::release() {
 }
 
 DSLExpression DSLExpression::x() {
-    return Swizzle(this->release(), X);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::X);
 }
 
 DSLExpression DSLExpression::y() {
-    return Swizzle(this->release(), Y);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::Y);
 }
 
 DSLExpression DSLExpression::z() {
-    return Swizzle(this->release(), Z);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::Z);
 }
 
 DSLExpression DSLExpression::w() {
-    return Swizzle(this->release(), W);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::W);
 }
 
 DSLExpression DSLExpression::r() {
-    return Swizzle(this->release(), R);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::R);
 }
 
 DSLExpression DSLExpression::g() {
-    return Swizzle(this->release(), G);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::G);
 }
 
 DSLExpression DSLExpression::b() {
-    return Swizzle(this->release(), B);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::B);
 }
 
 DSLExpression DSLExpression::a() {
-    return Swizzle(this->release(), A);
+    return Swizzle(this->release(), SkSL::SwizzleComponent::A);
 }
 
 DSLExpression DSLExpression::field(const char* name) {

@@ -15,6 +15,17 @@
 #include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
+namespace SwizzleComponent {
+
+// This namespace is shared with the DSL, so users can write `Swizzle(var, X, Y, ONE)`.
+enum Type : int8_t {
+    X = 0, Y = 1, Z = 2, W = 3,
+    R = 0, G = 1, B = 2, A = 3,
+    ZERO,
+    ONE
+};
+
+}
 
 /**
  * Represents a vector swizzle operation such as 'float3(1, 2, 3).zyx'.
