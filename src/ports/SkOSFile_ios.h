@@ -18,28 +18,33 @@ static bool ios_get_path_in_bundle(const char path[], SkString* result) {
     CFBundleRef mainBundle = CFBundleGetMainBundle();
 
     // Get a reference to the file's URL
-    CFStringRef pathRef = CFStringCreateWithCString(nullptr, path, kCFStringEncodingUTF8);
+    // Use this to normalize the path
+    CFURLRef pathURL = CFURLCreateFromFileSystemRepresentation(nullptr, (const UInt8*)path,
+                                                               strlen(path), FALSE);
+    CFStringRef pathRef = CFURLCopyFileSystemPath(pathURL, kCFURLPOSIXPathStyle);
     // We use "data" as our subdirectory to match {{bundle_resources_dir}}/data in GN
     // Unfortunately "resources" is not a valid top-level name in iOS, so we push it one level down
-    CFURLRef imageURL = CFBundleCopyResourceURL(mainBundle, pathRef, nullptr, CFSTR("data"));
+    CFURLRef fileURL = CFBundleCopyResourceURL(mainBundle, pathRef, nullptr, CFSTR("data"));
     CFRelease(pathRef);
-    if (!imageURL) {
+    CFRelease(pathURL);
+    if (!fileURL) {
         return false;
     }
     if (!result) {
+        CFRelease(fileURL);
         return true;
     }
 
     // Convert the URL reference into a string reference
-    CFStringRef imagePath = CFURLCopyFileSystemPath(imageURL, kCFURLPOSIXPathStyle);
-    CFRelease(imageURL);
+    CFStringRef filePath = CFURLCopyFileSystemPath(fileURL, kCFURLPOSIXPathStyle);
+    CFRelease(fileURL);
 
     // Get the system encoding method
     CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
 
     // Convert the string reference into an SkString
-    result->set(CFStringGetCStringPtr(imagePath, encodingMethod));
-    CFRelease(imagePath);
+    result->set(CFStringGetCStringPtr(filePath, encodingMethod));
+    CFRelease(filePath);
     return true;
 }
 #endif
