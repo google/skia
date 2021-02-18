@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkMorphologyImageFilter.h"
 #include "src/effects/imagefilters/SkOffsetImageFilter.h"
 #include "src/effects/imagefilters/SkPaintImageFilter.h"
 #include "src/effects/imagefilters/SkPictureImageFilter.h"
@@ -20,7 +19,6 @@
 #include "src/core/SkMatrixImageFilter.h"
 
 void SkImageFilters::RegisterFlattenables() {
-    SkDilateImageFilter::RegisterFlattenables();
     SkOffsetImageFilter::RegisterFlattenables();
     SkPaintImageFilter::RegisterFlattenables();
     SkPictureImageFilter::RegisterFlattenables();
@@ -80,16 +78,4 @@ sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dithe
 sk_sp<SkImageFilter> SkImageFilters::Tile(
         const SkRect& src, const SkRect& dst, sk_sp<SkImageFilter> input) {
     return SkTileImageFilter::Make(src, dst, std::move(input));
-}
-
-// Morphology filter effects
-
-sk_sp<SkImageFilter> SkImageFilters::Dilate(
-        SkScalar radiusX, SkScalar radiusY, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return SkDilateImageFilter::Make(radiusX, radiusY, std::move(input), cropRect);
-}
-
-sk_sp<SkImageFilter> SkImageFilters::Erode(
-        SkScalar radiusX, SkScalar radiusY, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return SkErodeImageFilter::Make(radiusX, radiusY, std::move(input), cropRect);
 }
