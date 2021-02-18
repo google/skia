@@ -9,15 +9,9 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkTileImageFilter.h"
-
 // TODO (michaelludwig) - Once SkCanvas can draw the results of a filter with any transform, this
 // filter can be moved out of core
 #include "src/core/SkMatrixImageFilter.h"
-
-void SkImageFilters::RegisterFlattenables() {
-    SkTileImageFilter::RegisterFlattenables();
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,8 +28,3 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(
     return SkMatrixImageFilter::Make(transform, sampling, std::move(input));
 }
 #endif
-
-sk_sp<SkImageFilter> SkImageFilters::Tile(
-        const SkRect& src, const SkRect& dst, sk_sp<SkImageFilter> input) {
-    return SkTileImageFilter::Make(src, dst, std::move(input));
-}
