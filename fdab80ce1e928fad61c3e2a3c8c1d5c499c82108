@@ -16,6 +16,24 @@
       "message": "This isn\u0027t needed yet, but I assume that a follow-up will need it for the new factory?",
       "revId": "fdab80ce1e928fad61c3e2a3c8c1d5c499c82108",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd6270b0_752cb5be",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T21:14:23Z",
+      "side": 1,
+      "message": "Coming soon at http://review.skia.org/371398",
+      "parentUuid": "b736ebf4_9832c747",
+      "revId": "fdab80ce1e928fad61c3e2a3c8c1d5c499c82108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
