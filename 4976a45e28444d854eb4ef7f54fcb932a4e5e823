@@ -22,6 +22,30 @@
       },
       "revId": "4976a45e28444d854eb4ef7f54fcb932a4e5e823",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c239c072_feea0b6e",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T19:17:13Z",
+      "side": 1,
+      "message": "I can make a dedicated SkSLSwizzleComponent header in src/sksl/, or I can add it to SkSLDefines?",
+      "parentUuid": "66968886_ddf18520",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 1
+      },
+      "revId": "4976a45e28444d854eb4ef7f54fcb932a4e5e823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
