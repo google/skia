@@ -56,9 +56,6 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_RESTRICT:       return Modifiers::kRestrict_Flag;
         case Token::Kind::TK_BUFFER:         return Modifiers::kBuffer_Flag;
         case Token::Kind::TK_HASSIDEEFFECTS: return Modifiers::kHasSideEffects_Flag;
-        case Token::Kind::TK_PLS:            return Modifiers::kPLS_Flag;
-        case Token::Kind::TK_PLSIN:          return Modifiers::kPLSIn_Flag;
-        case Token::Kind::TK_PLSOUT:         return Modifiers::kPLSOut_Flag;
         case Token::Kind::TK_VARYING:        return Modifiers::kVarying_Flag;
         case Token::Kind::TK_INLINE:         return Modifiers::kInline_Flag;
         default:                             return 0;
@@ -1081,8 +1078,7 @@ Layout Parser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER | PLS | PLSIN |
-            PLSOUT | VARYING | INLINE)* */
+            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER | VARYING | INLINE)* */
 Modifiers Parser::modifiers() {
     Layout layout = this->layout();
     int flags = 0;
