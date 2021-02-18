@@ -434,21 +434,6 @@ void GrDirectContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) c
                                       this->getTextBlobCache()->usedBytes());
 }
 
-size_t GrDirectContext::ComputeImageSize(sk_sp<SkImage> image, GrMipmapped mipmapped) {
-    if (!image->isTextureBacked()) {
-        return 0;
-    }
-    SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image.get()));
-    GrTextureProxy* proxy = gpuImage->peekProxy();
-    if (!proxy) {
-        return 0;
-    }
-
-    int colorSamplesPerPixel = 1;
-    return GrSurface::ComputeSize(proxy->backendFormat(), image->dimensions(),
-                                  colorSamplesPerPixel, mipmapped);
-}
-
 GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
                                                        const GrBackendFormat& backendFormat,
                                                        GrMipmapped mipMapped,

@@ -6,8 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 90
 ------------
-  * GrDirectContext::ComputeImageSize() no longer takes nextPow2 argument.
+  * GrDirectContext::ComputeImageSize() is removed. Use SkImage::textureSize() instead.
     https://review.skia.org/368621
+    https://review.skia.org/369317
+    https://review.skia.org/371958
 
   * Remove SkImageFilter::MakeMatrixFilter as it was unused and replaced with
     SkImageFilters::MatrixTransform.
