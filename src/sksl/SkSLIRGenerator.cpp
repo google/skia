@@ -422,7 +422,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
     if (storage == Variable::Storage::kGlobal) {
         permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
                      Modifiers::kFlat_Flag | Modifiers::kVarying_Flag |
-                     Modifiers::kNoPerspective_Flag | Modifiers::kBuffer_Flag;
+                     Modifiers::kNoPerspective_Flag;
     }
     this->checkModifiers(offset, modifiers, permitted);
 }
@@ -1037,7 +1037,6 @@ void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int per
     CHECK(Modifiers::kUniform_Flag,        "uniform")
     CHECK(Modifiers::kFlat_Flag,           "flat")
     CHECK(Modifiers::kNoPerspective_Flag,  "noperspective")
-    CHECK(Modifiers::kBuffer_Flag,         "buffer")
     CHECK(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects")
     CHECK(Modifiers::kVarying_Flag,        "varying")
     CHECK(Modifiers::kInline_Flag,         "inline")
