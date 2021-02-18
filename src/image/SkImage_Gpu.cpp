@@ -423,7 +423,6 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
     }
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    // CONTEXT TODO: rm this usage of the 'backdoor' to create an image
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID,
                                    std::move(view), colorType, alphaType, std::move(colorSpace));
 }
