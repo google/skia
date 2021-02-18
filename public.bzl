@@ -380,7 +380,7 @@ GL_SRCS_WASM = struct(
     include = [
         "src/gpu/gl/*",
         "src/gpu/gl/builders/*",
-        "src/gpu/gl/GrGLMakeNativeInterface_egl.cpp",
+        "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
         "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
     ],
     exclude = [
