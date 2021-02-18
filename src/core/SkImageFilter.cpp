@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkFuzzLogging.h"
 #include "src/core/SkImageFilterCache.h"
@@ -30,6 +31,10 @@
 #include "src/gpu/SkGr.h"
 #endif
 #include <atomic>
+
+// Allow kNoCropRect to be referenced (for certain builds, e.g. macOS libFuzzer chromium target,
+// see crbug.com/1139725)
+constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // SkImageFilter - A number of the public APIs on SkImageFilter downcast to SkImageFilter_Base

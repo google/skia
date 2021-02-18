@@ -17,6 +17,9 @@
     input transformed by the given matrix.
  */
 
+// TODO(michaelludwig): Once SkCanvas no longer relies on this for handling complex CTMs with
+// filters, this class declaration can be hidden in its cpp file, header deleted, and cpp moved
+// into src/effects/imagefilters along with all the other image filters.
 class SkMatrixImageFilter : public SkImageFilter_Base {
 public:
     /** Construct a 2D transformation image filter.
