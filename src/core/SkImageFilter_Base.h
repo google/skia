@@ -499,5 +499,6 @@ void SkRegisterMergeImageFilterFlattenable();
 void SkRegisterMorphologyImageFilterFlattenables();
 void SkRegisterOffsetImageFilterFlattenable();
 void SkRegisterShaderImageFilterFlattenable();
+void SkRegisterPictureImageFilterFlattenable();
 
 #endif // SkImageFilter_Base_DEFINED
