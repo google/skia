@@ -505,8 +505,6 @@ public:
                                                 sk_sp<SkImageFilter> input,
                                                 const CropRect& cropRect = {});
 
-    static void RegisterFlattenables();
-
 private:
     SkImageFilters() = delete;
 };
