@@ -11,6 +11,7 @@
 
 namespace SkSL {
 
+using State = uint8_t;
 static const uint8_t INVALID_CHAR = 18;
 static int8_t mappings[127] = {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  1,  3,  3,  3,  3,  3,  3,  3,  3,
@@ -19,7 +20,7 @@ static int8_t mappings[127] = {
         26, 26, 26, 27, 26, 6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
         6,  6,  6,  28, 3,  29, 30, 31, 3,  32, 33, 34, 35, 36, 37, 38, 39, 40, 6,  41, 42, 43,
         44, 45, 46, 6,  47, 48, 49, 50, 51, 52, 53, 54, 6,  55, 56, 57, 58};
-static int16_t transitions[59][238] = {
+static State transitions[59][238] = {
         {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -806,7 +807,7 @@ Token Lexer::next() {
     if (startOffset == fLength) {
         return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
     }
-    int16_t state = 1;
+    State state = 1;
     for (;;) {
         if (fOffset >= fLength) {
             if (accepts[state] == -1) {
@@ -818,7 +819,7 @@ Token Lexer::next() {
         if (c <= 8 || c >= 127) {
             c = INVALID_CHAR;
         }
-        int16_t newState = transitions[mappings[c]][state];
+        State newState = transitions[mappings[c]][state];
         if (!newState) {
             break;
         }
