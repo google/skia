@@ -1,9 +1,6 @@
-const in out uniform flat noperspective readonly writeonly coherent volatile restrict buffer
-sk_has_side_effects varying inline
-void func1() {}
+const in out uniform flat noperspective buffer sk_has_side_effects varying inline void func1() {}
 
-void func2(const in out uniform flat noperspective readonly writeonly coherent volatile restrict
-           buffer sk_has_side_effects varying inline float test) {}
+void func2(const in out uniform flat noperspective buffer sk_has_side_effects varying inline
+           float test) {}
 
-const in out uniform flat noperspective readonly writeonly coherent volatile restrict buffer
-sk_has_side_effects varying inline float var;
+const in out uniform flat noperspective buffer sk_has_side_effects varying inline float var;
