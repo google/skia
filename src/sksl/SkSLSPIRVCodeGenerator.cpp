@@ -2886,13 +2886,6 @@ static bool is_dead(const Variable& var, const ProgramUsage* usage) {
 
 void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& varDecl) {
     const Variable& var = varDecl.var();
-    // These haven't been implemented in our SPIR-V generator yet and we only currently use them
-    // in the OpenGL backend.
-    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kReadOnly_Flag |
-                                         Modifiers::kWriteOnly_Flag |
-                                         Modifiers::kCoherent_Flag |
-                                         Modifiers::kVolatile_Flag |
-                                         Modifiers::kRestrict_Flag)));
     // 9999 is a sentinel value used in our built-in modules that causes us to ignore these
     // declarations, beyond adding them to the symbol table.
     constexpr int kBuiltinIgnore = 9999;
@@ -2950,13 +2943,6 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
 
 void SPIRVCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, OutputStream& out) {
     const Variable& var = varDecl.var();
-    // These haven't been implemented in our SPIR-V generator yet and we only currently use them
-    // in the OpenGL backend.
-    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kReadOnly_Flag |
-                                         Modifiers::kWriteOnly_Flag |
-                                         Modifiers::kCoherent_Flag |
-                                         Modifiers::kVolatile_Flag |
-                                         Modifiers::kRestrict_Flag)));
     SpvId id = this->nextId();
     fVariableMap[&var] = id;
     SpvId type = this->getPointerType(var.type(), SpvStorageClassFunction);
