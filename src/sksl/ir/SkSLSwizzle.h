@@ -23,6 +23,7 @@ namespace SkSL {
 struct Swizzle final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
+    // Use Swizzle::Make to create swizzle expressions.
     Swizzle(const Context& context, std::unique_ptr<Expression> base,
             const ComponentArray& components)
             : INHERITED(base->fOffset, kExpressionKind,
@@ -31,6 +32,10 @@ struct Swizzle final : public Expression {
             , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
     }
+
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> base,
+                                            ComponentArray inComponents);
 
     std::unique_ptr<Expression>& base() {
         return fBase;
@@ -56,7 +61,7 @@ struct Swizzle final : public Expression {
     String description() const override {
         String result = this->base()->description() + ".";
         for (int x : this->components()) {
-            result += "xyzw"[x];
+            result += "xyzw01"[x];
         }
         return result;
     }
