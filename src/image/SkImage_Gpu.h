@@ -77,7 +77,7 @@ public:
                                            ReadPixelsContext) override;
 
     /**
-     * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
+     * This is the implementation of GrContext::makePromiseTexture.
      */
     static sk_sp<SkImage> MakePromiseTexture(GrRecordingContext*,
                                              const GrBackendFormat& backendFormat,

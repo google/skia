@@ -26,7 +26,7 @@ class SkSurface;
 /*
  * This class is intended to be used as:
  *   Get an SkSurfaceCharacterization representing the intended gpu-backed destination SkSurface
- *   Create one of these (an SkDDLMaker) on the stack
+ *   Create one of these (an SkDeferredDisplayListRecorder) on the stack
  *   Get the canvas and render into it
  *   Snap off and hold on to an SkDeferredDisplayList
  *   Once your app actually needs the pixels, call SkSurface::draw(SkDeferredDisplayList*)
