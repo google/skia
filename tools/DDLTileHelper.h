@@ -46,7 +46,8 @@ public:
                                    const DDLPromiseImageHelper& helper);
 
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
-        void createDDL();
+        void createDDL(const SkPicture*,
+                       const SkTArray<sk_sp<SkImage>>& promiseImages);
 
         void dropDDL() { fDisplayList.reset(); }
 
@@ -56,7 +57,7 @@ public:
         // Just draw the re-inflated per-tile SKP directly into this tile w/o going through a DDL
         // first. This is used for determining the overhead of using DDLs (i.e., it replaces
         // a 'createDDL' and 'draw' pair.
-        void drawSKPDirectly(GrRecordingContext*);
+        void drawSKPDirectly(GrDirectContext*, const SkPicture*);
 
         // Replay the recorded DDL into the tile surface - filling in 'fBackendTexture'.
         void draw(GrDirectContext*);
@@ -99,9 +100,6 @@ public:
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
         sk_sp<SkSurface>              fTileSurface;
 
-        sk_sp<SkPicture>              fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>      fPromiseImages;    // All the promise images in the
-                                                     // reconstituted picture
         sk_sp<SkDeferredDisplayList>  fDisplayList;
     };
 
@@ -111,7 +109,7 @@ public:
                   int numDivisions,
                   bool addRandomPaddingToDst);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
+    void createSKP(SkData* compressedPictureData, const DDLPromiseImageHelper&);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
@@ -145,12 +143,16 @@ public:
     void deleteBackendTextures(SkTaskGroup*, GrDirectContext*);
 
 private:
+    GrDirectContext*                       fContext;
     int                                    fNumDivisions; // number of tiles along a side
     SkAutoTArray<TileData>                 fTiles;        // 'fNumDivisions' x 'fNumDivisions'
 
     sk_sp<SkDeferredDisplayList>           fComposeDDL;
 
     const SkSurfaceCharacterization        fDstCharacterization;
+    sk_sp<SkPicture>                       fReconstitutedPicture;
+    SkTArray<sk_sp<SkImage>>               fPromiseImages; // All the promise images in the
+                                                           // reconstituted picture
 };
 
 #endif
