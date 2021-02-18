@@ -110,6 +110,7 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     }
     // arbitrarily-chosen character which is greater than START_CHAR and should not appear in actual
     // input
+    out << "using state_t = " << (states <= 256 ? "uint8_t" : "int16_t") << ";\n";
     out << "static const uint8_t INVALID_CHAR = 18;";
     out << "static int8_t mappings[" << dfa.fCharMappings.size() << "] = {\n    ";
     const char* separator = "";
@@ -118,7 +119,7 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
         separator = ", ";
     }
     out << "\n};\n";
-    out << "static int16_t transitions[" << dfa.fTransitions.size() << "][" << states << "] = {\n";
+    out << "static state_t transitions[" << dfa.fTransitions.size() << "][" << states << "] = {\n";
     for (size_t c = 0; c < dfa.fTransitions.size(); ++c) {
         out << "    {";
         for (size_t j = 0; j < states; ++j) {
@@ -155,7 +156,7 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     if (startOffset == fLength) {
         return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
     }
-    int16_t state = 1;
+    state_t state = 1;
     for (;;) {
         if (fOffset >= fLength) {
             if (accepts[state] == -1) {
@@ -167,7 +168,7 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
         if (c <= 8 || c >= )" << dfa.fCharMappings.size() << R"() {
             c = INVALID_CHAR;
         }
-        int16_t newState = transitions[mappings[c]][state];
+        state_t newState = transitions[mappings[c]][state];
         if (!newState) {
             break;
         }
