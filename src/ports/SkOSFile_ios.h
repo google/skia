@@ -13,17 +13,24 @@
 #ifdef SK_BUILD_FOR_IOS
 #import <CoreFoundation/CoreFoundation.h>
 
+#include "include/ports/SkCFObject.h"
+
 static bool ios_get_path_in_bundle(const char path[], SkString* result) {
     // Get a reference to the main bundle
     CFBundleRef mainBundle = CFBundleGetMainBundle();
 
     // Get a reference to the file's URL
-    CFStringRef pathRef = CFStringCreateWithCString(nullptr, path, kCFStringEncodingUTF8);
+    // Use this to normalize the path
+    sk_cf_obj<CFURLRef> pathURL(CFURLCreateFromFileSystemRepresentation(/*allocator=*/nullptr,
+                                                                        (const UInt8*)path,
+                                                                        strlen(path),
+                                                                        /*isDirectory=*/false));
+    sk_cf_obj<CFStringRef> pathRef(CFURLCopyFileSystemPath(pathURL.get(), kCFURLPOSIXPathStyle));
     // We use "data" as our subdirectory to match {{bundle_resources_dir}}/data in GN
     // Unfortunately "resources" is not a valid top-level name in iOS, so we push it one level down
-    CFURLRef imageURL = CFBundleCopyResourceURL(mainBundle, pathRef, nullptr, CFSTR("data"));
-    CFRelease(pathRef);
-    if (!imageURL) {
+    sk_cf_obj<CFURLRef> fileURL(CFBundleCopyResourceURL(mainBundle, pathRef.get(),
+                                                        /*resourceType=*/nullptr, CFSTR("data")));
+    if (!fileURL) {
         return false;
     }
     if (!result) {
@@ -31,15 +38,13 @@ static bool ios_get_path_in_bundle(const char path[], SkString* result) {
     }
 
     // Convert the URL reference into a string reference
-    CFStringRef imagePath = CFURLCopyFileSystemPath(imageURL, kCFURLPOSIXPathStyle);
-    CFRelease(imageURL);
+    sk_cf_obj<CFStringRef> filePath(CFURLCopyFileSystemPath(fileURL.get(), kCFURLPOSIXPathStyle));
 
     // Get the system encoding method
     CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
 
     // Convert the string reference into an SkString
-    result->set(CFStringGetCStringPtr(imagePath, encodingMethod));
-    CFRelease(imagePath);
+    result->set(CFStringGetCStringPtr(filePath.get(), encodingMethod));
     return true;
 }
 #endif
