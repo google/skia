@@ -882,19 +882,28 @@ optional("gpu") {
   if (skia_use_gl) {
     public_defines += [ "SK_GL" ]
     if (is_android) {
-      sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+      sources += [
+        "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
+        "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+      ]
 
       # this lib is required to link against AHardwareBuffer
       if (defined(ndk_api) && ndk_api >= 26) {
         libs += [ "android" ]
       }
     } else if (skia_use_egl) {
-      sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+      sources += [
+        "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
+        "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+      ]
       libs += [ "EGL" ]
     } else if (skia_use_webgl) {
       sources += [ "src/gpu/gl/webgl/GrGLMakeNativeInterface_webgl.cpp" ]
     } else if (is_linux && skia_use_x11) {
-      sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
+      sources += [
+        "src/gpu/gl/glx/GrGLMakeGLXInterface.cpp",
+        "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp",
+      ]
       libs += [ "GL" ]
     } else if (is_mac) {
       sources += [ "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp" ]
