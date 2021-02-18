@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/imagefilters/SkMergeImageFilter.h"
-
 #include "include/core/SkCanvas.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -17,10 +16,10 @@
 
 namespace {
 
-class SkMergeImageFilterImpl final : public SkImageFilter_Base {
+class SkMergeImageFilter final : public SkImageFilter_Base {
 public:
-    SkMergeImageFilterImpl(sk_sp<SkImageFilter>* const filters, int count,
-                           const SkRect* cropRect)
+    SkMergeImageFilter(sk_sp<SkImageFilter>* const filters, int count,
+                       const SkRect* cropRect)
             : INHERITED(filters, count, cropRect) {
         SkASSERT(count >= 0);
     }
@@ -30,37 +29,36 @@ protected:
     bool onCanHandleComplexCTM() const override { return true; }
 
 private:
-    friend void SkMergeImageFilter::RegisterFlattenables();
-    SK_FLATTENABLE_HOOKS(SkMergeImageFilterImpl)
+    friend void ::SkRegisterMergeImageFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkMergeImageFilter)
 
     using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
-
-sk_sp<SkImageFilter> SkMergeImageFilter::Make(sk_sp<SkImageFilter>* const filters, int count,
-                                               const SkRect* cropRect) {
-    return sk_sp<SkImageFilter>(new SkMergeImageFilterImpl(filters, count, cropRect));
+sk_sp<SkImageFilter> SkImageFilters::Merge(sk_sp<SkImageFilter>* const filters, int count,
+                                           const CropRect& cropRect) {
+    return sk_sp<SkImageFilter>(new SkMergeImageFilter(filters, count, cropRect));
 }
 
-void SkMergeImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkMergeImageFilterImpl);
+void SkRegisterMergeImageFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkMergeImageFilter);
     // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
-    SkFlattenable::Register("SkMergeImageFilter", SkMergeImageFilterImpl::CreateProc);
+    SkFlattenable::Register("SkMergeImageFilterImpl", SkMergeImageFilter::CreateProc);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkFlattenable> SkMergeImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
     Common common;
     if (!common.unflatten(buffer, -1) || !buffer.isValid()) {
         return nullptr;
     }
-    return SkMergeImageFilter::Make(common.inputs(), common.inputCount(), common.cropRect());
+    return SkImageFilters::Merge(common.inputs(), common.inputCount(), common.cropRect());
 }
 
-sk_sp<SkSpecialImage> SkMergeImageFilterImpl::onFilterImage(const Context& ctx,
-                                                            SkIPoint* offset) const {
+///////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(const Context& ctx,
+                                                        SkIPoint* offset) const {
     int inputCount = this->countInputs();
     if (inputCount < 1) {
         return nullptr;
