@@ -34,7 +34,9 @@ public:
     enum class ShaderFlags {
         kNone          = 0,
         kHasConics     = 1 << 0,
-        kDynamicStroke = 1 << 1  // Each patch or instance has its own stroke width and join type.
+        kWideColor     = 1 << 1,
+        kDynamicStroke = 1 << 2,  // Each patch or instance has its own stroke width and join type.
+        kDynamicColor  = 1 << 3,  // Each patch or instance has its own color.
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
@@ -142,18 +144,22 @@ public:
 
     // Size in bytes of a tessellation patch with the given shader flags.
     static size_t PatchStride(ShaderFlags shaderFlags) {
-        size_t stride = sizeof(SkPoint) * 5;
-        if (shaderFlags & ShaderFlags::kDynamicStroke) {
-            stride += sizeof(DynamicStroke);
-        }
-        return stride;
+        return sizeof(SkPoint) * 5 + DynamicStateStride(shaderFlags);
     }
 
     // Size in bytes of an indirect draw instance with the given shader flags.
     static size_t IndirectInstanceStride(ShaderFlags shaderFlags) {
-        size_t stride = sizeof(float) * 11;
+        return sizeof(float) * 11 + DynamicStateStride(shaderFlags);
+    }
+
+    // Combined size in bytes of the dynamic state attribs enabled in the given shader flags.
+    static size_t DynamicStateStride(ShaderFlags shaderFlags) {
+        size_t stride = 0;
         if (shaderFlags & ShaderFlags::kDynamicStroke) {
             stride += sizeof(DynamicStroke);
+        }
+        if (shaderFlags & ShaderFlags::kDynamicColor) {
+            stride += (shaderFlags & ShaderFlags::kWideColor) ? sizeof(float) * 4 : 4;
         }
         return stride;
     }
@@ -207,6 +213,13 @@ public:
             fAttribs.emplace_back("dynamicStrokeAttr", kFloat2_GrVertexAttribType,
                                   kFloat2_GrSLType);
         }
+        if (fShaderFlags & ShaderFlags::kDynamicColor) {
+            fAttribs.emplace_back("dynamicColorAttr",
+                                  (fShaderFlags & ShaderFlags::kWideColor)
+                                          ? kFloat4_GrVertexAttribType
+                                          : kUByte4_norm_GrVertexAttribType,
+                                  kHalf4_GrSLType);
+        }
         if (fMode == Mode::kTessellation) {
             this->setVertexAttributes(fAttribs.data(), fAttribs.count());
             SkASSERT(this->vertexStride() == PatchStride(fShaderFlags));
@@ -214,10 +227,12 @@ public:
             this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
             SkASSERT(this->instanceStride() == IndirectInstanceStride(fShaderFlags));
         }
+        SkASSERT(fAttribs.count() <= kMaxAttribCount);
     }
 
     bool hasConics() const { return fShaderFlags & ShaderFlags::kHasConics; }
     bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
+    bool hasDynamicColor() const { return fShaderFlags & ShaderFlags::kDynamicColor; }
 
 private:
     const char* name() const override { return "GrStrokeTessellateShader"; }
@@ -237,7 +252,9 @@ private:
     const ShaderFlags fShaderFlags;
     const SkStrokeRec fStroke;
     const SkPMColor4f fColor;
-    SkSTArray<4, Attribute> fAttribs;
+
+    constexpr static int kMaxAttribCount = 5;
+    SkSTArray<kMaxAttribCount, Attribute> fAttribs;
 
     class TessellationImpl;
     class IndirectImpl;

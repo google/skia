@@ -125,6 +125,7 @@ private:
 
     // Stateful values for the dynamic state (if any) that will get written out with each patch.
     GrStrokeTessellateShader::DynamicStroke fDynamicStroke;
+    GrVertexColor fDynamicColor;
 
     friend class GrOp;  // For ctor.
 
