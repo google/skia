@@ -62,8 +62,8 @@ if (skia_enable_skottie) {
 
         deps = [
           ":skottie",
-          "../..:gpu_tool_utils",
           "../..:skia",
+          "../..:test",
           "../skshaper",
         ]
       }

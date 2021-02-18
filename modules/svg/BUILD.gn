@@ -46,16 +46,13 @@ if (skia_enable_svg) {
     source_set("tests") {
       testonly = true
 
-      configs += [
-        "../..:skia_private",
-        "../..:tests_config",
-      ]
+      configs += [ "../..:skia_private" ]
       sources = [ "tests/Text.cpp" ]
 
       deps = [
         ":svg",
-        "../..:gpu_tool_utils",
         "../..:skia",
+        "../..:test",
       ]
     }
   }
