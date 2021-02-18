@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd82df9b_73f9a27b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-18T22:01:53Z",
+      "side": 1,
+      "message": "These kinds of comments (about usage-counts not changing) are still correct (I think, for now), but worry me a little bit? Now that we\u0027re calling a factory that could further simplify the passed-in arguments, is there a situation where we might drop a variable reference?",
+      "range": {
+        "startLine": 965,
+        "startChar": 0,
+        "endLine": 967,
+        "endChar": 40
+      },
+      "revId": "2b2d3251f13d82f4805cf938e78fd7f4cba100d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48b202ea_b7dfdc79",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-18T22:01:53Z",
+      "side": 1,
+      "message": "I was going to say that having this as Expression::coerceTo() would read nicer, but I realize that we need to consume the expr pointer. C\u0027est la vie.",
+      "revId": "2b2d3251f13d82f4805cf938e78fd7f4cba100d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
