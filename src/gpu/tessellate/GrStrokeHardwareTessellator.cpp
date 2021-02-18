@@ -114,7 +114,8 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     int capPreallocCount = 8;
     this->allocPatchChunkAtLeast(strokePreallocCount + capPreallocCount);
 
-    for (const auto& [path, stroke] : pathStrokeList) {
+    for (const auto& pathStroke : pathStrokeList) {
+        const SkStrokeRec& stroke = pathStroke.fStroke;
         if (!fStroke || fStroke->getWidth() != stroke.getWidth() ||
             fStroke->getJoin() != stroke.getJoin()) {
             auto tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
@@ -127,7 +128,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
         fHasLastControlPoint = false;
         SkDEBUGCODE(fHasCurrentPoint = false;)
         SkPathVerb previousVerb = SkPathVerb::kClose;
-        for (auto [verb, p, w] : SkPathPriv::Iterate(path)) {
+        for (auto [verb, p, w] : SkPathPriv::Iterate(pathStroke.fPath)) {
             switch (verb) {
                 case SkPathVerb::kMove:
                     // "A subpath ... consisting of a single moveto shall not be stroked."

@@ -468,7 +468,8 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
 
     float lastStrokeWidth = -1;
     SkPoint lastControlPoint = {0,0};
-    for (const auto& [path, stroke] : pathStrokeList) {
+    for (const auto& pathStroke : pathStrokeList) {
+        const SkStrokeRec& stroke = pathStroke.fStroke;
         SkASSERT(stroke.getWidth() >= 0);  // Otherwise we can't initialize lastStrokeWidth=-1.
         if (stroke.getWidth() != lastStrokeWidth ||
             (stroke.getJoin() == SkPaint::kRound_Join) != counter.isRoundJoin()) {
@@ -478,7 +479,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
         fMaxNumExtraEdgesInJoin = std::max(fMaxNumExtraEdgesInJoin,
                 GrStrokeTessellateShader::NumExtraEdgesInIndirectJoin(stroke.getJoin()));
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
-        GrStrokeIterator iter(path, &stroke, &viewMatrix);
+        GrStrokeIterator iter(pathStroke.fPath, &stroke, &viewMatrix);
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
             Verb verb = iter.verb();
@@ -778,12 +779,13 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     int8_t resolveLevel;
 
     // Now write out each instance to its resolveLevel's designated location in the instance buffer.
-    for (const auto& [path, stroke] : pathStrokeList) {
+    for (const auto& pathStroke : pathStrokeList) {
+        const SkStrokeRec& stroke = pathStroke.fStroke;
         bool isRoundJoin = (stroke.getJoin() == SkPaint::kRound_Join);
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             binningWriter.updateDynamicStroke(stroke);
         }
-        GrStrokeIterator iter(path, &stroke, &viewMatrix);
+        GrStrokeIterator iter(pathStroke.fPath, &stroke, &viewMatrix);
         bool hasLastControlPoint = false;
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
