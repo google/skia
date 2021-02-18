@@ -1061,21 +1061,6 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (layout.size()) {
         this->write(layout + " ");
     }
-    if (modifiers.fFlags & Modifiers::kReadOnly_Flag) {
-        this->write("readonly ");
-    }
-    if (modifiers.fFlags & Modifiers::kWriteOnly_Flag) {
-        this->write("writeonly ");
-    }
-    if (modifiers.fFlags & Modifiers::kCoherent_Flag) {
-        this->write("coherent ");
-    }
-    if (modifiers.fFlags & Modifiers::kVolatile_Flag) {
-        this->write("volatile ");
-    }
-    if (modifiers.fFlags & Modifiers::kRestrict_Flag) {
-        this->write("restrict ");
-    }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
         (modifiers.fFlags & Modifiers::kOut_Flag)) {
         this->write("inout ");
