@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a7ac05b_8be09fae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-18T20:32:26Z",
+      "side": 1,
+      "message": "We could go further and just inline this into SkSGColorFilter, which is the only thing I can see using it, but I got scared when I saw we had CK bindings for this.  Who knows who\u0027s using it...",
+      "revId": "3ce6bcf638ced240d043457be11320fb2cd12853",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
