@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db67379d_dc58a9fe",
+        "filename": "src/sksl/lex/Main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-18T19:58:27Z",
+      "side": 1,
+      "message": "These *_t type names are technically all reserved by POSIX I think.  I doubt this will be an issue, but I\u0027d use `State`.",
+      "range": {
+        "startLine": 113,
+        "startChar": 18,
+        "endLine": 113,
+        "endChar": 25
+      },
+      "revId": "6817106134a749aa74d2ff328872ce3e1aef6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
