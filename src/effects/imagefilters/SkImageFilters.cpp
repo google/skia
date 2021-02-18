@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkMergeImageFilter.h"
 #include "src/effects/imagefilters/SkMorphologyImageFilter.h"
 #include "src/effects/imagefilters/SkOffsetImageFilter.h"
 #include "src/effects/imagefilters/SkPaintImageFilter.h"
@@ -22,7 +21,6 @@
 
 void SkImageFilters::RegisterFlattenables() {
     SkDilateImageFilter::RegisterFlattenables();
-    SkMergeImageFilter::RegisterFlattenables();
     SkOffsetImageFilter::RegisterFlattenables();
     SkPaintImageFilter::RegisterFlattenables();
     SkPictureImageFilter::RegisterFlattenables();
@@ -44,11 +42,6 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(
     return SkMatrixImageFilter::Make(transform, sampling, std::move(input));
 }
 #endif
-
-sk_sp<SkImageFilter> SkImageFilters::Merge(
-        sk_sp<SkImageFilter>* const filters, int count, const CropRect& cropRect) {
-    return SkMergeImageFilter::Make(filters, count, cropRect);
-}
 
 sk_sp<SkImageFilter> SkImageFilters::Offset(
         SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
