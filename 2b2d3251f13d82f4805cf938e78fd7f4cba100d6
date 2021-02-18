@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5bcdd97_46b9bda3",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T22:07:06Z",
+      "side": 1,
+      "message": "Hmm, good point. We shouldn\u0027t use the factory functions during optimization. They won\u0027t update usage counts, and they are happy to slice apart their input Expressions instead of cloning them. I\u0027ll leave construction inside simplifyExpression()/simplifyStatement() as-is.",
+      "parentUuid": "bd82df9b_73f9a27b",
+      "range": {
+        "startLine": 965,
+        "startChar": 0,
+        "endLine": 967,
+        "endChar": 40
+      },
+      "revId": "2b2d3251f13d82f4805cf938e78fd7f4cba100d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "48b202ea_b7dfdc79",
