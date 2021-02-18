@@ -28,10 +28,6 @@ public:
     GrImageContext* asImageContext() { return fContext->asImageContext(); }
     GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
 
-    // from GrImageContext
-    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
-    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
-
     bool abandoned() const { return fContext->abandoned(); }
 
     /** This is only useful for debug purposes */

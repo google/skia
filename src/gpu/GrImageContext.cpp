@@ -18,7 +18,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrImageContext::GrImageContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(std::move(proxy)) {
-    fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }
 
 GrImageContext::~GrImageContext() {}
