@@ -86,15 +86,17 @@ auto GrAtlasTextOp::Geometry::Make(GrRecordingContext* rc,
                                    const SkMatrix& drawMatrix,
                                    SkPoint drawOrigin,
                                    SkIRect clipRect,
-                                   GrTextBlob* blob,
+                                   sk_sp<GrTextBlob> blob,
                                    const SkPMColor4f& color) -> Geometry* {
     auto arena = rc->priv().recordTimeAllocator();
-    return arena->make<Geometry>(subRun,
-                                 drawMatrix,
-                                 drawOrigin,
-                                 clipRect,
-                                 SkRef(blob),
-                                 color);
+    // Bypass the automatic dtor behavior in SkArenaAlloc
+    void* geo = arena->makeBytesAlignedTo(sizeof(Geometry), alignof(Geometry));
+    return new (geo) Geometry{subRun,
+                              drawMatrix,
+                              drawOrigin,
+                              clipRect,
+                              std::move(blob),
+                              color};
 }
 
 
