@@ -9,16 +9,19 @@
 #define SkRuntimeEffect_DEFINED
 
 #include "include/core/SkData.h"
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkString.h"
+#include "include/private/GrTypesPriv.h"
 #include "include/private/SkSLSampleUsage.h"
 
+#include <string>
 #include <vector>
 
-class GrRecordingContext;
+#if SK_SUPPORT_GPU
+#include "include/gpu/GrContextOptions.h"
+#endif
+
 class SkColorFilter;
-class SkImage;
 class SkShader;
 
 namespace SkSL {
@@ -55,6 +58,7 @@ public:
         SkString  name;
         size_t    offset;
         Type      type;
+        GrSLType  gpuType;
         int       count;
         uint32_t  flags;
         uint32_t  marker;
