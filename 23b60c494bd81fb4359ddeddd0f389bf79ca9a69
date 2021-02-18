@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7dbc2e44_9443e4d4",
+        "filename": "src/sksl/lex/Main.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T21:21:57Z",
+      "side": 1,
+      "message": "How about `ParseState`? `State` is pretty broad as names go.",
+      "range": {
+        "startLine": 111,
+        "startChar": 18,
+        "endLine": 111,
+        "endChar": 23
+      },
+      "revId": "23b60c494bd81fb4359ddeddd0f389bf79ca9a69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
