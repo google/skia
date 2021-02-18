@@ -33,8 +33,9 @@ class Variable;
 class VariableReference;
 enum class VariableRefKind : int8_t;
 enum class VariableStorage : int8_t;
+enum SwizzleComponent : int8_t;
 
-using ComponentArray = SkSTArray<4, int8_t>; // for Swizzles
+using ComponentArray = SkSTArray<4, int8_t>;
 using ExpressionArray = SkSTArray<2, std::unique_ptr<Expression>>;
 using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
 

@@ -132,7 +132,11 @@ DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifF
  */
 DSLStatement While(DSLExpression test, DSLStatement stmt);
 
+/**
+ * expression.xyz1
+ */
 
+// These values must line up with `enum SkSL::SwizzleComponent` in SkSL::Swizzle.
 enum SwizzleComponent : int8_t {
     X = 0, Y = 1, Z = 2, W = 3,
     R = 0, G = 1, B = 2, A = 3,
