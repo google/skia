@@ -707,12 +707,10 @@ public:
                         args.fVaryingHandler->addPassThroughAttribute(gp.fGeomSubset, "geoSubset",
                                         Interpolation::kCanBeFlat);
                         args.fFragBuilder->codeAppend(
-                                "if (coverage < 0.5) {"
-                                "   float4 dists4 = clamp(float4(1, 1, -1, -1) * "
+                                "float4 dists4 = clamp(float4(1, 1, -1, -1) * "
                                         "(sk_FragCoord.xyxy - geoSubset), 0, 1);"
-                                "   float2 dists2 = dists4.xy * dists4.zw;"
-                                "   coverage = min(coverage, dists2.x * dists2.y);"
-                                "}");
+                                "float2 dists2 = dists4.xy * dists4.zw;"
+                                "coverage = min(coverage, dists2.x * dists2.y);");
                     }
 
                     args.fFragBuilder->codeAppendf("%s = half4(half(coverage));",
