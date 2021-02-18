@@ -47,7 +47,6 @@ struct Token {
         TK_VARYING,
         TK_STRUCT,
         TK_LAYOUT,
-        TK_PRECISION,
         TK_ENUM,
         TK_CLASS,
         TK_IDENTIFIER,
