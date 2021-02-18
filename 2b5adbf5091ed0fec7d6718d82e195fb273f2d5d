@@ -16,6 +16,24 @@
       "message": "I would probably add a check to fail if this tries to run on non-linux environments.",
       "revId": "2b5adbf5091ed0fec7d6718d82e195fb273f2d5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99fa64b0_6d2d4480",
+        "filename": "infra/bots/assets/bazel/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-02-18T07:17:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f21f78c_a2672e09",
+      "revId": "2b5adbf5091ed0fec7d6718d82e195fb273f2d5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
