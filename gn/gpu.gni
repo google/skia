@@ -904,8 +904,12 @@ skia_metal_sources = [
 ]
 
 skia_native_gpu_sources = [
+  "$_include/gpu/gl/egl/GrGLMakeEGLInterface.h",
+  "$_include/gpu/gl/glx/GrGLMakeGLXInterface.h",
   "$_src/gpu/gl/android/GrGLMakeNativeInterface_android.cpp",
+  "$_src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
   "$_src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+  "$_src/gpu/gl/glx/GrGLMakeGLXInterface.cpp",
   "$_src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp",
   "$_src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
   "$_src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp",
