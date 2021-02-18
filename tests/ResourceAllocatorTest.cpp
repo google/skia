@@ -68,9 +68,7 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     alloc.addInterval(p2.get(), 1, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
 
-    GrResourceAllocator::AssignError error;
-    alloc.assign(&error);
-    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
+    REPORTER_ASSERT(reporter, alloc.assign());
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
     REPORTER_ASSERT(reporter, p2->peekSurface());
@@ -95,9 +93,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     alloc.addInterval(p1.get(), 0, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.addInterval(p2.get(), 3, 5, GrResourceAllocator::ActualUse::kYes);
 
-    GrResourceAllocator::AssignError error;
-    alloc.assign(&error);
-    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
+    REPORTER_ASSERT(reporter, alloc.assign());
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
     REPORTER_ASSERT(reporter, p2->peekSurface());

@@ -70,7 +70,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     // with the same texture.
     if (proxy->readOnly()) {
         if (proxy->isLazy() && !proxy->priv().doLazyInstantiation(fResourceProvider)) {
-            fLazyInstantiationError = true;
+            fFailedInstantiation = true;
         } else {
             // Since we aren't going to add an interval we won't revisit this proxy in assign(). So
             // must already be instantiated or it must be a lazy proxy that we instantiated above.
@@ -293,17 +293,13 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-void GrResourceAllocator::assign(AssignError* outError) {
-    SkASSERT(outError);
-    *outError = fLazyInstantiationError ? AssignError::kFailedProxyInstantiation
-                                        : AssignError::kNoError;
-
+bool GrResourceAllocator::assign() {
     fIntvlHash.reset(); // we don't need the interval hash anymore
 
     SkDEBUGCODE(fAssigned = true;)
 
     if (fIntvlList.empty()) {
-        return;          // no resources to assign
+        return !fFailedInstantiation;          // no resources to assign
     }
 
 #if GR_ALLOCATION_SPEW
@@ -314,7 +310,8 @@ void GrResourceAllocator::assign(AssignError* outError) {
     // TODO: Can this be done inline during the main iteration?
     this->determineRecyclability();
 
-    while (Interval* cur = fIntvlList.popHead()) {
+    Interval* cur = nullptr;
+    while ((cur = fIntvlList.popHead()) && !fFailedInstantiation) {
         this->expire(cur->start());
 
         if (cur->proxy()->isInstantiated()) {
@@ -325,7 +322,7 @@ void GrResourceAllocator::assign(AssignError* outError) {
 
         if (cur->proxy()->isLazy()) {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
-                *outError = AssignError::kFailedProxyInstantiation;
+                fFailedInstantiation = true;
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy())) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
@@ -348,7 +345,7 @@ void GrResourceAllocator::assign(AssignError* outError) {
             cur->assign(std::move(surface));
         } else {
             SkASSERT(!cur->proxy()->isInstantiated());
-            *outError = AssignError::kFailedProxyInstantiation;
+            fFailedInstantiation = true;
         }
 
         fActiveIntvls.insertByIncreasingEnd(cur);
@@ -356,6 +353,7 @@ void GrResourceAllocator::assign(AssignError* outError) {
 
     // expire all the remaining intervals to drain the active interval list
     this->expire(std::numeric_limits<unsigned int>::max());
+    return !fFailedInstantiation;
 }
 
 #if GR_ALLOCATION_SPEW

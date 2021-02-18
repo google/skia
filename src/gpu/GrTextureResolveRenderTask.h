@@ -21,9 +21,6 @@ private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         return false;
     }
-    void handleInternalAllocationFailure() override {
-        // No need to do anything special here. We just double check the proxies during onExecute.
-    }
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {

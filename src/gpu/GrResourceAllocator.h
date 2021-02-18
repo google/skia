@@ -90,14 +90,8 @@ public:
     void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
-    enum class AssignError {
-        kNoError,
-        kFailedProxyInstantiation
-    };
-
-    // If any proxy fails to instantiate, the AssignError will be set to kFailedProxyInstantiation.
-    // If this happens, the caller should remove all ops which reference an uninstantiated proxy.
-    void assign(AssignError* outError);
+    // Assign resources to all proxies. Returns whether the assignment was successful.
+    bool assign();
 
 #if GR_ALLOCATION_SPEW
     void dumpIntervals();
@@ -258,10 +252,9 @@ private:
 
     SkDEBUGCODE(bool             fAssigned = false;)
 
-    char                         fStorage[kInitialArenaSize];
-    SkArenaAlloc                 fIntervalAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
-    Interval*                    fFreeIntervalList = nullptr;
-    bool                         fLazyInstantiationError = false;
+    SkSTArenaAlloc<kInitialArenaSize>   fIntervalAllocator;
+    Interval*                           fFreeIntervalList = nullptr;
+    bool                                fFailedInstantiation = false;
 };
 
 #endif // GrResourceAllocator_DEFINED
