@@ -14,6 +14,8 @@
 
 GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice(
         size_t size, size_t requiredAlignment) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     StagingBuffer* buffer = nullptr;
     size_t offset = 0;
     for (size_t i = 0; i < fBuffers.size(); ++i) {
@@ -52,6 +54,11 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
 }
 
 void GrStagingBufferManager::detachBuffers() {
+    if (!fBuffers.size()) {
+        return;
+    }
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    SkDebugf("detaching a buffer");
     for (size_t i = 0; i < fBuffers.size(); ++i) {
         fBuffers[i].fBuffer->unmap();
         fGpu->takeOwnershipOfBuffer(std::move(fBuffers[i].fBuffer));

@@ -105,10 +105,12 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
             bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
             allocUsage = BufferUsage::kCpuWritesGpuReads;
             break;
-        case GrGpuBufferType::kXferCpuToGpu:
+        case GrGpuBufferType::kXferCpuToGpu: {
+            TRACE_EVENT0("skia.gpu", "making buffer with transfer src");
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-            allocUsage = BufferUsage::kTransfersFromCpuToGpu;
+            allocUsage = BufferUsage::kCpuWritesGpuReads;
             break;
+        }
         case GrGpuBufferType::kXferGpuToCpu:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             allocUsage = BufferUsage::kTransfersFromGpuToCpu;
@@ -206,6 +208,7 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t size) {
     if ((size <= 65536) && (0 == (size & 0x3)) && !gpu->vkCaps().avoidUpdateBuffers()) {
         gpu->updateBuffer(sk_ref_sp(this), src, /*offset=*/0, size);
     } else {
+        SkDebugf("I am here in copyCpuDataToGpuBuffer\n");
         GrResourceProvider* resourceProvider = gpu->getContext()->priv().resourceProvider();
         sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
                 size, GrGpuBufferType::kXferCpuToGpu, kDynamic_GrAccessPattern, src);

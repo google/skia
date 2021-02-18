@@ -415,6 +415,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                             GrColorType surfaceColorType, GrColorType srcColorType,
                             const GrMipLevel texels[], int mipLevelCount,
                             bool prepForTexSampling) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
         return false;
