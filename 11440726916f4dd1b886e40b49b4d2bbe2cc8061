@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab0fb369_f312cdbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-18T12:52:03Z",
+      "side": 1,
+      "message": "\u003e  (E.g. Android)\n\nOops, not Android... Chrome itself.\n\n../../ios/chrome/browser/window_activities/window_activity_helpers.h:44:3: error: redefinition of enumerator \u0027kMaxValue\u0027\n  kMaxValue \u003d WindowActivityTabDragOrigin\n  ^\n../../third_party/skia/include/core/SkFilterQuality.h:24:5: note: previous definition is here\n    kMaxValue \u003d kLast_SkFilterQuality,\n    ^\n1 error generated.\n",
+      "revId": "11440726916f4dd1b886e40b49b4d2bbe2cc8061",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
