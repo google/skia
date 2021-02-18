@@ -134,6 +134,8 @@
         SkRegisterMatrixConvolutionImageFilterFlattenable();
         SkRegisterMergeImageFilterFlattenable();
         SkRegisterMorphologyImageFilterFlattenables();
+        SkRegisterOffsetImageFilterFlattenable();
+        SkRegisterShaderImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
         SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }
