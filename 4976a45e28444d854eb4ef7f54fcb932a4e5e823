@@ -70,6 +70,30 @@
       },
       "revId": "4976a45e28444d854eb4ef7f54fcb932a4e5e823",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7966fdb_1e2a96da",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T19:57:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b37ea71_e6de1b7a",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 1
+      },
+      "revId": "4976a45e28444d854eb4ef7f54fcb932a4e5e823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
