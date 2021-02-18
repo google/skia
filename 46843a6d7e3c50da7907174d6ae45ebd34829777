@@ -16,6 +16,75 @@
       "message": "PTAL",
       "revId": "46843a6d7e3c50da7907174d6ae45ebd34829777",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cae7088b_5895997f",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T21:38:10Z",
+      "side": 1,
+      "message": "nit: Consider argument-commenting \n\n  /*allocator\u003d*/nullptr",
+      "range": {
+        "startLine": 22,
+        "startChar": 63,
+        "endLine": 22,
+        "endChar": 70
+      },
+      "revId": "46843a6d7e3c50da7907174d6ae45ebd34829777",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b366c5e_35915e1c",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T21:38:10Z",
+      "side": 1,
+      "message": "tiny nits:\n- Consider argument-commenting \n- The docs suggest lower-case `false`/`true` for this parameter (it\u0027s old-school Mac `Boolean` type).\n\n  /*isDirectory\u003d*/false",
+      "range": {
+        "startLine": 23,
+        "startChar": 77,
+        "endLine": 23,
+        "endChar": 82
+      },
+      "revId": "46843a6d7e3c50da7907174d6ae45ebd34829777",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b2ff077_e14260c8",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-18T21:38:10Z",
+      "side": 1,
+      "message": "What do you think about `SK_AT_SCOPE_EXIT(CFRelease(fileURL))` here to avoid needing to CFRelease in two places?\n\n(In fact, you could put this immediately after each CFCreate/Copy line and pretend you have autorelease...)",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 3
+      },
+      "revId": "46843a6d7e3c50da7907174d6ae45ebd34829777",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
