@@ -9,6 +9,7 @@
 
 #include "src/sksl/SkSLUtil.h"
 #include <algorithm>
+#include <cinttypes>
 #include <errno.h>
 #include <limits.h>
 #include <locale>
@@ -202,19 +203,19 @@ bool operator!=(const char* s1, StringFragment s2) {
 }
 
 String to_string(int32_t value) {
-    return SkSL::String::printf("%d", value);
+    return SkSL::String::printf("%" PRIi32, value);
 }
 
 String to_string(uint32_t value) {
-    return SkSL::String::printf("%u", value);
+    return SkSL::String::printf("%" PRIu32, value);
 }
 
 String to_string(int64_t value) {
-    return SkSL::String::printf("%lld", value);
+    return SkSL::String::printf("%" PRIi64, value);
 }
 
 String to_string(uint64_t value) {
-    return SkSL::String::printf("%llu", value);
+    return SkSL::String::printf("%" PRIu64, value);
 }
 
 String to_string(double value) {

@@ -388,7 +388,7 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
 }
 
 String CPPCodeGenerator::getSampleVarName(const char* prefix, int sampleCounter) {
-    return String::printf("%s%zu", prefix, sampleCounter);
+    return String::printf("%s%d", prefix, sampleCounter);
 }
 
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
