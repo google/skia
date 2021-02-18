@@ -84,8 +84,6 @@ tests_sources = [
   "$_tests/FloatingPointTextureTest.cpp",
   "$_tests/FontHostStreamTest.cpp",
   "$_tests/FontHostTest.cpp",
-  "$_tests/FontMgrAndroidParserTest.cpp",
-  "$_tests/FontMgrFontConfigTest.cpp",
   "$_tests/FontMgrTest.cpp",
   "$_tests/FontNamesTest.cpp",
   "$_tests/FontTest.cpp",
