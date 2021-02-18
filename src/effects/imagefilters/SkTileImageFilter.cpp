@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/imagefilters/SkTileImageFilter.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
@@ -23,9 +21,9 @@
 
 namespace {
 
-class SkTileImageFilterImpl final : public SkImageFilter_Base {
+class SkTileImageFilter final : public SkImageFilter_Base {
 public:
-    SkTileImageFilterImpl(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
+    SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
             : INHERITED(&input, 1, nullptr)
             , fSrcRect(srcRect)
             , fDstRect(dstRect) {}
@@ -42,8 +40,8 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
 private:
-    friend void SkTileImageFilter::RegisterFlattenables();
-    SK_FLATTENABLE_HOOKS(SkTileImageFilterImpl)
+    friend void ::SkRegisterTileImageFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkTileImageFilter)
 
     SkRect fSrcRect;
     SkRect fDstRect;
@@ -53,46 +51,48 @@ private:
 
 } // end namespace
 
-sk_sp<SkImageFilter> SkTileImageFilter::Make(const SkRect& srcRect, const SkRect& dstRect,
-                                             sk_sp<SkImageFilter> input) {
-    if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
+
+sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
+                                          const SkRect& dst,
+                                          sk_sp<SkImageFilter> input) {
+    if (!SkIsValidRect(src) || !SkIsValidRect(dst)) {
         return nullptr;
     }
-    if (srcRect.width() == dstRect.width() && srcRect.height() == dstRect.height()) {
-        SkRect ir = dstRect;
-        if (!ir.intersect(srcRect)) {
+    if (src.width() == dst.width() && src.height() == dst.height()) {
+        SkRect ir = dst;
+        if (!ir.intersect(src)) {
             return input;
         }
-        return SkImageFilters::Offset(dstRect.x() - srcRect.x(),  dstRect.y() - srcRect.y(),
+        return SkImageFilters::Offset(dst.x() - src.x(),  dst.y() - src.y(),
                                       std::move(input), &ir);
     }
-    return sk_sp<SkImageFilter>(new SkTileImageFilterImpl(srcRect, dstRect, std::move(input)));
+    return sk_sp<SkImageFilter>(new SkTileImageFilter(src, dst, std::move(input)));
 }
 
-void SkTileImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkTileImageFilterImpl);
+void SkRegisterTileImageFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkTileImageFilter);
     // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
-    SkFlattenable::Register("SkTileImageFilter", SkTileImageFilterImpl::CreateProc);
+    SkFlattenable::Register("SkTileImageFilterImpl", SkTileImageFilter::CreateProc);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkFlattenable> SkTileImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
-    return SkTileImageFilter::Make(src, dst, common.getInput(0));
+    return SkImageFilters::Tile(src, dst, common.getInput(0));
 }
 
-void SkTileImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
+void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
 }
 
-sk_sp<SkSpecialImage> SkTileImageFilterImpl::onFilterImage(const Context& ctx,
-                                                           SkIPoint* offset) const {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(const Context& ctx,
+                                                       SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
@@ -169,19 +169,19 @@ sk_sp<SkSpecialImage> SkTileImageFilterImpl::onFilterImage(const Context& ctx,
     return surf->makeImageSnapshot();
 }
 
-SkIRect SkTileImageFilterImpl::onFilterNodeBounds(
+SkIRect SkTileImageFilter::onFilterNodeBounds(
         const SkIRect& src, const SkMatrix& ctm, MapDirection dir, const SkIRect* inputRect) const {
     SkRect rect = kReverse_MapDirection == dir ? fSrcRect : fDstRect;
     ctm.mapRect(&rect);
     return rect.roundOut();
 }
 
-SkIRect SkTileImageFilterImpl::onFilterBounds(const SkIRect& src, const SkMatrix&,
-                                              MapDirection, const SkIRect* inputRect) const {
+SkIRect SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&,
+                                          MapDirection, const SkIRect* inputRect) const {
     // Don't recurse into inputs.
     return src;
 }
 
-SkRect SkTileImageFilterImpl::computeFastBounds(const SkRect& src) const {
+SkRect SkTileImageFilter::computeFastBounds(const SkRect& src) const {
     return fDstRect;
 }
