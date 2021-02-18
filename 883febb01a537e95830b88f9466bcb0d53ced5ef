@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9f5b2fd_6c95e509",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-18T22:42:17Z",
+      "side": 1,
+      "message": "Submitting since mac bot failure is \"No space left on device\"",
+      "revId": "883febb01a537e95830b88f9466bcb0d53ced5ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
