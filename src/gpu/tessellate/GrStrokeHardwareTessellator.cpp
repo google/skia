@@ -42,26 +42,19 @@ static float pow4(float x) {
     return xx*xx;
 }
 
-GrStrokeHardwareTessellator::GrStrokeHardwareTessellator(const GrShaderCaps& shaderCaps,
-                                                         const SkMatrix& viewMatrix,
-                                                         const SkStrokeRec& stroke)
-        // Subtract 2 because the tessellation shader chops every cubic at two locations, and each
-        // chop has the potential to introduce an extra segment.
-        : fMaxTessellationSegments(shaderCaps.maxTessellationSegments() - 2)
-        , fStroke(stroke)
-        , fTolerances(GrStrokeTessellateShader::Tolerances::MakePreTransform(viewMatrix, stroke)) {
+void GrStrokeHardwareTessellator::updateTolerances(Tolerances tolerances, SkPaint::Join joinType) {
     // Calculate the worst-case numbers of parametric segments our hardware can support for the
     // current stroke radius, in the event that there are also enough radial segments to rotate
     // 180 and 360 degrees respectively. These are used for "quick accepts" that allow us to
     // send almost all curves directly to the hardware without having to chop.
     float numRadialSegments180 = std::max(std::ceil(
-            SK_ScalarPI * fTolerances.fNumRadialSegmentsPerRadian), 1.f);
+            SK_ScalarPI * tolerances.fNumRadialSegmentsPerRadian), 1.f);
     float maxParametricSegments180 = num_parametric_segments(fMaxTessellationSegments,
                                                              numRadialSegments180);
     fMaxParametricSegments180_pow4 = pow4(maxParametricSegments180);
 
     float numRadialSegments360 = std::max(std::ceil(
-            2*SK_ScalarPI * fTolerances.fNumRadialSegmentsPerRadian), 1.f);
+            2*SK_ScalarPI * tolerances.fNumRadialSegmentsPerRadian), 1.f);
     float maxParametricSegments360 = num_parametric_segments(fMaxTessellationSegments,
                                                              numRadialSegments360);
     fMaxParametricSegments360_pow4 = pow4(maxParametricSegments360);
@@ -69,7 +62,7 @@ GrStrokeHardwareTessellator::GrStrokeHardwareTessellator(const GrShaderCaps& sha
     // Now calculate the worst-case numbers of parametric segments if we are to integrate a join
     // into the same patch as the curve.
     float maxNumSegmentsInJoin;
-    switch (fStroke.getJoin()) {
+    switch (joinType) {
         case SkPaint::kBevel_Join:
             maxNumSegmentsInJoin = 1;
             break;
@@ -89,6 +82,7 @@ GrStrokeHardwareTessellator::GrStrokeHardwareTessellator(const GrShaderCaps& sha
             maxParametricSegments360 - maxNumSegmentsInJoin - 1, 0.f));
     fMaxCombinedSegments_withJoin = fMaxTessellationSegments - maxNumSegmentsInJoin - 1;
     fSoloRoundJoinAlwaysFitsInPatch = (numRadialSegments180 <= fMaxTessellationSegments);
+    fTolerances = tolerances;
 }
 
 static bool conic_has_cusp(const SkPoint p[3]) {
@@ -101,17 +95,35 @@ static bool conic_has_cusp(const SkPoint p[3]) {
 }
 
 void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& viewMatrix,
-                                          const GrSTArenaList<SkPath>& pathList, const SkStrokeRec&,
+                                          const GrSTArenaList<PathStroke>& pathStrokeList,
                                           int totalCombinedVerbCnt) {
+    SkASSERT(!fTarget);
+    SkASSERT(!fViewMatrix);
+    SkASSERT(!fStroke);
+
     fTarget = target;
     fViewMatrix = &viewMatrix;
+
+    std::array<float, 2> matrixScales;
+    if (!fViewMatrix->getMinMaxScales(matrixScales.data())) {
+        matrixScales.fill(1);
+    }
 
     // Pre-allocate at least enough vertex space for 1 in 4 strokes to chop, and for 8 caps.
     int strokePreallocCount = totalCombinedVerbCnt * 5/4;
     int capPreallocCount = 8;
     this->allocPatchChunkAtLeast(strokePreallocCount + capPreallocCount);
 
-    for (const SkPath& path : pathList) {
+    for (const auto& [path, stroke] : pathStrokeList) {
+        if (!fStroke || fStroke->getWidth() != stroke.getWidth() ||
+            fStroke->getJoin() != stroke.getJoin()) {
+            auto tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
+            this->updateTolerances(tolerances, stroke.getJoin());
+        }
+        if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+            fDynamicStroke.set(stroke);
+        }
+        fStroke = &stroke;
         fHasLastControlPoint = false;
         SkDEBUGCODE(fHasCurrentPoint = false;)
         SkPathVerb previousVerb = SkPathVerb::kClose;
@@ -170,10 +182,11 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     }
 
     fTarget->putBackVertices(fCurrChunkPatchCapacity - fPatchChunks.back().fPatchCount,
-                             GrStrokeTessellateShader::kTessellationPatchBaseStride);
+                             fPatchStride);
 
     fTarget = nullptr;
     fViewMatrix = nullptr;
+    fStroke = nullptr;
 }
 
 void GrStrokeHardwareTessellator::moveTo(SkPoint pt) {
@@ -429,7 +442,7 @@ void GrStrokeHardwareTessellator::joinTo(JoinType joinType, SkPoint nextControlP
     }
 
     if (!fSoloRoundJoinAlwaysFitsInPatch && maxDepth != 0 &&
-        (fStroke.getJoin() == SkPaint::kRound_Join || joinType == JoinType::kBowtie)) {
+        (fStroke->getJoin() == SkPaint::kRound_Join || joinType == JoinType::kBowtie)) {
         SkVector tan0 = fCurrentPoint - fLastControlPoint;
         SkVector tan1 = nextControlPoint - fCurrentPoint;
         float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
@@ -500,7 +513,7 @@ void GrStrokeHardwareTessellator::cap() {
         // are specified to be drawn as an axis-aligned square or circle respectively. Assign
         // default control points that achieve this.
         SkVector outset;
-        if (!fStroke.isHairlineStyle()) {
+        if (!fStroke->isHairlineStyle()) {
             outset = {1, 0};
         } else {
             // If the stroke is hairline, orient the square on the post-transform x-axis instead.
@@ -529,13 +542,13 @@ void GrStrokeHardwareTessellator::cap() {
         fHasLastControlPoint = true;
     }
 
-    switch (fStroke.getCap()) {
+    switch (fStroke->getCap()) {
         case SkPaint::kButt_Cap:
             break;
         case SkPaint::kRound_Cap: {
             // A round cap is the same thing as a 180-degree round join.
             // If our join type isn't round we can alternatively use a bowtie.
-            JoinType roundCapJoinType = (fStroke.getJoin() == SkPaint::kRound_Join)
+            JoinType roundCapJoinType = (fStroke->getJoin() == SkPaint::kRound_Join)
                     ? JoinType::kFromStroke : JoinType::kBowtie;
             this->joinTo(roundCapJoinType, fLastControlPoint);
             this->moveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
@@ -545,9 +558,9 @@ void GrStrokeHardwareTessellator::cap() {
         case SkPaint::kSquare_Cap: {
             // A square cap is the same as appending lineTos.
             SkVector lastTangent = fCurrentPoint - fLastControlPoint;
-            if (!fStroke.isHairlineStyle()) {
+            if (!fStroke->isHairlineStyle()) {
                 // Extend the cap by 1/2 stroke width.
-                lastTangent *= (.5f * fStroke.getWidth()) / lastTangent.length();
+                lastTangent *= (.5f * fStroke->getWidth()) / lastTangent.length();
             } else {
                 // Extend the cap by what will be 1/2 pixel after transformation.
                 lastTangent *=
@@ -556,9 +569,9 @@ void GrStrokeHardwareTessellator::cap() {
             this->lineTo(fCurrentPoint + lastTangent);
             this->moveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
             SkVector firstTangent = fCurrContourFirstControlPoint - fCurrContourStartPoint;
-            if (!fStroke.isHairlineStyle()) {
+            if (!fStroke->isHairlineStyle()) {
                 // Set the the cap back by 1/2 stroke width.
-                firstTangent *= (-.5f * fStroke.getWidth()) / firstTangent.length();
+                firstTangent *= (-.5f * fStroke->getWidth()) / firstTangent.length();
             } else {
                 // Set the cap back by what will be 1/2 pixel after transformation.
                 firstTangent *=
@@ -607,6 +620,7 @@ void GrStrokeHardwareTessellator::emitPatch(JoinType prevJoinType, const SkPoint
         // control point equal to p0.
         fPatchWriter.write((prevJoinType == JoinType::kNone) ? p[0] : fLastControlPoint);
         fPatchWriter.writeArray(p, 4);
+        this->emitDynamicAttribs();
     }
 
     fLastControlPoint = c2;
@@ -630,9 +644,16 @@ void GrStrokeHardwareTessellator::emitJoinPatch(JoinType joinType, SkPoint nextC
             fPatchWriter.write(fCurrentPoint, fCurrentPoint);
         }
         fPatchWriter.write(nextControlPoint);
+        this->emitDynamicAttribs();
     }
 
     fLastControlPoint = nextControlPoint;
+}
+
+void GrStrokeHardwareTessellator::emitDynamicAttribs() {
+    if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+        fPatchWriter.write(fDynamicStroke);
+    }
 }
 
 bool GrStrokeHardwareTessellator::reservePatch() {
@@ -653,10 +674,9 @@ bool GrStrokeHardwareTessellator::reservePatch() {
 void GrStrokeHardwareTessellator::allocPatchChunkAtLeast(int minPatchAllocCount) {
     SkASSERT(fTarget);
     PatchChunk* chunk = &fPatchChunks.push_back();
-    fPatchWriter = {fTarget->makeVertexSpaceAtLeast(
-            GrStrokeTessellateShader::kTessellationPatchBaseStride, minPatchAllocCount,
-            minPatchAllocCount, &chunk->fPatchBuffer, &chunk->fBasePatch,
-            &fCurrChunkPatchCapacity)};
+    fPatchWriter = {fTarget->makeVertexSpaceAtLeast(fPatchStride, minPatchAllocCount,
+                                                    minPatchAllocCount, &chunk->fPatchBuffer,
+                                                    &chunk->fBasePatch, &fCurrChunkPatchCapacity)};
     fCurrChunkMinPatchAllocCount = minPatchAllocCount;
 }
 
