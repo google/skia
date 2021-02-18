@@ -199,7 +199,14 @@ public:
      *  @param image    The image that is output by the filter.
      *  @param sampling The sampling to use when drawing the image.
      */
-    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkSamplingOptions& sampling);
+    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image, const SkSamplingOptions& sampling) {
+        if (image) {
+            SkRect r = SkRect::Make(image->bounds());
+            return Image(std::move(image), r, r, sampling);
+        } else {
+            return nullptr;
+        }
+    }
 
     /**
      *  Create a filter that draws the image using Mitchel cubic resampling.

@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 
-#include "src/effects/imagefilters/SkImageSource.h"
 #include "src/effects/imagefilters/SkLightingImageFilter.h"
 #include "src/effects/imagefilters/SkMagnifierImageFilter.h"
 #include "src/effects/imagefilters/SkMatrixConvolutionImageFilter.h"
@@ -26,7 +25,6 @@
 
 void SkImageFilters::RegisterFlattenables() {
     SkDilateImageFilter::RegisterFlattenables();
-    SkImageSource::RegisterFlattenables();
     SkLightingImageFilter::RegisterFlattenables();
     SkMagnifierImageFilter::RegisterFlattenables();
     SkMatrixConvolutionImageFilter::RegisterFlattenables();
@@ -38,21 +36,6 @@ void SkImageFilters::RegisterFlattenables() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkImageFilter> SkImageFilters::Image(
-        sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
-        const SkSamplingOptions& sampling) {
-    return SkImageSource::Make(std::move(image), srcRect, dstRect, sampling);
-}
-
-sk_sp<SkImageFilter> SkImageFilters::Image(sk_sp<SkImage> image,
-                                           const SkSamplingOptions& sampling) {
-    if (image) {
-        auto r = SkRect::MakeIWH(image->width(), image->height());
-        return Image(std::move(image), r, r, sampling);
-    }
-    return nullptr;
-}
 
 sk_sp<SkImageFilter> SkImageFilters::Magnifier(
         const SkRect& srcRect, SkScalar inset, sk_sp<SkImageFilter> input,
