@@ -23,7 +23,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkLumaColorFilter.h"
-#include "include/effects/SkRuntimeEffect.h"
 #include "tools/Resources.h"
 
 #include <math.h>
@@ -67,15 +66,13 @@ namespace {
 
 class MixerCFGM final : public skiagm::GM {
 public:
-    MixerCFGM(const SkSize& tileSize, size_t tileCount, bool runtime)
+    MixerCFGM(const SkSize& tileSize, size_t tileCount)
         : fTileSize(tileSize)
-        , fTileCount(tileCount)
-        , fRuntime(runtime) {}
+        , fTileCount(tileCount) {}
 
 protected:
     SkString onShortName() override {
-        return fRuntime ? SkString("mixerCF_runtime")
-                        : SkString("mixerCF");
+        return SkString("mixerCF");
     }
 
     SkISize onISize() override {
@@ -103,24 +100,9 @@ protected:
 private:
     const SkSize fTileSize;
     const size_t fTileCount;
-    const bool   fRuntime;
 
     void mixRow(SkCanvas* canvas, SkPaint& paint,
                 sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1) {
-        sk_sp<SkRuntimeEffect> effect;
-        if (fRuntime) {
-            const char* sksl = R"(
-                uniform shader cf0;
-                uniform shader cf1;
-                uniform half t;
-                half4 main() {
-                    return mix(sample(cf0), sample(cf1), t);
-                }
-            )";
-            effect = SkRuntimeEffect::Make(SkString(sksl)).effect;
-            SkASSERT(effect);
-        }
-
         // We cycle through paint colors on each row, to test how the paint color flows through
         // the color-filter network
         const SkColor4f paintColors[] = {
@@ -136,13 +118,7 @@ private:
             for (size_t i = 0; i < fTileCount; ++i) {
                 paint.setColor4f(paintColors[i % SK_ARRAY_COUNT(paintColors)]);
                 float t = static_cast<float>(i) / (fTileCount - 1);
-                if (fRuntime) {
-                    sk_sp<SkColorFilter> children[] = { cf0, cf1 };
-                    sk_sp<SkData> inputs = SkData::MakeWithCopy(&t, sizeof(t));
-                    paint.setColorFilter(effect->makeColorFilter(inputs, children, 2));
-                } else {
-                    paint.setColorFilter(SkColorFilters::Lerp(t, cf0, cf1));
-                }
+                paint.setColorFilter(SkColorFilters::Lerp(t, cf0, cf1));
                 canvas->translate(fTileSize.width() * 0.1f, 0);
                 canvas->drawRect(SkRect::MakeWH(fTileSize.width(), fTileSize.height()), paint);
                 canvas->translate(fTileSize.width() * 1.1f, 0);
@@ -156,5 +132,4 @@ private:
 
 } // namespace
 
-DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5, false); )
-DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5, true); )
+DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5); )
