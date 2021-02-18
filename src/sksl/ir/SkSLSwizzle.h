@@ -19,9 +19,23 @@ namespace SkSL {
 /**
  * Represents a vector swizzle operation such as 'float3(1, 2, 3).zyx'.
  */
+
+// These values must line up with `enum SkSL::dsl::SwizzleComponent` in DSLCore.h.
+enum SwizzleComponent : int8_t {
+    X = 0, Y = 1, Z = 2, W = 3,
+    R = 0, G = 1, B = 2, A = 3,
+
+    // ZERO and ONE can be passed to Swizzle::Make, but generated Swizzle expressions will only
+    // contain the native swizzle components X, Y, Z and W. (ZERO and ONE are added in via a
+    // constructor.)
+    ZERO,
+    ONE
+};
+
 struct Swizzle final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
+    // Use Swizzle::Make to create swizzle expressions.
     Swizzle(const Context& context, std::unique_ptr<Expression> base,
             const ComponentArray& components)
             : INHERITED(base->fOffset, kExpressionKind,
@@ -30,6 +44,10 @@ struct Swizzle final : public Expression {
             , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
     }
+
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> base,
+                                            ComponentArray inComponents);
 
     std::unique_ptr<Expression>& base() {
         return fBase;
@@ -55,7 +73,7 @@ struct Swizzle final : public Expression {
     String description() const override {
         String result = this->base()->description() + ".";
         for (int x : this->components()) {
-            result += "xyzw"[x];
+            result += "xyzw01"[x];
         }
         return result;
     }
