@@ -26,10 +26,9 @@ struct Modifiers {
         kUniform_Flag        = 1 <<  3,
         kFlat_Flag           = 1 <<  4,
         kNoPerspective_Flag  = 1 <<  5,
-        kBuffer_Flag         = 1 <<  6,
-        kHasSideEffects_Flag = 1 <<  7,
-        kVarying_Flag        = 1 <<  8,
-        kInline_Flag         = 1 <<  9,
+        kHasSideEffects_Flag = 1 <<  6,
+        kVarying_Flag        = 1 <<  7,
+        kInline_Flag         = 1 <<  8,
     };
 
     Modifiers()
@@ -53,9 +52,6 @@ struct Modifiers {
         }
         if (fFlags & kNoPerspective_Flag) {
             result += "noperspective ";
-        }
-        if (fFlags & kBuffer_Flag) {
-            result += "buffer ";
         }
         if (fFlags & kHasSideEffects_Flag) {
             result += "sk_has_side_effects ";

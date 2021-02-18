@@ -3,5 +3,5 @@ struct S {
     uniform int b;
     flat half4 c;
     noperspective float4 d;
-    inout varying buffer bool e;
+    inout varying bool e;
 };

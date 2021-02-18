@@ -6,18 +6,16 @@ error: 1: 'out' is not permitted here
 error: 1: 'uniform' is not permitted here
 error: 1: 'flat' is not permitted here
 error: 1: 'noperspective' is not permitted here
-error: 1: 'buffer' is not permitted here
 error: 1: 'varying' is not permitted here
-error: 4: 'const' is not permitted here
-error: 4: 'uniform' is not permitted here
-error: 4: 'flat' is not permitted here
-error: 4: 'noperspective' is not permitted here
-error: 4: 'buffer' is not permitted here
-error: 4: 'sk_has_side_effects' is not permitted here
-error: 4: 'varying' is not permitted here
-error: 4: 'inline' is not permitted here
-error: 6: 'in uniform' variables only permitted within fragment processors
-error: 6: 'varying' is only permitted in runtime effects
-error: 6: 'sk_has_side_effects' is not permitted here
-error: 6: 'inline' is not permitted here
-20 errors
+error: 3: 'const' is not permitted here
+error: 3: 'uniform' is not permitted here
+error: 3: 'flat' is not permitted here
+error: 3: 'noperspective' is not permitted here
+error: 3: 'sk_has_side_effects' is not permitted here
+error: 3: 'varying' is not permitted here
+error: 3: 'inline' is not permitted here
+error: 5: 'in uniform' variables only permitted within fragment processors
+error: 5: 'varying' is only permitted in runtime effects
+error: 5: 'sk_has_side_effects' is not permitted here
+error: 5: 'inline' is not permitted here
+18 errors

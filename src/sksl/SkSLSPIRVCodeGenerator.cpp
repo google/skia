@@ -2776,9 +2776,8 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
 }
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) const {
-    bool isBuffer     = ((v.modifiers().fFlags & Modifiers::kBuffer_Flag) != 0);
     bool pushConstant = ((v.modifiers().fLayout.fFlags & Layout::kPushConstant_Flag) != 0);
-    return (pushConstant || isBuffer) ? MemoryLayout(MemoryLayout::k430_Standard) : fDefaultLayout;
+    return pushConstant ? MemoryLayout(MemoryLayout::k430_Standard) : fDefaultLayout;
 }
 
 static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
@@ -2840,9 +2839,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     } else {
         typeId = this->getType(*type, memoryLayout);
     }
-    if (intfModifiers.fFlags & Modifiers::kBuffer_Flag) {
-        this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBufferBlock, fDecorationBuffer);
-    } else if (intfModifiers.fLayout.fBuiltin == -1) {
+    if (intfModifiers.fLayout.fBuiltin == -1) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBlock, fDecorationBuffer);
     }
     SpvId ptrType = this->nextId();
@@ -2877,8 +2874,7 @@ static bool is_dead(const Variable& var, const ProgramUsage* usage) {
     // *not* to elide sk_SampleMask when it's not being used.
     if (!(var.modifiers().fFlags & (Modifiers::kIn_Flag |
                                     Modifiers::kOut_Flag |
-                                    Modifiers::kUniform_Flag |
-                                    Modifiers::kBuffer_Flag))) {
+                                    Modifiers::kUniform_Flag))) {
         return true;
     }
     return var.modifiers().fLayout.fBuiltin == SK_SAMPLEMASK_BUILTIN;
