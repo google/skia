@@ -73,8 +73,8 @@ public:
 
     String(StringFragment s) : INHERITED(s.fChars, s.fLength) {}
 
-    static String printf(const char* fmt, ...);
-    void appendf(const char* fmt, ...);
+    static String printf(const char* fmt, ...) SK_PRINTF_LIKE(1, 2);
+    void appendf(const char* fmt, ...) SK_PRINTF_LIKE(2, 3);
     void vappendf(const char* fmt, va_list va);
 
     bool startsWith(const char prefix[]) const {
