@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "211977c8_2122c4ce",
+        "filename": "src/effects/imagefilters/SkImageImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-18T19:07:41Z",
+      "side": 0,
+      "message": "I think this had been an \"oops\" way back when I first hid SkImageSource as SkImageSourceImpl. It should have been registering SkImageSource as a fallback flattenable name, but we must not have had any captured SKPs that used the image source filter on our tree. At this point, we definitely have passed the original grace period, so it\u0027s just necessary to keep SkImageSourceImpl as the fallback for the new SkImageImageFilter name.",
+      "range": {
+        "startLine": 70,
+        "startChar": 29,
+        "endLine": 70,
+        "endChar": 46
+      },
+      "revId": "e548dcbf1b8e7a926ce740a0d47f526a843f449a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
