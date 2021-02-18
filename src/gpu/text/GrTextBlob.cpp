@@ -694,7 +694,7 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
             drawMatrix,
             drawOrigin,
             clipRect,
-            fBlob,
+            sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(context,
@@ -982,7 +982,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
             drawMatrix,
             drawOrigin,
             SkIRect::MakeEmpty(),
-            fBlob,
+            sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
@@ -1253,7 +1253,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
             drawMatrix,
             drawOrigin,
             SkIRect::MakeEmpty(),
-            fBlob,
+            sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
