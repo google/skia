@@ -312,7 +312,7 @@ private:
     void checkSwizzleWrite(const Swizzle& swizzle) {
         int bits = 0;
         for (int idx : swizzle.components()) {
-            SkASSERT(idx <= 3);
+            SkASSERT(idx >= 0 && idx <= 3);
             int bit = 1 << idx;
             if (bits & bit) {
                 fErrors->error(swizzle.fOffset,

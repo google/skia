@@ -17,6 +17,7 @@
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
 
 namespace SkSL {
 
