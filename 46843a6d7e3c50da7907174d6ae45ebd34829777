@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3ffa4cca_8ff20da8",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-18T21:57:45Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "ee087edb_6cb15648",
+      "range": {
+        "startLine": 22,
+        "startChar": 63,
+        "endLine": 22,
+        "endChar": 70
+      },
+      "revId": "46843a6d7e3c50da7907174d6ae45ebd34829777",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3b366c5e_35915e1c",
         "filename": "src/ports/SkOSFile_ios.h",
         "patchSetId": 3
@@ -102,6 +126,30 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "3b366c5e_35915e1c",
+      "range": {
+        "startLine": 23,
+        "startChar": 77,
+        "endLine": 23,
+        "endChar": 82
+      },
+      "revId": "46843a6d7e3c50da7907174d6ae45ebd34829777",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "496ea390_0bc099e6",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-18T21:57:45Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "105001b0_a4366c90",
       "range": {
         "startLine": 23,
         "startChar": 77,
@@ -149,6 +197,30 @@
       "side": 1,
       "message": "I could also wrap them in sk_cfp\u003c\u003e and get rid of all the CFReleases. Let me see if that works.",
       "parentUuid": "3b2ff077_e14260c8",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 3
+      },
+      "revId": "46843a6d7e3c50da7907174d6ae45ebd34829777",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c97da155_cb2b9b31",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-18T21:57:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2fd41e9_2738a4da",
       "range": {
         "startLine": 28,
         "startChar": 0,
