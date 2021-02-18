@@ -8,6 +8,7 @@
 #include "src/sksl/dsl/DSLCore.h"
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -38,7 +39,7 @@ void SetErrorHandler(ErrorHandler* errorHandler) {
     DSLWriter::SetErrorHandler(errorHandler);
 }
 
-static char swizzle_component(SwizzleComponent c) {
+static char swizzle_component(SkSL::SwizzleComponent::Type c) {
     switch (c) {
         case X:
             return 'x';
@@ -134,24 +135,31 @@ public:
         }
     }
 
-    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a) {
+    static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a) {
         char mask[] = { swizzle_component(a), 0 };
         return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
     }
 
-    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b) {
+    static DSLExpression Swizzle(DSLExpression base,
+                                 SkSL::SwizzleComponent::Type a,
+                                 SkSL::SwizzleComponent::Type b) {
         char mask[] = { swizzle_component(a), swizzle_component(b), 0 };
         return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
     }
 
-    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
-                                 SwizzleComponent c) {
+    static DSLExpression Swizzle(DSLExpression base,
+                                 SkSL::SwizzleComponent::Type a,
+                                 SkSL::SwizzleComponent::Type b,
+                                 SkSL::SwizzleComponent::Type c) {
         char mask[] = { swizzle_component(a), swizzle_component(b), swizzle_component(c), 0 };
         return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
     }
 
-    static DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
-                                 SwizzleComponent c, SwizzleComponent d) {
+    static DSLExpression Swizzle(DSLExpression base,
+                                 SkSL::SwizzleComponent::Type a,
+                                 SkSL::SwizzleComponent::Type b,
+                                 SkSL::SwizzleComponent::Type c,
+                                 SkSL::SwizzleComponent::Type d) {
         char mask[] = { swizzle_component(a), swizzle_component(b), swizzle_component(c),
                         swizzle_component(d), 0 };
         return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
@@ -380,21 +388,28 @@ DSLExpression Step(DSLExpression edge, DSLExpression x) {
     return DSLCore::Call("step", std::move(edge), std::move(x));
 }
 
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a) {
+DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a) {
     return DSLCore::Swizzle(std::move(base), a);
 }
 
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b) {
+DSLExpression Swizzle(DSLExpression base,
+                      SkSL::SwizzleComponent::Type a,
+                      SkSL::SwizzleComponent::Type b) {
     return DSLCore::Swizzle(std::move(base), a, b);
 }
 
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
-                      SwizzleComponent c) {
+DSLExpression Swizzle(DSLExpression base,
+                      SkSL::SwizzleComponent::Type a,
+                      SkSL::SwizzleComponent::Type b,
+                      SkSL::SwizzleComponent::Type c) {
     return DSLCore::Swizzle(std::move(base), a, b, c);
 }
 
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
-                      SwizzleComponent c, SwizzleComponent d) {
+DSLExpression Swizzle(DSLExpression base,
+                      SkSL::SwizzleComponent::Type a,
+                      SkSL::SwizzleComponent::Type b,
+                      SkSL::SwizzleComponent::Type c,
+                      SkSL::SwizzleComponent::Type d) {
     return DSLCore::Swizzle(std::move(base), a, b, c, d);
 }
 

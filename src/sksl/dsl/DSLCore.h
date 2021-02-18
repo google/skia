@@ -9,6 +9,7 @@
 #define SKSL_DSL_CORE
 
 #include "include/private/SkTArray.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLCase.h"
 #include "src/sksl/dsl/DSLExpression.h"
@@ -23,6 +24,12 @@ namespace SkSL {
 class Compiler;
 
 namespace dsl {
+
+// When users import the DSL namespace via `using namespace SkSL::dsl`, we want the SwizzleComponent
+// Type enum to come into scope as well, so `Swizzle(var, X, Y, ONE)` can work as expected.
+// `namespace SkSL::SwizzleComponent` contains only an `enum Type`; this `using namespace` directive
+// shouldn't pollute the SkSL::dsl namespace with anything else.
+using namespace SkSL::SwizzleComponent;
 
 /**
  * Class which is notified in the event of an error.
@@ -132,23 +139,25 @@ DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifF
  */
 DSLStatement While(DSLExpression test, DSLStatement stmt);
 
+/**
+ * expression.xyz1
+ */
+DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a);
 
-enum SwizzleComponent : int8_t {
-    X = 0, Y = 1, Z = 2, W = 3,
-    R = 0, G = 1, B = 2, A = 3,
-    ZERO,
-    ONE
-};
+DSLExpression Swizzle(DSLExpression base,
+                      SkSL::SwizzleComponent::Type a,
+                      SkSL::SwizzleComponent::Type b);
 
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a);
+DSLExpression Swizzle(DSLExpression base,
+                      SkSL::SwizzleComponent::Type a,
+                      SkSL::SwizzleComponent::Type b,
+                      SkSL::SwizzleComponent::Type c);
 
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b);
-
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
-                      SwizzleComponent c);
-
-DSLExpression Swizzle(DSLExpression base, SwizzleComponent a, SwizzleComponent b,
-                      SwizzleComponent c, SwizzleComponent d);
+DSLExpression Swizzle(DSLExpression base,
+                      SkSL::SwizzleComponent::Type a,
+                      SkSL::SwizzleComponent::Type b,
+                      SkSL::SwizzleComponent::Type c,
+                      SkSL::SwizzleComponent::Type d);
 
 /**
  * Returns the absolute value of x. If x is a vector, operates componentwise.
