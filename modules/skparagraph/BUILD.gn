@@ -67,8 +67,8 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
         sources = [ "tests/SkParagraphTest.cpp" ]
         deps = [
           ":skparagraph",
-          "../..:gpu_tool_utils",
           "../..:skia",
+          "../..:test",
           "../skshaper",
         ]
       } else {

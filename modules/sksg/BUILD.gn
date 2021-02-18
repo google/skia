@@ -22,15 +22,12 @@ if (defined(is_skia_standalone) && skia_enable_tools) {
   source_set("tests") {
     testonly = true
 
-    configs += [
-      "../..:skia_private",
-      "../..:tests_config",  # TODO: refactor to make this nicer
-    ]
+    configs += [ "../..:skia_private" ]
     sources = [ "tests/SGTest.cpp" ]
     deps = [
       ":sksg",
-      "../..:gpu_tool_utils",  # TODO: refactor to make this nicer
       "../..:skia",
+      "../..:test",
     ]
   }
 

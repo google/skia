@@ -1899,6 +1899,23 @@ if (skia_enable_tools) {
     }
   }
 
+  test_lib("test") {
+    sources = [
+      "tests/Test.cpp",
+      "tests/Test.h",
+      "tests/TestUtils.cpp",
+      "tests/TestUtils.h",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+      ":tool_utils",
+    ]
+    public_deps = [
+      ":gpu_tool_utils",  # Test.h #includes headers from this target.
+    ]
+  }
+
   import("gn/tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources
@@ -1920,6 +1937,7 @@ if (skia_enable_tools) {
     deps = [
       ":flags",
       ":skia",
+      ":test",
       ":tool_utils",
       "experimental/skrive:tests",
       "modules/skottie:tests",
@@ -1930,9 +1948,6 @@ if (skia_enable_tools) {
       "//third_party/libpng",
       "//third_party/libwebp",
       "//third_party/zlib",
-    ]
-    public_deps = [
-      ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
   }
 
