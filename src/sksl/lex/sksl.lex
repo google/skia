@@ -40,7 +40,6 @@ HASSIDEEFFECTS = "sk_has_side_effects"
 VARYING        = "varying"
 STRUCT         = "struct"
 LAYOUT         = "layout"
-PRECISION      = "precision"
 ENUM           = "enum"
 CLASS          = "class"
 IDENTIFIER     = [a-zA-Z_$]([0-9]|[a-zA-Z_$])*
