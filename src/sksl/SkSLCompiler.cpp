@@ -1143,8 +1143,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (reorderedArg.fComponents.empty()) {
                             newArgs.push_back(baseArg.clone());
                         } else {
-                            newArgs.push_back(std::make_unique<Swizzle>(*fContext, baseArg.clone(),
-                                                                        reorderedArg.fComponents));
+                            newArgs.push_back(Swizzle::Make(*fContext, baseArg.clone(),
+                                                            reorderedArg.fComponents));
                         }
                     }
 
