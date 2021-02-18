@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/imagefilters/SkMorphologyImageFilter.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
@@ -39,10 +38,10 @@ enum class MorphType {
 
 enum class MorphDirection { kX, kY };
 
-class SkMorphologyImageFilterImpl final : public SkImageFilter_Base {
+class SkMorphologyImageFilter final : public SkImageFilter_Base {
 public:
-    SkMorphologyImageFilterImpl(MorphType type, SkScalar radiusX, SkScalar radiusY,
-                                sk_sp<SkImageFilter> input, const SkRect* cropRect)
+    SkMorphologyImageFilter(MorphType type, SkScalar radiusX, SkScalar radiusY,
+                            sk_sp<SkImageFilter> input, const SkRect* cropRect)
             : INHERITED(&input, 1, cropRect)
             , fType(type)
             , fRadius(SkSize::Make(radiusX, radiusY)) {}
@@ -73,9 +72,9 @@ protected:
     }
 
 private:
-    friend void SkDilateImageFilter::RegisterFlattenables();
+    friend void ::SkRegisterMorphologyImageFilterFlattenables();
 
-    SK_FLATTENABLE_HOOKS(SkMorphologyImageFilterImpl)
+    SK_FLATTENABLE_HOOKS(SkMorphologyImageFilter)
 
     MorphType fType;
     SkSize    fRadius;
@@ -85,33 +84,33 @@ private:
 
 } // end namespace
 
-sk_sp<SkImageFilter> SkDilateImageFilter::Make(SkScalar radiusX, SkScalar radiusY,
-                                               sk_sp<SkImageFilter> input,
-                                               const SkRect* cropRect) {
+sk_sp<SkImageFilter> SkImageFilters::Dilate(SkScalar radiusX, SkScalar radiusY,
+                                            sk_sp<SkImageFilter> input,
+                                            const CropRect& cropRect) {
     if (radiusX < 0 || radiusY < 0) {
         return nullptr;
     }
-    return sk_sp<SkImageFilter>(new SkMorphologyImageFilterImpl(
+    return sk_sp<SkImageFilter>(new SkMorphologyImageFilter(
             MorphType::kDilate, radiusX, radiusY, std::move(input), cropRect));
 }
 
-sk_sp<SkImageFilter> SkErodeImageFilter::Make(SkScalar radiusX, SkScalar radiusY,
-                                              sk_sp<SkImageFilter> input,
-                                              const SkRect* cropRect) {
+sk_sp<SkImageFilter> SkImageFilters::Erode(SkScalar radiusX, SkScalar radiusY,
+                                           sk_sp<SkImageFilter> input,
+                                           const CropRect& cropRect) {
     if (radiusX < 0 || radiusY < 0) {
         return nullptr;
     }
-    return sk_sp<SkImageFilter>(new SkMorphologyImageFilterImpl(
+    return sk_sp<SkImageFilter>(new SkMorphologyImageFilter(
             MorphType::kErode, radiusX, radiusY,  std::move(input), cropRect));
 }
 
-void SkDilateImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkMorphologyImageFilterImpl);
+void SkRegisterMorphologyImageFilterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkMorphologyImageFilter);
+    // TODO (michaelludwig): Remove after grace period for SKPs to stop using old name
+    SkFlattenable::Register("SkMorphologyImageFilterImpl", SkMorphologyImageFilter::CreateProc);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMorphologyImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar width;
     SkScalar height;
@@ -126,22 +125,24 @@ sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProc(SkReadBuffer& buffe
     MorphType filterType = buffer.read32LE(MorphType::kLastType);
 
     if (filterType == MorphType::kDilate) {
-        return SkDilateImageFilter::Make(width, height, common.getInput(0), common.cropRect());
+        return SkImageFilters::Dilate(width, height, common.getInput(0), common.cropRect());
     } else if (filterType == MorphType::kErode) {
-        return SkErodeImageFilter::Make(width, height, common.getInput(0), common.cropRect());
+        return SkImageFilters::Erode(width, height, common.getInput(0), common.cropRect());
     } else {
         return nullptr;
     }
 }
 
-void SkMorphologyImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
+void SkMorphologyImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fRadius.fWidth);
     buffer.writeScalar(fRadius.fHeight);
     buffer.writeInt(static_cast<int>(fType));
 }
 
-static void call_proc_X(SkMorphologyImageFilterImpl::Proc procX,
+///////////////////////////////////////////////////////////////////////////////
+
+static void call_proc_X(SkMorphologyImageFilter::Proc procX,
                         const SkBitmap& src, SkBitmap* dst,
                         int radiusX, const SkIRect& bounds) {
     procX(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
@@ -149,7 +150,7 @@ static void call_proc_X(SkMorphologyImageFilterImpl::Proc procX,
           src.rowBytesAsPixels(), dst->rowBytesAsPixels());
 }
 
-static void call_proc_Y(SkMorphologyImageFilterImpl::Proc procY,
+static void call_proc_Y(SkMorphologyImageFilter::Proc procY,
                         const SkPMColor* src, int srcRowBytesAsPixels, SkBitmap* dst,
                         int radiusY, const SkIRect& bounds) {
     procY(src, dst->getAddr32(0, 0),
@@ -157,13 +158,13 @@ static void call_proc_Y(SkMorphologyImageFilterImpl::Proc procY,
           srcRowBytesAsPixels, dst->rowBytesAsPixels());
 }
 
-SkRect SkMorphologyImageFilterImpl::computeFastBounds(const SkRect& src) const {
+SkRect SkMorphologyImageFilter::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
     bounds.outset(fRadius.width(), fRadius.height());
     return bounds;
 }
 
-SkIRect SkMorphologyImageFilterImpl::onFilterNodeBounds(
+SkIRect SkMorphologyImageFilter::onFilterNodeBounds(
         const SkIRect& src, const SkMatrix& ctm, MapDirection, const SkIRect* inputRect) const {
     SkSize radius = mappedRadius(ctm);
     return src.makeOutset(SkScalarCeilToInt(radius.width()), SkScalarCeilToInt(radius.height()));
@@ -623,8 +624,8 @@ namespace {
 #endif
 }  // namespace
 
-sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& ctx,
-                                                                 SkIPoint* offset) const {
+sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(const Context& ctx,
+                                                             SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
@@ -696,7 +697,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
         return nullptr;
     }
 
-    SkMorphologyImageFilterImpl::Proc procX, procY;
+    SkMorphologyImageFilter::Proc procX, procY;
 
     if (MorphType::kDilate == fType) {
         procX = &morph<MorphType::kDilate, MorphDirection::kX>;
