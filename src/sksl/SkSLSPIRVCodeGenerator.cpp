@@ -2888,9 +2888,7 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
     const Variable& var = varDecl.var();
     // These haven't been implemented in our SPIR-V generator yet and we only currently use them
     // in the OpenGL backend.
-    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kReadOnly_Flag |
-                                         Modifiers::kWriteOnly_Flag |
-                                         Modifiers::kCoherent_Flag |
+    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kCoherent_Flag |
                                          Modifiers::kVolatile_Flag |
                                          Modifiers::kRestrict_Flag)));
     // 9999 is a sentinel value used in our built-in modules that causes us to ignore these
@@ -2952,9 +2950,7 @@ void SPIRVCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, Outp
     const Variable& var = varDecl.var();
     // These haven't been implemented in our SPIR-V generator yet and we only currently use them
     // in the OpenGL backend.
-    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kReadOnly_Flag |
-                                         Modifiers::kWriteOnly_Flag |
-                                         Modifiers::kCoherent_Flag |
+    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kCoherent_Flag |
                                          Modifiers::kVolatile_Flag |
                                          Modifiers::kRestrict_Flag)));
     SpvId id = this->nextId();

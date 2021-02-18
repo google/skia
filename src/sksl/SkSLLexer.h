@@ -41,8 +41,6 @@ struct Token {
         TK_CONST,
         TK_FLAT,
         TK_NOPERSPECTIVE,
-        TK_READONLY,
-        TK_WRITEONLY,
         TK_COHERENT,
         TK_VOLATILE,
         TK_RESTRICT,
