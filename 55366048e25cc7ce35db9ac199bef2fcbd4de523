@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9948787c_9ae792f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-18T01:01:21Z",
+      "side": 1,
+      "message": "Ugh... because these are now in source sets (and not directly in the test target) these targets need to declare a dependency on whatever Test.h needs, which might be gpu stuff. The modules have the same silly problem, all the test targets need to depend on :gpu_tool_utils to get the right settings for including Test.h (or at least I think that\u0027s how it works out). In theory Test.h and Test.cpp (and maybe TestUtils) should go in a :test target which :tests and the other test targets can depend on. That way :test can directly publicly depend on :gpu_tool_utils or whatever Test.h needs to work.\n\nAnyhow, need to think about that bit.",
+      "revId": "55366048e25cc7ce35db9ac199bef2fcbd4de523",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2a45832_0abfb87d",
@@ -52,6 +69,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7034cf46_88c13a75",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-18T01:01:21Z",
+      "side": 1,
+      "message": "Eck, I failed to notice on https://skia-review.googlesource.com/c/skia/+/345219 that this skia_winuwp config was only being used in \u0027optional\u0027 only due to all the code affected being an optional (which isn\u0027t too surprising, since it is all platform specific). However, defining SK_WINUWP should be done in skia_private (we don\u0027t currently ever want it to affect public API, but we may need to change the implementation).\n\nI went and opened https://skia-review.googlesource.com/c/skia/+/371483 for that.",
+      "parentUuid": "d2a45832_0abfb87d",
+      "revId": "55366048e25cc7ce35db9ac199bef2fcbd4de523",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a433760a_cba08e0b",
@@ -65,6 +100,30 @@
       "writtenOn": "2021-02-17T22:40:42Z",
       "side": 1,
       "message": "I think this source_set() can just be empty?",
+      "range": {
+        "startLine": 320,
+        "startChar": 6,
+        "endLine": 337,
+        "endChar": 7
+      },
+      "revId": "55366048e25cc7ce35db9ac199bef2fcbd4de523",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae0f0b19_af75f895",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-18T01:01:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a433760a_cba08e0b",
       "range": {
         "startLine": 320,
         "startChar": 6,
