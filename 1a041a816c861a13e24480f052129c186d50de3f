@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50e7b48b_dc52a5ba",
+        "filename": "src/sksl/lex/Main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-18T20:17:34Z",
+      "side": 1,
+      "message": "might want to move the comment down a line.",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 12
+      },
+      "revId": "1a041a816c861a13e24480f052129c186d50de3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
