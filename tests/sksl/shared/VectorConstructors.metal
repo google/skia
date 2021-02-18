@@ -19,6 +19,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float4 v9 = float4(1.0, sqrt(2.0), float2(int2(3, 4)));
-    _out.sk_FragColor = check(float2(1.0), float2(1.0, 2.0), float2(1.0), float3(float2(1.0), 1.0), int2(1), int2(float2(1.0, 2.0)), float2(int2(1, 2)), float2(int2(1)), v9, int2(3, 1), bool4(true, false, true, false), float2(1.0, 0.0), float2(0.0), float2(bool2(false)), bool2(true), bool2(float2(1.0)), bool3(true, bool2(int2(77)))) ? _uniforms.colorGreen : _uniforms.colorRed;
+    int2 v10 = int2(3, int(float2(1.0).x));
+    _out.sk_FragColor = check(float2(1.0), float2(1.0, 2.0), float2(1.0), float3(float2(1.0), 1.0), int2(1), int2(float2(1.0, 2.0)), float2(int2(1, 2)), float2(int2(1)), v9, v10, bool4(true, false, true, false), float2(1.0, 0.0), float2(0.0), float2(bool2(false)), bool2(true), bool2(float2(1.0)), bool3(true, bool2(int2(77)))) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

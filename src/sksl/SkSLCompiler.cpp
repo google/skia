@@ -917,42 +917,6 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         }
         case Expression::Kind::kSwizzle: {
             Swizzle& s = expr->as<Swizzle>();
-            // Detect identity swizzles like `foo.rgba`.
-            if ((int) s.components().size() == s.base()->type().columns()) {
-                bool identity = true;
-                for (int i = 0; i < (int) s.components().size(); ++i) {
-                    if (s.components()[i] != i) {
-                        identity = false;
-                        break;
-                    }
-                }
-                if (identity) {
-                    optimizationContext->fUpdated = true;
-                    // No fUsage change: foo.rgba and foo have equivalent reference counts
-                    if (!try_replace_expression(&b, iter, &s.base())) {
-                        optimizationContext->fNeedsRescan = true;
-                        return;
-                    }
-                    SkASSERT((*iter)->isExpression());
-                    break;
-                }
-            }
-            // Detect swizzles of swizzles, e.g. replace `foo.argb.r000` with `foo.a000`.
-            if (s.base()->is<Swizzle>()) {
-                Swizzle& base = s.base()->as<Swizzle>();
-                ComponentArray final;
-                for (int c : s.components()) {
-                    final.push_back(base.components()[c]);
-                }
-                std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.base()->clone(),
-                                                                    final));
-                // We're replacing an expression with a cloned version; we'll need a rescan.
-                // No fUsage change: `foo.gbr.gbr` and `foo.brg` have equivalent reference counts
-                try_replace_expression(&b, iter, &replacement);
-                optimizationContext->fUpdated = true;
-                optimizationContext->fNeedsRescan = true;
-                break;
-            }
             // Optimize swizzles of constructors.
             if (s.base()->is<Constructor>()) {
                 Constructor& base = s.base()->as<Constructor>();
@@ -967,25 +931,6 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                                      [](int8_t c) { return c >= 0 && c <= 3; }));
 
                 if (base.arguments().size() == 1 && base.arguments().front()->type().isScalar()) {
-                    // `half4(scalar).zyy` can be optimized to `half3(scalar)`. The swizzle
-                    // components don't actually matter since all fields are the same.
-                    const Expression& argument = *base.arguments().front();
-                    const Type& constructorType = componentType.toCompound(*fContext, swizzleSize,
-                                                                           /*rows=*/1);
-                    replacement = Constructor::SimplifyConversion(constructorType, argument);
-                    if (!replacement) {
-                        ExpressionArray newArgs;
-                        newArgs.push_back(argument.clone());
-                        replacement = std::make_unique<Constructor>(base.fOffset, constructorType,
-                                                                    std::move(newArgs));
-                    }
-
-                    // We're replacing an expression with a cloned version; we'll need a rescan.
-                    // There's no fUsage change: `half4(foo).xy` and `half2(foo)` have equivalent
-                    // reference counts.
-                    try_replace_expression(&b, iter, &replacement);
-                    optimizationContext->fUpdated = true;
-                    optimizationContext->fNeedsRescan = true;
                     break;
                 }
 

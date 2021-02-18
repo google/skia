@@ -6,6 +6,6 @@ vec4 main() {
     vec4 v = vec4(vec2(x), 0.0, 1.0);
     v = vec4(vec2(unknownInput), 0.0, 1.0);
     v = vec4(0.0, unknownInput, 1.0, 0.0);
-    v = vec4(0.0, unknownInput, 0.0, unknownInput);
+    v = vec4(0.0, vec2(unknownInput).x, 0.0, vec2(unknownInput).y);
     return v;
 }
