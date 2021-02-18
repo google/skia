@@ -39,6 +39,7 @@ GrRecordingContext::ProgramData::~ProgramData() = default;
 GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy)
         : INHERITED(std::move(proxy))
         , fAuditTrail(new GrAuditTrail()) {
+    fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }
 
 GrRecordingContext::~GrRecordingContext() = default;

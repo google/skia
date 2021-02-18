@@ -12,8 +12,8 @@
 #include "include/private/GrSingleOwner.h"
 
 class GrImageContextPriv;
-class GrProxyProvider;
 
+// CONTEXT TODO: Remove this once SkImage_Gpu is migrated to holding just a ThreadSafeProxy.
 class GrImageContext : public GrContext_Base {
 public:
     ~GrImageContext() override;
@@ -30,17 +30,12 @@ protected:
     SK_API virtual void abandonContext();
     SK_API virtual bool abandoned();
 
-    GrProxyProvider* proxyProvider() { return fProxyProvider.get(); }
-    const GrProxyProvider* proxyProvider() const { return fProxyProvider.get(); }
-
     /** This is only useful for debug purposes */
     GrSingleOwner* singleOwner() const { return &fSingleOwner; }
 
     GrImageContext* asImageContext() override { return this; }
 
 private:
-    std::unique_ptr<GrProxyProvider> fProxyProvider;
-
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
     // GrSurfaceDrawContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
