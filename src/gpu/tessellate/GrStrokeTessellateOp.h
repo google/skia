@@ -24,9 +24,11 @@ public:
     GrStrokeTessellator(ShaderFlags shaderFlags) : fShaderFlags(shaderFlags) {}
 
     struct PathStroke {
-        PathStroke(const SkPath& path, const SkStrokeRec& stroke) : fPath(path), fStroke(stroke) {}
+        PathStroke(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)
+                : fPath(path), fStroke(stroke), fColor(color) {}
         SkPath fPath;
         SkStrokeRec fStroke;
+        SkPMColor4f fColor;
     };
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
@@ -55,16 +57,25 @@ private:
     DEFINE_OP_CLASS_ID
 
     SkStrokeRec& headStroke() { return fPathStrokeList.head().fStroke; }
+    SkPMColor4f& headColor() { return fPathStrokeList.head().fColor; }
 
-    // Returns whether it is a good tradeoff to use the given dynamic state. Dynamic state improves
-    // batching, but if it isn't already enabled, it comes at the cost of having to write out more
-    // data with each patch or instance.
-    bool shouldUseDynamicState(ShaderFlags dynamicState) const {
-        // Use the dynamic state if either (1) the state is already enabled anyway, or (2) we don't
+    // Returns whether it is a good tradeoff to use the dynamic states flagged in the given
+    // bitfield. Dynamic states improve batching, but if they aren't already enabled, they come at
+    // the cost of having to write out more data with each patch or instance.
+    bool shouldUseDynamicStates(ShaderFlags neededDynamicStates) const {
+        // Use the dynamic states if either (1) they are all already enabled anyway, or (2) we don't
         // have many verbs.
         constexpr static int kMaxVerbsToEnableDynamicState = 50;
-        return (fShaderFlags & dynamicState) ||
-               (fTotalCombinedVerbCnt <= kMaxVerbsToEnableDynamicState);
+        bool anyStateDisabled = (bool)(~fShaderFlags & neededDynamicStates);
+        bool allStatesEnabled = !anyStateDisabled;
+        return allStatesEnabled || (fTotalCombinedVerbCnt <= kMaxVerbsToEnableDynamicState);
+    }
+
+    bool canUseHardwareTessellation(const GrCaps& caps) {
+        SkASSERT(!fStencilProgram && !fFillProgram);  // Ensure we haven't std::moved fProcessors.
+        // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
+        // the fragment shader, so if the processors have varyings we need to use indirect draws.
+        return caps.shaderCaps()->tessellationSupport() && !fProcessors.usesVaryingCoords();
     }
 
     const char* name() const override { return "GrStrokeTessellateOp"; }
@@ -87,13 +98,11 @@ private:
 
     const GrAAType fAAType;
     const SkMatrix fViewMatrix;
-    SkPMColor4f fColor;
-    bool fNeedsStencil = false;
-    GrProcessorSet fProcessors;
-
     ShaderFlags fShaderFlags = ShaderFlags::kNone;
     GrSTArenaList<PathStroke> fPathStrokeList;
     int fTotalCombinedVerbCnt = 0;
+    GrProcessorSet fProcessors;
+    bool fNeedsStencil = false;
 
     GrStrokeTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilProgram = nullptr;  // Only used if the stroke has transparency.

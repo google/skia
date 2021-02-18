@@ -444,6 +444,8 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(
         const GrSTArenaList<PathStroke>& pathStrokeList, int totalCombinedVerbCnt,
         SkArenaAlloc* alloc)
         : GrStrokeTessellator(shaderFlags) {
+    // We can't combine colors because our log2 binning draws things out of order.
+    SkASSERT(!(fShaderFlags & ShaderFlags::kDynamicColor));
     SkASSERT(!fTotalInstanceCount);
     SkASSERT(!fResolveLevels);
     SkASSERT(!fResolveLevelArrayCount);

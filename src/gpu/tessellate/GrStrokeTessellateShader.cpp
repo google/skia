@@ -135,6 +135,9 @@ private:
             // [NUM_RADIAL_SEGMENTS_PER_RADIAN, STROKE_RADIUS]
             v->declareGlobal(GrShaderVar("vsStrokeArgs", kFloat2_GrSLType, TypeModifier::Out));
         }
+        if (shader.hasDynamicColor()) {
+            v->declareGlobal(GrShaderVar("vsColor", kHalf4_GrSLType, TypeModifier::Out));
+        }
 
         v->insertFunction(kAtan2Fn);
         v->insertFunction(kCosineBetweenVectorsFn);
@@ -380,12 +383,25 @@ private:
             v->codeAppend(R"(
             vsStrokeArgs = float2(NUM_RADIAL_SEGMENTS_PER_RADIAN, STROKE_RADIUS);)");
         }
+        if (shader.hasDynamicColor()) {
+            v->codeAppend(R"(
+            vsColor = dynamicColorAttr;)");
+        }
 
-        // The fragment shader just outputs a uniform color.
-        const char* colorUniformName;
-        fColorUniform = uniHandler->addUniform(nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                               "color", &colorUniformName);
-        args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUniformName);
+        if (!shader.hasDynamicColor()) {
+            // The fragment shader just outputs a uniform color.
+            const char* colorUniformName;
+            fColorUniform = uniHandler->addUniform(nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                   "color", &colorUniformName);
+            args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUniformName);
+        } else {
+            // Color gets passed in from the tess evaluation shader.
+            SkString flatness(args.fShaderCaps->preferFlatInterpolation() ? "flat" : "");
+            args.fFragBuilder->declareGlobal(GrShaderVar(SkString("tesColor"), kHalf4_GrSLType,
+                                                         TypeModifier::In, 0, SkString(),
+                                                         flatness));
+            args.fFragBuilder->codeAppendf("%s = tesColor;", args.fOutputColor);
+        }
         args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 
@@ -423,7 +439,9 @@ private:
                         m.getScaleY());
         }
 
-        pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
+        if (!shader.hasDynamicColor()) {
+            pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
+        }
     }
 
     GrGLSLUniformHandler::UniformHandle fTessArgsUniform;
@@ -487,6 +505,10 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         code.append(R"(
         in vec2 vsStrokeArgs[];)");
     }
+    if (this->hasDynamicColor()) {
+        code.append(R"(
+        in mediump vec4 vsColor[];)");
+    }
 
     code.append(R"(
     out vec4 tcsPts01[];
@@ -500,6 +522,10 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         code.append(R"(
         patch out float tcsStrokeRadius;)");
     }
+    if (this->hasDynamicColor()) {
+        code.append(R"(
+        patch out mediump vec4 tcsColor;)");
+    }
 
     code.append(R"(
     void main() {
@@ -509,6 +535,10 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     if (this->hasDynamicStroke()) {
         code.append(R"(
         tcsStrokeRadius = vsStrokeArgs[0].y;)");
+    }
+    if (this->hasDynamicColor()) {
+        code.append(R"(
+        tcsColor = vsColor[0];)");
     }
 
     code.append(R"(
@@ -831,6 +861,11 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         code.append(R"(
         patch in float tcsStrokeRadius;)");
     }
+    if (this->hasDynamicColor()) {
+        code.appendf(R"(
+        patch in mediump vec4 tcsColor;
+        %s out mediump vec4 tesColor;)", shaderCaps.preferFlatInterpolation() ? "flat" : "");
+    }
 
     code.append(R"(
     uniform vec4 sk_RTAdjust;)");
@@ -932,7 +967,14 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     }
 
     code.append(R"(
-        gl_Position = vec4(vertexPos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
+        gl_Position = vec4(vertexPos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);)");
+
+    if (this->hasDynamicColor()) {
+        code.append(R"(
+        tesColor = tcsColor;)");
+    }
+
+    code.append(R"(
     })");
 
     return code;
@@ -1242,9 +1284,11 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
 
 void GrStrokeTessellateShader::getGLSLProcessorKey(const GrShaderCaps&,
                                                    GrProcessorKeyBuilder* b) const {
-    bool keyNeedsJoin = fMode == Mode::kIndirect && !(fShaderFlags & ShaderFlags::kDynamicStroke);
+    bool keyNeedsJoin = (fMode == Mode::kIndirect) && !(fShaderFlags & ShaderFlags::kDynamicStroke);
     SkASSERT(fStroke.getJoin() >> 2 == 0);
-    uint32_t key = (uint32_t)fShaderFlags;
+    // Attribs get worked into the key automatically during GrPrimitiveProcessor::getAttributeKey().
+    // When color is in a uniform, it's always wide. kWideColor doesn't need to be considered here.
+    uint32_t key = (uint32_t)(fShaderFlags & ~ShaderFlags::kWideColor);
     key = (key << 1) | (uint32_t)fMode;
     key = (key << 2) | ((keyNeedsJoin) ? fStroke.getJoin() : 0);
     key = (key << 1) | (uint32_t)fStroke.isHairlineStyle();

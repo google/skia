@@ -121,10 +121,17 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
             auto tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
             this->updateTolerances(tolerances, stroke.getJoin());
         }
+        fStroke = &stroke;
+
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             fDynamicStroke.set(stroke);
         }
-        fStroke = &stroke;
+        if (fShaderFlags & ShaderFlags::kDynamicColor) {
+            bool wideColor = fShaderFlags & ShaderFlags::kWideColor;
+            SkASSERT(wideColor || pathStroke.fColor.fitsInBytes());
+            fDynamicColor.set(pathStroke.fColor, wideColor);
+        }
+
         fHasLastControlPoint = false;
         SkDEBUGCODE(fHasCurrentPoint = false;)
         SkPathVerb previousVerb = SkPathVerb::kClose;
@@ -654,6 +661,9 @@ void GrStrokeHardwareTessellator::emitJoinPatch(JoinType joinType, SkPoint nextC
 void GrStrokeHardwareTessellator::emitDynamicAttribs() {
     if (fShaderFlags & ShaderFlags::kDynamicStroke) {
         fPatchWriter.write(fDynamicStroke);
+    }
+    if (fShaderFlags & ShaderFlags::kDynamicColor) {
+        fPatchWriter.write(fDynamicColor);
     }
 }
 
