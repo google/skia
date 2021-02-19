@@ -3,7 +3,7 @@ out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec2 tricky(float x, float y, inout vec2 color, float z) {
-    color.xy = color.yx;
+    color = color.yx;
     return vec2(x + y, z);
 }
 void func(inout vec4 color) {
