@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4afa0e1d_9b0a8343",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-19T15:00:41Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m wondering much of this myself, particularly because this version didn\u0027t even work.",
+      "parentUuid": "bd1a4c3b_d805679b",
+      "revId": "80202e95d7a5f5f15555bb47ab80cd2bda3e09e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8394f366_08b2a1d7",
