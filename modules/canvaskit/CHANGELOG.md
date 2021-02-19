@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - A full build of CanvasKit is now in /bin/full.
+ - `CanvasKit.rt_effect` to test if the RuntimeEffect code was compiled in.
+
+### Type Changes (index.d.ts)
+ - Documentation added for `managed_skottie`, `particles`, and `skottie` feature constants.
+
 ## [0.24.0] - 2021-02-18
 
 ### Added

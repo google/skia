@@ -26,8 +26,8 @@ make local-example
 ```
 
 This will print a local endpoint for viewing the example.  You can experiment
-with the CanvasKit API by modifying `./canvaskit/example.html` and refreshing
-the page. For some more experimental APIs, there's also `./canvaskit/extra.html`.
+with the CanvasKit API by modifying `./npm_build/example.html` and refreshing
+the page. For some more experimental APIs, there's also `./npm_build/extra.html`.
 
 For other available build targets, see `Makefile` and `compile.sh`.
 For example, building a stripped-down version of CanvasKit with no text support or
