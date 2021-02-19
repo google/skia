@@ -1171,164 +1171,6 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     }
 }
 
-// Returns true if this statement could potentially execute a break at the current level. We ignore
-// nested loops and switches, since any breaks inside of them will merely break the loop / switch.
-static bool contains_conditional_break(Statement& stmt) {
-    class ContainsConditionalBreak : public ProgramVisitor {
-    public:
-        bool visitStatement(const Statement& stmt) override {
-            switch (stmt.kind()) {
-                case Statement::Kind::kBlock:
-                    return INHERITED::visitStatement(stmt);
-
-                case Statement::Kind::kBreak:
-                    return fInConditional > 0;
-
-                case Statement::Kind::kIf: {
-                    ++fInConditional;
-                    bool result = INHERITED::visitStatement(stmt);
-                    --fInConditional;
-                    return result;
-                }
-
-                default:
-                    return false;
-            }
-        }
-
-        int fInConditional = 0;
-        using INHERITED = ProgramVisitor;
-    };
-
-    return ContainsConditionalBreak{}.visitStatement(stmt);
-}
-
-// returns true if this statement definitely executes a break at the current level (we ignore
-// nested loops and switches, since any breaks inside of them will merely break the loop / switch)
-static bool contains_unconditional_break(Statement& stmt) {
-    class ContainsUnconditionalBreak : public ProgramVisitor {
-    public:
-        bool visitStatement(const Statement& stmt) override {
-            switch (stmt.kind()) {
-                case Statement::Kind::kBlock:
-                    return INHERITED::visitStatement(stmt);
-
-                case Statement::Kind::kBreak:
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-
-        using INHERITED = ProgramVisitor;
-    };
-
-    return ContainsUnconditionalBreak{}.visitStatement(stmt);
-}
-
-static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray* target) {
-    switch (stmt->kind()) {
-        case Statement::Kind::kBlock: {
-            // Recurse into the block.
-            Block& block = static_cast<Block&>(*stmt);
-
-            StatementArray blockStmts;
-            blockStmts.reserve_back(block.children().size());
-            for (std::unique_ptr<Statement>& stmt : block.children()) {
-                move_all_but_break(stmt, &blockStmts);
-            }
-
-            target->push_back(std::make_unique<Block>(block.fOffset, std::move(blockStmts),
-                                                      block.symbolTable(), block.isScope()));
-            break;
-        }
-
-        case Statement::Kind::kBreak:
-            // Do not append a break to the target.
-            break;
-
-        default:
-            // Append normal statements to the target.
-            target->push_back(std::move(stmt));
-            break;
-    }
-}
-
-// Returns a block containing all of the statements that will be run if the given case matches
-// (which, owing to the statements being owned by unique_ptrs, means the switch itself will be
-// broken by this call and must then be discarded).
-// Returns null (and leaves the switch unmodified) if no such simple reduction is possible, such as
-// when break statements appear inside conditionals.
-static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatement,
-                                                 SwitchCase* caseToCapture) {
-    // We have to be careful to not move any of the pointers until after we're sure we're going to
-    // succeed, so before we make any changes at all, we check the switch-cases to decide on a plan
-    // of action. First, find the switch-case we are interested in.
-    auto iter = switchStatement->cases().begin();
-    for (; iter != switchStatement->cases().end(); ++iter) {
-        if (iter->get() == caseToCapture) {
-            break;
-        }
-    }
-
-    // Next, walk forward through the rest of the switch. If we find a conditional break, we're
-    // stuck and can't simplify at all. If we find an unconditional break, we have a range of
-    // statements that we can use for simplification.
-    auto startIter = iter;
-    Statement* unconditionalBreakStmt = nullptr;
-    for (; iter != switchStatement->cases().end(); ++iter) {
-        for (std::unique_ptr<Statement>& stmt : (*iter)->statements()) {
-            if (contains_conditional_break(*stmt)) {
-                // We can't reduce switch-cases to a block when they have conditional breaks.
-                return nullptr;
-            }
-
-            if (contains_unconditional_break(*stmt)) {
-                // We found an unconditional break. We can use this block, but we need to strip
-                // out the break statement.
-                unconditionalBreakStmt = stmt.get();
-                break;
-            }
-        }
-
-        if (unconditionalBreakStmt != nullptr) {
-            break;
-        }
-    }
-
-    // We fell off the bottom of the switch or encountered a break. We know the range of statements
-    // that we need to move over, and we know it's safe to do so.
-    StatementArray caseStmts;
-
-    // We can move over most of the statements as-is.
-    while (startIter != iter) {
-        for (std::unique_ptr<Statement>& stmt : (*startIter)->statements()) {
-            caseStmts.push_back(std::move(stmt));
-        }
-        ++startIter;
-    }
-
-    // If we found an unconditional break at the end, we need to move what we can while avoiding
-    // that break.
-    if (unconditionalBreakStmt != nullptr) {
-        for (std::unique_ptr<Statement>& stmt : (*startIter)->statements()) {
-            if (stmt.get() == unconditionalBreakStmt) {
-                move_all_but_break(stmt, &caseStmts);
-                unconditionalBreakStmt = nullptr;
-                break;
-            }
-
-            caseStmts.push_back(std::move(stmt));
-        }
-    }
-
-    SkASSERT(unconditionalBreakStmt == nullptr);  // Verify that we fixed the unconditional break.
-
-    // Return our newly-synthesized block.
-    return std::make_unique<Block>(/*offset=*/-1, std::move(caseStmts), switchStatement->symbols());
-}
-
 void Compiler::simplifyStatement(DefinitionMap& definitions,
                                  BasicBlock& b,
                                  std::vector<BasicBlock::Node>::iterator* iter,
@@ -1397,65 +1239,6 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
             }
             break;
         }
-        case Statement::Kind::kSwitch: {
-            SwitchStatement& s = stmt->as<SwitchStatement>();
-            int64_t switchValue;
-            if (ConstantFolder::GetConstantInt(*s.value(), &switchValue)) {
-                // switch is constant, replace it with the case that matches
-                bool found = false;
-                SwitchCase* defaultCase = nullptr;
-                for (const std::unique_ptr<SwitchCase>& c : s.cases()) {
-                    if (!c->value()) {
-                        defaultCase = c.get();
-                        continue;
-                    }
-                    int64_t caseValue;
-                    SkAssertResult(ConstantFolder::GetConstantInt(*c->value(), &caseValue));
-                    if (caseValue == switchValue) {
-                        std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
-                        if (newBlock) {
-                            (*iter)->setStatement(std::move(newBlock), usage);
-                            found = true;
-                            break;
-                        } else {
-                            if (s.isStatic() &&
-                                !fContext->fConfig->fSettings.fPermitInvalidStaticTests) {
-                                auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
-                                if (didInsert) {
-                                    this->error(s.fOffset, "static switch contains non-static "
-                                                           "conditional break");
-                                }
-                            }
-                            return; // can't simplify
-                        }
-                    }
-                }
-                if (!found) {
-                    // no matching case. use default if it exists, or kill the whole thing
-                    if (defaultCase) {
-                        std::unique_ptr<Statement> newBlock = block_for_case(&s, defaultCase);
-                        if (newBlock) {
-                            (*iter)->setStatement(std::move(newBlock), usage);
-                        } else {
-                            if (s.isStatic() &&
-                                !fContext->fConfig->fSettings.fPermitInvalidStaticTests) {
-                                auto [iter, didInsert] = optimizationContext->fSilences.insert(&s);
-                                if (didInsert) {
-                                    this->error(s.fOffset, "static switch contains non-static "
-                                                           "conditional break");
-                                }
-                            }
-                            return; // can't simplify
-                        }
-                    } else {
-                        (*iter)->setStatement(std::make_unique<Nop>(), usage);
-                    }
-                }
-                optimizationContext->fUpdated = true;
-                optimizationContext->fNeedsRescan = true;
-            }
-            break;
-        }
         case Statement::Kind::kExpression: {
             ExpressionStatement& e = stmt->as<ExpressionStatement>();
             SkASSERT((*iter)->statement()->get() == &e);
@@ -1480,7 +1263,7 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
 
     CFG cfg = CFGGenerator().getCFG(f);
     this->computeDataFlow(&cfg);
-
+/*
     // check for unreachable code
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
         const BasicBlock& block = cfg.fBlocks[i];
@@ -1494,7 +1277,7 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     if (fErrorCount) {
         return madeChanges;
     }
-
+*/
     // check for dead code & undefined variables, perform constant propagation
     OptimizationContext optimizationContext;
     optimizationContext.fUsage = usage;

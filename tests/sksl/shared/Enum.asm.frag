@@ -34,22 +34,26 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %24 = OpConstantComposite %v4float %float_n9 %float_n9 %float_n9 %float_n9
 %float_10 = OpConstant %float 10
 %26 = OpConstantComposite %v4float %float_10 %float_10 %float_10 %float_10
+%int = OpTypeInt 32 1
+%int_0 = OpConstant %int 0
 %float_11 = OpConstant %float 11
-%28 = OpConstantComposite %v4float %float_11 %float_11 %float_11 %float_11
+%33 = OpConstantComposite %v4float %float_11 %float_11 %float_11 %float_11
+%float_12 = OpConstant %float 12
+%35 = OpConstantComposite %v4float %float_12 %float_12 %float_12 %float_12
 %float_13 = OpConstant %float 13
-%30 = OpConstantComposite %v4float %float_13 %float_13 %float_13 %float_13
+%37 = OpConstantComposite %v4float %float_13 %float_13 %float_13 %float_13
 %float_15 = OpConstant %float 15
-%32 = OpConstantComposite %v4float %float_15 %float_15 %float_15 %float_15
+%39 = OpConstantComposite %v4float %float_15 %float_15 %float_15 %float_15
 %float_16 = OpConstant %float 16
-%34 = OpConstantComposite %v4float %float_16 %float_16 %float_16 %float_16
+%41 = OpConstantComposite %v4float %float_16 %float_16 %float_16 %float_16
 %float_18 = OpConstant %float 18
-%36 = OpConstantComposite %v4float %float_18 %float_18 %float_18 %float_18
+%43 = OpConstantComposite %v4float %float_18 %float_18 %float_18 %float_18
 %float_19 = OpConstant %float 19
-%38 = OpConstantComposite %v4float %float_19 %float_19 %float_19 %float_19
+%45 = OpConstantComposite %v4float %float_19 %float_19 %float_19 %float_19
 %float_20 = OpConstant %float 20
-%40 = OpConstantComposite %v4float %float_20 %float_20 %float_20 %float_20
+%47 = OpConstantComposite %v4float %float_20 %float_20 %float_20 %float_20
 %float_21 = OpConstant %float 21
-%42 = OpConstantComposite %v4float %float_21 %float_21 %float_21 %float_21
+%49 = OpConstantComposite %v4float %float_21 %float_21 %float_21 %float_21
 %main = OpFunction %void None %11
 %12 = OpLabel
 OpStore %sk_FragColor %14
@@ -59,13 +63,21 @@ OpStore %sk_FragColor %20
 OpStore %sk_FragColor %22
 OpStore %sk_FragColor %24
 OpStore %sk_FragColor %26
-OpStore %sk_FragColor %28
-OpStore %sk_FragColor %30
-OpStore %sk_FragColor %32
-OpStore %sk_FragColor %34
-OpStore %sk_FragColor %36
-OpStore %sk_FragColor %38
-OpStore %sk_FragColor %40
-OpStore %sk_FragColor %42
+OpSelectionMerge %29 None
+OpSwitch %int_0 %29 0 %30 1 %31
+%30 = OpLabel
+OpStore %sk_FragColor %33
+OpBranch %29
+%31 = OpLabel
+OpStore %sk_FragColor %35
+OpBranch %29
+%29 = OpLabel
+OpStore %sk_FragColor %37
+OpStore %sk_FragColor %39
+OpStore %sk_FragColor %41
+OpStore %sk_FragColor %43
+OpStore %sk_FragColor %45
+OpStore %sk_FragColor %47
+OpStore %sk_FragColor %49
 OpReturn
 OpFunctionEnd
