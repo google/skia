@@ -55,8 +55,7 @@ public:
         kMiter = SkPaint::kMiter_Join,
         kRound = SkPaint::kRound_Join,
         kBevel = SkPaint::kBevel_Join,
-        kBowtie = SkPaint::kLast_Join + 1,  // Double sided round join.
-        kNone
+        kBowtie = SkPaint::kLast_Join + 1  // Double sided round join.
     };
 
     PatchWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target,
@@ -77,6 +76,22 @@ public:
     ~PatchWriter() {
         fTarget->putBackVertices(fCurrChunkPatchCapacity - fPatchChunks->back().fPatchCount,
                                  fPatchStride);
+    }
+
+    float parametricIntolerance() const {
+        return fTolerances.fParametricIntolerance;
+    }
+    bool fitsInPatch180(float numParametricSegments_pow4) {
+        return numParametricSegments_pow4 <= fMaxParametricSegments180_pow4;
+    }
+    bool joinFitsInPatch180(float numParametricSegments_pow4) {
+        return numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin;
+    }
+    bool fitsInPatch360(float numParametricSegments_pow4) {
+        return numParametricSegments_pow4 <= fMaxParametricSegments360_pow4;
+    }
+    bool joinFitsInPatch360(float numParametricSegments_pow4) {
+        return numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin;
     }
 
     void updateTolerances(Tolerances tolerances, SkPaint::Join joinType) {
@@ -139,22 +154,14 @@ public:
         fHasLastControlPoint = false;
     }
 
-    void lineTo(JoinType prevJoinType, SkPoint p0, SkPoint p1) {
+    SK_ALWAYS_INLINE void lineTo(JoinType prevJoinType, SkPoint p0, SkPoint p1) {
         // Zero-length paths need special treatment because they are spec'd to behave differently.
         if (p0 == p1) {
             return;
         }
 
-        if (fMaxCombinedSegments_withJoin < 1) {
-            // The stroke has extremely thick round joins and there aren't enough guaranteed
-            // segments to always combine a join with a line patch. Emit the join in its own
-            // separate patch.
-            this->joinTo(prevJoinType, p0, p1);
-            prevJoinType = JoinType::kNone;
-        }
-
         SkPoint asPatch[4] = {p0, p0, p1, p1};
-        this->emitPatch(prevJoinType, asPatch, p1);
+        this->rawStrokeTo(prevJoinType, (fMaxCombinedSegments_withJoin >= 1), asPatch, p1);
     }
 
     void conicTo(JoinType prevJoinType, const SkPoint p[3], float w, int maxDepth = -1) {
@@ -174,27 +181,11 @@ public:
             GrPathShader::WriteConicPatch(p, w, asPatch);
         }
 
-        // Ensure our hardware supports enough tessellation segments to render the curve. This early
-        // out assumes a worst-case quadratic rotation of 180 degrees and a worst-case number of
-        // segments in the join.
-        //
-        // An informal survey of skottie animations and gms revealed that even with a bare minimum
-        // of 64 tessellation segments, 99.9%+ of quadratics take this early out.
         float numParametricSegments_pow4 =
                 GrWangsFormula::quadratic_pow4(fTolerances.fParametricIntolerance, p);
-        if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin) {
-            this->emitPatch(prevJoinType, asPatch, p[2]);
-            return;
-        }
-
-        if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4 || maxDepth == 0) {
-            if (numParametricSegments_pow4 > fMaxParametricSegments180_pow4_withJoin) {
-                // There aren't enough guaranteed segments to include the join. Emit a standalone
-                // patch for the join.
-                this->joinTo(prevJoinType, asPatch);
-                prevJoinType = JoinType::kNone;
-            }
-            this->emitPatch(prevJoinType, asPatch, p[2]);
+        if (this->fitsInPatch180(numParametricSegments_pow4) || maxDepth == 0) {
+            this->rawStrokeTo(prevJoinType, this->joinFitsInPatch180(numParametricSegments_pow4),
+                              asPatch, p[2]);
             return;
         }
 
@@ -238,102 +229,8 @@ public:
             return;
         }
 
-        if (numCombinedSegments > fMaxCombinedSegments_withJoin) {
-            // There aren't enough guaranteed segments to include the join. Emit a standalone patch
-            // for the join.
-            this->joinTo(prevJoinType, asPatch);
-            prevJoinType = JoinType::kNone;
-        }
-        this->emitPatch(prevJoinType, asPatch, p[2]);
-    }
-
-    // Is a cubic curve convex, and does it rotate no more than 180 degrees?
-    enum class Convex180Status : bool {
-        kUnknown,
-        kYes
-    };
-
-    void cubicTo(JoinType prevJoinType, const SkPoint p[4],
-                 Convex180Status convex180Status = Convex180Status::kUnknown, int maxDepth = -1) {
-        // The stroke tessellation shader assigns special meaning to p0==p1==p2 and p1==p2==p3. If
-        // this is the case then we need to rewrite the cubic.
-        if (p[1] == p[2] && (p[1] == p[0] || p[1] == p[3])) {
-            this->lineTo(prevJoinType, p[0], p[3]);
-            return;
-        }
-
-        // Ensure our hardware supports enough tessellation segments to render the curve. This early
-        // out assumes a worst-case cubic rotation of 360 degrees and a worst-case number of
-        // segments in the join.
-        //
-        // An informal survey of skottie animations revealed that with a bare minimum of 64
-        // tessellation segments, 95% of cubics take this early out.
-        float numParametricSegments_pow4 =
-                GrWangsFormula::cubic_pow4(fTolerances.fParametricIntolerance, p);
-        if (numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin) {
-            this->emitPatch(prevJoinType, p, p[3]);
-            return;
-        }
-
-        float maxParametricSegments_pow4 = (convex180Status == Convex180Status::kYes) ?
-                fMaxParametricSegments180_pow4 : fMaxParametricSegments360_pow4;
-        if (numParametricSegments_pow4 <= maxParametricSegments_pow4 || maxDepth == 0) {
-            float maxParametricSegments_pow4_withJoin = (convex180Status == Convex180Status::kYes)
-                    ? fMaxParametricSegments180_pow4_withJoin
-                    : fMaxParametricSegments360_pow4_withJoin;
-            if (numParametricSegments_pow4 > maxParametricSegments_pow4_withJoin) {
-                // There aren't enough guaranteed segments to include the join. Emit a standalone
-                // patch for the join.
-                this->joinTo(prevJoinType, p);
-                prevJoinType = JoinType::kNone;
-            }
-            this->emitPatch(prevJoinType, p, p[3]);
-            return;
-        }
-
-        // Ensure the curve does not inflect or rotate >180 degrees before we start subdividing and
-        // measuring rotation.
-        if (convex180Status == Convex180Status::kUnknown) {
-            this->cubicConvex180SegmentsTo(prevJoinType, p);
-            return;
-        }
-
-        // We still might have enough tessellation segments to render the curve. Check again with
-        // its actual rotation.
-        float numRadialSegments =
-                SkMeasureNonInflectCubicRotation(p) * fTolerances.fNumRadialSegmentsPerRadian;
-        numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
-        float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
-        numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
-        float numCombinedSegments = num_combined_segments(numParametricSegments, numRadialSegments);
-        if (numCombinedSegments > fMaxTessellationSegments) {
-            // The hardware doesn't support enough segments for this curve. Chop and recurse.
-            SkPoint chops[7];
-            if (maxDepth < 0) {
-                // Decide on an extremely conservative upper bound for when to quit chopping. This
-                // is solely to protect us from infinite recursion in instances where FP error
-                // prevents us from chopping at the correct midtangent.
-                maxDepth = sk_float_nextlog2(numParametricSegments) +
-                           sk_float_nextlog2(numRadialSegments) + 1;
-                maxDepth = std::max(maxDepth, 1);
-            }
-            if (numParametricSegments >= numRadialSegments) {
-                SkChopCubicAtHalf(p, chops);
-            } else {
-                SkChopCubicAtMidTangent(p, chops);
-            }
-            this->cubicTo(prevJoinType, chops, Convex180Status::kYes, maxDepth - 1);
-            this->cubicTo(JoinType::kBowtie, chops + 3, Convex180Status::kYes, maxDepth - 1);
-            return;
-        }
-
-        if (numCombinedSegments > fMaxCombinedSegments_withJoin) {
-            // There aren't enough guaranteed segments to include the join. Emit a standalone patch
-            // for the join.
-            this->joinTo(prevJoinType, p);
-            prevJoinType = JoinType::kNone;
-        }
-        this->emitPatch(prevJoinType, p, p[3]);
+        this->rawStrokeTo(prevJoinType, (numCombinedSegments <= fMaxCombinedSegments_withJoin),
+                          asPatch, p[2]);
     }
 
     void cubicConvex180SegmentsTo(JoinType prevJoinType, const SkPoint p[4]) {
@@ -343,15 +240,15 @@ public:
         int numChops = GrPathUtils::findCubicConvex180Chops(p, chopT, &areCusps);
         if (numChops == 0) {
             // The curve is already convex and rotates no more than 180 degrees.
-            this->cubicTo(prevJoinType, p, Convex180Status::kYes);
+            this->convex180CubicTo(prevJoinType, p);
         } else if (numChops == 1) {
             SkChopCubicAt(p, chops, chopT[0]);
             if (areCusps) {
                 // When chopping on a perfect cusp, these 3 points will be equal.
                 chops[2] = chops[4] = chops[3];
             }
-            this->cubicTo(prevJoinType, chops, Convex180Status::kYes);
-            this->cubicTo(JoinType::kBowtie, chops + 3, Convex180Status::kYes);
+            this->convex180CubicTo(prevJoinType, chops);
+            this->convex180CubicTo(JoinType::kBowtie, chops + 3);
         } else {
             SkASSERT(numChops == 2);
             SkChopCubicAt(p, chops, chopT[0], chopT[1]);
@@ -362,65 +259,48 @@ public:
                 this->lineTo(JoinType::kBowtie, chops[6], chops[9]);
                 return;
             }
-            this->cubicTo(prevJoinType, chops, Convex180Status::kYes);
-            this->cubicTo(JoinType::kBowtie, chops + 3, Convex180Status::kYes);
-            this->cubicTo(JoinType::kBowtie, chops + 6, Convex180Status::kYes);
+            this->convex180CubicTo(prevJoinType, chops);
+            this->convex180CubicTo(JoinType::kBowtie, chops + 3);
+            this->convex180CubicTo(JoinType::kBowtie, chops + 6);
         }
     }
 
-    void joinTo(JoinType joinType, const SkPoint nextCubic[]) {
-        const SkPoint& nextCtrlPt = (nextCubic[1] == nextCubic[0]) ? nextCubic[2] : nextCubic[1];
-        // The caller should have culled out curves where p0==p1==p2 by this point.
-        SkASSERT(nextCtrlPt != nextCubic[0]);
-        this->joinTo(joinType, nextCubic[0], nextCtrlPt);
-    }
+    SK_ALWAYS_INLINE void rawStrokeTo(JoinType prevJoinType, bool prevJoinFitsInPatch, const SkPoint p[4],
+                    SkPoint endPt) {
+        SkPoint c1 = (p[1] == p[0]) ? p[2] : p[1];
+        SkPoint c2 = (p[2] == endPt) ? p[1] : p[2];
 
-    void joinTo(JoinType joinType, SkPoint junctionPoint, SkPoint nextControlPoint,
-                int maxDepth = -1) {
-        if (!fHasLastControlPoint) {
-            // The first stroke doesn't have a previous join.
-            return;
-        }
-
-        if (!fSoloRoundJoinAlwaysFitsInPatch && maxDepth != 0 &&
-            (joinType == JoinType::kRound || joinType == JoinType::kBowtie)) {
-            SkVector tan0 = junctionPoint - fLastControlPoint;
-            SkVector tan1 = nextControlPoint - junctionPoint;
-            float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
-            float numRadialSegments = rotation * fTolerances.fNumRadialSegmentsPerRadian;
-            if (numRadialSegments > fMaxTessellationSegments) {
-                // This is a round join that requires more segments than the tessellator supports.
-                // Split it and recurse.
-                if (maxDepth < 0) {
-                    // Decide on an upper bound for when to quit chopping. This is solely to protect
-                    // us from infinite recursion due to FP precision issues.
-                    maxDepth = sk_float_nextlog2(numRadialSegments / fMaxTessellationSegments);
-                    maxDepth = std::max(maxDepth, 1);
-                }
-                // Find the bisector so we can split the join in half.
-                SkPoint bisector = SkFindBisector(tan0, tan1);
-                // c0 will be the "next" control point for the first join half, and c1 will be the
-                // "previous" control point for the second join half.
-                SkPoint c0, c1;
-                // FIXME: This hack ensures "c0 - junctionPoint" gives the exact same ieee fp32
-                // vector as "-(c1 - junctionPoint)". If our current strategy of join chopping
-                // sticks, we may want to think of a cleaner method to avoid T-junctions when we
-                // chop joins.
-                int maxAttempts = 10;
-                do {
-                    bisector = (junctionPoint + bisector) - (junctionPoint - bisector);
-                    c0 = junctionPoint + bisector;
-                    c1 = junctionPoint - bisector;
-                } while (c0 - junctionPoint != -(c1 - junctionPoint) && --maxAttempts);
-                this->joinTo(joinType, junctionPoint, c0, maxDepth - 1);  // First join half.
-                fLastControlPoint = c1;
-                // Second join half.
-                this->joinTo(joinType, junctionPoint, nextControlPoint, maxDepth - 1);
-                return;
+        if (prevJoinType == JoinType::kBowtie) {
+            // Bowties need to go in their own patch if they will have >1 segment. TODO: Investigate
+            // if an optimization like "x < fCosRadiansPerSegment" would be worth it.
+            float rotation = SkMeasureAngleBetweenVectors(p[0] - fLastControlPoint, c1 - p[0]);
+            if (rotation * fTolerances.fNumRadialSegmentsPerRadian > 1) {
+                this->joinTo(prevJoinType, p[0], c1);
+                fLastControlPoint = p[0];  // Disables the join section of this patch.
             }
+        } else if (!fHasLastControlPoint) {
+            // The first stroke doesn't have a previous join (yet). If the current contour ends up
+            // closing itself, we will add that join as its own patch. TODO: Consider deferring the
+            // first stroke until we know whether the contour will close. This will allow us to use
+            // the closing join as the first patch's previous join.
+            fHasLastControlPoint = true;
+            fCurrContourFirstControlPoint = c1;
+            fLastControlPoint = p[0];  // Disables the join section of this patch.
+        } else if (!prevJoinFitsInPatch) {
+            // The stroke has extremely thick round joins and there aren't enough guaranteed
+            // segments to always combine a join with a line patch. Emit the join in its own
+            // separate patch.
+            this->joinTo(prevJoinType, p[0], c1);
+            fLastControlPoint = p[0];  // Disables the join section of this patch.
         }
 
-        this->emitJoinPatch(joinType, junctionPoint, nextControlPoint);
+        if (this->reservePatch()) {
+            fPatchWriter.write(fLastControlPoint);
+            fPatchWriter.writeArray(p, 4);
+            this->emitDynamicAttribs();
+        }
+
+        fLastControlPoint = c2;
     }
 
     void close(SkPoint contourEndpoint, const SkMatrix& viewMatrix, const SkStrokeRec& stroke) {
@@ -534,59 +414,112 @@ private:
         fHasLastControlPoint = true;
     }
 
-    void emitPatch(JoinType prevJoinType, const SkPoint p[4], SkPoint endPt) {
-        SkPoint c1 = (p[1] == p[0]) ? p[2] : p[1];
-        SkPoint c2 = (p[2] == endPt) ? p[1] : p[2];
+    void convex180CubicTo(JoinType prevJoinType, const SkPoint p[4], int maxDepth = -1) {
+        // The stroke tessellation shader assigns special meaning to p0==p1==p2 and p1==p2==p3. If
+        // this is the case then we need to rewrite the cubic.
+        if (p[1] == p[2] && (p[1] == p[0] || p[1] == p[3])) {
+            this->lineTo(prevJoinType, p[0], p[3]);
+            return;
+        }
 
-        if (prevJoinType == JoinType::kBowtie) {
-            // Bowties need to go in their own patch if they will have >1 segment. TODO: Investigate
-            // if an optimization like "x < fCosRadiansPerSegment" would be worth it.
-            float rotation = SkMeasureAngleBetweenVectors(p[0] - fLastControlPoint, c1 - p[0]);
-            if (rotation * fTolerances.fNumRadialSegmentsPerRadian > 1) {
-                this->joinTo(prevJoinType, p[0], c1);
-                prevJoinType = JoinType::kNone;
+        float numParametricSegments_pow4 =
+                GrWangsFormula::cubic_pow4(fTolerances.fParametricIntolerance, p);
+        if (this->fitsInPatch180(numParametricSegments_pow4) || maxDepth == 0) {
+            this->rawStrokeTo(prevJoinType, this->fitsInPatch180(numParametricSegments_pow4), p,
+                              p[3]);
+            return;
+        }
+
+        // We still might have enough tessellation segments to render the curve. Check again with
+        // its actual rotation.
+        float numRadialSegments =
+                SkMeasureNonInflectCubicRotation(p) * fTolerances.fNumRadialSegmentsPerRadian;
+        numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
+        float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
+        numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
+        float numCombinedSegments = num_combined_segments(numParametricSegments, numRadialSegments);
+        if (numCombinedSegments > fMaxTessellationSegments) {
+            // The hardware doesn't support enough segments for this curve. Chop and recurse.
+            SkPoint chops[7];
+            if (maxDepth < 0) {
+                // Decide on an extremely conservative upper bound for when to quit chopping. This
+                // is solely to protect us from infinite recursion in instances where FP error
+                // prevents us from chopping at the correct midtangent.
+                maxDepth = sk_float_nextlog2(numParametricSegments) +
+                           sk_float_nextlog2(numRadialSegments) + 1;
+                maxDepth = std::max(maxDepth, 1);
+            }
+            if (numParametricSegments >= numRadialSegments) {
+                SkChopCubicAtHalf(p, chops);
+            } else {
+                SkChopCubicAtMidTangent(p, chops);
+            }
+            this->convex180CubicTo(prevJoinType, chops, maxDepth - 1);
+            this->convex180CubicTo(JoinType::kBowtie, chops + 3, maxDepth - 1);
+            return;
+        }
+
+        this->rawStrokeTo(prevJoinType, (numCombinedSegments <= fMaxCombinedSegments_withJoin), p,
+                          p[3]);
+    }
+
+    void joinTo(JoinType joinType, SkPoint junctionPoint, SkPoint nextControlPoint,
+                int maxDepth = -1) {
+        if (!fHasLastControlPoint) {
+            // The first stroke doesn't have a previous join.
+            return;
+        }
+
+        if (!fSoloRoundJoinAlwaysFitsInPatch && maxDepth != 0 &&
+            (joinType == JoinType::kRound || joinType == JoinType::kBowtie)) {
+            SkVector tan0 = junctionPoint - fLastControlPoint;
+            SkVector tan1 = nextControlPoint - junctionPoint;
+            float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
+            float numRadialSegments = rotation * fTolerances.fNumRadialSegmentsPerRadian;
+            if (numRadialSegments > fMaxTessellationSegments) {
+                // This is a round join that requires more segments than the tessellator supports.
+                // Split it and recurse.
+                if (maxDepth < 0) {
+                    // Decide on an upper bound for when to quit chopping. This is solely to protect
+                    // us from infinite recursion due to FP precision issues.
+                    maxDepth = sk_float_nextlog2(numRadialSegments / fMaxTessellationSegments);
+                    maxDepth = std::max(maxDepth, 1);
+                }
+                // Find the bisector so we can split the join in half.
+                SkPoint bisector = SkFindBisector(tan0, tan1);
+                // c0 will be the "next" control point for the first join half, and c1 will be the
+                // "previous" control point for the second join half.
+                SkPoint c0, c1;
+                // FIXME: This hack ensures "c0 - junctionPoint" gives the exact same ieee fp32
+                // vector as "-(c1 - junctionPoint)". If our current strategy of join chopping
+                // sticks, we may want to think of a cleaner method to avoid T-junctions when we
+                // chop joins.
+                int maxAttempts = 10;
+                do {
+                    bisector = (junctionPoint + bisector) - (junctionPoint - bisector);
+                    c0 = junctionPoint + bisector;
+                    c1 = junctionPoint - bisector;
+                } while (c0 - junctionPoint != -(c1 - junctionPoint) && --maxAttempts);
+                this->joinTo(joinType, junctionPoint, c0, maxDepth - 1);  // First join half.
+                fLastControlPoint = c1;
+                // Second join half.
+                this->joinTo(joinType, junctionPoint, nextControlPoint, maxDepth - 1);
+                return;
             }
         }
 
-        if (!fHasLastControlPoint) {
-            // The first stroke doesn't have a previous join (yet). If the current contour ends up
-            // closing itself, we will add that join as its own patch. TODO: Consider deferring the
-            // first stroke until we know whether the contour will close. This will allow us to use
-            // the closing join as the first patch's previous join.
-            prevJoinType = JoinType::kNone;
-            fCurrContourFirstControlPoint = c1;
-            fHasLastControlPoint = true;
-        } else {
-            // By using JoinType::kNone, the caller promises to have written out their own join that
-            // seams exactly with this curve.
-            SkASSERT((prevJoinType != JoinType::kNone) || fLastControlPoint == c1);
-        }
-
-        if (this->reservePatch()) {
-            // Disable the join section of this patch if prevJoinType is kNone by setting the
-            // previous control point equal to p0.
-            fPatchWriter.write((prevJoinType == JoinType::kNone) ? p[0] : fLastControlPoint);
-            fPatchWriter.writeArray(p, 4);
-            this->emitDynamicAttribs();
-        }
-
-        fLastControlPoint = c2;
-    }
-
-    void emitJoinPatch(JoinType joinType, SkPoint junctionPoint, SkPoint nextControlPoint) {
         // We should never write out joins before the first curve.
         SkASSERT(fHasLastControlPoint);
 
         if (this->reservePatch()) {
             fPatchWriter.write(fLastControlPoint, junctionPoint);
-            if (joinType == JoinType::kBowtie) {
-                // [p0, p0, p0, p3] is a reserved pattern that means this patch is a bowtie.
-                fPatchWriter.write(junctionPoint, junctionPoint);
-            } else {
-                SkASSERT(joinType != JoinType::kNone);
+            if (joinType != JoinType::kBowtie) {
                 // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only (no
                 // cubic sections in the patch).
                 fPatchWriter.write(nextControlPoint, nextControlPoint);
+            } else {
+                // [p0, p0, p0, p3] is a reserved pattern that means this patch is a bowtie.
+                fPatchWriter.write(junctionPoint, junctionPoint);
             }
             fPatchWriter.write(nextControlPoint);
             this->emitDynamicAttribs();
@@ -671,13 +604,46 @@ private:
 
 }  // namespace
 
-static bool conic_has_cusp(const SkPoint p[3]) {
+SK_ALWAYS_INLINE static bool conic_has_cusp(const SkPoint p[3]) {
     SkVector a = p[1] - p[0];
     SkVector b = p[2] - p[1];
     // A conic of any class can only have a cusp if it is a degenerate flat line with a 180 degree
     // turnarund. To detect this, the beginning and ending tangents must be parallel
     // (a.cross(b) == 0) and pointing in opposite directions (a.dot(b) < 0).
     return a.cross(b) == 0 && a.dot(b) < 0;
+}
+
+SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
+    using grvx::float2;
+
+    float2 p0 = skvx::bit_pun<float2>(p[0]);
+    float2 p1 = skvx::bit_pun<float2>(p[1]);
+    float2 p2 = skvx::bit_pun<float2>(p[2]);
+    float2 p3 = skvx::bit_pun<float2>(p[3]);
+
+    // See GrPathUtils::findCubicConvex180Chops for the math.
+    float2 C = p1 - p0;
+    float2 D = p2 - p1;
+    float2 E = p3 - p0;
+    float2 B = D - C;
+    float2 A = grvx::fast_madd<2>(-3,D,E);
+
+    float a = grvx::cross(A,B);
+    float b = grvx::cross(A,C);
+    float c = grvx::cross(B,C);
+    float discr = b*b - 4*a*c;
+
+    // If -cuspThreshold <= discr <= cuspThreshold, it means the two roots are within kEpsilon of
+    // one another (in parametric space). This is close enough to a cusp for our purposes.
+    constexpr static float kEpsilon = 1.f / (1 << 11);
+    float cuspThreshold = (2*kEpsilon) * a;
+    cuspThreshold *= cuspThreshold;
+
+    return fabsf(discr) <= cuspThreshold &&
+           // The most common type of cusp we encounter is when p0==p1 or p2==p3. Unless the curve
+           // is a flat line (a==b==c==0), these don't actually need special treatment because the
+           // cusps occur at t=0 and t=1.
+           ((p[0] != p[1] && p[2] != p[3]) || (a == 0 && b == 0 && c == 0));
 }
 
 void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
@@ -691,12 +657,12 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
 
     PatchWriter patchWriter(fShaderFlags, target, &fPatchChunks, fTotalCombinedVerbCnt);
     const SkStrokeRec* strokeForTolerances = nullptr;
+    Tolerances tolerances;
 
-    for (const auto& pathStroke : fPathStrokeList) {
-        const SkStrokeRec& stroke = pathStroke.fStroke;
+    for (const auto& [path, stroke, color] : *fPathStrokeList) {
         if (!strokeForTolerances || strokeForTolerances->getWidth() != stroke.getWidth() ||
             strokeForTolerances->getCap() != stroke.getCap()) {
-            auto tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
+            tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
             patchWriter.updateTolerances(tolerances, stroke.getJoin());
             strokeForTolerances = &stroke;
         }
@@ -704,14 +670,14 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
             patchWriter.updateDynamicStroke(stroke);
         }
         if (fShaderFlags & ShaderFlags::kDynamicColor) {
-            patchWriter.updateDynamicColor(pathStroke.fColor);
+            patchWriter.updateDynamicColor(color);
         }
 
-        const SkPath& path = pathStroke.fPath;
         auto strokeJoinType = JoinType(stroke.getJoin());
         SkPathVerb previousVerb = SkPathVerb::kClose;
         for (auto [verb, p, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
+                float numParametricSegments_pow4;
                 case SkPathVerb::kMove:
                     // "A subpath ... consisting of a single moveto shall not be stroked."
                     // https://www.w3.org/TR/SVG11/painting.html#StrokeProperties
@@ -724,31 +690,72 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     patchWriter.lineTo(strokeJoinType, p[0], p[1]);
                     break;
                 case SkPathVerb::kQuad:
-                    if (conic_has_cusp(p)) {
+                    numParametricSegments_pow4 =
+                            GrWangsFormula::quadratic_pow4(patchWriter.parametricIntolerance(), p);
+                    if (p[1] == p[0] || p[1] == p[2]) {
+                        // Zero-length paths need special treatment because they are spec'd to
+                        // behave differently. If the control point is colocated on an endpoint then
+                        // this might end up being the case. Fall back on a lineTo and let it make
+                        // the final check.
+                        patchWriter.lineTo(strokeJoinType, p[0], p[2]);
+                    } else if (conic_has_cusp(p)) {
                         SkPoint cusp = SkEvalQuadAt(p, SkFindQuadMidTangent(p));
                         patchWriter.lineTo(strokeJoinType, p[0], cusp);
                         patchWriter.lineTo(JoinType::kBowtie, cusp, p[2]);
-                    } else {
+                    } else if (!patchWriter.fitsInPatch180(numParametricSegments_pow4)) {
                         patchWriter.conicTo(strokeJoinType, p, 1);
+                    } else {
+                        // Blah.
+                        bool prevJoinFitsInPatch =
+                                patchWriter.joinFitsInPatch180(numParametricSegments_pow4);
+                        SkPoint asPatch[4];
+                        GrPathUtils::convertQuadToCubic(p, asPatch);
+                        patchWriter.rawStrokeTo(strokeJoinType, prevJoinFitsInPatch, asPatch, p[2]);
                     }
                     break;
                 case SkPathVerb::kConic:
-                    if (conic_has_cusp(p)) {
+                    // For now, the tessellation shader uses Wang's standard formula for integraded
+                    // quadratics here.
+                    numParametricSegments_pow4 =
+                            GrWangsFormula::quadratic_pow4(patchWriter.parametricIntolerance(), p);
+                    if (p[1] == p[0] || p[1] == p[2]) {
+                        // Zero-length paths need special treatment because they are spec'd to
+                        // behave differently. If the control point is colocated on an endpoint then
+                        // this might end up being the case. Fall back on a lineTo and let it make
+                        // the final check.
+                        patchWriter.lineTo(strokeJoinType, p[0], p[2]);
+                    } else if (conic_has_cusp(p)) {
                         SkConic conic(p, *w);
                         SkPoint cusp = conic.evalAt(conic.findMidTangent());
                         patchWriter.lineTo(strokeJoinType, p[0], cusp);
                         patchWriter.lineTo(JoinType::kBowtie, cusp, p[2]);
-                    } else {
+                    } else if (!patchWriter.fitsInPatch180(numParametricSegments_pow4)) {
                         patchWriter.conicTo(strokeJoinType, p, *w);
+                    } else {
+                        // Blah.
+                        bool prevJoinFitsInPatch =
+                                patchWriter.joinFitsInPatch180(numParametricSegments_pow4);
+                        SkPoint asPatch[4];
+                        GrPathShader::WriteConicPatch(p, *w, asPatch);
+                        patchWriter.rawStrokeTo(strokeJoinType, prevJoinFitsInPatch, asPatch, p[2]);
                     }
                     break;
                 case SkPathVerb::kCubic:
-                    bool areCusps;
-                    GrPathUtils::findCubicConvex180Chops(p, nullptr, &areCusps);
-                    if (areCusps) {
-                        patchWriter.cubicConvex180SegmentsTo(strokeJoinType, p);
+                    numParametricSegments_pow4 =
+                            GrWangsFormula::cubic_pow4(patchWriter.parametricIntolerance(), p);
+                    if (p[1] == p[2] && (p[1] == p[0] || p[1] == p[3])) {
+                        // The stroke tessellation shader assigns special meaning to p0==p1==p2 and
+                        // p1==p2==p3. If this is the case then we need to rewrite the cubic.
+                        patchWriter.lineTo(strokeJoinType, p[0], p[3]);
+                    } else if (patchWriter.fitsInPatch360(numParametricSegments_pow4) &&
+                               !cubic_has_cusp(p)) {
+                        // Blah.
+                        bool prevJoinFitsInPatch =
+                                patchWriter.joinFitsInPatch360(numParametricSegments_pow4);
+                        patchWriter.rawStrokeTo(strokeJoinType, prevJoinFitsInPatch, p, p[3]);
                     } else {
-                        patchWriter.cubicTo(strokeJoinType, p);
+                        // Blah.
+                        patchWriter.cubicConvex180SegmentsTo(strokeJoinType, p);
                     }
                     break;
                 case SkPathVerb::kClose:
