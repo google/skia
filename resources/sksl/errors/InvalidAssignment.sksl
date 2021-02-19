@@ -17,3 +17,7 @@ void assign_to_foldable_ternary_const_both()  { const float l; const float r; (t
 void assign_to_unfoldable_ternary()           { float l, r; (sqrt(1) > 0 ? l : r) = 0; }
 void assign_to_unary_minus()                  { float x; -x = 0; }
 void assign_to_unary_plus()                   { float x; +x = 0; }  // TODO(skbug.com/10766)
+
+void assign_to_const_param(const int x)          { x = 0; }
+void assign_to_const_array_param(const int x[1]) { x[0] = 0; }
+void assign_to_const_struct_param(const S s)     { s.f = 0; }

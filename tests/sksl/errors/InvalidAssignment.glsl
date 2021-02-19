@@ -12,4 +12,7 @@ error: 15: cannot modify immutable variable 'r'
 error: 16: cannot modify immutable variable 'l'
 error: 17: cannot assign to this expression
 error: 18: cannot assign to this expression
-12 errors
+error: 21: cannot modify immutable variable 'x'
+error: 22: cannot modify immutable variable 'x'
+error: 23: cannot modify immutable variable 's'
+15 errors
