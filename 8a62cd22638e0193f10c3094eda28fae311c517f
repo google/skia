@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14ea9008_324fd7ba",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-19T13:59:41Z",
+      "side": 1,
+      "message": "nit: make_unique ?",
+      "range": {
+        "startLine": 956,
+        "startChar": 0,
+        "endLine": 957,
+        "endChar": 99
+      },
+      "revId": "8a62cd22638e0193f10c3094eda28fae311c517f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
