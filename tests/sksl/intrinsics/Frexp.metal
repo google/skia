@@ -49,7 +49,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok.y = result.y == 0.75 && exp.y == 3;
     result.xyz =     _skOutParamHelper2_frexp(value.xyz, exp);
     ok.z = result.z == 0.75 && exp.z == 3;
-    result.xyzw =     _skOutParamHelper3_frexp(value, exp);
+    result =     _skOutParamHelper3_frexp(value, exp);
     ok.w = result.w == 0.75 && exp.w == 3;
     _out.sk_FragColor = all(ok) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
