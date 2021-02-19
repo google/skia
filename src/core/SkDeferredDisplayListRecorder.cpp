@@ -246,7 +246,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
         PromiseImageTextureContext textureContext) {
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
+    return SkImage_Gpu::MakePromiseTexture(fContext->threadSafeProxy(),
                                            backendFormat,
                                            {width, height},
                                            mipMapped,
@@ -265,7 +265,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
         PromiseImageTextureContext textureContexts[]) {
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext->threadSafeProxy(),
                                                    yuvaBackendTextureInfo,
                                                    std::move(imageColorSpace),
                                                    textureFulfillProc,

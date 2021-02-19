@@ -13,7 +13,9 @@
 
 class GrImageContextPriv;
 
-// CONTEXT TODO: Remove this once SkImage_Gpu is migrated to holding just a ThreadSafeProxy.
+// This is now just a view on a ThreadSafeProxy, that SkImages can attempt to
+// downcast to a GrDirectContext as a backdoor to some operations. Once we remove the backdoors,
+// this goes away and SkImages just hold ThreadSafeProxies.
 class GrImageContext : public GrContext_Base {
 public:
     ~GrImageContext() override;
@@ -36,9 +38,15 @@ protected:
     GrImageContext* asImageContext() override { return this; }
 
 private:
+    // When making promise images, we currently need a placeholder GrImageContext instance to give
+    // to the SkImage that has no real power, just a wrapper around the ThreadSafeProxy.
+    // TODO: De-power SkImage to ThreadSafeProxy or at least figure out a way to share one instance.
+    static sk_sp<GrImageContext> MakeForPromiseImage(sk_sp<GrContextThreadSafeProxy>);
+
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
     // GrSurfaceDrawContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
+    // TODO: Move this down to GrRecordingContext.
     mutable GrSingleOwner            fSingleOwner;
 
     using INHERITED = GrContext_Base;

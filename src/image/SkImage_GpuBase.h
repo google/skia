@@ -61,7 +61,7 @@ protected:
     // if not null, immediately if this function fails. Othwerwise, it is installed in the
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
     // be null.
-    static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(GrRecordingContext*,
+    static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(GrContextThreadSafeProxy*,
                                                            SkISize dimensions,
                                                            GrBackendFormat,
                                                            GrMipmapped,
