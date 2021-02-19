@@ -30,6 +30,10 @@ public:
 
     bool abandoned() const { return fContext->abandoned(); }
 
+    static sk_sp<GrImageContext> MakeForPromiseImage(GrContextThreadSafeProxy* tsp) {
+        return GrImageContext::MakeForPromiseImage(tsp);
+    }
+
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
