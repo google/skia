@@ -1158,7 +1158,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         const ASTNode& param = *(iter++);
         SkASSERT(param.fKind == ASTNode::Kind::kParameter);
         ASTNode::ParameterData pd = param.getParameterData();
-        this->checkModifiers(param.fOffset, pd.fModifiers, Modifiers::kIn_Flag |
+        this->checkModifiers(param.fOffset, pd.fModifiers, Modifiers::kConst_Flag |
+                                                           Modifiers::kIn_Flag |
                                                            Modifiers::kOut_Flag);
         auto paramIter = param.begin();
         const Type* type = this->convertType(*(paramIter++));
