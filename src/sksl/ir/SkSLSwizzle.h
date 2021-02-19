@@ -23,6 +23,7 @@ namespace SkSL {
 struct Swizzle final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
+    // Use Swizzle::Make or Swizzle::MakeWith01 to create swizzle expressions.
     Swizzle(const Context& context, std::unique_ptr<Expression> base,
             const ComponentArray& components)
             : INHERITED(base->fOffset, kExpressionKind,
@@ -31,6 +32,17 @@ struct Swizzle final : public Expression {
             , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
     }
+
+    // Swizzle::MakeWith01 permits component arrays containing ZERO or ONE, and returns an
+    // expression that combines constructors and native swizzles (comprised solely of X/Y/W/Z).
+    static std::unique_ptr<Expression> MakeWith01(const Context& context,
+                                                  std::unique_ptr<Expression> base,
+                                                  ComponentArray inComponents);
+
+    // Swizzle::Make does not permit ZERO or ONE in the component array, just X/Y/Z/W.
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> expr,
+                                            ComponentArray inComponents);
 
     std::unique_ptr<Expression>& base() {
         return fBase;
