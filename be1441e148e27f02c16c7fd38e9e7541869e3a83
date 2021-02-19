@@ -16,6 +16,24 @@
       "message": "Good catch, and I need to add some DSL tests for this same behavior.",
       "revId": "be1441e148e27f02c16c7fd38e9e7541869e3a83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7808744c_cebac965",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-19T20:31:06Z",
+      "side": 1,
+      "message": "Do you want me to catch this in SwitchStatement::Make?",
+      "parentUuid": "76f2dad3_237095a4",
+      "revId": "be1441e148e27f02c16c7fd38e9e7541869e3a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
