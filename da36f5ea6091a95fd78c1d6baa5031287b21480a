@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8ae1342_02806c4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10714
+      },
+      "writtenOn": "2021-02-19T11:37:36Z",
+      "side": 1,
+      "message": "Hi, please take a look at this proposed fix for lazy loading fonts on android.\nNot sure if you want this fix or if you\u0027d rather make a bigger overhaul of this code.\nIn any case, let me know what you think and if you are interested in this landing or not.",
+      "revId": "da36f5ea6091a95fd78c1d6baa5031287b21480a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
