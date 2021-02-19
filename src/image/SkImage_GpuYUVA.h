@@ -65,8 +65,9 @@ public:
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
+     * TODO: Make this public, and remove the SkDDLRecorder entry point.
      */
-    static sk_sp<SkImage> MakePromiseYUVATexture(GrRecordingContext*,
+    static sk_sp<SkImage> MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy>,
                                                  const GrYUVABackendTextureInfo&,
                                                  sk_sp<SkColorSpace> imageColorSpace,
                                                  PromiseImageTextureFulfillProc textureFulfillProc,
