@@ -151,6 +151,16 @@ public:
     };
 
     /**
+     * Similar to createLazyProxy below, except narrowed to the use case of shared promise images
+     * i.e. static so it doesn't have access to mutable state. Used by MakePromiseImageLazyProxy().
+     */
+    static sk_sp<GrTextureProxy> CreatePromiseProxy(GrContextThreadSafeProxy*,
+                                                    LazyInstantiateCallback&&,
+                                                    const GrBackendFormat&,
+                                                    SkISize dimensions,
+                                                    GrMipmapped);
+
+    /**
      * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
      * The width and height must either both be greater than 0 or both less than or equal to zero. A
      * non-positive value is a signal that the width height are currently unknown. The texture will

@@ -25,6 +25,7 @@
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
@@ -373,7 +374,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
+sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContextThreadSafeProxy* tsp,
                                                const GrBackendFormat& backendFormat,
                                                SkISize dimensions,
                                                GrMipmapped mipMapped,
@@ -393,7 +394,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
         return nullptr;
     }
 
-    if (!context) {
+    if (!tsp) {
         return nullptr;
     }
 
@@ -401,18 +402,18 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
         return nullptr;
     }
 
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(tsp->priv().caps(),
                                                                 colorType,
                                                                 backendFormat);
     if (GrColorType::kUnknown == grColorType) {
         return nullptr;
     }
 
-    if (!context->priv().caps()->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
+    if (!tsp->priv().caps()->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
         return nullptr;
     }
 
-    auto proxy = MakePromiseImageLazyProxy(context,
+    auto proxy = MakePromiseImageLazyProxy(tsp,
                                            dimensions,
                                            backendFormat,
                                            mipMapped,
@@ -421,10 +422,11 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
     if (!proxy) {
         return nullptr;
     }
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
+    GrSwizzle swizzle = tsp->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID,
-                                   std::move(view), colorType, alphaType, std::move(colorSpace));
+    return sk_make_sp<SkImage_Gpu>(GrImageContextPriv::MakePromiseImageDummy(tsp),
+                                   kNeedNewImageUniqueID, std::move(view), colorType,
+                                   alphaType, std::move(colorSpace));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

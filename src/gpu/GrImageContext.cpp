@@ -30,6 +30,10 @@ bool GrImageContext::abandoned() {
     return fThreadSafeProxy->priv().abandoned();
 }
 
+sk_sp<GrImageContext> GrImageContext::MakePromiseImageDummy(GrContextThreadSafeProxy* tsp) {
+    return sk_sp<GrImageContext>(new GrImageContext(sk_ref_sp(tsp)));
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrImageContextPriv::refCaps() const {
     return fContext->refCaps();
