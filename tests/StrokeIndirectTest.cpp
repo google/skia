@@ -41,9 +41,10 @@ static void test_stroke(skiatest::Reporter* r, GrDirectContext* ctx, GrMockOpTar
         for (int i = 0; i < 16; ++i) {
             float scale = ldexpf(rand.nextF() + 1, i);
             auto matrix = SkMatrix::Scale(scale, scale);
+            GrStrokeTessellator::PathStrokeList pathStrokeList(path, stroke, SK_PMColor4fWHITE);
             GrStrokeIndirectTessellator tessellator(GrStrokeTessellateShader::ShaderFlags::kNone,
-                                                    matrix, {path, stroke, SK_PMColor4fWHITE},
-                                                    path.countVerbs(), target->allocator());
+                                                    matrix, &pathStrokeList, path.countVerbs(),
+                                                    target->allocator());
             tessellator.verifyResolveLevels(r, target, matrix, path, stroke);
             tessellator.prepare(target, matrix);
             tessellator.verifyBuffers(r, target, matrix, stroke);
