@@ -18,6 +18,7 @@
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
 
 namespace SkSL {
 
@@ -37,25 +38,6 @@ void End() {
 
 void SetErrorHandler(ErrorHandler* errorHandler) {
     DSLWriter::SetErrorHandler(errorHandler);
-}
-
-static char swizzle_component(SkSL::SwizzleComponent::Type c) {
-    switch (c) {
-        case X:
-            return 'x';
-        case Y:
-            return 'y';
-        case Z:
-            return 'z';
-        case W:
-            return 'w';
-        case ZERO:
-            return '0';
-        case ONE:
-            return '1';
-        default:
-            SkUNREACHABLE;
-    }
 }
 
 class DSLCore {
@@ -136,23 +118,20 @@ public:
     }
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a) {
-        char mask[] = { swizzle_component(a), 0 };
-        return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
+        return Swizzle::MakeWith01(DSLWriter::Context(), base.release(), ComponentArray{a});
     }
 
     static DSLExpression Swizzle(DSLExpression base,
                                  SkSL::SwizzleComponent::Type a,
                                  SkSL::SwizzleComponent::Type b) {
-        char mask[] = { swizzle_component(a), swizzle_component(b), 0 };
-        return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
+        return Swizzle::MakeWith01(DSLWriter::Context(), base.release(), ComponentArray{a, b});
     }
 
     static DSLExpression Swizzle(DSLExpression base,
                                  SkSL::SwizzleComponent::Type a,
                                  SkSL::SwizzleComponent::Type b,
                                  SkSL::SwizzleComponent::Type c) {
-        char mask[] = { swizzle_component(a), swizzle_component(b), swizzle_component(c), 0 };
-        return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
+        return Swizzle::MakeWith01(DSLWriter::Context(), base.release(), ComponentArray{a, b, c});
     }
 
     static DSLExpression Swizzle(DSLExpression base,
@@ -160,9 +139,7 @@ public:
                                  SkSL::SwizzleComponent::Type b,
                                  SkSL::SwizzleComponent::Type c,
                                  SkSL::SwizzleComponent::Type d) {
-        char mask[] = { swizzle_component(a), swizzle_component(b), swizzle_component(c),
-                        swizzle_component(d), 0 };
-        return DSLWriter::IRGenerator().convertSwizzle(base.release(), mask);
+        return Swizzle::MakeWith01(DSLWriter::Context(), base.release(), ComponentArray{a,b,c,d});
     }
 
     static DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse) {

@@ -50,7 +50,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok.y = whole.y == 2.0 && fraction.y == 0.5;
     fraction.xyz =     _skOutParamHelper2_modf(value.xyz, whole);
     ok.z = whole.z == 2.0 && fraction.z == 0.5;
-    fraction.xyzw =     _skOutParamHelper3_modf(value, whole);
+    fraction =     _skOutParamHelper3_modf(value, whole);
     ok.w = whole.w == 2.0 && fraction.w == 0.5;
     _out.sk_FragColor = all(ok) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;

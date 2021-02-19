@@ -13,7 +13,7 @@ vec4 main() {
     ok.y = result.y == 0.75 && exp.y == 3;
     result.xyz = frexp(value.xyz, exp.xyz);
     ok.z = result.z == 0.75 && exp.z == 3;
-    result.xyzw = frexp(value, exp);
+    result = frexp(value, exp);
     ok.w = result.w == 0.75 && exp.w == 3;
     return all(ok) ? colorGreen : colorRed;
 }

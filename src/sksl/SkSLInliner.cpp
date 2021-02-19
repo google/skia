@@ -373,7 +373,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kSwizzle: {
             const Swizzle& s = expression.as<Swizzle>();
-            return std::make_unique<Swizzle>(*fContext, expr(s.base()), s.components());
+            return Swizzle::Make(*fContext, expr(s.base()), s.components());
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = expression.as<TernaryExpression>();

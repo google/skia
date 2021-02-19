@@ -2350,25 +2350,33 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         return nullptr;
     }
 
-    ComponentArray maskComponents;
-    for (size_t i = 0; i < fields.length(); i++) {
-        switch (fields[i]) {
+    ComponentArray components;
+    bool found01 = false;
+    bool foundXYZW = false;
+    for (char field : fields) {
+        switch (field) {
             case '0':
+                components.push_back(SwizzleComponent::ZERO);
+                found01 = true;
+                break;
             case '1':
-                // Skip over constant fields for now.
+                components.push_back(SwizzleComponent::ONE);
+                found01 = true;
                 break;
             case 'x':
             case 'r':
             case 's':
             case 'L':
-                maskComponents.push_back(0);
+                components.push_back(SwizzleComponent::X);
+                foundXYZW = true;
                 break;
             case 'y':
             case 'g':
             case 't':
             case 'T':
                 if (baseType.columns() >= 2) {
-                    maskComponents.push_back(1);
+                    components.push_back(SwizzleComponent::Y);
+                    foundXYZW = true;
                     break;
                 }
                 [[fallthrough]];
@@ -2377,7 +2385,8 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case 'p':
             case 'R':
                 if (baseType.columns() >= 3) {
-                    maskComponents.push_back(2);
+                    components.push_back(SwizzleComponent::Z);
+                    foundXYZW = true;
                     break;
                 }
                 [[fallthrough]];
@@ -2386,112 +2395,25 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case 'q':
             case 'B':
                 if (baseType.columns() >= 4) {
-                    maskComponents.push_back(3);
+                    components.push_back(SwizzleComponent::W);
+                    foundXYZW = true;
                     break;
                 }
                 [[fallthrough]];
             default:
                 this->errorReporter().error(
-                        offset, String::printf("invalid swizzle component '%c'", fields[i]));
+                        offset, String::printf("invalid swizzle component '%c'", field));
                 return nullptr;
         }
     }
-    if (maskComponents.empty()) {
+
+    if (!foundXYZW) {
         this->errorReporter().error(offset, "swizzle must refer to base expression");
         return nullptr;
     }
 
-    // First, we need a vector expression that is the non-constant portion of the swizzle, packed:
-    //   scalar.xxx  -> type3(scalar)
-    //   scalar.x0x0 -> type2(scalar)
-    //   vector.zyx  -> vector.zyx
-    //   vector.x0y0 -> vector.xy
-    std::unique_ptr<Expression> expr;
-    if (baseType.isNumber()) {
-        ExpressionArray scalarConstructorArgs;
-        scalarConstructorArgs.push_back(std::move(base));
-        expr = Constructor::Make(fContext, offset,
-                                 baseType.toCompound(fContext, maskComponents.size(), 1),
-                                 std::move(scalarConstructorArgs));
-    } else {
-        expr = std::make_unique<Swizzle>(fContext, std::move(base), maskComponents);
-    }
-
-    // If we have processed the entire swizzle, we're done.
-    if (maskComponents.size() == fields.length()) {
-        return expr;
-    }
-
-    // Now we create a constructor that has the correct number of elements for the final swizzle,
-    // with all fields at the start. It's not finished yet; constants we need will be added below.
-    //   scalar.x0x0 -> type4(type2(x), ...)
-    //   vector.y111 -> type4(vector.y, ...)
-    //   vector.z10x -> type4(vector.zx, ...)
-    //
-    // We could create simpler IR in some cases by reordering here, if all fields are packed
-    // contiguously. The benefits are minor, so skip the optimization to keep the algorithm simple.
-    // The constructor will have at most three arguments: { base value, constant 0, constant 1 }
-    ExpressionArray constructorArgs;
-    constructorArgs.reserve_back(3);
-    constructorArgs.push_back(std::move(expr));
-
-    // Apply another swizzle to shuffle the constants into the correct place. Any constant values we
-    // need are also tacked on to the end of the constructor.
-    //   scalar.x0x0 -> type4(type2(x), 0).xyxy
-    //   vector.y111 -> type4(vector.y, 1).xyyy
-    //   vector.z10x -> type4(vector.zx, 1, 0).xzwy
-    const Type* numberType = baseType.isNumber() ? &baseType : &baseType.componentType();
-    ComponentArray swizzleComponents;
-    int maskFieldIdx = 0;
-    int constantFieldIdx = maskComponents.size();
-    int constantZeroIdx = -1, constantOneIdx = -1;
-
-    for (size_t i = 0; i < fields.length(); i++) {
-        switch (fields[i]) {
-            case '0':
-                if (constantZeroIdx == -1) {
-                    // Synthesize a 'type(0)' argument at the end of the constructor.
-                    ExpressionArray zeroArgs;
-                    zeroArgs.push_back(std::make_unique<IntLiteral>(fContext, offset,/*fValue=*/0));
-                    constructorArgs.push_back(Constructor::Make(fContext, offset, *numberType,
-                                                                std::move(zeroArgs)));
-                    constantZeroIdx = constantFieldIdx++;
-                }
-                swizzleComponents.push_back(constantZeroIdx);
-                break;
-            case '1':
-                if (constantOneIdx == -1) {
-                    // Synthesize a 'type(1)' argument at the end of the constructor.
-                    ExpressionArray oneArgs;
-                    oneArgs.push_back(std::make_unique<IntLiteral>(fContext, offset, /*fValue=*/1));
-                    constructorArgs.push_back(Constructor::Make(fContext, offset, *numberType,
-                                                                std::move(oneArgs)));
-                    constantOneIdx = constantFieldIdx++;
-                }
-                swizzleComponents.push_back(constantOneIdx);
-                break;
-            default:
-                // The non-constant fields are already in the expected order.
-                swizzleComponents.push_back(maskFieldIdx++);
-                break;
-        }
-    }
-
-    expr = Constructor::Make(fContext, offset,
-                             numberType->toCompound(fContext, constantFieldIdx, 1),
-                             std::move(constructorArgs));
-
-    // For some of our most common use cases ('.xyz0', '.xyz1'), we will now have an identity
-    // swizzle; in those cases we can just return the constructor without the swizzle attached.
-    for (size_t i = 0; i < swizzleComponents.size(); ++i) {
-        if (swizzleComponents[i] != int(i)) {
-            // The swizzle has an effect, so apply it.
-            return std::make_unique<Swizzle>(fContext, std::move(expr), swizzleComponents);
-        }
-    }
-
-    // The swizzle was a no-op; return the constructor expression directly.
-    return expr;
+    return found01 ? Swizzle::MakeWith01(fContext, std::move(base), components)
+                   : Swizzle::Make(fContext, std::move(base), components);
 }
 
 const Type* IRGenerator::typeForSetting(int offset, String name) const {
@@ -2632,8 +2554,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
         // Constant array indexes on vectors can be converted to swizzles: `myHalf4.z`.
         // (Using a swizzle gives our optimizer a bit more to work with, compared to array indices.)
         if (baseType.isVector()) {
-            return std::make_unique<Swizzle>(fContext, std::move(base),
-                                             ComponentArray{(int8_t)indexValue});
+            return Swizzle::Make(fContext, std::move(base), ComponentArray{(int8_t)indexValue});
         }
     }
     return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(index));

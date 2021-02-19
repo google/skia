@@ -14,7 +14,7 @@ vec4 main() {
     ok.y = whole.y == 2.0 && fraction.y == 0.5;
     fraction.xyz = modf(value.xyz, whole.xyz);
     ok.z = whole.z == 2.0 && fraction.z == 0.5;
-    fraction.xyzw = modf(value, whole);
+    fraction = modf(value, whole);
     ok.w = whole.w == 2.0 && fraction.w == 0.5;
     return all(ok) ? colorGreen : colorRed;
 }
