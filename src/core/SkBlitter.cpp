@@ -786,7 +786,11 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     switch (device.colorType()) {
         case kN32_SkColorType:
             if (shaderContext) {
-                return alloc->make<SkARGB32_Shader_Blitter>(device, *paint, shaderContext);
+                if (paint->isDither()) {
+                    return create_SkRP_or_SkVMBlitter();
+                } else {
+                    return alloc->make<SkARGB32_Shader_Blitter>(device, *paint, shaderContext);
+                }
             } else if (paint->getColor() == SK_ColorBLACK) {
                 return alloc->make<SkARGB32_Black_Blitter>(device, *paint);
             } else if (paint->getAlpha() == 0xFF) {
