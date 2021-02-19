@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7790c0fe_346fcb76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-19T14:44:41Z",
+      "side": 1,
+      "message": "The tree is closed, but these are simple enough we can get a head start on the reviews even if the parent CLs haven\u0027t landed yet.",
+      "revId": "1f4ec043d38069223d19f638f8b100aa71fa62d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
