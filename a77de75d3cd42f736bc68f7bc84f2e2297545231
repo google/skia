@@ -34,6 +34,24 @@
       "parentUuid": "59aac2ca_e0176d45",
       "revId": "a77de75d3cd42f736bc68f7bc84f2e2297545231",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c67c7875_4bb2f250",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-19T16:57:24Z",
+      "side": 1,
+      "message": "Yeah, I did `make train` - nothing.",
+      "parentUuid": "61957a09_25ac6b9f",
+      "revId": "a77de75d3cd42f736bc68f7bc84f2e2297545231",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
