@@ -165,6 +165,7 @@ sksl_error_tests = [
   "/sksl/errors/StructNameWithoutIdentifier.sksl",
   "/sksl/errors/StructTooDeeplyNested.sksl",
   "/sksl/errors/SwitchDuplicateCase.sksl",
+  "/sksl/errors/SwitchDuplicateDefault.sksl",
   "/sksl/errors/SwitchTypes.sksl",
   "/sksl/errors/SwizzleConstantOutput.sksl",
   "/sksl/errors/SwizzleMatrix.sksl",

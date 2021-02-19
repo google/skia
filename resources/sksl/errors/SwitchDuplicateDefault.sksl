@@ -1,0 +1,7 @@
+void main() {
+    switch (1) {
+        default:
+        default:
+            break;
+    }
+}
