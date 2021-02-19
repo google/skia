@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f775e72_d34f88dd",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T18:42:42Z",
+      "side": 1,
+      "message": "Done. Yeah this looks a lot cleaner.",
+      "parentUuid": "a70fcfba_62466beb",
+      "range": {
+        "startLine": 185,
+        "startChar": 22,
+        "endLine": 185,
+        "endChar": 73
+      },
+      "revId": "2e153eb5bb372e604562dc315abc990eb4f59cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0b243de_1920ff69",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b069b85d_de9b1a04",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T18:42:42Z",
+      "side": 1,
+      "message": "Done. Good suggestion.",
+      "parentUuid": "a0b243de_1920ff69",
+      "range": {
+        "startLine": 457,
+        "startChar": 15,
+        "endLine": 457,
+        "endChar": 39
+      },
+      "revId": "2e153eb5bb372e604562dc315abc990eb4f59cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "782e6b71_40ff3d3c",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-02-19T15:04:13Z",
       "side": 1,
       "message": "Do names like `lineTo` and `joinTo` still make sense when you now have to provide both the from-point and the to-point? Should they be renamed to `line` and join` now?",
+      "range": {
+        "startLine": 57,
+        "startChar": 9,
+        "endLine": 57,
+        "endChar": 15
+      },
+      "revId": "2e153eb5bb372e604562dc315abc990eb4f59cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7736f97c_f3c73be3",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T18:42:42Z",
+      "side": 1,
+      "message": "\"fLastControlPoint\" still changes after every verb, and defines the join between the two strokes. So I think the \"To\" is still helpful. The other verbs (quadTo, cubicTo, conicTo) have always had p0 at the beginning of the array, so we just had to change lineTo in order to not need that extra state anymore.\n\nIn a future CL I have these renamed to \"writeLineTo\", \"writeConicPatchesTo\"",
+      "parentUuid": "782e6b71_40ff3d3c",
       "range": {
         "startLine": 57,
         "startChar": 9,
