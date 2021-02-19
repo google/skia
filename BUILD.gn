@@ -93,7 +93,7 @@ config("skia_private") {
     defines += [ "SK_USE_VMA" ]
   }
   if (skia_enable_winuwp) {
-    defines = [ "SK_WINUWP" ]
+    defines += [ "SK_WINUWP" ]
   }
 }
 
