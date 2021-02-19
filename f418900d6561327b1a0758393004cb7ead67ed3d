@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b5dc6e0_b86dfde4",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-19T19:41:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59e829da_02406cde",
+      "revId": "f418900d6561327b1a0758393004cb7ead67ed3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa6fb3f4_f8c9d0dc",
@@ -49,6 +67,24 @@
       "side": 1,
       "message": "nm jim noted that sk_cfp doesn\u0027t play well with availability checks.",
       "parentUuid": "aa6fb3f4_f8c9d0dc",
+      "revId": "f418900d6561327b1a0758393004cb7ead67ed3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9457081c_fd49b5d1",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-19T19:41:49Z",
+      "side": 1,
+      "message": "I\u0027ve added a comment to that effect in the header.",
+      "parentUuid": "5eea335d_759d1144",
       "revId": "f418900d6561327b1a0758393004cb7ead67ed3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
