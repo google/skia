@@ -18,16 +18,18 @@
 // MSAA if antialiasing is desired.
 class GrStrokeHardwareTessellator : public GrStrokeTessellator {
 public:
-    GrStrokeHardwareTessellator(ShaderFlags shaderFlags, const GrShaderCaps& shaderCaps)
-            : GrStrokeTessellator(shaderFlags)
+    GrStrokeHardwareTessellator(ShaderFlags shaderFlags,
+                                GrSTArenaList<PathStroke>&& pathStrokeList,
+                                int totalCombinedVerbCnt, const GrShaderCaps& shaderCaps)
+            : GrStrokeTessellator(shaderFlags, std::move(pathStrokeList))
+            , fTotalCombinedVerbCnt(totalCombinedVerbCnt)
             , fPatchStride(GrStrokeTessellateShader::PatchStride(fShaderFlags))
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
             , fMaxTessellationSegments(shaderCaps.maxTessellationSegments() - 2) {
     }
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const GrSTArenaList<PathStroke>&,
-                 int totalCombinedVerbCnt) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&) override;
 
     void draw(GrOpFlushState*) const override;
 
@@ -75,6 +77,9 @@ private:
     void emitDynamicAttribs();
     bool reservePatch();
     void allocPatchChunkAtLeast(int minPatchAllocCount);
+
+    // The combined number of path verbs from all paths in fPathStrokeList.
+    const int fTotalCombinedVerbCnt;
 
     // Size in bytes of a tessellation patch with our shader flags.
     const size_t fPatchStride;

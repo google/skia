@@ -1230,11 +1230,18 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localCoord");
         }
 
-        // The fragment shader just outputs a uniform color.
-        const char* colorUniformName;
-        fColorUniform = args.fUniformHandler->addUniform(
-                nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &colorUniformName);
-        args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUniformName);
+        if (!shader.hasDynamicColor()) {
+            // The fragment shader just outputs a uniform color.
+            const char* colorUniformName;
+            fColorUniform = args.fUniformHandler->addUniform(
+                    nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &colorUniformName);
+            args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUniformName);
+        } else {
+            // Color gets passed in through an instance attrib.
+            args.fVaryingHandler->addPassThroughAttribute(
+                    shader.fAttribs.back(), args.fOutputColor,
+                    GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
+        }
         args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 
@@ -1273,7 +1280,9 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
                         m.getScaleY());
         }
 
-        pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
+        if (!shader.hasDynamicColor()) {
+            pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
+        }
     }
 
     GrGLSLUniformHandler::UniformHandle fTessControlArgsUniform;

@@ -94,9 +94,8 @@ static bool conic_has_cusp(const SkPoint p[3]) {
     return a.cross(b) == 0 && a.dot(b) < 0;
 }
 
-void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& viewMatrix,
-                                          const GrSTArenaList<PathStroke>& pathStrokeList,
-                                          int totalCombinedVerbCnt) {
+void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
+                                          const SkMatrix& viewMatrix) {
     SkASSERT(!fTarget);
     SkASSERT(!fViewMatrix);
     SkASSERT(!fStroke);
@@ -110,11 +109,11 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     }
 
     // Pre-allocate at least enough vertex space for 1 in 4 strokes to chop, and for 8 caps.
-    int strokePreallocCount = totalCombinedVerbCnt * 5/4;
+    int strokePreallocCount = fTotalCombinedVerbCnt * 5/4;
     int capPreallocCount = 8;
     this->allocPatchChunkAtLeast(strokePreallocCount + capPreallocCount);
 
-    for (const auto& pathStroke : pathStrokeList) {
+    for (const auto& pathStroke : fPathStrokeList) {
         const SkStrokeRec& stroke = pathStroke.fStroke;
         if (!fStroke || fStroke->getWidth() != stroke.getWidth() ||
             fStroke->getJoin() != stroke.getJoin()) {
