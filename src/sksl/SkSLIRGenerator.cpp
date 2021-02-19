@@ -998,9 +998,8 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     children.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1, /*value=*/0.0));
     children.push_back(Swizzle(Pos(), kWIndex));
     std::unique_ptr<Expression> result = Op(Pos(), Token::Kind::TK_EQ,
-                                 std::make_unique<Constructor>(/*offset=*/-1,
-                                                               fContext.fTypes.fFloat4.get(),
-                                                               std::move(children)));
+                                 Constructor::Make(fContext, /*offset=*/-1,
+                                                   *fContext.fTypes.fFloat4, std::move(children)));
     return std::make_unique<ExpressionStatement>(std::move(result));
 }
 
@@ -1711,32 +1710,7 @@ std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
 
 std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr,
                                                 const Type& type) {
-    if (!expr) {
-        return nullptr;
-    }
-    const int offset = expr->fOffset;
-    if (expr->is<FunctionReference>()) {
-        this->errorReporter().error(offset, "expected '(' to begin function call");
-        return nullptr;
-    }
-    if (expr->is<TypeReference>()) {
-        this->errorReporter().error(offset, "expected '(' to begin constructor invocation");
-        return nullptr;
-    }
-    if (expr->type() == type) {
-        return expr;
-    }
-    if (!expr->coercionCost(type).isPossible(this->settings().fAllowNarrowingConversions)) {
-        this->errorReporter().error(offset, "expected '" + type.displayName() + "', but found '" +
-                                            expr->type().displayName() + "'");
-        return nullptr;
-    }
-    ExpressionArray args;
-    args.push_back(std::move(expr));
-    if (!type.isScalar()) {
-        return std::make_unique<Constructor>(offset, &type, std::move(args));
-    }
-    return this->convertConstructor(offset, type.scalarTypeForLiteral(), std::move(args));
+    return type.coerceExpression(std::move(expr), fContext);
 }
 
 static bool is_matrix_multiply(const Type& left, Operator op, const Type& right) {
@@ -2186,9 +2160,10 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               ExpressionArray arguments) {
     switch (functionValue->kind()) {
         case Expression::Kind::kTypeReference:
-            return this->convertConstructor(offset,
-                                            functionValue->as<TypeReference>().value(),
-                                            std::move(arguments));
+            return Constructor::Make(fContext,
+                                     offset,
+                                     functionValue->as<TypeReference>().value(),
+                                     std::move(arguments));
         case Expression::Kind::kExternalFunctionReference: {
             const ExternalFunction& f = functionValue->as<ExternalFunctionReference>().function();
             int count = f.callParameterCount();
@@ -2243,152 +2218,6 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             this->errorReporter().error(offset, "not a function");
             return nullptr;
     }
-}
-
-std::unique_ptr<Expression> IRGenerator::convertScalarConstructor(int offset,
-                                                                  const Type& type,
-                                                                  ExpressionArray args) {
-    SkASSERT(type.isScalar());
-    if (args.size() != 1) {
-        this->errorReporter().error(
-                offset, "invalid arguments to '" + type.displayName() +
-                        "' constructor, (expected exactly 1 argument, but found " +
-                        to_string((uint64_t)args.size()) + ")");
-        return nullptr;
-    }
-
-    const Type& argType = args[0]->type();
-    if (!argType.isScalar()) {
-        this->errorReporter().error(
-                offset, "invalid argument to '" + type.displayName() +
-                        "' constructor (expected a number or bool, but found '" +
-                        argType.displayName() + "')");
-        return nullptr;
-    }
-
-    std::unique_ptr<Expression> converted = Constructor::SimplifyConversion(type, *args[0]);
-    if (converted) {
-        return converted;
-    }
-    return std::make_unique<Constructor>(offset, &type, std::move(args));
-}
-
-std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
-                                                                    const Type& type,
-                                                                    ExpressionArray args) {
-    SkASSERT(type.isVector() || type.isMatrix());
-    if (type.isMatrix() && args.size() == 1 && args[0]->type().isMatrix()) {
-        // Matrix-from-matrix is always legal.
-        return std::make_unique<Constructor>(offset, &type, std::move(args));
-    }
-
-    if (args.size() == 1 && args[0]->type().isScalar()) {
-        // A constructor containing a single scalar is a splat (for vectors) or diagonal matrix (for
-        // matrices). In either event, it's legal regardless of the scalar's type. Synthesize an
-        // explicit conversion to the proper type (this is a no-op if it's unnecessary).
-        ExpressionArray castArgs;
-        castArgs.push_back(this->convertConstructor(offset, type.componentType(), std::move(args)));
-        return std::make_unique<Constructor>(offset, &type, std::move(castArgs));
-    }
-
-    int expected = type.rows() * type.columns();
-
-    if (type.isVector() && args.size() == 1 && args[0]->type().isVector() &&
-        args[0]->type().columns() == expected) {
-        // A vector constructor containing a single vector with the same number of columns is a
-        // cast (e.g. float3 -> int3).
-        return std::make_unique<Constructor>(offset, &type, std::move(args));
-    }
-
-    // For more complex cases, we walk the argument list and fix up the arguments as needed.
-    int actual = 0;
-    for (std::unique_ptr<Expression>& arg : args) {
-        if (!arg->type().isScalar() && !arg->type().isVector()) {
-            this->errorReporter().error(offset, "'" + arg->type().displayName() +
-                                                "' is not a valid parameter to '" +
-                                                type.displayName() + "' constructor");
-            return nullptr;
-        }
-
-        // Rely on convertConstructor to force this subexpression to the proper type. If it's a
-        // literal, this will make sure it's the right type of literal. If an expression of
-        // matching type, the expression will be returned as-is. If it's an expression of
-        // mismatched type, this adds a cast.
-        int offset = arg->fOffset;
-        const Type& ctorType = type.componentType().toCompound(fContext, arg->type().columns(),
-                                                               /*rows=*/1);
-        ExpressionArray ctorArg;
-        ctorArg.push_back(std::move(arg));
-        arg = this->convertConstructor(offset, ctorType, std::move(ctorArg));
-        if (!arg) {
-            return nullptr;
-        }
-        actual += ctorType.columns();
-    }
-
-    if (actual != expected) {
-        this->errorReporter().error(offset, "invalid arguments to '" + type.displayName() +
-                                            "' constructor (expected " + to_string(expected) +
-                                            " scalars, but found " + to_string(actual) + ")");
-        return nullptr;
-    }
-
-    return std::make_unique<Constructor>(offset, &type, std::move(args));
-}
-
-std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
-                                                            const Type& type,
-                                                            ExpressionArray args) {
-    // FIXME: add support for structs
-    if (args.size() == 1 && args[0]->type() == type && !type.componentType().isOpaque()) {
-        // Strip off redundant casts--i.e., convert Type(exprOfType) into exprOfType.
-        return std::move(args[0]);
-    }
-    if (type.isScalar()) {
-        return this->convertScalarConstructor(offset, type, std::move(args));
-    }
-    if (type.isVector() || type.isMatrix()) {
-        return this->convertCompoundConstructor(offset, type, std::move(args));
-    }
-    if (type.isArray() && type.columns() > 0) {
-        return this->convertArrayConstructor(offset, type, std::move(args));
-    }
-
-    this->errorReporter().error(offset, "cannot construct '" + type.displayName() + "'");
-    return nullptr;
-}
-
-std::unique_ptr<Expression> IRGenerator::convertArrayConstructor(int offset,
-                                                                 const Type& type,
-                                                                 ExpressionArray args) {
-    SkASSERTF(type.isArray() && type.columns() > 0, "%s", type.description().c_str());
-
-    // ES2 doesn't support first-class array types.
-    if (this->strictES2Mode()) {
-        this->errorReporter().error(
-                offset, "construction of array type '" + type.displayName() + "' is not supported");
-        return nullptr;
-    }
-
-    // Check that the number of constructor arguments matches the array size.
-    if (type.columns() != args.count()) {
-        this->errorReporter().error(
-                offset,
-                String::printf("invalid arguments to '%s' constructor "
-                               "(expected %d elements, but found %d)",
-                               type.displayName().c_str(), type.columns(), args.count()));
-        return nullptr;
-    }
-
-    // Convert each constructor argument to the array's component type.
-    const Type& base = type.componentType();
-    for (std::unique_ptr<Expression>& argument : args) {
-        argument = this->coerce(std::move(argument), base);
-        if (!argument) {
-            return nullptr;
-        }
-    }
-    return std::make_unique<Constructor>(offset, &type, std::move(args));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& expression) {
@@ -2581,9 +2410,9 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     if (baseType.isNumber()) {
         ExpressionArray scalarConstructorArgs;
         scalarConstructorArgs.push_back(std::move(base));
-        expr = std::make_unique<Constructor>(
-                offset, &baseType.toCompound(fContext, maskComponents.size(), 1),
-                std::move(scalarConstructorArgs));
+        expr = Constructor::Make(fContext, offset,
+                                 baseType.toCompound(fContext, maskComponents.size(), 1),
+                                 std::move(scalarConstructorArgs));
     } else {
         expr = std::make_unique<Swizzle>(fContext, std::move(base), maskComponents);
     }
@@ -2622,11 +2451,10 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case '0':
                 if (constantZeroIdx == -1) {
                     // Synthesize a 'type(0)' argument at the end of the constructor.
-                    auto zero = std::make_unique<Constructor>(offset, numberType,
-                                                              ExpressionArray{});
-                    zero->arguments().push_back(std::make_unique<IntLiteral>(fContext, offset,
-                                                                             /*fValue=*/0));
-                    constructorArgs.push_back(std::move(zero));
+                    ExpressionArray zeroArgs;
+                    zeroArgs.push_back(std::make_unique<IntLiteral>(fContext, offset,/*fValue=*/0));
+                    constructorArgs.push_back(Constructor::Make(fContext, offset, *numberType,
+                                                                std::move(zeroArgs)));
                     constantZeroIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantZeroIdx);
@@ -2634,10 +2462,10 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case '1':
                 if (constantOneIdx == -1) {
                     // Synthesize a 'type(1)' argument at the end of the constructor.
-                    auto one = std::make_unique<Constructor>(offset, numberType, ExpressionArray{});
-                    one->arguments().push_back(std::make_unique<IntLiteral>(fContext, offset,
-                                                                            /*fValue=*/1));
-                    constructorArgs.push_back(std::move(one));
+                    ExpressionArray oneArgs;
+                    oneArgs.push_back(std::make_unique<IntLiteral>(fContext, offset, /*fValue=*/1));
+                    constructorArgs.push_back(Constructor::Make(fContext, offset, *numberType,
+                                                                std::move(oneArgs)));
                     constantOneIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantOneIdx);
@@ -2649,9 +2477,9 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         }
     }
 
-    expr = std::make_unique<Constructor>(offset,
-                                         &numberType->toCompound(fContext, constantFieldIdx, 1),
-                                         std::move(constructorArgs));
+    expr = Constructor::Make(fContext, offset,
+                             numberType->toCompound(fContext, constantFieldIdx, 1),
+                             std::move(constructorArgs));
 
     // For some of our most common use cases ('.xyz0', '.xyz1'), we will now have an identity
     // swizzle; in those cases we can just return the constructor without the swizzle attached.
