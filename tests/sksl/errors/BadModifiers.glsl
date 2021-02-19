@@ -17,4 +17,5 @@ error: 5: 'in uniform' variables only permitted within fragment processors
 error: 5: 'varying' is only permitted in runtime effects
 error: 5: 'sk_has_side_effects' is not permitted here
 error: 5: 'inline' is not permitted here
-17 errors
+error: 5: 'const' variables must be initialized
+18 errors
