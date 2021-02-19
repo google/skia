@@ -45,10 +45,11 @@ DEF_TEST(HighContrastFilter_FilterImage, reporter) {
     }
 }
 
-DEF_TEST(HighContrastFilter_SanityCheck, reporter) {
+DEF_TEST(HighContrastFilter_SmokeTest, reporter) {
     SkHighContrastConfig config;
     config.fInvertStyle = SkHighContrastConfig::InvertStyle::kInvertLightness;
     sk_sp<SkColorFilter> filter = SkHighContrastFilter::Make(config);
+    REPORTER_ASSERT(reporter, filter->isAlphaUnchanged());
 
     SkColor white_inverted = filter->filterColor(SK_ColorWHITE);
     REPORTER_ASSERT(reporter, white_inverted == SK_ColorBLACK);
