@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bcaec97_8227502f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-19T22:02:28Z",
+      "side": 1,
+      "message": "Wait, what about DSL?\nWe have\n\n    Var v1(kConst_Modifier, kInt, \"v1\");\n    Statement d1 \u003d Declare(v1);\n    EXPECT_EQUAL(d1, \"const int v1;\");\n",
+      "revId": "9ea5d92ee2a77c7a1dae448dbc20005cfae619f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
