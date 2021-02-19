@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c20767c7_c0665310",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T18:55:24Z",
+      "side": 1,
+      "message": "Done. Fixed the comment. It\u0027s good to get a new set of eyes on this!",
+      "parentUuid": "a0934e2f_fac3d0d6",
+      "range": {
+        "startLine": 626,
+        "startChar": 16,
+        "endLine": 626,
+        "endChar": 30
+      },
+      "revId": "d1582da97ed36da2ec56b1eb57fc71258cc98f8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79519d1e_e94358c1",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-19T15:44:12Z",
       "side": 1,
       "message": "nit: This one also seems weird, we\u0027re actually writing\n\n   [last, junction, next, next]",
+      "range": {
+        "startLine": 630,
+        "startChar": 16,
+        "endLine": 630,
+        "endChar": 30
+      },
+      "revId": "d1582da97ed36da2ec56b1eb57fc71258cc98f8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09b981f9_c0128a4f",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T18:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79519d1e_e94358c1",
       "range": {
         "startLine": 630,
         "startChar": 16,
