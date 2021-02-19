@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd1a4c3b_d805679b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-19T14:37:49Z",
+      "side": 1,
+      "message": "I see your comment about \u003d\u003d testing not working on a gpu. I don\u0027t have a better suggestion yet, but it is an area I hope we can get better at (i.e. supporting logical bools and ints/enums as uniforms).\n\nlgtm",
+      "revId": "80202e95d7a5f5f15555bb47ab80cd2bda3e09e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8394f366_08b2a1d7",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-19T14:37:49Z",
+      "side": 1,
+      "message": "We should look for ways to make \u0027bool\u0027 uniforms more obvious in the src.",
+      "range": {
+        "startLine": 60,
+        "startChar": 22,
+        "endLine": 60,
+        "endChar": 32
+      },
+      "revId": "80202e95d7a5f5f15555bb47ab80cd2bda3e09e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "993d89f0_a327bfdb",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-19T14:37:49Z",
+      "side": 1,
+      "message": "This cast works, but is pretty opaque to the reader. Any way we can make it clearer that this\nis a tri-state enum? I guess its hard to have symbolic values in the code, and do an equal-test...",
+      "revId": "80202e95d7a5f5f15555bb47ab80cd2bda3e09e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
