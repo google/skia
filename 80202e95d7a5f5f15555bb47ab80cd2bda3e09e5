@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eac4bee6_eaf2e20e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-19T15:34:55Z",
+      "side": 1,
+      "message": "I\u0027m a little surprised that the direct equality tests against integral values didn\u0027t work, though that might be something we never do in Ganesh. For what it\u0027s worth, we don\u0027t actually use uniform bools internally today, either - which is part of the reason they\u0027re not exposed in runtime effects: https://bugs.chromium.org/p/skia/issues/detail?id\u003d10839",
+      "parentUuid": "4afa0e1d_9b0a8343",
+      "revId": "80202e95d7a5f5f15555bb47ab80cd2bda3e09e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8394f366_08b2a1d7",
