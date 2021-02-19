@@ -17034,7 +17034,7 @@
         {
           "name": "skia/bots/lottie-samples",
           "path": "lottie-samples",
-          "version": "version:1"
+          "version": "version:2"
         }
       ],
       "command": [
@@ -20667,7 +20667,7 @@
         {
           "name": "skia/bots/lottie-samples",
           "path": "lottie-samples",
-          "version": "version:1"
+          "version": "version:2"
         },
         {
           "name": "skia/bots/skimage",
@@ -21255,7 +21255,7 @@
         {
           "name": "skia/bots/lottie-samples",
           "path": "lottie-samples",
-          "version": "version:1"
+          "version": "version:2"
         },
         {
           "name": "skia/bots/mesa_intel_driver_linux",
@@ -22074,7 +22074,7 @@
         {
           "name": "skia/bots/lottie-samples",
           "path": "lottie-samples",
-          "version": "version:1"
+          "version": "version:2"
         },
         {
           "name": "skia/bots/node",
@@ -23783,7 +23783,7 @@
         {
           "name": "skia/bots/lottie-samples",
           "path": "lottie-samples",
-          "version": "version:1"
+          "version": "version:2"
         },
         {
           "name": "skia/bots/node",
@@ -23871,7 +23871,7 @@
         {
           "name": "skia/bots/lottie-samples",
           "path": "lottie-samples",
-          "version": "version:1"
+          "version": "version:2"
         },
         {
           "name": "skia/bots/node",

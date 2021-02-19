@@ -33,7 +33,6 @@ LOTTIE_WEB_EXCLUDE = [
   'lottiefiles.com - VR.json',
   'vr_animation.json',
   # Times out.
-  'obama_caricature.json',
   'lottiefiles.com - Nudge.json',
   'lottiefiles.com - Retweet.json',
   # Trace file has majority main_frame_aborted terminations in it and < 25
