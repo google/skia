@@ -97,14 +97,10 @@ static bool conic_has_cusp(const SkPoint p[3]) {
 void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                                           const SkMatrix& viewMatrix) {
     SkASSERT(!fTarget);
-    SkASSERT(!fViewMatrix);
-    SkASSERT(!fStroke);
-
     fTarget = target;
-    fViewMatrix = &viewMatrix;
 
     std::array<float, 2> matrixScales;
-    if (!fViewMatrix->getMinMaxScales(matrixScales.data())) {
+    if (!viewMatrix.getMinMaxScales(matrixScales.data())) {
         matrixScales.fill(1);
     }
 
@@ -113,14 +109,17 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
     int capPreallocCount = 8;
     this->allocPatchChunkAtLeast(strokePreallocCount + capPreallocCount);
 
+    const SkStrokeRec* strokeForTolerances = nullptr;
+
     for (const auto& pathStroke : fPathStrokeList) {
         const SkStrokeRec& stroke = pathStroke.fStroke;
-        if (!fStroke || fStroke->getWidth() != stroke.getWidth() ||
-            fStroke->getJoin() != stroke.getJoin()) {
+        if (!strokeForTolerances || strokeForTolerances->getWidth() != stroke.getWidth() ||
+            strokeForTolerances->getJoin() != stroke.getJoin()) {
             auto tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
             this->updateTolerances(tolerances, stroke.getJoin());
+            strokeForTolerances = &stroke;
         }
-        fStroke = &stroke;
+        auto strokeJoinType = JoinType(stroke.getJoin());
 
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             fDynamicStroke.set(stroke);
@@ -140,50 +139,50 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     // "A subpath ... consisting of a single moveto shall not be stroked."
                     // https://www.w3.org/TR/SVG11/painting.html#StrokeProperties
                     if (previousVerb != SkPathVerb::kMove && previousVerb != SkPathVerb::kClose) {
-                        this->cap(p[-1]);
+                        this->cap(p[-1], viewMatrix, stroke);
                     }
                     this->moveTo(p[0]);
                     break;
                 case SkPathVerb::kLine:
-                    this->lineTo(p[0], p[1]);
+                    this->lineTo(strokeJoinType, p[0], p[1]);
                     break;
                 case SkPathVerb::kQuad:
                     if (conic_has_cusp(p)) {
                         SkPoint cusp = SkEvalQuadAt(p, SkFindQuadMidTangent(p));
-                        this->lineTo(p[0], cusp);
-                        this->lineTo(cusp, p[2], JoinType::kBowtie);
+                        this->lineTo(strokeJoinType, p[0], cusp);
+                        this->lineTo(JoinType::kBowtie, cusp, p[2]);
                     } else {
-                        this->conicTo(p, 1);
+                        this->conicTo(strokeJoinType, p, 1);
                     }
                     break;
                 case SkPathVerb::kConic:
                     if (conic_has_cusp(p)) {
                         SkConic conic(p, *w);
                         SkPoint cusp = conic.evalAt(conic.findMidTangent());
-                        this->lineTo(p[0], cusp);
-                        this->lineTo(cusp, p[2], JoinType::kBowtie);
+                        this->lineTo(strokeJoinType, p[0], cusp);
+                        this->lineTo(JoinType::kBowtie, cusp, p[2]);
                     } else {
-                        this->conicTo(p, *w);
+                        this->conicTo(strokeJoinType, p, *w);
                     }
                     break;
                 case SkPathVerb::kCubic:
                     bool areCusps;
                     GrPathUtils::findCubicConvex180Chops(p, nullptr, &areCusps);
                     if (areCusps) {
-                        this->cubicConvex180SegmentsTo(p);
+                        this->cubicConvex180SegmentsTo(strokeJoinType, p);
                     } else {
-                        this->cubicTo(p);
+                        this->cubicTo(strokeJoinType, p);
                     }
                     break;
                 case SkPathVerb::kClose:
-                    this->close(p[0]);
+                    this->close(p[0], viewMatrix, stroke);
                     break;
             }
             previousVerb = verb;
         }
         if (previousVerb != SkPathVerb::kMove && previousVerb != SkPathVerb::kClose) {
             const SkPoint* p = SkPathPriv::PointData(path);
-            this->cap(p[path.countPoints() - 1]);
+            this->cap(p[path.countPoints() - 1], viewMatrix, stroke);
         }
     }
 
@@ -191,8 +190,6 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                              fPatchStride);
 
     fTarget = nullptr;
-    fViewMatrix = nullptr;
-    fStroke = nullptr;
 }
 
 void GrStrokeHardwareTessellator::moveTo(SkPoint pt) {
@@ -206,7 +203,7 @@ void GrStrokeHardwareTessellator::moveTo(SkPoint pt, SkPoint lastControlPoint) {
     fHasLastControlPoint = true;
 }
 
-void GrStrokeHardwareTessellator::lineTo(SkPoint p0, SkPoint p1, JoinType prevJoinType) {
+void GrStrokeHardwareTessellator::lineTo(JoinType prevJoinType, SkPoint p0, SkPoint p1) {
     // Zero-length paths need special treatment because they are spec'd to behave differently.
     if (p0 == p1) {
         return;
@@ -223,13 +220,13 @@ void GrStrokeHardwareTessellator::lineTo(SkPoint p0, SkPoint p1, JoinType prevJo
     this->emitPatch(prevJoinType, asPatch, p1);
 }
 
-void GrStrokeHardwareTessellator::conicTo(const SkPoint p[3], float w, JoinType prevJoinType,
+void GrStrokeHardwareTessellator::conicTo(JoinType prevJoinType, const SkPoint p[3], float w,
                                           int maxDepth) {
     // Zero-length paths need special treatment because they are spec'd to behave differently. If
     // the control point is colocated on an endpoint then this might end up being the case. Fall
     // back on a lineTo and let it make the final check.
     if (p[1] == p[0] || p[1] == p[2] || w == 0) {
-        this->lineTo(p[0], p[2], prevJoinType);
+        this->lineTo(prevJoinType, p[0], p[2]);
         return;
     }
 
@@ -289,16 +286,16 @@ void GrStrokeHardwareTessellator::conicTo(const SkPoint p[3], float w, JoinType 
             } else {
                 SkChopQuadAtMidTangent(p, chops);
             }
-            this->conicTo(chops, 1, prevJoinType, maxDepth - 1);
-            this->conicTo(chops + 2, 1, JoinType::kBowtie, maxDepth - 1);
+            this->conicTo(prevJoinType, chops, 1, maxDepth - 1);
+            this->conicTo(JoinType::kBowtie, chops + 2, 1, maxDepth - 1);
         } else {
             SkConic conic(p, w);
             float chopT = (numParametricSegments >= numRadialSegments) ? .5f
                                                                        : conic.findMidTangent();
             SkConic chops[2];
             if (conic.chopAt(chopT, chops)) {
-                this->conicTo(chops[0].fPts, chops[0].fW, prevJoinType, maxDepth - 1);
-                this->conicTo(chops[1].fPts, chops[1].fW, JoinType::kBowtie, maxDepth - 1);
+                this->conicTo(prevJoinType, chops[0].fPts, chops[0].fW, maxDepth - 1);
+                this->conicTo(JoinType::kBowtie, chops[1].fPts, chops[1].fW, maxDepth - 1);
             }
         }
         return;
@@ -313,12 +310,12 @@ void GrStrokeHardwareTessellator::conicTo(const SkPoint p[3], float w, JoinType 
     this->emitPatch(prevJoinType, asPatch, p[2]);
 }
 
-void GrStrokeHardwareTessellator::cubicTo(const SkPoint p[4], JoinType prevJoinType,
+void GrStrokeHardwareTessellator::cubicTo(JoinType prevJoinType, const SkPoint p[4],
                                           Convex180Status convex180Status, int maxDepth) {
     // The stroke tessellation shader assigns special meaning to p0==p1==p2 and p1==p2==p3. If this
     // is the case then we need to rewrite the cubic.
     if (p[1] == p[2] && (p[1] == p[0] || p[1] == p[3])) {
-        this->lineTo(p[0], p[3], prevJoinType);
+        this->lineTo(prevJoinType, p[0], p[3]);
         return;
     }
 
@@ -353,7 +350,7 @@ void GrStrokeHardwareTessellator::cubicTo(const SkPoint p[4], JoinType prevJoinT
     // Ensure the curve does not inflect or rotate >180 degrees before we start subdividing and
     // measuring rotation.
     if (convex180Status == Convex180Status::kUnknown) {
-        this->cubicConvex180SegmentsTo(p, prevJoinType, maxDepth);
+        this->cubicConvex180SegmentsTo(prevJoinType, p);
         return;
     }
 
@@ -381,8 +378,8 @@ void GrStrokeHardwareTessellator::cubicTo(const SkPoint p[4], JoinType prevJoinT
         } else {
             SkChopCubicAtMidTangent(p, chops);
         }
-        this->cubicTo(chops, prevJoinType, Convex180Status::kYes, maxDepth - 1);
-        this->cubicTo(chops + 3, JoinType::kBowtie, Convex180Status::kYes, maxDepth - 1);
+        this->cubicTo(prevJoinType, chops, Convex180Status::kYes, maxDepth - 1);
+        this->cubicTo(JoinType::kBowtie, chops + 3, Convex180Status::kYes, maxDepth - 1);
         return;
     }
 
@@ -395,36 +392,36 @@ void GrStrokeHardwareTessellator::cubicTo(const SkPoint p[4], JoinType prevJoinT
     this->emitPatch(prevJoinType, p, p[3]);
 }
 
-void GrStrokeHardwareTessellator::cubicConvex180SegmentsTo(const SkPoint p[4],
-                                                           JoinType prevJoinType, int maxDepth) {
+void GrStrokeHardwareTessellator::cubicConvex180SegmentsTo(JoinType prevJoinType,
+                                                           const SkPoint p[4]) {
     SkPoint chops[10];
     float chopT[2];
     bool areCusps = false;
     int numChops = GrPathUtils::findCubicConvex180Chops(p, chopT, &areCusps);
     if (numChops == 0) {
         // The curve is already convex and rotates no more than 180 degrees.
-        this->cubicTo(p, prevJoinType, Convex180Status::kYes, maxDepth);
+        this->cubicTo(prevJoinType, p, Convex180Status::kYes);
     } else if (numChops == 1) {
         SkChopCubicAt(p, chops, chopT[0]);
         if (areCusps) {
             // When chopping on a perfect cusp, these 3 points will be equal.
             chops[2] = chops[4] = chops[3];
         }
-        this->cubicTo(chops, prevJoinType, Convex180Status::kYes, maxDepth);
-        this->cubicTo(chops + 3, JoinType::kBowtie, Convex180Status::kYes, maxDepth);
+        this->cubicTo(prevJoinType, chops, Convex180Status::kYes);
+        this->cubicTo(JoinType::kBowtie, chops + 3, Convex180Status::kYes);
     } else {
         SkASSERT(numChops == 2);
         SkChopCubicAt(p, chops, chopT[0], chopT[1]);
         // Two cusps are only possible on a flat line with two 180-degree turnarounds.
         if (areCusps) {
-            this->lineTo(chops[0], chops[3], prevJoinType);
-            this->lineTo(chops[3], chops[6], JoinType::kBowtie);
-            this->lineTo(chops[6], chops[9], JoinType::kBowtie);
+            this->lineTo(prevJoinType, chops[0], chops[3]);
+            this->lineTo(JoinType::kBowtie, chops[3], chops[6]);
+            this->lineTo(JoinType::kBowtie, chops[6], chops[9]);
             return;
         }
-        this->cubicTo(chops, prevJoinType, Convex180Status::kYes, maxDepth);
-        this->cubicTo(chops + 3, JoinType::kBowtie, Convex180Status::kYes, maxDepth);
-        this->cubicTo(chops + 6, JoinType::kBowtie, Convex180Status::kYes, maxDepth);
+        this->cubicTo(prevJoinType, chops, Convex180Status::kYes);
+        this->cubicTo(JoinType::kBowtie, chops + 3, Convex180Status::kYes);
+        this->cubicTo(JoinType::kBowtie, chops + 6, Convex180Status::kYes);
     }
 }
 
@@ -436,7 +433,7 @@ void GrStrokeHardwareTessellator::joinTo(JoinType joinType, SkPoint junctionPoin
     }
 
     if (!fSoloRoundJoinAlwaysFitsInPatch && maxDepth != 0 &&
-        (fStroke->getJoin() == SkPaint::kRound_Join || joinType == JoinType::kBowtie)) {
+        (joinType == JoinType::kRound || joinType == JoinType::kBowtie)) {
         SkVector tan0 = junctionPoint - fLastControlPoint;
         SkVector tan1 = nextControlPoint - junctionPoint;
         float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
@@ -476,7 +473,8 @@ void GrStrokeHardwareTessellator::joinTo(JoinType joinType, SkPoint junctionPoin
     this->emitJoinPatch(joinType, junctionPoint, nextControlPoint);
 }
 
-void GrStrokeHardwareTessellator::close(SkPoint contourEndpoint) {
+void GrStrokeHardwareTessellator::close(SkPoint contourEndpoint, const SkMatrix& viewMatrix,
+                                        const SkStrokeRec& stroke) {
     if (!fHasLastControlPoint) {
         // Draw caps instead of closing if the subpath is zero length:
         //
@@ -485,27 +483,27 @@ void GrStrokeHardwareTessellator::close(SkPoint contourEndpoint) {
         //
         //   (https://www.w3.org/TR/SVG11/painting.html#StrokeProperties)
         //
-        this->cap(contourEndpoint);
+        this->cap(contourEndpoint, viewMatrix, stroke);
         return;
     }
 
     // Draw a line back to the beginning. (This will be discarded if
     // contourEndpoint == fCurrContourStartPoint.)
-    this->lineTo(contourEndpoint, fCurrContourStartPoint);
-    this->joinTo(JoinType::kFromStroke, fCurrContourStartPoint, fCurrContourFirstControlPoint);
+    auto strokeJoinType = JoinType(stroke.getJoin());
+    this->lineTo(strokeJoinType, contourEndpoint, fCurrContourStartPoint);
+    this->joinTo(strokeJoinType, fCurrContourStartPoint, fCurrContourFirstControlPoint);
 
     fHasLastControlPoint = false;
 }
 
-void GrStrokeHardwareTessellator::cap(SkPoint contourEndpoint) {
-    SkASSERT(fViewMatrix);
-
+void GrStrokeHardwareTessellator::cap(SkPoint contourEndpoint, const SkMatrix& viewMatrix,
+                                      const SkStrokeRec& stroke) {
     if (!fHasLastControlPoint) {
         // We don't have any control points to orient the caps. In this case, square and round caps
         // are specified to be drawn as an axis-aligned square or circle respectively. Assign
         // default control points that achieve this.
         SkVector outset;
-        if (!fStroke->isHairlineStyle()) {
+        if (!stroke.isHairlineStyle()) {
             outset = {1, 0};
         } else {
             // If the stroke is hairline, orient the square on the post-transform x-axis instead.
@@ -524,8 +522,8 @@ void GrStrokeHardwareTessellator::cap(SkPoint contourEndpoint) {
             //    == | d|
             //       |-c|
             //
-            SkASSERT(!fViewMatrix->hasPerspective());
-            float c=fViewMatrix->getSkewY(), d=fViewMatrix->getScaleY();
+            SkASSERT(!viewMatrix.hasPerspective());
+            float c=viewMatrix.getSkewY(), d=viewMatrix.getScaleY();
             outset = {d, -c};
         }
         fCurrContourFirstControlPoint = fCurrContourStartPoint - outset;
@@ -534,14 +532,14 @@ void GrStrokeHardwareTessellator::cap(SkPoint contourEndpoint) {
         contourEndpoint = fCurrContourStartPoint;
     }
 
-    switch (fStroke->getCap()) {
+    switch (stroke.getCap()) {
         case SkPaint::kButt_Cap:
             break;
         case SkPaint::kRound_Cap: {
             // A round cap is the same thing as a 180-degree round join.
             // If our join type isn't round we can alternatively use a bowtie.
-            JoinType roundCapJoinType = (fStroke->getJoin() == SkPaint::kRound_Join)
-                    ? JoinType::kFromStroke : JoinType::kBowtie;
+            JoinType roundCapJoinType = (stroke.getJoin() == SkPaint::kRound_Join)
+                    ? JoinType::kRound : JoinType::kBowtie;
             this->joinTo(roundCapJoinType, contourEndpoint, fLastControlPoint);
             this->moveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
             this->joinTo(roundCapJoinType, fCurrContourStartPoint,
@@ -550,27 +548,28 @@ void GrStrokeHardwareTessellator::cap(SkPoint contourEndpoint) {
         }
         case SkPaint::kSquare_Cap: {
             // A square cap is the same as appending lineTos.
+            auto strokeJoinType = JoinType(stroke.getJoin());
             SkVector lastTangent = contourEndpoint - fLastControlPoint;
-            if (!fStroke->isHairlineStyle()) {
+            if (!stroke.isHairlineStyle()) {
                 // Extend the cap by 1/2 stroke width.
-                lastTangent *= (.5f * fStroke->getWidth()) / lastTangent.length();
+                lastTangent *= (.5f * stroke.getWidth()) / lastTangent.length();
             } else {
                 // Extend the cap by what will be 1/2 pixel after transformation.
-                lastTangent *=
-                        .5f / fViewMatrix->mapVector(lastTangent.fX, lastTangent.fY).length();
+                lastTangent *= .5f / viewMatrix.mapVector(lastTangent.fX, lastTangent.fY).length();
             }
-            this->lineTo(contourEndpoint, contourEndpoint + lastTangent);
+            this->lineTo(strokeJoinType, contourEndpoint, contourEndpoint + lastTangent);
             this->moveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
             SkVector firstTangent = fCurrContourFirstControlPoint - fCurrContourStartPoint;
-            if (!fStroke->isHairlineStyle()) {
+            if (!stroke.isHairlineStyle()) {
                 // Set the the cap back by 1/2 stroke width.
-                firstTangent *= (-.5f * fStroke->getWidth()) / firstTangent.length();
+                firstTangent *= (-.5f * stroke.getWidth()) / firstTangent.length();
             } else {
                 // Set the cap back by what will be 1/2 pixel after transformation.
                 firstTangent *=
-                        -.5f / fViewMatrix->mapVector(firstTangent.fX, firstTangent.fY).length();
+                        -.5f / viewMatrix.mapVector(firstTangent.fX, firstTangent.fY).length();
             }
-            this->lineTo(fCurrContourStartPoint, fCurrContourStartPoint + firstTangent);
+            this->lineTo(strokeJoinType, fCurrContourStartPoint,
+                         fCurrContourStartPoint + firstTangent);
             break;
         }
     }
@@ -625,14 +624,17 @@ void GrStrokeHardwareTessellator::emitJoinPatch(JoinType joinType, SkPoint junct
 
     if (this->reservePatch()) {
         fPatchWriter.write(fLastControlPoint, junctionPoint);
-        if (joinType == JoinType::kFromStroke) {
-            // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only (no cubic
-            // sections in the patch).
-            fPatchWriter.write(nextControlPoint, nextControlPoint);
-        } else {
-            SkASSERT(joinType == JoinType::kBowtie);
-            // [p0, p0, p0, p3] is a reserved pattern that means this patch is a bowtie.
+        if (joinType == JoinType::kBowtie) {
+            // {prevControlPoint, [p0, p0, p0, p3]} is a reserved patch pattern that means this
+            // patch is a bowtie. The bowtie is anchored on p0 and its tangent angles go from
+            // (p0 - prevControlPoint) to (p3 - p0).
             fPatchWriter.write(junctionPoint, junctionPoint);
+        } else {
+            SkASSERT(joinType != JoinType::kNone);
+            // {prevControlPoint, [p0, p3, p3, p3]} is a reserved patch pattern that means this
+            // patch is a join only (no curve sections in the patch). The join is anchored on p0 and
+            // its tangent angles go from (p0 - prevControlPoint) to (p3 - p0).
+            fPatchWriter.write(nextControlPoint, nextControlPoint);
         }
         fPatchWriter.write(nextControlPoint);
         this->emitDynamicAttribs();
