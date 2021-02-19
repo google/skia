@@ -459,6 +459,10 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
         SkASSERT(var->type() == *fContext.fTypes.fFloat4);
         fRTAdjust = var.get();
     }
+    if ((modifiers.fFlags & Modifiers::kConst_Flag) && !value) {
+        this->errorReporter().error(offset, "'const' variables must be initialized");
+        return {};
+    }
     if (value) {
         if (type->isOpaque()) {
             this->errorReporter().error(
