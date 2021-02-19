@@ -33,6 +33,24 @@
       "message": "Should this be an sk_cfp?",
       "revId": "f418900d6561327b1a0758393004cb7ead67ed3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5eea335d_759d1144",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-19T19:33:44Z",
+      "side": 1,
+      "message": "nm jim noted that sk_cfp doesn\u0027t play well with availability checks.",
+      "parentUuid": "aa6fb3f4_f8c9d0dc",
+      "revId": "f418900d6561327b1a0758393004cb7ead67ed3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
