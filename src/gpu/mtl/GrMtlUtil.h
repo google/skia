@@ -14,9 +14,9 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
+//#if !__has_feature(objc_arc)
+//#error This file must be compiled with Arc. Use -fobjc-arc flag
+//#endif
 
 #if defined(SK_BUILD_FOR_MAC)
 #if __MAC_OS_X_VERSION_MAX_ALLOWED < 101400
@@ -50,7 +50,11 @@ SK_ALWAYS_INLINE const void* GrGetPtrFromId(id idObject) {
  * Will call CFRetain on the object.
  */
 SK_ALWAYS_INLINE const void* GrRetainPtrFromId(id idObject) {
+#if __has_feature(objc_arc)
     return (__bridge_retained const void*)idObject;
+#else
+    return (const void*)([idObject retain]);
+#endif
 }
 
 enum class GrMtlErrorCode {
