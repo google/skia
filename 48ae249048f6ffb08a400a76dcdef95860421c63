@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e64a4fac_0c43ab78",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-19T20:02:57Z",
+      "side": 1,
+      "message": "The CQ doesn\u0027t seem to run any CPU only tests on Mac. As a result the CQ was not running this test, since the only Test-Mac bot is a GPU bot which only runs GPU tests and gms, no generic CPU tests. Apparently the Test-Mac-NativeFonts bots are the only ones which are also CPU, so the only ones that actually run the CPU tests on Mac (at least on 10.15 and 10.14, there are a few other 10.13 bots).",
+      "revId": "48ae249048f6ffb08a400a76dcdef95860421c63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
