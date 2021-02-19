@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 90
 ------------
+  * Renamed use of sk_cf_obj in external Metal types to sk_cfp.
+    https://review.skia.org/372556
+
   * GrDirectContext::ComputeImageSize() is removed. Use SkImage::textureSize() instead.
     https://review.skia.org/368621
     https://review.skia.org/369317
