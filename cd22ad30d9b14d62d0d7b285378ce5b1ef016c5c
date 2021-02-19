@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb8b4da4_0ce74c6d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2021-02-19T03:57:43Z",
+      "side": 1,
+      "message": "Fix break in WinUWP build",
+      "revId": "cd22ad30d9b14d62d0d7b285378ce5b1ef016c5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
