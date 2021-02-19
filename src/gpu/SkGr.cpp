@@ -158,7 +158,6 @@ static inline bool blend_requires_shader(const SkBlendMode mode) {
     return SkBlendMode::kDst != mode;
 }
 
-#ifndef SK_IGNORE_GPU_DITHER
 static inline float dither_range_for_config(GrColorType dstColorType) {
     // We use 1 / (2^bitdepth-1) as the range since each channel can hold 2^bitdepth values
     switch (dstColorType) {
@@ -209,7 +208,6 @@ static inline float dither_range_for_config(GrColorType dstColorType) {
     }
     SkUNREACHABLE;
 }
-#endif
 
 static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                            const GrColorInfo& dstColorInfo,
@@ -329,13 +327,11 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
     }
 
-#ifndef SK_IGNORE_GPU_DITHER
     GrColorType ct = dstColorInfo.colorType();
     if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
         float ditherRange = dither_range_for_config(ct);
         paintFP = GrDitherEffect::Make(std::move(paintFP), ditherRange);
     }
-#endif
 
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
         if (paintFP != nullptr) {
