@@ -9,6 +9,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/ports/SkCFObject.h"
 
 #include "tools/sk_app/WindowContext.h"
 
@@ -45,12 +46,12 @@ protected:
     virtual void onDestroyContext() = 0;
 
     bool                        fValid;
-    id<MTLDevice>               fDevice;
-    id<MTLCommandQueue>         fQueue;
+    sk_cfp<id<MTLDevice>>       fDevice;
+    sk_cfp<id<MTLCommandQueue>> fQueue;
     CAMetalLayer*               fMetalLayer;
-    GrMTLHandle                 fDrawableHandle;
+    sk_cfp<GrMTLHandle>         fDrawableHandle;
 #if GR_METAL_SDK_VERSION >= 230
-    id<MTLBinaryArchive>        fPipelineArchive  SK_API_AVAILABLE(macos(11.0), ios(14.0));
+    sk_cfp<id<MTLBinaryArchive>> fPipelineArchive SK_API_AVAILABLE(macos(11.0), ios(14.0));
 #endif
 };
 
