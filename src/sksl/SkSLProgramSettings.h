@@ -79,6 +79,10 @@ struct ProgramSettings {
 struct ProgramConfig {
     ProgramKind fKind;
     ProgramSettings fSettings;
+
+    bool strictES2Mode() const {
+        return fKind == ProgramKind::kRuntimeEffect || fKind == ProgramKind::kGeneric;
+    }
 };
 
 }  // namespace SkSL
