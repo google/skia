@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd526bc6_e229f346",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T19:02:18Z",
+      "side": 1,
+      "message": "That is correct. I tried to break it up this way intentionally. This CL should be a pure refactor.",
+      "parentUuid": "3801ab74_9d2f99bc",
+      "revId": "3d31405c6aa6c78c8b4672e1e04932a87432105b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4a4a202_b8838fcd",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-02-19T17:54:57Z",
       "side": 1,
       "message": "nit: \u0026\u0026 would mean we only accept temporaries here; is that the intent?\n\n(Does it compile if we remove the \u0026\u0026 ?)",
+      "range": {
+        "startLine": 30,
+        "startChar": 57,
+        "endLine": 30,
+        "endChar": 59
+      },
+      "revId": "3d31405c6aa6c78c8b4672e1e04932a87432105b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a389259_4657b945",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T19:02:18Z",
+      "side": 1,
+      "message": "That is the intent currently, but I have plans to change it to a simple C-style linked list. I added GrSTArenaList\u003c\u003e for combining PathStrokes but I\u0027ve since decided this class creates more complexity than it saves.",
+      "parentUuid": "e4a4a202_b8838fcd",
       "range": {
         "startLine": 30,
         "startChar": 57,
