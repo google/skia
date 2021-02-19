@@ -280,8 +280,7 @@ private:
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).
     bool strictES2Mode() const {
-        return this->programKind() == ProgramKind::kRuntimeEffect ||
-               this->programKind() == ProgramKind::kGeneric;
+        return fContext.fConfig->strictES2Mode();
     }
 
     Program::Inputs fInputs;
