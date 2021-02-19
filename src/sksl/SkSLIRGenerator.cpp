@@ -13,6 +13,7 @@
 #include <unordered_set>
 
 #include "include/private/SkTArray.h"
+#include "src/core/SkScopeExit.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
@@ -1003,24 +1004,6 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     return std::make_unique<ExpressionStatement>(std::move(result));
 }
 
-template<typename T>
-class AutoClear {
-public:
-    AutoClear(T* container)
-        : fContainer(container) {
-        SkASSERT(container->empty());
-    }
-
-    ~AutoClear() {
-        fContainer->clear();
-    }
-
-private:
-    T* fContainer;
-};
-
-template <typename T> AutoClear(T* c) -> AutoClear<T>;
-
 void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int permitted) {
     int flags = modifiers.fFlags;
     #define CHECK(flag, name)                                                            \
@@ -1143,7 +1126,9 @@ static bool type_is_or_contains_array(const Type* type) {
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
-    AutoClear clear(&fReferencedIntrinsics);
+    SkASSERT(fReferencedIntrinsics.empty());
+    SK_AT_SCOPE_EXIT(fReferencedIntrinsics.clear());
+
     auto iter = f.begin();
     const Type* returnType = this->convertType(*(iter++), /*allowVoid=*/true);
     if (returnType == nullptr) {
