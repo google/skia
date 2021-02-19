@@ -311,8 +311,8 @@ public:
 private:
     void checkSwizzleWrite(const Swizzle& swizzle) {
         int bits = 0;
-        for (int idx : swizzle.components()) {
-            SkASSERT(idx <= 3);
+        for (int8_t idx : swizzle.components()) {
+            SkASSERT(idx >= SwizzleComponent::X && idx <= SwizzleComponent::W);
             int bit = 1 << idx;
             if (bits & bit) {
                 fErrors->error(swizzle.fOffset,
