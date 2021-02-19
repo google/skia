@@ -417,9 +417,9 @@ Run DM on lottie files with tracing turned on and then parse the output.
 
 [DEPS](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#12): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [checkout](#recipe_modules-checkout), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#83)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#82)(api):**
 
-&mdash; **def [parse\_trace](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#208)(trace_json, lottie_filename, api, renderer):**
+&mdash; **def [parse\_trace](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#207)(trace_json, lottie_filename, api, renderer):**
 
 parse_trace parses the specified trace JSON.
 
