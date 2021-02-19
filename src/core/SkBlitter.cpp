@@ -759,7 +759,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     SkMatrix ctm = matrixProvider.localToDevice();
     // We'll end here for many interesting cases: color spaces, color filters, most color types.
-    if (UseRasterPipelineBlitter(device, *paint, ctm) || clipShader) {
+    if (UseRasterPipelineBlitter(device, *paint, ctm) || clipShader || paint->isDither()) {
         return create_SkRP_or_SkVMBlitter();
     }
 
