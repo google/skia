@@ -16,6 +16,24 @@
       "message": "\"make train\" didn\u0027t generate diffs?",
       "revId": "a77de75d3cd42f736bc68f7bc84f2e2297545231",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61957a09_25ac6b9f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-19T16:56:54Z",
+      "side": 1,
+      "message": "I was hoping faking a bad read would lead to no diffs.",
+      "parentUuid": "59aac2ca_e0176d45",
+      "revId": "a77de75d3cd42f736bc68f7bc84f2e2297545231",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
