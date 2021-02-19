@@ -91,6 +91,30 @@
       },
       "revId": "294e92a8a84cf2bf210ddbb03e5ce5c0ec237b65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8b74a50_28c02949",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-19T18:06:48Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c8b63961_f4da0155",
+      "range": {
+        "startLine": 520,
+        "startChar": 19,
+        "endLine": 520,
+        "endChar": 24
+      },
+      "revId": "294e92a8a84cf2bf210ddbb03e5ce5c0ec237b65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
