@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99eaeeaf_32aaebf5",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-19T17:20:23Z",
+      "side": 1,
+      "message": "Don\u0027t we need a temporary SkMorphologyImageFilterImpl alias here?",
+      "revId": "5befbf562c7aae711a30e6d0394725399b20719a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
