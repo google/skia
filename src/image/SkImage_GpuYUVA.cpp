@@ -380,7 +380,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
-        GrRecordingContext* context,
+        sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
         const GrYUVABackendTextureInfo& yuvaBackendTextureInfo,
         sk_sp<SkColorSpace> imageColorSpace,
         PromiseImageTextureFulfillProc textureFulfillProc,
@@ -401,7 +401,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         releaseHelpers[i] = GrRefCntedCallback::Make(textureReleaseProc, textureContexts[i]);
     }
 
-    if (!context) {
+    if (!threadSafeProxy) {
         return nullptr;
     }
 
@@ -416,7 +416,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     // Make a lazy proxy for each plane and wrap in a view.
     sk_sp<GrSurfaceProxy> proxies[4];
     for (int i = 0; i < n; ++i) {
-        proxies[i] = MakePromiseImageLazyProxy(context,
+        proxies[i] = MakePromiseImageLazyProxy(threadSafeProxy.get(),
                                                planeDimensions[i],
                                                yuvaBackendTextureInfo.planeFormat(i),
                                                GrMipmapped::kNo,
@@ -430,7 +430,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
                                             proxies,
                                             yuvaBackendTextureInfo.textureOrigin());
     SkASSERT(yuvaTextureProxies.isValid());
-    return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context),
+    sk_sp<GrImageContext> ctx(GrImageContextPriv::MakeForPromiseImage(std::move(threadSafeProxy)));
+    return sk_make_sp<SkImage_GpuYUVA>(std::move(ctx),
                                        kNeedNewImageUniqueID,
                                        std::move(yuvaTextureProxies),
                                        std::move(imageColorSpace));

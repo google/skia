@@ -20,6 +20,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -664,6 +665,41 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
 
     return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(
             std::move(rt), UseAllocator::kNo, GrRenderTargetProxy::WrapsVkSecondaryCB::kYes));
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafeProxy* threadSafeProxy,
+                                                          LazyInstantiateCallback&& callback,
+                                                          const GrBackendFormat& format,
+                                                          SkISize dimensions,
+                                                          GrMipmapped mipMapped) {
+    if (threadSafeProxy->priv().abandoned()) {
+        return nullptr;
+    }
+    SkASSERT((dimensions.fWidth <= 0 && dimensions.fHeight <= 0) ||
+             (dimensions.fWidth >  0 && dimensions.fHeight >  0));
+
+    if (dimensions.fWidth > threadSafeProxy->priv().caps()->maxTextureSize() ||
+        dimensions.fHeight > threadSafeProxy->priv().caps()->maxTextureSize()) {
+        return nullptr;
+    }
+    // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
+    // mipmaps are fully fleshed out.
+    GrMipmapStatus mipmapStatus = (GrMipmapped::kYes == mipMapped) ? GrMipmapStatus::kValid
+                                                                   : GrMipmapStatus::kNotAllocated;
+
+    // We pass kReadOnly here since we should treat content of the client's texture as immutable.
+    // The promise API provides no way for the client to indicate that the texture is protected.
+    return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(callback),
+                                                    format,
+                                                    dimensions,
+                                                    mipMapped,
+                                                    mipmapStatus,
+                                                    SkBackingFit::kExact,
+                                                    SkBudgeted::kNo,
+                                                    GrProtected::kNo,
+                                                    GrInternalSurfaceFlags::kReadOnly,
+                                                    GrSurfaceProxy::UseAllocator::kYes,
+                                                    GrDDLProvider::kYes));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&& callback,
