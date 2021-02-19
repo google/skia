@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "782e6b71_40ff3d3c",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-19T15:04:13Z",
+      "side": 1,
+      "message": "Do names like `lineTo` and `joinTo` still make sense when you now have to provide both the from-point and the to-point? Should they be renamed to `line` and join` now?",
+      "range": {
+        "startLine": 57,
+        "startChar": 9,
+        "endLine": 57,
+        "endChar": 15
+      },
+      "revId": "2e153eb5bb372e604562dc315abc990eb4f59cc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
