@@ -16,6 +16,29 @@
       "message": "It doesn\u0027t show well in Gerrit, but this change is almost all copypasta",
       "revId": "3d31405c6aa6c78c8b4672e1e04932a87432105b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4a4a202_b8838fcd",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-19T17:54:57Z",
+      "side": 1,
+      "message": "nit: \u0026\u0026 would mean we only accept temporaries here; is that the intent?\n\n(Does it compile if we remove the \u0026\u0026 ?)",
+      "range": {
+        "startLine": 30,
+        "startChar": 57,
+        "endLine": 30,
+        "endChar": 59
+      },
+      "revId": "3d31405c6aa6c78c8b4672e1e04932a87432105b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
