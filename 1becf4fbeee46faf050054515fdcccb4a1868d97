@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1c6566c_b9aa4ceb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-19T20:38:11Z",
+      "side": 1,
+      "message": "Confirmed locally that without https://skia-review.googlesource.com/c/skia/+/370917 there were 59 failures on macOS 11 and that this test now passes.",
+      "revId": "1becf4fbeee46faf050054515fdcccb4a1868d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
