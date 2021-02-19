@@ -757,13 +757,13 @@ void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
                     filter);
 }
 
-
 void GrVkPrimaryCommandBuffer::copyImageToBuffer(const GrVkGpu* gpu,
                                                  GrVkImage* srcImage,
                                                  VkImageLayout srcLayout,
                                                  sk_sp<GrGpuBuffer> dstBuffer,
                                                  uint32_t copyRegionCount,
                                                  const VkBufferImageCopy* copyRegions) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addingWork(gpu);
@@ -784,6 +784,7 @@ void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
                                                  VkImageLayout dstLayout,
                                                  uint32_t copyRegionCount,
                                                  const VkBufferImageCopy* copyRegions) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addingWork(gpu);
@@ -802,6 +803,7 @@ void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
                                           sk_sp<GrGpuBuffer> dstBuffer,
                                           uint32_t regionCount,
                                           const VkBufferCopy* regions) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addingWork(gpu);
@@ -833,6 +835,8 @@ void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
                                             VkDeviceSize dstOffset,
                                             VkDeviceSize dataSize,
                                             const void* data) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     SkASSERT(0 == (dstOffset & 0x03));  // four byte aligned
