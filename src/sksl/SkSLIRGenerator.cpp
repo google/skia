@@ -2414,7 +2414,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         }
     }
 
-    return Swizzle::Make(fContext, std::move(base), components);
+    return Swizzle::MakeWith01(fContext, std::move(base), components);
 }
 
 const Type* IRGenerator::typeForSetting(int offset, String name) const {
