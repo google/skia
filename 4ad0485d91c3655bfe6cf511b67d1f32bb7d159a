@@ -16,6 +16,24 @@
       "message": "Sadly, that\u0027s actually a really good GPU stress test.",
       "revId": "4ad0485d91c3655bfe6cf511b67d1f32bb7d159a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6f37f58_77cb4c32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-19T21:13:51Z",
+      "side": 1,
+      "message": "That\u0027s how I noticed its existence (looking at perf graphs). Seems like we should be able to find/create something that stresses the system in the same way?",
+      "parentUuid": "699a6805_cf9840c7",
+      "revId": "4ad0485d91c3655bfe6cf511b67d1f32bb7d159a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
