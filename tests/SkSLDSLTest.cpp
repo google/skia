@@ -1185,16 +1185,16 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
     EXPECT_EQUAL(e9, "a.x");
 
     Expression e10 = Swizzle(a, ZERO, G);
-    EXPECT_EQUAL(e10, "float2(a.y, float(0)).yx");
+    EXPECT_EQUAL(e10, "float2(a.y, 0.0).yx");
 
     Expression e11 = Swizzle(a, B, G, G);
     EXPECT_EQUAL(e11, "a.zyy");
 
     Expression e12 = Swizzle(a, R, G, B, ONE);
-    EXPECT_EQUAL(e12, "float4(a.xyz, float(1))");
+    EXPECT_EQUAL(e12, "float4(a.xyz, 1.0)");
 
     Expression e13 = Swizzle(a, R, G, B, ONE).r();
-    EXPECT_EQUAL(e13, "float4(a.xyz, float(1)).x");
+    EXPECT_EQUAL(e13, "float4(a.xyz, 1.0).x");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
