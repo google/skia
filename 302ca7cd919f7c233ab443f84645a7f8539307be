@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc53e003_d1b05358",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-19T15:20:08Z",
+      "side": 1,
+      "message": "Brian is hinting at named-values, bools, etc. in the future...",
+      "revId": "302ca7cd919f7c233ab443f84645a7f8539307be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
