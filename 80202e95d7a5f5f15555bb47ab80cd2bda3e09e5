@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11c095db_b333c74a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-19T15:40:36Z",
+      "side": 1,
+      "message": "I may be barking up the wrong tree here about uniforms and tests and such. \nThe currently running Mali T880 trybot should settle that... if it still produces bogus images I think my problem\u0027s likely elsewhere.\n\nOne other change I\u0027ve made here is to make the contrast scaling unconditional.  It used to do,\n\n   if (float c \u003d config.fContrast) {\n       uniforms.M \u003d (1+c)/(1-c);\n       c.rgb \u003d (c.rgb - 0.5)*M + 0.5;\n   }\n\nbut now I\u0027m just always filling in that M scale factor and doing that math even if config.fContrast is zero (making M\u003d1).  I\u0027ve just noticed we could also write this equivalently as\n\n    c.rgb \u003d mix(half3(0.5), c.rgb, M);\n\n... would you expect that to make any difference?\n\nIt\u0027s also vaguely possible that something\u0027s really weird going on with alpha and removing its saturate() is what\u0027s causing the bad images?",
+      "parentUuid": "eac4bee6_eaf2e20e",
+      "revId": "80202e95d7a5f5f15555bb47ab80cd2bda3e09e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8394f366_08b2a1d7",
