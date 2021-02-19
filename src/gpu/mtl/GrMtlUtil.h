@@ -14,10 +14,6 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 #if defined(SK_BUILD_FOR_MAC)
 #if __MAC_OS_X_VERSION_MAX_ALLOWED < 101400
 #error Must use at least 10.14 SDK to build Metal backend for MacOS
@@ -35,14 +31,23 @@ class GrSurface;
  * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*.
  */
 SK_ALWAYS_INLINE id<MTLTexture> GrGetMTLTexture(const void* mtlTexture)  {
+#if __has_feature(objc_arc)
     return (__bridge id<MTLTexture>)mtlTexture;
+#else
+    // ARC will retain when bridging from a CoreFoundation to an ObjC object
+    return (id<MTLTexture>) CFRetain(mtlTexture);
+#endif
 }
 
 /**
  * Returns a const void* to whatever the id object is pointing to.
  */
 SK_ALWAYS_INLINE const void* GrGetPtrFromId(id idObject) {
+#if __has_feature(objc_arc)
     return (__bridge const void*)idObject;
+#else
+    return (const void*)idObject;
+#endif
 }
 
 /**
@@ -50,7 +55,7 @@ SK_ALWAYS_INLINE const void* GrGetPtrFromId(id idObject) {
  * Will call CFRetain on the object.
  */
 SK_ALWAYS_INLINE const void* GrRetainPtrFromId(id idObject) {
-    return (__bridge_retained const void*)idObject;
+    return CFBridgingRetain(idObject);
 }
 
 enum class GrMtlErrorCode {
