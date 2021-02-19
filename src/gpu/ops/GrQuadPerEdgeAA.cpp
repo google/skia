@@ -327,8 +327,11 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
         // a geometry subset if corners are not right angles
         SkRect geomSubset;
         if (fVertexSpec.requiresGeometrySubset()) {
+            // Our shader code will compute zero coverage a full pixel dist. outside of this
+            // rectangle. To strictly clip against the bounds we should inset this by 0.5. However,
+            // since this is a sort of back-up clipping mechanism for outset geometry far away from
+            // the original quad we leave an extra 0.5 pad (effectively outset the bounds by 0.5).
             geomSubset = deviceQuad->bounds();
-            geomSubset.outset(0.5f, 0.5f); // account for AA expansion
         }
 
         if (aaFlags == GrQuadAAFlags::kNone) {
@@ -707,12 +710,15 @@ public:
                         args.fVaryingHandler->addPassThroughAttribute(gp.fGeomSubset, "geoSubset",
                                         Interpolation::kCanBeFlat);
                         args.fFragBuilder->codeAppend(
-                                "if (coverage < 0.5) {"
-                                "   float4 dists4 = clamp(float4(1, 1, -1, -1) * "
-                                        "(sk_FragCoord.xyxy - geoSubset), 0, 1);"
-                                "   float2 dists2 = dists4.xy * dists4.zw;"
-                                "   coverage = min(coverage, dists2.x * dists2.y);"
-                                "}");
+                                // This is lifted from GrAARectEffect. It'd be nice if we could
+                                // invoke a FP from a GP rather than duplicate this code.
+                                "half xSub = min(half(sk_FragCoord.x - geoSubset.x   ), 0)"
+                                "          + min(half(geoSubset.z    - sk_FragCoord.x), 0);"
+                                "half ySub = min(half(sk_FragCoord.y - geoSubset.y   ), 0)"
+                                "          + min(half(geoSubset.w    - sk_FragCoord.y), 0);"
+                                "half subsetCoverage = (1 + max(xSub, -1)) *"
+                                "                      (1 + max(ySub, -1));"
+                                "coverage = min(coverage, subsetCoverage);");
                     }
 
                     args.fFragBuilder->codeAppendf("%s = half4(half(coverage));",
