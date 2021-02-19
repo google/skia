@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75984512_c74c77a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T10:02:09Z",
+      "side": 1,
+      "message": "It doesn\u0027t show well in Gerrit, but this change is almost all copypasta",
+      "revId": "3d31405c6aa6c78c8b4672e1e04932a87432105b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
