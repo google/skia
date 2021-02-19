@@ -131,29 +131,27 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
             fDynamicColor.set(pathStroke.fColor, wideColor);
         }
 
+        const SkPath& path = pathStroke.fPath;
         fHasLastControlPoint = false;
-        SkDEBUGCODE(fHasCurrentPoint = false;)
         SkPathVerb previousVerb = SkPathVerb::kClose;
-        for (auto [verb, p, w] : SkPathPriv::Iterate(pathStroke.fPath)) {
+        for (auto [verb, p, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
                 case SkPathVerb::kMove:
                     // "A subpath ... consisting of a single moveto shall not be stroked."
                     // https://www.w3.org/TR/SVG11/painting.html#StrokeProperties
                     if (previousVerb != SkPathVerb::kMove && previousVerb != SkPathVerb::kClose) {
-                        this->cap();
+                        this->cap(p[-1]);
                     }
                     this->moveTo(p[0]);
                     break;
                 case SkPathVerb::kLine:
-                    SkASSERT(fHasCurrentPoint);
-                    SkASSERT(p[0] == fCurrentPoint);
-                    this->lineTo(p[1]);
+                    this->lineTo(p[0], p[1]);
                     break;
                 case SkPathVerb::kQuad:
                     if (conic_has_cusp(p)) {
                         SkPoint cusp = SkEvalQuadAt(p, SkFindQuadMidTangent(p));
-                        this->lineTo(cusp);
-                        this->lineTo(p[2], JoinType::kBowtie);
+                        this->lineTo(p[0], cusp);
+                        this->lineTo(cusp, p[2], JoinType::kBowtie);
                     } else {
                         this->conicTo(p, 1);
                     }
@@ -162,8 +160,8 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     if (conic_has_cusp(p)) {
                         SkConic conic(p, *w);
                         SkPoint cusp = conic.evalAt(conic.findMidTangent());
-                        this->lineTo(cusp);
-                        this->lineTo(p[2], JoinType::kBowtie);
+                        this->lineTo(p[0], cusp);
+                        this->lineTo(cusp, p[2], JoinType::kBowtie);
                     } else {
                         this->conicTo(p, *w);
                     }
@@ -178,13 +176,14 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     }
                     break;
                 case SkPathVerb::kClose:
-                    this->close();
+                    this->close(p[0]);
                     break;
             }
             previousVerb = verb;
         }
         if (previousVerb != SkPathVerb::kMove && previousVerb != SkPathVerb::kClose) {
-            this->cap();
+            const SkPoint* p = SkPathPriv::PointData(path);
+            this->cap(p[path.countPoints() - 1]);
         }
     }
 
@@ -197,47 +196,40 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
 }
 
 void GrStrokeHardwareTessellator::moveTo(SkPoint pt) {
-    fCurrentPoint = fCurrContourStartPoint = pt;
+    fCurrContourStartPoint = pt;
     fHasLastControlPoint = false;
-    SkDEBUGCODE(fHasCurrentPoint = true;)
 }
 
 void GrStrokeHardwareTessellator::moveTo(SkPoint pt, SkPoint lastControlPoint) {
-    fCurrentPoint = fCurrContourStartPoint = pt;
+    fCurrContourStartPoint = pt;
     fCurrContourFirstControlPoint = fLastControlPoint = lastControlPoint;
     fHasLastControlPoint = true;
-    SkDEBUGCODE(fHasCurrentPoint = true;)
 }
 
-void GrStrokeHardwareTessellator::lineTo(SkPoint pt, JoinType prevJoinType) {
-    SkASSERT(fHasCurrentPoint);
-
+void GrStrokeHardwareTessellator::lineTo(SkPoint p0, SkPoint p1, JoinType prevJoinType) {
     // Zero-length paths need special treatment because they are spec'd to behave differently.
-    if (pt == fCurrentPoint) {
+    if (p0 == p1) {
         return;
     }
 
     if (fMaxCombinedSegments_withJoin < 1) {
         // The stroke has extremely thick round joins and there aren't enough guaranteed segments to
         // always combine a join with a line patch. Emit the join in its own separate patch.
-        this->joinTo(prevJoinType, pt);
+        this->joinTo(prevJoinType, p0, p1);
         prevJoinType = JoinType::kNone;
     }
 
-    SkPoint asPatch[4] = {fCurrentPoint, fCurrentPoint, pt, pt};
-    this->emitPatch(prevJoinType, asPatch, pt);
+    SkPoint asPatch[4] = {p0, p0, p1, p1};
+    this->emitPatch(prevJoinType, asPatch, p1);
 }
 
 void GrStrokeHardwareTessellator::conicTo(const SkPoint p[3], float w, JoinType prevJoinType,
                                           int maxDepth) {
-    SkASSERT(fHasCurrentPoint);
-    SkASSERT(p[0] == fCurrentPoint);
-
     // Zero-length paths need special treatment because they are spec'd to behave differently. If
     // the control point is colocated on an endpoint then this might end up being the case. Fall
     // back on a lineTo and let it make the final check.
     if (p[1] == p[0] || p[1] == p[2] || w == 0) {
-        this->lineTo(p[2], prevJoinType);
+        this->lineTo(p[0], p[2], prevJoinType);
         return;
     }
 
@@ -323,13 +315,10 @@ void GrStrokeHardwareTessellator::conicTo(const SkPoint p[3], float w, JoinType 
 
 void GrStrokeHardwareTessellator::cubicTo(const SkPoint p[4], JoinType prevJoinType,
                                           Convex180Status convex180Status, int maxDepth) {
-    SkASSERT(fHasCurrentPoint);
-    SkASSERT(p[0] == fCurrentPoint);
-
     // The stroke tessellation shader assigns special meaning to p0==p1==p2 and p1==p2==p3. If this
     // is the case then we need to rewrite the cubic.
     if (p[1] == p[2] && (p[1] == p[0] || p[1] == p[3])) {
-        this->lineTo(p[3], prevJoinType);
+        this->lineTo(p[0], p[3], prevJoinType);
         return;
     }
 
@@ -428,9 +417,9 @@ void GrStrokeHardwareTessellator::cubicConvex180SegmentsTo(const SkPoint p[4],
         SkChopCubicAt(p, chops, chopT[0], chopT[1]);
         // Two cusps are only possible on a flat line with two 180-degree turnarounds.
         if (areCusps) {
-            this->lineTo(chops[3], prevJoinType);
-            this->lineTo(chops[6], JoinType::kBowtie);
-            this->lineTo(chops[9], JoinType::kBowtie);
+            this->lineTo(chops[0], chops[3], prevJoinType);
+            this->lineTo(chops[3], chops[6], JoinType::kBowtie);
+            this->lineTo(chops[6], chops[9], JoinType::kBowtie);
             return;
         }
         this->cubicTo(chops, prevJoinType, Convex180Status::kYes, maxDepth);
@@ -439,10 +428,8 @@ void GrStrokeHardwareTessellator::cubicConvex180SegmentsTo(const SkPoint p[4],
     }
 }
 
-void GrStrokeHardwareTessellator::joinTo(JoinType joinType, SkPoint nextControlPoint,
-                                         int maxDepth) {
-    SkASSERT(fHasCurrentPoint);
-
+void GrStrokeHardwareTessellator::joinTo(JoinType joinType, SkPoint junctionPoint,
+                                         SkPoint nextControlPoint, int maxDepth) {
     if (!fHasLastControlPoint) {
         // The first stroke doesn't have a previous join.
         return;
@@ -450,8 +437,8 @@ void GrStrokeHardwareTessellator::joinTo(JoinType joinType, SkPoint nextControlP
 
     if (!fSoloRoundJoinAlwaysFitsInPatch && maxDepth != 0 &&
         (fStroke->getJoin() == SkPaint::kRound_Join || joinType == JoinType::kBowtie)) {
-        SkVector tan0 = fCurrentPoint - fLastControlPoint;
-        SkVector tan1 = nextControlPoint - fCurrentPoint;
+        SkVector tan0 = junctionPoint - fLastControlPoint;
+        SkVector tan1 = nextControlPoint - junctionPoint;
         float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
         float numRadialSegments = rotation * fTolerances.fNumRadialSegmentsPerRadian;
         if (numRadialSegments > fMaxTessellationSegments) {
@@ -468,28 +455,28 @@ void GrStrokeHardwareTessellator::joinTo(JoinType joinType, SkPoint nextControlP
             // c0 will be the "next" control point for the first join half, and c1 will be the
             // "previous" control point for the second join half.
             SkPoint c0, c1;
-            // FIXME: This hack ensures "c0 - fCurrentPoint" gives the exact same ieee fp32 vector
-            // as "-(c1 - fCurrentPoint)". If our current strategy of join chopping sticks, we may
-            // want to think of a cleaner method to avoid T-junctions when we chop joins.
+            // FIXME(skia:11347): This hack ensures "c0 - junctionPoint" gives the exact same ieee
+            // fp32 vector as "-(c1 - junctionPoint)". Tessellated stroking is becoming less
+            // experimental, so t's time to think of a cleaner method to avoid T-junctions when we
+            // chop joins.
             int maxAttempts = 10;
             do {
-                bisector = (fCurrentPoint + bisector) - (fCurrentPoint - bisector);
-                c0 = fCurrentPoint + bisector;
-                c1 = fCurrentPoint - bisector;
-            } while (c0 - fCurrentPoint != -(c1 - fCurrentPoint) && --maxAttempts);
-            this->joinTo(joinType, c0, maxDepth - 1);  // First join half.
+                bisector = (junctionPoint + bisector) - (junctionPoint - bisector);
+                c0 = junctionPoint + bisector;
+                c1 = junctionPoint - bisector;
+            } while (c0 - junctionPoint != -(c1 - junctionPoint) && --maxAttempts);
+            this->joinTo(joinType, junctionPoint, c0, maxDepth - 1);  // First join half.
             fLastControlPoint = c1;
-            this->joinTo(joinType, nextControlPoint, maxDepth - 1);  // Second join half.
+            // Second join half.
+            this->joinTo(joinType, junctionPoint, nextControlPoint, maxDepth - 1);
             return;
         }
     }
 
-    this->emitJoinPatch(joinType, nextControlPoint);
+    this->emitJoinPatch(joinType, junctionPoint, nextControlPoint);
 }
 
-void GrStrokeHardwareTessellator::close() {
-    SkASSERT(fHasCurrentPoint);
-
+void GrStrokeHardwareTessellator::close(SkPoint contourEndpoint) {
     if (!fHasLastControlPoint) {
         // Draw caps instead of closing if the subpath is zero length:
         //
@@ -498,22 +485,20 @@ void GrStrokeHardwareTessellator::close() {
         //
         //   (https://www.w3.org/TR/SVG11/painting.html#StrokeProperties)
         //
-        this->cap();
+        this->cap(contourEndpoint);
         return;
     }
 
     // Draw a line back to the beginning. (This will be discarded if
-    // fCurrentPoint == fCurrContourStartPoint.)
-    this->lineTo(fCurrContourStartPoint);
-    this->joinTo(JoinType::kFromStroke, fCurrContourFirstControlPoint);
+    // contourEndpoint == fCurrContourStartPoint.)
+    this->lineTo(contourEndpoint, fCurrContourStartPoint);
+    this->joinTo(JoinType::kFromStroke, fCurrContourStartPoint, fCurrContourFirstControlPoint);
 
     fHasLastControlPoint = false;
-    SkDEBUGCODE(fHasCurrentPoint = false;)
 }
 
-void GrStrokeHardwareTessellator::cap() {
+void GrStrokeHardwareTessellator::cap(SkPoint contourEndpoint) {
     SkASSERT(fViewMatrix);
-    SkASSERT(fHasCurrentPoint);
 
     if (!fHasLastControlPoint) {
         // We don't have any control points to orient the caps. In this case, square and round caps
@@ -545,8 +530,8 @@ void GrStrokeHardwareTessellator::cap() {
         }
         fCurrContourFirstControlPoint = fCurrContourStartPoint - outset;
         fLastControlPoint = fCurrContourStartPoint + outset;
-        fCurrentPoint = fCurrContourStartPoint;
         fHasLastControlPoint = true;
+        contourEndpoint = fCurrContourStartPoint;
     }
 
     switch (fStroke->getCap()) {
@@ -557,14 +542,15 @@ void GrStrokeHardwareTessellator::cap() {
             // If our join type isn't round we can alternatively use a bowtie.
             JoinType roundCapJoinType = (fStroke->getJoin() == SkPaint::kRound_Join)
                     ? JoinType::kFromStroke : JoinType::kBowtie;
-            this->joinTo(roundCapJoinType, fLastControlPoint);
+            this->joinTo(roundCapJoinType, contourEndpoint, fLastControlPoint);
             this->moveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
-            this->joinTo(roundCapJoinType, fCurrContourFirstControlPoint);
+            this->joinTo(roundCapJoinType, fCurrContourStartPoint,
+                         fCurrContourFirstControlPoint);
             break;
         }
         case SkPaint::kSquare_Cap: {
             // A square cap is the same as appending lineTos.
-            SkVector lastTangent = fCurrentPoint - fLastControlPoint;
+            SkVector lastTangent = contourEndpoint - fLastControlPoint;
             if (!fStroke->isHairlineStyle()) {
                 // Extend the cap by 1/2 stroke width.
                 lastTangent *= (.5f * fStroke->getWidth()) / lastTangent.length();
@@ -573,7 +559,7 @@ void GrStrokeHardwareTessellator::cap() {
                 lastTangent *=
                         .5f / fViewMatrix->mapVector(lastTangent.fX, lastTangent.fY).length();
             }
-            this->lineTo(fCurrentPoint + lastTangent);
+            this->lineTo(contourEndpoint, contourEndpoint + lastTangent);
             this->moveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
             SkVector firstTangent = fCurrContourFirstControlPoint - fCurrContourStartPoint;
             if (!fStroke->isHairlineStyle()) {
@@ -584,13 +570,12 @@ void GrStrokeHardwareTessellator::cap() {
                 firstTangent *=
                         -.5f / fViewMatrix->mapVector(firstTangent.fX, firstTangent.fY).length();
             }
-            this->lineTo(fCurrContourStartPoint + firstTangent);
+            this->lineTo(fCurrContourStartPoint, fCurrContourStartPoint + firstTangent);
             break;
         }
     }
 
     fHasLastControlPoint = false;
-    SkDEBUGCODE(fHasCurrentPoint = false;)
 }
 
 void GrStrokeHardwareTessellator::emitPatch(JoinType prevJoinType, const SkPoint p[4],
@@ -603,7 +588,7 @@ void GrStrokeHardwareTessellator::emitPatch(JoinType prevJoinType, const SkPoint
         // TODO: Investigate if an optimization like "x < fCosRadiansPerSegment" would be worth it.
         float rotation = SkMeasureAngleBetweenVectors(p[0] - fLastControlPoint, c1 - p[0]);
         if (rotation * fTolerances.fNumRadialSegmentsPerRadian > 1) {
-            this->joinTo(prevJoinType, c1);
+            this->joinTo(prevJoinType, p[0], c1);
             prevJoinType = JoinType::kNone;
         }
     }
@@ -631,16 +616,15 @@ void GrStrokeHardwareTessellator::emitPatch(JoinType prevJoinType, const SkPoint
     }
 
     fLastControlPoint = c2;
-    fCurrentPoint = endPt;
 }
 
-void GrStrokeHardwareTessellator::emitJoinPatch(JoinType joinType, SkPoint nextControlPoint) {
+void GrStrokeHardwareTessellator::emitJoinPatch(JoinType joinType, SkPoint junctionPoint,
+                                                SkPoint nextControlPoint) {
     // We should never write out joins before the first curve.
     SkASSERT(fHasLastControlPoint);
-    SkASSERT(fHasCurrentPoint);
 
     if (this->reservePatch()) {
-        fPatchWriter.write(fLastControlPoint, fCurrentPoint);
+        fPatchWriter.write(fLastControlPoint, junctionPoint);
         if (joinType == JoinType::kFromStroke) {
             // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only (no cubic
             // sections in the patch).
@@ -648,7 +632,7 @@ void GrStrokeHardwareTessellator::emitJoinPatch(JoinType joinType, SkPoint nextC
         } else {
             SkASSERT(joinType == JoinType::kBowtie);
             // [p0, p0, p0, p3] is a reserved pattern that means this patch is a bowtie.
-            fPatchWriter.write(fCurrentPoint, fCurrentPoint);
+            fPatchWriter.write(junctionPoint, junctionPoint);
         }
         fPatchWriter.write(nextControlPoint);
         this->emitDynamicAttribs();

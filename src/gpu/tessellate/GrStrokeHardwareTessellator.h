@@ -54,7 +54,7 @@ private:
 
     void moveTo(SkPoint);
     void moveTo(SkPoint, SkPoint lastControlPoint);
-    void lineTo(SkPoint, JoinType prevJoinType = JoinType::kFromStroke);
+    void lineTo(SkPoint p0, SkPoint p1, JoinType prevJoinType = JoinType::kFromStroke);
     void conicTo(const SkPoint[3], float w, JoinType prevJoinType = JoinType::kFromStroke,
                  int maxDepth = -1);
     void cubicTo(const SkPoint[4], JoinType prevJoinType = JoinType::kFromStroke,
@@ -67,13 +67,13 @@ private:
         const SkPoint& nextCtrlPt = (nextCubic[1] == nextCubic[0]) ? nextCubic[2] : nextCubic[1];
         // The caller should have culled out curves where p0==p1==p2 by this point.
         SkASSERT(nextCtrlPt != nextCubic[0]);
-        this->joinTo(joinType, nextCtrlPt);
+        this->joinTo(joinType, nextCubic[0], nextCtrlPt);
     }
-    void joinTo(JoinType, SkPoint nextControlPoint, int maxDepth = -1);
-    void close();
-    void cap();
+    void joinTo(JoinType, SkPoint junctionPoint, SkPoint nextControlPoint, int maxDepth = -1);
+    void close(SkPoint contourEndpoint);
+    void cap(SkPoint contourEndpoint);
     void emitPatch(JoinType prevJoinType, const SkPoint pts[4], SkPoint endPt);
-    void emitJoinPatch(JoinType, SkPoint nextControlPoint);
+    void emitJoinPatch(JoinType, SkPoint junctionPoint, SkPoint nextControlPoint);
     void emitDynamicAttribs();
     bool reservePatch();
     void allocPatchChunkAtLeast(int minPatchAllocCount);
@@ -122,11 +122,9 @@ private:
     // Variables related to the specific contour that we are currently iterating during
     // prepareBuffers().
     bool fHasLastControlPoint = false;
-    SkDEBUGCODE(bool fHasCurrentPoint = false;)
     SkPoint fCurrContourStartPoint;
     SkPoint fCurrContourFirstControlPoint;
     SkPoint fLastControlPoint;
-    SkPoint fCurrentPoint;
 
     // Stateful values for the dynamic state (if any) that will get written out with each patch.
     GrStrokeTessellateShader::DynamicStroke fDynamicStroke;
