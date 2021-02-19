@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/DSLCore.h"
+#include "src/sksl/ir/SkSLConstructor.h"
 
 #if !SKSL_USE_THREAD_LOCAL
 #include <pthread.h>
@@ -106,12 +107,7 @@ DSLExpression DSLWriter::Construct(const SkSL::Type& type, std::vector<DSLExpres
     for (DSLExpression& arg : rawArgs) {
         args.push_back(arg.release());
     }
-    return DSLExpression(DSLWriter::IRGenerator().call(
-                                         /*offset=*/-1,
-                                         std::make_unique<SkSL::TypeReference>(DSLWriter::Context(),
-                                                                               /*offset=*/-1,
-                                                                               &type),
-                                         std::move(args)));
+    return DSLExpression(SkSL::Constructor::Make(Context(), /*offset=*/-1, type, std::move(args)));
 }
 
 DSLExpression DSLWriter::ConvertBinary(std::unique_ptr<Expression> left, Operator op,
