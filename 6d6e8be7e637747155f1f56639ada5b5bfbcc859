@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bb8c371_88f47ceb",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-19T17:34:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5df1294_04040d76",
+      "range": {
+        "startLine": 671,
+        "startChar": 80,
+        "endLine": 671,
+        "endChar": 86
+      },
+      "revId": "6d6e8be7e637747155f1f56639ada5b5bfbcc859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a67bc16e_ea9fc783",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e41a2b2_d9f5c52f",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-19T17:34:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a67bc16e_ea9fc783",
+      "range": {
+        "startLine": 671,
+        "startChar": 0,
+        "endLine": 675,
+        "endChar": 78
+      },
+      "revId": "6d6e8be7e637747155f1f56639ada5b5bfbcc859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "36a55d25_34998839",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-02-19T17:15:02Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 377,
+        "startChar": 79,
+        "endLine": 377,
+        "endChar": 82
+      },
+      "revId": "6d6e8be7e637747155f1f56639ada5b5bfbcc859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f443a815_cae02ec5",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-19T17:34:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36a55d25_34998839",
       "range": {
         "startLine": 377,
         "startChar": 79,
