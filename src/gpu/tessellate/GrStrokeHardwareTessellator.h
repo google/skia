@@ -37,8 +37,10 @@ private:
     using Tolerances = GrStrokeTessellateShader::Tolerances;
 
     enum class JoinType {
-        kFromStroke,  // The shader will use the join type defined in our fStrokeRec.
-        kBowtie,  // Double sided round join.
+        kMiter = SkPaint::kMiter_Join,
+        kRound = SkPaint::kRound_Join,
+        kBevel = SkPaint::kBevel_Join,
+        kBowtie = SkPaint::kLast_Join + 1,  // Double sided round join.
         kNone
     };
 
@@ -54,15 +56,13 @@ private:
 
     void moveTo(SkPoint);
     void moveTo(SkPoint, SkPoint lastControlPoint);
-    void lineTo(SkPoint p0, SkPoint p1, JoinType prevJoinType = JoinType::kFromStroke);
-    void conicTo(const SkPoint[3], float w, JoinType prevJoinType = JoinType::kFromStroke,
-                 int maxDepth = -1);
-    void cubicTo(const SkPoint[4], JoinType prevJoinType = JoinType::kFromStroke,
+    void lineTo(JoinType prevJoinType, SkPoint p0, SkPoint p1);
+    void conicTo(JoinType prevJoinType, const SkPoint[3], float w, int maxDepth = -1);
+    void cubicTo(JoinType prevJoinType, const SkPoint[4],
                  Convex180Status = Convex180Status::kUnknown, int maxDepth = -1);
     // Chops the curve into 1-3 convex sections that rotate no more than 180 degrees, then calls
     // cubicTo() for each section.
-    void cubicConvex180SegmentsTo(const SkPoint[4], JoinType prevJoinType = JoinType::kFromStroke,
-                                  int maxDepth = -1);
+    void cubicConvex180SegmentsTo(JoinType prevJoinType, const SkPoint[4]);
     void joinTo(JoinType joinType, const SkPoint nextCubic[]) {
         const SkPoint& nextCtrlPt = (nextCubic[1] == nextCubic[0]) ? nextCubic[2] : nextCubic[1];
         // The caller should have culled out curves where p0==p1==p2 by this point.
@@ -70,8 +70,8 @@ private:
         this->joinTo(joinType, nextCubic[0], nextCtrlPt);
     }
     void joinTo(JoinType, SkPoint junctionPoint, SkPoint nextControlPoint, int maxDepth = -1);
-    void close(SkPoint contourEndpoint);
-    void cap(SkPoint contourEndpoint);
+    void close(SkPoint contourEndpoint, const SkMatrix&, const SkStrokeRec&);
+    void cap(SkPoint contourEndpoint, const SkMatrix&, const SkStrokeRec&);
     void emitPatch(JoinType prevJoinType, const SkPoint pts[4], SkPoint endPt);
     void emitJoinPatch(JoinType, SkPoint junctionPoint, SkPoint nextControlPoint);
     void emitDynamicAttribs();
@@ -87,10 +87,8 @@ private:
     // The maximum number of tessellation segments the hardware can emit for a single patch.
     const int fMaxTessellationSegments;
 
-    // These will only be valid during prepare() and its callees.
+    // This will only be valid during prepare() and its callees.
     GrMeshDrawOp::Target* fTarget = nullptr;
-    const SkMatrix* fViewMatrix = nullptr;
-    const SkStrokeRec* fStroke = nullptr;
 
     // These values contain worst-case numbers of parametric segments, raised to the 4th power, that
     // our hardware can support for the current stroke radius. They assume curve rotations of 180
