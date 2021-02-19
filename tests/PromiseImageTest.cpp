@@ -140,7 +140,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(ctx,
+    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(ctx->threadSafeProxy(),
                                                           backendFormat,
                                                           {kWidth, kHeight},
                                                           GrMipmapped::kNo,
@@ -247,7 +247,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             SkCanvas* canvas = surface->getCanvas();
 
             PromiseTextureChecker promiseChecker(mbet->texture(), reporter, false);
-            sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(ctx,
+            sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(ctx->threadSafeProxy(),
                                                                  mbet->texture().getBackendFormat(),
                                                                  {kWidth, kHeight},
                                                                  GrMipmapped::kNo,
@@ -291,7 +291,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     SkCanvas* canvas = surface->getCanvas();
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
-    sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(dContext,
+    sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(dContext->threadSafeProxy(),
                                                          backendTex.getBackendFormat(),
                                                          {kWidth, kHeight},
                                                          GrMipmapped::kNo,
@@ -370,7 +370,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
         ++static_cast<Counts*>(ctx)->fReleaseCount;
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(dContext,
+    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(dContext->threadSafeProxy(),
                                                           backendFormat,
                                                           {kWidth, kHeight},
                                                           GrMipmapped::kNo,

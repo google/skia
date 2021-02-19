@@ -78,8 +78,9 @@ public:
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
+     * TODO: Make this public, and remove the SkDDLRecorder entry point.
      */
-    static sk_sp<SkImage> MakePromiseTexture(GrRecordingContext*,
+    static sk_sp<SkImage> MakePromiseTexture(sk_sp<GrContextThreadSafeProxy>,
                                              const GrBackendFormat& backendFormat,
                                              SkISize dimensions,
                                              GrMipmapped mipMapped,
