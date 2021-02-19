@@ -50,6 +50,23 @@
       "message": "sorry, it\u0027s not ready for review yet.",
       "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b8068a6_b1166e64",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-19T14:25:22Z",
+      "side": 1,
+      "message": "Do you still need a magic name (kMaxValue) if it also has a suffix (_SkFilterQuality)? Why not just use kLast...?",
+      "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
