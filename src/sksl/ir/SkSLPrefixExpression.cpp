@@ -58,9 +58,8 @@ std::unique_ptr<Expression> PrefixExpression::constantPropagate(const IRGenerato
                     for (const std::unique_ptr<Expression>& arg : constructor.arguments()) {
                         args.push_back(negate_operand(*arg));
                     }
-                    return std::make_unique<Constructor>(constructor.fOffset,
-                                                         &constructor.type(),
-                                                         std::move(args));
+                    return Constructor::Make(irGenerator.fContext, constructor.fOffset,
+                                             constructor.type(), std::move(args));
                 }
 
                 default:

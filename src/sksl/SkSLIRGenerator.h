@@ -191,18 +191,6 @@ private:
                                                         std::unique_ptr<Expression> right);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
-    std::unique_ptr<Expression> convertArrayConstructor(int offset,
-                                                        const Type& type,
-                                                        ExpressionArray args);
-    std::unique_ptr<Expression> convertScalarConstructor(int offset,
-                                                         const Type& type,
-                                                         ExpressionArray params);
-    std::unique_ptr<Expression> convertCompoundConstructor(int offset,
-                                                           const Type& type,
-                                                           ExpressionArray params);
-    std::unique_ptr<Expression> convertConstructor(int offset,
-                                                   const Type& type,
-                                                   ExpressionArray params);
     std::unique_ptr<Statement> convertContinue(const ASTNode& c);
     std::unique_ptr<Statement> convertDiscard(const ASTNode& d);
     std::unique_ptr<Statement> convertDo(std::unique_ptr<Statement> stmt,

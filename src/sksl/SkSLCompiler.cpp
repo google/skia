@@ -650,8 +650,7 @@ static void delete_right(BasicBlock* b,
 static std::unique_ptr<Expression> construct(const Type* type, std::unique_ptr<Expression> v) {
     ExpressionArray args;
     args.push_back(std::move(v));
-    std::unique_ptr<Expression> result = std::make_unique<Constructor>(-1, type, std::move(args));
-    return result;
+    return std::make_unique<Constructor>(/*offset=*/-1, *type, std::move(args));
 }
 
 /**
@@ -954,8 +953,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         }
                         currBit <<= 1;
                     }
-                    std::unique_ptr<Expression> replacement(new Constructor(c.fOffset, &c.type(),
-                                                                            std::move(flattened)));
+                    std::unique_ptr<Expression> replacement = std::make_unique<Constructor>(
+                            c.fOffset, c.type(), std::move(flattened));
                     // We're replacing an expression with a cloned version; we'll need a rescan.
                     // No fUsage change: `float2(float(x), y)` and `float2(x, y)` have equivalent
                     // reference counts.
@@ -1028,7 +1027,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (!replacement) {
                         ExpressionArray newArgs;
                         newArgs.push_back(argument.clone());
-                        replacement = std::make_unique<Constructor>(base.fOffset, &constructorType,
+                        replacement = std::make_unique<Constructor>(base.fOffset, constructorType,
                                                                     std::move(newArgs));
                     }
 
@@ -1152,7 +1151,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     // Create a new constructor.
                     replacement = std::make_unique<Constructor>(
                             base.fOffset,
-                            &componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
+                            componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
                             std::move(newArgs));
 
                     // Remove references within 'expr', add references within 'replacement.'

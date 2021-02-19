@@ -896,7 +896,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             args.reserve_back(2);
             args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
             args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
-            Constructor ctor(-1, fContext.fTypes.fInt2.get(), std::move(args));
+            Constructor ctor(/*offset=*/-1, *fContext.fTypes.fInt2, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (arguments.size() == 1) {
                 this->writeInstruction(SpvOpImageRead,
