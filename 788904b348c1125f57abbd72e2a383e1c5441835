@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0899e0f8_31ed922c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-19T08:18:01Z",
+      "side": 1,
+      "message": "Wait, this doesn\u0027t work. Is MSAA support implemented in viewer?",
+      "revId": "788904b348c1125f57abbd72e2a383e1c5441835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
