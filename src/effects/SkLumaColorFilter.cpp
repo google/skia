@@ -10,7 +10,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
-    static SkRuntimeEffect* effect = []{
+    static SkColorFilter* filter = []{
         const char* code =
             "uniform shader input;"
             "half4 main() {"
@@ -18,9 +18,9 @@ sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
             "}";
         auto [effect, err] = SkRuntimeEffect::Make(SkString{code}, SkRuntimeEffect::Options{});
         SkASSERT(effect && err.isEmpty());
-        return effect.release();
-    }();
 
-    sk_sp<SkColorFilter> input = nullptr;
-    return effect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
+        sk_sp<SkColorFilter> input = nullptr;
+        return effect->makeColorFilter(SkData::MakeEmpty(), &input, 1).release();
+    }();
+    return sk_ref_sp(filter);
 }
