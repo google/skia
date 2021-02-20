@@ -119,6 +119,24 @@
       "message": "I\u0027ve landed the \u003d 0, \u003d 1, part of this.\nhttps://skia-review.googlesource.com/c/skia/+/372976\n\nSkia has learned the painful lesson to not have enum values that are not actually legal. Hence our pattern to have something like kLastValue, but not kCountValues.\n\nenum Foo {\n    A, B, C,\n\n    kLast \u003d C,  // this is fine\n    kCount,     // this is problematic\n};\n\nIf we have an API that takes a Foo, the above would make it legal to pass kCount...\n\nsetFilterQuality(kCount)\n\nObviously, setFilterQuality does not want to have a switch case for kCount, since that is not really one of its \u0027values\u0027.",
       "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3a2a989_8c237131",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-20T13:08:48Z",
+      "side": 1,
+      "message": "Let\u0027s chat on Monday. I would like to help you make this work in Chrome.",
+      "parentUuid": "b73aa773_62cf5533",
+      "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
