@@ -492,6 +492,7 @@ optional("fontmgr_mac_ct") {
     "src/ports/SkTypeface_mac_ct.cpp",
     "src/ports/SkTypeface_mac_ct.h",
   ]
+  sources_for_tests = [ "tests/TypefaceMacTest.cpp" ]
 
   if (is_mac) {
     frameworks = [
@@ -1964,6 +1965,7 @@ if (skia_enable_tools) {
       ":flags",
       ":fontmgr_android_tests",
       ":fontmgr_fontconfig_tests",
+      ":fontmgr_mac_ct_tests",
       ":skia",
       ":test",
       ":tool_utils",
