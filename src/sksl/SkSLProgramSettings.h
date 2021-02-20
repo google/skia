@@ -51,14 +51,17 @@ struct ProgramSettings {
     // At present, zero is always used by our backends.
     int fDefaultUniformSet = 0;
     int fDefaultUniformBinding = 0;
-    // If true, remove any uncalled functions other than main(). Note that a function which
-    // starts out being used may end up being uncalled after optimization.
-    bool fRemoveDeadFunctions = true;
-    // Sets an upper limit on the acceptable amount of code growth from inlining.
-    // A value of zero will disable the inliner entirely.
-    int fInlineThreshold = SkSL::kDefaultInlineThreshold;
-    // true to enable optimization passes
+    // Enables the SkSL optimizer.
     bool fOptimize = true;
+    // (Requires fOptimize = true) Remove any uncalled functions other than main(). Note that a
+    // function which starts out being used may end up being uncalled after optimization.
+    bool fRemoveDeadFunctions = true;
+    // (Requires fOptimize = true) Uses the control-flow graph to detect and eliminate code within
+    // a function that has become unreachable due to optimization.
+    bool fDeadCodeElimination = true;
+    // (Requires fOptimize = true) When greater than zero, enables the inliner. The threshold value
+    // sets an upper limit on the acceptable amount of code growth from inlining.
+    int fInlineThreshold = SkSL::kDefaultInlineThreshold;
     // If true, implicit conversions to lower precision numeric types are allowed
     // (eg, float to half)
     bool fAllowNarrowingConversions = false;

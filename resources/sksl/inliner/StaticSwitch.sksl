@@ -1,0 +1,19 @@
+/*#pragma settings NoDeadCodeElimination*/
+
+uniform half4 colorGreen, colorRed;
+
+float get() {
+    @switch (2) {
+        case 1: return abs(1);
+        case 2: return abs(2);  // Only this case should be preserved.
+        case 3: return abs(3);
+        case 4: return abs(4);
+    }
+    // This won't be removed because dead-code elimination is disabled.
+    return abs(5);
+}
+
+half4 main() {
+    float result = get();
+    return result == 2 ? colorGreen : colorRed;
+}

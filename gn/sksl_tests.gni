@@ -479,6 +479,7 @@ sksl_inliner_tests = [
   "/sksl/inliner/InlinerWrapsEarlyReturnsWithForLoop.sksl",
   "/sksl/inliner/InlinerWrapsSwitchWithReturnInsideWithForLoop.sksl",
   "/sksl/inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl",
+  "/sksl/inliner/StaticSwitch.sksl",
   "/sksl/inliner/StructsCanBeInlinedSafely.sksl",
   "/sksl/inliner/SwitchWithCastCanBeInlined.sksl",
   "/sksl/inliner/SwitchWithoutReturnInsideCanBeInlined.sksl",

@@ -732,7 +732,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         case Expression::Kind::kVariableReference: {
             const VariableReference& ref = expr->as<VariableReference>();
             const Variable* var = ref.variable();
-            if (ref.refKind() != VariableReference::RefKind::kWrite &&
+            if (fContext->fConfig->fSettings.fDeadCodeElimination &&
+                ref.refKind() != VariableReference::RefKind::kWrite &&
                 ref.refKind() != VariableReference::RefKind::kPointer &&
                 var->storage() == Variable::Storage::kLocal && !definitions.get(var) &&
                 optimizationContext->fSilences.find(var) == optimizationContext->fSilences.end()) {
@@ -1481,14 +1482,16 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     CFG cfg = CFGGenerator().getCFG(f);
     this->computeDataFlow(&cfg);
 
-    // check for unreachable code
-    for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
-        const BasicBlock& block = cfg.fBlocks[i];
-        if (!block.fIsReachable && !block.fAllowUnreachable && block.fNodes.size()) {
-            const BasicBlock::Node& node = block.fNodes[0];
-            int offset = node.isStatement() ? (*node.statement())->fOffset
-                                            : (*node.expression())->fOffset;
-            this->error(offset, String("unreachable"));
+    if (fContext->fConfig->fSettings.fDeadCodeElimination) {
+        // Check for unreachable code.
+        for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
+            const BasicBlock& block = cfg.fBlocks[i];
+            if (!block.fIsReachable && !block.fAllowUnreachable && block.fNodes.size()) {
+                const BasicBlock::Node& node = block.fNodes[0];
+                int offset = node.isStatement() ? (*node.statement())->fOffset
+                                                : (*node.expression())->fOffset;
+                this->error(offset, String("unreachable"));
+            }
         }
     }
     if (fErrorCount) {
@@ -1518,24 +1521,27 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
             }
 
             BasicBlock& b = cfg.fBlocks[blockId];
-            if (blockId > 0 && !b.fIsReachable) {
-                // Block was reachable before optimization, but has since become unreachable. In
-                // addition to being dead code, it's broken - since control flow can't reach it, no
-                // prior variable definitions can reach it, and therefore variables might look to
-                // have not been properly assigned. Kill it by replacing all statements with Nops.
-                for (BasicBlock::Node& node : b.fNodes) {
-                    if (node.isStatement() && !(*node.statement())->is<Nop>()) {
-                        // Eliminating a node runs the risk of eliminating that node's exits as
-                        // well. Keep track of this and do a rescan if we are about to access one
-                        // of these.
-                        for (BlockId id : b.fExits) {
-                            eliminatedBlockIds.set(id);
+            if (fContext->fConfig->fSettings.fDeadCodeElimination) {
+                if (blockId > 0 && !b.fIsReachable) {
+                    // Block was reachable before optimization, but has since become unreachable. In
+                    // addition to being dead code, it's broken - since control flow can't reach it,
+                    // no prior variable definitions can reach it, and therefore variables might
+                    // look to have not been properly assigned. Kill it by replacing all statements
+                    // with Nops.
+                    for (BasicBlock::Node& node : b.fNodes) {
+                        if (node.isStatement() && !(*node.statement())->is<Nop>()) {
+                            // Eliminating a node runs the risk of eliminating that node's exits as
+                            // well. Keep track of this and do a rescan if we are about to access
+                            // one of these.
+                            for (BlockId id : b.fExits) {
+                                eliminatedBlockIds.set(id);
+                            }
+                            node.setStatement(std::make_unique<Nop>(), usage);
+                            madeChanges = true;
                         }
-                        node.setStatement(std::make_unique<Nop>(), usage);
-                        madeChanges = true;
                     }
+                    continue;
                 }
-                continue;
             }
             DefinitionMap definitions = b.fBefore;
 

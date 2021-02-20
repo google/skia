@@ -198,7 +198,7 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpSwitch:      // fall through
         case SpvOpBranch:      // fall through
         case SpvOpBranchConditional:
-            SkASSERT(fCurrentBlock);
+            SkASSERT(fCurrentBlock || !fContext.fConfig->fSettings.fDeadCodeElimination);
             fCurrentBlock = 0;
             break;
         case SpvOpConstant:          // fall through
@@ -236,7 +236,7 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpMemberDecorate:
             break;
         default:
-            SkASSERT(fCurrentBlock);
+            SkASSERT(fCurrentBlock || !fContext.fConfig->fSettings.fDeadCodeElimination);
     }
     this->writeWord((length << 16) | opCode, out);
 }
