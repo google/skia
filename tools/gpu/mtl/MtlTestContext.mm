@@ -25,29 +25,29 @@ public:
             MtlTestContextImpl* sharedContextImpl = (MtlTestContextImpl*) sharedContext;
             backendContext = sharedContextImpl->getMtlBackendContext();
         } else {
-            sk_cfp<id<MTLDevice>> device;
+            id<MTLDevice> device;
 #ifdef SK_BUILD_FOR_MAC
-            sk_cfp<NSArray<id <MTLDevice>>*> availableDevices(MTLCopyAllDevices());
+            NSArray<id <MTLDevice>>* availableDevices = MTLCopyAllDevices();
             // Choose the non-integrated CPU if available
-            for (id<MTLDevice> dev in availableDevices.get()) {
+            for (id<MTLDevice> dev in availableDevices) {
                 if (!dev.isLowPower) {
-                    device.retain(dev);
+                    device = dev;
                     break;
                 }
                 if (dev.isRemovable) {
-                    device.retain(dev);
+                    device = dev;
                     break;
                 }
             }
             if (!device) {
-                device.reset(MTLCreateSystemDefaultDevice());
+                device = MTLCreateSystemDefaultDevice();
             }
 #else
-            device.reset(MTLCreateSystemDefaultDevice());
+            device = MTLCreateSystemDefaultDevice();
 #endif
-            backendContext.fDevice.retain((GrMTLHandle)device.get());
-            sk_cfp<id<MTLCommandQueue>> queue([*device newCommandQueue]);
-            backendContext.fQueue.retain((GrMTLHandle)queue.get());
+            backendContext.fDevice.retain((__bridge GrMTLHandle)device);
+            id<MTLCommandQueue> queue = [device newCommandQueue];
+            backendContext.fQueue.retain((__bridge GrMTLHandle)queue);
         }
 
         return new MtlTestContextImpl(backendContext);

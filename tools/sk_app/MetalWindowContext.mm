@@ -24,8 +24,8 @@ namespace sk_app {
 
 MetalWindowContext::MetalWindowContext(const DisplayParams& params)
         : WindowContext(params)
-        , fValid(false)
-        , fDrawableHandle(nil) {
+        , fValid(false) {
+
     fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
 
@@ -39,12 +39,12 @@ NSURL* MetalWindowContext::CacheURL() {
 void MetalWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
-    fDevice.reset(MTLCreateSystemDefaultDevice());
-    fQueue.reset([*fDevice newCommandQueue]);
+    fDevice = MTLCreateSystemDefaultDevice();
+    fQueue = [fDevice newCommandQueue];
 
     if (fDisplayParams.fMSAASampleCount > 1) {
         if (@available(macOS 10.11, iOS 9.0, *)) {
-            if (![*fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
+            if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
                 return;
             }
         } else {
@@ -59,19 +59,20 @@ void MetalWindowContext::initializeContext() {
 #if GR_METAL_SDK_VERSION >= 230
     if (fDisplayParams.fEnableBinaryArchive) {
         if (@available(macOS 11.0, iOS 14.0, *)) {
-            sk_cfp<MTLBinaryArchiveDescriptor*> desc([MTLBinaryArchiveDescriptor new]);
-            (*desc).url = CacheURL(); // try to load
+            MTLBinaryArchiveDescriptor* desc = [MTLBinaryArchiveDescriptor new];
+            desc.url = CacheURL(); // try to load
             NSError* error;
-            fPipelineArchive = [*fDevice newBinaryArchiveWithDescriptor:*desc error:&error];
+            fPipelineArchive = [fDevice newBinaryArchiveWithDescriptor:desc error:&error];
             if (!fPipelineArchive) {
-                (*desc).url = nil; // create new
+                desc.url = nil; // create new
                 NSError* error;
-                fPipelineArchive = [*fDevice newBinaryArchiveWithDescriptor:*desc error:&error];
+                fPipelineArchive = [fDevice newBinaryArchiveWithDescriptor:desc error:&error];
                 if (!fPipelineArchive) {
                     SkDebugf("Error creating MTLBinaryArchive:\n%s\n",
                              error.debugDescription.UTF8String);
                 }
             }
+            [desc release];
         }
     } else {
         if (@available(macOS 11.0, iOS 14.0, *)) {
@@ -81,8 +82,8 @@ void MetalWindowContext::initializeContext() {
 #endif
 
     GrMtlBackendContext backendContext = {};
-    backendContext.fDevice.retain((GrMTLHandle)fDevice.get());
-    backendContext.fQueue.retain((GrMTLHandle)fQueue.get());
+    backendContext.fDevice.retain((__bridge GrMTLHandle)fDevice);
+    backendContext.fQueue.retain((__bridge GrMTLHandle)fQueue);
 #if GR_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, *)) {
         backendContext.fBinaryArchive.retain((__bridge GrMTLHandle)fPipelineArchive);
@@ -113,8 +114,8 @@ void MetalWindowContext::destroyContext() {
         [fPipelineArchive release];
     }
 #endif
-    fQueue.reset();
-    fDevice.reset();
+    [fQueue release];
+    [fDevice release];
 }
 
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
@@ -155,7 +156,7 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
 void MetalWindowContext::swapBuffers() {
     id<CAMetalDrawable> currentDrawable = (id<CAMetalDrawable>)fDrawableHandle;
 
-    id<MTLCommandBuffer> commandBuffer([*fQueue commandBuffer]);
+    id<MTLCommandBuffer> commandBuffer = [fQueue commandBuffer];
     commandBuffer.label = @"Present";
 
     [commandBuffer presentDrawable:currentDrawable];

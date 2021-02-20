@@ -59,7 +59,7 @@ struct GrMtlTextureInfo {
 public:
     GrMtlTextureInfo() {}
 
-    sk_cfp<const void*> fTexture;
+    sk_cf_obj<const void*> fTexture;
 
     bool operator==(const GrMtlTextureInfo& that) const {
         return fTexture == that.fTexture;

@@ -52,7 +52,7 @@ bool MetalWindowContext_mac::onInitializeContext() {
     SkASSERT(nil != fMainView);
 
     fMetalLayer = [CAMetalLayer layer];
-    fMetalLayer.device = fDevice.get();
+    fMetalLayer.device = fDevice;
     fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 
     // resize ignores the passed values and uses the fMainView directly.
