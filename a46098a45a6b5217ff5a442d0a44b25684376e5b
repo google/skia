@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cf47f22_7820775f",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-20T01:07:18Z",
+      "side": 1,
+      "message": "copypasta!",
+      "range": {
+        "startLine": 369,
+        "startChar": 4,
+        "endLine": 495,
+        "endChar": 5
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
