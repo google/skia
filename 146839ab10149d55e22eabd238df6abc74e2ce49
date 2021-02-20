@@ -67,6 +67,41 @@
       "message": "Do you still need a magic name (kMaxValue) if it also has a suffix (_SkFilterQuality)? Why not just use kLast...?",
       "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bf7d3a9_a5bfc108",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2021-02-20T05:54:27Z",
+      "side": 1,
+      "message": "If you have any other ideas, please share with me~!",
+      "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b73aa773_62cf5533",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2021-02-20T05:54:27Z",
+      "side": 1,
+      "message": "The issue is that the chrome histograms need to know the total number of enums in skfilterquality, so that they can create x number of bucket to collect data for this emum. From what I understand, the histograms get the max value in 2 different methods: \n\n1. we can name a kMaxValue in the enum (so histogram looks for this specific name and get the max value in the enum). It has to be named to this specific name, so kLastValue doesn\u0027t work.\n\n2. we can give a max value, ex: recordEnumHistogram(\"histogram.name\", value, max). in this case, i need to manually provide a max value. I can add something like |kcounter| like what i did in patch. Then histogram will create 0, 1, 2, ... kcounter-1 bucket to record the enum. I can\u0027t use the existing kLastValue here because 0, 1, 2, .... klasvalue - 1 doesn\u0027t include the bucket for highquality.\n\nHowever, neither solution 1 nor 2 works.... solution 1 leads to the compilation failure we saw. solution 2 leads to even more compilation failures -- many of our client uses switch statement and assume that the filter quality only have 4 values. \n\nI can also use other histogram type to record this, but it seems that enum histogram is the more time efficient.\n \nAt this point, i prefer solution 1. I feel this common kMaxValue enum name should not failed for the re-definition error as we saw. I want to contact the owner of the ios file and solve the problem in chrome. \n\nIf you have a better suggestions, please let me know. \n\nThank you so much.",
+      "parentUuid": "2b8068a6_b1166e64",
+      "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
