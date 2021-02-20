@@ -475,6 +475,12 @@ config("warnings") {
       "-Wno-old-style-cast",
       "-Wno-padded",
       "-Wno-newline-eof",
+
+      # https://quuxplusone.github.io/blog/2020/08/26/wrange-loop-analysis/
+      # https://bugzilla.mozilla.org/show_bug.cgi?id=1683213
+      # https://reviews.llvm.org/D73007
+      # May be re-enabled once clang > 12 or XCode > 12 are required.
+      "-Wno-range-loop-analysis",
     ]
     cflags_cc += [
       "-Wno-c++98-compat",
