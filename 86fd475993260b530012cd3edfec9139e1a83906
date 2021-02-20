@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43e3652c_b308cc16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-20T04:30:13Z",
+      "side": 1,
+      "message": "This warning was causing issues on the Build-Mac-Xcode11.4.1 bots when https://skia-review.googlesource.com/c/skia/+/372218 landed.",
+      "revId": "86fd475993260b530012cd3edfec9139e1a83906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
