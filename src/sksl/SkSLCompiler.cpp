@@ -1172,18 +1172,27 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     }
 }
 
-// Returns true if this statement could potentially execute a break at the current level. We ignore
-// nested loops and switches, since any breaks inside of them will merely break the loop / switch.
-static bool contains_conditional_break(Statement& stmt) {
-    class ContainsConditionalBreak : public ProgramVisitor {
+static bool contains_exit(Statement& stmt, int minConditionalDepthOfExit = 1) {
+    class ContainsExit : public ProgramVisitor {
     public:
+        ContainsExit(int m) : fMinConditionalDepthOfExit(m) {}
+
         bool visitStatement(const Statement& stmt) override {
             switch (stmt.kind()) {
                 case Statement::Kind::kBlock:
                     return INHERITED::visitStatement(stmt);
 
+                case Statement::Kind::kReturn:
+                    // Returns are an early exit regardless of the surrounding control structures.
+                    return fInConditional >= fMinConditionalDepthOfExit;
+
+                case Statement::Kind::kContinue:
+                    // Continues are an early exit from switches, but not loops.
+                    return fInConditional >= fMinConditionalDepthOfExit && !fInLoop;
+
                 case Statement::Kind::kBreak:
-                    return fInConditional > 0;
+                    // Breaks cannot escape from switches or loops.
+                    return fInConditional >= fMinConditionalDepthOfExit && !fInLoop && !fInSwitch;
 
                 case Statement::Kind::kIf: {
                     ++fInConditional;
@@ -1192,40 +1201,46 @@ static bool contains_conditional_break(Statement& stmt) {
                     return result;
                 }
 
+                case Statement::Kind::kFor:
+                case Statement::Kind::kDo: {
+                    ++fInLoop;
+                    bool result = INHERITED::visitStatement(stmt);
+                    --fInLoop;
+                    return result;
+                }
+
+                case Statement::Kind::kSwitch: {
+                    ++fInSwitch;
+                    bool result = INHERITED::visitStatement(stmt);
+                    --fInSwitch;
+                    return result;
+                }
+
                 default:
                     return false;
             }
         }
 
+        int fMinConditionalDepthOfExit = 0;
         int fInConditional = 0;
+        int fInLoop = 0;
+        int fInSwitch = 0;
         using INHERITED = ProgramVisitor;
     };
 
-    return ContainsConditionalBreak{}.visitStatement(stmt);
+    return ContainsExit{minConditionalDepthOfExit}.visitStatement(stmt);
 }
 
-// returns true if this statement definitely executes a break at the current level (we ignore
+// Returns true if this statement definitely executes a break at the current level (we ignore
 // nested loops and switches, since any breaks inside of them will merely break the loop / switch)
-static bool contains_unconditional_break(Statement& stmt) {
-    class ContainsUnconditionalBreak : public ProgramVisitor {
-    public:
-        bool visitStatement(const Statement& stmt) override {
-            switch (stmt.kind()) {
-                case Statement::Kind::kBlock:
-                    return INHERITED::visitStatement(stmt);
+static bool contains_unconditional_exit(Statement& stmt) {
+    return contains_exit(stmt, /*minConditionalDepthOfExit=*/0);
+}
 
-                case Statement::Kind::kBreak:
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-
-        using INHERITED = ProgramVisitor;
-    };
-
-    return ContainsUnconditionalBreak{}.visitStatement(stmt);
+// Returns true if this statement could potentially execute a continue, break or return at the
+// current level.
+static bool contains_conditional_exit(Statement& stmt) {
+    return contains_exit(stmt, /*minConditionalDepthOfExit=*/1);
 }
 
 static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray* target) {
@@ -1277,23 +1292,22 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     // stuck and can't simplify at all. If we find an unconditional break, we have a range of
     // statements that we can use for simplification.
     auto startIter = iter;
-    Statement* unconditionalBreakStmt = nullptr;
+    Statement* stripBreakStmt = nullptr;
     for (; iter != switchStatement->cases().end(); ++iter) {
         for (std::unique_ptr<Statement>& stmt : (*iter)->statements()) {
-            if (contains_conditional_break(*stmt)) {
-                // We can't reduce switch-cases to a block when they have conditional breaks.
+            if (contains_conditional_exit(*stmt)) {
+                // We can't reduce switch-cases to a block when they have conditional exits.
                 return nullptr;
             }
-
-            if (contains_unconditional_break(*stmt)) {
-                // We found an unconditional break. We can use this block, but we need to strip
-                // out the break statement.
-                unconditionalBreakStmt = stmt.get();
+            if (contains_unconditional_exit(*stmt)) {
+                // We found an unconditional exit. We can use this block, but we need to strip
+                // out a break statement if it has one.
+                stripBreakStmt = stmt.get();
                 break;
             }
         }
 
-        if (unconditionalBreakStmt != nullptr) {
+        if (stripBreakStmt) {
             break;
         }
     }
@@ -1310,13 +1324,12 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
         ++startIter;
     }
 
-    // If we found an unconditional break at the end, we need to move what we can while avoiding
-    // that break.
-    if (unconditionalBreakStmt != nullptr) {
+    // For the last statement, we need to move what we can, stopping at a break if there is one.
+    if (stripBreakStmt != nullptr) {
         for (std::unique_ptr<Statement>& stmt : (*startIter)->statements()) {
-            if (stmt.get() == unconditionalBreakStmt) {
+            if (stmt.get() == stripBreakStmt) {
                 move_all_but_break(stmt, &caseStmts);
-                unconditionalBreakStmt = nullptr;
+                stripBreakStmt = nullptr;
                 break;
             }
 
@@ -1324,7 +1337,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
         }
     }
 
-    SkASSERT(unconditionalBreakStmt == nullptr);  // Verify that we fixed the unconditional break.
+    SkASSERT(stripBreakStmt == nullptr);  // Verify that we fixed the unconditional break.
 
     // Return our newly-synthesized block.
     return std::make_unique<Block>(/*offset=*/-1, std::move(caseStmts), switchStatement->symbols());
