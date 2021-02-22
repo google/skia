@@ -639,20 +639,8 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2], bool* 
     float cuspThreshold = a * (kEpsilon/2);
     cuspThreshold *= cuspThreshold;
 
-    if (!T) {
-        // When T == null, the caller just wants to know if the chops will be cusp points.
-        SkASSERT(areCusps);
-        *areCusps = fabsf(discr_over_4) <= cuspThreshold &&
-                    // The most common type of cusp we encounter is when p0==p1 or p2==p3. Unless
-                    // the curve is a flat line (a==b==c==0), these don't actually need special
-                    // treatment because the cusps occur at t=0 and t=1.
-                    ((pts[0] != pts[1] && pts[2] != pts[3]) ||
-                     (a == 0 && b == 0 && c == 0));
-        return -1;
-    }
-
-    // When T != null, it's slow for us to write out a value to "areCusps", especially when 99% of
-    // the time we aren't drawing cusps. The caller must initialize this value to false.
+    // It's slow for us to write out a value to "areCusps", especially when 99% of the time we
+    // aren't drawing cusps. The caller must initialize this value to false.
     SkASSERT(!areCusps || *areCusps == false);
 
     if (discr_over_4 < -cuspThreshold) {
