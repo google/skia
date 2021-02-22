@@ -47,26 +47,18 @@ public:
     static bool ValidateCompressedBackendTexture(const GrCaps*, const GrBackendTexture& tex,
                                                  SkAlphaType);
 
-    using PromiseImageTextureContext = SkDeferredDisplayListRecorder::PromiseImageTextureContext;
-    using PromiseImageTextureFulfillProc =
-            SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc;
-    using PromiseImageTextureReleaseProc =
-            SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc;
-
-protected:
-    SkImage_GpuBase(sk_sp<GrImageContext>, SkISize size, uint32_t uniqueID, SkColorType,
-                    SkAlphaType, sk_sp<SkColorSpace>);
-
-    // Helper for making a lazy proxy for a promise image. The PromiseDoneProc we be called,
-    // if not null, immediately if this function fails. Othwerwise, it is installed in the
-    // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
-    // be null.
+    // Helper for making a lazy proxy for a promise image.
+    // PromiseImageTextureFulfillProc must not be null.
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(GrContextThreadSafeProxy*,
                                                            SkISize dimensions,
                                                            GrBackendFormat,
                                                            GrMipmapped,
                                                            PromiseImageTextureFulfillProc,
                                                            sk_sp<GrRefCntedCallback> releaseHelper);
+
+protected:
+    SkImage_GpuBase(sk_sp<GrImageContext>, SkISize size, uint32_t uniqueID, SkColorType,
+                    SkAlphaType, sk_sp<SkColorSpace>);
 
     sk_sp<GrImageContext> fContext;
 

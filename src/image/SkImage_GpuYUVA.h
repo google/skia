@@ -63,17 +63,6 @@ public:
     }
 #endif
 
-    /**
-     * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
-     * TODO: Make this public, and remove the SkDDLRecorder entry point.
-     */
-    static sk_sp<SkImage> MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy>,
-                                                 const GrYUVABackendTextureInfo&,
-                                                 sk_sp<SkColorSpace> imageColorSpace,
-                                                 PromiseImageTextureFulfillProc textureFulfillProc,
-                                                 PromiseImageTextureReleaseProc textureReleaseProc,
-                                                 PromiseImageTextureContext textureContexts[]);
-
 private:
     SkImage_GpuYUVA(sk_sp<GrImageContext>, const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
 

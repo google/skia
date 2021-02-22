@@ -374,17 +374,17 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
-                                               const GrBackendFormat& backendFormat,
-                                               SkISize dimensions,
-                                               GrMipmapped mipMapped,
-                                               GrSurfaceOrigin origin,
-                                               SkColorType colorType,
-                                               SkAlphaType alphaType,
-                                               sk_sp<SkColorSpace> colorSpace,
-                                               PromiseImageTextureFulfillProc textureFulfillProc,
-                                               PromiseImageTextureReleaseProc textureReleaseProc,
-                                               PromiseImageTextureContext textureContext) {
+sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                                           const GrBackendFormat& backendFormat,
+                                           SkISize dimensions,
+                                           GrMipmapped mipMapped,
+                                           GrSurfaceOrigin origin,
+                                           SkColorType colorType,
+                                           SkAlphaType alphaType,
+                                           sk_sp<SkColorSpace> colorSpace,
+                                           PromiseImageTextureFulfillProc textureFulfillProc,
+                                           PromiseImageTextureReleaseProc textureReleaseProc,
+                                           PromiseImageTextureContext textureContext) {
     // Our contract is that we will always call the release proc even on failure.
     // We use the helper to convey the context, so we need to ensure make doesn't fail.
     textureReleaseProc = textureReleaseProc ? textureReleaseProc : [](void*) {};
@@ -414,12 +414,12 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> t
         return nullptr;
     }
 
-    auto proxy = MakePromiseImageLazyProxy(threadSafeProxy.get(),
-                                           dimensions,
-                                           backendFormat,
-                                           mipMapped,
-                                           textureFulfillProc,
-                                           std::move(releaseHelper));
+    auto proxy = SkImage_GpuBase::MakePromiseImageLazyProxy(threadSafeProxy.get(),
+                                                            dimensions,
+                                                            backendFormat,
+                                                            mipMapped,
+                                                            textureFulfillProc,
+                                                            std::move(releaseHelper));
     if (!proxy) {
         return nullptr;
     }

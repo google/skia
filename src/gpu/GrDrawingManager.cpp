@@ -609,7 +609,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
-        // This is  a temporary fix for the partial-MDB world. In that world we're not
+        // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
         // end of the single opsTask but referred to a far earlier RT need to appear in their
         // own opsTask.

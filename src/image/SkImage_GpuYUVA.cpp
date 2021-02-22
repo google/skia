@@ -379,19 +379,18 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
-        sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
-        const GrYUVABackendTextureInfo& yuvaBackendTextureInfo,
-        sk_sp<SkColorSpace> imageColorSpace,
-        PromiseImageTextureFulfillProc textureFulfillProc,
-        PromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureContext textureContexts[]) {
-    if (!yuvaBackendTextureInfo.isValid()) {
+sk_sp<SkImage> SkImage::MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                                               const GrYUVABackendTextureInfo& backendTextureInfo,
+                                               sk_sp<SkColorSpace> imageColorSpace,
+                                               PromiseImageTextureFulfillProc textureFulfillProc,
+                                               PromiseImageTextureReleaseProc textureReleaseProc,
+                                               PromiseImageTextureContext textureContexts[]) {
+    if (!backendTextureInfo.isValid()) {
         return nullptr;
     }
 
     SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
-    int n = yuvaBackendTextureInfo.yuvaInfo().planeDimensions(planeDimensions);
+    int n = backendTextureInfo.yuvaInfo().planeDimensions(planeDimensions);
 
     // Our contract is that we will always call the release proc even on failure.
     // We use the helper to convey the context, so we need to ensure make doesn't fail.
@@ -405,9 +404,9 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         return nullptr;
     }
 
-    SkAlphaType at = yuvaBackendTextureInfo.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType
-                                                                  : kOpaque_SkAlphaType;
-    SkImageInfo info = SkImageInfo::Make(yuvaBackendTextureInfo.yuvaInfo().dimensions(),
+    SkAlphaType at = backendTextureInfo.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType
+                                                              : kOpaque_SkAlphaType;
+    SkImageInfo info = SkImageInfo::Make(backendTextureInfo.yuvaInfo().dimensions(),
                                          kAssumedColorType, at, imageColorSpace);
     if (!SkImageInfoIsValid(info)) {
         return nullptr;
@@ -416,19 +415,19 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     // Make a lazy proxy for each plane and wrap in a view.
     sk_sp<GrSurfaceProxy> proxies[4];
     for (int i = 0; i < n; ++i) {
-        proxies[i] = MakePromiseImageLazyProxy(threadSafeProxy.get(),
-                                               planeDimensions[i],
-                                               yuvaBackendTextureInfo.planeFormat(i),
-                                               GrMipmapped::kNo,
-                                               textureFulfillProc,
-                                               std::move(releaseHelpers[i]));
+        proxies[i] = SkImage_GpuBase::MakePromiseImageLazyProxy(threadSafeProxy.get(),
+                                                                planeDimensions[i],
+                                                                backendTextureInfo.planeFormat(i),
+                                                                GrMipmapped::kNo,
+                                                                textureFulfillProc,
+                                                                std::move(releaseHelpers[i]));
         if (!proxies[i]) {
             return nullptr;
         }
     }
-    GrYUVATextureProxies yuvaTextureProxies(yuvaBackendTextureInfo.yuvaInfo(),
+    GrYUVATextureProxies yuvaTextureProxies(backendTextureInfo.yuvaInfo(),
                                             proxies,
-                                            yuvaBackendTextureInfo.textureOrigin());
+                                            backendTextureInfo.textureOrigin());
     SkASSERT(yuvaTextureProxies.isValid());
     sk_sp<GrImageContext> ctx(GrImageContextPriv::MakeForPromiseImage(std::move(threadSafeProxy)));
     return sk_make_sp<SkImage_GpuYUVA>(std::move(ctx),

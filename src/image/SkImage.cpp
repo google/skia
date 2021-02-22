@@ -37,6 +37,7 @@
 #include "src/image/SkImage_Gpu.h"
 #endif
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 
 SkImage::SkImage(const SkImageInfo& info, uint32_t uniqueID)
         : fInfo(info)
@@ -587,6 +588,29 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipmapped, SkBudgeted) const {
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy>,
+                                           const GrBackendFormat&,
+                                           SkISize,
+                                           GrMipmapped,
+                                           GrSurfaceOrigin,
+                                           SkColorType,
+                                           SkAlphaType,
+                                           sk_sp<SkColorSpace>,
+                                           PromiseImageTextureFulfillProc,
+                                           PromiseImageTextureReleaseProc,
+                                           PromiseImageTextureContext) {
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy>,
+                                               const GrYUVABackendTextureInfo&,
+                                               sk_sp<SkColorSpace>,
+                                               PromiseImageTextureFulfillProc,
+                                               PromiseImageTextureReleaseProc,
+                                               PromiseImageTextureContext[]) {
     return nullptr;
 }
 

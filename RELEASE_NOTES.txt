@@ -58,6 +58,10 @@ Milestone 90
       improves rendering when diffuse and specular constants are greater than 1.
     https://review.skia.org/355496
 
+  * SkDeferredDisplayListRecorder::makePromiseTexture has moved to SkImage::MakePromiseTexture.
+    New code should use the new entry point – migration CLs will be coming soon.
+    https://review.skia.org/373716
+
 Milestone 89
 ------------
   * Removed SkYUVAIndex and SkYUVASizeInfo. These were no longer used in any
