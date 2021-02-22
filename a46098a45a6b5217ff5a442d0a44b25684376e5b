@@ -3,6 +3,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ac99f60e_2582326e",
+        "filename": "bench/TessellateBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:58:00Z",
+      "side": 1,
+      "message": "I\u0027m not entirely sure what this is trying to accomplish. A random number of verbs from 1-28 but strongly weighted towards fewer verbs? If that\u0027s the intent, why? A comment would be useful.",
+      "range": {
+        "startLine": 224,
+        "startChar": 23,
+        "endLine": 224,
+        "endChar": 73
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "971b5a86_b6807a0e",
+        "filename": "bench/TessellateBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:58:00Z",
+      "side": 1,
+      "message": "I\u0027m guessing this is the same deal, random stroke width but strongly biased towards thin strokes?",
+      "range": {
+        "startLine": 260,
+        "startChar": 28,
+        "endLine": 260,
+        "endChar": 67
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34766e52_023c4120",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:58:00Z",
+      "side": 1,
+      "message": "Is this actually necessary...? I feel like the compiler is probably better positioned to judge this, but if we can prove it helps...",
+      "range": {
+        "startLine": 230,
+        "startChar": 4,
+        "endLine": 230,
+        "endChar": 20
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7cf47f22_7820775f",
         "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
         "patchSetId": 3
@@ -19,6 +88,54 @@
         "startChar": 4,
         "endLine": 495,
         "endChar": 5
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cdad46b_5a2699d0",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:58:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7cf47f22_7820775f",
+      "range": {
+        "startLine": 369,
+        "startChar": 4,
+        "endLine": 495,
+        "endChar": 5
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f35aeaf_d4a9b6df",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:58:00Z",
+      "side": 1,
+      "message": "\u003e \"afer\" is a possible misspelling of \"after\".\n\nPlease fix.\nFor that matter, this comment really doesn\u0027t say anything at all.",
+      "parentUuid": "6f3f6b9f_05ef11d7",
+      "range": {
+        "startLine": 726,
+        "startChar": 47,
+        "endLine": 726,
+        "endChar": 51
       },
       "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
