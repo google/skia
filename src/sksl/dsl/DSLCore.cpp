@@ -73,16 +73,16 @@ public:
     }
 
     static DSLStatement Declare(DSLVar& var, DSLExpression initialValue) {
-        if (!var.fDeclaration) {
-            DSLWriter::ReportError("Declare failed (was the variable already declared?)");
+        if (var.var()->fDeclaration) {
+            DSLWriter::ReportError("Variable already declared");
             return DSLStatement();
         }
-        VarDeclaration& decl = var.fDeclaration->as<SkSL::VarDeclaration>();
-        std::unique_ptr<Expression> expr = initialValue.coerceAndRelease(decl.var().type());
-        if (expr) {
-            decl.fValue = std::move(expr);
+        if (var.fConstVar) {
+            DSLWriter::ReportError("Cannot redeclare system variable");
+            return DSLStatement();
         }
-        return DSLStatement(std::move(var.fDeclaration));
+        return DSLWriter::IRGenerator().convertVarDeclaration(std::move(var.fVar),
+                                                              initialValue.release());
     }
 
     static DSLStatement Discard() {
