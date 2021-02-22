@@ -216,6 +216,9 @@ static bool detect_shader_settings(const SkSL::String& text,
                 if (settingsText.consumeSuffix(" NoInline")) {
                     settings->fInlineThreshold = 0;
                 }
+                if (settingsText.consumeSuffix(" NoOptimize")) {
+                    settings->fOptimize = false;
+                }
                 if (settingsText.consumeSuffix(" InlineThresholdMax")) {
                     settings->fInlineThreshold = INT_MAX;
                 }
