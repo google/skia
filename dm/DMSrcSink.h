@@ -20,6 +20,8 @@
 
 #include <functional>
 
+using sk_gpu_test::ContextInfo;
+
 //#define TEST_VIA_SVG
 
 namespace skiagm {
@@ -506,8 +508,7 @@ private:
                    sk_sp<SkSurface> dstSurface,
                    SkTaskGroup* recordingTaskGroup,
                    SkTaskGroup* gpuTaskGroup,
-                   sk_gpu_test::TestContext* gpuTestCtx,
-                   GrDirectContext* gpuThreadCtx) const;
+                   ContextInfo contexts[3]) const;
 
     std::unique_ptr<SkExecutor> fRecordingExecutor;
     std::unique_ptr<SkExecutor> fGPUExecutor;

@@ -2041,6 +2041,14 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
+    test_app("sim") {
+      sources = [ "experimental/sim/sim.cpp" ]
+      deps = [
+        ":flags",
+        ":skia",
+        ":tool_utils",
+      ]
+    }
     test_app("dm") {
       sources = [
         "dm/DM.cpp",

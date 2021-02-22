@@ -339,7 +339,6 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrDirectCon
     promiseImageHelper.deleteAllFromGPU(nullptr, context);
 
     tiles.deleteBackendTextures(nullptr, context);
-
 }
 
 static void run_benchmark(GrDirectContext* context, SkSurface* surface, SkpProducer* skpp,
