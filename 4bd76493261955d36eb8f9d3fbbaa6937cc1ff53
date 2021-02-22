@@ -33,6 +33,24 @@
       "message": "I\u0027m fine with landing this as-is after discussing the shader modifications, or having you update it with the newer approach we hashed out in chat now while we can possibly take advantage of the same chrome define guard.",
       "revId": "4bd76493261955d36eb8f9d3fbbaa6937cc1ff53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eec308a9_2dc65f2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-22T21:37:25Z",
+      "side": 1,
+      "message": "Thanks. I think I\u0027ll land as is, investigate why AARectEffect causes a GM change using the code we discussed in chat, and then either update both effects, just this one, or neither depending on what turns up as the cause.",
+      "parentUuid": "1b7dddcf_36b8d4d0",
+      "revId": "4bd76493261955d36eb8f9d3fbbaa6937cc1ff53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
