@@ -759,7 +759,9 @@ void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
     }
 }
 
-GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const { return new Impl; }
+std::unique_ptr<GrGLSLFragmentProcessor> GrTextureEffect::onMakeProgramImpl() const {
+    return std::make_unique<Impl>();
+}
 
 void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     auto m0 = static_cast<uint32_t>(fShaderModes[0]);

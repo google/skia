@@ -31,8 +31,8 @@ private:
     }
     UniformHandle matrixVar;
 };
-GrGLSLFragmentProcessor* GrChildProcessorSampleMatrixSingleUniform::onCreateGLSLInstance() const {
-    return new GrGLSLChildProcessorSampleMatrixSingleUniform();
+std::unique_ptr<GrGLSLFragmentProcessor> GrChildProcessorSampleMatrixSingleUniform::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLChildProcessorSampleMatrixSingleUniform());
 }
 void GrChildProcessorSampleMatrixSingleUniform::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

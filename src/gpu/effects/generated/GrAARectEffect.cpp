@@ -88,8 +88,8 @@ private:
     SkRect prevRect = float4(0);
     UniformHandle rectUniformVar;
 };
-GrGLSLFragmentProcessor* GrAARectEffect::onCreateGLSLInstance() const {
-    return new GrGLSLAARectEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrAARectEffect::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLAARectEffect());
 }
 void GrAARectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {

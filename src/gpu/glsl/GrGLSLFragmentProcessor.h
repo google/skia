@@ -22,13 +22,9 @@ class GrGLSLFPFragmentBuilder;
 
 class GrGLSLFragmentProcessor {
 public:
-    GrGLSLFragmentProcessor() {}
+    GrGLSLFragmentProcessor() = default;
 
-    virtual ~GrGLSLFragmentProcessor() {
-        for (int i = 0; i < fChildProcessors.count(); ++i) {
-            delete fChildProcessors[i];
-        }
-    }
+    virtual ~GrGLSLFragmentProcessor() = default;
 
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
@@ -131,7 +127,9 @@ public:
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    GrGLSLFragmentProcessor* childProcessor(int index) const { return fChildProcessors[index]; }
+    GrGLSLFragmentProcessor* childProcessor(int index) const {
+        return fChildProcessors[index].get();
+    }
 
     void emitChildFunction(int childIndex, EmitArgs& parentArgs);
 
@@ -247,7 +245,7 @@ private:
     // one per child; either not present or empty string if not yet emitted
     SkTArray<SkString> fFunctionNames;
 
-    SkTArray<GrGLSLFragmentProcessor*, true> fChildProcessors;
+    SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>, true> fChildProcessors;
 
     friend class GrFragmentProcessor;
 };
