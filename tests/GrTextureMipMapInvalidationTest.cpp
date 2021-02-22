@@ -13,6 +13,7 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
 #include "tests/Test.h"
+#include "tools/gpu/ProxyUtils.h"
 
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
@@ -22,15 +23,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
     }
 
     auto isMipped = [reporter](SkSurface* surf) {
-        SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
-        bool proxyIsMipmapped = image->peekProxy()->mipmapped() == GrMipmapped::kYes;
+        sk_sp<SkImage> image = surf->makeImageSnapshot();
+        GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image.get(),
+                                                                  surf->recordingContext());
+        bool proxyIsMipmapped = proxy->mipmapped() == GrMipmapped::kYes;
         REPORTER_ASSERT(reporter, proxyIsMipmapped == image->hasMipmaps());
         return image->hasMipmaps();
     };
 
     auto mipsAreDirty = [](SkSurface* surf) {
-        SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
-        return image->peekProxy()->peekTexture()->mipmapsAreDirty();
+        sk_sp<SkImage> image = surf->makeImageSnapshot();
+        GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image.get(),
+                                                                  surf->recordingContext());
+        return proxy->peekTexture()->mipmapsAreDirty();
     };
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);
