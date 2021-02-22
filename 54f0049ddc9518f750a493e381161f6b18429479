@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efa9e4ab_436985d2",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-22T20:51:15Z",
+      "side": 0,
+      "message": "\u003e Specifically I don\u0027t mean just not setting it anymore in SkUserConfigManual.h, but removing the ifndef so the dithering settings are always there.\n\nI\u0027m not sure I follow this reasoning.  I think you want to exactly just not set this #define anymore anywhere in Android.  (Then make this change as a no-op cleanup if Android was the last/only user of the #define.)",
+      "range": {
+        "startLine": 161,
+        "startChar": 8,
+        "endLine": 161,
+        "endChar": 28
+      },
+      "revId": "54f0049ddc9518f750a493e381161f6b18429479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

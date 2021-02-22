@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17516925_a6939e20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-22T20:51:15Z",
+      "side": 1,
+      "message": "Are you sure you want to do both these changes in the same CL?",
+      "revId": "369480ecb49904a73b0d0342dde57192a6f74e79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29feb3f5_95040b0a",
@@ -14,6 +31,30 @@
       "writtenOn": "2021-02-22T19:25:59Z",
       "side": 1,
       "message": "isAImage is meant to restrict this to shaders which could be gradients. Admittedly that\u0027s not what I want it to do.\nI would prefer to make the gradients specify somehow to this function to choose the raster pipeline blitter, or maybe call into its dithering algorithm.\n\nWhat do you think?",
+      "range": {
+        "startLine": 789,
+        "startChar": 70,
+        "endLine": 789,
+        "endChar": 71
+      },
+      "revId": "369480ecb49904a73b0d0342dde57192a6f74e79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c714386_458ba274",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-22T20:51:15Z",
+      "side": 1,
+      "message": "We usually put this sort of logic in SkBlitter::UseRasterPipelineBlitter(), e.g.\n\n    if (paint-\u003eisDither() \u0026\u0026 ...) {\n        return true;\n    }\n\nAs for that ..., probably best way to express it is probably SkShader::asAGradient() if you\u0027re really looking for gradients specifically.\n\nBut even then our general trend is disabling all this legacy stuff when we run up against its limitations, so maybe let\u0027s try just\n\n    if (paint-\u003eisDither()) {\n        return true;\n    }\n\nThat\u0027ll let us wind down the whole concept of dithering in any context-based shader.  (e.g. the whole fPaintDither bit in ContextRec ought to be able to be de-plumbed, and all the code reading it simplified to act as if fPaintDither were false.)",
+      "parentUuid": "29feb3f5_95040b0a",
       "range": {
         "startLine": 789,
         "startChar": 70,
