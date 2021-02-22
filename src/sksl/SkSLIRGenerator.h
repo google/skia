@@ -158,6 +158,12 @@ private:
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
     void checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
                              Variable::Storage storage);
+    std::unique_ptr<Variable> convertVar(int offset, const Modifiers& modifiers,
+                                         const Type* baseType, StringFragment name, bool isArray,
+                                         std::unique_ptr<Expression> arraySize,
+                                         Variable::Storage storage);
+    std::unique_ptr<Statement> convertVarDeclaration(std::unique_ptr<Variable> var,
+                                                     std::unique_ptr<Expression> value);
     std::unique_ptr<Statement> convertVarDeclaration(int offset, const Modifiers& modifiers,
                                                      const Type* baseType, StringFragment name,
                                                      bool isArray,

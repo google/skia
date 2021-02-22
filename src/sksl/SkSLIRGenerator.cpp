@@ -428,14 +428,11 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
     this->checkModifiers(offset, modifiers, permitted);
 }
 
-std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
-                                                              const Modifiers& modifiers,
-                                                              const Type* baseType,
-                                                              StringFragment name,
-                                                              bool isArray,
-                                                              std::unique_ptr<Expression> arraySize,
-                                                              std::unique_ptr<Expression> value,
-                                                              Variable::Storage storage) {
+std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& modifiers,
+                                                  const Type* baseType, StringFragment name,
+                                                  bool isArray,
+                                                  std::unique_ptr<Expression> arraySize,
+                                                  Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
         this->programKind() == ProgramKind::kFragment && name != "sk_FragColor") {
@@ -452,43 +449,70 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
         }
         type = fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
-    auto var = std::make_unique<Variable>(offset, fModifiers->addToPool(modifiers),
-                                          name, type, fIsBuiltinCode, storage);
+    return std::make_unique<Variable>(offset, fModifiers->addToPool(modifiers), name, type,
+                                      fIsBuiltinCode, storage);
+}
+
+std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Variable> var,
+                                                              std::unique_ptr<Expression> value) {
+    if (value) {
+        if (var->type().isOpaque()) {
+            this->errorReporter().error(
+                    value->fOffset,
+                    "opaque type '" + var->type().name() +
+                    "' cannot use initializer expressions");
+        }
+        if (var->modifiers().fFlags & Modifiers::kIn_Flag) {
+            this->errorReporter().error(value->fOffset,
+                                        "'in' variables cannot use initializer expressions");
+        }
+        if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
+            this->errorReporter().error(value->fOffset,
+                                        "'uniform' variables cannot use initializer expressions");
+        }
+        value = this->coerce(std::move(value), var->type());
+        if (!value) {
+            return nullptr;
+        }
+    }
+    const Type* baseType = &var->type();
+    int arraySize = 0;
+    if (baseType->isArray()) {
+        arraySize = baseType->columns();
+        baseType = &baseType->componentType();
+    }
+    auto result = std::make_unique<VarDeclaration>(var.get(), baseType, arraySize,
+                                                   std::move(value));
+    var->setDeclaration(result.get());
     if (var->name() == Compiler::RTADJUST_NAME) {
         SkASSERT(!fRTAdjust);
         SkASSERT(var->type() == *fContext.fTypes.fFloat4);
         fRTAdjust = var.get();
     }
-    if (value) {
-        if (type->isOpaque()) {
-            this->errorReporter().error(
-                    value->fOffset,
-                    "opaque type '" + type->name() + "' cannot use initializer expressions");
-        }
-        if (modifiers.fFlags & Modifiers::kIn_Flag) {
-            this->errorReporter().error(value->fOffset,
-                                        "'in' variables cannot use initializer expressions");
-        }
-        if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-            this->errorReporter().error(value->fOffset,
-                                        "'uniform' variables cannot use initializer expressions");
-        }
-        value = this->coerce(std::move(value), *type);
-        if (!value) {
-            return {};
-        }
-    }
     const Symbol* symbol = (*fSymbolTable)[var->name()];
-    if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
+    if (symbol && var->storage() == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
         // Already defined, ignore.
         return nullptr;
     } else {
-        auto result = std::make_unique<VarDeclaration>(var.get(), baseType, arraySizeValue,
-                                                       std::move(value));
-        var->setDeclaration(result.get());
         fSymbolTable->add(std::move(var));
-        return std::move(result);
     }
+    return std::move(result);
+}
+
+std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
+                                                              const Modifiers& modifiers,
+                                                              const Type* baseType,
+                                                              StringFragment name,
+                                                              bool isArray,
+                                                              std::unique_ptr<Expression> arraySize,
+                                                              std::unique_ptr<Expression> value,
+                                                              Variable::Storage storage) {
+    std::unique_ptr<Variable> var = this->convertVar(offset, modifiers, baseType, name, isArray,
+                                                     std::move(arraySize), storage);
+    if (!var) {
+        return nullptr;
+    }
+    return this->convertVarDeclaration(std::move(var), std::move(value));
 }
 
 StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,

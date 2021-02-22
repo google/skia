@@ -1297,8 +1297,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     Var v1(kConst_Modifier, kInt, "v1");
-    Statement d1 = Declare(v1);
-    EXPECT_EQUAL(d1, "const int v1;");
+    Statement d1 = Declare(v1, 0);
+    EXPECT_EQUAL(d1, "const int v1 = 0;");
 
     // Most modifiers require an appropriate context to be legal. We can't yet give them that
     // context, so we can't as yet Declare() variables with these modifiers.

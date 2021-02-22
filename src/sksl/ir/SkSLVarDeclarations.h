@@ -91,7 +91,7 @@ private:
     int fArraySize;  // zero means "not an array", Type::kUnsizedArray means var[]
     std::unique_ptr<Expression> fValue;
 
-    friend class dsl::DSLCore;
+    friend class IRGenerator;
 
     using INHERITED = Statement;
 };
