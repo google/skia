@@ -16,6 +16,29 @@
       "message": "Greg and John- I\u0027m wondering if you are both ok with this move? GrStrokeHardwareTessellator was taking up 30% of the profile for MotionMark and we were still CPU bound, so I think a few extreme optimizations are worth it 😊",
       "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bcd5a72_d9b86c15",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-22T22:09:49Z",
+      "side": 1,
+      "message": "This semes a little odd for an out parameter. Why don\u0027t we just set it to false in this function?",
+      "range": {
+        "startLine": 643,
+        "startChar": 29,
+        "endLine": 643,
+        "endChar": 76
+      },
+      "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
