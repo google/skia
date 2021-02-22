@@ -49,8 +49,8 @@ private:
     SkPMColor4f colorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const {
-    return new GrGLSLConstColorProcessor();
+std::unique_ptr<GrGLSLFragmentProcessor> GrConstColorProcessor::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLConstColorProcessor());
 }
 void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {}

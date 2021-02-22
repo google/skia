@@ -120,8 +120,8 @@ void GrColorSpaceXformEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     b->add32(GrColorSpaceXform::XformKey(fColorXform.get()));
 }
 
-GrGLSLFragmentProcessor* GrColorSpaceXformEffect::onCreateGLSLInstance() const {
-    return new GrGLColorSpaceXformEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrColorSpaceXformEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLColorSpaceXformEffect>();
 }
 
 GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(

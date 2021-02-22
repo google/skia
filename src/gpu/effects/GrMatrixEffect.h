@@ -38,7 +38,7 @@ private:
                             SkSL::SampleUsage::UniformMatrix("matrix", matrix.hasPerspective()));
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inputColor) const override {

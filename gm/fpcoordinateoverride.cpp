@@ -54,7 +54,7 @@ public:
     }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     using INHERITED = GrFragmentProcessor;
 };
 
@@ -67,8 +67,8 @@ class GLSLSampleCoordEffect : public GrGLSLFragmentProcessor {
     }
 };
 
-GrGLSLFragmentProcessor* SampleCoordEffect::onCreateGLSLInstance() const {
-    return new GLSLSampleCoordEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> SampleCoordEffect::onMakeProgramImpl() const {
+    return std::make_unique<GLSLSampleCoordEffect>();
 }
 
 DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
