@@ -28,7 +28,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrSectionMake::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrSectionMake::onMakeProgramImpl() const {
     return new GrGLSLSectionMake();
 }
 void GrSectionMake::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

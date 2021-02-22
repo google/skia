@@ -39,7 +39,7 @@ private:
     }
 bool hasCap = false;
 };
-GrGLSLFragmentProcessor* GrChildProcessorAndGlobal::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrChildProcessorAndGlobal::onMakeProgramImpl() const {
     return new GrGLSLChildProcessorAndGlobal();
 }
 void GrChildProcessorAndGlobal::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

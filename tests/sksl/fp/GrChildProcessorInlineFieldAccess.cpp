@@ -36,7 +36,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrChildProcessorInlineFieldAccess::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrChildProcessorInlineFieldAccess::onMakeProgramImpl() const {
     return new GrGLSLChildProcessorInlineFieldAccess();
 }
 void GrChildProcessorInlineFieldAccess::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

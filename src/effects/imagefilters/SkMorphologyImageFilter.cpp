@@ -209,7 +209,7 @@ private:
     bool fUseRange;
     float fRange[2];
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -224,7 +224,7 @@ private:
     using INHERITED = GrFragmentProcessor;
 };
 
-GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
+std::unique_ptr<GrGLSLFragmentProcessor> GrMorphologyEffect::onMakeProgramImpl() const {
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
@@ -287,7 +287,7 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
     private:
         GrGLSLProgramDataManager::UniformHandle fRangeUni;
     };
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 void GrMorphologyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

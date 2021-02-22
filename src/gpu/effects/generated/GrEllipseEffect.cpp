@@ -135,8 +135,8 @@ private:
     UniformHandle ellipseVar;
     UniformHandle scaleVar;
 };
-GrGLSLFragmentProcessor* GrEllipseEffect::onCreateGLSLInstance() const {
-    return new GrGLSLEllipseEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrEllipseEffect::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLEllipseEffect());
 }
 void GrEllipseEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {

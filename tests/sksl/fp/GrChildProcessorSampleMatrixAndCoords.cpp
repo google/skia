@@ -38,7 +38,7 @@ private:
     }
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrChildProcessorSampleMatrixAndCoords::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrChildProcessorSampleMatrixAndCoords::onMakeProgramImpl() const {
     return new GrGLSLChildProcessorSampleMatrixAndCoords();
 }
 void GrChildProcessorSampleMatrixAndCoords::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

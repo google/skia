@@ -45,7 +45,7 @@ private:
     UniformHandle matrixAVar;
     UniformHandle matrixBVar;
 };
-GrGLSLFragmentProcessor* GrChildProcessorSampleMatrixMultipleUniforms::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrChildProcessorSampleMatrixMultipleUniforms::onMakeProgramImpl() const {
     return new GrGLSLChildProcessorSampleMatrixMultipleUniforms();
 }
 void GrChildProcessorSampleMatrixMultipleUniforms::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

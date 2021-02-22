@@ -32,7 +32,7 @@ private:
     }
     UniformHandle sometimesVar;
 };
-GrGLSLFragmentProcessor* GrLayoutWhen::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrLayoutWhen::onMakeProgramImpl() const {
     return new GrGLSLLayoutWhen();
 }
 void GrLayoutWhen::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

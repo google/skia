@@ -219,7 +219,7 @@ SkString GrYUVtoRGBEffect::onDumpInfo() const {
 }
 #endif
 
-GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
+std::unique_ptr<GrGLSLFragmentProcessor> GrYUVtoRGBEffect::onMakeProgramImpl() const {
     class GrGLSLYUVtoRGBEffect : public GrGLSLFragmentProcessor {
     public:
         GrGLSLYUVtoRGBEffect() {}
@@ -270,7 +270,6 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                         args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar),
                         args.fUniformHandler->getUniformCStr(fColorSpaceTranslateVar));
             }
-
             if (hasAlpha) {
                 // premultiply alpha
                 fragBuilder->codeAppendf("color.rgb *= color.a;");
@@ -308,7 +307,7 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
         UniformHandle fColorSpaceTranslateVar;
     };
 
-    return new GrGLSLYUVtoRGBEffect;
+    return std::make_unique<GrGLSLYUVtoRGBEffect>();
 }
 void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {

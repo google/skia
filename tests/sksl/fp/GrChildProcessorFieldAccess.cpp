@@ -39,7 +39,7 @@ private:
     }
 bool opaque = false;
 };
-GrGLSLFragmentProcessor* GrChildProcessorFieldAccess::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrChildProcessorFieldAccess::onMakeProgramImpl() const {
     return new GrGLSLChildProcessorFieldAccess();
 }
 void GrChildProcessorFieldAccess::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

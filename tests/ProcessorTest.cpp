@@ -125,7 +125,7 @@ private:
         this->cloneAndRegisterAllChildProcessors(that);
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
         class TestGLSLFP : public GrGLSLFragmentProcessor {
         public:
             TestGLSLFP() {}
@@ -135,7 +135,7 @@ private:
 
         private:
         };
-        return new TestGLSLFP();
+        return std::make_unique<TestGLSLFP>();
     }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return false; }

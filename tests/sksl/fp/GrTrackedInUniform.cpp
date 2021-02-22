@@ -41,7 +41,7 @@ private:
 SkRect colorPrev = SkRect::MakeEmpty();
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrTrackedInUniform::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrTrackedInUniform::onMakeProgramImpl() const {
     return new GrGLSLTrackedInUniform();
 }
 void GrTrackedInUniform::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

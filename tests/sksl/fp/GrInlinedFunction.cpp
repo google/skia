@@ -31,7 +31,7 @@ private:
     }
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrInlinedFunction::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrInlinedFunction::onMakeProgramImpl() const {
     return new GrGLSLInlinedFunction();
 }
 void GrInlinedFunction::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

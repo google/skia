@@ -32,7 +32,7 @@ private:
     }
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrChildProcessorWithInputExpression::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrChildProcessorWithInputExpression::onMakeProgramImpl() const {
     return new GrGLSLChildProcessorWithInputExpression();
 }
 void GrChildProcessorWithInputExpression::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

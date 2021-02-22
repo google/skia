@@ -34,7 +34,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrRecursion::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrRecursion::onMakeProgramImpl() const {
     return new GrGLSLRecursion();
 }
 void GrRecursion::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

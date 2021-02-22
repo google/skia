@@ -28,7 +28,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrMainCoords::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrMainCoords::onMakeProgramImpl() const {
     return new GrGLSLMainCoords();
 }
 void GrMainCoords::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

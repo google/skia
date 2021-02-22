@@ -37,7 +37,7 @@ private:
     }
     UniformHandle pointVar;
 };
-GrGLSLFragmentProcessor* GrNonInlinedInUniform::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrNonInlinedInUniform::onMakeProgramImpl() const {
     return new GrGLSLNonInlinedInUniform();
 }
 void GrNonInlinedInUniform::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

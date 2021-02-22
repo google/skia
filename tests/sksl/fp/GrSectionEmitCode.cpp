@@ -31,7 +31,7 @@ private:
     }
 float x = 0;
 };
-GrGLSLFragmentProcessor* GrSectionEmitCode::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrSectionEmitCode::onMakeProgramImpl() const {
     return new GrGLSLSectionEmitCode();
 }
 void GrSectionEmitCode::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
