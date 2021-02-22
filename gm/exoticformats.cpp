@@ -18,6 +18,7 @@
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #include "tools/Resources.h"
 
@@ -382,8 +383,8 @@ protected:
         bool isCompressed = false;
         if (image->isTextureBacked()) {
             const GrCaps* caps = as_IB(image)->context()->priv().caps();
-
-            GrTextureProxy* proxy = as_IB(image)->peekProxy();
+            GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image,
+                                                                      canvas->recordingContext());
             isCompressed = caps->isFormatCompressed(proxy->backendFormat());
         }
 
