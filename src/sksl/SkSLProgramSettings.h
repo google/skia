@@ -58,7 +58,7 @@ struct ProgramSettings {
     bool fRemoveDeadFunctions = true;
     // (Requires fOptimize = true) Uses the control-flow graph to detect and eliminate code within
     // a function that has become unreachable due to optimization.
-    bool fDeadCodeElimination = true;
+    bool fDeadCodeElimination = false;
     // (Requires fOptimize = true) When greater than zero, enables the inliner. The threshold value
     // sets an upper limit on the acceptable amount of code growth from inlining.
     int fInlineThreshold = SkSL::kDefaultInlineThreshold;
