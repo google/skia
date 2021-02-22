@@ -311,6 +311,8 @@ class SkPicturePlayback(object):
         except subprocess.CalledProcessError:
           # There was a failure continue with the loop.
           traceback.print_exc()
+          print 'SLEEPING for 1 hour'
+          time.sleep(60*60)
           print '\n\n=======Retrying %s=======\n\n' % page_set
           time.sleep(10)
           continue
