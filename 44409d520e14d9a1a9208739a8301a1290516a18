@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9948bd1b_eb511c22",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-22T18:25:29Z",
+      "side": 1,
+      "message": "Add origin, colorType, and alphaType ?",
+      "range": {
+        "startLine": 506,
+        "startChar": 11,
+        "endLine": 506,
+        "endChar": 18
+      },
+      "revId": "44409d520e14d9a1a9208739a8301a1290516a18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
