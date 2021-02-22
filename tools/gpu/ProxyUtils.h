@@ -19,6 +19,9 @@ class GrPixmap;
 
 namespace sk_gpu_test {
 
+/** Returns the proxy backing an image if it is texture backed, otherwise nullptr. */
+GrTextureProxy* GetTextureImageProxy(SkImage*, GrRecordingContext*);
+
 /** Makes a texture proxy containing the passed in color data. */
 GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext*,
                                                 GrRenderable,

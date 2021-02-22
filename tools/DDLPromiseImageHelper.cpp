@@ -350,8 +350,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
             // By the peekProxy contract this image should not have a single backing proxy so
             // should return null. The call should also not trigger the conversion to RGBA.
             SkImage_GpuYUVA* yuva = reinterpret_cast<SkImage_GpuYUVA*>(image.get());
-            SkASSERT(!yuva->peekProxy());
-            SkASSERT(!yuva->peekProxy());  // the first call didn't force a conversion to RGBA
+            SkASSERT(!yuva->testingOnly_IsFlattened());
         }
 #endif
     } else {

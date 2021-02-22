@@ -39,6 +39,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#include "tools/gpu/ProxyUtils.h"
 
 using namespace sk_gpu_test;
 
@@ -404,9 +405,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
             GrTextureProxy* origProxy = nullptr;
             bool origIsMippedTexture = false;
 
-            if (auto sp = as_IB(image)->peekProxy()) {
-                origProxy = sp->asTextureProxy();
-                SkASSERT(origProxy);
+            if ((origProxy = sk_gpu_test::GetTextureImageProxy(image.get(), dContext))) {
                 REPORTER_ASSERT(reporter, (origProxy->mipmapped() == GrMipmapped::kYes) ==
                                           image->hasMipmaps());
                 origIsMippedTexture = image->hasMipmaps();
@@ -425,7 +424,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                     ERRORF(reporter, "makeTextureImage returned non-texture image.");
                     continue;
                 }
-                GrTextureProxy* copyProxy = as_IB(texImage)->peekProxy()->asTextureProxy();
+
+                GrTextureProxy* copyProxy = sk_gpu_test::GetTextureImageProxy(texImage.get(),
+                                                                              dContext);
                 SkASSERT(copyProxy);
                 // Did we ask for MIPs on a context that supports them?
                 bool validRequestForMips = (mipmapped == GrMipmapped::kYes &&
@@ -443,7 +444,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                         ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
                     }
                 } else {
-                    auto* texProxy = as_IB(texImage)->peekProxy()->asTextureProxy();
+                    GrTextureProxy* texProxy = sk_gpu_test::GetTextureImageProxy(texImage.get(),
+                                                                                 dContext);
                     REPORTER_ASSERT(reporter, !texProxy->getUniqueKey().isValid());
                     REPORTER_ASSERT(reporter, texProxy->isBudgeted() == budgeted);
                 }

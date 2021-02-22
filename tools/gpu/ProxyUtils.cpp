@@ -19,8 +19,25 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/image/SkImage_Base.h"
 
 namespace sk_gpu_test {
+
+GrTextureProxy* GetTextureImageProxy(SkImage* image, GrRecordingContext* rContext) {
+    if (!image->isTextureBacked() || as_IB(image)->isYUVA()) {
+        return nullptr;
+    }
+    auto [view, ct] = as_IB(image)->asView(rContext, GrMipmapped::kNo);
+    if (!view) {
+        // With the above checks we expect this to succeed unless there is a context mismatch.
+        SkASSERT(!image->isValid(rContext));
+        return nullptr;
+    }
+    SkASSERT(view);
+    GrSurfaceProxy* proxy = view.proxy();
+    SkASSERT(proxy->asTextureProxy());
+    return proxy->asTextureProxy();
+}
 
 GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
                                                 GrRenderable renderable,
