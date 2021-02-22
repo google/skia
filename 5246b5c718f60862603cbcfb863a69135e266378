@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c26eaec_ffdfb830",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1187,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-22T22:45:26Z",
+      "side": 1,
+      "message": "More complex situation that we may be handling wrong: Loops *are* conditionals, in some cases:\n\n  switch (foo) {\n    case A: while (cond) { return 0; } break;\n  }\n\nPeople are hopefully not writing code like this, but it does seem like it\u0027s conditional if fInConditional or fInLoop is true? For that matter, returns inside a switch are the same thing, but maybe none of this matters, because it wouldn\u0027t impact what we do later?",
+      "range": {
+        "startLine": 1185,
+        "startChar": 0,
+        "endLine": 1187,
+        "endChar": 77
+      },
+      "revId": "5246b5c718f60862603cbcfb863a69135e266378",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f39b6042_4668f69c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-22T22:45:26Z",
+      "side": 1,
+      "message": "Is this possible? We shouldn\u0027t have made it out of finalizeFunction in this case, right?",
+      "range": {
+        "startLine": 1196,
+        "startChar": 27,
+        "endLine": 1196,
+        "endChar": 52
+      },
+      "revId": "5246b5c718f60862603cbcfb863a69135e266378",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
