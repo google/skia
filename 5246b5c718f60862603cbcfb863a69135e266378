@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "aab4bbe8_f7af0931",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1187,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T22:55:05Z",
+      "side": 1,
+      "message": "Oof... you\u0027re right. Good catch. Fix and test incoming.",
+      "parentUuid": "2c26eaec_ffdfb830",
+      "range": {
+        "startLine": 1185,
+        "startChar": 0,
+        "endLine": 1187,
+        "endChar": 77
+      },
+      "revId": "5246b5c718f60862603cbcfb863a69135e266378",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f39b6042_4668f69c",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 7
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-22T22:45:26Z",
       "side": 1,
       "message": "Is this possible? We shouldn\u0027t have made it out of finalizeFunction in this case, right?",
+      "range": {
+        "startLine": 1196,
+        "startChar": 27,
+        "endLine": 1196,
+        "endChar": 52
+      },
+      "revId": "5246b5c718f60862603cbcfb863a69135e266378",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bd9c3d6_d4f162f7",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T22:55:05Z",
+      "side": 1,
+      "message": "contains_exit isn\u0027t evaluating the whole function from scratch; it\u0027s just evaluating the passed-in Statement in isolation. The loops and switches outside of `stmt` aren\u0027t counted in fInLoop and fInSwitch.",
+      "parentUuid": "f39b6042_4668f69c",
       "range": {
         "startLine": 1196,
         "startChar": 27,
