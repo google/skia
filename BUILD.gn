@@ -2145,6 +2145,14 @@ if (skia_enable_tools) {
       ":tool_utils",
     ]
   }
+  test_app("ddlbench") {
+    sources = [ "experimental/ddlbench/ddlbench.cpp" ]
+    deps = [
+      ":flags",
+      ":skia",
+      ":tool_utils",
+    ]
+  }
 
   test_app("sktexttopdf") {
     sources = [ "tools/using_skia_and_harfbuzz.cpp" ]
