@@ -63,6 +63,30 @@
       },
       "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28f7d22a_5f3a76f0",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-22T23:11:26Z",
+      "side": 1,
+      "message": "Sorry what part is too slow?\n\nthe \u0027if (areCusps)\u0027 or having \u0027areCusps \u003d false\u0027? Seems wild that either of those is really going to be killing us.\n\nIf that really is an issue, then lets require callers to pass in areCusps. That way we can remove the areCusps check we already have to have later on. Then we can use that saved time to set it to false at the start.",
+      "parentUuid": "2f85f542_85950ffd",
+      "range": {
+        "startLine": 643,
+        "startChar": 29,
+        "endLine": 643,
+        "endChar": 76
+      },
+      "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
