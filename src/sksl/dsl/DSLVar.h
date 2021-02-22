@@ -102,7 +102,7 @@ private:
     DSLVar(const char* name);
 
     const SkSL::Variable* var() const {
-        return fVar;
+        return fVar ? fVar.get() : fConstVar;
     }
 
     const char* name() const {
@@ -116,7 +116,8 @@ private:
 #endif
 
     std::unique_ptr<SkSL::Statement> fDeclaration;
-    const SkSL::Variable* fVar = nullptr;
+    std::unique_ptr<SkSL::Variable> fVar = nullptr;
+    const SkSL::Variable* fConstVar = nullptr;
     const char* fName;
 
     friend DSLVar sk_SampleCoord();

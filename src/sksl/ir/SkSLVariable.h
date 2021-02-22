@@ -19,6 +19,10 @@ namespace SkSL {
 class Expression;
 class VarDeclaration;
 
+namespace dsl {
+class DSLCore;
+} // namespace dsl
+
 enum class VariableStorage : int8_t {
     kGlobal,
     kInterfaceBlock,
@@ -75,6 +79,7 @@ private:
 
     using INHERITED = Symbol;
 
+    friend class dsl::DSLCore;
     friend class VariableReference;
 };
 
