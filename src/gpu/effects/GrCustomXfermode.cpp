@@ -127,7 +127,7 @@ public:
             key |= caps.advBlendEqInteraction();
             static_assert(GrShaderCaps::kLast_AdvBlendEqInteraction < 4);
         }
-        if (!xp.hasHWBlendEquation() || caps.mustEnableSpecificAdvBlendEqs()) {
+        if (!xp.hasHWBlendEquation()) {
             key |= (int)xp.mode() << 3;
         }
         b->add32(key);

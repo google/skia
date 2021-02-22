@@ -96,21 +96,6 @@ void Parser::InitLayoutMap() {
     TOKEN(ORIGIN_UPPER_LEFT,            "origin_upper_left");
     TOKEN(OVERRIDE_COVERAGE,            "override_coverage");
     TOKEN(BLEND_SUPPORT_ALL_EQUATIONS,  "blend_support_all_equations");
-    TOKEN(BLEND_SUPPORT_MULTIPLY,       "blend_support_multiply");
-    TOKEN(BLEND_SUPPORT_SCREEN,         "blend_support_screen");
-    TOKEN(BLEND_SUPPORT_OVERLAY,        "blend_support_overlay");
-    TOKEN(BLEND_SUPPORT_DARKEN,         "blend_support_darken");
-    TOKEN(BLEND_SUPPORT_LIGHTEN,        "blend_support_lighten");
-    TOKEN(BLEND_SUPPORT_COLORDODGE,     "blend_support_colordodge");
-    TOKEN(BLEND_SUPPORT_COLORBURN,      "blend_support_colorburn");
-    TOKEN(BLEND_SUPPORT_HARDLIGHT,      "blend_support_hardlight");
-    TOKEN(BLEND_SUPPORT_SOFTLIGHT,      "blend_support_softlight");
-    TOKEN(BLEND_SUPPORT_DIFFERENCE,     "blend_support_difference");
-    TOKEN(BLEND_SUPPORT_EXCLUSION,      "blend_support_exclusion");
-    TOKEN(BLEND_SUPPORT_HSL_HUE,        "blend_support_hsl_hue");
-    TOKEN(BLEND_SUPPORT_HSL_SATURATION, "blend_support_hsl_saturation");
-    TOKEN(BLEND_SUPPORT_HSL_COLOR,      "blend_support_hsl_color");
-    TOKEN(BLEND_SUPPORT_HSL_LUMINOSITY, "blend_support_hsl_luminosity");
     TOKEN(PUSH_CONSTANT,                "push_constant");
     TOKEN(POINTS,                       "points");
     TOKEN(LINES,                        "lines");
@@ -956,51 +941,6 @@ Layout Parser::layout() {
                         break;
                     case LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS:
                         flags |= Layout::kBlendSupportAllEquations_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_MULTIPLY:
-                        flags |= Layout::kBlendSupportMultiply_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_SCREEN:
-                        flags |= Layout::kBlendSupportScreen_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_OVERLAY:
-                        flags |= Layout::kBlendSupportOverlay_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_DARKEN:
-                        flags |= Layout::kBlendSupportDarken_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_LIGHTEN:
-                        flags |= Layout::kBlendSupportLighten_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_COLORDODGE:
-                        flags |= Layout::kBlendSupportColorDodge_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_COLORBURN:
-                        flags |= Layout::kBlendSupportColorBurn_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_HARDLIGHT:
-                        flags |= Layout::kBlendSupportHardLight_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_SOFTLIGHT:
-                        flags |= Layout::kBlendSupportSoftLight_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_DIFFERENCE:
-                        flags |= Layout::kBlendSupportDifference_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_EXCLUSION:
-                        flags |= Layout::kBlendSupportExclusion_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_HSL_HUE:
-                        flags |= Layout::kBlendSupportHSLHue_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_HSL_SATURATION:
-                        flags |= Layout::kBlendSupportHSLSaturation_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_HSL_COLOR:
-                        flags |= Layout::kBlendSupportHSLColor_Flag;
-                        break;
-                    case LayoutToken::BLEND_SUPPORT_HSL_LUMINOSITY:
-                        flags |= Layout::kBlendSupportHSLLuminosity_Flag;
                         break;
                     case LayoutToken::PUSH_CONSTANT:
                         flags |= Layout::kPushConstant_Flag;

@@ -88,7 +88,6 @@ void IRGenerator::FillCapsMap(const SkSL::ShaderCapsClass& caps,
     CAP(noperspectiveInterpolationSupport);
     CAP(externalTextureSupport);
     CAP(mustEnableAdvBlendEqs);
-    CAP(mustEnableSpecificAdvBlendEqs);
     CAP(mustDeclareFragmentShaderOutput);
     CAP(mustDoOpBetweenFloorAndAbs);
     CAP(mustGuardDivisionEvenAfterExplicitZeroCheck);

@@ -24,23 +24,8 @@ struct Layout {
         kOverrideCoverage_Flag           = 1 <<  1,
         kPushConstant_Flag               = 1 <<  2,
         kBlendSupportAllEquations_Flag   = 1 <<  3,
-        kBlendSupportMultiply_Flag       = 1 <<  4,
-        kBlendSupportScreen_Flag         = 1 <<  5,
-        kBlendSupportOverlay_Flag        = 1 <<  6,
-        kBlendSupportDarken_Flag         = 1 <<  7,
-        kBlendSupportLighten_Flag        = 1 <<  8,
-        kBlendSupportColorDodge_Flag     = 1 <<  9,
-        kBlendSupportColorBurn_Flag      = 1 << 10,
-        kBlendSupportHardLight_Flag      = 1 << 11,
-        kBlendSupportSoftLight_Flag      = 1 << 12,
-        kBlendSupportDifference_Flag     = 1 << 13,
-        kBlendSupportExclusion_Flag      = 1 << 14,
-        kBlendSupportHSLHue_Flag         = 1 << 15,
-        kBlendSupportHSLSaturation_Flag  = 1 << 16,
-        kBlendSupportHSLColor_Flag       = 1 << 17,
-        kBlendSupportHSLLuminosity_Flag  = 1 << 18,
-        kTracked_Flag                    = 1 << 19,
-        kSRGBUnpremul_Flag               = 1 << 20,
+        kTracked_Flag                    = 1 <<  4,
+        kSRGBUnpremul_Flag               = 1 <<  5,
     };
 
     enum Primitive {
@@ -271,51 +256,6 @@ struct Layout {
         }
         if (fFlags & kBlendSupportAllEquations_Flag) {
             result += separator() + "blend_support_all_equations";
-        }
-        if (fFlags & kBlendSupportMultiply_Flag) {
-            result += separator() + "blend_support_multiply";
-        }
-        if (fFlags & kBlendSupportScreen_Flag) {
-            result += separator() + "blend_support_screen";
-        }
-        if (fFlags & kBlendSupportOverlay_Flag) {
-            result += separator() + "blend_support_overlay";
-        }
-        if (fFlags & kBlendSupportDarken_Flag) {
-            result += separator() + "blend_support_darken";
-        }
-        if (fFlags & kBlendSupportLighten_Flag) {
-            result += separator() + "blend_support_lighten";
-        }
-        if (fFlags & kBlendSupportColorDodge_Flag) {
-            result += separator() + "blend_support_colordodge";
-        }
-        if (fFlags & kBlendSupportColorBurn_Flag) {
-            result += separator() + "blend_support_colorburn";
-        }
-        if (fFlags & kBlendSupportHardLight_Flag) {
-            result += separator() + "blend_support_hardlight";
-        }
-        if (fFlags & kBlendSupportSoftLight_Flag) {
-            result += separator() + "blend_support_softlight";
-        }
-        if (fFlags & kBlendSupportDifference_Flag) {
-            result += separator() + "blend_support_difference";
-        }
-        if (fFlags & kBlendSupportExclusion_Flag) {
-            result += separator() + "blend_support_exclusion";
-        }
-        if (fFlags & kBlendSupportHSLHue_Flag) {
-            result += separator() + "blend_support_hsl_hue";
-        }
-        if (fFlags & kBlendSupportHSLSaturation_Flag) {
-            result += separator() + "blend_support_hsl_saturation";
-        }
-        if (fFlags & kBlendSupportHSLColor_Flag) {
-            result += separator() + "blend_support_hsl_color";
-        }
-        if (fFlags & kBlendSupportHSLLuminosity_Flag) {
-            result += separator() + "blend_support_hsl_luminosity";
         }
         if (fFlags & kPushConstant_Flag) {
             result += separator() + "push_constant";

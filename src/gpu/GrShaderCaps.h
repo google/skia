@@ -31,9 +31,8 @@ public:
         kNotSupported_AdvBlendEqInteraction,     //<! No _blend_equation_advanced extension
         kAutomatic_AdvBlendEqInteraction,        //<! No interaction required
         kGeneralEnable_AdvBlendEqInteraction,    //<! layout(blend_support_all_equations) out
-        kSpecificEnables_AdvBlendEqInteraction,  //<! Specific layout qualifiers per equation
 
-        kLast_AdvBlendEqInteraction = kSpecificEnables_AdvBlendEqInteraction
+        kLast_AdvBlendEqInteraction = kGeneralEnable_AdvBlendEqInteraction
     };
 
     GrShaderCaps(const GrContextOptions&);
@@ -95,10 +94,6 @@ public:
 
     bool mustEnableAdvBlendEqs() const {
         return fAdvBlendEqInteraction >= kGeneralEnable_AdvBlendEqInteraction;
-    }
-
-    bool mustEnableSpecificAdvBlendEqs() const {
-        return fAdvBlendEqInteraction == kSpecificEnables_AdvBlendEqInteraction;
     }
 
     bool mustDeclareFragmentShaderOutput() const { return fGLSLGeneration > k110_GrGLSLGeneration; }

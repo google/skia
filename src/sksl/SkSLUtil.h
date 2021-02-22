@@ -144,11 +144,6 @@ public:
         return fMustEnableAdvBlendEqs;
     }
 
-    bool fMustEnableSpecificAdvBlendEqs = false;
-    bool mustEnableSpecificAdvBlendEqs() const {
-        return fMustEnableSpecificAdvBlendEqs;
-    }
-
     bool fCanUseAnyFunctionInShader = true;
     bool canUseAnyFunctionInShader() const {
         return fCanUseAnyFunctionInShader;

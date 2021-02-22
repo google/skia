@@ -15,48 +15,6 @@
 
 const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 
-static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
-    SkASSERT(GrBlendEquationIsAdvanced(equation));
-
-    static const char* kLayoutQualifierNames[] = {
-        "blend_support_screen",
-        "blend_support_overlay",
-        "blend_support_darken",
-        "blend_support_lighten",
-        "blend_support_colordodge",
-        "blend_support_colorburn",
-        "blend_support_hardlight",
-        "blend_support_softlight",
-        "blend_support_difference",
-        "blend_support_exclusion",
-        "blend_support_multiply",
-        "blend_support_hsl_hue",
-        "blend_support_hsl_saturation",
-        "blend_support_hsl_color",
-        "blend_support_hsl_luminosity"
-    };
-    return kLayoutQualifierNames[equation - kFirstAdvancedGrBlendEquation];
-
-    static_assert(0 == kScreen_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(1 == kOverlay_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(2 == kDarken_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(3 == kLighten_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(4 == kColorDodge_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(5 == kColorBurn_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(6 == kHardLight_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(7 == kSoftLight_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(8 == kDifference_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(9 == kExclusion_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(10 == kMultiply_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(11 == kHSLHue_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(12 == kHSLSaturation_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(13 == kHSLColor_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    static_assert(14 == kHSLLuminosity_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    // There's an illegal GrBlendEquation at the end there, hence the -1.
-    static_assert(SK_ARRAY_COUNT(kLayoutQualifierNames) ==
-                  kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation - 1);
-}
-
 uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin) {
     SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
     return origin + 1;
@@ -223,16 +181,9 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
 void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
 
-    const GrShaderCaps& caps = *fProgramBuilder->shaderCaps();
-    if (!caps.mustEnableAdvBlendEqs()) {
-        return;
-    }
-
-    this->addFeature(1 << kBlendEquationAdvanced_GLSLPrivateFeature,
-                     "GL_KHR_blend_equation_advanced");
-    if (caps.mustEnableSpecificAdvBlendEqs()) {
-        this->addLayoutQualifier(specific_layout_qualifier_name(equation), kOut_InterfaceQualifier);
-    } else {
+    if (fProgramBuilder->shaderCaps()->mustEnableAdvBlendEqs()) {
+        this->addFeature(1 << kBlendEquationAdvanced_GLSLPrivateFeature,
+                         "GL_KHR_blend_equation_advanced");
         this->addLayoutQualifier("blend_support_all_equations", kOut_InterfaceQualifier);
     }
 }
