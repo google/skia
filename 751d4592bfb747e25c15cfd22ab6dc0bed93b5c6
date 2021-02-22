@@ -34,6 +34,24 @@
       "parentUuid": "41e9aeee_28d783cf",
       "revId": "751d4592bfb747e25c15cfd22ab6dc0bed93b5c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "979c9b90_cb44669b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-22T14:33:46Z",
+      "side": 1,
+      "message": "Added explicit tests to InvalidAssignment.\n\nre: BadModifiers - I thought the same thing, but I realized that it includes valid modifiers too. It actually has every modifier in each context (function, parameter, global variable), so it\u0027s effectively testing that we *don\u0027t* error on the ones that are valid, as well.",
+      "parentUuid": "e8f32ca9_9af403c7",
+      "revId": "751d4592bfb747e25c15cfd22ab6dc0bed93b5c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
