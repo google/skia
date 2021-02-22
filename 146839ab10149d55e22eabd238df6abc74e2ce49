@@ -137,6 +137,24 @@
       "parentUuid": "b73aa773_62cf5533",
       "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9475f4b_251ffc8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10886
+      },
+      "writtenOn": "2021-02-22T04:12:36Z",
+      "side": 1,
+      "message": "I learned the same lesson when I tried to locally add a new value to skia... it\u0027s not a good idea to do so! Skia has too many clients...\n\nI have been keep thinking about this issue. It\u0027s my fault to read the documentation but not the actual code. I think I should have used this histogram, UmaHistogramExactLinear (ref: https://source.chromium.org/chromium/chromium/src/+/master:base/metrics/histogram_functions.cc;l\u003d26;drc\u003ddbe2a7195ed5925849db9f7b655a9edd9367a5d2;bpv\u003d1;bpt\u003d1), where I can manually define k_max, like static_cast\u003cint\u003e(kLast...) + 1.\n\nWith your cl, everything should be good~!! I will update the code and ask metrics team to review it again. \n\nI didn\u0027t expect you to read it until monday... haha, i wrote my last comment and started to do more research.\n\nThank you for your support!",
+      "parentUuid": "d3a2a989_8c237131",
+      "revId": "146839ab10149d55e22eabd238df6abc74e2ce49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
