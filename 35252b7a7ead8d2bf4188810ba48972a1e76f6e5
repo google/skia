@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5964f3b4_1ba7a70d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-22T20:22:37Z",
+      "side": 1,
+      "message": "I had avoided going that extra step because it introduced a bunch of additional complications, but I think I\u0027ve figured out a reasonable way to handle it.",
+      "parentUuid": "24257a28_fc28bc49",
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2feeb7fa_d812fb4e",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-02-22T18:36:31Z",
       "side": 1,
       "message": "arg-comment please",
+      "range": {
+        "startLine": 467,
+        "startChar": 55,
+        "endLine": 467,
+        "endChar": 62
+      },
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa044ac2_d9f3ad80",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-22T20:22:37Z",
+      "side": 1,
+      "message": "Code has been removed.",
+      "parentUuid": "2feeb7fa_d812fb4e",
       "range": {
         "startLine": 467,
         "startChar": 55,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d19895a_d2c8b1a6",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-22T20:22:37Z",
+      "side": 1,
+      "message": "This was a valid point, but I believe it is no longer relevant in the current patch.",
+      "parentUuid": "0843de86_5da25354",
+      "range": {
+        "startLine": 474,
+        "startChar": 5,
+        "endLine": 474,
+        "endChar": 36
+      },
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "30e48427_f545bcb8",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-02-22T18:36:31Z",
       "side": 1,
       "message": "Should we arg-comment these with /*initialValue\u003d*/ or is that unnecessary? I\u0027m 50/50.",
+      "range": {
+        "startLine": 1300,
+        "startChar": 31,
+        "endLine": 1300,
+        "endChar": 32
+      },
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "623dd897_1146db95",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-22T20:22:37Z",
+      "side": 1,
+      "message": "If you felt strongly about it I\u0027d happily change it, but it didn\u0027t seem necessary to me.",
+      "parentUuid": "30e48427_f545bcb8",
       "range": {
         "startLine": 1300,
         "startChar": 31,
