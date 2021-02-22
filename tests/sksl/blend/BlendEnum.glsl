@@ -1,4 +1,4 @@
-#version 400
+
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;

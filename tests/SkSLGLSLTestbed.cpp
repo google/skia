@@ -33,8 +33,9 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+void main() {
+    sk_FragColor = blend(SkBlendMode::kModulate, half4(0.25), half4(0.75));
+
+}
          )__SkSL__");
 }

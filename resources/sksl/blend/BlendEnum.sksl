@@ -1,5 +1,3 @@
-/*#pragma settings Default*/
-
 in half4 src, dst;
 
 void main() {
