@@ -501,12 +501,11 @@ private:
                          SkPoint endPt) {
         if (prevJoinType == JoinType::kBowtie) {
             SkASSERT(fHasLastControlPoint);
-            // Bowties need to go in their own patch if they will have >1 segment. TODO: Investigate
-            // if an optimization like "x < fCosRadiansPerSegment" would be worth it.
+            // Bowtie joins are only used on internal chops, and in that case, they are only needed
+            // on cusps. Rather than measuring the angle to see if we need the bowtie, we can just
+            // detect if the chop was at a cusp instead.
             SkPoint nextControlPoint = (p[1] == p[0]) ? p[2] : p[1];
-            float rotation = SkMeasureAngleBetweenVectors(p[0] - fLastControlPoint,
-                                                          nextControlPoint - p[0]);
-            if (rotation * fTolerances.fNumRadialSegmentsPerRadian > 1) {
+            if ((p[0] - fLastControlPoint).dot(nextControlPoint - p[0])) {
                 this->internalJoinTo(prevJoinType, p[0], nextControlPoint);
                 fLastControlPoint = p[0];  // Disables the join section of this patch.
                 prevJoinFitsInPatch = true;
