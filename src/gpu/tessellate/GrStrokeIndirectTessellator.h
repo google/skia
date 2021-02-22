@@ -22,7 +22,7 @@ public:
     // become an issue if we try to draw a stroke with an astronomically wide width.
     constexpr static int8_t kMaxResolveLevel = 15;
 
-    GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix&, GrSTArenaList<PathStroke>&&,
+    GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix&, PathStrokeList*,
                                 int totalCombinedVerbCnt, SkArenaAlloc*);
 
     // Adds the given tessellator to our chain. The chained tessellators all append to a shared

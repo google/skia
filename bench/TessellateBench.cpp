@@ -227,10 +227,11 @@ private:
             SkDebugf("ERROR: could not create mock context.");
             return;
         }
+        SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
+        GrStrokeTessellator::PathStrokeList pathStroke(fPath, fStrokeRec, SK_PMColor4fWHITE);
         for (int i = 0; i < loops; ++i) {
-            SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
-            GrStrokeHardwareTessellator tessellator(ShaderFlags::kNone, {fPath, fStrokeRec,
-                                                    SK_PMColor4fWHITE}, fPath.countVerbs(),
+            GrStrokeHardwareTessellator tessellator(ShaderFlags::kNone, &pathStroke,
+                                                    fPath.countVerbs(),
                                                     *fTarget->caps().shaderCaps());
             tessellator.prepare(fTarget.get(), matrix);
         }
@@ -270,9 +271,10 @@ private:
         }
         for (int i = 0; i < loops; ++i) {
             for (const SkPath& path : fPaths) {
+                GrStrokeTessellator::PathStrokeList pathStroke(path, fStrokeRec, SK_PMColor4fWHITE);
                 GrStrokeIndirectTessellator tessellator(ShaderFlags::kNone, SkMatrix::I(),
-                                                        {path, fStrokeRec, SK_PMColor4fWHITE},
-                                                        path.countVerbs(), fTarget->allocator());
+                                                        &pathStroke, path.countVerbs(),
+                                                        fTarget->allocator());
                 tessellator.prepare(fTarget.get(), SkMatrix::I());
             }
             fTarget->resetAllocator();

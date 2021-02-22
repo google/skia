@@ -26,8 +26,7 @@ public:
         int fBasePatch;
     };
 
-    GrStrokeHardwareTessellator(ShaderFlags shaderFlags,
-                                GrSTArenaList<PathStroke>&& pathStrokeList,
+    GrStrokeHardwareTessellator(ShaderFlags shaderFlags, PathStrokeList* pathStrokeList,
                                 int totalCombinedVerbCnt, const GrShaderCaps& shaderCaps)
             : GrStrokeTessellator(shaderFlags, std::move(pathStrokeList))
             , fTotalCombinedVerbCnt(totalCombinedVerbCnt) {
