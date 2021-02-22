@@ -78,10 +78,7 @@ public:
             return DSLStatement();
         }
         VarDeclaration& decl = var.fDeclaration->as<SkSL::VarDeclaration>();
-        std::unique_ptr<Expression> expr = initialValue.coerceAndRelease(decl.var().type());
-        if (expr) {
-            decl.fValue = std::move(expr);
-        }
+        DSLWriter::IRGenerator().setVarInitialValue(decl, initialValue.release());
         return DSLStatement(std::move(var.fDeclaration));
     }
 

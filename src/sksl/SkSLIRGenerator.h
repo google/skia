@@ -162,8 +162,14 @@ private:
                                                      const Type* baseType, StringFragment name,
                                                      bool isArray,
                                                      std::unique_ptr<Expression> arraySize,
-                                                     std::unique_ptr<Expression> value,
                                                      Variable::Storage storage);
+    void setVarInitialValue(VarDeclaration& decl, std::unique_ptr<Expression> value);
+    std::unique_ptr<Statement> convertVarDeclaration(int offset, const Modifiers& modifiers,
+                                                     const Type* baseType, StringFragment name,
+                                                     bool isArray,
+                                                     std::unique_ptr<Expression> arraySize,
+                                                     Variable::Storage storage,
+                                                     std::unique_ptr<Expression> value);
     StatementArray convertVarDeclarations(const ASTNode& decl, Variable::Storage storage);
     void convertFunction(const ASTNode& f);
     std::unique_ptr<Statement> convertSingleStatement(const ASTNode& statement);

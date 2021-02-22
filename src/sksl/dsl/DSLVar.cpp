@@ -90,7 +90,6 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name)
                                                                   fName,
                                                                   /*isArray=*/false,
                                                                   /*arraySize=*/nullptr,
-                                                                  /*value=*/nullptr,
                                                                   storage);
     fVar = &fDeclaration->as<SkSL::VarDeclaration>().var();
 }

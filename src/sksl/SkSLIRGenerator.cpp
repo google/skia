@@ -434,7 +434,6 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
                                                               StringFragment name,
                                                               bool isArray,
                                                               std::unique_ptr<Expression> arraySize,
-                                                              std::unique_ptr<Expression> value,
                                                               Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
@@ -459,36 +458,55 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
         SkASSERT(var->type() == *fContext.fTypes.fFloat4);
         fRTAdjust = var.get();
     }
-    if (value) {
-        if (type->isOpaque()) {
-            this->errorReporter().error(
-                    value->fOffset,
-                    "opaque type '" + type->name() + "' cannot use initializer expressions");
-        }
-        if (modifiers.fFlags & Modifiers::kIn_Flag) {
-            this->errorReporter().error(value->fOffset,
-                                        "'in' variables cannot use initializer expressions");
-        }
-        if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-            this->errorReporter().error(value->fOffset,
-                                        "'uniform' variables cannot use initializer expressions");
-        }
-        value = this->coerce(std::move(value), *type);
-        if (!value) {
-            return {};
-        }
-    }
     const Symbol* symbol = (*fSymbolTable)[var->name()];
     if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
         // Already defined, ignore.
         return nullptr;
     } else {
         auto result = std::make_unique<VarDeclaration>(var.get(), baseType, arraySizeValue,
-                                                       std::move(value));
+                                                       nullptr);
         var->setDeclaration(result.get());
         fSymbolTable->add(std::move(var));
         return std::move(result);
     }
+}
+
+void IRGenerator::setVarInitialValue(VarDeclaration& decl, std::unique_ptr<Expression> value) {
+    if (value) {
+        if (decl.var().type().isOpaque()) {
+            this->errorReporter().error(
+                    value->fOffset,
+                    "opaque type '" + decl.var().type().name() +
+                    "' cannot use initializer expressions");
+        }
+        if (decl.var().modifiers().fFlags & Modifiers::kIn_Flag) {
+            this->errorReporter().error(value->fOffset,
+                                        "'in' variables cannot use initializer expressions");
+        }
+        if (decl.var().modifiers().fFlags & Modifiers::kUniform_Flag) {
+            this->errorReporter().error(value->fOffset,
+                                        "'uniform' variables cannot use initializer expressions");
+        }
+        decl.fValue = this->coerce(std::move(value), decl.var().type());
+    }
+}
+
+std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
+                                                              const Modifiers& modifiers,
+                                                              const Type* baseType,
+                                                              StringFragment name,
+                                                              bool isArray,
+                                                              std::unique_ptr<Expression> arraySize,
+                                                              Variable::Storage storage,
+                                                              std::unique_ptr<Expression> value) {
+    std::unique_ptr<Statement> result = this->convertVarDeclaration(offset, modifiers, baseType,
+                                                                    name, isArray,
+                                                                    std::move(arraySize), storage);
+    if (!result) {
+        return nullptr;
+    }
+    this->setVarInitialValue(result->as<VarDeclaration>(), std::move(value));
+    return result;
 }
 
 StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
@@ -531,8 +549,8 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                                                                              varData.fName,
                                                                              varData.fIsArray,
                                                                              std::move(arraySize),
-                                                                             std::move(value),
-                                                                             storage);
+                                                                             storage,
+                                                                             std::move(value));
         if (varDeclStmt) {
             varDecls.push_back(std::move(varDeclStmt));
         }
