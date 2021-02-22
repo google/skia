@@ -2104,6 +2104,14 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
+    test_app("ddlbench") {
+      sources = [ "experimental/ddlbench/ddlbench.cpp" ]
+      deps = [
+        ":flags",
+        ":skia",
+        ":tool_utils",
+      ]
+    }
 
     # optional separate library to dlopen when running CanvasStateTests.
     shared_library("canvas_state_lib") {

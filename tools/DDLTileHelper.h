@@ -29,7 +29,7 @@ public:
     // rendering with DDLs.
     class TileData {
     public:
-        TileData() {}
+        TileData();
         ~TileData();
 
         bool initialized() const { return fID != -1; }
