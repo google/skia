@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
 
 #if !SKSL_USE_THREAD_LOCAL
 #include <pthread.h>
@@ -135,9 +136,9 @@ DSLExpression DSLWriter::ConvertPrefix(Operator op, std::unique_ptr<Expression> 
 DSLStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                       ExpressionArray caseValues,
                                       SkTArray<SkSL::StatementArray> caseStatements) {
-    return IRGenerator().convertSwitch(/*offset=*/-1, /*isStatic=*/false, std::move(value),
-                                       std::move(caseValues), std::move(caseStatements),
-                                       IRGenerator().fSymbolTable);
+    return SwitchStatement::Make(Context(), /*offset=*/-1, /*isStatic=*/false, std::move(value),
+                                 std::move(caseValues), std::move(caseStatements),
+                                 IRGenerator().fSymbolTable);
 }
 
 
