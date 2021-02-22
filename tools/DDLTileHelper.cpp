@@ -40,6 +40,7 @@ void DDLTileHelper::TileData::init(int id,
     fCallbackContext.reset(new PromiseImageCallbackContext(direct, backendFormat));
 }
 
+DDLTileHelper::TileData::TileData() {}
 DDLTileHelper::TileData::~TileData() {}
 
 void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureData,
@@ -334,8 +335,8 @@ static void do_gpu_stuff(GrDirectContext* direct, DDLTileHelper::TileData* tile)
 // We expect to have more than one recording thread but just one gpu thread
 void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                         SkTaskGroup* gpuTaskGroup,
-                                        GrDirectContext* direct) {
-    SkASSERT(recordingTaskGroup && gpuTaskGroup && direct);
+                                        GrDirectContext* dContext) {
+    SkASSERT(recordingTaskGroup && gpuTaskGroup && dContext);
 
     for (int i = 0; i < this->numTiles(); ++i) {
         TileData* tile = &fTiles[i];
@@ -348,11 +349,11 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
         //    schedule gpu-thread processing of the DDL
         // Note: a finer grained approach would be add a scheduling task which would evaluate
         //       which DDLs were ready to be rendered based on their prerequisites
-        recordingTaskGroup->add([tile, gpuTaskGroup, direct]() {
+        recordingTaskGroup->add([tile, gpuTaskGroup, dContext]() {
                                     tile->createDDL();
 
-                                    gpuTaskGroup->add([direct, tile]() {
-                                        do_gpu_stuff(direct, tile);
+                                    gpuTaskGroup->add([dContext, tile]() {
+                                        do_gpu_stuff(dContext, tile);
                                     });
                                 });
     }
