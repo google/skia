@@ -39,6 +39,30 @@
       },
       "revId": "28f7eb7cd32608b2df5530abb30055c37419623c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e44af95_277868b8",
+        "filename": "tests/TypefaceMacTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-22T16:24:23Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "e7191ac9_42d6524d",
+      "range": {
+        "startLine": 54,
+        "startChar": 19,
+        "endLine": 54,
+        "endChar": 26
+      },
+      "revId": "28f7eb7cd32608b2df5530abb30055c37419623c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
