@@ -872,44 +872,56 @@ void gather_file_srcs(const CommandLineFlags::StringArray& flags,
 
 static bool gather_srcs() {
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
-        push_src("gm", "", new GMSrc(f));
+        GMSrc* gmsrc = new GMSrc(f);
+        info("Pushing %s\n", gmsrc->name().c_str());
+        push_src("gm", "", gmsrc);
     }
 
+    info("skpsrc\n");
     gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+    info("mskpsrc\n");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if defined(SK_ENABLE_SKOTTIE)
+    info("skottiesrc\n");
     gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
 #endif
 #if defined(SK_ENABLE_SKRIVE)
+    info("skrivesrc\n");
     gather_file_srcs<SkRiveSrc>(FLAGS_rives, "flr", "rive");
 #endif
 #if defined(SK_XML)
+    info("svgwrc\n");
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif
+    info("bisect check\n");
     if (!FLAGS_bisect.isEmpty()) {
+        info("bisect\n");
         // An empty l/r trail string will draw all the paths.
         push_src("bisect", "",
                  new BisectSrc(FLAGS_bisect[0], FLAGS_bisect.count() > 1 ? FLAGS_bisect[1] : ""));
     }
 
+    info("images\n");
     SkTArray<SkString> images;
     if (!CollectImages(FLAGS_images, &images)) {
         return false;
     }
-
+    info("codec\n");
     for (const SkString& image : images) {
         push_codec_srcs(image);
     }
-
+    info("more images\n");
     SkTArray<SkString> colorImages;
     if (!CollectImages(FLAGS_colorImages, &colorImages)) {
         return false;
     }
-
+    info("color images\n");
     for (const SkString& colorImage : colorImages) {
+        info("- %s\n", colorImage.c_str());
         push_src("colorImage", "decode_native", new ColorCodecSrc(colorImage, false));
         push_src("colorImage", "decode_to_dst", new ColorCodecSrc(colorImage,  true));
     }
+    info("done\n");
 
     return true;
 }
@@ -1532,10 +1544,12 @@ int main(int argc, char** argv) {
     }
     gather_gold();
     gather_uninteresting_hashes();
-
+    info("Gathering sources\n");
     if (!gather_srcs()) {
+        info("Failed to gather sources, exiting.\n");
         return 1;
     }
+    info("Gathered sources!");
     // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
     bool defaultConfigs = true;
     for (int i = 0; i < argc; i++) {
@@ -1545,10 +1559,14 @@ int main(int argc, char** argv) {
             break;
         }
     }
+    info("Gathering sinks");
     if (!gather_sinks(grCtxOptions, defaultConfigs)) {
+        info("failed to gather sinks");
         return 1;
     }
+    info("Gathering tests");
     gather_tests();
+    info("Gathered tests");
     gPending = gSrcs->count() * gSinks->count() + gParallelTests->count() + gSerialTests->count();
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
          gSrcs->count(), gSinks->count(), gParallelTests->count() + gSerialTests->count(),

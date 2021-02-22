@@ -581,7 +581,7 @@
   },
   {
     "cmd": [
-      "idevicedebug",
+      "~/libi/ios/out/bin/idevicedebug",
       "run",
       "com.google.dm",
       "--some-flag"
