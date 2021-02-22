@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fc9e6ea_a4495f4f",
+        "filename": "bench/TessellateBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T19:17:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac99f60e_2582326e",
+      "range": {
+        "startLine": 224,
+        "startChar": 23,
+        "endLine": 224,
+        "endChar": 73
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "971b5a86_b6807a0e",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f33581d3_ba90e9a2",
+        "filename": "bench/TessellateBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T19:17:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "971b5a86_b6807a0e",
+      "range": {
+        "startLine": 260,
+        "startChar": 28,
+        "endLine": 260,
+        "endChar": 67
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34766e52_023c4120",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-02-22T18:58:00Z",
       "side": 1,
       "message": "Is this actually necessary...? I feel like the compiler is probably better positioned to judge this, but if we can prove it helps...",
+      "range": {
+        "startLine": 230,
+        "startChar": 4,
+        "endLine": 230,
+        "endChar": 20
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f9ad2cb_7a1d96e2",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T19:17:57Z",
+      "side": 1,
+      "message": "The loop is hot enough that it makes a difference. Removing the SK_ALWAYS_INLINE slows us down by over 10%. Combined with a few other 10% improvements coming in, those really start to add up. I\u0027d prefer to leave it for now.",
+      "parentUuid": "34766e52_023c4120",
       "range": {
         "startLine": 230,
         "startChar": 4,
@@ -131,6 +203,30 @@
       "side": 1,
       "message": "\u003e \"afer\" is a possible misspelling of \"after\".\n\nPlease fix.\nFor that matter, this comment really doesn\u0027t say anything at all.",
       "parentUuid": "6f3f6b9f_05ef11d7",
+      "range": {
+        "startLine": 726,
+        "startChar": 47,
+        "endLine": 726,
+        "endChar": 51
+      },
+      "revId": "a46098a45a6b5217ff5a442d0a44b25684376e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc218b7f_b5595eae",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T19:17:57Z",
+      "side": 1,
+      "message": "I was trying to say that \"contourIsEmpty\u003dfalse\" has to happen before the continue. I tried to word that better in a different comment.",
+      "parentUuid": "5f35aeaf_d4a9b6df",
       "range": {
         "startLine": 726,
         "startChar": 47,
