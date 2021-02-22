@@ -407,7 +407,7 @@ func GenTasks(cfg *Config) {
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_PUPPETEER, &specs.CasSpec{
-		Root: ".",
+		Root: "../skia", // Needed for other repos.
 		Paths: []string{
 			"tools/perf-canvaskit-puppeteer",
 		},
@@ -481,7 +481,7 @@ func GenTasks(cfg *Config) {
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_WASM_GM, &specs.CasSpec{
-		Root: ".",
+		Root: "../skia", // Needed for other repos.
 		Paths: []string{
 			"resources",
 			"tools/run-wasm-gm-tests",

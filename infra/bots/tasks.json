@@ -77946,7 +77946,7 @@
       ]
     },
     "puppeteer": {
-      "root": ".",
+      "root": "../skia",
       "paths": [
         "tools/perf-canvaskit-puppeteer"
       ],
@@ -78036,7 +78036,7 @@
       ]
     },
     "wasm-gm": {
-      "root": ".",
+      "root": "../skia",
       "paths": [
         "resources",
         "tools/run-wasm-gm-tests"
