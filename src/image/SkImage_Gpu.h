@@ -76,22 +76,6 @@ public:
                                            ReadPixelsCallback,
                                            ReadPixelsContext) override;
 
-    /**
-     * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
-     * TODO: Make this public, and remove the SkDDLRecorder entry point.
-     */
-    static sk_sp<SkImage> MakePromiseTexture(sk_sp<GrContextThreadSafeProxy>,
-                                             const GrBackendFormat& backendFormat,
-                                             SkISize dimensions,
-                                             GrMipmapped mipMapped,
-                                             GrSurfaceOrigin origin,
-                                             SkColorType colorType,
-                                             SkAlphaType alphaType,
-                                             sk_sp<SkColorSpace> colorSpace,
-                                             PromiseImageTextureFulfillProc textureFulfillProc,
-                                             PromiseImageTextureReleaseProc textureReleaseProc,
-                                             PromiseImageTextureContext textureContext);
-
 private:
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          GrMipmapped,
