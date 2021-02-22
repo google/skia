@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a2854d4_4587a55b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T21:57:38Z",
+      "side": 1,
+      "message": "Greg and John- I\u0027m wondering if you are both ok with this move? GrStrokeHardwareTessellator was taking up 30% of the profile for MotionMark and we were still CPU bound, so I think a few extreme optimizations are worth it 😊",
+      "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
