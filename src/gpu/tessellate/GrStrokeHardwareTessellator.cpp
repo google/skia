@@ -70,12 +70,14 @@ public:
         // Pre-allocate at least enough vertex space for 1 in 4 strokes to chop, and for 8 caps.
         int strokePreallocCount = totalCombinedVerbCnt * 5/4;
         int capPreallocCount = 8;
-        this->allocPatchChunkAtLeast(strokePreallocCount + capPreallocCount);
+        fNextChunkMinPatchAllocCount = strokePreallocCount + capPreallocCount;
     }
 
     ~PatchWriter() {
-        fTarget->putBackVertices(fCurrChunkPatchCapacity - fPatchChunks->back().fPatchCount,
-                                 fPatchStride);
+        if (!fPatchChunks->empty()) {
+            fTarget->putBackVertices(fCurrChunkPatchCapacity - fCurrChunkPatchCount, fPatchStride);
+            fPatchChunks->back().fPatchCount = fCurrChunkPatchCount;
+        }
     }
 
     // This is the intolerance value, adjusted for the view matrix, to use with Wang's formulas when
@@ -586,7 +588,7 @@ private:
         fLastControlPoint = nextControlPoint;
     }
 
-    void writeDynamicAttribs() {
+    SK_ALWAYS_INLINE void writeDynamicAttribs() {
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             fPatchWriter.write(fDynamicStroke);
         }
@@ -595,29 +597,34 @@ private:
         }
     }
 
-    bool allocPatch() {
-        if (fPatchChunks->back().fPatchCount >= fCurrChunkPatchCapacity) {
-            // The current chunk is full. Time to allocate a new one. (And no need to put back
-            // vertices; the buffer is full.)
-            this->allocPatchChunkAtLeast(fCurrChunkMinPatchAllocCount * 2);
-        }
-        if (!fPatchWriter.isValid()) {
-            SkDebugf("WARNING: Failed to allocate vertex buffer for tessellated stroke.");
+    SK_ALWAYS_INLINE bool allocPatch() {
+        if (fCurrChunkPatchCount == fCurrChunkPatchCapacity && !this->allocPatchChunk()) {
             return false;
         }
-        SkASSERT(fPatchChunks->back().fPatchCount <= fCurrChunkPatchCapacity);
-        ++fPatchChunks->back().fPatchCount;
+        SkASSERT(fCurrChunkPatchCount < fCurrChunkPatchCapacity);
+        ++fCurrChunkPatchCount;
         return true;
     }
 
-    void allocPatchChunkAtLeast(int minPatchAllocCount) {
-        SkASSERT(fTarget);
+    bool allocPatchChunk() {
+        if (!fPatchChunks->empty()) {
+            fPatchChunks->back().fPatchCount = fCurrChunkPatchCount;
+            // No need to put back vertices; the buffer is full.
+        }
+        fCurrChunkPatchCount = 0;
         PatchChunk* chunk = &fPatchChunks->push_back();
-        fPatchWriter = {fTarget->makeVertexSpaceAtLeast(fPatchStride, minPatchAllocCount,
-                                                        minPatchAllocCount, &chunk->fPatchBuffer,
-                                                        &chunk->fBasePatch,
+        fPatchWriter = {fTarget->makeVertexSpaceAtLeast(fPatchStride, fNextChunkMinPatchAllocCount,
+                                                        fNextChunkMinPatchAllocCount,
+                                                        &chunk->fPatchBuffer, &chunk->fBasePatch,
                                                         &fCurrChunkPatchCapacity)};
-        fCurrChunkMinPatchAllocCount = minPatchAllocCount;
+        if (!fPatchWriter.isValid()) {
+            SkDebugf("WARNING: Failed to allocate vertex buffer for tessellated stroke.\n");
+            fPatchChunks->pop_back();
+            fCurrChunkPatchCapacity = 0;
+            return false;
+        }
+        fNextChunkMinPatchAllocCount *= 2;
+        return true;
     }
 
     const ShaderFlags fShaderFlags;
@@ -645,8 +652,9 @@ private:
     bool fSoloRoundJoinAlwaysFitsInPatch;
 
     // Variables related to the patch chunk that we are currently writing out during prepareBuffers.
-    int fCurrChunkPatchCapacity;
-    int fCurrChunkMinPatchAllocCount;
+    int fCurrChunkPatchCount = 0;
+    int fCurrChunkPatchCapacity = 0;
+    int fNextChunkMinPatchAllocCount;
     GrVertexWriter fPatchWriter;
 
     // Variables related to the specific contour that we are currently iterating during
