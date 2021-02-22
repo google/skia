@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "506ef7e5_4566b766",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-22T15:15:42Z",
+      "side": 1,
+      "message": "This looks like you got this to pass? Are there any updates here so we can get this bot green?",
+      "revId": "cfe95b9fcb66bd99cc58f6e27136d66951d088f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
