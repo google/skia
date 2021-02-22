@@ -1,7 +1,4 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-void main() {
-    {
-        discard;
-    }
-}
+error: 7: unreachable
+1 error

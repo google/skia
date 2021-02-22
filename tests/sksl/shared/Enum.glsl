@@ -14,8 +14,13 @@ void main() {
     sk_FragColor = vec4(-8.0);
     sk_FragColor = vec4(-9.0);
     sk_FragColor = vec4(10.0);
-    {
-        sk_FragColor = vec4(11.0);
+    switch (0) {
+        case 0:
+            sk_FragColor = vec4(11.0);
+            break;
+        case 1:
+            sk_FragColor = vec4(12.0);
+            break;
     }
     {
         sk_FragColor = vec4(13.0);
