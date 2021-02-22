@@ -34,6 +34,24 @@
       "parentUuid": "7bcaec97_8227502f",
       "revId": "9ea5d92ee2a77c7a1dae448dbc20005cfae619f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b29e5cc6_ee8121c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-22T16:35:59Z",
+      "side": 1,
+      "message": "Yup, chatted about this with Ethan, he\u0027s going to make an IR change to how Variables and VarDeclarations are created (so the IR generator and DSL agree on the semantics). That will make this stop crashing, and then I can fix the test.",
+      "parentUuid": "85c90502_eeff920e",
+      "revId": "9ea5d92ee2a77c7a1dae448dbc20005cfae619f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
