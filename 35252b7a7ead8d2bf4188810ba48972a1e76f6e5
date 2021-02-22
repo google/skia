@@ -16,6 +16,75 @@
       "message": "This looks like it works (and solves my immediate problem). Seems like we could (should?) go further, and move the line on the IR generator side further, so it has:\n\n  const Variable* createVariable(...);\n  unique_ptr\u003cStatement\u003e convertDeclaration(Variable*, value, ...);\n\nThat would let us remove fDeclaration from DSLVar entirely - we could defer creating the declaration until Declare is called, and we wouldn\u0027t need to go back and update the declaration - it would be constructed correctly the first time?",
       "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2feeb7fa_d812fb4e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:36:31Z",
+      "side": 1,
+      "message": "arg-comment please",
+      "range": {
+        "startLine": 467,
+        "startChar": 55,
+        "endLine": 467,
+        "endChar": 62
+      },
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0843de86_5da25354",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:36:31Z",
+      "side": 1,
+      "message": "Is there any reason not to just make this a method on VarDeclaration that takes  (InitialValue, Context)?\n\n- errorReporter is in the Context\n- Coercion can now be expressed as `var().type().coerceExpression(std::move(value), context)`\n\nIdeally I\u0027d like to get in the habit of putting more things in the IRNodes where we can and letting the Context do more for us.",
+      "range": {
+        "startLine": 474,
+        "startChar": 5,
+        "endLine": 474,
+        "endChar": 36
+      },
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30e48427_f545bcb8",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T18:36:31Z",
+      "side": 1,
+      "message": "Should we arg-comment these with /*initialValue\u003d*/ or is that unnecessary? I\u0027m 50/50.",
+      "range": {
+        "startLine": 1300,
+        "startChar": 31,
+        "endLine": 1300,
+        "endChar": 32
+      },
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
