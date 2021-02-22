@@ -3,5 +3,5 @@ uniform half4 colorGreen, colorRed;
 half4 main() {
     bool x = true;
     if (x) return colorGreen;
-    if (!x) return colorRed;
+//    if (!x) return colorRed;
 }
