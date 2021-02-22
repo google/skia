@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "972fe441_d10c4bcd",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T19:02:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "290464ce_df7e973e",
+      "range": {
+        "startLine": 658,
+        "startChar": 9,
+        "endLine": 658,
+        "endChar": 13
+      },
+      "revId": "15139569e1651c731a84bf6252b123b98f8eec7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8170adc4_63193b59",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9fa1f76_8a55bf8a",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectTessellator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T19:02:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8170adc4_63193b59",
+      "range": {
+        "startLine": 467,
+        "startChar": 9,
+        "endLine": 467,
+        "endChar": 13
+      },
+      "revId": "15139569e1651c731a84bf6252b123b98f8eec7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "369cf14b_73dcc811",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-02-22T18:50:00Z",
       "side": 1,
       "message": "Consider PathStroke*",
+      "range": {
+        "startLine": 819,
+        "startChar": 9,
+        "endLine": 819,
+        "endChar": 13
+      },
+      "revId": "15139569e1651c731a84bf6252b123b98f8eec7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "072ef196_fc5c366a",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectTessellator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T19:02:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "369cf14b_73dcc811",
       "range": {
         "startLine": 819,
         "startChar": 9,
