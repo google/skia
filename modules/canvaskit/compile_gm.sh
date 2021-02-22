@@ -196,6 +196,7 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/EncodeTest.cpp:"\
 "tests/FontMgrAndroidParserTest.cpp:"\
 "tests/FontMgrFontConfigTest.cpp:"\
+"tests/TypefaceMacTest.cpp:"\
 "tests/SkVMTest.cpp:"
 
 # These tests do complex things with TestContexts, which is not easily supported for the WASM
