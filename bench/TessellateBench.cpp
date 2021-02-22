@@ -201,9 +201,80 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     GrMiddleOutPolygonTriangulator::WritePathInnerFan(vertexData, 3, fPath);
 }
 
+using PathStrokeList = GrStrokeTessellator::PathStrokeList;
+using MakePathStrokesFn = std::vector<PathStrokeList>(*)();
+
+static std::vector<PathStrokeList> make_simple_cubic_path() {
+    auto path = SkPath().moveTo(0, 0);
+    for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
+        path.cubicTo(100, 0, 50, 100, 100, 100);
+        path.cubicTo(0, -100, 200, 100, 0, 0);
+    }
+    SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+    stroke.setStrokeStyle(8);
+    stroke.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kMiter_Join, 4);
+    return {{path, stroke, SK_PMColor4fWHITE}};
+}
+
+// Generates a list of paths that resemble the MotionMark benchmark.
+static std::vector<PathStrokeList> make_motionmark_paths() {
+    std::vector<PathStrokeList> pathStrokes;
+    SkRandom rand;
+    for (int i = 0; i < 8702; ++i) {
+        // The number of paths with a given number of verbs in the MotionMark bench gets cut in half
+        // every time the number of verbs increases by 1.
+        int numVerbs = 28 - SkNextLog2(rand.nextRangeU(0, (1 << 27) - 1));
+        SkPath path;
+        for (int j = 0; j < numVerbs; ++j) {
+            switch (rand.nextU() & 3) {
+                case 0:
+                case 1:
+                    path.lineTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
+                    break;
+                case 2:
+                    if (rand.nextULessThan(10) == 0) {
+                        // Cusp.
+                        auto [x, y] = (path.isEmpty())
+                                ? SkPoint{0,0}
+                                : SkPathPriv::PointData(path)[path.countPoints() - 1];
+                        path.quadTo(x + rand.nextRangeF(0, 150), y, x - rand.nextRangeF(0, 150), y);
+                    } else {
+                        path.quadTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
+                                    rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
+                    }
+                    break;
+                case 3:
+                    if (rand.nextULessThan(10) == 0) {
+                        // Cusp.
+                        float y = (path.isEmpty())
+                                ? 0 : SkPathPriv::PointData(path)[path.countPoints() - 1].fY;
+                        path.cubicTo(rand.nextRangeF(0, 150), y, rand.nextRangeF(0, 150), y,
+                                     rand.nextRangeF(0, 150), y);
+                    } else {
+                        path.cubicTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
+                                     rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
+                                     rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
+                    }
+                    break;
+            }
+        }
+        SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+        // The number of paths with a given stroke width in the MotionMark bench gets cut in half
+        // every time the stroke width increases by 1.
+        float strokeWidth = 21 - log2f(rand.nextRangeF(0, 1 << 20));
+        stroke.setStrokeStyle(strokeWidth);
+        stroke.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kBevel_Join, 0);
+        pathStrokes.emplace_back(path, stroke, SK_PMColor4fWHITE);
+    }
+    return pathStrokes;
+}
+
 class GrStrokeHardwareTessellator::TestingOnly_Benchmark : public Benchmark {
 public:
-    TestingOnly_Benchmark(float matrixScale, const char* suffix) : fMatrixScale(matrixScale) {
+    TestingOnly_Benchmark(MakePathStrokesFn MakePathStrokesFn, float matrixScale,
+                          const char* suffix)
+            : fMakePathStrokesFn(MakePathStrokesFn)
+            , fMatrixScale(matrixScale) {
         fName.printf("tessellate_GrStrokeHardwareTessellator_prepare%s", suffix);
     }
 
@@ -213,39 +284,45 @@ private:
 
     void onDelayedSetup() override {
         fTarget = std::make_unique<GrMockOpTarget>(make_mock_context());
-        fPath.reset().moveTo(0, 0);
-        for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
-            fPath.cubicTo(100, 0, 50, 100, 100, 100);
-            fPath.cubicTo(0, -100, 200, 100, 0, 0);
-        }
-        fStrokeRec.setStrokeStyle(8);
-        fStrokeRec.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kMiter_Join, 4);
-    }
-
-    void onDraw(int loops, SkCanvas*) final {
         if (!fTarget->mockContext()) {
             SkDebugf("ERROR: could not create mock context.");
             return;
         }
-        SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
-        GrStrokeTessellator::PathStrokeList pathStroke(fPath, fStrokeRec, SK_PMColor4fWHITE);
-        for (int i = 0; i < loops; ++i) {
-            GrStrokeHardwareTessellator tessellator(ShaderFlags::kNone, &pathStroke,
-                                                    fPath.countVerbs(),
-                                                    *fTarget->caps().shaderCaps());
-            tessellator.prepare(fTarget.get(), matrix);
+
+        fPathStrokes = fMakePathStrokesFn();
+        for (size_t i = 0; i < fPathStrokes.size(); ++i) {
+            if (i + 1 < fPathStrokes.size()) {
+                fPathStrokes[i].fNext = &fPathStrokes[i + 1];
+            }
+            fTotalVerbCount += fPathStrokes[i].fPath.countVerbs();
         }
     }
 
-    const float fMatrixScale;
+    void onDraw(int loops, SkCanvas*) final {
+        SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
+        for (int i = 0; i < loops; ++i) {
+            GrStrokeHardwareTessellator tessellator(ShaderFlags::kNone, fPathStrokes.data(),
+                                                    fTotalVerbCount, *fTarget->caps().shaderCaps());
+            tessellator.prepare(fTarget.get(), matrix);
+            fTarget->resetAllocator();
+        }
+    }
+
     SkString fName;
+    MakePathStrokesFn fMakePathStrokesFn;
+    float fMatrixScale;
     std::unique_ptr<GrMockOpTarget> fTarget;
-    SkPath fPath;
-    SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
+    std::vector<PathStrokeList> fPathStrokes;
+    SkArenaAlloc fPersistentArena{1024};
+    int fTotalVerbCount = 0;
 };
 
-DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(1, ""); )
-DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(5, "_one_chop"); )
+DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(make_simple_cubic_path, 1,
+                                                                         ""); )
+DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(make_simple_cubic_path, 5,
+                                                                         "_one_chop"); )
+DEF_BENCH( return new GrStrokeHardwareTessellator::TestingOnly_Benchmark(make_motionmark_paths, 1,
+                                                                         "_motionmark"); )
 
 class GrStrokeIndirectTessellator::Benchmark : public ::Benchmark {
 protected:
