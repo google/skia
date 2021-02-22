@@ -590,6 +590,29 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipmapped, SkBudget
     return nullptr;
 }
 
+sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy>,
+                                           const GrBackendFormat&,
+                                           SkSize,
+                                           GrMipmapped,
+                                           GrSurfaceOrigin,
+                                           SkColorType,
+                                           SkAlphaType,
+                                           sk_sp<SkColorSpace>,
+                                           PromiseImageTextureFulfillProc,
+                                           PromiseImageTextureReleaseProc,
+                                           PromiseImageTextureContext) {
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy>,
+                                               const GrYUVABackendTextureInfo&,
+                                               sk_sp<SkColorSpace>,
+                                               PromiseImageTextureFulfillProc,
+                                               PromiseImageTextureReleaseProc,
+                                               PromiseImageTextureContext[]) {
+    return nullptr;
+}
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
