@@ -10,17 +10,41 @@
 #include "include/core/SkColor.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/image/SkImage_Base.h"
 
 namespace sk_gpu_test {
+
+GrTextureProxy* GetTextureImageProxy(SkImage* image) {
+    if (!image->isTextureBacked() || as_IB(image)->isYUVA()) {
+        return nullptr;
+    }
+    GrImageContext* iContext = as_IB(image)->context();
+    SkASSERT(iContext);
+    GrRecordingContext* rContext = iContext->priv().asRecordingContext();
+    if (!rContext) {
+        return nullptr;
+    }
+    auto [view, ct] = as_IB(image)->asView(rContext, GrMipmapped::kNo);
+    if (!view) {
+        SkASSERT(!image->isValid(rContext));
+        return nullptr;
+    }
+    SkASSERT(view);
+    GrSurfaceProxy* proxy = view.proxy();
+    SkASSERT(proxy->asTextureProxy());
+    return proxy->asTextureProxy();
+}
 
 GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
                                                 GrRenderable renderable,
