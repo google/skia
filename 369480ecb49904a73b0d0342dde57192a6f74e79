@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29feb3f5_95040b0a",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-02-22T19:25:59Z",
+      "side": 1,
+      "message": "isAImage is meant to restrict this to shaders which could be gradients. Admittedly that\u0027s not what I want it to do.\nI would prefer to make the gradients specify somehow to this function to choose the raster pipeline blitter, or maybe call into its dithering algorithm.\n\nWhat do you think?",
+      "range": {
+        "startLine": 789,
+        "startChar": 70,
+        "endLine": 789,
+        "endChar": 71
+      },
+      "revId": "369480ecb49904a73b0d0342dde57192a6f74e79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
