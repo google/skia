@@ -188,13 +188,11 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 
     // are we sharing our backing proxy with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
-    sk_sp<SkImage> image(this->refCachedImage());
+    sk_sp<SkImage> image = this->refCachedImage();
     SkASSERT(image);
 
-    GrSurfaceProxy* imageProxy = ((SkImage_Base*) image.get())->peekProxy();
-    SkASSERT(imageProxy);
-
-    if (sdc->asSurfaceProxy()->underlyingUniqueID() == imageProxy->underlyingUniqueID()) {
+    GrSurfaceProxy::UniqueID id = sdc->asSurfaceProxy()->underlyingUniqueID();
+    if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(id)) {
         fDevice->replaceSurfaceDrawContext(mode);
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();

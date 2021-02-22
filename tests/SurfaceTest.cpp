@@ -33,6 +33,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #include <functional>
 #include <initializer_list>
@@ -481,18 +482,19 @@ static void test_crbug263329(skiatest::Reporter* reporter,
     canvas2->clear(5);
     sk_sp<SkImage> image4(surface2->makeImageSnapshot());
 
-    SkImage_GpuBase* gpuImage1 = static_cast<SkImage_GpuBase*>(as_IB(image1));
-    SkImage_GpuBase* gpuImage2 = static_cast<SkImage_GpuBase*>(as_IB(image2));
-    SkImage_GpuBase* gpuImage3 = static_cast<SkImage_GpuBase*>(as_IB(image3));
-    SkImage_GpuBase* gpuImage4 = static_cast<SkImage_GpuBase*>(as_IB(image4));
+    auto imageProxy = [](SkImage* img) {
+        GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(img);
+        SkASSERT(proxy);
+        return proxy;
+    };
 
-    REPORTER_ASSERT(reporter, gpuImage4->peekProxy() != gpuImage3->peekProxy());
+    REPORTER_ASSERT(reporter, imageProxy(image4.get()) != imageProxy(image3.get()));
     // The following assertion checks crbug.com/263329
-    REPORTER_ASSERT(reporter, gpuImage4->peekProxy() != gpuImage2->peekProxy());
-    REPORTER_ASSERT(reporter, gpuImage4->peekProxy() != gpuImage1->peekProxy());
-    REPORTER_ASSERT(reporter, gpuImage3->peekProxy() != gpuImage2->peekProxy());
-    REPORTER_ASSERT(reporter, gpuImage3->peekProxy() != gpuImage1->peekProxy());
-    REPORTER_ASSERT(reporter, gpuImage2->peekProxy() != gpuImage1->peekProxy());
+    REPORTER_ASSERT(reporter, imageProxy(image4.get()) != imageProxy(image2.get()));
+    REPORTER_ASSERT(reporter, imageProxy(image4.get()) != imageProxy(image1.get()));
+    REPORTER_ASSERT(reporter, imageProxy(image3.get()) != imageProxy(image2.get()));
+    REPORTER_ASSERT(reporter, imageProxy(image3.get()) != imageProxy(image1.get()));
+    REPORTER_ASSERT(reporter, imageProxy(image2.get()) != imageProxy(image1.get()));
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
@@ -532,7 +534,7 @@ static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
-    return ((SkImage_Gpu*)image)->peekProxy()->isBudgeted();
+    return sk_gpu_test::GetTextureImageProxy(image)->isBudgeted();
 }
 
 static SkBudgeted is_budgeted(const sk_sp<SkImage> image) {
@@ -541,8 +543,9 @@ static SkBudgeted is_budgeted(const sk_sp<SkImage> image) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBudget, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
+    GrDirectContext* dContext = ctxInfo.directContext();
     for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
-        auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), budgeted, info));
+        auto surface(SkSurface::MakeRenderTarget(dContext, budgeted, info));
         SkASSERT(surface);
         REPORTER_ASSERT(reporter, budgeted == is_budgeted(surface));
 
