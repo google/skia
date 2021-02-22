@@ -7,6 +7,7 @@ package gen_tasks_logic
 import (
 	"log"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -64,7 +65,9 @@ var (
 // getAllCheckedInPaths returns every path checked in to the repo.
 func getAllCheckedInPaths() []string {
 	cmd := exec.Command("git", "ls-files")
-	cmd.Dir = CheckoutRoot()
+	// Use '../skia' to get to the Skia checkout, in case this is used by
+	// another repo.
+	cmd.Dir = filepath.Join(CheckoutRoot(), "..", "skia")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Fatal(err)
