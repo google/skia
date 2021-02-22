@@ -572,8 +572,8 @@ half4 blend(SkBlendMode mode, half4 src, half4 dst) {
         case SkBlendMode::kSaturation: return blend_saturation(src, dst);
         case SkBlendMode::kColor:      return blend_color(src, dst);
         case SkBlendMode::kLuminosity: return blend_luminosity(src, dst);
-    }
-    return half4(0);  // Avoids "'blend' can exit without returning a value."
+        default: return half4(0);  // Avoids "'blend' can exit without returning a value."
+   }
 }
 
 // The max() guards against division by zero when the incoming color is transparent black
