@@ -926,19 +926,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         GrBackendFormat format = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
                                                                 GrRenderable::kNo);
         SkASSERT(format.isValid());
-
-        sk_sp<SkImage> image = recorder.makePromiseTexture(
-                format,
-                32, 32,
-                GrMipmapped::kNo,
-                kTopLeft_GrSurfaceOrigin,
-                kRGBA_8888_SkColorType,
-                kPremul_SkAlphaType,
-                nullptr,
-                dummy_fulfill_proc,
-                /*release proc*/ nullptr,
-                nullptr);
-        REPORTER_ASSERT(reporter, !image);
     }
 }
 
@@ -1092,12 +1079,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
                                                                GrRenderable::kNo);
         SkASSERT(format.isValid());
 
-        sk_sp<SkImage> promiseImage = recorder.makePromiseTexture(
-                format, 32, 32, GrMipmapped::kNo, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                kPremul_SkAlphaType, nullptr, tracking_fulfill_proc, tracking_release_proc,
-                &fulfillInfo);
-
         SkCanvas* canvas = recorder.getCanvas();
+
+        sk_sp<SkImage> promiseImage = SkImage::MakePromiseTexture(
+                                                      canvas->recordingContext()->threadSafeProxy(),
+                                                      format,
+                                                      SkISize::Make(32, 32),
+                                                      GrMipmapped::kNo,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      kRGBA_8888_SkColorType,
+                                                      kPremul_SkAlphaType,
+                                                      nullptr,
+                                                      tracking_fulfill_proc,
+                                                      tracking_release_proc,
+                                                      &fulfillInfo);
 
         canvas->clear(SK_ColorRED);
         canvas->drawImage(promiseImage, 0, 0);
@@ -1202,17 +1197,18 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
         for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
             GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
 
-            sk_sp<SkImage> image = recorder.makePromiseTexture(
+            sk_sp<SkImage> image = SkImage::MakePromiseTexture(
+                    recorder.getCanvas()->recordingContext()->threadSafeProxy(),
                     format,
-                    32, 32,
+                    SkISize::Make(32, 32),
                     mipMapped,
                     kTopLeft_GrSurfaceOrigin,
                     kRGBA_8888_SkColorType,
                     kPremul_SkAlphaType,
-                    nullptr,
+                    /*color space*/nullptr,
                     dummy_fulfill_proc,
                     /*release proc*/ nullptr,
-                    nullptr);
+                    /*context*/nullptr);
             if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipmapped::kYes) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;
