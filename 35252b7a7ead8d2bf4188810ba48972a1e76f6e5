@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24257a28_fc28bc49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-22T18:01:42Z",
+      "side": 1,
+      "message": "This looks like it works (and solves my immediate problem). Seems like we could (should?) go further, and move the line on the IR generator side further, so it has:\n\n  const Variable* createVariable(...);\n  unique_ptr\u003cStatement\u003e convertDeclaration(Variable*, value, ...);\n\nThat would let us remove fDeclaration from DSLVar entirely - we could defer creating the declaration until Declare is called, and we wouldn\u0027t need to go back and update the declaration - it would be constructed correctly the first time?",
+      "revId": "35252b7a7ead8d2bf4188810ba48972a1e76f6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
