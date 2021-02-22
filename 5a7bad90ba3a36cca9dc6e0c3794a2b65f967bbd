@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "721de42d_fd63b244",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-22T20:36:46Z",
+      "side": 1,
+      "message": "can you explain why this means there was an internal chop which was a cusp?",
+      "range": {
+        "startLine": 508,
+        "startChar": 12,
+        "endLine": 508,
+        "endChar": 74
+      },
+      "revId": "5a7bad90ba3a36cca9dc6e0c3794a2b65f967bbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
