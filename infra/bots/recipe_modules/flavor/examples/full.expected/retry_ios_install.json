@@ -614,7 +614,7 @@
   },
   {
     "cmd": [
-      "idevicedebug",
+      "/tmp/idevicedebug",
       "run",
       "com.google.dm",
       "--some-flag"

@@ -121,7 +121,8 @@ time.sleep(2)
     success = False
     with self.context():
       try:
-        self.m.run(self.m.step, name, cmd=['idevicedebug', 'run'] + args)
+        #self.m.run(self.m.step, name, cmd=['idevicedebug', 'run'] + args)
+        self.m.run(self.m.step, name, cmd=['/tmp/idevicedebug', 'run'] + args)
         success = True
       finally:
         if not success:
