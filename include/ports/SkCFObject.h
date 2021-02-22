@@ -30,50 +30,50 @@ template <typename T> static inline void SkCFSafeRelease(T obj) {
     }
 }
 
-template <typename T> class sk_cf_obj {
+template <typename T> class sk_cfp {
 public:
     using element_type = T;
 
-    constexpr sk_cf_obj() {}
-    constexpr sk_cf_obj(std::nullptr_t) {}
+    constexpr sk_cfp() {}
+    constexpr sk_cfp(std::nullptr_t) {}
 
     /**
      *  Shares the underlying object by calling CFRetain(), so that both the argument and the newly
-     *  created sk_cf_obj both have a reference to it.
+     *  created sk_cfp both have a reference to it.
      */
-    sk_cf_obj(const sk_cf_obj<T>& that) : fObject(SkCFSafeRetain(that.get())) {}
+    sk_cfp(const sk_cfp<T>& that) : fObject(SkCFSafeRetain(that.get())) {}
 
     /**
-     *  Move the underlying object from the argument to the newly created sk_cf_obj. Afterwards only
-     *  the new sk_cf_obj will have a reference to the object, and the argument will point to null.
+     *  Move the underlying object from the argument to the newly created sk_cfp. Afterwards only
+     *  the new sk_cfp will have a reference to the object, and the argument will point to null.
      *  No call to CFRetain() or CFRelease() will be made.
      */
-    sk_cf_obj(sk_cf_obj<T>&& that) : fObject(that.release()) {}
+    sk_cfp(sk_cfp<T>&& that) : fObject(that.release()) {}
 
     /**
-     *  Adopt the bare object into the newly created sk_cf_obj.
+     *  Adopt the bare object into the newly created sk_cfp.
      *  No call to CFRetain() or CFRelease() will be made.
      */
-    explicit sk_cf_obj(T obj) {
+    explicit sk_cfp(T obj) {
         fObject = obj;
     }
 
     /**
      *  Calls CFRelease() on the underlying object pointer.
      */
-    ~sk_cf_obj() {
+    ~sk_cfp() {
         SkCFSafeRelease(fObject);
         SkDEBUGCODE(fObject = nil);
     }
 
-    sk_cf_obj<T>& operator=(std::nullptr_t) { this->reset(); return *this; }
+    sk_cfp<T>& operator=(std::nullptr_t) { this->reset(); return *this; }
 
     /**
      *  Shares the underlying object referenced by the argument by calling CFRetain() on it. If this
-     *  sk_cf_obj previously had a reference to an object (i.e. not null) it will call CFRelease()
+     *  sk_cfp previously had a reference to an object (i.e. not null) it will call CFRelease()
      *  on that object.
      */
-    sk_cf_obj<T>& operator=(const sk_cf_obj<T>& that) {
+    sk_cfp<T>& operator=(const sk_cfp<T>& that) {
         if (this != &that) {
             this->reset(SkCFSafeRetain(that.get()));
         }
@@ -81,11 +81,11 @@ public:
     }
 
     /**
-     *  Move the underlying object from the argument to the sk_cf_obj. If the sk_cf_obj
+     *  Move the underlying object from the argument to the sk_cfp. If the sk_cfp
      * previously held a reference to another object, CFRelease() will be called on that object.
      * No call to CFRetain() will be made.
      */
-    sk_cf_obj<T>& operator=(sk_cf_obj<T>&& that) {
+    sk_cfp<T>& operator=(sk_cfp<T>&& that) {
         this->reset(that.release());
         return *this;
     }
@@ -112,7 +112,7 @@ public:
     }
 
     /**
-     *  Shares the new object by calling CFRetain() on it. If this sk_cf_obj previously had a
+     *  Shares the new object by calling CFRetain() on it. If this sk_cfp previously had a
      *  reference to an object (i.e. not null) it will call CFRelease() on that object.
      */
     void retain(T object) {
@@ -136,41 +136,45 @@ private:
     T fObject = nil;
 };
 
-template <typename T> inline bool operator==(const sk_cf_obj<T>& a,
-                                             const sk_cf_obj<T>& b) {
+template <typename T> inline bool operator==(const sk_cfp<T>& a,
+                                             const sk_cfp<T>& b) {
     return a.get() == b.get();
 }
-template <typename T> inline bool operator==(const sk_cf_obj<T>& a,
+template <typename T> inline bool operator==(const sk_cfp<T>& a,
                                              std::nullptr_t) {
     return !a;
 }
 template <typename T> inline bool operator==(std::nullptr_t,
-                                             const sk_cf_obj<T>& b) {
+                                             const sk_cfp<T>& b) {
     return !b;
 }
 
-template <typename T> inline bool operator!=(const sk_cf_obj<T>& a,
-                                             const sk_cf_obj<T>& b) {
+template <typename T> inline bool operator!=(const sk_cfp<T>& a,
+                                             const sk_cfp<T>& b) {
     return a.get() != b.get();
 }
-template <typename T> inline bool operator!=(const sk_cf_obj<T>& a,
+template <typename T> inline bool operator!=(const sk_cfp<T>& a,
                                              std::nullptr_t) {
     return static_cast<bool>(a);
 }
 template <typename T> inline bool operator!=(std::nullptr_t,
-                                             const sk_cf_obj<T>& b) {
+                                             const sk_cfp<T>& b) {
     return static_cast<bool>(b);
 }
 
 /*
- *  Returns a sk_cf_obj wrapping the provided object AND calls retain on it (if not null).
+ *  Returns a sk_cfp wrapping the provided object AND calls retain on it (if not null).
  *
- *  This is different than the semantics of the constructor for sk_cf_obj, which just wraps the
+ *  This is different than the semantics of the constructor for sk_cfp, which just wraps the
  *  object, effectively "adopting" it.
  */
-template <typename T> sk_cf_obj<T> sk_ret_cf_obj(T obj) {
-    return sk_cf_obj<T>(SkCFSafeRetain(obj));
+template <typename T> sk_cfp<T> sk_ret_cfp(T obj) {
+    return sk_cfp<T>(SkCFSafeRetain(obj));
 }
+
+// For Flutter.
+// TODO: migrate them away from this and remove
+template <typename T> using sk_cf_obj = sk_cfp<T>;
 
 #endif  // SK_BUILD_FOR_MAC || SK_BUILD_FOR_IOS
 #endif  // SkCFObject_DEFINED
