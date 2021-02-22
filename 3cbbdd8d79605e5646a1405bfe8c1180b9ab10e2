@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51063768_003d694f",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T20:59:52Z",
+      "side": 1,
+      "message": "What about `PatchChunk* chunk \u003d \u0026fPatchChunks-\u003epush_back();`?\nShould we pop this?",
+      "range": {
+        "startLine": 622,
+        "startChar": 12,
+        "endLine": 622,
+        "endChar": 24
+      },
+      "revId": "3cbbdd8d79605e5646a1405bfe8c1180b9ab10e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
