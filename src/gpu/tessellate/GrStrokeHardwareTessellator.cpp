@@ -655,8 +655,8 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
     PatchWriter patchWriter(fShaderFlags, target, &fPatchChunks, fTotalCombinedVerbCnt);
     const SkStrokeRec* strokeForTolerances = nullptr;
 
-    for (const auto& pathStroke : fPathStrokeList) {
-        const SkStrokeRec& stroke = pathStroke.fStroke;
+    for (PathStrokeList* pathStroke = fPathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
+        const SkStrokeRec& stroke = pathStroke->fStroke;
         if (!strokeForTolerances || strokeForTolerances->getWidth() != stroke.getWidth() ||
             strokeForTolerances->getCap() != stroke.getCap()) {
             auto tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
@@ -667,10 +667,10 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
             patchWriter.updateDynamicStroke(stroke);
         }
         if (fShaderFlags & ShaderFlags::kDynamicColor) {
-            patchWriter.updateDynamicColor(pathStroke.fColor);
+            patchWriter.updateDynamicColor(pathStroke->fColor);
         }
 
-        const SkPath& path = pathStroke.fPath;
+        const SkPath& path = pathStroke->fPath;
         auto strokeJoinType = JoinType(stroke.getJoin());
         SkPathVerb previousVerb = SkPathVerb::kClose;
         for (auto [verb, p, w] : SkPathPriv::Iterate(path)) {

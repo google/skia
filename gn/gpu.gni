@@ -199,7 +199,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrSPIRVUniformHandler.h",
   "$_src/gpu/GrSPIRVVaryingHandler.cpp",
   "$_src/gpu/GrSPIRVVaryingHandler.h",
-  "$_src/gpu/GrSTArenaList.h",
   "$_src/gpu/GrSWMaskHelper.cpp",
   "$_src/gpu/GrSWMaskHelper.h",
   "$_src/gpu/GrSamplePatternDictionary.cpp",

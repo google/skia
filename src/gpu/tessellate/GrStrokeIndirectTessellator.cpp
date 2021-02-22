@@ -441,7 +441,7 @@ private:
 
 GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags,
                                                          const SkMatrix& viewMatrix,
-                                                         GrSTArenaList<PathStroke>&& pathStrokeList,
+                                                         PathStrokeList* pathStrokeList,
                                                          int totalCombinedVerbCnt,
                                                          SkArenaAlloc* alloc)
         : GrStrokeTessellator(shaderFlags, std::move(pathStrokeList)) {
@@ -464,8 +464,8 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
 
     float lastStrokeWidth = -1;
     SkPoint lastControlPoint = {0,0};
-    for (const auto& pathStroke : fPathStrokeList) {
-        const SkStrokeRec& stroke = pathStroke.fStroke;
+    for (PathStrokeList* pathStroke = fPathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
+        const SkStrokeRec& stroke = pathStroke->fStroke;
         SkASSERT(stroke.getWidth() >= 0);  // Otherwise we can't initialize lastStrokeWidth=-1.
         if (stroke.getWidth() != lastStrokeWidth ||
             (stroke.getJoin() == SkPaint::kRound_Join) != counter.isRoundJoin()) {
@@ -475,7 +475,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
         fMaxNumExtraEdgesInJoin = std::max(fMaxNumExtraEdgesInJoin,
                 GrStrokeTessellateShader::NumExtraEdgesInIndirectJoin(stroke.getJoin()));
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
-        GrStrokeIterator iter(pathStroke.fPath, &stroke, &viewMatrix);
+        GrStrokeIterator iter(pathStroke->fPath, &stroke, &viewMatrix);
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
             Verb verb = iter.verb();
@@ -816,17 +816,17 @@ void GrStrokeIndirectTessellator::writeBuffers(GrDrawIndirectWriter* indirectWri
     int8_t resolveLevel;
 
     // Now write out each instance to its resolveLevel's designated location in the instance buffer.
-    for (const auto& pathStroke : fPathStrokeList) {
-        const SkStrokeRec& stroke = pathStroke.fStroke;
+    for (PathStrokeList* pathStroke = fPathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
+        const SkStrokeRec& stroke = pathStroke->fStroke;
         SkASSERT(stroke.getJoin() != SkPaint::kMiter_Join || numExtraEdgesInJoin == 4);
         bool isRoundJoin = (stroke.getJoin() == SkPaint::kRound_Join);
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             binningWriter.updateDynamicStroke(stroke);
         }
         if (fShaderFlags & ShaderFlags::kDynamicColor) {
-            binningWriter.updateDynamicColor(pathStroke.fColor);
+            binningWriter.updateDynamicColor(pathStroke->fColor);
         }
-        GrStrokeIterator iter(pathStroke.fPath, &stroke, &viewMatrix);
+        GrStrokeIterator iter(pathStroke->fPath, &stroke, &viewMatrix);
         bool hasLastControlPoint = false;
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
