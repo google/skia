@@ -8,8 +8,11 @@
 #ifndef GrContextThreadSafeProxy_DEFINED
 #define GrContextThreadSafeProxy_DEFINED
 
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
+
+#if SK_SUPPORT_GPU
+
+#include "include/core/SkImageInfo.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrTypes.h"
 
@@ -137,5 +140,9 @@ private:
     std::unique_ptr<GrThreadSafeCache> fThreadSafeCache;
     std::atomic<bool>                  fAbandoned{false};
 };
+
+#else // !SK_SUPPORT_GPU
+class SK_API GrContextThreadSafeProxy final : public SkNVRefCnt<GrContextThreadSafeProxy> {};
+#endif
 
 #endif
