@@ -39,6 +39,30 @@
       },
       "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f85f542_85950ffd",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-22T23:05:37Z",
+      "side": 1,
+      "message": "Since this runs for every curve in every path, the loop gets pretty hot. Indirect stroking is faster when we do it this way. I tried to make the comment more clear.",
+      "parentUuid": "0bcd5a72_d9b86c15",
+      "range": {
+        "startLine": 643,
+        "startChar": 29,
+        "endLine": 643,
+        "endChar": 76
+      },
+      "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
