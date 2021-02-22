@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7102699a_405f5f69",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1187,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-22T23:08:01Z",
+      "side": 1,
+      "message": "Writing this code fails for unrelated reasons inside the CFG. While loops are for loops, and for loops are assumed to run at least once, so the `break` after the while loop is flagged as unreachable and compilation fails. This is documented in CFGGenerator:\n\n// this isn\u0027t quite right; we should have an exit from here to the loop exit, and\n// remove the exit from the loop body to the loop exit. Structuring it like this\n// forces the optimizer to believe that the loop body is always executed at least\n// once. While not strictly correct, this avoids incorrect \"variable not assigned\"\n// errors on variables which are assigned within the loop. The correct solution to\n// this is to analyze the loop to see whether or not at least one iteration is\n// guaranteed to happen, but for the time being we take the easy way out.\n\nPfft. Maybe the CFG just needs to go after all.",
+      "parentUuid": "aab4bbe8_f7af0931",
+      "range": {
+        "startLine": 1185,
+        "startChar": 0,
+        "endLine": 1187,
+        "endChar": 77
+      },
+      "revId": "5246b5c718f60862603cbcfb863a69135e266378",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f39b6042_4668f69c",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 7
