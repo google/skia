@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87793492_def94d47",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-22T22:15:50Z",
+      "side": 0,
+      "message": "Should we be asserting T is not null now?",
+      "range": {
+        "startLine": 642,
+        "startChar": 8,
+        "endLine": 642,
+        "endChar": 10
+      },
+      "revId": "3cbbdd8d79605e5646a1405bfe8c1180b9ab10e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
