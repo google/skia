@@ -63,6 +63,30 @@
       },
       "revId": "369480ecb49904a73b0d0342dde57192a6f74e79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d58caf4e_ca8b1422",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-02-22T21:36:23Z",
+      "side": 1,
+      "message": "Ok done. There are bigger diffs in gold this way.",
+      "parentUuid": "7c714386_458ba274",
+      "range": {
+        "startLine": 789,
+        "startChar": 70,
+        "endLine": 789,
+        "endChar": 71
+      },
+      "revId": "369480ecb49904a73b0d0342dde57192a6f74e79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
