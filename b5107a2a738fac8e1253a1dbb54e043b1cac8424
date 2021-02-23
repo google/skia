@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "628b1303_8ef707de",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-23T21:08:30Z",
+      "side": 1,
+      "message": "why not just do \"(a.cross(b) \u003d\u003d 0) \u0026\u0026 (a.dot(b) \u003e 1)\" With 2d points you end up with 4 multiplies and 2 +/-. That is less operations that what you\u0027re doing here I believe. Obviously you can throw in some nearly equal stuff.",
+      "range": {
+        "startLine": 516,
+        "startChar": 11,
+        "endLine": 516,
+        "endChar": 35
+      },
+      "revId": "b5107a2a738fac8e1253a1dbb54e043b1cac8424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
