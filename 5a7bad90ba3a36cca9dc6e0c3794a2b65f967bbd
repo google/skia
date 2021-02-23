@@ -22,6 +22,30 @@
       },
       "revId": "5a7bad90ba3a36cca9dc6e0c3794a2b65f967bbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e543d1d9_f249de83",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-23T00:30:50Z",
+      "side": 1,
+      "message": "I couldn\u0027t actually prove it :-\\\n\nThis new version works and has a comment to prove it.",
+      "parentUuid": "721de42d_fd63b244",
+      "range": {
+        "startLine": 508,
+        "startChar": 12,
+        "endLine": 508,
+        "endChar": 74
+      },
+      "revId": "5a7bad90ba3a36cca9dc6e0c3794a2b65f967bbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
