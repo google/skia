@@ -115,6 +115,7 @@ private:
     friend DSLStatement Switch(DSLExpression value, Cases... cases);
 
     friend class DSLCore;
+    friend class DSLFunction;
     friend class DSLVar;
     friend class DSLWriter;
 };
