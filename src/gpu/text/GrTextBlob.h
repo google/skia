@@ -414,18 +414,18 @@ public:
     const Key& key() const;
     size_t size() const;
 
-    template<typename AddSingleMaskFormat>
-    void addMultiMaskFormat(
-            AddSingleMaskFormat addSingle,
-            const SkZip<SkGlyphVariant, SkPoint>& drawables,
-            const SkStrikeSpec& strikeSpec);
-
     GrSubRunList& subRunList() {
         return fSubRunList;
     }
 
 private:
     GrTextBlob(int allocSize, const SkMatrix& drawMatrix, SkColor initialLuminance);
+
+    template<typename AddSingleMaskFormat>
+    void addMultiMaskFormat(
+            AddSingleMaskFormat addSingle,
+            const SkZip<SkGlyphVariant, SkPoint>& drawables,
+            const SkStrikeSpec& strikeSpec);
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
