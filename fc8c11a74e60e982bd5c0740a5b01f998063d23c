@@ -16,6 +16,24 @@
       "message": "Some pretty fun patterns in the diffs!\nhttps://ci.chromium.org/ui/p/chromium/builders/try/linux-blink-rel/50247/test-results\n\nSo looks like we\u0027re going to need to do this the slow way with a guard #define.\nDo you know how to do that?",
       "revId": "fc8c11a74e60e982bd5c0740a5b01f998063d23c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "049a4f8f_641a1efc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-02-23T19:51:57Z",
+      "side": 1,
+      "message": "I\u0027ll set a new define, SK_USE_RASTER_PIPEPLINE_BLITTER_FOR_DITHER, in include/config/SkUserConfigManual.h",
+      "parentUuid": "0877c7e5_d5b445d1",
+      "revId": "fc8c11a74e60e982bd5c0740a5b01f998063d23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
