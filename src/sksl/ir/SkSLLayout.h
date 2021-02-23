@@ -27,6 +27,21 @@ struct Layout {
         kTracked_Flag                    = 1 <<  4,
         kSRGBUnpremul_Flag               = 1 <<  5,
         kKey_Flag                        = 1 <<  6,
+
+        // These flags indicate if the qualifier appeared, regardless of the accompanying value.
+        kLocation_Flag                   = 1 <<  7,
+        kOffset_Flag                     = 1 <<  8,
+        kBinding_Flag                    = 1 <<  9,
+        kIndex_Flag                      = 1 << 10,
+        kSet_Flag                        = 1 << 11,
+        kBuiltin_Flag                    = 1 << 12,
+        kInputAttachmentIndex_Flag       = 1 << 13,
+        kPrimitive_Flag                  = 1 << 14,
+        kMaxVertices_Flag                = 1 << 15,
+        kInvocations_Flag                = 1 << 16,
+        kMarker_Flag                     = 1 << 17,
+        kWhen_Flag                       = 1 << 18,
+        kCType_Flag                      = 1 << 19,
     };
 
     enum Primitive {
