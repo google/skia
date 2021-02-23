@@ -88,11 +88,6 @@ public:
         return GrSemaphoresSubmitted::kNo;
     }
 
-    // Return the proxy if this image is backed by a single proxy. For YUVA images, this
-    // will return nullptr unless the YUVA planes have been converted to RGBA in which case
-    // that single backing proxy will be returned.
-    virtual GrTextureProxy* peekProxy() const { return nullptr; }
-
     // Returns a GrSurfaceProxyView representation of the image, if possible. This also returns
     // a color type. This may be different than the image's color type when the image is not
     // texture-backed and the capabilities of the GPU require a data type conversion to put

@@ -63,6 +63,10 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context, uint32_t uniqueID, GrSur
 
 SkImage_Gpu::~SkImage_Gpu() {}
 
+bool SkImage_Gpu::surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const {
+    return surfaceProxy->underlyingUniqueID() == fView.proxy()->underlyingUniqueID();
+}
+
 GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFlushInfo& info) {
     if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
         if (info.fSubmittedProc) {

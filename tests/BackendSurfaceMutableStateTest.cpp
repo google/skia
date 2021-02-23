@@ -14,6 +14,7 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #ifdef SK_VULKAN
 #include "src/gpu/vk/GrVkGpu.h"
@@ -61,7 +62,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
                                                            kRGBA_8888_SkColorType,
                                                            kPremul_SkAlphaType, nullptr);
 
-    GrSurfaceProxy* proxy = as_IB(wrappedImage)->peekProxy();
+    GrSurfaceProxy* proxy = sk_gpu_test::GetTextureImageProxy(wrappedImage.get(), dContext);
+
     REPORTER_ASSERT(reporter, proxy);
     REPORTER_ASSERT(reporter, proxy->isInstantiated());
     GrTexture* texture = proxy->peekTexture();

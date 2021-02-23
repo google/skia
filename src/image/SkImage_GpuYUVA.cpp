@@ -141,8 +141,6 @@ bool SkImage_GpuYUVA::onHasMipmaps() const {
     return fYUVAProxies.mipmapped() == GrMipmapped::kYes;
 }
 
-GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
-
 size_t SkImage_GpuYUVA::onTextureSize() const {
     if (fRGBView) {
         return fRGBView.asTextureProxy()->gpuMemorySize();

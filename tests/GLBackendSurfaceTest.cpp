@@ -23,6 +23,7 @@
 #include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/gl/GrGLTexture.h"
 #include "src/image/SkImage_Base.h"
+#include "tools/gpu/ProxyUtils.h"
 
 static bool sampler_params_invalid(const GrGLTextureParameters& parameters) {
     return SkScalarIsNaN(parameters.samplerOverriddenState().fMaxLOD);
@@ -69,7 +70,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, wrappedImage);
 
-    GrSurfaceProxy* proxy = as_IB(wrappedImage)->peekProxy();
+    GrSurfaceProxy* proxy = sk_gpu_test::GetTextureImageProxy(wrappedImage.get(), dContext);
     REPORTER_ASSERT(reporter, proxy);
     REPORTER_ASSERT(reporter, proxy->isInstantiated());
     auto texture = static_cast<GrGLTexture*>(proxy->peekTexture());

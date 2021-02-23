@@ -31,6 +31,7 @@
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#include "tools/gpu/ProxyUtils.h"
 
 static constexpr int kSize = 8;
 
@@ -86,12 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                  sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                                                  mbet->releaseContext());
                 REPORTER_ASSERT(reporter, (mipmapped == GrMipmapped::kYes) == image->hasMipmaps());
-                GrSurfaceProxy* surfaceProxy = as_IB(image)->peekProxy();
-                REPORTER_ASSERT(reporter, surfaceProxy);
-                if (!proxy) {
-                    continue;
-                }
-                proxy = sk_ref_sp(surfaceProxy->asTextureProxy());
+                proxy = sk_ref_sp(sk_gpu_test::GetTextureImageProxy(image.get(), dContext));
             }
             REPORTER_ASSERT(reporter, proxy);
             if (!proxy) {
@@ -136,7 +132,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                     dContext, ii, SkColors::kTransparent, betMipmapped);
             REPORTER_ASSERT(reporter, (betMipmapped == GrMipmapped::kYes) == image->hasMipmaps());
 
-            GrTextureProxy* proxy = as_IB(image)->peekProxy();
+            GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image.get(), dContext);
             REPORTER_ASSERT(reporter, proxy);
             if (!proxy) {
                 return;
@@ -304,7 +300,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             REPORTER_ASSERT(reporter, willUseMips == image->hasMipmaps());
             REPORTER_ASSERT(reporter, image);
-            texProxy = as_IB(image)->peekProxy();
+            texProxy = sk_gpu_test::GetTextureImageProxy(image.get(), dContext);
             REPORTER_ASSERT(reporter, mipmapped == texProxy->mipmapped());
 
             texProxy->instantiate(resourceProvider);

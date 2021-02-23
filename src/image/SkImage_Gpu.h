@@ -37,13 +37,16 @@ public:
 
     ~SkImage_Gpu() override;
 
+    // If this is image is a cached SkSurface snapshot then this method is called by the SkSurface
+    // before a write to check if the surface must make a copy to avoid modifying the image's
+    // contents.
+    bool surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const;
+
     bool onHasMipmaps() const override {
         return fView.asTextureProxy()->mipmapped() == GrMipmapped::kYes;
     }
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
-
-    GrTextureProxy* peekProxy() const override { return fView.asTextureProxy(); }
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
