@@ -549,7 +549,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
                 }
                 case Verb::kCubic: {
                     int8_t cuspResolveLevel = 0;
-                    bool areCusps = false;
+                    bool areCusps;
                     int numChops = GrPathUtils::findCubicConvex180Chops(pts, nextChopTs, &areCusps);
                     if (areCusps && numChops > 0) {
                         cuspResolveLevel = counter.countCircles(numChops);

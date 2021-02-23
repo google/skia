@@ -197,7 +197,7 @@ public:
     void writeCubicConvex180PatchesTo(const SkPoint p[4]) {
         SkPoint chops[10];
         float chopT[2];
-        bool areCusps = false;
+        bool areCusps;
         int numChops = GrPathUtils::findCubicConvex180Chops(p, chopT, &areCusps);
         if (numChops == 0) {
             // The curve is already convex and rotates no more than 180 degrees.
@@ -671,13 +671,47 @@ private:
 
 }  // namespace
 
-static bool conic_has_cusp(const SkPoint p[3]) {
+SK_ALWAYS_INLINE static bool conic_has_cusp(const SkPoint p[3]) {
     SkVector a = p[1] - p[0];
     SkVector b = p[2] - p[1];
     // A conic of any class can only have a cusp if it is a degenerate flat line with a 180 degree
     // turnarund. To detect this, the beginning and ending tangents must be parallel
     // (a.cross(b) == 0) and pointing in opposite directions (a.dot(b) < 0).
     return a.cross(b) == 0 && a.dot(b) < 0;
+}
+
+SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
+    using grvx::float2;
+
+    float2 p0 = skvx::bit_pun<float2>(p[0]);
+    float2 p1 = skvx::bit_pun<float2>(p[1]);
+    float2 p2 = skvx::bit_pun<float2>(p[2]);
+    float2 p3 = skvx::bit_pun<float2>(p[3]);
+
+    // See GrPathUtils::findCubicConvex180Chops() for the math.
+    float2 C = p1 - p0;
+    float2 D = p2 - p1;
+    float2 E = p3 - p0;
+    float2 B = D - C;
+    float2 A = grvx::fast_madd<2>(-3, D, E);
+
+    float a = grvx::cross(A, B);
+    float b = grvx::cross(A, C);
+    float c = grvx::cross(B, C);
+    float discr = b*b - 4*a*c;
+
+    // If -cuspThreshold <= discr <= cuspThreshold, it means the two roots are within a distance of
+    // 2^-11 from one another in parametric space. This is close enough for our purposes to take the
+    // slow codepath that knows how to handle cusps.
+    constexpr static float kEpsilon = 1.f / (1 << 11);
+    float cuspThreshold = (2*kEpsilon) * a;
+    cuspThreshold *= cuspThreshold;
+
+    return fabsf(discr) <= cuspThreshold &&
+           // The most common type of cusp we encounter is when p0==p1 or p2==p3. Unless the curve
+           // is a flat line (a==b==c==0), these don't actually need special treatment because the
+           // cusp occurs at t=0 or t=1.
+           (!(skvx::all(p0 == p1) || skvx::all(p2 == p3)) || (a == 0 && b == 0 && c == 0));
 }
 
 void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
@@ -824,9 +858,8 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     }
                     float numParametricSegments_pow4 =
                             GrWangsFormula::cubic_pow4(patchWriter.parametricIntolerance(), p);
-                    bool areCusps;
-                    GrPathUtils::findCubicConvex180Chops(p, nullptr, &areCusps);
-                    if (!patchWriter.stroke360FitsInPatch(numParametricSegments_pow4) || areCusps) {
+                    if (!patchWriter.stroke360FitsInPatch(numParametricSegments_pow4) ||
+                        cubic_has_cusp(p)) {
                         // Either the curve requires more tessellation segments than the hardware
                         // can support, or it has cusp(s). Either case is rare. Chop it into
                         // sections that rotate 180 degrees or less (which will naturally be the
