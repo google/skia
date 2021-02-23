@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb0e44c1_7b12b4f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T15:16:36Z",
+      "side": 1,
+      "message": "Overall it lgtm but I want to take a second look at (think a bit about) the surfaceMustCopyOnWrite entry point",
+      "revId": "f2dc826a56f35025a780eff0c817bbbf73bb1eba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f08084eb_94c090b1",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T15:16:36Z",
+      "side": 1,
+      "message": "Maybe rephrase ?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 65
+      },
+      "revId": "f2dc826a56f35025a780eff0c817bbbf73bb1eba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dad57e1_4ee713a4",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T15:16:36Z",
+      "side": 1,
+      "message": "Should these be collapsed into one ?",
+      "range": {
+        "startLine": 536,
+        "startChar": 0,
+        "endLine": 542,
+        "endChar": 1
+      },
+      "revId": "f2dc826a56f35025a780eff0c817bbbf73bb1eba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02794dfb_d5aa386b",
+        "filename": "tools/DDLPromiseImageHelper.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T15:16:36Z",
+      "side": 1,
+      "message": "I think this can just be deleted now. It was just testing out a side effect of peekProxy. I guess it could be converted over to testing that \u0027asView\u0027 doesn\u0027t flatten a YUVA image.",
+      "range": {
+        "startLine": 348,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 6
+      },
+      "revId": "f2dc826a56f35025a780eff0c817bbbf73bb1eba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df014460_0e142629",
+        "filename": "tools/gpu/ProxyUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T15:16:36Z",
+      "side": 1,
+      "message": "rm this assert ?",
+      "revId": "f2dc826a56f35025a780eff0c817bbbf73bb1eba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
