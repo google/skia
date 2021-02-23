@@ -184,7 +184,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrSurfaceDrawContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const override;
 
     GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
@@ -279,7 +279,7 @@ void PathSubRun::draw(const GrClip* clip,
 // paths explicitly. This check is needed because if the blob was drawn large, and then small, the
 // path would be reused when the blob should be rendered with masks.
 // TODO(herb): rethink when paths can be reused.
-bool PathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
+bool PathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
     const SkMatrix initialMatrix = fBlob.initialMatrix();
     if (initialMatrix.hasPerspective() && !SkMatrixPriv::CheapEqual(initialMatrix, drawMatrix)) {
         return false;
@@ -474,7 +474,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrSurfaceDrawContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const override;
 
     GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
@@ -580,7 +580,7 @@ void DirectMaskSubRun::draw(const GrClip* clip, const SkMatrixProvider& viewMatr
 }
 
 bool
-DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
+DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
     if (drawMatrix.hasPerspective()) {
         return false;
     }
@@ -864,7 +864,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrSurfaceDrawContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const override;
 
     GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
@@ -954,7 +954,7 @@ void TransformedMaskSubRun::draw(const GrClip* clip,
 
 // If we are not scaling the cache entry to be larger, than a cache with smaller glyphs may be
 // better.
-bool TransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
+bool TransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
     if (fBlob->initialMatrix().getMaxScale() < 1) {
         return false;
     }
@@ -1114,7 +1114,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrSurfaceDrawContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const override;
 
     GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
@@ -1281,7 +1281,7 @@ void SDFTSubRun::draw(const GrClip* clip,
     }
 }
 
-bool SDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
+bool SDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
     const SkMatrix& initialMatrix = fBlob->initialMatrix();
     if (drawMatrix.hasPerspective()) {
         return false;
@@ -1411,7 +1411,7 @@ void GrTextBlob::addKey(const Key& key) {
 
 bool GrTextBlob::hasPerspective() const { return fInitialMatrix.hasPerspective(); }
 
-bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
+bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
     // A singular matrix will create a GrTextBlob with no SubRuns, but unknown glyphs can
     // also cause empty runs. If there are no subRuns, then regenerate.
     if ((fSubRunList.isEmpty() || fSomeGlyphsExcluded) && fInitialMatrix != drawMatrix) {
@@ -1426,7 +1426,7 @@ bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
         return false;
     }
 
-    for (GrSubRun& subRun : this->fSubRunList) {
+    for (const GrSubRun& subRun : fSubRunList) {
         if (!subRun.canReuse(paint, drawMatrix)) {
             return false;
         }
