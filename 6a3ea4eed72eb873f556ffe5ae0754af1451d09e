@@ -16,6 +16,24 @@
       "message": "Does it make any sense to try and get some of those functions listed in the egl file as part of our autogen interface stuff? Obviously not for this change.",
       "revId": "6a3ea4eed72eb873f556ffe5ae0754af1451d09e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53cd0ae3_5f03aa3d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-23T14:32:03Z",
+      "side": 1,
+      "message": "Yeah, I suppose we could probably gen it since we know from the json what functions are part of the standards and which are extensions.",
+      "parentUuid": "2f915eb2_98f318ae",
+      "revId": "6a3ea4eed72eb873f556ffe5ae0754af1451d09e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
