@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1cca7ccd_06b67e25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-23T21:59:21Z",
+      "side": 1,
+      "message": "I have some recollection that maybe a long long time ago we would flatten YUVA-\u003eRGBA images to add MIPs but then some code common code path for all images would drop the MIP filtering for strict draws, so the flattening was wasted work. But now we allow this odd combo for all other image types. I think this YUVA restriction was just propagated through various refactorings/enhancements.",
+      "revId": "1b12ac3424b2af3d39284f7939632b5c002ae9eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
