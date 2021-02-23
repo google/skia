@@ -14,8 +14,12 @@
 
 #include "src/sksl/SkSLDefines.h"
 
+#include <chrono>
 #include <deque>
 #include <thread>
+
+using hires_clock = std::chrono::high_resolution_clock;
+using duration = std::chrono::nanoseconds;
 
 using sk_gpu_test::ContextInfo;
 using sk_gpu_test::GrContextFactory;
@@ -37,29 +41,49 @@ static void exitf(const char* format, ...) {
 struct ThreadInfo {
     ThreadInfo() = default;
 
-    ThreadInfo(const char* name, GrDirectContext* directContext, TestContext* testContext)
-        : fDirectContext(directContext)
-        , fTestContext(testContext) {
-        memcpy(fName, name, 8);
-        fName[7] = '\0';
+    ThreadInfo(const SkString& name, GrDirectContext* directContext, TestContext* testContext)
+            : fName(name)
+            , fDirectContext(directContext)
+            , fTestContext(testContext) {
     }
 
-    char             fName[8] = { '\0' };
+    double elapsedWorkSeconds() const {
+        return std::chrono::duration<double>(fWorkElapsed).count();
+    }
+
+    void dump() const {
+        duration totalThreadTime = fThreadStop - fThreadStart;
+        double totalThreadTimeSeconds = std::chrono::duration<double>(totalThreadTime).count();
+
+        printf("%s: num work units %d work: %.2gs total: %.2gs utilization %.2g%%\n",
+               fName.c_str(),
+               fWorkUnit,
+               this->elapsedWorkSeconds(),
+               totalThreadTimeSeconds,
+               100.0f * this->elapsedWorkSeconds() / totalThreadTimeSeconds);
+    }
+
+    SkString                fName;
 
     // These two can be null on recording/utility threads
-    GrDirectContext* fDirectContext = nullptr;
-    TestContext*     fTestContext = nullptr;
+    GrDirectContext*        fDirectContext = nullptr;
+    TestContext*            fTestContext = nullptr;
+
+    int                     fWorkUnit = 0;
+    duration                fWorkElapsed {0};
+    hires_clock::time_point fThreadStart;
+    hires_clock::time_point fThreadStop;
 };
 
 #if SKSL_USE_THREAD_LOCAL
 
-static thread_local ThreadInfo gThreadInfo;
+static thread_local ThreadInfo* gThreadInfo;
 
 static ThreadInfo* get_thread_local_info() {
-    return &gThreadInfo;
+    return gThreadInfo;
 }
 
-static void set_thread_local_info(const ThreadInfo& threadInfo) {
+static void set_thread_local_info(ThreadInfo* threadInfo) {
     gThreadInfo = threadInfo;
 }
 
@@ -83,16 +107,19 @@ static ThreadInfo* get_thread_local_info() {
     return static_cast<ThreadInfo*>(pthread_getspecific(get_pthread_key()));
 }
 
-static void set_thread_local_info(const ThreadInfo& threadInfo) {
-    pthread_setspecific(get_pthread_key(), nullptr);
+static void set_thread_local_info(ThreadInfo* threadInfo) {
+    pthread_setspecific(get_pthread_key(), threadInfo);
 }
 
 #endif
 
-static void set_up_context_on_thread(const ThreadInfo& threadInfo) {
-    if (threadInfo.fDirectContext) {
-        threadInfo.fTestContext->makeCurrent();
+static void set_up_context_on_thread(ThreadInfo* threadInfo) {
+    if (threadInfo->fDirectContext) {
+        threadInfo->fTestContext->makeCurrent();
     }
+
+    threadInfo->fThreadStart = hires_clock::now();
+
     set_thread_local_info(threadInfo);
 }
 
@@ -100,19 +127,16 @@ static void set_up_context_on_thread(const ThreadInfo& threadInfo) {
 // at the start of each thread and some thread_local data to hold the utility context/
 class GrThreadPool {
 public:
-    static std::unique_ptr<GrThreadPool> MakeFIFOThreadPool(int threads,
-                                                            std::vector<ThreadInfo>& contexts,
+    static std::unique_ptr<GrThreadPool> MakeFIFOThreadPool(SkSpan<ThreadInfo> threadInfo,
                                                             bool allowBorrowing = true) {
-        SkASSERT(threads > 0);
-        return std::make_unique<GrThreadPool>(threads, contexts, allowBorrowing);
+        return std::make_unique<GrThreadPool>(threadInfo, allowBorrowing);
     }
 
-    explicit GrThreadPool(int threads, std::vector<ThreadInfo>& contexts, bool allowBorrowing)
+    explicit GrThreadPool(SkSpan<ThreadInfo> threadInfo, bool allowBorrowing)
             : fAllowBorrowing(allowBorrowing) {
-        SkASSERT(((int)contexts.size()) >= threads);
 
-        for (int i = 0; i < threads; i++) {
-            fThreads.emplace_back(&Loop, this, contexts[i]);
+        for (size_t i = 0; i < threadInfo.size(); i++) {
+            fThreads.emplace_back(&Loop, this, &threadInfo[i]);
         }
     }
 
@@ -140,13 +164,13 @@ public:
     void borrow() {
         // If there is work waiting and we're allowed to borrow work, do it.
         if (fAllowBorrowing && fWorkAvailable.try_wait()) {
-            SkAssertResult(this->do_work());
+            SkAssertResult(this->do_work(nullptr));
         }
     }
 
 private:
     // This method should be called only when fWorkAvailable indicates there's work to do.
-    bool do_work() {
+    bool do_work(ThreadInfo* threadInfo) {
         std::function<void(void)> work;
         {
             SkAutoMutexExclusive lock(fWorkLock);
@@ -156,20 +180,25 @@ private:
         }
 
         if (!work) {
+            threadInfo->fThreadStop = hires_clock::now();
             return false;  // This is Loop()'s signal to shut down.
         }
 
+        hires_clock::time_point start = hires_clock::now();
         work();
+        threadInfo->fWorkElapsed = hires_clock::now() - start;
+        threadInfo->fWorkUnit++;
+
         return true;
     }
 
-    static void Loop(void* ctx, const ThreadInfo& threadInfo) {
+    static void Loop(void* ctx, ThreadInfo* threadInfo) {
         set_up_context_on_thread(threadInfo);
 
         auto pool = (GrThreadPool*)ctx;
         do {
             pool->fWorkAvailable.wait();
-        } while (pool->do_work());
+        } while (pool->do_work(threadInfo));
     }
 
     using WorkList = std::deque<std::function<void(void)>>;
@@ -220,26 +249,25 @@ private:
 static bool create_contexts(GrContextFactory* factory,
                             GrContextFactory::ContextType contextType,
                             const GrContextFactory::ContextOverrides& overrides,
-                            std::vector<ThreadInfo>* mainContext,
-                            int numUtilityContexts,
-                            std::vector<ThreadInfo>* utilityContexts) {
+                            ThreadInfo* gpuThread,
+                            SkSpan<ThreadInfo> utilityThreads) {
 
     ContextInfo mainInfo = factory->getContextInfo(contextType, overrides);
     if (!mainInfo.directContext()) {
         exitf("Could not create primary direct context.");
     }
 
-    mainContext->push_back({ "g0", mainInfo.directContext(), mainInfo.testContext() });
+    *gpuThread = { SkString("g0"), mainInfo.directContext(), mainInfo.testContext() };
 
     bool allSucceeded = true, allFailed = true;
     // Create the utility contexts in a share group with the primary one. This is allowed to fail
     // but either they should all work or the should all fail.
-    for (int i = 0; i < numUtilityContexts; ++i) {
-        SkString name = SkStringPrintf("r%d", i);
+    for (size_t i = 0; i < utilityThreads.size(); ++i) {
+        SkString name = SkStringPrintf("r%zu", i);
 
         ContextInfo tmp = factory->getSharedContextInfo(mainInfo.directContext(), i);
 
-        utilityContexts->push_back({ name.c_str(), tmp.directContext(), tmp.testContext() });
+        utilityThreads[i] = { name, tmp.directContext(), tmp.testContext() };
         allSucceeded &= SkToBool(tmp.directContext());
         allFailed &= !tmp.directContext();
     }
@@ -288,70 +316,74 @@ int main(int argc, char** argv) {
 
     GrContextFactory factory(kContextOptions);
 
-    std::vector<ThreadInfo> mainContext;
-    mainContext.reserve(1);
-    std::vector<ThreadInfo> utilityContexts;
-    utilityContexts.reserve(FLAGS_ddlNumRecordingThreads);
+    std::unique_ptr<ThreadInfo> mainContext(new ThreadInfo);
+    std::unique_ptr<ThreadInfo[]> utilityContexts(new ThreadInfo[FLAGS_ddlNumRecordingThreads]);
 
     if (!create_contexts(&factory,
                          kContextType,
                          kOverrides,
-                         &mainContext,
-                         FLAGS_ddlNumRecordingThreads,
-                         &utilityContexts)) {
+                         mainContext.get(),
+                         SkSpan<ThreadInfo>(utilityContexts.get(), FLAGS_ddlNumRecordingThreads))) {
         return 1;
     }
 
-    mainContext.front().fTestContext->makeCurrent();
+    mainContext->fTestContext->makeCurrent();
 
-    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADTypes(*mainContext.front().fDirectContext);
+    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADTypes(*mainContext->fDirectContext);
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADTypes);
 
     sk_sp<SkPicture> skp = create_shared_skp(FLAGS_src[0],
-                                             mainContext.front().fDirectContext,
+                                             mainContext->fDirectContext,
                                              &promiseImageHelper);
 
-    promiseImageHelper.createCallbackContexts(mainContext.front().fDirectContext);
+    promiseImageHelper.createCallbackContexts(mainContext->fDirectContext);
 
     // TODO: do this later on a utility thread!
-    promiseImageHelper.uploadAllToGPU(nullptr, mainContext.front().fDirectContext);
+    promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext);
 
-    mainContext.front().fTestContext->makeNotCurrent();
+    mainContext->fTestContext->makeNotCurrent();
 
-    std::unique_ptr<GrThreadPool> fGPUExecutor(GrThreadPool::MakeFIFOThreadPool(1,
-                                                                                mainContext,
-                                                                                false));
-    std::unique_ptr<GrThreadPool> fRecordingExecutor(GrThreadPool::MakeFIFOThreadPool(
-                                                                    FLAGS_ddlNumRecordingThreads,
-                                                                    utilityContexts,
-                                                                    false));
-    GrTaskGroup gpuTaskGroup(*fGPUExecutor);
-    GrTaskGroup recordingTaskGroup(*fRecordingExecutor);
+    {
+        std::unique_ptr<GrThreadPool> fGPUExecutor(GrThreadPool::MakeFIFOThreadPool(
+                                                SkSpan<ThreadInfo>(mainContext.get(), 1),
+                                                false));
+        std::unique_ptr<GrThreadPool> fRecordingExecutor(GrThreadPool::MakeFIFOThreadPool(
+                                                SkSpan<ThreadInfo>(utilityContexts.get(),
+                                                                   FLAGS_ddlNumRecordingThreads),
+                                                false));
+        GrTaskGroup gpuTaskGroup(*fGPUExecutor);
+        GrTaskGroup recordingTaskGroup(*fRecordingExecutor);
 
-    for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
-        recordingTaskGroup.add([] {
-                                   ThreadInfo* threadLocal = get_thread_local_info();
-                                   printf("%s: dContext %p\n", threadLocal->fName,
-                                                               threadLocal->fDirectContext);
-                                   std::this_thread::sleep_for(std::chrono::seconds(1));
-                               });
+        for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
+            recordingTaskGroup.add([] {
+                                       ThreadInfo* threadLocal = get_thread_local_info();
+                                       printf("%s: dContext %p\n", threadLocal->fName.c_str(),
+                                                                   threadLocal->fDirectContext);
+                                       std::this_thread::sleep_for(std::chrono::seconds(1));
+                                   });
+        }
+
+        gpuTaskGroup.add([] {
+                             ThreadInfo* threadLocal = get_thread_local_info();
+                             printf("%s: dContext %p\n", threadLocal->fName.c_str(),
+                                                         threadLocal->fDirectContext);
+                         });
+
+        gpuTaskGroup.add([] {
+                             ThreadInfo* threadLocal = get_thread_local_info();
+                             threadLocal->fTestContext->makeNotCurrent();
+                         });
+
+        recordingTaskGroup.wait();
+        gpuTaskGroup.wait();
     }
 
-    gpuTaskGroup.add([] {
-                         ThreadInfo* threadLocal = get_thread_local_info();
-                         printf("%s: dContext %p\n", threadLocal->fName,
-                                                     threadLocal->fDirectContext);
-                     });
+    mainContext->fTestContext->makeCurrent();
 
-    gpuTaskGroup.add([testCtx = mainContext.front().fTestContext] {
-                         ThreadInfo* threadLocal = get_thread_local_info();
-                         threadLocal->fTestContext->makeNotCurrent();
-                     });
-
-    recordingTaskGroup.wait();
-    gpuTaskGroup.wait();
-
-    mainContext.front().fTestContext->makeCurrent();
+    mainContext->dump();
+    for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
+        utilityContexts[i].dump();
+    }
 
     return 0;
 }
