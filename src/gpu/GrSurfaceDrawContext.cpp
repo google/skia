@@ -443,7 +443,7 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         }
     }
 
-    for (GrSubRun& subRun : blob->subRunList()) {
+    for (const GrSubRun& subRun : blob->subRunList()) {
         subRun.draw(clip, viewMatrix, glyphRunList, this);
     }
 }
