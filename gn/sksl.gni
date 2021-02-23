@@ -128,6 +128,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLStatement.h",
   "$_src/sksl/ir/SkSLStructDefinition.h",
   "$_src/sksl/ir/SkSLSwitchCase.h",
+  "$_src/sksl/ir/SkSLSwitchStatement.cpp",
   "$_src/sksl/ir/SkSLSwitchStatement.h",
   "$_src/sksl/ir/SkSLSwizzle.cpp",
   "$_src/sksl/ir/SkSLSwizzle.h",
