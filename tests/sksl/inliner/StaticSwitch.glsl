@@ -10,14 +10,6 @@ vec4 main() {
                 _0_get = abs(2.0);
                 continue;
             }
-            {
-                _0_get = abs(3.0);
-                continue;
-            }
-            {
-                _0_get = abs(4.0);
-                continue;
-            }
         }
         {
             _0_get = abs(5.0);
