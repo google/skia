@@ -151,9 +151,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       device_version = self.read_file_on_device(device_version_file,
                                                 abort_on_failure=False,
                                                 fail_build_on_failure=False)
-      # TEMPORARY fix for bad data pushed to devices. (2021-02-19). Plan to revert this change
-      # in approximately one week.
-      if True:
+      if not device_version:
         device_version = VERSION_NONE
       if device_version != host_version:
         self.remove_file_on_device(device_version_file)
