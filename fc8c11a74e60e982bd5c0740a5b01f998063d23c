@@ -34,6 +34,24 @@
       "parentUuid": "0877c7e5_d5b445d1",
       "revId": "fc8c11a74e60e982bd5c0740a5b01f998063d23c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a4a81de_73f3c162",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-23T20:00:44Z",
+      "side": 1,
+      "message": "I can\u0027t back this plan... that\u0027ll make the Skia in Android a forkier fork than it already is.  Did someone suggest you do this that way? To roll this out the way we prefer,\n\n   1) #define a new flag in Chromium (e.g. SK_LEGACY_DITHER)\n   2) land your change here guarded by #if !defined(\u003cthat define\u003e)\n   3) wait for that to roll into Chromium\n   4) remove the #define and rebaseline Chrome\u0027s tests\n   5) remove the #if !defined(...) guards in Skia.",
+      "parentUuid": "049a4f8f_641a1efc",
+      "revId": "fc8c11a74e60e982bd5c0740a5b01f998063d23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
