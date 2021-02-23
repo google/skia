@@ -1677,6 +1677,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("columns", &RuntimeEffectUniform::columns)
         .field("rows",    &RuntimeEffectUniform::rows)
         .field("slot",    &RuntimeEffectUniform::slot);
+
+    constant("rt_effect", true);
 #endif
 
     class_<SkSurface>("Surface")

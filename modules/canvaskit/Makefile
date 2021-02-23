@@ -1,79 +1,85 @@
 clean:
 	rm -rf ../../out/canvaskit_wasm
-	rm -rf ./canvaskit/bin
+	rm -rf ./npm_build/bin
 	$(MAKE) release
 
 release:
 	# Does an incremental build where possible.
 	./compile.sh
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
-	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./npm_build/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./npm_build/bin
 
 release_cpu:
 	# Does an incremental build where possible.
 	./compile.sh cpu_only
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
-	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./npm_build/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./npm_build/bin
 
 release_viewer:
 	# Does an incremental build where possible.
 	./compile.sh viewer
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
-	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./npm_build/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./npm_build/bin
 
 debug:
 	# Does an incremental build where possible.
 	./compile.sh debug
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
-	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./npm_build/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./npm_build/bin
+	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./npm_build/bin
 
 debug_cpu:
 	# Does an incremental build where possible.
 	./compile.sh debug cpu_only
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
-	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./npm_build/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./npm_build/bin
+	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./npm_build/bin
 
 experimental_simd:
 	# Does an incremental build where possible.
 	./compile.sh simd
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.js   ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.js   ./npm_build/bin
+	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm ./npm_build/bin
 
 debug_viewer:
 	# Does an incremental build where possible.
 	./compile.sh debug viewer
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./npm_build/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./npm_build/bin
 
 profile:
 	./compile.sh profiling
-	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./canvaskit/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./npm_build/bin
+	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./npm_build/bin
 
 npm:
-	rm -rf ./canvaskit/bin
-	mkdir -p ./canvaskit/bin
-	cp ./CHANGELOG.md ./canvaskit/
+	rm -rf ./npm_build/bin
+	mkdir -p ./npm_build/bin
+	cp ./CHANGELOG.md ./npm_build/
+
+	mkdir -p ./npm_build/bin/full
+	./compile.sh release
+	cp ../../out/canvaskit_wasm/canvaskit.js       ./npm_build/bin/full
+	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./npm_build/bin/full
+
 	# These features are turned off to keep code size smaller for the
 	# general use case.
 	./compile.sh release no_skottie no_particles no_rt_shader no_alias_font no_effects_deserialization
-	cp ../../out/canvaskit_wasm/canvaskit.js       ./canvaskit/bin
-	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js       ./npm_build/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./npm_build/bin
 
-	mkdir -p ./canvaskit/bin/profiling
-	./compile.sh profiling no_skottie no_particles no_rt_shader no_alias_font no_effects_deserialization
-	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./canvaskit/bin/profiling
-	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./canvaskit/bin/profiling
+	mkdir -p ./npm_build/bin/profiling
+	./compile.sh profiling
+	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./npm_build/bin/profiling
+	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./npm_build/bin/profiling
 
 gm_tests_debug:
 	./compile_gm.sh debug
@@ -90,12 +96,12 @@ gm_tests:
 local-example:
 	rm -rf node_modules/canvaskit
 	mkdir -p node_modules
-	ln -s ../canvaskit node_modules/canvaskit
-	echo "Go check out http://localhost:8000/canvaskit/example.html"
+	ln -s ../npm_build node_modules/canvaskit
+	echo "Go check out http://localhost:8000/npm_build/example.html"
 	python serve.py
 
 test-continuous:
-	echo "Assuming npm install has been run by user"
+	echo "Assuming npm ci has been run by user"
 	echo "Also assuming make debug or release has also been run by a user (if needed)"
 	npx karma start ./karma.conf.js --no-single-run --watch-poll
 
@@ -107,7 +113,7 @@ perf:
 	npx karma start ./karma.bench.conf.js --single-run
 
 node-example:
-	node ./canvaskit/node.example.js --expose-wasm
+	node ./npm_build/node.example.js --expose-wasm
 
 docker-compile:
 	mkdir -p ${SKIA_ROOT}/out/canvaskit_wasm_docker
@@ -117,5 +123,5 @@ docker-compile:
                /SRC/infra/canvaskit/build_canvaskit.sh
 
 typecheck:
-	echo "Make sure you've run cd canvaskit && npm ci recently"
-	cd canvaskit && npm run dtslint
+	echo "Make sure you've run cd npm_build && npm ci recently"
+	cd npm_build && npm run dtslint
