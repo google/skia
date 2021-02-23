@@ -302,7 +302,7 @@ public:
 
     // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
     // position.
-    virtual bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) = 0;
+    virtual bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const = 0;
 
     // Return the underlying atlas SubRun if it exists. Otherwise, return nullptr.
     // * Don't use this API. It is only to support testing.
@@ -338,6 +338,8 @@ struct GrSubRunList {
     bool isEmpty() const { return fHead == nullptr; }
     Iterator begin() { return Iterator{ fHead.get()}; }
     Iterator end() { return Iterator{nullptr}; }
+    Iterator begin() const { return Iterator{ fHead.get()}; }
+    Iterator end() const { return Iterator{nullptr}; }
     GrSubRun& front() const {return *fHead; }
 
     std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> fHead{nullptr};
@@ -409,7 +411,7 @@ public:
         return {fMaxMinScale, fMinMaxScale};
     }
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix);
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const;
 
     const Key& key() const;
     size_t size() const;
