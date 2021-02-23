@@ -1480,9 +1480,32 @@ GrTextBlob::GrTextBlob(int allocSize,
         , fInitialMatrix{drawMatrix}
         , fInitialLuminance{initialLuminance} { }
 
+void GrTextBlob::makeSubRuns(SkGlyphRunListPainter* painter,
+                             const SkGlyphRunList& glyphRunList,
+                             const SkMatrix& drawMatrix,
+                             SkPoint drawOrigin,
+                             const SkPaint& runPaint,
+                             const SkSurfaceProps& props,
+                             bool contextSupportsDistanceFieldText,
+                             const GrSDFTOptions& options) {
+    SkAutoSpinlock lock{fSpinLock};
+    if (!fSubRunsCreated) {
+        for (auto& glyphRun : glyphRunList) {
+            painter->processGlyphRun(glyphRun,
+                                     drawMatrix,
+                                     drawOrigin,
+                                     runPaint,
+                                     props,
+                                     contextSupportsDistanceFieldText,
+                                     options,
+                                     this);
+        }
+        fSubRunsCreated = true;
+    }
+}
+
 void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) {
-
     this->addMultiMaskFormat(DirectMaskSubRun::Make, drawables, strikeSpec);
 }
 
@@ -1501,7 +1524,6 @@ void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale) {
-
     fMaxMinScale = std::max(minScale, fMaxMinScale);
     fMinMaxScale = std::min(maxScale, fMinMaxScale);
     fSubRunList.append(SDFTSubRun::Make(drawables, runFont, strikeSpec, this, &fAlloc));

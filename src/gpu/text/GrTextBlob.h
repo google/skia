@@ -399,6 +399,16 @@ public:
     void* operator new(size_t);
     void* operator new(size_t, void* p);
 
+    void makeSubRuns(
+            SkGlyphRunListPainter* painter,
+            const SkGlyphRunList& glyphRunList,
+            const SkMatrix& drawMatrix,
+            SkPoint drawOrigin,
+            const SkPaint& runPaint,
+            const SkSurfaceProps& props,
+            bool contextSupportsDistanceFieldText,
+            const GrSDFTOptions& options) SK_EXCLUDES(fSpinLock);
+
     static const Key& GetKey(const GrTextBlob& blob);
     static uint32_t Hash(const Key& key);
 
@@ -442,6 +452,8 @@ private:
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
 
+    bool fSubRunsCreated SK_GUARDED_BY(fSpinLock) {false};
+    mutable SkSpinlock fSpinLock;
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
     GrSubRunAllocator fAlloc;
