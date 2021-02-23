@@ -21,6 +21,8 @@
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 #include "src/sksl/SkSLCompiler.h"
 
+#include <vector>
+
 class GrProgramDesc;
 class GrShaderVar;
 class GrGLSLVaryingHandler;
@@ -32,7 +34,7 @@ public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
 
-    virtual ~GrGLSLProgramBuilder() {}
+    virtual ~GrGLSLProgramBuilder();
 
     virtual const GrCaps* caps() const = 0;
     const GrShaderCaps* shaderCaps() const { return this->caps()->shaderCaps(); }
@@ -119,7 +121,7 @@ public:
 
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
+    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
 
 protected:
     explicit GrGLSLProgramBuilder(GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
