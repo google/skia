@@ -123,18 +123,9 @@ static void set_up_context_on_thread(ThreadInfo* threadInfo) {
     set_thread_local_info(threadInfo);
 }
 
-// TODO: upstream this back into SkThreadPool - the only difference is adding some initialization
-// at the start of each thread and some thread_local data to hold the utility context/
 class GrThreadPool {
 public:
-    static std::unique_ptr<GrThreadPool> MakeFIFOThreadPool(SkSpan<ThreadInfo> threadInfo,
-                                                            bool allowBorrowing = true) {
-        return std::make_unique<GrThreadPool>(threadInfo, allowBorrowing);
-    }
-
-    explicit GrThreadPool(SkSpan<ThreadInfo> threadInfo, bool allowBorrowing)
-            : fAllowBorrowing(allowBorrowing) {
-
+    explicit GrThreadPool(SkSpan<ThreadInfo> threadInfo) {
         for (size_t i = 0; i < threadInfo.size(); i++) {
             fThreads.emplace_back(&Loop, this, &threadInfo[i]);
         }
@@ -159,13 +150,6 @@ public:
         }
         // Tell the Loop() threads to pick it up.
         fWorkAvailable.signal(1);
-    }
-
-    void borrow() {
-        // If there is work waiting and we're allowed to borrow work, do it.
-        if (fAllowBorrowing && fWorkAvailable.try_wait()) {
-            SkAssertResult(this->do_work(nullptr));
-        }
     }
 
 private:
@@ -207,18 +191,21 @@ private:
     WorkList              fWork;
     SkMutex               fWorkLock;
     SkSemaphore           fWorkAvailable;
-    bool                  fAllowBorrowing;
 };
 
 class GrTaskGroup : SkNoncopyable {
 public:
-    explicit GrTaskGroup(GrThreadPool& executor) : fPending(0), fExecutor(executor) {}
+    explicit GrTaskGroup(SkSpan<ThreadInfo> threadInfo)
+            : fPending(0)
+            , fThreadPool(std::make_unique<GrThreadPool>(threadInfo)) {
+    }
+
     ~GrTaskGroup() { this->wait(); }
 
     // Add a task to this SkTaskGroup.
     void add(std::function<void(void)> fn) {
         fPending.fetch_add(+1, std::memory_order_relaxed);
-        fExecutor.add([this, fn{std::move(fn)}] {
+        fThreadPool->add([this, fn{std::move(fn)}] {
             fn();
             fPending.fetch_add(-1, std::memory_order_release);
         });
@@ -232,18 +219,14 @@ public:
 
     // Block until done().
     void wait() {
-        // Actively help the executor do work until our task group is done.
-        // This lets SkTaskGroups nest arbitrarily deep on a single SkExecutor:
-        // no thread ever blocks waiting for others to do its work.
-        // (We may end up doing work that's not part of our task group.  That's fine.)
         while (!this->done()) {
-            fExecutor.borrow();
+            std::this_thread::yield();
         }
     }
 
 private:
-    std::atomic<int32_t> fPending;
-    GrThreadPool&        fExecutor;
+    std::atomic<int32_t>          fPending;
+    std::unique_ptr<GrThreadPool> fThreadPool;
 };
 
 static bool create_contexts(GrContextFactory* factory,
@@ -344,15 +327,9 @@ int main(int argc, char** argv) {
     mainContext->fTestContext->makeNotCurrent();
 
     {
-        std::unique_ptr<GrThreadPool> fGPUExecutor(GrThreadPool::MakeFIFOThreadPool(
-                                                SkSpan<ThreadInfo>(mainContext.get(), 1),
-                                                false));
-        std::unique_ptr<GrThreadPool> fRecordingExecutor(GrThreadPool::MakeFIFOThreadPool(
-                                                SkSpan<ThreadInfo>(utilityContexts.get(),
-                                                                   FLAGS_ddlNumRecordingThreads),
-                                                false));
-        GrTaskGroup gpuTaskGroup(*fGPUExecutor);
-        GrTaskGroup recordingTaskGroup(*fRecordingExecutor);
+        GrTaskGroup gpuTaskGroup(SkSpan<ThreadInfo>(mainContext.get(), 1));
+        GrTaskGroup recordingTaskGroup(SkSpan<ThreadInfo>(utilityContexts.get(),
+                                                          FLAGS_ddlNumRecordingThreads));
 
         for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
             recordingTaskGroup.add([] {
