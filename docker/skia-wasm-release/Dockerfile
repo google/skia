@@ -69,6 +69,6 @@ COPY --from=builder /tmp/skia/skia/out/pathkit/pathkit* /tmp/pathkit/
 
 COPY --from=builder /tmp/skia/skia/out/canvaskit_wasm/canvaskit* /tmp/canvaskit/
 
-COPY --from=builder /tmp/skia/skia/modules/canvaskit/canvaskit/types/index.d.ts /tmp/canvaskit/canvaskit.d.ts
+COPY --from=builder /tmp/skia/skia/modules/canvaskit/npm_build/types/index.d.ts /tmp/canvaskit/canvaskit.d.ts
 
 COPY --from=builder /tmp/skia/skia/out/debugger_wasm/debugger* /tmp/debugger/
