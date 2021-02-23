@@ -135,6 +135,30 @@
       },
       "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9729ba0f_e739e963",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-23T17:55:24Z",
+      "side": 1,
+      "message": "So I think the concern was the actual pointer dereference, but running some benchmarks again it looks like that is not affecting perf on my laptop. This is a lot nicer without the weird rule about initializing it to false.",
+      "parentUuid": "904ac760_e8053b23",
+      "range": {
+        "startLine": 643,
+        "startChar": 29,
+        "endLine": 643,
+        "endChar": 76
+      },
+      "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
