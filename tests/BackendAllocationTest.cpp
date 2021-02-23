@@ -20,6 +20,7 @@
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #ifdef SK_GL
 #include "src/gpu/gl/GrGLCaps.h"
@@ -92,9 +93,7 @@ void test_wrapping(GrDirectContext* dContext,
             ERRORF(reporter, "Couldn't make SkImage from backendTexture for %s\n",
                    ToolUtils::colortype_name(skColorType));
         } else {
-            SkImage_Base* ib = as_IB(img);
-
-            GrTextureProxy* proxy = ib->peekProxy();
+            GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(img.get(), dContext);
             REPORTER_ASSERT(reporter, proxy);
 
             REPORTER_ASSERT(reporter, mipMapped == proxy->proxyMipmapped());

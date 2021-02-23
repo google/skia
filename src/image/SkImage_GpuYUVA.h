@@ -34,10 +34,6 @@ public:
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
-    // This returns the single backing proxy if the YUV channels have already been flattened but
-    // nullptr if they have not.
-    GrTextureProxy* peekProxy() const override;
-
     bool onIsTextureBacked() const override {
         // We should have YUVA proxies or a RGBA proxy,but not both.
         SkASSERT(fYUVAProxies.isValid() != SkToBool(fRGBView));

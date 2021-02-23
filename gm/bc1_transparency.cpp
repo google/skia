@@ -15,6 +15,7 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
+#include "tools/gpu/ProxyUtils.h"
 
 constexpr int kImgWidth  = 16;
 constexpr int kImgHeight = 8;
@@ -121,8 +122,8 @@ static void draw_image(SkCanvas* canvas, sk_sp<SkImage> image, int x, int y) {
     bool isCompressed = false;
     if (image && image->isTextureBacked()) {
         const GrCaps* caps = as_IB(image)->context()->priv().caps();
-
-        GrTextureProxy* proxy = as_IB(image)->peekProxy();
+        GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image.get(),
+                                                                  canvas->recordingContext());
         isCompressed = caps->isFormatCompressed(proxy->backendFormat());
     }
 
