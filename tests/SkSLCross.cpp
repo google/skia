@@ -75,7 +75,9 @@ private:
         GrGLSLUniformHandler::UniformHandle fBUniform;
     };
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new Impl; }
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+        return std::make_unique<Impl>();
+    }
     const SkVector fA, fB;
 };
 

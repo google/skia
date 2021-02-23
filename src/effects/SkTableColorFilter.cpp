@@ -273,7 +273,7 @@ public:
     static constexpr int kInputFPIndex = 1;
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
@@ -302,7 +302,7 @@ ColorTableEffect::ColorTableEffect(const ColorTableEffect& that)
     this->cloneAndRegisterAllChildProcessors(that);
 }
 
-GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
+std::unique_ptr<GrGLSLFragmentProcessor> ColorTableEffect::onMakeProgramImpl() const {
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
@@ -319,7 +319,7 @@ GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
                     inputColor.c_str(), r.c_str(), g.c_str(), b.c_str(), a.c_str());
         }
     };
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(

@@ -211,7 +211,7 @@ private:
         }
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     SkBlendMode fMode;
     BlendBehavior fBlendBehavior;
@@ -260,8 +260,8 @@ std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new BlendFragmentProcessor(*this));
 }
 
-GrGLSLFragmentProcessor* BlendFragmentProcessor::onCreateGLSLInstance() const{
-    return new GLBlendFragmentProcessor;
+std::unique_ptr<GrGLSLFragmentProcessor> BlendFragmentProcessor::onMakeProgramImpl() const {
+    return std::make_unique<GLBlendFragmentProcessor>();
 }
 
 /////////////////////////////////////////////////////////////////////

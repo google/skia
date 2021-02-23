@@ -32,8 +32,8 @@ private:
     UniformHandle scalarArrayVar;
     UniformHandle pointArrayVar;
 };
-GrGLSLFragmentProcessor* GrUniformArrays::onCreateGLSLInstance() const {
-    return new GrGLSLUniformArrays();
+std::unique_ptr<GrGLSLFragmentProcessor> GrUniformArrays::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLUniformArrays>();
 }
 void GrUniformArrays::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

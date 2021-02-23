@@ -160,8 +160,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrFunctionReturnTypes::onCreateGLSLInstance() const {
-    return new GrGLSLFunctionReturnTypes();
+std::unique_ptr<GrGLSLFragmentProcessor> GrFunctionReturnTypes::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLFunctionReturnTypes>();
 }
 void GrFunctionReturnTypes::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

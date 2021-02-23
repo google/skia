@@ -47,7 +47,7 @@ private:
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         this->registerChild(std::move(blurProfile), SkSL::SampleUsage::Explicit());
     }
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
 #if GR_TEST_UTILS

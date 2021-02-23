@@ -38,7 +38,7 @@ public:
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     using INHERITED = GrFragmentProcessor;
 };
 
@@ -50,8 +50,8 @@ class GLSLSampleMatrixConstantEffect : public GrGLSLFragmentProcessor {
     }
 };
 
-GrGLSLFragmentProcessor* SampleMatrixConstantEffect::onCreateGLSLInstance() const {
-    return new GLSLSampleMatrixConstantEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> SampleMatrixConstantEffect::onMakeProgramImpl() const {
+    return std::make_unique<GLSLSampleMatrixConstantEffect>();
 }
 
 DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 1024, 256) {

@@ -148,7 +148,9 @@ private:
         }
     };
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new Impl; }
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+        return std::make_unique<Impl>();
+    }
 };
 
 void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {

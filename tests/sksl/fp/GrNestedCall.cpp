@@ -45,8 +45,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrNestedCall::onCreateGLSLInstance() const {
-    return new GrGLSLNestedCall();
+std::unique_ptr<GrGLSLFragmentProcessor> GrNestedCall::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLNestedCall>();
 }
 void GrNestedCall::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

@@ -37,8 +37,8 @@ private:
  varName.set1f(calculated, provided * 2);     }
     UniformHandle calculatedVar;
 };
-GrGLSLFragmentProcessor* GrSectionSetData::onCreateGLSLInstance() const {
-    return new GrGLSLSectionSetData();
+std::unique_ptr<GrGLSLFragmentProcessor> GrSectionSetData::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLSectionSetData>();
 }
 void GrSectionSetData::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     b->add32(sk_bit_cast<uint32_t>(provided));

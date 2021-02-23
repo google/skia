@@ -65,7 +65,7 @@ private:
                         GrClipEdgeType, uint32_t circularCornerFlags, const SkRRect&);
     CircularRRectEffect(const CircularRRectEffect& that);
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -395,8 +395,8 @@ void CircularRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GLCircularRRectEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* CircularRRectEffect::onCreateGLSLInstance() const  {
-    return new GLCircularRRectEffect;
+std::unique_ptr<GrGLSLFragmentProcessor> CircularRRectEffect::onMakeProgramImpl() const {
+    return std::make_unique<GLCircularRRectEffect>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -419,7 +419,7 @@ private:
     EllipticalRRectEffect(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkRRect&);
     EllipticalRRectEffect(const EllipticalRRectEffect& that);
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -701,8 +701,8 @@ void EllipticalRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GLEllipticalRRectEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* EllipticalRRectEffect::onCreateGLSLInstance() const  {
-    return new GLEllipticalRRectEffect;
+std::unique_ptr<GrGLSLFragmentProcessor> EllipticalRRectEffect::onMakeProgramImpl() const {
+    return std::make_unique<GLEllipticalRRectEffect>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

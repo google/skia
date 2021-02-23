@@ -21,7 +21,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SectionConstructor"; }
 private:
-constructor section    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+constructor section    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
 #if GR_TEST_UTILS

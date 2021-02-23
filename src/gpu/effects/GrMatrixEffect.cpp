@@ -35,8 +35,8 @@ private:
     UniformHandle fMatrixVar;
 };
 
-GrGLSLFragmentProcessor* GrMatrixEffect::onCreateGLSLInstance() const {
-    return new GrGLSLMatrixEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrMatrixEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLMatrixEffect>();
 }
 
 void GrMatrixEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

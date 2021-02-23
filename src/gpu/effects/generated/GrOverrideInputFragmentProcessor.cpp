@@ -61,8 +61,9 @@ private:
     }
     UniformHandle uniformColorVar;
 };
-GrGLSLFragmentProcessor* GrOverrideInputFragmentProcessor::onCreateGLSLInstance() const {
-    return new GrGLSLOverrideInputFragmentProcessor();
+std::unique_ptr<GrGLSLFragmentProcessor> GrOverrideInputFragmentProcessor::onMakeProgramImpl()
+        const {
+    return std::make_unique<GrGLSLOverrideInputFragmentProcessor>();
 }
 void GrOverrideInputFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                              GrProcessorKeyBuilder* b) const {

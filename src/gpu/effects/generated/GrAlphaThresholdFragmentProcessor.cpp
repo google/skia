@@ -74,8 +74,9 @@ private:
     UniformHandle innerThresholdVar;
     UniformHandle outerThresholdVar;
 };
-GrGLSLFragmentProcessor* GrAlphaThresholdFragmentProcessor::onCreateGLSLInstance() const {
-    return new GrGLSLAlphaThresholdFragmentProcessor();
+std::unique_ptr<GrGLSLFragmentProcessor> GrAlphaThresholdFragmentProcessor::onMakeProgramImpl()
+        const {
+    return std::make_unique<GrGLSLAlphaThresholdFragmentProcessor>();
 }
 void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                               GrProcessorKeyBuilder* b) const {}

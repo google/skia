@@ -28,7 +28,7 @@ private:
     , matrixA(matrixA)
     , matrixB(matrixB) {
         this->registerChild(std::move(child), SkSL::SampleUsage::VariableMatrix(true));    }
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
 #if GR_TEST_UTILS

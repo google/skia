@@ -116,7 +116,7 @@ public:
     // The FP this was registered with as a child function. This will be null if this is a root.
     const GrFragmentProcessor* parent() const { return fParent; }
 
-    GrGLSLFragmentProcessor* createGLSLInstance() const;
+    std::unique_ptr<GrGLSLFragmentProcessor> makeProgramImpl() const;
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onGetGLSLProcessorKey(caps, b);
@@ -391,7 +391,7 @@ private:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrFragmentProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLSLFragmentProcessor* onCreateGLSLInstance() const = 0;
+    virtual std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const = 0;
 
     /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
     virtual void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;

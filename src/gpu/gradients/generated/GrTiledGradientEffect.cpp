@@ -73,8 +73,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {}
 };
-GrGLSLFragmentProcessor* GrTiledGradientEffect::onCreateGLSLInstance() const {
-    return new GrGLSLTiledGradientEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrTiledGradientEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLTiledGradientEffect>();
 }
 void GrTiledGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {

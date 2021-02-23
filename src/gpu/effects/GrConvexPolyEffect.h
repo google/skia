@@ -74,7 +74,7 @@ private:
                        int n, const SkScalar edges[]);
     GrConvexPolyEffect(const GrConvexPolyEffect&);
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 

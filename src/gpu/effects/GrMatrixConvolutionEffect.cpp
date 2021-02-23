@@ -322,8 +322,8 @@ void GrMatrixConvolutionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLSLInstance() const  {
-    return new GrGLMatrixConvolutionEffect;
+std::unique_ptr<GrGLSLFragmentProcessor> GrMatrixConvolutionEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLMatrixConvolutionEffect>();
 }
 
 bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

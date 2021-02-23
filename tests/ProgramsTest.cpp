@@ -63,8 +63,8 @@ public:
 
     const char* name() const override { return "Big_Ole_Key"; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLBigKeyProcessor;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+        return std::make_unique<GLBigKeyProcessor>();
     }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(); }
@@ -99,7 +99,9 @@ public:
 
     const char* name() const override { return "Block_Input"; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+        return std::make_unique<GLFP>();
+    }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return Make(this->childProcessor(0)->clone());

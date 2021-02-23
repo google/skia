@@ -27,7 +27,7 @@ public:
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 using namespace SkSL::dsl;
@@ -47,7 +47,7 @@ public:
 
             GrGLSLProgramDataManager::UniformHandle fBlueAlphaUniform;
         };
-        return new Impl;
+        return std::make_unique<Impl>();
     }
 };
 

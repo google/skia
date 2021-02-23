@@ -164,8 +164,9 @@ void GrGaussianConvolutionFragmentProcessor::onGetGLSLProcessorKey(const GrShade
     Impl::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrGaussianConvolutionFragmentProcessor::onCreateGLSLInstance() const {
-    return new Impl;
+std::unique_ptr<GrGLSLFragmentProcessor>
+GrGaussianConvolutionFragmentProcessor::onMakeProgramImpl() const {
+    return std::make_unique<Impl>();
 }
 
 bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor& sBase) const {

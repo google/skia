@@ -39,8 +39,8 @@ private:
     }
 bool opaque = false;
 };
-GrGLSLFragmentProcessor* GrChildProcessorFieldAccess::onCreateGLSLInstance() const {
-    return new GrGLSLChildProcessorFieldAccess();
+std::unique_ptr<GrGLSLFragmentProcessor> GrChildProcessorFieldAccess::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLChildProcessorFieldAccess>();
 }
 void GrChildProcessorFieldAccess::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

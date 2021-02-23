@@ -51,8 +51,8 @@ private:
 SkPMColor4f colorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrConditionalInUniform::onCreateGLSLInstance() const {
-    return new GrGLSLConditionalInUniform();
+std::unique_ptr<GrGLSLFragmentProcessor> GrConditionalInUniform::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLConditionalInUniform>();
 }
 void GrConditionalInUniform::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     b->add32((uint32_t) test);

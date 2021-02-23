@@ -1412,8 +1412,8 @@ bool CPPCodeGenerator::generateCode() {
         }
     }
     this->writef("};\n"
-                 "GrGLSLFragmentProcessor* %s::onCreateGLSLInstance() const {\n"
-                 "    return new GrGLSL%s();\n"
+                 "std::unique_ptr<GrGLSLFragmentProcessor> %s::onMakeProgramImpl() const {\n"
+                 "    return std::make_unique<GrGLSL%s>();\n"
                  "}\n",
                  fullName, baseName);
     this->writeGetKey();

@@ -176,7 +176,7 @@ private:
 
     explicit GrDisplacementMapEffect(const GrDisplacementMapEffect&);
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -452,8 +452,8 @@ std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::Make(SkColorChanne
                                         std::move(colorEffect)));
 }
 
-GrGLSLFragmentProcessor* GrDisplacementMapEffect::onCreateGLSLInstance() const {
-    return new Impl();
+std::unique_ptr<GrGLSLFragmentProcessor> GrDisplacementMapEffect::onMakeProgramImpl() const {
+    return std::make_unique<Impl>();
 }
 
 void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

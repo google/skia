@@ -29,8 +29,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrChildProcessorSampleMatrixConstant::onCreateGLSLInstance() const {
-    return new GrGLSLChildProcessorSampleMatrixConstant();
+std::unique_ptr<GrGLSLFragmentProcessor> GrChildProcessorSampleMatrixConstant::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLChildProcessorSampleMatrixConstant>();
 }
 void GrChildProcessorSampleMatrixConstant::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

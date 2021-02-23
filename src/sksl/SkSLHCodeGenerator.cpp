@@ -363,10 +363,11 @@ bool HCodeGenerator::generateCode() {
     this->writeFields();
     this->writef("private:\n");
     this->writeConstructor();
-    this->writef("    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;\n"
-                 "    void onGetGLSLProcessorKey(const GrShaderCaps&, "
-                                                "GrProcessorKeyBuilder*) const override;\n"
-                 "    bool onIsEqual(const GrFragmentProcessor&) const override;\n");
+    this->writef(
+            "    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;\n"
+            "    void onGetGLSLProcessorKey(const GrShaderCaps&, "
+                                           "GrProcessorKeyBuilder*) const override;\n"
+            "    bool onIsEqual(const GrFragmentProcessor&) const override;\n");
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         if (param->type().typeKind() == Type::TypeKind::kSampler) {
             this->writef("    const TextureSampler& onTextureSampler(int) const override;");
