@@ -26,6 +26,7 @@ struct Layout {
         kBlendSupportAllEquations_Flag   = 1 <<  3,
         kTracked_Flag                    = 1 <<  4,
         kSRGBUnpremul_Flag               = 1 <<  5,
+        kKey_Flag                        = 1 <<  6,
     };
 
     enum Primitive {
@@ -37,16 +38,6 @@ struct Layout {
         kTriangles_Primitive,
         kTriangleStrip_Primitive,
         kTrianglesAdjacency_Primitive
-    };
-
-    // used by SkSL processors
-    enum Key {
-        // field is not a key
-        kNo_Key,
-        // field is a key
-        kKey_Key,
-        // key is 0 or 1 depending on whether the matrix is an identity matrix
-        kIdentity_Key,
     };
 
     enum class CType {
@@ -108,7 +99,7 @@ struct Layout {
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, Primitive primitive, int maxVertices, int invocations,
-           StringFragment marker, StringFragment when, Key key, CType ctype)
+           StringFragment marker, StringFragment when, CType ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -122,7 +113,6 @@ struct Layout {
     , fInvocations(invocations)
     , fMarker(marker)
     , fWhen(when)
-    , fKey(key)
     , fCType(ctype) {}
 
     Layout()
@@ -137,7 +127,6 @@ struct Layout {
     , fPrimitive(kUnspecified_Primitive)
     , fMaxVertices(-1)
     , fInvocations(-1)
-    , fKey(kNo_Key)
     , fCType(CType::kDefault) {}
 
     static Layout builtin(int builtin) {
@@ -234,7 +223,7 @@ struct Layout {
         if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
-        if (fKey) {
+        if (fFlags & kKey_Flag) {
             result += "/* key */";
         }
         return result;
@@ -254,7 +243,6 @@ struct Layout {
                fInvocations          == other.fInvocations &&
                fMarker               == other.fMarker &&
                fWhen                 == other.fWhen &&
-               fKey                  == other.fKey &&
                fCType                == other.fCType;
     }
 
@@ -280,7 +268,6 @@ struct Layout {
     // marker refers to matrices tagged on the SkCanvas with markCTM
     StringFragment fMarker;
     StringFragment fWhen;
-    Key fKey;
     CType fCType;
 };
 
