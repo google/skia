@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c04b5b6f_0fbf5557",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 26
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-23T17:39:58Z",
+      "side": 1,
+      "message": "Note: Now that we\u0027re sharing text blobs, the GrTextBlobCache has some races. herb@ is actively fixing those, then we can land this.",
+      "revId": "8a18e224344b24b8d743801e8c713295a30f38de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
