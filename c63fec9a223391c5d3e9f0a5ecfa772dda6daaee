@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b01d0414_94ccde8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:11:33Z",
+      "side": 1,
+      "message": "Yup, looks like flakes...",
+      "parentUuid": "8f7e3f4c_b9eeaf85",
+      "revId": "c63fec9a223391c5d3e9f0a5ecfa772dda6daaee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ce5f638_3c7ca20b",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "868a0021_d81ae14c",
+        "filename": "src/gpu/effects/GrCustomXfermode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:11:33Z",
+      "side": 1,
+      "message": "Looks like the bottom bits are used in the if-case, above?",
+      "parentUuid": "5ce5f638_3c7ca20b",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 130,
+        "endChar": 9
+      },
+      "revId": "c63fec9a223391c5d3e9f0a5ecfa772dda6daaee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "49c4d0b0_8ac8e2a0",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-02-23T00:57:55Z",
       "side": 1,
       "message": "nit: This is a little hard to read for me now. Can we just turn the above if/return into:\n\n  if (caps.mustEnableAdvBlendEqs()) {\n      this-\u003eaddFeature(1 \u003c\u003c kBlendEquationAdvanced_GLSLPrivateFeature,\n                     \"GL_KHR_blend_equation_advanced\");\n      this-\u003eaddLayoutQualifier(\"blend_support_all_equations\", kOut_InterfaceQualifier);\n  }",
+      "range": {
+        "startLine": 191,
+        "startChar": 4,
+        "endLine": 191,
+        "endChar": 15
+      },
+      "revId": "c63fec9a223391c5d3e9f0a5ecfa772dda6daaee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ffd3ee8_611fa0e9",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:11:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49c4d0b0_8ac8e2a0",
       "range": {
         "startLine": 191,
         "startChar": 4,
