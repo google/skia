@@ -1119,11 +1119,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     Statement x = Switch(5,
         Case(0, a = 0, Break()),
         Case(1, a = 1, Continue()),
+        Case(2, a = 2  /*Fallthrough*/),
         Default(Discard())
     );
-    EXPECT_EQUAL(x,
-        "switch (5) { case 0: (a = 0.0); break; case 1: (a = 1.0); continue; default: discard; }");
-
+    EXPECT_EQUAL(x, R"(
+        switch (5) {
+            case 0: (a = 0.0); break;
+            case 1: (a = 1.0); continue;
+            case 2: (a = 2.0);
+            default: discard;
+        }
+    )");
     Statement y = Switch(b);
     EXPECT_EQUAL(y, "switch (b) {}");
 
@@ -1131,8 +1137,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     EXPECT_EQUAL(z, "switch (b) { default: case 0: case 1: }");
 
     {
-        ExpectError error(r, "error: duplicate case value\n");
+        ExpectError error(r, "error: duplicate case value '0'\n");
         Switch(0, Case(0), Case(0)).release();
+    }
+
+    {
+        ExpectError error(r, "error: duplicate default case\n");
+        Switch(0, Default(a = 0), Default(a = 1)).release();
     }
 
     {

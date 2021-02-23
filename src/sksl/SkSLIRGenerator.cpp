@@ -771,56 +771,6 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     return this->convertDo(std::move(statement), std::move(test));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertSwitch(
-                                                int offset,
-                                                bool isStatic,
-                                                std::unique_ptr<Expression> value,
-                                                ExpressionArray caseValues,
-                                                SkTArray<StatementArray> caseStatements,
-                                                std::shared_ptr<SymbolTable> symbolTable) {
-    SkASSERT(caseValues.size() == caseStatements.size());
-    if (this->strictES2Mode()) {
-        this->errorReporter().error(offset, "switch statements are not supported");
-        return nullptr;
-    }
-
-    if (!value->type().isEnum()) {
-        value = this->coerce(std::move(value), *fContext.fTypes.fInt);
-        if (!value) {
-            return nullptr;
-        }
-    }
-    SkTHashSet<SKSL_INT> intValues;
-    std::vector<std::unique_ptr<SwitchCase>> cases;
-    for (size_t i = 0; i < caseValues.size(); ++i) {
-        int caseOffset;
-        std::unique_ptr<Expression> caseValue;
-        if (caseValues[i]) {
-            caseOffset = caseValues[i]->fOffset;
-            caseValue = this->coerce(std::move(caseValues[i]), value->type());
-            if (!caseValue) {
-                return nullptr;
-            }
-            SKSL_INT v = 0;
-            if (!ConstantFolder::GetConstantInt(*caseValue, &v)) {
-                this->errorReporter().error(caseValue->fOffset,
-                                            "case value must be a constant integer");
-                return nullptr;
-            }
-            if (intValues.contains(v)) {
-                this->errorReporter().error(caseValue->fOffset, "duplicate case value");
-            }
-            intValues.add(v);
-        } else {
-            caseOffset = offset;
-        }
-        cases.push_back(std::make_unique<SwitchCase>(caseOffset, std::move(caseValue),
-                                                     std::move(caseStatements[i])));
-    }
-    return std::make_unique<SwitchStatement>(offset, isStatic, std::move(value),
-                                             std::move(cases), symbolTable);
-}
-
 std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
     SkASSERT(s.fKind == ASTNode::Kind::kSwitch);
 
@@ -854,8 +804,8 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
         }
         caseStatements.push_back(std::move(statements));
     }
-    return this->convertSwitch(s.fOffset, s.getBool(), std::move(value), std::move(caseValues),
-                               std::move(caseStatements), fSymbolTable);
+    return SwitchStatement::Make(fContext, s.fOffset, s.getBool(), std::move(value),
+                                 std::move(caseValues), std::move(caseStatements), fSymbolTable);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(const ASTNode& s) {

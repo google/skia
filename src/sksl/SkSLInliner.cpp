@@ -530,9 +530,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                 cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc->value()),
                                                              stmts(sc->statements())));
             }
-            return std::make_unique<SwitchStatement>(offset, ss.isStatic(), expr(ss.value()),
-                                                     std::move(cases),
-                                                     SymbolTable::WrapIfBuiltin(ss.symbols()));
+            return SwitchStatement::Make(*fContext, offset, ss.isStatic(), expr(ss.value()),
+                                        std::move(cases), SymbolTable::WrapIfBuiltin(ss.symbols()));
         }
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
