@@ -1276,64 +1276,53 @@ void CPPCodeGenerator::writeGetKey() {
             const Type& varType = var.type();
             String nameString(var.name());
             const char* name = nameString.c_str();
-            if (var.modifiers().fLayout.fKey != Layout::kNo_Key &&
-                (var.modifiers().fFlags & Modifiers::kUniform_Flag)) {
-                fErrors.error(var.fOffset, "layout(key) may not be specified on uniforms");
-            }
-            switch (var.modifiers().fLayout.fKey) {
-                case Layout::kKey_Key:
-                    if (is_private(var)) {
-                        this->writef("%s %s =",
-                                        HCodeGenerator::FieldType(fContext, varType,
-                                                                  var.modifiers().fLayout).c_str(),
-                                        String(var.name()).c_str());
-                        if (decl.value()) {
-                            fCPPMode = true;
-                            this->writeExpression(*decl.value(), Precedence::kAssignment);
-                            fCPPMode = false;
-                        } else {
-                            this->writef("%s", default_value(var).c_str());
-                        }
-                        this->write(";\n");
-                    }
-                    if (var.modifiers().fLayout.fWhen.fLength) {
-                        this->writef("if (%s) {", String(var.modifiers().fLayout.fWhen).c_str());
-                    }
-                    if (varType == *fContext.fTypes.fHalf4) {
-                        this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
-                                     HCodeGenerator::FieldName(name).c_str());
-                        this->writef("    uint16_t green = SkFloatToHalf(%s.fG);\n",
-                                     HCodeGenerator::FieldName(name).c_str());
-                        this->writef("    uint16_t blue = SkFloatToHalf(%s.fB);\n",
-                                     HCodeGenerator::FieldName(name).c_str());
-                        this->writef("    uint16_t alpha = SkFloatToHalf(%s.fA);\n",
-                                     HCodeGenerator::FieldName(name).c_str());
-                        this->write("    b->add32(((uint32_t)red << 16) | green);\n");
-                        this->write("    b->add32(((uint32_t)blue << 16) | alpha);\n");
-                    } else if (varType == *fContext.fTypes.fHalf ||
-                               varType == *fContext.fTypes.fFloat) {
-                        this->writef("    b->add32(sk_bit_cast<uint32_t>(%s));\n",
-                                     HCodeGenerator::FieldName(name).c_str());
-                    } else if (varType.isInteger() || varType.isBoolean() || varType.isEnum()) {
-                        this->writef("    b->add32((uint32_t) %s);\n",
-                                     HCodeGenerator::FieldName(name).c_str());
+            if (var.modifiers().fLayout.fFlags & Layout::kKey_Flag) {
+                if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
+                    fErrors.error(var.fOffset, "layout(key) may not be specified on uniforms");
+                }
+                if (is_private(var)) {
+                    this->writef(
+                            "%s %s =",
+                            HCodeGenerator::FieldType(fContext, varType, var.modifiers().fLayout)
+                                    .c_str(),
+                            String(var.name()).c_str());
+                    if (decl.value()) {
+                        fCPPMode = true;
+                        this->writeExpression(*decl.value(), Precedence::kAssignment);
+                        fCPPMode = false;
                     } else {
-                        SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
-                              varType.displayName().c_str());
+                        this->writef("%s", default_value(var).c_str());
                     }
-                    if (var.modifiers().fLayout.fWhen.fLength) {
-                        this->write("}");
-                    }
-                    break;
-                case Layout::kIdentity_Key:
-                    if (!varType.isMatrix()) {
-                        fErrors.error(var.fOffset, "layout(key=identity) requires matrix type");
-                    }
-                    this->writef("    b->add32(%s.isIdentity() ? 1 : 0);\n",
+                    this->write(";\n");
+                }
+                if (var.modifiers().fLayout.fWhen.fLength) {
+                    this->writef("if (%s) {", String(var.modifiers().fLayout.fWhen).c_str());
+                }
+                if (varType == *fContext.fTypes.fHalf4) {
+                    this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
                                  HCodeGenerator::FieldName(name).c_str());
-                    break;
-                case Layout::kNo_Key:
-                    break;
+                    this->writef("    uint16_t green = SkFloatToHalf(%s.fG);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                    this->writef("    uint16_t blue = SkFloatToHalf(%s.fB);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                    this->writef("    uint16_t alpha = SkFloatToHalf(%s.fA);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                    this->write("    b->add32(((uint32_t)red << 16) | green);\n");
+                    this->write("    b->add32(((uint32_t)blue << 16) | alpha);\n");
+                } else if (varType == *fContext.fTypes.fHalf ||
+                           varType == *fContext.fTypes.fFloat) {
+                    this->writef("    b->add32(sk_bit_cast<uint32_t>(%s));\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                } else if (varType.isInteger() || varType.isBoolean() || varType.isEnum()) {
+                    this->writef("    b->add32((uint32_t) %s);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                } else {
+                    SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
+                             varType.displayName().c_str());
+                }
+                if (var.modifiers().fLayout.fWhen.fLength) {
+                    this->write("}");
+                }
             }
         }
     }

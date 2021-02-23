@@ -94,7 +94,6 @@ void Dehydrator::write(Layout l) {
         this->writeS8(l.fInvocations);
         this->write(l.fMarker);
         this->write(l.fWhen);
-        this->writeS8(l.fKey);
         this->writeS8((int) l.fCType);
     }
 }
