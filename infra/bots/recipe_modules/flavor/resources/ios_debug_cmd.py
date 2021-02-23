@@ -31,7 +31,7 @@ def collect_log():
 logt = threading.Thread(target=collect_log)
 logt.start()
 
-rv = subprocess.call(['idevicedebug', '--debug', 'run', bundle_id] + args)
+rv = subprocess.call(['/b/test/bin/idevicedebug', '--debug', 'run', bundle_id] + args)
 
 print('\n\nreturned %d' % rv)
 
