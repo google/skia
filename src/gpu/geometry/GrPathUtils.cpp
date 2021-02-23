@@ -587,6 +587,9 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 
 int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2], bool* areCusps) {
     using grvx::float2;
+    SkASSERT(pts);
+    SkASSERT(T);
+    SkASSERT(areCusps);
 
     // If a chop falls within a distance of "kEpsilon" from 0 or 1, throw it out. Tangents become
     // unstable when we chop too close to the boundary. This works out because the tessellation
@@ -639,22 +642,6 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2], bool* 
     float cuspThreshold = a * (kEpsilon/2);
     cuspThreshold *= cuspThreshold;
 
-    if (!T) {
-        // When T == null, the caller just wants to know if the chops will be cusp points.
-        SkASSERT(areCusps);
-        *areCusps = fabsf(discr_over_4) <= cuspThreshold &&
-                    // The most common type of cusp we encounter is when p0==p1 or p2==p3. Unless
-                    // the curve is a flat line (a==b==c==0), these don't actually need special
-                    // treatment because the cusps occur at t=0 and t=1.
-                    ((pts[0] != pts[1] && pts[2] != pts[3]) ||
-                     (a == 0 && b == 0 && c == 0));
-        return -1;
-    }
-
-    // When T != null, it's slow for us to write out a value to "areCusps", especially when 99% of
-    // the time we aren't drawing cusps. The caller must initialize this value to false.
-    SkASSERT(!areCusps || *areCusps == false);
-
     if (discr_over_4 < -cuspThreshold) {
         // The curve does not inflect or cusp. This means it might rotate more than 180 degrees
         // instead. Chop were rotation == 180 deg. (This is the 2nd root where the tangent is
@@ -668,6 +655,7 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2], bool* 
         //
         // NOTE: if C == 0, then C != tan0. But this is fine because the curve is definitely
         // convex-180 if any points are colocated, and T[0] will equal NaN which returns 0 chops.
+        *areCusps = false;
         float root = sk_ieee_float_divide(c, b_over_minus_2);
         // Is "root" inside the range [kEpsilon, 1 - kEpsilon)?
         if (sk_bit_cast<uint32_t>(root - kEpsilon) < kIEEE_one_minus_2_epsilon) {
@@ -677,12 +665,9 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2], bool* 
         return 0;
     }
 
-    if (discr_over_4 <= cuspThreshold) {
+    *areCusps = (discr_over_4 <= cuspThreshold);
+    if (*areCusps) {
         // The two roots are close enough that we can consider them a single cusp.
-        if (areCusps) {
-            *areCusps = true;
-        }
-
         if (a != 0 || b_over_minus_2 != 0 || c != 0) {
             // Pick the average of both roots.
             float root = sk_ieee_float_divide(b_over_minus_2, a);
