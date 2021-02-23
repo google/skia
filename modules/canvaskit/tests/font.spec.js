@@ -284,15 +284,16 @@ describe('Font Behavior', () => {
         // just update them with the new values. For super-accurate readings, one could
         // run a C++ snippet of code and compare the values, but that is likely unnecessary
         // unless we suspect a bug with the bindings.
-        const expectedSizes = [1178.71143, 458.64258, 50.450683];
+        const expectedSizes = [241.06299, 93.79883, 10.31787];
         for (const idx in fontSizes) {
             const font = new CanvasKit.Font(typeface, fontSizes[idx]);
             font.setHinting(CanvasKit.FontHinting.None);
             font.setLinearMetrics(true);
             font.setSubpixel(true);
 
-            const res = font.measureText('someText');
-            expect(res).toBeCloseTo(expectedSizes[idx], 5);
+            const ids = font.getGlyphIDs('M');
+            const widths = font.getGlyphWidths(ids);
+            expect(widths[0]).toBeCloseTo(expectedSizes[idx], 5);
             font.delete();
         }
 

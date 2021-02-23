@@ -1144,31 +1144,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)
         .function("getTypeface", &SkFont::getTypeface, allow_raw_pointers())
-        .function("_getWidths", optional_override([](SkFont& self, uintptr_t /* char* */ sptr,
-                                                     size_t strLen, size_t expectedCodePoints,
-                                                     uintptr_t /* SkScalar* */ wptr) -> bool {
-            char* str = reinterpret_cast<char*>(sptr);
-            SkScalar* widths = reinterpret_cast<SkScalar*>(wptr);
-
-            SkGlyphID* glyphStorage = new SkGlyphID[expectedCodePoints];
-            int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
-                                                     glyphStorage, expectedCodePoints);
-            if (actualCodePoints != expectedCodePoints) {
-                SkDebugf("Actually %d glyphs, expected only %d\n",
-                         actualCodePoints, expectedCodePoints);
-                return false;
-            }
-
-            self.getWidths(glyphStorage, actualCodePoints, widths);
-            delete[] glyphStorage;
-            return true;
-        }))
-        .function("measureText", optional_override([](SkFont& self, std::string text) {
-            // TODO(kjlubick): Remove this API
-            // Need to maybe add a helper in interface.js that supports UTF-8
-            // Otherwise, go with std::wstring and set UTF-32 encoding.
-            return self.measureText(text.c_str(), text.length(), SkTextEncoding::kUTF8);
-        }))
         .function("setEdging", &SkFont::setEdging)
         .function("setEmbeddedBitmaps", &SkFont::setEmbeddedBitmaps)
         .function("setHinting", &SkFont::setHinting)

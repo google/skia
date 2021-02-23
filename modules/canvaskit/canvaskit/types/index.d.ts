@@ -1516,21 +1516,6 @@ export interface Font extends EmbindObject<Font> {
     getTypeface(): Typeface | null;
 
     /**
-     * Retrieves the advanceX measurements for each code point in str.
-     * [deprecated] Use getGlyphIDs and getGlyphWidths instead.
-     * @param str
-     */
-    getWidths(str: string): number[];
-
-    /**
-     * Retrieves the total advance with the given string.
-     * If attempting to shape text to fit into a given width, using getGlyphIDs and getGlyphWidths
-     * is probably easier / more efficient.
-     * @param str
-     */
-    measureText(str: string): number;
-
-    /**
      * Requests, but does not require, that edge pixels draw opaque or with partial transparency.
      * @param edging
      */

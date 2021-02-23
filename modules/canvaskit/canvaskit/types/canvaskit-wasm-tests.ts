@@ -322,8 +322,6 @@ function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {
     font.getSize();
     font.getSkewX();
     font.getTypeface();
-    const w2 = font.getWidths('abcdefg'); // $ExpectType number[]
-    const w = font.measureText('abc'); // $ExpectType number
     font.setEdging(CK.FontEdging.Alias);
     font.setEmbeddedBitmaps(true);
     font.setHinting(CK.FontHinting.Slight);
