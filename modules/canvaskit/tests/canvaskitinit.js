@@ -6,7 +6,7 @@ let CanvasKit = null;
 const LoadCanvasKit = new Promise((resolve, reject) => {
     console.log('canvaskit loading', new Date());
     CanvasKitInit({
-        locateFile: (file) => '/canvaskit/'+file,
+        locateFile: (file) => '/npm_build/'+file,
     }).then((loaded) => {
         console.log('canvaskit loaded', new Date());
         CanvasKit = loaded;

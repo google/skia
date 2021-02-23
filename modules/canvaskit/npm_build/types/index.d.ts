@@ -485,7 +485,11 @@ export interface CanvasKit {
      */
     readonly ShadowDirectionalLight: number;
 
-    readonly gpu: boolean; // if GPU code was compiled in
+    readonly gpu?: boolean; // true if GPU code was compiled in
+    readonly managed_skottie?: boolean; // true if advanced (managed) Skottie code was compiled in
+    readonly particles?: boolean; // true if Particles code was compiled in
+    readonly rt_effect?: boolean; // true if RuntimeEffect was compiled in
+    readonly skottie?: boolean; // true if base Skottie code was compiled in
 
     // Paragraph Enums
     readonly Affinity: AffinityEnumValues;
