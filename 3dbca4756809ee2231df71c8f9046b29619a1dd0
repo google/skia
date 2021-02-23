@@ -16,6 +16,24 @@
       "message": "Why are these being removed? I still seem variants of them in SkFont.h",
       "revId": "3dbca4756809ee2231df71c8f9046b29619a1dd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed7146de_8761726f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-02-23T14:33:51Z",
+      "side": 1,
+      "message": "As you\u0027ll see in the Changelog, we didn\u0027t remove these APIs, just replaced the old way with a newer, more efficient way in getGlyphWidths and getGlyphBounds.",
+      "parentUuid": "f666c179_025ed7b5",
+      "revId": "3dbca4756809ee2231df71c8f9046b29619a1dd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
