@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23f3ad59_93bd66fc",
+        "filename": "resources/sksl/errors/StaticSwitchTest.sksl",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:26:37Z",
+      "side": 1,
+      "message": "nit: This seems unrelated?",
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03cf89ba_229bbbfc",
+        "filename": "tests/sksl/errors/StaticSwitchWithConditionalContinue.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:26:37Z",
+      "side": 1,
+      "message": "nit: error message should probably say \u0027continue\u0027",
+      "range": {
+        "startLine": 3,
+        "startChar": 56,
+        "endLine": 3,
+        "endChar": 61
+      },
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0198cd3_a5f58692",
+        "filename": "tests/sksl/errors/StaticSwitchWithConditionalExit.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:26:37Z",
+      "side": 1,
+      "message": "Leftover output file from a test you removed?",
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b05c302a_a1be1192",
+        "filename": "tests/sksl/errors/StaticSwitchWithConditionalReturn.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:26:37Z",
+      "side": 1,
+      "message": "s/break/return/",
+      "range": {
+        "startLine": 3,
+        "startChar": 56,
+        "endLine": 3,
+        "endChar": 61
+      },
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
