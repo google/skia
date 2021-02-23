@@ -34,6 +34,23 @@
       "parentUuid": "f666c179_025ed7b5",
       "revId": "3dbca4756809ee2231df71c8f9046b29619a1dd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8ea75fe_3b2380bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-23T15:30:56Z",
+      "side": 1,
+      "message": "Ah, I had to \"show more above\" to see the getWidthBounds() method. Got it.",
+      "revId": "3dbca4756809ee2231df71c8f9046b29619a1dd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
