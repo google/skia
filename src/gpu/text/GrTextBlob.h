@@ -302,7 +302,7 @@ public:
 
     // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
     // position.
-    virtual bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) = 0;
+    virtual bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const = 0;
 
     // Return the underlying atlas SubRun if it exists. Otherwise, return nullptr.
     // * Don't use this API. It is only to support testing.
@@ -338,6 +338,8 @@ struct GrSubRunList {
     bool isEmpty() const { return fHead == nullptr; }
     Iterator begin() { return Iterator{ fHead.get()}; }
     Iterator end() { return Iterator{nullptr}; }
+    Iterator begin() const { return Iterator{ fHead.get()}; }
+    Iterator end() const { return Iterator{nullptr}; }
     GrSubRun& front() const {return *fHead; }
 
     std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> fHead{nullptr};
@@ -397,6 +399,16 @@ public:
     void* operator new(size_t);
     void* operator new(size_t, void* p);
 
+    void makeSubRuns(
+            SkGlyphRunListPainter* painter,
+            const SkGlyphRunList& glyphRunList,
+            const SkMatrix& drawMatrix,
+            SkPoint drawOrigin,
+            const SkPaint& runPaint,
+            const SkSurfaceProps& props,
+            bool contextSupportsDistanceFieldText,
+            const GrSDFTOptions& options) SK_EXCLUDES(fSpinLock);
+
     static const Key& GetKey(const GrTextBlob& blob);
     static uint32_t Hash(const Key& key);
 
@@ -409,7 +421,7 @@ public:
         return {fMaxMinScale, fMinMaxScale};
     }
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix);
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const;
 
     const Key& key() const;
     size_t size() const;
@@ -420,7 +432,7 @@ public:
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec);
 
-    GrSubRunList& subRunList() {
+    const GrSubRunList& subRunList() const {
         return fSubRunList;
     }
 
@@ -441,6 +453,7 @@ private:
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
 
+    mutable SkSpinlock fSpinLock;
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
     GrSubRunAllocator fAlloc;
