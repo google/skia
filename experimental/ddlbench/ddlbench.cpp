@@ -64,29 +64,7 @@ static void set_thread_local_info(const ThreadInfo& threadInfo) {
 }
 
 #else
-
-#include <pthread.h>
-
-static pthread_key_t get_pthread_key() {
-    static pthread_key_t sKey = []{
-        pthread_key_t key;
-        int result = pthread_key_create(&key, /*destructor=*/nullptr);
-        if (result != 0) {
-            SK_ABORT("pthread_key_create failure: %d", result);
-        }
-        return key;
-    }();
-    return sKey;
-}
-
-static ThreadInfo* get_thread_local_info() {
-    return static_cast<ThreadInfo*>(pthread_getspecific(get_pthread_key()));
-}
-
-static void set_thread_local_info(const ThreadInfo& threadInfo) {
-    pthread_setspecific(get_pthread_key(), nullptr);
-}
-
+// TODO: handle old iOS versions
 #endif
 
 static void set_up_context_on_thread(const ThreadInfo& threadInfo) {
