@@ -1,0 +1,24 @@
+/*#pragma settings NoDeadCodeElimination*/
+
+// A continue inside a switch (where permitted) prevents fallthrough to the next case block, just
+// like a break statement would.
+
+// Make sure that we properly dead-strip code following `continue` in a switch.
+// This is particularly relevant because our inliner replaces return statements with continue.
+
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    // A looping construct is required for continue.
+    float result = 0;
+    for (int x=0; x<=1; x++) {
+        @switch (2) {
+            case 1: result = abs(1); continue;
+            case 2: result = abs(2); continue;
+            case 3: result = abs(3); continue;
+            case 4: result = abs(4); continue;
+        }
+    }
+
+    return result == 2 ? colorGreen : colorRed;
+}
