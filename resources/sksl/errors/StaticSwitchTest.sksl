@@ -1,6 +1,5 @@
 half4 main() {
-    int x = int(sqrt(1));
-    @switch (x) {
+    @switch (int(sqrt(1))) {
         case 1:
             return half4(1);
         default:
