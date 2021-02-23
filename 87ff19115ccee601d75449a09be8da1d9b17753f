@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcc1189e_b498b0c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T18:00:05Z",
+      "side": 1,
+      "message": "I want to take a second look - there is a lot here\n",
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55c3f2e4_812cc610",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T18:00:05Z",
+      "side": 1,
+      "message": "time warp!",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 18
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb745704_3f1e0e04",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T18:00:05Z",
+      "side": 1,
+      "message": "will outlive ?",
+      "range": {
+        "startLine": 56,
+        "startChar": 57,
+        "endLine": 56,
+        "endChar": 69
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7290a07f_56fe837c",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T18:00:05Z",
+      "side": 1,
+      "message": "I guess add a std::move here for maximum excitement ?",
+      "range": {
+        "startLine": 245,
+        "startChar": 38,
+        "endLine": 245,
+        "endChar": 41
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e56adbb2_69ced116",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T18:00:05Z",
+      "side": 1,
+      "message": "rm ? The GrDDLTask should ref the DDL.",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 251,
+        "endChar": 55
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
