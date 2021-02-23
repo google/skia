@@ -1027,13 +1027,32 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[0],
                  "void main(half2 coords) { (sk_FragColor = half4(coords, 0.0, 1.0)); }");
 
-    DSLWriter::ProgramElements().clear();
-    Var x(kFloat, "x");
-    DSLFunction(kFloat, "sqr", x).define(
-        Return(x * x)
-    );
-    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
-    EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "float sqr(float x) { return (x * x); }");
+    {
+        DSLWriter::ProgramElements().clear();
+        Var x(kFloat, "x");
+        DSLFunction sqr(kFloat, "sqr", x);
+        sqr.define(
+            Return(x * x)
+        );
+        EXPECT_EQUAL(sqr(sk_FragCoord().x()), "sqr(sk_FragCoord.x)");
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "float sqr(float x) { return (x * x); }");
+    }
+
+    {
+        DSLWriter::ProgramElements().clear();
+        Var x(kFloat2, "x");
+        Var y(kFloat2, "y");
+        DSLFunction dot(kFloat2, "dot", x, y);
+        dot.define(
+            Return(x * x + y * y)
+        );
+        EXPECT_EQUAL(dot(Float2(1.0f, 2.0f), Float2(3.0f, 4.0f)),
+                     "dot(float2(1.0, 2.0), float2(3.0, 4.0))");
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0],
+                "float2 dot(float2 x, float2 y) { return ((x * x) + (y * y)); }");
+    }
 
     {
         ExpectError error(r, "error: expected 'float', but found 'bool'\n");

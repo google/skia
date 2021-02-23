@@ -18,6 +18,7 @@ namespace dsl {
 
 void DSLFunction::define(DSLBlock block) {
     SkASSERT(fDecl);
+    SkASSERTF(!fDecl->definition(), "function already defined");
     auto function = std::make_unique<SkSL::FunctionDefinition>(/*offset=*/-1, fDecl,
                                                                /*builtin=*/false, block.release());
     DSLWriter::IRGenerator().finalizeFunction(*function);

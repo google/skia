@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_FUNCTION
 #define SKSL_DSL_FUNCTION
 
+#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLType.h"
@@ -50,6 +51,15 @@ public:
     }
 
     void define(DSLBlock block);
+
+    template<class... Args>
+    DSLExpression operator()(Args... args) {
+        ExpressionArray argArray;
+        argArray.reserve_back(sizeof...(args));
+        int unused[] = {0, (DSLWriter::Ignore(argArray.push_back(args.release())), 0)...};
+        static_cast<void>(unused);
+        return DSLWriter::IRGenerator().call(/*offset=*/-1, *fDecl, std::move(argArray));
+    }
 
 protected:
     const SkSL::Type* fReturnType;
