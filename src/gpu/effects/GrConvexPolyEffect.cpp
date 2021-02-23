@@ -156,12 +156,6 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     return GrConvexPolyEffect::Make(std::move(inputFP), type, n, edges);
 }
 
-GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                    GrClipEdgeType edgeType, const SkRect& rect) {
-    // TODO: Replace calls to this method with calling GrAARectEffect::Make directly
-    return GrFPSuccess(GrAARectEffect::Make(std::move(inputFP), edgeType, rect));
-}
-
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
 
 void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

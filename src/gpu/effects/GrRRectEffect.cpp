@@ -13,6 +13,7 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrOvalEffect.h"
+#include "src/gpu/effects/generated/GrAARectEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -711,7 +712,8 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                GrClipEdgeType edgeType, const SkRRect& rrect,
                                const GrShaderCaps& caps) {
     if (rrect.isRect()) {
-        return GrConvexPolyEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+        auto fp = GrAARectEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+        return GrFPSuccess(std::move(fp));
     }
 
     if (rrect.isOval()) {
@@ -723,7 +725,8 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
             SkRRectPriv::GetSimpleRadii(rrect).fY < kRadiusMin) {
             // In this case the corners are extremely close to rectangular and we collapse the
             // clip to a rectangular clip.
-            return GrConvexPolyEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+            auto fp = GrAARectEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+            return GrFPSuccess(std::move(fp));
         }
         if (SkRRectPriv::GetSimpleRadii(rrect).fX == SkRRectPriv::GetSimpleRadii(rrect).fY) {
             return CircularRRectEffect::Make(std::move(inputFP), edgeType,
@@ -789,7 +792,8 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                 return CircularRRectEffect::Make(std::move(inputFP), edgeType, cornerFlags, *rr);
             }
             case CircularRRectEffect::kNone_CornerFlags: {
-                return GrConvexPolyEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+                auto fp = GrAARectEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+                return GrFPSuccess(std::move(fp));
             }
             default: {
                 if (squashedRadii) {

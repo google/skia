@@ -25,7 +25,6 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
-#include "tools/gpu/TestOps.h"
 
 #include <memory>
 #include <utility>
@@ -48,9 +47,7 @@ protected:
         return SkString("convex_poly_effect");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(720, 800);
-    }
+    SkISize onISize() override { return SkISize::Make(720, 550); }
 
     void onOnceBeforeDraw() override {
         SkPath tri;
@@ -89,21 +86,6 @@ protected:
         linePath.moveTo(5.f, 5.f);
         linePath.lineTo(6.f, 6.f);
         fPaths.addToTail(linePath);
-
-        // integer edges
-        fRects.addToTail(SkRect::MakeLTRB(5.f, 1.f, 30.f, 25.f));
-        // half-integer edges
-        fRects.addToTail(SkRect::MakeLTRB(5.5f, 0.5f, 29.5f, 24.5f));
-        // vertically/horizontally thin rects that cover pixel centers
-        fRects.addToTail(SkRect::MakeLTRB(5.25f, 0.5f, 5.75f, 24.5f));
-        fRects.addToTail(SkRect::MakeLTRB(5.5f,  0.5f, 29.5f, 0.75f));
-        // vertically/horizontally thin rects that don't cover pixel centers
-        fRects.addToTail(SkRect::MakeLTRB(5.55f, 0.5f, 5.75f, 24.5f));
-        fRects.addToTail(SkRect::MakeLTRB(5.5f, .05f, 29.5f, .25f));
-        // small in x and y
-        fRects.addToTail(SkRect::MakeLTRB(5.05f, .55f, 5.45f, .85f));
-        // inverted in x and y
-        fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
     void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
@@ -129,14 +111,8 @@ protected:
                     continue;
                 }
 
-                GrPaint grPaint;
-                grPaint.setColor4f({ 0, 0, 0, 1.f });
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                grPaint.setCoverageFragmentProcessor(std::move(fp));
-
-                auto rect = p.getBounds().makeOutset(kOutset, kOutset);
-                auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), rect);
-                surfaceDrawContext->addDrawOp(std::move(op));
+                auto rect = p.getBounds().makeOutset(kOutset, kOutset).roundOut();
+                surfaceDrawContext->fillRectWithFP(rect, std::move(fp));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -153,53 +129,11 @@ protected:
 
             y += SkScalarCeilToScalar(path->getBounds().height() + 20.f);
         }
-
-        for (RectList::Iter iter(fRects, RectList::Iter::kHead_IterStart);
-             iter.get();
-             iter.next()) {
-
-            SkScalar x = 0;
-
-            for (int et = 0; et < kGrClipEdgeTypeCnt; ++et) {
-                SkRect rect = iter.get()->makeOffset(x, y);
-                GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                auto [success, fp] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType, rect);
-                if (!success) {
-                    continue;
-                }
-
-                GrPaint grPaint;
-                grPaint.setColor4f({ 0, 0, 0, 1.f });
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                grPaint.setCoverageFragmentProcessor(std::move(fp));
-
-                auto drawRect = rect.makeOutset(kOutset, kOutset);
-                auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), drawRect);
-
-                surfaceDrawContext->addDrawOp(std::move(op));
-
-                x += SkScalarCeilToScalar(rect.width() + kDX);
-            }
-
-            // Draw rect without and with AA using normal API for reference
-            canvas->save();
-            canvas->translate(x, y);
-            SkPaint paint;
-            canvas->drawRect(*iter.get(), paint);
-            x += SkScalarCeilToScalar(iter.get()->width() + kDX);
-            paint.setAntiAlias(true);
-            canvas->drawRect(*iter.get(), paint);
-            canvas->restore();
-
-            y += SkScalarCeilToScalar(iter.get()->height() + 20.f);
-        }
     }
 
 private:
     typedef SkTLList<SkPath, 1> PathList;
-    typedef SkTLList<SkRect, 1> RectList;
     PathList fPaths;
-    RectList fRects;
 
     using INHERITED = GM;
 };
