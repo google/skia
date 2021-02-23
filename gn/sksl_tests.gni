@@ -125,6 +125,8 @@ sksl_error_tests = [
   "/sksl/errors/InvalidOutParams.sksl",
   "/sksl/errors/InvalidToken.sksl",
   "/sksl/errors/InvalidUnary.sksl",
+  "/sksl/errors/LayoutMultiplePrimitiveTypes.sksl",
+  "/sksl/errors/LayoutRepeatedQualifiers.sksl",
   "/sksl/errors/MismatchedNumbers.sksl",
   "/sksl/errors/ModifiersInStruct.sksl",
   "/sksl/errors/OpaqueTypeAssignment.sksl",
