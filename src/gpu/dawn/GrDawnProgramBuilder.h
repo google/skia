@@ -15,6 +15,8 @@
 #include "dawn/webgpu_cpp.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
+#include <vector>
+
 class GrPipeline;
 
 struct GrDawnProgram : public SkRefCnt {
@@ -55,7 +57,7 @@ struct GrDawnProgram : public SkRefCnt {
     }
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
+    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
     std::vector<wgpu::BindGroupLayout> fBindGroupLayouts;
     wgpu::RenderPipeline fRenderPipeline;
     GrDawnProgramDataManager fDataManager;

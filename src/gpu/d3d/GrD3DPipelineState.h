@@ -15,6 +15,8 @@
 #include "src/gpu/d3d/GrD3DPipelineStateDataManager.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
+#include <vector>
+
 class GrD3DDirectCommandList;
 class GrD3DGpu;
 class GrD3DRootSignature;
@@ -32,7 +34,7 @@ public:
                        uint32_t numSamplers,
                        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                       std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragProcessors,
+                       std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
                        size_t vertexStride,
                        size_t instanceStride);
 
@@ -117,7 +119,7 @@ private:
     // Processors in the GrD3DPipelineState
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
+    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
 
     GrD3DPipelineStateDataManager fDataManager;
 
