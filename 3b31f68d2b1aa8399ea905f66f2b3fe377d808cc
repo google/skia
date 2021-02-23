@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56164b6a_2a02afd1",
+        "filename": "src/core/SkDeferredDisplayList.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T18:50:52Z",
+      "side": 0,
+      "message": "Actually, how were we hitting this assert? It seems like, with the DDLRenderTask, all of the DDL\u0027s tasks should always be uniquely held.",
+      "revId": "3b31f68d2b1aa8399ea905f66f2b3fe377d808cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
