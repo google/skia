@@ -344,8 +344,8 @@ private:
     }
     UniformHandle circleDataVar;
 };
-GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLSLInstance() const {
-    return new GrGLSLCircleBlurFragmentProcessor();
+std::unique_ptr<GrGLSLFragmentProcessor> GrCircleBlurFragmentProcessor::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLCircleBlurFragmentProcessor());
 }
 void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                           GrProcessorKeyBuilder* b) const {}

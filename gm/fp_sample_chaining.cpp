@@ -34,14 +34,14 @@ public:
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 SkString sample = this->invokeChildWithMatrix(0, args);
                 args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
         };
-        return new Impl;
+        return std::make_unique<Impl>();
     }
 };
 
@@ -61,7 +61,7 @@ public:
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 fMatrixVar = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
@@ -75,7 +75,7 @@ public:
             }
             UniformHandle fMatrixVar;
         };
-        return new Impl;
+        return std::make_unique<Impl>();
     }
 };
 
@@ -97,7 +97,7 @@ public:
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 SkString sample = this->invokeChildWithMatrix(
@@ -105,7 +105,7 @@ public:
                 args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
         };
-        return new Impl;
+        return std::make_unique<Impl>();
     }
 };
 
@@ -126,7 +126,7 @@ public:
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 args.fFragBuilder->codeAppendf("float2 coord = %s + float2(0, 8);",
@@ -135,7 +135,7 @@ public:
                 args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
         };
-        return new Impl;
+        return std::make_unique<Impl>();
     }
 };
 
@@ -153,7 +153,7 @@ public:
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 auto fb = args.fFragBuilder;
@@ -162,7 +162,7 @@ public:
                 fb->codeAppendf("return half2(coord).rg01;\n");
             }
         };
-        return new Impl;
+        return std::make_unique<Impl>();
     }
 };
 

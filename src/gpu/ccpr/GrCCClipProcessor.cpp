@@ -136,6 +136,6 @@ private:
     UniformHandle fAtlasTranslateUniform;
 };
 
-GrGLSLFragmentProcessor* GrCCClipProcessor::onCreateGLSLInstance() const {
-    return new Impl();
+std::unique_ptr<GrGLSLFragmentProcessor> GrCCClipProcessor::onMakeProgramImpl() const {
+    return std::make_unique<Impl>();
 }

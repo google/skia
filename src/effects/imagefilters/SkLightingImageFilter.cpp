@@ -664,7 +664,7 @@ public:
     SkScalar kd() const { return fKD; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -709,7 +709,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrSpecularLightingEffect(*this));
     }
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
@@ -1681,8 +1681,8 @@ void GrDiffuseLightingEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLSLInstance() const {
-    return new GrGLDiffuseLightingEffect;
+std::unique_ptr<GrGLSLFragmentProcessor> GrDiffuseLightingEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLDiffuseLightingEffect>();
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDiffuseLightingEffect);
@@ -1906,8 +1906,8 @@ void GrSpecularLightingEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLSpecularLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrSpecularLightingEffect::onCreateGLSLInstance() const {
-    return new GrGLSpecularLightingEffect;
+std::unique_ptr<GrGLSLFragmentProcessor> GrSpecularLightingEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSpecularLightingEffect>();
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);

@@ -144,8 +144,9 @@ private:
     SkPoint focalParamsPrev = SkPoint::Make(SK_FloatNaN, SK_FloatNaN);
     UniformHandle focalParamsVar;
 };
-GrGLSLFragmentProcessor* GrTwoPointConicalGradientLayout::onCreateGLSLInstance() const {
-    return new GrGLSLTwoPointConicalGradientLayout();
+std::unique_ptr<GrGLSLFragmentProcessor> GrTwoPointConicalGradientLayout::onMakeProgramImpl()
+        const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLTwoPointConicalGradientLayout());
 }
 void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                             GrProcessorKeyBuilder* b) const {

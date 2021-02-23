@@ -117,8 +117,8 @@ private:
     UniformHandle xInvInsetVar;
     UniformHandle yInvInsetVar;
 };
-GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
-    return new GrGLSLMagnifierEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrMagnifierEffect::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLMagnifierEffect());
 }
 void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {}

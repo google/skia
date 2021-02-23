@@ -87,8 +87,8 @@ private:
     UniformHandle mVar;
     UniformHandle vVar;
 };
-GrGLSLFragmentProcessor* GrColorMatrixFragmentProcessor::onCreateGLSLInstance() const {
-    return new GrGLSLColorMatrixFragmentProcessor();
+std::unique_ptr<GrGLSLFragmentProcessor> GrColorMatrixFragmentProcessor::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLColorMatrixFragmentProcessor());
 }
 void GrColorMatrixFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                            GrProcessorKeyBuilder* b) const {

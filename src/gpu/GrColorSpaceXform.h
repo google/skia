@@ -95,7 +95,7 @@ private:
     static OptimizationFlags OptFlags(const GrFragmentProcessor* child);
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override;
 
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
