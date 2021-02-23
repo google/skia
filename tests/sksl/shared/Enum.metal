@@ -22,8 +22,13 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _out.sk_FragColor = float4(-8.0);
     _out.sk_FragColor = float4(-9.0);
     _out.sk_FragColor = float4(10.0);
-    {
-        _out.sk_FragColor = float4(11.0);
+    switch (0) {
+        case 0:
+            _out.sk_FragColor = float4(11.0);
+            break;
+        case 1:
+            _out.sk_FragColor = float4(12.0);
+            break;
     }
     {
         _out.sk_FragColor = float4(13.0);
