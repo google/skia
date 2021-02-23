@@ -360,7 +360,9 @@ Prepare the variables.
 
 [DEPS](/infra/bots/recipes/infra.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [infra](#recipe_modules-infra), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/infra.py#19)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/infra.py#27)(api):**
+
+&mdash; **def [git\_init](/infra/bots/recipes/infra.py#19)(api, repo_root, env):**
 ### *recipes* / [infra:examples/full](/infra/bots/recipe_modules/infra/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/infra/examples/full.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
