@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75ccbff2_f37e1c20",
+        "filename": "experimental/ddlbench/ddlbench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T14:42:45Z",
+      "side": 1,
+      "message": "Done. My thinking was to prepare for the future, future, Vulkan world where we could have two direct contexts rendering/preparing command buffers at the same time but, for now, it is just confusing.",
+      "parentUuid": "97df11cc_e6f29cb4",
+      "revId": "ae94ef2aa853a977055961504b5014a48bc33765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a2e1754_92b822bf",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-02-23T14:24:06Z",
       "side": 1,
       "message": "Document this switch? Or switch to e.g. `static constexpr bool kPrintThreads` so that we can\u0027t break that build inadvertently.",
+      "revId": "ae94ef2aa853a977055961504b5014a48bc33765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe201b46_ede1a9f7",
+        "filename": "experimental/ddlbench/ddlbench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a2e1754_92b822bf",
       "revId": "ae94ef2aa853a977055961504b5014a48bc33765",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
