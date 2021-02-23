@@ -111,6 +111,30 @@
       },
       "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "904ac760_e8053b23",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-02-23T14:39:32Z",
+      "side": 1,
+      "message": "Okay so with the removal of the one call this function there are now 2 callers to it. Each of them passes in the areCusps bool and sets it to false. So it seems the easiest thing to do here is just require areCusps is not null and then set it to false in this function. By doing that we will not be doing any extra writes to areCusps (since we are removing the setting of it in the callers) and we can also remove the if (areCusps) check that is already in this function. So we are now improving performance and functionality of this code.\n\nAlso I would say this is very much related to the change you are making here and its worth doing in this CL. It is a very small amount of code to change, i.e a couple lines and a comment.",
+      "parentUuid": "517f2956_0ee512a9",
+      "range": {
+        "startLine": 643,
+        "startChar": 29,
+        "endLine": 643,
+        "endChar": 76
+      },
+      "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
