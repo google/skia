@@ -79,6 +79,7 @@ private:
         UniformHandle& rectUniform = rectUniformVar;
         (void)rectUniform;
 
+        SkASSERT(rect.isSorted());
         const SkRect& newRect = GrProcessorEdgeTypeIsAA(edgeType) ? rect.makeInset(.5f, .5f) : rect;
         if (newRect != prevRect) {
             pdman.set4f(rectUniform, newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);
@@ -124,6 +125,7 @@ std::unique_ptr<GrFragmentProcessor> GrAARectEffect::TestCreate(GrProcessorTestD
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());
+    rect.sort();
     GrClipEdgeType edgeType =
             static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 

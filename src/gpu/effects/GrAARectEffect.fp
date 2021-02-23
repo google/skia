@@ -45,6 +45,7 @@ half4 main() {
 }
 
 @setData(pdman) {
+    SkASSERT(rect.isSorted());
     const SkRect& newRect = GrProcessorEdgeTypeIsAA(edgeType) ?
                             rect.makeInset(.5f, .5f) : rect;
     if (newRect != prevRect) {
@@ -58,6 +59,7 @@ half4 main() {
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());
+    rect.sort();
     GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
             d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 
