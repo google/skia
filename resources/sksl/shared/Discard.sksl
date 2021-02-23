@@ -1,6 +1,6 @@
 void main() {
-half x;
-    @switch (1) {
+    half x;
+    switch (1) {
        case 0: x = 0; break;
        default: x = 1; discard;
     }

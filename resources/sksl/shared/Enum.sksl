@@ -25,7 +25,7 @@ void main() {
         case E::kZero: sk_FragColor = half4(11); break;
         case E::kOne:  sk_FragColor = half4(12); break;
     }
-    @switch (e) {
+    @switch (E::kZero) {
         case E::kZero: sk_FragColor = half4(13); break;
         case E::kOne:  sk_FragColor = half4(14); break;
     }
@@ -40,7 +40,7 @@ void main() {
     sk_FragColor = (m == SkBlendMode::kClear) ? half4(19)  : half4(-19);
     sk_FragColor = (m != SkBlendMode::kSrc)   ? half4(20)  : half4(-20);
 
-    @switch (m) {
+    @switch (SkBlendMode::kClear) {
         case SkBlendMode::kClear: sk_FragColor = half4(21); break;
         case SkBlendMode::kSrc:   sk_FragColor = half4(22); break;
         case SkBlendMode::kDst:   sk_FragColor = half4(23); break;
