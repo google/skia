@@ -45,6 +45,7 @@
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #include <initializer_list>
 #include <memory>
@@ -1219,7 +1220,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
             }
             REPORTER_ASSERT(reporter, image);
 
-            GrTextureProxy* backingProxy = ((SkImage_GpuBase*) image.get())->peekProxy();
+            GrTextureProxy* backingProxy = sk_gpu_test::GetTextureImageProxy(image.get(), context);
 
             REPORTER_ASSERT(reporter, backingProxy->mipmapped() == mipMapped);
             if (GR_GL_TEXTURE_2D == target) {
