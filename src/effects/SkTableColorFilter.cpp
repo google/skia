@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkTableColorFilter.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
+#include "include/effects/SkRuntimeEffect.h"
+#include "include/effects/SkTableColorFilter.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
@@ -399,7 +399,60 @@ sk_sp<SkColorFilter> SkTableColorFilter::MakeARGB(const uint8_t tableA[256],
         return nullptr;
     }
 
+#if 0
     return sk_make_sp<SkTable_ColorFilter>(tableA, tableR, tableG, tableB);
+#else
+    static SkRuntimeEffect* effect = []{
+        auto [effect, err] = SkRuntimeEffect::Make(SkString{R"(
+            uniform shader input;
+            uniform half r_table[256];
+            uniform half g_table[256];
+            uniform half b_table[256];
+            uniform half a_table[256];
+
+            half4 main() {
+                int4 ix = (int4)(saturate(sample(input)) * 255 + 0.5);
+
+                half4 c = half4(0,0,0,0);
+                for (int hi = 0; hi < 16; hi++)
+                for (int lo = 0; lo < 16; lo++) {
+                    if (hi*16 + lo == ix.r) { c.r = r_table[hi*16 + lo]; }
+                    if (hi*16 + lo == ix.g) { c.g = g_table[hi*16 + lo]; }
+                    if (hi*16 + lo == ix.b) { c.b = b_table[hi*16 + lo]; }
+                    if (hi*16 + lo == ix.a) { c.a = a_table[hi*16 + lo]; }
+                }
+                return c;
+            }
+        )"});
+        if (!err.isEmpty()) {
+            SkDebugf("%s\n", err.c_str());
+        }
+        SkASSERT(effect && err.isEmpty());
+        return effect.release();
+    }();
+
+    struct Uniforms {
+        float r_table[256],
+              g_table[256],
+              b_table[256],
+              a_table[256];
+    } uniforms;
+
+    for (int i = 0; i < 256; i++) {
+        uniforms.r_table[i] = (tableR ? tableR[i] : i) * (1/255.0f);
+        uniforms.g_table[i] = (tableG ? tableG[i] : i) * (1/255.0f);
+        uniforms.b_table[i] = (tableB ? tableB[i] : i) * (1/255.0f);
+        uniforms.a_table[i] = (tableA ? tableA[i] : i) * (1/255.0f);
+    }
+
+    SkAlphaType unpremul = kUnpremul_SkAlphaType;
+    sk_sp<SkColorFilter> input = nullptr;
+    return SkColorFilters::WithWorkingFormat(
+            effect->makeColorFilter(SkData::MakeWithCopy(&uniforms, sizeof(uniforms)), &input, 1),
+            /*keep dst transfer function*/nullptr,
+            /*keep dst gamut*/nullptr,
+            &unpremul);
+#endif
 }
 
 void SkTableColorFilter::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkTable_ColorFilter); }
