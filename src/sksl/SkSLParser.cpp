@@ -892,7 +892,6 @@ Layout Parser::layout() {
     int set = -1;
     int builtin = -1;
     int inputAttachmentIndex = -1;
-    Layout::Format format = Layout::Format::kUnspecified;
     Layout::Primitive primitive = Layout::kUnspecified_Primitive;
     int maxVertices = -1;
     int invocations = -1;
@@ -903,8 +902,8 @@ Layout Parser::layout() {
     if (this->checkNext(Token::Kind::TK_LAYOUT)) {
         if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
             return Layout(flags, location, offset, binding, index, set, builtin,
-                          inputAttachmentIndex, format, primitive, maxVertices, invocations, marker,
-                          when, key, ctype);
+                          inputAttachmentIndex, primitive, maxVertices, invocations, marker, when,
+                          key, ctype);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -994,8 +993,6 @@ Layout Parser::layout() {
                         this->error(t, ("'" + text + "' is not a valid layout qualifier").c_str());
                         break;
                 }
-            } else if (Layout::ReadFormat(text, &format)) {
-               // AST::ReadFormat stored the result in 'format'.
             } else {
                 this->error(t, ("'" + text + "' is not a valid layout qualifier").c_str());
             }
@@ -1008,7 +1005,7 @@ Layout Parser::layout() {
         }
     }
     return Layout(flags, location, offset, binding, index, set, builtin, inputAttachmentIndex,
-                  format, primitive, maxVertices, invocations, marker, when, key, ctype);
+                  primitive, maxVertices, invocations, marker, when, key, ctype);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |

@@ -145,7 +145,6 @@ Compiler::Compiler(const ShaderCapsClass* caps)
         TYPE(Sampler2DRect),
 
         TYPE(ISampler2D),
-        TYPE(Image2D), TYPE(IImage2D),
         TYPE(SubpassInput), TYPE(SubpassInputMS),
 
         TYPE(Sampler),

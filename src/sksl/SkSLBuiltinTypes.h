@@ -108,9 +108,6 @@ public:
     const std::unique_ptr<Type> fISampler2D;
     const std::unique_ptr<Type> fSampler;
 
-    const std::unique_ptr<Type> fImage2D;
-    const std::unique_ptr<Type> fIImage2D;
-
     const std::unique_ptr<Type> fSubpassInput;
     const std::unique_ptr<Type> fSubpassInputMS;
 
