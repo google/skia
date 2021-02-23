@@ -42,6 +42,18 @@ struct Analysis {
 
     static int NodeCountUpToLimit(const FunctionDefinition& function, int limit);
 
+    /**
+     * Finds unconditional exits from a switch-case. Returns true if this statement unconditionally
+     * causes an exit from this switch (via continue, break or return).
+     */
+    static bool SwitchCaseContainsUnconditionalExit(Statement& stmt);
+
+    /**
+     * Finds conditional exits from a switch-case. Returns true if this statement contains a
+     * conditional that wraps a potential exit from the switch (via continue, break or return).
+     */
+    static bool SwitchCaseContainsConditionalExit(Statement& stmt);
+
     static std::unique_ptr<ProgramUsage> GetUsage(const Program& program);
     static std::unique_ptr<ProgramUsage> GetUsage(const LoadedModule& module);
 
