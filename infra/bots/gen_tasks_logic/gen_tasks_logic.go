@@ -134,6 +134,20 @@ var (
 		},
 	}
 
+	// CAS_SPEC_LOTTIE_CI is a CasSpec which includes the files needed for
+	// lottie-ci.  This is global so that it can be overridden by other
+	// repositories which import this file.
+	CAS_SPEC_LOTTIE_CI = &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/infra/lottiecap",
+			"skia/tools/lottie-web-perf",
+			"skia/tools/lottiecap",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	}
+
 	// CAS_SPEC_WHOLE_REPO is a CasSpec which includes the entire repo. This is
 	// global so that it can be overridden by other repositories which import
 	// this file.
@@ -368,16 +382,7 @@ func GenTasks(cfg *Config) {
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_EMPTY, specs.EmptyCasSpec)
-	b.MustAddCasSpec(CAS_LOTTIE_CI, &specs.CasSpec{
-		Root: "..",
-		Paths: []string{
-			"skia/infra/bots/run_recipe.py",
-			"skia/infra/lottiecap",
-			"skia/tools/lottie-web-perf",
-			"skia/tools/lottiecap",
-		},
-		Excludes: []string{rbe.ExcludeGitDir},
-	})
+	b.MustAddCasSpec(CAS_LOTTIE_CI, CAS_SPEC_LOTTIE_CI)
 	b.MustAddCasSpec(CAS_LOTTIE_WEB, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
