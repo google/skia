@@ -198,7 +198,7 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpSwitch:      // fall through
         case SpvOpBranch:      // fall through
         case SpvOpBranchConditional:
-            SkASSERT(fCurrentBlock || !fContext.fConfig->fSettings.fDeadCodeElimination);
+            SkASSERT(fCurrentBlock);
             fCurrentBlock = 0;
             break;
         case SpvOpConstant:          // fall through
@@ -236,7 +236,18 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpMemberDecorate:
             break;
         default:
-            SkASSERT(fCurrentBlock || !fContext.fConfig->fSettings.fDeadCodeElimination);
+            if (!fProgram.fConfig->fSettings.fDeadCodeElimination) {
+                // When dead-code elimination is disabled, we may find ourselves with instructions
+                // that don't have an associated block. This should be a rare event, but if it
+                // happens, synthesize a label; this is necessary to satisfy the validator.
+                if (fCurrentBlock == 0) {
+                    this->writeLabel(this->nextId(), out);
+                }
+            } else {
+                // When dead-code elimination is enabled, all code should be reachable and an
+                // associated block should already exist.
+                SkASSERT(fCurrentBlock);
+            }
     }
     this->writeWord((length << 16) | opCode, out);
 }
