@@ -48,8 +48,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {}
 };
-GrGLSLFragmentProcessor* GrConfigConversionEffect::onCreateGLSLInstance() const {
-    return new GrGLSLConfigConversionEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrConfigConversionEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLConfigConversionEffect>();
 }
 void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {

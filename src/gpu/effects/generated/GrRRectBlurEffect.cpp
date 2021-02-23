@@ -411,8 +411,8 @@ private:
     UniformHandle blurRadiusVar;
     UniformHandle cornerRadiusVar;
 };
-GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLSLInstance() const {
-    return new GrGLSLRRectBlurEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrRRectBlurEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLRRectBlurEffect>();
 }
 void GrRRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {}

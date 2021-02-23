@@ -225,7 +225,9 @@ void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     b->add32(key);
 }
 
-GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const { return new Impl(); }
+std::unique_ptr<GrGLSLFragmentProcessor> GrBicubicEffect::onMakeProgramImpl() const {
+    return std::make_unique<Impl>();
+}
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const auto& that = other.cast<GrBicubicEffect>();

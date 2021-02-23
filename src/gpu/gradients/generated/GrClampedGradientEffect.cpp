@@ -87,8 +87,8 @@ private:
     UniformHandle leftBorderColorVar;
     UniformHandle rightBorderColorVar;
 };
-GrGLSLFragmentProcessor* GrClampedGradientEffect::onCreateGLSLInstance() const {
-    return new GrGLSLClampedGradientEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrClampedGradientEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLClampedGradientEffect>();
 }
 void GrClampedGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                     GrProcessorKeyBuilder* b) const {

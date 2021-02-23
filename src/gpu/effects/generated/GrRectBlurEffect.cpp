@@ -151,8 +151,8 @@ private:
     UniformHandle rectHVar;
     UniformHandle invVMVar;
 };
-GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
-    return new GrGLSLRectBlurEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrRectBlurEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLRectBlurEffect>();
 }
 void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {

@@ -95,8 +95,8 @@ private:
     float prevRadius = 0;
     UniformHandle circleVar;
 };
-GrGLSLFragmentProcessor* GrCircleEffect::onCreateGLSLInstance() const {
-    return new GrGLSLCircleEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrCircleEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLCircleEffect>();
 }
 void GrCircleEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {

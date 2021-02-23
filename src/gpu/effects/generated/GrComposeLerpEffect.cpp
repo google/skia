@@ -45,8 +45,8 @@ private:
     }
     UniformHandle weightVar;
 };
-GrGLSLFragmentProcessor* GrComposeLerpEffect::onCreateGLSLInstance() const {
-    return new GrGLSLComposeLerpEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrComposeLerpEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLComposeLerpEffect>();
 }
 void GrComposeLerpEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                 GrProcessorKeyBuilder* b) const {}

@@ -48,8 +48,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {}
 };
-GrGLSLFragmentProcessor* GrBlurredEdgeFragmentProcessor::onCreateGLSLInstance() const {
-    return new GrGLSLBlurredEdgeFragmentProcessor();
+std::unique_ptr<GrGLSLFragmentProcessor> GrBlurredEdgeFragmentProcessor::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLBlurredEdgeFragmentProcessor>();
 }
 void GrBlurredEdgeFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                            GrProcessorKeyBuilder* b) const {

@@ -36,8 +36,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {}
 };
-GrGLSLFragmentProcessor* GrDeviceSpaceEffect::onCreateGLSLInstance() const {
-    return new GrGLSLDeviceSpaceEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrDeviceSpaceEffect::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLDeviceSpaceEffect>();
 }
 void GrDeviceSpaceEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                 GrProcessorKeyBuilder* b) const {}

@@ -286,8 +286,9 @@ private:
     UniformHandle thresholds1_7Var;
     UniformHandle thresholds9_13Var;
 };
-GrGLSLFragmentProcessor* GrUnrolledBinaryGradientColorizer::onCreateGLSLInstance() const {
-    return new GrGLSLUnrolledBinaryGradientColorizer();
+std::unique_ptr<GrGLSLFragmentProcessor> GrUnrolledBinaryGradientColorizer::onMakeProgramImpl()
+        const {
+    return std::make_unique<GrGLSLUnrolledBinaryGradientColorizer>();
 }
 void GrUnrolledBinaryGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                               GrProcessorKeyBuilder* b) const {

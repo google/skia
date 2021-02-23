@@ -64,8 +64,9 @@ private:
     UniformHandle startVar;
     UniformHandle endVar;
 };
-GrGLSLFragmentProcessor* GrSingleIntervalGradientColorizer::onCreateGLSLInstance() const {
-    return new GrGLSLSingleIntervalGradientColorizer();
+std::unique_ptr<GrGLSLFragmentProcessor> GrSingleIntervalGradientColorizer::onMakeProgramImpl()
+        const {
+    return std::make_unique<GrGLSLSingleIntervalGradientColorizer>();
 }
 void GrSingleIntervalGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                               GrProcessorKeyBuilder* b) const {}

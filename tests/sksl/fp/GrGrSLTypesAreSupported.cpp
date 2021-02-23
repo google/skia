@@ -70,8 +70,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrGrSLTypesAreSupported::onCreateGLSLInstance() const {
-    return new GrGLSLGrSLTypesAreSupported();
+std::unique_ptr<GrGLSLFragmentProcessor> GrGrSLTypesAreSupported::onMakeProgramImpl() const {
+    return std::make_unique<GrGLSLGrSLTypesAreSupported>();
 }
 void GrGrSLTypesAreSupported::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

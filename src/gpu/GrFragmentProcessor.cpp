@@ -99,12 +99,13 @@ SkString GrFragmentProcessor::dumpTreeInfo() const {
 }
 #endif
 
-GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
-    GrGLSLFragmentProcessor* glFragProc = this->onCreateGLSLInstance();
+std::unique_ptr<GrGLSLFragmentProcessor> GrFragmentProcessor::makeProgramImpl() const {
+    std::unique_ptr<GrGLSLFragmentProcessor> glFragProc = this->onMakeProgramImpl();
     glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());
     for (int i = 0; i < fChildProcessors.count(); ++i) {
-        glFragProc->fChildProcessors[i] =
-                fChildProcessors[i] ? fChildProcessors[i]->createGLSLInstance() : nullptr;
+        glFragProc->fChildProcessors[i] = fChildProcessors[i]
+                                                  ? fChildProcessors[i]->makeProgramImpl()
+                                                  : nullptr;
     }
     return glFragProc;
 }
@@ -279,7 +280,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
             this->registerChild(std::move(fp));
         }
 
-        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
@@ -293,7 +294,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
                                              childColor.c_str(), swizzle.asString().c_str());
                 }
             };
-            return new GLFP;
+            return std::make_unique<GLFP>();
         }
 
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
@@ -345,7 +346,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             this->registerChild(std::move(processor));
         }
 
-        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
@@ -356,7 +357,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
                     fragBuilder->codeAppendf("return color * %s.a;", args.fInputColor);
                 }
             };
-            return new GLFP;
+            return std::make_unique<GLFP>();
         }
 
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
@@ -418,7 +419,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
         }
 
     private:
-        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
@@ -427,7 +428,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
                     args.fFragBuilder->codeAppendf("return %s;", result.c_str());
                 }
             };
-            return new GLFP;
+            return std::make_unique<GLFP>();
         }
 
         ComposeProcessor(std::unique_ptr<GrFragmentProcessor> f,
