@@ -39,7 +39,8 @@ public:
     }
 
     ~ExpectError() override {
-        REPORTER_ASSERT(fReporter, !fMsg);
+        REPORTER_ASSERT(fReporter, !fMsg,
+                        "Error mismatch: expected:\n%sbut no error occurred\n", fMsg);
         SetErrorHandler(nullptr);
     }
 
@@ -1116,25 +1117,26 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     Var a(kFloat, "a"), b(kInt, "b");
 
-    Statement x = Switch(5,
+    Statement x = Switch(b,
         Case(0, a = 0, Break()),
         Case(1, a = 1, Continue()),
         Case(2, a = 2  /*Fallthrough*/),
         Default(Discard())
     );
     EXPECT_EQUAL(x, R"(
-        switch (5) {
+        switch (b) {
             case 0: (a = 0.0); break;
             case 1: (a = 1.0); continue;
             case 2: (a = 2.0);
             default: discard;
         }
     )");
-    Statement y = Switch(b);
-    EXPECT_EQUAL(y, "switch (b) {}");
 
-    Statement z = Switch(b, Default(), Case(0), Case(1));
-    EXPECT_EQUAL(z, "switch (b) { default: case 0: case 1: }");
+    EXPECT_EQUAL(Switch(b),
+                "switch (b) {}");
+
+    EXPECT_EQUAL(Switch(b, Default(), Case(0), Case(1)),
+                "switch (b) { default: case 0: case 1: }");
 
     {
         ExpectError error(r, "error: duplicate case value '0'\n");
