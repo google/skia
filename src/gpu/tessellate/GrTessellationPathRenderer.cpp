@@ -39,9 +39,9 @@ bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
            // We see perf regressions on platforms that don't have native support for indirect
-           // draws. Disable while we investigate.
+           // draws. Disable while we investigate, unless hw tessellation support exists.
            // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
-           caps.nativeDrawIndirectSupport() &&
+           (caps.nativeDrawIndirectSupport() || caps.shaderCaps()->tessellationSupport()) &&
            caps.shaderCaps()->vertexIDSupport() &&
            !caps.disableTessellationPathRenderer();
 }
