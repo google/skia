@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d652ee4_55269d4f",
+        "filename": "resources/sksl/errors/StaticSwitchTest.sksl",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:31:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4abf8976_07ff30ea",
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03cf89ba_229bbbfc",
