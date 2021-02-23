@@ -402,7 +402,6 @@ export interface CanvasKit {
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
     readonly ImageData: ImageDataConstructor;
     readonly ParagraphStyle: ParagraphStyleConstructor;
-    readonly ShapedText: ShapedTextConstructor;
     readonly ContourMeasureIter: ContourMeasureIterConstructor;
     readonly Font: FontConstructor;
     readonly Paint: DefaultConstructor<Paint>;
@@ -887,25 +886,6 @@ export interface SkSLUniform {
 }
 
 /**
- * A simple wrapper around TextBlob and the simple Text Shaper.
- */
-export interface ShapedText extends EmbindObject<ShapedText> {
-    /**
-     * Return the bounding area for the given text.
-     * @param outputArray - if provided, the bounding box will be copied into this array instead of
-     *                      allocating a new one.
-     */
-    getBounds(outputArray?: Rect): Rect;
-}
-
-export interface ShapedTextOpts {
-    text: string;
-    font: Font;
-    leftToRight: boolean;
-    width: number;
-}
-
-/**
  * See SkAnimatedImage.h for more information on this class.
  */
 export interface AnimatedImage extends EmbindObject<AnimatedImage> {
@@ -1257,15 +1237,15 @@ export interface Canvas extends EmbindObject<Canvas> {
                ambientColor: InputColor, spotColor: InputColor, flags: number): void;
 
     /**
-     * Draw the given text at the location (x, y) using the provided paint and font. If non-shaped
-     * text is provided, the text will be drawn as is; no line-breaking, no ligatures, etc.
-     * @param str - either a string or pre-shaped text. Unicode text is supported.
+     * Draw the given text at the location (x, y) using the provided paint and font. The text will
+     * be drawn as is; no shaping, left-to-right, etc.
+     * @param str
      * @param x
      * @param y
      * @param paint
      * @param font
      */
-    drawText(str: string | ShapedText, x: number, y: number, paint: Paint, font: Font): void;
+    drawText(str: string, x: number, y: number, paint: Paint, font: Font): void;
 
     /**
      * Draws the given TextBlob at (x, y) using the current clip, current matrix, and the
@@ -2890,17 +2870,6 @@ export interface ParagraphStyleConstructor {
      * @param ps
      */
     new(ps: ParagraphStyle): ParagraphStyle;
-}
-
-/**
- * This class is an abstraction around SkShaper.h
- */
-export interface ShapedTextConstructor {
-    /**
-     * Return a ShapedText from the given options. See SkShaper.h for more.
-     * @param opts
-     */
-    new (opts: ShapedTextOpts): ShapedText;
 }
 
 /**
