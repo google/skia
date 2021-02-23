@@ -371,6 +371,7 @@ func GenTasks(cfg *Config) {
 	b.MustAddCasSpec(CAS_LOTTIE_CI, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
+			"../lottie",
 			"skia/infra/bots/run_recipe.py",
 			"skia/infra/lottiecap",
 			"skia/tools/lottie-web-perf",

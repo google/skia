@@ -77902,6 +77902,7 @@
     "lottie-ci": {
       "root": "..",
       "paths": [
+        "../lottie",
         "skia/infra/bots/run_recipe.py",
         "skia/infra/lottiecap",
         "skia/tools/lottie-web-perf",
