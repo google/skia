@@ -5,6 +5,7 @@
 package gen_tasks_logic
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -68,6 +69,7 @@ func getAllCheckedInPaths() []string {
 	// Use '../skia' to get to the Skia checkout, in case this is used by
 	// another repo.
 	cmd.Dir = filepath.Join(CheckoutRoot(), "..", "skia")
+	fmt.Println(fmt.Sprintf("Running in %s", cmd.Dir))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Fatal(err)

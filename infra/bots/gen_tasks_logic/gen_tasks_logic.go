@@ -324,6 +324,7 @@ func In(s string, a []string) bool {
 // is similarly loaded from a cfg.json file which is the sibling of the calling
 // gen_tasks.go file.
 func GenTasks(cfg *Config) {
+	fmt.Println("GenTasks start")
 	b := specs.MustNewTasksCfgBuilder()
 
 	// Find the paths to the infra/bots directories in this repo and the
@@ -340,6 +341,8 @@ func GenTasks(cfg *Config) {
 	}
 
 	// Create the JobNameSchema.
+	fmt.Println(fmt.Sprintf("BaseDir: %s", relpathBaseDir))
+	fmt.Println(fmt.Sprintf("TargetDir: %s", relpathTargetDir))
 	builderNameSchemaFile := filepath.Join(relpathTargetDir, "recipe_modules", "builder_name_schema", "builder_name_schema.json")
 	if cfg.BuilderNameSchemaFile != "" {
 		builderNameSchemaFile = filepath.Join(relpathBaseDir, cfg.BuilderNameSchemaFile)
@@ -348,6 +351,7 @@ func GenTasks(cfg *Config) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Created JobNameSchema")
 
 	// Set the assets dir.
 	assetsDir := filepath.Join(relpathTargetDir, "assets")
@@ -355,6 +359,7 @@ func GenTasks(cfg *Config) {
 		assetsDir = filepath.Join(relpathBaseDir, cfg.AssetsDir)
 	}
 	b.SetAssetsDir(assetsDir)
+	fmt.Println("Created assets dir.")
 
 	// Create Tasks and Jobs.
 	builder := &builder{
@@ -368,6 +373,8 @@ func GenTasks(cfg *Config) {
 		jb.genTasksForJob()
 		jb.finish()
 	}
+
+	fmt.Println("Generated tasks")
 
 	// Create CasSpecs.
 	b.MustAddCasSpec(CAS_CANVASKIT, &specs.CasSpec{
@@ -494,9 +501,12 @@ func GenTasks(cfg *Config) {
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_WHOLE_REPO, CAS_SPEC_WHOLE_REPO)
+	fmt.Println("Added normal CasSpecs")
 	generateCompileCAS(b)
+	fmt.Println("Created compile CAS")
 
 	builder.MustFinish()
+	fmt.Println("Finished")
 }
 
 // getThisDirName returns the infra/bots directory which is an ancestor of this
