@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52e2fe82_b6771945",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1416,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T14:56:36Z",
+      "side": 1,
+      "message": "Can we use make_unique here, too?",
+      "range": {
+        "startLine": 1416,
+        "startChar": 30,
+        "endLine": 1416,
+        "endChar": 85
+      },
+      "revId": "dbc28d76d906463e827c55f1f04cd37e83ebe1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
