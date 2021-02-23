@@ -42,9 +42,7 @@
 <canvas id=atlas width=300 height=300></canvas>
 <canvas id=decode width=300 height=300></canvas>
 
-<h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
-<canvas id=shape1 width=600 height=600></canvas>
-<canvas id=shape2 width=600 height=600></canvas>
+<h2> CanvasKit can allow for text measurement/placement (e.g. breaking, kerning)</h2>
 <canvas id=textonpath width=300 height=300></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
@@ -82,10 +80,6 @@
 
   // Examples requiring external resources
   Promise.all([ckLoaded, loadRoboto]).then((results) => {DrawingExample(...results)});
-  Promise.all([ckLoaded, loadNotoSerif]).then((results) => {
-    TextShapingAPI1(...results);
-    TextShapingAPI2(...results);
-  });
   Promise.all([ckLoaded, loadTestImage]).then((results) => {AtlasAPI1(...results)});
   Promise.all([ckLoaded, loadTestImage]).then((results) => {DecodeAPI(...results)});
 
@@ -926,132 +920,6 @@
     textFont.delete();
     textBlob.delete();
     surface.flush();
-  }
-
-  function TextShapingAPI1(CanvasKit, notoserifData) {
-    if (!notoserifData || !CanvasKit) {
-      return;
-    }
-    const surface = CanvasKit.MakeSWCanvasSurface('shape1');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    const canvas = surface.getCanvas();
-    const paint = new CanvasKit.Paint();
-    paint.setColor(CanvasKit.BLUE);
-    paint.setStyle(CanvasKit.PaintStyle.Stroke);
-
-    const fontMgr = CanvasKit.FontMgr.RefDefault();
-    const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
-
-    const textPaint = new CanvasKit.Paint();
-    const textFont = new CanvasKit.Font(notoSerif, 20);
-
-    canvas.drawRect(CanvasKit.LTRBRect(30, 30, 200, 200), paint);
-    canvas.drawText('This text is not shaped, and overflows the boundry',
-                    35, 50, textPaint, textFont);
-
-    const shapedText = new CanvasKit.ShapedText({
-      font: textFont,
-      leftToRight: true,
-      text: 'This text *is* shaped, and wraps to the right width.',
-      width: 160,
-    });
-    const textBoxX = 35;
-    const textBoxY = 55;
-    canvas.drawText(shapedText, textBoxX, textBoxY, textPaint);
-    const bounds = shapedText.getBounds();
-
-    bounds[0] += textBoxX; // left
-    bounds[2] += textBoxX; // right
-    bounds[1] += textBoxY; // top
-    bounds[3] += textBoxY; // bottom
-
-    canvas.drawRect(bounds, paint);
-    const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
-    const textFont2 = new CanvasKit.Font(notoSerif, 60);
-    const shapedText2 = new CanvasKit.ShapedText({
-      font: textFont2,
-      leftToRight: true,
-      text: SHAPE_TEST_TEXT,
-      width: 600,
-    });
-
-    canvas.drawText('no kerning ↓', 10, 240, textPaint, textFont);
-    canvas.drawText(SHAPE_TEST_TEXT, 10, 300, textPaint, textFont2);
-    canvas.drawText(shapedText2, 10, 300, textPaint);
-    canvas.drawText('kerning ↑', 10, 390, textPaint, textFont);
-
-    surface.flush();
-
-    paint.delete();
-    notoSerif.delete();
-    textPaint.delete();
-    textFont.delete();
-    shapedText.delete();
-    textFont2.delete();
-    shapedText2.delete();
-
-    surface.delete();
-  }
-
-  function TextShapingAPI2(CanvasKit, notoserifData) {
-    if (!notoserifData || !CanvasKit) {
-      return;
-    }
-    const surface = CanvasKit.MakeSWCanvasSurface('shape2');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    const paint = new CanvasKit.Paint();
-    paint.setColor(CanvasKit.BLUE);
-    paint.setStyle(CanvasKit.PaintStyle.Stroke);
-
-    const fontMgr = CanvasKit.FontMgr.RefDefault();
-    const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
-
-    const textPaint = new CanvasKit.Paint();
-    const bigFont = new CanvasKit.Font(notoSerif, 40);
-    const smallFont = new CanvasKit.Font(notoSerif, 25);
-
-    const TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac leo vitae ipsum hendrerit euismod quis rutrum nibh. Quisque non suscipit urna. Donec enim urna, facilisis vitae volutpat in, mattis at elit. Sed quis augue et dolor dignissim fringilla. Sed non massa eu neque tristique malesuada. ';
-
-    let X = 240;
-    let Y = 190;
-
-    function drawFrame(canvas) {
-      canvas.clear(CanvasKit.TRANSPARENT);
-
-      const shapedText = new CanvasKit.ShapedText({
-        font: smallFont,
-        leftToRight: true,
-        text: TEXT,
-        width: (X * 2) - 10,
-      });
-
-      canvas.drawRect(CanvasKit.LTRBRect(10, 10, X*2, Y*2), paint);
-      canvas.drawText(shapedText, 10, 40, textPaint, smallFont);
-      canvas.drawText('Try Clicking!', 10, 480, textPaint, bigFont);
-
-      shapedText.delete();
-
-      surface.requestAnimationFrame(drawFrame);
-    }
-    surface.requestAnimationFrame(drawFrame);
-
-    // Make animation interactive
-    let interact = (e) => {
-      if (!e.pressure) {
-        return;
-      }
-      X = e.offsetX;
-      Y = e.offsetY;
-    };
-    document.getElementById('shape2').addEventListener('pointermove', interact);
-    document.getElementById('shape2').addEventListener('pointerdown', interact);
-    preventScrolling(document.getElementById('shape2'));
   }
 
   function TextOnPathAPI1(CanvasKit) {
