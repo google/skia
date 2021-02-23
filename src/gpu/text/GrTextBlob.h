@@ -404,7 +404,6 @@ public:
     bool hasPerspective() const;
     const SkMatrix& initialMatrix() const { return fInitialMatrix; }
 
-    void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax);
     std::tuple<SkScalar, SkScalar> scaleBounds() const {
         return {fMaxMinScale, fMinMaxScale};
     }
