@@ -87,6 +87,30 @@
       },
       "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "517f2956_0ee512a9",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-23T00:46:04Z",
+      "side": 1,
+      "message": "Sorry, I can\u0027t write today.\n\nThe slow part would be:\n\n  *areCusps \u003d false;\n\nWhen 99%+ of the time the curve is not a cusp.\n\nThis is why the function asserts that it has been initialized to false, so we don\u0027t usually have to write out anything to *areCusps.\n\nEither way, this is unusual but existing functionality, so I\u0027d prefer to address concerns in a separate CL.",
+      "parentUuid": "28f7d22a_5f3a76f0",
+      "range": {
+        "startLine": 643,
+        "startChar": 29,
+        "endLine": 643,
+        "endChar": 76
+      },
+      "revId": "81bb0349ff2bbead308eeb8fd8c6839ea30cc6e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
