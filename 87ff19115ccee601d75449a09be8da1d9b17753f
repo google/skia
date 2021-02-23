@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b984b4e_2962e02e",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-23T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55c3f2e4_812cc610",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 18
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bb745704_3f1e0e04",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-02-23T18:00:05Z",
       "side": 1,
       "message": "will outlive ?",
+      "range": {
+        "startLine": 56,
+        "startChar": 57,
+        "endLine": 56,
+        "endChar": 69
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc46a54e_245645fa",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-23T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb745704_3f1e0e04",
       "range": {
         "startLine": 56,
         "startChar": 57,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "51891c36_a9fa9b10",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-23T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7290a07f_56fe837c",
+      "range": {
+        "startLine": 245,
+        "startChar": 38,
+        "endLine": 245,
+        "endChar": 41
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e56adbb2_69ced116",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-02-23T18:00:05Z",
       "side": 1,
       "message": "rm ? The GrDDLTask should ref the DDL.",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 251,
+        "endChar": 55
+      },
+      "revId": "87ff19115ccee601d75449a09be8da1d9b17753f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f88e19f_8a9bc4e9",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-23T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e56adbb2_69ced116",
       "range": {
         "startLine": 249,
         "startChar": 0,
