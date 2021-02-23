@@ -123,15 +123,8 @@ static void set_up_context_on_thread(ThreadInfo* threadInfo) {
     set_thread_local_info(threadInfo);
 }
 
-// TODO: upstream this back into SkThreadPool - the only difference is adding some initialization
-// at the start of each thread and some thread_local data to hold the utility context/
 class GrThreadPool {
 public:
-    static std::unique_ptr<GrThreadPool> MakeFIFOThreadPool(SkSpan<ThreadInfo> threadInfo,
-                                                            bool allowBorrowing = true) {
-        return std::make_unique<GrThreadPool>(threadInfo, allowBorrowing);
-    }
-
     explicit GrThreadPool(SkSpan<ThreadInfo> threadInfo, bool allowBorrowing)
             : fAllowBorrowing(allowBorrowing) {
 
@@ -212,13 +205,17 @@ private:
 
 class GrTaskGroup : SkNoncopyable {
 public:
-    explicit GrTaskGroup(GrThreadPool& executor) : fPending(0), fExecutor(executor) {}
+    explicit GrTaskGroup(SkSpan<ThreadInfo> threadInfo)
+            : fPending(0)
+            , fThreadPool(std::make_unique<GrThreadPool>(threadInfo, false)) {
+    }
+
     ~GrTaskGroup() { this->wait(); }
 
     // Add a task to this SkTaskGroup.
     void add(std::function<void(void)> fn) {
         fPending.fetch_add(+1, std::memory_order_relaxed);
-        fExecutor.add([this, fn{std::move(fn)}] {
+        fThreadPool->add([this, fn{std::move(fn)}] {
             fn();
             fPending.fetch_add(-1, std::memory_order_release);
         });
@@ -237,13 +234,13 @@ public:
         // no thread ever blocks waiting for others to do its work.
         // (We may end up doing work that's not part of our task group.  That's fine.)
         while (!this->done()) {
-            fExecutor.borrow();
+            fThreadPool->borrow();
         }
     }
 
 private:
-    std::atomic<int32_t> fPending;
-    GrThreadPool&        fExecutor;
+    std::atomic<int32_t>          fPending;
+    std::unique_ptr<GrThreadPool> fThreadPool;
 };
 
 static bool create_contexts(GrContextFactory* factory,
@@ -344,15 +341,9 @@ int main(int argc, char** argv) {
     mainContext->fTestContext->makeNotCurrent();
 
     {
-        std::unique_ptr<GrThreadPool> fGPUExecutor(GrThreadPool::MakeFIFOThreadPool(
-                                                SkSpan<ThreadInfo>(mainContext.get(), 1),
-                                                false));
-        std::unique_ptr<GrThreadPool> fRecordingExecutor(GrThreadPool::MakeFIFOThreadPool(
-                                                SkSpan<ThreadInfo>(utilityContexts.get(),
-                                                                   FLAGS_ddlNumRecordingThreads),
-                                                false));
-        GrTaskGroup gpuTaskGroup(*fGPUExecutor);
-        GrTaskGroup recordingTaskGroup(*fRecordingExecutor);
+        GrTaskGroup gpuTaskGroup(SkSpan<ThreadInfo>(mainContext.get(), 1));
+        GrTaskGroup recordingTaskGroup(SkSpan<ThreadInfo>(utilityContexts.get(),
+                                                          FLAGS_ddlNumRecordingThreads));
 
         for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
             recordingTaskGroup.add([] {
