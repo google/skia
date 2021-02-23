@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f7e3f4c_b9eeaf85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-23T00:58:30Z",
+      "side": 1,
+      "message": "I could be wrong, but those Gold diffs look like false blames. Is that right?",
+      "revId": "c63fec9a223391c5d3e9f0a5ecfa772dda6daaee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ce5f638_3c7ca20b",
