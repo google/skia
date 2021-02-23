@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f666c179_025ed7b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-23T14:31:24Z",
+      "side": 1,
+      "message": "Why are these being removed? I still seem variants of them in SkFont.h",
+      "revId": "3dbca4756809ee2231df71c8f9046b29619a1dd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
