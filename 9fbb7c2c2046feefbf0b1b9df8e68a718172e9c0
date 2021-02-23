@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "508348e2_c1b8b30c",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 1842,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-02-23T18:35:18Z",
+      "side": 1,
+      "message": "wdyt about, as a follow up, moving this into the promiseImageHelper so we would just have the call:\n\nsk_sp\u003cSkPicture\u003e foo \u003d promiseImageHelper.gimmeNewSKP(inputPicture);\n\n?",
+      "revId": "9fbb7c2c2046feefbf0b1b9df8e68a718172e9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
