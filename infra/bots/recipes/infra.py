@@ -16,6 +16,14 @@ DEPS = [
 ]
 
 
+def git_init(api, repo_root, env):
+  with api.context(cwd=repo_root, env=env):
+    # Some tests assume that they're being run inside a git repo.
+    api.step('git init', cmd=['git', 'init'])
+    api.step('git add .', cmd=['git', 'add', '.'])
+    api.step('git commit', cmd=['git', 'commit', '-a', '-m', 'initial commit'])
+
+
 def RunSteps(api):
   api.vars.setup()
 
@@ -38,12 +46,11 @@ def RunSteps(api):
     else:
       env[k] = v
 
-  with api.context(cwd=repo_root, env=env):
-    # Some tests assume that they're being run inside a git repo.
-    api.step('git init', cmd=['git', 'init'])
-    api.step('git add .', cmd=['git', 'add', '.'])
-    api.step('git commit', cmd=['git', 'commit', '-a', '-m', 'initial commit'])
+  git_init(api, repo_root, env)
+  if repo_name != 'skia':
+    git_init(api, api.path['start_dir'].join('skia'), env)
 
+  with api.context(cwd=repo_root, env=env):
     # Unfortunately, the recipe tests are flaky due to file removal on Windows.
     # Run multiple attempts.
     last_exc = None
@@ -61,6 +68,13 @@ def GenTests(api):
       api.test('infra_tests') +
       api.properties(buildername='Housekeeper-PerCommit-InfraTests_Win',
                      repository='https://skia.googlesource.com/skia.git',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
+  yield (
+      api.test('infra_tests_lottie_ci') +
+      api.properties(buildername='Housekeeper-PerCommit-InfraTests_Linux',
+                     repository='https://skia.googlesource.com/lottie-ci.git',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')
   )
